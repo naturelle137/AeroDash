@@ -1,0 +1,61 @@
+###############################################################################
+# AeroDash Governance Policy
+# 
+# This file defines strict ownership to maintain "Production-ready" status
+# for the main and develop branches as per the branching model.
+###############################################################################
+
+# --- GLOBAL ENGINEERING LEAD ---
+# If a file does not match any specific rule, it falls back to the Lead.
+# This ensures no "ownerless" code enters the develop or main branches.
+*  @naturelle137
+
+# --- FRONTEND LEAD ---
+# These files contain the general frontend algorithms.
+# Any change here requires Frontend Lead approval.
+/frontend/                              @naturelle137
+
+# --- BACKEND LEAD ---
+# These files contain the general backend algorithms.
+# Any change here requires Backend Lead approval.
+/backend/                               @naturelle137
+
+# --- DOCUMENTATION ---
+# Documentation Specialist owns all general docs
+/docs/                                  @naturelle137
+**/README.md                            @naturelle137
+
+# --- ARCHITECTURE ---
+# Architect owns the system design and technical blueprints.
+# (Specific path overrides the general /docs/ rule above).
+/docs/architecture/                     @naturelle137
+
+# --- AVIATION PERFORMANCE & SAFETY LOGIC ---
+# These files contain the core algorithms for the software
+# and the safety critical logic. Any change here requires
+# Aviation Domain Expert approval.
+/backend/app/services/**/core.py        @naturelle137
+
+# --- TESTING & QUALITY GATES ---
+# These files serve the quality assurance of the software.
+# The Test Lead has primary authority over these files.
+.github/workflows/                      @naturelle137
+.husky/                                 @naturelle137
+/backend/tests/                         @naturelle137
+/backend/**/test_*.py                   @naturelle137
+/backend/**/*_test.py                   @naturelle137
+/docs/testing/                          @naturelle137
+/frontend/tests/                        @naturelle137
+/frontend/**/*.spec.ts                  @naturelle137
+/tests/                                 @naturelle137
+
+# --- DATA INTEGRITY (DB & EXTERNAL APIs) ---
+# Critical for runway lengths and weather data accuracy.
+/backend/app/api/                       @naturelle137
+/backend/app/data/                      @naturelle137
+/backend/app/utils/database.py          @naturelle137
+/docs/api/                              @naturelle137
+
+# --- CODEOWNER STEWARDSHIP ---
+# Only the Engineering Lead can modify the governance rules themselves.
+.github/CODEOWNERS                      @naturelle137
