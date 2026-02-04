@@ -1,0 +1,23 @@
+name: Enforce Branching Model
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  check-source-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check branch name compliance
+        run: |
+          SOURCE_BRANCH="${{ github.head_ref }}"
+          echo "Checking if merge comes from release/ or hotfix/..."
+          
+          # Regex checks if the branch begins with release/ or hotfix/
+          if [[ ! $SOURCE_BRANCH =~ ^(release\/|hotfix\/) ]]; then
+            echo "❌ ERROR: Merges to main are only allowed from 'release/*' or 'hotfix/*' branches."
+            echo "Your branch is named: $SOURCE_BRANCH"
+            exit 1
+          fi
+          
+          echo "✅ Branch name '$SOURCE_BRANCH' is valid for merging to main."
