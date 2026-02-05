@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 🔐 Security Vulnerability Report
+    url: https://github.com/YOUR_USER/YOUR_REPO/security/policy
+    about: Please do not report security vulnerabilities (exploits, data leaks) publicly!
+  - name: 💬 Discussion / Question
+    url: https://github.com/YOUR_USER/YOUR_REPO/discussions
+    about: For questions that are not bug reports or feature requests.
