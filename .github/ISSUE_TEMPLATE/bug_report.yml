@@ -1,7 +1,7 @@
 name: 🐞 Bug Report
 description: Report a bug that affects functionality or safety.
 title: "[Bug]: "
-labels: ["bug", "triage"]
+labels: ["Bug", "open"]
 body:
   - type: markdown
     attributes:
@@ -13,7 +13,7 @@ body:
     attributes:
       label: Bug Description
       description: What happened? Please be as detailed as possible.
-      placeholder: When calculating Weight & Balance, the moment arm was...
+      placeholder: When calculating x, the moment arm was y
     validations:
       required: true
 
@@ -23,10 +23,10 @@ body:
       label: Steps to Reproduce
       description: How can we reproduce this behavior?
       placeholder: |
-        1. Go to 'Flight Planning'
-        2. Enter 'EDDF' as departure aerodrome
-        3. Select aircraft type 'C172'
-        4. Click on 'Calculate'
+        1. Go to page ...
+        2. Enter ...
+        3. Select ...
+        4. Click on ...
     validations:
       required: true
 
@@ -47,8 +47,8 @@ body:
     id: hazard_ref
     attributes:
       label: Safety Hazard Reference
-      description: If applicable, which Hazard ID (from .md files) is affected? (e.g., HAZ-04)
-      placeholder: HAZ-XX
+      description: If applicable, which Hazard ID (from docs/risk_management/safety_hazards.md) is affected? (e.g., H-XXX)
+      placeholder: H-XXX
 
   - type: textarea
     id: environment

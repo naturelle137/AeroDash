@@ -1,7 +1,7 @@
 name: 🚀 Feature Request
 description: Propose a new feature or change.
 title: "[Feat]: "
-labels: ["enhancement", "needs-discussion"]
+labels: ["Feature", "open"]
 body:
   - type: markdown
     attributes:
@@ -13,7 +13,7 @@ body:
     attributes:
       label: Problem Statement / Use Case
       description: What problem are you trying to solve? ("As a pilot, I want to...")
-      placeholder: As a pilot, I want to see wind data directly in the Nav Log so that...
+      placeholder: As a pilot, I want to ... so that ...
     validations:
       required: true
 
@@ -29,8 +29,8 @@ body:
     id: req_id
     attributes:
       label: Related Requirements
-      description: Is there an existing Requirement (from .md files) that this satisfies or modifies?
-      placeholder: REQ-123
+      description: Is there an existing Requirement (from docs/requirements/*.md files) that this satisfies or modifies?
+      placeholder: REQ-SYS-XXX
 
   - type: textarea
     id: safety_impact
@@ -45,4 +45,6 @@ body:
       label: Checklist
       options:
         - label: I have checked that this feature has not been requested yet.
+          required: true
+        - label: I have checked that this feature has not been implemented yet.
           required: true
