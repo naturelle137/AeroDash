@@ -1,0 +1,50 @@
+name: 🚀 Feature Request
+description: Propose a new feature or change.
+title: "[Feat]: "
+labels: ["Feature", "open"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for your idea! Please help us understand how this fits into the General Aviation context.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Statement / Use Case
+      description: What problem are you trying to solve? ("As a pilot, I want to...")
+      placeholder: As a pilot, I want to ... so that ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: Describe your ideal solution.
+    validations:
+      required: true
+
+  - type: input
+    id: req_id
+    attributes:
+      label: Related Requirements
+      description: Is there an existing Requirement (from docs/requirements/*.md files) that this satisfies or modifies?
+      placeholder: REQ-SYS-XXX
+
+  - type: textarea
+    id: safety_impact
+    attributes:
+      label: Potential Safety Impact
+      description: Could this feature cause confusion in the cockpit or increase distraction?
+      placeholder: Low contrast might make it hard to read in direct sunlight...
+
+  - type: checkboxes
+    id: validation
+    attributes:
+      label: Checklist
+      options:
+        - label: I have checked that this feature has not been requested yet.
+          required: true
+        - label: I have checked that this feature has not been implemented yet.
+          required: true
