@@ -1,0 +1,70 @@
+name: 🐞 Bug Report
+description: Report a bug that affects functionality or safety.
+title: "[Bug]: "
+labels: ["Bug", "open"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Important:** As this is a safety-critical application for aviation, please provide precise details regarding reproduction and potential hazards.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: What happened? Please be as detailed as possible.
+      placeholder: When calculating x, the moment arm was y
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: How can we reproduce this behavior?
+      placeholder: |
+        1. Go to page ...
+        2. Enter ...
+        3. Select ...
+        4. Click on ...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity & Safety Relevance
+      description: How does this impact usage or flight safety?
+      options:
+        - "Minor: Cosmetic or minor workaround available"
+        - "Major: Core functionality impaired, no workaround"
+        - "CRITICAL: Incorrect calculations/data (Safety Hazard!)"
+        - "Blocker: App does not start / Crash"
+    validations:
+      required: true
+
+  - type: input
+    id: hazard_ref
+    attributes:
+      label: Safety Hazard Reference
+      description: If applicable, which Hazard ID (from docs/risk_management/safety_hazards.md) is affected? (e.g., H-XXX)
+      placeholder: H-XXX
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Browser, OS, Device Type (e.g., iPad Air, Chrome Desktop). Critical for rendering issues.
+      render: shell
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Confirmation
+      options:
+        - label: I have checked if this issue has already been reported.
+          required: true
+        - label: I confirm this is NOT a security vulnerability report. (Please use the Security Policy for that).
+          required: true
