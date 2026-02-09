@@ -14,6 +14,6 @@ This document defines the documentation & export behavior using the **EARS** (Ea
 
 | Req-ID | Requirement | Rationale / Context | Priority | Mitigation Hazard ID | Status |
 |:---|:---|:---|:---|:---|:---|
-| **<a name="REQ-DOC-000">REQ-DOC-000</a>** | The system shall... | Ensure... | P |  n/a | Draft |
+| **<a name="REQ-DOC-001">REQ-DOC-001</a>** | The system shall provide an export function (PDF or optimized print view) that summarizes mass and balance calculation results, and performance calculation results in a compact "Digital Briefing Pack." | Legal documentation and cockpit accessibility. | P2 |  n/a | Draft |
 
 ---
