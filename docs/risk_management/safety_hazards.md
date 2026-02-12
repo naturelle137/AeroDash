@@ -29,24 +29,24 @@ The safety of this system is based on four pillars:
 
 | ID | Hazard | Severity | Mitigation (Requirement) | Rationale |
 |:---|:---|:---|:---|:---|
-| **<a name="H-001">H-001</a>** | Incorrect mass parameters due to unit confusion (kg, lbs). | S1 | [REQ-SYS-03](../requirements/system.md#REQ-SYS-03), [TBD] | Mixed fleets use different units. |
-| **<a name="H-002">H-002</a>** | Incorrect fuel values due to unit/density confusion (L, Gal, kg, lbs). | S1 | [REQ-SYS-03](../requirements/system.md#REQ-SYS-03), [TBD] | Fuel mass vs. volume discrepancies. |
-| **<a name="H-003">H-003</a>** | Incorrect fuel density calculation (AvGas vs JET A-1/Diesel). | S2 | [TBD] | DA40 (0.84 kg/L) vs P2008 (0.72 kg/L). |
+| **<a name="H-001">H-001</a>** | Incorrect mass parameters due to unit confusion (kg, lbs). | S1 | [REQ-SYS-003](docs/requirements/system.md#REQ-SYS-003), [REQ-SYS-004](../requirements/system.md#REQ-SYS-004) | Mixed fleets use different units. |
+| **<a name="H-002">H-002</a>** | Incorrect fuel values due to unit/density confusion (L, Gal, kg, lbs). | S1 | [REQ-SYS-003](docs/requirements/system.md#REQ-SYS-003) | Fuel mass vs. volume discrepancies. |
+| **<a name="H-003">H-003</a>** | Incorrect fuel density calculation (AvGas vs JET A-1/Diesel). | S2 | 	[REQ-AD-003](docs/requirements/detailed_aircraft_data.md#REQ-AD-003) | DA40 (0.84 kg/L) vs P2008 (0.72 kg/L). |
 | **<a name="H-004">H-004</a>** | Interpolation errors in POH performance tables. | S1 | [TBD] | P2008 has dense table grids; linear math fails. |
-| **<a name="H-005">H-005</a>** | Exceeding limits of a specific Certification Category (Normal vs Utility). | S1 | [TBD] | KL107 has structural limits based on category. |
-| **<a name="H-006">H-006</a>** | Take-off within limits, but CG shifts out-of-limits for Landing. | S1 | [TBD] | Hull/swept tanks lead to significant CG shift. |
-| **<a name="H-007">H-007</a>** | Misjudgment of Density Altitude (Hot & High). | S1 | [TBD] | Critical for P2008/DA40 in summer scenarios. |
-| **<a name="H-008">H-008</a>** | Take-off on runway with insufficient length (Go/No-Go failure). | S1 | [TBD] | Ultimate performance failure. |
-| **<a name="H-009">H-009</a>** | Incorrect or omitted surface factor (Wet/Grass/Slope). | S2 | [TBD] | Critical for short unpaved runways. |
-| **<a name="H-010">H-010</a>** | Fuel starvation due to ignorance of Unusable Fuel. | S1 | [TBD] | e.g., DA40 Long Range Tanks have high unusable amounts. |
-| **<a name="H-011">H-011</a>** | Data Integrity: Undetected typos in custom POH database. | S1 | [REQ-AC-005](../requirements/aircraft_management.md#REQ-AC-005), [TBD] | Garbage In, Garbage Out (e.g., wrong MTOM entered). |
-| **<a name="H-012">H-012</a>** | Reckless extrapolation outside certified POH limits. | S1 | [TBD] | Using performance data in uncertified regimes (Hot/High). |
-| **<a name="H-013">H-013</a>** | Unsafe performance credit due to optimistic low-end extrapolation. | S1 | [TBD] | Incorrectly calculating shorter distances for extreme cold. |
-| **<a name="H-014">H-014</a>** | Exceeding demonstrated crosswind limits. | S1 | [TBD] | Leads to loss of directional control on runway. |
-| **<a name="H-015">H-015</a>** | Inaccurate runway data from unverified Open-Source DBs. | S1 | [TBD] | Real TORA might be significantly shorter than DB states. |
-| **<a name="H-016">H-016</a>** | Pilot deliberately bypasses/lowers Operational Safety Factors. | S2 | [TBD] | Bypassing EASA 1.25/1.43 to "make the runway fit". |
-| **<a name="H-017">H-017</a>** | Collision with off-airport obstacles due to manual input errors. | S1 | [TBD] | Pilot misjudges Google Maps distances/heights. |
-| **<a name="H-018">H-018</a>** | Loss of pilot night vision in the cockpit. | S3 | [TBD] | Bright UI reduces situational awareness during night flights. |
+| **<a name="H-005">H-005</a>** | Exceeding limits of a specific Certification Category (Normal vs Utility). | S1 | [REQ-AD-011](docs/requirements/detailed_aircraft_data.md#REQ-AD-011), [REQ-UI-009](docs/requirements/user_interface.md#REQ-UI-009) | KL107 has structural limits based on category. |
+| **<a name="H-006">H-006</a>** | Take-off within limits, but CG shifts out-of-limits for Landing. | S1 | [REQ-UI-010](docs/requirements/user_interface.md#REQ-UI-010), [REQ-MB-008](docs/requirements/mass_balance.md#REQ-MB-008) | Hull/swept tanks lead to significant CG shift. |
+| **<a name="H-007">H-007</a>** | Misjudgment of Density Altitude (Hot & High). | S1 | [REQ-PF-010](docs/requirements/performance.md#REQ-PF-010) | Critical for P2008/DA40 in summer scenarios. |
+| **<a name="H-008">H-008</a>** | Take-off on runway with insufficient length (Go/No-Go failure). | S1 | [REQ-UI-007](docs/requirements/user_interface.md#REQ-UI-007) | Ultimate performance failure. |
+| **<a name="H-009">H-009</a>** | Incorrect or omitted surface factor (Wet/Grass/Slope). | S2 | [REQ-AP-004](docs/requirements/airport_database.md#REQ-AP-004), [REQ-WX-004](docs/requirements/weather.md#REQ-WX-004) | Critical for short unpaved runways. |
+| **<a name="H-010">H-010</a>** | Fuel starvation due to ignorance of Unusable Fuel. | S1 | [REQ-AD-003](docs/requirements/detailed_aircraft_data.md#REQ-AD-003) | e.g., DA40 Long Range Tanks have high unusable amounts. |
+| **<a name="H-011">H-011</a>** | Data Integrity: Undetected typos in custom POH database. | S1 | [REQ-AC-005](docs/requirements/aircraft_management.md#REQ-AC-005) | Garbage In, Garbage Out (e.g., wrong MTOM entered). |
+| **<a name="H-012">H-012</a>** | Reckless extrapolation outside certified POH limits. | S1 | [REQ-PF-010](docs/requirements/performance.md#REQ-PF-010) | Using performance data in uncertified regimes (Hot/High). |
+| **<a name="H-013">H-013</a>** | Unsafe performance credit due to optimistic low-end extrapolation. | S1 | [REQ-PF-011](docs/requirements/performance.md#REQ-PF-011) | Incorrectly calculating shorter distances for extreme cold. |
+| **<a name="H-014">H-014</a>** | Exceeding demonstrated crosswind limits. | S1 | [REQ-WX-007](docs/requirements/weather.md#REQ-WX-007), [REQ-WX-009](docs/requirements/weather.md#REQ-WX-009) | Leads to loss of directional control on runway. |
+| **<a name="H-015">H-015</a>** | Inaccurate runway data from unverified Open-Source DBs. | S1 | [REQ-AP-005](docs/requirements/airport_database.md#REQ-AP-005) | Real TORA might be significantly shorter than DB states. |
+| **<a name="H-016">H-016</a>** | Pilot deliberately bypasses/lowers Operational Safety Factors. | S2 | [REQ-AD-016](docs/requirements/detailed_aircraft_data.md#REQ-AD-016), [REQ-PF-016](docs/requirements/performance.md#REQ-PF-016) | Bypassing EASA 1.25/1.43 to "make the runway fit". |
+| **<a name="H-017">H-017</a>** | Collision with off-airport obstacles due to manual input errors. | S1 | [REQ-AP-003](docs/requirements/airport_database.md#REQ-AP-003) | Pilot misjudges Google Maps distances/heights. |
+| **<a name="H-018">H-018</a>** | Loss of pilot night vision in the cockpit. | S3 | [REQ-UI-011](docs/requirements/user_interface.md#REQ-UI-011) | Bright UI reduces situational awareness during night flights. |
 
 ---
 
