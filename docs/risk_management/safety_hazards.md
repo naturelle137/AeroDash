@@ -1,0 +1,75 @@
+# Safety Traceability Matrix & Hazard Log
+
+This document serves as the central safety record for the Aviation Performance Tool. It links identified hazards to mitigation requirements and verification steps, following safety-critical design principles for General Aviation software.
+
+## Safety Case Argumentation
+
+**"Why is this app safe enough for flight operations?"**
+
+The safety of this system is based on four pillars:
+1. **Redundancy through Data Verification**: The app uses verified POH data and always provides the pilot with visual feedback loops (e.g., graphical CG representation).
+2. **Standardized Calculation Logic**: By implementing FSM 3/75 as a fallback and using bilinear interpolation for table data, mathematical uncertainties are minimized.
+3. **Human-Centered Design**: Critical states (warnings) are actively presented to the user (Blinking Red) to avoid misinterpretations under time pressure or fatigue.
+4. **Seamless Traceability**: Every identified hazard is covered by a system requirement, which in turn is secured by automated tests (Unit & BDD).
+
+---
+
+## Severity Level Definitions
+
+| Level | Classification | Definition |
+|:---|:---|:---|
+| **S1** | **Catastrophic** | Loss of aircraft, fatal injury, or total loss of flight safety. |
+| **S2** | **Critical** | Major damage to aircraft, serious injury to personnel or landing outside of airfields (e.g. runway excursion). |
+| **S3** | **Major** | Significant reduction in safety margins or functional failure. |
+| **S4** | **Minor** | Operational inconvenience or slight reduction in safety margins. |
+
+---
+
+## Hazard Log (Critical Hazards)
+
+| ID | Hazard | Severity | Mitigation (Requirement) | Rationale |
+|:---|:---|:---|:---|:---|
+| **<a name="H-001">H-001</a>** | Incorrect mass parameters due to unit confusion (kg, lbs). | S1 | [REQ-SYS-03](../requirements/system.md#REQ-SYS-03), [TBD] | Mixed fleets use different units. |
+| **<a name="H-002">H-002</a>** | Incorrect fuel values due to unit/density confusion (L, Gal, kg, lbs). | S1 | [REQ-SYS-03](../requirements/system.md#REQ-SYS-03), [TBD] | Fuel mass vs. volume discrepancies. |
+| **<a name="H-003">H-003</a>** | Incorrect fuel density calculation (AvGas vs JET A-1/Diesel). | S2 | [TBD] | DA40 (0.84 kg/L) vs P2008 (0.72 kg/L). |
+| **<a name="H-004">H-004</a>** | Interpolation errors in POH performance tables. | S1 | [TBD] | P2008 has dense table grids; linear math fails. |
+| **<a name="H-005">H-005</a>** | Exceeding limits of a specific Certification Category (Normal vs Utility). | S1 | [TBD] | KL107 has structural limits based on category. |
+| **<a name="H-006">H-006</a>** | Take-off within limits, but CG shifts out-of-limits for Landing. | S1 | [TBD] | Hull/swept tanks lead to significant CG shift. |
+| **<a name="H-007">H-007</a>** | Misjudgment of Density Altitude (Hot & High). | S1 | [TBD] | Critical for P2008/DA40 in summer scenarios. |
+| **<a name="H-008">H-008</a>** | Take-off on runway with insufficient length (Go/No-Go failure). | S1 | [TBD] | Ultimate performance failure. |
+| **<a name="H-009">H-009</a>** | Incorrect or omitted surface factor (Wet/Grass/Slope). | S2 | [TBD] | Critical for short unpaved runways. |
+| **<a name="H-010">H-010</a>** | Fuel starvation due to ignorance of Unusable Fuel. | S1 | [TBD] | e.g., DA40 Long Range Tanks have high unusable amounts. |
+| **<a name="H-011">H-011</a>** | Data Integrity: Undetected typos in custom POH database. | S1 | [REQ-AC-005](../requirements/aircraft_management.md#REQ-AC-005), [TBD] | Garbage In, Garbage Out (e.g., wrong MTOM entered). |
+| **<a name="H-012">H-012</a>** | Reckless extrapolation outside certified POH limits. | S1 | [TBD] | Using performance data in uncertified regimes (Hot/High). |
+| **<a name="H-013">H-013</a>** | Unsafe performance credit due to optimistic low-end extrapolation. | S1 | [TBD] | Incorrectly calculating shorter distances for extreme cold. |
+| **<a name="H-014">H-014</a>** | Exceeding demonstrated crosswind limits. | S1 | [TBD] | Leads to loss of directional control on runway. |
+| **<a name="H-015">H-015</a>** | Inaccurate runway data from unverified Open-Source DBs. | S1 | [TBD] | Real TORA might be significantly shorter than DB states. |
+| **<a name="H-016">H-016</a>** | Pilot deliberately bypasses/lowers Operational Safety Factors. | S2 | [TBD] | Bypassing EASA 1.25/1.43 to "make the runway fit". |
+| **<a name="H-017">H-017</a>** | Collision with off-airport obstacles due to manual input errors. | S1 | [TBD] | Pilot misjudges Google Maps distances/heights. |
+| **<a name="H-018">H-018</a>** | Loss of pilot night vision in the cockpit. | S3 | [TBD] | Bright UI reduces situational awareness during night flights. |
+
+---
+
+## Edge-Case Test Scenarios (Stress Testing)
+
+1. **"The Sahara Switch" [H-012](#H-012)**: Input of +50°C and 5000ft elevation. Check if the system aborts the calculation with a clear warning or extrapolates correctly with a penalty (if within 10% limit).  
+2. **"Burn-out Shift" [H-006](#H-006)**: Setup of a flight with maximum passenger load and minimum fuel, where the CG is fine at takeoff, but shifts behind the aft limit due to burning the last fuel before landing. Validation of the Trend Line and critical warnings.  
+3. **"Boundary Breach" [H-012](#H-012)**: Attempting a takeoff calculation for a temperature exactly 11% above the POH table maximum. Validation that the system strictly blocks the calculation.  
+4. **"Penalty Application" [H-012](#H-012)**: Attempting a calculation exactly 5% above the table max. Validation that the 20% safety penalty is applied and the UI warning is displayed.  
+5. **"Minimum Distance Rule" [H-013](#H-013)**: Input conditions significantly better than POH minimums (e.g., -30°C). Validation that the system floors the calculation at the POH boundary distance and does not calculate shorter values.  
+6. **"Crosswind Exceedance" [H-014](#H-014)**: Input METAR wind with 20kt crosswind for an aircraft with a 15kt limit. Validation that the system triggers a critical alert.  
+7. **"Mixed Fleet Nightmare" [H-001](#H-001)/[H-002](#H-002)**: Simultaneous loading of an imperial profile (lbs/Gal) and calculation in a metric environment. Validation of flawless SI normalization.  
+8. **"The 'Make-it-Fit' Override" [H-016](#H-016)**: Pilot attempts to manually set the Take-off Safety Factor to 1.0 to fit into a short runway. Validation that the system warns against violating EASA/POH minimums.
+
+---
+
+## Safety-Critical Design Check (UI)
+
+* [ ] **Blinking Warnings**: Critical alerts (Go/No-Go failures) must be implemented as blinking or high-contrast elements to prevent "Change Blindness."  
+* [ ] **Unit-Sticky Labels**: Every input field must display the currently active unit (kg/lbs/L/Gal) statically next to the field; no hidden tooltips or assumptions.  
+* [ ] **Zero-Value Check**: Warning if fuel or passenger mass values are unrealistically low or zero (plausibility check).  
+* [ ] **Unverified Data Flagging**: Any data sourced externally (Open-Source Airports) or manually (Obstacles) must be prominently flagged until pilot verification.
+
+---
+
+> "Software calculates, the pilot decides – the documentation ensures that the basis for the calculation is correct."
