@@ -2,14 +2,6 @@
 
 This document defines the user interface behavior using the **EARS** (Easy Approach to Requirements Syntax) patterns.
 
-## Abbreviations & Definitions
-
-| Term | Definition |
-|:---|:---|
-| **ASDA** | **A**ccelerate **S**top **D**istance **A**vailable |
-| **MZFM** | **M**aximum **Z**ero **F**uel **M**ass |
-| **TORA** | **T**ake-**O**ff **R**un **A**vailable |
-
 ---
 
 ## Requirements
