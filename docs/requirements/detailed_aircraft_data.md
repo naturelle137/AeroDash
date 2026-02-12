@@ -39,5 +39,6 @@ This document defines the detailed aircraft data behavior using the **EARS** (Ea
 | **<a name="REQ-AD-013">REQ-AD-013</a>** | The system shall store a "Valid From" date for each EM/arm value to support weighing report versioning. | Traceability of legal weight data over the aircraft's lifecycle. | P2 | n/a | Draft |
 | **<a name="REQ-AD-014">REQ-AD-014</a>** | The system shall store aircraft profile data (POH/AFM values and units of the values) in the original unit of the manufacturer's documentation. | Prevent calculation errors due to using wrong units. | P1 | [H-001](../risk_management/safety_hazards.md#H-001) | Draft |
 | **<a name="REQ-AD-015">REQ-AD-015</a>** | The system shall store surface condition definitions that include a distinct performance correction factor for Take-off and Landing distances. | Ensures legal compliance while allowing POH-specific overrides. | P1 | n/a | Draft |
+| **<a name="REQ-AD-016">REQ-AD-016</a>** | The system shall store POH-mandated minimum Operational Safety Factors for Takeoff and Landing within the aircraft profile. | For takeoff and landing distance claculation, safety factors shall be applied. Some Manufacturers provide these factors in their POH. | P1 | n/a | Draft |
 
 ---
