@@ -2,18 +2,6 @@
 
 This document defines the weather & meteorological data behavior using the **EARS** (Easy Approach to Requirements Syntax) patterns.
 
-## Abbreviations & Definitions
-
-| Term | Definition |
-|:---|:---|
-| **API** | **A**pplication **P**rogramming **I**nterface |
-| **DZ** | Drizzle |
-| **ICAO** | **I**nternational **C**ivil **A**viation **O**rganization |
-| **METAR** | **MET**eorological **A**erodrome **R**eport |
-| **RA** | Rain |
-| **+RA** | Heavy Rain |
-| **TAF** | **T**erminal **A**erodrome **F**orecast |
-
 ---
 
 ## Requirements
