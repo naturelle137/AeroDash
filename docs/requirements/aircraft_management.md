@@ -2,12 +2,6 @@
 
 This document defines the aircraft management behavior using the **EARS** (Easy Approach to Requirements Syntax) patterns.
 
-## Abbreviations & Definitions
-
-| Term | Definition |
-|:---|:---|
-| **POH** | **P**ilot **O**perating **H**andbook |
-
 ---
 
 ## Requirements
