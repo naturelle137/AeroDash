@@ -2,22 +2,6 @@
 
 This document defines the detailed aircraft data behavior using the **EARS** (Easy Approach to Requirements Syntax) patterns.
 
-## Abbreviations & Definitions
-
-| Term | Definition |
-|:---|:---|
-| **AFM** | **A**ircraft **F**light **M**anual |
-| **AvGas** | **A**viation **G**asoline |
-| **CG** | **C**enter of **G**ravity |
-| **BEM** | **B**asic **E**mpty **M**ass |
-| **LL** | **L**ow **L**eaded in context of aviation fuel |
-| **MoGas** | **M**otor **G**asoline |
-| **MTOM** | **M**aximum **T**akeoff **M**ass |
-| **POH** | **P**ilot **O**perating **H**andbook |
-| **TM** | **T**axi **M**ass |
-| **UL** | **U**n**l**eaded in context of aviation fuel |
-| **ZFM** | **Z**ero **F**uel **M**ass |
-
 ---
 
 ## Requirements
