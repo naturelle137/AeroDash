@@ -6,7 +6,9 @@ This document defines the user interface behavior using the **EARS** (Easy Appro
 
 | Term | Definition |
 |:---|:---|
-| **n/a** | n/a |
+| **ASDA** | **A**ccelerate **S**top **D**istance **A**vailable |
+| **MZFM** | **M**aximum **Z**ero **F**uel **M**ass |
+| **TORA** | **T**ake-**O**ff **R**un **A**vailable |
 
 ---
 
@@ -24,6 +26,7 @@ This document defines the user interface behavior using the **EARS** (Easy Appro
 | **<a name="REQ-UI-008">REQ-UI-008</a>** | The system shall display a visual warning message when numeric inputs are outside standard operational ranges (1100 hPa < QNH < 950 hPa, +50°C < Temperature < -40°C), but shall allow entry confirmation. | Prevents fat-finger errors during planning. | P1 |  n/a | Draft |
 | **<a name="REQ-UI-009">REQ-UI-009</a>** | When a certification category is changed, the system shall immediately recalculate all limits and update the display. | Dynamic context switching (e.g., for aerobatics). | P1 |  H-005 | Draft |
 | **<a name="REQ-UI-010">REQ-UI-010</a>** | The CG envelope chart shall render a "Trend Line" connecting the Take-off CG point and the Landing CG point to visualize the fuel burn shift. | Provides intuitive feedback on how the aircraft balance changes during flight. | P1 |  H-006 | Draft |
-| **<a name="REQ-UI-011">REQ-UI-011</a>** | The system shall provide a toggleable "Dark Mode" (high contrast, black/red or black/green theme). | Preserve pilot night vision during night operations. | P |  n/a | Draft |
+| **<a name="REQ-UI-011">REQ-UI-011</a>** | The system shall provide a toggleable "Dark Mode" (high contrast, black/red or black/green theme). | Preserve pilot night vision during night operations. | P3 |  n/a | Draft |
+| **<a name="REQ-UI-012">REQ-UI-012</a>** | When the user activates the dedicated information icon adjacent to a complex data field or acronym, the system shall display a contextual explanation of that term in a tooltip or pop-over element. | Clarifies complex aviation terminology (e.g., TORA, ASDA, MZFM) to prevent misinterpretation and data entry errors. "Activates" ensures compatibility with touch devices. | P2 |  n/a | Draft |
 
 ---
