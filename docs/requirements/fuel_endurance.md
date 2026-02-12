@@ -2,14 +2,6 @@
 
 This document defines the fuel & endurance behavior using the **EARS** (Easy Approach to Requirements Syntax) patterns.
 
-## Abbreviations & Definitions
-
-| Term | Definition |
-|:---|:---|
-| **AvGas** | **A**viation **G**asoline |
-| **CG** | **C**enter of **G**ravity |
-| **MoGas** | **M**otor **G**asoline |
-
 ---
 
 ## Requirements
