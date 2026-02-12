@@ -2,15 +2,6 @@
 
 This document defines the mass & balance behavior using the **EARS** (Easy Approach to Requirements Syntax) patterns.
 
-## Abbreviations & Definitions
-
-| Term | Definition |
-|:---|:---|
-| **CG** | **C**enter of **G**ravity |
-| **MTOM** | **M**aximum **T**akeoff **M**ass |
-| **MZFM** | **M**aximum **Z**ero **F**uel **M**ass |
-| **ZFM** | **Z**ero **F**uel **M**ass |
-
 ---
 
 ## Requirements
