@@ -30,7 +30,7 @@ This document describes the requirements engineering of the AeroDash aviation pe
 |:---|:---|
 | **AC** | Aircraft Management |
 | **AD** | Detailed Aircraft Data |
-| **AF** | Airport Database |
+| **AP** | Airport Database |
 | **DOC** | Documentation & Export |
 | **FE** | Fuel & Endurance |
 | **MB** | Mass & Balance |
