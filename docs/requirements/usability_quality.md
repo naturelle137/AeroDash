@@ -2,12 +2,6 @@
 
 This document defines the usability & quality behavior using the **EARS** (Easy Approach to Requirements Syntax) patterns.
 
-## Abbreviations & Definitions
-
-| Term | Definition |
-|:---|:---|
-| **n/a** | n/a |
-
 ---
 
 ## Requirements
