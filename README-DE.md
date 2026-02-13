@@ -1,13 +1,13 @@
 # AeroDash
 
-[![en](https://img.shields.io/badge/lang-en-green.svg)](https://github.com/naturelle137/AeroDash/blob/main/README.md)
+[![en](https://img.shields.io/badge/lang-en-green.svg)](README.md)
 
 ## Inhaltsverzeichnis
-* [Haftungsausschluss](#️-haftungsausschluss)
-* [Projektphilosophie](#philosophie)
-* [Verwendungszweck & Systemgrenzen](#verwendungszweck)
+* [Haftungsausschluss](#️-disclaimer)
+* [Projektphilosophie](#philosophy)
+* [Verwendungszweck & Systemgrenzen](#intendedUse)
 
-## <a name="haftungsausschluss"></a>⚠️ Haftungsausschluss
+## <a name="disclaimer"></a>⚠️ Haftungsausschluss
 
 **KEIN ZERTIFIZIERTES LUFTFAHRTGERÄT.**
 
@@ -19,7 +19,7 @@ WICHTIG: AeroDash ist ein Open-Source-Tool zur Flugvorbereitung, das ausschließ
 
 ---
 
-## <a name="philosophie"></a>Projektphilosophie
+## <a name="philosophy"></a>Projektphilosophie
 
 > **"Nicht raten. Wissen. Präzision auf Luftfahrt-Niveau für souveräne Entscheidungen."**
 
@@ -46,7 +46,7 @@ Die "Schätzung" aus der Flugvorbereitung der Allgemeinen Luftfahrt (General Avi
 
 ---
 
-## <a name="verwendungszweck"></a>Verwendungszweck & Systemgrenzen
+## <a name="intendedUse"></a>Verwendungszweck & Systemgrenzen
 
 ### 1. Was AeroDash IST
 AeroDash ist ein spezialisiertes **Tool zur Flugvorbereitung und Entscheidungshilfe** für Piloten der Allgemeinen Luftfahrt, die nach **EASA Part-NCO** Regeln operieren. Sein Hauptzweck ist es, die Durchführbarkeit eines geplanten Fluges hinsichtlich Masse & Schwerpunkt (Mass & Balance) sowie Start- und Landeleistung vor dem Anlassen des Motors zu bestimmen.

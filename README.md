@@ -1,6 +1,6 @@
 # AeroDash
 
-[![de](https://img.shields.io/badge/lang-de-green.svg)](https://github.com/naturelle137/AeroDash/blob/main/README-DE.md)
+[![de](https://img.shields.io/badge/lang-de-green.svg)](README-DE.md)
 
 ## Contents
 * [Disclaimer](#️-disclaimer)
