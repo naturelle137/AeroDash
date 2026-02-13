@@ -1,7 +1,7 @@
 # AeroDash
 
 ## Contents
-* [Disclaimer](#️disclaimer)
+* [Disclaimer](#️-disclaimer)
 * [Project Philosophy](#philosophy)
 * [Intended Use & System Limitations](#intendedUse)
 
