@@ -20,5 +20,6 @@ This document defines the user interface behavior using the **EARS** (Easy Appro
 | **<a name="REQ-UI-010">REQ-UI-010</a>** | The CG envelope chart shall render a "Trend Line" connecting the Take-off CG point and the Landing CG point to visualize the fuel burn shift. | Provides intuitive feedback on how the aircraft balance changes during flight. | P1 |  H-006 | Draft |
 | **<a name="REQ-UI-011">REQ-UI-011</a>** | The system shall provide a toggleable "Dark Mode" (high contrast, black/red or black/green theme). | Preserve pilot night vision during night operations. | P3 |  n/a | Draft |
 | **<a name="REQ-UI-012">REQ-UI-012</a>** | When the user activates the dedicated information icon adjacent to a complex data field or acronym, the system shall display a contextual explanation of that term in a tooltip or pop-over element. | Clarifies complex aviation terminology (e.g., TORA, ASDA, MZFM) to prevent misinterpretation and data entry errors. "Activates" ensures compatibility with touch devices. | P2 |  n/a | Draft |
+| **<a name="REQ-UI-013">REQ-UI-013</a>** | The system shall display the current Semantic Version (SemVer) and Release Date in a dedicated "About" view. | Enables manual verification of the software state by the pilot. | P2 |  [H-019](docs/risk_management/safety_hazards.md#H-019) | Draft |
 
 ---

@@ -67,7 +67,7 @@ This document defines the <Section> behavior using the **EARS** (Easy Approach t
 #### Requirement Format
 
 ```markdown
-**<a name="REQ-<Section>-<Number>"><Req-ID></a>** | <Requirement> | <Rationale/context> | <Priority> | [<Mitigation Hazard ID>](../risk_management/safety_hazards.md#<Mitigation Hazard ID>) | <Status> |
+| **<a name="REQ-<Section>-<Number>"><Req-ID></a>** | <Requirement> | <Rationale/context> | <Priority> | [<Mitigation Hazard ID>](../risk_management/safety_hazards.md#<Mitigation Hazard ID>) | <Status> |
 ```
 
 #### Example Requirement Table
@@ -75,5 +75,7 @@ This document defines the <Section> behavior using the **EARS** (Easy Approach t
 ```markdown
 | Req-ID | Requirement | Rationale / Context | Priority | Mitigation Hazard ID | Status |
 |:---|:---|:---|:---|:---|:---|
-| **<a name="REQ-SYS-003">REQ-SYS-003</a>** | The system shall convert all units internally to SI units (kg, m, l, s) for the internal calculation logic. | Ensure mathematical consistency across mixed fleets. | P1 | [H-001](../risk_management/safety_hazards.md#H-001), [H-002](../risk_management/safety_hazards.md#H-002) | Approved |
+| **<a name="REQ-SYS-003">REQ-SYS-003</a>** | The system shall convert all units internally to SI units (kg, m, l, s) for the internal calculation logic. | Ensure mathematical consistency across mixed fleets. | P1 | [H-001](docs/risk_management/safety_hazards.md#H-001), [H-002](docs/risk_management/safety_hazards.md#H-002) | Approved |
 ```
+
+---

@@ -29,7 +29,7 @@ The safety of this system is based on four pillars:
 
 | ID | Hazard | Severity | Mitigation (Requirement) | Rationale |
 |:---|:---|:---|:---|:---|
-| **<a name="H-001">H-001</a>** | Incorrect mass parameters due to unit confusion (kg, lbs). | S1 | [REQ-SYS-003](docs/requirements/system.md#REQ-SYS-003), [REQ-SYS-004](../requirements/system.md#REQ-SYS-004) | Mixed fleets use different units. |
+| **<a name="H-001">H-001</a>** | Incorrect mass parameters due to unit confusion (kg, lbs). | S1 | [REQ-SYS-003](docs/requirements/system.md#REQ-SYS-003), [REQ-SYS-004](docs/requirements/system.md#REQ-SYS-004) | Mixed fleets use different units. |
 | **<a name="H-002">H-002</a>** | Incorrect fuel values due to unit/density confusion (L, Gal, kg, lbs). | S1 | [REQ-SYS-003](docs/requirements/system.md#REQ-SYS-003) | Fuel mass vs. volume discrepancies. |
 | **<a name="H-003">H-003</a>** | Incorrect fuel density calculation (AvGas vs JET A-1/Diesel). | S2 | 	[REQ-AD-003](docs/requirements/detailed_aircraft_data.md#REQ-AD-003) | DA40 (0.84 kg/L) vs P2008 (0.72 kg/L). |
 | **<a name="H-004">H-004</a>** | Interpolation errors in POH performance tables. | S1 | [TBD] | P2008 has dense table grids; linear math fails. |
@@ -47,6 +47,7 @@ The safety of this system is based on four pillars:
 | **<a name="H-016">H-016</a>** | Pilot deliberately bypasses/lowers Operational Safety Factors. | S2 | [REQ-AD-016](docs/requirements/detailed_aircraft_data.md#REQ-AD-016), [REQ-PF-016](docs/requirements/performance.md#REQ-PF-016) | Bypassing EASA 1.25/1.43 to "make the runway fit". |
 | **<a name="H-017">H-017</a>** | Collision with off-airport obstacles due to manual input errors. | S1 | [REQ-AP-003](docs/requirements/airport_database.md#REQ-AP-003) | Pilot misjudges Google Maps distances/heights. |
 | **<a name="H-018">H-018</a>** | Loss of pilot night vision in the cockpit. | S3 | [REQ-UI-011](docs/requirements/user_interface.md#REQ-UI-011) | Bright UI reduces situational awareness during night flights. |
+| **<a name="H-019">H-019</a>** | Operation with outdated or erroneous calculation logic due to PWA caching latency. | S2 | [REQ-SYS-005](docs/requirements/system.md#REQ-SYS-005), [REQ-SYS-006](docs/requirements/system.md#REQ-SYS-006) | Critical bug fixes might not be active immediately due to Service Worker caching if not enforced. |
 
 ---
 
