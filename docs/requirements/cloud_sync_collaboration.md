@@ -8,7 +8,7 @@ This document defines the cloud, sync and collaboration behavior using the **EAR
 
 | Req-ID | Requirement | Rationale / Context | Priority | Mitigation Hazard ID | Status |
 |:---|:---|:---|:---|:---|:---|
-| **<a name="REQ-SC-001">REQ-SC-001</a>** | The system shall authenticate users via external Identity Providers (Google, Apple) to secure access to personal and organizational data. | Convenience and security outsourcing (OAuth). | P3 | n/a | Draft
+| **<a name="REQ-SC-001">REQ-SC-001</a>** | The system shall authenticate users via external Identity Providers (OIDC). | Convenience and security outsourcing (OAuth). | P3 | n/a | Draft
 | **<a name="REQ-SC-002">REQ-SC-002</a>** | When an internet connection is available, the system shall synchronize local databases with the cloud backend, prioritizing the cloud state for Organization Data (read-only conflict resolution). | Ensures members always have the latest legally valid club aircraft data. | P3 | n/a | Draft
 | **<a name="REQ-SC-003">REQ-SC-003</a>** | The system shall segregate data into "Personal Workspaces" (Full Access for the user) and "Organization Workspaces" (Role-based Access). | Allows mixed usage (Owner + Club Member) in one app. | P3 | n/a | Draft
 | **<a name="REQ-SC-004">REQ-SC-004</a>** | The system shall enforce the following roles within an Organization Workspace: <ul><li>Org Admin: Full access (Manage Users & Fleet).</li><li>Fleet Admin: Manage Aircraft Profiles (Create/Update/Delete).</li><li>Member: Read-only access to Aircraft Profiles; Create/Edit own Flight Plans using these profiles.</li></ul> | Granular control for clubs (Vorstand vs. Warte vs. Piloten). | P3 | n/a | Draft
