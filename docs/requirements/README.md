@@ -55,10 +55,12 @@ Each requirement is defined in a Markdown table with the following columns:
 
 | Req-ID | Requirement | Rationale / Context | Priority | Mitigation Hazard ID | Status | Design Reference |
 |:---|:---|:---|:---|:---|:---|:---|
-| **<a name="REQ-EX-001"></a>REQ-EX-001** | When the engine start is detected, the system shall start the flight timer. | Automatic logging reduces pilot workload. | P2 | n/a | Draft | [Flight Logger](#flightLogger) |
+| **<a name="REQ-EX-001"></a>REQ-EX-001** | When the engine start is detected, the system shall start the flight timer. | Automatic logging reduces pilot workload. | P2 | n/a | Approved | [Flight Logger](#flightLogger) |
 
 ---
 
 ## Design References
 
 - **<a name="flightLogger"></a>Flight Logger:** [docs/architecture/flight_logging_service.md](../architecture/flight_logging_service.md)
+
+---
