@@ -4,7 +4,7 @@ Focus: Testing limits, extrapolation, and overrides.
 
 ---
 
-## <a name="UJ-C-001">UJ-C-001</a>: Hot & High + Controlled Extrapolation
+## <a name="UJ-C-001"></a>UJ-C-001: Hot & High + Controlled Extrapolation
 **Goal:** Verify handling of "Edge of Envelope" conditions.
 * **Actor:** Pilot
 * **Scenario:**
@@ -13,9 +13,9 @@ Focus: Testing limits, extrapolation, and overrides.
     3.  Verify +20% Safety Penalty added.
     4.  Enter conditions far above limits -> Calculation blocked.
 * **Traceability:**
-    * **Requirements:** [REQ-PF-010](../requirements/performance.md#REQ-PF-010), [REQ-PF-012](../requirements/performance.md#REQ-PF-012), [REQ-PF-015](../requirements/performance.md#REQ-PF-015)
+    * **Requirements:** [REQ-PF-010](../requirements/performance.md#REQ-PF-010), [REQ-PF-012](../requirements/performance.md#REQ-PF-012), [REQ-PF-015](../requirements/performance.md#REQ-PF-015), [REQ-PF-006](../requirements/performance.md#REQ-PF-006)
 
-## <a name="UJ-C-002">UJ-C-002</a>: The "Unknown Airfield" (Manual Override)
+## <a name="UJ-C-002"></a>UJ-C-002: The "Unknown Airfield" (Manual Override)
 **Goal:** Verify PIC authority for data outside system DB.
 * **Actor:** Pilot
 * **Scenario:**
