@@ -4,7 +4,7 @@ Focus: Creating, validating, and managing aircraft profiles.
 
 ---
 
-## <a name="UJ-A-001">UJ-A-001</a>: The "Fleet Admin" Workflow (Complex Profile)
+## <a name="UJ-A-001"></a>UJ-A-001: The "Fleet Admin" Workflow (Complex Profile)
 **Goal:** Verify that complex aircraft data (variable arms, original units) can be modeled, verified, and locked.
 * **Actor:** Fleet Admin / Owner
 * **Scenario:**
@@ -14,9 +14,9 @@ Focus: Creating, validating, and managing aircraft profiles.
     4.  User marks profile as "Verified".
     5.  User tries to edit MTOM -> System blocks.
 * **Traceability:**
-    * **Requirements:** [REQ-AC-005](../requirements/aircraft_management.md#REQ-AC-005), [REQ-AD-012](../requirements/detailed_aircraft_data.md#REQ-AD-012), [REQ-AD-014](../requirements/detailed_aircraft_data.md#REQ-AD-014)
+    * **Requirements:** [REQ-AC-001](../requirements/aircraft_management.md#REQ-AC-001), [REQ-AC-005](../requirements/aircraft_management.md#REQ-AC-005), [REQ-AD-012](../requirements/detailed_aircraft_data.md#REQ-AD-012), [REQ-AD-014](../requirements/detailed_aircraft_data.md#REQ-AD-014)
 
-## <a name="UJ-A-002">UJ-A-002</a>: Unit-Safety Check (Mixed Fleet)
+## <a name="UJ-A-002"></a>UJ-A-002: Unit-Safety Check (Mixed Fleet)
 **Goal:** Verify strict enforcement of input labeling and SI normalization.
 * **Actor:** Pilot
 * **Scenario:**

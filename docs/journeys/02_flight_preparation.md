@@ -4,7 +4,7 @@ Focus: Standard operational workflows for Mass & Balance and Hybrid Performance.
 
 ---
 
-## <a name="UJ-B-001">UJ-B-001</a>: M&B with CG Migration (The "Burn-Out" Check)
+## <a name="UJ-B-001"></a>UJ-B-001: M&B with CG Migration (The "Burn-Out" Check)
 **Goal:** Verify detection of unsafe CG shifts during flight.
 * **Actor:** Pilot
 * **Scenario:**
@@ -13,9 +13,9 @@ Focus: Standard operational workflows for Mass & Balance and Hybrid Performance.
     3.  Landing CG (Zero Fuel) -> **Red** (Outside Aft Limit).
     4.  Verify Envelope Chart shows vector crossing the limit.
 * **Traceability:**
-    * **Requirements:** [REQ-MB-008](../requirements/mass_balance.md#REQ-MB-008), [REQ-MB-011](../requirements/mass_balance.md#REQ-MB-011), [REQ-UI-010](../requirements/user_interface.md#REQ-UI-010)
+    * **Requirements:** [REQ-MB-008](../requirements/mass_balance.md#REQ-MB-008), [REQ-MB-011](../requirements/mass_balance.md#REQ-MB-011), [REQ-MB-004](../requirements/mass_balance.md#REQ-MB-004), [REQ-UI-010](../requirements/user_interface.md#REQ-UI-010)
 
-## <a name="UJ-B-002">UJ-B-002</a>: The "Hybrid Engine" Performance Calculation
+## <a name="UJ-B-002"></a>UJ-B-002: The "Hybrid Engine" Performance Calculation
 **Goal:** Verify hierarchical fallback logic (POH priority -> FSM 3/75 fallback).
 * **Actor:** Pilot
 * **Scenario:**
