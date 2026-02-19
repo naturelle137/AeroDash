@@ -42,7 +42,7 @@ Each requirement is defined in a Markdown table with the following columns:
 - **UQ:** Usability & Quality
 - **SYS:** General System Requirements
 - **DOC:** Documentation & Export
-- **CLD:** Cloud Sync & Collaboration
+- **SC:** Cloud Sync & Collaboration
 
 ## Traceability
 
