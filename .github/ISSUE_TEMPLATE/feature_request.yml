@@ -39,6 +39,15 @@ body:
       description: Could this feature compromise flight safety or lead to an incorrect Go/No-Go decision?
       placeholder: A bug here could provide incorrect takeoff distance leading to a wrong Go/No-Go decision...
 
+  - type: textarea
+    id: dod
+    attributes:
+      label: Definition of Done / Checklist
+      description: What specific tasks and conditions must be met for this feature to be considered complete? (Use - [ ] for checkboxes)
+      placeholder: "- [ ] The feature is implemented\n- [ ] Unit tests are written\n- [ ] Documentation is updated"
+    validations:
+      required: true
+
   - type: checkboxes
     id: validation
     attributes:
