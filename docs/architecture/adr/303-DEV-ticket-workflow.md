@@ -18,7 +18,7 @@ As AeroDash grows, managing the backlog, tracking in-progress work, and correlat
 We will use a canonical GitHub Project Board ("AeroDash Backlog") driven by specific, rule-based transitions.
 
 1.  **Tagging:** All issues must be categorized by Type (`Bug`, `Feature`, `Task`) and by safety impact (`safety-critical`).
-2.  **Board Columns:** The board must use specific columns mapping to the development lifecycle (`Backlog/Accepted`, `In Progress`, `In Verification`, `Ready for Release`, `Done`).
+2.  **Board Columns:** The board must use specific columns mapping to the development lifecycle (`Backlog`, `Accepted`, `In Progress`, `In Verification`, `Ready for Release`, `Done`).
 3.  **Parent/Sub-Task Rules:** 
     *   `Task` tickets (sub-tasks) can be closed as soon as their specific PR is merged to `develop`.
     *   Parent tickets (`Feature` or `Bug`) **cannot** advance to `Ready for Release` until **all** corresponding sub-tasks are closed. 
