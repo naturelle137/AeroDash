@@ -3,7 +3,7 @@
 * **Status:** Accepted
 * **Date:** 2026-02-20
 
-## Context:
+## Context
 
 In complex, safety-critical projects like AeroDash, the "Why" behind architectural decisions is often lost over time. This leads to architectural drift, where original safety guarantees or structural choices are accidentally bypassed. Furthermore, new contributors lack a historical record to learn from, resulting in a steeper onboarding curve and repeated discussions. We need a way to ensure all architectural decisions—both for the product and the development process—are transparent, traceable, and persistent.
 
