@@ -1,10 +1,7 @@
-# 1. Notification System Standardization
+# 001-notification-system: Notification System Standardization
 
-Date: 2026-02-19
-
-## Status
-
-Accepted
+* **Status:** Accepted
+* **Date:** 2026-02-19
 
 ## Context
 
@@ -15,6 +12,10 @@ This inconsistency led to:
 -   Potential ID collisions or lack of traceability.
 -   Inconsistent user experience (e.g., disparate severity levels).
 -   Challenges in validating the "Safety Gate" requirements where critical notifications must block actions.
+
+## Considered Options
+
+*   **Original:** Not documented in original ADR
 
 ## Decision
 
@@ -42,14 +43,16 @@ KEY DECISIONS:
 ## Consequences
 
 ### Positive
--   **Consistency:** The UI can now blindly consume notifications from any module using a single interface.
--   **Traceability:** Every error message in the logs can be instantly traced back to a specific requirement via its ID.
--   **Safety:** The `CRITICAL` severity is rigorously defined, allowing the system to reliably block "Save" or "Export" actions when safety constraints are violated.
--   **Maintainability:** Future developers have a clear template for adding new notifications.
+
+*   **Consistency:** The UI can now blindly consume notifications from any module using a single interface.
+*   **Traceability:** Every error message in the logs can be instantly traced back to a specific requirement via its ID.
+*   **Safety:** The `CRITICAL` severity is rigorously defined, allowing the system to reliably block "Save" or "Export" actions when safety constraints are violated.
+*   **Maintainability:** Future developers have a clear template for adding new notifications.
 
 ### Negative
--   **Verbosity:** Requirement documents are slightly more verbose due to the full JSON objects.
--   **Maintenance:** The Central Register in `notification_schema.md` must be kept in sync with the individual requirement files. A divergence check might be needed in CI/CD.
+
+*   **Verbosity:** Requirement documents are slightly more verbose due to the full JSON objects.
+*   **Maintenance:** The Central Register in `notification_schema.md` must be kept in sync with the individual requirement files. A divergence check might be needed in CI/CD.
 
 ## Compliance
 
