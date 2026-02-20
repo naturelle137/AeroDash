@@ -43,6 +43,7 @@ Each requirement is defined in a Markdown table with the following columns:
 - **SYS:** General System Requirements
 - **DOC:** Documentation & Export
 - **SC:** Cloud Sync & Collaboration
+- **REPO:** Repository Management, CI/CD, & Meta Tooling
 
 ## Traceability
 
