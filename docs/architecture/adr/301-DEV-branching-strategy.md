@@ -1,4 +1,4 @@
-# 300-DEV-branching-strategy: Branching Model (Gitflow)
+# 301-DEV-branching-strategy: Branching Model (Gitflow)
 
 Date: 2026-02-20
 
@@ -7,6 +7,10 @@ Accepted
 
 ## Context
 As the project grows, it is crucial to maintain entirely separate lifecycles for stable production artifacts vs. in-progress integration code. Our development architecture must ensure that the `main` branch remains stable and flight-ready at all times, without hindering the parallel development of features and bug fixes. The branching strategy is an integral architectural decision for the developer experience because it establishes uniform workflows and expectations for every contributor.
+
+## Considered Options
+
+*   Not documented in original ADR
 
 ## Decision
 We have decided to adopt the **Gitflow** branching model as our standard development architecture.

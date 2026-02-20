@@ -1,4 +1,4 @@
-# 1. Notification System Standardization
+# 001-notification-system: Notification System Standardization
 
 Date: 2026-02-19
 
@@ -15,6 +15,10 @@ This inconsistency led to:
 -   Potential ID collisions or lack of traceability.
 -   Inconsistent user experience (e.g., disparate severity levels).
 -   Challenges in validating the "Safety Gate" requirements where critical notifications must block actions.
+
+## Considered Options
+
+*   Not documented in original ADR
 
 ## Decision
 
