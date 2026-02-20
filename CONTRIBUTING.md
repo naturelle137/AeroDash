@@ -9,9 +9,10 @@ As a General Aviation flight-preparation tool, our highest priority is **Safety-
 First of all: **Don't panic!** The rules below might look strict, but they are here to guide you, not to scare you away. We love new contributors and are always happy to help you navigate your first Pull Request. 
 
 If you are new here, the best way to get started is:
-1.  **Find a "good first issue":** Check the GitHub Project Board for specific `Task` or `Bug` tickets.
-2.  **Ask Questions:** If you're unsure about the architecture, where to put a file, or how to write an ADR—just ask in the issue or draft PR! Our senior developers will gladly mentor you.
-3.  **Draft Early:** You don't have to be perfect from the start. Open a Draft PR early, run the local checks, and we will review and guide you to the finish line.
+1.  **Read the Code of Conduct:** All participation is governed by our [Bilingual Code of Conduct / Verhaltenskodex (Just Culture)](CODE_OF_CONDUCT.md). Please read it first!
+2.  **Find a "good first issue":** Check the GitHub Project Board for specific `Task` or `Bug` tickets.
+3.  **Ask Questions:** If you're unsure about the architecture, where to put a file, or how to write an ADR—just ask in the issue or draft PR! Our senior developers will gladly mentor you.
+4.  **Draft Early:** You don't have to be perfect from the start. Open a Draft PR early, run the local checks, and we will review and guide you to the finish line.
 
 The rest of this document outlines the formal "Safety-First" rules we follow to keep our flight-preparation tool reliable.
 
