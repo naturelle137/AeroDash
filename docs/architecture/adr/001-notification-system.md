@@ -1,12 +1,9 @@
 # 001-notification-system: Notification System Standardization
 
-Date: 2026-02-19
+* **Status:** Accepted
+* **Date:** 2026-02-19
 
-## Status
-
-Accepted
-
-## Context
+## Context:
 
 The AeroDash project had inconsistent notification handling across its various modules (`Aircraft Management`, `Mass & Balance`, `Performance`, `Weather`, `User Interface`). Notifications were defined in an ad-hoc manner within requirement documents, using varying formats, mixed casing (PascalCase vs camelCase), and lacking a unified identification system.
 
@@ -18,7 +15,7 @@ This inconsistency led to:
 
 ## Considered Options
 
-*   Not documented in original ADR
+*   **Original:** Not documented in original ADR
 
 ## Decision
 
@@ -46,14 +43,16 @@ KEY DECISIONS:
 ## Consequences
 
 ### Positive
--   **Consistency:** The UI can now blindly consume notifications from any module using a single interface.
--   **Traceability:** Every error message in the logs can be instantly traced back to a specific requirement via its ID.
--   **Safety:** The `CRITICAL` severity is rigorously defined, allowing the system to reliably block "Save" or "Export" actions when safety constraints are violated.
--   **Maintainability:** Future developers have a clear template for adding new notifications.
+
+*   **Consistency:** The UI can now blindly consume notifications from any module using a single interface.
+*   **Traceability:** Every error message in the logs can be instantly traced back to a specific requirement via its ID.
+*   **Safety:** The `CRITICAL` severity is rigorously defined, allowing the system to reliably block "Save" or "Export" actions when safety constraints are violated.
+*   **Maintainability:** Future developers have a clear template for adding new notifications.
 
 ### Negative
--   **Verbosity:** Requirement documents are slightly more verbose due to the full JSON objects.
--   **Maintenance:** The Central Register in `notification_schema.md` must be kept in sync with the individual requirement files. A divergence check might be needed in CI/CD.
+
+*   **Verbosity:** Requirement documents are slightly more verbose due to the full JSON objects.
+*   **Maintenance:** The Central Register in `notification_schema.md` must be kept in sync with the individual requirement files. A divergence check might be needed in CI/CD.
 
 ## Compliance
 
