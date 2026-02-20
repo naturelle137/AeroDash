@@ -3,7 +3,7 @@
 * **Status:** Accepted
 * **Date:** 2026-02-20
 
-## Context:
+## Context
 
 As the project grows, it is crucial to maintain entirely separate lifecycles for stable production artifacts vs. in-progress integration code. Our development architecture must ensure that the `main` branch remains stable and flight-ready at all times, without hindering the parallel development of features and bug fixes. The branching strategy is an integral architectural decision for the developer experience because it establishes uniform workflows and expectations for every contributor.
 

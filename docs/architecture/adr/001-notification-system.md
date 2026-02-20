@@ -3,7 +3,7 @@
 * **Status:** Accepted
 * **Date:** 2026-02-19
 
-## Context:
+## Context
 
 The AeroDash project had inconsistent notification handling across its various modules (`Aircraft Management`, `Mass & Balance`, `Performance`, `Weather`, `User Interface`). Notifications were defined in an ad-hoc manner within requirement documents, using varying formats, mixed casing (PascalCase vs camelCase), and lacking a unified identification system.
 

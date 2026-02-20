@@ -1,8 +1,7 @@
-# [Number]-[Title]
+# [ADR-Number]: [Title of the Decision]
 
-## Status
-
-[Proposed | Accepted | Rejected | Deprecated | Superseded]
+* **Status:** [Proposed | Accepted | Rejected | Deprecated | Superseded]
+* **Date:** YYYY-MM-DD
 
 ## Context
 
@@ -10,13 +9,13 @@
 
 ## Considered Options
 
-*   [Option 1]
-*   [Option 2]
-*   [Option 3]
+*   **[Option 1]:** [Description of the option]
+*   **[Option 2]:** [Description of the option]
+*   **[Option 3]:** [Description of the option]
 
 ## Decision
 
-[What is the change that we're actually proposing and/or doing?]
+[What option do we choose and why?]
 
 ## Consequences
 
