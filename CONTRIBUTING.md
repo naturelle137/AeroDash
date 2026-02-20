@@ -20,6 +20,7 @@ The rest of this document outlines the formal "Safety-First" rules we follow to 
 
 *   **Read the Requirements:** [docs/requirements/README.md](docs/requirements/README.md)
 *   **Understand the Branching Strategy:** [docs/development/BRANCHING_STRATEGY.md](docs/development/BRANCHING_STRATEGY.md)
+*   **Review the Testing Guidelines:** [docs/development/TESTING.md](docs/development/TESTING.md)
 
 ## 💻 Environment Setup (Work in Progress)
 
@@ -72,6 +73,7 @@ The following are the allowed scopes for commits, derived from the project modul
 *   `sys`: General System Requirements
 *   `doc`: Documentation & Export
 *   `sc`: Cloud Sync & Collaboration
+*   `repo`: Repository Management, CI/CD, & Meta Tooling
 
 *Example of a valid commit:*
 `feat(mb): implement lateral CG calculation bounds (refs #42, REQ-MB-005)`

@@ -20,11 +20,11 @@
 
 ### Documentation Updates
 <!-- Documentation is an integral part of this product. Please link the specific IDs created/modified (e.g., REQ-SYS-001, H-1A) -->
-- [ ] **Requirements:** Created/Updated ID(s): ______ in `docs/requirements/` OR `N/A`
-- [ ] **Architecture:** Created/Updated ID(s): ______ in `docs/architecture/` OR `N/A`
-- [ ] **Risk Management:** Hazards updated/mitigated ID(s): ______ in `docs/risk_management/` OR `N/A`
-- [ ] **Journeys:** Created/Updated ID(s): ______ in `docs/journeys/` OR `N/A`
-- [ ] **Code Docs:** API docs/README/Changelog updated OR `N/A`
+- [ ] **Requirements:** Created/Updated ID(s): ______ in `docs/requirements/` OR `N/A` (Reason: _________)
+- [ ] **Architecture:** Created/Updated ID(s): ______ in `docs/architecture/` OR `N/A` (Reason: _________)
+- [ ] **Risk Management:** Hazards updated/mitigated ID(s): ______ in `docs/risk_management/` OR `N/A` (Reason: _________)
+- [ ] **Journeys:** Created/Updated ID(s): ______ in `docs/journeys/` OR `N/A` (Reason: _________)
+- [ ] **Code Docs:** API docs/README/Changelog updated OR `N/A` (Reason: _________)
 
 ### Safety Considerations
 - [ ] Checked Safety Traceability Matrix.
@@ -34,9 +34,9 @@
 
 ### Quality & Testing Checklist
 - [ ] **Target Branch:** This PR correctly targets `develop` (features/bugs) OR `main` (releases/hotfixes).
-- [ ] **Unit Tests:** Added/updated and passing locally OR `N/A`.
-- [ ] **Integration Tests:** Passing OR `N/A`.
-- [ ] **Manual Testing:** Performed successfully (Mandatory for `main`) OR `N/A`.
+- [ ] **Unit Tests:** Added/updated and passing locally OR `N/A` (Reason: _________).
+- [ ] **Integration Tests:** Passing OR `N/A` (Reason: _________).
+- [ ] **Manual Testing:** Performed successfully (Mandatory for `main`) OR `N/A` (Reason: _________).
 - [ ] **DoD:** All Definition of Done items from the linked Sub-Task/Feature/Bug are met.
 - [ ] **Review:** I have performed a self-review of my own code and documentation.
 - [ ] **ADR:** Does this change require an Architectural Decision Record (ADR) update/creation? If yes, it is included.
