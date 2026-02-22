@@ -1,8 +1,7 @@
 # 306-DEV: Local Hooks Strategy
 
-## Status
-
-Accepted
+* **Status:** Accepted
+* **Date:** 2026-02-22
 
 ## Context
 
@@ -21,22 +20,22 @@ Relying solely on human memory to strictly follow these formatting constraints a
 
 We will use **Husky** paired with `@commitlint/cli` for local Git hook enforcement.
 
-- Husky will be tracking our `.husky` directory within the repository.
-- A `commit-msg` hook will run the `commitlint` engine against our rigidly defined `CONTRIBUTING.md` configuration.
-- A `pre-commit` hook will run our `markdownlint-cli2` checks prior to push to catch documentation errors before CI.
+* Husky will be tracking our `.husky` directory within the repository.
+* A `commit-msg` hook will run the `commitlint` engine against our rigidly defined `CONTRIBUTING.md` configuration.
+* A `pre-commit` hook will run our `markdownlint-cli2` checks prior to push to catch documentation errors before CI.
 
 ## Consequences
 
 ### Positive
 
-- **Immediate Feedback Loop**: Developers are physically stopped from making bad commits *before* waiting on a remote pipeline.
-- **Structural Enforcement**: We offload safety-critical rules from human memory to the system architecture.
-- **Shared Standards**: Every developer cloning the repository automatically gets the same strict formatting rules initialized via `npm install`.
+* **Immediate Feedback Loop**: Developers are physically stopped from making bad commits *before* waiting on a remote pipeline.
+* **Structural Enforcement**: We offload safety-critical rules from human memory to the system architecture.
+* **Shared Standards**: Every developer cloning the repository automatically gets the same strict formatting rules initialized via `npm install`.
 
 ### Negative
 
-- **Dependency Overhead**: Introduces a minor Node.js dependency overhead inside the development environment.
-- **Strict DX**: Developers might briefly experience frustration if their local commit is unexpectedly rejected due to a minor formatting typo.
+* **Dependency Overhead**: Introduces a minor Node.js dependency overhead inside the development environment.
+* **Strict DX**: Developers might briefly experience frustration if their local commit is unexpectedly rejected due to a minor formatting typo.
 
 ## Compliance
 
