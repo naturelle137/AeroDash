@@ -54,14 +54,10 @@ The safety of this system is based on four pillars:
 
 ## Edge-Case Test Scenarios (Stress Testing)
 
-1. **"The Sahara Switch" [H-012](#H-012)**: Input of +50°C and 5000ft elevation. Check if the system aborts the calculation with a clear warning or extrapolates correctly with a penalty (if within 10% limit).  
-2. **"Burn-out Shift" [H-006](#H-006)**: Setup of a flight with maximum passenger load and minimum fuel, where the CG is fine at takeoff, but shifts behind the aft limit due to burning the last fuel before landing. Validation of the Trend Line and critical warnings.  
-3. **"Boundary Breach" [H-012](#H-012)**: Attempting a takeoff calculation for a temperature exactly 11% above the POH table maximum. Validation that the system strictly blocks the calculation.  
-4. **"Penalty Application" [H-012](#H-012)**: Attempting a calculation exactly 5% above the table max. Validation that the 20% safety penalty is applied and the UI warning is displayed.  
-5. **"Minimum Distance Rule" [H-013](#H-013)**: Input conditions significantly better than POH minimums (e.g., -30°C). Validation that the system floors the calculation at the POH boundary distance and does not calculate shorter values.  
-6. **"Crosswind Exceedance" [H-014](#H-014)**: Input METAR wind with 20kt crosswind for an aircraft with a 15kt limit. Validation that the system triggers a critical alert.  
-7. **"Mixed Fleet Nightmare" [H-001](#H-001)/[H-002](#H-002)**: Simultaneous loading of an imperial profile (lbs/Gal) and calculation in a metric environment. Validation of flawless SI normalization.  
-8. **"The 'Make-it-Fit' Override" [H-016](#H-016)**: Pilot attempts to manually set the Take-off Safety Factor to 1.0 to fit into a short runway. Validation that the system warns against violating EASA/POH minimums.
+> **Traceability Note:**
+> The specific algorithmic boundary tests and extreme edge-case scenarios historically defined here have been formally migrated into the User Journeys architecture to support automated BDD traceability.
+>
+> Please refer to [`docs/journeys/08_stress_tests.md`](../journeys/08_stress_tests.md) for the structured scenarios (e.g., `UJ-STRESS-001: The Sahara Switch`) verifying the hazard mitigations defined above.
 
 ---
 
