@@ -1,3 +1,4 @@
+<!-- markdownlint-disable-file MD041 -->
 ### Summary
 <!-- Briefly describe the code and documentation changes made in this PR. -->
 
@@ -5,7 +6,7 @@
 <!-- How Does this PR relate to tickets? Use the correct keyword for your target branch! -->
 <!-- Target: develop  -> DO NOT CLOSE. Use "Related to #" or "Ref #" (e.g., Ref #123) -->
 <!-- Target: main     -> CLOSE ISSUE.   Use "Closes #" or "Fixes #" (e.g., Closes #123) -->
-- 
+-
 
 ### Issue State Management (Post-Merge)
 <!-- Please ensure these manual steps are taken once the PR is merged: -->
@@ -27,12 +28,14 @@
 - [ ] **Code Docs:** API docs/README/Changelog updated OR `N/A` (Reason: _________)
 
 ### Safety Considerations
+
 - [ ] Checked Safety Traceability Matrix.
 - [ ] No new hazards introduced.
 - [ ] Existing mitigations preserved.
 - [ ] P1 isolation maintained (no new P2/P3 imports in core modules).
 
 ### Quality & Testing Checklist
+
 - [ ] **Target Branch:** This PR correctly targets `develop` (features/bugs) OR `main` (releases/hotfixes).
 - [ ] **Unit Tests:** Added/updated and passing locally OR `N/A` (Reason: _________).
 - [ ] **Integration Tests:** Passing OR `N/A` (Reason: _________).

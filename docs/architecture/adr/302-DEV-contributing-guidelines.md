@@ -18,24 +18,25 @@ AeroDash is a General Aviation flight-preparation tool where algorithmic correct
 We will implement a central `CONTRIBUTING.md` file designed around a "Safety-First" philosophy.
 
 The guidelines mandate the following developer workflows:
-1.  **Philosophy:** Explicitly declaring Correctness > Speed.
-2.  **Commit Standards:** Enforcing Conventional Commits with specific module scopes (e.g., `mb`, `wx`) and mandatory requirement/issue ID referencing to ensure unbroken traceability.
-3.  **Quality Gates:** Defining clear expectations for Local (pre-commit checking), CI (automated test suites and isolation verification), and Release (strict merge-to-main criteria).
-4.  **P1 Constraints:** Implementing special rules for the Safety Core (P1), such as mandatory Architectural Decision Records (ADRs) for structural changes and senior peer review.
-5.  **Single Source of Truth:** `CONTRIBUTING.md` will not duplicate technical specifications, but instead act as a router, deep-linking to the specific ADRs in `docs/architecture/adr/` or `docs/development/`.
+
+1. **Philosophy:** Explicitly declaring Correctness > Speed.
+2. **Commit Standards:** Enforcing Conventional Commits with specific module scopes (e.g., `mb`, `wx`) and mandatory requirement/issue ID referencing to ensure unbroken traceability.
+3. **Quality Gates:** Defining clear expectations for Local (pre-commit checking), CI (automated test suites and isolation verification), and Release (strict merge-to-main criteria).
+4. **P1 Constraints:** Implementing special rules for the Safety Core (P1), such as mandatory Architectural Decision Records (ADRs) for structural changes and senior peer review.
+5. **Single Source of Truth:** `CONTRIBUTING.md` will not duplicate technical specifications, but instead act as a router, deep-linking to the specific ADRs in `docs/architecture/adr/` or `docs/development/`.
 
 ## Consequences
 
 ### Positive
 
-*   **Traceability:** Every line of code can be traced back to an issue, a requirement, or an architectural decision.
-*   **Quality Consistency:** A unified standard prevents "rogue" code from bypassing quality checks.
-*   **Clear Expectations:** New developers immediately understand the gravity of the codebase and the strictness of the review process, reducing friction and rejected PRs.
+* **Traceability:** Every line of code can be traced back to an issue, a requirement, or an architectural decision.
+* **Quality Consistency:** A unified standard prevents "rogue" code from bypassing quality checks.
+* **Clear Expectations:** New developers immediately understand the gravity of the codebase and the strictness of the review process, reducing friction and rejected PRs.
 
 ### Negative
 
-*   **Higher Friction:** The development pace is inherently slower due to the overhead of writing ADRs, formatting commits perfectly, and ensuring traceability links.
-*   **Tooling Dependency:** We heavily rely on pre-commit hooks, linters, and CI actions to reliably enforce these rules.
+* **Higher Friction:** The development pace is inherently slower due to the overhead of writing ADRs, formatting commits perfectly, and ensuring traceability links.
+* **Tooling Dependency:** We heavily rely on pre-commit hooks, linters, and CI actions to reliably enforce these rules.
 
 ## Compliance
 

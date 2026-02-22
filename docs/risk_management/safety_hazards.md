@@ -4,9 +4,10 @@ This document serves as the central safety record for the Aviation Performance T
 
 ## Safety Case Argumentation
 
-**"Why is this app safe enough for flight operations?"**
+"Why is this app safe enough for flight operations?"
 
 The safety of this system is based on four pillars:
+
 1. **Redundancy through Data Verification**: The app uses verified POH data and always provides the pilot with visual feedback loops (e.g., graphical CG representation).
 2. **Standardized Calculation Logic**: By implementing FSM 3/75 as a fallback and using bilinear interpolation for table data, mathematical uncertainties are minimized.
 3. **Human-Centered Design**: Critical states (warnings) are actively presented to the user (Blinking Red) to avoid misinterpretations under time pressure or fatigue.
@@ -17,7 +18,7 @@ The safety of this system is based on four pillars:
 ## Severity Level Definitions
 
 | Level | Classification | Definition |
-|:---|:---|:---|
+ | :--- | :--- | :--- |
 | **S1** | **Catastrophic** | Loss of aircraft, fatal injury, or total loss of flight safety. |
 | **S2** | **Critical** | Major damage to aircraft, serious injury to personnel or landing outside of airfields (e.g. runway excursion). |
 | **S3** | **Major** | Significant reduction in safety margins or functional failure. |
@@ -28,7 +29,7 @@ The safety of this system is based on four pillars:
 ## Hazard Log (Critical Hazards)
 
 | ID | Hazard | Severity | Mitigation (Requirement) | Rationale |
-|:---|:---|:---|:---|:---|
+ | :--- | :--- | :---: | :--- | :--- |
 | **<a name="H-001"></a>H-001** | Incorrect mass parameters due to unit confusion (kg, lbs). | S1 | [REQ-SYS-003](../requirements/system.md#REQ-SYS-003), [REQ-AD-014](../requirements/detailed_aircraft_data.md#REQ-AD-014), [REQ-UQ-005](../requirements/usability_quality.md#REQ-UQ-005) | Mixed fleets use different units. |
 | **<a name="H-002"></a>H-002** | Incorrect fuel values due to unit/density confusion (L, Gal, kg, lbs). | S1 | [REQ-SYS-003](../requirements/system.md#REQ-SYS-003), [REQ-FE-001](../requirements/fuel_endurance.md#REQ-FE-001) | Fuel mass vs. volume discrepancies. |
 | **<a name="H-003"></a>H-003** | Incorrect fuel density calculation (AvGas vs JET A-1/Diesel). | S2 | [REQ-AD-003](../requirements/detailed_aircraft_data.md#REQ-AD-003) | DA40 (0.84 kg/L) vs P2008 (0.72 kg/L). |

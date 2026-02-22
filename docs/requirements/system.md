@@ -7,8 +7,8 @@ This document defines the system behavior using the **EARS** (Easy Approach to R
 ## Requirements
 
 | Req-ID | Requirement | Rationale / Context | Priority | Mitigation Hazard ID | Status | Design Reference |
-|:---|:---|:---|:---|:---|:---|:---|
-| **<a name="REQ-SYS-001"></a>REQ-SYS-001** | The system shall be fully functional without an active internet connection; all aircraft profiles and calculation logic shall be stored locally. | Ensure usability in remote airfields or during flight. | P2 |  n/a | Approved | n/a |
+ | :--- | :--- | :--- | :---: | :---: | :--- | :--- |
+| **<a name="REQ-SYS-001"></a>REQ-SYS-001** | The system shall be fully functional without an active internet connection; all aircraft profiles and calculation logic shall be stored locally. | Ensure usability in remote airfields or during flight. | P2 | n/a | Approved | n/a |
 | **<a name="REQ-SYS-002"></a>REQ-SYS-002** | The system shall store aircraft profiles and flight plans in a standardized, portable format. | Human-readable format and future-proofing. | P1 | n/a | Approved | n/a |
 | **<a name="REQ-SYS-003"></a>REQ-SYS-003** | The system shall normalize all physical input parameters to a unified internal SI reference frame (kg, m, L, s) for the internal calculation logic. | Ensure mathematical consistency across mixed fleets. | P1 | [H-001](../risk_management/safety_hazards.md#H-001), [H-002](../risk_management/safety_hazards.md#H-002) | Approved | n/a |
 | **<a name="REQ-SYS-004"></a>REQ-SYS-004** | The system shall accept the following units for data storage, input and display: <ul><li>Volume: L, gal (US)</li> <li>Mass: kg, lb</li> <li>Speed: km/h, mph, kt, m/s</li> <li>Arm: m, in, ft</li> <li>Moment: kg·m, in-lb, ft-lb</li> <li>Temperature: °C, °F</li> <li>Altitude: ft, m</li> <li>Distance: km, mi, nm </li> <li>Pressure: hPa, inHg, mmHg</li></ul> | Ensures compatibility with POH data from both metric  and imperial manufacturers. | P1 | n/a | Approved | n/a |
