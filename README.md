@@ -51,7 +51,7 @@ AeroDash is a specialized **Flight Preparation and Decision Support Tool** desig
 * **Go/No-Go Decision Support:** Provides mathematical proof that the aircraft is within certified limits for Mass, Center of Gravity (CG), and Performance under expected environmental conditions.
 * **Aircraft-Specific Data:** Operates on the exact data of a specific airframe (based on its individual Weighing Report and POH), not generic type data.
 * **Hybrid Performance Calculation:** Combines POH table interpolation with standardized safety factors (e.g., FSM 3/75) to provide conservative distance estimates for unpaved or contaminated runways.
-* **Simple Endurance Check:** Calculates "Time to Empty" based on user-entered fuel quantities to validate if the endurance exceeds the planned flight time plus reserves.
+* **Simple Endurance Check:** Calculates "Time to Empty" based on user-entered fuel quantities to validate if the planned flight time including reserves is within the endurance.
 
 #### Target Operational Context
 * **Aircraft:** Single Engine Piston (SEP) aircraft (e.g., Diamond DA40, Tecnam P2008, Klemm KL 107).
