@@ -1,0 +1,29 @@
+{
+  "name": "aerodash",
+  "version": "1.0.0",
+  "description": "[![de](https://img.shields.io/badge/lang-de-green.svg)](README-DE.md)",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepare": "husky"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/naturelle137/AeroDash.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/naturelle137/AeroDash/issues"
+  },
+  "homepage": "https://github.com/naturelle137/AeroDash#readme",
+  "devDependencies": {
+    "@commitlint/cli": "^20.4.2",
+    "@commitlint/config-conventional": "^20.4.2",
+    "husky": "^9.1.7"
+  }
+}
