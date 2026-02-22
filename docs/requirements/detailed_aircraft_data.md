@@ -7,7 +7,7 @@ This document defines the detailed aircraft data behavior using the **EARS** (Ea
 ## Requirements
 
 | Req-ID | Requirement | Rationale / Context | Priority | Mitigation Hazard ID | Status | Design Reference |
-|:---|:---|:---|:---|:---|:---|:---|
+ | :--- | :--- | :--- | :---: | :---: | :--- | :--- |
 | **<a name="REQ-AD-001"></a>REQ-AD-001** | The system shall store for each aircraft: registration, manufacturer, model, ICAO type designator. | Identification of the aircraft record. | P1 | n/a | Approved | n/a |
 | **<a name="REQ-AD-002"></a>REQ-AD-002** | The system shall allow the configuration of up to $20$ load points containing the following attributes: <ul><li>Name,</li> <li>arm/moment,</li> <li>optional operational limit,</li> <li>default quantity, and</li> <li>unit.</li></ul> | Defines the generic data structure for any station on the aircraft (seats, bags, tanks). | P1 | n/a | Approved | n/a |
 | **<a name="REQ-AD-003"></a>REQ-AD-003** | The system shall allow the configuration of up to 10 fuel tanks as a specific type of load point, extending it with the following additional attributes: <ul><li>Unusable fuel, and</li> <li>permissible fuel types (MoGas, AvGas 100LL, Jet A-1, AvGas UL91, Diesel).</li></ul> <br>Operational limit denotes tank capacity. | Maps generic load points to fluid logic and adds safety-critical fuel specifics. | P1 | n/a | Approved | n/a |

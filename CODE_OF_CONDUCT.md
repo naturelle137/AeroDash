@@ -4,7 +4,7 @@
 
 ## Aviation "Just Culture" Preamble
 
-AeroDash is a safety-critical flight preparation tool. In this project, **we value transparency over perfection**. 
+AeroDash is a safety-critical flight preparation tool. In this project, **we value transparency over perfection**.
 
 An error in a P1 (Safety Core) calculation reported by its author is considered a **success** for the system, as it allows us to learn and improve our defenses. Conversely, an error hidden to avoid criticism or embarrassment is a **failure of safety**.
 

@@ -7,7 +7,7 @@ This document defines the aircraft management behavior using the **EARS** (Easy 
 ## Requirements
 
 | Req-ID | Requirement | Rationale / Context | Priority | Mitigation Hazard ID | Status | Design Reference |
-|:---|:---|:---|:---|:---|:---|:---|
+ | :--- | :--- | :--- | :---: | :---: | :--- | :--- |
 | **<a name="REQ-AC-001"></a>REQ-AC-001** | The system shall allow users to create, read, update, and delete aircraft profiles. | Core functionality for fleet management. | P1 | n/a | Approved | n/a |
 | **<a name="REQ-AC-002"></a>REQ-AC-002** | When the user creates or updates an aircraft profile, the system shall validate the aircraft registration against standard ICAO registration patterns (e.g., alphanumeric, hyphenated). | Pre-validation of registration identity (e.g., D-EBPF). | P3 | n/a | Approved | n/a |
 | **<a name="REQ-AC-003"></a>REQ-AC-003** | If an aircraft registration already exists, then the system shall return a Notification: `{ "id": "WARN-AC-001", "severity": "WARNING", "message": "Registration Duplicate", "context": "Aircraft.Registration" }`. | Avoid data duplication and confusion between aircraft records. | P2 | n/a | Approved | [Notification Scheme](#notificationScheme) |

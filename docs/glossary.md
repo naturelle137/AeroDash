@@ -3,7 +3,7 @@
 This document serves as the Single Source of Truth (SSOT) for all terminology, abbreviations, and definitions used across the AeroDash project (Requirements, Risk Management, Testing, and Code).
 
 | Term | Definition |
-|:---|:---|
+ | :--- | :--- |
 | **AFM** | **A**ircraft **F**light **M**anual. Manufacturer's certified document for aircraft operation. |
 | **API** | **A**pplication **P**rogramming **I**nterface |
 | **ASDA** | **A**ccelerate **S**top **D**istance **A**vailable |

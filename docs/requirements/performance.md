@@ -7,7 +7,7 @@ This document defines the performance behavior using the **EARS** (Easy Approach
 ## Requirements
 
 | Req-ID | Requirement | Rationale / Context | Priority | Mitigation Hazard ID | Status | Design Reference |
-|:---|:---|:---|:---|:---|:---|:---|
+ | :--- | :--- | :--- | :---: | :---: | :--- | :--- |
 | **<a name="REQ-PF-001"></a>REQ-PF-001** | The system shall calculate four distinct performance variables for every flight: Takeoff Run (TOR), Takeoff Distance to 50ft (TOD), Landing Roll (LR), and Landing Distance from 50ft (LD). | Complete performance picture required for phase-specific corrections. | P1 | n/a | Approved | n/a |
 | **<a name="REQ-PF-002"></a>REQ-PF-002** | The system shall determine base performance values via bilinear interpolation of the aircraft's POH tables, utilizing Mass, Pressure Altitude, and Temperature. | Core engine for certified baseline data. | P1 | [H-004](../risk_management/safety_hazards.md#H-004) | Approved | n/a |
 | **<a name="REQ-PF-003"></a>REQ-PF-003** | When calculating environmental corrections (wind, surface, slope), the system shall apply a hierarchical fallback: prioritize explicit POH factors, and fall back to standard FSM 3/75 factors only if a specific parameter is undocumented in the POH. | The Hybrid Engine: Maximizes precision by combining POH specifics with safe, standardized fallbacks for missing data (e.g., wet grass). | P1 | n/a | Approved | n/a |

@@ -6,21 +6,22 @@ The requirements are structured by functional area (modules) to allow modular de
 AeroDash follows a strict requirements engineering process to ensure safety and certification readiness (Project Level: Experimental / EAB, but following DO-178C principles where applicable).
 
 ## Requirement Syntax (EARS)
+
 All requirements must be written using the **EARS** (Easy Approach to Requirements Syntax) patterns:
 
-1.  **Ubiquitous:** "The system shall..."
-2.  **Event-Driven:** "When <trigger>, the system shall..."
-3.  **Unwanted Behavior:** "If <trigger>, then the system shall..."
-4.  **State-Driven:** "While <state>, the system shall..."
-5.  **Optional Feature:** "Where <feature is included>, the system shall..."
-6.  **Complex Logic:** "When <trigger>, while <state>, the system shall..."
+1. **Ubiquitous:** "The system shall..."
+2. **Event-Driven:** "When <trigger>, the system shall..."
+3. **Unwanted Behavior:** "If <trigger>, then the system shall..."
+4. **State-Driven:** "While <state>, the system shall..."
+5. **Optional Feature:** "Where <feature is included>, the system shall..."
+6. **Complex Logic:** "When <trigger>, while <state>, the system shall..."
 
 ## Requirement Attributes
 
 Each requirement is defined in a Markdown table with the following columns:
 
 | Attribute | Description |
-|:---|:---|
+| :--- | :--- |
 | **Req-ID** | Unique Identifier (e.g., `REQ-SYS-001`). Format: `REQ-<Module>-<Number>`. HTML anchors `<a name="...">` are used for linking. |
 | **Requirement** | The requirement text using EARS syntax. |
 | **Rationale / Context** | *Why* this requirement exists. Links to parent requirements or user needs. |
@@ -43,7 +44,6 @@ Each requirement is defined in a Markdown table with the following columns:
 - **SYS:** General System Requirements
 - **DOC:** Documentation & Export
 - **SC:** Cloud Sync & Collaboration
-- **REPO:** Repository Management, CI/CD, & Meta Tooling
 
 ## Traceability
 
@@ -55,7 +55,7 @@ Each requirement is defined in a Markdown table with the following columns:
 ## Example Table
 
 | Req-ID | Requirement | Rationale / Context | Priority | Mitigation Hazard ID | Status | Design Reference |
-|:---|:---|:---|:---|:---|:---|:---|
+ | :--- | :--- | :--- | :---: | :---: | :--- | :--- |
 | **<a name="REQ-EX-001"></a>REQ-EX-001** | When the engine start is detected, the system shall start the flight timer. | Automatic logging reduces pilot workload. | P2 | n/a | Approved | [Flight Logger](#flightLogger) |
 
 ---

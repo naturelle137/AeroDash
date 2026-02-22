@@ -32,7 +32,7 @@ Every notification within the AeroDash system shall map to the following JSON st
 ### 2.1 Field Definitions
 
 | Field | Type | Description |
-|:---|:---|:---|
+ | :--- | :--- | :--- |
 | **`id`** | `String` | Unique identifier (e.g., `WARN-PF-001`) used for deduplication and telemetry keying. |
 | **`severity`** | `Enum` | Determines the urgency and interruptive behavior. See Section 3. |
 | **`message`** | `String` | Localized, human-readable text to be displayed to the pilot. |
@@ -44,23 +44,23 @@ Every notification within the AeroDash system shall map to the following JSON st
 ## 3. Severity Enums
 
 | Enum | Description | UI Behavior (Reference) |
-|:---|:---|:---|
+ | :--- | :--- | :--- |
 | **`INFO`** | Neutral system information. | Passive Toast / Banner. |
 | **`WARNING`** | Operational alert, flight may proceed with caution. | Dismissible Alert / Field Indicator. |
 | **`CRITICAL`** | Safety limit violation, flight should not proceed. | Blocking Modal / Haptic Feedback / Flashing. |
 
 ## 4. Implementation Rules
 
-1.  **Immutability:** Notification objects are immutable once emitted. Updates require emitting a new object with the same `id`.
-2.  **Deduplication:** The Notification Service must treat objects with identical `id` as updates to the existing state, not new stacking alerts.
-3.  **Persistence:** Logic Modules are responsible for emitting a "Clear" signal (or an empty/null object) when a Persistent notification state is resolved.
+1. **Immutability:** Notification objects are immutable once emitted. Updates require emitting a new object with the same `id`.
+2. **Deduplication:** The Notification Service must treat objects with identical `id` as updates to the existing state, not new stacking alerts.
+3. **Persistence:** Logic Modules are responsible for emitting a "Clear" signal (or an empty/null object) when a Persistent notification state is resolved.
 
 ## 5. Notification Register
 
 This register lists all defined notifications in the system to ensure uniqueness and traceability.
 
 | ID | Title / Message | Severity | Source Requirement | Trigger / Condition |
-|:---|:---|:---|:---|:---|
+ | :--- | :--- | :---: | :--- | :--- |
 | `WARN-AC-001` | Registration Duplicate | `WARNING` | [REQ-AC-003](../requirements/aircraft_management.md#REQ-AC-003) | If an aircraft registration already exists. |
 | `WARN-AC-002` | Draft Profile Active | `WARNING` | [REQ-AC-005](../requirements/aircraft_management.md#REQ-AC-005) | Calculations performed with a `Draft` profile. |
 | `WARN-FE-001` | Insufficient Fuel | `WARNING` | [REQ-FE-003](../requirements/fuel_endurance.md#REQ-FE-003) | If the planned flight time (including reserves) exceeds the calculated maximum flight time (Endurance). |

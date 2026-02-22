@@ -9,9 +9,9 @@
 
 ## Considered Options
 
-*   **[Option 1]:** [Description of the option]
-*   **[Option 2]:** [Description of the option]
-*   **[Option 3]:** [Description of the option]
+* **[Option 1]:** [Description of the option]
+* **[Option 2]:** [Description of the option]
+* **[Option 3]:** [Description of the option]
 
 ## Decision
 
@@ -23,13 +23,13 @@
 
 ### Positive
 
-*   [Positive consequence 1]
-*   [Positive consequence 2]
+* [Positive consequence 1]
+* [Positive consequence 2]
 
 ### Negative
 
-*   [Negative consequence 1]
-*   [Negative consequence 2]
+* [Negative consequence 1]
+* [Negative consequence 2]
 
 ## Compliance
 

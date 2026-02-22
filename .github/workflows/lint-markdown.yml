@@ -50,4 +50,4 @@ jobs:
         if: github.event_name == 'pull_request' && github.base_ref == 'main'
         run: |
           echo "Linting ALL Markdown files in the repository..."
-          markdownlint-cli2 "**/*.md" "#node_modules"
+          markdownlint-cli2 "**/*.md"

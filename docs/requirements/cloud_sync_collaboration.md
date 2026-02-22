@@ -7,7 +7,7 @@ This document defines the cloud, sync and collaboration behavior using the **EAR
 ## Requirements
 
 | Req-ID | Requirement | Rationale / Context | Priority | Mitigation Hazard ID | Status | Design Reference |
-|:---|:---|:---|:---|:---|:---|:---|
+ | :--- | :--- | :--- | :---: | :---: | :--- | :--- |
 | **<a name="REQ-SC-001"></a>REQ-SC-001** | The system shall authenticate users via external Identity Providers (OIDC). | Convenience and security outsourcing (OAuth). | P3 | n/a | Approved | n/a |
 | **<a name="REQ-SC-002"></a>REQ-SC-002** | When an internet connection is available, the system shall synchronize local databases with the cloud backend, prioritizing the cloud state for Organization Data (read-only conflict resolution). | Ensures members always have the latest legally valid club aircraft data. | P3 | n/a | Approved | n/a |
 | **<a name="REQ-SC-003"></a>REQ-SC-003** | The system shall segregate data into "Personal Workspaces" (Full Access for the user) and "Organization Workspaces" (Role-based Access). | Allows mixed usage (Owner + Club Member) in one app. | P3 | n/a | Approved | n/a |
