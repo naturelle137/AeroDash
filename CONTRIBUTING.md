@@ -85,7 +85,8 @@ We use a multi-layered approach to catch issues as early as possible.
 ### Local (Pre-commit / Pre-push)
 
 Before you can push your branch, your code must pass local quality gates. You should set up your environment to run these automatically.
-*   **Linting & Typing:** We use [TBD - Tech Stack Dependent Tools] to catch type errors and enforce our P1 isolation architecture (e.g., ensuring P1 modules don't import P3 modules).
+*   **Linting & Typing:** We use specific linting tools depending on the module. For documentation, we strictly enforce rules using `markdownlint-cli2`.
+    * To run the markdown linter locally for the entire repository, use: `npx markdownlint-cli2 "**/*.md" "#node_modules"`
 *   **Formatting:** All code must be strictly formatted according to project standards.
 
 ### CI (Automated Suites)
