@@ -4,6 +4,7 @@ Focus: Cloud synchronization, collaboration, and offline resilience.
 
 ---
 
+<!-- @UJ-G-001@ (FROM: @REQ-SC-001@, @REQ-SC-004@, @REQ-SC-006@) -->
 ## <a name="UJ-G-001"></a>UJ-G-001: New Club Member Onboarding
 
 **Goal:** Verify cloud sync and profile sharing workflows.
@@ -17,6 +18,7 @@ Focus: Cloud synchronization, collaboration, and offline resilience.
 * **Traceability:**
   * **Requirements:** [REQ-SC-001](../requirements/cloud_sync_collaboration.md#REQ-SC-001), [REQ-SC-004](../requirements/cloud_sync_collaboration.md#REQ-SC-004), [REQ-SC-006](../requirements/cloud_sync_collaboration.md#REQ-SC-006)
 
+<!-- @UJ-G-002@ (FROM: @REQ-SYS-001@, @REQ-SC-002@) -->
 ## <a name="UJ-G-002"></a>UJ-G-002: The "Offline" Fallback
 
 **Goal:** Verify system functionality without internet access.

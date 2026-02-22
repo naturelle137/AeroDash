@@ -4,6 +4,7 @@ Focus: Creating, validating, and managing aircraft profiles.
 
 ---
 
+<!-- @UJ-A-001@ (FROM: @REQ-AC-001@, @REQ-AC-005@, @REQ-AD-012@, @REQ-AD-014@) -->
 ## <a name="UJ-A-001"></a>UJ-A-001: The "Fleet Admin" Workflow (Complex Profile)
 
 **Goal:** Verify that complex aircraft data (variable arms, original units) can be modeled, verified, and locked.
@@ -18,6 +19,7 @@ Focus: Creating, validating, and managing aircraft profiles.
 * **Traceability:**
   * **Requirements:** [REQ-AC-001](../requirements/aircraft_management.md#REQ-AC-001), [REQ-AC-005](../requirements/aircraft_management.md#REQ-AC-005), [REQ-AD-012](../requirements/detailed_aircraft_data.md#REQ-AD-012), [REQ-AD-014](../requirements/detailed_aircraft_data.md#REQ-AD-014)
 
+<!-- @UJ-A-002@ (FROM: @REQ-SYS-003@, @REQ-SYS-004@, @REQ-UQ-005@) -->
 ## <a name="UJ-A-002"></a>UJ-A-002: Unit-Safety Check (Mixed Fleet)
 
 **Goal:** Verify strict enforcement of input labeling and SI normalization.

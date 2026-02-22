@@ -4,6 +4,7 @@ Focus: Standard operational workflows for Mass & Balance and Hybrid Performance.
 
 ---
 
+<!-- @UJ-B-001@ (FROM: @REQ-MB-008@, @REQ-MB-011@, @REQ-MB-004@, @REQ-UI-010@) -->
 ## <a name="UJ-B-001"></a>UJ-B-001: M&B with CG Migration (The "Burn-Out" Check)
 
 **Goal:** Verify detection of unsafe CG shifts during flight.
@@ -17,6 +18,7 @@ Focus: Standard operational workflows for Mass & Balance and Hybrid Performance.
 * **Traceability:**
   * **Requirements:** [REQ-MB-008](../requirements/mass_balance.md#REQ-MB-008), [REQ-MB-011](../requirements/mass_balance.md#REQ-MB-011), [REQ-MB-004](../requirements/mass_balance.md#REQ-MB-004), [REQ-UI-010](../requirements/user_interface.md#REQ-UI-010)
 
+<!-- @UJ-B-002@ (FROM: @REQ-PF-003@, @REQ-PF-004@, @REQ-PF-016@) -->
 ## <a name="UJ-B-002"></a>UJ-B-002: The "Hybrid Engine" Performance Calculation
 
 **Goal:** Verify hierarchical fallback logic (POH priority -> FSM 3/75 fallback).

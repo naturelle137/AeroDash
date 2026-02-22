@@ -6,25 +6,175 @@ This document defines the performance behavior using the **EARS** (Easy Approach
 
 ## Requirements
 
-| Req-ID | Requirement | Rationale / Context | Priority | Mitigation Hazard ID | Status | Design Reference |
- | :--- | :--- | :--- | :---: | :---: | :--- | :--- |
-| <!-- @REQ-PF-001@ -->  **<a name="REQ-PF-001"></a>REQ-PF-001** | The system shall calculate four distinct performance variables for every flight: Takeoff Run (TOR), Takeoff Distance to 50ft (TOD), Landing Roll (LR), and Landing Distance from 50ft (LD). | Complete performance picture required for phase-specific corrections. | P1 | n/a | Approved | n/a |
-| <!-- @REQ-PF-002@ (FROM: @H-004@, @H-004@) -->  **<a name="REQ-PF-002"></a>REQ-PF-002** | The system shall determine base performance values via bilinear interpolation of the aircraft's POH tables, utilizing Mass, Pressure Altitude, and Temperature. | Core engine for certified baseline data. | P1 | [H-004](../risk_management/safety_hazards.md#H-004) | Approved | n/a |
-| <!-- @REQ-PF-003@ -->  **<a name="REQ-PF-003"></a>REQ-PF-003** | When calculating environmental corrections (wind, surface, slope), the system shall apply a hierarchical fallback: prioritize explicit POH factors, and fall back to standard FSM 3/75 factors only if a specific parameter is undocumented in the POH. | The Hybrid Engine: Maximizes precision by combining POH specifics with safe, standardized fallbacks for missing data (e.g., wet grass). | P1 | n/a | Approved | n/a |
-| <!-- @REQ-PF-004@ -->  **<a name="REQ-PF-004"></a>REQ-PF-004** | The system shall apply surface friction and runway slope correction factors exclusively to the ground roll segments (TOR and LR), while Density Altitude and Wind factors shall be applied to the entire distance. | Mathematical correctness (friction does not affect the airborne climb segment). | P1 | n/a | Approved | n/a |
-| <!-- @REQ-PF-005@ -->  **<a name="REQ-PF-005"></a>REQ-PF-005** | When the aircraft profile lacks data for either the Ground Roll or the 50ft Distance for takeoff and/or landing, the system shall calculate the missing Base Value by applying a conservative conversion factor derived from UK CAA Safety Sense Leaflet 07 (Takeoff: $TOD = TOR \times 1.9$, Landing: $LD = LR \times 1.67$) before applying any Operational Safety Factor. | Graceful degradation for legacy handbooks. | P1 | n/a | Approved | n/a |
-| <!-- @REQ-PF-006@ -->  **<a name="REQ-PF-006"></a>REQ-PF-006** | The system shall calculate the Operational Required Distance by applying an Operational Safety Factor, allowing the user to select from predefined presets (EASA Standard, POH/AFM Specific, Short Field) or enter a custom numerical multiplier between $1.00$ and $3.00$. | Translates physical capability into legal/safe operational performance. EASA Standard Takeoff $1.25$, Landing $1.43$, Short Field Landing $1.15$. | P1 | n/a | Approved | n/a |
-| <!-- @REQ-PF-007@ -->  **<a name="REQ-PF-007"></a>REQ-PF-007** | The system shall calculate the Safety Margin as an absolute value (Available Runway minus Operational Required Distance) and as a percentage. | Intuitive Go/No-Go decision making. | P2 | n/a | Approved | n/a |
-| <!-- @REQ-PF-008@ -->  **<a name="REQ-PF-008"></a>REQ-PF-008** | The system shall allow the pilot to define custom obstacle constraints (Target Height at a specific Distance) to verify climb gradients over off-airport obstacles. | Support for local procedures (e.g., road clearances). | P2 | n/a | Approved | n/a |
-| <!-- @REQ-PF-009@ (FROM: @H-017@, @H-017@) -->  **<a name="REQ-PF-009"></a>REQ-PF-009** | While a pilot-defined obstacle is active, the system shall return a Notification: `{ "id": "WARN-PF-001", "severity": "WARNING", "message": "Unverified Obstacle Data", "context": "Performance.Obstacles" }`. | Disclaims liability for user-measured Google Maps distances/heights. | P1 | [H-017](../risk_management/safety_hazards.md#H-017) | Approved | [Notification Scheme](#notificationScheme) |
-| <!-- @REQ-PF-010@ (FROM: @H-007@, @H-007@, @H-012@, @H-012@) -->  **<a name="REQ-PF-010"></a>REQ-PF-010** | If extrapolation beyond the POH table limits is required for worse conditions (e.g., higher mass/temp), the system shall limit extrapolation to 10% and apply an additional 20% safety penalty. | Prevents optimistic data outside the certified envelope. | P1 | [H-007](../risk_management/safety_hazards.md#H-007), [H-012](../risk_management/safety_hazards.md#H-012) | Approved | n/a |
-| <!-- @REQ-PF-011@ (FROM: @H-013@, @H-013@) -->  **<a name="REQ-PF-011"></a>REQ-PF-011** | The system shall strictly cap performance benefits at the best-case POH values; calculated distances shall never be shorter than the documented minimums (Minimum Distance Rule). | Prevents dangerous underestimations in extreme cold or low density altitudes. | P1 | [H-013](../risk_management/safety_hazards.md#H-013) | Approved | n/a |
-| <!-- @REQ-PF-012@ (FROM: @H-012@, @H-012@) -->  **<a name="REQ-PF-012"></a>REQ-PF-012** | When extrapolated data is used, the system shall require explicit user confirmation ("Pilot-in-Command acknowledges extrapolated data"). | Legal safety barrier. | P1 | [H-012](../risk_management/safety_hazards.md#H-012) | Approved | n/a |
-| <!-- @REQ-PF-013@ -->  **<a name="REQ-PF-013"></a>REQ-PF-013** | The system shall calculate Pressure Altitude utilizing the formula: PA = Elevation + (1013.25 - QNH) × 30. | Standardizes the entry parameter for all POH chart lookups. | P1 | n/a | Approved | n/a |
-| <!-- @REQ-PF-014@ (FROM: @H-014@, @H-014@) -->  **<a name="REQ-PF-014"></a>REQ-PF-014** | If the calculated crosswind or tailwind component exceeds the POH demonstrated limits, the system shall return a Notification: `{ "id": "CRIT-PF-001", "severity": "CRITICAL", "message": "Crosswind Limit Exceeded", "context": "Performance.Wind" }`. | High-risk hazard mitigation. | P1 | [H-014](../risk_management/safety_hazards.md#H-014) | Approved | [Notification Scheme](#notificationScheme) |
-| <!-- @REQ-PF-015@ (FROM: @H-008@, @H-008@) -->  **<a name="REQ-PF-015"></a>REQ-PF-015** | If the Operational Required Distance exceeds the published Available Distance (TORA/LDA), the system shall return a Notification: `{ "id": "CRIT-PF-002", "severity": "CRITICAL", "message": "Runway Insufficient", "context": "Performance.RunwayLength" }`. | The ultimate purpose of the tool. | P1 | [H-008](../risk_management/safety_hazards.md#H-008) | Approved | [Notification Scheme](#notificationScheme) |
-| <!-- @REQ-PF-016@ (FROM: @H-008@, @H-008@, @H-016@, @H-016@) -->  **<a name="REQ-PF-016"></a>REQ-PF-016** | If the user-selected Operational Safety Factor is lower than the greater of the POH-mandated factor and the regulatory baseline (Takeoff: 1.25, Landing: 1.43), then the system shall return a Notification: `{ "id": "WARN-PF-002", "severity": "WARNING", "message": "Safety Factor Low", "context": "Performance.SafetyFactor" }`. | Pilot's final descision of safety factors with warning systems if standard safety margins decrease. | P1 | [H-008](../risk_management/safety_hazards.md#H-008), [H-016](../risk_management/safety_hazards.md#H-016) | Approved | [Notification Scheme](#notificationScheme) |
-| <!-- @REQ-PF-017@ -->  **<a name="REQ-PF-017"></a>REQ-PF-017** | If a performance value is derived using the REQ-PF-005 estimation logic, the system shall flag the result as "ESTIMATED (CAA SSL 07)" in both the user interface and the export documentation. | Transparency. Ensures the pilot is aware that the values are derived via generic factors and not specific airframe testing. | P1 | n/a | Approved | n/a |
+<!-- @REQ-PF-001@ -->
+### REQ-PF-001
+
+**Requirement:** The system shall calculate four distinct performance variables for every flight: Takeoff Run (TOR), Takeoff Distance to 50ft (TOD), Landing Roll (LR), and Landing Distance from 50ft (LD).
+**Rationale:** Complete performance picture required for phase-specific corrections.
+**Priority:** P1
+**Mitigation Hazard:** n/a
+**Status:** Approved
+**Design Reference:** n/a
+
+<!-- @REQ-PF-002@ (FROM: @H-004@, @H-004@) -->
+### REQ-PF-002
+
+**Requirement:** The system shall determine base performance values via bilinear interpolation of the aircraft's POH tables, utilizing Mass, Pressure Altitude, and Temperature.
+**Rationale:** Core engine for certified baseline data.
+**Priority:** P1
+**Mitigation Hazard:** [H-004](../risk_management/safety_hazards.md#H-004)
+**Status:** Approved
+**Design Reference:** n/a
+
+<!-- @REQ-PF-003@ -->
+### REQ-PF-003
+
+**Requirement:** When calculating environmental corrections (wind, surface, slope), the system shall apply a hierarchical fallback: prioritize explicit POH factors, and fall back to standard FSM 3/75 factors only if a specific parameter is undocumented in the POH.
+**Rationale:** The Hybrid Engine: Maximizes precision by combining POH specifics with safe, standardized fallbacks for missing data (e.g., wet grass).
+**Priority:** P1
+**Mitigation Hazard:** n/a
+**Status:** Approved
+**Design Reference:** n/a
+
+<!-- @REQ-PF-004@ -->
+### REQ-PF-004
+
+**Requirement:** The system shall apply surface friction and runway slope correction factors exclusively to the ground roll segments (TOR and LR), while Density Altitude and Wind factors shall be applied to the entire distance.
+**Rationale:** Mathematical correctness (friction does not affect the airborne climb segment).
+**Priority:** P1
+**Mitigation Hazard:** n/a
+**Status:** Approved
+**Design Reference:** n/a
+
+<!-- @REQ-PF-005@ -->
+### REQ-PF-005
+
+**Requirement:** When the aircraft profile lacks data for either the Ground Roll or the 50ft Distance for takeoff and/or landing, the system shall calculate the missing Base Value by applying a conservative conversion factor derived from UK CAA Safety Sense Leaflet 07 (Takeoff: $TOD = TOR \times 1.9$, Landing: $LD = LR \times 1.67$) before applying any Operational Safety Factor.
+**Rationale:** Graceful degradation for legacy handbooks.
+**Priority:** P1
+**Mitigation Hazard:** n/a
+**Status:** Approved
+**Design Reference:** n/a
+
+<!-- @REQ-PF-006@ -->
+### REQ-PF-006
+
+**Requirement:** The system shall calculate the Operational Required Distance by applying an Operational Safety Factor, allowing the user to select from predefined presets (EASA Standard, POH/AFM Specific, Short Field) or enter a custom numerical multiplier between $1.00$ and $3.00$.
+**Rationale:** Translates physical capability into legal/safe operational performance. EASA Standard Takeoff $1.25$, Landing $1.43$, Short Field Landing $1.15$.
+**Priority:** P1
+**Mitigation Hazard:** n/a
+**Status:** Approved
+**Design Reference:** n/a
+
+<!-- @REQ-PF-007@ -->
+### REQ-PF-007
+
+**Requirement:** The system shall calculate the Safety Margin as an absolute value (Available Runway minus Operational Required Distance) and as a percentage.
+**Rationale:** Intuitive Go/No-Go decision making.
+**Priority:** P2
+**Mitigation Hazard:** n/a
+**Status:** Approved
+**Design Reference:** n/a
+
+<!-- @REQ-PF-008@ -->
+### REQ-PF-008
+
+**Requirement:** The system shall allow the pilot to define custom obstacle constraints (Target Height at a specific Distance) to verify climb gradients over off-airport obstacles.
+**Rationale:** Support for local procedures (e.g., road clearances).
+**Priority:** P2
+**Mitigation Hazard:** n/a
+**Status:** Approved
+**Design Reference:** n/a
+
+<!-- @REQ-PF-009@ (FROM: @H-017@, @H-017@) -->
+### REQ-PF-009
+
+**Requirement:** While a pilot-defined obstacle is active, the system shall return a Notification: `{ "id": "WARN-PF-001", "severity": "WARNING", "message": "Unverified Obstacle Data", "context": "Performance.Obstacles" }`.
+**Rationale:** Disclaims liability for user-measured Google Maps distances/heights.
+**Priority:** P1
+**Mitigation Hazard:** [H-017](../risk_management/safety_hazards.md#H-017)
+**Status:** Approved
+**Design Reference:** [Notification Scheme](#notificationScheme)
+
+<!-- @REQ-PF-010@ (FROM: @H-007@, @H-007@, @H-012@, @H-012@) -->
+### REQ-PF-010
+
+**Requirement:** If extrapolation beyond the POH table limits is required for worse conditions (e.g., higher mass/temp), the system shall limit extrapolation to 10% and apply an additional 20% safety penalty.
+**Rationale:** Prevents optimistic data outside the certified envelope.
+**Priority:** P1
+**Mitigation Hazard:** [H-007](../risk_management/safety_hazards.md#H-007), [H-012](../risk_management/safety_hazards.md#H-012)
+**Status:** Approved
+**Design Reference:** n/a
+
+<!-- @REQ-PF-011@ (FROM: @H-013@, @H-013@) -->
+### REQ-PF-011
+
+**Requirement:** The system shall strictly cap performance benefits at the best-case POH values; calculated distances shall never be shorter than the documented minimums (Minimum Distance Rule).
+**Rationale:** Prevents dangerous underestimations in extreme cold or low density altitudes.
+**Priority:** P1
+**Mitigation Hazard:** [H-013](../risk_management/safety_hazards.md#H-013)
+**Status:** Approved
+**Design Reference:** n/a
+
+<!-- @REQ-PF-012@ (FROM: @H-012@, @H-012@) -->
+### REQ-PF-012
+
+**Requirement:** When extrapolated data is used, the system shall require explicit user confirmation ("Pilot-in-Command acknowledges extrapolated data").
+**Rationale:** Legal safety barrier.
+**Priority:** P1
+**Mitigation Hazard:** [H-012](../risk_management/safety_hazards.md#H-012)
+**Status:** Approved
+**Design Reference:** n/a
+
+<!-- @REQ-PF-013@ -->
+### REQ-PF-013
+
+**Requirement:** The system shall calculate Pressure Altitude utilizing the formula: PA = Elevation + (1013.25 - QNH) × 30.
+**Rationale:** Standardizes the entry parameter for all POH chart lookups.
+**Priority:** P1
+**Mitigation Hazard:** n/a
+**Status:** Approved
+**Design Reference:** n/a
+
+<!-- @REQ-PF-014@ (FROM: @H-014@, @H-014@) -->
+### REQ-PF-014
+
+**Requirement:** If the calculated crosswind or tailwind component exceeds the POH demonstrated limits, the system shall return a Notification: `{ "id": "CRIT-PF-001", "severity": "CRITICAL", "message": "Crosswind Limit Exceeded", "context": "Performance.Wind" }`.
+**Rationale:** High-risk hazard mitigation.
+**Priority:** P1
+**Mitigation Hazard:** [H-014](../risk_management/safety_hazards.md#H-014)
+**Status:** Approved
+**Design Reference:** [Notification Scheme](#notificationScheme)
+
+<!-- @REQ-PF-015@ (FROM: @H-008@, @H-008@) -->
+### REQ-PF-015
+
+**Requirement:** If the Operational Required Distance exceeds the published Available Distance (TORA/LDA), the system shall return a Notification: `{ "id": "CRIT-PF-002", "severity": "CRITICAL", "message": "Runway Insufficient", "context": "Performance.RunwayLength" }`.
+**Rationale:** The ultimate purpose of the tool.
+**Priority:** P1
+**Mitigation Hazard:** [H-008](../risk_management/safety_hazards.md#H-008)
+**Status:** Approved
+**Design Reference:** [Notification Scheme](#notificationScheme)
+
+<!-- @REQ-PF-016@ (FROM: @H-008@, @H-008@, @H-016@, @H-016@) -->
+### REQ-PF-016
+
+**Requirement:** If the user-selected Operational Safety Factor is lower than the greater of the POH-mandated factor and the regulatory baseline (Takeoff: 1.25, Landing: 1.43), then the system shall return a Notification: `{ "id": "WARN-PF-002", "severity": "WARNING", "message": "Safety Factor Low", "context": "Performance.SafetyFactor" }`.
+**Rationale:** Pilot's final descision of safety factors with warning systems if standard safety margins decrease.
+**Priority:** P1
+**Mitigation Hazard:** [H-008](../risk_management/safety_hazards.md#H-008), [H-016](../risk_management/safety_hazards.md#H-016)
+**Status:** Approved
+**Design Reference:** [Notification Scheme](#notificationScheme)
+
+<!-- @REQ-PF-017@ -->
+### REQ-PF-017
+
+**Requirement:** If a performance value is derived using the REQ-PF-005 estimation logic, the system shall flag the result as "ESTIMATED (CAA SSL 07)" in both the user interface and the export documentation.
+**Rationale:** Transparency. Ensures the pilot is aware that the values are derived via generic factors and not specific airframe testing.
+**Priority:** P1
+**Mitigation Hazard:** n/a
+**Status:** Approved
+**Design Reference:** n/a
 
 ---
 

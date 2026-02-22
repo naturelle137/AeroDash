@@ -4,6 +4,7 @@ Focus: Testing limits, extrapolation, and overrides.
 
 ---
 
+<!-- @UJ-C-001@ (FROM: @REQ-PF-010@, @REQ-PF-012@, @REQ-PF-015@, @REQ-PF-006@) -->
 ## <a name="UJ-C-001"></a>UJ-C-001: Hot & High + Controlled Extrapolation
 
 **Goal:** Verify handling of "Edge of Envelope" conditions.
@@ -17,6 +18,7 @@ Focus: Testing limits, extrapolation, and overrides.
 * **Traceability:**
   * **Requirements:** [REQ-PF-010](../requirements/performance.md#REQ-PF-010), [REQ-PF-012](../requirements/performance.md#REQ-PF-012), [REQ-PF-015](../requirements/performance.md#REQ-PF-015), [REQ-PF-006](../requirements/performance.md#REQ-PF-006)
 
+<!-- @UJ-C-002@ (FROM: @REQ-AP-003@, @REQ-AP-006@, @REQ-PF-008@, @REQ-PF-009@) -->
 ## <a name="UJ-C-002"></a>UJ-C-002: The "Unknown Airfield" (Manual Override)
 
 **Goal:** Verify PIC authority for data outside system DB.

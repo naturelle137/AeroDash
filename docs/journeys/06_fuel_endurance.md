@@ -4,6 +4,7 @@ Focus: Fuel management, endurance calculations, and complex mass & balance inter
 
 ---
 
+<!-- @UJ-F-001@ (FROM: @REQ-FE-002@, @REQ-FE-003@, @REQ-FE-005@) -->
 ## <a name="UJ-F-001"></a>UJ-F-001: The "Long Haul" (Endurance Check)
 
 **Goal:** Verify fuel endurance logic and reserve calculations.
@@ -19,6 +20,7 @@ Focus: Fuel management, endurance calculations, and complex mass & balance inter
 * **Traceability:**
   * **Requirements:** [REQ-FE-002](../requirements/fuel_endurance.md#REQ-FE-002), [REQ-FE-003](../requirements/fuel_endurance.md#REQ-FE-003), [REQ-FE-005](../requirements/fuel_endurance.md#REQ-FE-005)
 
+<!-- @UJ-F-002@ (FROM: @REQ-FE-001@, @REQ-MB-002@) -->
 ## <a name="UJ-F-002"></a>UJ-F-002: Fuel Type Density Mix-up
 
 **Goal:** Verify correct mass calculation based on fuel type density.

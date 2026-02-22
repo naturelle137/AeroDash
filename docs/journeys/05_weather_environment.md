@@ -4,6 +4,7 @@ Focus: Meteorological data integration and surface condition logic.
 
 ---
 
+<!-- @UJ-E-001@ (FROM: @REQ-WX-001@, @REQ-WX-003@, @REQ-WX-004@, @REQ-WX-006@, @REQ-AP-004@) -->
 ## <a name="UJ-E-001"></a>UJ-E-001: The "Rainy Day" Scenario (WX Integration)
 
 **Goal:** Verify automation of surface condition defaults based on live weather data.
@@ -17,6 +18,7 @@ Focus: Meteorological data integration and surface condition logic.
 * **Traceability:**
   * **Requirements:** [REQ-WX-001](../requirements/weather_meterological_data.md#REQ-WX-001), [REQ-WX-003](../requirements/weather_meterological_data.md#REQ-WX-003), [REQ-WX-004](../requirements/weather_meterological_data.md#REQ-WX-004), [REQ-WX-006](../requirements/weather_meterological_data.md#REQ-WX-006), [REQ-AP-004](../requirements/airport_database.md#REQ-AP-004)
 
+<!-- @UJ-E-002@ (FROM: @REQ-WX-007@, @REQ-WX-009@, @REQ-PF-014@) -->
 ## <a name="UJ-E-002"></a>UJ-E-002: The "Crosswind Challenge"
 
 **Goal:** Verify wind component calculation and critical alerts.
