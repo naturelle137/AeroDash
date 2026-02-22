@@ -1,0 +1,2 @@
+# Run markdown linting locally before committing
+npx markdownlint-cli2 "**/*.md" "#node_modules"
