@@ -1,0 +1,14 @@
+markdownlint-cli2 v0.21.0 (markdownlint v0.40.0)
+Finding: docs/**/*.md
+Linting: 40 file(s)
+Summary: 10 error(s)
+docs/requirements/traceability_matrix.md:55:29 error MD060/table-column-style Table column style [Table pipe does not align with header for style "aligned"]
+docs/requirements/traceability_matrix.md:56:29 error MD060/table-column-style Table column style [Table pipe does not align with header for style "aligned"]
+docs/requirements/traceability_matrix.md:155:1 error MD060/table-column-style Table column style [Table pipe is missing space to the right for style "compact"]
+docs/requirements/traceability_matrix.md:155:8 error MD060/table-column-style Table column style [Table pipe is missing space to the left for style "compact"]
+docs/requirements/traceability_matrix.md:155:8 error MD060/table-column-style Table column style [Table pipe is missing space to the right for style "compact"]
+docs/requirements/traceability_matrix.md:155:15 error MD060/table-column-style Table column style [Table pipe is missing space to the left for style "compact"]
+docs/requirements/traceability_matrix.md:289:1 error MD060/table-column-style Table column style [Table pipe is missing space to the right for style "compact"]
+docs/requirements/traceability_matrix.md:289:14 error MD060/table-column-style Table column style [Table pipe is missing space to the left for style "compact"]
+docs/requirements/traceability_matrix.md:289:14 error MD060/table-column-style Table column style [Table pipe is missing space to the right for style "compact"]
+docs/requirements/traceability_matrix.md:289:27 error MD060/table-column-style Table column style [Table pipe is missing space to the left for style "compact"]

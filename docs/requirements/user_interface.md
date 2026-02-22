@@ -8,24 +8,43 @@ This document defines the user interface behavior using the **EARS** (Easy Appro
 
 | Req-ID | Requirement | Rationale / Context | Priority | Mitigation Hazard ID | Status | Design Reference |
  | :--- | :--- | :--- | :---: | :---: | :--- | :--- |
+<!-- @REQ-UI-001@ -->
 | **<a name="REQ-UI-001"></a>REQ-UI-001** | When the user selects a manufacturer from the dropdown, the model dropdown shall be populated with models for that manufacturer. | Context-aware selection. | P2 | n/a | Approved | n/a |
+<!-- @REQ-UI-002@ -->
 | **<a name="REQ-UI-002"></a>REQ-UI-002** | When 'Other' is selected for manufacturer, the system shall replace the model dropdown with a text input field for manual entry. | Support for rare or one-off aircraft. | P1 | n/a | Approved | n/a |
+<!-- @REQ-UI-003@ -->
 | **<a name="REQ-UI-003"></a>REQ-UI-003** | When a model is selected, the ICAO aircraft type designator field shall be auto-filled. | Faster and more accurate identification. | P2 | n/a | Approved | n/a |
+<!-- @REQ-UI-004@ -->
 | **<a name="REQ-UI-004"></a>REQ-UI-004** | When a valid ICAO type designator is entered, the system shall display a selection list of matching Manufacturer/Model combinations. | Bidirectional lookup for convenience. | P2 | n/a | Approved | n/a |
+<!-- @REQ-UI-005@ -->
 | **<a name="REQ-UI-005"></a>REQ-UI-005** | The system shall display the 5 most recently used airports at the top of the airport selection interface. | Speed up data entry for frequent routes. | P3 | n/a | Approved | n/a |
+<!-- @REQ-UI-006@ -->
 | **<a name="REQ-UI-006"></a>REQ-UI-006** | The system shall display available Passenger Profiles for quick selection within the load station input fields | Operational efficiency for frequent flyers. | P2 | n/a | Approved | n/a |
+<!-- @REQ-UI-007@ (FROM: @H-008@, @H-008@) -->
 | **<a name="REQ-UI-007"></a>REQ-UI-007** | The system shall aggregate the validation states returned by the calculation modules (Mass & Balance, Performance, Weather) and display a consolidated "Traffic Light" status (Green/Amber/Red) visible at all times during flight preparation. | Safety check at high-frequency entry. | P1 | [H-008](../risk_management/safety_hazards.md#H-008) | Approved | n/a |
+<!-- @REQ-UI-008@ -->
 | **<a name="REQ-UI-008"></a>REQ-UI-008** | The system shall return a Notification: `{ "id": "WARN-UI-001", "severity": "WARNING", "message": "Input Out of Range", "context": "UI.Input" }` when numeric inputs are outside standard operational ranges ($QNH \notin [950, 1100]\,\text{hPa}$, Temperature $\notin [-40, +50]\,\text{°C}$), but shall allow entry confirmation. | Prevents fat-finger errors during planning. | P1 | n/a | Approved | [Notification Scheme](#notificationScheme) |
+<!-- @REQ-UI-009@ (FROM: @H-005@, @H-005@) -->
 | **<a name="REQ-UI-009"></a>REQ-UI-009** | When a certification category is changed, the system shall immediately recalculate all limits and update the display. | Dynamic context switching (e.g., for aerobatics). | P1 | [H-005](../risk_management/safety_hazards.md#H-005) | Approved | n/a |
+<!-- @REQ-UI-010@ (FROM: @H-006@, @H-006@) -->
 | **<a name="REQ-UI-010"></a>REQ-UI-010** | The CG envelope chart shall render a "Trend Line" connecting the Take-off CG point and the Landing CG point to visualize the fuel burn shift. | Provides intuitive feedback on how the aircraft balance changes during flight. | P1 | [H-006](../risk_management/safety_hazards.md#H-006) | Approved | n/a |
+<!-- @REQ-UI-011@ (FROM: @H-018@, @H-018@) -->
 | **<a name="REQ-UI-011"></a>REQ-UI-011** | The system shall provide a toggleable "Dark Mode" (high contrast, black/red or black/green theme). | Preserve pilot night vision during night operations. | P3 | [H-018](../risk_management/safety_hazards.md#H-018) | Approved | n/a |
+<!-- @REQ-UI-012@ -->
 | **<a name="REQ-UI-012"></a>REQ-UI-012** | When the user activates the dedicated information icon adjacent to a complex data field or acronym, the system shall display a contextual explanation of that term in a pop-over element (Tooltip). | Clarifies complex aviation terminology (e.g., TORA, ASDA, MZFM) to prevent misinterpretation and data entry errors. "Activates" ensures compatibility with touch devices. | P2 | n/a | Approved | n/a |
+<!-- @REQ-UI-013@ (FROM: @H-019@, @H-019@) -->
 | **<a name="REQ-UI-013"></a>REQ-UI-013** | The system shall display the current Semantic Version (SemVer) and Release Date in a dedicated "About" view. | Enables manual verification of the software state by the pilot. | P2 | [H-019](../risk_management/safety_hazards.md#H-019) | Approved | n/a |
+<!-- @REQ-UI-014@ -->
 | **<a name="REQ-UI-014"></a>REQ-UI-014** | The system shall provide a toggle control adjacent to each Unverified data field that transitions the status to Verified upon user activation. | Allows granular verification during planning ("Clean as you go"). | P2 | n/a | Approved | n/a |
+<!-- @REQ-UI-015@ (FROM: @H-015@, @H-015@) -->
 | **<a name="REQ-UI-015"></a>REQ-UI-015** | When the user triggers the "Save" or "Export" action for a calculation containing parameters with `Unverified` status, the system shall return a Notification: `{ "id": "CRIT-UI-001", "severity": "CRITICAL", "message": "Unverified Data Present", "context": "UI.Validation", "action": { "label": "Review", "event": "ui.review_unverified", "payload": { "parameters": ["<list_of_field_paths>"], "canForceSave": true } } }`. The action shall list all parameters with `Unverified` status and their current values. | Safety Gate. Prevents silent usage of unverified data. | P1 | [H-015](../risk_management/safety_hazards.md#H-015) | Approved | [Notification Scheme](#notificationScheme) |
+<!-- @REQ-UI-016@ -->
 | **<a name="REQ-UI-016"></a>REQ-UI-016** | The confirmation dialog [REQ-UI-015](#REQ-UI-015) shall provide an option to "Mark all as Verified" which transitions the status of all current airport parameters to `Verified` in the local database. | Efficiency for "Verify at the end" workflow. | P2 | n/a | Approved | n/a |
+<!-- @REQ-UI-017@ (FROM: @H-016@, @H-016@) -->
 | **<a name="REQ-UI-017"></a>REQ-UI-017** | When the user triggers the "Save" or "Export" action for a calculation containing an Operational Safety Factor below the greater of the POH-mandated factor and the regulatory baseline (Takeoff: 1.25, Landing: 1.43), the system shall return a Notification: `{ "id": "CRIT-UI-002", "severity": "CRITICAL", "message": "Safety Factor Low", "context": "UI.Validation", "action": { "label": "Confirm", "event": "ui.confirm_safety_factor", "payload": { "currentFactor": 1.10, "requiredFactor": 1.25, "context": "Takeoff" } } }`. | Safety Gate. Prevents silent usage of too low safety factors. | P1 | [H-016](../risk_management/safety_hazards.md#H-016) | Approved | [Notification Scheme](#notificationScheme) |
+<!-- @REQ-UI-018@ -->
 | **<a name="REQ-UI-018"></a>REQ-UI-018** | The system shall subscribe to the Notification Service and render notifications based on their severity: <ul><li>`INFO`: Toast/Banner</li> <li>`WARNING`: Dismissible Alert or Field Indicator</li> <li>`CRITICAL`: Blocking Modal or Flashing Alert</li></ul> | Consistent user experience for different urgency levels. | P1 | [H-008](../risk_management/safety_hazards.md#H-008) | Approved | [Notification Scheme](#notificationScheme) |
+<!-- @REQ-UI-019@ (FROM: @H-006@, @H-006@) -->
 | **<a name="REQ-UI-019"></a>REQ-UI-019** | The system shall render the CG Envelope Polygon defined by the Mass & Balance module as the background layer of the loading chart, with the Zero Fuel Mass (ZFM), Take-off Mass (TOM), and Landing Mass (LM) points overlaid. | Ensure clear visualization of the aircraft's safe loading limits and flight progression. | P1 | [H-006](../risk_management/safety_hazards.md#H-006) | Approved | n/a |
 
 ---

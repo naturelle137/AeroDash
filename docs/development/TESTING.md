@@ -68,3 +68,16 @@ Before pushing to your branch or opening a PR, ensure you have run the full loca
 ```
 
 If your changes cause the coverage to dip below the required threshold, the CI pipeline **will fail your build**.
+
+---
+
+## 🔗 5. Traceability Engine Tags
+
+To fulfill our Docs-as-Code safety obligations, every unit, integration, and E2E test file must include a traceability tag associating the test directly with a specific Code Implementation or User Journey.
+
+You must place a `shtracer` comment inside your test files.
+
+* Example matching to Implementation: `// @TC-SYS-001@ (FROM: @IMP-SYS-001@)`
+* Example matching to a Journey: `// @TC-SYS-002@ (FROM: @UJ-STRESS-001@)`
+
+This acts as the final verification link in our Master Traceability Matrix, permanently proving that the mitigations required by a safety hazard are verified in code.

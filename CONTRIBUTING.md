@@ -136,6 +136,7 @@ A "Good PR" is small, focused, and easy to review.
 * **Review your own code first!**
 * You **must** use our `.github/pull_request_template.md` and check all applicable boxes, specifically the Safety Considerations and Traceability sections.
 * If your changes affect Requirements, Architecture, or Risk Mitigation, you must update the corresponding `docs/` files in the same PR.
+* **Traceability Tags:** You must include `shtracer` inline code tags (e.g., `// @IMP-SYS-001@ (FROM: @REQ-SYS-001@)`) inside your new source files linking your implementation to the upstream Master Traceability Matrix requirements.
 
 ## 7. 🏗️ P1 Constraints (The Safety Core)
 

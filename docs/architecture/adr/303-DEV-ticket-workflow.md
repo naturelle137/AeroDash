@@ -23,6 +23,7 @@ We will use a canonical GitHub Project Board ("AeroDash Backlog") driven by spec
     * `Task` tickets (sub-tasks) can be closed as soon as their specific PR is merged to `develop`.
     * Parent tickets (`Feature` or `Bug`) **cannot** advance to `Ready for Release` until **all** corresponding sub-tasks are closed.
     * Parent tickets are only moved to `Done` and `fixed` when the cumulative changes are released on the `main` production branch.
+4. **Traceability Checks:** Developers must ensure all Source Code and Test files contain the appropriate `shtracer` tags (e.g., `// @IMP-SYS-001@ (FROM: @REQ-SYS-001@)`) linking back to the Master Traceability Matrix before marking any ticket as `Ready for Release`.
 
 ## Consequences
 
