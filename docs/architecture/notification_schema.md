@@ -1,5 +1,6 @@
 # AeroDash Architecture - Notification System Schema
 
+<!-- @ARCH-001@ (FROM: @REQ-SYS-007@, @REQ-SYS-008@)-->
 **Version:** 1.0
 **Date:** 2026-02-19
 **Status:** Approved

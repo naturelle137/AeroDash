@@ -7,42 +7,38 @@ This document defines the documentation & export behavior using the **EARS** (Ea
 ## Requirements
 
 <!-- @REQ-DOC-001@ -->
-### REQ-DOC-001
+### REQ-DOC-001: PDF Export Function
 
 **Requirement:** The system shall provide an export function (PDF or optimized print view) that summarizes mass and balance calculation results, and performance calculation results in a compact "Digital Briefing Pack."
 **Rationale:** Legal documentation and cockpit accessibility.
 **Priority:** P2
-**Mitigation Hazard:** n/a
 **Status:** Approved
 **Design Reference:** n/a
 
-<!-- @REQ-DOC-002@ (FROM: @H-015@, @H-015@) -->
-### REQ-DOC-002
+<!-- @REQ-DOC-002@ (FROM: @H-015@) -->
+### REQ-DOC-002: Unverified Data Marker
 
 **Requirement:** The system shall append the text marker `[UNVERIFIED]` to any parameter value in the generated output (PDF/Print) that has the status `Unverified`.
 **Rationale:** No accidental use of unverified data.
 **Priority:** P1
-**Mitigation Hazard:** [H-015](../risk_management/safety_hazards.md#H-015)
 **Status:** Approved
 **Design Reference:** n/a
 
-<!-- @REQ-DOC-003@ (FROM: @H-015@, @H-015@) -->
-### REQ-DOC-003
+<!-- @REQ-DOC-003@ (FROM: @H-015@) -->
+### REQ-DOC-003: Unverified Data Disclaimer
 
 **Requirement:** If the calculation contains `Unverified` data, then the system shall include a disclaimer section in the export stating: "Calculation based on unverified external data. Pilot in Command assumes full responsibility."
 **Rationale:** Legal liability transfer.
 **Priority:** P2
-**Mitigation Hazard:** [H-015](../risk_management/safety_hazards.md#H-015)
 **Status:** Approved
 **Design Reference:** n/a
 
-<!-- @REQ-DOC-004@ (FROM: @H-016@, @H-016@) -->
-### REQ-DOC-004
+<!-- @REQ-DOC-004@ (FROM: @H-016@) -->
+### REQ-DOC-004: Low Safety Margin Disclaimer
 
 **Requirement:** If the calculation uses a user-selected Operational Safety Factor that is lower than the greater of the POH-mandated factor and the regulatory baseline (Takeoff: 1.25, Landing: 1.43), then the system shall include a disclaimer section in the export stating: "Calculation based on low safety margin. Pilot in Command assumes full responsibility."
 **Rationale:** Legal liability transfer.
 **Priority:** P2
-**Mitigation Hazard:** [H-016](../risk_management/safety_hazards.md#H-016)
 **Status:** Approved
 **Design Reference:** n/a
 
