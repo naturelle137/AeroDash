@@ -4,28 +4,47 @@ Focus: Cloud synchronization, collaboration, and offline resilience.
 
 ---
 
-<!-- @UJ-G-001@ (FROM: @REQ-SC-001@, @REQ-SC-004@, @REQ-SC-006@) -->
-## <a name="UJ-G-001"></a>UJ-G-001: New Club Member Onboarding
+<!-- @UJ-G-001@ (FROM: @REQ-SC-001@, @REQ-SC-003@, @REQ-SC-004@) -->
+## <a name="UJ-G-001"></a>UJ-G-001: New Club Member Onboarding (Organization Sync)
 
 **Persona:** Student Pilot (New User)
 
-**Context:** A student pilot has just joined the aero club and needs the precise performance configuration for the club’s trainer.
+**Context:** A student pilot has just joined a flying club and needs access to the club’s trainer aircraft profiles for flight planning.
 
-**Goal:** Verify cloud sync and secure profile sharing workflows without data corruption risks.
+**Goal:** Verify organization-based role-assignment and automatic read-only sync without manual profile sharing.
 
 * **Journey:**
 | Phase | User Action | Thoughts | System Interaction |
 | :--- | :--- | :--- | :--- |
-| **Authentication** | User logs in via OIDC (Google/Apple). | "Just creating my account." | System provisions a new user profile. |
-| **Receiving Profile** | User receives a "Share-Code" for the club aircraft (e.g., `DA40-CLUB-123`). | "The CFI gave me this code." | - |
-| **Import Workflow** | User enters code into the "Import" dialog. | "Let's load up the trainer." | Aircraft Profile is fetched and imported into the user's "Personal Workspace". |
-| **Data Integrity Check** | User attempts to edit the empty weight of the imported profile. | "I wonder if I can change this..." | System blocks the action immediately. The Core Data remains Read-Only to preserve the club's trusted baseline. |
-| **Personal Use** | User edits their own "Pilot Mass" in the profile. | "I'll enter my own weight for balancing." | System allows local override of non-core data, saving the user's mass without affecting the club's shared template. |
+| **Authentication** | User logs in via OIDC (Google/Apple) for the first time. | "Just creating my account." | System provisions a new user profile with a default Personal Workspace. |
+| **Club Invite** | The Club Admin adds the user's email to the "AeroClub" Organization with the "Member" role. | "The admin said I was added to the system." | System links the user to the Organization Workspace. |
+| **Automatic Sync** | User opens the app and switches context to the "AeroClub" workspace. | "Let's find the trainer." | System automatically synchronizes all club aircraft profiles down to the user's device. |
+| **Data Integrity Check** | User attempts to edit the empty weight of the club's Cessna 152. | "I wonder if I can change this..." | System blocks the action. The profile is strictly Read-Only based on the "Member" role (`REQ-SC-004`). |
+| **Personal Use** | User creates a new Flight Plan using the club aircraft and edits their own "Pilot Mass". | "I'll enter my own weight for balancing." | System allows local data entry for the flight plan without altering the club's shared template. |
 
-**Outcome:** The student rapidly accesses a complex, perfectly calibrated aircraft profile, while the Club Administrator is mathematically guaranteed that the student cannot accidentally break the baseline data for the rest of the fleet.
+**Outcome:** The student seamlessly inherits access to perfectly calibrated, read-only aircraft profiles simply by being added to the club's organization, preventing accidental data corruption.
 
-<!-- @UJ-G-002@ (FROM: @REQ-SYS-001@, @REQ-SC-002@) -->
-## <a name="UJ-G-002"></a>UJ-G-002: The "Offline" Fallback
+<!-- @UJ-G-002@ (FROM: @REQ-SC-005@, @REQ-SC-006@) -->
+## <a name="UJ-G-002"></a>UJ-G-002: Ad-Hoc Aircraft Sharing (Share-Code)
+
+**Persona:** Independent Aircraft Owner
+
+**Context:** An owner of a Cessna 172 wants to share their highly customized performance profile with a friend who occasionally rents the same tiedown.
+
+**Goal:** Verify secure, peer-to-peer profile transfer using cryptographic share codes.
+
+* **Journey:**
+| Phase | User Action | Thoughts | System Interaction |
+| :--- | :--- | :--- | :--- |
+| **Code Generation** | Owner selects their Cessna profile in their Personal Workspace and clicks "Share". | "I'll just send him the config." | System generates a short, unique hexadecimal Share-Code (e.g., `A7F2B9`) and uploads a snapshot to the cloud. |
+| **Transmission** | Owner texts the hex code `A7F2B9` to their friend. | "Sent." | - |
+| **Import Workflow** | Friend enters `A7F2B9` into the "Import" dialog in their app. | "Let's load up his plane." | System validates the hex code, fetches the profile snapshot, and clones it into the friend's Personal Workspace. |
+| **Independence** | Friend edits the empty weight in their imported copy. | "I'll update the weight based on the latest W&B sheet he sent me." | System saves the change locally. Because it is a cloned copy, the original owner's profile remains completely unaffected. |
+
+**Outcome:** Two independent pilots efficiently share complex aircraft data without needing to create a formal organization, using robust hex codes to maintain complete independence of their personal databases.
+
+<!-- @UJ-G-003@ (FROM: @REQ-SYS-001@, @REQ-SC-002@) -->
+## <a name="UJ-G-003"></a>UJ-G-003: The "Offline" Fallback
 
 **Persona:** Pilot (In Flight / Remote Strip)
 
