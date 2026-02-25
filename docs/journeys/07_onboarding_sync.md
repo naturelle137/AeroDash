@@ -36,12 +36,12 @@ Focus: Cloud synchronization, collaboration, and offline resilience.
 * **Journey:**
 | Phase | User Action | Thoughts | System Interaction |
 | :--- | :--- | :--- | :--- |
-| **Code Generation** | Owner selects their Cessna profile in their Personal Workspace and clicks "Share". | "I'll just send him the config." | System generates a short, unique hexadecimal Share-Code (e.g., `A7F2B9`) and uploads a snapshot to the cloud. |
-| **Transmission** | Owner texts the hex code `A7F2B9` to their friend. | "Sent." | - |
-| **Import Workflow** | Friend enters `A7F2B9` into the "Import" dialog in their app. | "Let's load up his plane." | System validates the hex code, fetches the profile snapshot, and clones it into the friend's Personal Workspace. |
+| **Code Generation** | Owner selects their Cessna profile in their Personal Workspace and clicks "Share". | "I'll just send him the config." | System generates a short, unique Crockford's Base32 Share-Code (e.g., `7B9N-Q2X4`) and uploads a snapshot to the cloud. |
+| **Transmission** | Owner texts the code `7B9N-Q2X4` to their friend. | "Sent." | - |
+| **Import Workflow** | Friend enters `7B9N-Q2X4` into the "Import" dialog in their app. | "Let's load up his plane." | System validates the Base32 code, fetches the profile snapshot, and clones it into the friend's Personal Workspace. |
 | **Independence** | Friend edits the empty weight in their imported copy. | "I'll update the weight based on the latest W&B sheet he sent me." | System saves the change locally. Because it is a cloned copy, the original owner's profile remains completely unaffected. |
 
-**Outcome:** Two independent pilots efficiently share complex aircraft data without needing to create a formal organization, using robust hex codes to maintain complete independence of their personal databases.
+**Outcome:** Two independent pilots efficiently share complex aircraft data without needing to create a formal organization, using robust Crockford's Base32 codes to maintain complete independence of their personal databases.
 
 <!-- @UJ-G-003@ (FROM: @REQ-SYS-001@, @REQ-SC-002@) -->
 ## <a name="UJ-G-003"></a>UJ-G-003: The "Offline" Fallback
