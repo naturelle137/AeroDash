@@ -2,7 +2,7 @@
 
 This document defines the critical User Journeys simulating edge-cases and algorithmic boundary conditions. These scenarios are designed to stress-test the application's core mathematical limits and ensure that safety mechanisms (e.g., UI Warnings, Calculation Blocks) are triggered appropriately.
 
-These scenarios trace directly back to the mitigations defined in the `safety_hazards.md` document and serve as the foundation for our Unit/E2E BDD verification.
+These scenarios trace directly back to the mitigations defined in `safety_hazards.md`.
 
 ---
 
@@ -10,48 +10,97 @@ These scenarios trace directly back to the mitigations defined in the `safety_ha
 
 ### UJ-STRESS-001: The Sahara Switch (Temperature Boundary)
 
-* **Hazard Traced:** [H-012](../risk_management/safety_hazards.md#H-012)
-* **Goal:** Verify that the system handles extreme high-temperature scenarios correctly, either by applying a safety penalty (if within allowable 10% extrapolation limits) or blocking the calculation entirely.
-* **Scenario:** Pilot inputs +50°C and 5000ft elevation. The calculation should dynamically assess the Performance envelope and either abort with a clear warning, or extrapolate with a mathematically verified penalty.
+**Persona:** Pilot
+**Context:** A pilot is preparing for departure from Luxor International (HELX) during a severe summer heatwave.
+**Goal:** Verify extrapolation boundaries and safety penalties.
+
+* **Journey:**
+| Phase | User Action | Thoughts | System Interaction |
+| :--- | :--- | :--- | :--- |
+| **Heat Envelope** | Inputs 54°C (which is 4°C above the 50°C POH maximum). | "It's scorching today, but we should be within the 10% safety buffer for extrapolation." | Assesses the Performance envelope. Extrapolates distance natively with a mathematically verified +20% safety penalty and UI warning. |
+| **Boundary Breach** | The temperature rises. Pilot inputs 57°C. | "Getting even hotter... let's check the numbers again." | System aborts calculation with a clear block warning as it exceeds the 10% permissible extrapolation buffer. |
 
 ### UJ-STRESS-002: Burn-out Shift (Aft CG Validation)
 
-* **Hazard Traced:** [H-006](../risk_management/safety_hazards.md#H-006)
-* **Goal:** Verify that the dynamic Center of Gravity (CG) logic tracks fuel burn over time and flags an out-of-balance condition that occurs *after* takeoff.
-* **Scenario:** Pilot configures a flight with maximum passenger load and minimum fuel. While the Takeoff CG is within limits, the Landing CG shifts behind the aft limit due to fuel burn. The system must display a critical warning and show the trend line exiting the envelope.
+**Persona:** Pilot
+**Context:** A pilot is flying a heavily loaded aircraft to a destination 3 hours away, with two heavy passengers in the rear seats.
+**Goal:** Verify that a safe Takeoff CG does not mask an unsafe Landing CG.
 
-### UJ-STRESS-003: Boundary Breach (Strict Blocking)
+* **Journey:**
+| Phase | User Action | Thoughts | System Interaction |
+| :--- | :--- | :--- | :--- |
+| **Aft Load** | Configures max aft passenger load and minimum fuel for the trip. | "We're packed tight, let's check the balance." | Calculates Takeoff CG (Green). |
+| **Fuel Burn Simulation** | Reviews the migration line from Takeoff to Zero Fuel. | "How does the balance shift as we burn this fuel?" | Landing CG shifts behind the aft limit due to fuel burn. |
+| **Outcome** | App responds to the shift. | - | System displays a critical warning and visually shows the trend line exiting the safe envelope. |
 
-* **Hazard Traced:** [H-012](../risk_management/safety_hazards.md#H-012)
-* **Goal:** Verify that the system refuses to extrapolate data beyond the strictly permitted mathematical boundaries.
-* **Scenario:** Pilot attempts a takeoff calculation for a temperature exactly 11% above the POH table maximum. The system must strictly block the calculation and render an error.
+### UJ-STRESS-003: Altitude Breach (Strict Blocking)
+
+**Persona:** Pilot
+**Context:** A pilot attempting a high-altitude mountain lake departure during summer.
+**Goal:** Ensure pilots cannot mathematically invent performance data too far off-chart.
+
+* **Journey:**
+| Phase | User Action | Thoughts | System Interaction |
+| :--- | :--- | :--- | :--- |
+| **Breach Input** | Attempts takeoff calculation exactly 11% above POH max altitude table value. | "The charts don't go this high, but maybe the app will guess it." | Refuses to extrapolate. |
+| **Outcome** | App prevents operation. | - | System strictly blocks the calculation and renders a red error overlay. |
 
 ### UJ-STRESS-004: Penalty Application (Conditional Extrapolation)
 
-* **Hazard Traced:** [H-012](../risk_management/safety_hazards.md#H-012)
-* **Goal:** Verify that permitted extrapolations automatically apply the required regulatory safety penalties.
-* **Scenario:** Pilot attempts a calculation exactly 5% above the table max. The system must apply the required 20% safety penalty to the distance and visibly display a UI warning regarding the extrapolation.
+**Persona:** Pilot
+**Context:** A pilot operating slightly above the maximum tabulated weight for a grass strip.
+**Goal:** Verify permitted extrapolations automatically apply the required regulatory safety penalties.
+
+* **Journey:**
+| Phase | User Action | Thoughts | System Interaction |
+| :--- | :--- | :--- | :--- |
+| **Buffer Input** | Attempts calculation exactly 5% above the table max. | "Just a tiny bit over the chart, should be fine with a long runway." | Extrapolates distance natively. |
+| **Outcome** | System ensures safety. | - | System applies the required +20% safety penalty to the distance and displays an extrapolation warning UI flag. |
 
 ### UJ-STRESS-005: Minimum Distance Rule (Floor Imposition)
 
-* **Hazard Traced:** [H-013](../risk_management/safety_hazards.md#H-013)
-* **Goal:** Verify that optimistic "low-end" data does not result in an unsafe reduction of required runway distance.
-* **Scenario:** Pilot inputs conditions significantly better than POH minimums (e.g., -30°C density altitude). The system must floor the calculation at the lowest mapped POH boundary distance and never output a shorter value.
+**Persona:** Pilot
+**Context:** A pilot departing from a frozen runway in deep winter at -30°C.
+**Goal:** Verify optimistic data does not result in an unsafely low runway requirement.
+
+* **Journey:**
+| Phase | User Action | Thoughts | System Interaction |
+| :--- | :--- | :--- | :--- |
+| **Ideal Input** | Inputs -30°C density altitude (way below POH minimums). | "The air is super dense, we should lift off instantly." | Extrapolates distance downwards. |
+| **Outcome** | System sets a baseline. | - | System floors the calculation at the lowest mapped POH boundary distance and refuses to output a shorter value to maintain baseline safety. |
 
 ### UJ-STRESS-006: Crosswind Exceedance (Weather Interaction)
 
-* **Hazard Traced:** [H-014](../risk_management/safety_hazards.md#H-014)
-* **Goal:** Verify that live meteorological data correctly flags aerodynamic structural limits.
-* **Scenario:** System ingests METAR wind data proving a 20kt crosswind for an aircraft with a maximum demonstrated 15kt limit. A critical No-Go alert must be triggered.
+**Persona:** Pilot
+**Context:** A pilot preparing for departure during a strong frontal passage with unpredictable gusts.
+**Goal:** Ensure METAR wind data acts as an aerodynamic limit check.
+
+* **Journey:**
+| Phase | User Action | Thoughts | System Interaction |
+| :--- | :--- | :--- | :--- |
+| **Wind Input** | Selects runway and app ingests METAR showing a 20kt crosswind for a 15kt demonstrated craft. | "It's gusty, but it's mostly a headwind, right?" | Calculates crosswind vector natively. |
+| **Outcome** | Verifies limit alert. | - | A critical No-Go UI alert is triggered for exceeding demonstrated structural limits. |
 
 ### UJ-STRESS-007: Mixed Fleet Nightmare (Unit Normalization)
 
-* **Hazard Traced:** [H-001](../risk_management/safety_hazards.md#H-001), [H-002](../risk_management/safety_hazards.md#H-002)
-* **Goal:** Verify the flawless normalization of Imperial to Metric units within the internal SI reference frame.
-* **Scenario:** Pilot loads an imperial aircraft profile (lbs/Gal) into an environment globally configured for metric. The system must flawlessly convert and calculate the mass and balance without rounding errors.
+**Persona:** Pilot
+**Context:** A European pilot borrowing an American-registered aircraft configured in Imperial units.
+**Goal:** Verify flawless unit conversion without internal rounding loss.
+
+* **Journey:**
+| Phase | User Action | Thoughts | System Interaction |
+| :--- | :--- | :--- | :--- |
+| **Imperial Load** | Loads imperial profile (lbs/Gal) into their metric-configured environment. | "I'll enter my baggage in kg and let the app figure it out." | Parses non-SI values. |
+| **Outcome** | Verifies stability. | - | System flawlessly converts logic to SI on the backend, calculating M&B correctly without floating point rounding errors surfacing to the pilot. |
 
 ### UJ-STRESS-008: The "Make-it-Fit" Override (Regulatory Blocks)
 
-* **Hazard Traced:** [H-016](../risk_management/safety_hazards.md#H-016)
-* **Goal:** Verify that the system protects the pilot from bypassing minimum operational safety factors.
-* **Scenario:** Pilot attempts to manually set the Take-off Safety Factor to 1.0 (removing the EASA 1.25 buffer) to force a calculation to fit into a short runway. The system must warn the pilot against violating minimum regulatory standard practices.
+**Persona:** Pilot
+**Context:** A pilot trying to fly out of a marginal farm strip and wanting the numbers to look better on paper.
+**Goal:** Protect pilots from intentionally minimizing mandatory conservative buffers.
+
+* **Journey:**
+| Phase | User Action | Thoughts | System Interaction |
+| :--- | :--- | :--- | :--- |
+| **Override Attempt** | Sets Take-off Safety Factor to 1.0 (removing EASA 1.25 buffer) to squeeze into a short runway. | "I'll just turn off the safety buffer, I've flown out of here before." | Parses the 1.0 parameter factor. |
+| **Outcome** | Warns the pilot. | - | System fires a clear, dismissible warning regarding the violation of standard aviation regulatory practices. |

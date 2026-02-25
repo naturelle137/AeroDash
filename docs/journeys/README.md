@@ -18,3 +18,4 @@ This folder contains the primary User Journeys (UJs) used to verify the AeroDash
 | **UJ-E-xxx** | **Phase E: Weather & Environment** | [05_weather_environment.md](./05_weather_environment.md) |
 | **UJ-F-xxx** | **Phase F: Fuel & Endurance** | [06_fuel_endurance.md](./06_fuel_endurance.md) |
 | **UJ-G-xxx** | **Phase G: Onboarding & Sync** | [07_onboarding_sync.md](./07_onboarding_sync.md) |
+| **UJ-STRESS-xxx** | **Stress Tests** | [08_stress_tests.md](./08_stress_tests.md) |
