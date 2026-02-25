@@ -42,3 +42,20 @@ Focus: Meteorological data integration and surface condition logic.
 | **Mitigation** | User changes Runway to 33 -> Alert disappears. | "I'll ask ATC for Runway 33 instead." | System recalculates vector. Crosswind drops to ~5kts, the alert clears, and the UI shifts to green. |
 
 **Outcome:** The pilot avoids a loss-of-control incident during the takeoff roll by being visually warned that the current wind conditions exceed the certified aerodynamic boundaries of the airframe.
+
+<!-- @UJ-E-003@ (FROM: @REQ-PF-010@, @REQ-PF-012@) -->
+## <a name="UJ-E-003"></a>UJ-E-003: Deep Winter Departure
+
+**Persona:** Pilot
+
+**Context:** A pilot preparing a Tecnam P2008JC for departure from a frozen runway at 2000ft elevation in deep winter at -30°C (AFM lowest valid temp is -25°C).
+
+**Goal:** Verify optimistic data does not result in an unsafely low runway requirement.
+
+* **Journey:**
+| Phase | User Action | Thoughts | System Interaction |
+| :--- | :--- | :--- | :--- |
+| **Ideal Input** | Inputs -30°C density temperature. | "The air is super dense, we should lift off instantly." | System attempts to extrapolate distance downwards. |
+| **Floor Check** | Verifies the final calculated distance. | "Let's see the numbers." | System floors the calculation, ensuring the resulting value is not lower than the AFM values at 2000ft PA and -25°C at the given weight. |
+
+**Outcome:** The pilot safely prepares for takeoff, with the system ensuring baseline safety and preventing aggressive mathematical optimization below mapped limits.

@@ -9,19 +9,19 @@ Focus: Testing limits, extrapolation, and overrides.
 
 **Persona:** Pilot
 
-**Context:** Flying out of a high-altitude airport during a mid-summer heatwave, where conditions slightly exceed the upper tables of the POH.
+**Context:** A pilot is preparing a Tecnam P2008JC for departure from Luxor (HELX) during a severe summer heatwave, and later calculating for a high-altitude mountain lake departure.
 
 **Goal:** Verify handling of "Edge of Envelope" conditions and controlled extrapolation with safety penalties.
 
 * **Journey:**
 | Phase | User Action | Thoughts | System Interaction |
 | :--- | :--- | :--- | :--- |
-| **Input Data** | Enter conditions slightly above POH limit temperatures. | "It's roasting out here. Is it safe to take off?" | System calculates performance by extrapolating slightly beyond the mapped table. |
+| **Heat Envelope** | Inputs 54°C (4°C above the 50°C AFM max). | "It's roasting out here. Is it safe to take off?" | System calculates performance by extrapolating slightly beyond the mapped table and applies a +20% Safety Penalty. |
 | **Review Extrapolation** | Verify calculation flagged "Extrapolated". | "The app noticed we're off the standard charts." | System displays a prominent UI warning: Performance is extrapolated. |
-| **Check Penalty Matrix** | Verify +20% Safety Penalty added to the calculated distance. | "Looks like it added a massive safety buffer to the roll distance. I like that." | Automatically applies conservative penalty on top of the calculated roll distance. |
-| **Extreme Case** | Enter conditions far above limits (e.g., +20C above max threshold). | "What if we wait until the afternoon peak?" | System completely blocks the calculation, rendering a red "Out of Operational Envelope" error. |
+| **Temperature Breach** | Pilot inputs 57°C. | "What if we wait until the afternoon peak?" | System completely blocks the calculation, rendering a red "Out of Operational Envelope" error. |
+| **Altitude Breach** | Attempts takeoff calculation at 11,100ft (11% above the 10,000ft AFM max altitude limit). | "This lake is high up, let's see if the app guesses." | System strictly blocks the calculation and renders an error. |
 
-**Outcome:** The pilot avoids taking an uncalculated risk in hot/high conditions, receiving a highly conservative estimate and a strict hard block for extremely unsafe temperatures.
+**Outcome:** The pilot avoids taking an uncalculated risk in hot/high conditions, receiving a highly conservative estimate and strict hard blocks for extremely unsafe temperatures and altitudes.
 
 <!-- @UJ-C-002@ (FROM: @REQ-AP-003@, @REQ-AP-006@, @REQ-PF-008@, @REQ-PF-009@) -->
 ## <a name="UJ-C-002"></a>UJ-C-002: The "Unknown Airfield" (Manual Override)

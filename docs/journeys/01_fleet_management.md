@@ -40,5 +40,6 @@ Focus: Creating, validating, and managing aircraft profiles.
 | **Aircraft Switch** | Switch to an aircraft defined in `lbs`/`Gal`. | "Actually, let's take the Cessna today." | Application reloads profile. |
 | **Label Verification** | Verify labels switch to `lbs`/`Gal`. | "Good, the labels changed. Need to remember we're in pounds now." | System updates all UI labels to match the aircraft's native unit configuration. |
 | **Input Parsing** | Enter "50" into Fuel. | "50 gallons should be plenty." | Calculation clearly treats "50" as Gallons, automatically normalizing to SI for internal CG math without the user needing to manually convert. |
+| **Backend Stability** | Verify final M&B results. | "Let's check the final weight and CG." | System flawlessly converts logic to SI internally without any floating point rounding errors surfacing to the pilot. |
 
 **Outcome:** The pilot easily switches between aircraft with different measurement systems without mathematical errors, relying on the system to visually enforce the active unit and handle backend conversions.
