@@ -15,8 +15,6 @@ Focus: Cloud synchronization, collaboration, and offline resilience.
     2. User receives a "Share-Code" for the club aircraft (e.g., `DA40-CLUB-123`).
     3. User enters code -> Aircraft Profile imports to "Personal Workspace".
     4. User cannot edit the Core Data (Read-Only) but can edit Pilot Mass.
-* **Traceability:**
-  * **Requirements:** [REQ-SC-001](../requirements/cloud_sync_collaboration.md#REQ-SC-001), [REQ-SC-004](../requirements/cloud_sync_collaboration.md#REQ-SC-004), [REQ-SC-006](../requirements/cloud_sync_collaboration.md#REQ-SC-006)
 
 <!-- @UJ-G-002@ (FROM: @REQ-SYS-001@, @REQ-SC-002@) -->
 ## <a name="UJ-G-002"></a>UJ-G-002: The "Offline" Fallback
@@ -30,5 +28,3 @@ Focus: Cloud synchronization, collaboration, and offline resilience.
     3. Verify: All previously synced aircraft are available.
     4. User performs a calculation.
     5. Verify: Calculation succeeds without server request.
-* **Traceability:**
-  * **Requirements:** [REQ-SYS-001](../requirements/system.md#REQ-SYS-001), [REQ-SC-002](../requirements/cloud_sync_collaboration.md#REQ-SC-002)
