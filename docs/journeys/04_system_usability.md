@@ -9,17 +9,17 @@ Focus: UI resilience and environmental factors.
 
 **Persona:** Pilot (Night Flight)
 
-**Context:** Setting up for a late-night cross-country flight while sitting in a dark cockpit with spotty cellular reception, using an airfield profile downloaded earlier from the external database but not verified.
+**Context:** Setting up for a late-night cross-country flight while sitting in a dark cockpit with spotty cellular reception, using an airfield profile downloaded earlier from the external database but not verified against the AIP.
 
-**Goal:** Verify UI resilience against errors and night ops, ensure the app works in degraded connectivity environments, and properly handles unverified external database data during export.
+**Goal:** Wants to plan a flight confidently from a dark cockpit with unreliable connectivity, and to feel certain that the printed briefing pack clearly flags any data the pilot hasn't personally verified.
 
 * **Journey:**
-| Phase | User Action | Thoughts | System Interaction |
+| Phase | User Action | Thoughts / Feelings | Observable System Reaction |
 | :--- | :--- | :--- | :--- |
-| **Cockpit Prep** | Activate "Dark Mode". | "Don't want to ruin my night vision with a bright white screen." | Application switches to high-contrast dark theme. |
-| **Data Entry** | Enter "800" hPa QNH (Typo) and override. | "Wait, the QNH is 1008, but I'll force 800 just to test the bounds check." | System detects anomalous pressure format and displays an "Input Out of Range" warning but accepts the entry when confirmed. |
-| **Connection Drop** | Disconnect Internet (Airplane Mode). | "Cell service is dead out here on the apron." | App shifts seamlessly to Offline Mode, continuing to allow calculations using cached profiles and airfields. |
-| **Briefing Generation** | Generate "Digital Briefing Pack" (PDF). | "Let me save this to my kneeboard before takeoff." | System generates a PDF export of the calculated data. |
-| **PDF Review** | Examine the PDF. Verify Unverified Data flag on the destination airport. | "Ah, I never manually verified the auto-downloaded destination airfield." | PDF explicitly lists the destination airport parameters with an `[UNVERIFIED]` tag and a disclaimer, while the manual inputs (like the forced QNH) remain untouched by the verification tags. |
+| **Cockpit Prep** | Activates "Dark Mode." | "Don't want to ruin my night vision with a bright white screen." | The application switches to a high-contrast dark theme. |
+| **Data Entry** | Enters "800" hPa as QNH (a typo — the real QNH is 1008). | "Oops, wrong number. But let me see what happens." | The system displays a warning: "Input Out of Range." The system still allows the entry after the pilot confirms the value. |
+| **Connection Drop** | Loses cellular signal on the apron. | "Cell service is dead out here. Hopefully the app still works." | The application continues to function fully, using locally stored profiles and airfield data. |
+| **Briefing Generation** | Generates a "Digital Briefing Pack" (PDF) for the flight. | "Let me save this to my kneeboard before takeoff." | The system generates the PDF export. |
+| **Export Review** | Reviews the generated PDF. Notices the destination airport parameters are marked. | "Ah, I never manually verified the auto-downloaded destination airfield." | The PDF displays the destination airport parameters with an `[UNVERIFIED]` marker and includes a disclaimer about unverified external data. |
 
-**Outcome:** The pilot easily uses the application under adverse physical visibility and connectivity conditions. They are warned about typos but allowed to use Pilot-In-Command authority, while being safely reminded via PDF export about previously downloaded database information that they haven't vetted.
+**Outcome:** The pilot comfortably uses the application under adverse conditions — dark cockpit, no connectivity. Typos are caught but pilot authority is preserved. The exported PDF clearly flags any externally-sourced data that the pilot hasn't personally verified.

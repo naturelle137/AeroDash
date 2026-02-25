@@ -42,10 +42,19 @@ This document defines the documentation & export behavior using the **EARS** (Ea
 **Status:** Approved
 **Design Reference:** n/a
 
+<!-- @REQ-DOC-005@ -->
+### REQ-DOC-005: Notification Rendering in Export
+
+**Requirement:** When generating the export (PDF/Print), the system shall render all active notifications with severity `WARNING` or `CRITICAL` within the relevant section of the document, using the notification's `context` field to determine placement (e.g., a notification with context `MassBalance.CG` shall appear at the beginning of the Mass & Balance section).
+**Rationale:** The exported document must carry the same safety warnings the pilot saw on screen, ensuring the paper copy is self-contained.
+**Priority:** P1
+**Status:** Draft
+**Design Reference:** [Notification Schema](../architecture/notification_schema.md)
+
 ---
 
 ## Design References
 
-- None
+- **<a name="notificationScheme"></a>Notification Scheme:** [`docs/architecture/notification_schema.md`](../architecture/notification_schema.md)
 
 ---

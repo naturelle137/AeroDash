@@ -108,7 +108,7 @@ This document defines the detailed aircraft data behavior using the **EARS** (Ea
 <!-- @REQ-AD-012@ -->
 ### REQ-AD-012: Variable Loading Stations
 
-**Requirement:** The system shall store loading station definitions as either a fixed scalar lever arm or a variable lookup table (Mass/Volume vs. Arm/Moment).
+**Requirement:** The system shall store loading station definitions as either a fixed scalar lever arm or a variable lookup table (Mass/Volume vs. Moment).
 **Rationale:** Supports swept-wing or complex tank configurations where CG shifts with fuel level.
 **Priority:** P1
 **Status:** Approved

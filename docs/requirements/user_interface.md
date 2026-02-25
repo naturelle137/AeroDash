@@ -60,15 +60,6 @@ This document defines the user interface behavior using the **EARS** (Easy Appro
 **Status:** Approved
 **Design Reference:** n/a
 
-<!-- @REQ-UI-007@ -->
-### REQ-UI-007: Consolidated Traffic Light Status
-
-**Requirement:** The system shall aggregate the validation states returned by the calculation modules (Mass & Balance, Performance, Weather) and display a consolidated "Traffic Light" status (Green/Amber/Red) visible at all times during flight preparation.
-**Rationale:** Safety check at high-frequency entry.
-**Priority:** P1
-**Status:** Approved
-**Design Reference:** n/a
-
 <!-- @REQ-UI-008@ -->
 ### REQ-UI-008: Input Out of Range Warning
 

@@ -45,7 +45,7 @@ This document defines the aircraft management behavior using the **EARS** (Easy 
 <!-- @REQ-AC-005@ (FROM: @H-011@) -->
 ### REQ-AC-005: Profile Verification Status
 
-**Requirement:** The system shall implement a status system for aircraft profiles (`Approved`, `Verified`). New or edited profiles shall be `Verified` and locked before use; calculations performed with a `Approved` profile shall return a Notification: `{ "id": "WARN-AC-002", "severity": "WARNING", "message": "Approved Profile Active", "context": "Aircraft.Status", "persistent": true }`.
+**Requirement:** The system shall implement a status system for aircraft profiles (`Draft`, `Verified`). New or edited profiles shall be `Verified` and locked before use; calculations performed with a `Draft` profile shall return a Notification: `{ "id": "WARN-AC-002", "severity": "WARNING", "message": "Draft Profile Active", "context": "Aircraft.Status", "persistent": true }`.
 **Rationale:** Prevents usage of unverified or typo-prone POH data bases.
 **Priority:** P1
 **Status:** Approved

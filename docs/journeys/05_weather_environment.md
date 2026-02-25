@@ -11,17 +11,17 @@ Focus: Meteorological data integration and surface condition logic.
 
 **Context:** Preparing for an IFR departure from Hamburg (EDDH) during a heavy autumn rainstorm.
 
-**Goal:** Verify automation of surface condition defaults based on live weather data.
+**Goal:** Wants the system to automatically account for rainy conditions without manual guesswork, while retaining the authority to override if the situation on the ground is different from the METAR.
 
 * **Journey:**
-| Phase | User Action | Thoughts | System Interaction |
+| Phase | User Action | Thoughts / Feelings | Observable System Reaction |
 | :--- | :--- | :--- | :--- |
-| **Airport Selection** | User enters Airport ICAO ("EDDH"). | "Let's pull up the data for Hamburg." | System matches ICAO. |
-| **METAR Ingestion** | System fetches METAR: "EDDH 1234Z ... **RA** ...". | "Looks awful out there." | App parses METAR precipitation codes natively. |
-| **Surface Automation** | Verify: Runway Surface defaults to **"Wet"**. | "Good, it noticed the rain." | Because the METAR contains "RA" (Rain), the performance module immediately flips the runway state to "Wet" and applies performance degradation factors. |
-| **Manual Correction** | Verify: Pilot can manually override to "Dry". | "Wait, the rain just stopped and the runway is visibly dry now. I'll switch it back." | App allows the manual override, ignoring the stale METAR condition for that specific parameter. |
+| **Airport Selection** | Enters the airport ICAO code "EDDH." | "Let's pull up the data for Hamburg." | The system matches the ICAO code and loads the airport data. |
+| **Weather Ingestion** | Notices the weather fields have been auto-populated. | "Looks awful out there." | The system fetches the current METAR and auto-populates the wind, temperature, and QNH fields. |
+| **Surface Automation** | Notices the runway surface condition has defaulted to "Wet." | "Good — it noticed the rain." | Because the METAR contains precipitation, the system has automatically defaulted the runway surface condition to "Wet" and applied the corresponding performance correction factors. |
+| **Manual Override** | Overrides the surface condition back to "Dry." | "Wait, the rain just stopped and the runway is visibly dry now. I'll switch it back." | The system accepts the manual override and recalculates performance with the "Dry" surface condition. |
 
-**Outcome:** The pilot benefits from automated safety-conservative configurations based on real-world METAR data, but retains the ultimate PIC authority to override inaccurate or outdated weather feeds.
+**Outcome:** The pilot benefits from automated, safety-conservative surface defaults based on real-world METAR data, but retains full PIC authority to override inaccurate or outdated weather conditions.
 
 <!-- @UJ-E-002@ (FROM: @REQ-WX-007@, @REQ-WX-009@, @REQ-PF-014@) -->
 ## <a name="UJ-E-002"></a>UJ-E-002: The "Crosswind Challenge"
@@ -30,32 +30,32 @@ Focus: Meteorological data integration and surface condition logic.
 
 **Context:** Planning a departure during a strong frontal passage with stiff, gusty winds.
 
-**Goal:** Verify wind component calculation and critical crosswind limit alerts.
+**Goal:** Wants to know if the crosswind is safe before committing to a runway, and to feel confident in making the right runway choice.
 
 * **Journey:**
-| Phase | User Action | Thoughts | System Interaction |
+| Phase | User Action | Thoughts / Feelings | Observable System Reaction |
 | :--- | :--- | :--- | :--- |
-| **Runway Setup** | User selects Runway 23 (Heading 230°). | "Runway 23 is the active." | App loads Runway 23 parameters. |
-| **Wind Data Entry** | METAR Wind: 320° at 25kt. | "That wind is almost perpendicular." | App parses wind velocity and direction. |
-| **Vector Calculation** | Navigates to Performance. | "Let's see the crosswind component." | System calculates a Crosswind Component of ~25kts. |
-| **Exceedance Alert** | Verify system reaction. | "Can this plane handle that?" | App fires a **Critical Alert**: "Crosswind Limit Exceeded" (Aircraft Max Demonstrated is 15kt). |
-| **Mitigation** | User changes Runway to 33 -> Alert disappears. | "I'll ask ATC for Runway 33 instead." | System recalculates vector. Crosswind drops to ~5kts, the alert clears, and the UI shifts to green. |
+| **Runway Selection** | Selects Runway 23 (Heading 230°). | "Runway 23 is the active." | The system loads the runway parameters. |
+| **Wind Awareness** | Notices the auto-populated wind data from the METAR: 320° at 25 kt. | "That wind is almost perpendicular to the runway." | The system displays the wind direction and speed. |
+| **Component Review** | Reviews the calculated wind components on the Performance screen. | "Let's see the crosswind number." | The system displays the calculated crosswind component (~25 kt). |
+| **Limit Alert** | Notices a critical notification. | (Concern): "Can this aircraft handle that?" | The system displays a critical notification: "Crosswind Limit Exceeded" — the aircraft's maximum demonstrated crosswind is 15 kt. |
+| **Runway Change** | Changes to Runway 33 (more aligned with the wind). | "I'll ask ATC for Runway 33 instead." | The system recalculates the wind components. The crosswind drops to ~5 kt. The critical notification clears. |
 
-**Outcome:** The pilot avoids a loss-of-control incident during the takeoff roll by being visually warned that the current wind conditions exceed the certified aerodynamic boundaries of the airframe.
+**Outcome:** The pilot avoids a potential loss-of-control situation during the takeoff roll by discovering that the crosswind exceeds the aircraft's structural limits, and resolves it by selecting a more favorable runway.
 
 <!-- @UJ-E-003@ (FROM: @REQ-PF-010@, @REQ-PF-012@) -->
 ## <a name="UJ-E-003"></a>UJ-E-003: Deep Winter Departure
 
 **Persona:** Pilot
 
-**Context:** A pilot preparing a Tecnam P2008JC for departure from a frozen runway at 2000ft elevation in deep winter at -30°C (AFM lowest valid temp is -25°C).
+**Context:** A pilot preparing a Tecnam P2008JC for departure from a frozen runway at 2,000 ft elevation in deep winter at -30°C. The AFM's lowest valid temperature is -25°C.
 
-**Goal:** Verify optimistic data does not result in an unsafely low runway requirement.
+**Goal:** Wants to feel safe departing in extreme cold without the system underestimating takeoff distances based on optimistic extrapolation.
 
 * **Journey:**
-| Phase | User Action | Thoughts | System Interaction |
+| Phase | User Action | Thoughts / Feelings | Observable System Reaction |
 | :--- | :--- | :--- | :--- |
-| **Ideal Input** | Inputs -30°C density temperature. | "The air is super dense, we should lift off instantly." | System attempts to extrapolate distance downwards. |
-| **Floor Check** | Verifies the final calculated distance. | "Let's see the numbers." | System floors the calculation, ensuring the resulting value is not lower than the AFM values at 2000ft PA and -25°C at the given weight. |
+| **Temperature Entry** | Enters -30°C as the outside temperature. | "The air is super dense. We should lift off in no time — at least in theory." | The system detects the temperature is below the AFM limit and calculates performance with a safety floor. |
+| **Result Review** | Reviews the calculated takeoff distance. | "The distance isn't as short as I expected. The system seems to be holding back." | The system displays a distance that is no lower than the AFM value at -25°C for the given weight and altitude. The result is flagged as extrapolated. The system requires explicit acknowledgment. |
 
-**Outcome:** The pilot safely prepares for takeoff, with the system ensuring baseline safety and preventing aggressive mathematical optimization below mapped limits.
+**Outcome:** The pilot departs safely with realistic expectations. The system prevents aggressive mathematical optimization below mapped limits by flooring the result at the best documented AFM value.

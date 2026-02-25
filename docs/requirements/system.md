@@ -63,7 +63,7 @@ This document defines the system behavior using the **EARS** (Easy Approach to R
 <!-- @REQ-SYS-007@ -->
 ### REQ-SYS-007: Centralized Notification Service
 
-**Requirement:** The system shall implement a centralized Notification Service that aggregates validation states and notifications from all functional modules.
+**Requirement:** The system shall implement a centralized Notification Service that aggregates notifications from all functional modules.
 **Rationale:** Centralized handling of alerts ensures consistent UI behavior and preventing alert fatigue.
 **Priority:** P1
 **Status:** Approved
