@@ -44,6 +44,25 @@ Our coverage requirements correlate directly to the Priority (P1, P2, P3) of the
   * **Requirement:** Best effort (typically 60%+), prioritizing critical user input components.
   * *Rationale:* A visual glitch is acceptable; an incorrect underlying number is not.
 
+### E2e / Journey Coverage Policy
+
+Beyond line/branch/function coverage percentages, the following rules govern what must be verified at the e2e (User Journey) level:
+
+| Rule | What | Why |
+| :--- | :--- | :--- |
+| **P1 REQ Coverage** | All reachable P1 REQs with user-observable behaviour must be tagged in ≥1 UJ | Safety-critical paths must be verified end-to-end |
+| **Hazard Indirect Coverage** | Every hazard (H-xxx) must have ≥1 mitigating REQ tagged in a UJ | Ensures the full safety chain is testable |
+| **Algorithm Exception** | Internal algorithm REQs (e.g., PF-002 Bilinear Interpolation) may be unit-test-only | The algorithm is not user-observable; its outputs are tested via the consuming UJs |
+| **UQ Exception** | Cross-cutting quality attributes (UQ-001–004: touch, responsive, decimal, rounding) use QA test suites | Too fragile and broad as individual e2e assertions |
+
+The full safety traceability chain is:
+
+```text
+Hazard (H-xxx) → Requirement (REQ-xxx) → User Journey (UJ-xxx) → E2e Test (E2E-xxx)
+```
+
+For the journey coverage rules and tag format, see [`docs/journeys/README.md`](../journeys/README.md).
+
 ---
 
 ## 🎭 3. Strict Mocking Guidelines for Aviation Data

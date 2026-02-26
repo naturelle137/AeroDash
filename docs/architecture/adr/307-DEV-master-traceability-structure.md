@@ -26,14 +26,14 @@ We lacked a documented strategy bridging these artifacts together in our Docs-as
 
 We will implement a formal **Master Traceability Matrix (MTM)** structure. The required traceability hierarchy for all feature development in AeroDash is:
 
-> Hazards -> Requirements -> Architecture -> User Journeys -> Code (PRs) -> Test Cases
+> Hazards (H-xxx) -> Requirements (REQ-xxx) -> Architecture (ADR-xxx) -> User Journeys (UJ-xxx) -> Code (IMP-xxx) -> Test Cases (E2E-xxx)
 
 * **Hazards** (`H-001`): The root of all safety-critical logic. Every Hazard must link to at least one mitigating Requirement.
 * **Requirements** (`REQ-SYS-001`): Written in EARS syntax, establishing *what* the system must do to operate safely.
 * **Architecture** (`ADR-300-DEV` or *System Module*): Defines *how* the system structurally supports the Requirement.
-* **User Journeys** (`UJ-001`): Defines the behavioral flow fulfilling the Requirement. E2E tests are derived directly from these Journeys.
-* **Code implementation**: Defined by GitHub Pull Requests tying back to the required Issue.
-* **Test Cases**: Explicitly named Unit and Integration tests verifying the mathematical boundaries and logic of the Requirement.
+* **User Journeys** (`UJ-B-001`): Defines the behavioral flow fulfilling the Requirement. E2E tests are derived directly from these Journeys. Coverage rules are documented in [`docs/journeys/README.md`](../../journeys/README.md).
+* **Code implementation** (`IMP-SYS-001`): Defined by GitHub Pull Requests tying back to the required Issue.
+* **Test Cases** (`E2E-xxx`): Explicitly named Unit, Integration, and E2E tests verifying the mathematical boundaries and logic of the Requirement.
 
 To enforce this, we will move toward an automated Docs-as-Code traceability engine (see ADR 308-DEV) to automatically parse these links and fail CI builds if the chain is broken.
 

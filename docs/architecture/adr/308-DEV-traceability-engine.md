@@ -15,7 +15,7 @@ This engine must automatically flag "Pending Implementations" (requirements with
    * *Pros:* Fully tailored to the exact repository layout with zero external dependencies.
    * *Cons:* Extremely high maintenance burden. Regex-based parsing is brittle and lacks the robust error-reporting of established engines.
 2. **shtracer**
-   * *Pros:* Extremely lightweight. Operates perfectly with our existing Markdown requirements using simple HTML comment tags (e.g., `<!-- req: REQ-SYS-001 -->`). Easy to drop into GitHub Actions.
+   * *Pros:* Extremely lightweight. Operates perfectly with our existing Markdown requirements using HTML comment tags (e.g., `<!-- @REQ-SYS-001@ (FROM: @H-001@) -->`). Easy to drop into GitHub Actions.
    * *Cons:* Relies on regular expressions rather than Abstract Syntax Tree (AST) parsing, making it less intelligent regarding finding exact function/class scope bounds.
 3. **StrictDoc**
    * *Pros:* Industrial-strength traceability validation. It uses a custom SDoc DSL for extensive metadata and offers AST-level parsing to recognize specific programmatic entities (classes/functions) rather than arbitrary line texts. Natively prevents requirement drift with extreme precision.
@@ -39,7 +39,7 @@ If AeroDash expands to include safety-critical Python or Rust backend services i
 
 ### Negative
 
-* Code-level traceability will rely on manual developer annotation comments (e.g., `// trace: REQ-SYS-001`) within the JS files, rather than AST-aware function bounding.
+* Code-level traceability will rely on manual developer annotation comments (e.g., `// @IMP-SYS-001@ (FROM: @REQ-SYS-001@)`) within the JS files, rather than AST-aware function bounding.
 
 ## Compliance
 
