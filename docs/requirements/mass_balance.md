@@ -72,8 +72,8 @@ This document defines the mass & balance behavior using the **EARS** (Easy Appro
 <!-- @REQ-MB-008@ (FROM: @H-006@) -->
 ### REQ-MB-008: Take-off and Landing CG
 
-**Requirement:** When the user inputs valid load station values, the system shall automatically calculate the CG for both the Take-off state and the Landing state (Zero Fuel / Landing Fuel).
-**Rationale:** Critical for detecting CG migration that might be safe at takeoff but dangerous at landing (e.g., Klemm).
+**Requirement:** When the user inputs valid load station values, the system shall automatically calculate the CG for the Take-off state and the Landing state. For aircraft with multiple fuel burn sequences, the system shall additionally calculate intermediate CG waypoints at each tank-transition boundary for each named sequence, producing the vertices of a burn-down polygon that encompasses all possible CG positions during fuel consumption.
+**Rationale:** Critical for detecting CG migration that might be safe at takeoff but dangerous during flight. For aircraft with tanks at different lever arms (e.g., KL107B), a simple two-point calculation is insufficient — the CG path diverges depending on the active burn sequence.
 **Priority:** P1
 **Status:** Approved
 **Design Reference:** n/a
@@ -99,8 +99,8 @@ This document defines the mass & balance behavior using the **EARS** (Easy Appro
 <!-- @REQ-MB-011@ (FROM: @H-006@) -->
 ### REQ-MB-011: CG Migration Exceedance
 
-**Requirement:** If the CG migration vector exits the envelope at any point, the system shall return a Notification: `{ "id": "CRIT-MB-003", "severity": "CRITICAL", "message": "CG Migration Limit Exceeded", "context": "MassBalance.CG" }`.
-**Rationale:** Detects mid-flight limit violations before they occur.
+**Requirement:** If the CG migration region (trend line for single-sequence aircraft, or burn-down polygon for multi-sequence aircraft) exits the envelope at any point, the system shall return a Notification: `{ "id": "CRIT-MB-003", "severity": "CRITICAL", "message": "CG Migration Limit Exceeded", "context": "MassBalance.CG" }`.
+**Rationale:** Detects mid-flight limit violations before they occur. A single-line check is insufficient for multi-tank aircraft where different burn sequences produce divergent CG paths.
 **Priority:** P1
 **Status:** Approved
 **Design Reference:** [Notification Schema](../architecture/notification_schema.md)

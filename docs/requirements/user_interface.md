@@ -79,10 +79,10 @@ This document defines the user interface behavior using the **EARS** (Easy Appro
 **Design Reference:** n/a
 
 <!-- @REQ-UI-010@ (FROM: @H-006@) -->
-### REQ-UI-010: CG Trend Line Rendering
+### REQ-UI-010: CG Migration Rendering
 
-**Requirement:** The CG envelope chart shall render a "Trend Line" connecting the Take-off CG point and the Landing CG point to visualize the fuel burn shift.
-**Rationale:** Provides intuitive feedback on how the aircraft balance changes during flight.
+**Requirement:** The CG envelope chart shall render a CG migration visualization: a **Trend Line** connecting the Take-off CG point and the Landing CG point for single-sequence aircraft, or a **Trend Area** (shaded polygon) representing the burn-down region for multi-sequence aircraft.
+**Rationale:** Provides intuitive feedback on how the aircraft balance changes during flight. For multi-tank aircraft with alternate burn sequences, a single line is insufficient — the shaded polygon shows all possible CG states.
 **Priority:** P1
 **Status:** Approved
 **Design Reference:** n/a
@@ -162,8 +162,8 @@ This document defines the user interface behavior using the **EARS** (Easy Appro
 <!-- @REQ-UI-019@ (FROM: @H-006@) -->
 ### REQ-UI-019: CG Envelope Polygon Rendering
 
-**Requirement:** The system shall render the CG Envelope Polygon defined by the Mass & Balance module as the background layer of the loading chart, with the Zero Fuel Mass (ZFM), Take-off Mass (TOM), and Landing Mass (LM) points overlaid.
-**Rationale:** Ensure clear visualization of the aircraft's safe loading limits and flight progression.
+**Requirement:** The system shall render the CG Envelope Polygon defined by the Mass & Balance module as the background layer of the loading chart, with the Zero Fuel Mass (ZFM), Take-off Mass (TOM), and Landing Mass (LM) points overlaid. For multi-sequence aircraft, the burn-down polygon shall also be overlaid as a shaded area within the envelope.
+**Rationale:** Ensure clear visualization of the aircraft's safe loading limits, flight progression, and — for multi-tank aircraft — the full range of possible CG states during fuel consumption.
 **Priority:** P1
 **Status:** Approved
 **Design Reference:** n/a

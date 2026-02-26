@@ -36,8 +36,8 @@ This document defines the fuel & endurance behavior using the **EARS** (Easy App
 <!-- @REQ-FE-004@ (FROM: @H-006@) -->
 ### REQ-FE-004: Fuel Burn Sequence
 
-**Requirement:** When calculating CG for aircraft with defined fuel burn sequences, the system shall drain tanks in the defined order.
-**Rationale:** E.g., "First Tank II, then Tank I". Critical for aircraft where fuel burn significantly shifts the CG, e.g. KL07 with forward and rear tank.
+**Requirement:** When calculating fuel consumption for aircraft with defined fuel burn sequences, the system shall drain tanks in the order specified by each named sequence (e.g., `Standard`, `Alternative`). For aircraft with multiple named sequences, the system shall compute the fuel state progression for **each** sequence independently.
+**Rationale:** Aircraft with multiple tanks at different lever arms (e.g., KL107B: Tank I at 2.47 m, Tank II at 2.80 m) have different CG migration paths depending on the burn order. The Standard sequence (Tank II → Tank I) and the Alternative sequence (Tank I → Tank II) produce divergent CG paths whose boundary defines the burn-down polygon.
 **Priority:** P1
 **Status:** Approved
 **Design Reference:** n/a

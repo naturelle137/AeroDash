@@ -24,7 +24,7 @@ Focus: Fuel management, endurance calculations, and fuel type interactions.
 
 **Outcome:** The pilot avoids departing on a flight where unexpected headwinds or diversions could drain the required fuel reserves, guided by the system's endurance calculation.
 
-<!-- @UJ-F-002@ (FROM: @REQ-AD-003@, @REQ-FE-001@, @REQ-MB-002@) -->
+<!-- @UJ-F-002@ (FROM: @REQ-AD-003@, @REQ-FE-001@, @REQ-FE-004@, @REQ-MB-002@) -->
 ## <a name="UJ-F-002"></a>UJ-F-002: Fuel Type Density Mix-up
 
 **Persona:** Pilot / Fleet Operator

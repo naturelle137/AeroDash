@@ -66,9 +66,9 @@ The safety of this system is based on four pillars:
 <!-- @H-006@ -->
 ### H-006: Errors by CG shift during flight
 
-**Hazard:** Take-off within limits, but CG shifts out-of-limits for Landing.
+**Hazard:** Take-off within limits, but CG shifts out-of-limits during flight.
 **Severity:** S1
-**Cause:** Hull/swept tanks lead to significant CG shift.
+**Cause:** Hull/swept tanks, or multi-tank configurations with different lever arms and alternate burn sequences (Standard vs. Alternative), lead to significant CG shift during flight.
 
 <!-- @H-007@ -->
 ### H-007: Density altitude misjudgment errors
