@@ -86,7 +86,7 @@ Focus: Standard operational workflows for Mass & Balance and Hybrid Performance.
 
 **Outcome:** The pilot discovers that a simple single-line CG trend (Standard sequence only) would have shown a safe forward migration — hiding the danger of the Alternative path. When the forward tank drains first, the remaining aft fuel and heavy rear loading push the CG beyond the aft limit. The shaded polygon reveals the full range of risk, and the pilot mitigates it before engine start.
 
-<!-- @UJ-B-005@ (FROM: @REQ-AP-002@, @REQ-FE-002@, @REQ-MB-003@, @REQ-UI-005@, @REQ-WX-002@, @REQ-WX-003@, @REQ-WX-008@) -->
+<!-- @UJ-B-005@ (FROM: @REQ-AP-002@, @REQ-FE-002@, @REQ-MB-003@, @REQ-UI-005@, @REQ-UI-013@, @REQ-WX-002@, @REQ-WX-003@, @REQ-WX-008@) -->
 ## <a name="UJ-B-005"></a>UJ-B-005: The "Textbook" Flight Prep (Happy Path)
 
 **Persona:** Pilot
@@ -103,6 +103,7 @@ Focus: Standard operational workflows for Mass & Balance and Hybrid Performance.
 | **Loading** | Enters two passengers and a light weekend bag. | "Traveling light today." | The CG Envelope Chart updates live as each load is entered. The CG point stays comfortably in the center of the envelope. Total mass is well below MTOM. |
 | **Fuel** | Enters 80 L of AvGas. | "Full mains. Should be plenty." | The endurance calculation shows ample fuel for the trip plus reserves. No warnings. The CG trend line shifts slightly but stays inside the envelope. |
 | **Performance** | Reviews the takeoff and landing distances. | "Good margins. The runway is more than long enough." | Takeoff and landing distances are well within the available runway lengths. Safety factor is at 1.25. No notifications. |
+| **Version Check** | Glances at the footer before exporting. | "v2.1.0, last updated yesterday. Good — I'm on the latest version." | The footer displays the application version (SemVer) and the last-updated date. |
 | **Export** | Generates the briefing pack. | "All green. Let me print this and head to the hangar." | The PDF is generated cleanly. No warnings, no disclaimers beyond the standard data source note. |
 
 **Outcome:** The pilot completes a textbook flight preparation in under five minutes. No warnings, no critical notifications — just a clean, methodical workflow that produces a reliable briefing pack. This is the standard flow for the majority of flights.
