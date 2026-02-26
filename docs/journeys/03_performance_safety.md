@@ -4,7 +4,7 @@ Focus: Behaviour at the limits of the performance envelope — extrapolation, ov
 
 ---
 
-<!-- @UJ-C-001@ (FROM: @REQ-PF-010@, @REQ-PF-012@, @REQ-PF-015@, @REQ-PF-006@) -->
+<!-- @UJ-C-001@ (FROM: @REQ-PF-010@, @REQ-PF-012@) -->
 ## <a name="UJ-C-001"></a>UJ-C-001: Hot & High + Controlled Extrapolation
 
 **Persona:** Pilot
@@ -41,3 +41,22 @@ Focus: Behaviour at the limits of the performance envelope — extrapolation, ov
 | **Awareness** | Notices the "Unverified" flag on the results. | "Makes sense. It's relying entirely on my own inputs. I bear the responsibility." | The calculation produces results but the system overlays a warning indicating the data is pilot-provided and unverified. |
 
 **Outcome:** The pilot maintains full PIC authority to calculate performance for unlisted airfields, while the system clearly communicates that the results depend on unverified, pilot-provided data.
+
+<!-- @UJ-C-003@ (FROM: @REQ-PF-005@, @REQ-PF-017@) -->
+## <a name="UJ-C-003"></a>UJ-C-003: Estimation Transparency (Missing Distance Type)
+
+**Persona:** Pilot
+
+**Context:** A pilot is calculating takeoff performance for an older aircraft whose POH only provides Takeoff Roll (TOR) distances — no 50ft obstacle clearance (Takeoff Distance) data is published.
+
+**Goal:** Wants to get a usable takeoff distance figure even when the POH doesn't provide one, and wants to understand the origin and reliability of the number.
+
+* **Journey:**
+| Phase | User Action | Thoughts / Feelings | Observable System Reaction |
+| :--- | :--- | :--- | :--- |
+| **Setup** | Selects the aircraft profile and enters the flight conditions (mass, altitude, temperature). | "Let's see the takeoff distance for this short runway." | The system calculates the Takeoff Roll from the POH data via interpolation. |
+| **Result Review** | Reviews the calculated Takeoff Distance. | "There's a distance figure, but it has a flag on it. What does that mean?" | The system displays the Takeoff Distance, derived from the Takeoff Roll using the CAA SSL 07 conversion ($TOD = TOR \times 1.9$). The result is flagged as "ESTIMATED (CAA SSL 07)." |
+| **Understanding** | Reads the estimation flag. | "So the POH only gives me a roll distance, and the system is using a standard industry factor to estimate the obstacle clearance distance. That's conservative but generic — not tested for my specific airframe." | The "ESTIMATED" flag is clearly visible, distinguishing this value from POH-backed calculations. |
+| **Export** | Generates a PDF briefing pack. | "Let me print this for my kneeboard." | The exported PDF carries the "ESTIMATED (CAA SSL 07)" flag on the derived distance value, ensuring the paper copy reflects the same data provenance the pilot saw on screen. |
+
+**Outcome:** The pilot receives a usable — but clearly flagged — takeoff distance even when the POH lacks the data. The "ESTIMATED" flag ensures full transparency: the pilot knows the obstacle clearance distance is a conservative generic factor ($\times 1.9$), not a certified airframe-specific value.

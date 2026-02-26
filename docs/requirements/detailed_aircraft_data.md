@@ -150,6 +150,15 @@ This document defines the detailed aircraft data behavior using the **EARS** (Ea
 **Status:** Approved
 **Design Reference:** n/a
 
+<!-- @REQ-AD-017@ (FROM: @H-014@) -->
+### REQ-AD-017: Wind Limit Storage
+
+**Requirement:** The system shall store per-aircraft wind limits for each applicable component (Maximum Crosswind, Maximum Tailwind, Maximum Total Wind, Maximum Gust) with a classification of either `Demonstrated` (advisory, from certification flight testing) or `Limit` (mandatory, from POH limitations section).
+**Rationale:** The distinction between a demonstrated value and a hard limitation determines the appropriate notification severity when the limit is exceeded. Most GA aircraft only publish demonstrated crosswind values, while some additionally publish hard tailwind or gust limits.
+**Priority:** P1
+**Status:** Approved
+**Design Reference:** n/a
+
 ---
 
 ## Design References

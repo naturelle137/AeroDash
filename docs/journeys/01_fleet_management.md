@@ -44,3 +44,22 @@ Focus: Creating, validating, and managing aircraft profiles.
 | **Result Review** | Reviews the calculated Mass & Balance results. | "Let me see the final weight and CG." | The system presents all results in the aircraft's native unit system. The active unit is displayed adjacent to every output value. No internal SI values are exposed to the user. |
 
 **Outcome:** The pilot notices the unit labels change the moment aircraft are switched, feels confident every value is correctly labelled, and never needs to perform a manual conversion. The system handles all SI normalization internally and transparently.
+
+<!-- @UJ-A-003@ (FROM: @REQ-AD-011@, @REQ-MB-001@, @REQ-UI-009@) -->
+## <a name="UJ-A-003"></a>UJ-A-003: Certification Category Switch
+
+**Persona:** Pilot
+
+**Context:** A pilot is preparing a Klemm KL 107B for an aerobatic training flight. The aircraft is certified in both "Normal" and "Utility" categories, each with different MTOM limits and CG envelopes.
+
+**Goal:** Wants to understand how switching categories affects the loading limits, and to feel confident that the system enforces the correct rules for the selected category.
+
+* **Journey:**
+| Phase | User Action | Thoughts / Feelings | Observable System Reaction |
+| :--- | :--- | :--- | :--- |
+| **Normal Category** | Loads the Klemm 107B profile and begins entering the load for a dual flight with instructor in the rear seat. Category is set to "Normal." | "Let me plan this as a normal flight first." | The system displays the Normal category MTOM and CG envelope. All four loading stations (front, rear, baggage, fuel) are available. |
+| **Category Switch** | Switches the certification category from "Normal" to "Utility." | "Today is aerobatics — I need to be in Utility category." | The system dynamically updates the MTOM, the CG envelope polygon tightens, and the rear seat loading station is no longer available. The CG Envelope Chart redraws with the Utility boundaries. |
+| **Load Impact** | Notices the rear seat station has disappeared from the loading screen. | "Right — no passengers in the back for Utility. It's just me and fuel." | The system has removed the rear seat station from the available inputs. The existing rear seat weight is zeroed out. The total mass and CG recalculate automatically. |
+| **Envelope Awareness** | Reviews the updated CG Envelope Chart. | "The Utility envelope is much tighter. Let me make sure my fuel load still fits." | The system displays the recalculated CG point within the tighter Utility envelope. The pilot can see the difference between the Normal and Utility boundaries. |
+
+**Outcome:** The pilot understands that switching certification category fundamentally changes the aircraft's operational limits. The system enforces category-specific rules automatically — different MTOM, different envelope, and restricted loading stations — preventing the pilot from accidentally planning an aerobatic flight with Normal-category limits.

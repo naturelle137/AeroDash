@@ -69,11 +69,11 @@ This register lists all defined notifications in the system to ensure uniqueness
 | `CRIT-MB-002` | MTOM Exceeded | `CRITICAL` | [REQ-MB-005](../requirements/mass_balance.md#REQ-MB-005) | If the total mass exceeds MTOM. |
 | `CRIT-MB-003` | CG Migration Limit Exceeded | `CRITICAL` | [REQ-MB-011](../requirements/mass_balance.md#REQ-MB-011) | If the CG migration vector exits the envelope at any point. |
 | `WARN-PF-001` | Unverified Obstacle Data | `WARNING` | [REQ-PF-009](../requirements/performance.md#REQ-PF-009) | While a pilot-defined obstacle is active. |
-| `CRIT-PF-001` | Crosswind Limit Exceeded | `CRITICAL` | [REQ-PF-014](../requirements/performance.md#REQ-PF-014) | If the calculated crosswind or tailwind component exceeds the POH demonstrated limits. |
+| `WARN-WX-001` | Wind Limit Exceeded (Demonstrated) | `WARNING` | [REQ-WX-009](../requirements/weather_meterological_data.md#REQ-WX-009) | If any wind or gust component exceeds a `Demonstrated` limit of the aircraft. |
+| `CRIT-WX-001` | Wind Limit Exceeded | `CRITICAL` | [REQ-WX-009](../requirements/weather_meterological_data.md#REQ-WX-009) | If any wind or gust component exceeds a hard `Limit` of the aircraft. |
 | `CRIT-PF-002` | Runway Insufficient | `CRITICAL` | [REQ-PF-015](../requirements/performance.md#REQ-PF-015) | If the Operational Required Distance exceeds the published Available Distance (TORA/LDA). |
 | `WARN-PF-002` | Safety Factor Low | `WARNING` | [REQ-PF-016](../requirements/performance.md#REQ-PF-016) | If the user-selected Operational Safety Factor is lower than the greater of the POH-mandated factor and the regulatory baseline (Takeoff: 1.25, Landing: 1.43). |
 | `INFO-SYS-001` | Update Available | `INFO` | [REQ-SYS-005](../requirements/system.md#REQ-SYS-005) | When a new software version is detected. |
 | `WARN-UI-001` | Input Out of Range | `WARNING` | [REQ-UI-008](../requirements/user_interface.md#REQ-UI-008) | When numeric inputs are outside standard operational ranges. |
 | `CRIT-UI-001` | Unverified Data Present | `CRITICAL` | [REQ-UI-015](../requirements/user_interface.md#REQ-UI-015) | When the user triggers the "Save" or "Export" action for a calculation containing parameters with `Unverified` status. |
 | `CRIT-UI-002` | Safety Factor Low | `CRITICAL` | [REQ-UI-017](../requirements/user_interface.md#REQ-UI-017) | When the user triggers the "Save" or "Export" action for a calculation containing an Operational Safety Factor below the greater of the POH-mandated factor and the regulatory baseline. |
-| `WARN-WX-001` | Wind Limit Exceeded | `WARNING` | [REQ-WX-009](../requirements/weather_meterological_data.md#REQ-WX-009) | If any wind or gust component exceeds the limits of the aircraft. |

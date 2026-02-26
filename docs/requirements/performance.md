@@ -123,15 +123,6 @@ This document defines the performance behavior using the **EARS** (Easy Approach
 **Status:** Approved
 **Design Reference:** n/a
 
-<!-- @REQ-PF-014@ (FROM: @H-014@) -->
-### REQ-PF-014: Crosswind Limit Exceedance
-
-**Requirement:** If the calculated crosswind or tailwind component exceeds the POH demonstrated limits, the system shall return a Notification: `{ "id": "CRIT-PF-001", "severity": "CRITICAL", "message": "Crosswind Limit Exceeded", "context": "Performance.Wind" }`.
-**Rationale:** High-risk hazard mitigation.
-**Priority:** P1
-**Status:** Approved
-**Design Reference:** [Notification Schema](../architecture/notification_schema.md)
-
 <!-- @REQ-PF-015@ (FROM: @H-008@) -->
 ### REQ-PF-015: Runway Insufficient Notification
 
