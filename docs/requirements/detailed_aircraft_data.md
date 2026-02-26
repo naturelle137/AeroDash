@@ -24,7 +24,7 @@ This document defines the detailed aircraft data behavior using the **EARS** (Ea
 **Status:** Approved
 **Design Reference:** n/a
 
-<!-- @REQ-AD-003@ (FROM: @H-003@, @H-006@) -->
+<!-- @REQ-AD-003@ (FROM: @H-003@) -->
 ### REQ-AD-003: Fuel Tank Configuration
 
 **Requirement:** The system shall allow the configuration of up to 10 fuel tanks as a specific type of load point, extending it with the following additional attributes: <ul><li>Unusable fuel,</li> <li>permissible fuel types (MoGas, AvGas 100LL, Jet A-1, AvGas UL91, Diesel), and</li> <li>burn sequence order (ordinal position per named sequence, e.g., `Standard`, `Alternative`) for each tank across one or more named burn sequences.</li></ul> <br>Operational limit denotes tank capacity.
