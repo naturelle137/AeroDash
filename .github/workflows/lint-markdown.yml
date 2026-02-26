@@ -41,7 +41,7 @@ jobs:
         run: |
           echo "Linting changed files..."
           if [ -n "${{ steps.changed-files.outputs.all_changed_files }}" ]; then
-            markdownlint-cli2 ${{ steps.changed-files.outputs.all_changed_files }}
+            markdownlint-cli2 ${{ steps.changed-files.outputs.all_changed_files }} "#.tools"
           else
             echo "No markdown files changed."
           fi
@@ -50,4 +50,4 @@ jobs:
         if: github.event_name == 'pull_request' && github.base_ref == 'main'
         run: |
           echo "Linting ALL Markdown files in the repository..."
-          markdownlint-cli2 "**/*.md"
+          markdownlint-cli2 "**/*.md" "#.tools"
