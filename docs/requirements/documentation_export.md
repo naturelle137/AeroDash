@@ -6,17 +6,55 @@ This document defines the documentation & export behavior using the **EARS** (Ea
 
 ## Requirements
 
-| Req-ID | Requirement | Rationale / Context | Priority | Mitigation Hazard ID | Status | Design Reference |
- | :--- | :--- | :--- | :---: | :---: | :--- | :--- |
-| **<a name="REQ-DOC-001"></a>REQ-DOC-001** | The system shall provide an export function (PDF or optimized print view) that summarizes mass and balance calculation results, and performance calculation results in a compact "Digital Briefing Pack." | Legal documentation and cockpit accessibility. | P2 | n/a | Approved | n/a |
-| **<a name="REQ-DOC-002"></a>REQ-DOC-002** | The system shall append the text marker `[UNVERIFIED]` to any parameter value in the generated output (PDF/Print) that has the status `Unverified`. | No accidental use of unverified data. | P1 | [H-015](../risk_management/safety_hazards.md#H-015) | Approved | n/a |
-| **<a name="REQ-DOC-003"></a>REQ-DOC-003** | If the calculation contains `Unverified` data, then the system shall include a disclaimer section in the export stating: "Calculation based on unverified external data. Pilot in Command assumes full responsibility." | Legal liability transfer. | P2 | [H-015](../risk_management/safety_hazards.md#H-015) | Approved | n/a |
-| **<a name="REQ-DOC-004"></a>REQ-DOC-004** | If the calculation uses a user-selected Operational Safety Factor that is lower than the greater of the POH-mandated factor and the regulatory baseline (Takeoff: 1.25, Landing: 1.43), then the system shall include a disclaimer section in the export stating: "Calculation based on low safety margin. Pilot in Command assumes full responsibility." | Legal liability transfer. | P2 | [H-016](../risk_management/safety_hazards.md#H-016) | Approved | n/a |
+<!-- @REQ-DOC-001@ -->
+### REQ-DOC-001: PDF Export Function
+
+**Requirement:** The system shall provide an export function (PDF or optimized print view) that summarizes mass and balance calculation results, and performance calculation results in a compact "Digital Briefing Pack."
+**Rationale:** Legal documentation and cockpit accessibility.
+**Priority:** P2
+**Status:** Approved
+**Design Reference:** n/a
+
+<!-- @REQ-DOC-002@ (FROM: @H-015@) -->
+### REQ-DOC-002: Unverified Data Marker
+
+**Requirement:** The system shall append the text marker `[UNVERIFIED]` to any parameter value in the generated output (PDF/Print) that has the status `Unverified`.
+**Rationale:** No accidental use of unverified data.
+**Priority:** P1
+**Status:** Approved
+**Design Reference:** n/a
+
+<!-- @REQ-DOC-003@ (FROM: @H-015@) -->
+### REQ-DOC-003: Unverified Data Disclaimer
+
+**Requirement:** If the calculation contains `Unverified` data, then the system shall include a disclaimer section in the export stating: "Calculation based on unverified external data. Pilot in Command assumes full responsibility."
+**Rationale:** Legal liability transfer.
+**Priority:** P2
+**Status:** Approved
+**Design Reference:** n/a
+
+<!-- @REQ-DOC-004@ (FROM: @H-016@) -->
+### REQ-DOC-004: Low Safety Margin Disclaimer
+
+**Requirement:** If the calculation uses a user-selected Operational Safety Factor that is lower than the greater of the POH-mandated factor and the regulatory baseline (Takeoff: 1.25, Landing: 1.43), then the system shall include a disclaimer section in the export stating: "Calculation based on low safety margin. Pilot in Command assumes full responsibility."
+**Rationale:** Legal liability transfer.
+**Priority:** P2
+**Status:** Approved
+**Design Reference:** n/a
+
+<!-- @REQ-DOC-005@ -->
+### REQ-DOC-005: Notification Rendering in Export
+
+**Requirement:** When generating the export (PDF/Print), the system shall render all active notifications with severity `WARNING` or `CRITICAL` within the relevant section of the document, using the notification's `context` field to determine placement (e.g., a notification with context `MassBalance.CG` shall appear at the beginning of the Mass & Balance section).
+**Rationale:** The exported document must carry the same safety warnings the pilot saw on screen, ensuring the paper copy is self-contained.
+**Priority:** P1
+**Status:** Draft
+**Design Reference:** [Notification Schema](../architecture/notification_schema.md)
 
 ---
 
 ## Design References
 
-- None
+- **<a name="notificationScheme"></a>Notification Scheme:** [`docs/architecture/notification_schema.md`](../architecture/notification_schema.md)
 
 ---

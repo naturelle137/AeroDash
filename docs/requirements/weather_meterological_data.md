@@ -6,17 +6,86 @@ This document defines the weather & meteorological data behavior using the **EAR
 
 ## Requirements
 
-| Req-ID | Requirement | Rationale / Context | Priority | Mitigation Hazard ID | Status | Design Reference |
- | :--- | :--- | :--- | :---: | :---: | :--- | :--- |
-| **<a name="REQ-WX-001"></a>REQ-WX-001** | When a user enters an ICAO airport code, the system shall fetch the current METAR and TAF from a public aviation weather API. | Fetches real-time environmental input for Performance (e.g., CheckWX, NOAA). | P2 | n/a | Approved | n/a |
-| **<a name="REQ-WX-002"></a>REQ-WX-002** | When a departure or arrival time is defined, the system shall retrieve forecast weather data (Temperature, QNH, Wind) for that specific time and location from a meteorological data service. | TAFs do not provide hourly Temp/QNH. Model data is required for accurate performance calculation. | P2 | n/a | Approved | n/a |
-| **<a name="REQ-WX-003"></a>REQ-WX-003** | While forecast weather data is unavailable, when METAR/TAF data is received, the system shall auto-populate Wind Direction/Speed, Temperature, and QNH fields based on the latest METAR/TAF. | Automation reduces human entry errors. | P2 | n/a | Approved | n/a |
-| **<a name="REQ-WX-004"></a>REQ-WX-004** | While a METAR/TAF indicates any form of liquid precipitation (RA, DZ), the system shall default the Runway Surface to "Wet". | Safety-first default based on weather detection. | P2 | [H-009](../risk_management/safety_hazards.md#H-009) | Approved | n/a |
-| **<a name="REQ-WX-005"></a>REQ-WX-005** | While a METAR/TAF indicates heavy precipitation (+RA) or long-lasting precipitation (> 2h in TAF), the system shall default Grass runways to "Soft Ground". | Safety-first default based on weather detection. | P2 | [H-009](../risk_management/safety_hazards.md#H-009) | Approved | n/a |
-| **<a name="REQ-WX-006"></a>REQ-WX-006** | The system shall allow the user to manually override any weather-inferred surface condition. | Pilot-in-command has final authority over runway state. | P2 | n/a | Approved | n/a |
-| **<a name="REQ-WX-007"></a>REQ-WX-007** | When a runway is selected, the system shall calculate the Wind Components (Headwind, Tailwind, Crosswind) based on the latest METAR wind data and the selected runway's heading. | Automation of wind correction for performance and safety. | P2 | n/a | Approved | n/a |
-| **<a name="REQ-WX-008"></a>REQ-WX-008** | When weather data is auto-populated, the system shall provide the metadata (Source, Timestamp) for all data points. | Safety awareness: Pilot must know if data is measured (METAR) or predicted (Model). | P2 | n/a | Approved | n/a |
-| **<a name="REQ-WX-009"></a>REQ-WX-009** | While the active aircraft has defined wind limits, if any wind or gust component (total wind/gust, headwind, tailwind, crosswind) exceeds the limits of the aircraft, then the system shall return a Notification: `{ "id": "WARN-WX-001", "severity": "WARNING", "message": "Wind Limit Exceeded", "context": "Weather.Wind" }`. | Safety awareness: Pilot should know when wind exceeds the aircraft limits. | P2 | [H-014](../risk_management/safety_hazards.md#H-014) | Approved | [Notification Scheme](#notificationScheme) |
+<!-- @REQ-WX-001@ -->
+### REQ-WX-001: METAR/TAF Retrieval
+
+**Requirement:** When a user enters an ICAO airport code, the system shall fetch the current METAR and TAF from a public aviation weather API.
+**Rationale:** Fetches real-time environmental input for Performance (e.g., CheckWX, NOAA).
+**Priority:** P2
+**Status:** Approved
+**Design Reference:** n/a
+
+<!-- @REQ-WX-002@ -->
+### REQ-WX-002: Time-Specific Weather Forecast
+
+**Requirement:** When a departure or arrival time is defined, the system shall retrieve forecast weather data (Temperature, QNH, Wind) for that specific time and location from a meteorological data service.
+**Rationale:** TAFs do not provide hourly Temp/QNH. Model data is required for accurate performance calculation.
+**Priority:** P2
+**Status:** Approved
+**Design Reference:** n/a
+
+<!-- @REQ-WX-003@ -->
+### REQ-WX-003: Weather Auto-population
+
+**Requirement:** While forecast weather data is unavailable, when METAR/TAF data is received, the system shall auto-populate Wind Direction/Speed, Temperature, and QNH fields based on the latest METAR/TAF.
+**Rationale:** Automation reduces human entry errors.
+**Priority:** P2
+**Status:** Approved
+**Design Reference:** n/a
+
+<!-- @REQ-WX-004@ (FROM: @H-009@) -->
+### REQ-WX-004: Precipitation Surface Default
+
+**Requirement:** While a METAR/TAF indicates any form of liquid precipitation (RA, DZ), the system shall default the Runway Surface to "Wet".
+**Rationale:** Safety-first default based on weather detection.
+**Priority:** P2
+**Status:** Approved
+**Design Reference:** n/a
+
+<!-- @REQ-WX-005@ (FROM: @H-009@) -->
+### REQ-WX-005: Heavy Precipitation Surface Default
+
+**Requirement:** While a METAR/TAF indicates heavy precipitation (+RA) or long-lasting precipitation (> 2h in TAF), the system shall default Grass runways to "Soft Ground".
+**Rationale:** Safety-first default based on weather detection.
+**Priority:** P2
+**Status:** Approved
+**Design Reference:** n/a
+
+<!-- @REQ-WX-006@ -->
+### REQ-WX-006: Manual Surface Override
+
+**Requirement:** The system shall allow the user to manually override any weather-inferred surface condition.
+**Rationale:** Pilot-in-command has final authority over runway state.
+**Priority:** P2
+**Status:** Approved
+**Design Reference:** n/a
+
+<!-- @REQ-WX-007@ -->
+### REQ-WX-007: Wind Components Calculation
+
+**Requirement:** When a runway is selected, the system shall calculate the Wind Components (Headwind, Tailwind, Crosswind) based on the latest METAR wind data and the selected runway's heading.
+**Rationale:** Automation of wind correction for performance and safety.
+**Priority:** P2
+**Status:** Approved
+**Design Reference:** n/a
+
+<!-- @REQ-WX-008@ -->
+### REQ-WX-008: Weather Metadata Display
+
+**Requirement:** When weather data is auto-populated, the system shall provide the metadata (Source, Timestamp) for all data points.
+**Rationale:** Safety awareness: Pilot must know if data is measured (METAR) or predicted (Model).
+**Priority:** P2
+**Status:** Approved
+**Design Reference:** n/a
+
+<!-- @REQ-WX-009@ (FROM: @H-014@) -->
+### REQ-WX-009: Wind Limit Exceedance Notification
+
+**Requirement:** While the active aircraft has defined wind limits, if any wind or gust component (total wind/gust, headwind, tailwind, crosswind) exceeds a stored limit of the aircraft, then the system shall return a Notification with severity determined by the limit classification (REQ-AD-017): <ul><li>`Demonstrated`: `{ "id": "WARN-WX-001", "severity": "WARNING", "message": "Wind Limit Exceeded (Demonstrated)", "context": "Weather.Wind" }`</li><li>`Limit`: `{ "id": "CRIT-WX-001", "severity": "CRITICAL", "message": "Wind Limit Exceeded", "context": "Weather.Wind" }`</li></ul>
+**Rationale:** A demonstrated value is advisory (PIC may exceed at discretion), while a hard POH limit is a mandatory operational boundary. The notification severity must reflect this distinction to avoid both under- and over-alerting.
+**Priority:** P1
+**Status:** Approved
+**Design Reference:** [Notification Schema](../architecture/notification_schema.md)
 
 ---
 

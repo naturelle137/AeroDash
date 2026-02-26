@@ -47,8 +47,32 @@ Each requirement is defined in a Markdown table with the following columns:
 
 ## Traceability
 
+### Hazard Mitigation Tags
+
+Requirements that mitigate a safety hazard carry a `FROM` tag in their HTML comment:
+
+```md
+<!-- @REQ-MB-011@ (FROM: @H-006@) -->
+```
+
+This traces the requirement to the hazard it mitigates in [`safety_hazards.md`](../risk_management/safety_hazards.md).
+
+### Full Traceability Chain
+
+```text
+Hazard (H-xxx) → Requirement (REQ-xxx) → User Journey (UJ-xxx) → E2e Test (E2E-xxx)
+```
+
 - **Safety:** Requirements linking to a Hazard ID must be traceable in the Safety Traceability Matrix.
-- **Verification:** Each requirement implies a test case (Unit Test, Integration Test, E2E Test).
+- **Verification:** Each requirement implies a test case (Unit, Integration, or E2E). For P1 requirements with user-observable behaviour, at least one UJ must tag the requirement.
+
+### Requirement Lifecycle
+
+When consolidating or deleting a requirement (e.g., absorbing one REQ into another):
+
+1. Update all UJ `FROM` tags that referenced the deleted REQ.
+2. Update the [Notification Schema](../architecture/notification_schema.md) if the REQ defined a notification.
+3. Verify the hazard traceability chain is preserved — the absorbing REQ must still trace to the original hazard.
 
 ---
 
