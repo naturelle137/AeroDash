@@ -1,0 +1,28 @@
+{
+  "name": "aerodash",
+  "version": "0.1.0-pre-alpha",
+  "description": "AeroDash - Flight Preparation & Decision Support Tool for General Aviation",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Notice: No tests defined for Pre-Alpha.\" && exit 0",
+    "prepare": "husky"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/naturelle137/AeroDash.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "AGPL-3.0-only",
+  "bugs": {
+    "url": "https://github.com/naturelle137/AeroDash/issues"
+  },
+  "homepage": "https://github.com/naturelle137/AeroDash#readme",
+  "devDependencies": {
+    "@commitlint/cli": "^20.4.2",
+    "@commitlint/config-conventional": "^20.4.2",
+    "husky": "^9.1.7"
+  }
+}

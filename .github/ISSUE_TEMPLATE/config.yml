@@ -1,8 +1,5 @@
 blank_issues_enabled: false
 contact_links:
-  - name: 🔐 Security Vulnerability Report
-    url: https://github.com/naturelle137/AeroDash/.github/SECURITY.md
-    about: Please do not report security vulnerabilities (exploits, data leaks) publicly!
   - name: 💬 Discussion / Question
     url: https://github.com/naturelle137/AeroDash/discussions
     about: For questions that are not bug reports or feature requests.
