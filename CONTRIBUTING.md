@@ -177,7 +177,7 @@ We use the GitHub Project Board (`AeroDash Backlog`) to track all tasks and ensu
 
 ### Workflow Statuses & Lifecycle
 
-The following diagram shows how **issue labels** transition through the lifecycle. Board columns are mapped below.
+The following diagram shows how **issue labels** transition through the lifecycle. Labels above the line (`open`, `accepted`, `ready`) are **status labels** tracking active work. Labels below (`fixed`, `duplicate`, `wont_do`) are **resolution labels** applied when closing an issue.
 
 ```mermaid
 stateDiagram-v2
@@ -207,12 +207,17 @@ stateDiagram-v2
 | Ready for Release | `ready` | PR merged to `develop` |
 | Done | `fixed` | Released on `main`, issue closed |
 
-* **`open`**: Ticket created. This is the initial default status of any new ticket.
+**Status Labels** (active work):
+
+* **`open`**: Ticket created. This is the initial default label of any new ticket.
 * **`accepted`**: The ticket is reviewed, recognized as valid, and moved to *Waiting for Implementation* on the board.
 * **`ready`**: The ticket was implemented, verified, and the PR on `develop` is done. It is now waiting for the next release phase.
-* **`fixed`**: The ticket is fully done, released to production (`main`), and closed. This is a **resolution** label, not a board status.
-* **`duplicate`**: The ticket is closed because it represents an existing issue. You must link the duplicate issue before closing.
-* **`wont do`**: The ticket represents a valid request but will not be implemented. The ticket is closed.
+
+**Resolution Labels** (applied when closing):
+
+* **`fixed`**: The ticket is released to production (`main`). The issue is closed and moved to *Done*.
+* **`duplicate`**: The ticket already exists. You must link the duplicate issue before closing.
+* **`wont do`**: The ticket is valid but will not be implemented. The rationale must be documented.
 
 ### ⚠️ Special Rules: Parent Tickets vs. Sub-Tasks
 

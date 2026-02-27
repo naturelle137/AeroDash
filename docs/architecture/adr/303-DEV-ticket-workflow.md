@@ -20,8 +20,8 @@ We will use a canonical GitHub Project Board ("AeroDash Backlog") driven by spec
 1. **Issue Type Labels:** All issues must be categorized by Type (`Bug`, `Feature`, `Task`).
 2. **Scope Labels:** Issues must indicate their scope via `product` (user-facing functionality) or `engineering` (development environment, tooling, documentation). This distinction determines the changelog section (`### Added`/`Changed`/`Fixed` vs. `### Engineering`).
 3. **Safety Label:** Issues impacting the P1 Safety Core must carry the `safety-critical` label, triggering extra scrutiny and ADR traceability.
-4. **Status Labels:** Issues progress through status labels reflecting their lifecycle: `open` → `accepted` → `ready` → `fixed`.
-5. **Resolution Labels:** Issues that are not implemented are closed with a resolution label: `duplicate` (link the existing issue) or `wont do` (document the rationale).
+4. **Status Labels:** Issues progress through status labels reflecting their active lifecycle: `open` → `accepted` → `ready`. These labels track work in progress.
+5. **Resolution Labels:** When an issue is closed, it receives a resolution label: `fixed` (released on `main`), `duplicate` (link the existing issue), or `wont do` (document the rationale). Resolution labels are not workflow statuses — they are applied at closure.
 6. **Board Columns:** The project board uses columns that map to the development lifecycle. Not every column transition requires a label change — some columns reflect active work states.
 
     | Board Column | Label | Meaning |
