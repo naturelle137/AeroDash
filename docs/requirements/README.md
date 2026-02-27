@@ -86,6 +86,6 @@ When consolidating or deleting a requirement (e.g., absorbing one REQ into anoth
 
 ## Design References
 
-- **<a name="flightLogger"></a>Flight Logger:** [docs/architecture/flight_logging_service.md](../architecture/flight_logging_service.md)
+- **<a name="flightLogger"></a>Flight Logger:** [docs/architecture/placeholder_example.md](../architecture/placeholder_example.md)
 
 ---

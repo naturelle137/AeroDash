@@ -168,7 +168,7 @@ The safety of this system is based on four pillars:
 > **Traceability Note:**
 > The specific algorithmic boundary tests and extreme edge-case scenarios historically defined here have been formally migrated into the User Journeys architecture to support automated BDD traceability.
 >
-> Please refer to [`docs/journeys/08_stress_tests.md`](../journeys/08_stress_tests.md) for the structured scenarios (e.g., `UJ-STRESS-001: The Sahara Switch`) verifying the hazard mitigations defined above.
+> Please refer to [`docs/journeys/`](../journeys/) for the structured scenarios verifying the hazard mitigations defined above.
 
 ---
 

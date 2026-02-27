@@ -1,13 +1,12 @@
 {
   "name": "aerodash",
-  "version": "1.0.0",
-  "description": "[![de](https://img.shields.io/badge/lang-de-green.svg)](README-DE.md)",
-  "main": "index.js",
+  "version": "0.1.0-pre-alpha",
+  "description": "AeroDash - Flight Preparation & Decision Support Tool for General Aviation",
   "directories": {
     "doc": "docs"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "echo \"Notice: No tests defined for Pre-Alpha.\" && exit 0",
     "prepare": "husky"
   },
   "repository": {
@@ -16,7 +15,7 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "AGPL-3.0-only",
   "bugs": {
     "url": "https://github.com/naturelle137/AeroDash/issues"
   },
