@@ -35,11 +35,11 @@ Since AeroDash is currently in the pre-alpha phase and our specific tech stack i
 
 To ensure all quality gates (linting, commit standards) are active, please set up your local environment:
 
-1.  **Prerequisites:** Ensure [Node.js](https://nodejs.org/) (LTS) is installed.
-2.  **Install Dependencies:** Run `npm install`. This will:
+1. **Prerequisites:** Ensure [Node.js](https://nodejs.org/) (LTS) is installed.
+2. **Install Dependencies:** Run `npm install`. This will:
     * Install the required tooling (`markdownlint`, `commitlint`).
     * Automatically activate the **Husky** git hooks.
-3.  **Verify:** After installation, your commits will be automatically linted.
+3. **Verify:** After installation, your commits will be automatically linted.
 
 ## 1. 🛡️ Safety-First Philosophy
 
