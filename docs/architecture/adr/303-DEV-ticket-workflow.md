@@ -15,23 +15,14 @@ As AeroDash grows, managing the backlog, tracking in-progress work, and correlat
 
 ## Decision
 
-We will use a canonical GitHub Project Board ("AeroDash Backlog") driven by specific, rule-based transitions.
+We will use a canonical GitHub Project Board ("AeroDash Dashboard") driven by specific, rule-based transitions.
 
 1. **Issue Type Labels:** All issues must be categorized by Type (`Bug`, `Feature`, `Task`).
 2. **Scope Labels:** Issues must indicate their scope via `product` (user-facing functionality) or `engineering` (development environment, tooling, documentation). This distinction determines the changelog section (`### Added`/`Changed`/`Fixed` vs. `### Engineering`).
 3. **Safety Label:** Issues impacting the P1 Safety Core must carry the `safety-critical` label, triggering extra scrutiny and ADR traceability.
 4. **Status Labels:** Issues progress through status labels reflecting their active lifecycle: `open` → `accepted` → `ready`. These labels track work in progress.
 5. **Resolution Labels:** When an issue is closed, it receives a resolution label: `fixed` (released on `main`), `duplicate` (link the existing issue), or `wont do` (document the rationale). Resolution labels are not workflow statuses — they are applied at closure.
-6. **Board Columns:** The project board uses columns that map to the development lifecycle. Not every column transition requires a label change — some columns reflect active work states.
-
-    | Board Column | Label | Meaning |
-    | :--- | :--- | :--- |
-    | Backlog | `open` | Created, awaiting triage |
-    | Waiting for Implementation | `accepted` | Triaged, valid, prioritised |
-    | In Progress | — | Actively being worked on |
-    | In Verification | — | PR open, under review |
-    | Ready for Release | `ready` | PR merged to `develop` |
-    | Done | `fixed` | Released on `main`, issue closed |
+6. **Board Columns:** The project board uses columns that map to the development lifecycle: `Backlog`, `Waiting for Implementation`, `In Progress`, `In Verification`, `Ready for Release`, `Done`.
 
 7. **Parent/Sub-Task Rules:**
     * `Task` tickets (sub-tasks) can be closed as soon as their specific PR is merged to `develop`.

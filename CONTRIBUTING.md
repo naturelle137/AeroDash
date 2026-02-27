@@ -158,7 +158,7 @@ Non-code contributions are highly valued! If you find a bug or have an idea, ple
 
 ## 9. 🗂️ Project Board & Ticket System
 
-We use the GitHub Project Board (`AeroDash Backlog`) to track all tasks and ensure transparent status management. For the formal architectural decision defining these rules, consult the **[Ticket Workflow ADR](docs/architecture/adr/303-DEV-ticket-workflow.md)**.
+We use the GitHub Project Board (`AeroDash Dashboard`) to track all tasks and ensure transparent status management. For the formal architectural decision defining these rules, consult the **[Ticket Workflow ADR](docs/architecture/adr/303-DEV-ticket-workflow.md)**.
 
 ### Issue Types
 
@@ -182,12 +182,19 @@ The following diagram shows how **issue labels** transition through the lifecycl
 ```mermaid
 stateDiagram-v2
     direction LR
+    state "issue Open<br/>Status: open" as open
+    state "issue Open<br/>Status: accepted" as accepted
+    state "issue Open<br/>Status: ready" as ready
+    state "issue Closed<br/>Resolution: fixed" as fixed
+    state "issue Closed<br/>Resolution: duplicate" as duplicate
+    state "issue Closed<br/>Resolution: wont do" as wont_do
+
     [*] --> open : Ticket Created
     open --> accepted : Triaged / Valid
     open --> duplicate : Exists
     open --> wont_do : Rejected
 
-    accepted --> ready : PR Merged (develop)
+    accepted --> ready : PR merged (develop)
     accepted --> wont_do : Rejected later
 
     ready --> fixed : Released (main)
@@ -195,17 +202,6 @@ stateDiagram-v2
     duplicate --> [*]
     wont_do --> [*]
 ```
-
-**Label ↔ Board Column Mapping:**
-
-| Board Column | Label | Meaning |
-| :--- | :--- | :--- |
-| Backlog | `open` | Created, awaiting triage |
-| Waiting for Implementation | `accepted` | Triaged, valid, prioritised |
-| In Progress | — | Actively being worked on |
-| In Verification | — | PR open, under review |
-| Ready for Release | `ready` | PR merged to `develop` |
-| Done | `fixed` | Released on `main`, issue closed |
 
 **Status Labels** (active work):
 
@@ -218,6 +214,17 @@ stateDiagram-v2
 * **`fixed`**: The ticket is released to production (`main`). The issue is closed and moved to *Done*.
 * **`duplicate`**: The ticket already exists. You must link the duplicate issue before closing.
 * **`wont do`**: The ticket is valid but will not be implemented. The rationale must be documented.
+
+### Kanban Board
+
+| Board Column | Meaning |
+| :--- | :--- |
+| Backlog | Created, awaiting triage |
+| Waiting for Implementation | Triaged, valid, prioritised |
+| In Progress | Actively being worked on |
+| In Verification | PR open, under review |
+| Ready for Release | PR merged to `develop` |
+| Done | Released on `main`, issue closed |
 
 ### ⚠️ Special Rules: Parent Tickets vs. Sub-Tasks
 
