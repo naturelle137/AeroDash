@@ -123,7 +123,6 @@ This document defines the performance behavior using the **EARS** (Easy Approach
 **Status:** Approved
 **Design Reference:** n/a
 
-<!-- @REQ-PF-014@ -->
 ### REQ-PF-014
 
 **Status:** Deprecated
