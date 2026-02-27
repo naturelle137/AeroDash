@@ -158,7 +158,7 @@ Non-code contributions are highly valued! If you find a bug or have an idea, ple
 
 ## 9. 🗂️ Project Board & Ticket System
 
-We use the GitHub Project Board (`AeroDash Backlog`) to track all tasks and ensure transparent status management. For the formal architectural decision defining these rules, consult the **[Ticket Workflow ADR](docs/architecture/adr/303-DEV-ticket-workflow.md)**.
+We use the GitHub Project Board (`AeroDash Dashboard`) to track all tasks and ensure transparent status management. For the formal architectural decision defining these rules, consult the **[Ticket Workflow ADR](docs/architecture/adr/303-DEV-ticket-workflow.md)**.
 
 ### Issue Types
 
@@ -166,21 +166,35 @@ We use the GitHub Project Board (`AeroDash Backlog`) to track all tasks and ensu
 * **`Feature`**: A request for new functionality or enhancements. Note that this is **not limited strictly to runtime product features!** It also applies to enhancements in project infrastructure, such as adding Documentation as Code (`docs`), defining new Requirements, or creating Contributing Guidelines.
 * **`Task`**: A specific sub-task belonging to a parent `Feature` or `Bug`.
 
+### Scope Labels
+
+* **`product`**: The issue relates to user-facing product functionality. Changes go into `### Added` / `### Changed` / `### Fixed` in the CHANGELOG.
+* **`engineering`**: The issue relates to the development environment, tooling, CI/CD, or documentation. Changes go into `### Engineering` in the CHANGELOG.
+
 ### Safety Tags
 
-* **`safety-critical`**: Flags an issue that directly impacts the P1 Safety Core, requiring extreme scrutiny and ADR tracebility.
+* **`safety-critical`**: Flags an issue that directly impacts the P1 Safety Core, requiring extreme scrutiny and ADR traceability.
 
 ### Workflow Statuses & Lifecycle
+
+The following diagram shows how **issue labels** transition through the lifecycle. Labels above the line (`open`, `accepted`, `ready`) are **status labels** tracking active work. Labels below (`fixed`, `duplicate`, `wont_do`) are **resolution labels** applied when closing an issue.
 
 ```mermaid
 stateDiagram-v2
     direction LR
+    state "issue Open<br/>Status: open" as open
+    state "issue Open<br/>Status: accepted" as accepted
+    state "issue Open<br/>Status: ready" as ready
+    state "issue Closed<br/>Resolution: fixed" as fixed
+    state "issue Closed<br/>Resolution: duplicate" as duplicate
+    state "issue Closed<br/>Resolution: wont do" as wont_do
+
     [*] --> open : Ticket Created
     open --> accepted : Triaged / Valid
     open --> duplicate : Exists
     open --> wont_do : Rejected
 
-    accepted --> ready : PR Merged (develop)
+    accepted --> ready : PR merged (develop)
     accepted --> wont_do : Rejected later
 
     ready --> fixed : Released (main)
@@ -189,17 +203,33 @@ stateDiagram-v2
     wont_do --> [*]
 ```
 
-* **`open`**: Ticket created. This is the initial default status of any new ticket.
-* **`accepted`**: The ticket is reviewed, recognized as valid, and pulled into the Project Backlog.
+**Status Labels** (active work):
+
+* **`open`**: Ticket created. This is the initial default label of any new ticket.
+* **`accepted`**: The ticket is reviewed, recognized as valid, and moved to *Waiting for Implementation* on the board.
 * **`ready`**: The ticket was implemented, verified, and the PR on `develop` is done. It is now waiting for the next release phase.
-* **`fixed`**: The ticket is fully done, released to production (`main`), and can be closed.
-* **`duplicate`**: The ticket is closed because it represents an existing issue. You must link the duplicate issue before closing.
-* **`wont do`**: The ticket represents a valid request but will not be implemented. The ticket is closed.
+
+**Resolution Labels** (applied when closing):
+
+* **`fixed`**: The ticket is released to production (`main`). The issue is closed and moved to *Done*.
+* **`duplicate`**: The ticket already exists. You must link the duplicate issue before closing.
+* **`wont do`**: The ticket is valid but will not be implemented. The rationale must be documented.
+
+### Kanban Board
+
+| Board Column | Meaning |
+| :--- | :--- |
+| Backlog | Created, awaiting triage |
+| Waiting for Implementation | Triaged, valid, prioritised |
+| In Progress | Actively being worked on |
+| In Verification | PR open, under review |
+| Ready for Release | PR merged to `develop` |
+| Done | Released on `main`, issue closed |
 
 ### ⚠️ Special Rules: Parent Tickets vs. Sub-Tasks
 
 * A **`Task`** acts as a sub-task to a parent **`Feature`** or **`Bug`**.
-* **Sub-tasks (`Task`)**: Can be marked **`fixed`**, closed, and moved to *Done* on the project board as soon as the developer finishes the work and it is ready to be merged into `develop`, a `release/`, or a `hotfix/` branch.
+* **Sub-tasks (`Task`)**: Can be closed and moved to *Done* on the project board as soon as the developer finishes the work and it is merged into `develop`, a `release/`, or a `hotfix/` branch.
 * **Parent Tickets (`Feature` / `Bug`)**: Can **only** be marked **`ready`** (and moved to *Ready for Release* on the board) when **all** of its sub-tasks are closed. *(Note: A sub-task closed as `wont do` counts as closed, provided the rationale is documented in the ticket).*
-* The parent `Feature` or `Bug` itself is only marked **`fixed`**, closed, and moved to *Done* **after** it has been formally released on the `main` branch.
-* Tickets marked `duplicate` or `wont do` are removed from the project board entirely.
+* The parent `Feature` or `Bug` itself is only labelled **`fixed`**, closed, and moved to *Done* **after** it has been formally released on the `main` branch.
+* Tickets labelled `duplicate` or `wont do` are removed from the project board entirely.

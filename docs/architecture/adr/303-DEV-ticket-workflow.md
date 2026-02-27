@@ -1,7 +1,7 @@
 # 303-DEV-ticket-workflow: Issue Tracking and Project Board Lifecycle
 
 * **Status:** Accepted
-* **Date:** 2026-02-20
+* **Date:** 2026-02-27
 
 ## Context
 
@@ -15,15 +15,20 @@ As AeroDash grows, managing the backlog, tracking in-progress work, and correlat
 
 ## Decision
 
-We will use a canonical GitHub Project Board ("AeroDash Backlog") driven by specific, rule-based transitions.
+We will use a canonical GitHub Project Board ("AeroDash Dashboard") driven by specific, rule-based transitions.
 
-1. **Tagging:** All issues must be categorized by Type (`Bug`, `Feature`, `Task`) and by safety impact (`safety-critical`).
-2. **Board Columns:** The board must use specific columns mapping to the development lifecycle (`Backlog`, `Accepted`, `In Progress`, `In Verification`, `Ready for Release`, `Done`).
-3. **Parent/Sub-Task Rules:**
+1. **Issue Type Labels:** All issues must be categorized by Type (`Bug`, `Feature`, `Task`).
+2. **Scope Labels:** Issues must indicate their scope via `product` (user-facing functionality) or `engineering` (development environment, tooling, documentation). This distinction determines the changelog section (`### Added`/`Changed`/`Fixed` vs. `### Engineering`).
+3. **Safety Label:** Issues impacting the P1 Safety Core must carry the `safety-critical` label, triggering extra scrutiny and ADR traceability.
+4. **Status Labels:** Issues progress through status labels reflecting their active lifecycle: `open` → `accepted` → `ready`. These labels track work in progress.
+5. **Resolution Labels:** When an issue is closed, it receives a resolution label: `fixed` (released on `main`), `duplicate` (link the existing issue), or `wont do` (document the rationale). Resolution labels are not workflow statuses — they are applied at closure.
+6. **Board Columns:** The project board uses columns that map to the development lifecycle: `Backlog`, `Waiting for Implementation`, `In Progress`, `In Verification`, `Ready for Release`, `Done`.
+
+7. **Parent/Sub-Task Rules:**
     * `Task` tickets (sub-tasks) can be closed as soon as their specific PR is merged to `develop`.
     * Parent tickets (`Feature` or `Bug`) **cannot** advance to `Ready for Release` until **all** corresponding sub-tasks are closed.
-    * Parent tickets are only moved to `Done` and `fixed` when the cumulative changes are released on the `main` production branch.
-4. **Traceability Checks:** Developers must ensure all Source Code and Test files contain the appropriate `shtracer` tags (e.g., `// @IMP-SYS-001@ (FROM: @REQ-SYS-001@)`) linking back to the Master Traceability Matrix before marking any ticket as `Ready for Release`.
+    * Parent tickets are only moved to `Done` and labelled `fixed` when the cumulative changes are released on the `main` production branch.
+8. **Traceability Checks:** Developers must ensure all Source Code and Test files contain the appropriate `shtracer` tags (e.g., `// @IMP-SYS-001@ (FROM: @REQ-SYS-001@)`) linking back to the Master Traceability Matrix before marking any ticket as `Ready for Release`.
 
 ## Consequences
 
