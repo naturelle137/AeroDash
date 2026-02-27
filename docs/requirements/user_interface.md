@@ -83,7 +83,7 @@ This document defines the user interface behavior using the **EARS** (Easy Appro
 **Design Reference:** n/a
 
 <!-- @REQ-UI-010@ (FROM: @H-006@) -->
-### REQ-UI-010: CG Migration
+### REQ-UI-010: CG Migration Rendering
 
 **Requirement:** The CG envelope chart shall render a CG migration visualization: a **Trend Line** connecting the Take-off CG point and the Landing CG point for single-sequence aircraft, or a **Trend Area** (shaded polygon) representing the burn-down region for multi-sequence aircraft.
 **Rationale:** Provides intuitive feedback on how the aircraft balance changes during flight. For multi-tank aircraft with alternate burn sequences, a single line is insufficient — the shaded polygon shows all possible CG states.
