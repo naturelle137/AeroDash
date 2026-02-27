@@ -138,6 +138,7 @@ A "Good PR" is small, focused, and easy to review.
 * If your changes affect Requirements, Architecture, or Risk Mitigation, you must update the corresponding `docs/` files in the same PR.
 * **Traceability Tags:** You must include `shtracer` inline code tags (e.g., `// @IMP-SYS-001@ (FROM: @REQ-SYS-001@)`) inside your new source files linking your implementation to the upstream Master Traceability Matrix requirements.
 * **Journey Coverage:** If your PR adds or modifies a P1 requirement, verify that the requirement is tagged in at least one UJ in `docs/journeys/`. If not, extend an existing journey or propose a new one. Check with: `grep -r "@REQ-XX-YYY@" docs/journeys/`
+* **Changelog:** Add your changes under `## [Unreleased]` in `CHANGELOG.md`. Use `### Added`, `### Changed`, `### Fixed`, or `### Engineering` (for non-user-facing work). Entries are moved to the release version during the release branch.
 
 ## 7. 🏗️ P1 Constraints (The Safety Core)
 
