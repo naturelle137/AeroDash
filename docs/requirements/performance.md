@@ -123,6 +123,10 @@ This document defines the performance behavior using the **EARS** (Easy Approach
 **Status:** Approved
 **Design Reference:** n/a
 
+### REQ-PF-014
+
+**Status:** Deprecated
+
 <!-- @REQ-PF-015@ (FROM: @H-008@) -->
 ### REQ-PF-015: Runway Insufficient Notification
 

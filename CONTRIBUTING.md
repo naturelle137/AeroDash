@@ -27,11 +27,19 @@ The rest of this document outlines the formal "Safety-First" rules we follow to 
 
 Since AeroDash is currently in the pre-alpha phase and our specific tech stack is not finalized, this section acts as a placeholder. Once decisions are made, this will contain:
 
-* **Tech Stack:** [TBD]
+* **Tech Stack:** [TBD] (*Note: Once the stack is decided, remember to update the EXTENSION FILTER in .shtracer.md accordingly.*)
 * **Dependencies:** [TBD - e.g. Node, Python version]
 * **Package Manager:** [TBD]
 * **Local Server / Build Command:** [TBD]
 * **IDE/Editor Recommendations:** [TBD]
+
+To ensure all quality gates (linting, commit standards) are active, please set up your local environment:
+
+1. **Prerequisites:** Ensure [Node.js](https://nodejs.org/) (LTS) is installed.
+2. **Install Dependencies:** Run `npm install`. This will:
+    * Install the required tooling (`markdownlint`, `commitlint`).
+    * Automatically activate the **Husky** git hooks.
+3. **Verify:** After installation, your commits will be automatically linted.
 
 ## 1. 🛡️ Safety-First Philosophy
 
@@ -92,7 +100,7 @@ We use a multi-layered approach to catch issues as early as possible.
 Before you can push your branch, your code must pass local quality gates. You should set up your environment to run these automatically.
 
 * **Linting & Typing:** We use specific linting tools depending on the module. For documentation, we strictly enforce rules using `markdownlint-cli2`.
-  * To run the markdown linter locally for the entire repository, use: `npx markdownlint-cli2 "**/*.md" "#node_modules"`
+  * To run the markdown linter locally for the entire repository, use: `npx markdownlint-cli2 "**/*.md" "#.tools" "#.logs" "#node_modules"`
 * **Formatting:** All code must be strictly formatted according to project standards.
 
 ### CI (Automated Suites)
@@ -107,7 +115,7 @@ When you open a PR, GitHub Actions will run comprehensive checks.
 Merging code to the production `main` branch is highly restricted.
 
 * **No Failing Tests:** Zero tolerance for failing tests or bypassed checks.
-* **Mandatory Peer Review:** All code must be reviewed and approved by at least one other developer. Code modifying P1 logic requires approval from a Lead Developer.
+* **Mandatory Peer Review:** All code must be reviewed and approved by at least one other developer. Code modifying P1 logic requires approval from a Lead Developer. *Note: Branch protection rules are currently configured to allow administrative overrides to facilitate progress until a secondary reviewer is onboarded.*
 
 #### Markdown Linting
 
