@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.0-pre-alpha.1] - 2026-02-28
+
+This hotfix resolves a deployment issue with the traceability engine.
+
+### Engineering
+
+- **Fixed:** Replaced defective `shtracer` Git submodule with directly tracked repository files to enable successful GitHub Pages deployment in CI.
+
 ## [0.1.0-pre-alpha] - 2026-02-27
 
 Initial project foundation. This milestone establishes governance,
@@ -31,5 +39,6 @@ developer experience tooling, and the complete product documentation suite.
 - ADR 001: Notification System
 - ADR 300–308 DEV: Documentation as Code, Branching Strategy, Contributing Guidelines, Ticket Workflow, Testing Guidelines, Linting Strategy, Local Hooks, Master Traceability Structure, Traceability Engine
 
-[unreleased]: https://github.com/naturelle137/AeroDash/compare/v0.1.0-pre-alpha...HEAD
+[unreleased]: https://github.com/naturelle137/AeroDash/compare/v0.1.0-pre-alpha.1...HEAD
+[0.1.0-pre-alpha.1]: https://github.com/naturelle137/AeroDash/compare/v0.1.0-pre-alpha...v0.1.0-pre-alpha.1
 [0.1.0-pre-alpha]: https://github.com/naturelle137/AeroDash/releases/tag/v0.1.0-pre-alpha
