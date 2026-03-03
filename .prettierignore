@@ -1,0 +1,4 @@
+.tools/shtracer
+.logs
+reports
+node_modules
