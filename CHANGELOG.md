@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Root `ARCHITECTURE.md` establishing the high-level PWA design, Data Flow, and safety constraints
+- Standardized API documentation in `docs/api/API.md` detailing offline-first fallback and error schemas
+
+### Engineering
+
+- Fixed Markdown linting hook to run efficiently on staged files via `lint-staged` (Ref #78)
+
 ## [0.1.0-pre-alpha.1] - 2026-02-28
 
 This hotfix resolves a deployment issue with the traceability engine.

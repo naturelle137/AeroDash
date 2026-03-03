@@ -21,6 +21,7 @@
     "build-only": "vite build",
     "type-check": "vue-tsc --build",
     "lint": "run-s lint:*",
+    "lint:md": "markdownlint-cli2 \"**/*.md\"",
     "lint:oxlint": "oxlint . --fix",
     "lint:eslint": "eslint . --fix --cache",
     "format": "prettier --write --experimental-cli src/"
@@ -61,6 +62,8 @@
     "husky": "^9.1.7",
     "jiti": "^2.6.1",
     "jsdom": "^28.1.0",
+    "lint-staged": "^16.3.1",
+    "markdownlint-cli2": "^0.21.0",
     "npm-run-all2": "^8.0.4",
     "oxlint": "~1.50.0",
     "prettier": "3.8.1",
@@ -69,5 +72,8 @@
     "vite-plugin-vue-devtools": "^8.0.6",
     "vitest": "^4.0.18",
     "vue-tsc": "^3.2.5"
+  },
+  "lint-staged": {
+    "*.md": "markdownlint-cli2"
   }
 }

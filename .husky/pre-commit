@@ -1,5 +1,5 @@
-# Run markdown linting locally before committing
-npx markdownlint-cli2 "**/*.md" "#node_modules" "#.tools" "#.logs" "#reports"
+# Run markdown linting specifically on staged .md files
+npx lint-staged --concurrent false
 
 # Run ESLint and Oxlint locally before committing
 npm run lint
