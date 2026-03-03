@@ -148,3 +148,7 @@ aerodash/
 - **Formatting/Quality**: ESLint, Oxlint, Prettier
 - **Testing**: Vitest (Unit/Logic/Core), Playwright (E2E/UI Flows)
 - **Traceability/Safety**: `shtracer` (Requirements-to-Code mapping)
+
+## Detailed Architecture
+
+The detailed architecture (Design Details, Data Models, Schemas, etc.) and architecture decisions ADR are documented in the [docs/architecture](docs/architecture) folder.

@@ -36,7 +36,12 @@ Fetches the current METAR for the specified airport.
   {
     "icao": "EDDF",
     "raw": "EDDF 021420Z ...",
-    "wind": { "direction": 240, "speed_kt": 15, "gust_kt": 25 },
+    "wind": {
+      "direction": 240,
+      "speed_kt": 15,
+      "gust_kt": 25,
+      "variation": { "direction1": 200, "direction2": 300 }
+    },
     "temperature_c": 12,
     "qnh_hpa": 1013,
     "precipitation": ["RA"],
@@ -71,6 +76,8 @@ Fetches static airport infrastructure data.
         "heading_mag": 69,
         "surface": "Asphalt",
         "tora_m": 4000,
+        "toda_m": 4000,
+        "asda_m": 4000,
         "lda_m": 4000
       }
     ],
@@ -126,10 +133,43 @@ If an API request fails, it always returns a standardized JSON structure matchin
 ```json
 {
   "error": {
-    "id": "ERR-API-001",
-    "severity": "CRITICAL",
-    "message": "Resource not found.",
-    "context": "API.Airports"
+    "id": "INFO-API-001",
+    "severity": "INFO",
+    "message": "Online Weather Service unavailable.",
+    "context": "API.OnlineWeather"
+  }
+}
+```
+
+```json
+{
+  "error": {
+    "id": "INFO-API-002",
+    "severity": "INFO",
+    "message": "Online Airport Data unavailable.",
+    "context": "API.OnlineAirports"
+  }
+}
+```
+
+```json
+{
+  "error": {
+    "id": "INFO-API-003",
+    "severity": "INFO",
+    "message": "Share code not created. Please try again.",
+    "context": "API.ShareCreate"
+  }
+}
+```
+
+```json
+{
+  "error": {
+    "id": "INFO-API-004",
+    "severity": "INFO",
+    "message": "Share code expired or invalid or service currently unavailable.",
+    "context": "API.ShareRetrieve"
   }
 }
 ```
