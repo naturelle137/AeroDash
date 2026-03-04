@@ -32,7 +32,7 @@ flowchart TD
 
     %% Core Module
     subgraph Core ["Safety Core (P1)"]
-        Math["Math Engine<br/>(M&B, Performance)"]
+        Math["Math Engine<br/>(M&B, Fuel, Performance)"]
         Unit["Unit Normalization<br/>(SI conversion)"]
         Val["Schema Validation (Zod)"]
     end
@@ -44,7 +44,7 @@ flowchart TD
     end
 
     %% Communication
-    Bus(("Notification Bus<br/>(INFO, WARN, CRIT)"))
+    Bus(("Notification Bus<br/>(INFO, WARNING, CRITICAL)"))
 
     %% Relationships
     UI -->|Reads/Updates| State
@@ -120,25 +120,53 @@ flowchart TB
 
 ## Architectural Layers
 
-- **Safety Core (`core/`)**: Framework-agnostic, pure TypeScript implementation handling all calculations, physical unit normalization (kg, m, L, s), and structural Zod schema validation.
-- **State & State-Management (`stores/`)**: Leverages `Pinia` (Type-safe Vue state) to maintain the ephemeral state of the active Flight Plan and the selected Aircraft Profile.
-- **Data Persistence (`services/`)**: Local browser storage (`IndexedDB`) is the primary source of truth. Synchronizes bidirectionally with an OIDC-authenticated cloud backend.
-- **Communication & Notification Bus**: Decoupled rules engine. Generates explicitly structured notifications (INFO, WARNING, CRITICAL) when mathematical limits are approached or API requests drop.
-- **UI & Presentation (`views/`, `components/`)**: Built with Vue 3 SFCs (no JSX). `vite-plugin-pwa` registers Service Workers caching the App Shell and computation logic for true 0-byte initial rural visits.
+- **Safety Core (`core/`)**: Framework-agnostic, pure TypeScript implementation handling all calculations, physical unit normalization (kg, m, L, s), and structural Zod schema validation. This is the P1 boundary — zero Vue/framework dependencies, enforceable via linting rules.
+- **Feature Modules (`modules/`)**: Encapsulated domain modules (M&B, Performance, Weather, etc.). Each module owns its components, stores, views, and services. Modules call into `core/` for safety calculations but never contain P1 math directly.
+- **Shared App Shell (`shared/`)**: Base UI components, layouts, composition functions, and non-safety utility helpers shared across all modules.
+- **Cross-Cutting Plugins (`plugins/`)**: Services with lifecycle or event subscriptions that cut across modules: Notification Bus, Connectivity State detection.
+- **Global State (`stores/`)**: Application-level Pinia stores (e.g., active aircraft, active flight plan) shared across modules.
+- **Data Persistence (`services/`)**: Module-level or shared external I/O (IndexedDB wrapper, API client, Cloud Sync).
+- **UI & Presentation**: Built with Vue 3 SFCs (no JSX). `vite-plugin-pwa` registers Service Workers caching the App Shell and computation logic for true 0-byte initial rural visits.
 
 ## Directory Structure Matrix
 
 ```text
 aerodash/
 ├── src/
-│   ├── core/         # Pure TS (P1 Logic): Math engine, validators, unit normalization.
-│   ├── stores/       # Pinia State Management: Ephemeral UI state (Active Aircraft/Flight).
-│   ├── components/   # Vue 3 SFCs: Reusable, reactive UI elements (No business logic).
-│   ├── views/        # Vue 3 Router Views: High-level page compositions.
-│   └── services/     # API/Integrations: IndexedDB wrapper, Cloud Sync, Notification Bus.
+│   ├── core/                    # P1 Safety Core: Pure TS. Zero framework dependencies.
+│   │   ├── math/                #   Interpolation, polygon checks, M&B, FE, performance.
+│   │   ├── units/               #   SI unit normalization (kg, m, L, s).
+│   │   └── validation/          #   Zod schema validation for aircraft data.
+│   │
+│   ├── modules/                 # Feature Modules: Encapsulated domain logic.
+│   │   ├── mass-balance/        #   M&B: components/, composables/, stores/, views/
+│   │   │   ├── components/      #      Module specific Vue SFCs
+│   │   │   ├── composables/     #      Module specific Vue composables
+│   │   │   ├── stores/          #      Module specific Pinia stores
+│   │   │   ├── services/        #      Module specific I/O services
+│   │   │   └── views/           #      Module specific Vue views
+│   │   ├── performance/         #   Performance calculation module.
+│   │   ├── fuel-endurance/      #   Fuel & Endurance module.
+│   │   ├── weather/             #   Weather & Meteorological module.
+│   │   ├── aircraft/            #   Aircraft Management module.
+│   │   ├── airport/             #   Airport Database module.
+│   │   ├── sync/                #   Cloud Sync module.
+│   │   └── export/              #   Documentation & Export module.
+│   │
+│   ├── shared/                  # App Shell: Shared UI, layouts, utilities.
+│   │   ├── components/          #   Base Vue SFCs (BaseButton, BaseCard, etc.).
+│   │   ├── composables/         #   Shared Vue composition functions.
+│   │   ├── layouts/             #   Layout components (DefaultLayout, DarkLayout).
+│   │   └── utils/               #   Non-safety TS helpers (formatting, dates).
+│   │
+│   ├── plugins/                 # Cross-cutting Services: Notification Bus, Connectivity.
+│   ├── stores/                  # Global Pinia Stores: App-level state.
+│   ├── router/                  # Vue Router configuration.
+│   └── assets/                  # Static assets (images, fonts, styles).
+│
 └── tests/
-    ├── unit/         # Vitest: Deterministic testing covering the `core/` math & boundaries.
-    └── e2e/          # Playwright: End-to-end verification of Critical User Journeys.
+    ├── unit/                    # Vitest: Deterministic testing of core/ math & boundaries.
+    └── e2e/                     # Playwright: End-to-end verification of Critical User Journeys.
 ```
 
 ## Technology Stack Summary

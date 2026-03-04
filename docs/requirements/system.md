@@ -7,6 +7,7 @@ This document defines the system behavior using the **EARS** (Easy Approach to R
 ## Requirements
 
 <!-- @REQ-SYS-001@ -->
+
 ### REQ-SYS-001: Offline Functionality
 
 **Requirement:** The system shall be fully functional without an active internet connection; all aircraft profiles and calculation logic shall be stored locally.
@@ -16,6 +17,7 @@ This document defines the system behavior using the **EARS** (Easy Approach to R
 **Design Reference:** n/a
 
 <!-- @REQ-SYS-002@ -->
+
 ### REQ-SYS-002: Portable Storage Format
 
 **Requirement:** The system shall store aircraft profiles and flight plans in a standardized, portable format.
@@ -25,6 +27,7 @@ This document defines the system behavior using the **EARS** (Easy Approach to R
 **Design Reference:** n/a
 
 <!-- @REQ-SYS-003@ (FROM: @H-001@, @H-002@) -->
+
 ### REQ-SYS-003: SI Unit Normalization
 
 **Requirement:** The system shall normalize all physical input parameters to a unified internal SI reference frame (kg, m, L, s) for the internal calculation logic.
@@ -34,15 +37,17 @@ This document defines the system behavior using the **EARS** (Easy Approach to R
 **Design Reference:** n/a
 
 <!-- @REQ-SYS-004@ -->
+
 ### REQ-SYS-004: Supported Units
 
 **Requirement:** The system shall accept the following units for data storage, input and display: <ul><li>Volume: L, gal (US)</li> <li>Mass: kg, lb</li> <li>Speed: km/h, mph, kt, m/s</li> <li>Arm: m, in, ft</li> <li>Moment: kg·m, in-lb, ft-lb</li> <li>Temperature: °C, °F</li> <li>Altitude: ft, m</li> <li>Distance: km, mi, nm </li> <li>Pressure: hPa, inHg, mmHg</li></ul>
-**Rationale:** Ensures compatibility with POH data from both metric  and imperial manufacturers.
+**Rationale:** Ensures compatibility with POH data from both metric and imperial manufacturers.
 **Priority:** P1
 **Status:** Approved
 **Design Reference:** n/a
 
 <!-- @REQ-SYS-005@ (FROM: @H-019@) -->
+
 ### REQ-SYS-005: Update Available Notification
 
 **Requirement:** When a new software version is detected, the system shall prevent silent background updates and return a Notification: `{ "id": "INFO-SYS-001", "severity": "INFO", "message": "Update Available", "context": "System.Version", "action": { "label": "Reload", "event": "sys.reload", "payload": { "targetVersion": "<semver_string>", "force": false } } }`.
@@ -52,6 +57,7 @@ This document defines the system behavior using the **EARS** (Easy Approach to R
 **Design Reference:** [Notification Schema](../architecture/notification_schema.md)
 
 <!-- @REQ-SYS-006@ (FROM: @H-019@) -->
+
 ### REQ-SYS-006: Safe Version Verification
 
 **Requirement:** When the application initializes online, the system shall verify the local version against a remote "minimum safe version" and block execution if the local version is marked as unsafe
@@ -61,6 +67,7 @@ This document defines the system behavior using the **EARS** (Easy Approach to R
 **Design Reference:** n/a
 
 <!-- @REQ-SYS-007@ -->
+
 ### REQ-SYS-007: Centralized Notification Service
 
 **Requirement:** The system shall implement a centralized Notification Service that aggregates notifications from all functional modules.
@@ -70,6 +77,7 @@ This document defines the system behavior using the **EARS** (Easy Approach to R
 **Design Reference:** [Notification Schema](../architecture/notification_schema.md)
 
 <!-- @REQ-SYS-008@ -->
+
 ### REQ-SYS-008: Uniform Notification Model
 
 **Requirement:** The communication logic layer and UI layer shall be done via a uniform notification data model containing at minimum: Unique ID, Severity, Message, and Persistence flag.
@@ -77,6 +85,26 @@ This document defines the system behavior using the **EARS** (Easy Approach to R
 **Priority:** P1
 **Status:** Approved
 **Design Reference:** [Notification Schema](../architecture/notification_schema.md)
+
+<!-- @REQ-SYS-009@ -->
+
+### REQ-SYS-009: Connectivity State Detection
+
+**Requirement:** The system shall monitor the device's network connectivity and maintain an application-wide connectivity state (`Online`, `Offline`).
+**Rationale:** Offline operation is a core design constraint, not an error condition. A centralized connectivity state replaces individual API failure notifications and prevents notification fatigue.
+**Priority:** P2
+**Status:** Approved
+**Design Reference:** n/a
+
+<!-- @REQ-SYS-010@ -->
+
+### REQ-SYS-010: Online Feature Availability
+
+**Requirement:** While the connectivity state is `Offline`, the system shall disable all features requiring an active internet connection (Cloud Sync, Share-Code generation and retrieval, Weather and Airport API queries) and shall re-enable them when the state returns to `Online`.
+**Rationale:** Prevents misleading error states for expected offline behavior. Online-only features are gated at the UI level rather than producing individual failure notifications.
+**Priority:** P2
+**Status:** Approved
+**Design Reference:** n/a
 
 ---
 

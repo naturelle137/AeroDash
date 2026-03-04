@@ -54,7 +54,38 @@ Fetches the current METAR for the specified airport.
 Fetches the current TAF for the specified airport.
 
 - **Parameters**: `icao` (string) - 4-letter ICAO code.
-- **Response `200 OK`**: Returns the parsed TAF structure.
+- **Response `200 OK`**:
+
+  ```json
+  {
+    "icao": "EDDF",
+    "raw": "TAF EDDF 021100Z 0212/0318 ...",
+    "issued": "2026-03-02T11:00:00Z",
+    "validFrom": "2026-03-02T12:00:00Z",
+    "validTo": "2026-03-03T18:00:00Z",
+    "forecast": [
+      {
+        "from": "2026-03-02T12:00:00Z",
+        "to": "2026-03-03T18:00:00Z",
+        "type": "BASE",
+        "wind": { "direction": 240, "speed_kt": 12, "gust_kt": null },
+        "visibility_m": 9999,
+        "weather": [],
+        "clouds": [{ "cover": "FEW", "base_ft": 3000 }]
+      },
+      {
+        "from": "2026-03-02T18:00:00Z",
+        "to": "2026-03-02T22:00:00Z",
+        "type": "TEMPO",
+        "wind": { "direction": 260, "speed_kt": 18, "gust_kt": 30 },
+        "visibility_m": 5000,
+        "weather": ["RA"],
+        "clouds": [{ "cover": "BKN", "base_ft": 1500 }]
+      }
+    ],
+    "meta": { "source": "NOAA", "timestamp": "2026-03-02T11:00:00Z" }
+  }
+  ```
 
 ### 2. Airport Database (AP)
 
@@ -105,21 +136,21 @@ Generates a short, alphanumeric Share-Code for ad-hoc peer-to-peer sharing of an
 
 Retrieves an aircraft profile using a Share-Code (REQ-SC-006).
 
-- **Parameters**: `code` (string) - 6-character alphanumeric code.
+- **Parameters**: `code` (string) - 8-character alphanumeric code.
 - **Response `200 OK`**: Returns the Aircraft Profile JSON structure.
 
 ### 4. Cloud Synchronization (SC)
 
 #### `POST /api/v1/sync/push`
 
-Pushes local modifications to the cloud. The backend resolves conflicts, prioritizing Organization data.
+Pushes local modifications to the cloud. The backend resolves conflicts, prioritizing Organization data (REQ-SC-002).
 
 - **Body**: Array of synchronization mutation objects (Delta changes).
 - **Response `Response 200 OK: { "syncedAt": "2026-03-02T15:30:00Z", "conflicts": [] }`**: Returns acknowledgment and any server-side conflict resolutions.
 
 #### `GET /api/v1/sync/pull`
 
-Retrieves changes from the cloud since the last local sync timestamp.
+Retrieves changes from the cloud since the last local sync timestamp (REQ-SC-002).
 
 - **Query**: `?since=<ISO_8601_TIMESTAMP>`
 - **Response `200 OK`**: Array of synchronization mutation objects.
@@ -130,34 +161,15 @@ Retrieves changes from the cloud since the last local sync timestamp.
 
 If an API request fails, it always returns a standardized JSON structure matching the application-wide Notification Schema to allow direct mapping to UI alerts.
 
-```json
-{
-  "error": {
-    "id": "INFO-API-001",
-    "severity": "INFO",
-    "message": "Online Weather Service unavailable.",
-    "context": "API.OnlineWeather"
-  }
-}
-```
-
-```json
-{
-  "error": {
-    "id": "INFO-API-002",
-    "severity": "INFO",
-    "message": "Online Airport Data unavailable.",
-    "context": "API.OnlineAirports"
-  }
-}
-```
+> [!NOTE]
+> Connectivity-related failures (Weather, Airport, Sync unavailable) are not modeled as individual error notifications. The system-level connectivity state (REQ-SYS-009, REQ-SYS-010) disables online-only features when offline, preventing notification fatigue.
 
 ```json
 {
   "error": {
     "id": "INFO-API-003",
     "severity": "INFO",
-    "message": "Share code not created. Please try again.",
+    "message": "Share code could not be created.",
     "context": "API.ShareCreate"
   }
 }
@@ -168,7 +180,7 @@ If an API request fails, it always returns a standardized JSON structure matchin
   "error": {
     "id": "INFO-API-004",
     "severity": "INFO",
-    "message": "Share code expired or invalid or service currently unavailable.",
+    "message": "Share code expired or invalid.",
     "context": "API.ShareRetrieve"
   }
 }
@@ -181,4 +193,4 @@ If an API request fails, it always returns a standardized JSON structure matchin
 - **`403 Forbidden`**: Role-Based Access Control violation (e.g., Member attempting to push Organization fleet changes).
 - **`404 Not Found`**: Resource does not exist (e.g., ICAO not found, Share-Code expired or invalid). Puts the app into `ManualEntry` fallback mode.
 - **`500 Internal Server Error`**: Unexpected backend failure.
-- **`503 Service Unavailable`**: External dependency failure (e.g., NOAA weather API is down). Should trigger a graceful degradation in the client.
+- **`503 Service Unavailable`**: External dependency failure (e.g., NOAA weather API is down). Online-only features are disabled by the system-level connectivity state (REQ-SYS-010).
