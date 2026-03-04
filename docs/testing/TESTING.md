@@ -28,12 +28,25 @@ We utilize a standard testing pyramid, but with strict definitions regarding wha
   - Component Integration (Vitest): `*.int.spec.ts`, co-located in the same `__tests__` folders as unit tests.
   - System Integration (Frontend ↔ Backend): Placed in a dedicated `tests/integration/` top-level directory.
 
-### 1.3 End-to-End (E2E) Tests (The User Journey)
+### 1.3 End-to-End (E2E) Tests (The User Journey & BDD)
 
-- **Scope:** The entire application stack simulating a real pilot's workflow.
-- **Rule:** Should follow the exact steps outlined in the `docs/journeys/` directory.
+- **Scope:** The entire application stack simulating a real pilot's workflow via Behavior-Driven Development (BDD).
+- **Rule:** Driven directly by the User Journeys outlined in the `docs/journeys/` directory.
 - **Focus:** System integration and holistic User Experience workflows.
-- **Location & Naming:** `*.e2e.spec.ts`. Placed in the dedicated `tests/e2e/` top-level directory to ensure Playwright and Vitest runners never collide.
+- **Location & Naming:** `*.feature` + Step Definitions (`*.ts`). Placed in the dedicated `tests/e2e/` top-level directory. Translated dynamically via standard Playwright tooling (e.g., `playwright-bdd`).
+
+### 1.4 Smoke Tests (The Sanity Check)
+
+- **Scope:** A fast, high-priority subset of Unit/Integration/E2E tests verifying the system boots, the P1 Core is reachable, and the UI loads.
+- **Execution:** Runs as the definitive first gate in the CI/CD pipeline or post-deployment.
+- **Location & Naming:** Smoke tests are not custom files. They are standard tests (in any tier) tagged with `@smoke` in their title or Gherkin Feature.
+- **Command:** `npm run test:smoke`
+
+### 1.5 Regression Tests (The Full Suite)
+
+- **Scope:** The comprehensive safety verification executed prior to any release.
+- **Rule:** If a bug is caught in staging or production, it **must** be reproduced with a failing Unit or E2E test before being fixed, permanently binding the fix to the Regression Suite.
+- **Execution:** Regression testing does not require a special script or `@regression` tag. It is simply the union of all tests (`npm run test:unit` + `npm run test:integration` + `npm run test:e2e`).
 
 ---
 
@@ -111,9 +124,14 @@ If your changes cause the coverage to dip below the required threshold, the CI p
 
 To fulfill our Docs-as-Code safety obligations, every unit, integration, and E2E test file must include a traceability tag associating the test directly with a specific Code Implementation or User Journey.
 
-You must place a `shtracer` comment inside your test files.
+We use specific prefixes defined in `.tools/.shtracer.md`:
 
-- Example matching to Implementation: `// @TC-SYS-001@ (FROM: @IMP-SYS-001@)`
-- Example matching to a Journey: `// @TC-SYS-002@ (FROM: @UJ-STRESS-001@)`
+- **Unit Tests (`*.spec.ts`)**: Must use the `@UT-[A-Z]+-[0-9]+@` prefix.
+  - _Example:_ `// @UT-SYS-001@ (FROM: @IMP-SYS-001@)`
+- **Integration Tests (`*.int.spec.ts`)**: Must use the `@IT-[A-Z]+-[0-9]+@` prefix.
+  - _Example:_ `// @IT-SYS-001@ (FROM: @IMP-SYS-002@)`
+- **E2E BDD Tests (`*.feature`)**: Must use the `@E2E-[A-Z]+-[0-9]+@` prefix.
+  - **CRITICAL:** For BDD, these tags **must** be placed in the Gherkin `.feature` file (the living documentation), **not** in the `.ts` step definitions. Use the `#` comment syntax.
+  - _Example:_ `# @E2E-STRESS-001@ (FROM: @UJ-STRESS-001@)`
 
 This acts as the final verification link in our Master Traceability Matrix, permanently proving that the mitigations required by a safety hazard are verified in code.

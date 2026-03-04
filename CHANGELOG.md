@@ -11,10 +11,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Root `ARCHITECTURE.md` establishing the high-level PWA design, Data Flow, and safety constraints
 - Standardized API documentation in `docs/api/API.md` detailing offline-first fallback and error schemas
+- Online/Offline state detection and feature gating requirements (`system.md`, `user_interface.md`)
 
 ### Engineering
 
 - Fixed Markdown linting hook to run efficiently on staged files via `lint-staged` (Ref #78)
+- Defined and setup src and testing file structure
+- Defined frontend framework (Vue 3) and testing framework (Vitest, Playwright, Playwright-BDD) and initialized them
+
+### Architecture Decision Records
+
+- ADR 002: Frontend framework (Vue 3)
+- ADR 309 DEV: Frontend tooling and testing framework (Vitest, Playwright)
+- ADR 310 DEV: Vue/Vite plugins (`vite-plugin-pwa`, `vue-chartjs`, `@vite-pwa/assets-generator`)
+- ADR 311 DEV: Project directory structure (Modules pattern)
+- ADR 312 DEV: End-to-End BDD framework (`playwright-bdd`)
 
 ## [0.1.0-pre-alpha.1] - 2026-02-28
 

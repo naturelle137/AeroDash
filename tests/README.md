@@ -12,15 +12,16 @@
 - **`tests/integration/`**: System-level Integration tests.
 - **`tests/e2e/`**: Playwright End-to-End user journeys.
 
-### File Naming Conventions
+### File extension cheat sheet
 
 - `*.spec.ts` → **Unit Test** (Measured in coverage)
 - `*.int.spec.ts` → **Integration Test** (Not measured in unit coverage)
-- `*.e2e.spec.ts` → **End-to-End Test** (Ignored by Vitest, picked up by Playwright)
+- `*.feature` → **End-to-End BDD Scenario** (Compiled via playwright-bdd)
 
 ### CLI Commands
 
 - `npm run test:unit` → Runs all `*.spec.ts` unit tests.
+- `npm run test:smoke` → Runs all cross-tier tests tagged with `@smoke`
 - `npm run coverage:unit` → Runs unit tests and generates the coverage report.
 - `npm run test:integration` → Runs all `*.int.spec.ts` and `tests/integration/` tests.
-- `npm run test:e2e` → Runs Playwright End-to-End tests.
+- `npm run test:e2e` → Runs all Playwright BDD End-to-End tests (Regression size).
