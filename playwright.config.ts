@@ -12,6 +12,7 @@ import { defineConfig, devices } from '@playwright/test'
  */
 export default defineConfig({
   testDir: './tests/e2e',
+  testMatch: '**/*.e2e.spec.ts',
   /* Maximum time one test can run for. */
   timeout: 30 * 1000,
   expect: {
