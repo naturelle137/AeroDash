@@ -17,7 +17,8 @@ stateDiagram-v2
     LOADING --> UNVERIFIED : Profile fetched from Local DB (Success)
     LOADING --> INITIAL : Fetch failed (Local DB Error / Not Found)
 
-    UNVERIFIED --> VERIFIED_SAFE : User edits input (Sync Recalculation)
+    UNVERIFIED --> UNVERIFIED : User edits input (Incomplete Config / Recalculation)
+    UNVERIFIED --> VERIFIED_SAFE : All mandatory fields touched & valid
     UNVERIFIED --> WARNING : Soft bounds exceeded (Sync Recalculation)
     UNVERIFIED --> ERROR_CRITICAL : Math limits crossed (Sync Recalculation)
 
@@ -54,11 +55,11 @@ stateDiagram-v2
 
 - **Condition:** Aircraft profile loaded. The user has _not_ verified the mandatory fields (e.g. they just opened an old configuration and must review it, or they are starting from standard empty weights).
 - **Reactivity Bound:** Inputs are enabled. Math core actively calculates in the background, but the Export/Save actions are gated.
-- **Transitions out:** User edits data triggering recalculation and Notification schema capture (`VERIFIED_SAFE`, `WARNING`, or `ERROR_CRITICAL`).
+- **Transitions out:** User edits an input. If mandatory fields remain untouched/unconfirmed, the state loops back to `UNVERIFIED`. If all mandatory fields are touched and the calculation passes, it transitions to `VERIFIED_SAFE`. If bounds are exceeded, it transitions to `WARNING` or `ERROR_CRITICAL`.
 
 ### 2.4 VERIFIED_SAFE (Success)
 
-- **Condition:** All inputs dirty/confirmed, math core returns zero Warnings or Errors. Safety constraints (MTOM, MZFM, Point-in-Polygon) are met.
+- **Condition:** All mandatory fields have been explicitly "touched" or confirmed by the user, and the math core returns zero Warnings or Errors. Safety constraints (MTOM, MZFM, Point-in-Polygon) are met.
 - **Reactivity Bound:** Export Action unlocked. Chart visuals bound to `color: success`.
 
 ### 2.5 WARNING (Soft Violation)
