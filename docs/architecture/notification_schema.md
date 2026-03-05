@@ -1,6 +1,6 @@
 # AeroDash Architecture - Notification System Schema
 
-<!-- @ARCH-001@ (FROM: @REQ-SYS-007@, @REQ-SYS-008@)-->
+<!-- @DES-ARCH-001@ (FROM: @REQ-SYS-007@, @REQ-SYS-008@)-->
 
 **Version:** 1.0
 **Date:** 2026-02-19
@@ -8,7 +8,7 @@
 
 ## 1. Overview
 
-This document defines the interface contract for the **Generic Notification System** referenced by `REQ-SYS-007` and `REQ-SYS-008`.
+This document defines the interface contract for the **Generic Notification System**.
 It explicitly defines the data structure that Logic Modules must emit and the UI Layer must consume.
 
 ## 2. Notification Object Schema

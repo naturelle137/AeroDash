@@ -45,6 +45,8 @@ stateDiagram-v2
     VERIFIED_SAFE --> [*] : User triggers Export (Success)
 ```
 
+<!-- @DES-ARCH-003@ (FROM: @REQ-SYS-001@) -->
+
 ## 2. State Definitions
 
 ### 2.1 INITIAL
@@ -55,7 +57,7 @@ stateDiagram-v2
 
 ### 2.2 LOADING
 
-- **Condition:** Pending asynchronous IndexedDB/Local fetch for aircraft profile geometry. _Note: This is an offline-first app (`REQ-SYS-001`), so this fetch is local, not over the internet._
+- **Condition:** Pending asynchronous IndexedDB/Local fetch for aircraft profile geometry. _Note: This is an offline-first app, so this fetch is local, not over the internet._
 - **Reactivity Bound:** Input states intentionally "locked." Prevent duplicate clicks/race conditions during `await`.
 - **Transitions out:** Promise resolved (`UNCONFIGURED`) or Promise rejected/timeout (`INITIAL` - e.g., corrupted local DB).
 
@@ -67,8 +69,10 @@ stateDiagram-v2
 
 ### 2.4 UNVERIFIED
 
+<!-- @DES-ARCH-004@ (FROM: @REQ-UI-015@) -->
+
 - **Condition:** All mandatory fields have values, but the user has **not yet confirmed** them (e.g., they just opened an old configuration and must review it, or they filled in the last required field but haven't explicitly acknowledged the data).
-- **Reactivity Bound:** Inputs are enabled. Math core actively calculates with complete data, and the chart reflects the full calculation. Export/Save actions are **gated** behind a confirmation modal (`REQ-UI-015`).
+- **Reactivity Bound:** Inputs are enabled. Math core actively calculates with complete data, and the chart reflects the full calculation. Export/Save actions are **gated** behind a confirmation modal.
 - **Transitions out:** If the user confirms all fields, it transitions to `VERIFIED_SAFE`. If the user clears a mandatory field, it falls back to `UNCONFIGURED`. If bounds are exceeded, it transitions to `WARNING` or `ERROR_CRITICAL`.
 
 ### 2.5 VERIFIED_SAFE (Success)
@@ -90,10 +94,12 @@ stateDiagram-v2
 
 ## 3. Implementation Directives (Vue)
 
+<!-- @DES-ARCH-005@ (FROM: @REQ-MB-001@, @REQ-MB-002@, @REQ-MB-003@, @REQ-UI-009@) -->
+
 To ensure this state machine cannot be bypassed:
 
 1. **Unidirectional Flow:** Vue components shall not edit the calculation store directly via two-way `v-model`.
-2. **Synchronous Real-Time Execution (`REQ-MB-001`, `002`, `003`, `REQ-UI-009`):** When a component dispatches an action (e.g. `updateStationWeight`, `changeCategory`), the store must pause state evaluation, run the `core/math` algorithms synchronously, catch the Notification Schema result, and **then** update the formal State Machine pointer in a single reactive tick to ensure real-time chart updates without visual tearing.
+2. **Synchronous Real-Time Execution:** When a component dispatches an action (e.g. `updateStationWeight`, `changeCategory`), the store must pause state evaluation, run the `core/math` algorithms synchronously, catch the Notification Schema result, and **then** update the formal State Machine pointer in a single reactive tick to ensure real-time chart updates without visual tearing.
 3. **Deterministic Testing:** Tests must specifically target hitting each state boundary and transition matrix path defined in the flowchart.
 
 ---

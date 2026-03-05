@@ -6,15 +6,19 @@ This document establishes the global usability, accessibility, and interaction r
 
 ## 1. Usability & Quality (UQ) Constants
 
-### 1.1 Input Ergonomics (REQ-UQ-001, REQ-UQ-005)
+<!-- @DES-UQ-001@ (FROM: @REQ-UQ-001@, @REQ-UQ-003@, @REQ-UQ-005@)-->
+
+### 1.1 Input Ergonomics
 
 AeroDash operates natively in cockpit environments. Inputs must be frictionless:
 
 - **Touch Targets:** Minimum `44x44px` for all interactive elements (steppers, buttons, sliders).
 - **Explicit Units:** Every input field must definitively display its active unit statically adjacent to the number (e.g., `kg`, `L`, `km/h`).
-- **Precision (REQ-UQ-003):** Data fields auto-format to a decimal precision appropriate to the active unit, ensuring a physical resolution of at least 1mm for lengths and 0.1 units for mass/volume. Standard precisions: `m`=3, `cm`=1, `mm`=0, `in`=2, `kg`/`lb`/`L`/`gal`=1.
+- **Precision:** Data fields auto-format to a decimal precision appropriate to the active unit, ensuring a physical resolution of at least 1mm for lengths and 0.1 units for mass/volume. Standard precisions: `m`=3, `cm`=1, `mm`=0, `in`=2, `kg`/`lb`/`L`/`gal`=1.
 
-### 1.2 Layout Responsiveness (REQ-UQ-002)
+<!-- @DES-UQ-002@ (FROM: @REQ-UQ-002@)-->
+
+### 1.2 Layout Responsiveness
 
 - **Mobile/Cockpit Tablet (Max-width: 768px):** Single-column stacked layout. Navigation and critical alert banners top, scrolling configuration inputs middle, interactive visualization (e.g. Charts) bottom. Go/No-Go Summaries must be sticky at the viewport bottom.
 - **Desktop/Planning Station (Min-width: 769px):** Split-pane layout. Left pane (40%) contains scrolling inputs. Right pane (60%) is a fixed position staging ground for charts and results.
@@ -23,12 +27,14 @@ AeroDash operates natively in cockpit environments. Inputs must be frictionless:
 
 ## 2. Interaction State Taxonomy
 
-Component states strictly map to the Reactivity State Machine defined in [`docs/architecture/frontend_state_machine.md`](../architecture/frontend_state_machine.md) and the centralized Notification Schema (`REQ-SYS-007`).
+<!-- @DES-UX-003@ (FROM: @REQ-SYS-007@, @REQ-UI-015@) -->
+
+Component states strictly map to the Reactivity State Machine defined in [`docs/architecture/frontend_state_machine.md`](../architecture/frontend_state_machine.md) and the centralized Notification Schema.
 
 1. **INITIAL:** Module mounted, no data context loaded. Inputs disabled. Connectivity indicator (Online/Offline) visible.
 2. **LOADING:** Fetching aircraft profiles or performing async setup. Prevents race conditions.
 3. **UNCONFIGURED:** Profile loaded but mandatory fields are still missing or untouched. Inputs enabled; math core may run on partial data. Export/Save **blocked**.
-4. **UNVERIFIED:** All mandatory fields have values but the user has not yet confirmed them. Safety math runs on complete data. Export/Save gated behind a confirmation modal (`REQ-UI-015`).
+4. **UNVERIFIED:** All mandatory fields have values but the user has not yet confirmed them. Safety math runs on complete data. Export/Save gated behind a confirmation modal.
 5. **VERIFIED_SAFE (Success):** Validation passes. System renders in clean native colors (Green/Neutral primary). Action/Export buttons fully enabled.
 6. **WARNING:** User inputs technically valid but outside standard ranges `[WARN-UI-001]`. Field borders turn **Yellow/Orange** and display a warning icon (e.g., `!`). Helper text inline. Does _not_ block execution.
 7. **ERROR_CRITICAL:** Mathematical safety limit crossed (e.g., MTOM exceeded `[CRIT-MB-002]`). Active visualization elements turn **Red** and change their physical shape or use pattern-fills. Triggers a global flashing banner or overlay Modal with redundant text. Blocking transition to Export `[CRIT-UI-001]`.
@@ -46,8 +52,10 @@ Safety-critical notifications must bypass visual reliance for screen readers:
 
 ### 3.2 Night Operations (Dark Mode / Contrast)
 
-- **Contrast Ratios:** The UI must support a togglable dark mode (`REQ-UI-011`) for night vision preservation. Both modes must meet **WCAG AAA** contrast styling, particularly for the Red (Unsafe) and Green (Safe) status highlights allowing instant parsing in extreme sun glare or pitch-black cockpit environments.
-- **Keyboard Parity:** All steppers, complex field `[i]` tooltips (`REQ-UI-012`), and export functions must be fully tabbable in logical descending order.
+<!-- @DES-UX-004@ (FROM: @REQ-UI-011@, @REQ-UI-012@) -->
+
+- **Contrast Ratios:** The UI must support a togglable dark mode for night vision preservation. Both modes must meet **WCAG AAA** contrast styling, particularly for the Red (Unsafe) and Green (Safe) status highlights allowing instant parsing in extreme sun glare or pitch-black cockpit environments.
+- **Keyboard Parity:** All steppers, complex field `[i]` tooltips, and export functions must be fully tabbable in logical descending order.
 
 ### 3.3 Color Independence
 
@@ -72,7 +80,9 @@ If a Vue component throws a fatal rendering error (e.g., expecting an array but 
 
 ### 4.2 Graceful Degradation
 
-- If a secondary API fails (e.g., Weather TAF timeout), the core app must continue functioning `[REQ-SYS-001, REQ-SYS-010]`.
+<!-- @DES-UX-005@ (FROM: @REQ-SYS-001@, @REQ-SYS-010@) -->
+
+- If a secondary API fails (e.g., Weather TAF timeout), the core app must continue functioning.
 - **Recovery Action:** The specific API-driven UI block (e.g., Auto-Wind input) must default to unlocked manual input fields, allowing the pilot to read the wind from an external source and type it in manually without blocking the M&B calculations.
 
 ### 4.3 Explicit User Resets
@@ -135,8 +145,10 @@ A consistent 4px (0.25rem) base scale ensures rhythm and touch-target compliance
 
 ### 5.4 Motion & Animation Principles
 
-Motion is strictly functional. It must draw attention to state changes without causing motion sickness or introducing perceptible delay (`REQ-UI-009`).
+<!-- @DES-UX-006@ (FROM: @REQ-UI-009@, @REQ-MB-003@) -->
+
+Motion is strictly functional. It must draw attention to state changes without causing motion sickness or introducing perceptible delay.
 
 - **Duration Constraints:** Maximum `200ms` for all UI transitions (modals, color fades, hover states).
 - **Easing:** Real-world physics (`ease-out` for entering elements, `ease-in` for exiting).
-- **Prohibited:** Indeterminate spinners blocking synchronous math `[REQ-MB-003]`. Lengthy layout animations that shift interactive touch-targets while the user is actively attempting to tap them.
+- **Prohibited:** Indeterminate spinners blocking synchronous math. Lengthy layout animations that shift interactive touch-targets while the user is actively attempting to tap them.

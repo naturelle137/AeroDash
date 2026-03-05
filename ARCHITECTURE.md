@@ -49,9 +49,9 @@ flowchart TD
     %% Relationships
     UI -->|Reads/Updates| State
     State -->|Triggers calculations| Core
-    Core -->|Returns deterministic results| State
+    Core -->|Returns raw results & violations| State
 
-    Core -.->|Fires Mathematical Limit Alerts| Bus
+    State -.->|Fires Mathematical Limit Alerts| Bus
     Persistence -.->|Fires Network Failure Alerts| Bus
     Bus -.->|Subscribes to rendering| UI
 
