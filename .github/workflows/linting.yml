@@ -92,8 +92,8 @@ jobs:
         run: |
           echo "Linting changed files..."
           if [ -n "${{ steps.changed-files.outputs.all_changed_files }}" ]; then
-            npx eslint ${{ steps.changed-files.outputs.all_changed_files }}
-            npx oxlint ${{ steps.changed-files.outputs.all_changed_files }}
+            npx oxlint ${{ steps.changed-files.outputs.all_changed_files }} -w frontend
+            npx eslint ${{ steps.changed-files.outputs.all_changed_files }} -w frontend
           else
             echo "No code files changed."
           fi
@@ -102,5 +102,5 @@ jobs:
         if: github.event_name == 'pull_request' && github.base_ref == 'main'
         run: |
           echo "Linting ALL Code files in the repository..."
-          npx eslint .
-          npx oxlint .
+          npx oxlint . -w frontend
+          npx eslint . -w frontend
