@@ -1,83 +1,31 @@
 {
-  "name": "aerodash",
-  "version": "0.2.0-pre-alpha-rc1",
-  "description": "AeroDash - Flight Preparation & Decision Support Tool for General Aviation",
+  "name": "aerodash-root",
   "private": true,
-  "type": "module",
-  "directories": {
-    "doc": "docs"
-  },
-  "engines": {
-    "node": "^20.19.0 || >=22.12.0"
-  },
+  "workspaces": [
+    "frontend"
+  ],
   "scripts": {
     "prepare": "husky",
-    "dev": "vite",
-    "build": "run-p type-check \"build-only {@}\" --",
-    "preview": "vite preview",
-    "test": "echo \"Notice: No default test suite. Use test:unit, test:integration, or test:e2e.\" && exit 0",
-    "test:unit": "vitest run",
-    "test:smoke": "playwright test --grep @smoke",
-    "coverage:unit": "vitest run --coverage",
-    "test:integration": "vitest run --config vitest.config.int.ts",
-    "test:e2e": "playwright test",
-    "build-only": "vite build",
-    "type-check": "vue-tsc --build",
-    "lint": "run-s lint:*",
+    "dev": "npm run dev -w frontend",
+    "build": "npm run build -w frontend",
+    "test": "npm run test -w frontend",
+    "test:unit": "npm run test:unit -w frontend",
+    "test:integration": "npm run test:integration -w frontend",
+    "test:e2e": "npm run test:e2e -w frontend",
+    "test:smoke": "npm run test:smoke -w frontend",
+    "lint": "npm run lint -w frontend && npm run lint:md",
     "lint:md": "markdownlint-cli2 \"**/*.md\"",
-    "lint:oxlint": "oxlint . --fix",
-    "lint:eslint": "eslint . --fix --cache",
-    "format": "prettier --write --experimental-cli src/"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/naturelle137/AeroDash.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "AGPL-3.0-only",
-  "bugs": {
-    "url": "https://github.com/naturelle137/AeroDash/issues"
-  },
-  "homepage": "https://github.com/naturelle137/AeroDash#readme",
-  "dependencies": {
-    "pinia": "^3.0.4",
-    "vue": "^3.5.29",
-    "vue-router": "^5.0.3"
+    "lint:oxlint": "npm run lint:oxlint -w frontend",
+    "lint:eslint": "npm run lint:eslint -w frontend",
+    "format": "npm run format -w frontend"
   },
   "devDependencies": {
-    "@commitlint/cli": "^20.4.2",
-    "@commitlint/config-conventional": "^20.4.2",
-    "@playwright/test": "^1.58.2",
-    "@tsconfig/node24": "^24.0.4",
-    "@types/jsdom": "^28.0.0",
-    "@types/node": "^24.11.0",
-    "@vitejs/plugin-vue": "^6.0.4",
-    "@vitest/eslint-plugin": "^1.6.9",
-    "@vue/eslint-config-typescript": "^14.7.0",
-    "@vue/test-utils": "^2.4.6",
-    "@vue/tsconfig": "^0.8.1",
-    "eslint": "^10.0.2",
-    "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-oxlint": "~1.50.0",
-    "eslint-plugin-playwright": "^2.8.0",
-    "eslint-plugin-vue": "~10.8.0",
     "husky": "^9.1.7",
-    "jiti": "^2.6.1",
-    "jsdom": "^28.1.0",
     "lint-staged": "^16.3.1",
-    "markdownlint-cli2": "^0.21.0",
-    "npm-run-all2": "^8.0.4",
-    "oxlint": "~1.50.0",
-    "playwright-bdd": "^8.4.2",
-    "prettier": "3.8.1",
-    "typescript": "~5.9.3",
-    "vite": "^7.3.1",
-    "vite-plugin-vue-devtools": "^8.0.6",
-    "vitest": "^4.0.18",
-    "vue-tsc": "^3.2.5"
+    "markdownlint-cli2": "^0.21.0"
   },
   "lint-staged": {
-    "*.md": "markdownlint-cli2"
+    "*.md": "markdownlint-cli2",
+    "frontend/**/*.{js,ts,vue}": "eslint --fix"
   }
 }

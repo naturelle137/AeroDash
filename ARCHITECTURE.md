@@ -132,41 +132,44 @@ flowchart TB
 
 ```text
 aerodash/
-├── src/
-│   ├── core/                    # P1 Safety Core: Pure TS. Zero framework dependencies.
-│   │   ├── math/                #   Interpolation, polygon checks, M&B, FE, performance.
-│   │   ├── units/               #   SI unit normalization (kg, m, L, s).
-│   │   └── validation/          #   Zod schema validation for aircraft data.
-│   │
-│   ├── modules/                 # Feature Modules: Encapsulated domain logic.
-│   │   ├── mass-balance/        #   M&B: components/, composables/, stores/, views/
-│   │   │   ├── components/      #      Module specific Vue SFCs
-│   │   │   ├── composables/     #      Module specific Vue composables
-│   │   │   ├── stores/          #      Module specific Pinia stores
-│   │   │   ├── services/        #      Module specific I/O services
-│   │   │   └── views/           #      Module specific Vue views
-│   │   ├── performance/         #   Performance calculation module.
-│   │   ├── fuel-endurance/      #   Fuel & Endurance module.
-│   │   ├── weather/             #   Weather & Meteorological module.
-│   │   ├── aircraft/            #   Aircraft Management module.
-│   │   ├── airport/             #   Airport Database module.
-│   │   ├── sync/                #   Cloud Sync module.
-│   │   └── export/              #   Documentation & Export module.
-│   │
-│   ├── shared/                  # App Shell: Shared UI, layouts, utilities.
-│   │   ├── components/          #   Base Vue SFCs (BaseButton, BaseCard, etc.).
-│   │   ├── composables/         #   Shared Vue composition functions.
-│   │   ├── layouts/             #   Layout components (DefaultLayout, DarkLayout).
-│   │   └── utils/               #   Non-safety TS helpers (formatting, dates).
-│   │
-│   ├── plugins/                 # Cross-cutting Services: Notification Bus, Connectivity.
-│   ├── stores/                  # Global Pinia Stores: App-level state.
-│   ├── router/                  # Vue Router configuration.
-│   └── assets/                  # Static assets (images, fonts, styles).
-│
-└── tests/
-    ├── unit/                    # Vitest: Deterministic testing of core/ math & boundaries.
-    └── e2e/                     # Playwright: End-to-end verification of Critical User Journeys.
+├── backend/
+│   └── ...
+└── frontend/                  # Web App Workspace
+    ├── src/
+    │   ├── core/                    # P1 Safety Core: Pure TS. Zero framework dependencies.
+    │   │   ├── math/                #   Interpolation, polygon checks, M&B, FE, performance.
+    │   │   ├── units/               #   SI unit normalization (kg, m, L, s).
+    │   │   └── validation/          #   Zod schema validation for aircraft data.
+    │   │
+    │   ├── modules/                 # Feature Modules: Encapsulated domain logic.
+    │   │   ├── mass-balance/        #   M&B: components/, composables/, stores/, views/
+    │   │   │   ├── components/      #      Module specific Vue SFCs
+    │   │   │   ├── composables/     #      Module specific Vue composables
+    │   │   │   ├── stores/          #      Module specific Pinia stores
+    │   │   │   ├── services/        #      Module specific I/O services
+    │   │   │   └── views/           #      Module specific Vue views
+    │   │   ├── performance/         #   Performance calculation module.
+    │   │   ├── fuel-endurance/      #   Fuel & Endurance module.
+    │   │   ├── weather/             #   Weather & Meteorological module.
+    │   │   ├── aircraft/            #   Aircraft Management module.
+    │   │   ├── airport/             #   Airport Database module.
+    │   │   ├── sync/                #   Cloud Sync module.
+    │   │   └── export/              #   Documentation & Export module.
+    │   │
+    │   ├── shared/                  # App Shell: Shared UI, layouts, utilities.
+    │   │   ├── components/          #   Base Vue SFCs (BaseButton, BaseCard, etc.).
+    │   │   ├── composables/         #   Shared Vue composition functions.
+    │   │   ├── layouts/             #   Layout components (DefaultLayout, DarkLayout).
+    │   │   └── utils/               #   Non-safety TS helpers (formatting, dates).
+    │   │
+    │   ├── plugins/                 # Cross-cutting Services: Notification Bus, Connectivity.
+    │   ├── stores/                  # Global Pinia Stores: App-level state.
+    │   ├── router/                  # Vue Router configuration.
+    │   └── assets/                  # Static assets (images, fonts, styles).
+    │
+    └── tests/
+        ├── unit/                    # Vitest: Deterministic testing of core/ math & boundaries.
+        └── e2e/                     # Playwright: End-to-end verification of Critical User Journeys.
 ```
 
 ## Technology Stack Summary
