@@ -14,24 +14,32 @@ stateDiagram-v2
 
     INITIAL --> LOADING : User selects Aircraft
 
-    LOADING --> UNVERIFIED : Profile fetched from Local DB (Success)
+    LOADING --> UNCONFIGURED : Profile fetched from Local DB (Success)
     LOADING --> INITIAL : Fetch failed (Local DB Error / Not Found)
 
-    UNVERIFIED --> UNVERIFIED : User edits input (Incomplete Config / Recalculation)
-    UNVERIFIED --> VERIFIED_SAFE : All mandatory fields touched & valid
+    UNCONFIGURED --> UNCONFIGURED : User edits input (Mandatory fields still missing)
+    UNCONFIGURED --> UNVERIFIED : All mandatory fields populated
+    UNCONFIGURED --> WARNING : Soft bounds exceeded (Sync Recalculation)
+    UNCONFIGURED --> ERROR_CRITICAL : Math limits crossed (Sync Recalculation)
+
+    UNVERIFIED --> UNCONFIGURED : User clears a mandatory field
+    UNVERIFIED --> VERIFIED_SAFE : All mandatory fields confirmed & valid
     UNVERIFIED --> WARNING : Soft bounds exceeded (Sync Recalculation)
     UNVERIFIED --> ERROR_CRITICAL : Math limits crossed (Sync Recalculation)
 
+    VERIFIED_SAFE --> UNCONFIGURED : User clears a mandatory field
     VERIFIED_SAFE --> UNVERIFIED : User edits payload or category
     VERIFIED_SAFE --> WARNING : User edits to soft limits
     VERIFIED_SAFE --> ERROR_CRITICAL : User edits past math limits
 
     WARNING --> VERIFIED_SAFE : User corrects input
     WARNING --> ERROR_CRITICAL : User edits past math limits
+    WARNING --> UNCONFIGURED : User clears a mandatory field
     WARNING --> UNVERIFIED : User resets input
 
     ERROR_CRITICAL --> WARNING : User partially corrects input
     ERROR_CRITICAL --> VERIFIED_SAFE : User fully corrects input
+    ERROR_CRITICAL --> UNCONFIGURED : User clears a mandatory field
     ERROR_CRITICAL --> UNVERIFIED : User resets input
 
     VERIFIED_SAFE --> [*] : User triggers Export (Success)
@@ -49,27 +57,33 @@ stateDiagram-v2
 
 - **Condition:** Pending asynchronous IndexedDB/Local fetch for aircraft profile geometry. _Note: This is an offline-first app (`REQ-SYS-001`), so this fetch is local, not over the internet._
 - **Reactivity Bound:** Input states intentionally "locked." Prevent duplicate clicks/race conditions during `await`.
-- **Transitions out:** Promise resolved (`UNVERIFIED`) or Promise rejected/timeout (`INITIAL` - e.g., corrupted local DB).
+- **Transitions out:** Promise resolved (`UNCONFIGURED`) or Promise rejected/timeout (`INITIAL` - e.g., corrupted local DB).
 
-### 2.3 UNVERIFIED
+### 2.3 UNCONFIGURED
 
-- **Condition:** Aircraft profile loaded. The user has _not_ verified the mandatory fields (e.g. they just opened an old configuration and must review it, or they are starting from standard empty weights).
-- **Reactivity Bound:** Inputs are enabled. Math core actively calculates in the background, but the Export/Save actions are gated.
-- **Transitions out:** User edits an input. If mandatory fields remain untouched/unconfirmed, the state loops back to `UNVERIFIED`. If all mandatory fields are touched and the calculation passes, it transitions to `VERIFIED_SAFE`. If bounds are exceeded, it transitions to `WARNING` or `ERROR_CRITICAL`.
+- **Condition:** Aircraft profile loaded, but one or more **mandatory fields** are still missing or untouched (e.g., fresh profile load with empty station weights, or user cleared a critical input).
+- **Reactivity Bound:** Inputs are enabled. Math core may run on partial data to show preliminary chart positions, but results are explicitly marked incomplete. Export/Save actions are **blocked**.
+- **Transitions out:** When all mandatory fields have values, the state transitions to `UNVERIFIED`. If bounds are exceeded during partial input, it transitions to `WARNING` or `ERROR_CRITICAL`. If the user edits an input but mandatory fields remain empty, the state loops back to `UNCONFIGURED`.
 
-### 2.4 VERIFIED_SAFE (Success)
+### 2.4 UNVERIFIED
 
-- **Condition:** All mandatory fields have been explicitly "touched" or confirmed by the user, and the math core returns zero Warnings or Errors. Safety constraints (MTOM, MZFM, Point-in-Polygon) are met.
+- **Condition:** All mandatory fields have values, but the user has **not yet confirmed** them (e.g., they just opened an old configuration and must review it, or they filled in the last required field but haven't explicitly acknowledged the data).
+- **Reactivity Bound:** Inputs are enabled. Math core actively calculates with complete data, and the chart reflects the full calculation. Export/Save actions are **gated** behind a confirmation modal (`REQ-UI-015`).
+- **Transitions out:** If the user confirms all fields, it transitions to `VERIFIED_SAFE`. If the user clears a mandatory field, it falls back to `UNCONFIGURED`. If bounds are exceeded, it transitions to `WARNING` or `ERROR_CRITICAL`.
+
+### 2.5 VERIFIED_SAFE (Success)
+
+- **Condition:** All mandatory fields have been explicitly "touched" or confirmed by the user, and the math core returns zero Warnings or Errors. Safety constraints (MTOM, MZFM if specified, Point-in-Polygon) are met.
 - **Reactivity Bound:** Export Action unlocked. Chart visuals bound to `color: success`.
 
-### 2.5 WARNING (Soft Violation)
+### 2.6 WARNING (Soft Violation)
 
-- **Condition:** Math core computes correctly, but inputs are outside standard operational ranges (e.g. Passenger > 120kg `[WARN-UI-001]`).
+- **Condition:** Math core computes correctly, but inputs are outside standard operational ranges (e.g., Passenger > 120kg `[WARN-UI-001]`).
 - **Reactivity Bound:** Form submission allowed. Visuals bound to `color: warning`. Math logic execution continues.
 
-### 2.6 ERROR_CRITICAL (Hard Violation)
+### 2.7 ERROR_CRITICAL (Hard Violation)
 
-- **Condition:** Math core throws a Critical Notification (`CRIT-MB-001`). Aerodynamic or structural safety has failed.
+- **Condition:** Math core throws a Critical Notification (`CRIT-MB-001` CG Out of Envelope, `CRIT-MB-002` MTOM Exceeded, `CRIT-MB-004` MZFM Exceeded). Aerodynamic or structural safety has failed.
 - **Reactivity Bound:** Export Action locked (`disabled=true`). Chart and banner visuals forcibly bound to `color: error`.
 
 ---
@@ -101,4 +115,4 @@ The state machine must account for systemic failures outside of standard operati
 ### 4.3 Safe Reset
 
 - **Failure:** The user becomes "lost" in a complex error state (e.g., heavily overloaded and unable to trace which bag caused the CG shift).
-- **Recovery:** The UI must always expose a "Clear Payload / Reset to Empty" action that instantly transitions the store from `ERROR_CRITICAL` back to `UNVERIFIED` (with empty station weights).
+- **Recovery:** The UI must always expose a "Clear Payload / Reset to Empty" action that instantly transitions the store from any state back to `UNCONFIGURED` (with empty station weights).

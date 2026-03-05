@@ -12,7 +12,7 @@ AeroDash operates natively in cockpit environments. Inputs must be frictionless:
 
 - **Touch Targets:** Minimum `44x44px` for all interactive elements (steppers, buttons, sliders).
 - **Explicit Units:** Every input field must definitively display its active unit statically adjacent to the number (e.g., `kg`, `L`, `km/h`).
-- **Precision (REQ-UQ-003):** Data fields auto-format to 1 decimal place (e.g., `85.5 kg`) resolving to the nearest 100g, matching realistic operational precision without UI clutter.
+- **Precision (REQ-UQ-003):** Data fields auto-format to a decimal precision appropriate to the active unit, ensuring a physical resolution of at least 1mm for lengths and 0.1 units for mass/volume. Standard precisions: `m`=3, `cm`=1, `mm`=0, `in`=2, `kg`/`lb`/`L`/`gal`=1.
 
 ### 1.2 Layout Responsiveness (REQ-UQ-002)
 
@@ -27,10 +27,11 @@ Component states strictly map to the Reactivity State Machine defined in [`docs/
 
 1. **INITIAL:** Module mounted, no data context loaded. Inputs disabled. Connectivity indicator (Online/Offline) visible.
 2. **LOADING:** Fetching aircraft profiles or performing async setup. Prevents race conditions.
-3. **UNVERIFIED:** Data loaded but waiting for user confirmation or explicit numeric input. Safety math is running, but Go/No-Go decisions are gated.
-4. **VERIFIED_SAFE (Success):** Validation passes. System renders in clean native colors (Green/Neutral primary). Action/Export buttons fully enabled.
-5. **WARNING:** User inputs technically valid but outside standard ranges `[WARN-UI-001]`. Field borders turn **Yellow/Orange** and display a warning icon (e.g., `!`). Helper text inline. Does _not_ block execution.
-6. **ERROR_CRITICAL:** Mathematical safety limit crossed (e.g., MTOM exceeded). Active visualization elements turn **Red** and change their physical shape or use pattern-fills. Triggers a global flashing banner or overlay Modal with redundant text. Blocking transition to Export `[CRIT-UI-001]`.
+3. **UNCONFIGURED:** Profile loaded but mandatory fields are still missing or untouched. Inputs enabled; math core may run on partial data. Export/Save **blocked**.
+4. **UNVERIFIED:** All mandatory fields have values but the user has not yet confirmed them. Safety math runs on complete data. Export/Save gated behind a confirmation modal (`REQ-UI-015`).
+5. **VERIFIED_SAFE (Success):** Validation passes. System renders in clean native colors (Green/Neutral primary). Action/Export buttons fully enabled.
+6. **WARNING:** User inputs technically valid but outside standard ranges `[WARN-UI-001]`. Field borders turn **Yellow/Orange** and display a warning icon (e.g., `!`). Helper text inline. Does _not_ block execution.
+7. **ERROR_CRITICAL:** Mathematical safety limit crossed (e.g., MTOM exceeded `[CRIT-MB-002]`). Active visualization elements turn **Red** and change their physical shape or use pattern-fills. Triggers a global flashing banner or overlay Modal with redundant text. Blocking transition to Export `[CRIT-UI-001]`.
 
 ---
 
@@ -103,7 +104,7 @@ UI components must exclusively use semantic tokens. This allows seamless Dark Mo
 
 - `--text-primary`: Pure White (`#ffffff`) in Dark Mode, Slate-900 in Light Mode.
 - `--text-muted`: Slate-400 in Dark, Slate-500 in Light.
-- `--bg-surface`: Slate-800 in Dark Mode (Cards/Modals).
+- `--bg-surface`: Slate-800 in Dark Mode, White (`#ffffff`) in Light Mode (Cards/Modals).
 - `--color-status-critical`: Mapped to `--color-red-500`.
 - `--color-status-warning`: Mapped to `--color-amber-500`.
 - `--color-status-safe`: Mapped to `--color-emerald-500`.
