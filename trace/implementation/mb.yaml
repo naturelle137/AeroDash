@@ -1,0 +1,87 @@
+IMP-MB-CORE-001
+  title: Maximum Zero Fuel Mass Validation
+  req:
+    - REQ-MB-009
+  files:
+    - frontend/src/core/math/mass-balance.adapter.ts
+
+IMP-MB-CORE-002
+  title: Takeoff Mass + Takeoff Moment Calculation
+  req:
+    - REQ-MB-008
+  files:
+    - frontend/src/core/math/mass-balance.adapter.ts
+
+IMP-MB-CORE-003
+  title: Maximum Takeoff Mass Validation
+  req:
+    - REQ-MB-005
+  files:
+    - frontend/src/core/math/mass-balance.adapter.ts
+
+IMP-MB-CORE-004
+  title: Landing Mass + Landing Moment Calculation
+  req:
+    - REQ-MB-008
+  files:
+    - frontend/src/core/math/mass-balance.adapter.ts
+
+IMP-MB-CORE-005
+  title: Takeoff Center of Gravity Calculation
+  req:
+    - REQ-MB-008
+  files:
+    - frontend/src/core/math/mass-balance.adapter.ts
+
+IMP-MB-CORE-006
+  title: Landing Center of Gravity Calculation
+  req:
+    - REQ-MB-008
+  files:
+    - frontend/src/core/math/mass-balance.adapter.ts
+
+IMP-MB-CORE-007
+  title: CG Migration Validation
+  req:
+    - REQ-MB-008
+  files:
+    - frontend/src/core/math/mass-balance.adapter.ts
+
+IMP-MB-CORE-008
+  title: CG Envelope Node Extraction
+  req:
+    - REQ-MB-006
+  files:
+    - frontend/src/core/math/mass-balance.adapter.ts
+
+IMP-MB-CORE-009
+  title: Point in Polygon Validation
+  req:
+    - REQ-MB-008
+  files:
+    - frontend/src/core/math/mass-balance.adapter.ts
+
+IMP-MB-CORE-010
+  title: CG Migration Validation
+  req:
+    - REQ-MB-011
+  files:
+    - frontend/src/core/math/mass-balance.adapter.ts
+
+IMP-MB-CORE-011
+  title: Point in Polygon Calculation
+  req:
+    - REQ-MB-007
+  files:
+    - frontend/src/core/math/mass-balance.adapter.ts
+
+IMP-MB-CORE-012
+  title: Linear Interpolation for Arm Lookup Tables
+  req:
+    - REQ-MB-012
+  files:
+    - frontend/src/core/math/mass-balance.adapter.ts
+
+IMP-MB-MODEL-001
+IMP-MB-API-001
+IMP-MB-UI-001

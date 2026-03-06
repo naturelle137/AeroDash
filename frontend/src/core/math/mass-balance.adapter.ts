@@ -2,6 +2,8 @@ import type { MathCoreInput, MathCoreResult, Violation } from './mass-balance.ma
 import type { CgPoint, MigrationPoint } from './mass-balance.math-types'
 import type { ArmLookupEntry } from '../aircraft/aircraft.types'
 
+type NumericRule = { min?: number; required?: boolean }
+
 /**
  * Synchronously calculate mass, CG, and safety violations.
  *
@@ -12,24 +14,59 @@ import type { ArmLookupEntry } from '../aircraft/aircraft.types'
  * @param input - Assembled input from the store's raw state.
  * @returns Complete calculation result with raw violations.
  */
-// @IMP-MB-005@ (FROM: @DES-ARCH-005@)
 export function calculateMassBalance(input: MathCoreInput): MathCoreResult {
   const violations: Violation[] = []
+  const validationErrors = validateInput(input)
+  if (validationErrors.length > 0)
+    return {
+      success: false,
+      violations: validationErrors,
+      takeoffMass: NaN,
+      zeroFuelMass: NaN,
+      landingMass: NaN,
+      centerOfGravityPosition: NaN,
+      takeoffCenterOfGravity: { arm: NaN, mass: NaN },
+      landingCenterOfGravity: { arm: NaN, mass: NaN },
+      migrationPath: [],
+    }
 
-  // Zero Fuel Mass = Basic Empty Mass + sum(weights of non-fuel stations)
+  // Zero Fuel Mass = Basic Empty Mass + sum(masses of non-fuel stations)
   let zeroFuelMass = input.basicEmptyMass
   let zeroFuelMoment = input.basicEmptyMass * input.emptyCenterOfGravity
 
   for (const s of input.stations) {
     const isFuel = input.fuelStations.some((fs) => fs.index === s.index)
     if (!isFuel) {
-      const arm = s.armLookup ? lookupArm(s.weight, s.armLookup) : (s.arm ?? 0)
-      zeroFuelMass += s.weight
-      zeroFuelMoment += s.weight * (arm ?? 0)
+      let arm: number
+
+      try {
+        arm = s.armLookup ? lookupArm(s.mass, s.armLookup) : (s.arm ?? 0)
+      } catch {
+        /* v8 ignore start - Fail Safe: This case is unreachable because the input is validated before this function is called. */
+        violations.push({
+          type: 'INVALID_INPUT',
+          severity: 'CRITICAL',
+          field: 'LOOKUP_ARM',
+        })
+        return {
+          success: false,
+          violations: violations,
+          takeoffMass: NaN,
+          zeroFuelMass: NaN,
+          landingMass: NaN,
+          centerOfGravityPosition: NaN,
+          takeoffCenterOfGravity: { arm: NaN, mass: NaN },
+          landingCenterOfGravity: { arm: NaN, mass: NaN },
+          migrationPath: [],
+        }
+      }
+      /* v8 ignore stop */
+      zeroFuelMass += s.mass
+      zeroFuelMoment += s.mass * (arm ?? 0)
     }
   }
 
-  // @IMP-MB-001@ (FROM: @REQ-MB-009@)
+  // @IMP-MB-CORE-001@ (FROM: @REQ-MB-009@)
   if (input.maxZeroFuelMass !== null && zeroFuelMass > input.maxZeroFuelMass) {
     violations.push({
       type: 'MZFM_EXCEEDED',
@@ -37,17 +74,41 @@ export function calculateMassBalance(input: MathCoreInput): MathCoreResult {
     })
   }
 
-  // Takeoff Mass = Zero Fuel Mass + sum(weights of fuel stations)
+  // @IMP-MB-CORE-002@ (FROM: @REQ-MB-008@)
+  // Takeoff Mass = Zero Fuel Mass + sum(masses of fuel stations)
   let takeoffMass = zeroFuelMass
   let takeoffMoment = zeroFuelMoment
 
   for (const fs of input.fuelStations) {
-    const arm = fs.armLookup ? lookupArm(fs.weight, fs.armLookup) : (fs.arm ?? 0)
-    takeoffMass += fs.weight
-    takeoffMoment += fs.weight * (arm ?? 0)
+    let arm: number
+
+    try {
+      arm = fs.armLookup ? lookupArm(fs.mass, fs.armLookup) : (fs.arm ?? 0)
+    } catch {
+      /* v8 ignore start - Fail Safe: This case is unreachable because the input is validated before this function is called. */
+      violations.push({
+        type: 'INVALID_INPUT',
+        severity: 'CRITICAL',
+        field: 'LOOKUP_ARM',
+      })
+      return {
+        success: false,
+        violations: violations,
+        takeoffMass: NaN,
+        zeroFuelMass: NaN,
+        landingMass: NaN,
+        centerOfGravityPosition: NaN,
+        takeoffCenterOfGravity: { arm: NaN, mass: NaN },
+        landingCenterOfGravity: { arm: NaN, mass: NaN },
+        migrationPath: [],
+      }
+      /* v8 ignore stop */
+    }
+    takeoffMass += fs.mass
+    takeoffMoment += fs.mass * (arm ?? 0)
   }
 
-  // @IMP-MB-002@ (FROM: @REQ-MB-005@)
+  // @IMP-MB-CORE-003@ (FROM: @REQ-MB-005@)
   if (takeoffMass > input.maxTakeoffMass) {
     violations.push({
       type: 'MTOM_EXCEEDED',
@@ -55,6 +116,7 @@ export function calculateMassBalance(input: MathCoreInput): MathCoreResult {
     })
   }
 
+  // @IMP-MB-CORE-004@ (FROM: @REQ-MB-008@)
   // Landing Mass = Takeoff Mass - sum(usable fuel)
   // For now, we assume all fuel is burned except unusable.
   // TODO: In a more complex version, the user might input planned fuel burn.
@@ -63,25 +125,48 @@ export function calculateMassBalance(input: MathCoreInput): MathCoreResult {
   let landingMoment = zeroFuelMoment
 
   for (const fs of input.fuelStations) {
-    const unusableWeight = fs.unusableFuel // Assuming unusableFuel is already in weight units for this calculation
-    const arm = fs.armLookup ? lookupArm(unusableWeight, fs.armLookup) : (fs.arm ?? 0)
-    landingMass += unusableWeight
-    landingMoment += unusableWeight * (arm ?? 0)
+    const unusableMass = fs.unusableFuel // Assuming unusableFuel is already in mass units for this calculation
+    let arm: number
+
+    try {
+      arm = fs.armLookup ? lookupArm(unusableMass, fs.armLookup) : (fs.arm ?? 0)
+    } catch {
+      /* v8 ignore start - Fail Safe: This case is unreachable because the input is validated before this function is called. */
+      violations.push({
+        type: 'INVALID_INPUT',
+        severity: 'CRITICAL',
+        field: 'LOOKUP_ARM',
+      })
+      return {
+        success: false,
+        violations: violations,
+        takeoffMass: NaN,
+        zeroFuelMass: NaN,
+        landingMass: NaN,
+        centerOfGravityPosition: NaN,
+        takeoffCenterOfGravity: { arm: NaN, mass: NaN },
+        landingCenterOfGravity: { arm: NaN, mass: NaN },
+        migrationPath: [],
+      }
+      /* v8 ignore stop */
+    }
+    landingMass += unusableMass
+    landingMoment += unusableMass * (arm ?? 0)
   }
 
-  // @IMP-MB-003@ (FROM: @REQ-MB-008@)
+  // @IMP-MB-CORE-005@ (FROM: @REQ-MB-008@)
   const takeoffCenterOfGravity: CgPoint = {
     mass: takeoffMass,
     arm: takeoffMass > 0 ? takeoffMoment / takeoffMass : 0,
   }
 
-  // @IMP-MB-004@ (FROM: @REQ-MB-008@)
+  // @IMP-MB-CORE-006@ (FROM: @REQ-MB-008@)
   const landingCenterOfGravity: CgPoint = {
     mass: landingMass,
     arm: landingMass > 0 ? landingMoment / landingMass : 0,
   }
 
-  // @IMP-MB-006@ (FROM: @REQ-MB-008@, @DES-UX-009@)
+  // @IMP-MB-CORE-007@ (FROM: @REQ-MB-008@)
   const migrationPath: MigrationPoint[] = []
 
   migrationPath.push({ ...takeoffCenterOfGravity, label: 'Takeoff' })
@@ -90,10 +175,10 @@ export function calculateMassBalance(input: MathCoreInput): MathCoreResult {
   // For the MVP, we just do a straight line Takeoff -> Landing.
   migrationPath.push({ ...landingCenterOfGravity, label: 'Landing' })
 
-  // @IMP-MB-007@ (FROM: @REQ-MB-006@)
+  // @IMP-MB-CORE-008@ (FROM: @REQ-MB-006@)
   const envelopeVertices = input.envelope.map((p) => ({ x: p.armOrMoment, y: p.mass }))
 
-  // @IMP-MB-009@ (FROM: @REQ-MB-004@)
+  // @IMP-MB-CORE-009@ (FROM: @REQ-MB-004@, @REQ-MB-011@)
   const takeoffX = input.graphType === 'arm' ? takeoffCenterOfGravity.arm : takeoffMoment
   if (!isPointInPolygon(takeoffX, takeoffCenterOfGravity.mass, envelopeVertices)) {
     violations.push({
@@ -102,7 +187,7 @@ export function calculateMassBalance(input: MathCoreInput): MathCoreResult {
     })
   }
 
-  // @IMP-MB-005@ (FROM: @REQ-MB-011@)
+  // @IMP-MB-CORE-010@ (FROM: @REQ-MB-011@)
   const landingX = input.graphType === 'arm' ? landingCenterOfGravity.arm : landingMoment
   if (
     !isPointInPolygon(landingX, landingCenterOfGravity.mass, envelopeVertices) &&
@@ -123,10 +208,11 @@ export function calculateMassBalance(input: MathCoreInput): MathCoreResult {
     landingCenterOfGravity,
     migrationPath,
     violations,
+    success: true,
   }
 }
 
-// @IMP-MB-006@ (FROM: @REQ-MB-007@)
+// @IMP-MB-CORE-011@ (FROM: @REQ-MB-007@)
 function isPointInPolygon(x: number, y: number, vertices: { x: number; y: number }[]): boolean {
   if (vertices.length < 3) return false
   let inside = false
@@ -142,32 +228,110 @@ function isPointInPolygon(x: number, y: number, vertices: { x: number; y: number
   return inside
 }
 
-// @IMP-MB-010@ (FROM: @REQ-MB-012@)
+// @IMP-MB-CORE-012@ (FROM: @REQ-MB-012@)
 /**
  * Linear interpolation for arm lookup tables.
  * Arm = Moment / Mass (or Volume).
  */
-function lookupArm(weight: number, lookup: ArmLookupEntry[]): number {
+function lookupArm(mass: number, lookup: ArmLookupEntry[]): number {
   if (lookup.length === 0) return 0
-  if (weight === 0) {
+  if (mass === 0) {
     return lookup[0]!.massOrVolume > 0 ? lookup[0]!.moment / lookup[0]!.massOrVolume : 0
   }
   if (lookup.length === 1) return lookup[0]!.moment / lookup[0]!.massOrVolume
 
   const sorted = [...lookup].sort((a, b) => a.massOrVolume - b.massOrVolume)
 
-  if (weight <= sorted[0]!.massOrVolume) return sorted[0]!.moment / sorted[0]!.massOrVolume
-  if (weight >= sorted[sorted.length - 1]!.massOrVolume)
+  if (mass <= sorted[0]!.massOrVolume) return sorted[0]!.moment / sorted[0]!.massOrVolume
+  if (mass >= sorted[sorted.length - 1]!.massOrVolume)
     return sorted[sorted.length - 1]!.moment / sorted[sorted.length - 1]!.massOrVolume
 
   for (let i = 0; i < sorted.length - 1; i++) {
     const p1 = sorted[i]!
     const p2 = sorted[i + 1]!
-    if (weight >= p1.massOrVolume && weight <= p2.massOrVolume) {
-      const ratio = (weight - p1.massOrVolume) / (p2.massOrVolume - p1.massOrVolume)
+    if (mass >= p1.massOrVolume && mass <= p2.massOrVolume) {
+      const ratio = (mass - p1.massOrVolume) / (p2.massOrVolume - p1.massOrVolume)
       const moment = p1.moment + ratio * (p2.moment - p1.moment)
-      return moment / weight
+      return moment / mass
     }
   }
-  return 0
+
+  /* v8 ignore start - This case is unreachable because the input is validated before this function is called. */
+  throw new Error('Unreachable Code: Mass could not be assigned to an arm interval.')
+  /* v8 ignore stop */
+}
+
+function validateInput(input: MathCoreInput) {
+  const validationErrors: Violation[] = []
+
+  validationErrors.push(
+    ...validateNumeric(input.maxTakeoffMass, 'MTOM', { min: 0, required: true }),
+  )
+  validationErrors.push(...validateNumeric(input.basicEmptyMass, 'BEM', { min: 0, required: true }))
+  validationErrors.push(
+    ...validateNumeric(input.emptyCenterOfGravity, 'EMPTY_CG', { required: true }),
+  )
+  validationErrors.push(...validateNumeric(input.maxZeroFuelMass, 'MZFM', { min: 0 }))
+
+  input.stations.forEach((s, i) => {
+    const isFuelStation = input.fuelStations.some((fs) => fs.index === s.index)
+
+    validationErrors.push(
+      ...validateNumeric(s.index, `STATIONS[${i}].INDEX`, { min: 0, required: true }),
+    )
+
+    if (!isFuelStation) {
+      validationErrors.push(
+        ...validateNumeric(s.mass, `STATIONS[${i}].MASS`, { min: 0, required: true }),
+      )
+    }
+
+    if (s.armLookup === null && !isFuelStation) {
+      validationErrors.push(...validateNumeric(s.arm, `STATIONS[${i}].ARM`, { required: true }))
+    }
+  })
+
+  input.fuelStations.forEach((fs, i) => {
+    validationErrors.push(
+      ...validateNumeric(fs.index, `FUEL_STATIONS[${i}].INDEX`, { min: 0, required: true }),
+    )
+    validationErrors.push(
+      ...validateNumeric(fs.unusableFuel, `FUEL_STATIONS[${i}].UNUSABLE_FUEL`, {
+        min: 0,
+        required: true,
+      }),
+    )
+  })
+
+  return validationErrors
+}
+
+function validateNumeric(value: unknown, field: string, rules: NumericRule = {}): Violation[] {
+  const fieldErrors: Violation[] = []
+
+  // 1. Check: Existenz
+  if (value === null || value === undefined) {
+    if (rules.required) {
+      fieldErrors.push({ type: 'INVALID_INPUT', severity: 'CRITICAL', field, code: 'REQUIRED' })
+    }
+    return fieldErrors // Wenn null, brauchen wir den Rest nicht prüfen
+  }
+
+  // 2. Check: Ist es eine Zahl und kein NaN?
+  if (typeof value !== 'number' || Number.isNaN(value)) {
+    fieldErrors.push({ type: 'INVALID_INPUT', severity: 'CRITICAL', field, code: 'NOT_A_NUMBER' })
+    return fieldErrors
+  }
+
+  // 3. Check: Endlichkeit (kein Infinity)
+  if (!Number.isFinite(value)) {
+    fieldErrors.push({ type: 'INVALID_INPUT', severity: 'CRITICAL', field, code: 'LIMIT_REACHED' })
+  }
+
+  // 4. Check: Minimum (z.B. für Gewichte)
+  if (rules.min !== undefined && value < rules.min) {
+    fieldErrors.push({ type: 'INVALID_INPUT', severity: 'CRITICAL', field, code: 'NEGATIVE_VALUE' })
+  }
+
+  return fieldErrors
 }

@@ -17,7 +17,10 @@ export interface Violation {
     | 'CG_OUT_OF_ENVELOPE'
     | 'CG_MIGRATION_EXCEEDED'
     | 'STATION_LIMIT_EXCEEDED'
+    | 'INVALID_INPUT'
   severity: ViolationSeverity
+  field?: string
+  code?: 'REQUIRED' | 'NOT_A_NUMBER' | 'NEGATIVE_VALUE' | 'LIMIT_REACHED'
   stationIndex?: number
 }
 
@@ -25,7 +28,7 @@ export interface Violation {
 export interface MathCoreInput {
   stations: {
     index: number
-    weight: number
+    mass: number
     arm: number | null
     armLookup: ArmLookupEntry[] | null
   }[]
@@ -37,7 +40,7 @@ export interface MathCoreInput {
   graphType: 'arm' | 'moment'
   fuelStations: {
     index: number
-    weight: number
+    mass: number
     arm: number | null
     armLookup: ArmLookupEntry[] | null
     unusableFuel: number
@@ -65,4 +68,5 @@ export interface MathCoreResult {
   landingCenterOfGravity: CgPoint
   migrationPath: MigrationPoint[]
   violations: Violation[]
+  success: boolean
 }
