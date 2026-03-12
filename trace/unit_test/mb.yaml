@@ -67,3 +67,10 @@ MB Core
       - IMP-MB-CORE-012
     files:
       - frontend/src/core/logic/mass-balance.logic.spec.ts
+
+  UT-MB-CORE-010
+    title: Verify input validation errors for missing required fields
+    impl:
+      - IMP-MB-CORE-xxx
+    files:
+      - frontend/src/core/adapters/mass-balance.adapter.spec.ts
