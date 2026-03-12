@@ -65,13 +65,13 @@ describe('M&B Zod Adapter', () => {
     ['envelope', 0, 'armOrMoment', 'ENVELOPE[0].ARMORMOMENT'],
   ] as const
 
-  // Test Goal: testing default empty arrays
-  const _invalidTypeNestedArrayFields = [
-    ['envelope', 0, 'mass', 'ENVELOPE[0].MASS'],
-    ['envelope', 0, 'armOrMoment', 'ENVELOPE[0].ARMORMOMENT'],
-    // Example for lower structures (needing different test setup):
-    // ['stations', 0, 'armLookup', 0, 'massOrVolume', 'STATIONS[0].ARMLOOKUP[0].MASSORVOLUME'],
-  ] as const
+  // // Test Goal: testing default empty arrays
+  // const invalidTypeNestedArrayFields = [
+  //   ['envelope', 0, 'mass', 'ENVELOPE[0].MASS'],
+  //   ['envelope', 0, 'armOrMoment', 'ENVELOPE[0].ARMORMOMENT'],
+  //   // Example for lower structures (needing different test setup):
+  //   // ['stations', 0, 'armLookup', 0, 'massOrVolume', 'STATIONS[0].ARMLOOKUP[0].MASSORVOLUME'],
+  // ] as const
 
   // @UT-MB-CORE-010@
   it.each(missingRootFields)(
@@ -316,8 +316,9 @@ describe('M&B Zod Adapter', () => {
     },
   )
 
+  // @UT-MB-CORE-016@
   it.each(negativeArrayFields)(
-    'pushes a field error for arrays with missing %s input',
+    'pushes a field error for arrays with negative %s input',
     (arrayName, index, propName, expectedPath) => {
       const input = createMathCoreInput()
 
