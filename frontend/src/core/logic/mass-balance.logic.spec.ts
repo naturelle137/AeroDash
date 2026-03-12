@@ -156,6 +156,7 @@ describe('Mass & Balance Math-Core Logic', () => {
     expect(result.centerOfGravityPosition).toBeCloseTo(1.86445, 4)
   })
 
+  // @UT-MB-CORE-009@ (FROM: @IMP-MB-CORE-012@)
   it('throws an error when armLookup contains invalid weight input', () => {
     const input = createMathCoreInput()
     input.stations[0]!.mass = NaN

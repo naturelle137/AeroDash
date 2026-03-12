@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import { useMassBalanceStore } from '../mass-balance.store'
-import type { AircraftContext } from '@/core/aircraft/aircraft.types'
+import type { AircraftContext } from '@/core/domain/aircraft.types'
 
 // Mocking aircraft context for testing
 const mockProfile: AircraftContext = {

@@ -5,7 +5,7 @@ MB Core
       - IMP-MB-CORE-002
       - IMP-MB-CORE-005
     files:
-      - frontend/src/core/math/mass-balance.adapter.spec.ts
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
 
   UT-MB-CORE-002
     title: Verify Takeoff/Landing Mass and CG with Payload and Fuel Calculation
@@ -15,21 +15,21 @@ MB Core
       - IMP-MB-CORE-005
       - IMP-MB-CORE-006
     files:
-      - frontend/src/core/math/mass-balance.adapter.spec.ts
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
 
   UT-MB-CORE-003
     title: Verify MTOM Exceedence Trigger
     impl:
       - IMP-MB-CORE-003
     files:
-      - frontend/src/core/math/mass-balance.adapter.spec.ts
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
 
   UT-MB-CORE-004
     title: Verify MZFM Exceedence Trigger
     impl:
       - IMP-MB-CORE-001
     files:
-      - frontend/src/core/math/mass-balance.adapter.spec.ts
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
 
   UT-MB-CORE-005
     title: Verify CG Out of Envelope Trigger
@@ -37,7 +37,7 @@ MB Core
       - IMP-MB-CORE-009
       - IMP-MB-CORE-011
     files:
-      - frontend/src/core/math/mass-balance.adapter.spec.ts
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
 
   UT-MB-CORE-006
     title: Verify CG Migration Exceedence Trigger
@@ -45,25 +45,25 @@ MB Core
       - IMP-MB-CORE-010
       - IMP-MB-CORE-011
     files:
-      - frontend/src/core/math/mass-balance.adapter.spec.ts
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
 
   UT-MB-CORE-007
     title: Verify Arm Lookup Tables
     impl:
       - IMP-MB-CORE-012
     files:
-      - frontend/src/core/math/mass-balance.adapter.spec.ts
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
 
   UT-MB-CORE-008
     title: Verify Arm with empty Weight from Lookup Tables
     impl:
       - IMP-MB-CORE-012
     files:
-      - frontend/src/core/math/mass-balance.adapter.spec.ts
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
 
   UT-MB-CORE-009
-    title: Verify input validation for weight
+    title: Verify armLookup error for invalid weight input
     impl:
       - IMP-MB-CORE-012
     files:
-      - frontend/src/core/math/mass-balance.adapter.spec.ts
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
