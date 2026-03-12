@@ -69,7 +69,7 @@ describe('M&B Zod Adapter', () => {
   const _invalidTypeNestedArrayFields = [
     ['envelope', 0, 'mass', 'ENVELOPE[0].MASS'],
     ['envelope', 0, 'armOrMoment', 'ENVELOPE[0].ARMORMOMENT'],
-    // Beispiel für tieferliegende Strukturen (benötigt leicht abgewandelten Test-Loop):
+    // Example for lower structures (needing different test setup):
     // ['stations', 0, 'armLookup', 0, 'massOrVolume', 'STATIONS[0].ARMLOOKUP[0].MASSORVOLUME'],
   ] as const
 
