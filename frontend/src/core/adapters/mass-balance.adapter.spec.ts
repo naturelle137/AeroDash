@@ -73,7 +73,7 @@ describe('M&B Zod Adapter', () => {
   //   // ['stations', 0, 'armLookup', 0, 'massOrVolume', 'STATIONS[0].ARMLOOKUP[0].MASSORVOLUME'],
   // ] as const
 
-  // @UT-MB-CORE-010@
+  // @UT-MB-CORE-010@ (FROM:)
   it.each(missingRootFields)(
     'pushes a field error for missing root field %s input',
     (field, expectedPath) => {
