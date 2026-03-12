@@ -187,6 +187,7 @@ describe('M&B Zod Adapter', () => {
     },
   )
 
+  // @UT-MB-CORE-013@
   it.each(invalidTypeRootFields)(
     'pushes a field error if %s input is no number, NaN or infinite',
     (field, expectedPath) => {
@@ -234,6 +235,7 @@ describe('M&B Zod Adapter', () => {
     },
   )
 
+  // @UT-MB-CORE-014@
   it.each(invalidTypeArrayFields)(
     'pushes a field error for arrays if %s input is no number, NaN or infinite',
     (arrayName, index, propName, expectedPath) => {

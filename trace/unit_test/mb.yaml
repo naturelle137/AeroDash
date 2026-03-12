@@ -95,3 +95,10 @@ MB Core
       - IMP-MB-CORE-xxx
     files:
       - frontend/src/core/adapters/mass-balance.adapter.spec.ts
+
+  UT-MB-CORE-014
+    title: Verify input validation errors for invalid type array fields
+    impl:
+      - IMP-MB-CORE-xxx
+    files:
+      - frontend/src/core/adapters/mass-balance.adapter.spec.ts
