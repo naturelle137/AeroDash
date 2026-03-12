@@ -103,6 +103,7 @@ describe('M&B Zod Adapter', () => {
     },
   )
 
+  // @UT-MB-CORE-011@
   it.each(missingArrayFields)(
     'pushes a field error for arrays with missing %s input',
     (arrayName, index, propName, expectedPath) => {

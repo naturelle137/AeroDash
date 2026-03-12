@@ -74,3 +74,10 @@ MB Core
       - IMP-MB-CORE-xxx
     files:
       - frontend/src/core/adapters/mass-balance.adapter.spec.ts
+
+  UT-MB-CORE-011
+    title: Verify input validation errors for missing array items
+    impl:
+      - IMP-MB-CORE-xxx
+    files:
+      - frontend/src/core/adapters/mass-balance.adapter.spec.ts
