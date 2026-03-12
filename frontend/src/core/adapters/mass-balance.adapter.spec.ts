@@ -145,6 +145,7 @@ describe('M&B Zod Adapter', () => {
     },
   )
 
+  // @UT-MB-CORE-012@
   it.each(missingNestedArrayFields)(
     'pushes a field error for nested arrays with missing %s input',
     (arrayName, index, propName, expectedPath) => {
