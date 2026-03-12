@@ -77,7 +77,7 @@ jobs:
           node-version: 20
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm ci
 
       - name: Get changed files
         id: changed-files
