@@ -65,7 +65,7 @@ describe('M&B Zod Adapter', () => {
     ['envelope', 0, 'armOrMoment', 'ENVELOPE[0].ARMORMOMENT'],
   ] as const
 
-  // Wenn du auch die standardmäßig leeren Arrays testest (indem du vorher ein Item einfügst):
+  // Test Goal: testing default empty arrays
   const _invalidTypeNestedArrayFields = [
     ['envelope', 0, 'mass', 'ENVELOPE[0].MASS'],
     ['envelope', 0, 'armOrMoment', 'ENVELOPE[0].ARMORMOMENT'],
