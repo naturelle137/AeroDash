@@ -1,7 +1,7 @@
 # 311-DEV-project-directory-structure: Modular Project Structure with P1 Isolation
 
 - **Status:** Accepted
-- **Date:** 2026-03-04
+- **Date:** 2026-03-09
 
 ## Context
 
@@ -30,9 +30,9 @@ We have decided to adopt the **Modules Approach** with a dedicated **P1 isolatio
 ```text
 src/
 ├── core/                    # 🔴 P1 Safety Core — Pure TS. Zero framework deps.
-│   ├── math/                #   Interpolation, polygon checks, M&B, FE, performance.
-│   ├── units/               #   SI unit normalization (kg, m, L, s).
-│   └── validation/          #   Zod schema validation for aircraft data.
+│   ├── domain/              #   Data models (e.g. Envelope, Load Stations, etc.)
+│   ├── logic/               #   Math calculations (e.g. Interpolation, polygon checks, M&B, FE, performance).
+│   └── adapters/            #   Adapters for external systems (e.g. Zod schema validation for aircraft data).
 │
 ├── modules/                 # 🟢 Feature Modules — Encapsulated domain logic.
 │   ├── mass-balance/        #   components/, composables/, stores/, services/, views/

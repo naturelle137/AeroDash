@@ -30,16 +30,16 @@ export interface FuelTankDefinition {
 export interface LoadPointDefinition {
   name: string
   arm: number | null
-  armLookup: ArmLookupEntry[] | null
+  armLookup: ArmLookupEntry[]
   operationalLimit: number | null
   defaultQuantity: number
   unit: string
-  allowableCategories: string[] | null
+  allowableCategories: 'Normal' | 'Utility' | 'Aerobatic'
   fuelTank: FuelTankDefinition | null
 }
 
 export interface CategoryDefinition {
-  category: string
+  category: 'Normal' | 'Utility' | 'Aerobatic'
   maxTakeoffMass: number
   maxZeroFuelMass: number | null
   graphType: 'arm' | 'moment'

@@ -137,9 +137,9 @@ aerodash/
 └── frontend/                  # Web App Workspace
     ├── src/
     │   ├── core/                    # P1 Safety Core: Pure TS. Zero framework dependencies.
-    │   │   ├── math/                #   Interpolation, polygon checks, M&B, FE, performance.
-    │   │   ├── units/               #   SI unit normalization (kg, m, L, s).
-    │   │   └── validation/          #   Zod schema validation for aircraft data.
+    │   │   ├── domain/              #   Data models (e.g. Envelope, Load Stations, etc.)
+    │   │   ├── logic/               #   Math calculations (e.g. Interpolation, polygon checks, M&B, FE, performance).
+    │   │   └── adapters/            #   Adapters for external systems (e.g. Zod schema validation for aircraft data).
     │   │
     │   ├── modules/                 # Feature Modules: Encapsulated domain logic.
     │   │   ├── mass-balance/        #   M&B: components/, composables/, stores/, views/

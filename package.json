@@ -25,7 +25,7 @@
     "markdownlint-cli2": "^0.21.0"
   },
   "lint-staged": {
-    "*.md": "markdownlint-cli2",
-    "frontend/**/*.{js,ts,vue}": "eslint --fix"
+    "*.md": "npm run lint:md",
+    "frontend/**/*.{js,ts,vue}": "npm run lint:eslint"
   }
 }

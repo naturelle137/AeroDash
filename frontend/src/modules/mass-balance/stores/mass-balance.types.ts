@@ -6,9 +6,9 @@
  */
 
 // Re-export core types for module consumption
-export * from '@/core/notifications/notification.types'
-export * from '@/core/aircraft/aircraft.types'
-export * from '@/core/math/mass-balance.math-types'
+export * from '@/core/domain/notification.types'
+export * from '@/core/domain/aircraft.types'
+export * from '@/core/domain/mass-balance.math-types'
 
 // ---------------------------------------------------------------------------
 // State Machine

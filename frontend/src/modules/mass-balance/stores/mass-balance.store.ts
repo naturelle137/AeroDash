@@ -19,7 +19,7 @@
  */
 
 import { defineStore } from 'pinia'
-import { calculateMassBalance } from '@/core/math/mass-balance.adapter'
+import { calculateMassBalance } from '@/core/adapters/mass-balance.adapter'
 import type {
   MassBalanceState,
   AircraftContext,
@@ -261,7 +261,7 @@ export const useMassBalanceStore = defineStore('massBalance', {
           const def = this.aircraft!.loadPoints[s.index]!
           return {
             index: s.index,
-            weight: s.weight,
+            mass: s.weight,
             arm: def.arm,
             armLookup: def.armLookup,
           }
@@ -283,7 +283,7 @@ export const useMassBalanceStore = defineStore('massBalance', {
             const ft = def.fuelTank!
             return {
               index: s.index,
-              weight: s.weight,
+              mass: s.weight,
               arm: def.arm,
               armLookup: def.armLookup,
               unusableFuel: ft.unusableFuel,

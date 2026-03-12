@@ -3,7 +3,7 @@
  * P1 Safety Core.
  */
 
-import type { EnvelopePoint, ArmLookupEntry, BurnSequenceEntry } from '../aircraft/aircraft.types'
+import type { EnvelopePoint, ArmLookupEntry, BurnSequenceEntry } from './aircraft.types'
 
 /** Criticality of a safety violation. */
 export type ViolationSeverity = 'WARNING' | 'CRITICAL'
@@ -20,7 +20,14 @@ export interface Violation {
     | 'INVALID_INPUT'
   severity: ViolationSeverity
   field?: string
-  code?: 'REQUIRED' | 'NOT_A_NUMBER' | 'NEGATIVE_VALUE' | 'LIMIT_REACHED'
+  code?:
+    | 'REQUIRED'
+    | 'NOT_A_NUMBER'
+    | 'NEGATIVE_VALUE'
+    | 'NOT_ALLOWED'
+    | 'OUT_OF_RANGE'
+    | 'TOO_MANY_ITEMS'
+    | 'DUPLICATE_INDEX'
   stationIndex?: number
 }
 
@@ -30,7 +37,7 @@ export interface MathCoreInput {
     index: number
     mass: number
     arm: number | null
-    armLookup: ArmLookupEntry[] | null
+    armLookup: ArmLookupEntry[]
   }[]
   basicEmptyMass: number
   emptyCenterOfGravity: number
@@ -42,7 +49,7 @@ export interface MathCoreInput {
     index: number
     mass: number
     arm: number | null
-    armLookup: ArmLookupEntry[] | null
+    armLookup: ArmLookupEntry[]
     unusableFuel: number
     burnSequences: BurnSequenceEntry[]
   }[]
