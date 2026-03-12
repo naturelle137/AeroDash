@@ -1,0 +1,35 @@
+name: Unit Tests (Vitest)
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'frontend/src/**'
+      - 'frontend/tests/**'
+      - 'frontend/vitest.config*'
+      - 'frontend/package.json'
+      - 'package.json'
+      - 'package-lock.json'
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  vitest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: rm -rf node_modules package-lock.json
+
+      - name: Install dependencies
+        run: npm i
+
+      - name: Run unit tests
+        run: npm run test:unit

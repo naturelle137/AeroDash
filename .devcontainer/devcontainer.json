@@ -1,0 +1,50 @@
+{
+  "name": "AeroDash",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+  "workspaceFolder": "/workspace",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached",
+
+  "features": {
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
+      "version": "latest",
+      "installDockerBuildx": true,
+      "moby": true
+    }
+  },
+
+  "postCreateCommand": "npm i",
+  "postStartCommand": "git config --global --add safe.directory /workspace",
+
+  "forwardPorts": [5173, 9323],
+  "portsAttributes": {
+    "5173": { "label": "Vite", "onAutoForward": "notify" },
+    "9323": { "label": "Playwright", "onAutoForward": "silent" }
+  },
+
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": { "source.fixAll": "explicit" },
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+      },
+      "extensions": [
+        "vue.volar",
+        "vitest.explorer",
+        "ms-playwright.playwright",
+        "dbaeumer.vscode-eslint",
+        "EditorConfig.EditorConfig",
+        "esbenp.prettier-vscode",
+        "GitHub.vscode-github-actions",
+        "GitHub.vscode-pull-request-github",
+        "redhat.vscode-yaml",
+        "oxc.oxc-vscode"
+      ]
+    }
+  },
+
+  "remoteUser": "node"
+}
