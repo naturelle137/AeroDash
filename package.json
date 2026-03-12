@@ -17,6 +17,8 @@
     "lint:md": "markdownlint-cli2 \"**/*.md\"",
     "lint:oxlint": "npm run lint:oxlint -w frontend",
     "lint:eslint": "npm run lint:eslint -w frontend",
+    "lint:ci:oxlint": "npm run lint:ci:oxlint -w frontend",
+    "lint:ci:eslint": "npm run lint:ci:eslint -w frontend",
     "format": "npm run format -w frontend"
   },
   "devDependencies": {

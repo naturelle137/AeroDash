@@ -33,9 +33,6 @@ jobs:
         with:
           node-version: 20
 
-      - name: Disable husky
-        run: echo "HUSKY=0" >> $GITHUB_ENV
-
       - name: Install dependencies
         run: npm ci
 
@@ -76,8 +73,10 @@ jobs:
         with:
           node-version: 20
 
+      - run: rm -rf node_modules package-lock.json
+
       - name: Install dependencies
-        run: pnpm ci
+        run: npm i
 
       - name: Get changed files
         id: changed-files
@@ -94,9 +93,11 @@ jobs:
         if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.base_ref == 'develop')
         run: |
           echo "Linting changed files..."
-          if [ -n "${{ steps.changed-files.outputs.all_changed_files }}" ]; then
-            npx oxlint ${{ steps.changed-files.outputs.all_changed_files }} -w frontend
-            npx eslint ${{ steps.changed-files.outputs.all_changed_files }} -w frontend
+          FILES="${{ steps.changed-files.outputs.all_changed_files }}"
+          if [ -n "$FILES" ]; then
+            FRONTEND_FILES=$(echo "$FILES" | tr ' ' '\n' | sed 's|^frontend/||' | tr '\n' ' ')
+            npm run lint:ci:oxlint -w frontend -- $FRONTEND_FILES
+            npm run lint:ci:eslint -w frontend -- $FRONTEND_FILES
           else
             echo "No code files changed."
           fi
@@ -105,5 +106,5 @@ jobs:
         if: github.event_name == 'pull_request' && github.base_ref == 'main'
         run: |
           echo "Linting ALL Code files in the repository..."
-          npx oxlint . -w frontend
-          npx eslint . -w frontend
+          npm run lint:ci:oxlint -w frontend
+          npm run lint:ci:eslint -w frontend

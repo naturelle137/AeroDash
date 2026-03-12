@@ -109,3 +109,10 @@ MB Core
       - IMP-MB-CORE-xxx
     files:
       - frontend/src/core/adapters/mass-balance.adapter.spec.ts
+
+  UT-MB-CORE-016
+    title: Verify input validation errors for negative array fields
+    impl:
+      - IMP-MB-CORE-xxx
+    files:
+      - frontend/src/core/adapters/mass-balance.adapter.spec.ts
