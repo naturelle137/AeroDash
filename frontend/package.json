@@ -47,6 +47,7 @@
   "devDependencies": {
     "@commitlint/cli": "^20.4.2",
     "@commitlint/config-conventional": "^20.4.2",
+    "@oxlint/binding-linux-x64-gnu": "^1.50.0",
     "@playwright/test": "^1.58.2",
     "@tsconfig/node24": "^24.0.4",
     "@types/jsdom": "^28.0.0",

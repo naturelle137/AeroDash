@@ -79,9 +79,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Install frontend dependencies
-        run: npm ci --workspace=frontend --include=optional
-
       - name: Get changed files
         id: changed-files
         if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.base_ref == 'develop')

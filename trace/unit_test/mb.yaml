@@ -88,3 +88,10 @@ MB Core
       - IMP-MB-CORE-xxx
     files:
       - frontend/src/core/adapters/mass-balance.adapter.spec.ts
+
+  UT-MB-CORE-013
+    title: Verify input validation errors for invalid type root fields
+    impl:
+      - IMP-MB-CORE-xxx
+    files:
+      - frontend/src/core/adapters/mass-balance.adapter.spec.ts
