@@ -21,7 +21,7 @@
     "PNPM_HOME": "/pnpm-store"
   },
 
-  "postCreateCommand": "pnpm install --frozen-lockfile && pnpm --filter @aerodash/frontend exec playwright install chromium",
+  "postCreateCommand": "pnpm install --frozen-lockfile && pnpm --filter @aerodash/frontend exec playwright install chromium && git config --global --unset gpg.ssh.program",
   "postStartCommand": "git config --global --add safe.directory /workspace",
 
   "forwardPorts": [5173, 9323],
