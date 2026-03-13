@@ -1,7 +1,7 @@
 # 313-DEV-development-environment-containerization: Docker Dev Container as the Standard Development Environment
 
 - **Status:** Accepted
-- **Date:** 2026-03-12
+- **Date:** 2026-03-13
 
 ## Context
 
@@ -16,9 +16,9 @@ A development environment strategy needed to be selected that satisfies all of t
 
 ## Considered Options
 
-- **Option A — Bare-metal (local install):** Each contributor manually installs the required Node version, npm, Playwright, and system dependencies directly on their host machine.
+- **Option A — Bare-metal (local install):** Each contributor manually installs the required Node version, pnpm, Playwright, and system dependencies directly on their host machine.
 - **Option B — Bootstrap shell script:** A `scripts/setup.sh` automates tool installation (via `nvm`, `npx playwright install`, etc.) but still runs on the host OS.
-- **Option C — Node version manager only (nvm / fnm / Volta):** Pin the Node runtime via `.nvmrc` or `volta` config; all other dependencies are installed locally.
+- **Option C — Node version manager only (nvm / fnm / Volta):** Pin the Node runtime via `.nvmrc` or `volta` config; pnpm and all other dependencies are installed locally.
 - **Option D — Docker Dev Container (VS Code devcontainer spec):** A fully containerised environment defined in `.devcontainer/`, with the image published to GHCR and reused in CI.
 - **Option E — Cloud dev environment (GitHub Codespaces / Gitpod):** The devcontainer image runs remotely; contributors access the IDE through a browser or a thin VS Code tunnel.
 
@@ -33,7 +33,7 @@ Key environment choices baked into the image:
 - Node.js 24 (from the base image)
 - Git, sudo, Docker CLI (`docker-ce-cli`, `docker-buildx-plugin`) via `docker-outside-of-docker`
 - Playwright Chromium system dependencies pre-installed
-- npm dependencies installed at container creation (`postCreateCommand: npm i`)
+- pnpm dependencies installed at container creation (`postCreateCommand: pnpm install --frozen-lockfile`)
 - VS Code extensions pre-configured (Volar, Vitest, Playwright, ESLint, Prettier, etc.)
 - Forwarded ports: `5173` (Vite dev server), `9323` (Playwright)
 
@@ -57,7 +57,7 @@ Key environment choices baked into the image:
 
 ### Negative
 
-- **WSL2 filesystem performance.** If the repository is checked out on the Windows filesystem (`/mnt/c/...`) rather than the WSL2 filesystem, file I/O across the boundary degrades Vite's HMR speed and `npm install` times significantly. Contributors must keep the repo on the WSL2 filesystem to avoid this.
+- **WSL2 filesystem performance.** If the repository is checked out on the Windows filesystem (`/mnt/c/...`) rather than the WSL2 filesystem, file I/O across the boundary degrades Vite's HMR speed and `pnpm install` times significantly. Contributors must keep the repo on the WSL2 filesystem to avoid this.
 - **Docker runtime required.** Contributors must have Docker Desktop (or Docker Engine on Linux) installed. This adds a licensing consideration for larger commercial teams using Docker Desktop.
 - **RAM and CPU overhead.** Container + Docker daemon consume more resources than a bare-metal process, which is noticeable on lower-spec machines.
 - **Container conceptual overhead.** Contributors unfamiliar with Docker face an additional conceptual layer, though the VS Code devcontainer UX abstracts most of it.

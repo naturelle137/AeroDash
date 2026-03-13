@@ -44,4 +44,4 @@ jobs:
       #       -w /workspace \
       #       -e CI=true \
       #       ${{ env.IMAGE }} \
-      #       bash -lc "npm ci && npm run build && npm run test:e2e"
+      #       bash -lc "pnpm install --frozen-lockfile && pnpm run build && pnpm run test:e2e"

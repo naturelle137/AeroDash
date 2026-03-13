@@ -15,7 +15,15 @@
     }
   },
 
-  "postCreateCommand": "npm i",
+  "mounts": [
+    "source=aerodash-pnpm-store,target=/pnpm-store,type=volume"
+  ],
+
+  "containerEnv": {
+    "PNPM_HOME": "/pnpm-store"
+  },
+
+  "postCreateCommand": "pnpm install --frozen-lockfile && pnpm exec playwright install chromium",
   "postStartCommand": "git config --global --add safe.directory /workspace",
 
   "forwardPorts": [5173, 9323],

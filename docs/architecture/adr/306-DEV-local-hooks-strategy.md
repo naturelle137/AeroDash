@@ -30,7 +30,7 @@ We will use **Husky** paired with `@commitlint/cli` for local Git hook enforceme
 
 * **Immediate Feedback Loop**: Developers are physically stopped from making bad commits *before* waiting on a remote pipeline.
 * **Structural Enforcement**: We offload safety-critical rules from human memory to the system architecture.
-* **Shared Standards**: Every developer cloning the repository automatically gets the same strict formatting rules initialized via `npm install`.
+* **Shared Standards**: Every developer cloning the repository automatically gets the same strict formatting rules initialized via `pnpm install`.
 
 ### Negative
 

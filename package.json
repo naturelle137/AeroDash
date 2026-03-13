@@ -1,26 +1,25 @@
 {
   "name": "aerodash-root",
   "private": true,
-  "workspaces": [
-    "frontend"
-  ],
+  "packageManager": "pnpm@10.32.1",
   "scripts": {
     "prepare": "husky",
-    "dev": "npm run dev -w frontend",
-    "build": "npm run build -w frontend",
-    "coverage:unit": "npm run coverage:unit -w frontend",
-    "test": "npm run test -w frontend",
-    "test:unit": "npm run test:unit -w frontend",
-    "test:integration": "npm run test:integration -w frontend",
-    "test:e2e": "npm run test:e2e -w frontend",
-    "test:smoke": "npm run test:smoke -w frontend",
-    "lint": "npm run lint -w frontend && npm run lint:md",
+    "dev": "pnpm --filter frontend run dev",
+    "build": "pnpm --filter frontend run build",
+    "coverage:unit": "pnpm --filter frontend run coverage:unit",
+    "test": "pnpm --filter frontend run test",
+    "test:unit": "pnpm --filter frontend run test:unit",
+    "test:integration": "pnpm --filter frontend run test:integration",
+    "test:e2e": "pnpm --filter frontend run test:e2e",
+    "test:smoke": "pnpm --filter frontend run test:smoke",
+    "lint": "pnpm --filter frontend run lint && pnpm run lint:md",
     "lint:md": "markdownlint-cli2 \"**/*.md\"",
-    "lint:oxlint": "npm run lint:oxlint -w frontend",
-    "lint:eslint": "npm run lint:eslint -w frontend",
-    "lint:ci:oxlint": "npm run lint:ci:oxlint -w frontend",
-    "lint:ci:eslint": "npm run lint:ci:eslint -w frontend",
-    "format": "npm run format -w frontend"
+    "lint:oxlint": "pnpm --filter frontend run lint:oxlint",
+    "lint:eslint": "pnpm --filter frontend run lint:eslint",
+    "lint:ci:oxlint": "pnpm --filter frontend run lint:ci:oxlint",
+    "lint:ci:eslint": "pnpm --filter frontend run lint:ci:eslint",
+    "format": "pnpm --filter frontend run format",
+    "lint-staged": "lint-staged"
   },
   "devDependencies": {
     "husky": "^9.1.7",
@@ -28,7 +27,10 @@
     "markdownlint-cli2": "^0.21.0"
   },
   "lint-staged": {
-    "*.md": "npm run lint:md",
-    "frontend/**/*.{js,ts,vue}": "npm run lint:eslint"
+    "*.md": "pnpm run lint:md",
+    "frontend/**/*.{js,ts,vue,json,yaml,yml}": [
+      "pnpm run lint:oxlint",
+      "pnpm run lint:eslint"
+    ]
   }
 }

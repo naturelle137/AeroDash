@@ -6,11 +6,15 @@ on:
     paths:
       - '.devcontainer/Dockerfile'
       - '.devcontainer/devcontainer.json'
+      - 'pnpm-lock.yaml'
+      - 'frontend/pnpm-lock.yaml'
   pull_request:
     branches: [main, develop]
     paths:
       - '.devcontainer/Dockerfile'
       - '.devcontainer/devcontainer.json'
+      - 'pnpm-lock.yaml'
+      - 'frontend/pnpm-lock.yaml'
   workflow_dispatch:
 
 permissions:

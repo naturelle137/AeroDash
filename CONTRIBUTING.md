@@ -29,14 +29,14 @@ Since AeroDash is currently in the pre-alpha phase and our specific tech stack i
 
 * **Tech Stack:** [TBD] (*Note: Once the stack is decided, remember to update the EXTENSION FILTER in .shtracer.md accordingly.*)
 * **Dependencies:** [TBD - e.g. Node, Python version]
-* **Package Manager:** [TBD]
+* **Package Manager:** pnpm (managed via corepack — run `corepack enable pnpm` once)
 * **Local Server / Build Command:** [TBD]
 * **IDE/Editor Recommendations:** [TBD]
 
 To ensure all quality gates (linting, commit standards) are active, please set up your local environment:
 
-1. **Prerequisites:** Ensure [Node.js](https://nodejs.org/) (LTS) is installed.
-2. **Install Dependencies:** Run `npm install`. This will:
+1. **Prerequisites:** Ensure [Node.js](https://nodejs.org/) (v24 LTS) is installed and enable pnpm via Corepack: `corepack enable pnpm`
+2. **Install Dependencies:** Run `pnpm install`. This will:
     * Install the required tooling (`markdownlint`, `commitlint`).
     * Automatically activate the **Husky** git hooks.
 3. **Verify:** After installation, your commits will be automatically linted.
@@ -100,7 +100,7 @@ We use a multi-layered approach to catch issues as early as possible.
 Before you can push your branch, your code must pass local quality gates. You should set up your environment to run these automatically.
 
 * **Linting & Typing:** We use specific linting tools depending on the module. For documentation, we strictly enforce rules using `markdownlint-cli2`.
-  * To run the markdown linter locally for the entire repository, use: `npx markdownlint-cli2 "**/*.md" "#.tools" "#.logs" "#node_modules"`
+  * To run the markdown linter locally for the entire repository, use: `pnpm exec markdownlint-cli2 "**/*.md" "#.tools" "#.logs" "#node_modules"`
 * **Formatting:** All code must be strictly formatted according to project standards.
 
 ### CI (Automated Suites)
@@ -124,13 +124,13 @@ We enforce strict formatting for our documentation to ensure readability and tra
 To run the linter and see errors:
 
 ```bash
-npx markdownlint-cli2 "**/*.md"
+pnpm exec markdownlint-cli2 "**/*.md"
 ```
 
 To automatically fix most spacing and structural errors:
 
 ```bash
-npx markdownlint-cli2 --fix "**/*.md"
+pnpm exec markdownlint-cli2 --fix "**/*.md"
 ```
 
 ## 5. 🧪 Testing Standards
