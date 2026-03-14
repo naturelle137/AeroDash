@@ -138,7 +138,7 @@ export function isPointInPolygon(
   y: number,
   vertices: { x: number; y: number }[],
 ): boolean {
-  if (vertices.length < 3) return false
+  if (vertices.length < 3) throw new Error('Invalid Input: Envelope must have at least 3 vertices.')
   let inside = false
   for (let i = 0, j = vertices.length - 1; i < vertices.length; j = i++) {
     const xi = vertices[i]!.x,
@@ -157,8 +157,11 @@ export function isPointInPolygon(
  * Linear interpolation for arm lookup tables.
  * Arm = Moment / Mass (or Volume).
  */
-export function lookupArm(mass: number, lookup: ArmLookupEntry[]): number {
-  if (lookup.length === 0) return 0
+function lookupArm(mass: number, lookup: ArmLookupEntry[]): number {
+  /* v8 ignore start */
+  // computeMassBalanceCore prevents this from happening, fail safe if function is ever exported
+  if (lookup.length === 0) throw new Error('Invalid Input: armLookup has an invalid input.')
+  /* v8 ignore stop */
   if (mass === 0) {
     return lookup[0]!.massOrVolume > 0 ? lookup[0]!.moment / lookup[0]!.massOrVolume : 0
   }

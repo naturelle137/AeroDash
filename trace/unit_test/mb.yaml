@@ -116,3 +116,67 @@ MB Core
       - IMP-MB-CORE-xxx
     files:
       - frontend/src/core/adapters/mass-balance.adapter.spec.ts
+
+  UT-MB-CORE-017
+    title: Define station as fuel station when same index used twice
+    impl:
+      - IMP-MB-CORE-001
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
+  UT-MB-CORE-018
+    title: Set takeoff and landing CG to zero when masses are zero
+    impl:
+      - IMP-MB-CORE-005
+      - IMP-MB-CORE-006
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
+  UT-MB-CORE-019
+    title: Use graph type moment correctly
+    impl:
+      - IMP-MB-CORE-009
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
+  UT-MB-CORE-020
+    title: Do not calculate with incomplete envelope
+    impl:
+      - IMP-MB-CORE-011
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
+  UT-MB-CORE-021
+    title: lookupArm returns zero when mass is zero with lookup table
+    impl:
+      - IMP-MB-CORE-012
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
+  UT-MB-CORE-022
+    title: lookupArm returns zero when mass is zero and first entry is not zero
+    impl:
+      - IMP-MB-CORE-012
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
+  UT-MB-CORE-023
+    title: lookupArm calculates arm when only one entry in lookup table
+    impl:
+      - IMP-MB-CORE-012
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
+  UT-MB-CORE-024
+    title: lookupArm calculates arm correctly when sorting unsorted lookup table
+    impl:
+      - IMP-MB-CORE-012
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
+  UT-MB-CORE-025
+    title: lookupArm calculates arm correctly when extrapolation is needed
+    impl:
+      - IMP-MB-CORE-012
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts

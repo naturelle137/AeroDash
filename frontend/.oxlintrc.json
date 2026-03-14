@@ -7,7 +7,5 @@
   "categories": {
     "correctness": "error"
   },
-  "ignorePatterns": [
-    ".tools/shtracer"
-  ]
+  "ignorePatterns": [".tools/shtracer", "**/stryker-tmp/**"]
 }
