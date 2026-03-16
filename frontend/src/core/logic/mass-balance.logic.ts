@@ -31,101 +31,94 @@ export function computeMassBalanceCore(input: MathCoreInput): MathCoreResult {
       zeroFuelMoment += s.mass * arm
     }
   }
+  const zeroFuelCenterOfGravityPoint: CgPoint = {
+    arm: zeroFuelMass > 0 ? zeroFuelMoment / zeroFuelMass : 0,
+    mass: zeroFuelMass,
+    moment: zeroFuelMoment,
+  }
 
-  if (input.maxZeroFuelMass !== null && zeroFuelMass > input.maxZeroFuelMass) {
+  if (input.maxZeroFuelMass !== null && zeroFuelCenterOfGravityPoint.mass > input.maxZeroFuelMass) {
     violations.push({
       type: 'MZFM_EXCEEDED',
-      severity: 'CRITICAL',
     })
   }
 
   // @IMP-MB-CORE-002@ (FROM: @REQ-MB-008@)
-  // Takeoff Mass = Zero Fuel Mass + sum(masses of fuel stations)
-  let takeoffMass = zeroFuelMass
+  // Takeoff Mass = Zero Fuel Mass + sum(usable fuel masses)
+  // Unusable fuel is already included in basicEmptyMass, so only usable fuel is added here.
+  let takeoffMass = zeroFuelCenterOfGravityPoint.mass
   let takeoffMoment = zeroFuelMoment
 
   for (const fs of input.fuelStations) {
+    const usableMass = Math.max(0, fs.mass - fs.unusableFuel)
     const arm: number = fs.armLookup.length > 0 ? lookupArm(fs.mass, fs.armLookup) : (fs.arm ?? 0)
-    takeoffMass += fs.mass
-    takeoffMoment += fs.mass * arm
+    takeoffMass += usableMass
+    takeoffMoment += usableMass * arm
+  }
+
+  // @IMP-MB-CORE-005@ (FROM: @REQ-MB-008@)
+  const takeoffCenterOfGravityPoint: CgPoint = {
+    arm: takeoffMass > 0 ? takeoffMoment / takeoffMass : 0,
+    mass: takeoffMass,
+    moment: takeoffMoment,
   }
 
   // @IMP-MB-CORE-003@ (FROM: @REQ-MB-005@)
   if (takeoffMass > input.maxTakeoffMass) {
     violations.push({
       type: 'MTOM_EXCEEDED',
-      severity: 'CRITICAL',
     })
   }
 
   // @IMP-MB-CORE-004@ (FROM: @REQ-MB-008@)
-  // Landing Mass = Takeoff Mass - sum(usable fuel)
-  // For now, we assume all fuel is burned except unusable.
+  // For the current MVP logic, we just migrate from TOM to ZFM and assume all usable fuel is burned.
+  // Landing Mass = Zero Fuel Mass
   // TODO: In a more complex version, the user might input planned fuel burn.
-  // For the current MVP logic, we migration from TOM to ZFM + unusable fuel.
-  let landingMass = zeroFuelMass
-  let landingMoment = zeroFuelMoment
-
-  for (const fs of input.fuelStations) {
-    const unusableMass = fs.unusableFuel // Assuming unusableFuel is already in mass units
-    const arm: number =
-      fs.armLookup.length > 0 ? lookupArm(unusableMass, fs.armLookup) : (fs.arm ?? 0)
-    landingMass += unusableMass
-    landingMoment += unusableMass * arm
-  }
-
-  // @IMP-MB-CORE-005@ (FROM: @REQ-MB-008@)
-  const takeoffCenterOfGravity: CgPoint = {
-    mass: takeoffMass,
-    arm: takeoffMass > 0 ? takeoffMoment / takeoffMass : 0,
-  }
+  const landingMass = zeroFuelMass
+  const landingMoment = zeroFuelMoment
 
   // @IMP-MB-CORE-006@ (FROM: @REQ-MB-008@)
-  const landingCenterOfGravity: CgPoint = {
-    mass: landingMass,
+  const landingCenterOfGravityPoint: CgPoint = {
     arm: landingMass > 0 ? landingMoment / landingMass : 0,
+    mass: landingMass,
+    moment: landingMoment,
   }
 
   // @IMP-MB-CORE-007@ (FROM: @REQ-MB-008@)
   const migrationPath: MigrationPoint[] = []
 
-  migrationPath.push({ ...takeoffCenterOfGravity, label: 'Takeoff' })
+  migrationPath.push({ ...takeoffCenterOfGravityPoint, label: 'Takeoff' })
 
   // If there are multiple fuel tanks with burn sequences, we would calculate intermediate points here.
   // For the MVP, we just do a straight line Takeoff -> Landing.
-  migrationPath.push({ ...landingCenterOfGravity, label: 'Landing' })
+  migrationPath.push({ ...landingCenterOfGravityPoint, label: 'Landing' })
 
   // @IMP-MB-CORE-008@ (FROM: @REQ-MB-006@)
   const envelopeVertices = input.envelope.map((p) => ({ x: p.armOrMoment, y: p.mass }))
 
   // @IMP-MB-CORE-009@ (FROM: @REQ-MB-004@, @REQ-MB-011@)
-  const takeoffX = input.graphType === 'arm' ? takeoffCenterOfGravity.arm : takeoffMoment
-  if (!isPointInPolygon(takeoffX, takeoffCenterOfGravity.mass, envelopeVertices)) {
+  const takeoffX = input.graphType === 'arm' ? takeoffCenterOfGravityPoint.arm : takeoffMoment
+  if (!isPointInPolygon(takeoffX, takeoffCenterOfGravityPoint.mass, envelopeVertices)) {
     violations.push({
       type: 'CG_OUT_OF_ENVELOPE',
-      severity: 'CRITICAL',
     })
   }
 
   // @IMP-MB-CORE-010@ (FROM: @REQ-MB-011@)
-  const landingX = input.graphType === 'arm' ? landingCenterOfGravity.arm : landingMoment
+  const landingX = input.graphType === 'arm' ? landingCenterOfGravityPoint.arm : landingMoment
   if (
-    !isPointInPolygon(landingX, landingCenterOfGravity.mass, envelopeVertices) &&
+    !isPointInPolygon(landingX, landingCenterOfGravityPoint.mass, envelopeVertices) &&
     !violations.some((v) => v.type === 'CG_OUT_OF_ENVELOPE')
   ) {
     violations.push({
       type: 'CG_MIGRATION_EXCEEDED',
-      severity: 'CRITICAL',
     })
   }
 
   return {
-    takeoffMass: takeoffMass,
-    zeroFuelMass: zeroFuelMass,
-    centerOfGravityPosition: takeoffCenterOfGravity.arm,
-    landingMass: landingMass,
-    takeoffCenterOfGravity,
-    landingCenterOfGravity,
+    zeroFuelCenterOfGravityPoint,
+    takeoffCenterOfGravityPoint,
+    landingCenterOfGravityPoint,
     migrationPath,
     violations,
     success: true,

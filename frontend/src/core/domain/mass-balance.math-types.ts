@@ -5,9 +5,6 @@
 
 import type { EnvelopePoint, ArmLookupEntry, BurnSequenceEntry } from './aircraft.types'
 
-/** Criticality of a safety violation. */
-export type ViolationSeverity = 'WARNING' | 'CRITICAL'
-
 // @IMP-MATH-001@ (FROM: @DES-ARCH-005@)
 /** Raw safety violation emitted by the math core to keep isolation from notification bus. */
 export interface Violation {
@@ -18,7 +15,6 @@ export interface Violation {
     | 'CG_MIGRATION_EXCEEDED'
     | 'STATION_LIMIT_EXCEEDED'
     | 'INVALID_INPUT'
-  severity: ViolationSeverity
   field?: string
   code?:
     | 'REQUIRED'
@@ -58,6 +54,7 @@ export interface MathCoreInput {
 export interface CgPoint {
   arm: number
   mass: number
+  moment: number
 }
 
 export interface MigrationPoint {
@@ -67,12 +64,9 @@ export interface MigrationPoint {
 }
 
 export interface MathCoreResult {
-  takeoffMass: number
-  zeroFuelMass: number
-  centerOfGravityPosition: number
-  landingMass: number
-  takeoffCenterOfGravity: CgPoint
-  landingCenterOfGravity: CgPoint
+  zeroFuelCenterOfGravityPoint: CgPoint
+  takeoffCenterOfGravityPoint: CgPoint
+  landingCenterOfGravityPoint: CgPoint
   migrationPath: MigrationPoint[]
   violations: Violation[]
   success: boolean

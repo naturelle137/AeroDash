@@ -1,15 +1,11 @@
 MB Core
   UT-MB-CORE-001
-    title: Verify empty Takeoff Mass and CG Calculation
-    impl:
-      - IMP-MB-CORE-002
-      - IMP-MB-CORE-005
-    files:
-      - frontend/src/core/logic/mass-balance.logic.spec.ts
+    obsolete
 
   UT-MB-CORE-002
     title: Verify Takeoff/Landing Mass and CG with Payload and Fuel Calculation
     impl:
+      - IMP-MB-CORE-001
       - IMP-MB-CORE-002
       - IMP-MB-CORE-004
       - IMP-MB-CORE-005

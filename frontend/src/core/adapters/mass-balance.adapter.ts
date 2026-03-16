@@ -4,6 +4,7 @@ import { computeMassBalanceCore } from '../logic/mass-balance.logic'
 
 // Basic schema building blocks
 const createNumReq = () => z.number()
+const createNumGt0Req = () => createNumReq().gt(0, { message: 'NEGATIVE_VALUE' })
 const createNumMin0Req = () => createNumReq().min(0, { message: 'NEGATIVE_VALUE' })
 const createIndexReq = () => createNumMin0Req().max(19, { message: 'OUT_OF_RANGE' })
 
@@ -35,10 +36,10 @@ export const MathCoreInputSchema = z
         }),
       )
       .max(20, { message: 'TOO_MANY_ITEMS' }),
-    basicEmptyMass: createNumMin0Req(),
+    basicEmptyMass: createNumGt0Req(),
     emptyCenterOfGravity: createNumReq(),
-    maxTakeoffMass: createNumMin0Req(),
-    maxZeroFuelMass: createNumMin0Req().nullable(),
+    maxTakeoffMass: createNumGt0Req(),
+    maxZeroFuelMass: createNumGt0Req().nullable(),
     envelope: z.array(EnvelopePointSchema),
     graphType: z.enum(['arm', 'moment'], {
       error: (issue) => {
@@ -176,12 +177,9 @@ export function calculateMassBalance(input: unknown): MathCoreResult {
     return {
       success: false,
       violations,
-      takeoffMass: NaN,
-      zeroFuelMass: NaN,
-      landingMass: NaN,
-      centerOfGravityPosition: NaN,
-      takeoffCenterOfGravity: { arm: NaN, mass: NaN },
-      landingCenterOfGravity: { arm: NaN, mass: NaN },
+      zeroFuelCenterOfGravityPoint: { arm: NaN, mass: NaN, moment: NaN },
+      takeoffCenterOfGravityPoint: { arm: NaN, mass: NaN, moment: NaN },
+      landingCenterOfGravityPoint: { arm: NaN, mass: NaN, moment: NaN },
       migrationPath: [],
     }
   }
