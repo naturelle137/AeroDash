@@ -1,10 +1,102 @@
 import { describe, it, expect } from 'vitest'
 import { computeMassBalanceCore } from './mass-balance.logic'
 import { createMathCoreInput } from './__fixtures__/mass-balance.fixtures'
+import type { MathCoreInput } from '../domain/mass-balance.math-types'
 
 const CG_PRECISION = 4
 
+// ── Types ─────────────────────────────────────────────────────────────────────
+
+type MassBalanceScenario = {
+  name: string
+  payload: number[]
+  fuel: number[]
+  unusableFuel: number[]
+  expectedZeroFuelMass: number
+  expectedZeroFuelMoment: number
+  expectedZeroFuelCenterOfGravity: number
+  expectedTakeoffMass: number
+  expectedTakeoffMoment: number
+  expectedTakeoffCenterOfGravity: number
+  expectedLandingMass: number
+  expectedLandingMoment: number
+  expectedLandingCenterOfGravity: number
+}
+
+type LimitViolationScenario = {
+  name: string
+  payload: number[]
+  payloadArm?: number[]
+  fuel: number[]
+  fuelArm?: number[]
+  envelope?: { armOrMoment: number; mass: number }[]
+  maximumZeroFuelMass?: number
+  basicEmptyMass?: number
+  emptyCenterOfGravity?: number
+  expectedMtomViolation?: boolean
+  expectedMzfmViolation?: boolean
+  expectedCgViolation?: boolean
+  expectedCgMigrationViolation?: boolean
+  expectedViolationType: string
+}
+
+type StationOverride = {
+  mass: number
+  arm?: number | null
+  armLookup?: { massOrVolume: number; moment: number }[]
+}
+
+type FuelOverride = {
+  mass: number
+  arm?: number | null
+  armLookup?: { massOrVolume: number; moment: number }[]
+  unusableFuel?: number
+}
+
+type ArmLookupScenario = {
+  name: string
+  stations: StationOverride[]
+  fuel?: FuelOverride[]
+  expectedTakeoffMass: number
+  expectedTakeoffArm: number
+}
+
+type ArmLookupErrorScenario = {
+  name: string
+  stations: StationOverride[]
+  fuel?: FuelOverride[]
+  expectedError: string
+}
+
+type CgMigrationScenario = {
+  name: string
+  payload: number[]
+  fuel: number[]
+  expectedPath: { arm: number; mass: number; label: string }[]
+}
+
+type EdgeCaseScenario = {
+  name: string
+  overrides?: Partial<MathCoreInput>
+  payload?: number[]
+  fuel?: number[]
+  fuelUnusableFuel?: number[]
+  expectedTakeoffMass: number
+  expectedTakeoffArm: number
+  expectedLandingMass: number
+  expectedLandingArm: number
+}
+
+type EdgeCaseErrorScenario = {
+  name: string
+  overrides?: Partial<MathCoreInput>
+  expectedError: string
+}
+
+// ── Scenarios ─────────────────────────────────────────────────────────────────
+
 const cgScenarios: MassBalanceScenario[] = [
+  // @UT-MB-CORE-002@ (FROM: @IMP-MB-CORE-001@, @IMP-MB-CORE-002@, @IMP-MB-CORE-004@, @IMP-MB-CORE-005@, @IMP-MB-CORE-006@)
   {
     name: 'empty aircraft',
     payload: [0, 0],
@@ -23,6 +115,7 @@ const cgScenarios: MassBalanceScenario[] = [
     expectedLandingMoment: 433 * 1.877,
     expectedLandingCenterOfGravity: 1.877,
   },
+  // @UT-MB-CORE-026@ (FROM: @IMP-MB-CORE-001@, @IMP-MB-CORE-002@, @IMP-MB-CORE-004@, @IMP-MB-CORE-005@, @IMP-MB-CORE-006@)
   {
     name: 'forward aircraft loading',
     payload: [180, 0],
@@ -41,6 +134,7 @@ const cgScenarios: MassBalanceScenario[] = [
     expectedLandingMoment: 433 * 1.877 + 180 * 1.8,
     expectedLandingCenterOfGravity: (433 * 1.877 + 180 * 1.8) / (433 + 180),
   },
+  // @UT-MB-CORE-027@ (FROM: @IMP-MB-CORE-001@, @IMP-MB-CORE-002@, @IMP-MB-CORE-004@, @IMP-MB-CORE-005@, @IMP-MB-CORE-006@)
   {
     name: 'aft aircraft loading',
     payload: [0, 180],
@@ -59,6 +153,7 @@ const cgScenarios: MassBalanceScenario[] = [
     expectedLandingMoment: 433 * 1.877 + 180 * 2.417,
     expectedLandingCenterOfGravity: (433 * 1.877 + 180 * 2.417) / (433 + 180),
   },
+  // @UT-MB-CORE-028@ (FROM: @IMP-MB-CORE-001@, @IMP-MB-CORE-002@, @IMP-MB-CORE-004@, @IMP-MB-CORE-005@, @IMP-MB-CORE-006@)
   {
     name: 'typical flight',
     payload: [85, 10],
@@ -86,15 +181,14 @@ const limitViolationScenarios: LimitViolationScenario[] = [
     name: 'TOM exceeds MTOM limit',
     payload: [250, 0],
     fuel: [0],
-    unusableFuel: [3],
     expectedMtomViolation: true,
     expectedViolationType: 'MTOM_EXCEEDED',
   },
+  // @UT-MB-CORE-029@ (FROM: @IMP-MB-CORE-003@)
   {
     name: 'TOM is exactly at MTOM limit',
     payload: [217, 0],
     fuel: [0],
-    unusableFuel: [3],
     expectedMtomViolation: false,
     expectedViolationType: 'MTOM_EXCEEDED',
   },
@@ -103,26 +197,24 @@ const limitViolationScenarios: LimitViolationScenario[] = [
     name: 'ZFM exceeds MZFM limit',
     payload: [250, 0],
     fuel: [0],
-    unusableFuel: [3],
     maximumZeroFuelMass: 600,
     expectedMzfmViolation: true,
     expectedViolationType: 'MZFM_EXCEEDED',
   },
+  // @UT-MB-CORE-030@ (FROM: @IMP-MB-CORE-001@)
   {
     name: 'ZFM is exactly at MZFM limit',
     payload: [167, 0],
     fuel: [0],
-    unusableFuel: [3],
     maximumZeroFuelMass: 600,
     expectedMzfmViolation: false,
     expectedViolationType: 'MZFM_EXCEEDED',
   },
-  // @UT-MB-CORE-005@ (FROM: @IMP-MB-009@, @IMP-MB-CORE-011@ )
+  // @UT-MB-CORE-005@ (FROM: @IMP-MB-CORE-009@, @IMP-MB-CORE-011@)
   {
     name: 'CG exceeds forward envelope limit',
     payload: [150, 0],
     fuel: [0],
-    unusableFuel: [3],
     envelope: [
       { armOrMoment: 1.9, mass: 433 },
       { armOrMoment: 1.978, mass: 433 },
@@ -132,11 +224,11 @@ const limitViolationScenarios: LimitViolationScenario[] = [
     expectedCgViolation: true,
     expectedViolationType: 'CG_OUT_OF_ENVELOPE',
   },
+  // @UT-MB-CORE-031@ (FROM: @IMP-MB-CORE-009@, @IMP-MB-CORE-011@)
   {
     name: 'CG is exactly at forward envelope limit',
     payload: [150, 0],
     fuel: [0],
-    unusableFuel: [3],
     envelope: [
       { armOrMoment: 1.857188679245283, mass: 433 },
       { armOrMoment: 1.978, mass: 433 },
@@ -146,19 +238,19 @@ const limitViolationScenarios: LimitViolationScenario[] = [
     expectedCgViolation: false,
     expectedViolationType: 'CG_OUT_OF_ENVELOPE',
   },
+  // @UT-MB-CORE-032@ (FROM: @IMP-MB-CORE-009@, @IMP-MB-CORE-011@)
   {
     name: 'CG exceeds aft envelope limit',
     payload: [0, 200],
     fuel: [0],
-    unusableFuel: [3],
     expectedCgViolation: true,
     expectedViolationType: 'CG_OUT_OF_ENVELOPE',
   },
+  // @UT-MB-CORE-033@ (FROM: @IMP-MB-CORE-009@, @IMP-MB-CORE-011@)
   {
     name: 'CG is exactly at aft envelope limit',
     payload: [0, 200],
     fuel: [0],
-    unusableFuel: [3],
     envelope: [
       { armOrMoment: 1.877, mass: 433 },
       { armOrMoment: 2.0476161137440765, mass: 433 },
@@ -168,39 +260,289 @@ const limitViolationScenarios: LimitViolationScenario[] = [
     expectedCgViolation: false,
     expectedViolationType: 'CG_OUT_OF_ENVELOPE',
   },
+  // @UT-MB-CORE-006@ (FROM: @IMP-MB-CORE-010@, @IMP-MB-CORE-011@)
+  {
+    name: 'landing CG exits envelope after fuel burn',
+    payload: [],
+    fuel: [40],
+    fuelArm: [1.35],
+    basicEmptyMass: 600,
+    emptyCenterOfGravity: 1.99,
+    expectedCgMigrationViolation: true,
+    expectedViolationType: 'CG_MIGRATION_EXCEEDED',
+  },
+  // @UT-MB-CORE-034@ (FROM: @IMP-MB-CORE-010@, @IMP-MB-CORE-011@)
+  {
+    name: 'CG migration stays within envelope',
+    payload: [85, 10],
+    fuel: [60],
+    expectedCgMigrationViolation: false,
+    expectedViolationType: 'CG_MIGRATION_EXCEEDED',
+  },
 ]
 
-type MassBalanceScenario = {
-  name: string
-  payload: number[]
-  fuel: number[]
-  unusableFuel: number[]
-  expectedZeroFuelMass: number
-  expectedZeroFuelMoment: number
-  expectedZeroFuelCenterOfGravity: number
-  expectedTakeoffMass: number
-  expectedTakeoffMoment: number
-  expectedTakeoffCenterOfGravity: number
-  expectedLandingMass: number
-  expectedLandingMoment: number
-  expectedLandingCenterOfGravity: number
-}
+const armLookupScenarios: ArmLookupScenario[] = [
+  // @UT-MB-CORE-007@ (FROM: @IMP-MB-CORE-012@)
+  {
+    name: 'interpolation across payload and fuel stations',
+    stations: [
+      {
+        mass: 50,
+        arm: null,
+        armLookup: [
+          { massOrVolume: 0, moment: 0 },
+          { massOrVolume: 100, moment: 200 },
+        ],
+      },
+    ],
+    fuel: [
+      {
+        mass: 70,
+        arm: null,
+        armLookup: [
+          { massOrVolume: 0, moment: 0 },
+          { massOrVolume: 100, moment: 180 },
+        ],
+      },
+    ],
+    expectedTakeoffMass: 550,
+    expectedTakeoffArm: 1.8788,
+  },
+  // @UT-MB-CORE-008@ (FROM: @IMP-MB-CORE-012@)
+  {
+    name: 'zero fuel mass with lookup table',
+    stations: [{ mass: 170 }, { mass: 10 }],
+    fuel: [
+      {
+        mass: 0,
+        arm: null,
+        armLookup: [
+          { massOrVolume: 0, moment: 0 },
+          { massOrVolume: 100, moment: 200 },
+        ],
+      },
+    ],
+    expectedTakeoffMass: 613,
+    expectedTakeoffArm: 1.86445,
+  },
+  // @UT-MB-CORE-021@ (FROM: @IMP-MB-CORE-012@)
+  {
+    name: 'zero station mass with lookup starting at zero',
+    stations: [
+      {
+        mass: 0,
+        arm: null,
+        armLookup: [
+          { massOrVolume: 0, moment: 0 },
+          { massOrVolume: 100, moment: 200 },
+        ],
+      },
+    ],
+    fuel: [{ mass: 0 }],
+    expectedTakeoffMass: 433,
+    expectedTakeoffArm: 1.877,
+  },
+  // @UT-MB-CORE-022@ (FROM: @IMP-MB-CORE-012@)
+  {
+    name: 'zero station mass with lookup starting above zero',
+    stations: [
+      {
+        mass: 0,
+        arm: null,
+        armLookup: [
+          { massOrVolume: 50, moment: 100 },
+          { massOrVolume: 100, moment: 200 },
+        ],
+      },
+    ],
+    fuel: [{ mass: 0 }],
+    expectedTakeoffMass: 433,
+    expectedTakeoffArm: 1.877,
+  },
+  // @UT-MB-CORE-023@ (FROM: @IMP-MB-CORE-012@)
+  {
+    name: 'single lookup entry',
+    stations: [{ mass: 50, arm: null, armLookup: [{ massOrVolume: 50, moment: 100 }] }],
+    fuel: [{ mass: 0, unusableFuel: 0 }],
+    expectedTakeoffMass: 483,
+    expectedTakeoffArm: 1.8897,
+  },
+  // @UT-MB-CORE-024@ (FROM: @IMP-MB-CORE-012@)
+  {
+    name: 'unsorted lookup table',
+    stations: [
+      {
+        mass: 210,
+        arm: null,
+        armLookup: [
+          { massOrVolume: 100, moment: 200 },
+          { massOrVolume: 50, moment: 100 },
+          { massOrVolume: 200, moment: 400 },
+        ],
+      },
+    ],
+    fuel: [{ mass: 0, unusableFuel: 0 }],
+    expectedTakeoffMass: 643,
+    expectedTakeoffArm: 1.9172,
+  },
+  // @UT-MB-CORE-025@ (FROM: @IMP-MB-CORE-012@)
+  {
+    name: 'extrapolation below lowest entry',
+    stations: [
+      {
+        mass: 10,
+        arm: null,
+        armLookup: [
+          { massOrVolume: 100, moment: 200 },
+          { massOrVolume: 50, moment: 100 },
+          { massOrVolume: 200, moment: 400 },
+        ],
+      },
+    ],
+    fuel: [{ mass: 0, unusableFuel: 0 }],
+    expectedTakeoffMass: 443,
+    expectedTakeoffArm: 1.8798,
+  },
+]
 
-type LimitViolationScenario = {
-  name: string
-  payload: number[]
-  payloadArm?: number[]
-  fuel: number[]
-  fuelArm?: number[]
-  unusableFuel: number[]
-  envelope?: { armOrMoment: number; mass: number }[]
-  maximumZeroFuelMass?: number
-  expectedMtomViolation?: boolean
-  expectedMzfmViolation?: boolean
-  expectedCgViolation?: boolean
-  expectedCgMigrationViolation?: boolean
-  expectedViolationType: string
-}
+const armLookupErrorScenarios: ArmLookupErrorScenario[] = [
+  // @UT-MB-CORE-009@ (FROM: @IMP-MB-CORE-012@)
+  {
+    name: 'NaN mass input',
+    stations: [
+      {
+        mass: NaN,
+        arm: null,
+        armLookup: [
+          { massOrVolume: 0, moment: 0 },
+          { massOrVolume: 100, moment: 200 },
+        ],
+      },
+    ],
+    expectedError: 'Invalid Input: armLookup has an invalid input.',
+  },
+]
+
+const cgMigrationScenarios: CgMigrationScenario[] = [
+  // @UT-MB-CORE-035@ (FROM: @IMP-MB-CORE-007@, @IMP-MB-CORE-005@, @IMP-MB-CORE-006@)
+  {
+    name: 'empty aircraft (no CG shift)',
+    payload: [0, 0],
+    fuel: [0],
+    expectedPath: [
+      { arm: 1.877, mass: 433, label: 'Takeoff' },
+      { arm: 1.877, mass: 433, label: 'Landing' },
+    ],
+  },
+  // @UT-MB-CORE-036@ (FROM: @IMP-MB-CORE-007@, @IMP-MB-CORE-005@, @IMP-MB-CORE-006@)
+  {
+    name: 'typical flight',
+    payload: [85, 10],
+    fuel: [60],
+    expectedPath: [
+      { arm: 1.9074, mass: 585, label: 'Takeoff' },
+      { arm: 1.8748, mass: 528, label: 'Landing' },
+    ],
+  },
+  // @UT-MB-CORE-037@ (FROM: @IMP-MB-CORE-007@, @IMP-MB-CORE-005@, @IMP-MB-CORE-006@)
+  {
+    name: 'fuel-only loading',
+    payload: [0, 0],
+    fuel: [80],
+    expectedPath: [
+      { arm: 1.9271, mass: 510, label: 'Takeoff' },
+      { arm: 1.877, mass: 433, label: 'Landing' },
+    ],
+  },
+]
+
+const edgeCaseScenarios: EdgeCaseScenario[] = [
+  // @UT-MB-CORE-018@ (FROM: @IMP-MB-CORE-005@, @IMP-MB-CORE-006@)
+  {
+    name: 'zero BEM produces zero CG',
+    overrides: { basicEmptyMass: 0 },
+    fuel: [0],
+    fuelUnusableFuel: [0],
+    expectedTakeoffMass: 0,
+    expectedTakeoffArm: 0,
+    expectedLandingMass: 0,
+    expectedLandingArm: 0,
+  },
+  // @UT-MB-CORE-017@ (FROM: @IMP-MB-CORE-001@)
+  {
+    name: 'fuel station index shadows payload station with same index',
+    overrides: {
+      stations: [{ index: 0, mass: 1000, arm: 1.8, armLookup: [] }],
+      fuelStations: [
+        { index: 0, mass: 10, arm: 2.209, armLookup: [], unusableFuel: 3, burnSequences: [] },
+      ],
+    },
+    expectedTakeoffMass: 440,
+    expectedTakeoffArm: 1.8823,
+    expectedLandingMass: 433,
+    expectedLandingArm: 1.877,
+  },
+  // @UT-MB-CORE-039@ (FROM: @IMP-MB-CORE-002@)
+  {
+    name: 'unusable fuel equals total fuel yields zero usable',
+    fuel: [50],
+    fuelUnusableFuel: [50],
+    expectedTakeoffMass: 433,
+    expectedTakeoffArm: 1.877,
+    expectedLandingMass: 433,
+    expectedLandingArm: 1.877,
+  },
+  // @UT-MB-CORE-040@ (FROM: @IMP-MB-CORE-002@)
+  {
+    name: 'unusable fuel exceeds total fuel clamps to zero',
+    fuel: [20],
+    fuelUnusableFuel: [30],
+    expectedTakeoffMass: 433,
+    expectedTakeoffArm: 1.877,
+    expectedLandingMass: 433,
+    expectedLandingArm: 1.877,
+  },
+  // @UT-MB-CORE-041@ (FROM: @IMP-MB-CORE-001@)
+  {
+    name: 'empty stations array computes BEM-only CG',
+    overrides: { stations: [] },
+    expectedTakeoffMass: 433,
+    expectedTakeoffArm: 1.877,
+    expectedLandingMass: 433,
+    expectedLandingArm: 1.877,
+  },
+  // @UT-MB-CORE-042@ (FROM: @IMP-MB-CORE-011@)
+  {
+    name: 'triangular envelope with minimum 3 vertices',
+    overrides: {
+      envelope: [
+        { armOrMoment: 1.8, mass: 400 },
+        { armOrMoment: 2.0, mass: 400 },
+        { armOrMoment: 1.9, mass: 700 },
+      ],
+    },
+    expectedTakeoffMass: 433,
+    expectedTakeoffArm: 1.877,
+    expectedLandingMass: 433,
+    expectedLandingArm: 1.877,
+  },
+]
+
+const edgeCaseErrorScenarios: EdgeCaseErrorScenario[] = [
+  // @UT-MB-CORE-020@ (FROM: @IMP-MB-CORE-011@)
+  {
+    name: 'envelope with fewer than 3 vertices',
+    overrides: {
+      envelope: [
+        { armOrMoment: 1.841, mass: 433 },
+        { armOrMoment: 1.978, mass: 650 },
+      ],
+    },
+    expectedError: 'Invalid Input: Envelope must have at least 3 vertices.',
+  },
+]
+
+// ── Helpers ────────────────────────────────────────────────────────────────────
 
 function expectCgPoint(
   point: { mass: number; moment: number; arm: number },
@@ -223,14 +565,12 @@ function expectCgState(
     scenario.expectedZeroFuelMoment,
     scenario.expectedZeroFuelCenterOfGravity,
   )
-
   expectCgPoint(
     result.takeoffCenterOfGravityPoint,
     scenario.expectedTakeoffMass,
     scenario.expectedTakeoffMoment,
     scenario.expectedTakeoffCenterOfGravity,
   )
-
   expectCgPoint(
     result.landingCenterOfGravityPoint,
     scenario.expectedLandingMass,
@@ -251,9 +591,6 @@ function expectLimitViolation(
   } else {
     expect(violation).toBeUndefined()
   }
-  //expect(violation?.field).toBe(scenario.expectedField ?? undefined)
-  //expect(violation?.code).toBe(scenario.expectedCode ?? undefined)
-  //expect(violation?.stationIndex).toBe(scenario.expectedStationIndex ?? undefined)
 }
 
 function expectLimitViolationState(
@@ -290,14 +627,59 @@ function expectLimitViolationState(
   }
 }
 
+function buildArmLookupInput(scenario: {
+  stations: StationOverride[]
+  fuel?: FuelOverride[]
+}): MathCoreInput {
+  const input = createMathCoreInput()
+  scenario.stations.forEach((s, i) => {
+    if (!input.stations[i]) return
+    input.stations[i]!.mass = s.mass
+    if (s.arm !== undefined) input.stations[i]!.arm = s.arm
+    if (s.armLookup) input.stations[i]!.armLookup = s.armLookup
+  })
+  scenario.fuel?.forEach((f, i) => {
+    if (!input.fuelStations[i]) return
+    input.fuelStations[i]!.mass = f.mass
+    if (f.arm !== undefined) input.fuelStations[i]!.arm = f.arm
+    if (f.armLookup) input.fuelStations[i]!.armLookup = f.armLookup
+    if (f.unusableFuel !== undefined) input.fuelStations[i]!.unusableFuel = f.unusableFuel
+  })
+  return input
+}
+
+function buildEdgeCaseInput(scenario: EdgeCaseScenario): MathCoreInput {
+  const input = createMathCoreInput(scenario.overrides)
+  scenario.payload?.forEach((mass, i) => {
+    input.stations[i]!.mass = mass
+  })
+  scenario.fuel?.forEach((mass, i) => {
+    input.fuelStations[i]!.mass = mass
+  })
+  scenario.fuelUnusableFuel?.forEach((uf, i) => {
+    input.fuelStations[i]!.unusableFuel = uf
+  })
+  return input
+}
+
+function expectMigrationPath(
+  result: ReturnType<typeof computeMassBalanceCore>,
+  expectedPath: CgMigrationScenario['expectedPath'],
+) {
+  expect(result.migrationPath).toHaveLength(expectedPath.length)
+  expectedPath.forEach((expected, i) => {
+    const point = result.migrationPath[i]!
+    expect(point.label).toBe(expected.label)
+    expect(point.mass).toBe(expected.mass)
+    expect(point.arm).toBeCloseTo(expected.arm, CG_PRECISION)
+  })
+}
+
+// ── Tests ──────────────────────────────────────────────────────────────────────
+
 describe('Mass & Balance Math-Core Logic', () => {
   describe('CG point calculations', () => {
-    // @UT-MB-CORE-001@
-    // obsolete
-
-    // @UT-MB-CORE-002@ (FROM: @IMP-MB-CORE-001@, @IMP-MB-CORE-002@, @IMP-MB-CORE-004@, @IMP-MB-CORE-005@, @IMP-MB-CORE-006@)
     it.each(cgScenarios)('computes CG for ZFM, TOM and Landing for $name', (scenario) => {
-      // Arrange
       const input = createMathCoreInput()
 
       scenario.payload.forEach((mass, i) => {
@@ -310,10 +692,8 @@ describe('Mass & Balance Math-Core Logic', () => {
         input.fuelStations[i]!.unusableFuel = mass
       })
 
-      // Act
       const result = computeMassBalanceCore(input)
 
-      // Assert
       expectCgState(result, scenario)
     })
   })
@@ -336,226 +716,81 @@ describe('Mass & Balance Math-Core Logic', () => {
       })
       input.envelope = scenario.envelope ?? input.envelope
       input.maxZeroFuelMass = scenario.maximumZeroFuelMass ?? null
+      if (scenario.basicEmptyMass !== undefined) input.basicEmptyMass = scenario.basicEmptyMass
+      if (scenario.emptyCenterOfGravity !== undefined)
+        input.emptyCenterOfGravity = scenario.emptyCenterOfGravity
 
       const result = computeMassBalanceCore(input)
 
       expectLimitViolationState(result, scenario)
     })
-
-    // @UT-MB-CORE-006@ (FROM: @IMP-MB-CORE-010@, @IMP-MB-CORE-011@ )
-    it('triggers CG_MIGRATION_EXCEEDED when migration ends out of envelope', () => {
-      const input = createMathCoreInput()
-      // Start at safe takeoff (BEM 433, CG 1.877)
-      // Add forward fuel that keeps us in for takeoff, but burning it moves us too far forward?
-      // Wait, burning fuel usually moves it FORWARD or AFT.
-      // In Tecnam P2008, fuel is at 2.209 (AFT). Burning it moves CG FORWARD.
-      // So if we have very little fuel and are near the forward limit, burning it might exit forward.
-
-      // Reverse scenario: Takeoff is AFT safe, burning fuel makes it stay safe?
-      // Let's force a scenario:
-      // Tapeoff: Mass 640, Arm 1.95 (Safe range [1.841, 1.978])
-      // Landing: Mass 600, Arm 1.
-      input.stations = []
-      input.basicEmptyMass = 600
-      input.emptyCenterOfGravity = 1.99 // Out AFT
-      input.fuelStations[0]!.mass = 40
-      input.fuelStations[0]!.arm = 1.35
-
-      const result = computeMassBalanceCore(input)
-      expect(result.violations.some((v) => v.type === 'CG_MIGRATION_EXCEEDED')).toBe(true)
-    })
   })
 
   describe('arm lookup tables', () => {
-    // @UT-MB-CORE-007@ (FROM: @IMP-MB-CORE-012@)
-    it('interpolates arm correctly from lookup table', () => {
+    it.each(armLookupScenarios)('resolves arm for $name', (scenario) => {
+      const input = buildArmLookupInput(scenario)
+
+      const result = computeMassBalanceCore(input)
+
+      expect(result.takeoffCenterOfGravityPoint.mass).toBe(scenario.expectedTakeoffMass)
+      expect(result.takeoffCenterOfGravityPoint.arm).toBeCloseTo(
+        scenario.expectedTakeoffArm,
+        CG_PRECISION,
+      )
+    })
+
+    it.each(armLookupErrorScenarios)('throws on $name', (scenario) => {
+      const input = buildArmLookupInput(scenario)
+
+      expect(() => computeMassBalanceCore(input)).toThrow(scenario.expectedError)
+    })
+  })
+
+  describe('CG migration', () => {
+    it.each(cgMigrationScenarios)('produces correct migration path for $name', (scenario) => {
       const input = createMathCoreInput()
-      input.stations[0]!.mass = 50
-      input.stations[0]!.arm = null
-      input.stations[0]!.armLookup = [
-        { massOrVolume: 0, moment: 0 },
-        { massOrVolume: 100, moment: 200 }, // Arm = 2.0
-      ]
-      input.stations[1]!.mass = 0
-      input.stations[1]!.arm = null
-      input.stations[1]!.armLookup = []
-      input.fuelStations[0]!.mass = 70
-      input.fuelStations[0]!.arm = null
-      input.fuelStations[0]!.armLookup = [
-        { massOrVolume: 0, moment: 0 },
-        { massOrVolume: 100, moment: 180 }, // Arm = 2.0
-      ]
-      // add a second fuel station to fuelstation array with index 3
-      input.fuelStations.push({
-        index: 3,
-        mass: 0,
-        arm: null,
-        armLookup: [],
-        unusableFuel: 0,
-        burnSequences: [],
+      scenario.payload.forEach((mass, i) => {
+        input.stations[i]!.mass = mass
+      })
+      scenario.fuel.forEach((mass, i) => {
+        input.fuelStations[i]!.mass = mass
       })
 
       const result = computeMassBalanceCore(input)
-      // Station Mass 50 is halfway. Station Moment = 100. Arm = 100 / 50 = 2.0
-      // Fuel Station Mass 70, arm lookup at 70: Moment = 126. Arm = 126 / 70 = 1.8
-      // Usable fuel = max(0, 70 - 3) = 67 (unusable already in BEM)
-      // Total Mass = 433 + 50 + 67 = 550
-      // Total Moment = 433*1.877 + 50*2.0 + 67*1.8 = 812.741 + 100 + 120.6 = 1033.341
-      // CG = 1033.341 / 550 = 1.87880...
-      expect(result.takeoffCenterOfGravityPoint.mass).toBe(550)
-      expect(result.takeoffCenterOfGravityPoint.arm).toBeCloseTo(1.8788, CG_PRECISION)
+
+      expectMigrationPath(result, scenario.expectedPath)
     })
 
-    // @UT-MB-CORE-008@ (FROM: @IMP-MB-CORE-012@)
-    it('look up arm for empty mass correctly from lookup table', () => {
-      const input = createMathCoreInput()
+    // @UT-MB-CORE-038@ (FROM: @IMP-MB-CORE-007@)
+    // eslint-expect-error-next-line
+    it.todo('calculates burn-down polygon vertices for multi-sequence fuel burn (REQ-MB-008)') // oxlint-disable-line
+  })
 
-      input.stations[0]!.mass = 170
-      input.stations[1]!.mass = 10
-      input.fuelStations[0]!.mass = 0
-      input.fuelStations[0]!.arm = null
-      input.fuelStations[0]!.armLookup = [
-        { massOrVolume: 0, moment: 0 },
-        { massOrVolume: 100, moment: 200 },
-      ]
+  describe('edge cases', () => {
+    it.each(edgeCaseScenarios)('$name', (scenario) => {
+      const input = buildEdgeCaseInput(scenario)
 
       const result = computeMassBalanceCore(input)
-      // Total Mass = 433 + 170 + 10 = 613
-      // Total Moment = 433*1.877 + 170*1.8 + 10*2.417 = 812.741 + 306 + 24.17 = 1142.911
-      // CG = 1142.911 / 613 = 1.86445...
-      expect(result.takeoffCenterOfGravityPoint.mass).toBe(613)
-      expect(result.takeoffCenterOfGravityPoint.arm).toBeCloseTo(1.86445, CG_PRECISION)
-    })
 
-    // @UT-MB-CORE-009@ (FROM: @IMP-MB-CORE-012@)
-    it('throws an error when armLookup contains invalid weight input', () => {
-      const input = createMathCoreInput()
-      input.stations[0]!.mass = NaN
-      input.stations[0]!.arm = null
-      input.stations[0]!.armLookup = [
-        { massOrVolume: 0, moment: 0 },
-        { massOrVolume: 100, moment: 200 }, // Arm = 2.0
-      ]
-
-      expect(() => computeMassBalanceCore(input)).toThrow(
-        'Invalid Input: armLookup has an invalid input.',
+      expect(result.takeoffCenterOfGravityPoint.mass).toBe(scenario.expectedTakeoffMass)
+      expect(result.takeoffCenterOfGravityPoint.arm).toBeCloseTo(
+        scenario.expectedTakeoffArm,
+        CG_PRECISION,
+      )
+      expect(result.landingCenterOfGravityPoint.mass).toBe(scenario.expectedLandingMass)
+      expect(result.landingCenterOfGravityPoint.arm).toBeCloseTo(
+        scenario.expectedLandingArm,
+        CG_PRECISION,
       )
     })
-    // @UT-MB-CORE-021@ (FROM: @IMP-MB-CORE-012@)
-    it('lookupArm returns zero, when mass is zero with lookup table', () => {
-      const input = createMathCoreInput()
-      input.stations[0]!.mass = 0
-      input.stations[0]!.arm = null
-      input.stations[0]!.armLookup = [
-        { massOrVolume: 0, moment: 0 },
-        { massOrVolume: 100, moment: 200 },
-      ]
-      input.fuelStations[0]!.mass = 0
-      const result = computeMassBalanceCore(input)
 
-      expect(result.takeoffCenterOfGravityPoint.arm).toBeCloseTo(1.877, CG_PRECISION)
-    })
+    it.each(edgeCaseErrorScenarios)('throws on $name', (scenario) => {
+      const input = createMathCoreInput(scenario.overrides)
 
-    // @UT-MB-CORE-022@ (FROM: @IMP-MB-CORE-012@)
-    it('lookupArm returns zero, when mass is zero with lookup table with first entry is not zero', () => {
-      const input = createMathCoreInput()
-      input.stations[0]!.mass = 0
-      input.stations[0]!.arm = null
-      input.stations[0]!.armLookup = [
-        { massOrVolume: 50, moment: 100 },
-        { massOrVolume: 100, moment: 200 },
-      ]
-      input.fuelStations[0]!.mass = 0
-      const result = computeMassBalanceCore(input)
-
-      expect(result.takeoffCenterOfGravityPoint.arm).toBeCloseTo(1.877, CG_PRECISION)
-    })
-
-    // @UT-MB-CORE-023@ (FROM: @IMP-MB-CORE-012@)
-    it('lookupArm calculates arm immediately, when only one entry in lookup table', () => {
-      const input = createMathCoreInput()
-      input.stations[0]!.mass = 50
-      input.stations[0]!.arm = null
-      input.stations[0]!.armLookup = [{ massOrVolume: 50, moment: 100 }] // Arm = 2.0
-      input.fuelStations[0]!.unusableFuel = 0
-      input.fuelStations[0]!.mass = 0
-
-      const result = computeMassBalanceCore(input)
-
-      // CG = (433*1.877 + 50*2.0) / 483 = 1.890...
-      expect(result.takeoffCenterOfGravityPoint.arm).toBeCloseTo(1.8897, CG_PRECISION)
-    })
-
-    // @UT-MB-CORE-024@ (FROM: @IMP-MB-CORE-012@)
-    it('lookupArm calculates arm correctly, when sorting an unsorted lookup table', () => {
-      const input = createMathCoreInput()
-      input.stations[0]!.mass = 210
-      input.stations[0]!.arm = null
-      input.stations[0]!.armLookup = [
-        // arm = 2.0
-        { massOrVolume: 100, moment: 200 },
-        { massOrVolume: 50, moment: 100 },
-        { massOrVolume: 200, moment: 400 },
-      ]
-      input.fuelStations[0]!.unusableFuel = 0
-      input.fuelStations[0]!.mass = 0
-
-      const result = computeMassBalanceCore(input)
-
-      // CG = (433*1.877 + 210*2.0) / 643 = 1.917...
-      expect(result.takeoffCenterOfGravityPoint.arm).toBeCloseTo(1.9172, CG_PRECISION)
-    })
-
-    // @UT-MB-CORE-025@ (FROM: @IMP-MB-CORE-012@)
-    it('lookupArm calculates arm correctly, when extrapolation is needed', () => {
-      const input = createMathCoreInput()
-      input.stations[0]!.mass = 10
-      input.stations[0]!.arm = null
-      input.stations[0]!.armLookup = [
-        // arm = 2.0
-        { massOrVolume: 100, moment: 200 },
-        { massOrVolume: 50, moment: 100 },
-        { massOrVolume: 200, moment: 400 },
-      ]
-      input.fuelStations[0]!.unusableFuel = 0
-      input.fuelStations[0]!.mass = 0
-
-      const result = computeMassBalanceCore(input)
-
-      // CG = (433*1.877 + 10*2.0) / 443 = 1.880...
-      expect(result.takeoffCenterOfGravityPoint.arm).toBeCloseTo(1.8798, CG_PRECISION)
+      expect(() => computeMassBalanceCore(input)).toThrow(scenario.expectedError)
     })
   })
-  describe('input validation', () => {
-    // @UT-MB-CORE-017@ (FROM: @IMP-MB-CORE-001@)
-    it('defined a station as fuel station, if the same index is used twice', () => {
-      const input = createMathCoreInput()
-      input.stations[0]!.index = 0
-      input.stations[0]!.mass = 1000
-      input.fuelStations[0]!.index = 0
-      input.fuelStations[0]!.mass = 10
 
-      const result = computeMassBalanceCore(input)
-      expect(result.zeroFuelCenterOfGravityPoint.mass).toBe(433)
-      // Usable fuel = max(0, 10 - 3) = 7 (unusable already in BEM)
-      expect(result.takeoffCenterOfGravityPoint.mass).toBe(440)
-    })
-  })
-  describe('edge cases', () => {
-    // @UT-MB-CORE-018@ (FROM: @IMP-MB-CORE-005@, @IMP-MB-CORE-006@)
-    it('sets takeoff and landing cg to zero, when takeoff and landing mass are zero', () => {
-      const input = createMathCoreInput()
-      input.basicEmptyMass = 0
-      input.fuelStations[0]!.unusableFuel = 0
-      input.fuelStations[0]!.mass = 0
-
-      const result = computeMassBalanceCore(input)
-      expect(result.takeoffCenterOfGravityPoint.mass).toBe(0)
-      expect(result.landingCenterOfGravityPoint.mass).toBe(0)
-      expect(result.takeoffCenterOfGravityPoint.arm).toBe(0)
-      expect(result.landingCenterOfGravityPoint.arm).toBe(0)
-    })
-  })
   describe('graph type', () => {
     // @UT-MB-CORE-019@ (FROM: @IMP-MB-CORE-009@)
     it('uses graph type "moment" correctly', () => {
@@ -581,25 +816,10 @@ describe('Mass & Balance Math-Core Logic', () => {
       result = computeMassBalanceCore(input)
 
       expect(result.zeroFuelCenterOfGravityPoint.mass).toBe(613)
-      // TOM = 613 + usable(30-3=27) = 640
       expect(result.takeoffCenterOfGravityPoint.mass).toBe(640)
       expect(result.takeoffCenterOfGravityPoint.arm).toBeCloseTo(1.87899, 4)
-      // LM = ZFM = 613 (unusable fuel already in BEM)
       expect(result.landingCenterOfGravityPoint.mass).toBe(613)
       expect(result.landingCenterOfGravityPoint.arm).toBeCloseTo(1.86445, CG_PRECISION)
-    })
-
-    // @UT-MB-CORE-020@ (FROM: @IMP-MB-CORE-011@)
-    it('does not calculate with incomplete envelope', () => {
-      const input = createMathCoreInput()
-      input.envelope = [
-        { armOrMoment: 1.841, mass: 433 },
-        { armOrMoment: 1.978, mass: 650 },
-      ]
-
-      expect(() => computeMassBalanceCore(input)).toThrow(
-        'Invalid Input: Envelope must have at least 3 vertices.',
-      )
     })
   })
 })
