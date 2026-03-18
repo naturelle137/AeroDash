@@ -5,7 +5,8 @@
  */
 import type { MathCoreInput, MathCoreResult, Violation } from '../domain/mass-balance.math-types'
 import type { CgPoint, MigrationPoint } from '../domain/mass-balance.math-types'
-import type { ArmLookupEntry } from '../domain/aircraft.types'
+import { interpolateArmFromLookup } from './mb.arm-lookup'
+import { isCgWithinEnvelope } from './mb.envelope'
 
 /**
  * Synchronously calculate mass, CG, and geometric domain safety violations.
@@ -26,7 +27,8 @@ export function computeMassBalanceCore(input: MathCoreInput): MathCoreResult {
   for (const s of input.stations) {
     const isFuel = input.fuelStations.some((fs) => fs.index === s.index)
     if (!isFuel) {
-      const arm: number = s.armLookup.length > 0 ? lookupArm(s.mass, s.armLookup) : (s.arm ?? 0)
+      const arm: number =
+        s.armLookup.length > 0 ? interpolateArmFromLookup(s.mass, s.armLookup) : (s.arm ?? 0)
       zeroFuelMass += s.mass
       zeroFuelMoment += s.mass * arm
     }
@@ -51,7 +53,8 @@ export function computeMassBalanceCore(input: MathCoreInput): MathCoreResult {
 
   for (const fs of input.fuelStations) {
     const usableMass = Math.max(0, fs.mass - fs.unusableFuel)
-    const arm: number = fs.armLookup.length > 0 ? lookupArm(fs.mass, fs.armLookup) : (fs.arm ?? 0)
+    const arm: number =
+      fs.armLookup.length > 0 ? interpolateArmFromLookup(fs.mass, fs.armLookup) : (fs.arm ?? 0)
     takeoffMass += usableMass
     takeoffMoment += usableMass * arm
   }
@@ -94,11 +97,9 @@ export function computeMassBalanceCore(input: MathCoreInput): MathCoreResult {
   migrationPath.push({ ...landingCenterOfGravityPoint, label: 'Landing' })
 
   // @IMP-MB-CORE-008@ (FROM: @REQ-MB-006@)
-  const envelopeVertices = input.envelope.map((p) => ({ x: p.armOrMoment, y: p.mass }))
-
   // @IMP-MB-CORE-009@ (FROM: @REQ-MB-004@, @REQ-MB-011@)
   const takeoffX = input.graphType === 'arm' ? takeoffCenterOfGravityPoint.arm : takeoffMoment
-  if (!isPointInPolygon(takeoffX, takeoffCenterOfGravityPoint.mass, envelopeVertices)) {
+  if (!isCgWithinEnvelope(takeoffX, takeoffCenterOfGravityPoint.mass, input.envelope)) {
     violations.push({
       type: 'CG_OUT_OF_ENVELOPE',
     })
@@ -107,7 +108,7 @@ export function computeMassBalanceCore(input: MathCoreInput): MathCoreResult {
   // @IMP-MB-CORE-010@ (FROM: @REQ-MB-011@)
   const landingX = input.graphType === 'arm' ? landingCenterOfGravityPoint.arm : landingMoment
   if (
-    !isPointInPolygon(landingX, landingCenterOfGravityPoint.mass, envelopeVertices) &&
+    !isCgWithinEnvelope(landingX, landingCenterOfGravityPoint.mass, input.envelope) &&
     !violations.some((v) => v.type === 'CG_OUT_OF_ENVELOPE')
   ) {
     violations.push({
@@ -123,58 +124,4 @@ export function computeMassBalanceCore(input: MathCoreInput): MathCoreResult {
     violations,
     success: true,
   }
-}
-
-// @IMP-MB-CORE-011@ (FROM: @REQ-MB-007@)
-export function isPointInPolygon(
-  x: number,
-  y: number,
-  vertices: { x: number; y: number }[],
-): boolean {
-  if (vertices.length < 3) throw new Error('Invalid Input: Envelope must have at least 3 vertices.')
-  let inside = false
-  for (let i = 0, j = vertices.length - 1; i < vertices.length; j = i++) {
-    const xi = vertices[i]!.x,
-      yi = vertices[i]!.y
-    const xj = vertices[j]!.x,
-      yj = vertices[j]!.y
-
-    const intersect = yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi
-    if (intersect) inside = !inside
-  }
-  return inside
-}
-
-// @IMP-MB-CORE-012@ (FROM: @REQ-MB-012@)
-/**
- * Linear interpolation for arm lookup tables.
- * Arm = Moment / Mass (or Volume).
- */
-function lookupArm(mass: number, lookup: ArmLookupEntry[]): number {
-  /* v8 ignore start */
-  // computeMassBalanceCore prevents this from happening, fail safe if function is ever exported
-  if (lookup.length === 0) throw new Error('Invalid Input: armLookup has an invalid input.')
-  /* v8 ignore stop */
-  if (mass === 0) {
-    return lookup[0]!.massOrVolume > 0 ? lookup[0]!.moment / lookup[0]!.massOrVolume : 0
-  }
-  if (lookup.length === 1) return lookup[0]!.moment / lookup[0]!.massOrVolume
-
-  const sorted = [...lookup].sort((a, b) => a.massOrVolume - b.massOrVolume)
-
-  if (mass <= sorted[0]!.massOrVolume) return sorted[0]!.moment / sorted[0]!.massOrVolume
-  if (mass >= sorted[sorted.length - 1]!.massOrVolume)
-    return sorted[sorted.length - 1]!.moment / sorted[sorted.length - 1]!.massOrVolume
-
-  for (let i = 0; i < sorted.length - 1; i++) {
-    const p1 = sorted[i]!
-    const p2 = sorted[i + 1]!
-    if (mass >= p1.massOrVolume && mass <= p2.massOrVolume) {
-      const ratio = (mass - p1.massOrVolume) / (p2.massOrVolume - p1.massOrVolume)
-      const moment = p1.moment + ratio * (p2.moment - p1.moment)
-      return moment / mass
-    }
-  }
-
-  throw new Error('Invalid Input: armLookup has an invalid input.')
 }
