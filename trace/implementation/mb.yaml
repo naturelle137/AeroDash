@@ -1,87 +1,100 @@
-IMP-MB-CORE-001
-  title: Maximum Zero Fuel Mass Validation
-  req:
-    - REQ-MB-009
-  files:
-    - frontend/src/core/logic/mass-balance.logic.ts
+MB Core Logic
+  IMP-MB-CORE-001
+    title: Zero Fuel Mass Calculation + MZFM Validation
+    req:
+      - REQ-MB-009
+    files:
+      - frontend/src/core/logic/mass-balance.logic.ts
 
-IMP-MB-CORE-002
-  title: Takeoff Mass + Takeoff Moment Calculation
-  req:
-    - REQ-MB-008
-  files:
-    - frontend/src/core/logic/mass-balance.logic.ts
+  IMP-MB-CORE-002
+    title: Takeoff Mass + Takeoff Moment Calculation
+    req:
+      - REQ-MB-008
+    files:
+      - frontend/src/core/logic/mass-balance.logic.ts
 
-IMP-MB-CORE-003
-  title: Maximum Takeoff Mass Validation
-  req:
-    - REQ-MB-005
-  files:
-    - frontend/src/core/logic/mass-balance.logic.ts
+  IMP-MB-CORE-003
+    title: Maximum Takeoff Mass Validation
+    req:
+      - REQ-MB-005
+    files:
+      - frontend/src/core/logic/mass-balance.logic.ts
 
-IMP-MB-CORE-004
-  title: Landing Mass + Landing Moment Calculation
-  req:
-    - REQ-MB-008
-  files:
-    - frontend/src/core/logic/mass-balance.logic.ts
+  IMP-MB-CORE-004
+    title: Landing Mass + Landing Moment Calculation
+    req:
+      - REQ-MB-008
+    files:
+      - frontend/src/core/logic/mass-balance.logic.ts
 
-IMP-MB-CORE-005
-  title: Takeoff Center of Gravity Calculation
-  req:
-    - REQ-MB-008
-  files:
-    - frontend/src/core/logic/mass-balance.logic.ts
+  IMP-MB-CORE-005
+    title: Takeoff Center of Gravity Calculation
+    req:
+      - REQ-MB-008
+    files:
+      - frontend/src/core/logic/mass-balance.logic.ts
 
-IMP-MB-CORE-006
-  title: Landing Center of Gravity Calculation
-  req:
-    - REQ-MB-008
-  files:
-    - frontend/src/core/logic/mass-balance.logic.ts
+  IMP-MB-CORE-006
+    title: Landing Center of Gravity Calculation
+    req:
+      - REQ-MB-008
+    files:
+      - frontend/src/core/logic/mass-balance.logic.ts
 
-IMP-MB-CORE-007
-  title: CG Migration Validation
-  req:
-    - REQ-MB-008
-  files:
-    - frontend/src/core/logic/mass-balance.logic.ts
+  IMP-MB-CORE-007
+    title: CG Migration Path Construction
+    req:
+      - REQ-MB-008
+    files:
+      - frontend/src/core/logic/mass-balance.logic.ts
 
-IMP-MB-CORE-008
-  title: CG Envelope Node Extraction
-  req:
-    - REQ-MB-006
-  files:
-    - frontend/src/core/logic/mass-balance.logic.ts
+  IMP-MB-CORE-008
+    title: Takeoff CG Envelope Check & Point-in-Polygon Validation
+    req:
+      - REQ-MB-004
+      - REQ-MB-006
+      - REQ-MB-011
+    files:
+      - frontend/src/core/logic/mass-balance.logic.ts
 
-IMP-MB-CORE-009
-  title: Point in Polygon Validation
-  req:
-    - REQ-MB-008
-  files:
-    - frontend/src/core/logic/mass-balance.logic.ts
+  IMP-MB-CORE-009
+    obsolete
 
-IMP-MB-CORE-010
-  title: CG Migration Validation
-  req:
-    - REQ-MB-011
-  files:
-    - frontend/src/core/logic/mass-balance.logic.ts
+  IMP-MB-CORE-010
+    title: Landing CG Migration Validation
+    req:
+      - REQ-MB-011
+    files:
+      - frontend/src/core/logic/mass-balance.logic.ts
 
-IMP-MB-CORE-011
-  title: Point in Polygon Calculation
-  req:
-    - REQ-MB-007
-  files:
-    - frontend/src/core/logic/mass-balance.logic.ts
+  IMP-MB-CORE-011
+    title: Point-in-Polygon Calculation (Ray Casting)
+    req:
+      - REQ-MB-007
+    files:
+      - frontend/src/core/logic/mb.envelope.ts
 
-IMP-MB-CORE-012
-  title: Linear Interpolation for Arm Lookup Tables
-  req:
-    - REQ-MB-012
-  files:
-    - frontend/src/core/logic/mass-balance.logic.ts
+  IMP-MB-CORE-012
+    title: Linear Interpolation for Arm Lookup Tables
+    req:
+      - REQ-MB-012
+    files:
+      - frontend/src/core/logic/mb.arm-lookup.ts
 
-IMP-MB-MODEL-001
-IMP-MB-API-001
-IMP-MB-UI-001
+MB Domain Types
+  IMP-MB-CORE-013
+    title: Mass & Balance Math Core Type Definitions
+    des:
+      - DES-ARCH-005
+    files:
+      - frontend/src/core/domain/mass-balance.math-types.ts
+
+MB Adapter Entry (delegation to core)
+  IMP-MB-CORE-014
+    title: Adapter Entry Point - Schema Validation and Core Delegation
+    req:
+      - REQ-MB-002
+    des:
+      - DES-ARCH-005
+    files:
+      - frontend/src/core/adapters/mass-balance.adapter.ts

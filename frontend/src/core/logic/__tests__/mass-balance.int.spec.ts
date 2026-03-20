@@ -38,7 +38,7 @@ type ArmLookupErrorScenario = {
 // ── Scenarios ─────────────────────────────────────────────────────────────────
 
 const armLookupScenarios: ArmLookupScenario[] = [
-  // @UT-MB-CORE-007@ (FROM: @IMP-MB-CORE-012@)
+  // @IT-MB-CORE-001@ (FROM: @IMP-MB-CORE-012@)
   {
     name: 'interpolation across payload and fuel stations',
     stations: [
@@ -64,7 +64,7 @@ const armLookupScenarios: ArmLookupScenario[] = [
     expectedTakeoffMass: 550,
     expectedTakeoffArm: 1.8788,
   },
-  // @UT-MB-CORE-008@ (FROM: @IMP-MB-CORE-012@)
+  // @IT-MB-CORE-002@ (FROM: @IMP-MB-CORE-012@)
   {
     name: 'zero fuel mass with lookup table',
     stations: [{ mass: 170 }, { mass: 10 }],
@@ -81,7 +81,7 @@ const armLookupScenarios: ArmLookupScenario[] = [
     expectedTakeoffMass: 613,
     expectedTakeoffArm: 1.86445,
   },
-  // @UT-MB-CORE-021@ (FROM: @IMP-MB-CORE-012@)
+  // @IT-MB-CORE-003@ (FROM: @IMP-MB-CORE-012@)
   {
     name: 'zero station mass with lookup starting at zero',
     stations: [
@@ -98,7 +98,7 @@ const armLookupScenarios: ArmLookupScenario[] = [
     expectedTakeoffMass: 433,
     expectedTakeoffArm: 1.877,
   },
-  // @UT-MB-CORE-022@ (FROM: @IMP-MB-CORE-012@)
+  // @IT-MB-CORE-004@ (FROM: @IMP-MB-CORE-012@)
   {
     name: 'zero station mass with lookup starting above zero',
     stations: [
@@ -115,7 +115,7 @@ const armLookupScenarios: ArmLookupScenario[] = [
     expectedTakeoffMass: 433,
     expectedTakeoffArm: 1.877,
   },
-  // @UT-MB-CORE-023@ (FROM: @IMP-MB-CORE-012@)
+  // @IT-MB-CORE-005@ (FROM: @IMP-MB-CORE-012@)
   {
     name: 'single lookup entry',
     stations: [{ mass: 50, arm: null, armLookup: [{ massOrVolume: 50, moment: 100 }] }],
@@ -123,7 +123,7 @@ const armLookupScenarios: ArmLookupScenario[] = [
     expectedTakeoffMass: 483,
     expectedTakeoffArm: 1.8897,
   },
-  // @UT-MB-CORE-024@ (FROM: @IMP-MB-CORE-012@)
+  // @IT-MB-CORE-006@ (FROM: @IMP-MB-CORE-012@)
   {
     name: 'unsorted lookup table',
     stations: [
@@ -141,7 +141,7 @@ const armLookupScenarios: ArmLookupScenario[] = [
     expectedTakeoffMass: 643,
     expectedTakeoffArm: 1.9172,
   },
-  // @UT-MB-CORE-025@ (FROM: @IMP-MB-CORE-012@)
+  // @IT-MB-CORE-007@ (FROM: @IMP-MB-CORE-012@)
   {
     name: 'extrapolation below lowest entry',
     stations: [
@@ -162,7 +162,7 @@ const armLookupScenarios: ArmLookupScenario[] = [
 ]
 
 const armLookupErrorScenarios: ArmLookupErrorScenario[] = [
-  // @UT-MB-CORE-009@ (FROM: @IMP-MB-CORE-012@)
+  // @IT-MB-CORE-008@ (FROM: @IMP-MB-CORE-012@)
   {
     name: 'NaN mass input',
     stations: [

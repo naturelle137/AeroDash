@@ -1,0 +1,133 @@
+SYS Core — Zod error to violation mapping (Unit)
+  UT-SYS-CORE-001
+    title: Uses empty path when issue.path is missing (defensive)
+    impl:
+      - IMP-SYS-CORE-002
+    files:
+      - frontend/src/core/adapters/mb.zod-violation-mapping.spec.ts
+
+  UT-SYS-CORE-002
+    title: Maps Zod path BASICEMPTYMASS to violation field BEM
+    impl:
+      - IMP-SYS-CORE-002
+    files:
+      - frontend/src/core/adapters/mb.zod-violation-mapping.spec.ts
+
+  UT-SYS-CORE-003
+    title: Maps Zod path MAXTAKEOFFMASS to violation field MTOM
+    impl:
+      - IMP-SYS-CORE-002
+    files:
+      - frontend/src/core/adapters/mb.zod-violation-mapping.spec.ts
+
+  UT-SYS-CORE-004
+    title: Maps Zod path MAXZEROFUELMASS to violation field MZFM
+    impl:
+      - IMP-SYS-CORE-002
+    files:
+      - frontend/src/core/adapters/mb.zod-violation-mapping.spec.ts
+
+  UT-SYS-CORE-005
+    title: Maps Zod path EMPTYCENTEROFGRAVITY to violation field EMPTY_CG
+    impl:
+      - IMP-SYS-CORE-002
+    files:
+      - frontend/src/core/adapters/mb.zod-violation-mapping.spec.ts
+
+  UT-SYS-CORE-006
+    title: Maps Zod path FUELSTATIONS to violation field FUEL_STATIONS
+    impl:
+      - IMP-SYS-CORE-002
+    files:
+      - frontend/src/core/adapters/mb.zod-violation-mapping.spec.ts
+
+  UT-SYS-CORE-007
+    title: Maps custom message REQUIRED to violation code REQUIRED
+    impl:
+      - IMP-SYS-CORE-002
+    files:
+      - frontend/src/core/adapters/mb.zod-violation-mapping.spec.ts
+
+  UT-SYS-CORE-008
+    title: Maps custom message NOT_A_NUMBER to violation code NOT_A_NUMBER
+    impl:
+      - IMP-SYS-CORE-002
+    files:
+      - frontend/src/core/adapters/mb.zod-violation-mapping.spec.ts
+
+  UT-SYS-CORE-009
+    title: Maps custom message NEGATIVE_VALUE to violation code NEGATIVE_VALUE
+    impl:
+      - IMP-SYS-CORE-002
+    files:
+      - frontend/src/core/adapters/mb.zod-violation-mapping.spec.ts
+
+  UT-SYS-CORE-010
+    title: Maps custom message NOT_ALLOWED to violation code NOT_ALLOWED
+    impl:
+      - IMP-SYS-CORE-002
+    files:
+      - frontend/src/core/adapters/mb.zod-violation-mapping.spec.ts
+
+  UT-SYS-CORE-011
+    title: Maps custom message OUT_OF_RANGE to violation code OUT_OF_RANGE
+    impl:
+      - IMP-SYS-CORE-002
+    files:
+      - frontend/src/core/adapters/mb.zod-violation-mapping.spec.ts
+
+  UT-SYS-CORE-012
+    title: Maps custom message TOO_MANY_ITEMS to violation code TOO_MANY_ITEMS
+    impl:
+      - IMP-SYS-CORE-002
+    files:
+      - frontend/src/core/adapters/mb.zod-violation-mapping.spec.ts
+
+  UT-SYS-CORE-013
+    title: Maps custom message DUPLICATE_INDEX to violation code DUPLICATE_INDEX
+    impl:
+      - IMP-SYS-CORE-002
+    files:
+      - frontend/src/core/adapters/mb.zod-violation-mapping.spec.ts
+
+  UT-SYS-CORE-014
+    title: Maps invalid_type received undefined to violation code REQUIRED
+    impl:
+      - IMP-SYS-CORE-002
+    files:
+      - frontend/src/core/adapters/mb.zod-violation-mapping.spec.ts
+
+  UT-SYS-CORE-015
+    title: Maps invalid_type received null to violation code REQUIRED
+    impl:
+      - IMP-SYS-CORE-002
+    files:
+      - frontend/src/core/adapters/mb.zod-violation-mapping.spec.ts
+
+  UT-SYS-CORE-016
+    title: Maps invalid_type custom message to violation code NOT_A_NUMBER
+    impl:
+      - IMP-SYS-CORE-002
+    files:
+      - frontend/src/core/adapters/mb.zod-violation-mapping.spec.ts
+
+  UT-SYS-CORE-017
+    title: Formats array path STATIONS[0].index as STATIONS[0].INDEX
+    impl:
+      - IMP-SYS-CORE-002
+    files:
+      - frontend/src/core/adapters/mb.zod-violation-mapping.spec.ts
+
+  UT-SYS-CORE-018
+    title: Formats nested path STATIONS[0].armLookup[0].massOrVolume
+    impl:
+      - IMP-SYS-CORE-002
+    files:
+      - frontend/src/core/adapters/mb.zod-violation-mapping.spec.ts
+
+  UT-SYS-CORE-019
+    title: Unknown Zod code and message still yield field STATIONS[0].INDEX
+    impl:
+      - IMP-SYS-CORE-002
+    files:
+      - frontend/src/core/adapters/mb.zod-violation-mapping.spec.ts

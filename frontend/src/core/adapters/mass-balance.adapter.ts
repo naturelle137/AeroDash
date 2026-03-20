@@ -1,8 +1,8 @@
 import { z } from 'zod'
-import type { MathCoreInput, MathCoreResult, Violation } from '../domain/mass-balance.math-types'
+import type { MathCoreInput, MathCoreResult } from '../domain/mass-balance.math-types'
 import { computeMassBalanceCore } from '../logic/mass-balance.logic'
+import { mapZodErrorToViolations } from './mb.zod-violation-mapping'
 
-// Basic schema building blocks
 const createNumReq = () => z.number()
 const createNumGt0Req = () => createNumReq().gt(0, { message: 'NEGATIVE_VALUE' })
 const createNumMin0Req = () => createNumReq().min(0, { message: 'NEGATIVE_VALUE' })
@@ -24,6 +24,7 @@ const EnvelopePointSchema = z.object({
   armOrMoment: createNumReq(),
 })
 
+// @IMP-AD-CORE-002@ (FROM: @REQ-AD-002@, @REQ-AD-003@, @REQ-AD-005@, @REQ-AD-012@, @DES-ARCH-002@)
 export const MathCoreInputSchema = z
   .object({
     stations: z
@@ -50,7 +51,7 @@ export const MathCoreInputSchema = z
     fuelStations: z
       .array(
         z.object({
-          index: createIndexReq(), // Nutzt die neue 0-19 Regel
+          index: createIndexReq(),
           mass: createNumMin0Req(),
           arm: createNumReq().nullable(),
           armLookup: z.array(ArmLookupEntrySchema).optional().default([]),
@@ -60,8 +61,8 @@ export const MathCoreInputSchema = z
       )
       .max(10, { message: 'TOO_MANY_ITEMS' }),
   })
+  // @IMP-AD-CORE-003@ (FROM: @REQ-AD-002@, @REQ-AD-003@, @REQ-AD-012@)
   .superRefine((data, ctx) => {
-    // 1. REQ-AD-002: Gesamtanzahl (beide Arrays zusammen) darf 20 nicht überschreiten
     const totalPoints = data.stations.length + data.fuelStations.length
     if (totalPoints > 20) {
       ctx.addIssue({
@@ -71,7 +72,6 @@ export const MathCoreInputSchema = z
       })
     }
 
-    // 2. REQ-AD-003: Eindeutige Indizes über BEIDE Arrays hinweg
     const seenIndices = new Set<number>()
 
     const checkAndAddIndex = (index: number, path: (string | number)[]) => {
@@ -102,10 +102,9 @@ export const MathCoreInputSchema = z
           path: [basePath, index, 'arm'],
         })
       } else if (hasArm && hasLookup) {
-        // Fehler 2: Beide sind da (Kollision!)
         ctx.addIssue({
           code: 'custom',
-          message: 'NOT_ALLOWED', // Wirft deinen existierenden Error-Code
+          message: 'NOT_ALLOWED',
           path: [basePath, index, 'arm'],
         })
       }
@@ -117,58 +116,12 @@ export const MathCoreInputSchema = z
     data.fuelStations.forEach((fs, i) => validateArmXor(fs, 'fuelStations', i))
   })
 
-const mapZodErrorToViolations = (error: z.ZodError): Violation[] => {
-  return error.issues.map((err) => {
-    const pArray = err.path || []
-    let fieldPath = pArray
-      .map((p) => {
-        if (typeof p === 'number') return `[${p}]`
-        return p.toString().toUpperCase()
-      })
-      .join('.')
-      .replace(/\.\[/g, '[')
-
-    fieldPath = fieldPath
-      .replace(/^BASICEMPTYMASS/, 'BEM')
-      .replace(/^MAXTAKEOFFMASS/, 'MTOM')
-      .replace(/^MAXZEROFUELMASS/, 'MZFM')
-      .replace(/^EMPTYCENTEROFGRAVITY/, 'EMPTY_CG')
-      .replace(/^FUELSTATIONS/, 'FUEL_STATIONS')
-
-    // Zod provides the message we set, else fallback
-    let code: Violation['code'] = 'REQUIRED'
-    if (
-      [
-        'REQUIRED',
-        'NOT_A_NUMBER',
-        'NEGATIVE_VALUE',
-        'NOT_ALLOWED',
-        'OUT_OF_RANGE',
-        'TOO_MANY_ITEMS',
-        'DUPLICATE_INDEX',
-      ].includes(err.message)
-    ) {
-      code = err.message as Violation['code']
-    } else if (err.code === 'invalid_type') {
-      const isMissing =
-        err.message.includes('received undefined') || err.message.includes('received null')
-      code = isMissing ? 'REQUIRED' : 'NOT_A_NUMBER'
-    }
-
-    return {
-      type: 'INVALID_INPUT',
-      severity: 'CRITICAL',
-      field: fieldPath,
-      code,
-    }
-  })
-}
-
 /**
  * Synchronously calculate mass, CG, and safety violations.
  * Adapter version with Zod schema validation.
  * @param input - Unvalidated raw input
  */
+// @IMP-MB-CORE-014@ (FROM: @REQ-MB-002@, @DES-ARCH-005@)
 export function calculateMassBalance(input: unknown): MathCoreResult {
   const result = MathCoreInputSchema.safeParse(input)
 
@@ -184,7 +137,6 @@ export function calculateMassBalance(input: unknown): MathCoreResult {
     }
   }
 
-  // If valid, delegate pure math to logic layer
   try {
     return computeMassBalanceCore(result.data as MathCoreInput)
   } catch (err) {

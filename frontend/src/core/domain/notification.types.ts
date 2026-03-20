@@ -5,7 +5,7 @@
  * @see docs/architecture/notification_schema.md
  */
 
-// @IMP-NOTIF-001@ (FROM: @DES-ARCH-001@)
+// @IMP-SYS-CORE-001@ (FROM: @DES-ARCH-001@)
 export type NotificationSeverity = 'INFO' | 'WARNING' | 'CRITICAL'
 
 export interface NotificationAction {

@@ -13,11 +13,12 @@ const RECTANGULAR_ENVELOPE: EnvelopePoint[] = [
 // ── Tests ──────────────────────────────────────────────────────────────────────
 
 describe('isCgWithinEnvelope', () => {
+  // @UT-MB-CORE-053@ (FROM: @IMP-MB-CORE-011@)
   it('returns true for CG point clearly inside envelope', () => {
     expect(isCgWithinEnvelope(1.877, 540, RECTANGULAR_ENVELOPE)).toBe(true)
   })
 
-  // @UT-MB-CORE-005@ (FROM: @IMP-MB-CORE-011@)
+  // @UT-MB-CORE-054@ (FROM: @IMP-MB-CORE-011@)
   it('returns false for CG arm beyond forward limit', () => {
     expect(
       isCgWithinEnvelope(1.857, 583, [
@@ -29,7 +30,7 @@ describe('isCgWithinEnvelope', () => {
     ).toBe(false)
   })
 
-  // @UT-MB-CORE-031@ (FROM: @IMP-MB-CORE-011@)
+  // @UT-MB-CORE-055@ (FROM: @IMP-MB-CORE-011@)
   // CG arm = (433×1.877 + 150×1.8) / 583 = 1.857188679245283
   it('returns true for CG arm exactly at forward limit', () => {
     expect(
@@ -42,12 +43,12 @@ describe('isCgWithinEnvelope', () => {
     ).toBe(true)
   })
 
-  // @UT-MB-CORE-032@ (FROM: @IMP-MB-CORE-011@)
+  // @UT-MB-CORE-056@ (FROM: @IMP-MB-CORE-011@)
   it('returns false for CG arm beyond aft limit', () => {
     expect(isCgWithinEnvelope(2.1, 540, RECTANGULAR_ENVELOPE)).toBe(false)
   })
 
-  // @UT-MB-CORE-033@ (FROM: @IMP-MB-CORE-011@)
+  // @UT-MB-CORE-057@ (FROM: @IMP-MB-CORE-011@)
   // CG arm = (433×1.877 + 200×2.417) / 633 ≈ 2.04761595 — just inside the aft boundary
   it('returns true for CG arm just inside the aft limit', () => {
     expect(
@@ -60,11 +61,12 @@ describe('isCgWithinEnvelope', () => {
     ).toBe(true)
   })
 
+  // @UT-MB-CORE-058@ (FROM: @IMP-MB-CORE-011@)
   it('returns false for CG mass above envelope top', () => {
     expect(isCgWithinEnvelope(1.877, 700, RECTANGULAR_ENVELOPE)).toBe(false)
   })
 
-  // @UT-MB-CORE-042@ (FROM: @IMP-MB-CORE-011@)
+  // @UT-MB-CORE-059@ (FROM: @IMP-MB-CORE-011@)
   it('accepts triangular envelope with minimum 3 vertices', () => {
     expect(
       isCgWithinEnvelope(1.877, 433, [
@@ -75,7 +77,7 @@ describe('isCgWithinEnvelope', () => {
     ).toBe(true)
   })
 
-  // @UT-MB-CORE-020@ (FROM: @IMP-MB-CORE-011@)
+  // @UT-MB-CORE-060@ (FROM: @IMP-MB-CORE-011@)
   it('throws for envelope with fewer than 3 vertices', () => {
     expect(() =>
       isCgWithinEnvelope(1.877, 433, [

@@ -1,0 +1,91 @@
+AD Core — mass-balance Zod input (Unit)
+  UT-AD-CORE-001
+    title: Verify input validation errors for missing required root fields
+    impl:
+      - IMP-AD-CORE-002
+    files:
+      - frontend/src/core/adapters/mass-balance.adapter.spec.ts
+
+  UT-AD-CORE-002
+    title: Verify input validation errors for missing array items
+    impl:
+      - IMP-AD-CORE-002
+    files:
+      - frontend/src/core/adapters/mass-balance.adapter.spec.ts
+
+  UT-AD-CORE-003
+    title: Verify input validation errors for missing nested array items
+    impl:
+      - IMP-AD-CORE-002
+    files:
+      - frontend/src/core/adapters/mass-balance.adapter.spec.ts
+
+  UT-AD-CORE-004
+    title: Verify input validation errors for invalid type root fields
+    impl:
+      - IMP-AD-CORE-002
+    files:
+      - frontend/src/core/adapters/mass-balance.adapter.spec.ts
+
+  UT-AD-CORE-005
+    title: Verify input validation errors for invalid type array fields
+    impl:
+      - IMP-AD-CORE-002
+    files:
+      - frontend/src/core/adapters/mass-balance.adapter.spec.ts
+
+  UT-AD-CORE-006
+    title: Verify input validation errors for negative root fields
+    impl:
+      - IMP-AD-CORE-002
+    files:
+      - frontend/src/core/adapters/mass-balance.adapter.spec.ts
+
+  UT-AD-CORE-007
+    title: Verify input validation errors for negative array fields
+    impl:
+      - IMP-AD-CORE-002
+    files:
+      - frontend/src/core/adapters/mass-balance.adapter.spec.ts
+
+  UT-AD-CORE-008
+    title: Verify TOO_MANY_ITEMS if combined stations and fuel stations exceed 20
+    impl:
+      - IMP-AD-CORE-003
+    files:
+      - frontend/src/core/adapters/mass-balance.adapter.spec.ts
+
+  UT-AD-CORE-009
+    title: Verify DUPLICATE_INDEX if an index is used multiple times across arrays
+    impl:
+      - IMP-AD-CORE-003
+    files:
+      - frontend/src/core/adapters/mass-balance.adapter.spec.ts
+
+  UT-AD-CORE-010
+    title: Verify REQUIRED if both arm and armLookup are missing (XOR)
+    impl:
+      - IMP-AD-CORE-003
+    files:
+      - frontend/src/core/adapters/mass-balance.adapter.spec.ts
+
+  UT-AD-CORE-011
+    title: Verify NOT_ALLOWED if both arm and armLookup are provided (XOR)
+    impl:
+      - IMP-AD-CORE-003
+    files:
+      - frontend/src/core/adapters/mass-balance.adapter.spec.ts
+
+  UT-AD-CORE-012
+    title: Verify OUT_OF_RANGE if station index is greater than 19
+    impl:
+      - IMP-AD-CORE-002
+    files:
+      - frontend/src/core/adapters/mass-balance.adapter.spec.ts
+
+  UT-AD-CORE-013
+    title: Verify NOT_ALLOWED if graphType enum is invalid
+    impl:
+      - IMP-AD-CORE-002
+    files:
+      - frontend/src/core/adapters/mass-balance.adapter.spec.ts

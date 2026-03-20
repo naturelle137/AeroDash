@@ -1,6 +1,6 @@
-MB Core
+MB Core Logic
   UT-MB-CORE-001
-    obsolete
+    deleted
 
   UT-MB-CORE-002
     title: Verify CG calculation for empty aircraft
@@ -30,7 +30,7 @@ MB Core
   UT-MB-CORE-005
     title: Verify CG out of envelope when CG exceeds forward limit
     impl:
-      - IMP-MB-CORE-009
+      - IMP-MB-CORE-008
       - IMP-MB-CORE-011
     files:
       - frontend/src/core/logic/mass-balance.logic.spec.ts
@@ -43,75 +43,8 @@ MB Core
     files:
       - frontend/src/core/logic/mass-balance.logic.spec.ts
 
-  UT-MB-CORE-007
-    title: Verify arm interpolation across payload and fuel lookup tables
-    impl:
-      - IMP-MB-CORE-012
-    files:
-      - frontend/src/core/logic/mass-balance.logic.spec.ts
-
-  UT-MB-CORE-008
-    title: Verify arm lookup with zero fuel mass
-    impl:
-      - IMP-MB-CORE-012
-    files:
-      - frontend/src/core/logic/mass-balance.logic.spec.ts
-
-  UT-MB-CORE-009
-    title: Verify armLookup throws on NaN mass input
-    impl:
-      - IMP-MB-CORE-012
-    files:
-      - frontend/src/core/logic/mass-balance.logic.spec.ts
-
-  UT-MB-CORE-010
-    title: Verify input validation errors for missing required fields
-    impl:
-      - IMP-MB-CORE-xxx
-    files:
-      - frontend/src/core/adapters/mass-balance.adapter.spec.ts
-
-  UT-MB-CORE-011
-    title: Verify input validation errors for missing array items
-    impl:
-      - IMP-MB-CORE-xxx
-    files:
-      - frontend/src/core/adapters/mass-balance.adapter.spec.ts
-
-  UT-MB-CORE-012
-    title: Verify input validation errors for missing nested array items
-    impl:
-      - IMP-MB-CORE-xxx
-    files:
-      - frontend/src/core/adapters/mass-balance.adapter.spec.ts
-
-  UT-MB-CORE-013
-    title: Verify input validation errors for invalid type root fields
-    impl:
-      - IMP-MB-CORE-xxx
-    files:
-      - frontend/src/core/adapters/mass-balance.adapter.spec.ts
-
-  UT-MB-CORE-014
-    title: Verify input validation errors for invalid type array fields
-    impl:
-      - IMP-MB-CORE-xxx
-    files:
-      - frontend/src/core/adapters/mass-balance.adapter.spec.ts
-
-  UT-MB-CORE-015
-    title: Verify input validation errors for negative root fields
-    impl:
-      - IMP-MB-CORE-xxx
-    files:
-      - frontend/src/core/adapters/mass-balance.adapter.spec.ts
-
-  UT-MB-CORE-016
-    title: Verify input validation errors for negative array fields
-    impl:
-      - IMP-MB-CORE-xxx
-    files:
-      - frontend/src/core/adapters/mass-balance.adapter.spec.ts
+  UT-MB-CORE-007 - UT-MB-CORE-016
+    deleted
 
   UT-MB-CORE-017
     title: Verify fuel station index shadows payload station with same index
@@ -131,7 +64,7 @@ MB Core
   UT-MB-CORE-019
     title: Verify graph type moment uses moment for envelope check
     impl:
-      - IMP-MB-CORE-009
+      - IMP-MB-CORE-008
     files:
       - frontend/src/core/logic/mass-balance.logic.spec.ts
 
@@ -142,40 +75,8 @@ MB Core
     files:
       - frontend/src/core/logic/mass-balance.logic.spec.ts
 
-  UT-MB-CORE-021
-    title: Verify lookupArm returns zero arm when station mass is zero with lookup starting at zero
-    impl:
-      - IMP-MB-CORE-012
-    files:
-      - frontend/src/core/logic/mass-balance.logic.spec.ts
-
-  UT-MB-CORE-022
-    title: Verify lookupArm returns zero arm when station mass is zero with lookup starting above zero
-    impl:
-      - IMP-MB-CORE-012
-    files:
-      - frontend/src/core/logic/mass-balance.logic.spec.ts
-
-  UT-MB-CORE-023
-    title: Verify lookupArm calculates arm from single lookup entry
-    impl:
-      - IMP-MB-CORE-012
-    files:
-      - frontend/src/core/logic/mass-balance.logic.spec.ts
-
-  UT-MB-CORE-024
-    title: Verify lookupArm sorts unsorted lookup table before interpolation
-    impl:
-      - IMP-MB-CORE-012
-    files:
-      - frontend/src/core/logic/mass-balance.logic.spec.ts
-
-  UT-MB-CORE-025
-    title: Verify lookupArm extrapolates below lowest lookup entry
-    impl:
-      - IMP-MB-CORE-012
-    files:
-      - frontend/src/core/logic/mass-balance.logic.spec.ts
+  UT-MB-CORE-021 - UT-MB-CORE-025
+    deleted
 
   UT-MB-CORE-026
     title: Verify CG calculation for forward aircraft loading
@@ -227,7 +128,7 @@ MB Core
   UT-MB-CORE-031
     title: Verify no CG violation when CG is exactly at forward envelope limit
     impl:
-      - IMP-MB-CORE-009
+      - IMP-MB-CORE-008
       - IMP-MB-CORE-011
     files:
       - frontend/src/core/logic/mass-balance.logic.spec.ts
@@ -235,7 +136,7 @@ MB Core
   UT-MB-CORE-032
     title: Verify CG out of envelope when CG exceeds aft limit
     impl:
-      - IMP-MB-CORE-009
+      - IMP-MB-CORE-008
       - IMP-MB-CORE-011
     files:
       - frontend/src/core/logic/mass-balance.logic.spec.ts
@@ -243,7 +144,7 @@ MB Core
   UT-MB-CORE-033
     title: Verify no CG violation when CG is exactly at aft envelope limit
     impl:
-      - IMP-MB-CORE-009
+      - IMP-MB-CORE-008
       - IMP-MB-CORE-011
     files:
       - frontend/src/core/logic/mass-balance.logic.spec.ts
@@ -318,3 +219,157 @@ MB Core
       - IMP-MB-CORE-011
     files:
       - frontend/src/core/logic/mass-balance.logic.spec.ts
+
+MB Core - Arm Lookup (Unit)
+  UT-MB-CORE-043
+    title: Verify arm interpolation at midpoint between two entries
+    impl:
+      - IMP-MB-CORE-012
+    files:
+      - frontend/src/core/logic/mb.arm-lookup.spec.ts
+
+  UT-MB-CORE-044
+    title: Verify arm at exact upper boundary entry
+    impl:
+      - IMP-MB-CORE-012
+    files:
+      - frontend/src/core/logic/mb.arm-lookup.spec.ts
+
+  UT-MB-CORE-045
+    title: Verify arm clamps to first entry for mass below lowest entry
+    impl:
+      - IMP-MB-CORE-012
+    files:
+      - frontend/src/core/logic/mb.arm-lookup.spec.ts
+
+  UT-MB-CORE-046
+    title: Verify arm clamps to last entry for mass above highest entry
+    impl:
+      - IMP-MB-CORE-012
+    files:
+      - frontend/src/core/logic/mb.arm-lookup.spec.ts
+
+  UT-MB-CORE-047
+    title: Verify arm of 0 for zero mass when lookup starts at zero
+    impl:
+      - IMP-MB-CORE-012
+    files:
+      - frontend/src/core/logic/mb.arm-lookup.spec.ts
+
+  UT-MB-CORE-048
+    title: Verify arm of lowest entry for zero mass when lookup starts above zero
+    impl:
+      - IMP-MB-CORE-012
+    files:
+      - frontend/src/core/logic/mb.arm-lookup.spec.ts
+
+  UT-MB-CORE-049
+    title: Verify arm lookup handles single entry lookup
+    impl:
+      - IMP-MB-CORE-012
+    files:
+      - frontend/src/core/logic/mb.arm-lookup.spec.ts
+
+  UT-MB-CORE-050
+    title: Verify arm lookup sorts unsorted entries before interpolating
+    impl:
+      - IMP-MB-CORE-012
+    files:
+      - frontend/src/core/logic/mb.arm-lookup.spec.ts
+
+  UT-MB-CORE-051
+    title: Verify arm lookup throws for empty lookup table
+    impl:
+      - IMP-MB-CORE-012
+    files:
+      - frontend/src/core/logic/mb.arm-lookup.spec.ts
+
+  UT-MB-CORE-052
+    title: Verify arm lookup throws for NaN mass input
+    impl:
+      - IMP-MB-CORE-012
+    files:
+      - frontend/src/core/logic/mb.arm-lookup.spec.ts
+
+MB Core - Envelope (Unit)
+  UT-MB-CORE-053
+    title: Verify isCgWithinEnvelope returns true for point inside envelope
+    impl:
+      - IMP-MB-CORE-011
+    files:
+      - frontend/src/core/logic/mb.envelope.spec.ts
+
+  UT-MB-CORE-054
+    title: Verify isCgWithinEnvelope returns false for CG arm beyond forward limit
+    impl:
+      - IMP-MB-CORE-011
+    files:
+      - frontend/src/core/logic/mb.envelope.spec.ts
+
+  UT-MB-CORE-055
+    title: Verify isCgWithinEnvelope returns true for CG arm exactly at forward limit
+    impl:
+      - IMP-MB-CORE-011
+    files:
+      - frontend/src/core/logic/mb.envelope.spec.ts
+
+  UT-MB-CORE-056
+    title: Verify isCgWithinEnvelope returns false for CG arm beyond aft limit
+    impl:
+      - IMP-MB-CORE-011
+    files:
+      - frontend/src/core/logic/mb.envelope.spec.ts
+
+  UT-MB-CORE-057
+    title: Verify isCgWithinEnvelope returns true for CG arm just inside aft limit
+    impl:
+      - IMP-MB-CORE-011
+    files:
+      - frontend/src/core/logic/mb.envelope.spec.ts
+
+  UT-MB-CORE-058
+    title: Verify isCgWithinEnvelope returns false for CG mass above envelope top
+    impl:
+      - IMP-MB-CORE-011
+    files:
+      - frontend/src/core/logic/mb.envelope.spec.ts
+
+  UT-MB-CORE-059
+    title: Verify isCgWithinEnvelope accepts triangular envelope with minimum 3 vertices
+    impl:
+      - IMP-MB-CORE-011
+    files:
+      - frontend/src/core/logic/mb.envelope.spec.ts
+
+  UT-MB-CORE-060
+    title: Verify isCgWithinEnvelope throws for envelope with fewer than 3 vertices
+    impl:
+      - IMP-MB-CORE-011
+    files:
+      - frontend/src/core/logic/mb.envelope.spec.ts
+
+  UT-MB-CORE-061 - UT-MB-CORE-067
+    deleted
+
+MB Core Logic - White Box
+  UT-MB-CORE-068
+    title: Verify station excluded from ZFM when matching fuel station index
+    impl:
+      - IMP-MB-CORE-001
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
+  UT-MB-CORE-069
+    title: Verify station included in ZFM when NOT matching fuel station index
+    impl:
+      - IMP-MB-CORE-001
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
+MB Adapter entry (Unit)
+  UT-MB-CORE-070
+    title: Verify core logic failure propagation and error logging
+    impl:
+      - IMP-MB-CORE-014
+    files:
+      - frontend/src/core/adapters/mass-balance.adapter.spec.ts

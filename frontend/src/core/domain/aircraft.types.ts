@@ -5,7 +5,7 @@
  * @see docs/architecture/aircraft_data_model.md
  */
 
-// @IMP-AD-001@ (FROM: @DES-ARCH-002@)
+// @IMP-AD-CORE-001@ (FROM: @DES-ARCH-002@)
 export interface EnvelopePoint {
   armOrMoment: number
   mass: number

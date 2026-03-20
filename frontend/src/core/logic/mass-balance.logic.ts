@@ -25,16 +25,26 @@ export function computeMassBalanceCore(input: MathCoreInput): MathCoreResult {
 
   // @IMP-MB-CORE-001@ (FROM: @REQ-MB-009@)
   for (const s of input.stations) {
-    const isFuel = input.fuelStations.some((fs) => fs.index === s.index)
-    if (!isFuel) {
-      const arm: number =
-        s.armLookup.length > 0 ? interpolateArmFromLookup(s.mass, s.armLookup) : (s.arm ?? 0)
-      zeroFuelMass += s.mass
-      zeroFuelMoment += s.mass * arm
+    if (s.armLookup.length === 0 && s.arm === null) {
+      throw new Error(
+        `CRITICAL DOMAIN ERROR: Station ${s.index} is missing both arm and armLookup.`,
+      )
     }
+
+    const arm: number =
+      s.armLookup.length > 0 ? interpolateArmFromLookup(s.mass, s.armLookup) : s.arm!
+    zeroFuelMass += s.mass
+    zeroFuelMoment += s.mass * arm
   }
+
+  if (zeroFuelMass <= 0) {
+    throw new Error(
+      'CRITICAL DOMAIN ERROR: zeroFuelMass is <= 0. Cannot compute center of gravity.',
+    )
+  }
+
   const zeroFuelCenterOfGravityPoint: CgPoint = {
-    arm: zeroFuelMass > 0 ? zeroFuelMoment / zeroFuelMass : 0,
+    arm: zeroFuelMoment / zeroFuelMass,
     mass: zeroFuelMass,
     moment: zeroFuelMoment,
   }
@@ -52,16 +62,22 @@ export function computeMassBalanceCore(input: MathCoreInput): MathCoreResult {
   let takeoffMoment = zeroFuelMoment
 
   for (const fs of input.fuelStations) {
+    if (fs.armLookup.length === 0 && fs.arm === null) {
+      throw new Error(
+        `CRITICAL DOMAIN ERROR: Fuel Station ${fs.index} is missing both arm and armLookup.`,
+      )
+    }
+
     const usableMass = Math.max(0, fs.mass - fs.unusableFuel)
     const arm: number =
-      fs.armLookup.length > 0 ? interpolateArmFromLookup(fs.mass, fs.armLookup) : (fs.arm ?? 0)
+      fs.armLookup.length > 0 ? interpolateArmFromLookup(fs.mass, fs.armLookup) : fs.arm!
     takeoffMass += usableMass
     takeoffMoment += usableMass * arm
   }
 
   // @IMP-MB-CORE-005@ (FROM: @REQ-MB-008@)
   const takeoffCenterOfGravityPoint: CgPoint = {
-    arm: takeoffMass > 0 ? takeoffMoment / takeoffMass : 0,
+    arm: takeoffMoment / takeoffMass,
     mass: takeoffMass,
     moment: takeoffMoment,
   }
@@ -82,7 +98,7 @@ export function computeMassBalanceCore(input: MathCoreInput): MathCoreResult {
 
   // @IMP-MB-CORE-006@ (FROM: @REQ-MB-008@)
   const landingCenterOfGravityPoint: CgPoint = {
-    arm: landingMass > 0 ? landingMoment / landingMass : 0,
+    arm: landingMoment / landingMass,
     mass: landingMass,
     moment: landingMoment,
   }
@@ -96,8 +112,7 @@ export function computeMassBalanceCore(input: MathCoreInput): MathCoreResult {
   // For the MVP, we just do a straight line Takeoff -> Landing.
   migrationPath.push({ ...landingCenterOfGravityPoint, label: 'Landing' })
 
-  // @IMP-MB-CORE-008@ (FROM: @REQ-MB-006@)
-  // @IMP-MB-CORE-009@ (FROM: @REQ-MB-004@, @REQ-MB-011@)
+  // @IMP-MB-CORE-008@ (FROM: @REQ-MB-006@, @REQ-MB-004@, @REQ-MB-011@)
   const takeoffX = input.graphType === 'arm' ? takeoffCenterOfGravityPoint.arm : takeoffMoment
   if (!isCgWithinEnvelope(takeoffX, takeoffCenterOfGravityPoint.mass, input.envelope)) {
     violations.push({

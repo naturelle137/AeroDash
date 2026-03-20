@@ -73,7 +73,7 @@ describe('M&B Zod Adapter', () => {
   //   // ['stations', 0, 'armLookup', 0, 'massOrVolume', 'STATIONS[0].ARMLOOKUP[0].MASSORVOLUME'],
   // ] as const
 
-  // @UT-MB-CORE-010@ (FROM:)
+  // @UT-AD-CORE-001@ (FROM: @IMP-AD-CORE-002@)
   it.each(missingRootFields)(
     'pushes a field error for missing root field %s input',
     (field, expectedPath) => {
@@ -103,7 +103,7 @@ describe('M&B Zod Adapter', () => {
     },
   )
 
-  // @UT-MB-CORE-011@
+  // @UT-AD-CORE-002@ (FROM: @IMP-AD-CORE-002@)
   it.each(missingArrayFields)(
     'pushes a field error for arrays with missing %s input',
     (arrayName, index, propName, expectedPath) => {
@@ -145,7 +145,7 @@ describe('M&B Zod Adapter', () => {
     },
   )
 
-  // @UT-MB-CORE-012@
+  // @UT-AD-CORE-003@ (FROM: @IMP-AD-CORE-002@)
   it.each(missingNestedArrayFields)(
     'pushes a field error for nested arrays with missing %s input',
     (arrayName, index, propName, expectedPath) => {
@@ -187,7 +187,7 @@ describe('M&B Zod Adapter', () => {
     },
   )
 
-  // @UT-MB-CORE-013@
+  // @UT-AD-CORE-004@ (FROM: @IMP-AD-CORE-002@)
   it.each(invalidTypeRootFields)(
     'pushes a field error if %s input is no number, NaN or infinite',
     (field, expectedPath) => {
@@ -235,7 +235,7 @@ describe('M&B Zod Adapter', () => {
     },
   )
 
-  // @UT-MB-CORE-014@
+  // @UT-AD-CORE-005@ (FROM: @IMP-AD-CORE-002@)
   it.each(invalidTypeArrayFields)(
     'pushes a field error for arrays if %s input is no number, NaN or infinite',
     (arrayName, index, propName, expectedPath) => {
@@ -299,7 +299,7 @@ describe('M&B Zod Adapter', () => {
     },
   )
 
-  // @UT-MB-CORE-015@
+  // @UT-AD-CORE-006@ (FROM: @IMP-AD-CORE-002@)
   it.each(negativeRootFields)(
     'pushes a field error for negative values when only positives are allowed in %s',
     (field, expectedPath) => {
@@ -316,7 +316,7 @@ describe('M&B Zod Adapter', () => {
     },
   )
 
-  // @UT-MB-CORE-016@
+  // @UT-AD-CORE-007@ (FROM: @IMP-AD-CORE-002@)
   it.each(negativeArrayFields)(
     'pushes a field error for arrays with negative %s input',
     (arrayName, index, propName, expectedPath) => {
@@ -347,6 +347,7 @@ describe('M&B Zod Adapter', () => {
     },
   )
 
+  // @UT-AD-CORE-008@ (FROM: @IMP-AD-CORE-003@)
   it('pushes TOO_MANY_ITEMS if combined stations and fuel stations exceed 20', () => {
     const input = createMathCoreInput()
 
@@ -373,6 +374,7 @@ describe('M&B Zod Adapter', () => {
     ).toBe(true)
   })
 
+  // @UT-AD-CORE-009@ (FROM: @IMP-AD-CORE-003@)
   it('pushes DUPLICATE_INDEX if an index is used multiple times across stations and fuelStations', () => {
     const input = createMathCoreInput()
 
@@ -385,6 +387,7 @@ describe('M&B Zod Adapter', () => {
     expect(result.violations.some((v) => v.code === 'DUPLICATE_INDEX')).toBe(true)
   })
 
+  // @UT-AD-CORE-010@ (FROM: @IMP-AD-CORE-003@)
   it('pushes REQUIRED if both arm and armLookup are missing for a station (XOR)', () => {
     const input = createMathCoreInput()
 
@@ -398,6 +401,7 @@ describe('M&B Zod Adapter', () => {
     ).toBe(true)
   })
 
+  // @UT-AD-CORE-011@ (FROM: @IMP-AD-CORE-003@)
   it('pushes NOT_ALLOWED if both arm and armLookup are provided for a station (XOR)', () => {
     const input = createMathCoreInput()
 
@@ -411,6 +415,7 @@ describe('M&B Zod Adapter', () => {
     ).toBe(true)
   })
 
+  // @UT-AD-CORE-012@ (FROM: @IMP-AD-CORE-002@)
   it('pushes OUT_OF_RANGE if an index is greater than 19', () => {
     const input = createMathCoreInput()
     input.stations[0]!.index = 25
@@ -422,6 +427,7 @@ describe('M&B Zod Adapter', () => {
     ).toBe(true)
   })
 
+  // @UT-AD-CORE-013@ (FROM: @IMP-AD-CORE-002@)
   it('pushes NOT_ALLOWED if graphType enum is invalid', () => {
     const input = createMathCoreInput() as unknown as Record<string, unknown>
     input.graphType = 'invalid_string'
@@ -433,6 +439,7 @@ describe('M&B Zod Adapter', () => {
     )
   })
 
+  // @UT-MB-CORE-070@ (FROM: @IMP-MB-CORE-014@)
   it('throws an error and logs if the core logic fails unexpectedly', () => {
     const input = createMathCoreInput()
 

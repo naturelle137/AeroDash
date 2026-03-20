@@ -1,0 +1,28 @@
+AD Core (domain + mass-balance input schema)
+  IMP-AD-CORE-001
+    title: Aircraft Data Model Type Definitions
+    des:
+      - DES-ARCH-002
+    files:
+      - frontend/src/core/domain/aircraft.types.ts
+
+  IMP-AD-CORE-002
+    title: Zod Input Schema Definition (Stations, Fuel, Envelope, Scalars)
+    req:
+      - REQ-AD-002
+      - REQ-AD-003
+      - REQ-AD-005
+      - REQ-AD-012
+    des:
+      - DES-ARCH-002
+    files:
+      - frontend/src/core/adapters/mass-balance.adapter.ts
+
+  IMP-AD-CORE-003
+    title: Cross-Field Validation (Total Count, Unique Index, Arm XOR)
+    req:
+      - REQ-AD-002
+      - REQ-AD-003
+      - REQ-AD-012
+    files:
+      - frontend/src/core/adapters/mass-balance.adapter.ts

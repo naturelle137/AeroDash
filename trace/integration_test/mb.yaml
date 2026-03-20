@@ -1,0 +1,56 @@
+MB Core - Arm Lookup Integration via computeMassBalanceCore
+  IT-MB-CORE-001
+    title: Verify arm interpolation across payload and fuel stations via core
+    impl:
+      - IMP-MB-CORE-012
+    files:
+      - frontend/src/core/logic/__tests__/mass-balance.int.spec.ts
+
+  IT-MB-CORE-002
+    title: Verify zero fuel mass with lookup table via core
+    impl:
+      - IMP-MB-CORE-012
+    files:
+      - frontend/src/core/logic/__tests__/mass-balance.int.spec.ts
+
+  IT-MB-CORE-003
+    title: Verify zero station mass with lookup starting at zero via core
+    impl:
+      - IMP-MB-CORE-012
+    files:
+      - frontend/src/core/logic/__tests__/mass-balance.int.spec.ts
+
+  IT-MB-CORE-004
+    title: Verify zero station mass with lookup starting above zero via core
+    impl:
+      - IMP-MB-CORE-012
+    files:
+      - frontend/src/core/logic/__tests__/mass-balance.int.spec.ts
+
+  IT-MB-CORE-005
+    title: Verify single lookup entry via core
+    impl:
+      - IMP-MB-CORE-012
+    files:
+      - frontend/src/core/logic/__tests__/mass-balance.int.spec.ts
+
+  IT-MB-CORE-006
+    title: Verify unsorted lookup table via core
+    impl:
+      - IMP-MB-CORE-012
+    files:
+      - frontend/src/core/logic/__tests__/mass-balance.int.spec.ts
+
+  IT-MB-CORE-007
+    title: Verify extrapolation below lowest entry via core
+    impl:
+      - IMP-MB-CORE-012
+    files:
+      - frontend/src/core/logic/__tests__/mass-balance.int.spec.ts
+
+  IT-MB-CORE-008
+    title: Verify NaN mass input throws via core
+    impl:
+      - IMP-MB-CORE-012
+    files:
+      - frontend/src/core/logic/__tests__/mass-balance.int.spec.ts

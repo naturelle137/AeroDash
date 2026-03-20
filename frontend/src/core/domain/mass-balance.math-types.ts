@@ -5,7 +5,7 @@
 
 import type { EnvelopePoint, ArmLookupEntry, BurnSequenceEntry } from './aircraft.types'
 
-// @IMP-MATH-001@ (FROM: @DES-ARCH-005@)
+// @IMP-MB-CORE-013@ (FROM: @DES-ARCH-005@)
 /** Raw safety violation emitted by the math core to keep isolation from notification bus. */
 export interface Violation {
   type:

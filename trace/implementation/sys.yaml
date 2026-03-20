@@ -1,0 +1,16 @@
+SYS Core
+  IMP-SYS-CORE-001
+    title: Global Notification System Type Definitions
+    des:
+      - DES-ARCH-001
+    files:
+      - frontend/src/core/domain/notification.types.ts
+
+  IMP-SYS-CORE-002
+    title: Zod Error to Violation Mapping
+    req:
+      - REQ-SYS-008
+    des:
+      - DES-ARCH-001
+    files:
+      - frontend/src/core/adapters/mb.zod-violation-mapping.ts
