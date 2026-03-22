@@ -36,7 +36,6 @@ export const mapZodErrorToViolations = (error: z.ZodError): Violation[] => {
     } else if (err.code === 'invalid_type') {
       const isMissing =
         err.message.includes('received undefined') || err.message.includes('received null')
-      console.log('isMissing', isMissing)
       code = isMissing ? 'REQUIRED' : 'NOT_A_NUMBER'
     }
 
