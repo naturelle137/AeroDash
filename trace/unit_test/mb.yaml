@@ -54,12 +54,7 @@ MB Core Logic
       - frontend/src/core/logic/mass-balance.logic.spec.ts
 
   UT-MB-CORE-018
-    title: Verify zero BEM produces zero CG for takeoff and landing
-    impl:
-      - IMP-MB-CORE-005
-      - IMP-MB-CORE-006
-    files:
-      - frontend/src/core/logic/mass-balance.logic.spec.ts
+    deleted
 
   UT-MB-CORE-019
     title: Verify graph type moment uses moment for envelope check
@@ -220,6 +215,13 @@ MB Core Logic
     files:
       - frontend/src/core/logic/mass-balance.logic.spec.ts
 
+  UT-MB-CORE-079
+    title: Verify graph type moment uses moment for landing CG migration check
+    impl:
+      - IMP-MB-CORE-010
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
 MB Core - Arm Lookup (Unit)
   UT-MB-CORE-043
     title: Verify arm interpolation at midpoint between two entries
@@ -361,6 +363,83 @@ MB Core Logic - White Box
 
   UT-MB-CORE-069
     title: Verify station included in ZFM when NOT matching fuel station index
+    impl:
+      - IMP-MB-CORE-001
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
+  UT-MB-CORE-071
+    title: Verify computation throws when station lacks both arm and armLookup
+    impl:
+      - IMP-MB-CORE-001
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
+  UT-MB-CORE-072
+    title: Verify computation throws when fuel station lacks both arm and armLookup
+    impl:
+      - IMP-MB-CORE-002
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
+  UT-MB-CORE-073
+    title: Verify fuel station arm is used when arm is provided
+    impl:
+      - IMP-MB-CORE-002
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
+  UT-MB-CORE-074
+    title: Verify fuel station arm lookup is used when arm lookup is provided
+    impl:
+      - IMP-MB-CORE-002
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
+  UT-MB-CORE-075
+    title: Verify fuel station arm lookup takes precedence when both arm and lookup are provided
+    impl:
+      - IMP-MB-CORE-002
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
+  UT-MB-CORE-076
+    title: Verify station arm is used when arm is provided
+    impl:
+      - IMP-MB-CORE-001
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
+  UT-MB-CORE-077
+    title: Verify station arm lookup is used when arm lookup is provided
+    impl:
+      - IMP-MB-CORE-001
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
+  UT-MB-CORE-078
+    title: Verify station arm lookup takes precedence when both arm and lookup are provided
+    impl:
+      - IMP-MB-CORE-001
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
+  UT-MB-CORE-080
+    title: Verify computation throws when zero fuel mass is exactly zero
+    impl:
+      - IMP-MB-CORE-002
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
+  UT-MB-CORE-081
+    title: Verify computation throws when zero fuel mass is negative
+    impl:
+      - IMP-MB-CORE-002
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
+  UT-MB-CORE-082
+    title: Verify fuel mass is not included in zero fuel mass calculation
     impl:
       - IMP-MB-CORE-001
     files:

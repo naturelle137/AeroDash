@@ -65,14 +65,6 @@ describe('M&B Zod Adapter', () => {
     ['envelope', 0, 'armOrMoment', 'ENVELOPE[0].ARMORMOMENT'],
   ] as const
 
-  // // Test Goal: testing default empty arrays
-  // const invalidTypeNestedArrayFields = [
-  //   ['envelope', 0, 'mass', 'ENVELOPE[0].MASS'],
-  //   ['envelope', 0, 'armOrMoment', 'ENVELOPE[0].ARMORMOMENT'],
-  //   // Example for lower structures (needing different test setup):
-  //   // ['stations', 0, 'armLookup', 0, 'massOrVolume', 'STATIONS[0].ARMLOOKUP[0].MASSORVOLUME'],
-  // ] as const
-
   // @UT-AD-CORE-001@ (FROM: @IMP-AD-CORE-002@)
   it.each(missingRootFields)(
     'pushes a field error for missing root field %s input',
@@ -351,7 +343,6 @@ describe('M&B Zod Adapter', () => {
   it('pushes TOO_MANY_ITEMS if combined stations and fuel stations exceed 20', () => {
     const input = createMathCoreInput()
 
-    // Wir erzeugen 15 normale Stationen und 6 Fuel-Stations (Total = 21)
     input.stations = Array.from({ length: 15 }, (_, i) => ({
       index: i,
       mass: 10,
@@ -378,7 +369,6 @@ describe('M&B Zod Adapter', () => {
   it('pushes DUPLICATE_INDEX if an index is used multiple times across stations and fuelStations', () => {
     const input = createMathCoreInput()
 
-    // Wir erzwingen eine Kollision: Beide bekommen Index 0
     input.stations[0]!.index = 0
     input.fuelStations[0]!.index = 0
 
@@ -392,7 +382,7 @@ describe('M&B Zod Adapter', () => {
     const input = createMathCoreInput()
 
     input.stations[0]!.arm = null
-    input.stations[0]!.armLookup = [] // Beide leer
+    input.stations[0]!.armLookup = []
 
     const result = calculateMassBalance(input)
 
@@ -443,7 +433,6 @@ describe('M&B Zod Adapter', () => {
   it('throws an error and logs if the core logic fails unexpectedly', () => {
     const input = createMathCoreInput()
 
-    // Wir zwingen die Kernlogik dazu, einen Fehler zu werfen
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
     vi.spyOn(logic, 'computeMassBalanceCore').mockImplementationOnce(() => {
       throw new Error('Fatal Core Failure')

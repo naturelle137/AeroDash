@@ -655,7 +655,7 @@ describe('Mass & Balance Math-Core Logic', () => {
       expect(result.zeroFuelCenterOfGravityPoint.mass).toBe(input.basicEmptyMass + 100)
     })
 
-    // @UT-MB-CORE-069@ (FROM: @IMP-MB-CORE-001@)
+    // @UT-MB-CORE-082@ (FROM: @IMP-MB-CORE-001@)
     it('does not include fuel mass in zero fuel mass', () => {
       const input = createMathCoreInput()
       input.stations = []
@@ -727,7 +727,7 @@ describe('Mass & Balance Math-Core Logic', () => {
       expect(result.zeroFuelCenterOfGravityPoint.arm).toBeCloseTo(expectedZeroFuelCg, CG_PRECISION)
     })
 
-    // @UT-MB-CORE-072@ (FROM: @IMP-MB-CORE-002)
+    // @UT-MB-CORE-072@ (FROM: @IMP-MB-CORE-002@)
     it('throws an error if neither arm nor armLookup for the fuel station are provided', () => {
       const input = createMathCoreInput()
       input.fuelStations = [
@@ -805,6 +805,7 @@ describe('Mass & Balance Math-Core Logic', () => {
       expect(result.takeoffCenterOfGravityPoint.arm).toBeCloseTo(expectedTakeoffCg, CG_PRECISION)
     })
 
+    // @UT-MB-CORE-080@ (FROM: @IMP-MB-CORE-002@)
     it('throws an error if zeroFuelMass is exactly 0', () => {
       const input = createMathCoreInput()
       input.stations = [{ index: 0, mass: -433, arm: 2.0, armLookup: [] }]
@@ -814,6 +815,7 @@ describe('Mass & Balance Math-Core Logic', () => {
       )
     })
 
+    // @UT-MB-CORE-081@ (FROM: @IMP-MB-CORE-002@)
     it('throws an error if zeroFuelMass is smaller than 0', () => {
       const input = createMathCoreInput()
       input.stations = [{ index: 0, mass: -435, arm: 2.0, armLookup: [] }]
