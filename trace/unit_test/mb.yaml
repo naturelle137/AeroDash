@@ -452,3 +452,409 @@ MB Adapter entry (Unit)
       - IMP-MB-CORE-014
     files:
       - frontend/src/core/adapters/mass-balance.adapter.spec.ts
+
+MB Store - Initialization
+  UT-MB-STORE-001
+    title: Verify store starts in INITIAL state with null aircraft
+    impl:
+      - IMP-MB-STORE-012
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+MB Store - loadProfile
+  UT-MB-STORE-002
+    title: Verify transition to UNCONFIGURED after loading profile with zero-weight mandatory stations
+    impl:
+      - IMP-MB-STORE-005
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-003
+    title: Verify station inputs are initialized from load point definitions
+    impl:
+      - IMP-MB-STORE-005
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-004
+    title: Verify default to first certification category
+    impl:
+      - IMP-MB-STORE-005
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-005
+    title: Verify activeCategory null when no certification categories exist
+    impl:
+      - IMP-MB-STORE-005
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-006
+    title: Verify revert to INITIAL on corrupted profile (§4.1)
+    impl:
+      - IMP-MB-STORE-005
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-007
+    title: Verify initial calculation runs on profile load
+    impl:
+      - IMP-MB-STORE-005
+      - IMP-MB-STORE-013
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+MB Store - updateStationWeight
+  UT-MB-STORE-008
+    title: Verify transition to UNVERIFIED after mandatory fields populated
+    impl:
+      - IMP-MB-STORE-006
+      - IMP-MB-STORE-012
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-009
+    title: Verify no-op for invalid station index
+    impl:
+      - IMP-MB-STORE-006
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-010
+    title: Verify recalculation triggered after weight change
+    impl:
+      - IMP-MB-STORE-006
+      - IMP-MB-STORE-013
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+MB Store - changeCertificationCategory
+  UT-MB-STORE-011
+    title: Verify category change triggers recalculation
+    impl:
+      - IMP-MB-STORE-007
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-012
+    title: Verify no-op for non-existent category
+    impl:
+      - IMP-MB-STORE-007
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-013
+    title: Verify no-op when no aircraft loaded
+    impl:
+      - IMP-MB-STORE-007
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+MB Store - markFieldVerified / markAllVerified
+  UT-MB-STORE-014
+    title: Verify single field verified
+    impl:
+      - IMP-MB-STORE-008
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-015
+    title: Verify no-op for invalid station index on markFieldVerified
+    impl:
+      - IMP-MB-STORE-008
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-016
+    title: Verify transition to VERIFIED_SAFE after markAllVerified with mandatory populated
+    impl:
+      - IMP-MB-STORE-009
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-017
+    title: Verify markAllVerified only affects available stations (category filtering)
+    impl:
+      - IMP-MB-STORE-009
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+MB Store - resetPayload
+  UT-MB-STORE-018
+    title: Verify reset clears all weights, verification, notifications, and lastResult
+    impl:
+      - IMP-MB-STORE-010
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+MB Store - _runCalculation
+  UT-MB-STORE-019
+    title: Verify results cleared when no active category definition
+    impl:
+      - IMP-MB-STORE-013
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-020
+    title: Verify results cleared when no weighing reports exist
+    impl:
+      - IMP-MB-STORE-013
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-021
+    title: Verify most recent weighing report selected by validFrom
+    impl:
+      - IMP-MB-STORE-013
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+MB Store - Notification Mapping
+  UT-MB-STORE-022
+    title: Verify MTOM_EXCEEDED maps to CRIT-MB-002 notification
+    impl:
+      - IMP-MB-STORE-011
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-023
+    title: Verify MZFM_EXCEEDED maps to CRIT-MB-004 notification
+    impl:
+      - IMP-MB-STORE-011
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-024
+    title: Verify CG_OUT_OF_ENVELOPE maps to CRIT-MB-001 notification
+    impl:
+      - IMP-MB-STORE-011
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-025
+    title: Verify CG_MIGRATION_EXCEEDED maps to CRIT-MB-003 notification
+    impl:
+      - IMP-MB-STORE-011
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-026
+    title: Verify STATION_LIMIT_EXCEEDED maps to WARN-MB-005 warning
+    impl:
+      - IMP-MB-STORE-011
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-027
+    title: Verify STATION_LIMIT_EXCEEDED without stationIndex gracefully
+    impl:
+      - IMP-MB-STORE-011
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-028
+    title: Verify unknown violation type maps to default WARNING
+    impl:
+      - IMP-MB-STORE-011
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+MB Store - evaluateState (State Machine)
+  UT-MB-STORE-029
+    title: Verify INITIAL when no aircraft loaded
+    impl:
+      - IMP-MB-STORE-012
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-030
+    title: Verify UNCONFIGURED when mandatory fields missing
+    impl:
+      - IMP-MB-STORE-012
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-031
+    title: Verify ERROR_CRITICAL when critical notifications present
+    impl:
+      - IMP-MB-STORE-012
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-032
+    title: Verify WARNING when only warning notifications present
+    impl:
+      - IMP-MB-STORE-012
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-033
+    title: Verify UNVERIFIED when mandatory populated but not verified
+    impl:
+      - IMP-MB-STORE-012
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-034
+    title: Verify VERIFIED_SAFE when all verified and no violations
+    impl:
+      - IMP-MB-STORE-012
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-035
+    title: Verify ERROR_CRITICAL takes priority over WARNING
+    impl:
+      - IMP-MB-STORE-012
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+MB Store - Getters
+  UT-MB-STORE-036
+    title: Verify activeCategoryDef null when no aircraft loaded
+    impl:
+      - IMP-MB-STORE-003
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-037
+    title: Verify activeCategoryDef null when activeCategory null
+    impl:
+      - IMP-MB-STORE-003
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-038
+    title: Verify activeCategoryDef returns matching category (not first)
+    impl:
+      - IMP-MB-STORE-003
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-039
+    title: Verify availableStations empty when no aircraft loaded
+    impl:
+      - IMP-MB-STORE-004
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-040
+    title: Verify availableStations filters by active category
+    impl:
+      - IMP-MB-STORE-004
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-041
+    title: Verify availableStations includes stations with null allowableCategories
+    impl:
+      - IMP-MB-STORE-004
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-042
+    title: Verify availableStations includes all stations in Normal category
+    impl:
+      - IMP-MB-STORE-004
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+MB Store - Full Lifecycle Transitions
+  UT-MB-STORE-043
+    title: Verify full lifecycle INITIAL → UNCONFIGURED → UNVERIFIED → VERIFIED_SAFE → UNCONFIGURED
+    impl:
+      - IMP-MB-STORE-005
+      - IMP-MB-STORE-006
+      - IMP-MB-STORE-009
+      - IMP-MB-STORE-010
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-044
+    title: Verify VERIFIED_SAFE → ERROR_CRITICAL on violation appearance
+    impl:
+      - IMP-MB-STORE-012
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-045
+    title: Verify ERROR_CRITICAL → UNVERIFIED when violation clears
+    impl:
+      - IMP-MB-STORE-012
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-046
+    title: Verify UNVERIFIED → UNCONFIGURED when mandatory field cleared
+    impl:
+      - IMP-MB-STORE-006
+      - IMP-MB-STORE-012
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-047
+    title: Verify category change resets verification
+    impl:
+      - IMP-MB-STORE-007
+      - IMP-MB-STORE-012
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+MB Store - Input Assembly
+  UT-MB-STORE-048
+    title: Verify correct math-core input assembly from store state
+    impl:
+      - IMP-MB-STORE-013
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-049
+    title: Verify fuel stations separated from payload stations in math input
+    impl:
+      - IMP-MB-STORE-013
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-050
+    title: Verify lastResult stored from calculation
+    impl:
+      - IMP-MB-STORE-013
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+MB Store - Mutant-Killing Boundary Tests
+  UT-MB-STORE-051
+    title: Verify availableStations empty when aircraft loaded but activeCategory null
+    impl:
+      - IMP-MB-STORE-004
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-052
+    title: Verify allMandatoryFieldsPopulated false when only some mandatory have weight
+    impl:
+      - IMP-MB-STORE-004
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-053
+    title: Verify allFieldsVerified false when only some stations verified
+    impl:
+      - IMP-MB-STORE-004
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-054
+    title: Verify hasWarningNotification false when only CRITICAL notifications
+    impl:
+      - IMP-MB-STORE-012
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-055
+    title: Verify hasCriticalNotification false when only WARNING notifications
+    impl:
+      - IMP-MB-STORE-012
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts

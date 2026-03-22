@@ -34,7 +34,7 @@ export interface LoadPointDefinition {
   operationalLimit: number | null
   defaultQuantity: number
   unit: string
-  allowableCategories: 'Normal' | 'Utility' | 'Aerobatic'
+  allowableCategories: ('Normal' | 'Utility' | 'Aerobatic')[] | null
   fuelTank: FuelTankDefinition | null
 }
 

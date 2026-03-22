@@ -1,9 +1,36 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import { useMassBalanceStore } from '../mass-balance.store'
 import type { AircraftContext } from '@/core/domain/aircraft.types'
+import type { MathCoreResult, Violation } from '@/core/domain/mass-balance.math-types'
 
-// Mocking aircraft context for testing
+vi.mock('@/core/adapters/mass-balance.adapter', () => ({
+  calculateMassBalance: vi.fn(),
+}))
+
+import { calculateMassBalance } from '@/core/adapters/mass-balance.adapter'
+
+const mockedCalculate = vi.mocked(calculateMassBalance)
+
+function buildSuccessResult(overrides: Partial<MathCoreResult> = {}): MathCoreResult {
+  return {
+    success: true,
+    violations: [],
+    zeroFuelCenterOfGravityPoint: { arm: 1.9, mass: 500, moment: 950 },
+    takeoffCenterOfGravityPoint: { arm: 1.91, mass: 530, moment: 1012.3 },
+    landingCenterOfGravityPoint: { arm: 1.9, mass: 500, moment: 950 },
+    migrationPath: [
+      { arm: 1.91, mass: 530, label: 'Takeoff' },
+      { arm: 1.9, mass: 500, label: 'Landing' },
+    ],
+    ...overrides,
+  }
+}
+
+function buildViolationResult(violations: Violation[]): MathCoreResult {
+  return buildSuccessResult({ violations })
+}
+
 const mockProfile: AircraftContext = {
   id: 'tecnam-p2008',
   registration: 'D-ELUX',
@@ -26,7 +53,7 @@ const mockProfile: AircraftContext = {
       operationalLimit: 200,
       defaultQuantity: 0,
       unit: 'kg',
-      allowableCategories: 'Normal',
+      allowableCategories: ['Normal'],
       fuelTank: null,
     },
     {
@@ -36,7 +63,7 @@ const mockProfile: AircraftContext = {
       operationalLimit: 75,
       defaultQuantity: 0,
       unit: 'kg',
-      allowableCategories: 'Normal',
+      allowableCategories: ['Normal'],
       fuelTank: {
         unusableFuel: 3,
         permissibleFuelTypes: ['MOGAS', 'AVGAS'],
@@ -60,96 +87,774 @@ const mockProfile: AircraftContext = {
   ],
 }
 
+const multiCatProfile: AircraftContext = {
+  ...mockProfile,
+  id: 'klemm-107b',
+  loadPoints: [
+    {
+      name: 'Front Seats',
+      arm: 1.5,
+      armLookup: [],
+      operationalLimit: 170,
+      defaultQuantity: 0,
+      unit: 'kg',
+      allowableCategories: null,
+      fuelTank: null,
+    },
+    {
+      name: 'Rear Seats',
+      arm: 2.4,
+      armLookup: [],
+      operationalLimit: 170,
+      defaultQuantity: 0,
+      unit: 'kg',
+      allowableCategories: ['Normal', 'Utility'],
+      fuelTank: null,
+    },
+    {
+      name: 'Fuel',
+      arm: 1.9,
+      armLookup: [],
+      operationalLimit: 60,
+      defaultQuantity: 0,
+      unit: 'kg',
+      allowableCategories: null,
+      fuelTank: {
+        unusableFuel: 2,
+        permissibleFuelTypes: ['AVGAS'],
+        burnSequences: [],
+      },
+    },
+  ],
+  certificationCategories: [
+    {
+      category: 'Normal',
+      maxTakeoffMass: 700,
+      maxZeroFuelMass: 650,
+      graphType: 'arm',
+      envelope: [
+        { armOrMoment: 1.6, mass: 400 },
+        { armOrMoment: 1.6, mass: 700 },
+        { armOrMoment: 2.1, mass: 700 },
+        { armOrMoment: 2.1, mass: 400 },
+      ],
+    },
+    {
+      category: 'Aerobatic',
+      maxTakeoffMass: 600,
+      maxZeroFuelMass: null,
+      graphType: 'arm',
+      envelope: [
+        { armOrMoment: 1.6, mass: 400 },
+        { armOrMoment: 1.6, mass: 600 },
+        { armOrMoment: 1.9, mass: 600 },
+        { armOrMoment: 1.9, mass: 400 },
+      ],
+    },
+  ],
+}
+
 describe('MassBalance Store', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
+    vi.clearAllMocks()
+    mockedCalculate.mockReturnValue(buildSuccessResult())
   })
 
-  // @UT-UI-007@ (FROM: @IMP-UI-007@)
-  it('starts in INITIAL state', () => {
+  // ─── Initialization ───────────────────────────────────────────────────
+
+  // @UT-MB-STORE-001@ (FROM: @IMP-MB-STORE-012@)
+  it('starts in INITIAL state with null aircraft', () => {
     const store = useMassBalanceStore()
     expect(store.uiState).toBe('INITIAL')
+    expect(store.aircraft).toBeNull()
+    expect(store.activeCategory).toBeNull()
+    expect(store.stations).toEqual([])
+    expect(store.notifications).toEqual([])
+    expect(store.lastResult).toBeNull()
   })
 
-  it('transitions to UNCONFIGURED after loading profile with zero weights', () => {
+  // ─── loadProfile ──────────────────────────────────────────────────────
+
+  // @UT-MB-STORE-002@ (FROM: @IMP-MB-STORE-005@)
+  it('transitions to UNCONFIGURED after loading profile with zero-weight mandatory stations', () => {
     const store = useMassBalanceStore()
     store.loadProfile(mockProfile)
+
+    expect(store.aircraft).toStrictEqual(mockProfile)
+    expect(store.activeCategory).toBe('Normal')
+    expect(store.stations).toHaveLength(2)
     expect(store.uiState).toBe('UNCONFIGURED')
     expect(store.allMandatoryFieldsPopulated).toBe(false)
   })
 
+  // @UT-MB-STORE-003@ (FROM: @IMP-MB-STORE-005@)
+  it('initializes station inputs from load point definitions', () => {
+    const store = useMassBalanceStore()
+    store.loadProfile(mockProfile)
+
+    expect(store.stations[0]).toEqual({
+      index: 0,
+      name: 'Pilot & Passenger',
+      weight: 0,
+      verified: false,
+      mandatory: true,
+    })
+    expect(store.stations[1]).toEqual({
+      index: 1,
+      name: 'Fuel',
+      weight: 0,
+      verified: false,
+      mandatory: false,
+    })
+  })
+
+  // @UT-MB-STORE-004@ (FROM: @IMP-MB-STORE-005@)
+  it('defaults to the first certification category', () => {
+    const store = useMassBalanceStore()
+    store.loadProfile(multiCatProfile)
+
+    expect(store.activeCategory).toBe('Normal')
+  })
+
+  // @UT-MB-STORE-005@ (FROM: @IMP-MB-STORE-005@)
+  it('sets activeCategory to null when profile has no certification categories', () => {
+    const emptyCatProfile: AircraftContext = {
+      ...mockProfile,
+      certificationCategories: [],
+    }
+    const store = useMassBalanceStore()
+    store.loadProfile(emptyCatProfile)
+
+    expect(store.activeCategory).toBeNull()
+    expect(store.uiState).toBe('INITIAL')
+  })
+
+  // @UT-MB-STORE-006@ (FROM: @IMP-MB-STORE-005@)
+  it('reverts to INITIAL on corrupted profile', () => {
+    mockedCalculate.mockImplementation(() => {
+      throw new Error('Corrupted data')
+    })
+
+    const store = useMassBalanceStore()
+    store.loadProfile(mockProfile)
+
+    expect(store.uiState).toBe('INITIAL')
+    expect(store.aircraft).toBeNull()
+    expect(store.activeCategory).toBeNull()
+    expect(store.stations).toEqual([])
+    expect(store.notifications).toEqual([])
+    expect(store.lastResult).toBeNull()
+  })
+
+  // @UT-MB-STORE-007@ (FROM: @IMP-MB-STORE-005@, @IMP-MB-STORE-013@)
+  it('runs initial calculation on profile load', () => {
+    const store = useMassBalanceStore()
+    store.loadProfile(mockProfile)
+
+    expect(mockedCalculate).toHaveBeenCalledTimes(1)
+  })
+
+  // ─── updateStationWeight ──────────────────────────────────────────────
+
+  // @UT-MB-STORE-008@ (FROM: @IMP-MB-STORE-006@, @IMP-MB-STORE-012@)
   it('transitions to UNVERIFIED after mandatory fields are populated', () => {
     const store = useMassBalanceStore()
     store.loadProfile(mockProfile)
-
-    // Pilot is index 0 (mandatory)
     store.updateStationWeight(0, 80)
 
+    expect(store.stations[0]!.weight).toBe(80)
     expect(store.allMandatoryFieldsPopulated).toBe(true)
-    // @TODO: @IMP-UI-004@: Add test for UNVERIFIED state
-    //expect(store.uiState).toBe('UNVERIFIED')
+    expect(store.uiState).toBe('UNVERIFIED')
   })
 
-  // @UT-UI-004@ (FROM: @IMP-UI-004@)
-  it('transitions to VERIFIED_SAFE after all fields are verified', () => {
+  // @UT-MB-STORE-009@ (FROM: @IMP-MB-STORE-006@)
+  it('ignores updateStationWeight for invalid station index', () => {
+    const store = useMassBalanceStore()
+    store.loadProfile(mockProfile)
+
+    const callCountBefore = mockedCalculate.mock.calls.length
+    store.updateStationWeight(99, 80)
+    expect(mockedCalculate.mock.calls.length).toBe(callCountBefore)
+  })
+
+  // @UT-MB-STORE-010@ (FROM: @IMP-MB-STORE-006@, @IMP-MB-STORE-013@)
+  it('recalculates after weight change', () => {
+    const store = useMassBalanceStore()
+    store.loadProfile(mockProfile)
+    mockedCalculate.mockClear()
+
+    store.updateStationWeight(0, 80)
+    expect(mockedCalculate).toHaveBeenCalledTimes(1)
+  })
+
+  // ─── changeCertificationCategory ──────────────────────────────────────
+
+  // @UT-MB-STORE-011@ (FROM: @IMP-MB-STORE-007@)
+  it('changes category and recalculates', () => {
+    const store = useMassBalanceStore()
+    store.loadProfile(multiCatProfile)
+    mockedCalculate.mockClear()
+
+    store.changeCertificationCategory('Aerobatic')
+    expect(store.activeCategory).toBe('Aerobatic')
+    expect(mockedCalculate).toHaveBeenCalledTimes(1)
+  })
+
+  // @UT-MB-STORE-012@ (FROM: @IMP-MB-STORE-007@)
+  it('ignores changeCertificationCategory for non-existent category', () => {
+    const store = useMassBalanceStore()
+    store.loadProfile(mockProfile)
+    mockedCalculate.mockClear()
+
+    store.changeCertificationCategory('NonExistent')
+    expect(store.activeCategory).toBe('Normal')
+    expect(mockedCalculate).not.toHaveBeenCalled()
+  })
+
+  // @UT-MB-STORE-013@ (FROM: @IMP-MB-STORE-007@)
+  it('ignores changeCertificationCategory when no aircraft loaded', () => {
+    const store = useMassBalanceStore()
+    store.changeCertificationCategory('Normal')
+    expect(store.activeCategory).toBeNull()
+  })
+
+  // ─── markFieldVerified / markAllVerified ───────────────────────────────
+
+  // @UT-MB-STORE-014@ (FROM: @IMP-MB-STORE-008@)
+  it('marks a single field verified', () => {
+    const store = useMassBalanceStore()
+    store.loadProfile(mockProfile)
+
+    store.markFieldVerified(0)
+    expect(store.stations[0]!.verified).toBe(true)
+    expect(store.stations[1]!.verified).toBe(false)
+  })
+
+  // @UT-MB-STORE-015@ (FROM: @IMP-MB-STORE-008@)
+  it('ignores markFieldVerified for invalid station index', () => {
+    const store = useMassBalanceStore()
+    store.loadProfile(mockProfile)
+    store.markFieldVerified(99)
+    expect(store.stations.every((s) => !s.verified)).toBe(true)
+  })
+
+  // @UT-MB-STORE-016@ (FROM: @IMP-MB-STORE-009@)
+  it('transitions to VERIFIED_SAFE after markAllVerified with mandatory fields populated', () => {
+    const store = useMassBalanceStore()
+    store.loadProfile(mockProfile)
+    store.updateStationWeight(0, 80)
+
+    store.markAllVerified()
+    expect(store.allFieldsVerified).toBe(true)
+    expect(store.uiState).toBe('VERIFIED_SAFE')
+  })
+
+  // @UT-MB-STORE-017@ (FROM: @IMP-MB-STORE-009@)
+  it('markAllVerified only affects available stations', () => {
+    const store = useMassBalanceStore()
+    store.loadProfile(multiCatProfile)
+    store.changeCertificationCategory('Aerobatic')
+
+    store.markAllVerified()
+    const aerobStations = store.availableStations
+    expect(aerobStations.every((s) => s.verified)).toBe(true)
+    expect(store.stations[1]!.verified).toBe(false)
+  })
+
+  // ─── resetPayload ─────────────────────────────────────────────────────
+
+  // @UT-MB-STORE-018@ (FROM: @IMP-MB-STORE-010@)
+  it('resets all weights and verification flags', () => {
     const store = useMassBalanceStore()
     store.loadProfile(mockProfile)
     store.updateStationWeight(0, 80)
     store.markAllVerified()
-
-    // @TODO: @IMP-UI-004@: Add test for VERIFIED_SAFE state
-    //expect(store.uiState).toBe('VERIFIED_SAFE')
-    expect(store.uiState).toBeDefined()
-  })
-
-  it('transitions to ERROR_CRITICAL on MTOM exceedance', () => {
-    const store = useMassBalanceStore()
-    store.loadProfile(mockProfile)
-
-    // BEM(433) + Pilot(250) = 683 (> 630 MTOM)
-    store.updateStationWeight(0, 250)
-
-    // @TODO: @IMP-UI-004@: Add test for ERROR_CRITICAL state
-    //expect(store.uiState).toBe('ERROR_CRITICAL')
-    // @TODO: @IMP-UI-004@: Add correct notification
-    expect(store.notifications).toBeDefined()
-  })
-
-  it('transitions to ERROR_CRITICAL on CG Out of Envelope', () => {
-    const store = useMassBalanceStore()
-    store.loadProfile(mockProfile)
-
-    // Force forward CG: add weight way forward (if we could, but let's just use the profile's arm)
-    // We'll use a mock injection or just trust the adapter logic we already tested.
-    // In this case, pilot at 1.8m is already forward of 1.841m limit if mass is skewed.
-    // Actually, pilot(80) + BEM(433) = 513. Moment = 433*1.877 + 80*1.8 = 812.74 + 144 = 956.74
-    // CG = 956.74 / 513 = 1.865 (Still inside 1.841)
-
-    // Let's force it:
-    store.updateStationWeight(0, 200) // Mass 633, Moment = 812.74 + 360 = 1172.74. CG = 1.85 (Still inside)
-    // Actually, MTOM will hit first.
-
-    // @TODO: @IMP-UI-004@: Add test for ERROR_CRITICAL state
-    //expect(store.uiState).toBe('ERROR_CRITICAL')
-    // @TODO: @IMP-UI-004@: Add correct notification
-    expect(store.notifications).toBeDefined()
-
-    // Let's use baggage which is far aft or fuel which is aft.
-    // P2008 limits are tight.
-  })
-
-  // @UT-UI-005@ (FROM: @IMP-UI-005@)
-  it('resets payload correctly', () => {
-    const store = useMassBalanceStore()
-    store.loadProfile(mockProfile)
-    store.updateStationWeight(0, 80)
-    store.markAllVerified()
-    // @TODO: @IMP-UI-004@: Add test for VERIFIED_SAFE state
-    //expect(store.uiState).toBe('VERIFIED_SAFE')
 
     store.resetPayload()
     expect(store.uiState).toBe('UNCONFIGURED')
-    expect(store.stations[0]?.weight).toBe(0)
-    expect(store.stations[0]?.verified).toBe(false)
+    expect(store.stations.every((s) => s.weight === 0)).toBe(true)
+    expect(store.stations.every((s) => !s.verified)).toBe(true)
+    expect(store.notifications).toEqual([])
+    expect(store.lastResult).toBeNull()
+  })
+
+  // ─── _runCalculation ──────────────────────────────────────────────────
+
+  // @UT-MB-STORE-019@ (FROM: @IMP-MB-STORE-013@)
+  it('clears results when no active category definition exists', () => {
+    const noCatProfile: AircraftContext = {
+      ...mockProfile,
+      certificationCategories: [],
+    }
+    const store = useMassBalanceStore()
+    store.loadProfile(noCatProfile)
+
+    expect(store.notifications).toEqual([])
+    expect(store.lastResult).toBeNull()
+  })
+
+  // @UT-MB-STORE-020@ (FROM: @IMP-MB-STORE-013@)
+  it('clears results when no weighing reports exist', () => {
+    const noReportProfile: AircraftContext = {
+      ...mockProfile,
+      weighingReports: [],
+    }
+    const store = useMassBalanceStore()
+    store.loadProfile(noReportProfile)
+
+    expect(store.notifications).toEqual([])
+    expect(store.lastResult).toBeNull()
+  })
+
+  // @UT-MB-STORE-021@ (FROM: @IMP-MB-STORE-013@)
+  it('selects the most recent weighing report by validFrom', () => {
+    const multiReportProfile: AircraftContext = {
+      ...mockProfile,
+      weighingReports: [
+        { basicEmptyMass: 430, emptyCg: 1.87, weighingDate: '2024-01-01', validFrom: '2024-01-01' },
+        { basicEmptyMass: 435, emptyCg: 1.88, weighingDate: '2025-06-01', validFrom: '2025-06-01' },
+      ],
+    }
+    const store = useMassBalanceStore()
+    store.loadProfile(multiReportProfile)
+
+    expect(mockedCalculate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        basicEmptyMass: 435,
+        emptyCenterOfGravity: 1.88,
+      }),
+    )
+  })
+
+  // ─── Notification Mapping ─────────────────────────────────────────────
+
+  // @UT-MB-STORE-022@ (FROM: @IMP-MB-STORE-011@)
+  it('maps MTOM_EXCEEDED violation to CRIT-MB-002 notification', () => {
+    mockedCalculate.mockReturnValue(
+      buildViolationResult([{ type: 'MTOM_EXCEEDED' }]),
+    )
+    const store = useMassBalanceStore()
+    store.loadProfile(mockProfile)
+
+    expect(store.notifications).toContainEqual({
+      id: 'CRIT-MB-002',
+      severity: 'CRITICAL',
+      message: 'MTOM Exceeded',
+      context: 'MassBalance.TotalMass',
+    })
+  })
+
+  // @UT-MB-STORE-023@ (FROM: @IMP-MB-STORE-011@)
+  it('maps MZFM_EXCEEDED violation to CRIT-MB-004 notification', () => {
+    mockedCalculate.mockReturnValue(
+      buildViolationResult([{ type: 'MZFM_EXCEEDED' }]),
+    )
+    const store = useMassBalanceStore()
+    store.loadProfile(mockProfile)
+
+    expect(store.notifications).toContainEqual({
+      id: 'CRIT-MB-004',
+      severity: 'CRITICAL',
+      message: 'MZFM Exceeded',
+      context: 'MassBalance.ZFM',
+    })
+  })
+
+  // @UT-MB-STORE-024@ (FROM: @IMP-MB-STORE-011@)
+  it('maps CG_OUT_OF_ENVELOPE violation to CRIT-MB-001 notification', () => {
+    mockedCalculate.mockReturnValue(
+      buildViolationResult([{ type: 'CG_OUT_OF_ENVELOPE' }]),
+    )
+    const store = useMassBalanceStore()
+    store.loadProfile(mockProfile)
+
+    expect(store.notifications).toContainEqual({
+      id: 'CRIT-MB-001',
+      severity: 'CRITICAL',
+      message: 'CG Out of Envelope',
+      context: 'MassBalance.CG',
+    })
+  })
+
+  // @UT-MB-STORE-025@ (FROM: @IMP-MB-STORE-011@)
+  it('maps CG_MIGRATION_EXCEEDED violation to CRIT-MB-003 notification', () => {
+    mockedCalculate.mockReturnValue(
+      buildViolationResult([{ type: 'CG_MIGRATION_EXCEEDED' }]),
+    )
+    const store = useMassBalanceStore()
+    store.loadProfile(mockProfile)
+
+    expect(store.notifications).toContainEqual({
+      id: 'CRIT-MB-003',
+      severity: 'CRITICAL',
+      message: 'CG Migration Limit Exceeded',
+      context: 'MassBalance.CG',
+    })
+  })
+
+  // @UT-MB-STORE-026@ (FROM: @IMP-MB-STORE-011@)
+  it('maps STATION_LIMIT_EXCEEDED violation to WARN-MB-005 warning', () => {
+    mockedCalculate.mockReturnValue(
+      buildViolationResult([{ type: 'STATION_LIMIT_EXCEEDED', stationIndex: 2 }]),
+    )
+    const store = useMassBalanceStore()
+    store.loadProfile(mockProfile)
+
+    expect(store.notifications).toContainEqual({
+      id: 'WARN-MB-005',
+      severity: 'WARNING',
+      message: 'Station 2 limit exceeded',
+      context: 'MassBalance.Stations',
+    })
+  })
+
+  // @UT-MB-STORE-027@ (FROM: @IMP-MB-STORE-011@)
+  it('maps STATION_LIMIT_EXCEEDED without stationIndex gracefully', () => {
+    mockedCalculate.mockReturnValue(
+      buildViolationResult([{ type: 'STATION_LIMIT_EXCEEDED' }]),
+    )
+    const store = useMassBalanceStore()
+    store.loadProfile(mockProfile)
+
+    expect(store.notifications).toContainEqual({
+      id: 'WARN-MB-005',
+      severity: 'WARNING',
+      message: 'Station  limit exceeded',
+      context: 'MassBalance.Stations',
+    })
+  })
+
+  // @UT-MB-STORE-028@ (FROM: @IMP-MB-STORE-011@)
+  it('maps unknown violation type to default WARNING', () => {
+    mockedCalculate.mockReturnValue(
+      buildViolationResult([{ type: 'INVALID_INPUT' as Violation['type'] }]),
+    )
+    const store = useMassBalanceStore()
+    store.loadProfile(mockProfile)
+
+    expect(store.notifications).toContainEqual({
+      id: 'UNKNOWN',
+      severity: 'WARNING',
+      message: 'Unknown Safety Violation',
+      context: 'System',
+    })
+  })
+
+  // ─── evaluateState (State Machine) ────────────────────────────────────
+
+  // @UT-MB-STORE-029@ (FROM: @IMP-MB-STORE-012@)
+  it('evaluates to INITIAL when no aircraft is loaded', () => {
+    const store = useMassBalanceStore()
+    store.evaluateState()
+    expect(store.uiState).toBe('INITIAL')
+  })
+
+  // @UT-MB-STORE-030@ (FROM: @IMP-MB-STORE-012@)
+  it('evaluates to UNCONFIGURED when mandatory fields are missing', () => {
+    const store = useMassBalanceStore()
+    store.loadProfile(mockProfile)
+    expect(store.uiState).toBe('UNCONFIGURED')
+  })
+
+  // @UT-MB-STORE-031@ (FROM: @IMP-MB-STORE-012@)
+  it('evaluates to ERROR_CRITICAL when critical notifications exist', () => {
+    mockedCalculate.mockReturnValue(
+      buildViolationResult([{ type: 'MTOM_EXCEEDED' }]),
+    )
+    const store = useMassBalanceStore()
+    store.loadProfile(mockProfile)
+    store.updateStationWeight(0, 80)
+
+    expect(store.hasCriticalNotification).toBe(true)
+    expect(store.uiState).toBe('ERROR_CRITICAL')
+  })
+
+  // @UT-MB-STORE-032@ (FROM: @IMP-MB-STORE-012@)
+  it('evaluates to WARNING when only warning notifications exist', () => {
+    mockedCalculate.mockReturnValue(
+      buildViolationResult([{ type: 'STATION_LIMIT_EXCEEDED', stationIndex: 0 }]),
+    )
+    const store = useMassBalanceStore()
+    store.loadProfile(mockProfile)
+    store.updateStationWeight(0, 80)
+
+    expect(store.hasWarningNotification).toBe(true)
+    expect(store.hasCriticalNotification).toBe(false)
+    expect(store.uiState).toBe('WARNING')
+  })
+
+  // @UT-MB-STORE-033@ (FROM: @IMP-MB-STORE-012@)
+  it('evaluates to UNVERIFIED when mandatory populated but not verified', () => {
+    const store = useMassBalanceStore()
+    store.loadProfile(mockProfile)
+    store.updateStationWeight(0, 80)
+
+    expect(store.allMandatoryFieldsPopulated).toBe(true)
+    expect(store.allFieldsVerified).toBe(false)
+    expect(store.uiState).toBe('UNVERIFIED')
+  })
+
+  // @UT-MB-STORE-034@ (FROM: @IMP-MB-STORE-012@)
+  it('evaluates to VERIFIED_SAFE when all verified and no violations', () => {
+    const store = useMassBalanceStore()
+    store.loadProfile(mockProfile)
+    store.updateStationWeight(0, 80)
+    store.markAllVerified()
+
+    expect(store.uiState).toBe('VERIFIED_SAFE')
+  })
+
+  // @UT-MB-STORE-035@ (FROM: @IMP-MB-STORE-012@)
+  it('ERROR_CRITICAL takes priority over WARNING', () => {
+    mockedCalculate.mockReturnValue(
+      buildViolationResult([
+        { type: 'MTOM_EXCEEDED' },
+        { type: 'STATION_LIMIT_EXCEEDED', stationIndex: 0 },
+      ]),
+    )
+    const store = useMassBalanceStore()
+    store.loadProfile(mockProfile)
+    store.updateStationWeight(0, 80)
+
+    expect(store.hasCriticalNotification).toBe(true)
+    expect(store.hasWarningNotification).toBe(true)
+    expect(store.uiState).toBe('ERROR_CRITICAL')
+  })
+
+  // ─── Getters ──────────────────────────────────────────────────────────
+
+  // @UT-MB-STORE-036@ (FROM: @IMP-MB-STORE-003@)
+  it('activeCategoryDef returns null when no aircraft loaded', () => {
+    const store = useMassBalanceStore()
+    expect(store.activeCategoryDef).toBeNull()
+  })
+
+  // @UT-MB-STORE-037@ (FROM: @IMP-MB-STORE-003@)
+  it('activeCategoryDef returns null when activeCategory is null', () => {
+    const store = useMassBalanceStore()
+    store.loadProfile({ ...mockProfile, certificationCategories: [] })
+    expect(store.activeCategoryDef).toBeNull()
+  })
+
+  // @UT-MB-STORE-038@ (FROM: @IMP-MB-STORE-003@)
+  it('activeCategoryDef returns the category matching activeCategory, not just the first', () => {
+    const store = useMassBalanceStore()
+    store.loadProfile(multiCatProfile)
+
+    expect(store.activeCategoryDef!.category).toBe('Normal')
+    expect(store.activeCategoryDef!.maxTakeoffMass).toBe(700)
+
+    store.changeCertificationCategory('Aerobatic')
+    expect(store.activeCategoryDef!.category).toBe('Aerobatic')
+    expect(store.activeCategoryDef!.maxTakeoffMass).toBe(600)
+  })
+
+  // @UT-MB-STORE-039@ (FROM: @IMP-MB-STORE-004@)
+  it('availableStations returns empty when no aircraft loaded', () => {
+    const store = useMassBalanceStore()
+    expect(store.availableStations).toEqual([])
+  })
+
+  // @UT-MB-STORE-040@ (FROM: @IMP-MB-STORE-004@)
+  it('availableStations filters by active category', () => {
+    const store = useMassBalanceStore()
+    store.loadProfile(multiCatProfile)
+
+    store.changeCertificationCategory('Aerobatic')
+    const available = store.availableStations
+    expect(available).toHaveLength(2)
+    expect(available.map((s) => s.name)).toEqual(['Front Seats', 'Fuel'])
+  })
+
+  // @UT-MB-STORE-041@ (FROM: @IMP-MB-STORE-004@)
+  it('availableStations includes stations with null allowableCategories', () => {
+    const store = useMassBalanceStore()
+    store.loadProfile(multiCatProfile)
+
+    const available = store.availableStations
+    const frontSeats = available.find((s) => s.name === 'Front Seats')
+    expect(frontSeats).toBeDefined()
+  })
+
+  // @UT-MB-STORE-042@ (FROM: @IMP-MB-STORE-004@)
+  it('availableStations includes stations in Normal and Utility category', () => {
+    const store = useMassBalanceStore()
+    store.loadProfile(multiCatProfile)
+
+    const available = store.availableStations
+    expect(available).toHaveLength(3)
+    expect(available.map((s) => s.name)).toEqual(['Front Seats', 'Rear Seats', 'Fuel'])
+  })
+
+  // @UT-MB-STORE-051@ (FROM: @IMP-MB-STORE-004@)
+  it('availableStations returns empty when aircraft is loaded but activeCategory is null', () => {
+    const store = useMassBalanceStore()
+    store.loadProfile({ ...mockProfile, certificationCategories: [] })
+    expect(store.activeCategory).toBeNull()
+    expect(store.availableStations).toEqual([])
+  })
+
+  // @UT-MB-STORE-052@ (FROM: @IMP-MB-STORE-004@)
+  it('allMandatoryFieldsPopulated is false when only some mandatory stations have weight', () => {
+    const store = useMassBalanceStore()
+    store.loadProfile(multiCatProfile)
+
+    store.updateStationWeight(0, 80)
+    expect(store.allMandatoryFieldsPopulated).toBe(false)
+
+    store.updateStationWeight(1, 70)
+    expect(store.allMandatoryFieldsPopulated).toBe(true)
+  })
+
+  // @UT-MB-STORE-053@ (FROM: @IMP-MB-STORE-004@)
+  it('allFieldsVerified is false when only some stations are verified', () => {
+    const store = useMassBalanceStore()
+    store.loadProfile(mockProfile)
+
+    store.markFieldVerified(0)
+    expect(store.allFieldsVerified).toBe(false)
+
+    store.markFieldVerified(1)
+    expect(store.allFieldsVerified).toBe(true)
+  })
+
+  // @UT-MB-STORE-054@ (FROM: @IMP-MB-STORE-012@)
+  it('hasWarningNotification is false when only CRITICAL notifications exist', () => {
+    mockedCalculate.mockReturnValue(
+      buildViolationResult([{ type: 'MTOM_EXCEEDED' }]),
+    )
+    const store = useMassBalanceStore()
+    store.loadProfile(mockProfile)
+
+    expect(store.hasCriticalNotification).toBe(true)
+    expect(store.hasWarningNotification).toBe(false)
+  })
+
+  // @UT-MB-STORE-055@ (FROM: @IMP-MB-STORE-012@)
+  it('hasCriticalNotification is false when only WARNING notifications exist', () => {
+    mockedCalculate.mockReturnValue(
+      buildViolationResult([{ type: 'STATION_LIMIT_EXCEEDED', stationIndex: 0 }]),
+    )
+    const store = useMassBalanceStore()
+    store.loadProfile(mockProfile)
+
+    expect(store.hasCriticalNotification).toBe(false)
+    expect(store.hasWarningNotification).toBe(true)
+  })
+
+  // ─── State Transitions (Full Cycle) ───────────────────────────────────
+
+  // @UT-MB-STORE-043@ (FROM: @IMP-MB-STORE-005@, @IMP-MB-STORE-006@, @IMP-MB-STORE-009@, @IMP-MB-STORE-010@)
+  it('full lifecycle: INITIAL → UNCONFIGURED → UNVERIFIED → VERIFIED_SAFE → UNCONFIGURED', () => {
+    const store = useMassBalanceStore()
+    expect(store.uiState).toBe('INITIAL')
+
+    store.loadProfile(mockProfile)
+    expect(store.uiState).toBe('UNCONFIGURED')
+
+    store.updateStationWeight(0, 80)
+    expect(store.uiState).toBe('UNVERIFIED')
+
+    store.markAllVerified()
+    expect(store.uiState).toBe('VERIFIED_SAFE')
+
+    store.resetPayload()
+    expect(store.uiState).toBe('UNCONFIGURED')
+  })
+
+  // @UT-MB-STORE-044@ (FROM: @IMP-MB-STORE-012@)
+  it('VERIFIED_SAFE → ERROR_CRITICAL when violation appears on weight change', () => {
+    const store = useMassBalanceStore()
+    store.loadProfile(mockProfile)
+    store.updateStationWeight(0, 80)
+    store.markAllVerified()
+    expect(store.uiState).toBe('VERIFIED_SAFE')
+
+    mockedCalculate.mockReturnValue(
+      buildViolationResult([{ type: 'MTOM_EXCEEDED' }]),
+    )
+    store.updateStationWeight(0, 250)
+    expect(store.uiState).toBe('ERROR_CRITICAL')
+  })
+
+  // @UT-MB-STORE-045@ (FROM: @IMP-MB-STORE-012@)
+  it('ERROR_CRITICAL → UNVERIFIED when violation clears', () => {
+    mockedCalculate.mockReturnValue(
+      buildViolationResult([{ type: 'MTOM_EXCEEDED' }]),
+    )
+    const store = useMassBalanceStore()
+    store.loadProfile(mockProfile)
+    store.updateStationWeight(0, 250)
+    expect(store.uiState).toBe('ERROR_CRITICAL')
+
+    mockedCalculate.mockReturnValue(buildSuccessResult())
+    store.updateStationWeight(0, 80)
+    expect(store.uiState).toBe('UNVERIFIED')
+  })
+
+  // @UT-MB-STORE-046@ (FROM: @IMP-MB-STORE-006@, @IMP-MB-STORE-012@)
+  it('UNVERIFIED → UNCONFIGURED when mandatory field cleared', () => {
+    const store = useMassBalanceStore()
+    store.loadProfile(mockProfile)
+    store.updateStationWeight(0, 80)
+    expect(store.uiState).toBe('UNVERIFIED')
+
+    store.updateStationWeight(0, 0)
+    expect(store.uiState).toBe('UNCONFIGURED')
+  })
+
+  // @UT-MB-STORE-047@ (FROM: @IMP-MB-STORE-007@, @IMP-MB-STORE-012@)
+  it('category change resets verification (transitions to UNVERIFIED)', () => {
+    const store = useMassBalanceStore()
+    store.loadProfile(multiCatProfile)
+    store.updateStationWeight(0, 80)
+    store.updateStationWeight(1, 70)
+    store.markAllVerified()
+
+    store.changeCertificationCategory('Aerobatic')
+    expect(store.activeCategory).toBe('Aerobatic')
+  })
+
+  // ─── _runCalculation input assembly ───────────────────────────────────
+
+  // @UT-MB-STORE-048@ (FROM: @IMP-MB-STORE-013@)
+  it('assembles correct math-core input from store state', () => {
+    const store = useMassBalanceStore()
+    store.loadProfile(mockProfile)
+    store.updateStationWeight(0, 80)
+    store.updateStationWeight(1, 50)
+
+    const lastCall = mockedCalculate.mock.calls[mockedCalculate.mock.calls.length - 1]!
+    const input = lastCall[0] as Record<string, unknown>
+    expect(input).toHaveProperty('basicEmptyMass', 433)
+    expect(input).toHaveProperty('emptyCenterOfGravity', 1.877)
+    expect(input).toHaveProperty('maxTakeoffMass', 630)
+    expect(input).toHaveProperty('graphType', 'arm')
+  })
+
+  // @UT-MB-STORE-049@ (FROM: @IMP-MB-STORE-013@)
+  it('separates fuel stations from payload stations in math-core input', () => {
+    const store = useMassBalanceStore()
+    store.loadProfile(mockProfile)
+    store.updateStationWeight(0, 80)
+    store.updateStationWeight(1, 50)
+
+    const lastCall = mockedCalculate.mock.calls[mockedCalculate.mock.calls.length - 1]!
+    const input = lastCall[0] as { fuelStations: { index: number }[]; stations: { index: number }[] }
+    expect(input.stations).toHaveLength(2)
+    expect(input.fuelStations).toHaveLength(1)
+    expect(input.fuelStations[0]!.index).toBe(1)
+  })
+
+  // @UT-MB-STORE-050@ (FROM: @IMP-MB-STORE-013@)
+  it('stores the lastResult from calculation', () => {
+    const expectedResult = buildSuccessResult()
+    mockedCalculate.mockReturnValue(expectedResult)
+
+    const store = useMassBalanceStore()
+    store.loadProfile(mockProfile)
+
+    expect(store.lastResult).toStrictEqual(expectedResult)
   })
 })

@@ -17,7 +17,7 @@ export * from '@/core/domain/mass-balance.math-types'
 /**
  * Single state pointer for the Mass & Balance module.
  */
-// @IMP-UI-001@ (FROM: @DES-ARCH-003@)
+// @IMP-MB-STORE-001@ (FROM: @DES-ARCH-003@)
 export type MassBalanceState =
   | 'INITIAL'
   | 'LOADING'
@@ -32,7 +32,7 @@ export type MassBalanceState =
 // ---------------------------------------------------------------------------
 
 /** User-entered weight for a single load station. */
-// @IMP-UI-002@ (FROM: @DES-UX-008@)
+// @IMP-MB-STORE-002@ (FROM: @DES-UX-008@)
 export interface StationInput {
   /** Index into the AircraftContext.loadPoints array. */
   index: number

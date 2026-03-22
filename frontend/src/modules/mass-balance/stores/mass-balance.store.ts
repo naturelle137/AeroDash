@@ -64,7 +64,7 @@ export const useMassBalanceStore = defineStore('massBalance', {
   // ═══════════════════════════════════════════════════════════════════════════
 
   getters: {
-    /** Active certification category definition, or null. */
+    // @IMP-MB-STORE-003@ (FROM: @REQ-MB-001@)
     activeCategoryDef(): CategoryDefinition | null {
       if (!this.aircraft || !this.activeCategory) return null
       return (
@@ -81,7 +81,9 @@ export const useMassBalanceStore = defineStore('massBalance', {
         if (!def) return false
         // null allowableCategories means available in all categories
         if (def.allowableCategories === null) return true
-        return def.allowableCategories.includes(this.activeCategory!)
+        return def.allowableCategories.includes(
+          this.activeCategory! as 'Normal' | 'Utility' | 'Aerobatic',
+        )
       })
     },
 
@@ -122,6 +124,7 @@ export const useMassBalanceStore = defineStore('massBalance', {
      *                  (The caller is responsible for the async fetch;
      *                   the store receives the resolved data.)
      */
+    // @IMP-MB-STORE-005@ (FROM: @REQ-MB-001@, @REQ-MB-002@, @DES-UX-007@, @DES-ARCH-005@)
     loadProfile(profile: AircraftContext): void {
       this.uiState = 'LOADING'
 
@@ -171,6 +174,7 @@ export const useMassBalanceStore = defineStore('massBalance', {
      *   3. Capture notifications
      *   4. evaluateState()
      */
+    // @IMP-MB-STORE-006@ (FROM: @REQ-MB-002@, @REQ-MB-003@, @DES-UX-008@, @DES-ARCH-005@)
     updateStationWeight(stationIndex: number, weight: number): void {
       const station = this.stations[stationIndex]
       if (!station) return
@@ -187,6 +191,7 @@ export const useMassBalanceStore = defineStore('massBalance', {
      * Stations not allowed in the new category become unavailable
      * (filtered by the `availableStations` getter).
      */
+    // @IMP-MB-STORE-007@ (FROM: @REQ-MB-001@, @DES-UX-007@)
     changeCertificationCategory(category: string): void {
       if (!this.aircraft) return
 
@@ -198,7 +203,7 @@ export const useMassBalanceStore = defineStore('massBalance', {
       this.evaluateState()
     },
 
-    // @IMP-UI-003@ (FROM: @DES-UX-011@, @REQ-UI-014@)
+    // @IMP-MB-STORE-008@ (FROM: @DES-UX-011@, @REQ-UI-014@)
     markFieldVerified(stationIndex: number): void {
       const station = this.stations[stationIndex]
       if (!station) return
@@ -207,7 +212,7 @@ export const useMassBalanceStore = defineStore('massBalance', {
       this.evaluateState()
     },
 
-    // @IMP-UI-004@ (FROM: @DES-ARCH-004@, @REQ-UI-016@)
+    // @IMP-MB-STORE-009@ (FROM: @DES-ARCH-004@, @REQ-UI-016@)
     markAllVerified(): void {
       for (const station of this.availableStations) {
         station.verified = true
@@ -220,7 +225,7 @@ export const useMassBalanceStore = defineStore('massBalance', {
      *
      * Transitions to UNCONFIGURED (empty mandatory fields).
      */
-    // @IMP-UI-005@ (FROM: @DES-UX-012@)
+    // @IMP-MB-STORE-010@ (FROM: @DES-UX-012@)
     resetPayload(): void {
       for (const station of this.stations) {
         station.weight = 0
@@ -237,6 +242,7 @@ export const useMassBalanceStore = defineStore('massBalance', {
      * Assemble math-core input from raw state and run the calculation.
      * Captures the result and notifications wholesale.
      */
+    // @IMP-MB-STORE-013@ (FROM: @REQ-MB-002@, @REQ-MB-003@, @DES-ARCH-005@)
     _runCalculation(): void {
       const catDef = this.activeCategoryDef
       if (!this.aircraft || !catDef) {
@@ -295,7 +301,7 @@ export const useMassBalanceStore = defineStore('massBalance', {
       const result = calculateMassBalance(input)
 
       // Map raw violations to UI notifications
-      // @IMP-UI-006@ (FROM: @DES-UX-010@)
+      // @IMP-MB-STORE-011@ (FROM: @REQ-MB-004@, @REQ-MB-005@, @REQ-MB-009@, @REQ-MB-011@, @DES-UX-010@, @DES-ARCH-001@)
       this.notifications = result.violations.map((v) => {
         switch (v.type) {
           case 'MTOM_EXCEEDED':
@@ -362,7 +368,7 @@ export const useMassBalanceStore = defineStore('massBalance', {
      *
      * @see docs/architecture/frontend_state_machine.md §2
      */
-    // @IMP-UI-007@ (FROM: @DES-ARCH-003@, @DES-ARCH-004@)
+    // @IMP-MB-STORE-012@ (FROM: @DES-ARCH-003@, @DES-ARCH-004@, @DES-ARCH-005@)
     evaluateState(): void {
       // Guard: no aircraft loaded
       if (!this.aircraft || !this.activeCategory) {

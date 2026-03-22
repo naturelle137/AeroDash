@@ -98,3 +98,120 @@ MB Adapter Entry (delegation to core)
       - DES-ARCH-005
     files:
       - frontend/src/core/adapters/mass-balance.adapter.ts
+
+MB Store - Type Definitions
+  IMP-MB-STORE-001
+    title: MassBalanceState Type (State Machine Pointer)
+    des:
+      - DES-ARCH-003
+    files:
+      - frontend/src/modules/mass-balance/stores/mass-balance.types.ts
+
+  IMP-MB-STORE-002
+    title: StationInput Interface (Per-Station User Input)
+    des:
+      - DES-UX-008
+    files:
+      - frontend/src/modules/mass-balance/stores/mass-balance.types.ts
+
+MB Store - Getters
+  IMP-MB-STORE-003
+    title: activeCategoryDef Getter - Active Certification Category Definition
+    req:
+      - REQ-MB-001
+    files:
+      - frontend/src/modules/mass-balance/stores/mass-balance.store.ts
+
+  IMP-MB-STORE-004
+    title: availableStations Getter - Stations Filtered by Active Category
+    req:
+      - REQ-MB-001
+    des:
+      - DES-UX-007
+    files:
+      - frontend/src/modules/mass-balance/stores/mass-balance.store.ts
+
+MB Store - Actions
+  IMP-MB-STORE-005
+    title: loadProfile Action - Load Aircraft and Initialize Station State
+    req:
+      - REQ-MB-001
+      - REQ-MB-002
+    des:
+      - DES-UX-007
+      - DES-ARCH-005
+    files:
+      - frontend/src/modules/mass-balance/stores/mass-balance.store.ts
+
+  IMP-MB-STORE-006
+    title: updateStationWeight Action - Mutate Station Weight and Recalculate
+    req:
+      - REQ-MB-002
+      - REQ-MB-003
+    des:
+      - DES-UX-008
+      - DES-ARCH-005
+    files:
+      - frontend/src/modules/mass-balance/stores/mass-balance.store.ts
+
+  IMP-MB-STORE-007
+    title: changeCertificationCategory Action - Switch Active Category
+    req:
+      - REQ-MB-001
+    des:
+      - DES-UX-007
+    files:
+      - frontend/src/modules/mass-balance/stores/mass-balance.store.ts
+
+  IMP-MB-STORE-008
+    title: markFieldVerified Action - Verify Single Station Field
+    des:
+      - DES-UX-011
+    files:
+      - frontend/src/modules/mass-balance/stores/mass-balance.store.ts
+
+  IMP-MB-STORE-009
+    title: markAllVerified Action - Verify All Available Stations
+    des:
+      - DES-ARCH-004
+    files:
+      - frontend/src/modules/mass-balance/stores/mass-balance.store.ts
+
+  IMP-MB-STORE-010
+    title: resetPayload Action - Clear All Weights and Verification Flags
+    des:
+      - DES-UX-012
+    files:
+      - frontend/src/modules/mass-balance/stores/mass-balance.store.ts
+
+  IMP-MB-STORE-011
+    title: Notification Mapping - Map Math-Core Violations to UI Notifications
+    req:
+      - REQ-MB-004
+      - REQ-MB-005
+      - REQ-MB-009
+      - REQ-MB-011
+    des:
+      - DES-UX-010
+      - DES-ARCH-001
+    files:
+      - frontend/src/modules/mass-balance/stores/mass-balance.store.ts
+
+  IMP-MB-STORE-012
+    title: evaluateState Action - Deterministic State Machine Resolution
+    des:
+      - DES-ARCH-003
+      - DES-ARCH-004
+      - DES-ARCH-005
+    files:
+      - frontend/src/modules/mass-balance/stores/mass-balance.store.ts
+
+  IMP-MB-STORE-013
+    title: _runCalculation Helper - Assemble Math Input and Execute Calculation
+    req:
+      - REQ-MB-002
+      - REQ-MB-003
+    des:
+      - DES-ARCH-005
+    files:
+      - frontend/src/modules/mass-balance/stores/mass-balance.store.ts
