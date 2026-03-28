@@ -199,6 +199,7 @@ describe('MassBalance Store', () => {
       weight: 0,
       verified: false,
       mandatory: true,
+      touched: false,
     })
     expect(store.stations[1]).toEqual({
       index: 1,
@@ -206,6 +207,7 @@ describe('MassBalance Store', () => {
       weight: 0,
       verified: false,
       mandatory: false,
+      touched: false,
     })
   })
 
@@ -258,14 +260,14 @@ describe('MassBalance Store', () => {
   // ─── updateStationWeight ──────────────────────────────────────────────
 
   // @UT-MB-STORE-008@ (FROM: @IMP-MB-STORE-006@, @IMP-MB-STORE-012@)
-  it('transitions to UNVERIFIED after mandatory fields are populated', () => {
+  it('transitions to VERIFIED_SAFE after mandatory fields are populated', () => {
     const store = useMassBalanceStore()
     store.loadProfile(mockProfile)
     store.updateStationWeight(0, 80)
 
     expect(store.stations[0]!.weight).toBe(80)
     expect(store.allMandatoryFieldsPopulated).toBe(true)
-    expect(store.uiState).toBe('UNVERIFIED')
+    expect(store.uiState).toBe('VERIFIED_SAFE')
   })
 
   // @UT-MB-STORE-009@ (FROM: @IMP-MB-STORE-006@)
@@ -340,11 +342,12 @@ describe('MassBalance Store', () => {
   })
 
   // @UT-MB-STORE-016@ (FROM: @IMP-MB-STORE-009@)
-  it('transitions to VERIFIED_SAFE after markAllVerified with mandatory fields populated', () => {
+  it('markAllVerified sets verified flag on all available mandatory stations', () => {
     const store = useMassBalanceStore()
     store.loadProfile(mockProfile)
     store.updateStationWeight(0, 80)
 
+    expect(store.allFieldsVerified).toBe(false)
     store.markAllVerified()
     expect(store.allFieldsVerified).toBe(true)
     expect(store.uiState).toBe('VERIFIED_SAFE')
@@ -365,18 +368,17 @@ describe('MassBalance Store', () => {
   // ─── resetPayload ─────────────────────────────────────────────────────
 
   // @UT-MB-STORE-018@ (FROM: @IMP-MB-STORE-010@)
-  it('resets all weights and verification flags', () => {
+  it('resets all weights to zero, re-runs calculation, and keeps results visible', () => {
     const store = useMassBalanceStore()
     store.loadProfile(mockProfile)
     store.updateStationWeight(0, 80)
-    store.markAllVerified()
 
     store.resetPayload()
-    expect(store.uiState).toBe('UNCONFIGURED')
     expect(store.stations.every((s) => s.weight === 0)).toBe(true)
     expect(store.stations.every((s) => !s.verified)).toBe(true)
-    expect(store.notifications).toEqual([])
-    expect(store.lastResult).toBeNull()
+    expect(store.stations.every((s) => s.touched)).toBe(true)
+    expect(store.lastResult).not.toBeNull()
+    expect(store.uiState).toBe('VERIFIED_SAFE')
   })
 
   // ─── _runCalculation ──────────────────────────────────────────────────
@@ -395,7 +397,7 @@ describe('MassBalance Store', () => {
   })
 
   // @UT-MB-STORE-020@ (FROM: @IMP-MB-STORE-013@)
-  it('clears results when no weighing reports exist', () => {
+  it('emits CRIT-SYS-001 and clears lastResult when no weighing reports exist', () => {
     const noReportProfile: AircraftContext = {
       ...mockProfile,
       weighingReports: [],
@@ -403,7 +405,12 @@ describe('MassBalance Store', () => {
     const store = useMassBalanceStore()
     store.loadProfile(noReportProfile)
 
-    expect(store.notifications).toEqual([])
+    expect(store.notifications).toContainEqual({
+      id: 'CRIT-SYS-001',
+      severity: 'CRITICAL',
+      message: 'No valid weighing report found',
+      context: 'System',
+    })
     expect(store.lastResult).toBeNull()
   })
 
@@ -526,18 +533,18 @@ describe('MassBalance Store', () => {
   })
 
   // @UT-MB-STORE-028@ (FROM: @IMP-MB-STORE-011@)
-  it('maps unknown violation type to default WARNING', () => {
+  it('maps INVALID_INPUT violation to CRIT-MB-INPUT notification', () => {
     mockedCalculate.mockReturnValue(
-      buildViolationResult([{ type: 'INVALID_INPUT' as Violation['type'] }]),
+      buildViolationResult([{ type: 'INVALID_INPUT', field: 'STATIONS[0].ARM', code: 'REQUIRED' }]),
     )
     const store = useMassBalanceStore()
     store.loadProfile(mockProfile)
 
     expect(store.notifications).toContainEqual({
-      id: 'UNKNOWN',
-      severity: 'WARNING',
-      message: 'Unknown Safety Violation',
-      context: 'System',
+      id: 'CRIT-MB-INPUT',
+      severity: 'CRITICAL',
+      message: 'Invalid input: STATIONS[0].ARM (REQUIRED)',
+      context: 'MassBalance.Validation',
     })
   })
 
@@ -585,22 +592,23 @@ describe('MassBalance Store', () => {
   })
 
   // @UT-MB-STORE-033@ (FROM: @IMP-MB-STORE-012@)
-  it('evaluates to UNVERIFIED when mandatory populated but not verified', () => {
+  it('evaluates to VERIFIED_SAFE when all mandatory fields populated and no violations (no explicit verification required for M&B inputs)', () => {
     const store = useMassBalanceStore()
     store.loadProfile(mockProfile)
     store.updateStationWeight(0, 80)
 
     expect(store.allMandatoryFieldsPopulated).toBe(true)
+    // allFieldsVerified is false — station was not explicitly marked; the state
+    // machine intentionally does not gate on this for manually-entered M&B fields.
     expect(store.allFieldsVerified).toBe(false)
-    expect(store.uiState).toBe('UNVERIFIED')
+    expect(store.uiState).toBe('VERIFIED_SAFE')
   })
 
   // @UT-MB-STORE-034@ (FROM: @IMP-MB-STORE-012@)
-  it('evaluates to VERIFIED_SAFE when all verified and no violations', () => {
+  it('evaluates to VERIFIED_SAFE when all mandatory fields populated and no violations', () => {
     const store = useMassBalanceStore()
     store.loadProfile(mockProfile)
     store.updateStationWeight(0, 80)
-    store.markAllVerified()
 
     expect(store.uiState).toBe('VERIFIED_SAFE')
   })
@@ -696,26 +704,34 @@ describe('MassBalance Store', () => {
   })
 
   // @UT-MB-STORE-052@ (FROM: @IMP-MB-STORE-004@)
-  it('allMandatoryFieldsPopulated is false when only some mandatory stations have weight', () => {
+  it('allMandatoryFieldsPopulated is false when only some mandatory stations are touched', () => {
     const store = useMassBalanceStore()
     store.loadProfile(multiCatProfile)
 
     store.updateStationWeight(0, 80)
+    expect(store.stations[0]!.touched).toBe(true)
+    expect(store.stations[1]!.touched).toBe(false)
     expect(store.allMandatoryFieldsPopulated).toBe(false)
 
     store.updateStationWeight(1, 70)
+    expect(store.stations[1]!.touched).toBe(true)
     expect(store.allMandatoryFieldsPopulated).toBe(true)
   })
 
   // @UT-MB-STORE-053@ (FROM: @IMP-MB-STORE-004@)
-  it('allFieldsVerified is false when only some stations are verified', () => {
+  it('allFieldsVerified only requires mandatory stations to be verified', () => {
     const store = useMassBalanceStore()
     store.loadProfile(mockProfile)
 
-    store.markFieldVerified(0)
+    // Before any verification: mandatory station[0] unverified → false
     expect(store.allFieldsVerified).toBe(false)
 
-    store.markFieldVerified(1)
+    // Verifying only the mandatory station (Pilot & Passenger) is sufficient
+    store.markFieldVerified(0)
+    expect(store.allFieldsVerified).toBe(true)
+
+    // Optional station (Fuel) is still unverified — allFieldsVerified remains true
+    expect(store.stations[1]!.verified).toBe(false)
     expect(store.allFieldsVerified).toBe(true)
   })
 
@@ -746,7 +762,7 @@ describe('MassBalance Store', () => {
   // ─── State Transitions (Full Cycle) ───────────────────────────────────
 
   // @UT-MB-STORE-043@ (FROM: @IMP-MB-STORE-005@, @IMP-MB-STORE-006@, @IMP-MB-STORE-009@, @IMP-MB-STORE-010@)
-  it('full lifecycle: INITIAL → UNCONFIGURED → UNVERIFIED → VERIFIED_SAFE → UNCONFIGURED', () => {
+  it('full lifecycle: INITIAL → UNCONFIGURED → VERIFIED_SAFE → reset → VERIFIED_SAFE', () => {
     const store = useMassBalanceStore()
     expect(store.uiState).toBe('INITIAL')
 
@@ -754,13 +770,12 @@ describe('MassBalance Store', () => {
     expect(store.uiState).toBe('UNCONFIGURED')
 
     store.updateStationWeight(0, 80)
-    expect(store.uiState).toBe('UNVERIFIED')
-
-    store.markAllVerified()
     expect(store.uiState).toBe('VERIFIED_SAFE')
 
     store.resetPayload()
-    expect(store.uiState).toBe('UNCONFIGURED')
+    expect(store.uiState).toBe('VERIFIED_SAFE')
+    expect(store.stations.every((s) => s.weight === 0)).toBe(true)
+    expect(store.lastResult).not.toBeNull()
   })
 
   // @UT-MB-STORE-044@ (FROM: @IMP-MB-STORE-012@)
@@ -768,7 +783,6 @@ describe('MassBalance Store', () => {
     const store = useMassBalanceStore()
     store.loadProfile(mockProfile)
     store.updateStationWeight(0, 80)
-    store.markAllVerified()
     expect(store.uiState).toBe('VERIFIED_SAFE')
 
     mockedCalculate.mockReturnValue(
@@ -779,7 +793,7 @@ describe('MassBalance Store', () => {
   })
 
   // @UT-MB-STORE-045@ (FROM: @IMP-MB-STORE-012@)
-  it('ERROR_CRITICAL → UNVERIFIED when violation clears', () => {
+  it('ERROR_CRITICAL → VERIFIED_SAFE when violation clears', () => {
     mockedCalculate.mockReturnValue(
       buildViolationResult([{ type: 'MTOM_EXCEEDED' }]),
     )
@@ -790,30 +804,32 @@ describe('MassBalance Store', () => {
 
     mockedCalculate.mockReturnValue(buildSuccessResult())
     store.updateStationWeight(0, 80)
-    expect(store.uiState).toBe('UNVERIFIED')
+    expect(store.uiState).toBe('VERIFIED_SAFE')
   })
 
   // @UT-MB-STORE-046@ (FROM: @IMP-MB-STORE-006@, @IMP-MB-STORE-012@)
-  it('UNVERIFIED → UNCONFIGURED when mandatory field cleared', () => {
+  it('remains VERIFIED_SAFE when mandatory field set to 0 (touched stays true)', () => {
     const store = useMassBalanceStore()
     store.loadProfile(mockProfile)
     store.updateStationWeight(0, 80)
-    expect(store.uiState).toBe('UNVERIFIED')
+    expect(store.uiState).toBe('VERIFIED_SAFE')
 
     store.updateStationWeight(0, 0)
-    expect(store.uiState).toBe('UNCONFIGURED')
+    expect(store.stations[0]!.touched).toBe(true)
+    expect(store.uiState).toBe('VERIFIED_SAFE')
   })
 
   // @UT-MB-STORE-047@ (FROM: @IMP-MB-STORE-007@, @IMP-MB-STORE-012@)
-  it('category change resets verification (transitions to UNVERIFIED)', () => {
+  it('category change recalculates and re-evaluates state', () => {
     const store = useMassBalanceStore()
     store.loadProfile(multiCatProfile)
     store.updateStationWeight(0, 80)
     store.updateStationWeight(1, 70)
-    store.markAllVerified()
+    expect(store.uiState).toBe('VERIFIED_SAFE')
 
     store.changeCertificationCategory('Aerobatic')
     expect(store.activeCategory).toBe('Aerobatic')
+    expect(store.uiState).toBe('VERIFIED_SAFE')
   })
 
   // ─── _runCalculation input assembly ───────────────────────────────────
@@ -834,7 +850,7 @@ describe('MassBalance Store', () => {
   })
 
   // @UT-MB-STORE-049@ (FROM: @IMP-MB-STORE-013@)
-  it('separates fuel stations from payload stations in math-core input', () => {
+  it('excludes fuel stations from payload stations in math-core input', () => {
     const store = useMassBalanceStore()
     store.loadProfile(mockProfile)
     store.updateStationWeight(0, 80)
@@ -842,7 +858,8 @@ describe('MassBalance Store', () => {
 
     const lastCall = mockedCalculate.mock.calls[mockedCalculate.mock.calls.length - 1]!
     const input = lastCall[0] as { fuelStations: { index: number }[]; stations: { index: number }[] }
-    expect(input.stations).toHaveLength(2)
+    expect(input.stations).toHaveLength(1)
+    expect(input.stations[0]!.index).toBe(0)
     expect(input.fuelStations).toHaveLength(1)
     expect(input.fuelStations[0]!.index).toBe(1)
   })

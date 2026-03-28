@@ -13,6 +13,10 @@
  *   - Every public action mutates raw data, runs the math core, captures
  *     notifications, and calls evaluateState() — in that order.
  *   - evaluateState() is the ONLY function that writes to `uiState`.
+ *     Exception: `LOADING` is a transitional state set explicitly by lifecycle
+ *     actions (e.g. loadProfile) before async operations begin. It is never
+ *     set by evaluateState() and cannot be reached through normal state
+ *     resolution.
  *
  * @see docs/architecture/frontend_state_machine.md
  * @see .logs/00_next_steps.md (point 3)
@@ -24,11 +28,25 @@ import type {
   MassBalanceState,
   AircraftContext,
   CategoryDefinition,
+  LoadPointDefinition,
   StationInput,
   Notification,
   MathCoreInput,
   MathCoreResult,
 } from '@/modules/mass-balance/stores/mass-balance.types'
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+/**
+ * Derives whether a load point is mandatory for M&B input.
+ * Non-fuel stations (fuelTank === null) must always be entered by the pilot;
+ * fuel stations are optional (default 0 = no fuel loaded).
+ */
+function deriveMandatory(lp: LoadPointDefinition): boolean {
+  return lp.fuelTank === null
+}
 
 // ---------------------------------------------------------------------------
 // Store
@@ -76,8 +94,8 @@ export const useMassBalanceStore = defineStore('massBalance', {
     /** Stations filtered by the active category's allowable load points. */
     availableStations(): StationInput[] {
       if (!this.aircraft || !this.activeCategory) return []
-      return this.stations.filter((_station, index) => {
-        const def = this.aircraft!.loadPoints[index]
+      return this.stations.filter((station) => {
+        const def = this.aircraft!.loadPoints[station.index]
         if (!def) return false
         // null allowableCategories means available in all categories
         if (def.allowableCategories === null) return true
@@ -87,14 +105,14 @@ export const useMassBalanceStore = defineStore('massBalance', {
       })
     },
 
-    /** True when all mandatory stations in the available set have weight > 0. */
+    /** True when all mandatory stations in the available set have been touched (user-entered or non-zero default). */
     allMandatoryFieldsPopulated(): boolean {
-      return this.availableStations.filter((s) => s.mandatory).every((s) => s.weight > 0)
+      return this.availableStations.filter((s) => s.mandatory).every((s) => s.touched)
     },
 
-    /** True when all available stations have been explicitly verified. */
+    /** True when all mandatory stations in the available set have been explicitly verified. */
     allFieldsVerified(): boolean {
-      return this.availableStations.every((s) => s.verified)
+      return this.availableStations.filter((s) => s.mandatory).every((s) => s.verified)
     },
 
     /** True if any captured notification has CRITICAL severity. */
@@ -143,8 +161,8 @@ export const useMassBalanceStore = defineStore('massBalance', {
           name: lp.name,
           weight: lp.defaultQuantity,
           verified: false,
-          // Non-fuel stations with operationalLimit are mandatory
-          mandatory: lp.fuelTank === null,
+          mandatory: deriveMandatory(lp),
+          touched: lp.defaultQuantity > 0,
         }))
 
         this.notifications = []
@@ -178,8 +196,10 @@ export const useMassBalanceStore = defineStore('massBalance', {
     updateStationWeight(stationIndex: number, weight: number): void {
       const station = this.stations[stationIndex]
       if (!station) return
+      if (station.weight === weight) return
 
       station.weight = weight
+      station.touched = true
       this._runCalculation()
       this.evaluateState()
     },
@@ -221,18 +241,19 @@ export const useMassBalanceStore = defineStore('massBalance', {
     },
 
     /**
-     * Reset all station weights to 0 and clear verification flags.
+     * Reset all station weights to 0.
      *
-     * Transitions to UNCONFIGURED (empty mandatory fields).
+     * This is a deliberate user action, so all stations are marked as touched
+     * and the calculation re-runs to show the empty-aircraft result.
      */
     // @IMP-MB-STORE-010@ (FROM: @DES-UX-012@)
     resetPayload(): void {
       for (const station of this.stations) {
         station.weight = 0
         station.verified = false
+        station.touched = true
       }
-      this.notifications = []
-      this.lastResult = null
+      this._runCalculation()
       this.evaluateState()
     },
 
@@ -257,21 +278,33 @@ export const useMassBalanceStore = defineStore('massBalance', {
       )
       const activeReport = reports[0]
       if (!activeReport) {
-        this.notifications = []
+        this.notifications = [
+          {
+            id: 'CRIT-SYS-001',
+            severity: 'CRITICAL',
+            message: 'No valid weighing report found',
+            context: 'System',
+          },
+        ]
         this.lastResult = null
         return
       }
 
       const input: MathCoreInput = {
-        stations: this.availableStations.map((s) => {
-          const def = this.aircraft!.loadPoints[s.index]!
-          return {
-            index: s.index,
-            mass: s.weight,
-            arm: def.arm,
-            armLookup: def.armLookup,
-          }
-        }),
+        stations: this.availableStations
+          .filter((s) => {
+            const def = this.aircraft!.loadPoints[s.index]
+            return def && def.fuelTank === null
+          })
+          .map((s) => {
+            const def = this.aircraft!.loadPoints[s.index]!
+            return {
+              index: s.index,
+              mass: s.weight,
+              arm: def.arm,
+              armLookup: def.armLookup,
+            }
+          }),
         basicEmptyMass: activeReport.basicEmptyMass,
         emptyCenterOfGravity: activeReport.emptyCg,
         maxTakeoffMass: catDef.maxTakeoffMass,
@@ -339,6 +372,13 @@ export const useMassBalanceStore = defineStore('massBalance', {
               message: `Station ${v.stationIndex ?? ''} limit exceeded`,
               context: 'MassBalance.Stations',
             }
+          case 'INVALID_INPUT':
+            return {
+              id: 'CRIT-MB-INPUT',
+              severity: 'CRITICAL',
+              message: `Invalid input: ${v.field ?? 'unknown'} (${v.code ?? 'validation failed'})`,
+              context: 'MassBalance.Validation',
+            }
           default:
             return {
               id: 'UNKNOWN',
@@ -357,14 +397,22 @@ export const useMassBalanceStore = defineStore('massBalance', {
     /**
      * Deterministic state resolution.
      *
-     * This is the ONLY function that sets `uiState`. Priority order:
+     * This is the ONLY function that sets `uiState` except LOADING. Priority order:
      *
      *   1. No aircraft loaded        → INITIAL
      *   2. Mandatory fields missing  → UNCONFIGURED
      *   3. Critical notifications    → ERROR_CRITICAL
      *   4. Warning notifications     → WARNING
-     *   5. Fields not verified       → UNVERIFIED
-     *   6. All clear                 → VERIFIED_SAFE
+     *   5. All clear                 → VERIFIED_SAFE
+     *
+     * LOADING is a transitional state and should not be set by this function.
+     *
+     * NOTE: The UNVERIFIED state is intentionally not used here. M&B station
+     * weights are entered directly by the pilot and require no external-source
+     * verification. The `verified` field on StationInput, and the actions
+     * `markFieldVerified` / `markAllVerified`, are retained for future modules
+     * where fields are auto-populated from external sources (e.g. airport DB,
+     * weather) and must be explicitly confirmed per REQ-UI-014 / REQ-AP-005.
      *
      * @see docs/architecture/frontend_state_machine.md §2
      */
@@ -390,12 +438,6 @@ export const useMassBalanceStore = defineStore('massBalance', {
 
       if (this.hasWarningNotification) {
         this.uiState = 'WARNING'
-        return
-      }
-
-      // All data present but not yet confirmed
-      if (!this.allFieldsVerified) {
-        this.uiState = 'UNVERIFIED'
         return
       }
 

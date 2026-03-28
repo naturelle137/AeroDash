@@ -40,8 +40,13 @@ export interface StationInput {
   name: string
   /** Current weight entered by the pilot. */
   weight: number
-  /** Whether the pilot has explicitly verified this field (REQ-UI-014). */
+  /**
+   * Whether the pilot has explicitly verified this field (REQ-UI-014).
+   * Retained for future modules with externally-populated data (airport DB, weather).
+   */
   verified: boolean
-  /** Whether this station is mandatory (must be > 0 for UNCONFIGURED → UNVERIFIED). */
+  /** Whether this station is mandatory (must be touched for state progression). */
   mandatory: boolean
+  /** Whether the pilot has interacted with this field or it was loaded with a non-zero default. */
+  touched: boolean
 }

@@ -56,23 +56,24 @@ export function computeMassBalanceCore(input: MathCoreInput): MathCoreResult {
   }
 
   // @IMP-MB-CORE-002@ (FROM: @REQ-MB-008@)
-  // Takeoff Mass = Zero Fuel Mass + sum(usable fuel masses)
-  // Unusable fuel is already included in basicEmptyMass, so only usable fuel is added here.
-  let takeoffMass = zeroFuelCenterOfGravityPoint.mass
-  let takeoffMoment = zeroFuelMoment
-
-  for (const fs of input.fuelStations) {
+  // Pre-resolve arm and usable mass for each fuel station.
+  // Unusable fuel is already included in basicEmptyMass, so only usable fuel is added.
+  const resolvedFuel = input.fuelStations.map((fs) => {
     if (fs.armLookup.length === 0 && fs.arm === null) {
       throw new Error(
         `CRITICAL DOMAIN ERROR: Fuel Station ${fs.index} is missing both arm and armLookup.`,
       )
     }
-
-    const usableMass = Math.max(0, fs.mass - fs.unusableFuel)
-    const arm: number =
+    const resolvedArm: number =
       fs.armLookup.length > 0 ? interpolateArmFromLookup(fs.mass, fs.armLookup) : fs.arm!
-    takeoffMass += usableMass
-    takeoffMoment += usableMass * arm
+    return { ...fs, resolvedArm, usableMass: Math.max(0, fs.mass - fs.unusableFuel) }
+  })
+
+  let takeoffMass = zeroFuelCenterOfGravityPoint.mass
+  let takeoffMoment = zeroFuelMoment
+  for (const rf of resolvedFuel) {
+    takeoffMass += rf.usableMass
+    takeoffMoment += rf.usableMass * rf.resolvedArm
   }
 
   // @IMP-MB-CORE-005@ (FROM: @REQ-MB-008@)
@@ -90,9 +91,7 @@ export function computeMassBalanceCore(input: MathCoreInput): MathCoreResult {
   }
 
   // @IMP-MB-CORE-004@ (FROM: @REQ-MB-008@)
-  // For the current MVP logic, we just migrate from TOM to ZFM and assume all usable fuel is burned.
-  // Landing Mass = Zero Fuel Mass
-  // TODO: In a more complex version, the user might input planned fuel burn.
+  // Landing Mass = Zero Fuel Mass (all usable fuel burned).
   const landingMass = zeroFuelMass
   const landingMoment = zeroFuelMoment
 
@@ -103,32 +102,84 @@ export function computeMassBalanceCore(input: MathCoreInput): MathCoreResult {
     moment: landingMoment,
   }
 
-  // @IMP-MB-CORE-007@ (FROM: @REQ-MB-008@)
+  // @IMP-MB-CORE-007@ (FROM: @REQ-MB-008@, @REQ-FE-004@)
+  // Compute intermediate CG waypoints for multi-tank burn sequences.
+  // Each named sequence defines the order in which tanks are drained.
+  // Draining each tank (except the last) produces an intermediate CG point.
+  const sequenceNames = new Set<string>()
+  for (const rf of resolvedFuel) {
+    for (const bs of rf.burnSequences) {
+      sequenceNames.add(bs.sequenceName)
+    }
+  }
+
+  const burnSequenceWaypoints: MigrationPoint[] = []
+
+  for (const seqName of sequenceNames) {
+    const ordered = resolvedFuel
+      .filter((rf) => rf.burnSequences.some((bs) => bs.sequenceName === seqName))
+      .sort((a, b) => {
+        const ordA = a.burnSequences.find((bs) => bs.sequenceName === seqName)!.ordinalPosition
+        const ordB = b.burnSequences.find((bs) => bs.sequenceName === seqName)!.ordinalPosition
+        return ordA - ordB
+      })
+
+    let curMass = takeoffMass
+    let curMoment = takeoffMoment
+
+    for (let i = 0; i < ordered.length - 1; i++) {
+      const rf = ordered[i]!
+      curMass -= rf.usableMass
+      curMoment -= rf.usableMass * rf.resolvedArm
+
+      if (curMass > 0) {
+        burnSequenceWaypoints.push({
+          arm: curMoment / curMass,
+          mass: curMass,
+          label: `${seqName} #${i + 1}`,
+        })
+      }
+    }
+  }
+
   const migrationPath: MigrationPoint[] = []
-
   migrationPath.push({ ...takeoffCenterOfGravityPoint, label: 'Takeoff' })
-
-  // If there are multiple fuel tanks with burn sequences, we would calculate intermediate points here.
-  // For the MVP, we just do a straight line Takeoff -> Landing.
+  for (const wp of burnSequenceWaypoints) migrationPath.push(wp)
   migrationPath.push({ ...landingCenterOfGravityPoint, label: 'Landing' })
 
   // @IMP-MB-CORE-008@ (FROM: @REQ-MB-006@, @REQ-MB-004@, @REQ-MB-011@)
   const takeoffX = input.graphType === 'arm' ? takeoffCenterOfGravityPoint.arm : takeoffMoment
-  if (!isCgWithinEnvelope(takeoffX, takeoffCenterOfGravityPoint.mass, input.envelope)) {
-    violations.push({
-      type: 'CG_OUT_OF_ENVELOPE',
-    })
-  }
+  const takeoffInside = isCgWithinEnvelope(
+    takeoffX,
+    takeoffCenterOfGravityPoint.mass,
+    input.envelope,
+  )
 
-  // @IMP-MB-CORE-010@ (FROM: @REQ-MB-011@)
-  const landingX = input.graphType === 'arm' ? landingCenterOfGravityPoint.arm : landingMoment
-  if (
-    !isCgWithinEnvelope(landingX, landingCenterOfGravityPoint.mass, input.envelope) &&
-    !violations.some((v) => v.type === 'CG_OUT_OF_ENVELOPE')
-  ) {
-    violations.push({
-      type: 'CG_MIGRATION_EXCEEDED',
-    })
+  if (!takeoffInside) {
+    violations.push({ type: 'CG_OUT_OF_ENVELOPE' })
+  } else {
+    // @IMP-MB-CORE-010@ (FROM: @REQ-MB-011@, @REQ-FE-004@)
+    // Check all intermediate burn-sequence waypoints and the landing point.
+    let migrationViolation = false
+
+    for (const wp of burnSequenceWaypoints) {
+      const x = input.graphType === 'arm' ? wp.arm : wp.arm * wp.mass
+      if (!isCgWithinEnvelope(x, wp.mass, input.envelope)) {
+        migrationViolation = true
+        break
+      }
+    }
+
+    if (!migrationViolation) {
+      const landingX = input.graphType === 'arm' ? landingCenterOfGravityPoint.arm : landingMoment
+      if (!isCgWithinEnvelope(landingX, landingCenterOfGravityPoint.mass, input.envelope)) {
+        migrationViolation = true
+      }
+    }
+
+    if (migrationViolation) {
+      violations.push({ type: 'CG_MIGRATION_EXCEEDED' })
+    }
   }
 
   return {
