@@ -1,3 +1,12 @@
 {
-  "ignores": ["node_modules/**", ".tools/**", ".logs/**", "reports/**", "frontend/node_modules/**"]
+  "ignores": [
+    "node_modules/**",
+    ".tools/**",
+    ".logs/**",
+    "reports/**",
+    "frontend/node_modules/**",
+    ".agent/**",
+    "frontend/playwright-report/**",
+    "frontend/test-results/**"
+  ]
 }

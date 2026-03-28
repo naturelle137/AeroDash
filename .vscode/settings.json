@@ -17,5 +17,9 @@
       "fileMatch": ["tsconfig*.json"],
       "url": "https://www.schemastore.org/tsconfig"
     }
-  ]
+  ],
+  "cucumberautocomplete.steps": ["frontend/tests/e2e/steps/**/*.ts"],
+  "cucumberautocomplete.syncfeatures": "frontend/tests/e2e/features/**/*.feature, frontend/tests/e2e/features/**/**/*.feature",
+  "cucumberautocomplete.strictGherkinCompletion": false,
+  "cucumberautocomplete.customParameters": ["Given", "When", "Then", "And", "But"]
 }

@@ -1,5 +1,12 @@
 import process from 'node:process'
 import { defineConfig, devices } from '@playwright/test'
+import { defineBddConfig } from 'playwright-bdd'
+
+const testDir = defineBddConfig({
+  features: 'tests/e2e/features/**/*.feature',
+  steps: 'tests/e2e/steps/**/*.ts',
+  outputDir: 'tests/e2e/.features-gen',
+})
 
 /**
  * Read environment variables from file.
@@ -11,8 +18,7 @@ import { defineConfig, devices } from '@playwright/test'
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig({
-  testDir: './tests/e2e',
-  testMatch: '**/*.e2e.spec.ts',
+  testDir,
   /* Maximum time one test can run for. */
   timeout: 30 * 1000,
   expect: {

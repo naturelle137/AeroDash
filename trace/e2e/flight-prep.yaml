@@ -1,0 +1,35 @@
+Phase B End-to-End Tests
+  E2E-B-001
+    title: Pilot completes a clean flight preparation
+    files:
+      - frontend/tests/e2e/features/phase-b-flight-preparation/happy-path.feature
+
+  E2E-B-002
+    title: Fuel burn-off reveals aft CG migration beyond envelope limit
+    files:
+      - frontend/tests/e2e/features/phase-b-flight-preparation/burnout-check.feature
+
+  E2E-B-003
+    title: Redistributing baggage forward resolves CG migration violation
+    files:
+      - frontend/tests/e2e/features/phase-b-flight-preparation/burnout-check.feature
+
+  E2E-B-004
+    title: Full passenger and baggage load exceeds maximum takeoff mass
+    files:
+      - frontend/tests/e2e/features/phase-b-flight-preparation/overweight-discovery.feature
+
+  E2E-B-005
+    title: Reducing baggage clears MTOM but zero-fuel mass still exceeds MZFM
+    files:
+      - frontend/tests/e2e/features/phase-b-flight-preparation/overweight-discovery.feature
+
+  E2E-B-006
+    title: Alternative burn sequence pushes CG beyond aft envelope limit
+    files:
+      - frontend/tests/e2e/features/phase-b-flight-preparation/burn-sequence-polygon.feature
+
+  E2E-B-007
+    title: Redistributing load resolves burn-sequence CG migration violation
+    files:
+      - frontend/tests/e2e/features/phase-b-flight-preparation/burn-sequence-polygon.feature

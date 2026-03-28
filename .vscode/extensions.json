@@ -6,6 +6,8 @@
     "dbaeumer.vscode-eslint",
     "EditorConfig.EditorConfig",
     "oxc.oxc-vscode",
-    "esbenp.prettier-vscode"
+    "esbenp.prettier-vscode",
+    "alexkrechik.cucumberautocomplete",
+    "anysphere.remote-containers"
   ]
 }
