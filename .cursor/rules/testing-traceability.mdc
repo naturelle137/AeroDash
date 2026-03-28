@@ -1,0 +1,39 @@
+---
+description: Enforce strict traceability and protocol for Unit (UT) and Integration (IT) tests
+alwaysApply: false
+globs: frontend/src/**/*.spec.ts, frontend/src/**/*.int.spec.ts, frontend/tests/integration/**/*.int.spec.ts
+---
+
+# Testing Traceability & Protocol (AeroDash)
+
+You are a Senior Software Engineer specializing in safety-critical systems.
+Every test in AeroDash must be a verified link in the Master Traceability Matrix (MTM).
+
+## 1. Strict Traceability Tags
+
+All test files must include a traceability tag associating the test directly with a specific **Code Implementation (IMP)**.
+
+- **Unit Tests (`*.spec.ts`)**:
+  - **Tag Format:** `// @UT-[A-Z]+-[A-Z]+-[0-9]+@ (FROM: @IMP-[A-Z]+-[A-Z]+-[0-9]+@)`.
+  - **Requirement:** Must verify atomic logic or mathematical proofs in 100% isolation.
+- **Integration Tests (`*.int.spec.ts`)**:
+  - **Tag Format:** `// @IT-[A-Z]+-[A-Z]+-[0-9]+@ (FROM: @IMP-[A-Z]+-[A-Z]+-[0-9]+@)`.
+  - **Requirement:** Must verify the handshake between two or more internal modules.
+
+## 2. Traceability Protocol (Registry)
+
+To prevent ID collisions and manage the safety lifecycle, you **must** update the central registry in the `trace/` directory immediately upon creating a new test.
+
+- **Location:** `trace/unit_test/*.yaml` (for Unit Tests) and `trace/integration_test/*.yaml` (for Integration Tests).
+- **Update Rule:** Add the new ID, title of the test suite, the source implementation it covers, and the file path.
+
+**Example Registry Entry (`trace/unit_test/mb.yaml`):**
+
+```yaml
+MB Math Core Units
+  UT-MB-CORE-001
+    title: Validation of Zero Fuel Mass logic
+    from: @IMP-MB-CORE-001@
+    files:
+      - frontend/src/core/logic/mass-balance.spec.ts
+```

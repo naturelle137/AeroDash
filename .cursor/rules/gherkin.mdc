@@ -1,0 +1,272 @@
+---
+description: Enforce strict, domain-driven BDD practices with strict AeroDash traceability for safety-critical systems
+alwaysApply: false
+globs: **/*.feature
+---
+
+# Gherkin Best Practices & Traceability
+
+You are a Senior QA Engineer in a safety-critical aviation context.
+All `.feature` files must reflect real user behavior, domain correctness, and strict traceability.
+
+## 0. MVP & WIP RULE (CRITICAL)
+
+- Do NOT describe features or steps that are not implemented!
+- Do NOT invent future behavior in scenarios!
+
+## Instead:
+
+- Use @wip on:
+  - the Feature (if largely incomplete)
+  - individual Scenarios (if partially implemented)
+- Step definitions for unimplemented steps must NOT exist
+- BDD must always reflect current system capability, never future intent
+
+```gherkin
+@wip
+Feature: Flight export
+
+  @wip
+  Scenario: Export briefing pack
+```
+
+## 1. Declarative, Not Imperative
+
+- **Do not** describe UI interactions (e.g., "click", "type", "select from dropdown").
+- **Do** describe user behavior and business rules (e.g., "the user submits the form", "the account is created").
+- Focus on _what_ the system does, not _how_ it does it.
+
+```gherkin
+❌ When the user clicks the submit button
+✅ When the pilot submits the flight preparation
+```
+
+## 2. Language, Syntax & Formatting
+
+- Capitalize Gherkin keywords (Given, When, Then).
+- **No Punctuation:** Do not end steps with periods or commas.
+- Use Scenario Outlines for data-driven testing (Scenario Outline + Examples).
+- Use proper markdown formatting for tables.
+- Always use aviation/domain terminology.
+- Avoid technical jargon (API, database, SQL, CSS, JS).
+- **Present Tense:** Write steps in the present tense (e.g., "Then the results are displayed").
+- **Third Person:** Avoid "I" if the application is multi-user; be specific about the actor (e.g., "The Customer").
+
+## 3. Abstraction vs Data (CRITICAL BALANCE)
+
+### 3.1 Use concrete values ONLY when they drive behavior
+
+```gherkin
+# ✅ Correct (behavior depends on weight)
+When the pilot loads 200 kg in the rear seats
+Then a warning is displayed
+
+# ❌ Wrong (data noise in happy path)
+When the pilot enters 140 kg and 10 kg
+```
+
+### 3.2 Prefer domain abstractions for stable flows
+
+```gherkin
+# ✅ Preferred for happy path
+When the pilot loads two passengers and light baggage
+```
+
+### 3.3 Use real domain identifiers (DO NOT abstract away)
+
+```gherkin
+# ✅ Correct
+When the pilot selects aircraft "D-EBPN"
+
+# ❌ Wrong
+When the pilot selects a known aircraft
+```
+
+## 4. Given / When / Then Discipline
+
+- **Given** (Preconditions): Sets up the initial state/preconditions.
+- **When** (Action): The specific user action or event.
+- **Then** (Outcome): Observable result (verifiable outcome).
+- **And/But:** Use these to avoid repeating Given/When/Then for multiple conditions, not to start new scenarios.
+
+### 4.1 Assertions must express behavior, not UI
+
+```gherkin
+❌ Then the chart shows the CG point
+✅ Then the center of gravity is within the safe envelope
+```
+
+### 4.2 Do NOT parameterize meaning
+
+```gherkin
+❌ Then the aircraft is <inside/outside> limits
+
+✅ Then the aircraft is within safe limits
+✅ Then the aircraft exceeds safe limits
+```
+
+### 4.3 Split important outcomes for clarity
+
+```gherkin
+Then the aircraft weight is within limits
+And the center of gravity is within the safe envelope
+And no warnings are displayed
+```
+
+## 5. Scenario Design
+
+### 5.1 Atomic & Independent Scenarios
+
+- **One Scenario, One Behavior:** Each scenario should test exactly one business rule.
+- **Atomic & Independent:** Scenarios must not depend on the state of previous scenarios. Use `Background` for common setup steps.
+- **Step Limit:** Aim for fewer than 10 steps per scenario. If it's longer, refactor for clarity or split it.
+
+### 5.2 Scenario Outline usage (STRICT)
+
+Use Scenario Outline ONLY if behavior changes with data.
+
+### 5.3 Step count
+
+Max ~10 steps
+Prefer 5–7 clean steps
+
+## 6. Step Design Rules
+
+### 6.1 Steps must be readable by non-developers
+
+```gherkin
+❌ When the pilot enters 140 kg and 10 kg
+✅ When the pilot loads passengers and baggage
+```
+
+### 6.2 Use quotes ONLY for explicit identifiers
+
+```gherkin
+When the pilot selects aircraft "D-EBPN"
+When the pilot selects destination "EDXW"
+```
+
+### 6.3 Do NOT use <> outside Scenario Outlines
+
+## 7. Background Usage
+
+Use Background only for shared preconditions
+Keep it minimal (1–2 steps max)
+
+```gherkin
+Background:
+  Given the pilot starts a new flight preparation
+```
+
+## 8. Strict Traceability (MTM Chain)
+
+Every scenario must be strictly integrated into the Master Traceability Matrix (MTM) process.
+
+- **E2E Tagging:** Every Scenario must have a unique E2E tag in the format `# @E2E-[A-Z]+-[0-9]+@`.
+- **Upstream Tracing:** Every E2E tag must directly reference a User Journey (UJ).
+- **Syntax:** `# @E2E-XXX-001@ (FROM: @UJ-XXX-001@)`
+- **Placement:** These tags must be placed as a Gherkin comment (`#`) immediately above the Scenario.
+
+```gherkin
+# @E2E-B-001@ (FROM: @UJ-B-005@)
+@UJ-B-005 @e2e @flight-prep @happy-path @module-mb
+Scenario: Pilot completes a clean flight preparation
+```
+
+### 8.1 Tags (MANDATORY)
+
+Each scenario must include:
+
+@UJ-XXX-XXX
+phase tag (e.g., @phase-B)
+test type (@e2e, @smoke, etc.)
+
+Example:
+
+```gherkin
+@UJ-B-005 @phase-B @e2e @happy-path @module-mb
+```
+
+### 8.2 Comments ≠ Tags
+
+❗ Comments are for trace tools
+❗ Tags are for execution
+
+👉 BOTH are required
+
+## 9. Traceability Protocol (ID Registry)
+
+To maintain an overview of used IDs and identify the next available tag, all E2E implementations must be documented in the central trace registry.
+
+- **Location:** The registry is located in the root `trace/` directory (e.g., `trace/e2e/*.yaml`), independent of the tests which reside in `frontend/tests/e2e/`.
+- **Protocol Update:** Whenever you create a new E2E test and assign a new `# @E2E-...@` tag, you **must** append it to the corresponding YAML file in the `trace/e2e` folder.
+- **Format:** The entry must include the ID, title, and the file path.
+
+**Example Registry Entry (`trace/e2e/mb.yaml`):**
+
+```yaml
+Phase B End-to-End Tests
+  E2E-B-001
+    title: Standard Takeoff Mass Validation
+    files:
+      - frontend/tests/e2e/mass-balance/takeoff.feature
+```
+
+10. Naming Conventions
+
+Feature:
+
+- Must describe user goal
+
+```gherkin
+Feature: Complete a textbook flight preparation without warnings
+```
+
+Scenario:
+
+- Must describe specific outcome
+
+```gherkin
+Scenario: Pilot completes a clean flight preparation
+```
+
+## 11. Smoke Tests & Selection
+
+To keep the CI/CD pipeline efficient, smoke tests are marked specifically without violating the full UJ traceability requirement.
+
+- **@smoke Tag:** Use the native Gherkin tag @smoke above the scenario.
+- **Purpose:** Reserved exclusively for critical paths (e.g., system boot, P1 core accessibility).
+- **Traceability Rule:** A smoke test usually validates a critical User Journey. Therefore, it must still include the # @E2E-...@ (FROM: @UJ-...@) comment to ensure the MTM chain (Hazard -> REQ -> UJ -> E2E) remains unbroken.
+  - _Exception:_ Purely technical smoke tests (e.g., "Is the API reachable?") that do not mitigate a hazard or fulfill a business UJ do not require a UJ trace.
+
+## 12. Safety-Critical Mindset
+
+- Prefer clarity over DRY
+- Prefer explicitness over cleverness
+- Avoid hidden logic in steps
+- Ensure failures are immediately understandable
+
+## 13. Examples
+
+### Reference Example (Gold Standard)
+
+```gherkin
+@wip
+Feature: Complete a textbook flight preparation without warnings
+  As a pilot
+  I want to prepare a flight without warnings or inconsistencies
+  So that I can depart with confidence
+
+  Background:
+    Given the pilot starts a new flight preparation
+
+  # @E2E-B-001@ (FROM: @UJ-B-005@)
+  @UJ-B-005 @phase-B @e2e @happy-path @module-mb
+  Scenario: Pilot completes a clean flight preparation
+    When the pilot selects aircraft "D-EBPN"
+    And loads two passengers and light baggage
+    And adds sufficient fuel for the trip
+    Then the aircraft weight is within limits
+    And the center of gravity is within the safe envelope
+    And no warnings are displayed
+```
