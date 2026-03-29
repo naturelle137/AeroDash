@@ -1,0 +1,105 @@
+---
+description: Enforce Playwright BDD implementation standards for E2E step definition files
+alwaysApply: false
+globs: frontend/tests/e2e/**/*.steps.ts
+---
+
+# AeroDash E2E Implementation Rules — Playwright BDD
+
+You are implementing Playwright BDD step definitions for a safety-critical aviation application.
+
+**Scope of this rule:** Implementation quality of `.steps.ts` files only.
+**Gherkin syntax** → `gherkin.mdc`. **Trace tags, registry** → `traceability.mdc` + `docs/stc.md`.
+**Generating or refactoring tests** → use the `/e2e.*` commands.
+
+---
+
+## 1. File Structure
+
+| Artifact | Path | Naming |
+| :--- | :--- | :--- |
+| Feature files | `frontend/tests/e2e/features/{phase-slug}/` | `{kebab-name}.feature` |
+| Step definitions | `frontend/tests/e2e/steps/` | `{kebab-name}.steps.ts` |
+| Generated specs | `frontend/tests/e2e/.features-gen/` | Auto-generated — **NEVER edit** |
+
+- One `.steps.ts` file per feature domain group. A single steps file may serve multiple `.feature` files in the same phase when step text is shared.
+- A `.feature` file without a corresponding `.steps.ts` is not a test. Both artifacts are mandatory.
+- Phase slugs follow the STC Phase Identifiers: `phase-a-fleet-management`, `phase-b-flight-preparation`, etc.
+- Technical E2E and smoke tests live under `frontend/tests/e2e/features/technical/`.
+
+---
+
+## 2. Module Imports
+
+Every step definition file MUST open with:
+
+```typescript
+import { expect } from '@playwright/test'
+import { createBdd } from 'playwright-bdd'
+
+const { Given, When, Then } = createBdd()
+```
+
+- NEVER import `Given`, `When`, `Then` directly from `@playwright/test`.
+- NEVER import from `frontend/src/` implementation files. Steps orchestrate the UI; they do not call internal application logic directly.
+
+---
+
+## 3. Assertion Standards
+
+| Rule | Rationale |
+| :--- | :--- |
+| Use `expect(locator).toBeVisible()`, `.toHaveText()`, `.toContainText()`, `.toHaveCount()`, `.toHaveValue()` | Auto-waiting, deterministic |
+| NEVER use `expect(value).toBeTruthy()` or `.toBeDefined()` for UI state assertions | Not auto-waiting; masks real failures |
+| NEVER call `page.waitForTimeout()` | Hard waits introduce flakiness |
+| Every `Then` step MUST contain at least one `expect()` call | A Then step with no assertion is a silent test gap |
+| Assert absence with `.toHaveCount(0)`, not by omission | Omission cannot prove absence |
+
+---
+
+## 4. Locator Priority
+
+Use the highest-priority locator that accurately identifies the element:
+
+1. `page.getByRole(role, { name })` — preferred for interactive elements
+2. `page.getByLabel(text)` — preferred for form controls
+3. `page.getByText(text)` — for visible content without interactive semantics
+4. `page.locator('[data-testid="..."]')` — for components that lack ARIA semantics
+5. CSS class selectors — **only** when no semantic alternative exists
+
+**Forbidden:**
+- Selectors based on visual-presentation classes (`.btn-primary`, `.text-red-500`)
+- Auto-generated class names (`.vue-component-[hash]`)
+- XPath unless no other option exists
+
+CSS class selectors are permissible **only** when the class encodes semantic or domain state (e.g., `.notification--critical`). Add an inline comment explaining why a semantic locator was not possible.
+
+---
+
+## 5. Step Isolation
+
+- Steps MUST NOT store scenario state in module-level mutable variables. Each scenario runs against a fresh Playwright page context.
+- Helper functions shared across steps MUST be pure with respect to side effects: identical inputs produce identical UI interactions.
+- Steps MUST NOT call other step functions directly. Step composition occurs at the Gherkin level via Background and step reuse — never via programmatic step chaining.
+
+---
+
+## 6. Scope Boundary at Implementation Level
+
+| Scope | What the step implementation does |
+| :--- | :--- |
+| **Business E2E** | Navigates to real application routes. Interacts with real rendered UI components. No request interception or mocking at the step level. |
+| **Technical E2E / Smoke** | May use `page.request` for health endpoint checks. May inspect `page.on('console', ...)` for runtime errors. May bypass full UI flows to verify system-level state. |
+
+Cross-contamination is a defect:
+- Business E2E steps MUST NOT validate infrastructure health endpoints or HTTP response codes.
+- Technical E2E steps MUST NOT assert aviation domain outcomes (CG within limits, MTOM compliance, etc.).
+
+---
+
+## 7. Step Text Matching
+
+- Every step string registered in a `.steps.ts` file MUST match at least one step in a `.feature` file (no orphan step handlers).
+- Every step in a `.feature` file MUST have a matching handler in a `.steps.ts` file (no unimplemented steps).
+- Step text matching is **exact** (case-sensitive). Do not rely on regex flexibility to bridge mismatched Gherkin and implementation text.
+- String parameters in step text use `{string}`. Integer parameters use `{int}`. Float parameters use `{float}`. Do not use bare regex capture groups.
