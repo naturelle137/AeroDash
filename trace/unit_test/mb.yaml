@@ -654,7 +654,7 @@ MB Store - Notification Mapping
       - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
 
   UT-MB-STORE-028
-    title: Verify unknown violation type maps to default WARNING
+    title: Verify INVALID_INPUT maps to ERR-SYS-001 error notification
     impl:
       - IMP-MB-STORE-011
     files:
@@ -854,6 +854,28 @@ MB Store - Mutant-Killing Boundary Tests
 
   UT-MB-STORE-055
     title: Verify hasCriticalNotification false when only WARNING notifications
+    impl:
+      - IMP-MB-STORE-012
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-056
+    title: Verify hasErrorNotification true when INVALID_INPUT violations exist
+    impl:
+      - IMP-MB-STORE-011
+      - IMP-MB-STORE-012
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-057
+    title: Verify ERROR_CRITICAL when only ERROR notifications exist
+    impl:
+      - IMP-MB-STORE-012
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-058
+    title: Verify ERROR_CRITICAL priority CRITICAL > ERROR > WARNING
     impl:
       - IMP-MB-STORE-012
     files:

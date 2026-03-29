@@ -6,7 +6,8 @@
  */
 
 // @IMP-SYS-CORE-001@ (FROM: @DES-ARCH-001@)
-export type NotificationSeverity = 'INFO' | 'WARNING' | 'CRITICAL'
+// @IMP-SYS-CORE-003@ (FROM: @REQ-SYS-011@, @REQ-SYS-012@, @DES-ARCH-001@)
+export type NotificationSeverity = 'INFO' | 'WARNING' | 'ERROR' | 'CRITICAL'
 
 export interface NotificationAction {
   label: string

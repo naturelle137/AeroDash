@@ -40,7 +40,7 @@ This document defines the mass & balance behavior using the **EARS** (Easy Appro
 
 ### REQ-MB-004: Out of Envelope Notification
 
-**Requirement:** If the calculated CG is outside the defined aircraft envelope, then the system shall return a Notification: `{ "id": "CRIT-MB-001", "severity": "CRITICAL", "message": "CG Out of Envelope", "context": "MassBalance.CG" }`.
+**Requirement:** If the calculated CG is outside the defined aircraft envelope, then the system shall emit a CRITICAL notification (`CRIT-MB-001`) alerting the pilot that the CG is out of the approved envelope.
 **Rationale:** Prevents takeoff in an uncontrollable flight state.
 **Priority:** P1
 **Status:** Implemented
@@ -50,7 +50,7 @@ This document defines the mass & balance behavior using the **EARS** (Easy Appro
 
 ### REQ-MB-005: MTOM Exceedance Notification
 
-**Requirement:** If the total mass exceeds MTOM, then the system shall return a Notification: `{ "id": "CRIT-MB-002", "severity": "CRITICAL", "message": "MTOM Exceeded", "context": "MassBalance.TotalMass" }`.
+**Requirement:** If the total mass exceeds MTOM, then the system shall emit a CRITICAL notification (`CRIT-MB-002`) alerting the pilot that the maximum takeoff mass has been exceeded.
 **Rationale:** Prevents structural overload and certified limit violation.
 **Priority:** P1
 **Status:** Implemented
@@ -90,7 +90,7 @@ This document defines the mass & balance behavior using the **EARS** (Easy Appro
 
 ### REQ-MB-009: MZFM Validation
 
-**Requirement:** The system shall calculate and validate the ZFM against the aircraft's MZFM if specified. If the ZFM exceeds the MZFM, then the system shall return a Notification: `{ "id": "CRIT-MB-004", "severity": "CRITICAL", "message": "MZFM Exceeded", "context": "MassBalance.ZFM" }`.
+**Requirement:** The system shall calculate and validate the ZFM against the aircraft's MZFM if specified. If the ZFM exceeds the MZFM, then the system shall emit a CRITICAL notification (`CRIT-MB-004`) alerting the pilot that the maximum zero fuel mass has been exceeded.
 **Rationale:** Protects wing structural integrity (bending relief limitations).
 **Priority:** P1
 **Status:** Implemented
@@ -110,7 +110,7 @@ This document defines the mass & balance behavior using the **EARS** (Easy Appro
 
 ### REQ-MB-011: CG Migration Exceedance
 
-**Requirement:** If the CG migration region (trend line for single-sequence aircraft, or burn-down polygon for multi-sequence aircraft) exits the envelope at any point, the system shall return a Notification: `{ "id": "CRIT-MB-003", "severity": "CRITICAL", "message": "CG Migration Limit Exceeded", "context": "MassBalance.CG" }`.
+**Requirement:** If the CG migration region (trend line for single-sequence aircraft, or burn-down polygon for multi-sequence aircraft) exits the envelope at any point, the system shall emit a CRITICAL notification (`CRIT-MB-003`) alerting the pilot that the CG migration exceeds the approved envelope during fuel burn.
 **Rationale:** Detects mid-flight limit violations before they occur. A single-line check is insufficient for multi-tank aircraft where different burn sequences produce divergent CG paths.
 **Priority:** P1
 **Status:** Implemented

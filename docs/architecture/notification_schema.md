@@ -45,11 +45,12 @@ Every notification within the AeroDash system shall map to the following JSON st
 
 ## 3. Severity Enums
 
-| Enum           | Description                                         | UI Behavior (Reference)                      |
-| :------------- | :-------------------------------------------------- | :------------------------------------------- |
-| **`INFO`**     | Neutral system information.                         | Passive Toast / Banner.                      |
-| **`WARNING`**  | Operational alert, flight may proceed with caution. | Dismissible Alert / Field Indicator.         |
-| **`CRITICAL`** | Safety limit violation, flight should not proceed.  | Blocking Modal / Haptic Feedback / Flashing. |
+| Enum           | Description                                                     | UI Behavior (Reference)                      |
+| :------------- | :-------------------------------------------------------------- | :------------------------------------------- |
+| **`INFO`**     | Neutral system information.                                     | Passive Toast / Banner.                      |
+| **`WARNING`**  | Operational alert, flight may proceed with caution.             | Dismissible Alert / Field Indicator.         |
+| **`ERROR`**    | Validation failed; user must fix input.                         | Inline Error / Red Outline.                  |
+| **`CRITICAL`** | Safety limit violation, flight should not proceed.              | Blocking Modal / Haptic Feedback / Flashing. |
 
 ## 4. Implementation Rules
 
@@ -76,6 +77,7 @@ This register lists all defined notifications in the system to ensure uniqueness
 | `CRIT-PF-002`  | Runway Insufficient                | `CRITICAL` | [REQ-PF-015](../requirements/performance.md#REQ-PF-015)                | If the Operational Required Distance exceeds the published Available Distance (TORA/LDA).                                                                                                |
 | `WARN-PF-002`  | Safety Factor Low                  | `WARNING`  | [REQ-PF-016](../requirements/performance.md#REQ-PF-016)                | If the user-selected Operational Safety Factor is lower than the greater of the POH-mandated factor and the regulatory baseline (Takeoff: 1.25, Landing: 1.43).                          |
 | `INFO-SYS-001` | Update Available                   |   `INFO`   | [REQ-SYS-005](../requirements/system.md#REQ-SYS-005)                   | When a new software version is detected.                                                                                                                                                 |
+| `ERR-SYS-001`  | Invalid Input: {field} ({code})    |  `ERROR`   | [REQ-SYS-012](../requirements/system.md#REQ-SYS-012)                   | When module input validation (Zod schema) fails before core logic (REQ-SYS-011). Dynamic: field = field path, code = validation code.                                                    |
 | `WARN-UI-001`  | Input Out of Range                 | `WARNING`  | [REQ-UI-008](../requirements/user_interface.md#REQ-UI-008)             | When numeric inputs are outside standard operational ranges.                                                                                                                             |
 | `CRIT-UI-001`  | Unverified Data Present            | `CRITICAL` | [REQ-UI-015](../requirements/user_interface.md#REQ-UI-015)             | When the user triggers the "Save" or "Export" action for a calculation containing parameters with `Unverified` status.                                                                   |
 | `CRIT-UI-002`  | Safety Factor Low                  | `CRITICAL` | [REQ-UI-017](../requirements/user_interface.md#REQ-UI-017)             | When the user triggers the "Save" or "Export" action for a calculation containing an Operational Safety Factor below the greater of the POH-mandated factor and the regulatory baseline. |

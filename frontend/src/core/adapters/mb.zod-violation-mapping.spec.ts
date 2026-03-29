@@ -125,7 +125,6 @@ describe('mapZodErrorToViolations', () => {
     expect(violations).toEqual([
       expect.objectContaining({
         type: 'INVALID_INPUT',
-        severity: 'CRITICAL',
         field: '',
       }),
     ])

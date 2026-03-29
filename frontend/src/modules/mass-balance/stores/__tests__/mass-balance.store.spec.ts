@@ -533,7 +533,7 @@ describe('MassBalance Store', () => {
   })
 
   // @UT-MB-STORE-028@ (FROM: @IMP-MB-STORE-011@)
-  it('maps INVALID_INPUT violation to CRIT-MB-INPUT notification', () => {
+  it('maps INVALID_INPUT violation to ERR-SYS-001 error notification', () => {
     mockedCalculate.mockReturnValue(
       buildViolationResult([{ type: 'INVALID_INPUT', field: 'STATIONS[0].ARM', code: 'REQUIRED' }]),
     )
@@ -541,8 +541,8 @@ describe('MassBalance Store', () => {
     store.loadProfile(mockProfile)
 
     expect(store.notifications).toContainEqual({
-      id: 'CRIT-MB-INPUT',
-      severity: 'CRITICAL',
+      id: 'ERR-SYS-001',
+      severity: 'ERROR',
       message: 'Invalid input: STATIONS[0].ARM (REQUIRED)',
       context: 'MassBalance.Validation',
     })
@@ -760,6 +760,51 @@ describe('MassBalance Store', () => {
 
     expect(store.hasCriticalNotification).toBe(false)
     expect(store.hasWarningNotification).toBe(true)
+  })
+
+  // @UT-MB-STORE-056@ (FROM: @IMP-MB-STORE-011@, @IMP-MB-STORE-012@)
+  it('hasErrorNotification is true when INVALID_INPUT violations exist', () => {
+    mockedCalculate.mockReturnValue(
+      buildViolationResult([{ type: 'INVALID_INPUT', field: 'BEM', code: 'REQUIRED' }]),
+    )
+    const store = useMassBalanceStore()
+    store.loadProfile(mockProfile)
+
+    expect(store.hasErrorNotification).toBe(true)
+    expect(store.hasCriticalNotification).toBe(false)
+    expect(store.hasWarningNotification).toBe(false)
+  })
+
+  // @UT-MB-STORE-057@ (FROM: @IMP-MB-STORE-012@)
+  it('evaluates to ERROR_CRITICAL when only ERROR notifications exist', () => {
+    mockedCalculate.mockReturnValue(
+      buildViolationResult([{ type: 'INVALID_INPUT', field: 'BEM', code: 'REQUIRED' }]),
+    )
+    const store = useMassBalanceStore()
+    store.loadProfile(mockProfile)
+    store.updateStationWeight(0, 80)
+
+    expect(store.hasErrorNotification).toBe(true)
+    expect(store.hasCriticalNotification).toBe(false)
+    expect(store.uiState).toBe('ERROR_CRITICAL')
+  })
+
+  // @UT-MB-STORE-058@ (FROM: @IMP-MB-STORE-012@)
+  it('ERROR_CRITICAL takes priority: CRITICAL > ERROR > WARNING', () => {
+    mockedCalculate.mockReturnValue(
+      buildViolationResult([
+        { type: 'INVALID_INPUT', field: 'BEM', code: 'REQUIRED' },
+        { type: 'STATION_LIMIT_EXCEEDED', stationIndex: 0 },
+      ]),
+    )
+    const store = useMassBalanceStore()
+    store.loadProfile(mockProfile)
+    store.updateStationWeight(0, 80)
+
+    expect(store.hasErrorNotification).toBe(true)
+    expect(store.hasWarningNotification).toBe(true)
+    expect(store.hasCriticalNotification).toBe(false)
+    expect(store.uiState).toBe('ERROR_CRITICAL')
   })
 
   // ─── State Transitions (Full Cycle) ───────────────────────────────────

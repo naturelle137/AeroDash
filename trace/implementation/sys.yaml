@@ -14,3 +14,13 @@ SYS Core
       - DES-ARCH-001
     files:
       - frontend/src/core/adapters/mb.zod-violation-mapping.ts
+
+  IMP-SYS-CORE-003
+    title: ERROR Severity for Validation Failures
+    req:
+      - REQ-SYS-011
+      - REQ-SYS-012
+    des:
+      - DES-ARCH-001
+    files:
+      - frontend/src/core/domain/notification.types.ts

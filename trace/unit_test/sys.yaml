@@ -131,3 +131,10 @@ SYS Core — Zod error to violation mapping (Unit)
       - IMP-SYS-CORE-002
     files:
       - frontend/src/core/adapters/mb.zod-violation-mapping.spec.ts
+
+  UT-SYS-CORE-020
+    title: Violation mapping no longer emits phantom severity field
+    impl:
+      - IMP-SYS-CORE-002
+    files:
+      - frontend/src/core/adapters/mb.zod-violation-mapping.spec.ts

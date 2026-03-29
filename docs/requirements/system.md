@@ -106,6 +106,26 @@ This document defines the system behavior using the **EARS** (Easy Approach to R
 **Status:** Approved
 **Design Reference:** n/a
 
+<!-- @REQ-SYS-011@ -->
+
+### REQ-SYS-011: Input Validation Before Core Logic
+
+**Requirement:** Before invoking any core calculation logic, the system shall validate all module inputs against their defined schema (Zod). If validation fails, the system shall reject the input and shall not execute the core calculation.
+**Rationale:** Prevents invalid or incomplete data from reaching safety-critical math logic. Validation failures are input errors, not safety-limit breaches.
+**Priority:** P1
+**Status:** Implemented
+**Design Reference:** [Notification Schema](../architecture/notification_schema.md)
+
+<!-- @REQ-SYS-012@ -->
+
+### REQ-SYS-012: Validation Failure Error Notification
+
+**Requirement:** If input validation fails (REQ-SYS-011), the system shall emit a Notification with severity `ERROR` containing the invalid field path and validation failure code (`ERR-SYS-001`). The notification context shall identify the originating module (e.g. `MassBalance.Validation`).
+**Rationale:** Distinguishes input mistakes (`ERROR` — inline field errors, user must fix) from safety-limit violations (`CRITICAL` — flight should not proceed). Reduces alarm fatigue by reserving `CRITICAL` for genuine safety hazards.
+**Priority:** P1
+**Status:** Implemented
+**Design Reference:** [Notification Schema](../architecture/notification_schema.md)
+
 ---
 
 ## Design References

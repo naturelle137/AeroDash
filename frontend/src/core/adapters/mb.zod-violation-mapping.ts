@@ -41,7 +41,6 @@ export const mapZodErrorToViolations = (error: z.ZodError): Violation[] => {
 
     return {
       type: 'INVALID_INPUT',
-      severity: 'CRITICAL',
       field: fieldPath,
       code,
     }

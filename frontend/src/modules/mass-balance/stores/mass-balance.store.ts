@@ -120,6 +120,11 @@ export const useMassBalanceStore = defineStore('massBalance', {
       return this.notifications.some((n) => n.severity === 'CRITICAL')
     },
 
+    /** True if any captured notification has ERROR severity (validation failures). */
+    hasErrorNotification(): boolean {
+      return this.notifications.some((n) => n.severity === 'ERROR')
+    },
+
     /** True if any captured notification has WARNING severity. */
     hasWarningNotification(): boolean {
       return this.notifications.some((n) => n.severity === 'WARNING')
@@ -340,7 +345,7 @@ export const useMassBalanceStore = defineStore('massBalance', {
       const result = calculateMassBalance(input)
 
       // Map raw violations to UI notifications
-      // @IMP-MB-STORE-011@ (FROM: @REQ-MB-004@, @REQ-MB-005@, @REQ-MB-009@, @REQ-MB-011@, @DES-UX-010@, @DES-ARCH-001@)
+      // @IMP-MB-STORE-011@ (FROM: @REQ-MB-004@, @REQ-MB-005@, @REQ-MB-009@, @REQ-MB-011@, @REQ-SYS-011@, @REQ-SYS-012@, @DES-UX-010@, @DES-ARCH-001@)
       this.notifications = result.violations.map((v) => {
         switch (v.type) {
           case 'MTOM_EXCEEDED':
@@ -380,8 +385,8 @@ export const useMassBalanceStore = defineStore('massBalance', {
             }
           case 'INVALID_INPUT':
             return {
-              id: 'CRIT-MB-INPUT',
-              severity: 'CRITICAL',
+              id: 'ERR-SYS-001',
+              severity: 'ERROR',
               message: `Invalid input: ${v.field ?? 'unknown'} (${v.code ?? 'validation failed'})`,
               context: 'MassBalance.Validation',
             }
@@ -408,8 +413,9 @@ export const useMassBalanceStore = defineStore('massBalance', {
      *   1. No aircraft loaded        → INITIAL
      *   2. Mandatory fields missing  → UNCONFIGURED
      *   3. Critical notifications    → ERROR_CRITICAL
-     *   4. Warning notifications     → WARNING
-     *   5. All clear                 → VERIFIED_SAFE
+     *   4. Error notifications       → ERROR_CRITICAL
+     *   5. Warning notifications     → WARNING
+     *   6. All clear                 → VERIFIED_SAFE
      *
      * LOADING is a transitional state and should not be set by this function.
      *
@@ -438,6 +444,12 @@ export const useMassBalanceStore = defineStore('massBalance', {
 
       // Safety violations take priority
       if (this.hasCriticalNotification) {
+        this.uiState = 'ERROR_CRITICAL'
+        return
+      }
+
+      // Validation errors: computation cannot proceed
+      if (this.hasErrorNotification) {
         this.uiState = 'ERROR_CRITICAL'
         return
       }
