@@ -27,7 +27,7 @@ Each requirement is defined in a Markdown table with the following columns:
 | **Rationale / Context**  | _Why_ this requirement exists. Links to parent requirements or user needs.                                                    |
 | **Priority**             | **P1** (Critical/Safety), **P2** (Standard), **P3** (Nice to have / Polish).                                                  |
 | **Mitigation Hazard ID** | Link to the specific Hazard ID in `docs/risk_management/safety_hazards.md` if this requirement acts as a control measure.     |
-| **Status**               | `Draft`, `Review`, `Approved`, `Deprecated`.                                                                                  |
+| **Status**               | `Draft`, `Review`, `Approved`, `Implemented`, `Deprecated`.                                                                   |
 | **Design Reference**     | Keyword pointing to a specific design document or architectural component (defined at the bottom of the file).                |
 
 ## Module Identifiers

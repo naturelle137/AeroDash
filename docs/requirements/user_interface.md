@@ -137,7 +137,7 @@ This document defines the user interface behavior using the **EARS** (Easy Appro
 **Requirement:** The system shall provide a toggle control adjacent to each Unverified data field that transitions the status to Verified upon user activation.
 **Rationale:** Allows granular verification during planning ("Clean as you go").
 **Priority:** P2
-**Status:** Approved
+**Status:** Implemented
 **Design Reference:** n/a
 
 <!-- @REQ-UI-015@ (FROM: @H-015@) -->
@@ -157,7 +157,7 @@ This document defines the user interface behavior using the **EARS** (Easy Appro
 **Requirement:** The confirmation dialog [REQ-UI-015](#req-ui-015-unverified-data-export-warning) shall provide an option to "Mark all as Verified" which transitions the status of all current airport parameters to `Verified` in the local database.
 **Rationale:** Efficiency for "Verify at the end" workflow.
 **Priority:** P2
-**Status:** Approved
+**Status:** Implemented
 **Design Reference:** n/a
 
 <!-- @REQ-UI-017@ (FROM: @H-016@) -->

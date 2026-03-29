@@ -83,7 +83,7 @@ This document defines the system behavior using the **EARS** (Easy Approach to R
 **Requirement:** The communication logic layer and UI layer shall be done via a uniform notification data model containing at minimum: Unique ID, Severity, Message, and Persistence flag.
 **Rationale:** Ensures strict data contract and decoupled interaction between Logic and UI layers.
 **Priority:** P1
-**Status:** Approved
+**Status:** Implemented
 **Design Reference:** [Notification Schema](../architecture/notification_schema.md)
 
 <!-- @REQ-SYS-009@ -->

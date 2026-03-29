@@ -23,7 +23,7 @@ This document defines the detailed aircraft data behavior using the **EARS** (Ea
 **Requirement:** The system shall allow the configuration of up to $20$ load points containing the following attributes: <ul><li>Name,</li> <li>arm/moment,</li> <li>optional operational limit,</li> <li>default quantity,</li> <li>unit, and</li> <li>optional allowable certification categories.</li></ul>
 **Rationale:** Defines the generic data structure for any station on the aircraft (seats, bags, tanks). Allowable categories restrict which load points are available per certification category (e.g., rear seat not available in Utility category).
 **Priority:** P1
-**Status:** Approved
+**Status:** Implemented
 **Design Reference:** [Aircraft Data Model](../architecture/aircraft_data_model.md)
 
 <!-- @REQ-AD-003@ (FROM: @H-003@) -->
@@ -33,7 +33,7 @@ This document defines the detailed aircraft data behavior using the **EARS** (Ea
 **Requirement:** The system shall allow the configuration of up to 10 fuel tanks as a specific type of load point, extending it with the following additional attributes: <ul><li>Unusable fuel,</li> <li>permissible fuel types (MoGas, AvGas 100LL, Jet A-1, AvGas UL91, Diesel), and</li> <li>burn sequence order (ordinal position per named sequence, e.g., `Standard`, `Alternative`) for each tank across one or more named burn sequences.</li></ul> <br>Operational limit denotes tank capacity.
 **Rationale:** Maps generic load points to fluid logic, adds safety-critical fuel specifics, and enables CG migration polygon computation for aircraft with tanks at different lever arms and alternate burn sequences (e.g., KL107B Standard: Tank II → Tank I; Alternative: Tank I → Tank II).
 **Priority:** P1
-**Status:** Approved
+**Status:** Implemented
 **Design Reference:** n/a
 
 <!-- @REQ-AD-004@ -->
@@ -53,7 +53,7 @@ This document defines the detailed aircraft data behavior using the **EARS** (Ea
 **Requirement:** The system shall define flight envelope limits: graph type (arm or moment) and load range defined by a minimum of four and a maximum of 20 points (arm/moment + mass).
 **Rationale:** Geometric basis for CG validation.
 **Priority:** P1
-**Status:** Approved
+**Status:** Implemented
 **Design Reference:** n/a
 
 <!-- @REQ-AD-006@ -->
@@ -123,7 +123,7 @@ This document defines the detailed aircraft data behavior using the **EARS** (Ea
 **Requirement:** The system shall store loading station definitions as either a fixed scalar lever arm or a variable lookup table (Mass/Volume vs. Moment).
 **Rationale:** Supports swept-wing or complex tank configurations where CG shifts with fuel level.
 **Priority:** P1
-**Status:** Approved
+**Status:** Implemented
 **Design Reference:** n/a
 
 <!-- @REQ-AD-013@ -->
