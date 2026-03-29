@@ -2,6 +2,9 @@ import { z } from 'zod'
 import type { MathCoreInput, MathCoreResult } from '../domain/mass-balance.math-types'
 import { computeMassBalanceCore } from '../logic/mass-balance.logic'
 import { mapZodErrorToViolations } from './mb.zod-violation-mapping'
+import { createLogger } from '../../shared/utils/logger'
+
+const logger = createLogger('MassBalance.Adapter')
 
 const createNumReq = () => z.number()
 const createNumGt0Req = () => createNumReq().gt(0, { message: 'NEGATIVE_VALUE' })
@@ -140,7 +143,7 @@ export function calculateMassBalance(input: unknown): MathCoreResult {
   try {
     return computeMassBalanceCore(result.data as MathCoreInput)
   } catch (err) {
-    console.error('Core failed with:', (err as Error).message, result.data)
+    logger.error('Core failed', { error: (err as Error).message, input: result.data })
     throw err
   }
 }

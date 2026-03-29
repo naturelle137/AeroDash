@@ -439,11 +439,14 @@ describe('M&B Zod Adapter', () => {
     })
 
     expect(() => calculateMassBalance(input)).toThrow('Fatal Core Failure')
-    expect(consoleSpy).toHaveBeenCalledWith(
-      'Core failed with:',
-      'Fatal Core Failure',
-      expect.any(Object),
-    )
+    expect(consoleSpy).toHaveBeenCalledOnce()
+    const logOutput = JSON.parse(consoleSpy.mock.calls[0][0] as string)
+    expect(logOutput).toMatchObject({
+      level: 'ERROR',
+      context: 'MassBalance.Adapter',
+      message: 'Core failed',
+      data: { error: 'Fatal Core Failure', input: expect.any(Object) },
+    })
 
     consoleSpy.mockRestore()
   })

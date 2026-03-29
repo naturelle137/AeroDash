@@ -45,6 +45,7 @@ export default defineConfigWithVueTs(
     '**/coverage/**',
     '**/node_modules/**',
     '**/stryker-tmp/**',
+    '**/playwright-report/**',
   ]),
 
   ...pluginVue.configs['flat/essential'],
@@ -58,6 +59,21 @@ export default defineConfigWithVueTs(
   {
     ...pluginVitest.configs.recommended,
     files: ['src/**/__tests__/*'],
+  },
+
+  {
+    name: 'app/no-raw-console',
+    rules: {
+      'no-console': 'error',
+    },
+  },
+
+  {
+    name: 'app/logger-console-override',
+    files: ['src/shared/utils/logger.ts'],
+    rules: {
+      'no-console': 'off',
+    },
   },
 
   ...pluginOxlint.buildFromOxlintConfigFile('.oxlintrc.json'),
