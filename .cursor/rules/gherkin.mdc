@@ -1,5 +1,5 @@
 ---
-description: Enforce strict, domain-driven BDD with AeroDash traceability for safety-critical aviation systems
+description: Enforce strict, domain-driven BDD quality standards for safety-critical aviation feature files
 alwaysApply: false
 globs: **/*.feature
 ---
@@ -37,55 +37,18 @@ Feature: Flight export
 
 ---
 
-## 2. ACTION: Traceability Protocol
+## 2. Traceability
 
-### 2.1 Every Scenario requires both a trace comment AND execution tags
-
-**Trace comment** (for tooling) — placed as a Gherkin `#` comment directly above the Scenario:
-
-- Format: `# @E2E-[A-Z]+-[0-9]+@ (FROM: @UJ-XXX-XXX@)`
-
-**Execution tags** (for test runners) — placed on the line between the comment and the Scenario keyword:
-
-| Tag           | Purpose             | Example                      |
-| ------------- | ------------------- | ---------------------------- |
-| `@UJ-XXX-XXX` | Source User Journey | `@UJ-B-005`                  |
-| `@phase-X`    | Development phase   | `@phase-B`                   |
-| Test type     | Execution filter    | `@e2e`, `@smoke`             |
-| Module/domain | Scope filter        | `@module-mb`, `@flight-prep` |
-
-Comments and tags serve **different purposes** — both are always required.
-
-```gherkin
-# @E2E-B-001@ (FROM: @UJ-B-005@)
-@UJ-B-005 @phase-B @e2e @happy-path @module-mb
-Scenario: Pilot completes a clean flight preparation
-```
-
-### 2.2 Registry update (MANDATORY when assigning a new E2E tag)
-
-When you create a new E2E test and assign a new `# @E2E-...@` tag, you **must** append it to the corresponding YAML file in `trace/e2e/`.
-
-- Registry location: `trace/e2e/*.yaml` (separate from tests in `frontend/tests/e2e/`)
-- Entry format: ID, title, and file path
-
-```yaml
-Phase B End-to-End Tests
-  E2E-B-004
-    title: Full passenger and baggage load exceeds maximum takeoff mass
-    files:
-      - frontend/tests/e2e/features/phase-b-flight-preparation/overweight-discovery.feature
-```
-
-### 2.3 Smoke tests
-
-- Use `@smoke` only for critical-path scenarios (system boot, P1 core accessibility)
-- Smoke tests still require full `# @E2E-...@ (FROM: @UJ-...@)` traceability to preserve the MTM chain (Hazard → REQ → UJ → E2E)
-- **Exception:** Purely technical smoke tests (e.g., "Is the API reachable?") without a business UJ do not require UJ trace
+> All E2E traceability rules (trace comments, execution tags, registry updates,
+> smoke/technical classification) are defined in the **Single Traceability
+> Contract** (`docs/stc.md`) and enforced by the `traceability.mdc`
+> Cursor rule. Consult those files for tag formats, placement, and registry
+> update requirements.
 
 ---
 
 ## 3. Step Writing Rules
+<!-- NOTE: Section numbers intentionally preserved for stability. §2 was replaced by an STC reference. -->
 
 ### 3.1 Declarative, not imperative
 
