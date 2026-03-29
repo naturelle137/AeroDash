@@ -24,3 +24,18 @@ SYS Core
       - DES-ARCH-001
     files:
       - frontend/src/core/domain/notification.types.ts
+
+SYS Shared — Structured Logger Utility
+  IMP-SYS-SHARED-001
+    title: Safe Serialization for Large Aircraft Objects
+    des:
+      - DES-ARCH-001
+    files:
+      - frontend/src/shared/utils/logger.ts
+
+  IMP-SYS-SHARED-002
+    title: Structured Logger Factory (createLogger)
+    des:
+      - DES-ARCH-001
+    files:
+      - frontend/src/shared/utils/logger.ts

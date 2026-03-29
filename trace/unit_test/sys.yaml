@@ -138,3 +138,110 @@ SYS Core — Zod error to violation mapping (Unit)
       - IMP-SYS-CORE-002
     files:
       - frontend/src/core/adapters/mb.zod-violation-mapping.spec.ts
+
+SYS Shared — Structured Logger Utility (Unit)
+  UT-SYS-SHARED-001
+    title: Returns primitives unchanged
+    impl:
+      - IMP-SYS-SHARED-001
+    files:
+      - frontend/src/shared/utils/__tests__/logger.spec.ts
+
+  UT-SYS-SHARED-002
+    title: Truncates strings exceeding MAX_STRING_LENGTH
+    impl:
+      - IMP-SYS-SHARED-001
+    files:
+      - frontend/src/shared/utils/__tests__/logger.spec.ts
+
+  UT-SYS-SHARED-003
+    title: Serializes nested objects up to MAX_DEPTH
+    impl:
+      - IMP-SYS-SHARED-001
+    files:
+      - frontend/src/shared/utils/__tests__/logger.spec.ts
+
+  UT-SYS-SHARED-004
+    title: Truncates arrays exceeding MAX_ARRAY_LENGTH
+    impl:
+      - IMP-SYS-SHARED-001
+    files:
+      - frontend/src/shared/utils/__tests__/logger.spec.ts
+
+  UT-SYS-SHARED-005
+    title: Converts non-standard types to string representation
+    impl:
+      - IMP-SYS-SHARED-001
+    files:
+      - frontend/src/shared/utils/__tests__/logger.spec.ts
+
+  UT-SYS-SHARED-006
+    title: Handles objects with throwing getters gracefully
+    impl:
+      - IMP-SYS-SHARED-001
+    files:
+      - frontend/src/shared/utils/__tests__/logger.spec.ts
+
+  UT-SYS-SHARED-007
+    title: info() outputs structured JSON to console.info
+    impl:
+      - IMP-SYS-SHARED-002
+    files:
+      - frontend/src/shared/utils/__tests__/logger.spec.ts
+
+  UT-SYS-SHARED-008
+    title: warn() outputs structured JSON to console.warn
+    impl:
+      - IMP-SYS-SHARED-002
+    files:
+      - frontend/src/shared/utils/__tests__/logger.spec.ts
+
+  UT-SYS-SHARED-009
+    title: error() outputs structured JSON to console.error
+    impl:
+      - IMP-SYS-SHARED-002
+    files:
+      - frontend/src/shared/utils/__tests__/logger.spec.ts
+
+  UT-SYS-SHARED-010
+    title: debug() outputs structured JSON to console.debug
+    impl:
+      - IMP-SYS-SHARED-002
+    files:
+      - frontend/src/shared/utils/__tests__/logger.spec.ts
+
+  UT-SYS-SHARED-011
+    title: Includes data payload when provided
+    impl:
+      - IMP-SYS-SHARED-002
+    files:
+      - frontend/src/shared/utils/__tests__/logger.spec.ts
+
+  UT-SYS-SHARED-012
+    title: Omits data field when no data is provided
+    impl:
+      - IMP-SYS-SHARED-002
+    files:
+      - frontend/src/shared/utils/__tests__/logger.spec.ts
+
+  UT-SYS-SHARED-013
+    title: telemetryTrace() logs structured telemetry payload at INFO level
+    impl:
+      - IMP-SYS-SHARED-002
+    files:
+      - frontend/src/shared/utils/__tests__/logger.spec.ts
+
+  UT-SYS-SHARED-014
+    title: telemetryTrace() omits durationMs when not provided
+    impl:
+      - IMP-SYS-SHARED-002
+    files:
+      - frontend/src/shared/utils/__tests__/logger.spec.ts
+
+  UT-SYS-SHARED-015
+    title: Safely serializes large aircraft schematic objects without choking
+    impl:
+      - IMP-SYS-SHARED-001
+      - IMP-SYS-SHARED-002
+    files:
+      - frontend/src/shared/utils/__tests__/logger.spec.ts
