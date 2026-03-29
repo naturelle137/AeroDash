@@ -1,0 +1,149 @@
+---
+description: Enforce local documentation lookup before any GitHub issue MCP operation
+alwaysApply: true
+---
+
+# AeroDash GitHub Issue Operations — Pre-Flight Rule
+
+This rule ensures that whenever you interact with GitHub issues through the
+GitHub MCP (search, create, update, comment), you first consult the local
+project documentation so that every action is consistent with the repository's
+conventions.
+
+**This rule applies automatically to all agent interactions.** It is NOT
+limited to the `/issue` command — it governs any situation where the agent
+might create, update, search, or comment on a GitHub issue.
+
+---
+
+## 1. Mandatory Documentation Reads
+
+Before calling ANY of the following GitHub MCP tools:
+
+- `search_issues`
+- `list_issues`
+- `issue_write` (create or update)
+- `issue_read`
+- `add_issue_comment`
+
+You MUST first read the following local files (unless you have already read
+them earlier in the same conversation turn):
+
+### 1.1 Issue Lifecycle & Labels
+
+Read **`CONTRIBUTING.md`** (§8–§9) to obtain the current definitions for:
+
+- **Issue Types:** Bug, Feature, Task (and their semantics)
+- **Scope Labels:** `product`, `engineering`
+- **Module Scopes:** `ac`, `ap`, `ad`, `fe`, `mb`, `pf`, `wx`, `ui`, `uq`,
+  `sys`, `doc`, `sc`, `repo` (and any new scopes added since this rule was
+  written)
+- **Safety Tags:** `safety-critical`
+- **Status Labels:** `open`, `accepted`, `ready`
+- **Resolution Labels:** `fixed`, `duplicate`, `wont do`
+- **Lifecycle Transitions:** which labels are added/removed at each stage
+
+Do NOT assume these values from memory. The CONTRIBUTING.md file is the single
+source of truth and may be updated at any time.
+
+### 1.2 Issue Template Schemas
+
+When creating a new issue, also read the relevant template from
+`.github/ISSUE_TEMPLATE/`:
+
+| Issue Type | Template File |
+| :--- | :--- |
+| Bug | `.github/ISSUE_TEMPLATE/bug_report.yml` |
+| Feature | `.github/ISSUE_TEMPLATE/feature_request.yml` |
+| Task | `.github/ISSUE_TEMPLATE/sub_task.yml` |
+
+Extract from the template:
+
+- **Title prefix** (e.g., `[Bug]:`, `[Feat]:`, `[Task]:`)
+- **Default labels** (e.g., `["Bug", "open"]`)
+- **Required fields** and their validation rules
+- **Optional fields** and their descriptions
+
+### 1.3 Template Config
+
+Read `.github/ISSUE_TEMPLATE/config.yml` to confirm whether blank issues are
+enabled and to see any configured contact links.
+
+---
+
+## 2. Repository Context
+
+All issue operations target the following repository:
+
+- **Owner:** `naturelle137`
+- **Repo:** `AeroDash`
+
+---
+
+## 3. Issue Creation Constraints
+
+When creating issues via `issue_write` with `method: create`:
+
+1. **Title** MUST use the prefix defined in the corresponding template.
+2. **Labels** MUST include:
+   - The issue type label (from the template's `labels` field)
+   - The `open` status label
+   - A module scope label (determined from the issue content)
+   - A scope label (`product` or `engineering`)
+   - `safety-critical` if the issue affects the P1 Safety Core
+3. **Body** MUST follow the field structure of the selected template.
+   Required fields must be filled; optional fields should be included when
+   information is available.
+4. **Task issues** MUST include a `parent_issue` reference.
+
+---
+
+## 4. Issue Update Constraints
+
+When updating issues via `issue_write` with `method: update`:
+
+1. **Do NOT change status labels** (e.g., `open` → `accepted`) unless the
+   update is part of a defined workflow transition (e.g., the `/implement-issue`
+   command completing its work).
+2. **Do NOT remove labels** unless you have a specific, documented reason.
+3. **Preserve existing body content** — append or modify sections rather than
+   replacing the entire body, unless the user explicitly requests a full
+   rewrite.
+
+---
+
+## 5. Safety-Critical Assessment
+
+Before creating or updating any issue, evaluate whether it could impact the
+**P1 Safety Core** (`frontend/src/core/`):
+
+- Issues involving calculations, formulas, weight & balance, performance
+  computations, or Go/No-Go logic SHOULD be tagged `safety-critical`.
+- When in doubt, propose the tag and let the user decide.
+- Never silently omit the `safety-critical` tag when the issue clearly affects
+  P1.
+
+---
+
+## 6. Deduplication
+
+Before creating any new issue, always search for existing issues first using
+`search_issues`. If a potential duplicate is found:
+
+1. Present the match to the user.
+2. Offer to update the existing issue instead of creating a new one.
+3. Only proceed with creation if the user explicitly confirms.
+
+---
+
+## 7. Forbidden Patterns
+
+- NEVER hardcode issue types, labels, scopes, or template fields. Always
+  derive them from local documentation files at runtime.
+- NEVER create an issue without the `open` status label.
+- NEVER assign resolution labels (`fixed`, `duplicate`, `wont do`) during
+  issue creation.
+- NEVER skip the deduplication search when creating a new issue.
+- NEVER create a Task issue without a parent issue reference.
+- NEVER fabricate safety hazard references, requirement IDs, or environment
+  details. Ask the user if information is missing.
