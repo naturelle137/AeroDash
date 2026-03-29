@@ -23,15 +23,15 @@ The rest of this document outlines the formal "Safety-First" rules we follow to 
 * **Understand the Branching Strategy:** [docs/development/BRANCHING_STRATEGY.md](docs/development/BRANCHING_STRATEGY.md)
 * **Review the Testing Guidelines:** [docs/development/TESTING.md](docs/development/TESTING.md)
 
-## 💻 Environment Setup (Work in Progress)
+## 💻 Environment Setup
 
-Since AeroDash is currently in the pre-alpha phase and our specific tech stack is not finalized, this section acts as a placeholder. Once decisions are made, this will contain:
-
-* **Tech Stack:** [TBD] (*Note: Once the stack is decided, remember to update the EXTENSION FILTER in .shtracer.md accordingly.*)
-* **Dependencies:** [TBD - e.g. Node, Python version]
+* **Tech Stack:** Vue 3 (Composition API, SFCs — no JSX), strict TypeScript, Vite, Pinia, Zod
+* **Dependencies:** Node.js (`^20.19.0 || >=22.12.0` — the devcontainer ships Node 24 LTS)
 * **Package Manager:** pnpm (managed via corepack — run `corepack enable pnpm` once)
-* **Local Server / Build Command:** [TBD]
-* **IDE/Editor Recommendations:** [TBD]
+* **Local Dev Server:** `pnpm --filter frontend dev`
+* **Production Build:** `pnpm --filter frontend build`
+* **Type-Check:** `pnpm --filter frontend type-check`
+* **IDE/Editor:** Visual Studio Code with the recommended workspace extensions (`.vscode/extensions.json`)
 
 To ensure all quality gates (linting, commit standards) are active, please set up your local environment:
 
