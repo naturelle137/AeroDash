@@ -63,6 +63,25 @@ If the parent issue (Bug or Feature) has sub-issues (Tasks), fetch the full cont
 
 If the parent is a `Task` (i.e., it is itself a sub-issue), implement it as a standalone issue — do not fetch its siblings.
 
+### 1.4 Claim and Transition Issue
+
+Before beginning implementation, claim ownership and signal that work is underway:
+
+1. **Identify the current user:** Call the GitHub MCP `get_me` tool to retrieve the authenticated user's login username.
+2. **Assign the issue:** Use the GitHub MCP `issue_write` tool to assign the parent issue to the current user:
+   - `owner`: `naturelle137`, `repo`: `AeroDash`, `issue_number`: `$ARGUMENTS`, `method`: `update`
+   - `assignees`: `["{current_user_login}"]`
+3. **Transition the project state:** Update the issue's status to **In Progress** within the **AeroDash Dashboard** GitHub Project. Use the GitHub CLI to move the project item:
+
+   ```bash
+   gh project item-edit --project-id <PROJECT_ID> --id <ITEM_ID> --field-id <STATUS_FIELD_ID> --single-select-option-id <IN_PROGRESS_OPTION_ID>
+   ```
+
+   To resolve the required IDs:
+   - Run `gh project list --owner naturelle137` to find the **AeroDash Dashboard** project ID.
+   - Run `gh project item-list <PROJECT_NUMBER> --owner naturelle137 --format json` and locate the item matching the current issue number.
+   - Run `gh project field-list <PROJECT_NUMBER> --owner naturelle137 --format json` to find the `Status` field ID and the `In Progress` option ID.
+
 ---
 
 ## Phase 2: Architectural Analysis
@@ -368,6 +387,26 @@ _Include this section for **product** issues only. Omit for engineering issues._
 ```
 
 When the parent issue has **no sub-issues**, skip §4.1 and the Sub-Issue Status table in §4.3.
+
+### 4.4 Finalize Issue State
+
+After updating the issue body and leaving the summary comment, finalize the issue's labels and project board state:
+
+1. **Fetch current labels:** Use the GitHub MCP `issue_read` tool with `method`: `get_labels` to retrieve the issue's current label set.
+2. **Update labels:** Use the GitHub MCP `issue_write` tool to replace the label set with the corrected values:
+   - `owner`: `naturelle137`, `repo`: `AeroDash`, `issue_number`: `{ISSUE_ID}`, `method`: `update`
+   - Build the new `labels` array from the current set with these modifications:
+     - **Remove** the `accepted` label (if present).
+     - **Add** the `ready` label if the issue type is **Feature** or **Bug**.
+     - **Add** the `fixed` label if the issue type is **Task**.
+   - Pass the complete updated label list in the `labels` parameter (this replaces all labels, so include every label that should remain).
+3. **Transition the project state:** Update the issue's status to **In Verification** within the **AeroDash Dashboard** GitHub Project. Use the GitHub CLI to move the project item:
+
+   ```bash
+   gh project item-edit --project-id <PROJECT_ID> --id <ITEM_ID> --field-id <STATUS_FIELD_ID> --single-select-option-id <IN_VERIFICATION_OPTION_ID>
+   ```
+
+   To resolve the required IDs, follow the same discovery steps described in §1.4 (project list, item list, and field list queries), but select the **In Verification** option ID instead of **In Progress**.
 
 ---
 
