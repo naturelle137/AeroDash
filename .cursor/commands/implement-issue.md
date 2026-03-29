@@ -29,6 +29,9 @@ If no argument is provided, stop and return only:
    - `Feature` — contains feature request fields (Problem Statement, Proposed Solution)
    - `Task` — a sub-task belonging to a parent Feature or Bug
 5. Identify if the issue is **safety-critical** by checking for the `safety-critical` label.
+6. **Classify the issue's Coverage Class** based on its labels:
+   - **Product Issue:** Any issue carrying the `product` label. These MUST satisfy the risk-based coverage gates defined in Phase 3.4.
+   - **Engineering Issue:** Any issue carrying the `engineering` label, or any issue with **no** `product` label. These are **exempt** from mandatory test creation and coverage thresholds **unless** the change modifies files inside the P1 Safety Core (`frontend/src/core/`). If an engineering issue touches P1, full P1 coverage rules still apply.
 
 ### 1.2 Fetch Sub-Issues (if any)
 
@@ -44,6 +47,7 @@ If the parent issue (Bug or Feature) has sub-issues (Tasks), fetch the full cont
 
 > **Issue #{ID}: {Title}**
 > Type: {Bug | Feature | Task} | Safety-Critical: {Yes | No}
+> Class: {Product | Engineering} | Coverage Gate: {Yes | No}
 > Scope: {module label, e.g. mb, pf, fe}
 > Summary: {2-3 sentence description of what needs to be done}
 >
@@ -174,6 +178,28 @@ Apply `shtracer` tags to all new or modified logic, following the rules in the `
 
 Determine the next sequential ID by reading the appropriate registry file in `trace/`.
 
+#### Tag Consolidation Rule
+
+One code block = one `@IMP` ID. To prevent duplicate tagging:
+
+1. **Search Before Tagging:** Before adding a new `@IMP` tag, check whether the code block (function, class, or export) already has an existing `@IMP` tag.
+2. **Update, Don't Duplicate:** If a tag already exists on the block, do **not** create a new ID. Instead, append the new `FROM` references to the existing tag's metadata.
+
+   **Incorrect** (two IDs on the same block):
+
+   ```typescript
+   // @IMP-SYS-001@ (FROM: @REQ-01@)
+   // @IMP-SYS-002@ (FROM: @REQ-02@)
+   ```
+
+   **Correct** (single ID, merged references):
+
+   ```typescript
+   // @IMP-SYS-001@ (FROM: @REQ-01@, @REQ-02@)
+   ```
+
+3. **ID Persistence:** An implementation block retains its original ID for its entire lifecycle. Never reassign or renumber an existing ID.
+
 ### 3.3 Registry Updates
 
 For every new traced artifact, update the corresponding YAML registry:
@@ -185,19 +211,52 @@ For every new traced artifact, update the corresponding YAML registry:
 | IT       | `trace/integration_test/{module}.yaml` |
 | E2E      | `trace/e2e/{phase-or-domain}.yaml`     |
 
-### 3.4 Tests (Mandatory)
+### 3.4 Tests & Risk-Based Coverage Gates
 
-All code changes require tests. Match the test type to the change:
+#### Test Type Selection
+
+Match the test type to the change:
 
 - **Unit Tests (Vitest):** Required for all `core/logic/`, `core/domain/`, or `core/adapters/` changes. Place in co-located `__tests__/` directories or `tests/unit/`. File pattern: `*.spec.ts`.
 - **Integration Tests (Vitest):** Required for Pinia store interactions, service layers, or cross-module handshakes. File pattern: `*.int.spec.ts`.
 - **E2E Tests (Playwright + BDD):** Required for UI-facing changes. Follow the Gherkin conventions in `gherkin.mdc` and implementation rules in `e2e-implementation.mdc`. Place features in `frontend/tests/e2e/features/` and steps in `frontend/tests/e2e/steps/`.
 
-Run tests after implementation to verify they pass:
+#### Coverage Gate Applicability
+
+Coverage gates apply based on the issue's **Coverage Class** (determined in Phase 1.1):
+
+- **Product Issues:** MUST satisfy the risk-based coverage thresholds below. The agent MUST NOT merge or close the issue until thresholds are met.
+- **Engineering Issues:** Exempt from mandatory test creation and coverage thresholds, **unless** the change modifies files inside `frontend/src/core/` (P1 Safety Core), in which case P1 rules still apply in full.
+
+#### Risk-Based Coverage Thresholds
+
+Coverage thresholds are defined in `docs/testing/TESTING.md` (the single source of truth). For quick reference:
+
+| Priority | Scope             | File Path(s)                                                            | Required Coverage                   |
+| :------- | :---------------- | :---------------------------------------------------------------------- | :---------------------------------- |
+| **P1**   | Safety Core       | `frontend/src/core/`                                                    | **100%** Line, Branch, and Function |
+| **P2**   | Operational Logic | `frontend/src/modules/`                                                 | **80%** minimum                     |
+| **P3**   | UI & Shared       | `frontend/src/shared/`, `frontend/src/plugins/`, `frontend/src/stores/` | **60%** minimum                     |
+
+If `docs/testing/TESTING.md` values differ from this table, **TESTING.md takes precedence**.
+
+#### Bug Protocol
+
+If the issue type is `Bug`:
+
+1. **Reproduce first:** Write a **failing test** that reproduces the bug _before_ applying any fix.
+2. **Fix:** Apply the minimal fix that makes the test pass.
+3. **Verify:** Confirm the test now passes and no regressions are introduced.
+
+#### Verification
+
+Run tests with coverage after implementation:
 
 ```bash
-pnpm --filter frontend vitest run --reporter=verbose <test-file-path>
+pnpm --filter frontend vitest run --coverage
 ```
+
+If a product issue's coverage drops below the required threshold for any modified file, you MUST add additional tests until the threshold is met. Re-run the coverage command and verify compliance before proceeding to Phase 4.
 
 ### 3.5 Commits
 
@@ -256,7 +315,8 @@ The comment body MUST include:
 3. **Files Modified** — list of all files created or modified across all sub-issues
 4. **Traceability** — all IMP/UT/IT/E2E IDs created, with their upstream REQ/DES references
 5. **Test Coverage** — which tests were added, what they verify, pass/fail status
-6. **DoD Status** — which checklist items were completed, which remain
+6. **Coverage Compliance** _(product issues only)_ — the risk-based coverage gate results (see table format below)
+7. **DoD Status** — which checklist items were completed, which remain
 
 Format the comment as:
 
@@ -290,6 +350,16 @@ Format the comment as:
 - Unit: {N passed, M failed}
 - Integration: {N passed, M failed}
 - E2E: {N passed, M failed}
+
+### Coverage Compliance
+
+_Include this section for **product** issues only. Omit for engineering issues._
+
+| File Path                       | P-Level | Required % | Actual % | Status |
+| :------------------------------ | :------ | :--------- | :------- | :----- |
+| `src/core/math.ts`              | P1      | 100%       | 100%     | PASS   |
+| `src/modules/weather/parser.ts` | P2      | 80%        | 85%      | PASS   |
+| `src/shared/utils/format.ts`    | P3      | 60%        | 72%      | PASS   |
 
 ### DoD Checklist Status
 

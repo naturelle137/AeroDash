@@ -54,14 +54,24 @@ We utilize a standard testing pyramid, but with strict definitions regarding wha
 
 Our coverage requirements correlate directly to the Priority (P1, P2, P3) of the code being written. CI gates will automatically reject Pull Requests that drop coverage below these thresholds.
 
+### File-Path-to-Priority Mapping
+
+| Priority | Label | File Path(s) | Coverage |
+| :------- | :---------------- | :-------------------------------------------- | :------- |
+| **P1** | Safety Core | `frontend/src/core/` | 100% |
+| **P2** | Operational Logic | `frontend/src/modules/` | 80% |
+| **P3** | UI & Shared | `frontend/src/shared/`, `frontend/src/plugins/`, `frontend/src/stores/` | 60% |
+
+This table is the **single source of truth** for coverage thresholds. All agent workflows, CI gates, and review checklists MUST reference this table rather than hardcoding values.
+
 - **P1 - Safety Core (e.g., Mass & Balance, Flight Performance)**
   - **Requirement:** **100%** Line, Branch, and Function coverage.
   - _Rationale:_ There is zero margin for error. Every single mathematical path must be verified.
 - **P2 - Operational Logic (e.g., Weather Parsing, Route APIs)**
   - **Requirement:** **80%** coverage minimum.
   - _Rationale:_ Failures here are highly inconvenient and degrade the tool, but they should be caught by safety boundaries before impacting P1 calculations.
-- **P3 - User Interface & Pure Aesthetics**
-  - **Requirement:** Best effort (typically 60%+), prioritizing critical user input components.
+- **P3 - User Interface & Shared**
+  - **Requirement:** **60%** coverage minimum, prioritizing critical user input components.
   - _Rationale:_ A visual glitch is acceptable; an incorrect underlying number is not.
 
 ### E2e / Journey Coverage Policy

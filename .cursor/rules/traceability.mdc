@@ -33,6 +33,34 @@ When creating or modifying a source file in `frontend/src/**/*.ts`
 
 ---
 
+## 1b. Tag Consolidation Rule (IMP)
+
+One code block = one `@IMP` ID. Before adding any `@IMP` tag, apply
+these consolidation checks:
+
+1. **Search Before Tagging:** Inspect the target code block (function,
+   class, or export) for an existing `@IMP` tag. If a tag already exists,
+   do NOT create a new ID.
+2. **Update, Don't Duplicate:** Append new upstream references to the
+   existing tag's `FROM` clause instead of introducing a second tag.
+
+   **Forbidden** (two IDs on the same block):
+   ```typescript
+   // @IMP-SYS-001@ (FROM: @REQ-01@)
+   // @IMP-SYS-002@ (FROM: @REQ-02@)
+   ```
+
+   **Required** (single ID, merged references):
+   ```typescript
+   // @IMP-SYS-001@ (FROM: @REQ-01@, @REQ-02@)
+   ```
+
+3. **ID Persistence:** An implementation block retains its original ID for
+   its entire lifecycle. Never reassign, renumber, or split an existing ID
+   to accommodate new requirements.
+
+---
+
 ## 2. Unit Test (UT) Rules
 
 When creating or modifying a test file matching `*.spec.ts`
@@ -183,6 +211,12 @@ operation.
 - NEVER reuse a deleted or obsolete ID.
 - NEVER create duplicate IDs within the same node type.
 - NEVER skip registry updates when creating new artifacts.
+
+### 6.6 Tag Duplication (Consolidation Violation)
+
+- NEVER place two or more `@IMP` tags on the same code block
+  (function, class, or export). Merge `FROM` references into the
+  existing tag instead (see §1b).
 
 ---
 
