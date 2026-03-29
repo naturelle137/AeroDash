@@ -83,3 +83,264 @@ This register lists all defined notifications in the system to ensure uniqueness
 | `CRIT-UI-002`  | Safety Factor Low                  | `CRITICAL` | [REQ-UI-017](../requirements/user_interface.md#REQ-UI-017)             | When the user triggers the "Save" or "Export" action for a calculation containing an Operational Safety Factor below the greater of the POH-mandated factor and the regulatory baseline. |
 | `INFO-API-003` | Share code could not be created.   |   `INFO`   | [API](../api/API.md)                                                   | When share code generation API request fails while online (e.g., 500).                                                                                                                   |
 | `INFO-API-004` | Share code expired or invalid.     |   `INFO`   | [API](../api/API.md)                                                   | When retrieving a profile using a share code fails while online (e.g., 404).                                                                                                             |
+
+## 6. Notification Payload Definitions
+
+This section defines the complete JSON payload for each notification. These payloads are the authoritative design reference that Logic Modules must emit.
+
+### 6.1 Aircraft Management (AC)
+
+#### WARN-AC-001 — Registration Duplicate
+
+```json
+{
+  "id": "WARN-AC-001",
+  "severity": "WARNING",
+  "message": "Registration Duplicate",
+  "context": "Aircraft.Registration"
+}
+```
+
+#### WARN-AC-002 — Draft Profile Active
+
+```json
+{
+  "id": "WARN-AC-002",
+  "severity": "WARNING",
+  "message": "Draft Profile Active",
+  "context": "Aircraft.Status",
+  "persistent": true
+}
+```
+
+### 6.2 Fuel & Endurance (FE)
+
+#### WARN-FE-001 — Insufficient Fuel
+
+```json
+{
+  "id": "WARN-FE-001",
+  "severity": "WARNING",
+  "message": "Insufficient Fuel",
+  "context": "Fuel.Endurance"
+}
+```
+
+### 6.3 Mass & Balance (MB)
+
+#### CRIT-MB-001 — CG Out of Envelope
+
+```json
+{
+  "id": "CRIT-MB-001",
+  "severity": "CRITICAL",
+  "message": "CG Out of Envelope",
+  "context": "MassBalance.CG"
+}
+```
+
+#### CRIT-MB-002 — MTOM Exceeded
+
+```json
+{
+  "id": "CRIT-MB-002",
+  "severity": "CRITICAL",
+  "message": "MTOM Exceeded",
+  "context": "MassBalance.Mass"
+}
+```
+
+#### CRIT-MB-003 — CG Migration Limit Exceeded
+
+```json
+{
+  "id": "CRIT-MB-003",
+  "severity": "CRITICAL",
+  "message": "CG Migration Limit Exceeded",
+  "context": "MassBalance.CGMigration"
+}
+```
+
+#### CRIT-MB-004 — MZFM Exceeded
+
+```json
+{
+  "id": "CRIT-MB-004",
+  "severity": "CRITICAL",
+  "message": "MZFM Exceeded",
+  "context": "MassBalance.ZeroFuelMass"
+}
+```
+
+### 6.4 Performance (PF)
+
+#### WARN-PF-001 — Unverified Obstacle Data
+
+```json
+{
+  "id": "WARN-PF-001",
+  "severity": "WARNING",
+  "message": "Unverified Obstacle Data",
+  "context": "Performance.Obstacles",
+  "persistent": true
+}
+```
+
+#### CRIT-PF-002 — Runway Insufficient
+
+```json
+{
+  "id": "CRIT-PF-002",
+  "severity": "CRITICAL",
+  "message": "Runway Insufficient",
+  "context": "Performance.RunwayLength"
+}
+```
+
+#### WARN-PF-002 — Safety Factor Low
+
+```json
+{
+  "id": "WARN-PF-002",
+  "severity": "WARNING",
+  "message": "Safety Factor Low",
+  "context": "Performance.SafetyFactor"
+}
+```
+
+### 6.5 Weather (WX)
+
+#### WARN-WX-001 — Wind Limit Exceeded (Demonstrated)
+
+```json
+{
+  "id": "WARN-WX-001",
+  "severity": "WARNING",
+  "message": "Wind Limit Exceeded (Demonstrated)",
+  "context": "Weather.Wind"
+}
+```
+
+#### CRIT-WX-001 — Wind Limit Exceeded
+
+```json
+{
+  "id": "CRIT-WX-001",
+  "severity": "CRITICAL",
+  "message": "Wind Limit Exceeded",
+  "context": "Weather.Wind"
+}
+```
+
+### 6.6 System (SYS)
+
+#### INFO-SYS-001 — Update Available
+
+```json
+{
+  "id": "INFO-SYS-001",
+  "severity": "INFO",
+  "message": "Update Available",
+  "context": "System.Version",
+  "action": {
+    "label": "Reload",
+    "event": "sys.reload",
+    "payload": {
+      "targetVersion": "<semver_string>",
+      "force": false
+    }
+  }
+}
+```
+
+#### ERR-SYS-001 — Invalid Input
+
+```json
+{
+  "id": "ERR-SYS-001",
+  "severity": "ERROR",
+  "message": "Invalid Input: {field} ({code})",
+  "context": "{Module}.Validation"
+}
+```
+
+`{field}` is replaced with the invalid field path, `{code}` with the Zod validation code, and `{Module}` with the originating module name (e.g., `MassBalance`).
+
+### 6.7 User Interface (UI)
+
+#### WARN-UI-001 — Input Out of Range
+
+```json
+{
+  "id": "WARN-UI-001",
+  "severity": "WARNING",
+  "message": "Input Out of Range",
+  "context": "UI.Input"
+}
+```
+
+#### CRIT-UI-001 — Unverified Data Present
+
+```json
+{
+  "id": "CRIT-UI-001",
+  "severity": "CRITICAL",
+  "message": "Unverified Data Present",
+  "context": "UI.Validation",
+  "dismissible": false,
+  "action": {
+    "label": "Review",
+    "event": "ui.review_unverified",
+    "payload": {
+      "parameters": ["<list_of_field_paths>"],
+      "canForceSave": true
+    }
+  }
+}
+```
+
+`parameters` is dynamically populated with all field paths that have `Unverified` status.
+
+#### CRIT-UI-002 — Safety Factor Low
+
+```json
+{
+  "id": "CRIT-UI-002",
+  "severity": "CRITICAL",
+  "message": "Safety Factor Low",
+  "context": "UI.Validation",
+  "dismissible": false,
+  "action": {
+    "label": "Confirm",
+    "event": "ui.confirm_safety_factor",
+    "payload": {
+      "currentFactor": "<number>",
+      "requiredFactor": "<number>",
+      "context": "<Takeoff|Landing>"
+    }
+  }
+}
+```
+
+`currentFactor` and `requiredFactor` are dynamically populated with the actual factor values; `context` indicates the flight phase.
+
+### 6.8 API
+
+#### INFO-API-003 — Share Code Creation Failed
+
+```json
+{
+  "id": "INFO-API-003",
+  "severity": "INFO",
+  "message": "Share code could not be created."
+}
+```
+
+#### INFO-API-004 — Share Code Expired or Invalid
+
+```json
+{
+  "id": "INFO-API-004",
+  "severity": "INFO",
+  "message": "Share code expired or invalid."
+}

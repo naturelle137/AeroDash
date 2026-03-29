@@ -74,7 +74,7 @@ This document defines the user interface behavior using the **EARS** (Easy Appro
 
 ### REQ-UI-008: Input Out of Range Warning
 
-**Requirement:** The system shall return a Notification: `{ "id": "WARN-UI-001", "severity": "WARNING", "message": "Input Out of Range", "context": "UI.Input" }` when numeric inputs are outside standard operational ranges ($QNH \notin [950, 1100]\,\text{hPa}$, Temperature $\notin [-40, +50]\,\text{°C}$), but shall allow entry confirmation.
+**Requirement:** When numeric inputs are outside standard operational ranges ($QNH \notin [950, 1100]\,\text{hPa}$, Temperature $\notin [-40, +50]\,\text{°C}$), the system shall emit a WARNING notification (`WARN-UI-001`) alerting the user that the input is out of range, but shall allow entry confirmation.
 **Rationale:** Prevents fat-finger errors during planning.
 **Priority:** P1
 **Status:** Approved
@@ -144,7 +144,7 @@ This document defines the user interface behavior using the **EARS** (Easy Appro
 
 ### REQ-UI-015: Unverified Data Export Warning
 
-**Requirement:** When the user triggers the "Save" or "Export" action for a calculation containing parameters with `Unverified` status, the system shall return a Notification: `{ "id": "CRIT-UI-001", "severity": "CRITICAL", "message": "Unverified Data Present", "context": "UI.Validation", "action": { "label": "Review", "event": "ui.review_unverified", "payload": { "parameters": ["<list_of_field_paths>"], "canForceSave": true } } }`. The action shall list all parameters with `Unverified` status and their current values.
+**Requirement:** When the user triggers the "Save" or "Export" action for a calculation containing parameters with `Unverified` status, the system shall emit a CRITICAL notification (`CRIT-UI-001`) alerting the user that unverified data is present and offering a review action that lists all unverified parameters.
 **Rationale:** Safety Gate. Prevents silent usage of unverified data.
 **Priority:** P1
 **Status:** Approved
@@ -164,7 +164,7 @@ This document defines the user interface behavior using the **EARS** (Easy Appro
 
 ### REQ-UI-017: Low Safety Factor Export Warning
 
-**Requirement:** When the user triggers the "Save" or "Export" action for a calculation containing an Operational Safety Factor below the greater of the POH-mandated factor and the regulatory baseline (Takeoff: 1.25, Landing: 1.43), the system shall return a Notification: `{ "id": "CRIT-UI-002", "severity": "CRITICAL", "message": "Safety Factor Low", "context": "UI.Validation", "action": { "label": "Confirm", "event": "ui.confirm_safety_factor", "payload": { "currentFactor": 1.10, "requiredFactor": 1.25, "context": "Takeoff" } } }`.
+**Requirement:** When the user triggers the "Save" or "Export" action for a calculation containing an Operational Safety Factor below the greater of the POH-mandated factor and the regulatory baseline (Takeoff: 1.25, Landing: 1.43), the system shall emit a CRITICAL notification (`CRIT-UI-002`) alerting the user that the safety factor is below the recommended minimum and offering a confirmation action.
 **Rationale:** Safety Gate. Prevents silent usage of too low safety factors.
 **Priority:** P1
 **Status:** Approved

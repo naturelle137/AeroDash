@@ -30,7 +30,7 @@ This document defines the aircraft management behavior using the **EARS** (Easy 
 
 ### REQ-AC-003: Duplicate Registration Warning
 
-**Requirement:** If an aircraft registration already exists within the same owner's database, then the system shall return a Notification: `{ "id": "WARN-AC-001", "severity": "WARNING", "message": "Registration Duplicate", "context": "Aircraft.Registration" }`.
+**Requirement:** If an aircraft registration already exists within the same owner's database, then the system shall emit a WARNING notification (`WARN-AC-001`) alerting the user about duplicate registration.
 **Rationale:** Registrations must be unique per owner to avoid data duplication and confusion between aircraft records. Different owners may independently hold entries for the same registration.
 **Priority:** P2
 **Status:** Approved
@@ -50,7 +50,7 @@ This document defines the aircraft management behavior using the **EARS** (Easy 
 
 ### REQ-AC-005: Profile Verification Status
 
-**Requirement:** The system shall implement a status system for aircraft profiles (`Draft`, `Verified`). New or edited profiles shall be `Verified` and locked before use; calculations performed with a `Draft` profile shall return a Notification: `{ "id": "WARN-AC-002", "severity": "WARNING", "message": "Draft Profile Active", "context": "Aircraft.Status", "persistent": true }`.
+**Requirement:** The system shall implement a status system for aircraft profiles (`Draft`, `Verified`). New or edited profiles shall be `Verified` and locked before use; calculations performed with a `Draft` profile shall emit a persistent WARNING notification (`WARN-AC-002`) alerting the user that the active profile is unverified.
 **Rationale:** Prevents usage of unverified or typo-prone POH data bases.
 **Priority:** P1
 **Status:** Approved

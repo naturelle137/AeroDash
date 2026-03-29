@@ -50,7 +50,7 @@ This document defines the system behavior using the **EARS** (Easy Approach to R
 
 ### REQ-SYS-005: Update Available Notification
 
-**Requirement:** When a new software version is detected, the system shall prevent silent background updates and return a Notification: `{ "id": "INFO-SYS-001", "severity": "INFO", "message": "Update Available", "context": "System.Version", "action": { "label": "Reload", "event": "sys.reload", "payload": { "targetVersion": "<semver_string>", "force": false } } }`.
+**Requirement:** When a new software version is detected, the system shall prevent silent background updates and emit an INFO notification (`INFO-SYS-001`) informing the user about the available update and offering a reload action.
 **Rationale:** Prevents "State Confusion" where the pilot plans on an old version while the new one loads in the background.
 **Priority:** P1
 **Status:** Approved

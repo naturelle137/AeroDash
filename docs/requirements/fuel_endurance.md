@@ -27,7 +27,7 @@ This document defines the fuel & endurance behavior using the **EARS** (Easy App
 <!-- @REQ-FE-003@ -->
 ### REQ-FE-003: Endurance Exceedance Warning
 
-**Requirement:** If the planned flight time (including reserves) exceeds the calculated maximum flight time (Endurance), then the system shall return a Notification: `{ "id": "WARN-FE-001", "severity": "WARNING", "message": "Insufficient Fuel", "context": "Fuel.Endurance" }`.
+**Requirement:** If the planned flight time (including reserves) exceeds the calculated maximum flight time (Endurance), then the system shall emit a WARNING notification (`WARN-FE-001`) alerting the pilot about insufficient fuel for the planned mission.
 **Rationale:** Safety alert for insufficient fuel for the planned mission + reserves.
 **Priority:** P1
 **Status:** Approved
