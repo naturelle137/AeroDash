@@ -105,7 +105,7 @@ export const useMassBalanceStore = defineStore('massBalance', {
       })
     },
 
-    /** True when all mandatory stations in the available set have been touched (user-entered or non-zero default). */
+    /** True when all mandatory stations in the available set have been touched (explicit interaction or catalogue default applied). */
     allMandatoryFieldsPopulated(): boolean {
       return this.availableStations.filter((s) => s.mandatory).every((s) => s.touched)
     },
@@ -136,7 +136,7 @@ export const useMassBalanceStore = defineStore('massBalance', {
     /**
      * Load an aircraft profile and initialize raw station state.
      *
-     * Transitions: INITIAL → LOADING → UNCONFIGURED (or INITIAL on failure).
+     * Transitions: INITIAL → LOADING → evaluated state (or INITIAL on failure).
      *
      * @param profile - The aircraft context fetched from IndexedDB.
      *                  (The caller is responsible for the async fetch;
@@ -156,13 +156,15 @@ export const useMassBalanceStore = defineStore('massBalance', {
             : null
 
         // Initialize station inputs from load point definitions
+        // @IMP-MB-STORE-014@ (FROM: @REQ-MB-002@, @DES-UX-007@)
+        // Mandatory (non-fuel) stations count as populated on load: catalogue defaults are authoritative, including 0 kg.
         this.stations = profile.loadPoints.map((lp, index) => ({
           index,
           name: lp.name,
           weight: lp.defaultQuantity,
           verified: false,
           mandatory: deriveMandatory(lp),
-          touched: lp.defaultQuantity > 0,
+          touched: deriveMandatory(lp) ? true : lp.defaultQuantity > 0,
         }))
 
         this.notifications = []
@@ -192,11 +194,15 @@ export const useMassBalanceStore = defineStore('massBalance', {
      *   3. Capture notifications
      *   4. evaluateState()
      */
-    // @IMP-MB-STORE-006@ (FROM: @REQ-MB-002@, @REQ-MB-003@, @DES-UX-008@, @DES-ARCH-005@)
+    // @IMP-MB-STORE-006@ (FROM: @REQ-MB-002@, @REQ-MB-003@, @DES-UX-007@, @DES-UX-008@, @DES-ARCH-005@)
     updateStationWeight(stationIndex: number, weight: number): void {
       const station = this.stations[stationIndex]
       if (!station) return
-      if (station.weight === weight) return
+      if (station.weight === weight) {
+        station.touched = true
+        this.evaluateState()
+        return
+      }
 
       station.weight = weight
       station.touched = true

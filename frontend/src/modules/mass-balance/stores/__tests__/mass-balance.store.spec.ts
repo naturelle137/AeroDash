@@ -176,19 +176,19 @@ describe('MassBalance Store', () => {
 
   // ─── loadProfile ──────────────────────────────────────────────────────
 
-  // @UT-MB-STORE-002@ (FROM: @IMP-MB-STORE-005@)
-  it('transitions to UNCONFIGURED after loading profile with zero-weight mandatory stations', () => {
+  // @UT-MB-STORE-002@ (FROM: @IMP-MB-STORE-005@, @IMP-MB-STORE-014@)
+  it('transitions to VERIFIED_SAFE after loading profile with zero-weight mandatory defaults', () => {
     const store = useMassBalanceStore()
     store.loadProfile(mockProfile)
 
     expect(store.aircraft).toStrictEqual(mockProfile)
     expect(store.activeCategory).toBe('Normal')
     expect(store.stations).toHaveLength(2)
-    expect(store.uiState).toBe('UNCONFIGURED')
-    expect(store.allMandatoryFieldsPopulated).toBe(false)
+    expect(store.uiState).toBe('VERIFIED_SAFE')
+    expect(store.allMandatoryFieldsPopulated).toBe(true)
   })
 
-  // @UT-MB-STORE-003@ (FROM: @IMP-MB-STORE-005@)
+  // @UT-MB-STORE-003@ (FROM: @IMP-MB-STORE-005@, @IMP-MB-STORE-014@)
   it('initializes station inputs from load point definitions', () => {
     const store = useMassBalanceStore()
     store.loadProfile(mockProfile)
@@ -199,7 +199,7 @@ describe('MassBalance Store', () => {
       weight: 0,
       verified: false,
       mandatory: true,
-      touched: false,
+      touched: true,
     })
     expect(store.stations[1]).toEqual({
       index: 1,
@@ -561,6 +561,8 @@ describe('MassBalance Store', () => {
   it('evaluates to UNCONFIGURED when mandatory fields are missing', () => {
     const store = useMassBalanceStore()
     store.loadProfile(mockProfile)
+    store.stations[0]!.touched = false
+    store.evaluateState()
     expect(store.uiState).toBe('UNCONFIGURED')
   })
 
@@ -703,10 +705,11 @@ describe('MassBalance Store', () => {
     expect(store.availableStations).toEqual([])
   })
 
-  // @UT-MB-STORE-052@ (FROM: @IMP-MB-STORE-004@)
+  // @UT-MB-STORE-052@ (FROM: @IMP-MB-STORE-004@, @IMP-MB-STORE-014@)
   it('allMandatoryFieldsPopulated is false when only some mandatory stations are touched', () => {
     const store = useMassBalanceStore()
     store.loadProfile(multiCatProfile)
+    store.stations[1]!.touched = false
 
     store.updateStationWeight(0, 80)
     expect(store.stations[0]!.touched).toBe(true)
@@ -762,12 +765,12 @@ describe('MassBalance Store', () => {
   // ─── State Transitions (Full Cycle) ───────────────────────────────────
 
   // @UT-MB-STORE-043@ (FROM: @IMP-MB-STORE-005@, @IMP-MB-STORE-006@, @IMP-MB-STORE-009@, @IMP-MB-STORE-010@)
-  it('full lifecycle: INITIAL → UNCONFIGURED → VERIFIED_SAFE → reset → VERIFIED_SAFE', () => {
+  it('full lifecycle: INITIAL → VERIFIED_SAFE (load) → VERIFIED_SAFE (edit) → reset → VERIFIED_SAFE', () => {
     const store = useMassBalanceStore()
     expect(store.uiState).toBe('INITIAL')
 
     store.loadProfile(mockProfile)
-    expect(store.uiState).toBe('UNCONFIGURED')
+    expect(store.uiState).toBe('VERIFIED_SAFE')
 
     store.updateStationWeight(0, 80)
     expect(store.uiState).toBe('VERIFIED_SAFE')

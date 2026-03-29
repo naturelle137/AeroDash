@@ -6,7 +6,10 @@ const { Given, When, Then } = createBdd()
 // ─── Helpers ───────────────────────────────────────────────────────────────
 
 async function fillStation(page: import('@playwright/test').Page, label: string, value: string) {
-  const input = page.locator(`.mass-station-input`, { has: page.locator(`label`, { hasText: label }) }).locator('input[type="number"]')
+  // .mass-station-input: compound component has no single ARIA role; label-scoped CSS is the narrowest viable locator
+  const input = page
+    .locator('.mass-station-input', { has: page.locator('label', { hasText: label }) })
+    .locator('input[type="number"]')
   await input.fill(value)
   await input.dispatchEvent('input')
 }
@@ -25,7 +28,7 @@ When('the pilot selects aircraft {string}', async ({ page }, registration: strin
   const option = select.locator('option', { hasText: registration })
   const label = await option.textContent()
   await select.selectOption({ label: label!.trim() })
-  await expect(page.locator('.aircraft-header')).toBeVisible()
+  await expect(page.locator('.aircraft-label')).toContainText(registration)
 })
 
 // ─── When steps — Happy path (UJ-B-005) ────────────────────────────────────
@@ -97,27 +100,31 @@ Then('the aircraft masses are within limits', async ({ page }) => {
   await expect(page.getByRole('region', { name: 'Calculation results' })).toBeVisible()
 })
 
-Then(
-  'the center of gravity remains within the envelope during the flight',
-  async ({ page }) => {
-    await expect(page.getByRole('img', { name: /SAFE/ })).toBeVisible()
-  },
-)
+Then('the center of gravity remains within the envelope during the flight', async ({ page }) => {
+  await expect(page.getByRole('img', { name: /SAFE/ })).toBeVisible()
+})
 
 Then('no warnings are displayed', async ({ page }) => {
-  await expect(page.getByRole('alert')).toContainText('Mass & Balance verified')
+  await expect(page.locator('.notification.notification--success')).toContainText(
+    'Mass & Balance verified',
+  )
+  // .notification--warning: semantic severity class; no ARIA role distinguishes warning-level alerts
   await expect(page.locator('.notification--warning')).toHaveCount(0)
+  // .notification--critical: semantic severity class; no ARIA role distinguishes critical-level alerts
   await expect(page.locator('.notification--critical')).toHaveCount(0)
 })
 
 Then('a critical notification {string} is displayed', async ({ page }, message: string) => {
-  await expect(page.locator('.notification--critical')).toContainText(message)
+  // .notification--critical: semantic severity class; banner may list several critical items — scope by message
+  await expect(page.locator('.notification--critical', { hasText: message })).toBeVisible()
 })
 
 Then('no critical notifications are displayed', async ({ page }) => {
+  // .notification--critical: semantic severity class; no ARIA role distinguishes critical-level alerts
   await expect(page.locator('.notification--critical')).toHaveCount(0)
 })
 
 Then('the total mass is within MTOM', async ({ page }) => {
+  // .notification--critical: semantic severity class; no ARIA role distinguishes critical-level alerts
   await expect(page.locator('.notification--critical', { hasText: 'MTOM Exceeded' })).toHaveCount(0)
 })

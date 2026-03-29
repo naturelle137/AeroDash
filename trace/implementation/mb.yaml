@@ -215,3 +215,12 @@ MB Store - Actions
       - DES-ARCH-005
     files:
       - frontend/src/modules/mass-balance/stores/mass-balance.store.ts
+
+  IMP-MB-STORE-014
+    title: Mandatory Station touched Flag on Profile Load
+    req:
+      - REQ-MB-002
+    des:
+      - DES-UX-007
+    files:
+      - frontend/src/modules/mass-balance/stores/mass-balance.store.ts

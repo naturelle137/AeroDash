@@ -146,6 +146,8 @@ describe('MassBalanceView integration', () => {
   it('renders UNCONFIGURED state with required-fields hint and disabled export', () => {
     const store = useMassBalanceStore()
     store.loadProfile(mockProfile)
+    store.stations[0]!.touched = false
+    store.evaluateState()
     const wrapper = mountView()
 
     expect(store.uiState).toBe('UNCONFIGURED')
