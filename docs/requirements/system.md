@@ -73,7 +73,7 @@ This document defines the system behavior using the **EARS** (Easy Approach to R
 **Requirement:** The system shall implement a centralized Notification Service that aggregates notifications from all functional modules.
 **Rationale:** Centralized handling of alerts ensures consistent UI behavior and preventing alert fatigue.
 **Priority:** P1
-**Status:** Approved
+**Status:** Implemented
 **Design Reference:** [Notification Schema](../architecture/notification_schema.md)
 
 <!-- @REQ-SYS-008@ -->

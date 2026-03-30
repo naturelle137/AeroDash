@@ -139,6 +139,77 @@ SYS Core — Zod error to violation mapping (Unit)
     files:
       - frontend/src/core/adapters/mb.zod-violation-mapping.spec.ts
 
+SYS Core — Notification Schema (Unit)
+  UT-SYS-CORE-021
+    title: Accepts a valid action with all fields
+    impl:
+      - IMP-SYS-CORE-004
+    files:
+      - frontend/src/core/domain/notification.schema.spec.ts
+
+  UT-SYS-CORE-022
+    title: Accepts a valid action without optional payload
+    impl:
+      - IMP-SYS-CORE-004
+    files:
+      - frontend/src/core/domain/notification.schema.spec.ts
+
+  UT-SYS-CORE-023
+    title: Rejects an action missing the required label field
+    impl:
+      - IMP-SYS-CORE-004
+    files:
+      - frontend/src/core/domain/notification.schema.spec.ts
+
+  UT-SYS-CORE-024
+    title: Accepts a valid minimal notification with required fields only
+    impl:
+      - IMP-SYS-CORE-004
+    files:
+      - frontend/src/core/domain/notification.schema.spec.ts
+
+  UT-SYS-CORE-025
+    title: Accepts a valid full notification with all optional fields
+    impl:
+      - IMP-SYS-CORE-004
+    files:
+      - frontend/src/core/domain/notification.schema.spec.ts
+
+  UT-SYS-CORE-026
+    title: Defaults persistent to false and dismissible to true when omitted
+    impl:
+      - IMP-SYS-CORE-004
+    files:
+      - frontend/src/core/domain/notification.schema.spec.ts
+
+  UT-SYS-CORE-027
+    title: Rejects an invalid severity enum value
+    impl:
+      - IMP-SYS-CORE-004
+    files:
+      - frontend/src/core/domain/notification.schema.spec.ts
+
+  UT-SYS-CORE-028
+    title: Rejects a notification with a non-boolean persistent value
+    impl:
+      - IMP-SYS-CORE-004
+    files:
+      - frontend/src/core/domain/notification.schema.spec.ts
+
+  UT-SYS-CORE-029
+    title: Rejects a notification missing the required id field
+    impl:
+      - IMP-SYS-CORE-004
+    files:
+      - frontend/src/core/domain/notification.schema.spec.ts
+
+  UT-SYS-CORE-030
+    title: Rejects a notification missing the required severity field
+    impl:
+      - IMP-SYS-CORE-004
+    files:
+      - frontend/src/core/domain/notification.schema.spec.ts
+
 SYS Shared — Structured Logger Utility (Unit)
   UT-SYS-SHARED-001
     title: Returns primitives unchanged

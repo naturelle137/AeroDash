@@ -25,6 +25,16 @@ SYS Core
     files:
       - frontend/src/core/domain/notification.types.ts
 
+  IMP-SYS-CORE-004
+    title: Generic Notification System Zod Schema
+    req:
+      - REQ-SYS-007
+      - REQ-SYS-008
+    des:
+      - DES-ARCH-001
+    files:
+      - frontend/src/core/domain/notification.schema.ts
+
 SYS Shared — Structured Logger Utility
   IMP-SYS-SHARED-001
     title: Safe Serialization for Large Aircraft Objects

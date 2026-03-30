@@ -7,20 +7,8 @@
 
 // @IMP-SYS-CORE-001@ (FROM: @DES-ARCH-001@)
 // @IMP-SYS-CORE-003@ (FROM: @REQ-SYS-011@, @REQ-SYS-012@, @DES-ARCH-001@)
-export type NotificationSeverity = 'INFO' | 'WARNING' | 'ERROR' | 'CRITICAL'
-
-export interface NotificationAction {
-  label: string
-  event: string
-  payload?: Record<string, unknown>
-}
-
-export interface Notification {
-  id: string
-  severity: NotificationSeverity
-  message: string
-  context?: string
-  persistent?: boolean
-  dismissible?: boolean
-  action?: NotificationAction
-}
+export type {
+  Notification,
+  NotificationAction,
+  NotificationSeverity,
+} from './notification.schema'
