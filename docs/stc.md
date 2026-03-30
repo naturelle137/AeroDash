@@ -20,74 +20,74 @@
 
 ### 1.1 Node Type Definitions
 
-| Node Type | Prefix | Description | Source Location | Artifact Format |
-| :--- | :--- | :--- | :--- | :--- |
-| Hazard | `H` | Identified safety hazard from risk analysis | `docs/risk_management/` | Markdown |
-| Requirement | `REQ` | Formal software requirement (EARS syntax) | `docs/requirements/` | Markdown |
-| User Journey | `UJ` | End-to-end behavioral flow demonstrating requirements | `docs/journeys/` | Markdown |
-| Architecture Design | `DES-ARCH` | System architecture, data models, ADRs | `docs/architecture/` | Markdown |
-| UX Design | `DES-UX` | User experience flows, component design | `docs/ux/` | Markdown |
-| API Design | `DES-API` | API contracts and endpoint specifications | `docs/api/` | Markdown |
-| Implementation | `IMP` | Source code implementing a requirement or design | `frontend/src/` | TypeScript |
-| Unit Test | `UT` | Isolated verification of atomic implementation logic | `frontend/src/` | TypeScript |
-| Integration Test | `IT` | Verification of interaction between internal modules | `frontend/src/`, `frontend/tests/integration/` | TypeScript |
-| End-to-End Test | `E2E` | System-level behavioral verification via BDD | `frontend/tests/e2e/` | Gherkin |
+| Node Type           | Prefix     | Description                                           | Source Location                                | Artifact Format |
+| :------------------ | :--------- | :---------------------------------------------------- | :--------------------------------------------- | :-------------- |
+| Hazard              | `H`        | Identified safety hazard from risk analysis           | `docs/risk_management/`                        | Markdown        |
+| Requirement         | `REQ`      | Formal software requirement (EARS syntax)             | `docs/requirements/`                           | Markdown        |
+| User Journey        | `UJ`       | End-to-end behavioral flow demonstrating requirements | `docs/journeys/`                               | Markdown        |
+| Architecture Design | `DES-ARCH` | System architecture, data models                      | `docs/architecture/`                           | Markdown        |
+| UX Design           | `DES-UX`   | User experience flows, component design               | `docs/ux/`                                     | Markdown        |
+| API Design          | `DES-API`  | API contracts and endpoint specifications             | `docs/api/`                                    | Markdown        |
+| Implementation      | `IMP`      | Source code implementing a requirement or design      | `frontend/src/`                                | TypeScript      |
+| Unit Test           | `UT`       | Isolated verification of atomic implementation logic  | `frontend/src/`                                | TypeScript      |
+| Integration Test    | `IT`       | Verification of interaction between internal modules  | `frontend/src/`, `frontend/tests/integration/` | TypeScript      |
+| End-to-End Test     | `E2E`      | System-level behavioral verification via BDD          | `frontend/tests/e2e/`                          | Gherkin         |
 
 ### 1.2 Design Subtypes
 
 The `DES` prefix is a composite type discriminated by subtype:
 
-| Subtype | Scope |
-| :--- | :--- |
-| `DES-ARCH` | System architecture, data models, structural design decisions |
-| `DES-UX` | UX flows, component design, interaction patterns |
-| `DES-API` | API contracts, endpoint specifications *(reserved — not yet in active use)* |
+| Subtype    | Scope                                                                       |
+| :--------- | :-------------------------------------------------------------------------- |
+| `DES-ARCH` | System architecture, data models, structural design decisions               |
+| `DES-UX`   | UX flows, component design, interaction patterns                            |
+| `DES-API`  | API contracts, endpoint specifications _(reserved — not yet in active use)_ |
 
 ### 1.3 Module Identifiers
 
 Used as the `{MODULE}` segment in REQ, IMP, UT, and IT tags:
 
-| ID | Domain |
-| :--- | :--- |
-| `AC` | Aircraft Management |
-| `AP` | Airport Database |
-| `AD` | Detailed Aircraft Data |
-| `FE` | Fuel & Endurance |
-| `MB` | Mass & Balance |
-| `PF` | Performance |
-| `WX` | Weather & Meteorological Data |
-| `UI` | User Interface |
-| `UQ` | Usability & Quality |
-| `SYS` | General System |
-| `DOC` | Documentation & Export |
-| `SC` | Cloud Sync & Collaboration |
+| ID    | Domain                        |
+| :---- | :---------------------------- |
+| `AC`  | Aircraft Management           |
+| `AP`  | Airport Database              |
+| `AD`  | Detailed Aircraft Data        |
+| `FE`  | Fuel & Endurance              |
+| `MB`  | Mass & Balance                |
+| `PF`  | Performance                   |
+| `WX`  | Weather & Meteorological Data |
+| `UI`  | User Interface                |
+| `UQ`  | Usability & Quality           |
+| `SYS` | General System                |
+| `DOC` | Documentation & Export        |
+| `SC`  | Cloud Sync & Collaboration    |
 
 ### 1.4 Phase Identifiers
 
 Used as the `{PHASE}` segment in UJ and E2E tags:
 
-| ID | Phase / Domain |
-| :--- | :--- |
-| `A` | Fleet Management |
-| `B` | Flight Preparation |
-| `C` | Performance & Safety |
-| `D` | System & Usability |
-| `E` | Weather & Environment |
-| `F` | Fuel & Endurance |
-| `G` | Onboarding & Sync |
-| `STRESS` | Stress Tests |
+| ID       | Phase / Domain        |
+| :------- | :-------------------- |
+| `A`      | Fleet Management      |
+| `B`      | Flight Preparation    |
+| `C`      | Performance & Safety  |
+| `D`      | System & Usability    |
+| `E`      | Weather & Environment |
+| `F`      | Fuel & Endurance      |
+| `G`      | Onboarding & Sync     |
+| `STRESS` | Stress Tests          |
 
 ### 1.5 Layer Identifiers
 
 Used as the `{LAYER}` segment in IMP, UT, and IT tags:
 
-| ID | Architectural Layer |
-| :--- | :--- |
-| `CORE` | Core domain logic and math |
-| `STORE` | Pinia state management |
-| `VIEW` | Vue view components |
-| `ROUTE` | Vue Router configuration |
-| `PLUGIN` | Vue plugins and adapters |
+| ID       | Architectural Layer          |
+| :------- | :--------------------------- |
+| `CORE`   | Core domain logic and math   |
+| `STORE`  | Pinia state management       |
+| `VIEW`   | Vue view components          |
+| `ROUTE`  | Vue Router configuration     |
+| `PLUGIN` | Vue plugins and adapters     |
 | `SHARED` | Shared utilities and helpers |
 
 ---
@@ -100,16 +100,16 @@ The traceability graph is a **directed acyclic graph (DAG)**. Edges flow from
 upstream (origin/cause) to downstream (derived/verification). The `FROM`
 annotation on a downstream artifact points to its upstream parent(s).
 
-| Edge | Upstream | Downstream | Semantics |
-| :--- | :--- | :--- | :--- |
-| H → REQ | Hazard | Requirement | Requirement mitigates hazard |
-| REQ → UJ | Requirement | User Journey | Journey demonstrates requirement |
-| REQ → DES | Requirement | Design | Design implements requirement |
-| REQ → IMP | Requirement | Implementation | Code directly implements requirement |
-| DES → IMP | Design | Implementation | Code implements design |
-| IMP → UT | Implementation | Unit Test | Unit test verifies implementation |
-| IMP → IT | Implementation | Integration Test | Integration test verifies implementation |
-| UJ → E2E | User Journey | E2E Test | E2E test validates user journey |
+| Edge      | Upstream       | Downstream       | Semantics                                |
+| :-------- | :------------- | :--------------- | :--------------------------------------- |
+| H → REQ   | Hazard         | Requirement      | Requirement mitigates hazard             |
+| REQ → UJ  | Requirement    | User Journey     | Journey demonstrates requirement         |
+| REQ → DES | Requirement    | Design           | Design implements requirement            |
+| REQ → IMP | Requirement    | Implementation   | Code directly implements requirement     |
+| DES → IMP | Design         | Implementation   | Code implements design                   |
+| IMP → UT  | Implementation | Unit Test        | Unit test verifies implementation        |
+| IMP → IT  | Implementation | Integration Test | Integration test verifies implementation |
+| UJ → E2E  | User Journey   | E2E Test         | E2E test validates user journey          |
 
 An IMP node MAY have edges from both REQ and DES simultaneously.
 
@@ -147,16 +147,16 @@ H → REQ → IMP → IT            (interaction verification)
 
 All tags use the `@`-delimited format: `@PREFIX-SEGMENTS@`.
 
-| Node Type | Tag Format | Regex | Example |
-| :--- | :--- | :--- | :--- |
-| H | `@H-{NUMBER}@` | `@H-[0-9]+@` | `@H-006@` |
-| REQ | `@REQ-{MODULE}-{NUMBER}@` | `@REQ-[A-Z]+-[0-9]+@` | `@REQ-MB-011@` |
-| UJ | `@UJ-{PHASE}-{NUMBER}@` | `@UJ-[A-Z]+-[0-9]+@` | `@UJ-B-005@` |
-| DES | `@DES-{SUBTYPE}-{NUMBER}@` | `@DES-[A-Z]+-[0-9]+@` | `@DES-ARCH-002@` |
-| IMP | `@IMP-{MODULE}-{LAYER}-{NUMBER}@` | `@IMP-[A-Z]+-[A-Z]+-[0-9]+@` | `@IMP-MB-CORE-001@` |
-| UT | `@UT-{MODULE}-{LAYER}-{NUMBER}@` | `@UT-[A-Z]+-[A-Z]+-[0-9]+@` | `@UT-MB-CORE-002@` |
-| IT | `@IT-{MODULE}-{LAYER}-{NUMBER}@` | `@IT-[A-Z]+-[A-Z]+-[0-9]+@` | `@IT-MB-CORE-001@` |
-| E2E | `@E2E-{PHASE}-{NUMBER}@` | `@E2E-[A-Z]+-[0-9]+@` | `@E2E-B-001@` |
+| Node Type | Tag Format                        | Regex                        | Example             |
+| :-------- | :-------------------------------- | :--------------------------- | :------------------ |
+| H         | `@H-{NUMBER}@`                    | `@H-[0-9]+@`                 | `@H-006@`           |
+| REQ       | `@REQ-{MODULE}-{NUMBER}@`         | `@REQ-[A-Z]+-[0-9]+@`        | `@REQ-MB-011@`      |
+| UJ        | `@UJ-{PHASE}-{NUMBER}@`           | `@UJ-[A-Z]+-[0-9]+@`         | `@UJ-B-005@`        |
+| DES       | `@DES-{SUBTYPE}-{NUMBER}@`        | `@DES-[A-Z]+-[0-9]+@`        | `@DES-ARCH-002@`    |
+| IMP       | `@IMP-{MODULE}-{LAYER}-{NUMBER}@` | `@IMP-[A-Z]+-[A-Z]+-[0-9]+@` | `@IMP-MB-CORE-001@` |
+| UT        | `@UT-{MODULE}-{LAYER}-{NUMBER}@`  | `@UT-[A-Z]+-[A-Z]+-[0-9]+@`  | `@UT-MB-CORE-002@`  |
+| IT        | `@IT-{MODULE}-{LAYER}-{NUMBER}@`  | `@IT-[A-Z]+-[A-Z]+-[0-9]+@`  | `@IT-MB-CORE-001@`  |
+| E2E       | `@E2E-{PHASE}-{NUMBER}@`          | `@E2E-[A-Z]+-[0-9]+@`        | `@E2E-B-001@`       |
 
 ### 3.2 Number Segment
 
@@ -182,12 +182,12 @@ For technical E2E tests without a UJ trace (§6.2.2), use:
 
 ### 3.4 Placement Rules by Artifact Type
 
-| Artifact Type | Comment Syntax | Placement Rule |
-| :--- | :--- | :--- |
-| Markdown (H, REQ, UJ, DES) | `<!-- ... -->` | On the line immediately before the `##` or `###` heading |
-| TypeScript (IMP) | `// ...` | Immediately before the traced code block (export, function, statement, or branch). May appear at any indentation level. |
-| TypeScript (UT, IT) | `// ...` | Immediately before the `it` / `it.each` call or the scenario entry in a data-driven array it traces. One tag per test case, not per `describe`. |
-| Gherkin (E2E) | `# ...` | As a `#` comment on the line immediately above the execution tags, before `Scenario` |
+| Artifact Type              | Comment Syntax | Placement Rule                                                                                                                                  |
+| :------------------------- | :------------- | :---------------------------------------------------------------------------------------------------------------------------------------------- |
+| Markdown (H, REQ, UJ, DES) | `<!-- ... -->` | On the line immediately before the `##` or `###` heading                                                                                        |
+| TypeScript (IMP)           | `// ...`       | Immediately before the traced code block (export, function, statement, or branch). May appear at any indentation level.                         |
+| TypeScript (UT, IT)        | `// ...`       | Immediately before the `it` / `it.each` call or the scenario entry in a data-driven array it traces. One tag per test case, not per `describe`. |
+| Gherkin (E2E)              | `# ...`        | As a `#` comment on the line immediately above the execution tags, before `Scenario`                                                            |
 
 ### 3.5 Canonical Examples
 
@@ -195,6 +195,7 @@ For technical E2E tests without a UJ trace (§6.2.2), use:
 
 ```md
 <!-- @H-006@ -->
+
 ### H-006: Errors by CG shift during flight
 ```
 
@@ -202,6 +203,7 @@ For technical E2E tests without a UJ trace (§6.2.2), use:
 
 ```md
 <!-- @REQ-MB-011@ (FROM: @H-006@) -->
+
 ### REQ-MB-011: CG Migration Detection
 ```
 
@@ -209,6 +211,7 @@ For technical E2E tests without a UJ trace (§6.2.2), use:
 
 ```md
 <!-- @UJ-B-005@ (FROM: @REQ-MB-002@, @REQ-MB-008@) -->
+
 ## UJ-B-005: Textbook Flight Preparation
 ```
 
@@ -216,6 +219,7 @@ For technical E2E tests without a UJ trace (§6.2.2), use:
 
 ```md
 <!-- @DES-ARCH-002@ (FROM: @REQ-AD-001@, @REQ-AD-002@) -->
+
 ## Aircraft Data Model
 ```
 
@@ -408,11 +412,11 @@ duplicated in the registry.
 
 ### 5.1 Requirement Evolution
 
-| Action | Rules |
-| :--- | :--- |
-| **Creation** | New REQ receives the next sequential ID in its module. Status: `Draft`. |
-| **Modification** | Requirement text may be updated. Status transitions: `Draft` → `Review` → `Approved` → `Implemented`. |
-| **Deprecation** | Set status to `Deprecated`. All downstream `FROM` traces must be updated or removed. The REQ entry is never deleted from the file. |
+| Action            | Rules                                                                                                                                                                                                                                                                      |
+| :---------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Creation**      | New REQ receives the next sequential ID in its module. Status: `Draft`.                                                                                                                                                                                                    |
+| **Modification**  | Requirement text may be updated. Status transitions: `Draft` → `Review` → `Approved` → `Implemented`.                                                                                                                                                                      |
+| **Deprecation**   | Set status to `Deprecated`. All downstream `FROM` traces must be updated or removed. The REQ entry is never deleted from the file.                                                                                                                                         |
 | **Consolidation** | When merging REQ-A into REQ-B: (1) Update all downstream `FROM` tags referencing REQ-A to reference REQ-B. (2) Verify the hazard chain is preserved — REQ-B must still trace to all hazards REQ-A traced to. (3) Mark REQ-A as `Deprecated` with a note referencing REQ-B. |
 
 ### 5.2 Deletion and Consolidation Rules
@@ -440,12 +444,12 @@ duplicated in the registry.
 
 ### 5.4 Verification Guarantees
 
-| Guarantee | Rule |
-| :--- | :--- |
-| **P1 REQ coverage** | All P1 requirements with user-observable behavior MUST be tagged in ≥1 UJ |
-| **Hazard indirect coverage** | Every H-xxx MUST have ≥1 mitigating REQ tagged in a UJ |
-| **Algorithm exception** | Internal algorithm REQs (not user-observable) MAY be unit-test-only |
-| **UQ exception** | Cross-cutting quality attributes (UQ-001–004) use QA test suites, not individual UJs |
+| Guarantee                    | Rule                                                                                 |
+| :--------------------------- | :----------------------------------------------------------------------------------- |
+| **P1 REQ coverage**          | All P1 requirements with user-observable behavior MUST be tagged in ≥1 UJ            |
+| **Hazard indirect coverage** | Every H-xxx MUST have ≥1 mitigating REQ tagged in a UJ                               |
+| **Algorithm exception**      | Internal algorithm REQs (not user-observable) MAY be unit-test-only                  |
+| **UQ exception**             | Cross-cutting quality attributes (UQ-001–004) use QA test suites, not individual UJs |
 
 ---
 
@@ -456,14 +460,14 @@ commit that violates these invariants.
 
 ### 6.1 Orphan Prevention
 
-| ID | Rule |
-| :--- | :--- |
-| **INV-001** | No orphan IMP: Every IMP MUST trace to at least one REQ or DES. |
-| **INV-002** | No orphan UT: Every UT MUST trace to at least one IMP. |
-| **INV-003** | No orphan IT: Every IT MUST trace to at least one IMP. |
-| **INV-004** | No orphan business E2E: Every business E2E MUST trace to at least one UJ. |
+| ID          | Rule                                                                                                                                             |
+| :---------- | :----------------------------------------------------------------------------------------------------------------------------------------------- |
+| **INV-001** | No orphan IMP: Every IMP MUST trace to at least one REQ or DES.                                                                                  |
+| **INV-002** | No orphan UT: Every UT MUST trace to at least one IMP.                                                                                           |
+| **INV-003** | No orphan IT: Every IT MUST trace to at least one IMP.                                                                                           |
+| **INV-004** | No orphan business E2E: Every business E2E MUST trace to at least one UJ.                                                                        |
 | **INV-005** | No unverified IMP: Every IMP that realizes a non-deprecated REQ MUST have at least one downstream verification artifact (UT, IT, or E2E via UJ). |
-| **INV-006** | No UJ without REQ: Every UJ MUST trace to at least one REQ. |
+| **INV-006** | No UJ without REQ: Every UJ MUST trace to at least one REQ.                                                                                      |
 
 ### 6.2 E2E Classification Rules
 
@@ -486,18 +490,18 @@ E2E tests are classified into two categories with distinct invariants:
 
 ### 6.3 Uniqueness Constraints
 
-| ID | Rule |
-| :--- | :--- |
+| ID          | Rule                                                                                                                                                          |
+| :---------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | **INV-007** | No cross-layer duplicate IDs: A numeric+segment combination MUST be globally unique within its prefix namespace (e.g., only one `IMP-MB-CORE-001` may exist). |
-| **INV-008** | Single-source definition: Each tag MUST be defined (declared) in exactly one source file. Multiple `FROM` citations from other files are permitted. |
+| **INV-008** | Single-source definition: Each tag MUST be defined (declared) in exactly one source file. Multiple `FROM` citations from other files are permitted.           |
 
 ### 6.4 Trace Integrity
 
-| ID | Rule |
-| :--- | :--- |
+| ID          | Rule                                                                                                 |
+| :---------- | :--------------------------------------------------------------------------------------------------- |
 | **INV-009** | No dangling references: Every ID cited in a `FROM` clause MUST exist as a defined tag in the system. |
-| **INV-010** | No circular dependencies: The trace graph MUST be acyclic. |
-| **INV-011** | Edge type conformance: `FROM` references MUST only cross allowed edge types defined in §2.1. |
+| **INV-010** | No circular dependencies: The trace graph MUST be acyclic.                                           |
+| **INV-011** | Edge type conformance: `FROM` references MUST only cross allowed edge types defined in §2.1.         |
 
 ---
 
@@ -600,11 +604,11 @@ The CI pipeline MUST execute the following validations in order:
 
 ### 7.4 Enforcement Hooks
 
-| Hook | Trigger | Action |
-| :--- | :--- | :--- |
-| **Pre-commit** | `git commit` | Validate tag format in staged files |
-| **Pre-push** | `git push` | Full invariant check on changed files |
-| **CI Gate** | Pull Request | Complete trace graph validation + coverage report |
+| Hook             | Trigger         | Action                                                |
+| :--------------- | :-------------- | :---------------------------------------------------- |
+| **Pre-commit**   | `git commit`    | Validate tag format in staged files                   |
+| **Pre-push**     | `git push`      | Full invariant check on changed files                 |
+| **CI Gate**      | Pull Request    | Complete trace graph validation + coverage report     |
 | **Release Gate** | Merge to `main` | Full MTM coverage verification against all invariants |
 
 ---
@@ -614,14 +618,14 @@ The CI pipeline MUST execute the following validations in order:
 The following aspects of this specification are documentation-only and cannot be
 automatically enforced by CI tooling. They require human review.
 
-| Rule | Reason |
-| :--- | :--- |
-| Requirement EARS syntax quality | Requires judgment of requirement clarity |
-| Journey design principles (realistic aircraft, extend vs. create) | Architectural judgment |
-| Hazard severity classification accuracy | Requires domain expert assessment |
-| P1 / P2 / P3 priority assignment correctness | Requires safety analysis |
-| Design document completeness and correctness | Requires human review |
-| Semantic correctness of `FROM` references (right upstream, not just valid format) | Requires domain understanding |
+| Rule                                                                              | Reason                                   |
+| :-------------------------------------------------------------------------------- | :--------------------------------------- |
+| Requirement EARS syntax quality                                                   | Requires judgment of requirement clarity |
+| Journey design principles (realistic aircraft, extend vs. create)                 | Architectural judgment                   |
+| Hazard severity classification accuracy                                           | Requires domain expert assessment        |
+| P1 / P2 / P3 priority assignment correctness                                      | Requires safety analysis                 |
+| Design document completeness and correctness                                      | Requires human review                    |
+| Semantic correctness of `FROM` references (right upstream, not just valid format) | Requires domain understanding            |
 
 ---
 
