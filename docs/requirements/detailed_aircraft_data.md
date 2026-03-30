@@ -13,7 +13,7 @@ This document defines the detailed aircraft data behavior using the **EARS** (Ea
 **Requirement:** The system shall store for each aircraft: registration, manufacturer, model, ICAO type designator.
 **Rationale:** Identification of the aircraft record.
 **Priority:** P1
-**Status:** Approved
+**Status:** Implemented
 **Design Reference:** n/a
 
 <!-- @REQ-AD-002@ -->
@@ -113,7 +113,7 @@ This document defines the detailed aircraft data behavior using the **EARS** (Ea
 **Requirement:** The system shall store for each aircraft the available certification categories (Normal, Utility, Aerobatic) with a unique set of Mass & Balance limits (MTOM and CG Envelope polygon) per certification category.
 **Rationale:** Necessary for aircraft with multiple categories where the mass limits differ (e.g. Klemm 107B). Load point availability per category is defined on the load point itself (REQ-AD-002).
 **Priority:** P1
-**Status:** Approved
+**Status:** Implemented
 **Design Reference:** [Aircraft Data Model](../architecture/aircraft_data_model.md)
 
 <!-- @REQ-AD-012@ -->

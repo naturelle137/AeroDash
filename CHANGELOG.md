@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Standardized API documentation in `docs/api/API.md` detailing offline-first fallback and error schemas
 - Online/Offline state detection and feature gating requirements (`system.md`, `user_interface.md`)
 
+### Added
+
+- Canonical `AircraftProfileSchema` Zod schema for the full Aircraft Profile aggregate-root document, providing the validation entry gate for M&B and future modules (Ref #100, REQ-AD-001, REQ-AD-002, REQ-AD-003, REQ-AD-005, REQ-AD-011, REQ-AD-012)
+
 ### Engineering
 
 - Fixed Markdown linting hook to run efficiently on staged files via `lint-staged` (Ref #78)

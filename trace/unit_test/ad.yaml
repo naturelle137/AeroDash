@@ -89,3 +89,221 @@ AD Core — mass-balance Zod input (Unit)
       - IMP-AD-CORE-002
     files:
       - frontend/src/core/adapters/mass-balance.adapter.spec.ts
+
+AD Profile Schema (full AircraftProfile Zod validation)
+  UT-AD-CORE-014
+    title: Accepts a fully-populated minimal valid profile
+    impl:
+      - IMP-AD-CORE-004
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AD-CORE-015
+    title: Accepts a profile with shareCode as a non-null string
+    impl:
+      - IMP-AD-CORE-004
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AD-CORE-016
+    title: Accepts arm = 0 as a valid scalar arm value (not treated as absent)
+    impl:
+      - IMP-AD-CORE-004
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AD-CORE-017
+    title: Accepts a load point using an armLookup table instead of a scalar arm
+    impl:
+      - IMP-AD-CORE-004
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AD-CORE-018
+    title: Accepts exactly 20 load points (upper boundary)
+    impl:
+      - IMP-AD-CORE-004
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AD-CORE-019
+    title: Accepts exactly 4 envelope points (lower boundary)
+    impl:
+      - IMP-AD-CORE-004
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AD-CORE-020
+    title: Accepts exactly 10 fuel tank load points (upper boundary)
+    impl:
+      - IMP-AD-CORE-004
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AD-CORE-021
+    title: Accepts multiple certification categories (Normal + Utility)
+    impl:
+      - IMP-AD-CORE-004
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AD-CORE-022
+    title: Accepts optional M3/M4 placeholder fields when provided as arrays
+    impl:
+      - IMP-AD-CORE-004
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AD-CORE-023
+    title: Rejects a profile when a required root field is missing
+    impl:
+      - IMP-AD-CORE-004
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AD-CORE-024
+    title: Rejects a profile when id is not a valid UUID
+    impl:
+      - IMP-AD-CORE-004
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AD-CORE-025
+    title: Rejects a profile when weighingReports is an empty array
+    impl:
+      - IMP-AD-CORE-004
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AD-CORE-026
+    title: Rejects a profile when certificationCategories is an empty array
+    impl:
+      - IMP-AD-CORE-004
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AD-CORE-027
+    title: Rejects a profile with more than 20 load points
+    impl:
+      - IMP-AD-CORE-004
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AD-CORE-028
+    title: Rejects a load point with both arm and non-empty armLookup (XOR NOT_ALLOWED)
+    impl:
+      - IMP-AD-CORE-004
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AD-CORE-029
+    title: Rejects a load point with arm = null and empty armLookup (XOR REQUIRED)
+    impl:
+      - IMP-AD-CORE-004
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AD-CORE-030
+    title: Rejects a profile with more than 10 fuel tanks (TOO_MANY_FUEL_TANKS)
+    impl:
+      - IMP-AD-CORE-004
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AD-CORE-031
+    title: Rejects a load point with a missing required name field
+    impl:
+      - IMP-AD-CORE-004
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AD-CORE-032
+    title: Rejects a load point with an invalid allowableCategories value
+    impl:
+      - IMP-AD-CORE-004
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AD-CORE-033
+    title: Rejects a certification category with fewer than 4 envelope points
+    impl:
+      - IMP-AD-CORE-004
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AD-CORE-034
+    title: Rejects a certification category with more than 20 envelope points
+    impl:
+      - IMP-AD-CORE-004
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AD-CORE-035
+    title: Rejects a certification category with an invalid graphType enum
+    impl:
+      - IMP-AD-CORE-004
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AD-CORE-036
+    title: Rejects a certification category with an invalid category enum
+    impl:
+      - IMP-AD-CORE-004
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AD-CORE-037
+    title: Rejects a certification category with a non-positive mtom
+    impl:
+      - IMP-AD-CORE-004
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AD-CORE-038
+    title: Rejects a weighing report with a non-positive bem
+    impl:
+      - IMP-AD-CORE-004
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AD-CORE-039
+    title: Rejects a weighing report with a missing weighingDate
+    impl:
+      - IMP-AD-CORE-004
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AD-CORE-040
+    title: Rejects a fuel tank with an invalid permissible fuel type
+    impl:
+      - IMP-AD-CORE-004
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AD-CORE-041
+    title: Rejects a fuel tank with an empty permissibleFuelTypes array
+    impl:
+      - IMP-AD-CORE-004
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AD-CORE-042
+    title: Rejects a fuel tank with a negative unusableFuel value
+    impl:
+      - IMP-AD-CORE-004
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AD-CORE-043
+    title: Rejects a wind limit with an invalid component enum
+    impl:
+      - IMP-AD-CORE-004
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AD-CORE-044
+    title: Rejects a wind limit with an invalid classification enum
+    impl:
+      - IMP-AD-CORE-004
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts

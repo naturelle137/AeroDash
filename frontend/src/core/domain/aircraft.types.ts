@@ -5,6 +5,10 @@
  * @see docs/architecture/aircraft_data_model.md
  */
 
+// Re-export the canonical AircraftProfile aggregate-root type from the Zod schema.
+// All runtime validation of stored profiles must use AircraftProfileSchema.
+export type { AircraftProfile } from '../adapters/aircraft.schema'
+
 // @IMP-AD-CORE-001@ (FROM: @DES-ARCH-002@)
 export interface EnvelopePoint {
   armOrMoment: number

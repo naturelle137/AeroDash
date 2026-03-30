@@ -26,3 +26,17 @@ AD Core (domain + mass-balance input schema)
       - REQ-AD-012
     files:
       - frontend/src/core/adapters/mass-balance.adapter.ts
+
+  IMP-AD-CORE-004
+    title: AircraftProfile Canonical Zod Schema (Aggregate-Root Document Validation)
+    req:
+      - REQ-AD-001
+      - REQ-AD-002
+      - REQ-AD-003
+      - REQ-AD-005
+      - REQ-AD-011
+      - REQ-AD-012
+    des:
+      - DES-ARCH-002
+    files:
+      - frontend/src/core/adapters/aircraft.schema.ts
