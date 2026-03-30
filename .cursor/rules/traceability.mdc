@@ -1,260 +1,37 @@
 ---
-description: Enforce the Single Traceability Contract (STC) for all code, test, and registry artifacts
 alwaysApply: false
-globs: frontend/**/*.ts, frontend/**/*.feature, trace/**/*.yaml
 ---
 
-# AeroDash Traceability Enforcement
-
-You are enforcing the **Single Traceability Contract (STC)** defined in
-`docs/stc.md`. That document is the sole authority for ontology, graph
-rules, tag formats, and lifecycle rules.
-
-**Do NOT invent rules not present in the STC. Do NOT contradict the STC.**
-
----
-
-## 1. Implementation (IMP) Rules
-
-When creating or modifying a source file in `frontend/src/**/*.ts`
-(excluding `*.spec.ts` and `*.int.spec.ts`):
-
-- **Tag format:** `// @IMP-{MODULE}-{LAYER}-{NUMBER}@ (FROM: @REQ-xxx@)` or
-  `// @IMP-{MODULE}-{LAYER}-{NUMBER}@ (FROM: @DES-xxx@)` — both REQ and DES
-  may appear in a single `FROM` clause.
-- **Upstream reference:** The `FROM` clause MUST reference at least one REQ or
-  DES. An IMP without any upstream trace is forbidden (STC INV-001).
-- **Placement (STC §3.4):** Immediately before the traced code block
-  (export, function, statement, or branch). May appear at any indentation
-  level within the file.
-- **ID assignment:** Use the next sequential number in the
-  `{MODULE}-{LAYER}` namespace. Check the registry at
-  `trace/implementation/{module}.yaml` to determine the next available ID.
-
----
-
-## 1b. Tag Consolidation Rule (IMP)
-
-One code block = one `@IMP` ID. Before adding any `@IMP` tag, apply
-these consolidation checks:
-
-1. **Search Before Tagging:** Inspect the target code block (function,
-   class, or export) for an existing `@IMP` tag. If a tag already exists,
-   do NOT create a new ID.
-2. **Update, Don't Duplicate:** Append new upstream references to the
-   existing tag's `FROM` clause instead of introducing a second tag.
-
-   **Forbidden** (two IDs on the same block):
-   ```typescript
-   // @IMP-SYS-001@ (FROM: @REQ-01@)
-   // @IMP-SYS-002@ (FROM: @REQ-02@)
-   ```
-
-   **Required** (single ID, merged references):
-   ```typescript
-   // @IMP-SYS-001@ (FROM: @REQ-01@, @REQ-02@)
-   ```
-
-3. **ID Persistence:** An implementation block retains its original ID for
-   its entire lifecycle. Never reassign, renumber, or split an existing ID
-   to accommodate new requirements.
-
----
-
-## 2. Unit Test (UT) Rules
-
-When creating or modifying a test file matching `*.spec.ts`
-(excluding `*.int.spec.ts`):
-
-- **Tag format:**
-  `// @UT-{MODULE}-{LAYER}-{NUMBER}@ (FROM: @IMP-xxx@[, @IMP-xxx@])`
-- **Upstream reference:** MUST trace to one or more IMP tags.
-  MUST NOT trace directly to REQ, DES, UJ, or H (STC §2.2).
-- **Placement (STC §3.4):** Immediately before the `it` / `it.each` call
-  or the scenario entry in a data-driven array. One tag per test case,
-  not per `describe` block.
-- **Isolation (STC Appendix B.1):** Unit tests MUST execute in absolute
-  isolation — no network, no disk I/O, no browser APIs, no real Pinia stores.
-- **Scope:** Each `describe` block SHOULD verify one logical unit of one or
-  more IMP artifacts.
-
----
-
-## 3. Integration Test (IT) Rules
-
-When creating or modifying a test file matching `*.int.spec.ts`:
-
-- **Tag format:**
-  `// @IT-{MODULE}-{LAYER}-{NUMBER}@ (FROM: @IMP-xxx@[, @IMP-xxx@])`
-- **Upstream reference:** MUST trace to one or more IMP tags.
-  MUST NOT trace directly to REQ, DES, UJ, or H (STC §2.2).
-- **Placement (STC §3.4):** Immediately before the `it` / `it.each` call
-  or the scenario entry in a data-driven array. One tag per test case,
-  not per `describe` block.
-- **Interaction scope (STC Appendix B.2):** Integration tests MUST verify the
-  handshake between two or more internal modules. External network calls MUST
-  be mocked.
-
----
-
-## 4. E2E Test (E2E) Rules
-
-When creating or modifying a `.feature` file in `frontend/tests/e2e/`:
-
-### 4.1 Trace Comment (Required)
-
-Every `Scenario` MUST have a trace comment as a Gherkin `#` comment on the
-line immediately above the execution tags:
-
-**Business E2E:**
-
-```gherkin
-# @E2E-{PHASE}-{NUMBER}@ (FROM: @UJ-xxx@)
-```
-
-**Technical E2E:**
-
-```gherkin
-# @E2E-{PHASE or Module}-{NUMBER}@ (TECHNICAL)
-```
-
-### 4.2 Execution Tags (Required)
-
-Execution tags are placed on the line between the trace comment and the
-`Scenario` keyword:
-
-| Tag | Purpose | Required for |
-| :--- | :--- | :--- |
-| `@UJ-xxx` | Source User Journey | Business E2E only |
-| `@phase-X` | Development phase | All E2E |
-| `@e2e` | Test type marker | Business E2E |
-| `@smoke` | Smoke test marker | Technical E2E (smoke) |
-| `@technical-e2e` | Technical test marker | Technical E2E (non-smoke) |
-| `@module-xxx` | Module scope | Recommended |
-| `@happy-path` / `@edge-case` | Scenario classification | Recommended |
-
-### 4.3 Business vs. Technical E2E
-
-- **Business E2E** validates user-facing behavior. MUST trace to UJ.
-  MUST follow the full MTM chain: `H → REQ → UJ → E2E`.
-- **Technical E2E** validates system health (boot, connectivity, smoke).
-  MUST NOT be used for business validation. MUST be tagged `@smoke` or
-  `@technical-e2e`.
-
-### 4.4 E2E Trace Placement
-
-- Trace tags MUST be placed in the `.feature` file ONLY.
-- Trace tags MUST NEVER be placed in step definition files (`*.ts`).
-- The UJ execution tag (e.g., `@UJ-B-005`) MUST match the UJ cited in the
-  trace comment `FROM` clause.
-
----
-
-## 5. Registry Enforcement
-
-When creating a **new** traced artifact (IMP, UT, IT, or E2E), you MUST update
-the corresponding YAML registry in the `trace/` directory as part of the same
-operation.
-
-| Artifact | Registry Location | Required Fields |
-| :--- | :--- | :--- |
-| IMP | `trace/implementation/{module}.yaml` | ID, title, req and/or des, files |
-| UT | `trace/unit_test/{module}.yaml` | ID, title, impl, files |
-| IT | `trace/integration_test/{module}.yaml` | ID, title, impl, files |
-| E2E | `trace/e2e/{phase-or-domain}.yaml` | ID, title, files |
-
-**Registry rules:**
-
-- **ID assignment:** Use the next sequential number in the namespace. Inspect
-  the registry file to determine the next available ID.
-- **Deletion:** Mark deleted entries as `deleted` or `obsolete`. Never remove
-  lines.
-- **No ID reuse:** Once assigned, an ID is permanent even if the artifact is
-  deleted.
-- **Ranges:** Bulk deletions may use range notation:
-  `{ID-START} - {ID-END}` followed by `deleted`.
-
----
-
-## 6. Forbidden Patterns
-
-### 6.1 Missing Tags
-
-- NEVER create an implementation file without an `@IMP-xxx@` trace tag.
-- NEVER create a test file without the corresponding `@UT-xxx@`, `@IT-xxx@`,
-  or `@E2E-xxx@` tag.
-- NEVER create a `.feature` Scenario without both the trace comment AND
-  execution tags.
-
-### 6.2 Wrong Trace Direction (STC §2.2)
-
-- NEVER trace UT / IT to REQ or DES (must go through IMP).
-- NEVER trace E2E to IMP (must go through UJ).
-- NEVER trace IMP to H (must go through REQ or DES).
-- NEVER trace UT to IT or E2E.
-- NEVER trace IT to UT or E2E.
-
-### 6.3 Cross-Layer Contamination (STC §3.4)
-
-- NEVER place E2E trace tags in step definition `.ts` files.
-- NEVER place IMP tags in test files (`*.spec.ts`, `*.int.spec.ts`).
-- NEVER place UT / IT tags in non-test implementation files.
-
-### 6.4 Orphan Artifacts
-
-- NEVER create an IMP without at least one upstream REQ or DES.
-- NEVER create a UT / IT without at least one upstream IMP.
-- NEVER create a business E2E without at least one upstream UJ.
-
-### 6.5 ID Violations
-
-- NEVER reuse a deleted or obsolete ID.
-- NEVER create duplicate IDs within the same node type.
-- NEVER skip registry updates when creating new artifacts.
-
-### 6.6 Tag Duplication (Consolidation Violation)
-
-- NEVER place two or more `@IMP` tags on the same code block
-  (function, class, or export). Merge `FROM` references into the
-  existing tag instead (see §1b).
-
----
-
-## 7. STC Invariant Coverage
-
-The following STC invariants are enforced by this rule at the agent level:
-
-| STC Invariant | Enforcement | Cursor Section |
-| :--- | :--- | :--- |
-| INV-001 (no orphan IMP) | Agent-enforced | §1, §6.4 |
-| INV-002 (no orphan UT) | Agent-enforced | §2, §6.4 |
-| INV-003 (no orphan IT) | Agent-enforced | §3, §6.4 |
-| INV-004 (no orphan business E2E) | Agent-enforced | §4, §6.4 |
-| INV-005 (no unverified IMP) | CI-only | *Requires full graph analysis* |
-| INV-006 (no UJ without REQ) | CI-only | *UJ/REQ files outside agent glob scope* |
-| INV-007 (unique IDs per prefix namespace) | Agent-enforced | §5, §6.5 |
-| INV-008 (single-source definition) | Agent-enforced | §5, §6.5 |
-| INV-009 (no dangling FROM references) | CI-only | *Requires full graph analysis* |
-| INV-010 (no circular dependencies) | CI-only | *Requires full graph analysis* |
-| INV-011 (edge type conformance) | Agent-enforced | §6.2 |
-
-Invariants marked "CI-only" require whole-repository graph analysis and cannot
-be validated by the agent during single-file operations. They are enforced by
-the CI pipeline (STC §7.3).
-
----
-
-## 8. Reference
-
-The canonical specification for all traceability rules is
-**`docs/stc.md`** (the Single Traceability Contract). Consult it for:
-
-- Complete ontology and node type definitions (STC §1)
-- Allowed trace graph edges and forbidden edges (STC §2)
-- Tag format regex patterns and canonical examples (STC §3)
-- Registry schemas and lifecycle rules (STC §4, §5)
-- Full invariant table (STC §6)
-- CI/tooling integration and enforcement hooks (STC §7)
-
-**This rule file enforces a strict subset of the STC.** If any conflict exists
-between this file and the STC, the STC takes precedence.
+- ids: `H=@H-{NNN}@`; `REQ=@REQ-{MODULE}-{NNN}@`; `UJ=@UJ-{PHASE}-{NNN}@`; `DES=@DES-{SUBTYPE}-{NNN}@`; `IMP|UT|IT=@{PFX}-{MODULE}-{LAYER}-{NNN}@`; `E2E=@E2E-{PHASE}-{NNN}@`
+- nums: `NNN=001..999`; zero-pad; ascending per prefix namespace; no reuse
+- ann: `@TAG@ (FROM: @UP-1@[, @UP-2@ ...])`
+- ann: `@E2E-...@ (TECHNICAL)`
+- edges+: `H->REQ`; `REQ->UJ`; `REQ->DES`; `REQ->IMP`; `DES->IMP`; `IMP->UT`; `IMP->IT`; `UJ->E2E`
+- edges+: `IMP` may cite `REQ` + `DES`
+- edges-: reverse; cycles; `E2E->IMP`; `UT|IT->REQ|DES`; `DES->H`; `UT->IT|E2E`; `IT->UT|E2E`
+- `H`: `docs/risk_management/**/*.md`; `<!-- ... -->`; line above `##|###`; registry none; source `docs/risk_management/safety_hazards.md`
+- `REQ`: `docs/requirements/**/*.md`; excl `README.md|traceability_matrix.md`; `<!-- ... -->`; line above `##|###`; `FROM: @H-...@`; registry `trace/requirements/{module}.yaml`; fields `title|hazard|file`
+- `UJ`: `docs/journeys/**/*.md`; excl `README.md`; `<!-- ... -->`; line above `##|###`; `FROM: @REQ-...@`; registry `trace/journeys/{phase}.yaml`; fields `title|req|file`
+- `DES`: `docs/architecture/**/*.md|docs/ux/**/*.md|docs/api/**/*.md`; excl `000-template.md|README.md`; `<!-- ... -->`; line above `##|###`; `FROM: @REQ-...@`; registry `trace/design/{subtype}.yaml`; fields `title|req|file`
+- `IMP`: `frontend/src/**/*.ts`; excl `*.spec.ts|*.int.spec.ts`; `// ...`; line above traced `export|function|statement|branch`; one tag per logical unit; merge upstreams; `FROM: @REQ-...@|@DES-...@`; registry `trace/implementation/{module}.yaml`; fields `title|req?|des?|files`; `req|des >=1`
+- `UT`: `frontend/src/**/*.spec.ts`; excl `*.int.spec.ts`; `// ...`; line above `it|it.each|traced data row`; never `describe`; `FROM: @IMP-...@`; registry `trace/unit_test/{module}.yaml`; fields `title|impl|files`
+- `IT`: `frontend/**/*.int.spec.ts`; `// ...`; line above `it|it.each|traced data row`; never `describe`; `FROM: @IMP-...@`; registry `trace/integration_test/{module}.yaml`; fields `title|impl|files`
+- `E2E-business`: `frontend/tests/e2e/**/*.feature`; `# ...`; line above exec tags, before `Scenario`; `FROM: @UJ-...@`; tags `@UJ-... @phase-X @e2e`; optional scenario tag; registry `trace/e2e/{phase-or-domain}.yaml`; fields `title|files`; no upstream dup in registry
+- `E2E-technical`: `frontend/tests/e2e/**/*.feature`; `# @E2E-...@ (TECHNICAL)`; no `FROM`; tags `@phase-X` + `@smoke|@technical-e2e`; non-business only
+- `E2E` trace tags: `.feature` only; never step defs `*.ts`
+- registries: `trace/{requirements|journeys|design|implementation|unit_test|integration_test|e2e}/`
+- registries: source-of-truth=`H` hazard log / `REQ|UJ|DES` markdown / `IMP|UT|IT|E2E` source file
+- registries: new traced artifact => entry same commit
+- registries: delete => mark `deleted|obsolete`; never remove
+- cross-check: every source tag <-> registry entry; every registry `file|files` path exists
+- inv `001`: every `IMP` >=1 upstream `REQ|DES`
+- inv `002`: every `UT` >=1 upstream `IMP`
+- inv `003`: every `IT` >=1 upstream `IMP`
+- inv `004`: every business `E2E` >=1 upstream `UJ`
+- inv `005`: every non-deprecated `REQ`-realizing `IMP` >=1 downstream `UT|IT|E2E via UJ`
+- inv `006`: every `UJ` >=1 upstream `REQ`
+- inv `007`: unique ID per prefix namespace
+- inv `008`: one defining source file per tag; extra citations ok
+- inv `009`: every `FROM` target exists
+- inv `010`: DAG only
+- inv `011`: allowed edge types only
