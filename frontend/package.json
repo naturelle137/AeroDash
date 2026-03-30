@@ -16,6 +16,7 @@
     "preview": "vite preview",
     "test": "echo \"Notice: No default test suite. Use test:unit, test:integration, or test:e2e.\" && exit 0",
     "test:unit": "vitest run",
+    "test:p1": "vitest run --config vitest.config.p1.ts",
     "test:smoke": "bddgen && playwright test --grep @smoke",
     "coverage:unit": "vitest run --coverage",
     "test:integration": "vitest run --config vitest.config.int.ts",

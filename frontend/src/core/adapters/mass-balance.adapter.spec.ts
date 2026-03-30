@@ -430,24 +430,13 @@ describe('M&B Zod Adapter', () => {
   })
 
   // @UT-MB-CORE-070@ (FROM: @IMP-MB-CORE-014@)
-  it('throws an error and logs if the core logic fails unexpectedly', () => {
+  it('propagates unexpected core logic errors to the caller', () => {
     const input = createMathCoreInput()
 
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
     vi.spyOn(logic, 'computeMassBalanceCore').mockImplementationOnce(() => {
       throw new Error('Fatal Core Failure')
     })
 
     expect(() => calculateMassBalance(input)).toThrow('Fatal Core Failure')
-    expect(consoleSpy).toHaveBeenCalledOnce()
-    const logOutput = JSON.parse(consoleSpy.mock.calls[0][0] as string)
-    expect(logOutput).toMatchObject({
-      level: 'ERROR',
-      context: 'MassBalance.Adapter',
-      message: 'Core failed',
-      data: { error: 'Fatal Core Failure', input: expect.any(Object) },
-    })
-
-    consoleSpy.mockRestore()
   })
 })

@@ -16,6 +16,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Engineering
 
 - Fixed Markdown linting hook to run efficiently on staged files via `lint-staged` (Ref #78)
+- Implemented P1/P2/P3 architectural dependency isolation (Ref #50):
+  ESLint `no-restricted-imports` rule blocks framework and higher-layer imports
+  from `src/core/`, a dedicated `vitest.config.p1.ts` proves P1 tests pass in
+  a pure Node.js environment, and CONTRIBUTING.md §8 provides the classification
+  guide and mandatory P1 PR checklist. See ADR 314-DEV-dependency-isolation.
 - Defined and setup src and testing file structure
 - Defined frontend framework (Vue 3) and testing framework (Vitest, Playwright, Playwright-BDD) and initialized them
 
