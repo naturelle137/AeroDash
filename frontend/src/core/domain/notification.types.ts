@@ -5,8 +5,7 @@
  * @see docs/architecture/notification_schema.md
  */
 
-// @IMP-SYS-CORE-001@ (FROM: @DES-ARCH-001@)
-// @IMP-SYS-CORE-003@ (FROM: @REQ-SYS-011@, @REQ-SYS-012@, @DES-ARCH-001@)
+// @IMP-SYS-CORE-001@ (FROM: @REQ-SYS-011@, @REQ-SYS-012@, @DES-ARCH-001@)
 export type {
   Notification,
   NotificationAction,

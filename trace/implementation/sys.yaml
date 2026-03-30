@@ -1,6 +1,9 @@
 SYS Core
   IMP-SYS-CORE-001
     title: Global Notification System Type Definitions
+    req:
+      - REQ-SYS-011
+      - REQ-SYS-012
     des:
       - DES-ARCH-001
     files:
@@ -16,14 +19,9 @@ SYS Core
       - frontend/src/core/adapters/mb.zod-violation-mapping.ts
 
   IMP-SYS-CORE-003
+    status: deleted
     title: ERROR Severity for Validation Failures
-    req:
-      - REQ-SYS-011
-      - REQ-SYS-012
-    des:
-      - DES-ARCH-001
-    files:
-      - frontend/src/core/domain/notification.types.ts
+    note: Merged into IMP-SYS-CORE-001 (same logical unit — re-export in notification.types.ts)
 
   IMP-SYS-CORE-004
     title: Generic Notification System Zod Schema
