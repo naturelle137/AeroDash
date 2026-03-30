@@ -7,6 +7,8 @@
     "frontend/node_modules/**",
     ".agent/**",
     "frontend/playwright-report/**",
-    "frontend/test-results/**"
+    "frontend/test-results/**",
+    ".cursor/**",
+    ".tmp/**"
   ]
 }
