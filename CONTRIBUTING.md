@@ -4,6 +4,11 @@ Thank you for your interest in contributing to AeroDash!
 
 As a General Aviation flight-preparation tool, our highest priority is **Safety-First**. We value correctness over speed. A single unverified change in a "Mass & Balance" algorithm could lead to incorrect takeoff data. Therefore, we enforce strict rules to prevent architectural drift, ensure code integrity, and maintain complete traceability.
 
+## Development Direction
+
+To understand where the project is heading, check the roadmap:
+👉 [docs/development/roadmap.md](docs/development/roadmap.md)
+
 ## 🌟 Welcome & Quick Start
 
 First of all: **Don't panic!** The rules below might look strict, but they are here to guide you, not to scare you away. We love new contributors and are always happy to help you navigate your first Pull Request.
