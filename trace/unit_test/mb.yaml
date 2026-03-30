@@ -445,6 +445,33 @@ MB Core Logic - White Box
     files:
       - frontend/src/core/logic/mass-balance.logic.spec.ts
 
+MB Core - Canonical Math Test Vectors
+  UT-MB-CORE-083
+    title: DA40 canonical test vectors — CG calculations match hand-computed POH values
+    impl:
+      - IMP-MB-CORE-001
+      - IMP-MB-CORE-002
+      - IMP-MB-CORE-003
+      - IMP-MB-CORE-004
+      - IMP-MB-CORE-005
+      - IMP-MB-CORE-006
+      - IMP-MB-CORE-008
+    files:
+      - frontend/src/core/logic/canonical-vectors.spec.ts
+
+  UT-MB-CORE-084
+    title: P2008 canonical test vectors — CG calculations match hand-computed POH values
+    impl:
+      - IMP-MB-CORE-001
+      - IMP-MB-CORE-002
+      - IMP-MB-CORE-003
+      - IMP-MB-CORE-004
+      - IMP-MB-CORE-005
+      - IMP-MB-CORE-006
+      - IMP-MB-CORE-008
+    files:
+      - frontend/src/core/logic/canonical-vectors.spec.ts
+
 MB Adapter entry (Unit)
   UT-MB-CORE-070
     title: Verify core logic failure propagation and error logging

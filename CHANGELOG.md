@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Engineering
 
+- Canonical math test vector framework: Zod-validated JSON vectors for DA40 and P2008 aircraft with automated test runner verifying CG algorithms against POH-derived values (Ref #95)
 - Fixed Markdown linting hook to run efficiently on staged files via `lint-staged` (Ref #78)
 - Implemented P1/P2/P3 architectural dependency isolation (Ref #50):
   ESLint `no-restricted-imports` rule blocks framework and higher-layer imports

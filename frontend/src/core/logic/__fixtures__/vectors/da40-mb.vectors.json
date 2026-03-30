@@ -1,0 +1,166 @@
+{
+  "aircraft": "Diamond DA40",
+  "source": "Simplified DA40 POH Mass & Balance (metric, arm-type graph)",
+  "vectors": [
+    {
+      "id": "DA40-01",
+      "description": "Empty aircraft — BEM only, unusable fuel equals total fuel",
+      "source": "Hand calculation (BEM-only baseline)",
+      "tolerance": 4,
+      "input": {
+        "basicEmptyMass": 433,
+        "emptyCenterOfGravity": 1.877,
+        "maxTakeoffMass": 650,
+        "maxZeroFuelMass": null,
+        "graphType": "arm",
+        "envelope": [
+          { "armOrMoment": 1.841, "mass": 433 },
+          { "armOrMoment": 1.978, "mass": 433 },
+          { "armOrMoment": 1.978, "mass": 650 },
+          { "armOrMoment": 1.841, "mass": 650 }
+        ],
+        "stations": [
+          { "index": 0, "mass": 0, "arm": 1.800, "armLookup": [] },
+          { "index": 1, "mass": 0, "arm": 2.417, "armLookup": [] }
+        ],
+        "fuelStations": [
+          {
+            "index": 2,
+            "mass": 3,
+            "arm": 2.209,
+            "armLookup": [],
+            "unusableFuel": 3,
+            "burnSequences": []
+          }
+        ]
+      },
+      "expected": {
+        "zeroFuelCg": { "arm": 1.877, "mass": 433, "moment": 812.741 },
+        "takeoffCg": { "arm": 1.877, "mass": 433, "moment": 812.741 },
+        "landingCg": { "arm": 1.877, "mass": 433, "moment": 812.741 },
+        "violations": [],
+        "success": true
+      }
+    },
+    {
+      "id": "DA40-02",
+      "description": "Solo pilot, no fuel — forward CG tendency",
+      "source": "Hand calculation (single front-seat occupant, no usable fuel)",
+      "tolerance": 4,
+      "input": {
+        "basicEmptyMass": 433,
+        "emptyCenterOfGravity": 1.877,
+        "maxTakeoffMass": 650,
+        "maxZeroFuelMass": null,
+        "graphType": "arm",
+        "envelope": [
+          { "armOrMoment": 1.841, "mass": 433 },
+          { "armOrMoment": 1.978, "mass": 433 },
+          { "armOrMoment": 1.978, "mass": 650 },
+          { "armOrMoment": 1.841, "mass": 650 }
+        ],
+        "stations": [
+          { "index": 0, "mass": 85, "arm": 1.800, "armLookup": [] },
+          { "index": 1, "mass": 0, "arm": 2.417, "armLookup": [] }
+        ],
+        "fuelStations": [
+          {
+            "index": 2,
+            "mass": 3,
+            "arm": 2.209,
+            "armLookup": [],
+            "unusableFuel": 3,
+            "burnSequences": []
+          }
+        ]
+      },
+      "expected": {
+        "zeroFuelCg": { "arm": 1.8643648648648647, "mass": 518, "moment": 965.741 },
+        "takeoffCg": { "arm": 1.8643648648648647, "mass": 518, "moment": 965.741 },
+        "landingCg": { "arm": 1.8643648648648647, "mass": 518, "moment": 965.741 },
+        "violations": [],
+        "success": true
+      }
+    },
+    {
+      "id": "DA40-03",
+      "description": "Typical VFR flight — pilot, baggage, partial fuel",
+      "source": "Hand calculation (representative VFR loading)",
+      "tolerance": 4,
+      "input": {
+        "basicEmptyMass": 433,
+        "emptyCenterOfGravity": 1.877,
+        "maxTakeoffMass": 650,
+        "maxZeroFuelMass": null,
+        "graphType": "arm",
+        "envelope": [
+          { "armOrMoment": 1.841, "mass": 433 },
+          { "armOrMoment": 1.978, "mass": 433 },
+          { "armOrMoment": 1.978, "mass": 650 },
+          { "armOrMoment": 1.841, "mass": 650 }
+        ],
+        "stations": [
+          { "index": 0, "mass": 85, "arm": 1.800, "armLookup": [] },
+          { "index": 1, "mass": 10, "arm": 2.417, "armLookup": [] }
+        ],
+        "fuelStations": [
+          {
+            "index": 2,
+            "mass": 60,
+            "arm": 2.209,
+            "armLookup": [],
+            "unusableFuel": 3,
+            "burnSequences": []
+          }
+        ]
+      },
+      "expected": {
+        "zeroFuelCg": { "arm": 1.8748314393939394, "mass": 528, "moment": 989.911 },
+        "takeoffCg": { "arm": 1.907391452991453, "mass": 585, "moment": 1115.824 },
+        "landingCg": { "arm": 1.8748314393939394, "mass": 528, "moment": 989.911 },
+        "violations": [],
+        "success": true
+      }
+    },
+    {
+      "id": "DA40-04",
+      "description": "Heavy payload — MTOM exceeded and CG outside envelope mass range",
+      "source": "Hand calculation (overweight scenario)",
+      "tolerance": 4,
+      "input": {
+        "basicEmptyMass": 433,
+        "emptyCenterOfGravity": 1.877,
+        "maxTakeoffMass": 650,
+        "maxZeroFuelMass": null,
+        "graphType": "arm",
+        "envelope": [
+          { "armOrMoment": 1.841, "mass": 433 },
+          { "armOrMoment": 1.978, "mass": 433 },
+          { "armOrMoment": 1.978, "mass": 650 },
+          { "armOrMoment": 1.841, "mass": 650 }
+        ],
+        "stations": [
+          { "index": 0, "mass": 180, "arm": 1.800, "armLookup": [] },
+          { "index": 1, "mass": 30, "arm": 2.417, "armLookup": [] }
+        ],
+        "fuelStations": [
+          {
+            "index": 2,
+            "mass": 40,
+            "arm": 2.209,
+            "armLookup": [],
+            "unusableFuel": 3,
+            "burnSequences": []
+          }
+        ]
+      },
+      "expected": {
+        "zeroFuelCg": { "arm": 1.8806391912908242, "mass": 643, "moment": 1209.251 },
+        "takeoffCg": { "arm": 1.898505882352941, "mass": 680, "moment": 1290.984 },
+        "landingCg": { "arm": 1.8806391912908242, "mass": 643, "moment": 1209.251 },
+        "violations": ["MTOM_EXCEEDED", "CG_OUT_OF_ENVELOPE"],
+        "success": true
+      }
+    }
+  ]
+}
