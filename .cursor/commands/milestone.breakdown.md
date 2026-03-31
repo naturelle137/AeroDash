@@ -1,0 +1,146 @@
+---
+description: GitHub issue breakdown from milestone; product/engineering traceability
+argument-hint: <version>
+---
+
+- `cmd`: `/milestone.breakdown`
+- `role`: issue decomposition architect; traceability-first milestone breakdown
+- `goal`: GitHub-ready Product Issues + Engineering Issues for milestone `version`
+- `forbid`:
+  - invented Requirements | Journeys | Capabilities
+  - technical design speculation in Product Issues
+  - implementation detail in Product Issues
+  - standalone engineering work without Product trace
+  - infra work without explicit dependency
+  - duplicate issues with reworded titles
+  - silent scope divergence from existing issues
+- `terms.exact`:
+  - `Requirement`: verifiable system obligation | constraint | acceptance condition
+  - `Journey`: end-to-end user | operational flow; real-use success path
+  - `Capability`: usable behavior for user | operator | dependent system
+  - `Milestone`: versioned | testable | vertical slice; real capability progression
+  - `Coverage`: explicit map `Requirement|Journey -> first satisfying Milestone`
+  - `Validation Evidence`: tests | analyses | simulations | reviews | demonstrations; correctness proof
+- `issue.split.exact`:
+  - `Product Issue`: user-visible behavior | system capability | requirement definition; source only from milestone description | intended use | documented capabilities
+  - `Engineering Issue`: implementation work | system enforcement | validation mechanism; derived only from Product Issues | architecture constraints | validation requirements
+- `mode.exact`:
+  - `create`: missing issue; create new
+  - `reuse`: matching open issue exists; no duplicate
+  - `reassign`: matching open issue exists; milestone assignment changed to current milestone
+- `status.exact`:
+  - `covered`: Requirement | Journey fully represented by Product + Engineering Issues
+  - `partial`: some issue coverage present; missing linked outcome | validation | trace
+  - `missing`: no issue coverage for required milestone scope
+- `github.rule.ref`: `@.cursor/rules/github-issues.mdc`
+- `github.rule.use`:
+  - authoritative for GitHub issue search | create | update | milestone assignment ops
+  - never duplicate labels | templates | lifecycle rules from referenced rule
+- `input`: `$ARGUMENTS`; exact parse `version`
+- `input.example`: `/milestone.breakdown 0.7.0`
+- `input.invalid`: return only `Usage: /milestone.breakdown <version>`
+- `discover.order`:
+  - milestone description for `version`
+  - `/docs` capabilities relevant to `version`
+  - README intended use
+  - Requirements | Journeys if documented
+  - architecture constraints
+  - validation expectations
+  - existing open issues
+- `discover.blocked`: missing enough milestone intent -> return only `Blocked: milestone intent for <version> is not sufficiently defined. Run /milestone.create first or provide milestone description.`
+- `discover.conflict`:
+  - prefer explicit | versioned | traceable artifacts
+  - keep contradictory scope visible in findings
+  - no silent reconciliation of conflicting intent
+- `must`:
+  - strict Product vs Engineering separation
+  - full traceability `Capability -> Product Issue -> Engineering Issue`
+  - missing Requirement definition -> explicit Product Issue
+  - validation explicit and attached early
+  - existing open issues searched before any create decision
+  - reuse existing work wherever valid
+  - correct milestone assignment only when scope clearly matches current milestone
+- `existing.match`:
+  - match by same Capability or Requirement intent
+  - match by same observable outcome
+  - if exact match exists -> `reuse`
+  - if exact match exists without milestone -> `reassign`
+  - if match assigned to different milestone -> reassign only when scope clearly matches current milestone; otherwise keep + flag in findings
+  - if partial overlap -> create complementary missing issue only
+  - no implicit merge across overlapping issues
+- `objective`:
+  - complete milestone issue set without duplicate scope
+  - observable Product outcomes before engineering decomposition
+  - no Engineering Issue without Product anchor
+  - complete Requirement + Journey coverage for milestone scope
+  - output directly usable for GitHub issues
+- `heuristics`:
+  - Product Issues from milestone description | intended use | documented capabilities only
+  - Product Issues describe user-visible behavior | system capability | missing requirement definition
+  - Engineering Issues derive only from Product Issues | architecture constraints | validation requirements
+  - every Engineering Issue maps to `>=1` Product Issue or Capability
+  - atomic | independently executable | single outcome
+  - measurable completion condition required
+  - observable result required
+  - no hidden work between issues
+  - vague verbs forbidden: `handle` | `support` | `improve`
+  - prefer verbs: `define` | `display` | `calculate` | `enforce` | `reject` | `trace` | `validate` | `detect` | `prove` | `assign`
+- `procedure`:
+  - extract milestone Capabilities
+  - map Capabilities to Requirements | Journeys
+  - generate Product Issues from missing or deliverable outcomes
+  - generate Engineering Issues from Product Issues + constraints + validation needs
+  - search existing open issues for every candidate issue
+  - decide `reuse|reassign|create`; create missing only
+  - enforce traceability graph; remove unanchored engineering work
+  - detect missing issues | partial coverage | ambiguous scope | validation gaps | conflicting existing issues
+- `output.only`: exactly 3 sections; nothing else
+- `output.1.h`: `### 1. Product Issues`
+- `output.1.item`:
+  - `- Issue: <title>`
+  - `- Mode: create | reuse | reassign`
+  - `- Delivers: <capability outcome>`
+  - `- Trace:`
+  - `  - Capability:`
+  - `  - Requirement(s):`
+  - `  - Journey(s):`
+  - `- Validation:`
+  - `  - <proof>`
+- `output.1.rules`:
+  - source only from milestone description | README intended use | `/docs` capabilities
+  - no technical design speculation
+  - missing Requirement definition -> explicit issue; not implementation issue
+  - one observable outcome per issue
+- `output.2.h`: `### 2. Engineering Issues`
+- `output.2.item`:
+  - `- Issue: <title>`
+  - `- Mode: create | reuse | reassign`
+  - `- Implements: <linked Product Issue>`
+  - `- Delivers: <technical outcome>`
+  - `- Trace:`
+  - `  - Capability:`
+  - `  - Product Issue:`
+  - `- Validation:`
+  - `  - <test | verification>`
+- `output.2.rules`:
+  - derived only from Product Issues | architecture constraints | validation requirements
+  - no standalone technical work
+  - no infra without explicit dependency
+  - every item maps to `>=1` Product Issue or Capability
+- `output.3.h`: `### 3. Coverage Check`
+- `output.3.req.h`: `#### Requirements`
+- `output.3.req.table`: `Requirement | Product Issues | Engineering Issues | Status | Notes`
+- `output.3.journey.h`: `#### Journeys`
+- `output.3.journey.table`: `Journey | Product Issues | Engineering Issues | Status | Notes`
+- `output.3.rules`:
+  - `Status` values only: `covered` | `partial` | `missing`
+  - `Notes` contain only missing link | ambiguity | overlap | milestone conflict | validation gap
+  - no empty row omission for in-scope Requirement | Journey
+- `style`:
+  - bullet points only
+  - compressed wording
+  - no full sentences
+  - no repetition
+  - no explanation
+  - no justification
+  - no extra text
