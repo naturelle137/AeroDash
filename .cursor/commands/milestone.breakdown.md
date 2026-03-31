@@ -41,6 +41,7 @@ argument-hint: <version>
 - `input.invalid`: return only `Usage: /milestone.breakdown <version>`
 - `discover.order`:
   - milestone description for `version`
+  - `docs/development/implementation-roadmap.md` for Requirements | Journeys mapped to `version`
   - `/docs` capabilities relevant to `version`
   - README intended use
   - Requirements | Journeys if documented
