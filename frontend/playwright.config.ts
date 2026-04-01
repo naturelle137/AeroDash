@@ -35,7 +35,7 @@ export default defineConfig({
   /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: 'html',
+  reporter: process.env.CI ? [['list'], ['html', { open: 'never' }]] : 'html',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Maximum time each action such as `click()` can take. Defaults to 0 (no limit). */
@@ -85,13 +85,17 @@ export default defineConfig({
     //   },
     // },
 
-    /* Test against branded browsers. */
-    {
-      name: 'edge',
-      use: {
-        channel: 'msedge',
-      },
-    },
+    /* msedge is only available on Windows/macOS — skip on Linux CI runners. */
+    ...(!process.env.CI
+      ? [
+          {
+            name: 'edge',
+            use: {
+              channel: 'msedge' as const,
+            },
+          },
+        ]
+      : []),
     // {
     //   name: 'Google Chrome',
     //   use: {
@@ -110,7 +114,7 @@ export default defineConfig({
      * Use the preview server on CI for more realistic testing.
      * Playwright will re-use the local server if there is already a dev-server running.
      */
-    command: process.env.CI ? 'npm run preview' : 'npm run dev',
+    command: process.env.CI ? 'pnpm run preview' : 'pnpm run dev',
     port: process.env.CI ? 4173 : 5173,
     reuseExistingServer: !process.env.CI,
   },
