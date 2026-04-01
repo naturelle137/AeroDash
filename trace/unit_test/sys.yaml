@@ -316,3 +316,25 @@ SYS Shared — Structured Logger Utility (Unit)
       - IMP-SYS-SHARED-002
     files:
       - frontend/src/shared/utils/__tests__/logger.spec.ts
+
+SYS App — Vue Router (Unit)
+  UT-SYS-APP-001
+    title: Applies redirect from / to /mass-balance on navigation
+    impl:
+      - IMP-SYS-APP-001
+    files:
+      - frontend/src/router/index.spec.ts
+
+  UT-SYS-APP-002
+    title: Resolves named mass-balance route to /mass-balance
+    impl:
+      - IMP-SYS-APP-001
+    files:
+      - frontend/src/router/index.spec.ts
+
+  UT-SYS-APP-003
+    title: Resolves /mass-balance path to mass-balance route record
+    impl:
+      - IMP-SYS-APP-001
+    files:
+      - frontend/src/router/index.spec.ts

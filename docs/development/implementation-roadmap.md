@@ -4,34 +4,34 @@
 
 ### Requirements
 
-- `REQ-AD-001`: Base aircraft attributes; schema defined for walking skeleton
-- `REQ-AD-002`: Load points; status: Implemented
-- `REQ-AD-003`: Fuel tanks and burn sequences; `H-003` mitigation; status: Implemented
+- `REQ-AD-001`: Base aircraft attributes; schema defined for walking skeleton; **status: Implemented**
+- `REQ-AD-002`: Load points; **status: Implemented**
+- `REQ-AD-003`: Fuel tanks and burn sequences; `H-003` mitigation; **status: Implemented**
 - `REQ-AD-004`: BEM, empty CG, weighing date; predefined aircraft data
-- `REQ-AD-005`: Flight envelope polygon; status: Implemented
-- `REQ-AD-011`: Certification categories with distinct MTOM/envelope
-- `REQ-AD-012`: Fixed arm or variable loading stations; status: Implemented
+- `REQ-AD-005`: Flight envelope polygon; **status: Implemented**
+- `REQ-AD-011`: Certification categories with distinct MTOM/envelope; **status: Implemented**
+- `REQ-AD-012`: Fixed arm or variable loading stations; **status: Implemented**
 - `REQ-AD-014`: Store POH values in original units; `H-001` mitigation
 - `REQ-FE-001`: Fuel mass from type-specific density; `H-002` mitigation
-- `REQ-FE-004`: Burn sequences per tank; `H-006` mitigation; status: Implemented
-- `REQ-MB-001`: Update MTOM/stations/envelope on category change; `H-005` mitigation; status: Implemented
-- `REQ-MB-002`: Recalculate mass/CG on any load change; status: Implemented
-- `REQ-MB-003`: Chart updates synchronized with input; status: Implemented
-- `REQ-MB-004`: CG out of envelope -> `CRIT-MB-001`; `H-006` mitigation; status: Implemented
-- `REQ-MB-005`: Over MTOM -> `CRIT-MB-002`; status: Implemented
-- `REQ-MB-006`: Geometric coordinates for envelope and load points; status: Implemented
-- `REQ-MB-007`: Point-in-polygon for sloped/complex envelopes; status: Implemented
-- `REQ-MB-008`: TO/LDG CG plus burn waypoints / burn-down polygon; `H-006` mitigation; status: Implemented
-- `REQ-MB-009`: MZFM validation -> `CRIT-MB-004`; status: Implemented
+- `REQ-FE-004`: Burn sequences per tank; `H-006` mitigation; **status: Implemented**
+- `REQ-MB-001`: Update MTOM/stations/envelope on category change; `H-005` mitigation; **status: Implemented**
+- `REQ-MB-002`: Recalculate mass/CG on any load change; **status: Implemented**
+- `REQ-MB-003`: Chart updates synchronized with input; **status: Implemented**
+- `REQ-MB-004`: CG out of envelope -> `CRIT-MB-001`; `H-006` mitigation; **status: Implemented**
+- `REQ-MB-005`: Over MTOM -> `CRIT-MB-002`; **status: Implemented**
+- `REQ-MB-006`: Geometric coordinates for envelope and load points; **status: Implemented**
+- `REQ-MB-007`: Point-in-polygon for sloped/complex envelopes; **status: Implemented**
+- `REQ-MB-008`: TO/LDG CG plus burn waypoints / burn-down polygon; `H-006` mitigation; **status: Implemented**
+- `REQ-MB-009`: MZFM validation -> `CRIT-MB-004`; **status: Implemented**
 - `REQ-MB-010`: Output CG envelope polygon definition for chart rendering
-- `REQ-MB-011`: CG migration exceeds envelope -> `CRIT-MB-003`; `H-006` mitigation; status: Implemented
-- `REQ-MB-012`: Fixed or variable moment per station; status: Implemented
+- `REQ-MB-011`: CG migration exceeds envelope -> `CRIT-MB-003`; `H-006` mitigation; **status: Implemented**
+- `REQ-MB-012`: Fixed or variable moment per station; **status: Implemented**
 - `REQ-SYS-003`: Normalize to SI internally; `H-001`, `H-002` mitigation
 - `REQ-SYS-004`: Supported units list (`kg`, `lbs`, `L`, `Gal`, etc.)
-- `REQ-SYS-007`: Centralized notification service
-- `REQ-SYS-008`: Uniform notification model (severity, actions); status: Implemented
-- `REQ-SYS-011`: Zod validation before core logic; status: Implemented
-- `REQ-SYS-012`: Validation failure `ERROR` (`ERR-SYS-001`); status: Implemented
+- `REQ-SYS-007`: Centralized notification service; **status: Implemented**
+- `REQ-SYS-008`: Uniform notification model (severity, actions); **status: Implemented**
+- `REQ-SYS-011`: Zod validation before core logic; **status: Implemented**
+- `REQ-SYS-012`: Validation failure `ERROR` (`ERR-SYS-001`); **status: Implemented**
 - `REQ-UI-008`: Out-of-range inputs -> `WARN-UI-001`
 - `REQ-UI-009`: Recalculate on certification category change; `H-005` mitigation
 - `REQ-UI-010`: CG migration trend line or burn polygon display; `H-006` mitigation

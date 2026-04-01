@@ -1,6 +1,6 @@
 ---
 description: Milestone repo-gap check; GitHub MCP; pre-release gate
-argument-hint: <target_version>
+argument-hint: <milestone number | target_version>
 ---
 
 - `cmd`: `/milestone.check`
@@ -9,18 +9,21 @@ argument-hint: <target_version>
 - `repo`: `naturelle137/AeroDash`
 - `input`: `$ARGUMENTS`
 - `input.parse`: `<target_version>`
-- `input.example`: `/milestone.check 0.7.0`
+- `input.example`: `/milestone.check 12` | `/milestone.check 0.7.0`
 - `input.invalid`: return only `Usage: /milestone.check <target_version>`
 - `github.mcp.tools`:
   - `search_issues`
   - `issue_read`
 - `github.mcp.read`:
-  - q1 `repo:naturelle137/AeroDash milestone:"<target_version>"`
-  - q2 `repo:naturelle137/AeroDash milestone:"v<target_version>"`
-  - q1+q2 empty -> blocked
-  - q1+q2 both hit; different sets -> blocked
-  - chosen set: exact versioned scope only
-  - each hit -> `issue_read` `get`
+  - q1 `repo:naturelle137/AeroDash milestone:"<milestone number>"`
+  - q2 `repo:naturelle137/AeroDash milestone:"<target_version>"`
+  - q3 `repo:naturelle137/AeroDash milestone:"v<target_version>"`
+  - q1 hit -> `issue_read` `get`
+  - q1 not hit -> continue:
+    - q2+q3 empty -> blocked
+    - q2+q3 both hit; different sets -> blocked
+    - chosen set: exact versioned scope only
+    - each hit -> `issue_read` `get`
 - `milestone.item.exact`:
   - `Product`: user-visible outcome | requirement definition | docs-visible scope
   - `Engineering`: implementation | enforcement | tooling | validation

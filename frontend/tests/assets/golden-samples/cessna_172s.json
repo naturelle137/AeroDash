@@ -34,7 +34,7 @@
       "operationalLimit": 200,
       "defaultQuantity": 0,
       "unit": "kg",
-      "allowableCategories": null,
+      "allowableCategories": ["Normal"],
       "fuelTank": null
     },
     {

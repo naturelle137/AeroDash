@@ -1,0 +1,5 @@
+Phase A End-to-End Tests
+  E2E-A-001
+    title: Utility category applies tighter limits and removes rear-seat loading
+    files:
+      - frontend/tests/e2e/features/phase-a-fleet-management/certification-category-switch.feature

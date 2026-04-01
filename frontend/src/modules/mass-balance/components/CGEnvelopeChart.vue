@@ -123,6 +123,7 @@ const xStep = computed(() => (xTicks.value.length >= 2 ? xTicks.value[1]! - xTic
 const yStep = computed(() => (yTicks.value.length >= 2 ? yTicks.value[1]! - yTicks.value[0]! : 1))
 
 // ─── Derived SVG geometry ──────────────────────────────────────────────────
+// @IMP-MB-UI-001@ (FROM: @REQ-UI-019@)
 
 const envelopePts = computed(() =>
   props.envelope.map((ep) => `${sx(ep.armOrMoment)},${sy(ep.mass)}`).join(' '),
@@ -156,6 +157,7 @@ const cgMarkers = computed(() => {
   ]
 })
 
+// @IMP-MB-UI-002@ (FROM: @REQ-UI-010@)
 const migrationD = computed(() => {
   if (props.graphType !== 'arm' || !props.result || props.result.migrationPath.length < 2) {
     return null
@@ -166,6 +168,7 @@ const migrationD = computed(() => {
 })
 
 // ─── Severity-driven palette ───────────────────────────────────────────────
+// @IMP-MB-UI-003@ (FROM: @REQ-UI-018@)
 
 const isCritical = computed(() => props.severity === 'critical')
 const isNeutral = computed(() => props.severity === null)

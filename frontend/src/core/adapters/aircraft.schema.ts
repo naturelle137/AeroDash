@@ -54,6 +54,7 @@ const CertificationCategorySchema = z.object({
   envelope: z.array(EnvelopePointSchema).min(4).max(20),
 })
 
+// @IMP-AD-CORE-005@ (FROM: @REQ-AD-004@)
 const WeighingReportSchema = z.object({
   bem: z.number().positive(),
   emptyCg: z.number(),
@@ -78,7 +79,7 @@ const SafetyFactorsSchema = z.object({
   landing: z.number().positive(),
 })
 
-// @IMP-AD-CORE-004@ (FROM: @REQ-AD-001@, @REQ-AD-002@, @REQ-AD-003@, @REQ-AD-005@, @REQ-AD-011@, @REQ-AD-012@, @DES-ARCH-002@)
+// @IMP-AD-CORE-004@ (FROM: @REQ-AD-001@, @REQ-AD-002@, @REQ-AD-003@, @REQ-AD-005@, @REQ-AD-011@, @REQ-AD-012@, @REQ-AD-014@, @DES-ARCH-002@)
 export const AircraftProfileSchema = z
   .object({
     id: z.string().uuid(),

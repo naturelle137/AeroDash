@@ -235,7 +235,7 @@ export const AIRCRAFT_CATALOGUE: AircraftContext[] = [
         operationalLimit: 200,
         defaultQuantity: 0,
         unit: 'kg',
-        allowableCategories: null,
+        allowableCategories: ['Normal'],
         fuelTank: null,
       },
       {
@@ -267,7 +267,7 @@ export const AIRCRAFT_CATALOGUE: AircraftContext[] = [
         unit: 'kg',
         allowableCategories: null,
         fuelTank: {
-          unusableFuel: 4,
+          unusableFuel: 6,
           permissibleFuelTypes: ['AvGas 100LL', 'AvGas UL91'],
           burnSequences: [{ sequenceName: 'Standard', ordinalPosition: 1 }],
         },

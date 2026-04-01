@@ -1,4 +1,5 @@
 <script setup lang="ts">
+// @IMP-MB-UI-005@ (FROM: @REQ-UQ-003@, @REQ-UQ-005@)
 import type { MathCoreResult } from '@/modules/mass-balance/stores/mass-balance.types'
 
 interface CategoryLimits {

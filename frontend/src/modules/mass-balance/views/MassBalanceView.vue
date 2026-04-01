@@ -50,6 +50,7 @@ const categoryLimits = computed(() => {
 // value and snapshot the entire viewModel to verify correctness.
 // ---------------------------------------------------------------------------
 
+// @IMP-MB-UI-004@ (FROM: @REQ-UI-018@)
 const viewModel = computed(() => {
   const state = store.uiState
 

@@ -36,7 +36,29 @@ AD Core (domain + mass-balance input schema)
       - REQ-AD-005
       - REQ-AD-011
       - REQ-AD-012
+      - REQ-AD-014
     des:
       - DES-ARCH-002
     files:
       - frontend/src/core/adapters/aircraft.schema.ts
+
+  IMP-AD-CORE-005
+    title: WeighingReport Zod Schema (BEM, Empty CG, Weighing Date)
+    req:
+      - REQ-AD-004
+    files:
+      - frontend/src/core/adapters/aircraft.schema.ts
+
+  IMP-AD-CORE-006
+    title: CategoryDefinition Type (Envelope, Graph Type, Mass Limits)
+    req:
+      - REQ-MB-010
+    files:
+      - frontend/src/core/domain/aircraft.types.ts
+
+  IMP-AD-CORE-007
+    title: WeighingReport Type (BEM, Empty CG, Weighing Date)
+    req:
+      - REQ-AD-004
+    files:
+      - frontend/src/core/domain/aircraft.types.ts
