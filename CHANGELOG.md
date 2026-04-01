@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.2.0-alpha]
 
 ### Added
 
@@ -86,6 +86,6 @@ developer experience tooling, and the complete product documentation suite.
 - ADR 001: Notification System
 - ADR 300–308 DEV: Documentation as Code, Branching Strategy, Contributing Guidelines, Ticket Workflow, Testing Guidelines, Linting Strategy, Local Hooks, Master Traceability Structure, Traceability Engine
 
-[unreleased]: https://github.com/naturelle137/AeroDash/compare/v0.1.0-pre-alpha.1...HEAD
+[0.2.0-alpha]: todo
 [0.1.0-pre-alpha.1]: https://github.com/naturelle137/AeroDash/compare/v0.1.0-pre-alpha...v0.1.0-pre-alpha.1
 [0.1.0-pre-alpha]: https://github.com/naturelle137/AeroDash/releases/tag/v0.1.0-pre-alpha
