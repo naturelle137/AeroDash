@@ -9,12 +9,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Root `ARCHITECTURE.md` establishing the high-level PWA design, Data Flow, and safety constraints
+- Root `ARCHITECTURE.md` establishing the high-level PWA design, data flow, and safety constraints
 - Standardized API documentation in `docs/api/API.md` detailing offline-first fallback and error schemas
+- Online/Offline state detection and feature gating requirements
+- Canonical `AircraftProfileSchema` Zod schema as the validation entry gate for the Aircraft Profile aggregate-root, M&B, and future modules
+- Vue 3 frontend application shell and modular feature scaffolding for aircraft, mass-balance, weather, performance, export, and sync domains
+- End-to-end Mass & Balance user workflow with station inputs, CG envelope charting, and result summary presentation
+- Core mass-balance domain logic, aircraft-data adapters, and notification schema validation with comprehensive test coverage
 
 ### Engineering
 
-- Fixed Markdown linting hook to run efficiently on staged files via `lint-staged` (Ref #78)
+- Canonical math test vector framework: Zod-validated JSON vectors for DA40 and P2008 with automated CG algorithm verification against POH-derived values
+- Fixed Markdown linting hook to run efficiently on staged files via `lint-staged`
+- Implemented P1/P2/P3 architectural dependency isolation with ESLint `no-restricted-imports`, dedicated `vitest.config.p1.ts`, and CONTRIBUTING.md classification guide
+- Defined and setup src and testing file structure
+- Defined frontend framework (Vue 3) and testing framework (Vitest, Playwright, Playwright-BDD) and initialized them
+- Migrated repository dependency management to pnpm workspaces with updated root and frontend tooling configuration
+- Added CI pipelines for linting, Vitest execution, and devcontainer build/publish workflows
+- Expanded traceability artifacts for unit, integration, and e2e mappings aligned to implemented requirements
+
+### Architecture Decision Records
+
+- ADR 002: Frontend framework (Vue 3)
+- ADR 309 DEV: Frontend tooling and testing framework (Vitest, Playwright)
+- ADR 310 DEV: Vue/Vite plugins (`vite-plugin-pwa`, `vue-chartjs`, `@vite-pwa/assets-generator`)
+- ADR 311 DEV: Project directory structure (Modules pattern)
+- ADR 312 DEV: End-to-End BDD framework (`playwright-bdd`)
 
 ## [0.1.0-pre-alpha.1] - 2026-02-28
 
@@ -22,7 +42,7 @@ This hotfix resolves a deployment issue with the traceability engine.
 
 ### Engineering
 
-- **Fixed:** Replaced defective `shtracer` Git submodule with directly tracked repository files to enable successful GitHub Pages deployment in CI.
+- Fixed defective `shtracer` Git submodule with directly tracked repository files to enable successful GitHub Pages deployment in CI.
 
 ## [0.1.0-pre-alpha] - 2026-02-27
 

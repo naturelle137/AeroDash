@@ -1,0 +1,909 @@
+MB Core Logic
+  UT-MB-CORE-001
+    deleted
+
+  UT-MB-CORE-002
+    title: Verify CG calculation for empty aircraft
+    impl:
+      - IMP-MB-CORE-001
+      - IMP-MB-CORE-002
+      - IMP-MB-CORE-004
+      - IMP-MB-CORE-005
+      - IMP-MB-CORE-006
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
+  UT-MB-CORE-003
+    title: Verify MTOM exceedance when TOM exceeds limit
+    impl:
+      - IMP-MB-CORE-003
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
+  UT-MB-CORE-004
+    title: Verify MZFM exceedance when ZFM exceeds limit
+    impl:
+      - IMP-MB-CORE-001
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
+  UT-MB-CORE-005
+    title: Verify CG out of envelope when CG exceeds forward limit
+    impl:
+      - IMP-MB-CORE-008
+      - IMP-MB-CORE-011
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
+  UT-MB-CORE-006
+    title: Verify CG migration exceedance when landing CG exits envelope after fuel burn
+    impl:
+      - IMP-MB-CORE-010
+      - IMP-MB-CORE-011
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
+  UT-MB-CORE-007 - UT-MB-CORE-016
+    deleted
+
+  UT-MB-CORE-017
+    title: Verify fuel station index shadows payload station with same index
+    impl:
+      - IMP-MB-CORE-001
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
+  UT-MB-CORE-018
+    deleted
+
+  UT-MB-CORE-019
+    title: Verify graph type moment uses moment for envelope check
+    impl:
+      - IMP-MB-CORE-008
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
+  UT-MB-CORE-020
+    title: Verify envelope with fewer than 3 vertices throws
+    impl:
+      - IMP-MB-CORE-011
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
+  UT-MB-CORE-021 - UT-MB-CORE-025
+    deleted
+
+  UT-MB-CORE-026
+    title: Verify CG calculation for forward aircraft loading
+    impl:
+      - IMP-MB-CORE-001
+      - IMP-MB-CORE-002
+      - IMP-MB-CORE-004
+      - IMP-MB-CORE-005
+      - IMP-MB-CORE-006
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
+  UT-MB-CORE-027
+    title: Verify CG calculation for aft aircraft loading
+    impl:
+      - IMP-MB-CORE-001
+      - IMP-MB-CORE-002
+      - IMP-MB-CORE-004
+      - IMP-MB-CORE-005
+      - IMP-MB-CORE-006
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
+  UT-MB-CORE-028
+    title: Verify CG calculation for typical flight
+    impl:
+      - IMP-MB-CORE-001
+      - IMP-MB-CORE-002
+      - IMP-MB-CORE-004
+      - IMP-MB-CORE-005
+      - IMP-MB-CORE-006
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
+  UT-MB-CORE-029
+    title: Verify no MTOM violation when TOM is exactly at limit
+    impl:
+      - IMP-MB-CORE-003
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
+  UT-MB-CORE-030
+    title: Verify no MZFM violation when ZFM is exactly at limit
+    impl:
+      - IMP-MB-CORE-001
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
+  UT-MB-CORE-031
+    title: Verify no CG violation when CG is exactly at forward envelope limit
+    impl:
+      - IMP-MB-CORE-008
+      - IMP-MB-CORE-011
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
+  UT-MB-CORE-032
+    title: Verify CG out of envelope when CG exceeds aft limit
+    impl:
+      - IMP-MB-CORE-008
+      - IMP-MB-CORE-011
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
+  UT-MB-CORE-033
+    title: Verify no CG violation when CG is exactly at aft envelope limit
+    impl:
+      - IMP-MB-CORE-008
+      - IMP-MB-CORE-011
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
+  UT-MB-CORE-034
+    title: Verify no CG migration violation when migration stays within envelope
+    impl:
+      - IMP-MB-CORE-010
+      - IMP-MB-CORE-011
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
+  UT-MB-CORE-035
+    title: Verify migration path for empty aircraft produces identical takeoff and landing points
+    impl:
+      - IMP-MB-CORE-007
+      - IMP-MB-CORE-005
+      - IMP-MB-CORE-006
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
+  UT-MB-CORE-036
+    title: Verify migration path for typical flight with fuel burn CG shift
+    impl:
+      - IMP-MB-CORE-007
+      - IMP-MB-CORE-005
+      - IMP-MB-CORE-006
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
+  UT-MB-CORE-037
+    title: Verify migration path for fuel-only loading
+    impl:
+      - IMP-MB-CORE-007
+      - IMP-MB-CORE-005
+      - IMP-MB-CORE-006
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
+  UT-MB-CORE-038
+    title: Verify burn-down polygon vertices for multi-sequence fuel burn (REQ-MB-008)
+    status: todo
+    impl:
+      - IMP-MB-CORE-007
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
+  UT-MB-CORE-039
+    title: Verify unusable fuel equal to total fuel yields zero usable fuel
+    impl:
+      - IMP-MB-CORE-002
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
+  UT-MB-CORE-040
+    title: Verify unusable fuel exceeding total fuel clamps usable to zero
+    impl:
+      - IMP-MB-CORE-002
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
+  UT-MB-CORE-041
+    title: Verify empty stations array computes BEM-only CG
+    impl:
+      - IMP-MB-CORE-001
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
+  UT-MB-CORE-042
+    title: Verify triangular envelope with minimum 3 vertices is accepted
+    impl:
+      - IMP-MB-CORE-011
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
+  UT-MB-CORE-079
+    title: Verify graph type moment uses moment for landing CG migration check
+    impl:
+      - IMP-MB-CORE-010
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
+MB Core - Arm Lookup (Unit)
+  UT-MB-CORE-043
+    title: Verify arm interpolation at midpoint between two entries
+    impl:
+      - IMP-MB-CORE-012
+    files:
+      - frontend/src/core/logic/mb.arm-lookup.spec.ts
+
+  UT-MB-CORE-044
+    title: Verify arm at exact upper boundary entry
+    impl:
+      - IMP-MB-CORE-012
+    files:
+      - frontend/src/core/logic/mb.arm-lookup.spec.ts
+
+  UT-MB-CORE-045
+    title: Verify arm clamps to first entry for mass below lowest entry
+    impl:
+      - IMP-MB-CORE-012
+    files:
+      - frontend/src/core/logic/mb.arm-lookup.spec.ts
+
+  UT-MB-CORE-046
+    title: Verify arm clamps to last entry for mass above highest entry
+    impl:
+      - IMP-MB-CORE-012
+    files:
+      - frontend/src/core/logic/mb.arm-lookup.spec.ts
+
+  UT-MB-CORE-047
+    title: Verify arm of 0 for zero mass when lookup starts at zero
+    impl:
+      - IMP-MB-CORE-012
+    files:
+      - frontend/src/core/logic/mb.arm-lookup.spec.ts
+
+  UT-MB-CORE-048
+    title: Verify arm of lowest entry for zero mass when lookup starts above zero
+    impl:
+      - IMP-MB-CORE-012
+    files:
+      - frontend/src/core/logic/mb.arm-lookup.spec.ts
+
+  UT-MB-CORE-049
+    title: Verify arm lookup handles single entry lookup
+    impl:
+      - IMP-MB-CORE-012
+    files:
+      - frontend/src/core/logic/mb.arm-lookup.spec.ts
+
+  UT-MB-CORE-050
+    title: Verify arm lookup sorts unsorted entries before interpolating
+    impl:
+      - IMP-MB-CORE-012
+    files:
+      - frontend/src/core/logic/mb.arm-lookup.spec.ts
+
+  UT-MB-CORE-051
+    title: Verify arm lookup throws for empty lookup table
+    impl:
+      - IMP-MB-CORE-012
+    files:
+      - frontend/src/core/logic/mb.arm-lookup.spec.ts
+
+  UT-MB-CORE-052
+    title: Verify arm lookup throws for NaN mass input
+    impl:
+      - IMP-MB-CORE-012
+    files:
+      - frontend/src/core/logic/mb.arm-lookup.spec.ts
+
+MB Core - Envelope (Unit)
+  UT-MB-CORE-053
+    title: Verify isCgWithinEnvelope returns true for point inside envelope
+    impl:
+      - IMP-MB-CORE-011
+    files:
+      - frontend/src/core/logic/mb.envelope.spec.ts
+
+  UT-MB-CORE-054
+    title: Verify isCgWithinEnvelope returns false for CG arm beyond forward limit
+    impl:
+      - IMP-MB-CORE-011
+    files:
+      - frontend/src/core/logic/mb.envelope.spec.ts
+
+  UT-MB-CORE-055
+    title: Verify isCgWithinEnvelope returns true for CG arm exactly at forward limit
+    impl:
+      - IMP-MB-CORE-011
+    files:
+      - frontend/src/core/logic/mb.envelope.spec.ts
+
+  UT-MB-CORE-056
+    title: Verify isCgWithinEnvelope returns false for CG arm beyond aft limit
+    impl:
+      - IMP-MB-CORE-011
+    files:
+      - frontend/src/core/logic/mb.envelope.spec.ts
+
+  UT-MB-CORE-057
+    title: Verify isCgWithinEnvelope returns true for CG arm just inside aft limit
+    impl:
+      - IMP-MB-CORE-011
+    files:
+      - frontend/src/core/logic/mb.envelope.spec.ts
+
+  UT-MB-CORE-058
+    title: Verify isCgWithinEnvelope returns false for CG mass above envelope top
+    impl:
+      - IMP-MB-CORE-011
+    files:
+      - frontend/src/core/logic/mb.envelope.spec.ts
+
+  UT-MB-CORE-059
+    title: Verify isCgWithinEnvelope accepts triangular envelope with minimum 3 vertices
+    impl:
+      - IMP-MB-CORE-011
+    files:
+      - frontend/src/core/logic/mb.envelope.spec.ts
+
+  UT-MB-CORE-060
+    title: Verify isCgWithinEnvelope throws for envelope with fewer than 3 vertices
+    impl:
+      - IMP-MB-CORE-011
+    files:
+      - frontend/src/core/logic/mb.envelope.spec.ts
+
+  UT-MB-CORE-061 - UT-MB-CORE-067
+    deleted
+
+MB Core Logic - White Box
+  UT-MB-CORE-068
+    title: Verify station excluded from ZFM when matching fuel station index
+    impl:
+      - IMP-MB-CORE-001
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
+  UT-MB-CORE-069
+    title: Verify station included in ZFM when NOT matching fuel station index
+    impl:
+      - IMP-MB-CORE-001
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
+  UT-MB-CORE-071
+    title: Verify computation throws when station lacks both arm and armLookup
+    impl:
+      - IMP-MB-CORE-001
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
+  UT-MB-CORE-072
+    title: Verify computation throws when fuel station lacks both arm and armLookup
+    impl:
+      - IMP-MB-CORE-002
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
+  UT-MB-CORE-073
+    title: Verify fuel station arm is used when arm is provided
+    impl:
+      - IMP-MB-CORE-002
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
+  UT-MB-CORE-074
+    title: Verify fuel station arm lookup is used when arm lookup is provided
+    impl:
+      - IMP-MB-CORE-002
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
+  UT-MB-CORE-075
+    title: Verify fuel station arm lookup takes precedence when both arm and lookup are provided
+    impl:
+      - IMP-MB-CORE-002
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
+  UT-MB-CORE-076
+    title: Verify station arm is used when arm is provided
+    impl:
+      - IMP-MB-CORE-001
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
+  UT-MB-CORE-077
+    title: Verify station arm lookup is used when arm lookup is provided
+    impl:
+      - IMP-MB-CORE-001
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
+  UT-MB-CORE-078
+    title: Verify station arm lookup takes precedence when both arm and lookup are provided
+    impl:
+      - IMP-MB-CORE-001
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
+  UT-MB-CORE-080
+    title: Verify computation throws when zero fuel mass is exactly zero
+    impl:
+      - IMP-MB-CORE-002
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
+  UT-MB-CORE-081
+    title: Verify computation throws when zero fuel mass is negative
+    impl:
+      - IMP-MB-CORE-002
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
+  UT-MB-CORE-082
+    title: Verify fuel mass is not included in zero fuel mass calculation
+    impl:
+      - IMP-MB-CORE-001
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
+MB Core - Canonical Math Test Vectors
+  UT-MB-CORE-083
+    title: DA40 canonical test vectors — CG calculations match hand-computed POH values
+    impl:
+      - IMP-MB-CORE-001
+      - IMP-MB-CORE-002
+      - IMP-MB-CORE-003
+      - IMP-MB-CORE-004
+      - IMP-MB-CORE-005
+      - IMP-MB-CORE-006
+      - IMP-MB-CORE-008
+    files:
+      - frontend/src/core/logic/canonical-vectors.spec.ts
+
+  UT-MB-CORE-084
+    title: P2008 canonical test vectors — CG calculations match hand-computed POH values
+    impl:
+      - IMP-MB-CORE-001
+      - IMP-MB-CORE-002
+      - IMP-MB-CORE-003
+      - IMP-MB-CORE-004
+      - IMP-MB-CORE-005
+      - IMP-MB-CORE-006
+      - IMP-MB-CORE-008
+    files:
+      - frontend/src/core/logic/canonical-vectors.spec.ts
+
+MB Adapter entry (Unit)
+  UT-MB-CORE-070
+    title: Verify core logic failure propagation and error logging
+    impl:
+      - IMP-MB-CORE-014
+    files:
+      - frontend/src/core/adapters/mass-balance.adapter.spec.ts
+
+MB Store - Initialization
+  UT-MB-STORE-001
+    title: Verify store starts in INITIAL state with null aircraft
+    impl:
+      - IMP-MB-STORE-012
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+MB Store - loadProfile
+  UT-MB-STORE-002
+    title: Verify transition to UNCONFIGURED after loading profile with zero-weight mandatory stations
+    impl:
+      - IMP-MB-STORE-005
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-003
+    title: Verify station inputs are initialized from load point definitions
+    impl:
+      - IMP-MB-STORE-005
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-004
+    title: Verify default to first certification category
+    impl:
+      - IMP-MB-STORE-005
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-005
+    title: Verify activeCategory null when no certification categories exist
+    impl:
+      - IMP-MB-STORE-005
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-006
+    title: Verify revert to INITIAL on corrupted profile (§4.1)
+    impl:
+      - IMP-MB-STORE-005
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-007
+    title: Verify initial calculation runs on profile load
+    impl:
+      - IMP-MB-STORE-005
+      - IMP-MB-STORE-013
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+MB Store - updateStationWeight
+  UT-MB-STORE-008
+    title: Verify transition to UNVERIFIED after mandatory fields populated
+    impl:
+      - IMP-MB-STORE-006
+      - IMP-MB-STORE-012
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-009
+    title: Verify no-op for invalid station index
+    impl:
+      - IMP-MB-STORE-006
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-010
+    title: Verify recalculation triggered after weight change
+    impl:
+      - IMP-MB-STORE-006
+      - IMP-MB-STORE-013
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+MB Store - changeCertificationCategory
+  UT-MB-STORE-011
+    title: Verify category change triggers recalculation
+    impl:
+      - IMP-MB-STORE-007
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-012
+    title: Verify no-op for non-existent category
+    impl:
+      - IMP-MB-STORE-007
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-013
+    title: Verify no-op when no aircraft loaded
+    impl:
+      - IMP-MB-STORE-007
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+MB Store - markFieldVerified / markAllVerified
+  UT-MB-STORE-014
+    title: Verify single field verified
+    impl:
+      - IMP-MB-STORE-008
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-015
+    title: Verify no-op for invalid station index on markFieldVerified
+    impl:
+      - IMP-MB-STORE-008
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-016
+    title: Verify transition to VERIFIED_SAFE after markAllVerified with mandatory populated
+    impl:
+      - IMP-MB-STORE-009
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-017
+    title: Verify markAllVerified only affects available stations (category filtering)
+    impl:
+      - IMP-MB-STORE-009
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+MB Store - resetPayload
+  UT-MB-STORE-018
+    title: Verify reset clears all weights, verification, notifications, and lastResult
+    impl:
+      - IMP-MB-STORE-010
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+MB Store - _runCalculation
+  UT-MB-STORE-019
+    title: Verify results cleared when no active category definition
+    impl:
+      - IMP-MB-STORE-013
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-020
+    title: Verify results cleared when no weighing reports exist
+    impl:
+      - IMP-MB-STORE-013
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-021
+    title: Verify most recent weighing report selected by validFrom
+    impl:
+      - IMP-MB-STORE-013
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+MB Store - Notification Mapping
+  UT-MB-STORE-022
+    title: Verify MTOM_EXCEEDED maps to CRIT-MB-002 notification
+    impl:
+      - IMP-MB-STORE-011
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-023
+    title: Verify MZFM_EXCEEDED maps to CRIT-MB-004 notification
+    impl:
+      - IMP-MB-STORE-011
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-024
+    title: Verify CG_OUT_OF_ENVELOPE maps to CRIT-MB-001 notification
+    impl:
+      - IMP-MB-STORE-011
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-025
+    title: Verify CG_MIGRATION_EXCEEDED maps to CRIT-MB-003 notification
+    impl:
+      - IMP-MB-STORE-011
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-026
+    title: Verify STATION_LIMIT_EXCEEDED maps to WARN-MB-005 warning
+    impl:
+      - IMP-MB-STORE-011
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-027
+    title: Verify STATION_LIMIT_EXCEEDED without stationIndex gracefully
+    impl:
+      - IMP-MB-STORE-011
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-028
+    title: Verify INVALID_INPUT maps to ERR-SYS-001 error notification
+    impl:
+      - IMP-MB-STORE-011
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+MB Store - evaluateState (State Machine)
+  UT-MB-STORE-029
+    title: Verify INITIAL when no aircraft loaded
+    impl:
+      - IMP-MB-STORE-012
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-030
+    title: Verify UNCONFIGURED when mandatory fields missing
+    impl:
+      - IMP-MB-STORE-012
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-031
+    title: Verify ERROR_CRITICAL when critical notifications present
+    impl:
+      - IMP-MB-STORE-012
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-032
+    title: Verify WARNING when only warning notifications present
+    impl:
+      - IMP-MB-STORE-012
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-033
+    title: Verify UNVERIFIED when mandatory populated but not verified
+    impl:
+      - IMP-MB-STORE-012
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-034
+    title: Verify VERIFIED_SAFE when all verified and no violations
+    impl:
+      - IMP-MB-STORE-012
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-035
+    title: Verify ERROR_CRITICAL takes priority over WARNING
+    impl:
+      - IMP-MB-STORE-012
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+MB Store - Getters
+  UT-MB-STORE-036
+    title: Verify activeCategoryDef null when no aircraft loaded
+    impl:
+      - IMP-MB-STORE-003
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-037
+    title: Verify activeCategoryDef null when activeCategory null
+    impl:
+      - IMP-MB-STORE-003
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-038
+    title: Verify activeCategoryDef returns matching category (not first)
+    impl:
+      - IMP-MB-STORE-003
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-039
+    title: Verify availableStations empty when no aircraft loaded
+    impl:
+      - IMP-MB-STORE-004
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-040
+    title: Verify availableStations filters by active category
+    impl:
+      - IMP-MB-STORE-004
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-041
+    title: Verify availableStations includes stations with null allowableCategories
+    impl:
+      - IMP-MB-STORE-004
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-042
+    title: Verify availableStations includes all stations in Normal category
+    impl:
+      - IMP-MB-STORE-004
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+MB Store - Full Lifecycle Transitions
+  UT-MB-STORE-043
+    title: Verify full lifecycle INITIAL → UNCONFIGURED → UNVERIFIED → VERIFIED_SAFE → UNCONFIGURED
+    impl:
+      - IMP-MB-STORE-005
+      - IMP-MB-STORE-006
+      - IMP-MB-STORE-009
+      - IMP-MB-STORE-010
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-044
+    title: Verify VERIFIED_SAFE → ERROR_CRITICAL on violation appearance
+    impl:
+      - IMP-MB-STORE-012
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-045
+    title: Verify ERROR_CRITICAL → UNVERIFIED when violation clears
+    impl:
+      - IMP-MB-STORE-012
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-046
+    title: Verify UNVERIFIED → UNCONFIGURED when mandatory field cleared
+    impl:
+      - IMP-MB-STORE-006
+      - IMP-MB-STORE-012
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-047
+    title: Verify category change resets verification
+    impl:
+      - IMP-MB-STORE-007
+      - IMP-MB-STORE-012
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+MB Store - Input Assembly
+  UT-MB-STORE-048
+    title: Verify correct math-core input assembly from store state
+    impl:
+      - IMP-MB-STORE-013
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-049
+    title: Verify fuel stations separated from payload stations in math input
+    impl:
+      - IMP-MB-STORE-013
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-050
+    title: Verify lastResult stored from calculation
+    impl:
+      - IMP-MB-STORE-013
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+MB Store - Mutant-Killing Boundary Tests
+  UT-MB-STORE-051
+    title: Verify availableStations empty when aircraft loaded but activeCategory null
+    impl:
+      - IMP-MB-STORE-004
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-052
+    title: Verify allMandatoryFieldsPopulated false when only some mandatory have weight
+    impl:
+      - IMP-MB-STORE-004
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-053
+    title: Verify allFieldsVerified false when only some stations verified
+    impl:
+      - IMP-MB-STORE-004
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-054
+    title: Verify hasWarningNotification false when only CRITICAL notifications
+    impl:
+      - IMP-MB-STORE-012
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-055
+    title: Verify hasCriticalNotification false when only WARNING notifications
+    impl:
+      - IMP-MB-STORE-012
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-056
+    title: Verify hasErrorNotification true when INVALID_INPUT violations exist
+    impl:
+      - IMP-MB-STORE-011
+      - IMP-MB-STORE-012
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-057
+    title: Verify ERROR_CRITICAL when only ERROR notifications exist
+    impl:
+      - IMP-MB-STORE-012
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-058
+    title: Verify ERROR_CRITICAL priority CRITICAL > ERROR > WARNING
+    impl:
+      - IMP-MB-STORE-012
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts

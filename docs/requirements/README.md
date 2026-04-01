@@ -10,7 +10,7 @@ AeroDash follows a strict requirements engineering process to ensure safety and 
 All requirements must be written using the **EARS** (Easy Approach to Requirements Syntax) patterns:
 
 1. **Ubiquitous:** "The system shall..."
-2. **Event-Driven:** "When <trigger>, the system shall..."
+2. **Event-Driven:** "When <trigger> the system shall..."
 3. **Unwanted Behavior:** "If <trigger>, then the system shall..."
 4. **State-Driven:** "While <state>, the system shall..."
 5. **Optional Feature:** "Where <feature is included>, the system shall..."
@@ -20,15 +20,15 @@ All requirements must be written using the **EARS** (Easy Approach to Requiremen
 
 Each requirement is defined in a Markdown table with the following columns:
 
-| Attribute | Description |
-| :--- | :--- |
-| **Req-ID** | Unique Identifier (e.g., `REQ-SYS-001`). Format: `REQ-<Module>-<Number>`. HTML anchors `<a name="...">` are used for linking. |
-| **Requirement** | The requirement text using EARS syntax. |
-| **Rationale / Context** | *Why* this requirement exists. Links to parent requirements or user needs. |
-| **Priority** | **P1** (Critical/Safety), **P2** (Standard), **P3** (Nice to have / Polish). |
-| **Mitigation Hazard ID** | Link to the specific Hazard ID in `docs/risk_management/safety_hazards.md` if this requirement acts as a control measure. |
-| **Status** | `Draft`, `Review`, `Approved`, `Deprecated`. |
-| **Design Reference** | Keyword pointing to a specific design document or architectural component (defined at the bottom of the file). |
+| Attribute                | Description                                                                                                                   |
+| :----------------------- | :---------------------------------------------------------------------------------------------------------------------------- |
+| **Req-ID**               | Unique Identifier (e.g., `REQ-SYS-001`). Format: `REQ-<Module>-<Number>`. HTML anchors `<a name="...">` are used for linking. |
+| **Requirement**          | The requirement text using EARS syntax.                                                                                       |
+| **Rationale / Context**  | _Why_ this requirement exists. Links to parent requirements or user needs.                                                    |
+| **Priority**             | **P1** (Critical/Safety), **P2** (Standard), **P3** (Nice to have / Polish).                                                  |
+| **Mitigation Hazard ID** | Link to the specific Hazard ID in `docs/risk_management/safety_hazards.md` if this requirement acts as a control measure.     |
+| **Status**               | `Draft`, `Review`, `Approved`, `Implemented`, `Deprecated`.                                                                   |
+| **Design Reference**     | Keyword pointing to a specific design document or architectural component (defined at the bottom of the file).                |
 
 ## Module Identifiers
 
@@ -78,9 +78,9 @@ When consolidating or deleting a requirement (e.g., absorbing one REQ into anoth
 
 ## Example Table
 
-| Req-ID | Requirement | Rationale / Context | Priority | Mitigation Hazard ID | Status | Design Reference |
- | :--- | :--- | :--- | :---: | :---: | :--- | :--- |
-| **<a name="REQ-EX-001"></a>REQ-EX-001** | When the engine start is detected, the system shall start the flight timer. | Automatic logging reduces pilot workload. | P2 | n/a | Approved | [Flight Logger](#flightLogger) |
+| Req-ID                                  | Requirement                                                                 | Rationale / Context                       | Priority | Mitigation Hazard ID | Status   | Design Reference               |
+| :-------------------------------------- | :-------------------------------------------------------------------------- | :---------------------------------------- | :------: | :------------------: | :------- | :----------------------------- |
+| **<a name="REQ-EX-001"></a>REQ-EX-001** | When the engine start is detected, the system shall start the flight timer. | Automatic logging reduces pilot workload. |    P2    |         n/a          | Approved | [Flight Logger](#flightLogger) |
 
 ---
 

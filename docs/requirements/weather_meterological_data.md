@@ -81,7 +81,7 @@ This document defines the weather & meteorological data behavior using the **EAR
 <!-- @REQ-WX-009@ (FROM: @H-014@) -->
 ### REQ-WX-009: Wind Limit Exceedance Notification
 
-**Requirement:** While the active aircraft has defined wind limits, if any wind or gust component (total wind/gust, headwind, tailwind, crosswind) exceeds a stored limit of the aircraft, then the system shall return a Notification with severity determined by the limit classification (REQ-AD-017): <ul><li>`Demonstrated`: `{ "id": "WARN-WX-001", "severity": "WARNING", "message": "Wind Limit Exceeded (Demonstrated)", "context": "Weather.Wind" }`</li><li>`Limit`: `{ "id": "CRIT-WX-001", "severity": "CRITICAL", "message": "Wind Limit Exceeded", "context": "Weather.Wind" }`</li></ul>
+**Requirement:** While the active aircraft has defined wind limits, if any wind or gust component (total wind/gust, headwind, tailwind, crosswind) exceeds a stored limit of the aircraft, then the system shall emit a notification with severity determined by the limit classification (REQ-AD-017): <ul><li>`Demonstrated`: a WARNING notification (`WARN-WX-001`) indicating the demonstrated wind limit has been exceeded.</li><li>`Limit`: a CRITICAL notification (`CRIT-WX-001`) indicating a hard wind limit has been exceeded.</li></ul>
 **Rationale:** A demonstrated value is advisory (PIC may exceed at discretion), while a hard POH limit is a mandatory operational boundary. The notification severity must reflect this distinction to avoid both under- and over-alerting.
 **Priority:** P1
 **Status:** Approved

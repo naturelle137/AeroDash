@@ -4,6 +4,11 @@ Thank you for your interest in contributing to AeroDash!
 
 As a General Aviation flight-preparation tool, our highest priority is **Safety-First**. We value correctness over speed. A single unverified change in a "Mass & Balance" algorithm could lead to incorrect takeoff data. Therefore, we enforce strict rules to prevent architectural drift, ensure code integrity, and maintain complete traceability.
 
+## Development Direction
+
+To understand where the project is heading, check the roadmap:
+👉 [docs/development/roadmap.md](docs/development/roadmap.md)
+
 ## 🌟 Welcome & Quick Start
 
 First of all: **Don't panic!** The rules below might look strict, but they are here to guide you, not to scare you away. We love new contributors and are always happy to help you navigate your first Pull Request.
@@ -23,20 +28,20 @@ The rest of this document outlines the formal "Safety-First" rules we follow to 
 * **Understand the Branching Strategy:** [docs/development/BRANCHING_STRATEGY.md](docs/development/BRANCHING_STRATEGY.md)
 * **Review the Testing Guidelines:** [docs/development/TESTING.md](docs/development/TESTING.md)
 
-## 💻 Environment Setup (Work in Progress)
+## 💻 Environment Setup
 
-Since AeroDash is currently in the pre-alpha phase and our specific tech stack is not finalized, this section acts as a placeholder. Once decisions are made, this will contain:
-
-* **Tech Stack:** [TBD] (*Note: Once the stack is decided, remember to update the EXTENSION FILTER in .shtracer.md accordingly.*)
-* **Dependencies:** [TBD - e.g. Node, Python version]
-* **Package Manager:** [TBD]
-* **Local Server / Build Command:** [TBD]
-* **IDE/Editor Recommendations:** [TBD]
+* **Tech Stack:** Vue 3 (Composition API, SFCs — no JSX), strict TypeScript, Vite, Pinia, Zod
+* **Dependencies:** Node.js (`^20.19.0 || >=22.12.0` — the devcontainer ships Node 24 LTS)
+* **Package Manager:** pnpm (managed via corepack — run `corepack enable pnpm` once)
+* **Local Dev Server:** `pnpm --filter frontend dev`
+* **Production Build:** `pnpm --filter frontend build`
+* **Type-Check:** `pnpm --filter frontend type-check`
+* **IDE/Editor:** Visual Studio Code with the recommended workspace extensions (`.vscode/extensions.json`)
 
 To ensure all quality gates (linting, commit standards) are active, please set up your local environment:
 
-1. **Prerequisites:** Ensure [Node.js](https://nodejs.org/) (LTS) is installed.
-2. **Install Dependencies:** Run `npm install`. This will:
+1. **Prerequisites:** Ensure [Node.js](https://nodejs.org/) (v24 LTS) is installed and enable pnpm via Corepack: `corepack enable pnpm`
+2. **Install Dependencies:** Run `pnpm install`. This will:
     * Install the required tooling (`markdownlint`, `commitlint`).
     * Automatically activate the **Husky** git hooks.
 3. **Verify:** After installation, your commits will be automatically linted.
@@ -100,7 +105,7 @@ We use a multi-layered approach to catch issues as early as possible.
 Before you can push your branch, your code must pass local quality gates. You should set up your environment to run these automatically.
 
 * **Linting & Typing:** We use specific linting tools depending on the module. For documentation, we strictly enforce rules using `markdownlint-cli2`.
-  * To run the markdown linter locally for the entire repository, use: `npx markdownlint-cli2 "**/*.md" "#.tools" "#.logs" "#node_modules"`
+  * To run the markdown linter locally for the entire repository, use: `pnpm exec markdownlint-cli2 "**/*.md" "#.tools" "#.logs" "#node_modules"`
 * **Formatting:** All code must be strictly formatted according to project standards.
 
 ### CI (Automated Suites)
@@ -124,13 +129,13 @@ We enforce strict formatting for our documentation to ensure readability and tra
 To run the linter and see errors:
 
 ```bash
-npx markdownlint-cli2 "**/*.md"
+pnpm exec markdownlint-cli2 "**/*.md"
 ```
 
 To automatically fix most spacing and structural errors:
 
 ```bash
-npx markdownlint-cli2 --fix "**/*.md"
+pnpm exec markdownlint-cli2 --fix "**/*.md"
 ```
 
 ## 5. 🧪 Testing Standards
@@ -156,7 +161,83 @@ The components residing in the Safety Core (P1) are governed by stricter rules:
 * **ADR Requirement:** If you are changing the fundamental way a P1 module operates, or altering the developer workflow, you **must** draft a new Architectural Decision Record (ADR) or update an existing one. See our **[Documentation as Code / ADR Guide](docs/architecture/adr/README.md)** for instructions on how to write an ADR.
 * **No "Quick Hacks":** Workarounds are not acceptable in P1. If a library doesn't behave, fix the library or find a different, verifiable approach.
 
-## 8. 🐛 Issue Creation (Bugs & Features)
+## 8. 🏷️ P1/P2/P3 Dependency Classification Guide
+
+AeroDash enforces a strict unidirectional dependency flow. Every piece of source
+code must be classified before it is written. Misclassification is the root cause
+of "illegal dependency" ESLint errors. See **[ADR 314](docs/architecture/adr/314-DEV-dependency-isolation.md)** for the full decision record.
+
+### Classification Rules
+
+| Tier | Directory | May import from | Must NOT import from | Examples |
+| :--- | :-------- | :-------------- | :------------------- | :------- |
+| **P1** | `src/core/` | `node:*`, `zod`, other `src/core/` files | `vue`, `pinia`, `vue-router`, `src/modules/`, `src/shared/`, `src/stores/`, `src/plugins/`, `src/router/` | Math engines, Zod schemas, domain types |
+| **P2** | `src/modules/` | P1 + `vue`, `pinia`, other `src/modules/` | `src/shared/`, `src/stores/` global state (read via Pinia **only**) | Feature stores, composables, services |
+| **P3** | `src/shared/`, `src/stores/`, `src/plugins/`, `src/router/` | P1 + P2 + `vue`, `pinia`, `vue-router` | — | Base components, layouts, global stores, plugins |
+
+**Decision rule for new code:** Ask *"Can a defect here produce an incorrect
+Go/No-Go advisory?"* If yes → P1. If it modifies data that feeds P1 → P2.
+Otherwise → P3.
+
+### How P1 Communicates Outward (Dependency Inversion)
+
+P1 functions are **pure**: they accept validated input and return typed results
+(`MathCoreResult`, `Violation[]`, etc.). They never call back into P2/P3. Upper
+layers consume the return values and translate them into notifications or UI
+state. If P1 must declare a contract that P3 implements (e.g. a notification
+type), the *interface/type is defined in `src/core/domain/`* and P3 imports it
+— never the reverse.
+
+### Fixing an "Illegal Dependency" ESLint Error
+
+1. Identify the import that triggered the `[P1-ISOLATION]` error.
+2. Determine why P1 needs that symbol.
+3. **Preferred:** Move the symbol definition into `src/core/domain/` as a pure
+   TypeScript type or interface, then re-import from there.
+4. **If the dependency is a utility function:** Rewrite it as a pure function
+   with no framework references and place it in `src/core/logic/` or
+   `src/core/adapters/`.
+5. **If the need cannot be satisfied without a framework:** The design is
+   incorrect — the logic does not belong in `src/core/`. Reclassify it to P2 and
+   expose only the result type back to P1.
+6. Never add an `// eslint-disable` comment to suppress a `[P1-ISOLATION]`
+   error. This is treated as a critical defect in P1 PRs.
+
+### Third-Party Library Governance
+
+* **P1-allowed libraries:** TypeScript standard library (`lib.es*`), `zod`.
+  No other runtime dependencies may appear in `src/core/`.
+* **P2/P3 libraries** (e.g. `chart.js`, `vue-chartjs`) must not be imported
+  from `src/core/` under any circumstances.
+* When evaluating a new library, record in the PR description which tier it is
+  allocated to.
+
+### Mandatory P1 PR Review Checklist
+
+Every Pull Request touching `src/core/` must have a reviewer verify:
+
+* [ ] No `vue`, `pinia`, or `vue-router` import in the modified files.
+* [ ] `pnpm --filter frontend test:p1` passes (Node.js environment, zero P2/P3 deps).
+* [ ] `pnpm --filter frontend run lint:ci:eslint` passes with no `[P1-ISOLATION]` warnings.
+* [ ] All new exported functions are pure (deterministic, side-effect free).
+* [ ] All external inputs are validated with Zod before reaching math logic.
+* [ ] 100 % line + branch + function coverage on new P1 code
+  (`pnpm --filter frontend coverage:unit --config vitest.config.p1.ts`).
+* [ ] If a new top-level `src/` directory was added, the `no-restricted-imports`
+  pattern list in `frontend/eslint.config.ts` has been updated accordingly.
+* [ ] An ADR exists or has been updated if the P1 interface surface changed.
+
+### Running P1 Tests in Isolation
+
+```bash
+# Run only P1 core tests (no jsdom, no Vue, no Pinia)
+pnpm --filter frontend test:p1
+
+# Run with coverage
+pnpm --filter frontend vitest run --config vitest.config.p1.ts --coverage
+```
+
+## 9. 🐛 Issue Creation (Bugs & Features)
 
 Non-code contributions are highly valued! If you find a bug or have an idea, please open an issue using one of our templates (`.github/ISSUE_TEMPLATE/`).
 
@@ -164,7 +245,7 @@ Non-code contributions are highly valued! If you find a bug or have an idea, ple
 * **Safety Impact:** Both bug and feature templates ask about "Potential Safety Impact." Please consider this carefully. Could your bug lead to an incorrect data display? Could the new feature confuse a pilot?
 * **Definition of Done:** For feature requests, providing a clear "Checklist" or "Definition of Done" allows developers to understand exactly when the feature is considered complete and safe to merge.
 
-## 9. 🗂️ Project Board & Ticket System
+## 10. 🗂️ Project Board & Ticket System
 
 We use the GitHub Project Board (`AeroDash Dashboard`) to track all tasks and ensure transparent status management. For the formal architectural decision defining these rules, consult the **[Ticket Workflow ADR](docs/architecture/adr/303-DEV-ticket-workflow.md)**.
 

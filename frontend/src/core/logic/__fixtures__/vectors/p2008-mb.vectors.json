@@ -1,0 +1,126 @@
+{
+  "aircraft": "Tecnam P2008JC",
+  "source": "Simplified P2008JC POH Mass & Balance (metric, arm-type graph)",
+  "vectors": [
+    {
+      "id": "P2008-01",
+      "description": "Empty aircraft — BEM only, unusable fuel equals total fuel",
+      "source": "Hand calculation (BEM-only baseline)",
+      "tolerance": 4,
+      "input": {
+        "basicEmptyMass": 375,
+        "emptyCenterOfGravity": 0.388,
+        "maxTakeoffMass": 600,
+        "maxZeroFuelMass": null,
+        "graphType": "arm",
+        "envelope": [
+          { "armOrMoment": 0.330, "mass": 375 },
+          { "armOrMoment": 0.440, "mass": 375 },
+          { "armOrMoment": 0.440, "mass": 600 },
+          { "armOrMoment": 0.330, "mass": 600 }
+        ],
+        "stations": [
+          { "index": 0, "mass": 0, "arm": 0.400, "armLookup": [] },
+          { "index": 1, "mass": 0, "arm": 1.200, "armLookup": [] }
+        ],
+        "fuelStations": [
+          {
+            "index": 2,
+            "mass": 1.5,
+            "arm": 0.420,
+            "armLookup": [],
+            "unusableFuel": 1.5,
+            "burnSequences": []
+          }
+        ]
+      },
+      "expected": {
+        "zeroFuelCg": { "arm": 0.388, "mass": 375, "moment": 145.5 },
+        "takeoffCg": { "arm": 0.388, "mass": 375, "moment": 145.5 },
+        "landingCg": { "arm": 0.388, "mass": 375, "moment": 145.5 },
+        "violations": [],
+        "success": true
+      }
+    },
+    {
+      "id": "P2008-02",
+      "description": "Solo pilot with partial fuel and light baggage",
+      "source": "Hand calculation (single-pilot VFR)",
+      "tolerance": 4,
+      "input": {
+        "basicEmptyMass": 375,
+        "emptyCenterOfGravity": 0.388,
+        "maxTakeoffMass": 600,
+        "maxZeroFuelMass": null,
+        "graphType": "arm",
+        "envelope": [
+          { "armOrMoment": 0.330, "mass": 375 },
+          { "armOrMoment": 0.440, "mass": 375 },
+          { "armOrMoment": 0.440, "mass": 600 },
+          { "armOrMoment": 0.330, "mass": 600 }
+        ],
+        "stations": [
+          { "index": 0, "mass": 80, "arm": 0.400, "armLookup": [] },
+          { "index": 1, "mass": 5, "arm": 1.200, "armLookup": [] }
+        ],
+        "fuelStations": [
+          {
+            "index": 2,
+            "mass": 50,
+            "arm": 0.420,
+            "armLookup": [],
+            "unusableFuel": 1.5,
+            "burnSequences": []
+          }
+        ]
+      },
+      "expected": {
+        "zeroFuelCg": { "arm": 0.39891304347826084, "mass": 460, "moment": 183.5 },
+        "takeoffCg": { "arm": 0.4009242871189774, "mass": 508.5, "moment": 203.87 },
+        "landingCg": { "arm": 0.39891304347826084, "mass": 460, "moment": 183.5 },
+        "violations": [],
+        "success": true
+      }
+    },
+    {
+      "id": "P2008-03",
+      "description": "Two occupants with luggage — near max payload",
+      "source": "Hand calculation (dual-occupant VFR)",
+      "tolerance": 4,
+      "input": {
+        "basicEmptyMass": 375,
+        "emptyCenterOfGravity": 0.388,
+        "maxTakeoffMass": 600,
+        "maxZeroFuelMass": null,
+        "graphType": "arm",
+        "envelope": [
+          { "armOrMoment": 0.330, "mass": 375 },
+          { "armOrMoment": 0.440, "mass": 375 },
+          { "armOrMoment": 0.440, "mass": 600 },
+          { "armOrMoment": 0.330, "mass": 600 }
+        ],
+        "stations": [
+          { "index": 0, "mass": 160, "arm": 0.400, "armLookup": [] },
+          { "index": 1, "mass": 12, "arm": 1.200, "armLookup": [] }
+        ],
+        "fuelStations": [
+          {
+            "index": 2,
+            "mass": 45,
+            "arm": 0.420,
+            "armLookup": [],
+            "unusableFuel": 1.5,
+            "burnSequences": []
+          }
+        ]
+      },
+      "expected": {
+        "zeroFuelCg": { "arm": 0.4093235831809872, "mass": 547, "moment": 223.9 },
+        "takeoffCg": { "arm": 0.4101100762066046, "mass": 590.5, "moment": 242.17 },
+        "landingCg": { "arm": 0.4093235831809872, "mass": 547, "moment": 223.9 },
+        "violations": [],
+        "success": true
+      }
+    }
+  ]
+}

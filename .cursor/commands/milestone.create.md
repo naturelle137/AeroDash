@@ -1,0 +1,106 @@
+---
+description: GitHub-ready milestone description; existing roadmap only
+argument-hint: <version>
+---
+
+- `cmd`: `/milestone.create`
+- `role`: milestone author; safety-critical roadmap
+- `goal`: GitHub-ready milestone description; roadmap intent only
+- `forbid`:
+  - invent strategy
+  - redesign sequencing
+  - full validation audit
+  - unbacked scope
+- `terms.exact`:
+  - `Requirement`: verifiable system obligation | constraint | acceptance condition
+  - `Journey`: end-to-end user | operational flow; real-use success path
+  - `Capability`: usable behavior for user | operator | dependent system
+  - `Milestone`: versioned | testable | vertical slice; real capability progression
+  - `Coverage`: explicit map `Requirement|Journey -> first satisfying Milestone`
+  - `Validation Evidence`: tests | analyses | simulations | reviews | demonstrations; correctness proof
+- `input`: `$ARGUMENTS`; exact parse `version`
+- `input.example`: `/milestone.create 0.7.0`
+- `input.invalid`: return only `Usage: /milestone.create <version>`
+- `discover.order`:
+  - existing milestone roadmap | planning artifacts
+  - existing milestone descriptions for `version`
+  - coverage mappings from Requirements + Journeys
+  - alignment findings + risk notes for `version`
+  - architecture constraints + validation expectations for `version`
+- `discover.blocked`: missing enough intent -> return only `Blocked: milestone intent for <version> is not sufficiently defined. Run /milestone.plan first or provide roadmap input.`
+- `conflict.plan-vs-align`:
+  - preserve planned intent
+  - apply corrective clarifications only
+  - no roadmap replanning
+- `must`:
+  - match roadmap intent for `version`
+  - measurable | testable wording
+  - reflect allocated Requirements + Journeys
+  - explicit validation expectations
+  - GitHub-paste-ready
+- `heuristics`:
+  - vertical slices > technical layers
+  - usable system value required
+  - safety-critical logic -> early explicit validation
+  - no big-bang integration phrasing
+  - deterministic | testable outcomes
+  - docs + validation + runtime behavior aligned to real scope
+  - out-of-scope excludes adjacent blur
+- `rules`:
+  - use provided version exactly
+  - reuse roadmap name + focus when present
+  - if name|focus absent -> derive from Purpose + Key Capabilities; no scope change
+  - no new capabilities
+  - forbid vague verbs: `handle` | `improve` | `support` without measurable object
+  - every deliverable | exit criterion -> observable | testable | reviewable
+  - concise | operational wording
+  - audience: engineers | validators | product owners
+- `output.only`: filled template below; no preamble | notes | explanations | extra sections
+- `output.title.h`: `### Title`
+- `output.title.v`: `<version> - <name> (<focus>)`
+- `output.objective.h`: `### Objective`
+- `output.objective.v`: `2-4` concise sentences; usable value | safety-critical behavior/workflow advanced | roadmap significance
+- `output.scope.h`: `### Scope`
+- `output.scope.functional.h`: `#### Functional Scope`
+- `output.scope.functional.v`:
+  - `<capability or user-visible/system-visible outcome>`
+  - `<capability or user-visible/system-visible outcome>`
+  - `<capability or user-visible/system-visible outcome>`
+- `output.scope.arch.h`: `#### Architecture Constraints`
+- `output.scope.arch.v`:
+  - `<architecture constraint | interface boundary | data integrity rule | safety constraint>`
+  - `<architecture constraint | interface boundary | data integrity rule | safety constraint>`
+- `output.scope.tooling.h`: `#### Engineering / Tooling`
+- `output.scope.tooling.v`:
+  - `<tooling | observability | traceability | automation | enablement item>`
+  - `<tooling | observability | traceability | automation | enablement item>`
+- `output.exit.h`: `### Deliverables & Exit Criteria`
+- `output.exit.docs.h`: `#### Documentation`
+- `output.exit.docs.v`:
+  - `<required document | traceability update | design artifact>`
+  - `<required document | traceability update | design artifact>`
+- `output.exit.validation.h`: `#### Testing & Validation`
+- `output.exit.validation.v`:
+  - `<test | simulation | verification | review outcome>`
+  - `<test | simulation | verification | review outcome>`
+  - `<test | simulation | verification | review outcome>`
+- `output.exit.runtime.h`: `#### Runtime Behavior`
+- `output.exit.runtime.v`:
+  - `<observable runtime property | protection | deterministic behavior | failure response>`
+  - `<observable runtime property | protection | deterministic behavior | failure response>`
+- `output.oos.h`: `### Out of Scope`
+- `output.oos.v`:
+  - `<adjacent excluded item>`
+  - `<adjacent excluded item>`
+  - `<adjacent excluded item>`
+- `output.signal.h`: `### Success Signal`
+- `output.signal.v`: blockquote; one sentence; clearest real-world completion signal
+- `style`:
+  - no fluff
+  - no roadmap analysis
+  - no validation matrix
+  - no planning recommendations
+  - no meta commentary
+  - no unexplained jargon
+  - concrete nouns + measurable verbs
+  - every bullet reviewable + verifiable

@@ -1,5 +1,1 @@
-# Run markdown linting specifically on staged .md files
-npx lint-staged --concurrent false
-
-# Run ESLint and Oxlint locally before committing
-npm run lint
+pnpm -w run lint-staged -- --concurrent false

@@ -1,0 +1,111 @@
+{
+  "id": "c3e5a7b9-2d4f-6c8a-0b1e-f3d5c7a9b1e3",
+  "ownerId": "00000000-0000-0000-0000-000000000000",
+  "registration": "D-EMTK",
+  "manufacturer": "Robin",
+  "model": "DR400/120 Petit Prince",
+  "icaoTypeDesignator": "DR40",
+  "sourceUnit": "kg",
+  "referenceDatumDescription": "Leading edge of wing",
+  "referenceDatumLocation": "Leading edge",
+  "weighingReports": [
+    {
+      "bem": 560,
+      "emptyCg": 1.800,
+      "weighingDate": "2025-04-20",
+      "validFrom": "2025-04-20"
+    }
+  ],
+  "loadPoints": [
+    {
+      "name": "Front Seats",
+      "arm": 1.600,
+      "armLookup": null,
+      "operationalLimit": 200,
+      "defaultQuantity": 0,
+      "unit": "kg",
+      "allowableCategories": null,
+      "fuelTank": null
+    },
+    {
+      "name": "Rear Seats",
+      "arm": 2.700,
+      "armLookup": null,
+      "operationalLimit": 120,
+      "defaultQuantity": 0,
+      "unit": "kg",
+      "allowableCategories": null,
+      "fuelTank": null
+    },
+    {
+      "name": "Baggage",
+      "arm": 3.400,
+      "armLookup": null,
+      "operationalLimit": 30,
+      "defaultQuantity": 0,
+      "unit": "kg",
+      "allowableCategories": null,
+      "fuelTank": null
+    },
+    {
+      "name": "Forward Tank",
+      "arm": 0.800,
+      "armLookup": null,
+      "operationalLimit": 60,
+      "defaultQuantity": 0,
+      "unit": "l",
+      "allowableCategories": null,
+      "fuelTank": {
+        "unusableFuel": 2,
+        "permissibleFuelTypes": ["AvGas 100LL", "AvGas UL91"],
+        "burnSequences": [
+          {
+            "sequenceName": "Standard",
+            "ordinalPosition": 2
+          },
+          {
+            "sequenceName": "Alternative",
+            "ordinalPosition": 1
+          }
+        ]
+      }
+    },
+    {
+      "name": "Aft Tank",
+      "arm": 3.200,
+      "armLookup": null,
+      "operationalLimit": 60,
+      "defaultQuantity": 0,
+      "unit": "l",
+      "allowableCategories": null,
+      "fuelTank": {
+        "unusableFuel": 2,
+        "permissibleFuelTypes": ["AvGas 100LL", "AvGas UL91"],
+        "burnSequences": [
+          {
+            "sequenceName": "Standard",
+            "ordinalPosition": 1
+          },
+          {
+            "sequenceName": "Alternative",
+            "ordinalPosition": 2
+          }
+        ]
+      }
+    }
+  ],
+  "certificationCategories": [
+    {
+      "category": "Normal",
+      "mtom": 900,
+      "mzfm": null,
+      "graphType": "arm",
+      "envelope": [
+        { "armOrMoment": 1.550, "mass": 560 },
+        { "armOrMoment": 1.650, "mass": 900 },
+        { "armOrMoment": 1.970, "mass": 900 },
+        { "armOrMoment": 1.970, "mass": 560 }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "name": "AeroDash",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+  "workspaceFolder": "/workspace",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached",
+
+  "features": {
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
+      "version": "latest",
+      "installDockerBuildx": true,
+      "moby": true
+    }
+  },
+
+  "mounts": ["source=aerodash-pnpm-store,target=/pnpm-store,type=volume"],
+
+  "containerEnv": {
+    "PNPM_HOME": "/pnpm-store"
+  },
+
+  "postCreateCommand": "pnpm install --frozen-lockfile && pnpm --filter @aerodash/frontend exec playwright install chromium && git config --global --unset gpg.ssh.program",
+  "postStartCommand": "git config --global --add safe.directory /workspace",
+
+  "forwardPorts": [5173, 9323],
+  "portsAttributes": {
+    "5173": { "label": "Vite", "onAutoForward": "notify" },
+    "9323": { "label": "Playwright", "onAutoForward": "silent" }
+  },
+
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": { "source.fixAll": "explicit" },
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+      },
+      "extensions": [
+        "vue.volar",
+        "vitest.explorer",
+        "ms-playwright.playwright",
+        "dbaeumer.vscode-eslint",
+        "EditorConfig.EditorConfig",
+        "esbenp.prettier-vscode",
+        "GitHub.vscode-github-actions",
+        "GitHub.vscode-pull-request-github",
+        "redhat.vscode-yaml",
+        "oxc.oxc-vscode"
+      ]
+    }
+  },
+
+  "remoteUser": "node"
+}

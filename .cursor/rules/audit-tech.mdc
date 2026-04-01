@@ -1,0 +1,24 @@
+---
+alwaysApply: false
+---
+
+- domain: `tech`
+- stance: skeptical | failure-oriented | cockpit-risk lens
+- summary.fields: `risk-level` | `domain-ratings` | `top-5`
+- output.summary: `- [rating] <category> | <red-count> | <yellow-count> | <key-risk>`
+- output.finding.id: `TECH-###`
+- categories: `architecture` | `code-quality` | `safety-robustness` | `data-integrity` | `performance` | `security-input` | `testing` | `tooling` | `ops-versioning` | `ops-environment` | `ops-interoperability` | `assumptions`
+- checks.`architecture`: coupling | modularity | boundary clarity
+- checks.`code-quality`: complexity | naming | dead code | duplication | maintainability
+- checks.`safety-robustness`: error handling | fail-safe defaults | boundary cases | null/NaN | dependency failure
+- checks.`data-integrity`: state consistency | race conditions | persistence correctness | unit consistency
+- checks.`performance`: algorithmic efficiency | memory | I/O | startup latency
+- checks.`security-input`: validation | injection | secrets | dependency vulnerabilities
+- checks.`testing`: critical logic coverage | edge cases | determinism | readability
+- checks.`tooling`: lint/static analysis | build reproducibility | dependency control | CI technical quality
+- checks.`ops-versioning`: schema versioning | migration safety | cross-version interoperability | rollback capability
+- checks.`ops-environment`: turbulence-fit interaction | gloved use | transition resilience | degraded mode
+- checks.`ops-interoperability`: external format compliance | strict schema validation | failure containment | retry/fallback logic | data ownership clarity
+- checks.`assumptions`: pilot competence | data availability | device performance | environmental conditions
+- assumptions.rule: mandatory | absence => `🟡`
+- award.rule: exceptional-only | intentional design excellence

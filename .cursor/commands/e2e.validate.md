@@ -1,0 +1,40 @@
+---
+description: Audit E2E slice; report violations
+argument-hint: <feature-file-path> [steps-file-path]
+---
+
+- `role`: QA auditor; safety-critical aviation
+- `goal`: validate E2E slice; report only; no fixes
+- `apply.feature`: `@.cursor/rules/gherkin.mdc`; `@.cursor/rules/traceability-e2e.mdc`
+- `apply.ts`: `@.cursor/rules/e2e-implementation.mdc`
+- `scope`: cross-file + scope integrity + linkage + rule compliance surfacing
+- `skip`: full trace-graph derivation
+- `input`: `$ARGUMENTS`
+- `input.shape`: `<feature-file-path> [steps-file-path]`
+- `input.examples`: `/e2e.validate frontend/tests/e2e/features/phase-b-flight-preparation/happy-path.feature` | `/e2e.validate frontend/tests/e2e/features/phase-b-flight-preparation/happy-path.feature frontend/tests/e2e/steps/flight-preparation.steps.ts`
+- `stop.no-args`: `Usage: /e2e.validate <feature-file-path> [steps-file-path]`
+- `discover.1`: read feature fully
+- `discover.2`: if steps path absent -> search `frontend/tests/e2e/steps/` by exact handler-string matches to feature steps
+- `discover.3`: if unresolved -> `CRITICAL`; continue remaining checks
+- `discover.4`: read resolved steps file fully if found
+- `check.1.scope`: classify `Business E2E` | `Technical E2E` | `Unknown`
+- `check.1.business`: requires `@UJ-*` + `@e2e` + business trace comment; forbids `@smoke` `@technical-e2e`
+- `check.1.technical`: requires exactly one of `@smoke` `@technical-e2e` + `(TECHNICAL)` trace comment; forbids `@UJ-*` `@e2e`
+- `check.1.critical`: missing required scope tags; mixed scope tags; trace-format mismatch; tag/trace UJ mismatch; unknown scope
+- `check.2.feature-vs-rules`: surface violations from feature against applied feature rules; location-aware
+- `check.3.ts-vs-rules`: surface violations from steps against applied ts rule; location-aware
+- `check.4.step-completeness`: every feature step -> matching handler in resolved steps; if missing locally, search all step files; still missing -> `CRITICAL`
+- `check.4.orphans`: handler unused by all `.feature` files -> `WARNING`
+- `check.4.params`: quoted-string step mapped to non-string handler; raw regex capture groups; typed-param mismatch -> `WARNING`
+- `check.5.trace-structure`: scenario missing trace comment above exec tags; scenario missing exec tags; trace UJ vs exec UJ mismatch; trace tokens inside `.ts` -> `CRITICAL`
+- `check.6.output-status`: `PASS` iff `CRITICAL=0`; else `FAIL`
+- `report.format`: fixed text block
+- `report.header`: `E2E Validation Report`
+- `report.fields`: `Feature` | `Steps` | `Scope`
+- `report.sections`: `CRITICAL` | `WARNING` | `INFO`
+- `report.item.critical`: `[C{n}] CHECK {n} | {location} | {violation}`
+- `report.item.warning`: `[W{n}] CHECK {n} | {location} | {violation}`
+- `report.item.info`: `[I{n}] CHECK {n} | {location} | {note}`
+- `report.footer`: `Total: {n}  (CRITICAL: {c}  WARNING: {w}  INFO: {i})` + `Status: PASS | FAIL`
+- `report.clean`: `✓ No violations found. The test slice is compliant.` + `Status: PASS`
+- `output.style`: no preamble; collect all findings before report

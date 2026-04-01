@@ -8,6 +8,7 @@ on:
       - '**/*.tsx'
       - '**/*.js'
       - '**/*.jsx'
+      - .github/workflows/linting.yml
   pull_request:
     branches:
       - develop
@@ -18,6 +19,7 @@ on:
       - '**/*.tsx'
       - '**/*.js'
       - '**/*.jsx'
+      - .github/workflows/linting.yml
 
 jobs:
   lint-markdown:
@@ -28,13 +30,17 @@ jobs:
         with:
           fetch-depth: 0 # Required for changed-files analysis
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
+          cache: 'pnpm'
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Get changed files
         id: changed-files
@@ -49,7 +55,7 @@ jobs:
         run: |
           echo "Linting changed files..."
           if [ -n "${{ steps.changed-files.outputs.all_changed_files }}" ]; then
-            npx markdownlint-cli2 ${{ steps.changed-files.outputs.all_changed_files }}
+            pnpm exec markdownlint-cli2 ${{ steps.changed-files.outputs.all_changed_files }}
           else
             echo "No markdown files changed."
           fi
@@ -58,7 +64,7 @@ jobs:
         if: github.event_name == 'pull_request' && github.base_ref == 'main'
         run: |
           echo "Linting ALL Markdown files in the repository..."
-          npm run lint:md
+          pnpm run lint:md
 
   lint-code:
     runs-on: ubuntu-latest
@@ -68,13 +74,17 @@ jobs:
         with:
           fetch-depth: 0 # Required for changed-files analysis
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
+          cache: 'pnpm'
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Get changed files
         id: changed-files
@@ -91,9 +101,11 @@ jobs:
         if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.base_ref == 'develop')
         run: |
           echo "Linting changed files..."
-          if [ -n "${{ steps.changed-files.outputs.all_changed_files }}" ]; then
-            npx eslint ${{ steps.changed-files.outputs.all_changed_files }}
-            npx oxlint ${{ steps.changed-files.outputs.all_changed_files }}
+          FILES="${{ steps.changed-files.outputs.all_changed_files }}"
+          if [ -n "$FILES" ]; then
+            FRONTEND_FILES=$(echo "$FILES" | tr ' ' '\n' | sed 's|^frontend/||' | tr '\n' ' ')
+            pnpm --filter frontend run lint:ci:oxlint -- $FRONTEND_FILES
+            pnpm --filter frontend run lint:ci:eslint -- $FRONTEND_FILES
           else
             echo "No code files changed."
           fi
@@ -102,5 +114,5 @@ jobs:
         if: github.event_name == 'pull_request' && github.base_ref == 'main'
         run: |
           echo "Linting ALL Code files in the repository..."
-          npx eslint .
-          npx oxlint .
+          pnpm --filter frontend run lint:ci:oxlint
+          pnpm --filter frontend run lint:ci:eslint

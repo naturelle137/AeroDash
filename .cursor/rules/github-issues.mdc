@@ -1,0 +1,74 @@
+---
+alwaysApply: false
+---
+
+- apply: all GitHub issue MCP ops
+- repo: `naturelle137/AeroDash`
+- tools: `search_issues` `list_issues` `issue_read` `issue_write` `add_issue_comment`
+
+- types: `Bug` `Feature` `Task`
+- scope.domain: `product` `engineering`
+- scope.module: `ac` `ap` `ad` `fe` `mb` `pf` `wx` `ui` `uq` `sys` `doc` `sc` `repo`
+- tag.safety: `safety-critical`
+- status.active: `open` `accepted` `ready`
+- status.closed: `fixed` `duplicate` `wont do`
+
+- type.`Bug`: flaw error failure
+- type.`Feature`: new capability enhancement infra docs requirements contributing
+- type.`Task`: child item of `Bug` or `Feature`
+
+- flow.create: add `open`
+- flow.`open`: `accepted` | `duplicate` | `wont do`
+- flow.`accepted`: `ready` | `wont do`
+- flow.`ready`: `fixed`
+- flow.close.`duplicate`: canonical issue link required
+- flow.close.`wont do`: rationale required
+- flow.parent.`ready`: all child `Task` issues closed
+- flow.parent.`fixed`: released on `main`
+- flow.task.done: merged to `develop` | `release/*` | `hotfix/*`
+
+- safety.path: `frontend/src/core/`
+- safety.match: calculations formulas weight balance performance Go/No-Go
+- safety.on_create_update: add `safety-critical`
+- safety.unclear: ask user
+- safety.omission: forbidden on clear P1 impact
+
+- dedupe.before_create: `search_issues`
+- dedupe.on_match: show match
+- dedupe.next: offer update vs new
+- dedupe.create_gate: explicit user confirm
+
+- create.title.`Bug`: `[Bug]: `
+- create.labels.`Bug`: `Bug` `open`
+- create.required.`Bug`: `description` `reproduction` `severity` `environment`
+- create.optional.`Bug`: `hazard_ref`
+- create.checks.`Bug`: duplicate_checked not_security_report
+
+- create.title.`Feature`: `[Feat]: `
+- create.labels.`Feature`: `Feature` `open`
+- create.required.`Feature`: `problem` `solution` `dod`
+- create.optional.`Feature`: `req_id` `safety_impact`
+- create.checks.`Feature`: duplicate_checked not_already_implemented
+
+- create.title.`Task`: `[Task]: `
+- create.labels.`Task`: `Task` `open`
+- create.required.`Task`: `parent_issue` `description`
+- create.optional.`Task`: `technical_details` `dod`
+
+- create.labels.extra: one `scope.module` + one `scope.domain`
+- create.labels.never: `fixed` `duplicate` `wont do`
+- create.body: template field order; required always; optional when known
+- create.blank_issue: false
+- create.question_route: [Discussion / Question](https://github.com/naturelle137/AeroDash/discussions)
+
+- update.read_first: `issue_read` before body label status changes
+- update.status: unchanged unless valid `flow.*`
+- update.labels: preserve; removal needs documented reason
+- update.body: append or patch; no full overwrite without user request
+- update.parent_issue: never remove from `Task`
+
+- forbid.hardcode: no invented types labels scopes template fields
+- forbid.fabrication: no invented hazard refs requirement IDs environment
+- forbid.no_open: blocked
+- forbid.skip_dedupe: blocked
+- forbid.task_without_parent: blocked

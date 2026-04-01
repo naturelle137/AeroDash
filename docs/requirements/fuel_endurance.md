@@ -27,7 +27,7 @@ This document defines the fuel & endurance behavior using the **EARS** (Easy App
 <!-- @REQ-FE-003@ -->
 ### REQ-FE-003: Endurance Exceedance Warning
 
-**Requirement:** If the planned flight time (including reserves) exceeds the calculated maximum flight time (Endurance), then the system shall return a Notification: `{ "id": "WARN-FE-001", "severity": "WARNING", "message": "Insufficient Fuel", "context": "Fuel.Endurance" }`.
+**Requirement:** If the planned flight time (including reserves) exceeds the calculated maximum flight time (Endurance), then the system shall emit a WARNING notification (`WARN-FE-001`) alerting the pilot about insufficient fuel for the planned mission.
 **Rationale:** Safety alert for insufficient fuel for the planned mission + reserves.
 **Priority:** P1
 **Status:** Approved
@@ -39,7 +39,7 @@ This document defines the fuel & endurance behavior using the **EARS** (Easy App
 **Requirement:** When calculating fuel consumption for aircraft with defined fuel burn sequences, the system shall drain tanks in the order specified by each named sequence (e.g., `Standard`, `Alternative`). For aircraft with multiple named sequences, the system shall compute the fuel state progression for **each** sequence independently.
 **Rationale:** Aircraft with multiple tanks at different lever arms (e.g., KL107B: Tank I at 2.47 m, Tank II at 2.80 m) have different CG migration paths depending on the burn order. The Standard sequence (Tank II → Tank I) and the Alternative sequence (Tank I → Tank II) produce divergent CG paths whose boundary defines the burn-down polygon.
 **Priority:** P1
-**Status:** Approved
+**Status:** Implemented
 **Design Reference:** n/a
 
 <!-- @REQ-FE-005@ -->

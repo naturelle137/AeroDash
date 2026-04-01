@@ -1,0 +1,318 @@
+SYS Core — Zod error to violation mapping (Unit)
+  UT-SYS-CORE-001
+    title: Uses empty path when issue.path is missing (defensive)
+    impl:
+      - IMP-SYS-CORE-002
+    files:
+      - frontend/src/core/adapters/mb.zod-violation-mapping.spec.ts
+
+  UT-SYS-CORE-002
+    title: Maps Zod path BASICEMPTYMASS to violation field BEM
+    impl:
+      - IMP-SYS-CORE-002
+    files:
+      - frontend/src/core/adapters/mb.zod-violation-mapping.spec.ts
+
+  UT-SYS-CORE-003
+    title: Maps Zod path MAXTAKEOFFMASS to violation field MTOM
+    impl:
+      - IMP-SYS-CORE-002
+    files:
+      - frontend/src/core/adapters/mb.zod-violation-mapping.spec.ts
+
+  UT-SYS-CORE-004
+    title: Maps Zod path MAXZEROFUELMASS to violation field MZFM
+    impl:
+      - IMP-SYS-CORE-002
+    files:
+      - frontend/src/core/adapters/mb.zod-violation-mapping.spec.ts
+
+  UT-SYS-CORE-005
+    title: Maps Zod path EMPTYCENTEROFGRAVITY to violation field EMPTY_CG
+    impl:
+      - IMP-SYS-CORE-002
+    files:
+      - frontend/src/core/adapters/mb.zod-violation-mapping.spec.ts
+
+  UT-SYS-CORE-006
+    title: Maps Zod path FUELSTATIONS to violation field FUEL_STATIONS
+    impl:
+      - IMP-SYS-CORE-002
+    files:
+      - frontend/src/core/adapters/mb.zod-violation-mapping.spec.ts
+
+  UT-SYS-CORE-007
+    title: Maps custom message REQUIRED to violation code REQUIRED
+    impl:
+      - IMP-SYS-CORE-002
+    files:
+      - frontend/src/core/adapters/mb.zod-violation-mapping.spec.ts
+
+  UT-SYS-CORE-008
+    title: Maps custom message NOT_A_NUMBER to violation code NOT_A_NUMBER
+    impl:
+      - IMP-SYS-CORE-002
+    files:
+      - frontend/src/core/adapters/mb.zod-violation-mapping.spec.ts
+
+  UT-SYS-CORE-009
+    title: Maps custom message NEGATIVE_VALUE to violation code NEGATIVE_VALUE
+    impl:
+      - IMP-SYS-CORE-002
+    files:
+      - frontend/src/core/adapters/mb.zod-violation-mapping.spec.ts
+
+  UT-SYS-CORE-010
+    title: Maps custom message NOT_ALLOWED to violation code NOT_ALLOWED
+    impl:
+      - IMP-SYS-CORE-002
+    files:
+      - frontend/src/core/adapters/mb.zod-violation-mapping.spec.ts
+
+  UT-SYS-CORE-011
+    title: Maps custom message OUT_OF_RANGE to violation code OUT_OF_RANGE
+    impl:
+      - IMP-SYS-CORE-002
+    files:
+      - frontend/src/core/adapters/mb.zod-violation-mapping.spec.ts
+
+  UT-SYS-CORE-012
+    title: Maps custom message TOO_MANY_ITEMS to violation code TOO_MANY_ITEMS
+    impl:
+      - IMP-SYS-CORE-002
+    files:
+      - frontend/src/core/adapters/mb.zod-violation-mapping.spec.ts
+
+  UT-SYS-CORE-013
+    title: Maps custom message DUPLICATE_INDEX to violation code DUPLICATE_INDEX
+    impl:
+      - IMP-SYS-CORE-002
+    files:
+      - frontend/src/core/adapters/mb.zod-violation-mapping.spec.ts
+
+  UT-SYS-CORE-014
+    title: Maps invalid_type received undefined to violation code REQUIRED
+    impl:
+      - IMP-SYS-CORE-002
+    files:
+      - frontend/src/core/adapters/mb.zod-violation-mapping.spec.ts
+
+  UT-SYS-CORE-015
+    title: Maps invalid_type received null to violation code REQUIRED
+    impl:
+      - IMP-SYS-CORE-002
+    files:
+      - frontend/src/core/adapters/mb.zod-violation-mapping.spec.ts
+
+  UT-SYS-CORE-016
+    title: Maps invalid_type custom message to violation code NOT_A_NUMBER
+    impl:
+      - IMP-SYS-CORE-002
+    files:
+      - frontend/src/core/adapters/mb.zod-violation-mapping.spec.ts
+
+  UT-SYS-CORE-017
+    title: Formats array path STATIONS[0].index as STATIONS[0].INDEX
+    impl:
+      - IMP-SYS-CORE-002
+    files:
+      - frontend/src/core/adapters/mb.zod-violation-mapping.spec.ts
+
+  UT-SYS-CORE-018
+    title: Formats nested path STATIONS[0].armLookup[0].massOrVolume
+    impl:
+      - IMP-SYS-CORE-002
+    files:
+      - frontend/src/core/adapters/mb.zod-violation-mapping.spec.ts
+
+  UT-SYS-CORE-019
+    title: Unknown Zod code and message still yield field STATIONS[0].INDEX
+    impl:
+      - IMP-SYS-CORE-002
+    files:
+      - frontend/src/core/adapters/mb.zod-violation-mapping.spec.ts
+
+  UT-SYS-CORE-020
+    title: Violation mapping no longer emits phantom severity field
+    impl:
+      - IMP-SYS-CORE-002
+    files:
+      - frontend/src/core/adapters/mb.zod-violation-mapping.spec.ts
+
+SYS Core — Notification Schema (Unit)
+  UT-SYS-CORE-021
+    title: Accepts a valid action with all fields
+    impl:
+      - IMP-SYS-CORE-004
+    files:
+      - frontend/src/core/domain/notification.schema.spec.ts
+
+  UT-SYS-CORE-022
+    title: Accepts a valid action without optional payload
+    impl:
+      - IMP-SYS-CORE-004
+    files:
+      - frontend/src/core/domain/notification.schema.spec.ts
+
+  UT-SYS-CORE-023
+    title: Rejects an action missing the required label field
+    impl:
+      - IMP-SYS-CORE-004
+    files:
+      - frontend/src/core/domain/notification.schema.spec.ts
+
+  UT-SYS-CORE-024
+    title: Accepts a valid minimal notification with required fields only
+    impl:
+      - IMP-SYS-CORE-004
+    files:
+      - frontend/src/core/domain/notification.schema.spec.ts
+
+  UT-SYS-CORE-025
+    title: Accepts a valid full notification with all optional fields
+    impl:
+      - IMP-SYS-CORE-004
+    files:
+      - frontend/src/core/domain/notification.schema.spec.ts
+
+  UT-SYS-CORE-026
+    title: Defaults persistent to false and dismissible to true when omitted
+    impl:
+      - IMP-SYS-CORE-004
+    files:
+      - frontend/src/core/domain/notification.schema.spec.ts
+
+  UT-SYS-CORE-027
+    title: Rejects an invalid severity enum value
+    impl:
+      - IMP-SYS-CORE-004
+    files:
+      - frontend/src/core/domain/notification.schema.spec.ts
+
+  UT-SYS-CORE-028
+    title: Rejects a notification with a non-boolean persistent value
+    impl:
+      - IMP-SYS-CORE-004
+    files:
+      - frontend/src/core/domain/notification.schema.spec.ts
+
+  UT-SYS-CORE-029
+    title: Rejects a notification missing the required id field
+    impl:
+      - IMP-SYS-CORE-004
+    files:
+      - frontend/src/core/domain/notification.schema.spec.ts
+
+  UT-SYS-CORE-030
+    title: Rejects a notification missing the required severity field
+    impl:
+      - IMP-SYS-CORE-004
+    files:
+      - frontend/src/core/domain/notification.schema.spec.ts
+
+SYS Shared — Structured Logger Utility (Unit)
+  UT-SYS-SHARED-001
+    title: Returns primitives unchanged
+    impl:
+      - IMP-SYS-SHARED-001
+    files:
+      - frontend/src/shared/utils/__tests__/logger.spec.ts
+
+  UT-SYS-SHARED-002
+    title: Truncates strings exceeding MAX_STRING_LENGTH
+    impl:
+      - IMP-SYS-SHARED-001
+    files:
+      - frontend/src/shared/utils/__tests__/logger.spec.ts
+
+  UT-SYS-SHARED-003
+    title: Serializes nested objects up to MAX_DEPTH
+    impl:
+      - IMP-SYS-SHARED-001
+    files:
+      - frontend/src/shared/utils/__tests__/logger.spec.ts
+
+  UT-SYS-SHARED-004
+    title: Truncates arrays exceeding MAX_ARRAY_LENGTH
+    impl:
+      - IMP-SYS-SHARED-001
+    files:
+      - frontend/src/shared/utils/__tests__/logger.spec.ts
+
+  UT-SYS-SHARED-005
+    title: Converts non-standard types to string representation
+    impl:
+      - IMP-SYS-SHARED-001
+    files:
+      - frontend/src/shared/utils/__tests__/logger.spec.ts
+
+  UT-SYS-SHARED-006
+    title: Handles objects with throwing getters gracefully
+    impl:
+      - IMP-SYS-SHARED-001
+    files:
+      - frontend/src/shared/utils/__tests__/logger.spec.ts
+
+  UT-SYS-SHARED-007
+    title: info() outputs structured JSON to console.info
+    impl:
+      - IMP-SYS-SHARED-002
+    files:
+      - frontend/src/shared/utils/__tests__/logger.spec.ts
+
+  UT-SYS-SHARED-008
+    title: warn() outputs structured JSON to console.warn
+    impl:
+      - IMP-SYS-SHARED-002
+    files:
+      - frontend/src/shared/utils/__tests__/logger.spec.ts
+
+  UT-SYS-SHARED-009
+    title: error() outputs structured JSON to console.error
+    impl:
+      - IMP-SYS-SHARED-002
+    files:
+      - frontend/src/shared/utils/__tests__/logger.spec.ts
+
+  UT-SYS-SHARED-010
+    title: debug() outputs structured JSON to console.debug
+    impl:
+      - IMP-SYS-SHARED-002
+    files:
+      - frontend/src/shared/utils/__tests__/logger.spec.ts
+
+  UT-SYS-SHARED-011
+    title: Includes data payload when provided
+    impl:
+      - IMP-SYS-SHARED-002
+    files:
+      - frontend/src/shared/utils/__tests__/logger.spec.ts
+
+  UT-SYS-SHARED-012
+    title: Omits data field when no data is provided
+    impl:
+      - IMP-SYS-SHARED-002
+    files:
+      - frontend/src/shared/utils/__tests__/logger.spec.ts
+
+  UT-SYS-SHARED-013
+    title: telemetryTrace() logs structured telemetry payload at INFO level
+    impl:
+      - IMP-SYS-SHARED-002
+    files:
+      - frontend/src/shared/utils/__tests__/logger.spec.ts
+
+  UT-SYS-SHARED-014
+    title: telemetryTrace() omits durationMs when not provided
+    impl:
+      - IMP-SYS-SHARED-002
+    files:
+      - frontend/src/shared/utils/__tests__/logger.spec.ts
+
+  UT-SYS-SHARED-015
+    title: Safely serializes large aircraft schematic objects without choking
+    impl:
+      - IMP-SYS-SHARED-001
+      - IMP-SYS-SHARED-002
+    files:
+      - frontend/src/shared/utils/__tests__/logger.spec.ts

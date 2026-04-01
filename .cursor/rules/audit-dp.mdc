@@ -1,0 +1,25 @@
+---
+alwaysApply: false
+---
+
+- domain: `dp`
+- framework: `GDPR` | `BDSG` | privacy-by-design | privacy-by-default
+- summary.fields: `top-risks` | `scores`
+- score.scale: `0..5`
+- score.rule: `>=4` positive-eligible only
+- output.summary: `- [score] <category> | <0..5> | <key-risk>`
+- output.finding.id: `DP-###`
+- categories: `data-min` | `purpose-limit` | `storage-retention` | `access-auth` | `encryption-protection` | `logging-monitoring` | `deps-third-party` | `rights` | `privacy-design-default` | `secrets` | `docs-transparency`
+- checks.`data-min`: unnecessary fields | over-collection | PII logs
+- checks.`purpose-limit`: data->purpose mapping | secondary use | code/doc mismatch
+- checks.`storage-retention`: retention logic | deletion paths | backup residue
+- checks.`access-auth`: RBAC | hardcoded creds | weak auth flows
+- checks.`encryption-protection`: at-rest hints | in-transit assumptions | key handling
+- checks.`logging-monitoring`: personal data in logs | debug leakage | retention control
+- checks.`deps-third-party`: trackers | analytics | privacy-relevant CVEs | data-collecting SDKs
+- checks.`rights`: export | rectification | deletion | anonymization
+- checks.`privacy-design-default`: safe defaults | opt-in optional features | documented design choices
+- checks.`secrets`: API keys | credentials | env isolation
+- checks.`docs-transparency`: privacy guidance | data-flow docs | truthful statements
+- verdicts: `❌ not-compliant` | `⚠️ partial` | `✅ acceptable-evidence-strong-only`
+- verdict.bias: critical-tone | false-positive-tolerant | challenge design

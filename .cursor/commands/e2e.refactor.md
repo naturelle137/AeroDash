@@ -1,0 +1,42 @@
+---
+description: Refactor E2E slice; preserve intent and trace
+argument-hint: <feature-file-path> [steps-file-path]
+---
+
+- `role`: BDD refactor specialist; safety-critical aviation
+- `goal`: improve E2E slice; preserve scope; preserve behavior; preserve trace
+- `apply.feature`: `@.cursor/rules/gherkin.mdc`; `@.cursor/rules/traceability-e2e.mdc`
+- `apply.ts`: `@.cursor/rules/e2e-implementation.mdc`
+- `input`: `$ARGUMENTS`
+- `input.shape`: `<feature-file-path> [steps-file-path]`
+- `input.examples`: `/e2e.refactor frontend/tests/e2e/features/phase-b-flight-preparation/happy-path.feature` | `/e2e.refactor frontend/tests/e2e/features/phase-b-flight-preparation/happy-path.feature frontend/tests/e2e/steps/flight-preparation.steps.ts`
+- `stop.no-args`: `Usage: /e2e.refactor <feature-file-path> [steps-file-path]`
+- `discover.1`: read feature fully
+- `discover.2`: resolve steps path with `/e2e.validate` matching logic if absent
+- `discover.3`: read steps fully if found
+- `anchors.immutable`: all trace comments; all execution tags; all E2E IDs; scope type; scenario count; behavioral intent per scenario
+- `baseline`: run `/e2e.validate` mentally first; record all findings
+- `edit.goal`: resolve findings; improve clarity; no coverage expansion
+- `edit.feature`: sharpen feature/scenario titles; convert UI-mechanics wording to domain/system wording; move shared preconditions to `Background`; fix keyword misuse; preserve trace and tags
+- `edit.ts`: resolve rule violations; strengthen assertions; replace weak waits; improve locator semantics; align sections to current feature structure; preserve exact feature-handler sync
+- `forbid`: trace change; tag change; scope change; scenario add; scenario remove; behavior add; behavior remove; handler-feature desync
+- `forbid.wip`: no `@wip` add/remove without explicit user instruction
+- `fallback.assert-unclear`: add `// TODO: add assertion for {outcome}`; log unresolved
+- `sync.1`: every feature step -> matching handler
+- `sync.2`: every retained handler -> referenced by updated feature
+- `sync.3`: immutable anchors unchanged
+- `postcheck`: rerun `/e2e.validate` mentally on refactored pair
+- `postcheck.target`: all prior `CRITICAL` resolved; no new violations
+- `output.1`: improved feature path + full content
+- `output.2`: improved steps path + full content
+- `output.3`: change log
+- `output.log.header`: `Refactor Change Log`
+- `output.log.fields`: `Scope type` | `Behavioral intent: preserved` | `Trace IDs`
+- `output.log.sections`: `GHERKIN CHANGES` | `STEP DEFINITION CHANGES` | `UNCHANGED` | `PRE-VALIDATION` | `POST-VALIDATION` | `UNRESOLVED`
+- `output.log.items.gherkin`: `[G{n}] "{before}" -> "{after}" | {reason}`
+- `output.log.items.steps`: `[S{n}] "{before}" -> "{after}" | {reason}`
+- `output.log.unchanged`: trace comments; execution tags; behavioral coverage
+- `output.log.validation`: totals + `CRITICAL` + `WARNING`
+- `output.log.unresolved`: `[U{n}] {item}`
+- `output.clean`: `No improvements were necessary. The test slice is already compliant.` + `Run /e2e.validate to confirm.`
+- `output.style`: no preamble; no commentary

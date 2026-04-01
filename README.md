@@ -100,3 +100,8 @@ AeroDash processes data based on user inputs. It cannot verify the physical real
 1. Verifying that the aircraft profile data matches the physical AFM/POH.
 2. Ensuring input values (Weight, Temperature, Wind) reflect reality.
 3. Applying additional safety margins as required by Airmanship.
+
+## 🚀 Roadmap
+
+See the full development roadmap here:
+👉 [docs/development/roadmap.md](docs/development/roadmap.md)
