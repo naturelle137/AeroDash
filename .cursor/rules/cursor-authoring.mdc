@@ -1,0 +1,21 @@
+---
+alwaysApply: false
+---
+
+- scope: Cursor command + rule create/update/optimize
+- default: self-contained | llm-optimized | token-friendly | enforcement-preserving
+- refs.default: none
+- refs.allowed: explicit user refs | `--ref-exceptions`
+- refs.use: minimum necessary only
+- refs.forbid: unapproved external refs
+- command.apply-rule: allowed
+- duplication.forbid: rule vs command
+- duplication.forbid: rule vs allowed refs
+- duplication.forbid: repeated constraint variants
+- wording: bullets only | shortened phrases | collapsed wording
+- wording.forbid: full sentences | repetition | explanations | justification | obvious labels
+- preserve: gates | stop conditions | constraints | output contracts | enforcement strength
+- optimize: merge overlap | cut filler | shorten phrasing | keep exact intent
+- create.rule.scope: explicit `alwaysApply` or `globs`; never implicit
+- update.read-first: target files + applied rules + allowed refs
+- update.delta-only: untouched behavior preserved

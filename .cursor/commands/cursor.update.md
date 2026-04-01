@@ -1,0 +1,42 @@
+---
+description: Update Cursor commands and rules; compact; non-duplicative
+argument-hint: <description> [--ref-exceptions <exceptions>]
+---
+
+- `cmd`: `/cursor.update`
+- `apply`: `@.cursor/rules/cursor-authoring.mdc`
+- `goal`: update existing command/rule artifacts from `description`
+- `input`: `$ARGUMENTS`
+- `input.parse`:
+  - required: `<description>`
+  - optional: `--ref-exceptions <exceptions>`
+- `input.invalid`: return only `Usage: /cursor.update <description> [--ref-exceptions <exceptions>]`
+- `refs.allowed`:
+  - explicit user refs
+  - `--ref-exceptions`
+- `resolve.targets`:
+  - explicit file refs first
+  - name matches second
+  - nearest semantic matches last
+- `resolve.blocked`: no unambiguous target -> ask minimal clarification
+- `read.before-write`:
+  - target files
+  - applied rules
+  - allowed refs only
+- `update.rules`:
+  - preserve unaffected behavior
+  - delta-only edits
+  - move shared policy into rule when useful
+  - remove duplicated command text when rule already covers it
+  - remove duplicated ref text when allowed refs already cover it
+- `forbid`:
+  - target expansion without request
+  - silent scope rewrite
+  - weakened enforcement
+- `stop`:
+  - target unresolved
+  - required ref not allowed
+  - conflict: target vs allowed ref
+- `final`:
+  - edit files directly
+  - concise summary only
