@@ -9,22 +9,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Root `ARCHITECTURE.md` establishing the high-level PWA design, Data Flow, and safety constraints
+- Root `ARCHITECTURE.md` establishing the high-level PWA design, data flow, and safety constraints
 - Standardized API documentation in `docs/api/API.md` detailing offline-first fallback and error schemas
-- Online/Offline state detection and feature gating requirements (`system.md`, `user_interface.md`)
-- Canonical `AircraftProfileSchema` Zod schema for the full Aircraft Profile aggregate-root document, providing the validation entry gate for M&B and future modules (Ref #100, REQ-AD-001, REQ-AD-002, REQ-AD-003, REQ-AD-005, REQ-AD-011, REQ-AD-012)
+- Online/Offline state detection and feature gating requirements
+- Canonical `AircraftProfileSchema` Zod schema as the validation entry gate for the Aircraft Profile aggregate-root, M&B, and future modules
+- Vue 3 frontend application shell and modular feature scaffolding for aircraft, mass-balance, weather, performance, export, and sync domains
+- End-to-end Mass & Balance user workflow with station inputs, CG envelope charting, and result summary presentation
+- Core mass-balance domain logic, aircraft-data adapters, and notification schema validation with comprehensive test coverage
 
 ### Engineering
 
-- Canonical math test vector framework: Zod-validated JSON vectors for DA40 and P2008 aircraft with automated test runner verifying CG algorithms against POH-derived values (Ref #95)
-- Fixed Markdown linting hook to run efficiently on staged files via `lint-staged` (Ref #78)
-- Implemented P1/P2/P3 architectural dependency isolation (Ref #50):
-  ESLint `no-restricted-imports` rule blocks framework and higher-layer imports
-  from `src/core/`, a dedicated `vitest.config.p1.ts` proves P1 tests pass in
-  a pure Node.js environment, and CONTRIBUTING.md §8 provides the classification
-  guide and mandatory P1 PR checklist. See ADR 314-DEV-dependency-isolation.
+- Canonical math test vector framework: Zod-validated JSON vectors for DA40 and P2008 with automated CG algorithm verification against POH-derived values
+- Fixed Markdown linting hook to run efficiently on staged files via `lint-staged`
+- Implemented P1/P2/P3 architectural dependency isolation with ESLint `no-restricted-imports`, dedicated `vitest.config.p1.ts`, and CONTRIBUTING.md classification guide
 - Defined and setup src and testing file structure
 - Defined frontend framework (Vue 3) and testing framework (Vitest, Playwright, Playwright-BDD) and initialized them
+- Migrated repository dependency management to pnpm workspaces with updated root and frontend tooling configuration
+- Added CI pipelines for linting, Vitest execution, and devcontainer build/publish workflows
+- Expanded traceability artifacts for unit, integration, and e2e mappings aligned to implemented requirements
 
 ### Architecture Decision Records
 

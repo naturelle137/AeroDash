@@ -21,7 +21,6 @@ argument-hint: <target-branch> [changelog=yes|no]
 - `changelog.input`: consider the source-branch commit range against target branch as one input signal together with diff and changed files; never treat commits as the only source
 - `changelog.target`: `develop` -> `## [Unreleased]`; `main` -> existing release section; never create duplicate headers or duplicate bullets
 - `changelog.main.version`: infer only from `release/v*`; otherwise ask user when target is `main`
-- `changelog.write`: one-line entries; short; precise; no commit list; no per-commit narration; no small-detail prose; no copied code/file content
 - `changelog.commit`: if `CHANGELOG.md` changed, create a new conventional commit; never amend
 - `push.before.pr`: ensure current branch is pushed to `origin` after any changelog commit
 - `pr.search`: `search_pull_requests` with exact repo + `is:open head:<current-branch> base:<target-branch>`
