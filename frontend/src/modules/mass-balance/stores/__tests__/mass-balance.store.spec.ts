@@ -410,6 +410,8 @@ describe('MassBalance Store', () => {
       severity: 'CRITICAL',
       message: 'No valid weighing report found',
       context: 'System',
+      dismissible: true,
+      persistent: false,
     })
     expect(store.lastResult).toBeNull()
   })
@@ -449,6 +451,8 @@ describe('MassBalance Store', () => {
       severity: 'CRITICAL',
       message: 'MTOM Exceeded',
       context: 'MassBalance.TotalMass',
+      dismissible: true,
+      persistent: false,
     })
   })
 
@@ -465,6 +469,8 @@ describe('MassBalance Store', () => {
       severity: 'CRITICAL',
       message: 'MZFM Exceeded',
       context: 'MassBalance.ZFM',
+      dismissible: true,
+      persistent: false,
     })
   })
 
@@ -481,6 +487,8 @@ describe('MassBalance Store', () => {
       severity: 'CRITICAL',
       message: 'CG Out of Envelope',
       context: 'MassBalance.CG',
+      dismissible: true,
+      persistent: false,
     })
   })
 
@@ -497,6 +505,8 @@ describe('MassBalance Store', () => {
       severity: 'CRITICAL',
       message: 'CG Migration Limit Exceeded',
       context: 'MassBalance.CG',
+      dismissible: true,
+      persistent: false,
     })
   })
 
@@ -513,6 +523,8 @@ describe('MassBalance Store', () => {
       severity: 'WARNING',
       message: 'Station 2 limit exceeded',
       context: 'MassBalance.Stations',
+      dismissible: true,
+      persistent: false,
     })
   })
 
@@ -529,6 +541,8 @@ describe('MassBalance Store', () => {
       severity: 'WARNING',
       message: 'Station  limit exceeded',
       context: 'MassBalance.Stations',
+      dismissible: true,
+      persistent: false,
     })
   })
 
@@ -545,6 +559,8 @@ describe('MassBalance Store', () => {
       severity: 'ERROR',
       message: 'Invalid input: STATIONS[0].ARM (REQUIRED)',
       context: 'MassBalance.Validation',
+      dismissible: true,
+      persistent: false,
     })
   })
 

@@ -180,10 +180,12 @@ MB Core Logic
       - frontend/src/core/logic/mass-balance.logic.spec.ts
 
   UT-MB-CORE-038
-    title: Verify burn-down polygon vertices for multi-sequence fuel burn (REQ-MB-008)
-    status: todo
+    title: Verify intermediate CG waypoint when two tanks share a named burn sequence
     impl:
       - IMP-MB-CORE-007
+      - IMP-MB-CORE-008
+      - IMP-MB-CORE-010
+      - IMP-MB-CORE-011
     files:
       - frontend/src/core/logic/mass-balance.logic.spec.ts
 
@@ -219,6 +221,22 @@ MB Core Logic
     title: Verify graph type moment uses moment for landing CG migration check
     impl:
       - IMP-MB-CORE-010
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
+  UT-MB-CORE-085
+    title: Verify burn waypoint fails envelope check in moment graph when waypoint lies outside tight moment polygon
+    impl:
+      - IMP-MB-CORE-010
+      - IMP-MB-CORE-011
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
+  UT-MB-CORE-086
+    title: Verify burn waypoints pass envelope check in moment graph when polygon contains full migration path
+    impl:
+      - IMP-MB-CORE-010
+      - IMP-MB-CORE-011
     files:
       - frontend/src/core/logic/mass-balance.logic.spec.ts
 

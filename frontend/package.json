@@ -17,6 +17,7 @@
     "test": "vitest run",
     "test:unit": "vitest run",
     "test:p1": "vitest run --config vitest.config.p1.ts",
+    "test:p1:coverage": "vitest run --config vitest.config.p1.ts --coverage",
     "test:smoke": "bddgen && playwright test --grep @smoke",
     "coverage:unit": "vitest run --coverage",
     "test:integration": "vitest run --config vitest.config.int.ts",

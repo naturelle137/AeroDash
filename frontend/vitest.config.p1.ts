@@ -8,6 +8,7 @@
  * Usage: pnpm --filter frontend test:p1
  *
  * @see docs/architecture/adr/314-DEV-dependency-isolation.md
+ * @see docs/testing/TESTING.md (P1 Safety Core: 100% line/branch/function coverage)
  */
 import { fileURLToPath } from 'node:url'
 import { mergeConfig, defineConfig, configDefaults } from 'vitest/config'
@@ -30,7 +31,19 @@ export default mergeConfig(
       coverage: {
         provider: 'v8',
         include: ['src/core/**/*.ts'],
-        exclude: ['**/*.spec.ts', '**/*.int.spec.ts'],
+        exclude: [
+          '**/*.spec.ts',
+          '**/*.int.spec.ts',
+          // Type-only modules (no executable statements; would distort per-file thresholds)
+          '**/*.types.ts',
+          '**/mass-balance.math-types.ts',
+        ],
+        thresholds: {
+          lines: 100,
+          branches: 100,
+          functions: 100,
+          statements: 100,
+        },
       },
       root: fileURLToPath(new URL('./', import.meta.url)),
     },
