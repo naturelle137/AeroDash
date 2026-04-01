@@ -39,7 +39,7 @@ argument-hint: <ISSUE_ID>
 - `trace.registry`: new traced artifact -> same-commit registry entry
 - `trace.req-status`: fully implemented referenced requirement -> update source `docs/requirements/**/*.md` status to `Implemented`
 - `trace.req-status.partial`: partial, blocked, unverified, or follow-up work remains -> do not change requirement status
-- `changelog.policy`:NO update `CHANGELOG.md`
+- `changelog.policy`: NO update `CHANGELOG.md`
 - `test.select.p1`: `*.spec.ts`; core logic/domain/adapters
 - `test.select.integration`: `*.int.spec.ts`; stores; services; cross-module handshakes
 - `test.select.e2e`: UI-facing changes

@@ -32,6 +32,14 @@
     "markdownlint-cli2": "^0.21.0",
     "release-it": "^19.2.4"
   },
+  "pnpm": {
+    "overrides": {
+      "undici": ">=6.24.0",
+      "flatted": ">=3.4.2",
+      "micromatch>picomatch": "^2.3.2",
+      "picomatch@>=4.0.0 <4.0.4": "^4.0.4"
+    }
+  },
   "lint-staged": {
     "*.md": "pnpm run lint:md",
     "frontend/**/*.{js,ts,vue,json,yaml,yml}": [
