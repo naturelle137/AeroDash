@@ -295,6 +295,8 @@ export const useMassBalanceStore = defineStore('massBalance', {
             severity: 'CRITICAL',
             message: 'No valid weighing report found',
             context: 'System',
+            persistent: false,
+            dismissible: true,
           },
         ]
         this.lastResult = null
@@ -354,6 +356,8 @@ export const useMassBalanceStore = defineStore('massBalance', {
               severity: 'CRITICAL',
               message: 'MTOM Exceeded',
               context: 'MassBalance.TotalMass',
+              persistent: false,
+              dismissible: true,
             }
           case 'MZFM_EXCEEDED':
             return {
@@ -361,6 +365,8 @@ export const useMassBalanceStore = defineStore('massBalance', {
               severity: 'CRITICAL',
               message: 'MZFM Exceeded',
               context: 'MassBalance.ZFM',
+              persistent: false,
+              dismissible: true,
             }
           case 'CG_OUT_OF_ENVELOPE':
             return {
@@ -368,6 +374,8 @@ export const useMassBalanceStore = defineStore('massBalance', {
               severity: 'CRITICAL',
               message: 'CG Out of Envelope',
               context: 'MassBalance.CG',
+              persistent: false,
+              dismissible: true,
             }
           case 'CG_MIGRATION_EXCEEDED':
             return {
@@ -375,6 +383,8 @@ export const useMassBalanceStore = defineStore('massBalance', {
               severity: 'CRITICAL',
               message: 'CG Migration Limit Exceeded',
               context: 'MassBalance.CG',
+              persistent: false,
+              dismissible: true,
             }
           case 'STATION_LIMIT_EXCEEDED':
             return {
@@ -382,6 +392,8 @@ export const useMassBalanceStore = defineStore('massBalance', {
               severity: 'WARNING',
               message: `Station ${v.stationIndex ?? ''} limit exceeded`,
               context: 'MassBalance.Stations',
+              persistent: false,
+              dismissible: true,
             }
           case 'INVALID_INPUT':
             return {
@@ -389,6 +401,8 @@ export const useMassBalanceStore = defineStore('massBalance', {
               severity: 'ERROR',
               message: `Invalid input: ${v.field ?? 'unknown'} (${v.code ?? 'validation failed'})`,
               context: 'MassBalance.Validation',
+              persistent: false,
+              dismissible: true,
             }
           default:
             return {
@@ -396,6 +410,8 @@ export const useMassBalanceStore = defineStore('massBalance', {
               severity: 'WARNING',
               message: 'Unknown Safety Violation',
               context: 'System',
+              persistent: false,
+              dismissible: true,
             }
         }
       })
