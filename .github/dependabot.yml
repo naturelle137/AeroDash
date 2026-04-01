@@ -1,0 +1,45 @@
+version: 2
+
+updates:
+  # Scan the pnpm workspace (npm ecosystem) in the frontend package
+  - package-ecosystem: npm
+    directory: /frontend
+    schedule:
+      interval: weekly
+      day: monday
+      time: '06:00'
+    open-pull-requests-limit: 10
+    groups:
+      # Bundle all minor and patch updates together to reduce PR noise
+      minor-and-patch:
+        update-types:
+          - minor
+          - patch
+
+  # Scan the root pnpm workspace
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '06:00'
+    open-pull-requests-limit: 5
+    groups:
+      minor-and-patch:
+        update-types:
+          - minor
+          - patch
+
+  # Keep GitHub Actions up to date
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '06:00'
+    open-pull-requests-limit: 5
+    groups:
+      actions-minor-and-patch:
+        update-types:
+          - minor
+          - patch
