@@ -35,6 +35,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Migrated repository dependency management to pnpm workspaces with updated root and frontend tooling configuration
 - Added CI pipelines for linting, Vitest execution, and devcontainer build/publish workflows
 - Expanded traceability artifacts for unit, integration, and e2e mappings aligned to implemented requirements
+- Cursor agent workflow: milestone check command with configurable milestone input; command create/update/optimize helpers and authoring rules for `.cursor` assets
+- Implementation roadmap and trace matrices updated for fleet management and mass-balance domains (e2e, unit, and implementation YAML)
+- Router unit tests added; unused Vue counter scaffold removed; minor mass-balance UI and aircraft adapter adjustments
+- Playwright BDD: certification category switch scenario and consolidated fleet-management step definitions
 
 ### Architecture Decision Records
 
