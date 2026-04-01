@@ -1,0 +1,9 @@
+REPO Release Automation
+  IMP-REPO-001
+    title: SemVer Changelog Automation (release-it + conventional-changelog)
+    issue:
+      - "22"
+    files:
+      - .release-it.json
+      - .github/workflows/release.yml
+      - package.json

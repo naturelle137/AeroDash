@@ -38,6 +38,7 @@ reports
 
 # Vitest
 __screenshots__/
+html/
 
 # Vite
 *.timestamp-*-*.mjs
