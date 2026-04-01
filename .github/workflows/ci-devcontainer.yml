@@ -32,8 +32,10 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Pull dev container image
-        run: docker pull ${{ env.IMAGE }}
+      - name: Pull dev container image (build inline as fallback)
+        run: |
+          docker pull ${{ env.IMAGE }} || \
+            docker build -t ${{ env.IMAGE }} -f .devcontainer/Dockerfile .
 
       # E2E tests run inside the dev container image (Playwright Chromium pre-installed).
       # Uncomment when playwright.config projects include Chromium for CI.
