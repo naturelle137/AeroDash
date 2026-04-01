@@ -42,6 +42,7 @@ export interface LoadPointDefinition {
   fuelTank: FuelTankDefinition | null
 }
 
+// @IMP-AD-CORE-006@ (FROM: @REQ-MB-010@)
 export interface CategoryDefinition {
   category: 'Normal' | 'Utility' | 'Aerobatic'
   maxTakeoffMass: number
@@ -50,6 +51,7 @@ export interface CategoryDefinition {
   envelope: EnvelopePoint[]
 }
 
+// @IMP-AD-CORE-007@ (FROM: @REQ-AD-004@)
 export interface WeighingReport {
   basicEmptyMass: number
   emptyCg: number

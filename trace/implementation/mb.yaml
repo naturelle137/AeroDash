@@ -158,6 +158,7 @@ MB Store - Actions
     title: changeCertificationCategory Action - Switch Active Category
     req:
       - REQ-MB-001
+      - REQ-UI-009
     des:
       - DES-UX-007
     files:
@@ -224,3 +225,40 @@ MB Store - Actions
       - DES-UX-007
     files:
       - frontend/src/modules/mass-balance/stores/mass-balance.store.ts
+
+MB UI Components
+  IMP-MB-UI-001
+    title: CG Envelope Polygon + Mass Point Markers Rendering
+    req:
+      - REQ-UI-019
+    files:
+      - frontend/src/modules/mass-balance/components/CGEnvelopeChart.vue
+
+  IMP-MB-UI-002
+    title: CG Migration Trend Line / Burn Sequence Path Rendering
+    req:
+      - REQ-UI-010
+    files:
+      - frontend/src/modules/mass-balance/components/CGEnvelopeChart.vue
+
+  IMP-MB-UI-003
+    title: Severity-Driven Chart Colour Palette
+    req:
+      - REQ-UI-018
+    files:
+      - frontend/src/modules/mass-balance/components/CGEnvelopeChart.vue
+
+  IMP-MB-UI-004
+    title: Severity-Based State Banner and Notification Rendering
+    req:
+      - REQ-UI-018
+    files:
+      - frontend/src/modules/mass-balance/views/MassBalanceView.vue
+
+  IMP-MB-UI-005
+    title: Result Values with Decimal Precision and Active Unit Labels
+    req:
+      - REQ-UQ-003
+      - REQ-UQ-005
+    files:
+      - frontend/src/modules/mass-balance/components/ResultSummary.vue

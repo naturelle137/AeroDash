@@ -222,7 +222,7 @@ export const useMassBalanceStore = defineStore('massBalance', {
      * Stations not allowed in the new category become unavailable
      * (filtered by the `availableStations` getter).
      */
-    // @IMP-MB-STORE-007@ (FROM: @REQ-MB-001@, @DES-UX-007@)
+    // @IMP-MB-STORE-007@ (FROM: @REQ-MB-001@, @REQ-UI-009@, @DES-UX-007@)
     changeCertificationCategory(category: string): void {
       if (!this.aircraft) return
 

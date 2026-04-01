@@ -44,6 +44,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ADR 311 DEV: Project directory structure (Modules pattern)
 - ADR 312 DEV: End-to-End BDD framework (`playwright-bdd`)
 
+### Action items
+
+- Ref #114 Partial implemented requirements, full implementation deferred to v0.3.0
+- Ref #115 Missing implementation, deferred to v0.3.0
+- Ref #116 Missing implementation / traceability of designs, deferred to v0.3.0
+
 ## [0.1.0-pre-alpha.1] - 2026-02-28
 
 This hotfix resolves a deployment issue with the traceability engine.

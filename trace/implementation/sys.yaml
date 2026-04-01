@@ -33,6 +33,14 @@ SYS Core
     files:
       - frontend/src/core/domain/notification.schema.ts
 
+SYS App — Vue Router
+  IMP-SYS-APP-001
+    title: Application route table (root redirect and mass-balance view)
+    req:
+      - REQ-SYS-001
+    files:
+      - frontend/src/router/index.ts
+
 SYS Shared — Structured Logger Utility
   IMP-SYS-SHARED-001
     title: Safe Serialization for Large Aircraft Objects
