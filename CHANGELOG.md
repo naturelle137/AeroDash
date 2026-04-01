@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Engineering
 
+- Dual licensing: EUPL-1.2 for source code (root `LICENSE`) and CC BY-SA 4.0 for documentation (`LICENSE-DOCUMENTATION`); README, DISCLAIMER, and dependency policy updated accordingly
 - Added unified `ci.yml` workflow as the required PR gate for `develop`: runs unit tests, type-check, lint (oxlint + ESLint), and build in parallel; merges blocked when any check fails (refs #23)
 - Fixed `test` script in `frontend/package.json` to invoke Vitest directly instead of echoing a placeholder notice (refs #23)
 - Added `CI / Unit Tests`, `CI / Type Check`, `CI / Lint`, and `CI / Build` as required status checks on `develop` branch protection (refs #23)

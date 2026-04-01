@@ -7,6 +7,7 @@
 * [Disclaimer](#disclaimer)
 * [Project Philosophy](#philosophy)
 * [Intended Use & System Limitations](#intendedUse)
+* [License](#license)
 
 <a name="disclaimer"></a>
 
@@ -100,6 +101,15 @@ AeroDash processes data based on user inputs. It cannot verify the physical real
 1. Verifying that the aircraft profile data matches the physical AFM/POH.
 2. Ensuring input values (Weight, Temperature, Wind) reflect reality.
 3. Applying additional safety margins as required by Airmanship.
+
+<a name="license"></a>
+
+## License
+
+AeroDash uses **dual licensing**:
+
+* **Source code** (for example the `frontend/` application, scripts, and configuration used to build and run the software) is licensed under the **[European Union Public Licence (EUPL) v. 1.2](LICENSE)**.
+* **Documentation** (Markdown under `docs/` and Markdown at the repository root such as this README, requirements, journeys, and guides) is licensed under **[Creative Commons Attribution-ShareAlike 4.0 International](LICENSE-DOCUMENTATION)** (CC BY-SA 4.0).
 
 ## 🚀 Roadmap
 
