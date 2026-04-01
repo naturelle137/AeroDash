@@ -1,0 +1,23 @@
+---
+alwaysApply: false
+---
+
+- mode: repo-only | read-only | report-only
+- scope+: code | config | docs | tests | workflows | deps | scripts | infra
+- scope-: prod runtime | unverifiable claims | direct fixes
+- stance: adversarial | skeptical | gaps-first | praise-scarce
+- evidence.req: every finding -> `path[:symbol]` | artifact ref
+- evidence.miss: absence-as-finding ok; cite searched area
+- severity.`🔴`: exploitable weakness | safety/privacy-major gap | systemic control failure | silent corruption | unsafe hidden assumption | critical path no assurance
+- severity.`🟡`: partial control | weak safeguard | limited coverage | non-critical gap | unclear ownership
+- severity.unclear: default `🟡`
+- output.syntax: bullets-only | short phrases | machine-readable | terse
+- output.forbid: full sentences | prose blocks | repetition | explanation | filler | nested bullets
+- output.order: `meta` | domain-summary | findings | priorities | positives? | verdict
+- output.meta: `- audit | <domain> | <date> | <scope> | <commit?>`
+- output.finding: `- [<sev>] <id> | <category> | <title> | <evidence> | <impact> | <fix>`
+- output.priority: `- [now|soon|later] <id> | <action>`
+- output.positive: omit unless clearly above baseline | strong evidence | no `🔴` in item scope
+- refs.style: relative repo paths | symbols optional
+- save.dir: `.logs/`
+- save.file: `audit.<domain>-YYYY-MM-DD[-scope].md`

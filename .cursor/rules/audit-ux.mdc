@@ -1,0 +1,20 @@
+---
+description: UX audit; cockpit workload lens
+alwaysApply: false
+---
+
+- domain: `ux`
+- stance: safety-ux | pilot workload | situational-awareness | head-down-time minimization
+- summary.fields: `key-risks` | `red-count` | `yellow-count`
+- output.finding.id: `UX-###`
+- categories: `ia` | `interaction` | `visual-cognitive` | `workflow` | `feedback-status` | `error-recovery` | `aviation-context`
+- checks.`ia`: navigation depth | discoverability | flight-phase mental-model fit
+- checks.`interaction`: taps/typing/gestures effort | consistency | constraint quality
+- checks.`visual-cognitive`: contrast | font scaling | density | prioritization of critical data
+- checks.`workflow`: task path length | time-pressure fit | interruptibility | resumability
+- checks.`feedback-status`: loading/sync/GPS/error feedback | offline/online clarity | stale-data clarity
+- checks.`error-recovery`: prevention defaults | validation | undo | confirmation | fallback states
+- checks.`aviation-context`: sterile-cockpit fit | distraction minimization | unit/time/frequency/altitude ambiguity
+- severity.`🔴`: workload spike | confusion risk | operational/safety-relevant error induction
+- severity.`🟡`: friction | inefficiency | cumulative burden
+- writing: objective wording only | problem-focused titles | pilot-context tied
