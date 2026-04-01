@@ -1,0 +1,238 @@
+name: Deploy CI Reports to GitHub Pages
+
+# Design: Single unified workflow (Approach 1).
+# Rationale: Avoids `workflow_run` trigger complexity and cross-workflow artifact
+# dependency management. All reports are generated from a single clean checkout
+# on every push to `main`. Reports not yet fully enabled in CI (Stryker,
+# Playwright) are handled gracefully via `continue-on-error` and conditional
+# copy steps, so their absence never blocks the deployment.
+# See: https://github.com/naturelle137/AeroDash/issues/107
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: 'pages'
+  cancel-in-progress: false
+
+jobs:
+  generate-and-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Create report directory structure
+        run: mkdir -p reports/traceability reports/vitest reports/coverage reports/stryker reports/playwright
+
+      # ── Traceability Matrix ──────────────────────────────────────────────
+      - name: Make shtracer executable
+        run: chmod +x .tools/shtracer/shtracer
+
+      - name: Generate traceability matrix
+        run: bash scripts/generate_matrix.sh
+
+      - name: Move traceability output to sub-directory
+        run: |
+          mv reports/traceability_matrix.html reports/traceability/index.html
+          mv reports/traceability_matrix.json reports/traceability/traceability_matrix.json
+
+      # ── Vitest: Unit Test HTML Report + Coverage ─────────────────────────
+      - name: Run Vitest with HTML reporter and coverage
+        id: vitest
+        run: pnpm --filter frontend vitest run --reporter=html --coverage
+        continue-on-error: true
+
+      - name: Copy Vitest HTML test report
+        if: always()
+        run: |
+          if [ -d "frontend/html" ]; then
+            cp -r frontend/html/. reports/vitest/
+          else
+            echo "No Vitest HTML report found — step skipped gracefully"
+          fi
+
+      - name: Copy coverage HTML report
+        if: always()
+        run: |
+          if [ -d "frontend/coverage" ]; then
+            cp -r frontend/coverage/. reports/coverage/
+          else
+            echo "No coverage report found — step skipped gracefully"
+          fi
+
+      # ── Stryker: Mutation Report (not yet fully enabled in CI) ───────────
+      - name: Run Stryker mutation tests
+        id: stryker
+        working-directory: frontend
+        run: pnpm exec stryker run --reporters html
+        continue-on-error: true
+
+      - name: Copy Stryker HTML report
+        if: always()
+        run: |
+          if [ -d "frontend/reports/mutation" ]; then
+            cp -r frontend/reports/mutation/. reports/stryker/
+          else
+            echo "No Stryker mutation report found — step skipped gracefully"
+          fi
+
+      # ── Playwright: E2E Report (not yet fully enabled in CI) ─────────────
+      - name: Build frontend for Playwright preview server
+        id: build
+        run: pnpm --filter frontend build
+        continue-on-error: true
+
+      - name: Install Playwright Chromium browser
+        if: steps.build.outcome == 'success'
+        run: pnpm --filter frontend exec playwright install chromium --with-deps
+        continue-on-error: true
+
+      - name: Run Playwright E2E tests
+        id: playwright
+        if: steps.build.outcome == 'success'
+        working-directory: frontend
+        run: pnpm exec playwright test --reporter=html
+        env:
+          CI: 'true'
+        continue-on-error: true
+
+      - name: Copy Playwright HTML report
+        if: always()
+        run: |
+          if [ -d "frontend/playwright-report" ]; then
+            cp -r frontend/playwright-report/. reports/playwright/
+          else
+            echo "No Playwright E2E report found — step skipped gracefully"
+          fi
+
+      # ── Landing Page ──────────────────────────────────────────────────────
+      - name: Generate landing index.html
+        run: |
+          cat > reports/index.html << 'LANDING_EOF'
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+            <title>AeroDash – CI Reports</title>
+            <style>
+              * { box-sizing: border-box; margin: 0; padding: 0; }
+              body {
+                font-family: system-ui, -apple-system, sans-serif;
+                background: #f0f9ff;
+                color: #0f172a;
+                min-height: 100vh;
+                padding: 2rem 1rem;
+              }
+              .container { max-width: 720px; margin: 0 auto; }
+              h1 { font-size: 1.75rem; color: #0284c7; margin-bottom: 0.5rem; }
+              .subtitle { color: #64748b; margin-bottom: 2rem; font-size: 0.95rem; }
+              .cards {
+                display: grid;
+                gap: 1rem;
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+              }
+              .card {
+                background: #fff;
+                border: 1px solid #e2e8f0;
+                border-radius: 8px;
+                padding: 1.25rem;
+                text-decoration: none;
+                color: inherit;
+                transition: box-shadow 0.15s;
+                display: block;
+              }
+              .card:hover { box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); }
+              .card-title { font-weight: 600; margin-bottom: 0.25rem; color: #0284c7; }
+              .card-desc { font-size: 0.85rem; color: #64748b; }
+              .badge {
+                display: inline-block;
+                font-size: 0.7rem;
+                background: #e0f2fe;
+                color: #0369a1;
+                padding: 1px 6px;
+                border-radius: 9999px;
+                margin-top: 0.5rem;
+              }
+              footer {
+                margin-top: 2.5rem;
+                font-size: 0.8rem;
+                color: #94a3b8;
+                text-align: center;
+              }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <h1>AeroDash CI Reports</h1>
+              <p class="subtitle">
+                Automatically generated on every push to <code>main</code>.
+                Some reports may be unavailable if their CI step was skipped.
+              </p>
+              <div class="cards">
+                <a href="traceability/" class="card">
+                  <div class="card-title">Traceability Matrix</div>
+                  <div class="card-desc">Requirements-to-code safety chain mapping.</div>
+                  <span class="badge">shtracer</span>
+                </a>
+                <a href="vitest/" class="card">
+                  <div class="card-title">Unit Test Results</div>
+                  <div class="card-desc">Vitest unit and integration test results with pass/fail breakdown.</div>
+                  <span class="badge">Vitest</span>
+                </a>
+                <a href="coverage/" class="card">
+                  <div class="card-title">Coverage Report</div>
+                  <div class="card-desc">Line, branch, and function coverage across P1/P2/P3 tiers.</div>
+                  <span class="badge">v8</span>
+                </a>
+                <a href="stryker/" class="card">
+                  <div class="card-title">Mutation Report</div>
+                  <div class="card-desc">Stryker mutation testing score for safety-core math logic.</div>
+                  <span class="badge">Stryker</span>
+                </a>
+                <a href="playwright/" class="card">
+                  <div class="card-title">E2E Report</div>
+                  <div class="card-desc">Playwright BDD end-to-end results across user journeys.</div>
+                  <span class="badge">Playwright</span>
+                </a>
+              </div>
+              <footer>AeroDash &mdash; Safety-first General Aviation flight preparation tool</footer>
+            </div>
+          </body>
+          </html>
+          LANDING_EOF
+
+      # ── Pages Deployment ──────────────────────────────────────────────────
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: reports/
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

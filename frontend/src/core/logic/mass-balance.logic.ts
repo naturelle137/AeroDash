@@ -132,6 +132,8 @@ export function computeMassBalanceCore(input: MathCoreInput): MathCoreResult {
       curMass -= rf.usableMass
       curMoment -= rf.usableMass * rf.resolvedArm
 
+      // Invariant: with ZFM>0 and ordered tanks subset of takeoff fuel, curMass stays >0 after each partial burn.
+      /* v8 ignore else -- @preserve */
       if (curMass > 0) {
         burnSequenceWaypoints.push({
           arm: curMoment / curMass,

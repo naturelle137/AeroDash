@@ -504,9 +504,134 @@ describe('Mass & Balance Math-Core Logic', () => {
       expectMigrationPath(result, scenario.expectedPath)
     })
 
-    // @UT-MB-CORE-038@ (FROM: @IMP-MB-CORE-007@)
-    // eslint-expect-error-next-line
-    it.todo('calculates burn-down polygon vertices for multi-sequence fuel burn (REQ-MB-008)') // oxlint-disable-line
+    // @UT-MB-CORE-038@ (FROM: @IMP-MB-CORE-007@, @IMP-MB-CORE-008@, @IMP-MB-CORE-010@, @IMP-MB-CORE-011@)
+    it('adds intermediate CG waypoints when two tanks share a burn sequence', () => {
+      const input = createMathCoreInput({
+        stations: [],
+        graphType: 'arm',
+        envelope: [
+          { armOrMoment: 1.5, mass: 350 },
+          { armOrMoment: 2.5, mass: 350 },
+          { armOrMoment: 2.5, mass: 500 },
+          { armOrMoment: 1.5, mass: 500 },
+        ],
+        fuelStations: [
+          {
+            index: 0,
+            mass: 50,
+            arm: 3.0,
+            armLookup: [],
+            unusableFuel: 0,
+            burnSequences: [{ sequenceName: 'main', ordinalPosition: 0 }],
+          },
+          {
+            index: 1,
+            mass: 30,
+            arm: 4.0,
+            armLookup: [],
+            unusableFuel: 0,
+            burnSequences: [{ sequenceName: 'main', ordinalPosition: 1 }],
+          },
+        ],
+      })
+      input.basicEmptyMass = 400
+      input.emptyCenterOfGravity = 2.0
+
+      const zfmMoment = 400 * 2.0
+      const takeoffMass = 480
+      const takeoffMoment = zfmMoment + 50 * 3.0 + 30 * 4.0
+      const afterFirstBurnMass = takeoffMass - 50
+      const afterFirstBurnMoment = takeoffMoment - 50 * 3.0
+      const afterFirstBurnArm = afterFirstBurnMoment / afterFirstBurnMass
+
+      const result = computeMassBalanceCore(input)
+
+      expect(result.migrationPath).toHaveLength(3)
+      expect(result.migrationPath[0]!.label).toBe('Takeoff')
+      expect(result.migrationPath[1]!.label).toBe('main #1')
+      expect(result.migrationPath[1]!.mass).toBe(afterFirstBurnMass)
+      expect(result.migrationPath[1]!.arm).toBeCloseTo(afterFirstBurnArm, CG_PRECISION)
+      expect(result.migrationPath[2]!.label).toBe('Landing')
+    })
+
+    // @UT-MB-CORE-085@ (FROM: @IMP-MB-CORE-010@, @IMP-MB-CORE-011@)
+    it('checks burn waypoints against envelope in moment space when graphType is moment', () => {
+      const input = createMathCoreInput({
+        stations: [],
+        graphType: 'moment',
+        fuelStations: [
+          {
+            index: 0,
+            mass: 50,
+            arm: 3.0,
+            armLookup: [],
+            unusableFuel: 0,
+            burnSequences: [{ sequenceName: 'main', ordinalPosition: 0 }],
+          },
+          {
+            index: 1,
+            mass: 30,
+            arm: 4.0,
+            armLookup: [],
+            unusableFuel: 0,
+            burnSequences: [{ sequenceName: 'main', ordinalPosition: 1 }],
+          },
+        ],
+      })
+      input.basicEmptyMass = 400
+      input.emptyCenterOfGravity = 2.0
+      const takeoffMoment = 400 * 2.0 + 50 * 3.0 + 30 * 4.0
+      input.envelope = [
+        { armOrMoment: 1050, mass: 470 },
+        { armOrMoment: 1090, mass: 470 },
+        { armOrMoment: 1090, mass: 490 },
+        { armOrMoment: 1050, mass: 490 },
+      ]
+
+      const result = computeMassBalanceCore(input)
+
+      expect(takeoffMoment).toBeGreaterThan(1050)
+      expect(result.violations.some((v) => v.type === 'CG_MIGRATION_EXCEEDED')).toBe(true)
+    })
+
+    // @UT-MB-CORE-086@ (FROM: @IMP-MB-CORE-010@, @IMP-MB-CORE-011@)
+    it('accepts burn waypoints in moment space when envelope contains the migration path', () => {
+      const input = createMathCoreInput({
+        stations: [],
+        graphType: 'moment',
+        fuelStations: [
+          {
+            index: 0,
+            mass: 50,
+            arm: 3.0,
+            armLookup: [],
+            unusableFuel: 0,
+            burnSequences: [{ sequenceName: 'main', ordinalPosition: 0 }],
+          },
+          {
+            index: 1,
+            mass: 30,
+            arm: 4.0,
+            armLookup: [],
+            unusableFuel: 0,
+            burnSequences: [{ sequenceName: 'main', ordinalPosition: 1 }],
+          },
+        ],
+      })
+      input.basicEmptyMass = 400
+      input.emptyCenterOfGravity = 2.0
+      input.envelope = [
+        { armOrMoment: 700, mass: 350 },
+        { armOrMoment: 1200, mass: 350 },
+        { armOrMoment: 1200, mass: 500 },
+        { armOrMoment: 700, mass: 500 },
+      ]
+
+      const result = computeMassBalanceCore(input)
+
+      expect(result.violations.filter((v) => v.type === 'CG_MIGRATION_EXCEEDED')).toHaveLength(0)
+      expect(result.success).toBe(true)
+    })
   })
 
   describe('edge cases', () => {
