@@ -5,7 +5,7 @@ import type { AircraftContext } from '@/core/domain/aircraft.types'
 import type { MathCoreResult, Violation } from '@/core/domain/mass-balance.math-types'
 
 vi.mock('@/core/adapters/mass-balance.adapter', () => ({
-  calculateMassBalance: vi.fn(),
+  calculateMassBalance: vi.fn<(input: unknown) => MathCoreResult>(),
 }))
 
 import { calculateMassBalance } from '@/core/adapters/mass-balance.adapter'

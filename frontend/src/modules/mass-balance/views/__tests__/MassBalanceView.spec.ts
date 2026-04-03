@@ -10,7 +10,7 @@ import type {
 } from '@/modules/mass-balance/stores/mass-balance.types'
 
 vi.mock('@/core/adapters/mass-balance.adapter', () => ({
-  calculateMassBalance: vi.fn(),
+  calculateMassBalance: vi.fn<(input: unknown) => MathCoreResult>(),
 }))
 
 import { calculateMassBalance } from '@/core/adapters/mass-balance.adapter'
