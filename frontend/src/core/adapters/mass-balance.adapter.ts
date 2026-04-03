@@ -94,7 +94,6 @@ export const MathCoreInputSchema = z
       const hasLookup = item.armLookup.length > 0
 
       if (!hasArm && !hasLookup) {
-        // Fehler 1: Beide fehlen
         ctx.addIssue({
           code: 'custom',
           message: 'REQUIRED',

@@ -29,8 +29,6 @@ const defaultLimits: CategoryLimits = {
 }
 
 describe('ResultSummary', () => {
-  // ─── v-if="result" branch ────────────────────────────────────────────────
-
   it('renders nothing when result prop is null', () => {
     const wrapper = mount(ResultSummary, {
       props: { result: null, limits: null, canExport: false },
@@ -46,8 +44,6 @@ describe('ResultSummary', () => {
 
     expect(wrapper.find('section.result-summary').exists()).toBe(true)
   })
-
-  // ─── Numeric value display ───────────────────────────────────────────────
 
   it('displays takeoff mass formatted to one decimal place', () => {
     const wrapper = mount(ResultSummary, {
@@ -85,8 +81,6 @@ describe('ResultSummary', () => {
     expect(values[3]!.text()).toBe('1.900')
   })
 
-  // ─── v-if="limits" branch — takeoff mass limit ───────────────────────────
-
   it('shows the takeoff mass limit when limits prop is provided', () => {
     const wrapper = mount(ResultSummary, {
       props: { result: buildResult(), limits: defaultLimits, canExport: false },
@@ -104,8 +98,6 @@ describe('ResultSummary', () => {
     const limitSpans = wrapper.findAll('.result-summary__limit')
     expect(limitSpans).toHaveLength(0)
   })
-
-  // ─── v-if="limits?.maxZeroFuelMass != null" branch ──────────────────────
 
   it('shows the zero fuel mass limit when limits has a non-null maxZeroFuelMass', () => {
     const wrapper = mount(ResultSummary, {
@@ -134,83 +126,29 @@ describe('ResultSummary', () => {
     expect(limitSpans).toHaveLength(1)
   })
 
-  // ─── :disabled="!canExport" branch ──────────────────────────────────────
-
-  it('renders the export button as disabled when canExport is false', () => {
-    const wrapper = mount(ResultSummary, {
-      props: { result: buildResult(), limits: null, canExport: false },
-    })
-
-    const btn = wrapper.find<HTMLButtonElement>('.result-summary__export-btn')
-    expect(btn.element.disabled).toBe(true)
-  })
-
-  it('renders the export button as enabled when canExport is true', () => {
+  it('does not render an export button (hidden until handler is wired)', () => {
     const wrapper = mount(ResultSummary, {
       props: { result: buildResult(), limits: null, canExport: true },
     })
 
-    const btn = wrapper.find<HTMLButtonElement>('.result-summary__export-btn')
-    expect(btn.element.disabled).toBe(false)
+    expect(wrapper.find('.result-summary__export-btn').exists()).toBe(false)
   })
 
-  // ─── exportRequiresConfirmation ternary branch ───────────────────────────
-
-  it('shows "Export" label when exportRequiresConfirmation is false', () => {
-    const wrapper = mount(ResultSummary, {
-      props: {
-        result: buildResult(),
-        limits: null,
-        canExport: true,
-        exportRequiresConfirmation: false,
-      },
+  it('shows error message instead of NaN values when result.success is false', () => {
+    const failedResult = buildResult({
+      success: false,
+      violations: [{ type: 'INVALID_INPUT', field: 'stations.0.arm', code: 'REQUIRED' }],
+      zeroFuelCenterOfGravityPoint: { arm: NaN, mass: NaN, moment: NaN },
+      takeoffCenterOfGravityPoint: { arm: NaN, mass: NaN, moment: NaN },
+      landingCenterOfGravityPoint: { arm: NaN, mass: NaN, moment: NaN },
     })
 
-    expect(wrapper.find('.result-summary__export-btn').text()).toBe('Export')
-  })
-
-  it('shows "Export (Confirm)" label when exportRequiresConfirmation is true', () => {
     const wrapper = mount(ResultSummary, {
-      props: {
-        result: buildResult(),
-        limits: null,
-        canExport: true,
-        exportRequiresConfirmation: true,
-      },
+      props: { result: failedResult, limits: null, canExport: false },
     })
 
-    expect(wrapper.find('.result-summary__export-btn').text()).toBe('Export (Confirm)')
-  })
-
-  it('defaults to "Export" label when exportRequiresConfirmation is absent', () => {
-    const wrapper = mount(ResultSummary, {
-      props: { result: buildResult(), limits: null, canExport: true },
-    })
-
-    expect(wrapper.find('.result-summary__export-btn').text()).toBe('Export')
-  })
-
-  // ─── export event emission ───────────────────────────────────────────────
-
-  it('emits an export event when the export button is clicked', async () => {
-    const wrapper = mount(ResultSummary, {
-      props: { result: buildResult(), limits: null, canExport: true },
-    })
-
-    await wrapper.find('.result-summary__export-btn').trigger('click')
-
-    expect(wrapper.emitted('export')).toHaveLength(1)
-  })
-
-  it('still emits export when clicked even if canExport is false (DOM allows it)', async () => {
-    const wrapper = mount(ResultSummary, {
-      props: { result: buildResult(), limits: null, canExport: false },
-    })
-
-    // Simulate programmatic click on the button element to verify the emit handler is wired
-    wrapper.find('.result-summary__export-btn').element.removeAttribute('disabled')
-    await wrapper.find('.result-summary__export-btn').trigger('click')
-
-    expect(wrapper.emitted('export')).toHaveLength(1)
+    expect(wrapper.find('.result-summary__error').exists()).toBe(true)
+    expect(wrapper.text()).toContain('Input validation failed')
+    expect(wrapper.findAll('.result-summary__value')).toHaveLength(0)
   })
 })

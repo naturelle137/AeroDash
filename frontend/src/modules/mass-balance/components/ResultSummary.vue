@@ -14,7 +14,7 @@ defineProps<{
   exportRequiresConfirmation?: boolean
 }>()
 
-const emit = defineEmits<{
+defineEmits<{
   (e: 'export'): void
 }>()
 </script>
@@ -23,64 +23,59 @@ const emit = defineEmits<{
   <section v-if="result" class="result-summary" aria-label="Calculation results">
     <h3 class="result-summary__title">Results</h3>
 
-    <dl class="result-summary__grid">
-      <div class="result-summary__item">
-        <dt>Takeoff Mass</dt>
-        <dd>
-          <span class="result-summary__value">
-            {{ result.takeoffCenterOfGravityPoint.mass.toFixed(1) }}
-          </span>
-          <span class="result-summary__unit">kg</span>
-          <span v-if="limits" class="result-summary__limit">
-            / {{ limits.maxTakeoffMass.toFixed(0) }}
-          </span>
-        </dd>
-      </div>
-
-      <div class="result-summary__item">
-        <dt>Zero Fuel Mass</dt>
-        <dd>
-          <span class="result-summary__value">
-            {{ result.zeroFuelCenterOfGravityPoint.mass.toFixed(1) }}
-          </span>
-          <span class="result-summary__unit">kg</span>
-          <span v-if="limits?.maxZeroFuelMass != null" class="result-summary__limit">
-            / {{ limits.maxZeroFuelMass.toFixed(0) }}
-          </span>
-        </dd>
-      </div>
-
-      <div class="result-summary__item">
-        <dt>CG (Takeoff)</dt>
-        <dd>
-          <span class="result-summary__value">
-            {{ result.takeoffCenterOfGravityPoint.arm.toFixed(3) }}
-          </span>
-          <span class="result-summary__unit">m</span>
-        </dd>
-      </div>
-
-      <div class="result-summary__item">
-        <dt>CG (Landing)</dt>
-        <dd>
-          <span class="result-summary__value">
-            {{ result.landingCenterOfGravityPoint.arm.toFixed(3) }}
-          </span>
-          <span class="result-summary__unit">m</span>
-        </dd>
-      </div>
-    </dl>
-
-    <div class="result-summary__actions">
-      <button
-        type="button"
-        class="result-summary__export-btn"
-        :disabled="!canExport"
-        @click="emit('export')"
-      >
-        {{ exportRequiresConfirmation ? 'Export (Confirm)' : 'Export' }}
-      </button>
+    <div v-if="!result.success" class="result-summary__error" role="alert">
+      <p>Input validation failed — correct the highlighted fields to compute results.</p>
     </div>
+
+    <template v-else>
+      <dl class="result-summary__grid">
+        <div class="result-summary__item">
+          <dt>Takeoff Mass</dt>
+          <dd>
+            <span class="result-summary__value">
+              {{ result.takeoffCenterOfGravityPoint.mass.toFixed(1) }}
+            </span>
+            <span class="result-summary__unit">kg</span>
+            <span v-if="limits" class="result-summary__limit">
+              / {{ limits.maxTakeoffMass.toFixed(0) }}
+            </span>
+          </dd>
+        </div>
+
+        <div class="result-summary__item">
+          <dt>Zero Fuel Mass</dt>
+          <dd>
+            <span class="result-summary__value">
+              {{ result.zeroFuelCenterOfGravityPoint.mass.toFixed(1) }}
+            </span>
+            <span class="result-summary__unit">kg</span>
+            <span v-if="limits?.maxZeroFuelMass != null" class="result-summary__limit">
+              / {{ limits.maxZeroFuelMass.toFixed(0) }}
+            </span>
+          </dd>
+        </div>
+
+        <div class="result-summary__item">
+          <dt>CG (Takeoff)</dt>
+          <dd>
+            <span class="result-summary__value">
+              {{ result.takeoffCenterOfGravityPoint.arm.toFixed(3) }}
+            </span>
+            <span class="result-summary__unit">m</span>
+          </dd>
+        </div>
+
+        <div class="result-summary__item">
+          <dt>CG (Landing)</dt>
+          <dd>
+            <span class="result-summary__value">
+              {{ result.landingCenterOfGravityPoint.arm.toFixed(3) }}
+            </span>
+            <span class="result-summary__unit">m</span>
+          </dd>
+        </div>
+      </dl>
+    </template>
   </section>
 </template>
 
@@ -138,33 +133,17 @@ const emit = defineEmits<{
   color: var(--color-text-secondary, #999);
 }
 
-.result-summary__actions {
-  margin-top: 1rem;
-  padding-top: 0.75rem;
-  border-top: 1px solid var(--color-border, #e0e0e0);
-  display: flex;
-  justify-content: flex-end;
-}
-
-.result-summary__export-btn {
-  min-height: 2.75rem;
-  padding: 0 1.25rem;
-  border: none;
+.result-summary__error {
+  padding: 0.75rem 1rem;
+  background: var(--color-critical-bg, #ffebee);
+  border: 1px solid var(--color-critical, #f44336);
   border-radius: 0.25rem;
-  background: var(--color-primary, #1976d2);
-  color: #fff;
+  color: var(--color-critical, #c62828);
   font-size: 0.875rem;
   font-weight: 500;
-  cursor: pointer;
-  transition: background 0.15s ease;
 }
 
-.result-summary__export-btn:hover:not(:disabled) {
-  background: var(--color-primary-dark, #1565c0);
-}
-
-.result-summary__export-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
+.result-summary__error p {
+  margin: 0;
 }
 </style>

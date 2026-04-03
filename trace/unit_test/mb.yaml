@@ -868,6 +868,252 @@ MB Store - Input Assembly
     files:
       - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
 
+MB Data Schema
+  UT-MB-DATA-001
+    title: Verify valid aircraft context passes schema validation
+    impl:
+      - IMP-MB-DATA-001
+    files:
+      - frontend/src/modules/mass-balance/data/__tests__/aircraft-context.schema.spec.ts
+
+  UT-MB-DATA-002
+    title: Verify id empty string fails validation
+    impl:
+      - IMP-MB-DATA-001
+    files:
+      - frontend/src/modules/mass-balance/data/__tests__/aircraft-context.schema.spec.ts
+
+  UT-MB-DATA-003
+    title: Verify registration empty string fails validation
+    impl:
+      - IMP-MB-DATA-001
+    files:
+      - frontend/src/modules/mass-balance/data/__tests__/aircraft-context.schema.spec.ts
+
+  UT-MB-DATA-004
+    title: Verify manufacturer empty string fails validation
+    impl:
+      - IMP-MB-DATA-001
+    files:
+      - frontend/src/modules/mass-balance/data/__tests__/aircraft-context.schema.spec.ts
+
+  UT-MB-DATA-005
+    title: Verify model empty string fails validation
+    impl:
+      - IMP-MB-DATA-001
+    files:
+      - frontend/src/modules/mass-balance/data/__tests__/aircraft-context.schema.spec.ts
+
+  UT-MB-DATA-006
+    title: Verify sourceUnit empty string fails validation
+    impl:
+      - IMP-MB-DATA-001
+    files:
+      - frontend/src/modules/mass-balance/data/__tests__/aircraft-context.schema.spec.ts
+
+  UT-MB-DATA-007
+    title: Verify empty weighingReports array fails min(1) constraint
+    impl:
+      - IMP-MB-DATA-001
+    files:
+      - frontend/src/modules/mass-balance/data/__tests__/aircraft-context.schema.spec.ts
+
+  UT-MB-DATA-008
+    title: Verify weighingReport basicEmptyMass of zero fails positive constraint
+    impl:
+      - IMP-MB-DATA-001
+    files:
+      - frontend/src/modules/mass-balance/data/__tests__/aircraft-context.schema.spec.ts
+
+  UT-MB-DATA-009
+    title: Verify weighingReport negative basicEmptyMass fails positive constraint
+    impl:
+      - IMP-MB-DATA-001
+    files:
+      - frontend/src/modules/mass-balance/data/__tests__/aircraft-context.schema.spec.ts
+
+  UT-MB-DATA-010
+    title: Verify weighingReport empty weighingDate fails min(1) constraint
+    impl:
+      - IMP-MB-DATA-001
+    files:
+      - frontend/src/modules/mass-balance/data/__tests__/aircraft-context.schema.spec.ts
+
+  UT-MB-DATA-011
+    title: Verify weighingReport empty validFrom fails min(1) constraint
+    impl:
+      - IMP-MB-DATA-001
+    files:
+      - frontend/src/modules/mass-balance/data/__tests__/aircraft-context.schema.spec.ts
+
+  UT-MB-DATA-012
+    title: Verify empty certificationCategories array fails min(1) constraint
+    impl:
+      - IMP-MB-DATA-001
+    files:
+      - frontend/src/modules/mass-balance/data/__tests__/aircraft-context.schema.spec.ts
+
+  UT-MB-DATA-013
+    title: Verify category with invalid enum value fails validation
+    impl:
+      - IMP-MB-DATA-001
+    files:
+      - frontend/src/modules/mass-balance/data/__tests__/aircraft-context.schema.spec.ts
+
+  UT-MB-DATA-014
+    title: Verify maxTakeoffMass of zero fails positive constraint
+    impl:
+      - IMP-MB-DATA-001
+    files:
+      - frontend/src/modules/mass-balance/data/__tests__/aircraft-context.schema.spec.ts
+
+  UT-MB-DATA-015
+    title: Verify maxZeroFuelMass accepts null
+    impl:
+      - IMP-MB-DATA-001
+    files:
+      - frontend/src/modules/mass-balance/data/__tests__/aircraft-context.schema.spec.ts
+
+  UT-MB-DATA-016
+    title: Verify graphType with invalid enum value fails validation
+    impl:
+      - IMP-MB-DATA-001
+    files:
+      - frontend/src/modules/mass-balance/data/__tests__/aircraft-context.schema.spec.ts
+
+  UT-MB-DATA-017
+    title: Verify envelope with fewer than 3 points fails min(3) constraint
+    impl:
+      - IMP-MB-DATA-001
+    files:
+      - frontend/src/modules/mass-balance/data/__tests__/aircraft-context.schema.spec.ts
+
+  UT-MB-DATA-018
+    title: Verify envelope with exactly 3 points passes min(3) constraint
+    impl:
+      - IMP-MB-DATA-001
+    files:
+      - frontend/src/modules/mass-balance/data/__tests__/aircraft-context.schema.spec.ts
+
+  UT-MB-DATA-019
+    title: Verify graphType moment is accepted as valid enum value
+    impl:
+      - IMP-MB-DATA-001
+    files:
+      - frontend/src/modules/mass-balance/data/__tests__/aircraft-context.schema.spec.ts
+
+  UT-MB-DATA-020
+    title: Verify Utility and Aerobatic are valid category enum values
+    impl:
+      - IMP-MB-DATA-001
+    files:
+      - frontend/src/modules/mass-balance/data/__tests__/aircraft-context.schema.spec.ts
+
+  UT-MB-DATA-021
+    title: Verify loadPoints accepts empty array
+    impl:
+      - IMP-MB-DATA-001
+    files:
+      - frontend/src/modules/mass-balance/data/__tests__/aircraft-context.schema.spec.ts
+
+  UT-MB-DATA-022
+    title: Verify loadPoint with empty name fails min(1) constraint
+    impl:
+      - IMP-MB-DATA-001
+    files:
+      - frontend/src/modules/mass-balance/data/__tests__/aircraft-context.schema.spec.ts
+
+  UT-MB-DATA-023
+    title: Verify loadPoint arm accepts null
+    impl:
+      - IMP-MB-DATA-001
+    files:
+      - frontend/src/modules/mass-balance/data/__tests__/aircraft-context.schema.spec.ts
+
+  UT-MB-DATA-024
+    title: Verify loadPoint negative operationalLimit fails nonnegative constraint
+    impl:
+      - IMP-MB-DATA-001
+    files:
+      - frontend/src/modules/mass-balance/data/__tests__/aircraft-context.schema.spec.ts
+
+  UT-MB-DATA-025
+    title: Verify loadPoint operationalLimit accepts null
+    impl:
+      - IMP-MB-DATA-001
+    files:
+      - frontend/src/modules/mass-balance/data/__tests__/aircraft-context.schema.spec.ts
+
+  UT-MB-DATA-026
+    title: Verify loadPoint negative defaultQuantity fails nonnegative constraint
+    impl:
+      - IMP-MB-DATA-001
+    files:
+      - frontend/src/modules/mass-balance/data/__tests__/aircraft-context.schema.spec.ts
+
+  UT-MB-DATA-027
+    title: Verify loadPoint empty unit string fails min(1) constraint
+    impl:
+      - IMP-MB-DATA-001
+    files:
+      - frontend/src/modules/mass-balance/data/__tests__/aircraft-context.schema.spec.ts
+
+  UT-MB-DATA-028
+    title: Verify loadPoint allowableCategories rejects invalid enum value
+    impl:
+      - IMP-MB-DATA-001
+    files:
+      - frontend/src/modules/mass-balance/data/__tests__/aircraft-context.schema.spec.ts
+
+  UT-MB-DATA-029
+    title: Verify loadPoint allowableCategories accepts null
+    impl:
+      - IMP-MB-DATA-001
+    files:
+      - frontend/src/modules/mass-balance/data/__tests__/aircraft-context.schema.spec.ts
+
+  UT-MB-DATA-030
+    title: Verify fuelTank accepts null
+    impl:
+      - IMP-MB-DATA-001
+    files:
+      - frontend/src/modules/mass-balance/data/__tests__/aircraft-context.schema.spec.ts
+
+  UT-MB-DATA-031
+    title: Verify fully populated fuelTank passes validation
+    impl:
+      - IMP-MB-DATA-001
+    files:
+      - frontend/src/modules/mass-balance/data/__tests__/aircraft-context.schema.spec.ts
+
+  UT-MB-DATA-032
+    title: Verify fuelTank negative unusableFuel fails nonnegative constraint
+    impl:
+      - IMP-MB-DATA-001
+    files:
+      - frontend/src/modules/mass-balance/data/__tests__/aircraft-context.schema.spec.ts
+
+  UT-MB-DATA-033
+    title: Verify fuelTank zero unusableFuel passes nonnegative constraint
+    impl:
+      - IMP-MB-DATA-001
+    files:
+      - frontend/src/modules/mass-balance/data/__tests__/aircraft-context.schema.spec.ts
+
+  UT-MB-DATA-034
+    title: Verify fuelTank with multiple burn sequences passes validation
+    impl:
+      - IMP-MB-DATA-001
+    files:
+      - frontend/src/modules/mass-balance/data/__tests__/aircraft-context.schema.spec.ts
+
+  UT-MB-DATA-035
+    title: Verify loadPoint with non-empty armLookup entries passes validation
+    impl:
+      - IMP-MB-DATA-001
+    files:
+      - frontend/src/modules/mass-balance/data/__tests__/aircraft-context.schema.spec.ts
+
 MB Store - Mutant-Killing Boundary Tests
   UT-MB-STORE-051
     title: Verify availableStations empty when aircraft loaded but activeCategory null

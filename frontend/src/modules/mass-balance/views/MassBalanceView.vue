@@ -1,11 +1,14 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useMassBalanceStore } from '@/modules/mass-balance/stores/mass-balance.store'
+import { AircraftContextSchema } from '@/modules/mass-balance/data/aircraft-context.schema'
 import InputGroupCard from '@/modules/mass-balance/components/InputGroupCard.vue'
 import MassStationInput from '@/modules/mass-balance/components/MassStationInput.vue'
 import CGEnvelopeChart from '@/modules/mass-balance/components/CGEnvelopeChart.vue'
 import ResultSummary from '@/modules/mass-balance/components/ResultSummary.vue'
 import { AIRCRAFT_CATALOGUE } from '@/modules/mass-balance/data/aircraft-catalogue'
+
+const catalogueError = ref<string | null>(null)
 
 // ---------------------------------------------------------------------------
 // Store connection (single source of truth)
@@ -110,13 +113,33 @@ function onResetPayload(): void {
 function onAircraftSelected(event: Event): void {
   const id = (event.target as HTMLSelectElement).value
   if (!id) return
+  catalogueError.value = null
   const profile = AIRCRAFT_CATALOGUE.find((a) => a.id === id)
-  if (profile) store.loadProfile(profile)
+  if (!profile) return
+
+  const validation = AircraftContextSchema.safeParse(profile)
+  if (!validation.success) {
+    catalogueError.value = `Aircraft profile "${id}" failed validation — data may be corrupted.`
+    return
+  }
+
+  store.loadProfile(profile)
 }
 </script>
 
 <template>
   <div class="mass-balance-view" :class="viewModel.stateClass">
+    <!-- ─── Operational disclaimer (non-dismissible) ─────────────────── -->
+    <div class="disclaimer-banner" role="note" aria-label="Operational disclaimer">
+      <strong>Advisory only</strong> — verify all results against the official POH/AFM before
+      flight. This tool is not a certified aviation device.
+    </div>
+
+    <!-- ─── Catalogue validation error ──────────────────────────────── -->
+    <div v-if="catalogueError" class="catalogue-error" role="alert">
+      {{ catalogueError }}
+    </div>
+
     <!-- ─── INITIAL: aircraft selector ──────────────────────────────── -->
     <div v-if="viewModel.isInitial" class="placeholder">
       <label class="aircraft-select-label" for="aircraft-select">Select aircraft</label>
@@ -231,6 +254,32 @@ function onAircraftSelected(event: Event): void {
   flex-direction: column;
   min-height: 100vh;
   padding: 1rem;
+}
+
+/* ─── Operational disclaimer ──────────────────────────────────────────── */
+
+.disclaimer-banner {
+  padding: 0.5rem 1rem;
+  background: var(--color-warning-bg, #fff3e0);
+  border: 1px solid var(--color-warning, #ff9800);
+  border-radius: 0.25rem;
+  font-size: 0.8125rem;
+  color: var(--color-text-primary, #212121);
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+/* ─── Catalogue validation error ──────────────────────────────────────── */
+
+.catalogue-error {
+  padding: 0.75rem 1rem;
+  background: var(--color-critical-bg, #ffebee);
+  border: 1px solid var(--color-critical, #f44336);
+  border-radius: 0.25rem;
+  color: var(--color-critical, #c62828);
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-bottom: 1rem;
 }
 
 /* ─── Placeholder / Loading ──────────────────────────────────────────── */

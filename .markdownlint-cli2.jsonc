@@ -9,6 +9,7 @@
     "frontend/playwright-report/**",
     "frontend/test-results/**",
     ".cursor/**",
-    ".tmp/**"
+    ".tmp/**",
+    "CHANGELOG.md"
   ]
 }

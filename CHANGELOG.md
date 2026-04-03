@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.2.0-alpha] - 2026-04-03
 
 ### Added
 
@@ -16,6 +16,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Vue 3 frontend application shell and modular feature scaffolding for aircraft, mass-balance, weather, performance, export, and sync domains
 - End-to-end Mass & Balance user workflow with station inputs, CG envelope charting, and result summary presentation
 - Core mass-balance domain logic, aircraft-data adapters, and notification schema validation with comprehensive test coverage
+
+### Fixed
+
+- Mass & balance error handling in the store and UI module
 
 ### Engineering
 
@@ -39,6 +43,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Implementation roadmap and trace matrices updated for fleet management and mass-balance domains (e2e, unit, and implementation YAML)
 - Router unit tests added; unused Vue counter scaffold removed; minor mass-balance UI and aircraft adapter adjustments
 - Playwright BDD: certification category switch scenario and consolidated fleet-management step definitions
+- Privacy and data protection summary in `PRIVACY.md`
+- Root `serve` script to preview production builds locally
+- Release-it configuration and Markdown lint rules adjusted so release branches avoid conflicting generated changelogs
+- GitHub PR Cursor rules updated to match the repository pull request template
+- Implementation roadmap refreshed with audit findings
 
 ### Architecture Decision Records
 
@@ -86,6 +95,6 @@ developer experience tooling, and the complete product documentation suite.
 - ADR 001: Notification System
 - ADR 300–308 DEV: Documentation as Code, Branching Strategy, Contributing Guidelines, Ticket Workflow, Testing Guidelines, Linting Strategy, Local Hooks, Master Traceability Structure, Traceability Engine
 
-[unreleased]: https://github.com/naturelle137/AeroDash/compare/v0.1.0-pre-alpha.1...HEAD
-[0.1.0-pre-alpha.1]: https://github.com/naturelle137/AeroDash/compare/v0.1.0-pre-alpha...v0.1.0-pre-alpha.1
+[0.2.0-alpha]: https://github.com/naturelle137/AeroDash/releases/tag/v0.2.0-alpha
+[0.1.0-pre-alpha.1]: https://github.com/naturelle137/AeroDash/releases/tag/v0.1.0-pre-alpha.1
 [0.1.0-pre-alpha]: https://github.com/naturelle137/AeroDash/releases/tag/v0.1.0-pre-alpha

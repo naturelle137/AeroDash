@@ -1,6 +1,6 @@
 {
   "name": "@aerodash/frontend",
-  "version": "0.2.0-pre-alpha-dev",
+  "version": "0.2.0-alpha",
   "description": "AeroDash - Flight Preparation & Decision Support Tool for General Aviation",
   "private": true,
   "type": "module",
@@ -44,6 +44,7 @@
   "homepage": "https://github.com/naturelle137/AeroDash#readme",
   "dependencies": {
     "pinia": "^3.0.4",
+    "serve": "^14.2.6",
     "vue": "^3.5.29",
     "vue-router": "^5.0.3",
     "zod": "^4.3.6"
