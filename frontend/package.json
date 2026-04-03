@@ -44,6 +44,7 @@
   "homepage": "https://github.com/naturelle137/AeroDash#readme",
   "dependencies": {
     "pinia": "^3.0.4",
+    "serve": "^14.2.6",
     "vue": "^3.5.29",
     "vue-router": "^5.0.3",
     "zod": "^4.3.6"
