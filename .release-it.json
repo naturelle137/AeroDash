@@ -1,18 +1,8 @@
 {
   "$schema": "https://unpkg.com/release-it/schema/release-it.json",
-  "git": {
-    "commitMessage": "chore(repo): release v${version}",
-    "tagName": "v${version}",
-    "tagAnnotation": "Release v${version}",
-    "pushArgs": ["--follow-tags"],
-    "requireBranch": ["release/*", "hotfix/*"]
-  },
+  "git": false,
   "npm": {
     "publish": false
   },
-  "github": {
-    "release": true,
-    "releaseName": "v${version}",
-    "tokenRef": "GITHUB_TOKEN"
-  }
+  "github": false
 }
