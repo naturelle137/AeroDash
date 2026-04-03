@@ -53,4 +53,4 @@ jobs:
         if: steps.check-release.outputs.skip == 'false'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: pnpm run release --ci
+        run: pnpm run release --ci --no-git.tag --no-github.release
