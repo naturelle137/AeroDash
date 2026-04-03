@@ -74,7 +74,7 @@ export const AIRCRAFT_CATALOGUE: AircraftContext[] = [
     ],
   },
   {
-    id: 'tecnam-p2008',
+    id: 'tecnam-p2008-dlux',
     registration: 'D-ELUX',
     manufacturer: 'Tecnam',
     model: 'P2008 JC',

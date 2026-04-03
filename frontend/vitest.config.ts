@@ -18,7 +18,15 @@ export default mergeConfig(
       coverage: {
         provider: 'v8',
         include: ['src/**/*.ts', 'src/**/*.vue'],
-        exclude: ['tests/**', '**/*.spec.ts', '**/*.int.spec.ts', '**/*.e2e.spec.ts'],
+        exclude: [
+          'tests/**',
+          '**/*.spec.ts',
+          '**/*.int.spec.ts',
+          '**/*.e2e.spec.ts',
+          'src/main.ts',
+          'src/App.vue',
+          '**/*.*types.ts',
+        ],
         reporter: ['text', 'html', 'lcov'],
       },
       root: fileURLToPath(new URL('./', import.meta.url)),
