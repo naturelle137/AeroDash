@@ -3,11 +3,11 @@
 > **Source of truth:** [GitHub Milestones](https://github.com/naturelle137/AeroDash/milestones?state=all)
 > — this page is a read-only overview. Scope, priorities, and timelines are managed in the milestones.
 
-| Status | Meaning |
-| :---: | :--- |
-| ✅ | Done |
-| 🟡 | In progress |
-| 🔲 | Planned |
+| Status | Meaning     |
+| :----: | :---------- |
+|   ✅   | Done        |
+|   🟡   | In progress |
+|   🔲   | Planned     |
 
 ---
 

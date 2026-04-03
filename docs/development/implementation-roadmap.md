@@ -73,6 +73,13 @@
 - `REQ-UI-006`: Passenger profiles in load input fields
 - `REQ-UI-013`: SemVer + date in About section; `H-019` mitigation
 
+### New Requirements
+
+- `schemaVersion` field on `AircraftContext`; structured migration safety as IndexedDB schema evolves
+- Aircraft data update pipeline design; ADR for versioning strategy and update path when regulatory or catalogue data changes
+- Operational assumptions documented in `ASSUMPTIONS.md` or ADR; device capabilities, user competence boundaries, catalogue data scope
+- Auto-save active session payload state to `localStorage`; restore on page reload to prevent pilot data loss during preflight entry
+
 ### Journeys
 
 - `UJ-A-001`: Fleet CRUD, draft/verified, envelope/moment setup
