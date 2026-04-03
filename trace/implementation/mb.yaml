@@ -226,6 +226,16 @@ MB Store - Actions
     files:
       - frontend/src/modules/mass-balance/stores/mass-balance.store.ts
 
+MB Data Schema
+  IMP-MB-DATA-001
+    title: AircraftContext Zod Schema Validation
+    req:
+      - REQ-MB-002
+    des:
+      - DES-ARCH-005
+    files:
+      - frontend/src/modules/mass-balance/data/aircraft-context.schema.ts
+
 MB UI Components
   IMP-MB-UI-001
     title: CG Envelope Polygon + Mass Point Markers Rendering

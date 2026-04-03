@@ -233,7 +233,7 @@ describe('MassBalance Store', () => {
   })
 
   // @UT-MB-STORE-006@ (FROM: @IMP-MB-STORE-005@)
-  it('reverts to INITIAL on corrupted profile', () => {
+  it('shows CRITICAL notification when calculation throws during profile load', () => {
     mockedCalculate.mockImplementation(() => {
       throw new Error('Corrupted data')
     })
@@ -241,12 +241,12 @@ describe('MassBalance Store', () => {
     const store = useMassBalanceStore()
     store.loadProfile(mockProfile)
 
-    expect(store.uiState).toBe('INITIAL')
-    expect(store.aircraft).toBeNull()
-    expect(store.activeCategory).toBeNull()
-    expect(store.stations).toEqual([])
-    expect(store.notifications).toEqual([])
+    expect(store.uiState).toBe('ERROR_CRITICAL')
+    expect(store.aircraft).not.toBeNull()
     expect(store.lastResult).toBeNull()
+    expect(store.notifications).toHaveLength(1)
+    expect(store.notifications[0]!.severity).toBe('CRITICAL')
+    expect(store.notifications[0]!.message).toContain('Calculation failed')
   })
 
   // @UT-MB-STORE-007@ (FROM: @IMP-MB-STORE-005@, @IMP-MB-STORE-013@)

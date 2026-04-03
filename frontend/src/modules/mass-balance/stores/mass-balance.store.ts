@@ -344,7 +344,34 @@ export const useMassBalanceStore = defineStore('massBalance', {
           }),
       }
 
-      const result = calculateMassBalance(input)
+      let result: MathCoreResult
+      try {
+        result = calculateMassBalance(input)
+      } catch {
+        this.notifications = [
+          {
+            id: 'CRIT-SYS-002',
+            severity: 'CRITICAL',
+            message: 'Calculation failed unexpectedly — verify inputs and retry',
+            context: 'System',
+            persistent: false,
+            dismissible: true,
+          },
+        ]
+        this.lastResult = null
+        return
+      }
+
+      // Enforce per-station operationalLimit
+      for (const s of this.availableStations) {
+        const def = this.aircraft!.loadPoints[s.index]
+        if (def?.operationalLimit != null && s.weight > def.operationalLimit) {
+          result.violations.push({
+            type: 'STATION_LIMIT_EXCEEDED',
+            stationIndex: s.index,
+          })
+        }
+      }
 
       // Map raw violations to UI notifications
       // @IMP-MB-STORE-011@ (FROM: @REQ-MB-004@, @REQ-MB-005@, @REQ-MB-009@, @REQ-MB-011@, @REQ-SYS-011@, @REQ-SYS-012@, @DES-UX-010@, @DES-ARCH-001@)

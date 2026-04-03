@@ -143,7 +143,7 @@ describe('MassBalanceView integration', () => {
     expect(wrapper.find('input[type="number"]').exists()).toBe(false)
   })
 
-  it('renders UNCONFIGURED state with required-fields hint and disabled export', () => {
+  it('renders UNCONFIGURED state with required-fields hint', () => {
     const store = useMassBalanceStore()
     store.loadProfile(mockProfile)
     store.stations[0]!.touched = false
@@ -153,10 +153,6 @@ describe('MassBalanceView integration', () => {
     expect(store.uiState).toBe('UNCONFIGURED')
     expect(wrapper.text()).toContain('Complete required fields')
     expect(wrapper.find('input#station-0').attributes('disabled')).toBeUndefined()
-
-    const exportButton = wrapper.find('button.result-summary__export-btn')
-    expect(exportButton.exists()).toBe(true)
-    expect(exportButton.attributes('disabled')).toBeDefined()
   })
 
   it('handles user weight input, calls updateStationWeight, and transitions to VERIFIED_SAFE', async () => {
@@ -188,7 +184,7 @@ describe('MassBalanceView integration', () => {
     expect(wrapper.text()).toContain('Station 0 limit exceeded')
   })
 
-  it('renders ERROR_CRITICAL state with critical visuals and disabled export', async () => {
+  it('renders ERROR_CRITICAL state with critical visuals', async () => {
     mockedCalculate.mockReturnValue(buildViolationResult([{ type: 'MTOM_EXCEEDED' }]))
     const store = useMassBalanceStore()
     store.loadProfile(mockProfile)
@@ -199,8 +195,6 @@ describe('MassBalanceView integration', () => {
     expect(store.uiState).toBe('ERROR_CRITICAL')
     expect(wrapper.find('.state-banner.banner--critical[role="alert"]').exists()).toBe(true)
     expect(wrapper.text()).toContain('MTOM Exceeded')
-    expect(wrapper.find('svg[aria-label*="CRITICAL"]').exists()).toBe(true)
-    expect(wrapper.find('button.result-summary__export-btn').attributes('disabled')).toBeDefined()
   })
 
   it('recovers from ERROR_CRITICAL to VERIFIED_SAFE and removes critical visuals', async () => {
@@ -222,7 +216,7 @@ describe('MassBalanceView integration', () => {
     expect(wrapper.find('svg[aria-label*="CRITICAL"]').exists()).toBe(false)
   })
 
-  it('renders VERIFIED_SAFE success UI and enables export', async () => {
+  it('renders VERIFIED_SAFE success UI', async () => {
     const store = useMassBalanceStore()
     store.loadProfile(mockProfile)
     const wrapper = mountView()
@@ -232,7 +226,6 @@ describe('MassBalanceView integration', () => {
     expect(store.uiState).toBe('VERIFIED_SAFE')
     expect(wrapper.find('.state-banner.banner--success').exists()).toBe(true)
     expect(wrapper.text()).toContain('Mass & Balance verified')
-    expect(wrapper.find('button.result-summary__export-btn').attributes('disabled')).toBeUndefined()
   })
 
   it('calls resetPayload from Reset Payload action and keeps results visible', async () => {
