@@ -17,6 +17,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - End-to-end Mass & Balance user workflow with station inputs, CG envelope charting, and result summary presentation
 - Core mass-balance domain logic, aircraft-data adapters, and notification schema validation with comprehensive test coverage
 
+### Fixed
+
+- Mass & balance error handling in the store and UI module
+
 ### Engineering
 
 - Dual licensing: EUPL-1.2 for source code (root `LICENSE`) and CC BY-SA 4.0 for documentation (`LICENSE-DOCUMENTATION`); README, DISCLAIMER, and dependency policy updated accordingly
@@ -39,6 +43,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Implementation roadmap and trace matrices updated for fleet management and mass-balance domains (e2e, unit, and implementation YAML)
 - Router unit tests added; unused Vue counter scaffold removed; minor mass-balance UI and aircraft adapter adjustments
 - Playwright BDD: certification category switch scenario and consolidated fleet-management step definitions
+- Privacy and data protection summary in `PRIVACY.md`
+- Root `serve` script to preview production builds locally
+- Release-it configuration and Markdown lint rules adjusted so release branches avoid conflicting generated changelogs
+- GitHub PR Cursor rules updated to match the repository pull request template
+- Implementation roadmap refreshed with audit findings
 
 ### Architecture Decision Records
 
