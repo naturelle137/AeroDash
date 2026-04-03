@@ -1,0 +1,42 @@
+---
+description: Generate business E2E slice from UJ
+argument-hint: <UJ-ID | journey description>
+---
+
+- `role`: BDD author; safety-critical aviation
+- `goal`: business E2E slice; `.feature` + `.steps.ts` + registry
+- `apply.feature`: `@.cursor/rules/gherkin.mdc`; `@.cursor/rules/traceability-e2e.mdc`
+- `apply.ts`: `@.cursor/rules/e2e-implementation.mdc`
+- `forbid`: invented behavior; gherkin-only output; technical scope; smoke scope
+- `input`: `$ARGUMENTS`
+- `input.accept`: `UJ-{PHASE}-{NNN}` | journey description
+- `input.examples`: `/e2e.create-business UJ-B-005` | `/e2e.create-business pilot verifies fuel endurance before departure`
+- `stop.no-args`: `Usage: /e2e.create-business <UJ-ID | journey description>`
+- `stop.no-id`: ask UJ ID; no guess
+- `discover.1`: locate UJ in `docs/journeys/`
+- `discover.2`: derive `phase-letter` from `UJ-{PHASE}-{NNN}`
+- `discover.3`: derive `phase-slug` from containing journey file stem; drop numeric prefix; kebab-case
+- `discover.4`: extract UJ trace comment; title; persona; goal; outcome; journey rows; upstream `@REQ-*`
+- `discover.5`: infer `@module-{module}` from journey domain; align existing phase files if present
+- `discover.6`: open `trace/e2e/{phase-slug}.yaml`; next sequential `E2E-{PHASE}-{NNN}`; zero-pad; no reuse; deleted skipped
+- `discover.7`: inspect `frontend/tests/e2e/features/phase-{phase-letter}-{phase-slug}/`; reuse file if same feature/domain; else new file
+- `discover.8`: inspect `frontend/tests/e2e/steps/`; prefer existing domain step file; else new `frontend/tests/e2e/steps/{domain}.steps.ts`
+- `stop.uj-missing`: `Blocked: UJ <ID> not found in docs/journeys/. Verify ID or create journey first.`
+- `feature.path`: `frontend/tests/e2e/features/phase-{phase-letter}-{phase-slug}/{scenario-kebab}.feature`
+- `feature.source`: UJ only
+- `feature.map.context`: journey context/shared state -> `Background` or `Given`
+- `feature.map.action`: user action -> `When`
+- `feature.map.reaction`: observable outcome -> `Then`
+- `feature.map.branch`: distinct outcome branch -> distinct `Scenario`
+- `feature.body`: `Feature` title from UJ; narrative from persona/goal/outcome; trace comment above exec tags; exec tags include `@UJ-{ID}` `@phase-{phase-letter}` `@e2e` `@module-{module}`; scenario titles outcome-specific
+- `steps.path`: existing domain file | `frontend/tests/e2e/steps/{domain}.steps.ts`
+- `steps.sync`: every feature step -> exact handler text; case-sensitive; typed params only
+- `steps.shape`: import block from ts rule; sections by `Background` / scenario / `Then`
+- `steps.scope`: business UI flow only; no mocks; no interception
+- `registry.path`: `trace/e2e/{phase-slug}.yaml`
+- `registry.entry`: `E2E-{PHASE}-{NNN}` + `title` + feature file path
+- `output.1`: feature path + full content
+- `output.2`: steps path + full content
+- `output.3`: registry entry
+- `output.4`: assigned `E2E-{PHASE}-{NNN}`
+- `output.style`: no preamble; no commentary

@@ -1,0 +1,37 @@
+---
+description: Create GitHub PR via MCP with branch and changelog enforcement
+argument-hint: <target-branch> [changelog=yes|no]
+---
+
+- `cmd`: `/pr.create`
+- `role`: PR publisher; safety-first; GitHub MCP
+- `goal`: create or refresh a PR from the current branch into the requested target branch
+- `apply`: `@.cursor/rules/github-pr.mdc`
+- `input`: `$ARGUMENTS`
+- `input.parse`: `<target-branch> [changelog=yes|no]`
+- `input.default.changelog`: `yes`
+- `input.invalid`: return only `Usage: /pr.create <target-branch> [changelog=yes|no]`
+- `refs.read.first`: `.cursor/rules/github-pr.mdc`; `.github/pull_request_template.md`
+- `github.read.first`: `get_me`; `list_branches`
+- `git.read.first`: `git branch --show-current`; `git status --short`; `git log --oneline <target-branch>..HEAD`; `git diff --stat <target-branch>...HEAD`
+- `git.block.start`: dirty worktree before command edits; unresolved merge/rebase/cherry-pick; no current branch; no commits ahead of target
+- `branch.validate`: enforce source->target mapping from applied rule; stop on mismatch
+- `issues.discover`: obey applied `github-pr` rule for branch-specific issue selection; prefer PR commit refs; ask user if ambiguous
+- `changelog.when`: parsed `yes`
+- `changelog.input`: consider the source-branch commit range against target branch as one input signal together with diff and changed files; never treat commits as the only source
+- `changelog.target`: `develop` -> `## [Unreleased]`; `main` -> existing release section; never create duplicate headers or duplicate bullets
+- `changelog.main.version`: infer only from `release/v*`; otherwise ask user when target is `main`
+- `changelog.commit`: if `CHANGELOG.md` changed, create a new conventional commit; never amend
+- `push.before.pr`: ensure current branch is pushed to `origin` after any changelog commit
+- `pr.search`: `search_pull_requests` with exact repo + `is:open head:<current-branch> base:<target-branch>`
+- `pr.search.on-match`: `update_pull_request` title/body instead of creating another PR
+- `pr.title`: concise conventional-commit style summary derived from commits and diff
+- `pr.body.template`: draft PR body from `.github/pull_request_template.md`; preserve section order
+- `pr.body.template.checklist`: obey `template.issue_state` `template.no_stray_markers` `template.na.allow` `template.na.checked` `template.checklist.complete` `template.post_merge` in applied `github-pr` rule
+- `pr.body.summary`: brief bullets only
+- `pr.body.related`: `develop` target -> `Ref #...` or `Related to #...`; `main` target -> close keywords allowed
+- `pr.body.docs`: include only real requirement, architecture, risk, journey, code-doc, and changelog updates
+- `pr.body.testing`: record only checks actually run; otherwise use `N/A` with reason
+- `pr.exec.create`: `create_pull_request` with `owner=naturelle137` `repo=AeroDash` `draft=false` `maintainer_can_modify=true`
+- `final.output.success`: `PR #<number>: <url>`
+- `final.output.fail`: blocker only

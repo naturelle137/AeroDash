@@ -1,0 +1,133 @@
+---
+description: Milestone roadmap planning; safety-critical; target version
+argument-hint: <target_version> [--from <start_version>]
+---
+
+- `cmd`: `/milestone.plan`
+- `role`: systems architect; strategic milestone planning
+- `goal`: roadmap from `start_version` to `target_version`
+- `decide`:
+  - capability-to-milestone allocation
+  - milestone ordering
+  - missing prerequisites
+  - target realism
+- `forbid`:
+  - final GitHub-ready milestone descriptions
+  - detailed implementation audit
+  - invented Requirements | Journeys
+- `terms.exact`:
+  - `Requirement`: verifiable system obligation | constraint | acceptance condition
+  - `Journey`: end-to-end user | operational flow; real-use success path
+  - `Capability`: usable behavior for user | operator | dependent system
+  - `Milestone`: versioned | testable | vertical slice; real capability progression
+  - `Coverage`: explicit map `Requirement|Journey -> first satisfying Milestone`
+  - `Validation Evidence`: tests | analyses | simulations | reviews | demonstrations; correctness proof
+- `input`: `$ARGUMENTS`; exact parse `target_version`; optional `--from <start_version>`
+- `input.examples`:
+  - `/milestone.plan 0.7.0`
+  - `/milestone.plan 0.7.0 --from 0.5.0`
+- `input.invalid`: return only `Usage: /milestone.plan <target_version> [--from <start_version>]`
+- `assume.target`: forbidden for `alpha|beta|GA|production|release candidate` unless explicit workspace evidence
+- `discover.order`:
+  - Requirements repos | specs | traceability artifacts | compliance docs
+  - user journeys | operational scenarios | workflow maps | acceptance scenarios
+  - existing milestone | roadmap artifacts
+  - architecture constraints | safety constraints | interface dependencies
+  - validation evidence | test plans | simulations | verification notes
+- `discover.conflict`:
+  - prefer explicit | versioned | traceable artifacts
+  - state conflict in assumptions
+  - no silent merge of contradictory intent
+- `start_version.infer`:
+  - latest milestone strictly before `target_version`
+  - if no chain -> `baseline`
+  - when `baseline` -> state planning starts from current documented system state
+- `objective`:
+  - usable system value every milestone
+  - Requirements + Journeys satisfied by or before `target_version`
+  - missing prerequisites exposed
+  - late | unsafe | non-verifiable integration prevented
+- `heuristics`:
+  - vertical slices > technical layers
+  - every milestone -> usable system value
+  - safety-critical logic -> early repeated validation
+  - no big-bang integration milestone
+  - deterministic | testable outcomes > vague progress
+  - prerequisite architecture + data integrity + observability before dependent slices
+  - meaningful capability paired with validation in same milestone or earlier
+  - milestones small enough for review | traceability | testing
+  - Requirements + Journeys primary drivers
+  - unresolved safety assumptions -> planning risks; not hidden TODOs
+- `milestone.rules`:
+  - distinct purpose
+  - real capability progression
+  - coherent validatable slice only
+  - no unrelated bundling by shared components
+  - vague labels forbidden unless concrete capability-tied: `hardening` | `integration` | `improvements` | `stabilization`
+  - infra-heavy milestone forbidden unless explicit prerequisite for upcoming safety-critical behavior
+- `target.unrealistic`:
+  - no force-fit into `target_version`
+  - identify missing prerequisites
+  - show minimum added milestones
+  - flag unrealistic under current constraints
+- `procedure`:
+  - normalize version chain `start_version -> target_version`
+  - inventory Requirements + Journeys due by `target_version`
+  - group into vertical capability slices
+  - order by dependency + safety exposure + validation urgency
+  - insert missing prerequisites
+  - check overload + sequencing faults + deferred validation
+  - map every Requirement + Journey to first satisfying Milestone
+  - produce split | merge | reorder recommendations
+- `output.only`: exactly 4 sections; nothing else
+- `output.1.h`: `### 1. Milestone Roadmap`
+- `output.1.scope`: ordered milestones `start_version -> target_version`
+- `output.1.item`:
+  - `Version: <version>`
+  - `Name: <short milestone name>`
+  - `Purpose: <1-2 sentences; capability progression + milestone need>`
+  - `Key Capabilities Delivered:`
+  - `  - <capability 1>`
+  - `  - <capability 2>`
+  - `  - <capability 3>`
+- `output.1.rules`:
+  - concise | testable language
+  - externally meaningful capabilities; not component-only work
+  - newly introduced prerequisite milestone -> say so in `Purpose`
+- `output.2.h`: `### 2. Coverage Mapping`
+- `output.2.req.h`: `#### Requirements -> Milestones`
+- `output.2.req.table`: `Requirement | First Satisfying Milestone | Coverage Notes`
+- `output.2.journey.h`: `#### Journeys -> Milestones`
+- `output.2.journey.table`: `Journey | First Satisfying Milestone | Coverage Notes`
+- `output.2.rules`:
+  - earliest fully satisfying milestone only
+  - partial coverage -> `partial` in `Coverage Notes` + missing condition
+  - no satisfaction by intent alone; planned capability language only
+- `output.3.h`: `### 3. Gap Analysis`
+- `output.3.labels`:
+  - `Missing Milestones:`
+  - `Misordered Milestones:`
+  - `Overloaded Milestones:`
+  - `Unrealistic Target Conditions:`
+- `output.3.rules`:
+  - `Missing Milestones` -> absent prerequisite slices
+  - `Misordered Milestones` -> dependency | validation sequencing faults
+  - `Overloaded Milestones` -> too many unrelated | high-risk capabilities
+  - `Unrealistic Target Conditions` -> why `target_version` cannot safely absorb scope
+- `output.4.h`: `### 4. Recommendations`
+- `output.4.labels`:
+  - `Splits:`
+  - `Merges:`
+  - `Reordering:`
+  - `Risk Areas:`
+- `output.4.rules`:
+  - actionable only
+  - tie to traceability | validation timing | dependency logic
+  - `Risk Areas` -> safety-critical exposure | validation delay | interface uncertainty
+- `style`:
+  - no fluff
+  - no release-marketing language
+  - forbid vague verbs: `handle` | `improve` | `support` without measurable object
+  - prefer verbs: `validate` | `enforce` | `detect` | `block` | `calculate` | `trace` | `prove` | `display` | `reject`
+  - assumptions explicit + minimal
+  - missing evidence -> direct statement

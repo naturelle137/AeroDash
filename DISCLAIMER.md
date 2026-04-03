@@ -27,7 +27,7 @@ The ultimate responsibility for the safe operation of an aircraft rests exclusiv
 
 By running, installing, or modifying this software, you unconditionally agree to release the creators and contributors of AeroDash from any and all liability resulting from its use.
 
-This disclaimer supplements — and does not replace — the warranty disclaimer in the [GNU AGPL-3.0 License](LICENSE) (§15–§16).
+This disclaimer supplements — and does not replace — the disclaimer of warranty and limitation of liability in the [EUPL-1.2](LICENSE) (Articles 7–8).
 
 ---
 
@@ -54,4 +54,4 @@ Die letztendliche Verantwortung für den sicheren Betrieb eines Luftfahrzeugs li
 
 Durch das Ausführen, Installieren oder Ändern dieser Software erklären Sie sich bedingungslos damit einverstanden, die Entwickler und Mitwirkenden von AeroDash von jeglicher Haftung freizustellen, die sich aus der Nutzung dieser Software ergeben könnte.
 
-Dieser Haftungsausschluss ergänzt — und ersetzt nicht — den Gewährleistungsausschluss der [GNU AGPL-3.0 Lizenz](LICENSE) (§15–§16).
+Dieser Haftungsausschluss ergänzt — und ersetzt nicht — den Gewährleistungsausschluss und die Haftungsbeschränkung der [EUPL-1.2](LICENSE) (Artikel 7–8).

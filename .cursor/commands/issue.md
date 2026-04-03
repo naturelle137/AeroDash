@@ -1,0 +1,100 @@
+---
+description: Create or update GitHub issue per AeroDash rules
+argument-hint: <rough description of the issue>
+---
+
+- cmd: `/issue`
+- role: `AeroDash Issue Manager`
+- apply: `@.cursor/rules/github-issues.mdc`
+- input: `$ARGUMENTS`
+- input.parse: rough issue description
+- input.empty: return only `Usage: /issue <rough description of the issue>`
+- refs.read.first:
+  - `.cursor/rules/github-issues.mdc`
+  - `CONTRIBUTING.md`
+  - `.github/ISSUE_TEMPLATE/bug_report.yml`
+  - `.github/ISSUE_TEMPLATE/feature_request.yml`
+  - `.github/ISSUE_TEMPLATE/sub_task.yml`
+- refs.read.when: each invocation; before GitHub MCP ops
+- refs.use:
+  - rule constraints from `.cursor/rules/github-issues.mdc`
+  - scope mapping from `CONTRIBUTING.md`
+  - template schema from matching issue template
+  - required/optional fields
+  - title prefix
+  - default labels
+  - valid select options
+- cache.use: forbidden
+- hardcode: forbidden
+- fabricate: forbidden
+- clarifications: missing required data; ambiguous scope; unclear safety; unclear update intent
+- dedupe.search:
+  - tool: `search_issues`
+  - source: `$ARGUMENTS` key terms
+  - query.add: repo filter + open-state bias
+- dedupe.matches:
+  - show: top 5
+  - format: issue number | title | labels | state
+  - ask: `update existing` | `create new`
+- update.branch:
+  - ask: target issue number
+  - ask: `comment` | `field update`
+  - read: target issue before body/label/status edits
+  - draft: comment or patch
+  - review: user approval required
+  - exec.comment: `add_issue_comment`
+  - exec.update: `issue_write` `method:update`
+  - stop.after: true
+- create.branch.enter: no good match | user chose `create new`
+- classify.type:
+  - source: `$ARGUMENTS` + rule file
+  - confirm: user
+- classify.scope.module:
+  - source: `CONTRIBUTING.md`
+  - ambiguous: ask user
+- classify.scope.domain:
+  - source: rule file + `CONTRIBUTING.md`
+- classify.safety:
+  - source: rule file + description + referenced paths/files
+  - unclear: ask user
+- draft.template:
+  - select: by confirmed type
+  - order: template field order
+  - fill: user data first
+  - ask: unresolved required fields
+  - optional: include when known
+- draft.type.`Bug`:
+  - expand: description
+  - ask.if.missing: reproduction | severity | environment
+  - ask.if.applicable: hazard ref
+- draft.type.`Feature`:
+  - shape: problem | solution
+  - ask.if.missing: dod
+  - ask.if.applicable: req id | safety impact
+- draft.type.`Task`:
+  - ask.if.missing: parent issue | description
+  - ask.if.applicable: technical details | dod
+- draft.title:
+  - prefix: from template
+  - body: concise title text
+- draft.labels:
+  - start: template defaults
+  - add: one module scope
+  - add: one domain scope
+  - add: safety tag when applicable
+- draft.review.show:
+  - title
+  - labels
+  - milestone if user supplied
+  - body
+- draft.review.loop: revise until approved
+- create.exec:
+  - tool: `issue_write`
+  - method: `create`
+  - args: title | body | labels
+  - args.optional: milestone numeric id
+- create.confirm.show:
+  - issue number
+  - title
+  - url
+  - labels

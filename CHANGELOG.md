@@ -5,7 +5,63 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.2.0-alpha] - 2026-04-03
+
+### Added
+
+- Root `ARCHITECTURE.md` establishing the high-level PWA design, data flow, and safety constraints
+- Standardized API documentation in `docs/api/API.md` detailing offline-first fallback and error schemas
+- Online/Offline state detection and feature gating requirements
+- Canonical `AircraftProfileSchema` Zod schema as the validation entry gate for the Aircraft Profile aggregate-root, M&B, and future modules
+- Vue 3 frontend application shell and modular feature scaffolding for aircraft, mass-balance, weather, performance, export, and sync domains
+- End-to-end Mass & Balance user workflow with station inputs, CG envelope charting, and result summary presentation
+- Core mass-balance domain logic, aircraft-data adapters, and notification schema validation with comprehensive test coverage
+
+### Fixed
+
+- Mass & balance error handling in the store and UI module
+
+### Engineering
+
+- Dual licensing: EUPL-1.2 for source code (root `LICENSE`) and CC BY-SA 4.0 for documentation (`LICENSE-DOCUMENTATION`); README, DISCLAIMER, and dependency policy updated accordingly
+- Added unified `ci.yml` workflow as the required PR gate for `develop`: runs unit tests, type-check, lint (oxlint + ESLint), and build in parallel; merges blocked when any check fails (refs #23)
+- Fixed `test` script in `frontend/package.json` to invoke Vitest directly instead of echoing a placeholder notice (refs #23)
+- Added `CI / Unit Tests`, `CI / Type Check`, `CI / Lint`, and `CI / Build` as required status checks on `develop` branch protection (refs #23)
+- SemVer changelog automation: `release-it` + `@release-it/conventional-changelog` installed; `pnpm run release` script added; `release.yml` CI pipeline triggers on `release/**` and `hotfix/**` branches (refs #22)
+- Integrated CodeQL SAST, `pnpm audit` dependency scanning, and Dependabot automated upgrade PRs to protect against vulnerable or malicious third-party packages (refs #29)
+- Unified GitHub Pages deployment into a single `deploy-reports.yml` workflow: traceability matrix, Vitest HTML test results, coverage report, Stryker mutation report (gracefully skipped when unavailable), and Playwright E2E report (gracefully skipped when unavailable) are all deployed to organized sub-directories under a landing index page on every push to `main` (refs #107)
+- Added CI pipeline for Playwright E2E tests: build frontend, run BDD scenarios on Chromium, upload HTML report and traces as artifacts on failure (refs #106)
+- Canonical math test vector framework: Zod-validated JSON vectors for DA40 and P2008 with automated CG algorithm verification against POH-derived values
+- Fixed Markdown linting hook to run efficiently on staged files via `lint-staged`
+- Implemented P1/P2/P3 architectural dependency isolation with ESLint `no-restricted-imports`, dedicated `vitest.config.p1.ts`, and CONTRIBUTING.md classification guide
+- Defined and setup src and testing file structure
+- Defined frontend framework (Vue 3) and testing framework (Vitest, Playwright, Playwright-BDD) and initialized them
+- Migrated repository dependency management to pnpm workspaces with updated root and frontend tooling configuration
+- Added CI pipelines for linting, Vitest execution, and devcontainer build/publish workflows
+- Expanded traceability artifacts for unit, integration, and e2e mappings aligned to implemented requirements
+- Cursor agent workflow: milestone check command with configurable milestone input; command create/update/optimize helpers and authoring rules for `.cursor` assets
+- Implementation roadmap and trace matrices updated for fleet management and mass-balance domains (e2e, unit, and implementation YAML)
+- Router unit tests added; unused Vue counter scaffold removed; minor mass-balance UI and aircraft adapter adjustments
+- Playwright BDD: certification category switch scenario and consolidated fleet-management step definitions
+- Privacy and data protection summary in `PRIVACY.md`
+- Root `serve` script to preview production builds locally
+- Release-it configuration and Markdown lint rules adjusted so release branches avoid conflicting generated changelogs
+- GitHub PR Cursor rules updated to match the repository pull request template
+- Implementation roadmap refreshed with audit findings
+
+### Architecture Decision Records
+
+- ADR 002: Frontend framework (Vue 3)
+- ADR 309 DEV: Frontend tooling and testing framework (Vitest, Playwright)
+- ADR 310 DEV: Vue/Vite plugins (`vite-plugin-pwa`, `vue-chartjs`, `@vite-pwa/assets-generator`)
+- ADR 311 DEV: Project directory structure (Modules pattern)
+- ADR 312 DEV: End-to-End BDD framework (`playwright-bdd`)
+
+### Action items
+
+- Ref #114 Partial implemented requirements, full implementation deferred to v0.3.0
+- Ref #115 Missing implementation, deferred to v0.3.0
+- Ref #116 Missing implementation / traceability of designs, deferred to v0.3.0
 
 ## [0.1.0-pre-alpha.1] - 2026-02-28
 
@@ -13,7 +69,7 @@ This hotfix resolves a deployment issue with the traceability engine.
 
 ### Engineering
 
-- **Fixed:** Replaced defective `shtracer` Git submodule with directly tracked repository files to enable successful GitHub Pages deployment in CI.
+- Fixed defective `shtracer` Git submodule with directly tracked repository files to enable successful GitHub Pages deployment in CI.
 
 ## [0.1.0-pre-alpha] - 2026-02-27
 
@@ -39,6 +95,6 @@ developer experience tooling, and the complete product documentation suite.
 - ADR 001: Notification System
 - ADR 300–308 DEV: Documentation as Code, Branching Strategy, Contributing Guidelines, Ticket Workflow, Testing Guidelines, Linting Strategy, Local Hooks, Master Traceability Structure, Traceability Engine
 
-[unreleased]: https://github.com/naturelle137/AeroDash/compare/v0.1.0-pre-alpha.1...HEAD
-[0.1.0-pre-alpha.1]: https://github.com/naturelle137/AeroDash/compare/v0.1.0-pre-alpha...v0.1.0-pre-alpha.1
+[0.2.0-alpha]: https://github.com/naturelle137/AeroDash/releases/tag/v0.2.0-alpha
+[0.1.0-pre-alpha.1]: https://github.com/naturelle137/AeroDash/releases/tag/v0.1.0-pre-alpha.1
 [0.1.0-pre-alpha]: https://github.com/naturelle137/AeroDash/releases/tag/v0.1.0-pre-alpha

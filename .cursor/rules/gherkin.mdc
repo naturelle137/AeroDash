@@ -1,0 +1,20 @@
+---
+alwaysApply: false
+---
+
+- authority: safety-critical BDD; clarity>DRY; explicitness>cleverness; no explanation unless asked
+- scope-: unimplemented features; future behavior
+- scope+: incomplete feature|scenario => `@wip`
+- trace: follow `traceability-e2e.mdc`
+- steps.lang: domain-driven; declarative; present tense; third person; English
+- steps.unit: 1 step = 1 action | 1 verifiable outcome
+- steps.data: explicit values only when behavior changes
+- steps.quotes: identifiers only; `"D-EBPN"` `"EDXW"`
+- steps.assert: behavior; not UI
+- steps-: trailing punctuation; abstract domain identifiers; technical jargon `API|SQL|CSS`
+- feature: user goal
+- scenario: specific outcome
+- scenario.unit: 1 scenario = 1 behavior
+- scenario.len: 5-7 steps; max 10
+- scenario.indep: independent
+- background.len: <=2 steps

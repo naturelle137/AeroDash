@@ -1,0 +1,108 @@
+{
+  "id": "b2d4f6a8-1c3e-5a7b-9d0f-e2c4a6b8d0f2",
+  "ownerId": "00000000-0000-0000-0000-000000000000",
+  "registration": "D-ECSM",
+  "manufacturer": "Cessna",
+  "model": "172S Skyhawk SP",
+  "icaoTypeDesignator": "C172",
+  "sourceUnit": "kg",
+  "referenceDatumDescription": "Forward datum (36.4 in ahead of firewall)",
+  "referenceDatumLocation": "Forward datum",
+  "weighingReports": [
+    {
+      "bem": 680,
+      "emptyCg": 2.083,
+      "weighingDate": "2025-09-15",
+      "validFrom": "2025-09-15"
+    }
+  ],
+  "loadPoints": [
+    {
+      "name": "Front Seats",
+      "arm": 2.045,
+      "armLookup": null,
+      "operationalLimit": 200,
+      "defaultQuantity": 0,
+      "unit": "kg",
+      "allowableCategories": null,
+      "fuelTank": null
+    },
+    {
+      "name": "Rear Seats",
+      "arm": 2.997,
+      "armLookup": null,
+      "operationalLimit": 200,
+      "defaultQuantity": 0,
+      "unit": "kg",
+      "allowableCategories": ["Normal"],
+      "fuelTank": null
+    },
+    {
+      "name": "Baggage Area 1",
+      "arm": 3.607,
+      "armLookup": null,
+      "operationalLimit": 54,
+      "defaultQuantity": 0,
+      "unit": "kg",
+      "allowableCategories": null,
+      "fuelTank": null
+    },
+    {
+      "name": "Baggage Area 2",
+      "arm": 3.886,
+      "armLookup": null,
+      "operationalLimit": 23,
+      "defaultQuantity": 0,
+      "unit": "kg",
+      "allowableCategories": null,
+      "fuelTank": null
+    },
+    {
+      "name": "Fuel Tanks",
+      "arm": 2.413,
+      "armLookup": null,
+      "operationalLimit": 212,
+      "defaultQuantity": 0,
+      "unit": "l",
+      "allowableCategories": null,
+      "fuelTank": {
+        "unusableFuel": 6,
+        "permissibleFuelTypes": ["AvGas 100LL", "AvGas UL91"],
+        "burnSequences": [
+          {
+            "sequenceName": "Standard",
+            "ordinalPosition": 1
+          }
+        ]
+      }
+    }
+  ],
+  "certificationCategories": [
+    {
+      "category": "Normal",
+      "mtom": 1111,
+      "mzfm": 1085,
+      "graphType": "arm",
+      "envelope": [
+        { "armOrMoment": 2.021, "mass": 680 },
+        { "armOrMoment": 2.085, "mass": 800 },
+        { "armOrMoment": 2.085, "mass": 1111 },
+        { "armOrMoment": 2.362, "mass": 1111 },
+        { "armOrMoment": 2.362, "mass": 680 }
+      ]
+    },
+    {
+      "category": "Utility",
+      "mtom": 953,
+      "mzfm": null,
+      "graphType": "arm",
+      "envelope": [
+        { "armOrMoment": 2.021, "mass": 680 },
+        { "armOrMoment": 2.085, "mass": 800 },
+        { "armOrMoment": 2.085, "mass": 953 },
+        { "armOrMoment": 2.286, "mass": 953 },
+        { "armOrMoment": 2.286, "mass": 680 }
+      ]
+    }
+  ]
+}

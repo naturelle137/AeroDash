@@ -58,3 +58,26 @@ KEY DECISIONS:
 ## Compliance
 
 All modules must emit notifications strictly matching the schema. The UI layer must implement the rendering logic defined for each Severity level.
+
+---
+
+## Addendum: ERROR Severity (2026-03-29)
+
+**Context:** The original three-level severity (`INFO`, `WARNING`, `CRITICAL`) cannot express "input is invalid; the computation cannot run" without either implying the flight may proceed (`WARNING`) or equating typos with safety-limit breaches (`CRITICAL`). This drives alarm fatigue or incorrect UX (blocking modal for a missing field).
+
+**Decision:** Add `ERROR` between `WARNING` and `CRITICAL`:
+
+| Enum | Meaning | UI behavior |
+| :--- | :--- | :--- |
+| `ERROR` | Validation failed or request cannot be processed; user must fix input | Inline error / red outline |
+
+`CRITICAL` remains reserved for genuine safety-limit violations (CG out of envelope, MTOM exceeded, etc.).
+
+**Impact:**
+
+* `NotificationSeverity` type updated to include `ERROR`.
+* Notification ID pattern extended: `ERR-{MODULE}-{NUMBER}` (e.g., `ERR-SYS-001`).
+* Adapter validation failures (Zod schema) now emit `ERROR` instead of `CRITICAL`.
+* **Breaking:** Code that assumed exactly three severity levels must be updated.
+
+**References:** Issue #104, REQ-SYS-011, REQ-SYS-012.

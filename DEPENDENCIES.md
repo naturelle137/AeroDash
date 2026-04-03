@@ -1,6 +1,6 @@
 # Dependency Management & Licensing Policy
 
-AeroDash is licensed under **AGPL-3.0**. All third-party dependencies — software libraries, assets, fonts, and data — must be license-compatible. This document defines the approved licenses, the vetting process, and the current dependency inventory.
+AeroDash **source code** is licensed under **EUPL-1.2** (see root `LICENSE`). **Documentation** in this repository (for example under `docs/` and root Markdown guides) is licensed under **CC BY-SA 4.0** (see `LICENSE-DOCUMENTATION`). All third-party **software** dependencies — libraries, assets bundled as code, fonts, and data consumed by the application — must be license-compatible with the EUPL-1.2 code you combine them with. This document defines the approved licenses, the vetting process, and the current dependency inventory.
 
 ---
 
@@ -24,9 +24,9 @@ AeroDash is licensed under **AGPL-3.0**. All third-party dependencies — softwa
 
 ### Rationale for Key Decisions
 
-- **GPL-3.0 / AGPL-3.0:** Compatible — AGPL §13 explicitly allows combining with GPL-3.0 works.
-- **EUPL-1.2:** Compatible — its Appendix lists GPL-3.0 and AGPL-3.0 as compatible licenses. Relevant for EU-funded aviation tools and data.
-- **GPL-2.0-only:** Prohibited — cannot be upgraded to GPL-3.0, making it incompatible with AGPL-3.0.
+- **GPL-3.0 / AGPL-3.0:** Compatible for inbound dependencies — both are listed as Compatible Licences in the EUPL-1.2 Appendix.
+- **EUPL-1.2:** This is the copyleft applied to AeroDash **source code**; its Appendix lists several reciprocal licences (including GPL and AGPL) as compatible when distributing combined works under the appropriate terms.
+- **GPL-2.0-only:** Prohibited — cannot be upgraded to GPL-3.0, which blocks predictable compatibility with EUPL-1.2 copyleft distribution in common combined-work scenarios.
 - **JSON License:** Prohibited — the clause *"shall be used for Good, not Evil"* is legally undefined. Rejected by Debian, Fedora, and Google. Use alternatives (e.g., `json5` under MIT).
 - **CC BY-NC:** Prohibited — "Non-Commercial" conflicts with open-source freedom; prevents commercial forks.
 - **CC BY-ND:** Prohibited — "No Derivatives" prevents modifying assets (e.g., recoloring icons).

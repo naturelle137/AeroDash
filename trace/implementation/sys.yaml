@@ -1,0 +1,57 @@
+SYS Core
+  IMP-SYS-CORE-001
+    title: Global Notification System Type Definitions
+    req:
+      - REQ-SYS-011
+      - REQ-SYS-012
+    des:
+      - DES-ARCH-001
+    files:
+      - frontend/src/core/domain/notification.types.ts
+
+  IMP-SYS-CORE-002
+    title: Zod Error to Violation Mapping
+    req:
+      - REQ-SYS-008
+    des:
+      - DES-ARCH-001
+    files:
+      - frontend/src/core/adapters/mb.zod-violation-mapping.ts
+
+  IMP-SYS-CORE-003
+    status: deleted
+    title: ERROR Severity for Validation Failures
+    note: Merged into IMP-SYS-CORE-001 (same logical unit — re-export in notification.types.ts)
+
+  IMP-SYS-CORE-004
+    title: Generic Notification System Zod Schema
+    req:
+      - REQ-SYS-007
+      - REQ-SYS-008
+    des:
+      - DES-ARCH-001
+    files:
+      - frontend/src/core/domain/notification.schema.ts
+
+SYS App — Vue Router
+  IMP-SYS-APP-001
+    title: Application route table (root redirect and mass-balance view)
+    req:
+      - REQ-SYS-001
+    files:
+      - frontend/src/router/index.ts
+
+SYS Shared — Structured Logger Utility
+  IMP-SYS-SHARED-001
+    title: Safe Serialization for Large Aircraft Objects
+    des:
+      - DES-ARCH-001
+    files:
+      - frontend/src/shared/utils/logger.ts
+
+  IMP-SYS-SHARED-002
+    title: Structured Logger Factory (createLogger)
+    des:
+      - DES-ARCH-001
+    files:
+      - frontend/src/shared/utils/logger.ts

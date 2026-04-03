@@ -1,0 +1,84 @@
+{
+  "id": "a7c3e1f0-9b4d-4e2a-8f16-d5a2b3c4e5f6",
+  "ownerId": "00000000-0000-0000-0000-000000000000",
+  "registration": "D-EAMB",
+  "manufacturer": "Piper",
+  "model": "PA-28-161 Warrior III",
+  "icaoTypeDesignator": "P28A",
+  "sourceUnit": "kg",
+  "referenceDatumDescription": "Engine mount (79.0 in ahead of wing LE)",
+  "referenceDatumLocation": "Engine mount",
+  "weighingReports": [
+    {
+      "bem": 556,
+      "emptyCg": 2.160,
+      "weighingDate": "2025-06-12",
+      "validFrom": "2025-06-12"
+    }
+  ],
+  "loadPoints": [
+    {
+      "name": "Front Seats",
+      "arm": 2.054,
+      "armLookup": null,
+      "operationalLimit": 200,
+      "defaultQuantity": 0,
+      "unit": "kg",
+      "allowableCategories": null,
+      "fuelTank": null
+    },
+    {
+      "name": "Rear Seats",
+      "arm": 2.921,
+      "armLookup": null,
+      "operationalLimit": 200,
+      "defaultQuantity": 0,
+      "unit": "kg",
+      "allowableCategories": null,
+      "fuelTank": null
+    },
+    {
+      "name": "Baggage",
+      "arm": 3.556,
+      "armLookup": null,
+      "operationalLimit": 91,
+      "defaultQuantity": 0,
+      "unit": "kg",
+      "allowableCategories": null,
+      "fuelTank": null
+    },
+    {
+      "name": "Fuel Tanks",
+      "arm": 1.870,
+      "armLookup": null,
+      "operationalLimit": 182,
+      "defaultQuantity": 0,
+      "unit": "l",
+      "allowableCategories": null,
+      "fuelTank": {
+        "unusableFuel": 4,
+        "permissibleFuelTypes": ["AvGas 100LL", "AvGas UL91"],
+        "burnSequences": [
+          {
+            "sequenceName": "Standard",
+            "ordinalPosition": 1
+          }
+        ]
+      }
+    }
+  ],
+  "certificationCategories": [
+    {
+      "category": "Normal",
+      "mtom": 1055,
+      "mzfm": null,
+      "graphType": "arm",
+      "envelope": [
+        { "armOrMoment": 2.080, "mass": 556 },
+        { "armOrMoment": 2.130, "mass": 1055 },
+        { "armOrMoment": 2.370, "mass": 1055 },
+        { "armOrMoment": 2.370, "mass": 556 }
+      ]
+    }
+  ]
+}

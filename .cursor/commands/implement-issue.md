@@ -1,0 +1,74 @@
+---
+description: Implement issue; safety-first; traceable
+argument-hint: <ISSUE_ID>
+---
+
+- `role`: lead implementation agent; safety-first aviation
+- `goal`: implement issue; preserve rule compliance; preserve traceability; update issue state
+- `apply`: `@.cursor/rules/github-issues.mdc`
+- `input`: `$ARGUMENTS`; numeric issue id
+- `stop.no-args`: `Usage: /implement-issue <ISSUE_ID>`
+- `preflight.docs`: `ARCHITECTURE.md`; `CONTRIBUTING.md`; `docs/testing/TESTING.md`
+- `discover.parent`: `issue_read get`; `issue_read get_labels`; `issue_read get_sub_issues`
+- `classify.issue`: `Bug` | `Feature` | `Task`
+- `classify.safety`: `safety-critical` label present | absent
+- `classify.coverage`: `product` -> gates on; else `engineering`; P1 override on
+- `classify.boundary`: `frontend/src/core/`=`P1`; `frontend/src/modules/`=`P2`; `frontend/src/shared/|frontend/src/plugins/|frontend/src/stores/`=`P3`
+- `subissues.parent-task`: standalone; no sibling fetch
+- `subissues.fetch`: open children only; each `issue_read get` + `get_labels`
+- `subissues.order`: dependency refs -> P1 -> module -> UI -> parent hints
+- `plan.present.fields`: `issue` | `title` | `type` | `safety` | `class` | `coverage-gate` | `scope` | `summary`
+- `plan.present.subissues`: order table; open vs total; closed skipped list
+- `claim.user`: authenticated login
+- `claim.assign`: parent issue -> current user
+- `claim.project.target`: `AeroDash Dashboard` -> `In Progress`
+- `claim.project.resolve`: `gh project list --owner naturelle137`; `gh project item-list <PROJECT_NUMBER> --owner naturelle137 --format json`; `gh project field-list <PROJECT_NUMBER> --owner naturelle137 --format json`
+- `claim.project.edit`: `gh project item-edit --project-id <PROJECT_ID> --id <ITEM_ID> --field-id <STATUS_FIELD_ID> --single-select-option-id <IN_PROGRESS_OPTION_ID>`
+- `p1.detect`: any touched `frontend/src/core/`; any P1 child issue
+- `p1.constraints`: pure TypeScript; no `vue`/`pinia`/UI imports; deterministic; side-effect free; Zod validation
+- `p1.gate`: no code before approval
+- `p1.frr`: present once; all P1 work
+- `p1.frr.fields`: `REQ` | `H` | output impact | pure-TS guarantee | deterministic guarantee | Zod plan | formula LaTeX | unit normalization | test plan | `>=3` edge cases | ADR need
+- `cycle.mode`: standalone issue | each open child in order
+- `cycle.per-item`: read -> classify boundary -> trace discovery -> edit -> trace update -> registry update -> tests -> commit
+- `cycle.blocked`: skip blocked item; record reason; continue
+- `read.before-write`: all touched source; all touched registries; relevant issue bodies
+- `code.rules`: `ARCHITECTURE.md`; `CONTRIBUTING.md`; Composition API; Pinia stores; math delegation to `core/`
+- `trace.discovery`: issue body; `docs/requirements/`; `trace/`; relevant registries; next sequential ids
+- `trace.apply`: per `@.cursor/rules/traceability.mdc`
+- `trace.registry`: new traced artifact -> same-commit registry entry
+- `trace.req-status`: fully implemented referenced requirement -> update source `docs/requirements/**/*.md` status to `Implemented`
+- `trace.req-status.partial`: partial, blocked, unverified, or follow-up work remains -> do not change requirement status
+- `changelog.policy`: NO update `CHANGELOG.md`
+- `test.select.p1`: `*.spec.ts`; core logic/domain/adapters
+- `test.select.integration`: `*.int.spec.ts`; stores; services; cross-module handshakes
+- `test.select.e2e`: UI-facing changes
+- `coverage.source`: `docs/testing/TESTING.md`
+- `coverage.gates.product`: modified-file thresholds mandatory
+- `coverage.gates.engineering`: no mandatory creation/thresholds unless P1
+- `coverage.gates.p1`: `100%` line + branch + function
+- `bug.protocol`: failing test first -> minimal fix -> passing verification
+- `verify.incremental`: after each logical unit
+- `verify.coverage.cmd`: `pnpm --filter frontend vitest run --coverage`
+- `verify.loop`: add tests until gate pass
+- `commit.style`: conventional commits
+- `commit.scope`: module scope label
+- `commit.format`: `{type}({scope}): {description} (refs #{ISSUE_ID})`
+- `commit.unit`: one commit per implemented child; else one standalone commit
+- `commit.refs.child`: child id first; parent id optional extra ref
+- `update.child.done`: check completed DoD only; comment `changes` + `files` + `trace` + `tests` + `Part of #{PARENT_ID}`
+- `update.child.skipped`: comment reason only; no DoD checks
+- `update.parent.body`: check completed DoD only
+- `update.parent.forbid`: no skipped/unverified/manual-flight items checked
+- `comment.parent.fields`: implementation summary | sub-issue status | files modified | trace ids + upstreams | test results | coverage compliance if `product` | DoD status
+- `comment.parent.subissues`: omit when none
+- `final.labels.read`: current labels first
+- `final.labels.update`: valid transition only; preserve unrelated labels
+- `final.project.target`: `AeroDash Dashboard` -> `In Verification`
+- `final.project.edit`: `gh project item-edit --project-id <PROJECT_ID> --id <ITEM_ID> --field-id <STATUS_FIELD_ID> --single-select-option-id <IN_VERIFICATION_OPTION_ID>`
+- `stop.req-missing`: referenced `REQ` not found
+- `stop.formula-unclear`: math/formula change; unclear spec
+- `stop.safety-output`: Go/No-Go or advisory-output risk
+- `stop.conflict`: issue vs code/docs mismatch
+- `stop.adr-missing`: architectural change; ADR absent
+- `stop.ask`: pause; user guidance required

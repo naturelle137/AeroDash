@@ -1,2 +1,1 @@
-# Run markdown linting locally before committing
-npx markdownlint-cli2 "**/*.md" "#node_modules" "#.tools" "#.logs"
+pnpm -w run lint-staged -- --concurrent false

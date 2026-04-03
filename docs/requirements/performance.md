@@ -81,7 +81,7 @@ This document defines the performance behavior using the **EARS** (Easy Approach
 <!-- @REQ-PF-009@ (FROM: @H-017@) -->
 ### REQ-PF-009: Unverified Obstacle Notification
 
-**Requirement:** While a pilot-defined obstacle is active, the system shall return a Notification: `{ "id": "WARN-PF-001", "severity": "WARNING", "message": "Unverified Obstacle Data", "context": "Performance.Obstacles" }`.
+**Requirement:** While a pilot-defined obstacle is active, the system shall emit a persistent WARNING notification (`WARN-PF-001`) alerting the pilot that unverified obstacle data is in use.
 **Rationale:** Disclaims liability for user-measured Google Maps distances/heights.
 **Priority:** P1
 **Status:** Approved
@@ -130,7 +130,7 @@ This document defines the performance behavior using the **EARS** (Easy Approach
 <!-- @REQ-PF-015@ (FROM: @H-008@) -->
 ### REQ-PF-015: Runway Insufficient Notification
 
-**Requirement:** If the Operational Required Distance exceeds the published Available Distance (TORA/LDA), the system shall return a Notification: `{ "id": "CRIT-PF-002", "severity": "CRITICAL", "message": "Runway Insufficient", "context": "Performance.RunwayLength" }`.
+**Requirement:** If the Operational Required Distance exceeds the published Available Distance (TORA/LDA), the system shall emit a CRITICAL notification (`CRIT-PF-002`) alerting the pilot that the runway is insufficient for the required distance.
 **Rationale:** The ultimate purpose of the tool.
 **Priority:** P1
 **Status:** Approved
@@ -139,7 +139,7 @@ This document defines the performance behavior using the **EARS** (Easy Approach
 <!-- @REQ-PF-016@ (FROM: @H-008@, @H-016@) -->
 ### REQ-PF-016: Low Safety Factor Warning
 
-**Requirement:** If the user-selected Operational Safety Factor is lower than the greater of the POH-mandated factor and the regulatory baseline (Takeoff: 1.25, Landing: 1.43), then the system shall return a Notification: `{ "id": "WARN-PF-002", "severity": "WARNING", "message": "Safety Factor Low", "context": "Performance.SafetyFactor" }`.
+**Requirement:** If the user-selected Operational Safety Factor is lower than the greater of the POH-mandated factor and the regulatory baseline (Takeoff: 1.25, Landing: 1.43), then the system shall emit a WARNING notification (`WARN-PF-002`) alerting the pilot that the safety factor is below the recommended minimum.
 **Rationale:** Pilot's final descision of safety factors with warning systems if standard safety margins decrease.
 **Priority:** P1
 **Status:** Approved

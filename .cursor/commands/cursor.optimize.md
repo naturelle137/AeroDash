@@ -1,0 +1,48 @@
+---
+description: Optimize Cursor commands and rules; token-friendly; enforcement-safe
+argument-hint: <description> [--ref-exceptions <exceptions>]
+---
+
+- `cmd`: `/cursor.optimize`
+- `apply`: `@.cursor/rules/cursor-authoring.mdc`
+- `goal`: compress existing command/rule artifacts without enforcement loss
+- `input`: `$ARGUMENTS`
+- `input.parse`:
+  - required: `<description>`
+  - optional: `--ref-exceptions <exceptions>`
+- `input.invalid`: return only `Usage: /cursor.optimize <description> [--ref-exceptions <exceptions>]`
+- `refs.allowed`:
+  - explicit user refs
+  - `--ref-exceptions`
+- `resolve.targets`:
+  - explicit file refs first
+  - name matches second
+  - nearest semantic matches last
+- `resolve.blocked`: no unambiguous target -> ask minimal clarification
+- `read.before-write`:
+  - target files
+  - applied rules
+  - allowed refs only
+- `optimize.order`:
+  - remove repeated style instructions
+  - remove rule-covered text from commands
+  - collapse overlapping constraints
+  - shorten wording
+  - keep hard gates + output contracts explicit
+- `preserve`:
+  - command purpose
+  - rule scope
+  - stop conditions
+  - required inputs
+  - enforcement strength
+- `forbid`:
+  - semantic drift
+  - weaker gating
+  - dropped edge-case protection
+  - duplicate carryover
+- `stop`:
+  - ambiguity on preserved intent
+  - optimization requires unapproved ref
+- `final`:
+  - edit files directly
+  - concise summary only

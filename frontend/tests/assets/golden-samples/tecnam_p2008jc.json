@@ -1,0 +1,74 @@
+{
+  "id": "358bbe7d-f5f5-4238-a6b3-4e4ba868ee0f",
+  "ownerId": "00000000-0000-0000-0000-000000000000",
+  "registration": "D-EBPF",
+  "manufacturer": "Tecnam",
+  "model": "P2008JC",
+  "icaoTypeDesignator": "P208",
+  "sourceUnit": "kg",
+  "referenceDatumDescription": "Leading edge of wing",
+  "referenceDatumLocation": "Leading edge",
+  "weighingReports": [
+    {
+      "bem": 433,
+      "emptyCg": 1.877,
+      "weighingDate": "2026-03-05",
+      "validFrom": "2026-03-05"
+    }
+  ],
+  "loadPoints": [
+    {
+      "name": "Seats",
+      "arm": 1.8,
+      "armLookup": null,
+      "operationalLimit": 200,
+      "defaultQuantity": 0,
+      "unit": "kg",
+      "allowableCategories": null,
+      "fuelTank": null
+    },
+    {
+      "name": "Baggage",
+      "arm": 2.417,
+      "armLookup": null,
+      "operationalLimit": 20,
+      "defaultQuantity": 0,
+      "unit": "kg",
+      "allowableCategories": null,
+      "fuelTank": null
+    },
+    {
+      "name": "Fuel Tanks",
+      "arm": 2.209,
+      "armLookup": null,
+      "operationalLimit": 120,
+      "defaultQuantity": 0,
+      "unit": "l",
+      "allowableCategories": null,
+      "fuelTank": {
+        "unusableFuel": 4,
+        "permissibleFuelTypes": ["MoGas", "AvGas 100LL", "AvGas UL91"],
+        "burnSequences": [
+          {
+            "sequenceName": "Standard",
+            "ordinalPosition": 1
+          }
+        ]
+      }
+    }
+  ],
+  "certificationCategories": [
+    {
+      "category": "Normal",
+      "mtom": 650,
+      "mzfm": null,
+      "graphType": "arm",
+      "envelope": [
+        { "armOrMoment": 1.841, "mass": 433 },
+        { "armOrMoment": 1.978, "mass": 433 },
+        { "armOrMoment": 1.978, "mass": 650 },
+        { "armOrMoment": 1.841, "mass": 650 }
+      ]
+    }
+  ]
+}

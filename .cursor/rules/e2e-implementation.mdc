@@ -1,0 +1,59 @@
+---
+alwaysApply: false
+---
+
+- criticality: safety-critical aviation
+- mode: strict correctness
+- verbosity: no explanation unless asked
+- feature-dir: `frontend/tests/e2e/features/{phase}/`
+- step-path-phase: `frontend/tests/e2e/steps/{phase}.steps.ts`
+- step-path-common: `frontend/tests/e2e/steps/common.steps.ts`
+- generated-path: `.features-gen/`
+- generated-edit: forbidden
+- step-file-count: 1 per domain group
+- step-file-count-common: 1 shared file
+- step-file-sharing: multi-feature allowed
+- step-sharing-threshold: `>=2` phases -> common
+- step-sharing-threshold: `1` phase -> phase file
+- step-placement-common: shared reusable steps only
+- step-placement-phase: phase-scoped steps only
+- step-definition-uniqueness: global
+- duplicate-step-definitions: forbidden
+- feature-step-sources: common + matching phase file
+- feature-without-steps: invalid
+- phase-slugs: STC only
+- technical-feature-dir: `frontend/tests/e2e/features/technical/`
+- import-required: `import { expect } from '@playwright/test'`
+- import-required: `import { createBdd } from 'playwright-bdd'`
+- import-required: `const { Given, When, Then } = createBdd()`
+- import-forbidden: BDD from `@playwright/test`
+- import-forbidden: any `frontend/src/` import
+- then-expect: required
+- assertions: locator assertions only
+- assertion-preferred: `toBeVisible`
+- assertion-preferred: `toHaveText`
+- assertion-absence: `.toHaveCount(0)`
+- assertion-forbidden: `toBeTruthy`
+- assertion-forbidden: `toBeDefined`
+- wait-forbidden: `page.waitForTimeout`
+- locator-order: `getByRole` > `getByLabel` > `getByText` > `data-testid` > CSS
+- locator-forbidden: visual classes
+- locator-forbidden: generated classes
+- locator-forbidden: XPath
+- css-usage: semantic only
+- css-comment: required
+- state-sharing: forbidden
+- helpers: pure only
+- step-calls: direct step-to-step forbidden
+- business-e2e: real UI only
+- business-e2e: mocking forbidden
+- business-e2e: interception forbidden
+- technical-e2e: `page.request` allowed
+- technical-e2e: console checks allowed
+- technical-e2e: full UI flow optional
+- concern-mixing: forbidden
+- orphan-steps: forbidden
+- missing-implementations: forbidden
+- step-match: exact
+- step-match-case: case-sensitive
+- step-params: `{string}` | `{int}` | `{float}` only

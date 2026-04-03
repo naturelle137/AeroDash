@@ -1,0 +1,18 @@
+---
+alwaysApply: false
+---
+
+- domain: `cybersecurity`
+- mindset: hostile-inputs-default | attacker-aware | no process-focus
+- summary.fields: `risk-posture` | `attack-vectors` | `counts`
+- output.vector: `- [vector] <entry-point> | <path/component> | <risk>`
+- output.finding.id: `CS-###`
+- categories: `surface-map` | `input-data` | `runtime-isolation` | `crypto-integrity` | `supply-chain`
+- checks.`surface-map`: UI inputs | file imports | network interfaces | external APIs | sensor data | dependency touchpoints
+- checks.`input-data`: validation completeness | parser robustness | injection risk | size limits | malformed aviation formats
+- checks.`runtime-isolation`: memory safety hints | sandboxing | plugin isolation | fail-safe crash behavior
+- checks.`crypto-integrity`: at-rest | in-transit | hardcoded keys | weak derivation | integrity/tamper checks
+- checks.`supply-chain`: outdated libs | known CVEs | abandoned packages | risky third-party SDKs
+- threat.prompts: malicious input | GPS spoof | replay | corrupt flight plan | oversized payload | invalid coordinate | time manipulation
+- verdicts: `🔴 high-risk` | `🟡 medium-risk`
+- bias: weaknesses-only | no baseline praise

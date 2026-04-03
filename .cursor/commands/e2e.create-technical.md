@@ -1,0 +1,40 @@
+---
+description: Generate technical or smoke E2E slice
+argument-hint: <system behavior description>
+---
+
+- `role`: BDD author; safety-critical aviation
+- `goal`: technical E2E slice; `.feature` + `.steps.ts` + registry
+- `apply.feature`: `@.cursor/rules/gherkin.mdc`; `@.cursor/rules/traceability-e2e.mdc`
+- `apply.ts`: `@.cursor/rules/e2e-implementation.mdc`
+- `input`: `$ARGUMENTS`; natural-language system behavior
+- `input.examples`: `/e2e.create-technical mass balance page loads without errors` | `/e2e.create-technical service worker registers on application startup` | `/e2e.create-technical API health endpoint returns 200`
+- `stop.no-args`: `Usage: /e2e.create-technical <system behavior description>`
+- `classify.smoke`: route/page availability; startup without fatal errors; critical UI visible; primary route reachable
+- `classify.technical`: health/status endpoint; service worker; console health; browser API; background sync/load
+- `classify.tie-break`: ambiguous -> `@smoke`
+- `stop.redirect`: business outcome | persona language | user-journey phrasing | aviation decision outcome
+- `stop.redirect-msg`: `This describes a business E2E scenario. Use /e2e.create-business <UJ-ID>.`
+- `forbid`: UJ input; `@UJ-*`; `@e2e`; business-domain validation; business scenario generation
+- `discover.1`: choose registry `trace/e2e/smoke.yaml` | `trace/e2e/technical.yaml`; create if absent
+- `discover.2`: next sequential ID from registry; zero-pad; no reuse; deleted skipped
+- `discover.3`: `@smoke` -> `E2E-SMOKE-{NNN}`; `@technical-e2e` -> `E2E-TECH-{NNN}`
+- `discover.4`: inspect `frontend/tests/e2e/steps/technical/`; prefer existing domain step file
+- `feature.path`: `frontend/tests/e2e/features/technical/{name}.feature`
+- `feature.scope`: system-level language only
+- `feature.voice`: `the application` | `the runtime` | `the service worker` | `the API endpoint`
+- `feature.tags.smoke`: trace `# @E2E-SMOKE-{NNN}@ (TECHNICAL)`; exec `@smoke @phase-D`
+- `feature.tags.technical`: trace `# @E2E-TECH-{NNN}@ (TECHNICAL)`; exec `@technical-e2e @phase-D @module-sys`
+- `feature.shape`: `Feature` + traced `Scenario` + `Given/When/Then`; outcome-focused titles
+- `steps.path`: existing technical domain file | `frontend/tests/e2e/steps/technical/{domain}.steps.ts`
+- `steps.sync`: every feature step -> exact handler text; case-sensitive; typed params only
+- `steps.allowed`: `page.goto` smoke route checks; `page.request` endpoint checks; console capture; `page.evaluate` browser API checks
+- `steps.forbid`: hardcoded aviation domain values
+- `registry.path`: `trace/e2e/smoke.yaml` | `trace/e2e/technical.yaml`
+- `registry.entry`: `E2E-{DOMAIN}-{NNN}` + `title` + feature file path
+- `output.1`: classification
+- `output.2`: feature path + full content
+- `output.3`: steps path + full content
+- `output.4`: registry entry
+- `output.5`: assigned ID
+- `output.style`: no preamble; no commentary

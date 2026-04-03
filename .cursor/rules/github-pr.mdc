@@ -1,0 +1,41 @@
+---
+alwaysApply: false
+---
+
+# GitHub PR Workflow
+
+- repo: `naturelle137/AeroDash`
+- tools.github: `get_me` `list_branches` `search_pull_requests` `create_pull_request` `update_pull_request`
+- template: `.github/pull_request_template.md`; preserve headings, order, and checklists
+- template.issue_state: in `### Issue State Management`, delete the bullet that does not match PR base (`develop` vs `main`); keep the section
+- template.no_stray_markers: remove placeholder `-` / empty list lines under `### Related Issues` when filling refs
+- template.na.allow: `N/A` and Reason only on rows that literally include `OR N/A` in the template; forbid N/A on Target Branch, DoD, self-review, ADR, and Safety bullets — verify or answer honestly
+- template.na.checked: if disposition for an `OR N/A` row is N/A, fill Reason and set `[x]`; do not leave `[ ]`
+- template.checklist.complete: every checkbox dispositioned: `[x]` after work or valid N/A+Reason on allowed rows; do not leave `[ ]` from skipped steps (e.g. traceability matrix: perform check, then `[x]`); never `[x]` without work or valid N/A per `template.na.*`
+- template.post_merge: remaining `If merging to <base>…` line may stay `[ ]` until merge; not lazy skip
+- branch.source.allowed: `feature/*` `release/*` `hotfix/*`
+- branch.source.block: `main` `develop` detached invalid names
+- branch.target.`feature/*`: `develop` only
+- branch.target.`release/*`: `main` | `develop`
+- branch.target.`hotfix/*`: `main` | `develop`
+- branch.keyword.`develop`: `Ref #...` | `Related to #...`; never `Closes #...` | `Fixes #...`
+- branch.keyword.`main`: `Closes #...` | `Fixes #...` allowed
+- issue.refs.commit.prefer: reuse valid issue refs from PR commit messages
+- issue.refs.`develop`: only issues actually worked in this PR; prefer explicit refs in `<target>..HEAD` commits,reference as `Ref <issue number>`
+- issue.refs.`develop`.fallback: if worked issues are not explicit in PR commits, ask user; never add inferred-only, newly created, or agent-created issues
+- issue.refs.`main`: only issues this PR should close, reference as `Closed <issue number>`
+- issue.refs.`main`.filter: include only when label=`ready` AND project `AeroDash Dashboard` status=`Ready for Release`; both required
+- pr.duplicate.check: exact open PR match on repo + `head:<branch>` + `base:<target>`
+- pr.duplicate.on_match: update existing PR; never create a duplicate
+- changelog.file: `CHANGELOG.md`
+- changelog.default: `yes`
+- changelog.input: consider the full source-branch change set, including commit range vs target branch, diff, touched docs/code, and issue context
+- changelog.target.`develop`: update `## [Unreleased]`
+- changelog.target.`main`: use existing release section; if source is `release/v*`, version is branch suffix after `release/v`
+- changelog.section.allowed: `### Added` `### Changed` `### Fixed` `### Engineering`
+- changelog.write: one-line entries; short; precise; no commit list; no per-commit narration; no small-detail prose; no copied code/file content
+- changelog.forbid: duplicate version header | duplicate entry | duplicate section | long prose | minor-detail narration | copied source-file content | commit list | per-commit summary | commits as single source | github issue ref
+- changelog.targeting: user-facing product -> `Added|Changed|Fixed`; tooling/docs/process -> `Engineering`
+- changelog.main.block: if target is `main` and version cannot be determined safely, stop and ask
+- temp.dir: `.tmp/` only if a temporary file is needed
+- final.style: no explanation | no justification

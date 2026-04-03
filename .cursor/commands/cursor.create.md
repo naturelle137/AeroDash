@@ -1,0 +1,46 @@
+---
+description: Create Cursor commands and rules; compact; self-contained
+argument-hint: <description> [--ref-exceptions <exceptions>]
+---
+
+- `cmd`: `/cursor.create`
+- `apply`: `@.cursor/rules/cursor-authoring.mdc`
+- `goal`: create command/rule artifacts from `description`
+- `input`: `$ARGUMENTS`
+- `input.parse`:
+  - required: `<description>`
+  - optional: `--ref-exceptions <exceptions>`
+- `input.invalid`: return only `Usage: /cursor.create <description> [--ref-exceptions <exceptions>]`
+- `refs.allowed`:
+  - explicit user refs
+  - `--ref-exceptions`
+  - files created in same task
+- `detect.target`: `command` | `rule` | both
+- `detect.blocked`: target type unclear -> ask minimal clarification
+- `read.before-write`:
+  - nearest matching `.cursor/commands/*.md`
+  - nearest matching `.cursor/rules/*.mdc`
+  - allowed refs only
+- `create.command`:
+  - path: `.cursor/commands/<name>.md`
+  - slash-name: filename dots -> `/`
+  - frontmatter: `description` + `argument-hint` when inputs exist
+  - content: operation-specific only
+- `create.rule`:
+  - path: `.cursor/rules/<name>.mdc`
+  - frontmatter: `description` + `alwaysApply|globs`
+  - content: shared policy only
+- `structure`:
+  - common policy -> rule
+  - task delta -> command
+  - no duplicated constraints across created files
+- `self-contained`:
+  - default: complete without refs
+  - allowed refs: exception, not baseline
+- `stop`:
+  - missing rule scope
+  - missing target type
+  - missing allowed ref required for correctness
+- `final`:
+  - create files directly
+  - concise summary only

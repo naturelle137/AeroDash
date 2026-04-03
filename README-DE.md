@@ -7,6 +7,7 @@
 * [Haftungsausschluss](#disclaimer)
 * [Projektphilosophie](#philosophy)
 * [Verwendungszweck & Systemgrenzen](#intendedUse)
+* [Lizenz](#license)
 
 <a name="disclaimer"></a>
 
@@ -104,3 +105,12 @@ AeroDash verarbeitet Daten basierend auf Benutzereingaben. Es kann die physische
 1. Die Überprüfung, ob die Profilparameter des Flugzeugs mit dem physischen AFM/POH übereinstimmen.
 2. Sicherstellung, dass die Eingabewerte (Gewicht, Temperatur, Wind) die Realität widerspiegeln.
 3. Anwendung zusätzlicher Sicherheitsmargen, wie sie die gute Seemannschaft (Airmanship) erfordert.
+
+<a name="license"></a>
+
+## Lizenz
+
+Für AeroDash gilt **Doppellizenzierung**:
+
+* **Quellcode** (z. B. die Anwendung unter `frontend/`, Skripte und Konfiguration zum Bauen und Ausführen der Software) steht unter der **[European Union Public Licence (EUPL) v. 1.2](LICENSE)** (englischer Vertragstext).
+* **Dokumentation** (Markdown unter `docs/` sowie Markdown im Repository-Root wie dieses README, Anforderungen, Journeys und Leitfäden) steht unter **[Creative Commons Attribution-ShareAlike 4.0 International](LICENSE-DOCUMENTATION)** (CC BY-SA 4.0).
