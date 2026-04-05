@@ -29,6 +29,8 @@ All merges into `develop` or `main` must utilize Pull Requests, complete with ne
 
 For a detailed view of the rules, naming conventions, and exact CLI commands to support this workflow, refer to [Developer Branching Strategy & Workflow Guide](../development/BRANCHING_STRATEGY.md).
 
+This includes allowing dependency update automation (e.g. `dependabot/*`) to open PRs against `develop` as long as the required checks pass.
+
 ## Consequences
 
 ### Positive
