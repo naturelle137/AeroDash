@@ -101,24 +101,12 @@ The brand and primary action color is **Teal**, chosen for its high visibility a
 
 **Primitive Tokens (The Palette):**
 
-- `--color-teal-500`: `#14b8a6` (Primary Light/Dark)
-- `--color-teal-600`: `#0d9488` (Hover/Active)
-- `--color-slate-900`: `#0f172a` (App Background Dark Mode)
-- `--color-slate-50`: `#f8fafc` (App Background Light Mode)
-- `--color-red-500`: `#ef4444` (Critical)
-- `--color-amber-500`: `#f59e0b` (Warning)
-- `--color-emerald-500`: `#10b981` (Safe/Success)
+[TODO]
 
 **Semantic Tokens (The Application):**
 UI components must exclusively use semantic tokens. This allows seamless Dark Mode flipping and guarantees WCAG AAA contrast ratios.
 
-- `--text-primary`: Pure White (`#ffffff`) in Dark Mode, Slate-900 in Light Mode.
-- `--text-muted`: Slate-400 in Dark, Slate-500 in Light.
-- `--bg-surface`: Slate-800 in Dark Mode, White (`#ffffff`) in Light Mode (Cards/Modals).
-- `--color-status-critical`: Mapped to `--color-red-500`.
-- `--color-status-warning`: Mapped to `--color-amber-500`.
-- `--color-status-safe`: Mapped to `--color-emerald-500`.
-- `--color-action-primary`: Mapped to `--color-teal-500`.
+[TODO]
 
 ### 5.2 Typography
 
