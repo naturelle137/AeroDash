@@ -34,6 +34,13 @@ develop                    ← Integration branch for next release
 * **Naming Convention:** `feature/issue-<number>` or `feature/<short-description>`
 * **Purpose:** Developing new features AND fixing non-critical bugs for an upcoming release. Always use a Pull Request to merge back into `develop`.
 
+### 1a. Dependency Update Branches (`dependabot/`)
+
+* **Branched from:** `develop` *(automated)*
+* **Must merge back into:** `develop`
+* **Naming Convention:** `dependabot/*` *(GitHub-native Dependabot naming; not configurable to `feature/*`)*
+* **Purpose:** Automated dependency updates. Treated like feature branches: must go through a PR and pass required checks before merging into `develop`.
+
 ### 2. Release Branches (`release/`)
 
 * **Branched from:** `develop`
@@ -158,6 +165,15 @@ Configure the following rules in **Settings → Branches → Branch protection r
 * ✅ Require pull request reviews
 * ✅ Require status checks to pass
 * ❌ Allow force pushes (for rebasing feature branches)
+
+#### Allow Dependabot to merge into `develop`
+
+In GitHub **branch protection** / **rulesets**, ensure PRs from `dependabot/*` are permitted to merge into `develop`:
+
+* **Base branch pattern**: `develop`
+* **Allowed source branches** (for PRs): include `feature/*`, `release/*`, `hotfix/*`, and **`dependabot/*`**
+* **Required checks**: keep the same checks as other PRs into `develop`
+* **Bypass / exceptions**: optional, but if used, apply only to Dependabot and only for `develop` (never for `main`)
 
 ### `release/*`
 
