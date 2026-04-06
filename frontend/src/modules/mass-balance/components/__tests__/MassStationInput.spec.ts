@@ -11,6 +11,7 @@ function makeStation(overrides: Partial<StationInput> = {}): StationInput {
     verified: false,
     mandatory: true,
     touched: true,
+    hasError: false,
     ...overrides,
   }
 }

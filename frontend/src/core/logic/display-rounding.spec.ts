@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest'
-import { formatMassConservative, formatFuelConservative, formatArm } from './display-rounding'
+import {
+  formatMassConservative,
+  formatFuelConservative,
+  formatArm,
+  getDecimalPrecision,
+} from './display-rounding'
 
 describe('formatMassConservative', () => {
   // @UT-UQ-CORE-001@ (FROM: @IMP-SYS-CORE-007@)
@@ -73,5 +78,52 @@ describe('formatArm', () => {
     // Key: not applying ceil or floor
     const result = formatArm(1.8775, 3)
     expect(['1.877', '1.878']).toContain(result)
+  })
+})
+
+describe('getDecimalPrecision', () => {
+  // @UT-UQ-CORE-013@ (FROM: @IMP-SYS-CORE-008@)
+  it('returns 3 decimal places for metres', () => {
+    expect(getDecimalPrecision('m')).toBe(3)
+  })
+
+  // @UT-UQ-CORE-014@ (FROM: @IMP-SYS-CORE-008@)
+  it('returns 1 decimal place for centimetres', () => {
+    expect(getDecimalPrecision('cm')).toBe(1)
+  })
+
+  // @UT-UQ-CORE-015@ (FROM: @IMP-SYS-CORE-008@)
+  it('returns 0 decimal places for millimetres', () => {
+    expect(getDecimalPrecision('mm')).toBe(0)
+  })
+
+  // @UT-UQ-CORE-016@ (FROM: @IMP-SYS-CORE-008@)
+  it('returns 2 decimal places for inches', () => {
+    expect(getDecimalPrecision('in')).toBe(2)
+  })
+
+  // @UT-UQ-CORE-017@ (FROM: @IMP-SYS-CORE-008@)
+  it('returns 1 decimal place for kg', () => {
+    expect(getDecimalPrecision('kg')).toBe(1)
+  })
+
+  // @UT-UQ-CORE-018@ (FROM: @IMP-SYS-CORE-008@)
+  it('returns 1 decimal place for lb', () => {
+    expect(getDecimalPrecision('lb')).toBe(1)
+  })
+
+  // @UT-UQ-CORE-019@ (FROM: @IMP-SYS-CORE-008@)
+  it('returns 1 decimal place for litres', () => {
+    expect(getDecimalPrecision('L')).toBe(1)
+  })
+
+  // @UT-UQ-CORE-020@ (FROM: @IMP-SYS-CORE-008@)
+  it('returns 1 decimal place for US gallons', () => {
+    expect(getDecimalPrecision('gal')).toBe(1)
+  })
+
+  // @UT-UQ-CORE-021@ (FROM: @IMP-SYS-CORE-008@)
+  it('returns 1 decimal place for unknown unit (safe default)', () => {
+    expect(getDecimalPrecision('xyz')).toBe(1)
   })
 })

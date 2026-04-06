@@ -209,10 +209,12 @@ function onAircraftSelected(event: Event): void {
         <!-- Left column: station inputs -->
         <section class="layout__inputs">
           <InputGroupCard>
+            <!-- @IMP-MB-UI-007@ (FROM: @REQ-UQ-005@) -->
             <MassStationInput
               v-for="station in stations"
               :key="station.index"
               :station="station"
+              :unit="store.aircraft?.loadPoints[station.index]?.unit"
               :disabled="viewModel.inputsDisabled"
               @update:weight="onStationWeightChange(station.index, $event)"
             />

@@ -4,6 +4,7 @@ import type { StationInput } from '@/modules/mass-balance/stores/mass-balance.ty
 const props = defineProps<{
   station: StationInput
   disabled?: boolean
+  unit?: string
 }>()
 
 const emit = defineEmits<{
@@ -74,6 +75,9 @@ function decrement(): void {
         +
       </button>
     </div>
+
+    <!-- @IMP-MB-UI-007@ (FROM: @REQ-UQ-005@) -->
+    <span v-if="unit" class="mass-station-input__unit" aria-label="unit">{{ unit }}</span>
   </div>
 </template>
 
@@ -161,6 +165,13 @@ function decrement(): void {
 .mass-station-input__field:focus {
   outline: 2px solid var(--color-focus, #1976d2);
   outline-offset: -2px;
+}
+
+.mass-station-input__unit {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary, #666);
+  min-width: 1.75rem;
+  text-align: left;
 }
 
 .mass-station-input__field::-webkit-inner-spin-button,

@@ -430,7 +430,7 @@ SYS Core — SI Unit Normalization (Unit)
     files:
       - frontend/src/core/logic/unit-normalization.spec.ts
 
-SYS Core — Conservative Display Rounding (Unit)
+SYS Core — Decimal Precision Policy (Unit)
   UT-UQ-CORE-001
     title: formatMassConservative rounds mass UP at 1 decimal place (ceil)
     impl:
@@ -512,6 +512,69 @@ SYS Core — Conservative Display Rounding (Unit)
     title: formatArm uses standard rounding (not conservative) for arm
     impl:
       - IMP-SYS-CORE-007
+    files:
+      - frontend/src/core/logic/display-rounding.spec.ts
+
+  UT-UQ-CORE-013
+    title: getDecimalPrecision returns 3 for metres
+    impl:
+      - IMP-SYS-CORE-008
+    files:
+      - frontend/src/core/logic/display-rounding.spec.ts
+
+  UT-UQ-CORE-014
+    title: getDecimalPrecision returns 1 for centimetres
+    impl:
+      - IMP-SYS-CORE-008
+    files:
+      - frontend/src/core/logic/display-rounding.spec.ts
+
+  UT-UQ-CORE-015
+    title: getDecimalPrecision returns 0 for millimetres
+    impl:
+      - IMP-SYS-CORE-008
+    files:
+      - frontend/src/core/logic/display-rounding.spec.ts
+
+  UT-UQ-CORE-016
+    title: getDecimalPrecision returns 2 for inches
+    impl:
+      - IMP-SYS-CORE-008
+    files:
+      - frontend/src/core/logic/display-rounding.spec.ts
+
+  UT-UQ-CORE-017
+    title: getDecimalPrecision returns 1 for kg
+    impl:
+      - IMP-SYS-CORE-008
+    files:
+      - frontend/src/core/logic/display-rounding.spec.ts
+
+  UT-UQ-CORE-018
+    title: getDecimalPrecision returns 1 for lb
+    impl:
+      - IMP-SYS-CORE-008
+    files:
+      - frontend/src/core/logic/display-rounding.spec.ts
+
+  UT-UQ-CORE-019
+    title: getDecimalPrecision returns 1 for litres
+    impl:
+      - IMP-SYS-CORE-008
+    files:
+      - frontend/src/core/logic/display-rounding.spec.ts
+
+  UT-UQ-CORE-020
+    title: getDecimalPrecision returns 1 for US gallons
+    impl:
+      - IMP-SYS-CORE-008
+    files:
+      - frontend/src/core/logic/display-rounding.spec.ts
+
+  UT-UQ-CORE-021
+    title: getDecimalPrecision returns 1 for unknown unit (safe default)
+    impl:
+      - IMP-SYS-CORE-008
     files:
       - frontend/src/core/logic/display-rounding.spec.ts
 

@@ -24,6 +24,8 @@
 
 import { defineStore } from 'pinia'
 import { calculateMassBalance } from '@/core/adapters/mass-balance.adapter'
+import { normalizeMassToKg, normalizeArmToM } from '@/core/logic/unit-normalization'
+import type { MassUnit, ArmUnit } from '@/core/domain/units'
 import type {
   MassBalanceState,
   AircraftContext,
@@ -305,6 +307,12 @@ export const useMassBalanceStore = defineStore('massBalance', {
         return
       }
 
+      // @IMP-MB-STORE-016@ (FROM: @REQ-AD-014@, @REQ-SYS-003@)
+      // Values stored at rest in their original source unit (per REQ-AD-014).
+      // Normalize to SI (kg, m) at the adapter boundary before passing to the
+      // math core, using the load point's unit field and the profile's sourceUnit.
+      const sourceUnit = this.aircraft!.sourceUnit as MassUnit
+
       const input: MathCoreInput = {
         stations: this.availableStations
           .filter((s) => {
@@ -313,21 +321,22 @@ export const useMassBalanceStore = defineStore('massBalance', {
           })
           .map((s) => {
             const def = this.aircraft!.loadPoints[s.index]!
+            const massUnit = (def.unit || sourceUnit) as MassUnit
+            const armUnit = 'm' as ArmUnit
             return {
               index: s.index,
-              mass: s.weight,
-              arm: def.arm,
+              mass: normalizeMassToKg(s.weight, massUnit),
+              arm: def.arm !== null ? normalizeArmToM(def.arm, armUnit) : null,
               armLookup: def.armLookup,
             }
           }),
-        basicEmptyMass: activeReport.basicEmptyMass,
+        basicEmptyMass: normalizeMassToKg(activeReport.basicEmptyMass, sourceUnit),
         emptyCenterOfGravity: activeReport.emptyCg,
         maxTakeoffMass: catDef.maxTakeoffMass,
         maxZeroFuelMass: catDef.maxZeroFuelMass,
         envelope: catDef.envelope,
         graphType: catDef.graphType,
         fuelStations: this.availableStations
-          // .filter((_s, _i, _arr) => {
           .filter((_s) => {
             const def = this.aircraft!.loadPoints[_s.index]
             return def && def.fuelTank !== null
@@ -335,12 +344,14 @@ export const useMassBalanceStore = defineStore('massBalance', {
           .map((s) => {
             const def = this.aircraft!.loadPoints[s.index]!
             const ft = def.fuelTank!
+            const massUnit = (def.unit || sourceUnit) as MassUnit
+            const armUnit = 'm' as ArmUnit
             return {
               index: s.index,
-              mass: s.weight,
-              arm: def.arm,
+              mass: normalizeMassToKg(s.weight, massUnit),
+              arm: def.arm !== null ? normalizeArmToM(def.arm, armUnit) : null,
               armLookup: def.armLookup,
-              unusableFuel: ft.unusableFuel,
+              unusableFuel: normalizeMassToKg(ft.unusableFuel, massUnit),
               burnSequences: ft.burnSequences,
             }
           }),
@@ -425,6 +436,19 @@ export const useMassBalanceStore = defineStore('massBalance', {
               dismissible: true,
             }
           case 'INVALID_INPUT':
+            // @IMP-MB-STORE-017@ (FROM: @REQ-UI-008@, @REQ-SYS-012@)
+            // OUT_OF_RANGE is an operational range advisory (soft WARNING);
+            // all other INVALID_INPUT codes are hard validation ERRORs.
+            if (v.code === 'OUT_OF_RANGE') {
+              return {
+                id: 'WARN-UI-001',
+                severity: 'WARNING',
+                message: `${v.field ?? 'Input'} is out of standard operational range`,
+                context: 'MassBalance.Validation',
+                persistent: false,
+                dismissible: true,
+              }
+            }
             return {
               id: 'ERR-SYS-001',
               severity: 'ERROR',

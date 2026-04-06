@@ -143,7 +143,7 @@ This document defines the detailed aircraft data behavior using the **EARS** (Ea
 **Requirement:** The system shall store aircraft profile data (POH/AFM values and units of the values) in the original unit of the manufacturer's documentation.
 **Rationale:** Prevent calculation errors due to using wrong units.
 **Priority:** P1
-**Status:** Approved
+**Status:** Implemented
 **Design Reference:** n/a
 
 <!-- @REQ-AD-015@ -->

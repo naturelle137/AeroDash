@@ -56,3 +56,35 @@ export function formatFuelConservative(value: number, decimals: number = 1): str
 export function formatArm(value: number, decimals: number = 3): string {
   return value.toFixed(decimals)
 }
+
+// @IMP-SYS-CORE-008@ (FROM: @REQ-UQ-003@)
+/**
+ * Return the display decimal precision for a given unit symbol.
+ *
+ * Policy (REQ-UQ-003):
+ *   - m   → 3 (physical resolution ~1 mm)
+ *   - cm  → 1
+ *   - mm  → 0
+ *   - in  → 2
+ *   - kg, lb, L, gal → 1
+ *   - All other units → 1 (safe default)
+ */
+export function getDecimalPrecision(unit: string): number {
+  switch (unit) {
+    case 'm':
+      return 3
+    case 'cm':
+      return 1
+    case 'mm':
+      return 0
+    case 'in':
+      return 2
+    case 'kg':
+    case 'lb':
+    case 'L':
+    case 'gal':
+      return 1
+    default:
+      return 1
+  }
+}

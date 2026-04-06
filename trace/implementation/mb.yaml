@@ -251,6 +251,22 @@ MB Store - Error Flag Derivation
     files:
       - frontend/src/modules/mass-balance/stores/mass-balance.store.ts
 
+  IMP-MB-STORE-016
+    title: SI Normalization at Adapter Boundary using load-point unit field
+    req:
+      - REQ-AD-014
+      - REQ-SYS-003
+    files:
+      - frontend/src/modules/mass-balance/stores/mass-balance.store.ts
+
+  IMP-MB-STORE-017
+    title: OUT_OF_RANGE Violation Mapped as WARNING (Soft Operational Range Advisory)
+    req:
+      - REQ-UI-008
+      - REQ-SYS-012
+    files:
+      - frontend/src/modules/mass-balance/stores/mass-balance.store.ts
+
 MB UI Components
   IMP-MB-UI-001
     title: CG Envelope Polygon + Mass Point Markers Rendering
@@ -294,3 +310,11 @@ MB UI Components
       - REQ-UQ-004
     files:
       - frontend/src/modules/mass-balance/components/MassStationInput.vue
+
+  IMP-MB-UI-007
+    title: Per-Station Unit Label from LoadPointDefinition.unit
+    req:
+      - REQ-UQ-005
+    files:
+      - frontend/src/modules/mass-balance/components/MassStationInput.vue
+      - frontend/src/modules/mass-balance/views/MassBalanceView.vue

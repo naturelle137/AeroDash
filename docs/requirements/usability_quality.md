@@ -30,7 +30,7 @@ This document defines the usability & quality behavior using the **EARS** (Easy 
 **Requirement:** The system shall format numerical values with a decimal precision appropriate to the active unit to ensure a physical resolution of at least 1mm for lengths and 0.1 units for mass/volume. (Standard: m=3, cm=1, mm=0, in=2, kg/lbs/L/gal=1)
 **Rationale:** Display precision, Prevents precision loss (e.g. 1m vs 1.001m) while avoiding clutter (e.g. 2400.000mm).
 **Priority:** P2
-**Status:** Approved
+**Status:** Implemented
 **Design Reference:** n/a
 
 <!-- @REQ-UQ-004@ -->
@@ -48,7 +48,7 @@ This document defines the usability & quality behavior using the **EARS** (Easy 
 **Requirement:** The system shall statically display the active unit of measurement adjacent to every numerical input and output field.
 **Rationale:** Prevent unit confusion (Critical Safety).
 **Priority:** P1
-**Status:** Approved
+**Status:** Implemented
 **Design Reference:** n/a
 
 ---
