@@ -150,6 +150,13 @@ export function computeMassBalanceCore(input: MathCoreInput): MathCoreResult {
   migrationPath.push({ ...landingCenterOfGravityPoint, label: 'Landing' })
 
   // @IMP-MB-CORE-008@ (FROM: @REQ-MB-006@, @REQ-MB-004@, @REQ-MB-011@)
+  // CG_OUT_OF_ENVELOPE fires only when the CG arm (or moment) violates the
+  // horizontal limits of the certified envelope — it is NOT raised for a
+  // mass-only violation already covered by MTOM_EXCEEDED. When the takeoff
+  // point is outside the envelope, a secondary check at the maximum allowable
+  // mass (clamped to maxTakeoffMass) determines whether the arm itself is
+  // within the horizontal bounds. If the arm passes at the clamped mass, the
+  // root cause is purely a mass excess → only MTOM_EXCEEDED is emitted.
   const takeoffX = input.graphType === 'arm' ? takeoffCenterOfGravityPoint.arm : takeoffMoment
   const takeoffInside = isCgWithinEnvelope(
     takeoffX,
@@ -158,7 +165,19 @@ export function computeMassBalanceCore(input: MathCoreInput): MathCoreResult {
   )
 
   if (!takeoffInside) {
-    violations.push({ type: 'CG_OUT_OF_ENVELOPE' })
+    // Determine whether the CG arm (horizontal position) is within the envelope
+    // independent of the mass-axis violation. Re-test at a mass just inside the
+    // envelope top (epsilon below maxTakeoffMass) so the ray-casting boundary
+    // condition does not produce a false-positive arm failure.
+    const massJustBelowLimit = input.maxTakeoffMass * (1 - 1e-9)
+    const armWithinHorizontalLimits = isCgWithinEnvelope(
+      takeoffX,
+      massJustBelowLimit,
+      input.envelope,
+    )
+    if (!armWithinHorizontalLimits) {
+      violations.push({ type: 'CG_OUT_OF_ENVELOPE' })
+    }
   } else {
     // @IMP-MB-CORE-010@ (FROM: @REQ-MB-011@, @REQ-FE-004@)
     // Check each segment of the migration path against the envelope.

@@ -487,6 +487,52 @@ describe('Mass & Balance Math-Core Logic', () => {
 
       expectLimitViolationState(result, scenario)
     })
+
+    // @UT-MB-CORE-095@ (FROM: @IMP-MB-CORE-003@, @IMP-MB-CORE-008@)
+    it('emits only MTOM_EXCEEDED (not CG_OUT_OF_ENVELOPE) when TOM exceeds MTOM but arm is within horizontal limits', () => {
+      const input = createMathCoreInput()
+      // payload[0] = 250 → TOM = 433+250 = 683 > 650 MTOM, arm ≈ 1.84 (within 1.841–1.978)
+      input.stations[0]!.mass = 250
+      input.fuelStations[0]!.mass = 0
+
+      const result = computeMassBalanceCore(input)
+
+      expect(result.violations.some((v) => v.type === 'MTOM_EXCEEDED')).toBe(true)
+      expect(result.violations.some((v) => v.type === 'CG_OUT_OF_ENVELOPE')).toBe(false)
+    })
+
+    // @UT-MB-CORE-096@ (FROM: @IMP-MB-CORE-003@, @IMP-MB-CORE-008@)
+    it('emits no violation when TOM is exactly at MTOM and arm is within horizontal limits', () => {
+      const input = createMathCoreInput()
+      // payload[0] = 217 → TOM = 433+217 = 650 = MTOM exactly, arm within envelope
+      input.stations[0]!.mass = 217
+      input.fuelStations[0]!.mass = 0
+
+      const result = computeMassBalanceCore(input)
+
+      expect(result.violations.some((v) => v.type === 'MTOM_EXCEEDED')).toBe(false)
+      expect(result.violations.some((v) => v.type === 'CG_OUT_OF_ENVELOPE')).toBe(false)
+    })
+
+    // @UT-MB-CORE-097@ (FROM: @IMP-MB-CORE-003@, @IMP-MB-CORE-008@)
+    it('emits both MTOM_EXCEEDED and CG_OUT_OF_ENVELOPE when TOM exceeds MTOM AND arm is outside arm limits', () => {
+      const input = createMathCoreInput({
+        envelope: [
+          { armOrMoment: 1.9, mass: 433 },
+          { armOrMoment: 1.978, mass: 433 },
+          { armOrMoment: 1.978, mass: 650 },
+          { armOrMoment: 1.9, mass: 650 },
+        ],
+      })
+      // payload[0] arm = 1.8 (forward of envelope left = 1.9), large enough to exceed MTOM
+      input.stations[0]!.mass = 300
+      input.fuelStations[0]!.mass = 0
+
+      const result = computeMassBalanceCore(input)
+
+      expect(result.violations.some((v) => v.type === 'MTOM_EXCEEDED')).toBe(true)
+      expect(result.violations.some((v) => v.type === 'CG_OUT_OF_ENVELOPE')).toBe(true)
+    })
   })
 
   describe('CG migration', () => {

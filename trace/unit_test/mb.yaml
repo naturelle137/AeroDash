@@ -298,6 +298,30 @@ MB Core Logic
     files:
       - frontend/src/core/logic/mass-balance.logic.spec.ts
 
+  UT-MB-CORE-095
+    title: Verify only MTOM_EXCEEDED emitted (not CG_OUT_OF_ENVELOPE) when TOM exceeds MTOM but arm is within horizontal envelope limits
+    impl:
+      - IMP-MB-CORE-003
+      - IMP-MB-CORE-008
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
+  UT-MB-CORE-096
+    title: Verify no violation emitted when TOM is exactly at MTOM and arm is within horizontal limits
+    impl:
+      - IMP-MB-CORE-003
+      - IMP-MB-CORE-008
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
+  UT-MB-CORE-097
+    title: Verify both MTOM_EXCEEDED and CG_OUT_OF_ENVELOPE emitted when TOM exceeds MTOM AND arm is outside horizontal limits
+    impl:
+      - IMP-MB-CORE-003
+      - IMP-MB-CORE-008
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
 MB Core - Arm Lookup (Unit)
   UT-MB-CORE-043
     title: Verify arm interpolation at midpoint between two entries
