@@ -6,7 +6,7 @@
 import type { MathCoreInput, MathCoreResult, Violation } from '../domain/mass-balance.math-types'
 import type { CgPoint, MigrationPoint } from '../domain/mass-balance.math-types'
 import { interpolateArmFromLookup } from './mb.arm-lookup'
-import { isCgWithinEnvelope } from './mb.envelope'
+import { isCgWithinEnvelope, doesSegmentCrossEnvelope } from './mb.envelope'
 
 /**
  * Synchronously calculate mass, CG, and geometric domain safety violations.
@@ -161,22 +161,32 @@ export function computeMassBalanceCore(input: MathCoreInput): MathCoreResult {
     violations.push({ type: 'CG_OUT_OF_ENVELOPE' })
   } else {
     // @IMP-MB-CORE-010@ (FROM: @REQ-MB-011@, @REQ-FE-004@)
-    // Check all intermediate burn-sequence waypoints and the landing point.
+    // Check each segment of the migration path against the envelope.
+    // A violation occurs when any waypoint is outside the envelope OR when
+    // the line segment connecting two consecutive waypoints crosses the
+    // envelope boundary — this catches paths that exit and re-enter the
+    // envelope between discrete check-points (e.g. burn-down curves).
     let migrationViolation = false
 
-    for (const wp of burnSequenceWaypoints) {
-      const x = input.graphType === 'arm' ? wp.arm : wp.arm * wp.mass
-      if (!isCgWithinEnvelope(x, wp.mass, input.envelope)) {
+    const allWaypoints = [...burnSequenceWaypoints, landingCenterOfGravityPoint]
+    let prevX = takeoffX
+    let prevMass = takeoffCenterOfGravityPoint.mass
+
+    for (const wp of allWaypoints) {
+      const wpX = input.graphType === 'arm' ? wp.arm : wp.arm * wp.mass
+
+      if (!isCgWithinEnvelope(wpX, wp.mass, input.envelope)) {
         migrationViolation = true
         break
       }
-    }
 
-    if (!migrationViolation) {
-      const landingX = input.graphType === 'arm' ? landingCenterOfGravityPoint.arm : landingMoment
-      if (!isCgWithinEnvelope(landingX, landingCenterOfGravityPoint.mass, input.envelope)) {
+      if (doesSegmentCrossEnvelope(prevX, prevMass, wpX, wp.mass, input.envelope)) {
         migrationViolation = true
+        break
       }
+
+      prevX = wpX
+      prevMass = wp.mass
     }
 
     if (migrationViolation) {

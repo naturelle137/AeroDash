@@ -81,6 +81,13 @@ MB Core Logic
     files:
       - frontend/src/core/logic/mb.arm-lookup.ts
 
+  IMP-MB-CORE-015
+    title: CG Migration Segment-Polygon Intersection Check
+    req:
+      - REQ-MB-011
+    files:
+      - frontend/src/core/logic/mb.envelope.ts
+
 MB Domain Types
   IMP-MB-CORE-013
     title: Mass & Balance Math Core Type Definitions

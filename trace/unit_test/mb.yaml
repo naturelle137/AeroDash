@@ -240,6 +240,64 @@ MB Core Logic
     files:
       - frontend/src/core/logic/mass-balance.logic.spec.ts
 
+  UT-MB-CORE-087
+    title: Verify doesSegmentCrossEnvelope returns false for segment entirely inside envelope
+    impl:
+      - IMP-MB-CORE-015
+    files:
+      - frontend/src/core/logic/mb.envelope.spec.ts
+
+  UT-MB-CORE-088
+    title: Verify doesSegmentCrossEnvelope returns false for segment entirely outside envelope
+    impl:
+      - IMP-MB-CORE-015
+    files:
+      - frontend/src/core/logic/mb.envelope.spec.ts
+
+  UT-MB-CORE-089
+    title: Verify doesSegmentCrossEnvelope returns true when segment exits through right edge
+    impl:
+      - IMP-MB-CORE-015
+    files:
+      - frontend/src/core/logic/mb.envelope.spec.ts
+
+  UT-MB-CORE-090
+    title: Verify doesSegmentCrossEnvelope returns true for segment exiting through forward boundary
+    impl:
+      - IMP-MB-CORE-015
+    files:
+      - frontend/src/core/logic/mb.envelope.spec.ts
+
+  UT-MB-CORE-091
+    title: Verify doesSegmentCrossEnvelope returns false for parallel segment above envelope
+    impl:
+      - IMP-MB-CORE-015
+    files:
+      - frontend/src/core/logic/mb.envelope.spec.ts
+
+  UT-MB-CORE-092
+    title: Verify doesSegmentCrossEnvelope throws for envelope with fewer than 3 vertices
+    impl:
+      - IMP-MB-CORE-015
+    files:
+      - frontend/src/core/logic/mb.envelope.spec.ts
+
+  UT-MB-CORE-093
+    title: Verify doesSegmentCrossEnvelope returns true when segment passes entirely through envelope
+    impl:
+      - IMP-MB-CORE-015
+    files:
+      - frontend/src/core/logic/mb.envelope.spec.ts
+
+  UT-MB-CORE-094
+    title: Verify CG migration violation detected when burn-down segment crosses concave envelope boundary between waypoints
+    impl:
+      - IMP-MB-CORE-010
+      - IMP-MB-CORE-011
+      - IMP-MB-CORE-015
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
 MB Core - Arm Lookup (Unit)
   UT-MB-CORE-043
     title: Verify arm interpolation at midpoint between two entries
