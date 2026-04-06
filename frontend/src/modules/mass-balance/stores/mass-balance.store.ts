@@ -170,6 +170,7 @@ export const useMassBalanceStore = defineStore('massBalance', {
           verified: false,
           mandatory: deriveMandatory(lp),
           touched: deriveMandatory(lp) ? true : lp.defaultQuantity > 0,
+          hasError: false,
         }))
 
         this.notifications = []
@@ -263,6 +264,7 @@ export const useMassBalanceStore = defineStore('massBalance', {
         station.weight = 0
         station.verified = false
         station.touched = true
+        station.hasError = false
       }
       this._runCalculation()
       this.evaluateState()
@@ -444,6 +446,53 @@ export const useMassBalanceStore = defineStore('massBalance', {
       })
 
       this.lastResult = result
+
+      // @IMP-MB-STORE-015@ (FROM: @REQ-UQ-004@)
+      // Update per-station error flags from INVALID_INPUT violations so the UI
+      // can highlight the affected input fields as described in the validation
+      // error message.
+      this._updateStationErrorFlags(result.violations)
+    },
+
+    /**
+     * Derive which stations have validation errors from the violation list and
+     * mark them via the `hasError` flag on StationInput. Clears all flags first
+     * so stale errors are not left on fields that have since been corrected.
+     */
+    _updateStationErrorFlags(
+      violations: import('@/core/domain/mass-balance.math-types').Violation[],
+    ): void {
+      // Clear all existing error flags
+      for (const s of this.stations) s.hasError = false
+
+      const nonFuelInputStations = this.availableStations.filter((s) => {
+        const def = this.aircraft?.loadPoints[s.index]
+        return def && def.fuelTank === null
+      })
+      const fuelInputStations = this.availableStations.filter((s) => {
+        const def = this.aircraft?.loadPoints[s.index]
+        return def && def.fuelTank !== null
+      })
+
+      for (const v of violations) {
+        if (v.type !== 'INVALID_INPUT' || !v.field) continue
+        const stationMatch = v.field.match(/^STATIONS\[(\d+)\]/)
+        const fuelMatch = v.field.match(/^FUEL_STATIONS\[(\d+)\]/)
+
+        let stationIndex: number | null = null
+        if (stationMatch) {
+          const arrayIdx = parseInt(stationMatch[1]!, 10)
+          stationIndex = nonFuelInputStations[arrayIdx]?.index ?? null
+        } else if (fuelMatch) {
+          const arrayIdx = parseInt(fuelMatch[1]!, 10)
+          stationIndex = fuelInputStations[arrayIdx]?.index ?? null
+        }
+
+        if (stationIndex !== null) {
+          const station = this.stations[stationIndex]
+          if (station) station.hasError = true
+        }
+      }
     },
 
     // ─── State Machine ─────────────────────────────────────────────────

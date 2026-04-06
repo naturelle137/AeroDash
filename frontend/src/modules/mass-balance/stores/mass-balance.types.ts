@@ -32,7 +32,7 @@ export type MassBalanceState =
 // ---------------------------------------------------------------------------
 
 /** User-entered weight for a single load station. */
-// @IMP-MB-STORE-002@ (FROM: @DES-UX-008@)
+// @IMP-MB-STORE-002@ (FROM: @DES-UX-008@, @REQ-UQ-004@)
 export interface StationInput {
   /** Index into the AircraftContext.loadPoints array. */
   index: number
@@ -49,4 +49,6 @@ export interface StationInput {
   mandatory: boolean
   /** Whether the pilot has interacted with this field or it was loaded with a non-zero default. */
   touched: boolean
+  /** Whether this station currently has a validation error (e.g. negative value). */
+  hasError: boolean
 }

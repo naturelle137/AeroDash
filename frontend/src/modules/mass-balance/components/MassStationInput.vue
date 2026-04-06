@@ -28,10 +28,12 @@ function decrement(): void {
 </script>
 
 <template>
+  <!-- @IMP-MB-UI-006@ (FROM: @REQ-UQ-004@) -->
   <div
     class="mass-station-input"
     :class="{
       'mass-station-input--disabled': disabled,
+      'mass-station-input--error': station.hasError,
     }"
   >
     <label :for="`station-${station.index}`" class="mass-station-input__label">
@@ -55,6 +57,7 @@ function decrement(): void {
         class="mass-station-input__field"
         :value="station.weight"
         :disabled="disabled"
+        :aria-invalid="station.hasError || undefined"
         inputmode="decimal"
         min="0"
         step="1"
@@ -85,6 +88,20 @@ function decrement(): void {
 .mass-station-input--disabled {
   opacity: 0.6;
   pointer-events: none;
+}
+
+.mass-station-input--error .mass-station-input__control {
+  border-color: var(--color-critical, #f44336);
+  box-shadow: 0 0 0 2px var(--color-critical-bg, #ffebee);
+}
+
+.mass-station-input--error .mass-station-input__field {
+  background: var(--color-critical-bg, #ffebee);
+  color: var(--color-critical, #c62828);
+}
+
+.mass-station-input--error .mass-station-input__label {
+  color: var(--color-critical, #c62828);
 }
 
 .mass-station-input__label {

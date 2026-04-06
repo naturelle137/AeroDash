@@ -243,6 +243,14 @@ MB Data Schema
     files:
       - frontend/src/modules/mass-balance/data/aircraft-context.schema.ts
 
+MB Store - Error Flag Derivation
+  IMP-MB-STORE-015
+    title: Per-Station Error Flag Derivation from INVALID_INPUT Violations
+    req:
+      - REQ-UQ-004
+    files:
+      - frontend/src/modules/mass-balance/stores/mass-balance.store.ts
+
 MB UI Components
   IMP-MB-UI-001
     title: CG Envelope Polygon + Mass Point Markers Rendering
@@ -279,3 +287,10 @@ MB UI Components
       - REQ-UQ-005
     files:
       - frontend/src/modules/mass-balance/components/ResultSummary.vue
+
+  IMP-MB-UI-006
+    title: Per-Station Error Highlight for INVALID_INPUT Validation Failures
+    req:
+      - REQ-UQ-004
+    files:
+      - frontend/src/modules/mass-balance/components/MassStationInput.vue
