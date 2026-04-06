@@ -33,6 +33,27 @@ SYS Core
     files:
       - frontend/src/core/domain/notification.schema.ts
 
+  IMP-SYS-CORE-005
+    title: Supported Units Enumeration — Single Source of Truth
+    req:
+      - REQ-SYS-004
+    files:
+      - frontend/src/core/domain/units.ts
+
+  IMP-SYS-CORE-006
+    title: SI Unit Normalization (mass kg, arm m, volume L)
+    req:
+      - REQ-SYS-003
+    files:
+      - frontend/src/core/logic/unit-normalization.ts
+
+  IMP-SYS-CORE-007
+    title: Conservative Display Rounding (ceil for mass, floor for fuel/endurance)
+    req:
+      - REQ-UQ-004
+    files:
+      - frontend/src/core/logic/display-rounding.ts
+
 SYS App — Vue Router
   IMP-SYS-APP-001
     title: Application route table (root redirect and mass-balance view)

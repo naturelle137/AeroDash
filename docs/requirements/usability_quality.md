@@ -39,7 +39,7 @@ This document defines the usability & quality behavior using the **EARS** (Easy 
 **Requirement:** The system shall apply conservative rounding to critical safety margins: Rounding UP for Mass and Required Distances; Rounding DOWN for Endurance and Remaining Fuel.
 **Rationale:** Safety margins (Pessimistic approach).
 **Priority:** P1
-**Status:** Approved
+**Status:** Implemented
 **Design Reference:** n/a
 
 <!-- @REQ-UQ-005@ (FROM: @H-001@) -->
