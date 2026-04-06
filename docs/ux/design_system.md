@@ -99,26 +99,97 @@ To ensure a consistent UI experience and facilitate automated visual regression 
 
 The brand and primary action color is **Teal**, chosen for its high visibility and psychological association with clarity/calm in high-stress environments.
 
-**Primitive Tokens (The Palette):**
+Implementation: `frontend/src/assets/theme.css`.
 
-- `--color-teal-500`: `#14b8a6` (Primary Light/Dark)
-- `--color-teal-600`: `#0d9488` (Hover/Active)
-- `--color-slate-900`: `#0f172a` (App Background Dark Mode)
-- `--color-slate-50`: `#f8fafc` (App Background Light Mode)
-- `--color-red-500`: `#ef4444` (Critical)
-- `--color-amber-500`: `#f59e0b` (Warning)
-- `--color-emerald-500`: `#10b981` (Safe/Success)
+#### 5.1.1 Primitive Tokens (The Palette)
 
-**Semantic Tokens (The Application):**
-UI components must exclusively use semantic tokens. This allows seamless Dark Mode flipping and guarantees WCAG AAA contrast ratios.
+Primitives define raw hue/value steps. They are **never** used directly in component CSS — always through semantic tokens.
 
-- `--text-primary`: Pure White (`#ffffff`) in Dark Mode, Slate-900 in Light Mode.
-- `--text-muted`: Slate-400 in Dark, Slate-500 in Light.
-- `--bg-surface`: Slate-800 in Dark Mode, White (`#ffffff`) in Light Mode (Cards/Modals).
-- `--color-status-critical`: Mapped to `--color-red-500`.
-- `--color-status-warning`: Mapped to `--color-amber-500`.
-- `--color-status-safe`: Mapped to `--color-emerald-500`.
-- `--color-action-primary`: Mapped to `--color-teal-500`.
+| Token | Hex | Usage context |
+| --- | --- | --- |
+| `--teal-50` | `#e0f2f1` | Light-mode primary backgrounds |
+| `--teal-100` | `#b2dfdb` | Subtle tints |
+| `--teal-200` | `#80cbc4` | Dark-mode hover states, selection |
+| `--teal-300` | `#4db6ac` | Dark-mode primary (7.3:1 on #1e1e1e) |
+| `--teal-400` | `#26a69a` | Dark-mode focus ring |
+| `--teal-500` | `#009688` | Mid-range teal |
+| `--teal-600` | `#00897b` | Light-mode focus ring |
+| `--teal-700` | `#00796b` | Light-mode primary (4.85:1 on white) |
+| `--teal-800` | `#00695c` | Light-mode primary hover (5.74:1) |
+| `--teal-900` | `#004d40` | Deepest teal accent |
+
+| Token | Hex | Usage context |
+| --- | --- | --- |
+| `--neutral-0` | `#ffffff` | White |
+| `--neutral-50` | `#fafafa` | Page bg |
+| `--neutral-100` | `#f5f5f5` | Alt surface |
+| `--neutral-200` | `#eeeeee` | Grid lines |
+| `--neutral-300` | `#e0e0e0` | Borders |
+| `--neutral-400` | `#bdbdbd` | Axis lines |
+| `--neutral-500` | `#9e9e9e` | Disabled |
+| `--neutral-600` | `#757575` | Secondary txt |
+| `--neutral-700` | `#616161` | Chart labels |
+| `--neutral-800` | `#424242` | Body text |
+| `--neutral-900` | `#212121` | Primary text |
+| `--neutral-950` | `#121212` | Dark bg |
+
+Status primitives: `--red-{50,200,600,700,900}`, `--amber-{50,200,600,700}`, `--green-{50,200,600,700}`.
+
+#### 5.1.2 Semantic Tokens (The Application)
+
+UI components must **exclusively** use semantic tokens. This allows seamless Dark Mode flipping and guarantees WCAG AAA contrast ratios. Tokens are defined under `:root` (light, default) and `[data-theme="dark"]`.
+
+**Surfaces & Backgrounds:**
+
+| Token | Light | Dark |
+| --- | --- | --- |
+| `--color-surface` | `#ffffff` | `#1e1e1e` |
+| `--color-surface-alt` | `#f5f5f5` | `#2a2a2a` |
+| `--color-surface-hover` | `#e0e0e0` | `#3a3a3a` |
+| `--color-bg` | `#fafafa` | `#121212` |
+
+**Brand / Primary Action:**
+
+| Token | Light | Dark | Contrast |
+| --- | --- | --- | --- |
+| `--color-primary` | `--teal-700` | `--teal-300` | 4.85 / 7.3:1 |
+| `--color-primary-hover` | `--teal-800` | `--teal-200` | 5.74 / 9.5:1 |
+| `--color-primary-text` | white | `#121212` | matched |
+| `--color-primary-bg` | `--teal-50` | `#0d302d` | subtle |
+
+**Text Hierarchy:**
+
+| Token | Light | Dark | Contrast on surface |
+| --- | --- | --- | --- |
+| `--color-text-primary` | `#212121` | `#e8e8e8` | 16.1 / 13.5:1 |
+| `--color-text-secondary` | `#757575` | `#a0a0a0` | 4.6 / 6.2:1 |
+| `--color-text` | `#424242` | `#d0d0d0` | 10.4 / 10.6:1 |
+
+**Borders & Focus:**
+
+| Token | Light | Dark |
+| --- | --- | --- |
+| `--color-border` | `#e0e0e0` | `#3a3a3a` |
+| `--color-focus` | teal-600 | teal-400 |
+
+**Status — each pair background + foreground:**
+
+| Semantic | Light fg / bg | Dark fg / bg |
+| --- | --- | --- |
+| Success | `#388e3c` / `#e8f5e9` | `#a5d6a7` / `#1b2e1b` |
+| Warning | `#ef6c00` / `#fff3e0` | `#ffcc80` / `#332200` |
+| Critical | `#c62828` / `#ffebee` | `#ef9a9a` / `#2e1515` |
+
+All status pairs maintain ≥ 4.5:1 contrast. Color is **never** the sole indicator of state — icons and shape changes are mandatory (see §3.3).
+
+**Chart Tokens:** `--chart-grid`, `--chart-axis`, `--chart-tick-text`, `--chart-label` — see `theme.css` for exact values per theme.
+
+#### 5.1.3 Logo & Favicon
+
+- **Source SVG:** `frontend/public/favicon.svg` — teal circle (`#00796b`) with white compass/arrow motif.
+- **ICO fallback:** `frontend/public/favicon.ico` — 32 × 32 pixel legacy format.
+- **Inline SVG logo:** rendered in `App.vue` header using `currentColor` so it inherits `--color-primary` in both themes.
+- PWA manifest icons: to be added when `vite-plugin-pwa` is integrated per ADR-310.
 
 ### 5.2 Typography
 

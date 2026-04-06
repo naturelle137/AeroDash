@@ -1,6 +1,10 @@
 <script setup lang="ts">
-// @IMP-MB-UI-005@ (FROM: @REQ-UQ-003@, @REQ-UQ-005@)
+// @IMP-MB-UI-005@ (FROM: @REQ-UQ-003@, @REQ-UQ-005@, @REQ-UQ-004@)
 import type { MathCoreResult } from '@/modules/mass-balance/stores/mass-balance.types'
+import {
+  formatMassConservative,
+  formatArm,
+} from '@/core/logic/display-rounding'
 
 interface CategoryLimits {
   maxTakeoffMass: number
@@ -33,11 +37,11 @@ defineEmits<{
           <dt>Takeoff Mass</dt>
           <dd>
             <span class="result-summary__value">
-              {{ result.takeoffCenterOfGravityPoint.mass.toFixed(1) }}
+              {{ formatMassConservative(result.takeoffCenterOfGravityPoint.mass, 1) }}
             </span>
             <span class="result-summary__unit">kg</span>
             <span v-if="limits" class="result-summary__limit">
-              / {{ limits.maxTakeoffMass.toFixed(0) }}
+              / {{ formatMassConservative(limits.maxTakeoffMass, 0) }}
             </span>
           </dd>
         </div>
@@ -46,11 +50,11 @@ defineEmits<{
           <dt>Zero Fuel Mass</dt>
           <dd>
             <span class="result-summary__value">
-              {{ result.zeroFuelCenterOfGravityPoint.mass.toFixed(1) }}
+              {{ formatMassConservative(result.zeroFuelCenterOfGravityPoint.mass, 1) }}
             </span>
             <span class="result-summary__unit">kg</span>
             <span v-if="limits?.maxZeroFuelMass != null" class="result-summary__limit">
-              / {{ limits.maxZeroFuelMass.toFixed(0) }}
+              / {{ formatMassConservative(limits.maxZeroFuelMass, 0) }}
             </span>
           </dd>
         </div>
@@ -59,7 +63,7 @@ defineEmits<{
           <dt>CG (Takeoff)</dt>
           <dd>
             <span class="result-summary__value">
-              {{ result.takeoffCenterOfGravityPoint.arm.toFixed(3) }}
+              {{ formatArm(result.takeoffCenterOfGravityPoint.arm, 3) }}
             </span>
             <span class="result-summary__unit">m</span>
           </dd>
@@ -69,7 +73,7 @@ defineEmits<{
           <dt>CG (Landing)</dt>
           <dd>
             <span class="result-summary__value">
-              {{ result.landingCenterOfGravityPoint.arm.toFixed(3) }}
+              {{ formatArm(result.landingCenterOfGravityPoint.arm, 3) }}
             </span>
             <span class="result-summary__unit">m</span>
           </dd>

@@ -12,7 +12,7 @@ This document defines the fuel & endurance behavior using the **EARS** (Easy App
 **Requirement:** When a fuel type is selected, the system shall automatically calculate mass using the specific density of that fuel type: <ul><li>AvGas, MoGas = 0.72 kg/L,</li> <li>Jet A-1, Diesel = 0.84 kg/L.</li></ul>
 **Rationale:** Prevents weight errors due to fuel density differences.
 **Priority:** P1
-**Status:** Approved
+**Status:** Implemented
 **Design Reference:** n/a
 
 <!-- @REQ-FE-002@ (FROM: @H-010@) -->
