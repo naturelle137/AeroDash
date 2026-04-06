@@ -4,6 +4,7 @@ import type {
   MathCoreResult,
   EnvelopePoint,
 } from '@/modules/mass-balance/stores/mass-balance.types'
+import { useTheme } from '@/shared/composables/useTheme'
 
 const props = defineProps<{
   result: MathCoreResult | null
@@ -11,6 +12,8 @@ const props = defineProps<{
   graphType: 'arm' | 'moment'
   severity: 'success' | 'warning' | 'critical' | null
 }>()
+
+const { theme } = useTheme()
 
 // ─── SVG layout constants ──────────────────────────────────────────────────
 
@@ -174,34 +177,35 @@ const isCritical = computed(() => props.severity === 'critical')
 const isNeutral = computed(() => props.severity === null)
 
 const palette = computed(() => {
+  const dark = theme.value === 'dark'
   switch (props.severity) {
     case 'critical':
       return {
-        pt: '#d32f2f',
-        line: '#d32f2f',
+        pt: dark ? '#ef9a9a' : '#d32f2f',
+        line: dark ? '#ef9a9a' : '#d32f2f',
         envFill: 'url(#cg-crosshatch)',
-        envStroke: '#d32f2f',
+        envStroke: dark ? '#ef9a9a' : '#d32f2f',
       }
     case 'warning':
       return {
-        pt: '#ef6c00',
-        line: '#ef6c00',
-        envFill: 'rgba(255,152,0,0.10)',
-        envStroke: '#ef6c00',
+        pt: dark ? '#ffcc80' : '#ef6c00',
+        line: dark ? '#ffcc80' : '#ef6c00',
+        envFill: dark ? 'rgba(255,204,128,0.12)' : 'rgba(255,152,0,0.10)',
+        envStroke: dark ? '#ffcc80' : '#ef6c00',
       }
     case 'success':
       return {
-        pt: '#2e7d32',
-        line: '#2e7d32',
-        envFill: 'rgba(76,175,80,0.10)',
-        envStroke: '#388e3c',
+        pt: dark ? '#a5d6a7' : '#2e7d32',
+        line: dark ? '#a5d6a7' : '#2e7d32',
+        envFill: dark ? 'rgba(165,214,167,0.12)' : 'rgba(76,175,80,0.10)',
+        envStroke: dark ? '#a5d6a7' : '#388e3c',
       }
     default:
       return {
-        pt: '#616161',
-        line: '#757575',
-        envFill: 'rgba(158,158,158,0.08)',
-        envStroke: '#9e9e9e',
+        pt: dark ? '#a0a0a0' : '#616161',
+        line: dark ? '#b0b0b0' : '#757575',
+        envFill: dark ? 'rgba(160,160,160,0.08)' : 'rgba(158,158,158,0.08)',
+        envStroke: dark ? '#777777' : '#9e9e9e',
       }
   }
 })
@@ -254,7 +258,7 @@ const ariaLabel = computed(() => {
           height="8"
           patternTransform="rotate(45)"
         >
-          <line x1="0" y1="0" x2="0" y2="8" stroke="#d32f2f" stroke-width="1.5" opacity="0.25" />
+          <line x1="0" y1="0" x2="0" y2="8" :stroke="palette.envStroke" stroke-width="1.5" opacity="0.25" />
         </pattern>
         <marker id="cg-arrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
           <polygon points="0,0 8,3 0,6" :fill="palette.line" />
