@@ -77,7 +77,7 @@ This document defines the user interface behavior using the **EARS** (Easy Appro
 **Requirement:** When numeric inputs are outside standard operational ranges ($QNH \notin [950, 1100]\,\text{hPa}$, Temperature $\notin [-40, +50]\,\text{°C}$), the system shall emit a WARNING notification (`WARN-UI-001`) alerting the user that the input is out of range, but shall allow entry confirmation.
 **Rationale:** Prevents fat-finger errors during planning.
 **Priority:** P1
-**Status:** Approved
+**Status:** Implemented
 **Design Reference:** [Notification Schema](../architecture/notification_schema.md)
 
 <!-- @REQ-UI-009@ (FROM: @H-005@) -->

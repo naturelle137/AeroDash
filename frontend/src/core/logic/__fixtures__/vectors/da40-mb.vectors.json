@@ -124,7 +124,7 @@
     },
     {
       "id": "DA40-04",
-      "description": "Heavy payload — MTOM exceeded and CG outside envelope mass range",
+      "description": "Heavy payload — MTOM exceeded, arm within horizontal limits (only MTOM_EXCEEDED per issue #118 Option A)",
       "source": "Hand calculation (overweight scenario)",
       "tolerance": 4,
       "input": {
@@ -158,7 +158,7 @@
         "zeroFuelCg": { "arm": 1.8806391912908242, "mass": 643, "moment": 1209.251 },
         "takeoffCg": { "arm": 1.898505882352941, "mass": 680, "moment": 1290.984 },
         "landingCg": { "arm": 1.8806391912908242, "mass": 643, "moment": 1209.251 },
-        "violations": ["MTOM_EXCEEDED", "CG_OUT_OF_ENVELOPE"],
+        "violations": ["MTOM_EXCEEDED"],
         "success": true
       }
     }

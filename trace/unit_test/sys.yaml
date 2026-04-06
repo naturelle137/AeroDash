@@ -317,6 +317,267 @@ SYS Shared — Structured Logger Utility (Unit)
     files:
       - frontend/src/shared/utils/__tests__/logger.spec.ts
 
+SYS Core — SI Unit Normalization (Unit)
+  UT-SYS-CORE-031
+    title: normalizeMassToKg returns value unchanged for kg input
+    impl:
+      - IMP-SYS-CORE-006
+    files:
+      - frontend/src/core/logic/unit-normalization.spec.ts
+
+  UT-SYS-CORE-032
+    title: normalizeMassToKg converts lb to kg correctly
+    impl:
+      - IMP-SYS-CORE-006
+    files:
+      - frontend/src/core/logic/unit-normalization.spec.ts
+
+  UT-SYS-CORE-033
+    title: normalizeMassToKg is invertible with massKgToUnit
+    impl:
+      - IMP-SYS-CORE-006
+    files:
+      - frontend/src/core/logic/unit-normalization.spec.ts
+
+  UT-SYS-CORE-034
+    title: massKgToUnit returns value unchanged for kg target
+    impl:
+      - IMP-SYS-CORE-006
+    files:
+      - frontend/src/core/logic/unit-normalization.spec.ts
+
+  UT-SYS-CORE-035
+    title: massKgToUnit converts kg to lb correctly
+    impl:
+      - IMP-SYS-CORE-006
+    files:
+      - frontend/src/core/logic/unit-normalization.spec.ts
+
+  UT-SYS-CORE-036
+    title: normalizeArmToM returns value unchanged for m input
+    impl:
+      - IMP-SYS-CORE-006
+    files:
+      - frontend/src/core/logic/unit-normalization.spec.ts
+
+  UT-SYS-CORE-037
+    title: normalizeArmToM converts inches to metres correctly
+    impl:
+      - IMP-SYS-CORE-006
+    files:
+      - frontend/src/core/logic/unit-normalization.spec.ts
+
+  UT-SYS-CORE-038
+    title: normalizeArmToM converts feet to metres correctly
+    impl:
+      - IMP-SYS-CORE-006
+    files:
+      - frontend/src/core/logic/unit-normalization.spec.ts
+
+  UT-SYS-CORE-039
+    title: normalizeArmToM is invertible with armMToUnit
+    impl:
+      - IMP-SYS-CORE-006
+    files:
+      - frontend/src/core/logic/unit-normalization.spec.ts
+
+  UT-SYS-CORE-040
+    title: armMToUnit returns value unchanged for m target
+    impl:
+      - IMP-SYS-CORE-006
+    files:
+      - frontend/src/core/logic/unit-normalization.spec.ts
+
+  UT-SYS-CORE-041
+    title: armMToUnit converts metres to feet correctly
+    impl:
+      - IMP-SYS-CORE-006
+    files:
+      - frontend/src/core/logic/unit-normalization.spec.ts
+
+  UT-SYS-CORE-042
+    title: normalizeVolumeToL returns value unchanged for L input
+    impl:
+      - IMP-SYS-CORE-006
+    files:
+      - frontend/src/core/logic/unit-normalization.spec.ts
+
+  UT-SYS-CORE-043
+    title: normalizeVolumeToL converts US gallons to litres correctly
+    impl:
+      - IMP-SYS-CORE-006
+    files:
+      - frontend/src/core/logic/unit-normalization.spec.ts
+
+  UT-SYS-CORE-044
+    title: normalizeVolumeToL is invertible with volumeLToUnit
+    impl:
+      - IMP-SYS-CORE-006
+    files:
+      - frontend/src/core/logic/unit-normalization.spec.ts
+
+  UT-SYS-CORE-045
+    title: volumeLToUnit returns value unchanged for L target
+    impl:
+      - IMP-SYS-CORE-006
+    files:
+      - frontend/src/core/logic/unit-normalization.spec.ts
+
+  UT-SYS-CORE-046
+    title: volumeLToUnit converts litres to US gallons correctly
+    impl:
+      - IMP-SYS-CORE-006
+    files:
+      - frontend/src/core/logic/unit-normalization.spec.ts
+
+SYS Core — Decimal Precision Policy (Unit)
+  UT-UQ-CORE-001
+    title: formatMassConservative rounds mass UP at 1 decimal place (ceil)
+    impl:
+      - IMP-SYS-CORE-007
+    files:
+      - frontend/src/core/logic/display-rounding.spec.ts
+
+  UT-UQ-CORE-002
+    title: formatMassConservative returns exact value when no rounding needed
+    impl:
+      - IMP-SYS-CORE-007
+    files:
+      - frontend/src/core/logic/display-rounding.spec.ts
+
+  UT-UQ-CORE-003
+    title: formatMassConservative rounds up at 0 decimal places
+    impl:
+      - IMP-SYS-CORE-007
+    files:
+      - frontend/src/core/logic/display-rounding.spec.ts
+
+  UT-UQ-CORE-004
+    title: formatMassConservative never rounds down for mass
+    impl:
+      - IMP-SYS-CORE-007
+    files:
+      - frontend/src/core/logic/display-rounding.spec.ts
+
+  UT-UQ-CORE-005
+    title: formatMassConservative uses 1 decimal by default
+    impl:
+      - IMP-SYS-CORE-007
+    files:
+      - frontend/src/core/logic/display-rounding.spec.ts
+
+  UT-UQ-CORE-006
+    title: formatFuelConservative rounds fuel DOWN at 1 decimal place (floor)
+    impl:
+      - IMP-SYS-CORE-007
+    files:
+      - frontend/src/core/logic/display-rounding.spec.ts
+
+  UT-UQ-CORE-007
+    title: formatFuelConservative returns exact value when no rounding needed
+    impl:
+      - IMP-SYS-CORE-007
+    files:
+      - frontend/src/core/logic/display-rounding.spec.ts
+
+  UT-UQ-CORE-008
+    title: formatFuelConservative rounds down at 0 decimal places
+    impl:
+      - IMP-SYS-CORE-007
+    files:
+      - frontend/src/core/logic/display-rounding.spec.ts
+
+  UT-UQ-CORE-009
+    title: formatFuelConservative never rounds up for fuel
+    impl:
+      - IMP-SYS-CORE-007
+    files:
+      - frontend/src/core/logic/display-rounding.spec.ts
+
+  UT-UQ-CORE-010
+    title: formatArm formats arm to 3 decimal places by default
+    impl:
+      - IMP-SYS-CORE-007
+    files:
+      - frontend/src/core/logic/display-rounding.spec.ts
+
+  UT-UQ-CORE-011
+    title: formatArm formats arm to specified decimal places
+    impl:
+      - IMP-SYS-CORE-007
+    files:
+      - frontend/src/core/logic/display-rounding.spec.ts
+
+  UT-UQ-CORE-012
+    title: formatArm uses standard rounding (not conservative) for arm
+    impl:
+      - IMP-SYS-CORE-007
+    files:
+      - frontend/src/core/logic/display-rounding.spec.ts
+
+  UT-UQ-CORE-013
+    title: getDecimalPrecision returns 3 for metres
+    impl:
+      - IMP-SYS-CORE-008
+    files:
+      - frontend/src/core/logic/display-rounding.spec.ts
+
+  UT-UQ-CORE-014
+    title: getDecimalPrecision returns 1 for centimetres
+    impl:
+      - IMP-SYS-CORE-008
+    files:
+      - frontend/src/core/logic/display-rounding.spec.ts
+
+  UT-UQ-CORE-015
+    title: getDecimalPrecision returns 0 for millimetres
+    impl:
+      - IMP-SYS-CORE-008
+    files:
+      - frontend/src/core/logic/display-rounding.spec.ts
+
+  UT-UQ-CORE-016
+    title: getDecimalPrecision returns 2 for inches
+    impl:
+      - IMP-SYS-CORE-008
+    files:
+      - frontend/src/core/logic/display-rounding.spec.ts
+
+  UT-UQ-CORE-017
+    title: getDecimalPrecision returns 1 for kg
+    impl:
+      - IMP-SYS-CORE-008
+    files:
+      - frontend/src/core/logic/display-rounding.spec.ts
+
+  UT-UQ-CORE-018
+    title: getDecimalPrecision returns 1 for lb
+    impl:
+      - IMP-SYS-CORE-008
+    files:
+      - frontend/src/core/logic/display-rounding.spec.ts
+
+  UT-UQ-CORE-019
+    title: getDecimalPrecision returns 1 for litres
+    impl:
+      - IMP-SYS-CORE-008
+    files:
+      - frontend/src/core/logic/display-rounding.spec.ts
+
+  UT-UQ-CORE-020
+    title: getDecimalPrecision returns 1 for US gallons
+    impl:
+      - IMP-SYS-CORE-008
+    files:
+      - frontend/src/core/logic/display-rounding.spec.ts
+
+  UT-UQ-CORE-021
+    title: getDecimalPrecision returns 1 for unknown unit (safe default)
+    impl:
+      - IMP-SYS-CORE-008
+    files:
+      - frontend/src/core/logic/display-rounding.spec.ts
+
 SYS App — Vue Router (Unit)
   UT-SYS-APP-001
     title: Applies redirect from / to /mass-balance on navigation
