@@ -12,7 +12,7 @@ import { z } from 'zod'
  * @see docs/architecture/frontend_state_machine.md
  */
 
-// @IMP-SYS-CORE-005@ (FROM: @REQ-SYS-014@)
+// @IMP-SYS-CORE-009@ (FROM: @REQ-SYS-013@)
 
 /** One station's serialisable state — weight and interaction flags only. */
 export const StationPayloadSchema = z.object({

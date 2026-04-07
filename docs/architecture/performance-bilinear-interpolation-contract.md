@@ -1,3 +1,5 @@
+<!-- @DES-ARCH-006@ (FROM: @REQ-PF-002@) -->
+
 # Performance Bilinear Interpolation Contract
 
 **Module:** Performance (P1 Safety Core)

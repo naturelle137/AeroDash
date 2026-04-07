@@ -126,6 +126,15 @@ This document defines the system behavior using the **EARS** (Easy Approach to R
 **Status:** Implemented
 **Design Reference:** [Notification Schema](../architecture/notification_schema.md)
 
+<!-- @REQ-SYS-013@ -->
+
+### REQ-SYS-013: Session Payload Persistence
+
+**Priority:** P3
+**Status:** Approved
+
+**Requirement:** When the pilot has entered preflight data, the system shall automatically serialise the active session payload to `localStorage` on each value change (debounced) and restore it on page reload, provided the restored payload passes Zod schema validation. An invalid or absent payload shall result in a clean session with no pre-population. The session payload shall be cleared when a different aircraft profile is selected.
+
 ---
 
 ## Design References

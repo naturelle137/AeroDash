@@ -1,0 +1,9 @@
+PF Core — Bilinear Interpolation
+  IMP-PF-CORE-001
+    title: Bilinear Interpolation Engine for 2-D POH Performance Tables
+    req:
+      - REQ-PF-002
+    des:
+      - DES-ARCH-006
+    files:
+      - frontend/src/core/logic/performance.bilinear-interpolation.ts

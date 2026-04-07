@@ -8,7 +8,7 @@
  * @see docs/architecture/performance-bilinear-interpolation-contract.md
  */
 
-// @IMP-PF-CORE-001@ (FROM: @REQ-PF-002@)
+// @IMP-PF-CORE-001@ (FROM: @REQ-PF-002@, @DES-ARCH-006@)
 
 // ── Public types ─────────────────────────────────────────────────────────────
 

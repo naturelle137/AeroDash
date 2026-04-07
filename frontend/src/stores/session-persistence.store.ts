@@ -21,7 +21,7 @@ import { watch } from 'vue'
 import { useMassBalanceStore } from '@/modules/mass-balance/stores/mass-balance.store'
 import { SessionPayloadSchema, type SessionPayload } from '@/core/domain/session.schema'
 
-// @IMP-SYS-STORE-001@ (FROM: @REQ-SYS-014@)
+// @IMP-SYS-STORE-001@ (FROM: @REQ-SYS-013@)
 
 const STORAGE_KEY = 'aerodash:session:payload' as const
 const DEBOUNCE_MS = 300

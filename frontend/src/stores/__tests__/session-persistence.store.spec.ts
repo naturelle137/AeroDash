@@ -6,8 +6,6 @@
  * mocked so no actual calculations run.
  */
 
-// @UT-SYS-STORE-001@ (FROM: @IMP-SYS-STORE-001@)
-
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { nextTick } from 'vue'
 import { setActivePinia, createPinia } from 'pinia'
@@ -97,11 +95,13 @@ function loadProfile(profile: AircraftContext): void {
 // ── Tests ─────────────────────────────────────────────────────────────────────
 
 describe('useSessionPersistenceStore — restoreSession()', () => {
+  // @UT-SYS-STORE-001@ (FROM: @IMP-SYS-STORE-001@)
   it('returns null when localStorage is empty', () => {
     const store = useSessionPersistenceStore()
     expect(store.restoreSession()).toBeNull()
   })
 
+  // @UT-SYS-STORE-002@ (FROM: @IMP-SYS-STORE-001@)
   it('returns null and clears storage when JSON is malformed', () => {
     localStorage.setItem('aerodash:session:payload', '{invalid json}')
     const store = useSessionPersistenceStore()
@@ -109,6 +109,7 @@ describe('useSessionPersistenceStore — restoreSession()', () => {
     expect(localStorage.getItem('aerodash:session:payload')).toBeNull()
   })
 
+  // @UT-SYS-STORE-003@ (FROM: @IMP-SYS-STORE-001@)
   it('returns null and clears storage when Zod validation fails (wrong version)', () => {
     localStorage.setItem(
       'aerodash:session:payload',
@@ -119,6 +120,7 @@ describe('useSessionPersistenceStore — restoreSession()', () => {
     expect(localStorage.getItem('aerodash:session:payload')).toBeNull()
   })
 
+  // @UT-SYS-STORE-004@ (FROM: @IMP-SYS-STORE-001@)
   it('returns null and clears storage when schema is missing required fields', () => {
     localStorage.setItem(
       'aerodash:session:payload',
@@ -129,6 +131,7 @@ describe('useSessionPersistenceStore — restoreSession()', () => {
     expect(localStorage.getItem('aerodash:session:payload')).toBeNull()
   })
 
+  // @UT-SYS-STORE-005@ (FROM: @IMP-SYS-STORE-001@)
   it('returns parsed payload when valid JSON with correct schema is stored', () => {
     const payload = {
       version: 1 as const,
@@ -150,6 +153,7 @@ describe('useSessionPersistenceStore — restoreSession()', () => {
     expect(restored!.version).toBe(1)
   })
 
+  // @UT-SYS-STORE-006@ (FROM: @IMP-SYS-STORE-001@)
   it('does not remove valid payload from storage after restore', () => {
     const payload = {
       version: 1 as const,
@@ -168,12 +172,14 @@ describe('useSessionPersistenceStore — restoreSession()', () => {
 })
 
 describe('useSessionPersistenceStore — saveSession()', () => {
+  // @UT-SYS-STORE-007@ (FROM: @IMP-SYS-STORE-001@)
   it('does nothing when no aircraft is loaded', () => {
     const store = useSessionPersistenceStore()
     store.saveSession()
     expect(localStorage.getItem('aerodash:session:payload')).toBeNull()
   })
 
+  // @UT-SYS-STORE-008@ (FROM: @IMP-SYS-STORE-001@)
   it('writes a valid payload to localStorage after profile load', () => {
     loadProfile(MOCK_PROFILE_A)
     const store = useSessionPersistenceStore()
@@ -189,6 +195,7 @@ describe('useSessionPersistenceStore — saveSession()', () => {
     expect(Array.isArray(parsed.stations)).toBe(true)
   })
 
+  // @UT-SYS-STORE-009@ (FROM: @IMP-SYS-STORE-001@)
   it('payload saved by saveSession() passes restoreSession() validation', () => {
     loadProfile(MOCK_PROFILE_A)
     const store = useSessionPersistenceStore()
@@ -199,6 +206,7 @@ describe('useSessionPersistenceStore — saveSession()', () => {
     expect(restored!.aircraftId).toBe('aircraft-uuid-A')
   })
 
+  // @UT-SYS-STORE-010@ (FROM: @IMP-SYS-STORE-001@)
   it('serialises station weights correctly', () => {
     loadProfile(MOCK_PROFILE_A)
     const mbStore = useMassBalanceStore()
@@ -214,6 +222,7 @@ describe('useSessionPersistenceStore — saveSession()', () => {
 })
 
 describe('useSessionPersistenceStore — clearSession()', () => {
+  // @UT-SYS-STORE-011@ (FROM: @IMP-SYS-STORE-001@)
   it('removes the payload from localStorage', () => {
     loadProfile(MOCK_PROFILE_A)
     const store = useSessionPersistenceStore()
@@ -225,6 +234,7 @@ describe('useSessionPersistenceStore — clearSession()', () => {
     expect(localStorage.getItem('aerodash:session:payload')).toBeNull()
   })
 
+  // @UT-SYS-STORE-012@ (FROM: @IMP-SYS-STORE-001@)
   it('is idempotent — no error when storage is already empty', () => {
     const store = useSessionPersistenceStore()
     expect(() => store.clearSession()).not.toThrow()
@@ -232,6 +242,7 @@ describe('useSessionPersistenceStore — clearSession()', () => {
 })
 
 describe('useSessionPersistenceStore — startWatching() debounced auto-save', () => {
+  // @UT-SYS-STORE-013@ (FROM: @IMP-SYS-STORE-001@)
   it('does not save immediately on startWatching — waits for debounce', () => {
     loadProfile(MOCK_PROFILE_A)
     const store = useSessionPersistenceStore()
@@ -244,6 +255,7 @@ describe('useSessionPersistenceStore — startWatching() debounced auto-save', (
     expect(localStorage.getItem('aerodash:session:payload')).toBeNull()
   })
 
+  // @UT-SYS-STORE-014@ (FROM: @IMP-SYS-STORE-001@)
   it('saves after debounce timeout elapses', async () => {
     loadProfile(MOCK_PROFILE_A)
     const store = useSessionPersistenceStore()
@@ -262,6 +274,7 @@ describe('useSessionPersistenceStore — startWatching() debounced auto-save', (
     expect(restored!.stations[0]!.weight).toBe(90)
   })
 
+  // @UT-SYS-STORE-015@ (FROM: @IMP-SYS-STORE-001@)
   it('clears prior aircraft session when aircraft is switched', async () => {
     loadProfile(MOCK_PROFILE_A)
     const store = useSessionPersistenceStore()
@@ -287,6 +300,7 @@ describe('useSessionPersistenceStore — startWatching() debounced auto-save', (
 })
 
 describe('useSessionPersistenceStore — round-trip save → restore', () => {
+  // @UT-SYS-STORE-016@ (FROM: @IMP-SYS-STORE-001@)
   it('restores all station fields correctly after a full save/restore cycle', () => {
     loadProfile(MOCK_PROFILE_A)
     const mbStore = useMassBalanceStore()

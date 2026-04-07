@@ -61,6 +61,22 @@ SYS Core
     files:
       - frontend/src/core/logic/display-rounding.ts
 
+SYS Core — Session Payload Schema
+  IMP-SYS-CORE-009
+    title: Session Payload Zod Schema for localStorage Persistence Validation
+    req:
+      - REQ-SYS-013
+    files:
+      - frontend/src/core/domain/session.schema.ts
+
+SYS Store — Session Persistence
+  IMP-SYS-STORE-001
+    title: Session Payload Auto-save and Restore (useSessionPersistenceStore)
+    req:
+      - REQ-SYS-013
+    files:
+      - frontend/src/stores/session-persistence.store.ts
+
 SYS App — Vue Router
   IMP-SYS-APP-001
     title: Application route table (root redirect and mass-balance view)
