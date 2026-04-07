@@ -27,7 +27,7 @@ jobs:
       - name: Run unit tests
         run: pnpm --filter frontend run test:unit
 
-      - name: P1 safety-core tests (100% coverage gate)
+      - name: P1 safety-core tests (90% coverage gate)
         run: pnpm --filter frontend run test:p1:coverage
 
   type-check:

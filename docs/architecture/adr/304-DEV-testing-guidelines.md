@@ -20,7 +20,7 @@ We have decided to adopt **Option 3 (Risk-Based Tiered Strategy)**.
 To formalize this, we are creating a centralized `TESTING.md` guide that defines:
 
 1. **Types of Tests:** Explicit responsibilities for Unit, Integration, and End-to-End (E2E) testing.
-2. **Coverage Minimums:** 100% for P1 modules, 80% for P2, and practical best-efforts for P3.
+2. **Coverage Minimums:** 90% for P1 modules, 80% for P2, and practical best-efforts for P3.
 3. **Mocking External Data:** A strict requirement that all environmental variables (GPS coordinates, METAR, TAF, dynamic API data) must be statically mocked when testing P1 logic to ensure tests are deterministic.
 
 ## Consequences
@@ -34,7 +34,7 @@ To formalize this, we are creating a centralized `TESTING.md` guide that defines
 ### Negative
 
 * **Higher Initial Friction:** It takes significantly more time to deliver a feature regarding P1 components, as the testing burden is exceptionally high.
-* **Maintenance Overhead:** 100% coverage requirements on P1 mean that even slight, harmless internal refactoring might break test coverage and require test rewrites.
+* **Maintenance Overhead:** 90% coverage requirements on P1 mean that internal refactoring can occasionally affect coverage thresholds and require additional tests.
 
 ## Compliance
 

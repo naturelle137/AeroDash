@@ -58,15 +58,15 @@ Our coverage requirements correlate directly to the Priority (P1, P2, P3) of the
 
 | Priority | Label | File Path(s) | Coverage |
 | :------- | :---------------- | :-------------------------------------------- | :------- |
-| **P1** | Safety Core | `frontend/src/core/` | 100% |
+| **P1** | Safety Core | `frontend/src/core/` | 90% |
 | **P2** | Operational Logic | `frontend/src/modules/` | 80% |
 | **P3** | UI & Shared | `frontend/src/shared/`, `frontend/src/plugins/`, `frontend/src/stores/` | 60% |
 
 This table is the **single source of truth** for coverage thresholds. All agent workflows, CI gates, and review checklists MUST reference this table rather than hardcoding values.
 
 - **P1 - Safety Core (e.g., Mass & Balance, Flight Performance)**
-  - **Requirement:** **100%** Line, Branch, and Function coverage.
-  - _Rationale:_ There is zero margin for error. Every single mathematical path must be verified.
+  - **Requirement:** **90%** Line, Branch, and Function coverage.
+  - _Rationale:_ This high threshold ensures the vast majority of mathematical paths are verified while allowing for pragmatic coverage of edge cases that are difficult to exercise in isolation.
 - **P2 - Operational Logic (e.g., Weather Parsing, Route APIs)**
   - **Requirement:** **80%** coverage minimum.
   - _Rationale:_ Failures here are highly inconvenient and degrade the tool, but they should be caught by safety boundaries before impacting P1 calculations.

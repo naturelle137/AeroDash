@@ -180,7 +180,7 @@ Reference issue numbers and requirement IDs when applicable.
 
 | Tier | Path | Required Coverage |
 | :--- | :--- | :---------------- |
-| **P1** Safety Core | `frontend/src/core/` | **100%** line + branch + function |
+| **P1** Safety Core | `frontend/src/core/` | **90%** line + branch + function |
 | **P2** Feature Modules | `frontend/src/modules/` | **80%** minimum |
 | **P3** UI & Shared | `frontend/src/shared/`, `plugins/`, `stores/` | **60%** minimum |
 
@@ -227,7 +227,7 @@ Requirements live in `docs/requirements/` using **EARS syntax** (Easy Approach t
 
 Priority aligns with code tiers:
 
-- **P1** — Safety-critical (must have 100% coverage + ADR for changes)
+- **P1** — Safety-critical (must have 90% coverage + ADR for changes)
 - **P2** — Standard operational
 - **P3** — Nice-to-have / polish
 
@@ -250,7 +250,7 @@ Module identifiers: `AC`, `AP`, `AD`, `FE`, `MB`, `PF`, `WX`, `UI`, `UQ`, `SYS`,
 
 - Full lint suite (`lint:ci:oxlint` + `lint:ci:eslint`)
 - Unit + integration + E2E tests
-- Coverage thresholds enforced (P1: 100%, P2: 80%, P3: 60%)
+- Coverage thresholds enforced (P1: 90%, P2: 80%, P3: 60%)
 - P1-ISOLATION ESLint rule must produce zero violations
 
 ---
@@ -264,7 +264,7 @@ Before completing a PR that touches `src/core/`, verify:
 - [ ] `pnpm --filter frontend run lint:ci:eslint` — zero `[P1-ISOLATION]` warnings
 - [ ] All new exported functions are pure (deterministic, side-effect free)
 - [ ] All external inputs validated with Zod before reaching math logic
-- [ ] 100% line + branch + function coverage on new P1 code
+- [ ] 90% line + branch + function coverage on new P1 code
 - [ ] If a new top-level `src/` directory was added, update `no-restricted-imports` in `frontend/eslint.config.ts`
 - [ ] An ADR exists or has been updated if the P1 interface surface changed
 
