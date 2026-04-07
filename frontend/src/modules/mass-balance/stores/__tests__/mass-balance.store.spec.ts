@@ -200,6 +200,7 @@ describe('MassBalance Store', () => {
       verified: false,
       mandatory: true,
       touched: true,
+      hasError: false,
     })
     expect(store.stations[1]).toEqual({
       index: 1,
@@ -208,6 +209,7 @@ describe('MassBalance Store', () => {
       verified: false,
       mandatory: false,
       touched: false,
+      hasError: false,
     })
   })
 

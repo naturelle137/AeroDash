@@ -33,7 +33,7 @@ This document defines the system behavior using the **EARS** (Easy Approach to R
 **Requirement:** The system shall normalize all physical input parameters to a unified internal SI reference frame (kg, m, L, s) for the internal calculation logic.
 **Rationale:** Ensure mathematical consistency across mixed fleets.
 **Priority:** P1
-**Status:** Approved
+**Status:** Implemented
 **Design Reference:** n/a
 
 <!-- @REQ-SYS-004@ -->
@@ -43,7 +43,7 @@ This document defines the system behavior using the **EARS** (Easy Approach to R
 **Requirement:** The system shall accept the following units for data storage, input and display: <ul><li>Volume: L, gal (US)</li> <li>Mass: kg, lb</li> <li>Speed: km/h, mph, kt, m/s</li> <li>Arm: m, in, ft</li> <li>Moment: kg·m, in-lb, ft-lb</li> <li>Temperature: °C, °F</li> <li>Altitude: ft, m</li> <li>Distance: km, mi, nm </li> <li>Pressure: hPa, inHg, mmHg</li></ul>
 **Rationale:** Ensures compatibility with POH data from both metric and imperial manufacturers.
 **Priority:** P1
-**Status:** Approved
+**Status:** Implemented
 **Design Reference:** n/a
 
 <!-- @REQ-SYS-005@ (FROM: @H-019@) -->

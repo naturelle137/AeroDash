@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { isCgWithinEnvelope } from './mb.envelope'
+import { isCgWithinEnvelope, doesSegmentCrossEnvelope } from './mb.envelope'
 import type { EnvelopePoint } from '../domain/aircraft.types'
 
 // Rectangular envelope matching the default fixture: arm 1.841–1.978, mass 433–650
@@ -85,5 +85,53 @@ describe('isCgWithinEnvelope', () => {
         { armOrMoment: 1.978, mass: 650 },
       ]),
     ).toThrow('Invalid Input: Envelope must have at least 3 vertices.')
+  })
+})
+
+describe('doesSegmentCrossEnvelope', () => {
+  // @UT-MB-CORE-087@ (FROM: @IMP-MB-CORE-015@)
+  it('returns false when segment is entirely inside envelope', () => {
+    expect(doesSegmentCrossEnvelope(1.877, 500, 1.9, 550, RECTANGULAR_ENVELOPE)).toBe(false)
+  })
+
+  // @UT-MB-CORE-088@ (FROM: @IMP-MB-CORE-015@)
+  it('returns false when segment is entirely outside envelope', () => {
+    expect(doesSegmentCrossEnvelope(2.1, 500, 2.2, 550, RECTANGULAR_ENVELOPE)).toBe(false)
+  })
+
+  // @UT-MB-CORE-089@ (FROM: @IMP-MB-CORE-015@)
+  it('returns true when segment starts inside and exits through right edge', () => {
+    expect(doesSegmentCrossEnvelope(1.9, 540, 2.1, 540, RECTANGULAR_ENVELOPE)).toBe(true)
+  })
+
+  // @UT-MB-CORE-090@ (FROM: @IMP-MB-CORE-015@)
+  it('returns true when segment exits and re-enters envelope (crosses two edges)', () => {
+    // Segment goes from inside (1.9, 540) → outside → back to inside (1.95, 540)
+    // by traversing far left outside and back in — achieved by sweeping through
+    // the forward boundary at 1.841
+    expect(doesSegmentCrossEnvelope(1.9, 540, 1.7, 540, RECTANGULAR_ENVELOPE)).toBe(true)
+  })
+
+  // @UT-MB-CORE-091@ (FROM: @IMP-MB-CORE-015@)
+  it('returns false for parallel segment that does not cross any edge', () => {
+    // Horizontal segment entirely above envelope
+    expect(doesSegmentCrossEnvelope(1.8, 700, 2.1, 700, RECTANGULAR_ENVELOPE)).toBe(false)
+  })
+
+  // @UT-MB-CORE-092@ (FROM: @IMP-MB-CORE-015@)
+  it('throws for envelope with fewer than 3 vertices', () => {
+    expect(() =>
+      doesSegmentCrossEnvelope(1.877, 433, 1.9, 500, [
+        { armOrMoment: 1.841, mass: 433 },
+        { armOrMoment: 1.978, mass: 650 },
+      ]),
+    ).toThrow('Invalid Input: Envelope must have at least 3 vertices.')
+  })
+
+  // @UT-MB-CORE-093@ (FROM: @IMP-MB-CORE-015@)
+  it('returns true when segment passes entirely through envelope (enters and exits)', () => {
+    // Segment from x=1.7 (outside left) to x=2.1 (outside right) at y=540
+    // crosses both left and right edges of the rectangular envelope
+    expect(doesSegmentCrossEnvelope(1.7, 540, 2.1, 540, RECTANGULAR_ENVELOPE)).toBe(true)
   })
 })

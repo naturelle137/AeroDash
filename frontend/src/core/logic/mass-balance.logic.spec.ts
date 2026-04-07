@@ -487,6 +487,52 @@ describe('Mass & Balance Math-Core Logic', () => {
 
       expectLimitViolationState(result, scenario)
     })
+
+    // @UT-MB-CORE-095@ (FROM: @IMP-MB-CORE-003@, @IMP-MB-CORE-008@)
+    it('emits only MTOM_EXCEEDED (not CG_OUT_OF_ENVELOPE) when TOM exceeds MTOM but arm is within horizontal limits', () => {
+      const input = createMathCoreInput()
+      // payload[0] = 250 → TOM = 433+250 = 683 > 650 MTOM, arm ≈ 1.84 (within 1.841–1.978)
+      input.stations[0]!.mass = 250
+      input.fuelStations[0]!.mass = 0
+
+      const result = computeMassBalanceCore(input)
+
+      expect(result.violations.some((v) => v.type === 'MTOM_EXCEEDED')).toBe(true)
+      expect(result.violations.some((v) => v.type === 'CG_OUT_OF_ENVELOPE')).toBe(false)
+    })
+
+    // @UT-MB-CORE-096@ (FROM: @IMP-MB-CORE-003@, @IMP-MB-CORE-008@)
+    it('emits no violation when TOM is exactly at MTOM and arm is within horizontal limits', () => {
+      const input = createMathCoreInput()
+      // payload[0] = 217 → TOM = 433+217 = 650 = MTOM exactly, arm within envelope
+      input.stations[0]!.mass = 217
+      input.fuelStations[0]!.mass = 0
+
+      const result = computeMassBalanceCore(input)
+
+      expect(result.violations.some((v) => v.type === 'MTOM_EXCEEDED')).toBe(false)
+      expect(result.violations.some((v) => v.type === 'CG_OUT_OF_ENVELOPE')).toBe(false)
+    })
+
+    // @UT-MB-CORE-097@ (FROM: @IMP-MB-CORE-003@, @IMP-MB-CORE-008@)
+    it('emits both MTOM_EXCEEDED and CG_OUT_OF_ENVELOPE when TOM exceeds MTOM AND arm is outside arm limits', () => {
+      const input = createMathCoreInput({
+        envelope: [
+          { armOrMoment: 1.9, mass: 433 },
+          { armOrMoment: 1.978, mass: 433 },
+          { armOrMoment: 1.978, mass: 650 },
+          { armOrMoment: 1.9, mass: 650 },
+        ],
+      })
+      // payload[0] arm = 1.8 (forward of envelope left = 1.9), large enough to exceed MTOM
+      input.stations[0]!.mass = 300
+      input.fuelStations[0]!.mass = 0
+
+      const result = computeMassBalanceCore(input)
+
+      expect(result.violations.some((v) => v.type === 'MTOM_EXCEEDED')).toBe(true)
+      expect(result.violations.some((v) => v.type === 'CG_OUT_OF_ENVELOPE')).toBe(true)
+    })
   })
 
   describe('CG migration', () => {
@@ -591,6 +637,64 @@ describe('Mass & Balance Math-Core Logic', () => {
       const result = computeMassBalanceCore(input)
 
       expect(takeoffMoment).toBeGreaterThan(1050)
+      expect(result.violations.some((v) => v.type === 'CG_MIGRATION_EXCEEDED')).toBe(true)
+    })
+
+    // @UT-MB-CORE-094@ (FROM: @IMP-MB-CORE-010@, @IMP-MB-CORE-011@, @IMP-MB-CORE-015@)
+    it('detects CG migration violation when burn-down path exits and re-enters a concave envelope between waypoints', () => {
+      // Reproduces issue #120: the burn-down LINE SEGMENT crosses the envelope
+      // boundary between Takeoff and Landing waypoints, but both discrete
+      // endpoints are inside the envelope. The pre-fix implementation missed
+      // this because it only tested point containment at the waypoints.
+      //
+      // Geometry (non-convex / concave envelope — the crucial requirement):
+      //   Envelope vertices (armOrMoment, mass):
+      //     (0.5, 300) → (1.5, 400) [diagonal kink: left boundary moves right above mass=400]
+      //     (1.5, 400) → (1.5, 500) [left vertical above kink]
+      //     (1.5, 500) → (2.5, 500) [top]
+      //     (2.5, 500) → (2.5, 300) [right]
+      //     (2.5, 300) → (0.5, 300) [bottom]
+      //   The kink at (1.5, 400) makes this a CONCAVE polygon: between mass=300 and
+      //   mass=400 the left boundary is the diagonal, but above mass=400 it becomes
+      //   the vertical x=1.5. This is the same geometry as the Cessna 172S Utility
+      //   envelope where a slanted left boundary creates a concave region.
+      //
+      // Takeoff point: (arm=1.6, mass=450) — inside (mass>400, arm=1.6 > x_left=1.5) ✓
+      // Landing point: (arm=1.3, mass=330) — inside (mass=330, x_left=0.5+(330-300)/100=0.8 < 1.3) ✓
+      // Segment at mass=400 (the kink): arm = 1.6 + (400-450)/(330-450)*(1.3-1.6)
+      //   = 1.6 + (−50/−120)*(−0.3) = 1.6 − 0.125 = 1.475
+      //   x_left at mass=400 = 1.5 (kink vertex) → 1.475 < 1.5 → OUTSIDE! → should trigger violation
+      //
+      // BEM and fuel engineered to produce exactly these CG positions:
+      //   ZFM  = 330 kg, arm = 1.3  → moment = 429
+      //   Fuel = 120 kg, arm = 2.425 → TOM = 450, moment = 720, arm = 1.6
+      const input = createMathCoreInput({
+        stations: [],
+        graphType: 'arm',
+        envelope: [
+          { armOrMoment: 0.5, mass: 300 },
+          { armOrMoment: 1.5, mass: 400 },
+          { armOrMoment: 1.5, mass: 500 },
+          { armOrMoment: 2.5, mass: 500 },
+          { armOrMoment: 2.5, mass: 300 },
+        ],
+        fuelStations: [
+          {
+            index: 0,
+            mass: 120,
+            arm: 2.425,
+            armLookup: [],
+            unusableFuel: 0,
+            burnSequences: [],
+          },
+        ],
+      })
+      input.basicEmptyMass = 330
+      input.emptyCenterOfGravity = 1.3
+      input.maxTakeoffMass = 1000
+
+      const result = computeMassBalanceCore(input)
+
       expect(result.violations.some((v) => v.type === 'CG_MIGRATION_EXCEEDED')).toBe(true)
     })
 

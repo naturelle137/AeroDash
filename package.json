@@ -24,12 +24,12 @@
     "lint-staged": "lint-staged"
   },
   "devDependencies": {
-    "@commitlint/cli": "^20.4.2",
-    "@commitlint/config-conventional": "^20.4.2",
+    "@commitlint/cli": "^20.5.0",
+    "@commitlint/config-conventional": "^20.5.0",
     "@release-it/conventional-changelog": "^10.0.6",
     "husky": "^9.1.7",
-    "lint-staged": "^16.3.1",
-    "markdownlint-cli2": "^0.21.0",
+    "lint-staged": "^16.4.0",
+    "markdownlint-cli2": "^0.22.0",
     "release-it": "^19.2.4"
   },
   "pnpm": {
@@ -42,7 +42,8 @@
       "defu": ">=6.1.5",
       "brace-expansion@>=2.0.0 <2.0.3": "~2.0.3",
       "brace-expansion@>=4.0.0 <5.0.5": "^5.0.5",
-      "yaml": ">=2.8.3"
+      "yaml": ">=2.8.3",
+      "smol-toml": ">=1.6.1"
     }
   },
   "lint-staged": {

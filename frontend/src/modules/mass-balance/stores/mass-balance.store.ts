@@ -24,6 +24,8 @@
 
 import { defineStore } from 'pinia'
 import { calculateMassBalance } from '@/core/adapters/mass-balance.adapter'
+import { normalizeMassToKg, normalizeArmToM } from '@/core/logic/unit-normalization'
+import type { MassUnit, ArmUnit } from '@/core/domain/units'
 import type {
   MassBalanceState,
   AircraftContext,
@@ -170,6 +172,7 @@ export const useMassBalanceStore = defineStore('massBalance', {
           verified: false,
           mandatory: deriveMandatory(lp),
           touched: deriveMandatory(lp) ? true : lp.defaultQuantity > 0,
+          hasError: false,
         }))
 
         this.notifications = []
@@ -263,6 +266,7 @@ export const useMassBalanceStore = defineStore('massBalance', {
         station.weight = 0
         station.verified = false
         station.touched = true
+        station.hasError = false
       }
       this._runCalculation()
       this.evaluateState()
@@ -303,6 +307,12 @@ export const useMassBalanceStore = defineStore('massBalance', {
         return
       }
 
+      // @IMP-MB-STORE-016@ (FROM: @REQ-AD-014@, @REQ-SYS-003@)
+      // Values stored at rest in their original source unit (per REQ-AD-014).
+      // Normalize to SI (kg, m) at the adapter boundary before passing to the
+      // math core, using the load point's unit field and the profile's sourceUnit.
+      const sourceUnit = this.aircraft!.sourceUnit as MassUnit
+
       const input: MathCoreInput = {
         stations: this.availableStations
           .filter((s) => {
@@ -311,21 +321,22 @@ export const useMassBalanceStore = defineStore('massBalance', {
           })
           .map((s) => {
             const def = this.aircraft!.loadPoints[s.index]!
+            const massUnit = (def.unit || sourceUnit) as MassUnit
+            const armUnit = 'm' as ArmUnit
             return {
               index: s.index,
-              mass: s.weight,
-              arm: def.arm,
+              mass: normalizeMassToKg(s.weight, massUnit),
+              arm: def.arm !== null ? normalizeArmToM(def.arm, armUnit) : null,
               armLookup: def.armLookup,
             }
           }),
-        basicEmptyMass: activeReport.basicEmptyMass,
+        basicEmptyMass: normalizeMassToKg(activeReport.basicEmptyMass, sourceUnit),
         emptyCenterOfGravity: activeReport.emptyCg,
         maxTakeoffMass: catDef.maxTakeoffMass,
         maxZeroFuelMass: catDef.maxZeroFuelMass,
         envelope: catDef.envelope,
         graphType: catDef.graphType,
         fuelStations: this.availableStations
-          // .filter((_s, _i, _arr) => {
           .filter((_s) => {
             const def = this.aircraft!.loadPoints[_s.index]
             return def && def.fuelTank !== null
@@ -333,12 +344,14 @@ export const useMassBalanceStore = defineStore('massBalance', {
           .map((s) => {
             const def = this.aircraft!.loadPoints[s.index]!
             const ft = def.fuelTank!
+            const massUnit = (def.unit || sourceUnit) as MassUnit
+            const armUnit = 'm' as ArmUnit
             return {
               index: s.index,
-              mass: s.weight,
-              arm: def.arm,
+              mass: normalizeMassToKg(s.weight, massUnit),
+              arm: def.arm !== null ? normalizeArmToM(def.arm, armUnit) : null,
               armLookup: def.armLookup,
-              unusableFuel: ft.unusableFuel,
+              unusableFuel: normalizeMassToKg(ft.unusableFuel, massUnit),
               burnSequences: ft.burnSequences,
             }
           }),
@@ -423,6 +436,19 @@ export const useMassBalanceStore = defineStore('massBalance', {
               dismissible: true,
             }
           case 'INVALID_INPUT':
+            // @IMP-MB-STORE-017@ (FROM: @REQ-UI-008@, @REQ-SYS-012@)
+            // OUT_OF_RANGE is an operational range advisory (soft WARNING);
+            // all other INVALID_INPUT codes are hard validation ERRORs.
+            if (v.code === 'OUT_OF_RANGE') {
+              return {
+                id: 'WARN-UI-001',
+                severity: 'WARNING',
+                message: `${v.field ?? 'Input'} is out of standard operational range`,
+                context: 'MassBalance.Validation',
+                persistent: false,
+                dismissible: true,
+              }
+            }
             return {
               id: 'ERR-SYS-001',
               severity: 'ERROR',
@@ -444,6 +470,53 @@ export const useMassBalanceStore = defineStore('massBalance', {
       })
 
       this.lastResult = result
+
+      // @IMP-MB-STORE-015@ (FROM: @REQ-UQ-004@)
+      // Update per-station error flags from INVALID_INPUT violations so the UI
+      // can highlight the affected input fields as described in the validation
+      // error message.
+      this._updateStationErrorFlags(result.violations)
+    },
+
+    /**
+     * Derive which stations have validation errors from the violation list and
+     * mark them via the `hasError` flag on StationInput. Clears all flags first
+     * so stale errors are not left on fields that have since been corrected.
+     */
+    _updateStationErrorFlags(
+      violations: import('@/core/domain/mass-balance.math-types').Violation[],
+    ): void {
+      // Clear all existing error flags
+      for (const s of this.stations) s.hasError = false
+
+      const nonFuelInputStations = this.availableStations.filter((s) => {
+        const def = this.aircraft?.loadPoints[s.index]
+        return def && def.fuelTank === null
+      })
+      const fuelInputStations = this.availableStations.filter((s) => {
+        const def = this.aircraft?.loadPoints[s.index]
+        return def && def.fuelTank !== null
+      })
+
+      for (const v of violations) {
+        if (v.type !== 'INVALID_INPUT' || !v.field) continue
+        const stationMatch = v.field.match(/^STATIONS\[(\d+)\]/)
+        const fuelMatch = v.field.match(/^FUEL_STATIONS\[(\d+)\]/)
+
+        let stationIndex: number | null = null
+        if (stationMatch) {
+          const arrayIdx = parseInt(stationMatch[1]!, 10)
+          stationIndex = nonFuelInputStations[arrayIdx]?.index ?? null
+        } else if (fuelMatch) {
+          const arrayIdx = parseInt(fuelMatch[1]!, 10)
+          stationIndex = fuelInputStations[arrayIdx]?.index ?? null
+        }
+
+        if (stationIndex !== null) {
+          const station = this.stations[stationIndex]
+          if (station) station.hasError = true
+        }
+      }
     },
 
     // ─── State Machine ─────────────────────────────────────────────────

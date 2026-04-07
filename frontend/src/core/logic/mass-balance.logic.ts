@@ -6,7 +6,7 @@
 import type { MathCoreInput, MathCoreResult, Violation } from '../domain/mass-balance.math-types'
 import type { CgPoint, MigrationPoint } from '../domain/mass-balance.math-types'
 import { interpolateArmFromLookup } from './mb.arm-lookup'
-import { isCgWithinEnvelope } from './mb.envelope'
+import { isCgWithinEnvelope, doesSegmentCrossEnvelope } from './mb.envelope'
 
 /**
  * Synchronously calculate mass, CG, and geometric domain safety violations.
@@ -150,6 +150,13 @@ export function computeMassBalanceCore(input: MathCoreInput): MathCoreResult {
   migrationPath.push({ ...landingCenterOfGravityPoint, label: 'Landing' })
 
   // @IMP-MB-CORE-008@ (FROM: @REQ-MB-006@, @REQ-MB-004@, @REQ-MB-011@)
+  // CG_OUT_OF_ENVELOPE fires only when the CG arm (or moment) violates the
+  // horizontal limits of the certified envelope — it is NOT raised for a
+  // mass-only violation already covered by MTOM_EXCEEDED. When the takeoff
+  // point is outside the envelope, a secondary check at the maximum allowable
+  // mass (clamped to maxTakeoffMass) determines whether the arm itself is
+  // within the horizontal bounds. If the arm passes at the clamped mass, the
+  // root cause is purely a mass excess → only MTOM_EXCEEDED is emitted.
   const takeoffX = input.graphType === 'arm' ? takeoffCenterOfGravityPoint.arm : takeoffMoment
   const takeoffInside = isCgWithinEnvelope(
     takeoffX,
@@ -158,25 +165,47 @@ export function computeMassBalanceCore(input: MathCoreInput): MathCoreResult {
   )
 
   if (!takeoffInside) {
-    violations.push({ type: 'CG_OUT_OF_ENVELOPE' })
+    // Determine whether the CG arm (horizontal position) is within the envelope
+    // independent of the mass-axis violation. Re-test at a mass just inside the
+    // envelope top (epsilon below maxTakeoffMass) so the ray-casting boundary
+    // condition does not produce a false-positive arm failure.
+    const massJustBelowLimit = input.maxTakeoffMass * (1 - 1e-9)
+    const armWithinHorizontalLimits = isCgWithinEnvelope(
+      takeoffX,
+      massJustBelowLimit,
+      input.envelope,
+    )
+    if (!armWithinHorizontalLimits) {
+      violations.push({ type: 'CG_OUT_OF_ENVELOPE' })
+    }
   } else {
     // @IMP-MB-CORE-010@ (FROM: @REQ-MB-011@, @REQ-FE-004@)
-    // Check all intermediate burn-sequence waypoints and the landing point.
+    // Check each segment of the migration path against the envelope.
+    // A violation occurs when any waypoint is outside the envelope OR when
+    // the line segment connecting two consecutive waypoints crosses the
+    // envelope boundary — this catches paths that exit and re-enter the
+    // envelope between discrete check-points (e.g. burn-down curves).
     let migrationViolation = false
 
-    for (const wp of burnSequenceWaypoints) {
-      const x = input.graphType === 'arm' ? wp.arm : wp.arm * wp.mass
-      if (!isCgWithinEnvelope(x, wp.mass, input.envelope)) {
+    const allWaypoints = [...burnSequenceWaypoints, landingCenterOfGravityPoint]
+    let prevX = takeoffX
+    let prevMass = takeoffCenterOfGravityPoint.mass
+
+    for (const wp of allWaypoints) {
+      const wpX = input.graphType === 'arm' ? wp.arm : wp.arm * wp.mass
+
+      if (!isCgWithinEnvelope(wpX, wp.mass, input.envelope)) {
         migrationViolation = true
         break
       }
-    }
 
-    if (!migrationViolation) {
-      const landingX = input.graphType === 'arm' ? landingCenterOfGravityPoint.arm : landingMoment
-      if (!isCgWithinEnvelope(landingX, landingCenterOfGravityPoint.mass, input.envelope)) {
+      if (doesSegmentCrossEnvelope(prevX, prevMass, wpX, wp.mass, input.envelope)) {
         migrationViolation = true
+        break
       }
+
+      prevX = wpX
+      prevMass = wp.mass
     }
 
     if (migrationViolation) {
