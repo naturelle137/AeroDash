@@ -114,6 +114,7 @@ This is the most important architectural rule. **Never violate it.**
 ### Decision Rule for New Code
 
 > *"Can a defect here produce an incorrect Go/No-Go advisory?"*
+>
 > - YES → **P1**
 > - Modifies data that feeds P1 → **P2**
 > - Otherwise → **P3**
@@ -225,6 +226,7 @@ Hazard (H-xxx) → Requirement (REQ-xxx) → User Journey (UJ-xxx) → E2E Test 
 Requirements live in `docs/requirements/` using **EARS syntax** (Easy Approach to Requirements Syntax). Format: `REQ-<MODULE>-<NNN>`.
 
 Priority aligns with code tiers:
+
 - **P1** — Safety-critical (must have 100% coverage + ADR for changes)
 - **P2** — Standard operational
 - **P3** — Nice-to-have / polish
@@ -236,13 +238,16 @@ Module identifiers: `AC`, `AP`, `AD`, `FE`, `MB`, `PF`, `WX`, `UI`, `UQ`, `SYS`,
 ## Quality Gates
 
 ### Pre-commit (Husky — automatic on `git commit`)
+
 - `markdownlint-cli2` on all `*.md` files
 - `commitlint` enforces Conventional Commits format + allowed scopes
 
 ### Pre-push (lint-staged)
+
 - `oxlint` + `eslint` on `frontend/**/*.{js,ts,vue,json,yaml,yml}`
 
 ### CI (GitHub Actions on every PR)
+
 - Full lint suite (`lint:ci:oxlint` + `lint:ci:eslint`)
 - Unit + integration + E2E tests
 - Coverage thresholds enforced (P1: 100%, P2: 80%, P3: 60%)
