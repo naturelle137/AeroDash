@@ -313,6 +313,46 @@ Exclusions for lint: `.tools/`, `.logs/`, `node_modules/`
 
 ---
 
+## Issue Workflow for Agents
+
+When processing GitHub issues, follow these steps exactly. Full rules in `docs/architecture/adr/303-DEV-ticket-workflow.md`.
+
+### Starting Work on a Ticket
+
+1. Read the issue with `mcp__github__get_issue`.
+2. **Set project status to `In Progress`** on the `AeroDash Dashboard` project board before writing any code.
+   - Resolve project/item/field IDs via `gh project list`, `gh project item-list`, `gh project field-list`.
+   - Update: `gh project item-edit --project-id <ID> --id <ITEM_ID> --field-id <STATUS_ID> --single-select-option-id <IN_PROGRESS_ID>`
+3. Implement the work on a `feature/*` branch.
+
+### Creating the PR
+
+1. Use `.github/pull_request_template.md` as the PR body template.
+2. Reference the issue with `Closes #<ISSUE_ID>` — this closes the issue automatically on merge to `develop`.
+3. **Set project status to `In Verification`** on the project board.
+
+### After PR Merges to `develop`
+
+- GitHub auto-closes the issue and applies the `fixed` label (via `Closes #` keyword).
+- Verify the project status moved to `Done`. Correct manually if needed.
+
+### Issue Label Flow
+
+```text
+open → accepted → fixed (closed, PR merged to develop)
+open → duplicate (closed, link canonical issue)
+open → wont do  (closed, rationale documented)
+```
+
+There is **no `ready` label** and **no `Ready for Release` status**. Issues close on `develop` merge, not on `main` merge.
+
+### Parent / Sub-Task Rules
+
+- **`Task` (sub-task):** Close with `fixed` when its own PR merges to `develop`.
+- **`Feature` / `Bug` (parent):** Close with `fixed` only after **all** child `Task` issues are closed.
+
+---
+
 ## What NOT to Do
 
 - **Never** add `vue`, `pinia`, `vue-router`, or any P2/P3 import inside `src/core/`
