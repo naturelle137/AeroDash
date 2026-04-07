@@ -7,7 +7,7 @@ alwaysApply: false
 - repo: `naturelle137/AeroDash`
 - tools.github: `get_me` `list_branches` `search_pull_requests` `create_pull_request` `update_pull_request`
 - template: `.github/pull_request_template.md`; preserve headings, order, and checklists
-- template.issue_state: in `### Issue State Management`, delete the bullet that does not match PR base (`develop` vs `main`); keep the section
+- template.issue_state: in `### Issue State Management`, keep the bullet if merging to `develop` (the common case); delete it if merging to `main` (no open issues expected)
 - template.no_stray_markers: remove placeholder `-` / empty list lines under `### Related Issues` when filling refs
 - template.na.allow: `N/A` and Reason only on rows that literally include `OR N/A` in the template; forbid N/A on Target Branch, DoD, self-review, ADR, and Safety bullets — verify or answer honestly
 - template.na.checked: if disposition for an `OR N/A` row is N/A, fill Reason and set `[x]`; do not leave `[ ]`
@@ -18,13 +18,12 @@ alwaysApply: false
 - branch.target.`feature/*`: `develop` only
 - branch.target.`release/*`: `main` | `develop`
 - branch.target.`hotfix/*`: `main` | `develop`
-- branch.keyword.`develop`: `Ref #...` | `Related to #...`; never `Closes #...` | `Fixes #...`
-- branch.keyword.`main`: `Closes #...` | `Fixes #...` allowed
+- branch.keyword.`develop`: `Closes #...` | `Fixes #...`; closes issue on merge
+- branch.keyword.`main`: `Ref #...` only; issues already closed on develop merge
 - issue.refs.commit.prefer: reuse valid issue refs from PR commit messages
-- issue.refs.`develop`: only issues actually worked in this PR; prefer explicit refs in `<target>..HEAD` commits,reference as `Ref <issue number>`
+- issue.refs.`develop`: only issues actually worked in this PR; prefer explicit refs in `<target>..HEAD` commits; reference as `Closes <issue number>`
 - issue.refs.`develop`.fallback: if worked issues are not explicit in PR commits, ask user; never add inferred-only, newly created, or agent-created issues
-- issue.refs.`main`: only issues this PR should close, reference as `Closed <issue number>`
-- issue.refs.`main`.filter: include only when label=`ready` AND project `AeroDash Dashboard` status=`Ready for Release`; both required
+- issue.refs.`main`: no open issues expected; use `Ref #` for documentation only if needed
 - pr.duplicate.check: exact open PR match on repo + `head:<branch>` + `base:<target>`
 - pr.duplicate.on_match: update existing PR; never create a duplicate
 - changelog.file: `CHANGELOG.md`
