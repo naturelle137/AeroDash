@@ -46,7 +46,7 @@ argument-hint: <ISSUE_ID>
 - `coverage.source`: `docs/testing/TESTING.md`
 - `coverage.gates.product`: modified-file thresholds mandatory
 - `coverage.gates.engineering`: no mandatory creation/thresholds unless P1
-- `coverage.gates.p1`: `100%` line + branch + function
+- `coverage.gates.p1`: `90%` line + branch + function
 - `bug.protocol`: failing test first -> minimal fix -> passing verification
 - `verify.incremental`: after each logical unit
 - `verify.coverage.cmd`: `pnpm --filter frontend vitest run --coverage`

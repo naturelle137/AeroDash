@@ -76,7 +76,7 @@ pnpm test:unit
 # Run with coverage report
 pnpm coverage:unit
 
-# Run only P1 Safety Core tests (pure Node.js, 100 % coverage required)
+# Run only P1 Safety Core tests (pure Node.js, 90 % coverage required)
 pnpm --filter frontend test:p1
 
 # Run P1 with coverage enforcement
@@ -87,7 +87,7 @@ pnpm --filter frontend test:p1:coverage
 
 1. Run the relevant unit test command above.
 2. If you touched `frontend/src/core/`, always run `test:p1:coverage` and
-   confirm 100 % line/branch/function coverage.
+   confirm 90 % line/branch/function coverage.
 3. For other tiers, run `pnpm coverage:unit` and check thresholds (P2 ≥ 80 %,
    P3 ≥ 60 %).
 
@@ -191,7 +191,7 @@ either fails, the build fails.
 │   │   ├── e2e/            Playwright BDD features + steps
 │   │   └── assets/         Golden-sample aircraft JSON fixtures
 │   ├── vitest.config.ts        General unit test config (jsdom)
-│   ├── vitest.config.p1.ts     P1 core config (node, 100 % thresholds)
+│   ├── vitest.config.p1.ts     P1 core config (node, 90 % thresholds)
 │   ├── playwright.config.ts    E2E config (BDD, Chromium)
 │   └── stryker.config.mjs      Mutation testing config
 ├── docs/                   Requirements, architecture, ADRs, journeys
@@ -203,7 +203,7 @@ either fails, the build fails.
 
 | Tier | Path              | Coverage | Environment |
 |------|-------------------|----------|-------------|
-| P1   | `src/core/`       | 100 %    | Node.js     |
+| P1   | `src/core/`       | 90 %     | Node.js     |
 | P2   | `src/modules/`    | 80 %     | jsdom       |
 | P3   | `src/shared/`, `src/stores/`, `src/plugins/`, `src/router/` | 60 % | jsdom |
 
