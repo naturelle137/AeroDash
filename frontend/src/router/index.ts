@@ -5,9 +5,11 @@ import MassBalanceView from '@/modules/mass-balance/views/MassBalanceView.vue'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
+    // @IMP-UI-ROUTE-001@ (FROM: @REQ-SYS-001@)
     {
       path: '/',
-      redirect: '/mass-balance',
+      name: 'home',
+      component: () => import('@/views/HomeView.vue'),
     },
     {
       path: '/mass-balance',
