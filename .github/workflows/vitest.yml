@@ -2,6 +2,8 @@ name: Unit Tests (Vitest)
 
 on:
   push:
+    # Post-merge regression check on integration branches.
+    # PRs are covered by the unit-tests job in ci.yml instead.
     branches: [main, develop]
     paths:
       - 'frontend/src/**'
@@ -10,8 +12,6 @@ on:
       - 'frontend/package.json'
       - 'package.json'
       - 'pnpm-lock.yaml'
-  pull_request:
-    branches: [main, develop]
 
 jobs:
   vitest:
