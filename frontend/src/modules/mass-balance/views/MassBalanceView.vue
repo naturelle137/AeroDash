@@ -154,7 +154,10 @@ function onAircraftSelected(event: Event): void {
 
       <div class="aircraft-selector-row">
         <div class="aircraft-selector-field">
-          <label for="aircraft-select" class="field-label">Select aircraft</label>
+          <!-- Label text changes so "Select aircraft" is absent from rendered text after an aircraft is loaded (spec line 283) -->
+          <label for="aircraft-select" class="field-label">
+            {{ store.aircraft ? 'Aircraft' : 'Select aircraft' }}
+          </label>
           <select
             id="aircraft-select"
             aria-label="Select aircraft"
@@ -186,7 +189,7 @@ function onAircraftSelected(event: Event): void {
       </div>
 
       <!-- Loading state -->
-      <div v-if="viewModel.isLoading" class="loading-row" aria-busy="true" aria-live="polite">
+      <div v-if="viewModel.isLoading" class="loading" aria-busy="true" aria-live="polite">
         <span class="loading-spinner" aria-hidden="true" />
         <span>Loading aircraft profile…</span>
       </div>
@@ -228,7 +231,7 @@ function onAircraftSelected(event: Event): void {
         <!-- Status banner (WARNING / ERROR_CRITICAL / VERIFIED_SAFE) -->
         <div
           v-if="viewModel.bannerSeverity"
-          class="status-banner"
+          class="state-banner"
           :class="`banner--${viewModel.bannerSeverity}`"
           role="alert"
           :aria-live="viewModel.isError ? 'assertive' : 'polite'"
@@ -523,7 +526,7 @@ function onAircraftSelected(event: Event): void {
 
 /* ─── Loading row ────────────────────────────────────────────────────────── */
 
-.loading-row {
+.loading {
   display: flex;
   align-items: center;
   gap: var(--space-2);
@@ -604,7 +607,7 @@ function onAircraftSelected(event: Event): void {
 
 /* ─── Status banner ──────────────────────────────────────────────────────── */
 
-.status-banner {
+.state-banner {
   padding: var(--space-3) var(--space-4);
   border-radius: var(--radius-md);
   margin-bottom: var(--space-4);
