@@ -17,12 +17,17 @@ async function fillStation(page: import('@playwright/test').Page, label: string,
 // ─── When steps — Happy path (UJ-B-005) ────────────────────────────────────
 
 When('loads two passengers and light baggage', async ({ page }) => {
-  await page.getByLabel('Pilot & Passenger').fill('140')
-  await page.getByLabel('Baggage').fill('10')
+  // Use fillStation to scope to .mass-station-input — page-level getByLabel('Baggage')
+  // could match other labelled regions on the redesigned page.
+  await fillStation(page, 'Pilot & Passenger', '140')
+  await fillStation(page, 'Baggage', '10')
 })
 
 When('adds sufficient fuel for the trip', async ({ page }) => {
-  await page.getByLabel('Fuel').fill('50')
+  // getByLabel('Fuel') is ambiguous: the redesigned page also has an
+  // aria-label="Fuel and Endurance — coming soon" section that Playwright
+  // matches via substring, causing a strict-mode violation.
+  await fillStation(page, 'Fuel', '50')
 })
 
 // ─── When steps — CG migration / burn-out check (UJ-B-001) ────────────────
