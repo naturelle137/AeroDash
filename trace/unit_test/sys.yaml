@@ -599,3 +599,116 @@ SYS App — Vue Router (Unit)
       - IMP-SYS-APP-001
     files:
       - frontend/src/router/index.spec.ts
+
+SYS Store — Session Persistence (Unit)
+  UT-SYS-STORE-001
+    title: returns null when localStorage is empty
+    impl:
+      - IMP-SYS-STORE-001
+    files:
+      - frontend/src/stores/__tests__/session-persistence.store.spec.ts
+
+  UT-SYS-STORE-002
+    title: returns null and clears storage when JSON is malformed
+    impl:
+      - IMP-SYS-STORE-001
+    files:
+      - frontend/src/stores/__tests__/session-persistence.store.spec.ts
+
+  UT-SYS-STORE-003
+    title: returns null and clears storage when Zod validation fails (wrong version)
+    impl:
+      - IMP-SYS-STORE-001
+    files:
+      - frontend/src/stores/__tests__/session-persistence.store.spec.ts
+
+  UT-SYS-STORE-004
+    title: returns null and clears storage when schema is missing required fields
+    impl:
+      - IMP-SYS-STORE-001
+    files:
+      - frontend/src/stores/__tests__/session-persistence.store.spec.ts
+
+  UT-SYS-STORE-005
+    title: returns parsed payload when valid JSON with correct schema is stored
+    impl:
+      - IMP-SYS-STORE-001
+    files:
+      - frontend/src/stores/__tests__/session-persistence.store.spec.ts
+
+  UT-SYS-STORE-006
+    title: does not remove valid payload from storage after restore
+    impl:
+      - IMP-SYS-STORE-001
+    files:
+      - frontend/src/stores/__tests__/session-persistence.store.spec.ts
+
+  UT-SYS-STORE-007
+    title: does nothing when no aircraft is loaded
+    impl:
+      - IMP-SYS-STORE-001
+    files:
+      - frontend/src/stores/__tests__/session-persistence.store.spec.ts
+
+  UT-SYS-STORE-008
+    title: writes a valid payload to localStorage after profile load
+    impl:
+      - IMP-SYS-STORE-001
+    files:
+      - frontend/src/stores/__tests__/session-persistence.store.spec.ts
+
+  UT-SYS-STORE-009
+    title: payload saved by saveSession() passes restoreSession() validation
+    impl:
+      - IMP-SYS-STORE-001
+    files:
+      - frontend/src/stores/__tests__/session-persistence.store.spec.ts
+
+  UT-SYS-STORE-010
+    title: serialises station weights correctly
+    impl:
+      - IMP-SYS-STORE-001
+    files:
+      - frontend/src/stores/__tests__/session-persistence.store.spec.ts
+
+  UT-SYS-STORE-011
+    title: removes the payload from localStorage
+    impl:
+      - IMP-SYS-STORE-001
+    files:
+      - frontend/src/stores/__tests__/session-persistence.store.spec.ts
+
+  UT-SYS-STORE-012
+    title: is idempotent — no error when storage is already empty
+    impl:
+      - IMP-SYS-STORE-001
+    files:
+      - frontend/src/stores/__tests__/session-persistence.store.spec.ts
+
+  UT-SYS-STORE-013
+    title: does not save immediately on startWatching — waits for debounce
+    impl:
+      - IMP-SYS-STORE-001
+    files:
+      - frontend/src/stores/__tests__/session-persistence.store.spec.ts
+
+  UT-SYS-STORE-014
+    title: saves after debounce timeout elapses
+    impl:
+      - IMP-SYS-STORE-001
+    files:
+      - frontend/src/stores/__tests__/session-persistence.store.spec.ts
+
+  UT-SYS-STORE-015
+    title: clears prior aircraft session when aircraft is switched
+    impl:
+      - IMP-SYS-STORE-001
+    files:
+      - frontend/src/stores/__tests__/session-persistence.store.spec.ts
+
+  UT-SYS-STORE-016
+    title: restores all station fields correctly after a full save/restore cycle
+    impl:
+      - IMP-SYS-STORE-001
+    files:
+      - frontend/src/stores/__tests__/session-persistence.store.spec.ts

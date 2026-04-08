@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- Bilinear interpolation engine (`performance.bilinear-interpolation.ts`) in P1 Safety Core for 2-D POH performance table lookups (mass × pressure altitude → distance); covers TOR, TOD, LR, LD with conservative boundary clamping (closes #155, #169)
+- Canonical bilinear interpolation algorithm contract document (`docs/architecture/performance-bilinear-interpolation-contract.md`) with hand-verified test vectors for all four distance types
+- `SessionPayloadSchema` Zod schema in P1 core for validating persisted pilot session data before restoration (`session.schema.ts`)
+- `useSessionPersistenceStore` Pinia store (P3) that debounces auto-save of M&B pilot inputs to `localStorage`, validates and restores payload on page reload, and clears on aircraft switch (closes #152, #164)
+
+### Engineering
+
+- 40 canonical bilinear interpolation unit tests (VEC-TOR-001–015, VEC-TOD-001–004, VEC-LR-001–006, VEC-LD-001–005, VEC-EDGE-001–010) all passing in CI P1 isolation mode
+- 16 unit tests for `useSessionPersistenceStore` covering save, restore, clear, debounce, and round-trip scenarios
+
 ## [0.2.0-alpha] - 2026-04-03
 
 ### Added
