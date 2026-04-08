@@ -1,0 +1,32 @@
+UI Shared Components
+  IMP-UI-SHARED-001
+    title: AppLogo Component — Dark-mode-aware logo mark and wordmark
+    req:
+      - REQ-UI-011
+    files:
+      - frontend/src/shared/components/AppLogo.vue
+
+  IMP-UI-SHARED-002
+    title: App Shell — Navigation layout with theme toggle and sidebar
+    req:
+      - REQ-UI-011
+      - REQ-SYS-001
+    files:
+      - frontend/src/App.vue
+
+UI Views
+  IMP-UI-VIEW-001
+    title: HomeView — Dashboard landing page with module navigation
+    req:
+      - REQ-UI-011
+      - REQ-SYS-001
+    files:
+      - frontend/src/views/HomeView.vue
+
+UI Routing
+  IMP-UI-ROUTE-001
+    title: Application route table — home and mass-balance routes
+    req:
+      - REQ-SYS-001
+    files:
+      - frontend/src/router/index.ts
