@@ -56,3 +56,25 @@ Architecture Design
     req:
       - REQ-PF-002
     file: docs/architecture/performance-bilinear-interpolation-contract.md
+
+  DES-ARCH-007
+    title: IndexedDB Fleet Persistence Strategy
+    req:
+      - REQ-AC-001
+      - REQ-AC-004
+      - REQ-AC-005
+    file: docs/architecture/adr/006-indexeddb-fleet-persistence.md
+
+  DES-ARCH-008
+    title: Aircraft Data Update Pipeline
+    req:
+      - REQ-AC-001
+      - REQ-AC-004
+    file: docs/architecture/adr/007-aircraft-data-update-pipeline.md
+
+  DES-ARCH-009
+    title: Aircraft Fleet Module Design
+    req:
+      - REQ-AC-001
+      - REQ-AC-005
+    file: docs/architecture/aircraft-fleet-module.md

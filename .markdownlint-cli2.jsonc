@@ -10,6 +10,8 @@
     "frontend/test-results/**",
     ".cursor/**",
     ".tmp/**",
+    ".claude/**",
+    ".claire/**",
     ".claude/worktrees/**",
     "CHANGELOG.md"
   ]

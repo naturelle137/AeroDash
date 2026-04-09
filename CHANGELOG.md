@@ -29,6 +29,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Engineering
 
+- 33 unit tests (ICAO validation × 16, import × 8, fleet FSM × 9) and 4 IndexedDB integration tests all passing
+- verifyProfile() now auto-updates active aircraft context when the verified Draft was in use
 - Canonical bilinear interpolation test vectors (TOR, TOD, LR, LD) established and passing in CI — de-risk for v0.4.0 performance distance calculations (closes #155)
 - 40 canonical bilinear interpolation unit tests (VEC-TOR-001–015, VEC-TOD-001–004, VEC-LR-001–006, VEC-LD-001–005, VEC-EDGE-001–010) all passing in CI P1 isolation mode
 - 16 unit tests for `useSessionPersistenceStore` covering save, restore, clear, debounce, and round-trip scenarios

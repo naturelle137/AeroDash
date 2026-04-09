@@ -1,0 +1,297 @@
+AC Core — Aircraft Schema M3 fields (Unit)
+  UT-AC-CORE-001
+    title: defaults status to Draft when status is omitted
+    impl:
+      - IMP-AC-CORE-002
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AC-CORE-002
+    title: accepts status = Verified
+    impl:
+      - IMP-AC-CORE-002
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AC-CORE-003
+    title: rejects an invalid status value
+    impl:
+      - IMP-AC-CORE-002
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AC-CORE-004
+    title: defaults schemaVersion to 1 when omitted
+    impl:
+      - IMP-AC-CORE-002
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AC-CORE-005
+    title: rejects schemaVersion = 0 (must be positive integer)
+    impl:
+      - IMP-AC-CORE-002
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AC-CORE-006
+    title: defaults passengerProfiles to empty array when omitted
+    impl:
+      - IMP-AC-CORE-001
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AC-CORE-007
+    title: accepts valid passengerProfiles array
+    impl:
+      - IMP-AC-CORE-001
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AC-CORE-008
+    title: rejects a passengerProfile with standardWeight = 0
+    impl:
+      - IMP-AC-CORE-001
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AC-CORE-009
+    title: rejects a passengerProfile with an invalid unit
+    impl:
+      - IMP-AC-CORE-001
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+AC Store — ICAO Registration Validator (Unit)
+  UT-AC-STORE-001
+    title: validates D-EBPN as valid ICAO registration
+    impl:
+      - IMP-AC-STORE-002
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.validator.spec.ts
+
+  UT-AC-STORE-002
+    title: rejects "123" as invalid registration (must start with a letter)
+    impl:
+      - IMP-AC-STORE-002
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.validator.spec.ts
+
+  UT-AC-STORE-003
+    title: accepts N12345 (US-style registration)
+    impl:
+      - IMP-AC-STORE-002
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.validator.spec.ts
+
+  UT-AC-STORE-004
+    title: accepts G-ABCD (UK-style registration)
+    impl:
+      - IMP-AC-STORE-002
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.validator.spec.ts
+
+  UT-AC-STORE-005
+    title: rejects empty string
+    impl:
+      - IMP-AC-STORE-002
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.validator.spec.ts
+
+  UT-AC-STORE-006
+    title: rejects a single character (too short)
+    impl:
+      - IMP-AC-STORE-002
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.validator.spec.ts
+
+  UT-AC-STORE-007
+    title: rejects 8 characters (too long)
+    impl:
+      - IMP-AC-STORE-002
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.validator.spec.ts
+
+  UT-AC-STORE-008
+    title: rejects registration with special characters
+    impl:
+      - IMP-AC-STORE-002
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.validator.spec.ts
+
+  UT-AC-STORE-009
+    title: accepts 2-character registration (minimum valid length)
+    impl:
+      - IMP-AC-STORE-002
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.validator.spec.ts
+
+  UT-AC-STORE-010
+    title: accepts 7-character registration (maximum valid length)
+    impl:
+      - IMP-AC-STORE-002
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.validator.spec.ts
+
+  UT-AC-STORE-011
+    title: detects duplicate registration in fleet (case-insensitive)
+    impl:
+      - IMP-AC-STORE-003
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.validator.spec.ts
+
+  UT-AC-STORE-012
+    title: detects duplicate registration case-insensitively
+    impl:
+      - IMP-AC-STORE-003
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.validator.spec.ts
+
+  UT-AC-STORE-013
+    title: returns false when registration is not in fleet
+    impl:
+      - IMP-AC-STORE-003
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.validator.spec.ts
+
+  UT-AC-STORE-014
+    title: allows same reg when excludeId matches the profile owning that registration
+    impl:
+      - IMP-AC-STORE-003
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.validator.spec.ts
+
+  UT-AC-STORE-015
+    title: still detects duplicate when excludeId does not match the conflicting profile
+    impl:
+      - IMP-AC-STORE-003
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.validator.spec.ts
+
+  UT-AC-STORE-016
+    title: returns false when profiles array is empty
+    impl:
+      - IMP-AC-STORE-003
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.validator.spec.ts
+
+AC Store — Profile Import (Unit)
+  UT-AC-STORE-017
+    title: creates Draft profile from valid exchange file
+    impl:
+      - IMP-AC-STORE-004
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.import.spec.ts
+
+  UT-AC-STORE-018
+    title: assigns a new UUID on import (does not reuse the original id)
+    impl:
+      - IMP-AC-STORE-004
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.import.spec.ts
+
+  UT-AC-STORE-019
+    title: forces status = Draft even when exchange file has status = Verified
+    impl:
+      - IMP-AC-STORE-004
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.import.spec.ts
+
+  UT-AC-STORE-020
+    title: throws ImportError on malformed JSON, fleet unmodified
+    impl:
+      - IMP-AC-STORE-004
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.import.spec.ts
+
+  UT-AC-STORE-021
+    title: throws ImportError on Zod validation failure (missing required field)
+    impl:
+      - IMP-AC-STORE-004
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.import.spec.ts
+
+  UT-AC-STORE-022
+    title: throws ImportError when certificationCategories is empty array
+    impl:
+      - IMP-AC-STORE-004
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.import.spec.ts
+
+  UT-AC-STORE-023
+    title: round-trip — export → import → equality (excluding id and status)
+    impl:
+      - IMP-AC-STORE-004
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.import.spec.ts
+
+  UT-AC-STORE-024
+    title: produces valid JSON that round-trips through importProfileFromJson
+    impl:
+      - IMP-AC-STORE-004
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.import.spec.ts
+
+AC Store — Fleet Store (Unit)
+  UT-AC-STORE-025
+    title: creates Draft profile by default
+    impl:
+      - IMP-AC-STORE-005
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+  UT-AC-STORE-026
+    title: verifyProfile creates new immutable snapshot with Verified status
+    impl:
+      - IMP-AC-STORE-005
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+  UT-AC-STORE-027
+    title: prior Verified version is unmodified after subsequent editVerifiedProfile
+    impl:
+      - IMP-AC-STORE-005
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+  UT-AC-STORE-028
+    title: editVerifiedProfile creates new Draft, does not mutate Verified
+    impl:
+      - IMP-AC-STORE-005
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+  UT-AC-STORE-029
+    title: blocks direct in-place mutation of Verified profile via updateProfile
+    impl:
+      - IMP-AC-STORE-005
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+  UT-AC-STORE-030
+    title: emits a duplicate warning when creating profile with existing registration
+    impl:
+      - IMP-AC-STORE-005
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+  UT-AC-STORE-031
+    title: emits draft warning when checkDraftWarning is called with Draft profile
+    impl:
+      - IMP-AC-STORE-005
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+  UT-AC-STORE-032
+    title: does not emit draft warning when profile is Verified
+    impl:
+      - IMP-AC-STORE-005
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+  UT-AC-STORE-033
+    title: deleteProfile removes the profile from the store
+    impl:
+      - IMP-AC-STORE-005
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts

@@ -1,0 +1,28 @@
+AC Store — Fleet Repository Integration Tests
+  IT-AC-STORE-001
+    title: CRUD lifecycle — create, findById, update, delete
+    impl:
+      - IMP-AC-STORE-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.repository.int.spec.ts
+
+  IT-AC-STORE-002
+    title: findAll returns all profiles
+    impl:
+      - IMP-AC-STORE-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.repository.int.spec.ts
+
+  IT-AC-STORE-003
+    title: findById returns undefined for a non-existent id
+    impl:
+      - IMP-AC-STORE-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.repository.int.spec.ts
+
+  IT-AC-STORE-004
+    title: findAll returns empty array when store is empty
+    impl:
+      - IMP-AC-STORE-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.repository.int.spec.ts

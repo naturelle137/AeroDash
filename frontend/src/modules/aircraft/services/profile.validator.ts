@@ -11,11 +11,12 @@ import type { AircraftProfile } from '@/core/adapters/aircraft.schema'
 
 /**
  * ICAO aircraft registration format:
- * - Alphanumeric characters and hyphens only
+ * - Must start with a letter (country prefix)
+ * - Followed by alphanumeric characters and hyphens
  * - 2–7 characters total length
  * Examples: D-EBPN, N12345, G-ABCD, VH-ABC
  */
-const ICAO_REGISTRATION_REGEX = /^[A-Z0-9][A-Z0-9-]{1,6}$/i
+const ICAO_REGISTRATION_REGEX = /^[A-Z][A-Z0-9-]{1,6}$/i
 
 /**
  * Validate an ICAO aircraft registration string.
