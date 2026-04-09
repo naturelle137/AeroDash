@@ -119,7 +119,7 @@ PF Core — Bilinear Interpolation (Unit)
       - frontend/src/core/logic/performance.bilinear-interpolation.spec.ts
 
   UT-PF-CORE-018
-    title: VEC-TOD-003: bilinear at (925 kg, 1000 ft) → 428 m
+    title: VEC-TOD-003: bilinear at (925 kg, 1000 ft) → 426.25 m
     impl:
       - IMP-PF-CORE-001
     files:

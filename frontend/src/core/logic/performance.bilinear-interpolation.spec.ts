@@ -257,7 +257,7 @@ describe('bilinearInterpolate — TOD (Takeoff Distance to 50 ft)', () => {
   })
 
   // @UT-PF-CORE-018@ (FROM: @IMP-PF-CORE-001@)
-  it('VEC-TOD-003: bilinear at (925 kg, 1000 ft) → 428 m', () => {
+  it('VEC-TOD-003: bilinear at (925 kg, 1000 ft) → 426.25 m', () => {
     // t_mass = 0.5, t_alt = 0.5
     // z11=340, z12=435, z21=410, z22=520
     // zAtPA0    = lerp(340, 435, 0.5) = 387.5
