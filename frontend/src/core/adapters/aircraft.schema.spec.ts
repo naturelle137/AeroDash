@@ -180,15 +180,155 @@ describe('AircraftProfileSchema — valid profiles', () => {
   })
 
   // @UT-AD-CORE-022@ (FROM: @IMP-AD-CORE-004@)
-  it('accepts optional M3/M4 placeholder fields when provided as arrays', () => {
+  it('accepts optional M4 placeholder field performanceProfiles when provided as array', () => {
     const result = AircraftProfileSchema.safeParse(
       cloneWith((p) => {
         p.performanceProfiles = [{ flightPhase: 'TakeoffRoll', dataPoints: [] }]
-        p.checklists = [{ title: 'Before Takeoff', items: ['Check fuel'] }]
-        p.operatingCost = { costPerHour: 120, fuelCostIncluded: true }
       }),
     )
     expect(result.success).toBe(true)
+  })
+
+  // @UT-AC-CORE-001@ (FROM: @IMP-AC-CORE-002@)
+  it('defaults status to Draft when status is omitted', () => {
+    const result = AircraftProfileSchema.safeParse(createValidProfile())
+    expect(result.success).toBe(true)
+    if (!result.success) return
+    expect(result.data.status).toBe('Draft')
+  })
+
+  // @UT-AC-CORE-002@ (FROM: @IMP-AC-CORE-002@)
+  it('accepts status = Verified', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        p.status = 'Verified'
+      }),
+    )
+    expect(result.success).toBe(true)
+    if (!result.success) return
+    expect(result.data.status).toBe('Verified')
+  })
+
+  // @UT-AC-CORE-003@ (FROM: @IMP-AC-CORE-002@)
+  it('rejects an invalid status value', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        p.status = 'Pending'
+      }),
+    )
+    expect(result.success).toBe(false)
+  })
+
+  // @UT-AC-CORE-004@ (FROM: @IMP-AC-CORE-002@)
+  it('defaults schemaVersion to 1 when omitted', () => {
+    const result = AircraftProfileSchema.safeParse(createValidProfile())
+    expect(result.success).toBe(true)
+    if (!result.success) return
+    expect(result.data.schemaVersion).toBe(1)
+  })
+
+  // @UT-AC-CORE-005@ (FROM: @IMP-AC-CORE-002@)
+  it('rejects schemaVersion = 0 (must be positive integer)', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        p.schemaVersion = 0
+      }),
+    )
+    expect(result.success).toBe(false)
+  })
+
+  // @UT-AC-CORE-006@ (FROM: @IMP-AC-CORE-001@)
+  it('defaults passengerProfiles to empty array when omitted', () => {
+    const result = AircraftProfileSchema.safeParse(createValidProfile())
+    expect(result.success).toBe(true)
+    if (!result.success) return
+    expect(result.data.passengerProfiles).toEqual([])
+  })
+
+  // @UT-AC-CORE-007@ (FROM: @IMP-AC-CORE-001@)
+  it('accepts valid passengerProfiles array', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        p.passengerProfiles = [
+          { name: 'Adult', standardWeight: 86, unit: 'kg' },
+          { name: 'Child', standardWeight: 35, unit: 'kg' },
+        ]
+      }),
+    )
+    expect(result.success).toBe(true)
+  })
+
+  // @UT-AC-CORE-008@ (FROM: @IMP-AC-CORE-001@)
+  it('rejects a passengerProfile with standardWeight = 0', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        p.passengerProfiles = [{ name: 'Adult', standardWeight: 0, unit: 'kg' }]
+      }),
+    )
+    expect(result.success).toBe(false)
+  })
+
+  // @UT-AC-CORE-009@ (FROM: @IMP-AC-CORE-001@)
+  it('rejects a passengerProfile with an invalid unit', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        p.passengerProfiles = [{ name: 'Adult', standardWeight: 86, unit: 'stone' }]
+      }),
+    )
+    expect(result.success).toBe(false)
+  })
+
+  // @UT-AD-CORE-045@ (FROM: @IMP-AD-CORE-008@)
+  it('accepts valid costPerHour when provided', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        p.costPerHour = 120
+      }),
+    )
+    expect(result.success).toBe(true)
+  })
+
+  // @UT-AD-CORE-046@ (FROM: @IMP-AD-CORE-008@)
+  it('accepts costPerHour = 0 (zero is valid, nonnegative)', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        p.costPerHour = 0
+      }),
+    )
+    expect(result.success).toBe(true)
+  })
+
+  // @UT-AD-CORE-047@ (FROM: @IMP-AD-CORE-008@)
+  it('rejects a negative costPerHour', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        p.costPerHour = -10
+      }),
+    )
+    expect(result.success).toBe(false)
+  })
+
+  // @UT-AD-CORE-048@ (FROM: @IMP-AD-CORE-008@)
+  it('accepts valid checklistScaffold when provided', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        p.checklistScaffold = [
+          { title: 'Before Takeoff', items: ['Check fuel', 'Trim set'] },
+          { title: 'Cruise', items: [] },
+        ]
+      }),
+    )
+    expect(result.success).toBe(true)
+  })
+
+  // @UT-AD-CORE-049@ (FROM: @IMP-AD-CORE-008@)
+  it('rejects a checklistScaffold item with an empty title', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        p.checklistScaffold = [{ title: '', items: [] }]
+      }),
+    )
+    expect(result.success).toBe(false)
   })
 })
 

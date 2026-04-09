@@ -1,9 +1,14 @@
 <script setup lang="ts">
 // @IMP-UI-SHARED-002@ (FROM: @REQ-UI-011@, @REQ-SYS-001@)
+// @IMP-SYS-SHARED-003@ (FROM: @REQ-SYS-005@)
 import { ref, computed } from 'vue'
 import { RouterView, RouterLink, useRoute } from 'vue-router'
 import { useTheme } from '@/shared/composables/useTheme'
 import AppLogo from '@/shared/components/AppLogo.vue'
+import AppVersion from '@/shared/components/AppVersion.vue'
+import { usePwaUpdateStore } from '@/stores/pwa-update.store'
+
+const pwaStore = usePwaUpdateStore()
 
 const { theme, toggleTheme } = useTheme()
 const route = useRoute()
@@ -153,11 +158,18 @@ const themeLabel = computed(() =>
         </li>
       </ul>
 
-      <!-- Sidebar footer: advisory -->
+      <!-- Sidebar footer: advisory + version -->
       <div class="sidebar-footer">
         <p class="sidebar-footer__text">Advisory only. Verify against POH/AFM.</p>
+        <AppVersion />
       </div>
     </nav>
+
+    <!-- ═══ PWA update banner (INFO-SYS-001) ════════════════════════════════ -->
+    <div v-if="pwaStore.needsUpdate" class="pwa-update-banner" role="status" aria-live="polite">
+      <span>A new version of AeroDash is available.</span>
+      <button class="pwa-update-btn" @click="pwaStore.applyUpdate()">Reload to update</button>
+    </div>
 
     <!-- ═══ Main content ════════════════════════════════════════════════════ -->
     <main class="app-main" id="main-content">
@@ -208,6 +220,37 @@ const themeLabel = computed(() =>
 </template>
 
 <style scoped>
+/* ─── PWA update banner ───────────────────────────────────────────────────── */
+
+.pwa-update-banner {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-info, #1d4ed8);
+  color: #fff;
+  font-size: var(--text-sm);
+  z-index: 300;
+}
+
+.pwa-update-btn {
+  padding: 0.25rem 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.pwa-update-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
 /* ─── Shell grid ──────────────────────────────────────────────────────────── */
 
 .app-shell {

@@ -13,7 +13,7 @@ This document defines the system behavior using the **EARS** (Easy Approach to R
 **Requirement:** The system shall be fully functional without an active internet connection; all aircraft profiles and calculation logic shall be stored locally.
 **Rationale:** Ensure usability in remote airfields or during flight.
 **Priority:** P2
-**Status:** Approved
+**Status:** Implemented
 **Design Reference:** n/a
 
 <!-- @REQ-SYS-002@ -->
@@ -23,7 +23,7 @@ This document defines the system behavior using the **EARS** (Easy Approach to R
 **Requirement:** The system shall store aircraft profiles and flight plans in a standardized, portable format.
 **Rationale:** Human-readable format and future-proofing.
 **Priority:** P1
-**Status:** Approved
+**Status:** Implemented
 **Design Reference:** n/a
 
 <!-- @REQ-SYS-003@ (FROM: @H-001@, @H-002@) -->
@@ -53,7 +53,7 @@ This document defines the system behavior using the **EARS** (Easy Approach to R
 **Requirement:** When a new software version is detected, the system shall prevent silent background updates and emit an INFO notification (`INFO-SYS-001`) informing the user about the available update and offering a reload action.
 **Rationale:** Prevents "State Confusion" where the pilot plans on an old version while the new one loads in the background.
 **Priority:** P1
-**Status:** Approved
+**Status:** Implemented
 **Design Reference:** [Notification Schema](../architecture/notification_schema.md)
 
 <!-- @REQ-SYS-006@ (FROM: @H-019@) -->
@@ -63,7 +63,7 @@ This document defines the system behavior using the **EARS** (Easy Approach to R
 **Requirement:** When the application initializes online, the system shall verify the local version against a remote "minimum safe version" and block execution if the local version is marked as unsafe
 **Rationale:** "Kill Switch" for critical bugs (e.g., calculation errors discovered post-release).
 **Priority:** P1
-**Status:** Approved
+**Status:** Implemented
 **Design Reference:** n/a
 
 <!-- @REQ-SYS-007@ -->
