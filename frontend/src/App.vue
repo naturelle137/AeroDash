@@ -4,6 +4,7 @@ import { ref, computed } from 'vue'
 import { RouterView, RouterLink, useRoute } from 'vue-router'
 import { useTheme } from '@/shared/composables/useTheme'
 import AppLogo from '@/shared/components/AppLogo.vue'
+import AppVersion from '@/shared/components/AppVersion.vue'
 
 const { theme, toggleTheme } = useTheme()
 const route = useRoute()
@@ -153,9 +154,10 @@ const themeLabel = computed(() =>
         </li>
       </ul>
 
-      <!-- Sidebar footer: advisory -->
+      <!-- Sidebar footer: advisory + version -->
       <div class="sidebar-footer">
         <p class="sidebar-footer__text">Advisory only. Verify against POH/AFM.</p>
+        <AppVersion />
       </div>
     </nav>
 

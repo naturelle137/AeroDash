@@ -13,7 +13,7 @@ This document defines the user interface behavior using the **EARS** (Easy Appro
 **Requirement:** When the user selects a manufacturer from the dropdown, the model dropdown shall be populated with models for that manufacturer.
 **Rationale:** Context-aware selection.
 **Priority:** P2
-**Status:** Approved
+**Status:** Implemented
 **Design Reference:** n/a
 
 <!-- @REQ-UI-002@ -->
@@ -23,7 +23,7 @@ This document defines the user interface behavior using the **EARS** (Easy Appro
 **Requirement:** When 'Other' is selected for manufacturer, the system shall replace the model dropdown with a text input field for manual entry.
 **Rationale:** Support for rare or one-off aircraft.
 **Priority:** P1
-**Status:** Approved
+**Status:** Implemented
 **Design Reference:** n/a
 
 <!-- @REQ-UI-003@ -->
@@ -33,7 +33,7 @@ This document defines the user interface behavior using the **EARS** (Easy Appro
 **Requirement:** When a model is selected, the ICAO aircraft type designator field shall be auto-filled.
 **Rationale:** Faster and more accurate identification.
 **Priority:** P2
-**Status:** Approved
+**Status:** Implemented
 **Design Reference:** n/a
 
 <!-- @REQ-UI-004@ -->
@@ -43,7 +43,7 @@ This document defines the user interface behavior using the **EARS** (Easy Appro
 **Requirement:** When a valid ICAO type designator is entered, the system shall display a selection list of matching Manufacturer/Model combinations.
 **Rationale:** Bidirectional lookup for convenience.
 **Priority:** P2
-**Status:** Approved
+**Status:** Implemented
 **Design Reference:** n/a
 
 <!-- @REQ-UI-005@ -->
@@ -63,7 +63,7 @@ This document defines the user interface behavior using the **EARS** (Easy Appro
 **Requirement:** The system shall display available Passenger Profiles for quick selection within the load station input fields
 **Rationale:** Operational efficiency for frequent flyers.
 **Priority:** P2
-**Status:** Approved
+**Status:** Implemented
 **Design Reference:** n/a
 
 ### REQ-UI-007
@@ -127,7 +127,7 @@ This document defines the user interface behavior using the **EARS** (Easy Appro
 **Requirement:** The system shall display the current Semantic Version (SemVer) and Release Date in a dedicated "About" view.
 **Rationale:** Enables manual verification of the software state by the pilot.
 **Priority:** P2
-**Status:** Approved
+**Status:** Implemented
 **Design Reference:** n/a
 
 <!-- @REQ-UI-014@ -->

@@ -712,3 +712,68 @@ SYS Store — Session Persistence (Unit)
       - IMP-SYS-STORE-001
     files:
       - frontend/src/stores/__tests__/session-persistence.store.spec.ts
+
+SYS Store — PWA Update (Unit)
+  UT-SYS-STORE-017
+    title: needsUpdate is false initially
+    impl:
+      - IMP-SYS-STORE-002
+    files:
+      - frontend/src/stores/__tests__/pwa-update.store.spec.ts
+
+  UT-SYS-STORE-018
+    title: onNeedsRefresh sets needsUpdate to true
+    impl:
+      - IMP-SYS-STORE-004
+    files:
+      - frontend/src/stores/__tests__/pwa-update.store.spec.ts
+
+  UT-SYS-STORE-019
+    title: offlineReady set by onOfflineReady
+    impl:
+      - IMP-SYS-STORE-003
+    files:
+      - frontend/src/stores/__tests__/pwa-update.store.spec.ts
+
+  UT-SYS-STORE-020
+    title: applyUpdate calls updateSW when set
+    impl:
+      - IMP-SYS-STORE-009
+    files:
+      - frontend/src/stores/__tests__/pwa-update.store.spec.ts
+
+SYS Store — App Version (Unit)
+  UT-SYS-STORE-021
+    title: exposes currentVersion and buildDate
+    impl:
+      - IMP-SYS-STORE-006
+    files:
+      - frontend/src/stores/__tests__/app-version.store.spec.ts
+
+  UT-SYS-STORE-022
+    title: isVersionBelow returns true when 0.2.0 < 0.3.0
+    impl:
+      - IMP-SYS-STORE-007
+    files:
+      - frontend/src/stores/__tests__/app-version.store.spec.ts
+
+  UT-SYS-STORE-023
+    title: isVersionBelow returns false when 0.3.0 >= 0.3.0
+    impl:
+      - IMP-SYS-STORE-007
+    files:
+      - frontend/src/stores/__tests__/app-version.store.spec.ts
+
+  UT-SYS-STORE-024
+    title: checkMinSafeVersion sets versionBlocked when below minimum
+    impl:
+      - IMP-SYS-STORE-008
+    files:
+      - frontend/src/stores/__tests__/app-version.store.spec.ts
+
+  UT-SYS-STORE-025
+    title: checkMinSafeVersion skips when offline
+    impl:
+      - IMP-SYS-STORE-008
+    files:
+      - frontend/src/stores/__tests__/app-version.store.spec.ts
