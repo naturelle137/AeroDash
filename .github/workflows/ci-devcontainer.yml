@@ -7,8 +7,8 @@ name: CI (dev container)
 
 on:
   push:
-    branches: [main, develop]
-  pull_request:
+    # Verify the dev container image on integration branches only.
+    # PR E2E runs are handled by the e2e job in ci.yml instead.
     branches: [main, develop]
 
 permissions:
