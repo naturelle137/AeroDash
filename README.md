@@ -8,6 +8,7 @@
 * [Project Philosophy](#philosophy)
 * [Intended Use & System Limitations](#intendedUse)
 * [License](#license)
+* [Operational Assumptions](ASSUMPTIONS.md)
 
 <a name="disclaimer"></a>
 

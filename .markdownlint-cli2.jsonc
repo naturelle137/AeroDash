@@ -12,6 +12,7 @@
     ".tmp/**",
     ".claude/**",
     ".claire/**",
+    ".claude/worktrees/**",
     "CHANGELOG.md"
   ]
 }

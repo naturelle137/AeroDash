@@ -77,6 +77,66 @@ SYS Store — Session Persistence
     files:
       - frontend/src/stores/session-persistence.store.ts
 
+SYS Store — PWA Update
+  IMP-SYS-STORE-002
+    title: PWA Update Store — needsUpdate and offlineReady state (usePwaUpdateStore)
+    req:
+      - REQ-SYS-005
+    files:
+      - frontend/src/stores/pwa-update.store.ts
+
+  IMP-SYS-STORE-003
+    title: onOfflineReady — marks app shell as cached for offline use
+    req:
+      - REQ-SYS-001
+      - REQ-SYS-002
+    files:
+      - frontend/src/stores/pwa-update.store.ts
+
+  IMP-SYS-STORE-004
+    title: onNeedsRefresh — captures SW registration and sets needsUpdate flag
+    req:
+      - REQ-SYS-005
+    files:
+      - frontend/src/stores/pwa-update.store.ts
+
+  IMP-SYS-STORE-005
+    title: setUpdateSW — stores the registerSW updater callback for later use
+    req:
+      - REQ-SYS-005
+    files:
+      - frontend/src/stores/pwa-update.store.ts
+
+  IMP-SYS-STORE-009
+    title: applyUpdate — calls updateSW(true) to trigger SW activation and reload with user consent
+    req:
+      - REQ-SYS-005
+    files:
+      - frontend/src/stores/pwa-update.store.ts
+
+SYS Store — App Version
+  IMP-SYS-STORE-006
+    title: App Version Store — currentVersion, buildDate, minSafeVersion, versionBlocked (useAppVersionStore)
+    req:
+      - REQ-SYS-006
+      - REQ-UI-013
+    files:
+      - frontend/src/stores/app-version.store.ts
+
+  IMP-SYS-STORE-007
+    title: isVersionBelow — SemVer comparison returning true when current < minimum
+    req:
+      - REQ-SYS-006
+    files:
+      - frontend/src/stores/app-version.store.ts
+
+  IMP-SYS-STORE-008
+    title: checkMinSafeVersion — sets versionBlocked when local version is below minimum (online-only)
+    req:
+      - REQ-SYS-006
+    files:
+      - frontend/src/stores/app-version.store.ts
+
 SYS App — Vue Router
   IMP-SYS-APP-001
     title: Application route table (root redirect and mass-balance view)
@@ -84,6 +144,14 @@ SYS App — Vue Router
       - REQ-SYS-001
     files:
       - frontend/src/router/index.ts
+
+  IMP-SYS-APP-002
+    title: Service Worker registration wired in main.ts with prompt-mode callbacks
+    req:
+      - REQ-SYS-001
+      - REQ-SYS-005
+    files:
+      - frontend/src/main.ts
 
 SYS Shared — Structured Logger Utility
   IMP-SYS-SHARED-001
@@ -99,3 +167,10 @@ SYS Shared — Structured Logger Utility
       - DES-ARCH-001
     files:
       - frontend/src/shared/utils/logger.ts
+
+  IMP-SYS-SHARED-003
+    title: AppVersion component — displays SemVer and build date in sidebar footer
+    req:
+      - REQ-UI-013
+    files:
+      - frontend/src/shared/components/AppVersion.vue
