@@ -15,7 +15,7 @@ export const useAppVersionStore = defineStore('appVersion', () => {
 
   // @IMP-SYS-STORE-007@ (FROM: @REQ-SYS-006@)
   function isVersionBelow(current: string, minimum: string): boolean {
-    const parse = (v: string) => v.split('.').map(Number) as [number, number, number]
+    const parse = (v: string) => v.replace(/-.*$/, '').split('.').map(Number) as [number, number, number]
     const [cMaj, cMin, cPat] = parse(current)
     const [mMaj, mMin, mPat] = parse(minimum)
     if (cMaj !== mMaj) return cMaj < mMaj
