@@ -45,6 +45,7 @@
   "dependencies": {
     "pinia": "^3.0.4",
     "serve": "^14.2.6",
+    "uuid": "^13.0.0",
     "vue": "^3.5.32",
     "vue-router": "^5.0.4",
     "zod": "^4.3.6"
@@ -77,8 +78,10 @@
     "prettier": "3.8.1",
     "typescript": "~5.9.3",
     "vite": "^7.3.2",
+    "vite-plugin-pwa": "^1.2.0",
     "vite-plugin-vue-devtools": "^8.1.1",
     "vitest": "^4.1.2",
-    "vue-tsc": "^3.2.6"
+    "vue-tsc": "^3.2.6",
+    "workbox-window": "^7.4.0"
   }
 }
