@@ -20,8 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Engineering
 
-- 9 unit tests for fleet.store (Draft/Verified FSM, duplicate detection, draft warning) all passing
-- Integration tests for fleet.repository (IndexedDB CRUD) via fake-indexeddb
+- 33 unit tests (ICAO validation × 16, import × 8, fleet FSM × 9) and 4 IndexedDB integration tests all passing
+- verifyProfile() now auto-updates active aircraft context when the verified Draft was in use
 
 ## [0.2.0-alpha] - 2026-04-03
 

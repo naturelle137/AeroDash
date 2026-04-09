@@ -20,6 +20,7 @@ import { AircraftProfileSchema } from '@/core/adapters/aircraft.schema'
 import type { AircraftProfile } from '@/core/adapters/aircraft.schema'
 import { fleetRepository } from '../services/fleet.repository'
 import { validateIcaoRegistration, hasDuplicateRegistration } from '../services/profile.validator'
+import { useActiveAircraftStore } from './active-aircraft.store'
 
 // @IMP-AC-STORE-005@ (FROM: @REQ-AC-001@, @REQ-AC-003@, @REQ-AC-005@, @REQ-AC-006@)
 
@@ -194,6 +195,13 @@ export const useFleetStore = defineStore('fleet', () => {
 
     profiles.value = profiles.value.filter((p) => p.id !== id)
     profiles.value.push(snapshot)
+
+    // If the verified Draft was the active aircraft, update to the new Verified snapshot
+    const activeStore = useActiveAircraftStore()
+    if (activeStore.activeProfile?.id === id) {
+      activeStore.setActiveProfile(snapshot)
+    }
+
     return snapshot
   }
 
