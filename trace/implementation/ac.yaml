@@ -1,0 +1,140 @@
+AC Core — Aircraft Profile Schema
+  IMP-AC-CORE-001
+    title: PassengerProfileSchema — Zod schema for passenger profiles with standard weights
+    req:
+      - REQ-AC-005
+      - REQ-AC-006
+    files:
+      - frontend/src/core/adapters/aircraft.schema.ts
+
+  IMP-AC-CORE-002
+    title: AircraftProfileSchema — M3 fields (status, schemaVersion, passengerProfiles, costPerHour, checklistScaffold)
+    req:
+      - REQ-AC-001
+      - REQ-AC-005
+      - REQ-AC-006
+      - REQ-AD-006
+      - REQ-AD-007
+      - REQ-AD-010
+    files:
+      - frontend/src/core/adapters/aircraft.schema.ts
+
+AC Store — Fleet Repository
+  IMP-AC-STORE-001
+    title: Fleet Repository — IndexedDB CRUD persistence layer for AircraftProfile documents
+    req:
+      - REQ-AC-001
+    des:
+      - DES-ARCH-007
+    files:
+      - frontend/src/modules/aircraft/services/fleet.repository.ts
+
+  IMP-AC-STORE-002
+    title: validateIcaoRegistration — ICAO registration format validation
+    req:
+      - REQ-AC-002
+    files:
+      - frontend/src/modules/aircraft/services/profile.validator.ts
+
+  IMP-AC-STORE-003
+    title: hasDuplicateRegistration — duplicate registration detection (case-insensitive)
+    req:
+      - REQ-AC-003
+    files:
+      - frontend/src/modules/aircraft/services/profile.validator.ts
+
+  IMP-AC-STORE-004
+    title: importProfileFromJson / exportProfileToJson — profile exchange file import with forced Draft status
+    req:
+      - REQ-AC-004
+    files:
+      - frontend/src/modules/aircraft/services/profile.import.ts
+
+  IMP-AC-STORE-005
+    title: useFleetStore — Pinia store for fleet CRUD and Draft/Verified FSM
+    req:
+      - REQ-AC-001
+      - REQ-AC-003
+      - REQ-AC-005
+      - REQ-AC-006
+    files:
+      - frontend/src/modules/aircraft/stores/fleet.store.ts
+
+  IMP-AC-STORE-006
+    title: useActiveAircraftStore — in-session aircraft context hot-swap without page reload
+    req:
+      - REQ-AC-005
+    files:
+      - frontend/src/modules/aircraft/stores/active-aircraft.store.ts
+
+AC View — Model Catalogue and Components
+  IMP-AC-VIEW-001
+    title: AIRCRAFT_MODEL_CATALOGUE — static manufacturer→model→ICAO mapping with helper functions
+    req:
+      - REQ-UI-001
+      - REQ-UI-003
+      - REQ-UI-004
+    files:
+      - frontend/src/modules/aircraft/data/aircraft-model-catalogue.ts
+
+  IMP-AC-VIEW-002
+    title: AircraftModelSelector template — manufacturer/model hierarchy selector UI
+    req:
+      - REQ-UI-001
+      - REQ-UI-002
+      - REQ-UI-003
+      - REQ-UI-004
+    files:
+      - frontend/src/modules/aircraft/components/AircraftModelSelector.vue
+
+  IMP-AC-VIEW-003
+    title: AircraftModelSelector script — composable logic for manufacturer/model/ICAO selection
+    req:
+      - REQ-UI-001
+      - REQ-UI-002
+      - REQ-UI-003
+      - REQ-UI-004
+    files:
+      - frontend/src/modules/aircraft/components/AircraftModelSelector.vue
+
+  IMP-AC-VIEW-004
+    title: ProfileStatusBadge template — Draft/Verified status badge component
+    req:
+      - REQ-AC-005
+    files:
+      - frontend/src/modules/aircraft/components/ProfileStatusBadge.vue
+
+  IMP-AC-VIEW-005
+    title: FleetList template — fleet profile list with active profile highlighting
+    req:
+      - REQ-AC-001
+      - REQ-AC-005
+    files:
+      - frontend/src/modules/aircraft/components/FleetList.vue
+
+  IMP-AC-VIEW-006
+    title: FleetList script — store wiring for fleet list actions and active profile
+    req:
+      - REQ-AC-001
+      - REQ-AC-005
+    files:
+      - frontend/src/modules/aircraft/components/FleetList.vue
+
+  IMP-AC-VIEW-007
+    title: FleetManagementView template — main fleet management view with add/import forms
+    req:
+      - REQ-AC-001
+      - REQ-AC-004
+      - REQ-AC-005
+      - REQ-AC-006
+    files:
+      - frontend/src/modules/aircraft/views/FleetManagementView.vue
+
+  IMP-AC-VIEW-008
+    title: FleetManagementView script — fleet CRUD orchestration with import and passenger profiles
+    req:
+      - REQ-AC-001
+      - REQ-AC-004
+      - REQ-AC-006
+    files:
+      - frontend/src/modules/aircraft/views/FleetManagementView.vue

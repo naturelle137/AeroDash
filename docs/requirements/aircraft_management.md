@@ -13,7 +13,7 @@ This document defines the aircraft management behavior using the **EARS** (Easy 
 **Requirement:** The system shall allow users to create, read, update, and delete aircraft profiles.
 **Rationale:** Core functionality for fleet management.
 **Priority:** P1
-**Status:** Approved
+**Status:** Implemented
 **Design Reference:** n/a
 
 <!-- @REQ-AC-002@ -->
@@ -23,7 +23,7 @@ This document defines the aircraft management behavior using the **EARS** (Easy 
 **Requirement:** When the user creates or updates an aircraft profile, the system shall validate the aircraft registration against standard ICAO registration patterns (e.g., alphanumeric, hyphenated).
 **Rationale:** Pre-validation of registration identity (e.g., D-EBPF).
 **Priority:** P3
-**Status:** Approved
+**Status:** Implemented
 **Design Reference:** n/a
 
 <!-- @REQ-AC-003@ -->
@@ -33,7 +33,7 @@ This document defines the aircraft management behavior using the **EARS** (Easy 
 **Requirement:** If an aircraft registration already exists within the same owner's database, then the system shall emit a WARNING notification (`WARN-AC-001`) alerting the user about duplicate registration.
 **Rationale:** Registrations must be unique per owner to avoid data duplication and confusion between aircraft records. Different owners may independently hold entries for the same registration.
 **Priority:** P2
-**Status:** Approved
+**Status:** Implemented
 **Design Reference:** [Notification Schema](../architecture/notification_schema.md)
 
 <!-- @REQ-AC-004@ -->
@@ -43,7 +43,7 @@ This document defines the aircraft management behavior using the **EARS** (Easy 
 **Requirement:** The system shall import aircraft profiles from external exchange files.
 **Rationale:** Facilitates offline backup and sharing of profiles without recompilation.
 **Priority:** P2
-**Status:** Approved
+**Status:** Implemented
 **Design Reference:** n/a
 
 <!-- @REQ-AC-005@ (FROM: @H-011@) -->
@@ -53,7 +53,7 @@ This document defines the aircraft management behavior using the **EARS** (Easy 
 **Requirement:** The system shall implement a status system for aircraft profiles (`Draft`, `Verified`). New or edited profiles shall be `Verified` and locked before use; calculations performed with a `Draft` profile shall emit a persistent WARNING notification (`WARN-AC-002`) alerting the user that the active profile is unverified.
 **Rationale:** Prevents usage of unverified or typo-prone POH data bases.
 **Priority:** P1
-**Status:** Approved
+**Status:** Implemented
 **Design Reference:** [Notification Schema](../architecture/notification_schema.md)
 
 <!-- @REQ-AC-006@ -->
@@ -63,7 +63,7 @@ This document defines the aircraft management behavior using the **EARS** (Easy 
 **Requirement:** The system shall allow the user to create, update, and delete "Passenger Profiles" defined by a Name and a Standard Weight.
 **Rationale:** Facilitates [REQ-UI-006](../requirements/user_interface.md#REQ-UI-006) (Quick Selection) and standardized fleet operations.
 **Priority:** P2
-**Status:** Approved
+**Status:** Implemented
 **Design Reference:** n/a
 
 ---

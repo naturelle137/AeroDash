@@ -13,7 +13,7 @@ This document defines the system behavior using the **EARS** (Easy Approach to R
 **Requirement:** The system shall be fully functional without an active internet connection; all aircraft profiles and calculation logic shall be stored locally.
 **Rationale:** Ensure usability in remote airfields or during flight.
 **Priority:** P2
-**Status:** Approved
+**Status:** Implemented
 **Design Reference:** n/a
 
 <!-- @REQ-SYS-002@ -->
@@ -23,7 +23,7 @@ This document defines the system behavior using the **EARS** (Easy Approach to R
 **Requirement:** The system shall store aircraft profiles and flight plans in a standardized, portable format.
 **Rationale:** Human-readable format and future-proofing.
 **Priority:** P1
-**Status:** Approved
+**Status:** Implemented
 **Design Reference:** n/a
 
 <!-- @REQ-SYS-003@ (FROM: @H-001@, @H-002@) -->

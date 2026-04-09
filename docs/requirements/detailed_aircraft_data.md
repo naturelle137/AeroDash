@@ -63,7 +63,7 @@ This document defines the detailed aircraft data behavior using the **EARS** (Ea
 **Requirement:** The system shall store cost per hour and indicate whether fuel cost is included.
 **Rationale:** Cost management feature for flight preparation.
 **Priority:** P3
-**Status:** Approved
+**Status:** Implemented
 **Design Reference:** n/a
 
 <!-- @REQ-AD-007@ -->
@@ -73,7 +73,7 @@ This document defines the detailed aircraft data behavior using the **EARS** (Ea
 **Requirement:** The system shall store the reference datum definition (description and location) for each aircraft.
 **Rationale:** Ensures pilot understands the origin of the coordinate system.
 **Priority:** P2
-**Status:** Approved
+**Status:** Implemented
 **Design Reference:** n/a
 
 <!-- @REQ-AD-008@ -->
@@ -103,7 +103,7 @@ This document defines the detailed aircraft data behavior using the **EARS** (Ea
 **Requirement:** The system shall store checklists associated with each aircraft.
 **Rationale:** Integrated safety documentation.
 **Priority:** P3
-**Status:** Approved
+**Status:** Implemented
 **Design Reference:** n/a
 
 <!-- @REQ-AD-011@ -->
