@@ -192,7 +192,7 @@ describe('useFleetStore', () => {
     expect(store.profiles).toHaveLength(0)
   })
 
-  // @UT-AC-STORE-066@ (FROM: @IMP-AC-STORE-005@)
+  // @UT-AC-STORE-048@ (FROM: @IMP-AC-STORE-005@)
   it('loadAll sets isLoading=true during fetch and false after completion (LOADING→READY)', async () => {
     const store = useFleetStore()
     let capturedDuringLoad: boolean | undefined
@@ -209,7 +209,7 @@ describe('useFleetStore', () => {
     expect(store.isLoading).toBe(false)
   })
 
-  // @UT-AC-STORE-067@ (FROM: @IMP-AC-STORE-005@)
+  // @UT-AC-STORE-049@ (FROM: @IMP-AC-STORE-005@)
   it('loadAll sets isLoading=false even when IndexedDB throws (LOADING→ERROR)', async () => {
     const store = useFleetStore()
     const { fleetRepository } = await import('../services/fleet.repository')
@@ -219,7 +219,7 @@ describe('useFleetStore', () => {
     expect(store.isLoading).toBe(false)
   })
 
-  // @UT-AC-STORE-068@ (FROM: @IMP-AC-STORE-005@)
+  // @UT-AC-STORE-050@ (FROM: @IMP-AC-STORE-005@)
   it('loadAll populates profiles from IndexedDB (READY state)', async () => {
     const store = useFleetStore()
     const { fleetRepository } = await import('../services/fleet.repository')
@@ -276,7 +276,7 @@ describe('useFleetStore', () => {
 
   // ── ICAO registration validation ──
 
-  // @UT-AC-STORE-037@ (FROM: @IMP-AC-STORE-005@)
+  // @UT-AC-STORE-051@ (FROM: @IMP-AC-STORE-005@)
   it('createProfile rejects invalid ICAO registration format', async () => {
     const store = useFleetStore()
     await expect(
@@ -284,7 +284,7 @@ describe('useFleetStore', () => {
     ).rejects.toThrow(InvalidRegistrationError)
   })
 
-  // @UT-AC-STORE-038@ (FROM: @IMP-AC-STORE-005@)
+  // @UT-AC-STORE-052@ (FROM: @IMP-AC-STORE-005@)
   it('updateProfile rejects invalid ICAO registration on edit', async () => {
     const store = useFleetStore()
     const profile = await store.createProfile(minimalProfileData())
@@ -293,7 +293,7 @@ describe('useFleetStore', () => {
     ).rejects.toThrow(InvalidRegistrationError)
   })
 
-  // @UT-AC-STORE-039@ (FROM: @IMP-AC-STORE-005@)
+  // @UT-AC-STORE-053@ (FROM: @IMP-AC-STORE-005@)
   it('updateProfile emits duplicate warning when registration conflicts with another profile', async () => {
     const store = useFleetStore()
     await store.createProfile(minimalProfileData())
@@ -304,7 +304,7 @@ describe('useFleetStore', () => {
     expect(store.notifications.some((n) => n.code === 'WARN-AC-001')).toBe(true)
   })
 
-  // @UT-AC-STORE-040@ (FROM: @IMP-AC-STORE-005@)
+  // @UT-AC-STORE-054@ (FROM: @IMP-AC-STORE-005@)
   it('updateProfile throws when profile not found', async () => {
     const store = useFleetStore()
     await expect(
@@ -314,7 +314,7 @@ describe('useFleetStore', () => {
 
   // ── Draft → computation → WARNING notification (Issue #157 DoD) ──
 
-  // @UT-AC-STORE-041@ (FROM: @IMP-AC-STORE-005@)
+  // @UT-AC-STORE-055@ (FROM: @IMP-AC-STORE-005@)
   it('WARNING WARN-AC-002 is visible after checkDraftWarning on Draft profile used for computation', async () => {
     const store = useFleetStore()
     const draftProfile = await store.createProfile(minimalProfileData())
@@ -330,7 +330,7 @@ describe('useFleetStore', () => {
 
   // ── Verified snapshot isolation (Issue #157 DoD) ──
 
-  // @UT-AC-STORE-042@ (FROM: @IMP-AC-STORE-005@)
+  // @UT-AC-STORE-056@ (FROM: @IMP-AC-STORE-005@)
   it('snapshot isolation: prior Verified version is byte-identical after editVerifiedProfile', async () => {
     const store = useFleetStore()
     const draft = await store.createProfile(minimalProfileData())
@@ -348,7 +348,7 @@ describe('useFleetStore', () => {
     expect(JSON.stringify(verifiedInFleet)).toBe(JSON.stringify(verifiedSnapshot))
   })
 
-  // @UT-AC-STORE-043@ (FROM: @IMP-AC-STORE-005@)
+  // @UT-AC-STORE-057@ (FROM: @IMP-AC-STORE-005@)
   it('verifyProfile throws if profile is already Verified', async () => {
     const store = useFleetStore()
     const draft = await store.createProfile(minimalProfileData())
@@ -358,13 +358,13 @@ describe('useFleetStore', () => {
     )
   })
 
-  // @UT-AC-STORE-044@ (FROM: @IMP-AC-STORE-005@)
+  // @UT-AC-STORE-058@ (FROM: @IMP-AC-STORE-005@)
   it('verifyProfile throws if profile not found', async () => {
     const store = useFleetStore()
     await expect(store.verifyProfile('no-such-id')).rejects.toThrow('Profile not found: no-such-id')
   })
 
-  // @UT-AC-STORE-045@ (FROM: @IMP-AC-STORE-005@)
+  // @UT-AC-STORE-059@ (FROM: @IMP-AC-STORE-005@)
   it('editVerifiedProfile throws if profile not found', async () => {
     const store = useFleetStore()
     await expect(store.editVerifiedProfile('no-such-id', {})).rejects.toThrow(
@@ -372,7 +372,7 @@ describe('useFleetStore', () => {
     )
   })
 
-  // @UT-AC-STORE-046@ (FROM: @IMP-AC-STORE-005@)
+  // @UT-AC-STORE-060@ (FROM: @IMP-AC-STORE-005@)
   it('editVerifiedProfile throws if called on a Draft profile', async () => {
     const store = useFleetStore()
     const draft = await store.createProfile(minimalProfileData())
@@ -383,7 +383,7 @@ describe('useFleetStore', () => {
 
   // ── verifyProfile updates active aircraft context (Issue #165) ──
 
-  // @UT-AC-STORE-047@ (FROM: @IMP-AC-STORE-005@, @IMP-AC-STORE-006@)
+  // @UT-AC-STORE-061@ (FROM: @IMP-AC-STORE-005@, @IMP-AC-STORE-006@)
   it('verifyProfile updates activeAircraftStore when the Draft was the active profile', async () => {
     const store = useFleetStore()
     const activeStore = useActiveAircraftStore()
@@ -396,7 +396,7 @@ describe('useFleetStore', () => {
     expect(activeStore.activeProfile?.status).toBe('Verified')
   })
 
-  // @UT-AC-STORE-048@ (FROM: @IMP-AC-STORE-005@, @IMP-AC-STORE-006@)
+  // @UT-AC-STORE-062@ (FROM: @IMP-AC-STORE-005@, @IMP-AC-STORE-006@)
   it('verifyProfile does not change activeAircraftStore when a different profile is active', async () => {
     const store = useFleetStore()
     const activeStore = useActiveAircraftStore()
@@ -411,7 +411,7 @@ describe('useFleetStore', () => {
 
   // ── passengerProfiles round-trip persistence (Issue #159 DoD) ──
 
-  // @UT-AC-STORE-049@ (FROM: @IMP-AC-STORE-005@, @IMP-AC-CORE-001@)
+  // @UT-AC-STORE-063@ (FROM: @IMP-AC-STORE-005@, @IMP-AC-CORE-001@)
   it('passengerProfiles are persisted in store state after createProfile', async () => {
     const store = useFleetStore()
     const data = {
@@ -431,7 +431,7 @@ describe('useFleetStore', () => {
     expect(inFleet!.passengerProfiles).toEqual(profile.passengerProfiles)
   })
 
-  // @UT-AC-STORE-050@ (FROM: @IMP-AC-STORE-005@, @IMP-AC-CORE-001@)
+  // @UT-AC-STORE-064@ (FROM: @IMP-AC-STORE-005@, @IMP-AC-CORE-001@)
   it('passengerProfiles survive verify → editVerified cycle unmodified', async () => {
     const store = useFleetStore()
     const passengerProfiles = [
@@ -449,7 +449,7 @@ describe('useFleetStore', () => {
     expect(verifiedInFleet!.passengerProfiles).toEqual(passengerProfiles)
   })
 
-  // @UT-AC-STORE-051@ (FROM: @IMP-AC-STORE-005@, @IMP-AC-CORE-001@)
+  // @UT-AC-STORE-065@ (FROM: @IMP-AC-STORE-005@, @IMP-AC-CORE-001@)
   it('passenger standard weight application: profile weight matches schema value', async () => {
     const store = useFleetStore()
     const data = {
@@ -467,7 +467,7 @@ describe('useFleetStore', () => {
     expect(profile.passengerProfiles[0]!.unit).toBe('kg')
   })
 
-  // @UT-AC-STORE-052@ (FROM: @IMP-AC-STORE-005@, @IMP-AC-CORE-001@)
+  // @UT-AC-STORE-066@ (FROM: @IMP-AC-STORE-005@, @IMP-AC-CORE-001@)
   it('passengerProfiles default to empty array when not provided', async () => {
     const store = useFleetStore()
     const data = { ...minimalProfileData(), passengerProfiles: [] }
@@ -475,7 +475,7 @@ describe('useFleetStore', () => {
     expect(profile.passengerProfiles).toEqual([])
   })
 
-  // @UT-AC-STORE-053@ (FROM: @IMP-AC-STORE-005@)
+  // @UT-AC-STORE-067@ (FROM: @IMP-AC-STORE-005@)
   it('clearNotifications empties the notifications array', async () => {
     const store = useFleetStore()
     const profile = await store.createProfile(minimalProfileData())
@@ -483,5 +483,58 @@ describe('useFleetStore', () => {
     expect(store.notifications.length).toBeGreaterThan(0)
     store.clearNotifications()
     expect(store.notifications).toHaveLength(0)
+  })
+
+  // ── Branch coverage: updateProfile registration-change guard ──
+
+  // @UT-AC-STORE-080@ (FROM: @IMP-AC-STORE-005@)
+  it('updateProfile succeeds when no registration field is included in changes', async () => {
+    const store = useFleetStore()
+    const profile = await store.createProfile(minimalProfileData())
+    store.clearNotifications()
+
+    const updated = await store.updateProfile(profile.id, { model: 'P2010' })
+
+    expect(updated.model).toBe('P2010')
+    expect(updated.registration).toBe('D-EBPN')
+    expect(store.notifications).toHaveLength(0)
+  })
+
+  // @UT-AC-STORE-081@ (FROM: @IMP-AC-STORE-005@, @IMP-AC-STORE-003@)
+  it('updateProfile succeeds with a valid new registration that is not a duplicate', async () => {
+    const store = useFleetStore()
+    const profile = await store.createProfile(minimalProfileData())
+    store.clearNotifications()
+
+    const updated = await store.updateProfile(profile.id, { registration: 'D-NEW' })
+
+    expect(updated.registration).toBe('D-NEW')
+    expect(store.notifications).toHaveLength(0)
+  })
+
+  // ── #165 DoD: notifications cleared on aircraft context switch ──
+
+  // @UT-AC-STORE-082@ (FROM: @IMP-AC-STORE-005@, @IMP-AC-STORE-006@)
+  it('notifications are cleared after calling clearNotifications on aircraft switch', async () => {
+    // DoD #165: "Prior aircraft load data, results, and notifications cleared on switch."
+    // The fleet store provides clearNotifications() for callers (e.g. the aircraft management
+    // view or a watcher on activeAircraftStore) to reset notification state when switching aircraft.
+    const store = useFleetStore()
+    const activeStore = useActiveAircraftStore()
+    const draft1 = await store.createProfile(minimalProfileData())
+    const draft2 = await store.createProfile({ ...minimalProfileData(), registration: 'D-ECSM' })
+
+    // Generate a notification (duplicate warning)
+    await store.createProfile({ ...minimalProfileData(), registration: 'D-EBPN' })
+    expect(store.notifications.some((n) => n.code === 'WARN-AC-001')).toBe(true)
+
+    // Switch active aircraft and explicitly clear notifications (simulates context switch handler)
+    activeStore.setActiveProfile(draft2)
+    store.clearNotifications()
+
+    expect(store.notifications).toHaveLength(0)
+    expect(activeStore.activeProfile?.id).toBe(draft2.id)
+
+    void draft1
   })
 })

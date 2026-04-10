@@ -12,7 +12,7 @@
  * @see frontend/src/modules/aircraft/stores/active-aircraft.store.ts
  */
 
-// @UT-AC-STORE-054@ (FROM: @IMP-AC-STORE-006@)
+// @UT-AC-STORE-068@ (FROM: @IMP-AC-STORE-006@)
 
 import { describe, it, expect, beforeEach } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
@@ -73,14 +73,14 @@ describe('useActiveAircraftStore', () => {
     setActivePinia(createPinia())
   })
 
-  // @UT-AC-STORE-054@ (FROM: @IMP-AC-STORE-006@)
+  // @UT-AC-STORE-068@ (FROM: @IMP-AC-STORE-006@)
   it('initial state: activeProfile is null, hasActiveProfile is false', () => {
     const store = useActiveAircraftStore()
     expect(store.activeProfile).toBeNull()
     expect(store.hasActiveProfile).toBe(false)
   })
 
-  // @UT-AC-STORE-055@ (FROM: @IMP-AC-STORE-006@)
+  // @UT-AC-STORE-069@ (FROM: @IMP-AC-STORE-006@)
   it('setActiveProfile sets the active profile reactively (no page reload required)', () => {
     const store = useActiveAircraftStore()
     const profile = buildProfile()
@@ -93,7 +93,7 @@ describe('useActiveAircraftStore', () => {
     expect(store.hasActiveProfile).toBe(true)
   })
 
-  // @UT-AC-STORE-056@ (FROM: @IMP-AC-STORE-006@)
+  // @UT-AC-STORE-070@ (FROM: @IMP-AC-STORE-006@)
   it('context switch: new profile replaces prior profile without page reload', () => {
     const store = useActiveAircraftStore()
     const aircraft1 = buildProfile({
@@ -119,7 +119,7 @@ describe('useActiveAircraftStore', () => {
     expect(store.activeProfile!.id).not.toBe(aircraft1.id)
   })
 
-  // @UT-AC-STORE-057@ (FROM: @IMP-AC-STORE-006@)
+  // @UT-AC-STORE-071@ (FROM: @IMP-AC-STORE-006@)
   it('no page reload triggered: setActiveProfile performs synchronous in-place state swap', () => {
     const store = useActiveAircraftStore()
 
@@ -140,7 +140,7 @@ describe('useActiveAircraftStore', () => {
     expect(store.activeProfile!.registration).toBe('G-ABCD')
   })
 
-  // @UT-AC-STORE-058@ (FROM: @IMP-AC-STORE-006@)
+  // @UT-AC-STORE-072@ (FROM: @IMP-AC-STORE-006@)
   it('clearActive sets activeProfile to null and hasActiveProfile to false', () => {
     const store = useActiveAircraftStore()
     const profile = buildProfile()
@@ -153,7 +153,7 @@ describe('useActiveAircraftStore', () => {
     expect(store.hasActiveProfile).toBe(false)
   })
 
-  // @UT-AC-STORE-059@ (FROM: @IMP-AC-STORE-006@)
+  // @UT-AC-STORE-073@ (FROM: @IMP-AC-STORE-006@)
   it('isDraft is true when active profile has Draft status', () => {
     const store = useActiveAircraftStore()
     const draftProfile = buildProfile({ status: 'Draft' })
@@ -161,7 +161,7 @@ describe('useActiveAircraftStore', () => {
     expect(store.isDraft).toBe(true)
   })
 
-  // @UT-AC-STORE-060@ (FROM: @IMP-AC-STORE-006@)
+  // @UT-AC-STORE-074@ (FROM: @IMP-AC-STORE-006@)
   it('isDraft is false when active profile has Verified status', () => {
     const store = useActiveAircraftStore()
     const verifiedProfile = buildProfile({ status: 'Verified' })
@@ -169,13 +169,13 @@ describe('useActiveAircraftStore', () => {
     expect(store.isDraft).toBe(false)
   })
 
-  // @UT-AC-STORE-061@ (FROM: @IMP-AC-STORE-006@)
+  // @UT-AC-STORE-075@ (FROM: @IMP-AC-STORE-006@)
   it('isDraft is false when no profile is active (null)', () => {
     const store = useActiveAircraftStore()
     expect(store.isDraft).toBe(false)
   })
 
-  // @UT-AC-STORE-062@ (FROM: @IMP-AC-STORE-006@)
+  // @UT-AC-STORE-076@ (FROM: @IMP-AC-STORE-006@)
   it('context switch: prior state absent after switching aircraft', () => {
     const store = useActiveAircraftStore()
     const aircraft1 = buildProfile({
@@ -198,7 +198,7 @@ describe('useActiveAircraftStore', () => {
     expect(store.activeProfile!.status).toBe('Verified')
   })
 
-  // @UT-AC-STORE-063@ (FROM: @IMP-AC-STORE-006@)
+  // @UT-AC-STORE-077@ (FROM: @IMP-AC-STORE-006@)
   it('setActiveProfile replaces profile object reference (reactive hot-swap)', () => {
     const store = useActiveAircraftStore()
     const profile1 = buildProfile({ registration: 'D-FIRST' })
@@ -217,7 +217,7 @@ describe('useActiveAircraftStore', () => {
     expect(store.activeProfile!.registration).toBe('D-SECOND')
   })
 
-  // @UT-AC-STORE-064@ (FROM: @IMP-AC-STORE-006@)
+  // @UT-AC-STORE-078@ (FROM: @IMP-AC-STORE-006@)
   it('clearActive then setActiveProfile starts fresh context', () => {
     const store = useActiveAircraftStore()
     const aircraft = buildProfile()
@@ -231,7 +231,7 @@ describe('useActiveAircraftStore', () => {
     expect(store.hasActiveProfile).toBe(true)
   })
 
-  // @UT-AC-STORE-065@ (FROM: @IMP-AC-STORE-006@)
+  // @UT-AC-STORE-079@ (FROM: @IMP-AC-STORE-006@)
   it('hasActiveProfile is false after clearActive', () => {
     const store = useActiveAircraftStore()
     store.setActiveProfile(buildProfile())

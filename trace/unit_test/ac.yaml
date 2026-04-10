@@ -298,14 +298,6 @@ AC Store — Fleet Store (Unit)
 
 AC Store — Fleet Repository (Unit)
   UT-AC-STORE-034
-    title: Fleet Repository unit tests (fake-indexeddb): CRUD, round-trip, passengerProfiles preservation
-    impl:
-      - IMP-AC-STORE-001
-    files:
-      - frontend/src/modules/aircraft/__tests__/fleet.repository.spec.ts
-
-AC Store — Fleet Repository (Unit)
-  UT-AC-STORE-034
     title: fleet.repository — create stores profile and allows retrieval by id
     impl:
       - IMP-AC-STORE-001
@@ -638,3 +630,27 @@ AC Store — Active Aircraft Store (Unit)
       - IMP-AC-STORE-006
     files:
       - frontend/src/modules/aircraft/__tests__/active-aircraft.store.spec.ts
+
+AC Store — Fleet Store Branch Coverage (Unit)
+  UT-AC-STORE-080
+    title: fleet.store — updateProfile succeeds when no registration field is in changes
+    impl:
+      - IMP-AC-STORE-005
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+  UT-AC-STORE-081
+    title: fleet.store — updateProfile succeeds with valid new registration that is not a duplicate
+    impl:
+      - IMP-AC-STORE-005
+      - IMP-AC-STORE-003
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+  UT-AC-STORE-082
+    title: fleet.store — notifications are cleared after clearNotifications on aircraft context switch (DoD #165)
+    impl:
+      - IMP-AC-STORE-005
+      - IMP-AC-STORE-006
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
