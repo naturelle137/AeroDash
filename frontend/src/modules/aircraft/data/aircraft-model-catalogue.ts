@@ -27,7 +27,7 @@ export const AIRCRAFT_MODEL_CATALOGUE: AircraftModelEntry[] = [
   // Cessna
   { manufacturer: 'Cessna', model: 'C152', icaoTypeDesignator: 'C152' },
   { manufacturer: 'Cessna', model: 'C172S Skyhawk SP', icaoTypeDesignator: 'C172' },
-  { manufacturer: 'Cessna', model: 'C182T Skylane', icaoTypeDesignator: 'C82T' },
+  { manufacturer: 'Cessna', model: 'C182T Skylane', icaoTypeDesignator: 'C182' },
   // Piper
   { manufacturer: 'Piper', model: 'PA-28-161 Warrior III', icaoTypeDesignator: 'PA28' },
   { manufacturer: 'Piper', model: 'PA-28-181 Archer III', icaoTypeDesignator: 'PA28' },
