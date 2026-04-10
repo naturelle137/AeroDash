@@ -259,7 +259,7 @@ describe('MassBalance Store', () => {
     expect(mockedCalculate).toHaveBeenCalledTimes(1)
   })
 
-  // @UT-MB-STORE-018@ (FROM: @IMP-MB-STORE-013@, @REQ-AC-005@, @H-011@)
+  // @UT-MB-STORE-059@ (FROM: @IMP-MB-STORE-013@, @REQ-AC-005@, @H-011@)
   it('emits WARN-AC-002 when aircraft context status is draft (computation entry)', () => {
     mockedCalculate.mockReturnValue(buildSuccessResult())
 

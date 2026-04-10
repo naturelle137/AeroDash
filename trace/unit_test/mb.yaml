@@ -1253,3 +1253,12 @@ MB Store - Mutant-Killing Boundary Tests
       - IMP-MB-STORE-012
     files:
       - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-059
+    title: Verify WARN-AC-002 emitted when aircraft context status is draft at computation entry
+    impl:
+      - IMP-MB-STORE-013
+      - REQ-AC-005
+      - H-011
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
