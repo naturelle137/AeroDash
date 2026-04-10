@@ -246,7 +246,7 @@ describe('useFleetStore', () => {
     vi.mocked(fleetRepository.findAll).mockResolvedValueOnce([mockProfile])
     await store.loadAll()
     expect(store.profiles).toHaveLength(1)
-    expect(store.profiles[0].registration).toBe('G-ABCD')
+    expect(store.profiles[0]!.registration).toBe('G-ABCD')
     expect(store.isLoading).toBe(false)
   })
 })

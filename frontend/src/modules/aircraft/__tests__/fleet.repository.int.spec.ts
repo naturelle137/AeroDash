@@ -134,7 +134,7 @@ describe('fleetRepository — CRUD lifecycle', () => {
     await create(profile)
     const found = await findById(profile.id)
     expect(found).toBeDefined()
-    expect(found.costPerHour).toBe(185.5)
+    expect(found!.costPerHour).toBe(185.5)
   })
 
   // @IT-AC-STORE-006@ (FROM: @IMP-AC-STORE-001@, @IMP-AC-CORE-002@)
@@ -146,7 +146,7 @@ describe('fleetRepository — CRUD lifecycle', () => {
     await create(profile)
     const found = await findById(profile.id)
     expect(found).toBeDefined()
-    expect(found.referenceDatumDescription).toBe('Firewall forward face')
+    expect(found!.referenceDatumDescription).toBe('Firewall forward face')
   })
 
   // @IT-AC-STORE-007@ (FROM: @IMP-AC-STORE-001@, @IMP-AC-CORE-002@)
@@ -161,14 +161,14 @@ describe('fleetRepository — CRUD lifecycle', () => {
     await create(profile)
     const found = await findById(profile.id)
     expect(found).toBeDefined()
-    expect(found.checklistScaffold).toHaveLength(2)
-    expect(found.checklistScaffold[0].title).toBe('Pre-flight')
-    expect(found.checklistScaffold[0].items).toEqual([
+    expect(found!.checklistScaffold).toHaveLength(2)
+    expect(found!.checklistScaffold![0]!.title).toBe('Pre-flight')
+    expect(found!.checklistScaffold![0]!.items).toEqual([
       'Check fuel',
       'Check oil',
       'Check control surfaces',
     ])
-    expect(found.checklistScaffold[1].title).toBe('Engine start')
+    expect(found!.checklistScaffold![1]!.title).toBe('Engine start')
   })
 
   // @IT-AC-STORE-008@ (FROM: @IMP-AC-STORE-001@, @IMP-AC-CORE-002@)
@@ -184,10 +184,10 @@ describe('fleetRepository — CRUD lifecycle', () => {
     await create(profile)
     const found = await findById(profile.id)
     expect(found).toBeDefined()
-    expect(found.costPerHour).toBe(220.0)
-    expect(found.referenceDatumDescription).toBe('Leading edge of wing root')
-    expect(found.checklistScaffold).toHaveLength(1)
-    expect(found.checklistScaffold[0].title).toBe('Normal procedures')
+    expect(found!.costPerHour).toBe(220.0)
+    expect(found!.referenceDatumDescription).toBe('Leading edge of wing root')
+    expect(found!.checklistScaffold).toHaveLength(1)
+    expect(found!.checklistScaffold![0]!.title).toBe('Normal procedures')
   })
 
   // @IT-AC-STORE-009@ (FROM: @IMP-AC-STORE-001@, @IMP-AC-CORE-002@)
@@ -203,9 +203,9 @@ describe('fleetRepository — CRUD lifecycle', () => {
     await update(updatedProfile)
 
     const found = await findById(profile.id)
-    expect(found.costPerHour).toBe(150.0)
-    expect(found.checklistScaffold).toHaveLength(1)
-    expect(found.checklistScaffold[0].title).toBe('Before landing')
+    expect(found!.costPerHour).toBe(150.0)
+    expect(found!.checklistScaffold).toHaveLength(1)
+    expect(found!.checklistScaffold![0]!.title).toBe('Before landing')
   })
 })
 

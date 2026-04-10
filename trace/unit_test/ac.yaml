@@ -295,3 +295,300 @@ AC Store — Fleet Store (Unit)
       - IMP-AC-STORE-005
     files:
       - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+AC View — Aircraft Model Catalogue (Unit)
+  UT-AC-VIEW-001
+    title: AIRCRAFT_MODEL_CATALOGUE contains at least one entry per expected manufacturer
+    impl:
+      - IMP-AC-VIEW-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/aircraft-model-catalogue.spec.ts
+
+  UT-AC-VIEW-002
+    title: every catalogue entry has a non-empty manufacturer, model, and icaoTypeDesignator
+    impl:
+      - IMP-AC-VIEW-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/aircraft-model-catalogue.spec.ts
+
+  UT-AC-VIEW-003
+    title: CATALOGUE_VERSION is a non-empty string
+    impl:
+      - IMP-AC-VIEW-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/aircraft-model-catalogue.spec.ts
+
+  UT-AC-VIEW-004
+    title: getManufacturers returns all unique manufacturers
+    impl:
+      - IMP-AC-VIEW-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/aircraft-model-catalogue.spec.ts
+
+  UT-AC-VIEW-005
+    title: getManufacturers appends 'Other' as the last entry (REQ-UI-002)
+    impl:
+      - IMP-AC-VIEW-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/aircraft-model-catalogue.spec.ts
+
+  UT-AC-VIEW-006
+    title: getManufacturers returns manufacturers in alphabetical order before Other
+    impl:
+      - IMP-AC-VIEW-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/aircraft-model-catalogue.spec.ts
+
+  UT-AC-VIEW-007
+    title: getManufacturers does not contain duplicates
+    impl:
+      - IMP-AC-VIEW-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/aircraft-model-catalogue.spec.ts
+
+  UT-AC-VIEW-008
+    title: getModelsByManufacturer returns all Cessna models
+    impl:
+      - IMP-AC-VIEW-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/aircraft-model-catalogue.spec.ts
+
+  UT-AC-VIEW-009
+    title: getModelsByManufacturer returns only models matching the requested manufacturer
+    impl:
+      - IMP-AC-VIEW-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/aircraft-model-catalogue.spec.ts
+
+  UT-AC-VIEW-010
+    title: getModelsByManufacturer returns empty array for manufacturer = 'Other' (REQ-UI-002)
+    impl:
+      - IMP-AC-VIEW-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/aircraft-model-catalogue.spec.ts
+
+  UT-AC-VIEW-011
+    title: getModelsByManufacturer returns empty array for unknown manufacturer
+    impl:
+      - IMP-AC-VIEW-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/aircraft-model-catalogue.spec.ts
+
+  UT-AC-VIEW-012
+    title: each returned entry has the expected fields
+    impl:
+      - IMP-AC-VIEW-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/aircraft-model-catalogue.spec.ts
+
+  UT-AC-VIEW-013
+    title: Diamond has DA40 Diamond Star in its model list
+    impl:
+      - IMP-AC-VIEW-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/aircraft-model-catalogue.spec.ts
+
+  UT-AC-VIEW-014
+    title: findByIcaoDesignator returns correct entry for C172
+    impl:
+      - IMP-AC-VIEW-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/aircraft-model-catalogue.spec.ts
+
+  UT-AC-VIEW-015
+    title: findByIcaoDesignator performs case-insensitive lookup
+    impl:
+      - IMP-AC-VIEW-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/aircraft-model-catalogue.spec.ts
+
+  UT-AC-VIEW-016
+    title: findByIcaoDesignator trims whitespace before lookup
+    impl:
+      - IMP-AC-VIEW-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/aircraft-model-catalogue.spec.ts
+
+  UT-AC-VIEW-017
+    title: findByIcaoDesignator returns empty array for unknown ICAO designator
+    impl:
+      - IMP-AC-VIEW-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/aircraft-model-catalogue.spec.ts
+
+  UT-AC-VIEW-018
+    title: findByIcaoDesignator returns multiple entries when models share an ICAO designator (PA28)
+    impl:
+      - IMP-AC-VIEW-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/aircraft-model-catalogue.spec.ts
+
+  UT-AC-VIEW-019
+    title: reverse lookup returns correct manufacturer for P208 (Tecnam P2008 JC)
+    impl:
+      - IMP-AC-VIEW-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/aircraft-model-catalogue.spec.ts
+
+  UT-AC-VIEW-020
+    title: reverse lookup returns correct manufacturer for DA40 (Diamond DA40 Diamond Star)
+    impl:
+      - IMP-AC-VIEW-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/aircraft-model-catalogue.spec.ts
+
+  UT-AC-VIEW-021
+    title: C172S Skyhawk SP auto-fills ICAO designator C172 (REQ-UI-003)
+    impl:
+      - IMP-AC-VIEW-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/aircraft-model-catalogue.spec.ts
+
+  UT-AC-VIEW-022
+    title: PA-44-180 Seminole auto-fills ICAO designator PA44 (REQ-UI-003)
+    impl:
+      - IMP-AC-VIEW-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/aircraft-model-catalogue.spec.ts
+
+  UT-AC-VIEW-023
+    title: getManufacturers includes 'Other' as an option (REQ-UI-002)
+    impl:
+      - IMP-AC-VIEW-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/aircraft-model-catalogue.spec.ts
+
+  UT-AC-VIEW-024
+    title: getModelsByManufacturer('Other') returns empty to signal free-text mode
+    impl:
+      - IMP-AC-VIEW-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/aircraft-model-catalogue.spec.ts
+
+AC View — AircraftModelSelector Component (Unit)
+  UT-AC-VIEW-025
+    title: renders manufacturer select with known manufacturers
+    impl:
+      - IMP-AC-VIEW-002
+    files:
+      - frontend/src/modules/aircraft/__tests__/AircraftModelSelector.spec.ts
+
+  UT-AC-VIEW-026
+    title: renders 'Other' as the last manufacturer option
+    impl:
+      - IMP-AC-VIEW-002
+    files:
+      - frontend/src/modules/aircraft/__tests__/AircraftModelSelector.spec.ts
+
+  UT-AC-VIEW-027
+    title: shows only Cessna models when manufacturer is Cessna
+    impl:
+      - IMP-AC-VIEW-002
+    files:
+      - frontend/src/modules/aircraft/__tests__/AircraftModelSelector.spec.ts
+
+  UT-AC-VIEW-028
+    title: shows only Piper models when manufacturer is Piper
+    impl:
+      - IMP-AC-VIEW-002
+    files:
+      - frontend/src/modules/aircraft/__tests__/AircraftModelSelector.spec.ts
+
+  UT-AC-VIEW-029
+    title: model select is disabled when no manufacturer is selected
+    impl:
+      - IMP-AC-VIEW-002
+    files:
+      - frontend/src/modules/aircraft/__tests__/AircraftModelSelector.spec.ts
+
+  UT-AC-VIEW-030
+    title: renders a text input for model when manufacturer is 'Other' (REQ-UI-002)
+    impl:
+      - IMP-AC-VIEW-002
+    files:
+      - frontend/src/modules/aircraft/__tests__/AircraftModelSelector.spec.ts
+
+  UT-AC-VIEW-031
+    title: does not render a model dropdown when manufacturer is 'Other'
+    impl:
+      - IMP-AC-VIEW-002
+    files:
+      - frontend/src/modules/aircraft/__tests__/AircraftModelSelector.spec.ts
+
+  UT-AC-VIEW-032
+    title: emits 'update:model' when free-text model input changes
+    impl:
+      - IMP-AC-VIEW-002
+    files:
+      - frontend/src/modules/aircraft/__tests__/AircraftModelSelector.spec.ts
+
+  UT-AC-VIEW-033
+    title: emits 'update:icaoTypeDesignator' with C172 when C172S Skyhawk SP is selected (REQ-UI-003)
+    impl:
+      - IMP-AC-VIEW-003
+    files:
+      - frontend/src/modules/aircraft/__tests__/AircraftModelSelector.spec.ts
+
+  UT-AC-VIEW-034
+    title: emits 'update:icaoTypeDesignator' with DA42 when DA42 Twin Star is selected
+    impl:
+      - IMP-AC-VIEW-003
+    files:
+      - frontend/src/modules/aircraft/__tests__/AircraftModelSelector.spec.ts
+
+  UT-AC-VIEW-035
+    title: emits empty model and ICAO when manufacturer changes
+    impl:
+      - IMP-AC-VIEW-003
+    files:
+      - frontend/src/modules/aircraft/__tests__/AircraftModelSelector.spec.ts
+
+  UT-AC-VIEW-036
+    title: shows lookup results when ICAO input has 2+ matching characters (REQ-UI-004)
+    impl:
+      - IMP-AC-VIEW-003
+    files:
+      - frontend/src/modules/aircraft/__tests__/AircraftModelSelector.spec.ts
+
+  UT-AC-VIEW-037
+    title: shows no lookup results when ICAO input has fewer than 2 characters
+    impl:
+      - IMP-AC-VIEW-003
+    files:
+      - frontend/src/modules/aircraft/__tests__/AircraftModelSelector.spec.ts
+
+  UT-AC-VIEW-038
+    title: emits manufacturer, model and ICAO when a lookup result is clicked
+    impl:
+      - IMP-AC-VIEW-003
+    files:
+      - frontend/src/modules/aircraft/__tests__/AircraftModelSelector.spec.ts
+
+  UT-AC-VIEW-039
+    title: normalises ICAO input to uppercase before emitting
+    impl:
+      - IMP-AC-VIEW-003
+    files:
+      - frontend/src/modules/aircraft/__tests__/AircraftModelSelector.spec.ts
+
+AC Store — Fleet Store Async Load State (Unit)
+  UT-AC-STORE-066
+    title: loadAll sets isLoading=true during fetch and false after completion (LOADING to READY)
+    impl:
+      - IMP-AC-STORE-005
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+  UT-AC-STORE-067
+    title: loadAll sets isLoading=false even when IndexedDB throws (LOADING to ERROR)
+    impl:
+      - IMP-AC-STORE-005
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+  UT-AC-STORE-068
+    title: loadAll populates profiles from IndexedDB (READY state)
+    impl:
+      - IMP-AC-STORE-005
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts

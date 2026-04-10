@@ -48,3 +48,44 @@ AC Store — schemaVersion Persistence (refs #166)
       - IMP-AC-CORE-002
     files:
       - frontend/src/modules/aircraft/__tests__/fleet.repository.int.spec.ts
+
+AC Store — Supplementary Field Round-Trip Persistence (Integration)
+  IT-AC-STORE-005
+    title: round-trip — costPerHour persists and retrieves with full fidelity
+    impl:
+      - IMP-AC-STORE-001
+      - IMP-AC-CORE-002
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.repository.int.spec.ts
+
+  IT-AC-STORE-006
+    title: round-trip — referenceDatumDescription persists and retrieves with full fidelity
+    impl:
+      - IMP-AC-STORE-001
+      - IMP-AC-CORE-002
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.repository.int.spec.ts
+
+  IT-AC-STORE-007
+    title: round-trip — checklistScaffold persists and retrieves with full fidelity
+    impl:
+      - IMP-AC-STORE-001
+      - IMP-AC-CORE-002
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.repository.int.spec.ts
+
+  IT-AC-STORE-008
+    title: round-trip — all three supplementary fields persist together with full fidelity
+    impl:
+      - IMP-AC-STORE-001
+      - IMP-AC-CORE-002
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.repository.int.spec.ts
+
+  IT-AC-STORE-009
+    title: round-trip — supplementary fields survive an update() cycle
+    impl:
+      - IMP-AC-STORE-001
+      - IMP-AC-CORE-002
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.repository.int.spec.ts

@@ -95,7 +95,7 @@ describe("AircraftModelSelector — 'Other' manufacturer free-text mode (REQ-UI-
     await input.setValue('My Custom Aircraft')
     const emitted = wrapper.emitted('update:model')
     expect(emitted).toBeDefined()
-    expect(emitted[emitted.length - 1]).toEqual(['My Custom Aircraft'])
+    expect(emitted![emitted!.length - 1]).toEqual(['My Custom Aircraft'])
   })
 })
 
@@ -108,7 +108,7 @@ describe('AircraftModelSelector — ICAO auto-fill on model selection (REQ-UI-00
     await select.trigger('change')
     const emitted = wrapper.emitted('update:icaoTypeDesignator')
     expect(emitted).toBeDefined()
-    expect(emitted[emitted.length - 1]).toEqual(['C172'])
+    expect(emitted![emitted!.length - 1]).toEqual(['C172'])
   })
 
   // @UT-AC-VIEW-034@ (FROM: @IMP-AC-VIEW-003@)
@@ -119,7 +119,7 @@ describe('AircraftModelSelector — ICAO auto-fill on model selection (REQ-UI-00
     await select.trigger('change')
     const emitted = wrapper.emitted('update:icaoTypeDesignator')
     expect(emitted).toBeDefined()
-    expect(emitted[emitted.length - 1]).toEqual(['DA42'])
+    expect(emitted![emitted!.length - 1]).toEqual(['DA42'])
   })
 })
 
@@ -137,9 +137,9 @@ describe('AircraftModelSelector — manufacturer change resets model and ICAO', 
     const modelEmitted = wrapper.emitted('update:model')
     const icaoEmitted = wrapper.emitted('update:icaoTypeDesignator')
     expect(modelEmitted).toBeDefined()
-    expect(modelEmitted[modelEmitted.length - 1]).toEqual([''])
+    expect(modelEmitted![modelEmitted!.length - 1]).toEqual([''])
     expect(icaoEmitted).toBeDefined()
-    expect(icaoEmitted[icaoEmitted.length - 1]).toEqual([''])
+    expect(icaoEmitted![icaoEmitted!.length - 1]).toEqual([''])
   })
 })
 
@@ -175,7 +175,7 @@ describe('AircraftModelSelector — ICAO bidirectional reverse lookup (REQ-UI-00
     expect(wrapper.emitted('update:model')).toBeDefined()
     expect(wrapper.emitted('update:icaoTypeDesignator')).toBeDefined()
     const lastIcao = wrapper.emitted('update:icaoTypeDesignator')
-    expect(lastIcao[lastIcao.length - 1]).toEqual(['C152'])
+    expect(lastIcao![lastIcao!.length - 1]).toEqual(['C152'])
   })
 
   // @UT-AC-VIEW-039@ (FROM: @IMP-AC-VIEW-003@)
@@ -185,6 +185,6 @@ describe('AircraftModelSelector — ICAO bidirectional reverse lookup (REQ-UI-00
     await icaoInput.setValue('da40')
     const emitted = wrapper.emitted('update:icaoTypeDesignator')
     expect(emitted).toBeDefined()
-    expect(emitted[0]).toEqual(['DA40'])
+    expect(emitted![0]).toEqual(['DA40'])
   })
 })

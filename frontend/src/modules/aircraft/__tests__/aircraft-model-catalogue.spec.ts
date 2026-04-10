@@ -164,16 +164,16 @@ describe('findByIcaoDesignator', () => {
   it('reverse lookup returns correct manufacturer for P208 (Tecnam)', () => {
     const result = findByIcaoDesignator('P208')
     expect(result.length).toBeGreaterThan(0)
-    expect(result[0].manufacturer).toBe('Tecnam')
-    expect(result[0].model).toBe('P2008 JC')
+    expect(result[0]!.manufacturer).toBe('Tecnam')
+    expect(result[0]!.model).toBe('P2008 JC')
   })
 
   // @UT-AC-VIEW-020@ (FROM: @IMP-AC-VIEW-001@)
   it('reverse lookup returns correct manufacturer for DA40 (Diamond)', () => {
     const result = findByIcaoDesignator('DA40')
     expect(result.length).toBe(1)
-    expect(result[0].manufacturer).toBe('Diamond')
-    expect(result[0].model).toBe('DA40 Diamond Star')
+    expect(result[0]!.manufacturer).toBe('Diamond')
+    expect(result[0]!.model).toBe('DA40 Diamond Star')
   })
 })
 
@@ -183,7 +183,7 @@ describe('ICAO auto-fill from catalogue entry (REQ-UI-003)', () => {
     const models = getModelsByManufacturer('Cessna')
     const entry = models.find((e) => e.model === 'C172S Skyhawk SP')
     expect(entry).toBeDefined()
-    expect(entry.icaoTypeDesignator).toBe('C172')
+    expect(entry!.icaoTypeDesignator).toBe('C172')
   })
 
   // @UT-AC-VIEW-022@ (FROM: @IMP-AC-VIEW-001@)
@@ -191,7 +191,7 @@ describe('ICAO auto-fill from catalogue entry (REQ-UI-003)', () => {
     const models = getModelsByManufacturer('Piper')
     const entry = models.find((e) => e.model === 'PA-44-180 Seminole')
     expect(entry).toBeDefined()
-    expect(entry.icaoTypeDesignator).toBe('PA44')
+    expect(entry!.icaoTypeDesignator).toBe('PA44')
   })
 })
 
