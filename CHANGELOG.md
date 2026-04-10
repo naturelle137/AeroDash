@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Aircraft model catalogue as versioned JSON (`aircraft-model-catalogue.json`) with stable row `id`s; ICAO reverse lookup auto-fills manufacturer/model when the designator matches exactly one row (closes #158)
+- `useFleetStore` fleet hydration states `fleetLoadState` (`LOADING` / `READY` / `ERROR`) and `fleetLoadError`; fleet list shows error UI with retry on IndexedDB failure (closes #158)
 - PWA Service Worker with offline-first app shell caching via `vite-plugin-pwa` and Workbox (closes #150)
 - PWA update notification (`INFO-SYS-001`) — no silent auto-update, user must confirm reload (`registerType: 'prompt'`) (closes #151)
 - Minimum safe version enforcement on startup (`useAppVersionStore.checkMinSafeVersion`) — blocks execution when local version is below minimum (REQ-SYS-006)
@@ -29,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Engineering
 
+- Aircraft catalogue unit tests (filter, ICAO lookup, unique designator) and `AircraftModelSelector` component tests; fleet store tests for IndexedDB load state machine (closes #158)
 - 33 unit tests (ICAO validation × 16, import × 8, fleet FSM × 9) and 4 IndexedDB integration tests all passing
 - verifyProfile() now auto-updates active aircraft context when the verified Draft was in use
 - Canonical bilinear interpolation test vectors (TOR, TOD, LR, LD) established and passing in CI — de-risk for v0.4.0 performance distance calculations (closes #155)

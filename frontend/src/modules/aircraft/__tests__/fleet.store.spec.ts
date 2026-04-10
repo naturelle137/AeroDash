@@ -9,6 +9,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import { useFleetStore, VerifiedMutationError } from '../stores/fleet.store'
 import type { AircraftProfile } from '@/core/adapters/aircraft.schema'
+import { fleetRepository } from '../services/fleet.repository'
 
 // Mock the fleet repository so we don't need real IndexedDB in unit tests
 vi.mock('../services/fleet.repository', () => ({
@@ -70,6 +71,7 @@ function minimalProfileData(): Omit<AircraftProfile, 'id' | 'status' | 'schemaVe
 describe('useFleetStore', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
+    vi.mocked(fleetRepository.findAll).mockResolvedValue([])
   })
 
   // @UT-AC-STORE-025@ (FROM: @IMP-AC-STORE-005@)
@@ -187,5 +189,37 @@ describe('useFleetStore', () => {
     const profile = await store.createProfile(minimalProfileData())
     await store.deleteProfile(profile.id)
     expect(store.profiles).toHaveLength(0)
+  })
+
+  // @UT-AC-STORE-034@ (FROM: @IMP-AC-STORE-005@)
+  it('loadAll sets fleetLoadState LOADING then READY when IndexedDB succeeds', async () => {
+    let resolveLoad!: (rows: AircraftProfile[]) => void
+    const loadPromise = new Promise<AircraftProfile[]>((r) => {
+      resolveLoad = r
+    })
+    vi.mocked(fleetRepository.findAll).mockReturnValueOnce(loadPromise)
+
+    const store = useFleetStore()
+    const done = store.loadAll()
+    expect(store.fleetLoadState).toBe('LOADING')
+    expect(store.fleetLoadError).toBeNull()
+
+    resolveLoad([])
+    await done
+    expect(store.fleetLoadState).toBe('READY')
+    expect(store.fleetLoadError).toBeNull()
+    expect(store.isLoading).toBe(false)
+  })
+
+  // @UT-AC-STORE-035@ (FROM: @IMP-AC-STORE-005@)
+  it('loadAll sets fleetLoadState ERROR when IndexedDB fails', async () => {
+    vi.mocked(fleetRepository.findAll).mockRejectedValueOnce(new Error('IndexedDB unavailable'))
+
+    const store = useFleetStore()
+    await store.loadAll()
+
+    expect(store.fleetLoadState).toBe('ERROR')
+    expect(store.fleetLoadError).toBe('IndexedDB unavailable')
+    expect(store.isLoading).toBe(false)
   })
 })

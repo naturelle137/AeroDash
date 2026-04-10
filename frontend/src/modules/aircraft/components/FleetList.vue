@@ -1,7 +1,18 @@
 <template>
   <!-- @IMP-AC-VIEW-005@ (FROM: @REQ-AC-001@, @REQ-AC-005@) -->
   <div class="fleet-list">
-    <div v-if="fleetStore.isLoading" class="loading-state">Loading fleet...</div>
+    <div v-if="fleetStore.fleetLoadState === 'LOADING'" class="loading-state">Loading fleet...</div>
+
+    <div
+      v-else-if="fleetStore.fleetLoadState === 'ERROR'"
+      class="error-state"
+      role="alert"
+      aria-live="assertive"
+    >
+      <p>Could not load your fleet from device storage.</p>
+      <p v-if="fleetStore.fleetLoadError" class="error-state__detail">{{ fleetStore.fleetLoadError }}</p>
+      <button type="button" class="btn btn-retry" @click="fleetStore.loadAll()">Retry</button>
+    </div>
 
     <div v-else-if="fleetStore.profiles.length === 0" class="empty-state">
       No aircraft profiles yet. Add your first aircraft above.
@@ -103,10 +114,36 @@ async function onDelete(id: string, registration: string): Promise<void> {
 }
 
 .loading-state,
-.empty-state {
+.empty-state,
+.error-state {
   padding: 1rem;
   text-align: center;
   color: #6b7280;
+}
+
+.error-state {
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+.error-state__detail {
+  font-size: 0.8rem;
+  margin: 0.5rem 0 0 0;
+  word-break: break-word;
+}
+
+.btn-retry {
+  margin-top: 0.75rem;
+  padding: 0.375rem 0.75rem;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  font-weight: 500;
+  background: #dc2626;
+  color: white;
 }
 
 .profiles-list {

@@ -1,6 +1,6 @@
 /**
  * Static aircraft model catalogue for the model hierarchy selector.
- * P2 Feature Module — static data, no external dependencies.
+ * P2 Feature Module — data loaded from JSON; pure lookup helpers (no framework).
  *
  * Provides manufacturer → model → ICAO type designator mapping.
  * Supports the AircraftModelSelector component (REQ-UI-001 through REQ-UI-004).
@@ -10,31 +10,17 @@
 
 // @IMP-AC-VIEW-001@ (FROM: @REQ-UI-001@, @REQ-UI-003@, @REQ-UI-004@)
 
+import rawCatalogue from './aircraft-model-catalogue.json'
+
 export interface AircraftModelEntry {
+  /** Stable key for list rendering (unique per catalogue row). */
+  id: string
   manufacturer: string
   model: string
   icaoTypeDesignator: string
 }
 
-export const AIRCRAFT_MODEL_CATALOGUE: AircraftModelEntry[] = [
-  // Cessna
-  { manufacturer: 'Cessna', model: 'C152', icaoTypeDesignator: 'C152' },
-  { manufacturer: 'Cessna', model: 'C172S Skyhawk SP', icaoTypeDesignator: 'C172' },
-  { manufacturer: 'Cessna', model: 'C182T Skylane', icaoTypeDesignator: 'C82T' },
-  // Piper
-  { manufacturer: 'Piper', model: 'PA-28-161 Warrior III', icaoTypeDesignator: 'PA28' },
-  { manufacturer: 'Piper', model: 'PA-28-181 Archer III', icaoTypeDesignator: 'PA28' },
-  { manufacturer: 'Piper', model: 'PA-44-180 Seminole', icaoTypeDesignator: 'PA44' },
-  // Diamond
-  { manufacturer: 'Diamond', model: 'DA40 Diamond Star', icaoTypeDesignator: 'DA40' },
-  { manufacturer: 'Diamond', model: 'DA42 Twin Star', icaoTypeDesignator: 'DA42' },
-  // Tecnam
-  { manufacturer: 'Tecnam', model: 'P2008 JC', icaoTypeDesignator: 'P208' },
-  { manufacturer: 'Tecnam', model: 'P2010', icaoTypeDesignator: 'P210' },
-  // Robin
-  { manufacturer: 'Robin', model: 'DR400/120 Petit Prince', icaoTypeDesignator: 'DR40' },
-  { manufacturer: 'Robin', model: 'DR400/140B Major', icaoTypeDesignator: 'DR40' },
-]
+export const AIRCRAFT_MODEL_CATALOGUE: AircraftModelEntry[] = rawCatalogue as AircraftModelEntry[]
 
 /**
  * Get unique manufacturer names from the catalogue, sorted alphabetically.
@@ -64,4 +50,15 @@ export function findByIcaoDesignator(icaoTypeDesignator: string): AircraftModelE
   return AIRCRAFT_MODEL_CATALOGUE.filter(
     (e) => e.icaoTypeDesignator.toUpperCase() === normalized,
   )
+}
+
+/**
+ * When ICAO input is a complete 4-character designator with exactly one catalogue
+ * match, return that entry for auto-fill (REQ-UI-003, REQ-UI-004).
+ */
+export function findUniqueByIcaoDesignator(icaoTypeDesignator: string): AircraftModelEntry | null {
+  const normalized = icaoTypeDesignator.trim().toUpperCase()
+  if (normalized.length !== 4) return null
+  const matches = findByIcaoDesignator(normalized)
+  return matches.length === 1 ? matches[0]! : null
 }
