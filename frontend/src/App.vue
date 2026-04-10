@@ -179,22 +179,35 @@ const themeLabel = computed(() =>
       <button class="pwa-update-btn" @click="pwaStore.applyUpdate()">Reload to update</button>
     </div>
 
-    <!-- ═══ Version blocked banner (REQ-SYS-006) ═════════════════════════════ -->
-    <div
-      v-if="appVersionStore.versionBlocked"
-      class="version-blocked-banner"
-      role="alert"
-      aria-live="assertive"
-    >
-      <strong>Operation blocked.</strong>
-      This version of AeroDash (v{{ appVersionStore.currentVersion }}) is below the
-      minimum safe version (v{{ appVersionStore.minSafeVersion }}). Please update the
-      application before continuing.
-    </div>
-
     <!-- ═══ Main content ════════════════════════════════════════════════════ -->
+    <!-- REQ-SYS-006: Block all safety-critical features when version is below minimum -->
     <main class="app-main" id="main-content">
-      <RouterView />
+      <div
+        v-if="appVersionStore.versionBlocked"
+        class="version-blocked-screen"
+        role="alert"
+        aria-live="assertive"
+        data-testid="version-blocked-screen"
+      >
+        <div class="version-blocked-screen__card">
+          <div class="version-blocked-screen__icon" aria-hidden="true">⛔</div>
+          <h1 class="version-blocked-screen__title">Application Update Required</h1>
+          <p class="version-blocked-screen__body">
+            This version of AeroDash (<strong>{{ appVersionStore.currentVersion }}</strong>) is
+            below the minimum required version
+            (<strong>{{ appVersionStore.minSafeVersion }}</strong>).
+          </p>
+          <p class="version-blocked-screen__body">
+            Safety-critical features (Mass &amp; Balance, Performance, Fuel &amp; Endurance) are
+            <strong>disabled</strong> until the application is updated.
+          </p>
+          <p class="version-blocked-screen__advisory">
+            Please refresh the page or update your PWA installation. If this error persists, clear
+            your browser cache and reload.
+          </p>
+        </div>
+      </div>
+      <RouterView v-else />
     </main>
 
     <!-- ═══ Bottom navigation (mobile only) ════════════════════════════════ -->
@@ -272,21 +285,52 @@ const themeLabel = computed(() =>
   background: rgba(255, 255, 255, 0.25);
 }
 
-/* ─── Version blocked banner ──────────────────────────────────────────────── */
+/* ─── Version-blocked screen (REQ-SYS-006) ───────────────────────────────── */
 
-.version-blocked-banner {
-  grid-column: 1 / -1;
+.version-blocked-screen {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--space-2);
-  padding: var(--space-3) var(--space-4);
-  background: var(--color-danger, #b91c1c);
-  color: #fff;
-  font-size: var(--text-sm);
-  z-index: 300;
+  min-height: 100%;
+  padding: var(--space-8);
+  background: var(--color-bg);
+}
+
+.version-blocked-screen__card {
+  max-width: 480px;
+  width: 100%;
+  padding: var(--space-8);
+  background: var(--color-surface);
+  border: 2px solid var(--color-danger, #dc2626);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
   text-align: center;
-  flex-wrap: wrap;
+}
+
+.version-blocked-screen__icon {
+  font-size: 3rem;
+  margin-bottom: var(--space-4);
+}
+
+.version-blocked-screen__title {
+  font-size: var(--text-xl);
+  font-weight: 700;
+  color: var(--color-danger, #dc2626);
+  margin: 0 0 var(--space-4);
+}
+
+.version-blocked-screen__body {
+  font-size: var(--text-sm);
+  color: var(--color-text-primary);
+  margin: 0 0 var(--space-3);
+  line-height: 1.6;
+}
+
+.version-blocked-screen__advisory {
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+  margin: var(--space-4) 0 0;
+  line-height: 1.5;
 }
 
 /* ─── Shell grid ──────────────────────────────────────────────────────────── */
