@@ -69,10 +69,10 @@ Migrations are modelled as a chain of pure functions, each accepting and
 returning an untyped record. Each step brings the document from
 `schemaVersion = N` to `schemaVersion = N+1`.
 
-| From → To | Transform applied |
-| :-------- | :---------------- |
-| `1 → 2`   | Add `passengerProfiles: []` if absent. Add `status: 'Draft'` if absent. |
-| `2 → 3`   | *(future — reserved)* |
+| Version delta | Transform applied                                                         |
+| :------------ | :------------------------------------------------------------------------ |
+| `1 -> 2`      | Add `passengerProfiles: []` if absent. Add `status: 'Draft'` if absent.   |
+| `2 -> 3`      | *(future - reserved)*                                                     |
 
 ```text
 migrate(raw, fromVersion, toVersion):

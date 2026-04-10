@@ -57,7 +57,7 @@ describe('usePwaUpdateStore', () => {
 
   // @UT-SYS-STORE-026@ (FROM: @IMP-SYS-STORE-009@)
   it('applyUpdate falls back to window.location.reload when no updateSW is set', async () => {
-    const reloadMock = vi.fn()
+    const reloadMock = vi.fn<() => void>()
     vi.stubGlobal('location', { reload: reloadMock })
     const store = usePwaUpdateStore()
     // Do NOT call setUpdateSW — simulate missing SW callback
