@@ -18,7 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Canonical bilinear interpolation algorithm contract document (`docs/architecture/performance-bilinear-interpolation-contract.md`) with hand-verified test vectors for all four distance types
 - `SessionPayloadSchema` Zod schema in P1 core for validating persisted pilot session data before restoration (`session.schema.ts`)
 - `useSessionPersistenceStore` Pinia store (P3) that debounces auto-save of M&B pilot inputs to `localStorage`, validates and restores payload on page reload, and clears on aircraft switch (closes #152, #164)
-- Aircraft fleet CRUD with IndexedDB persistence, ICAO validation, duplicate detection (closes #144)
+- Aircraft fleet CRUD with IndexedDB persistence, ICAO validation, duplicate detection (closes #144, closes #156)
 - Draft/Verified profile status with immutable versioned snapshots [SAFETY-CRITICAL] (closes #145)
 - Aircraft model hierarchy selector (closes #146)
 - Passenger profiles with standard weights in load inputs (closes #147)
