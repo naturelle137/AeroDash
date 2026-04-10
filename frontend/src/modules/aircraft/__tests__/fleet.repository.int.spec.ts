@@ -123,6 +123,7 @@ describe('fleetRepository — CRUD lifecycle', () => {
   it('findAll returns empty array when store is empty', async () => {
     const all = await findAll()
     expect(all).toEqual([])
+  })
 
   // @IT-AC-STORE-005@ (FROM: @IMP-AC-STORE-001@, @IMP-AC-CORE-002@)
   it('round-trip: costPerHour persists and retrieves with full fidelity', async () => {
