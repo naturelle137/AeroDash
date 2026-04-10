@@ -25,71 +25,61 @@ UI Views
 
 UI Routing
   IMP-UI-ROUTE-001
+    status: merged
     title: Application route table — home and mass-balance routes
-    req:
-      - REQ-SYS-001
-    files:
-      - frontend/src/router/index.ts
+    see: IMP-SYS-APP-001
+    note: Duplicate of IMP-SYS-APP-001 in sys.yaml — canonical ID is IMP-SYS-APP-001.
 
 UI — Mass & Balance View Components
   IMP-UI-MB-001
+    status: merged
     title: Severity-Based State Banner and Notification Rendering (viewModel.bannerSeverity)
-    req:
-      - REQ-UI-018
-    files:
-      - frontend/src/modules/mass-balance/views/MassBalanceView.vue
+    see: IMP-MB-UI-004
+    note: Duplicate of IMP-MB-UI-004 in mb.yaml — canonical ID is IMP-MB-UI-004.
 
   IMP-UI-MB-002
+    status: merged
     title: CG Envelope Polygon + Mass Point Markers Rendering
-    req:
-      - REQ-UI-019
-    files:
-      - frontend/src/modules/mass-balance/components/CGEnvelopeChart.vue
+    see: IMP-MB-UI-001
+    note: Duplicate of IMP-MB-UI-001 in mb.yaml — canonical ID is IMP-MB-UI-001.
 
   IMP-UI-MB-003
+    status: merged
     title: CG Migration Trend Line / Burn Sequence Path Rendering
-    req:
-      - REQ-UI-010
-    files:
-      - frontend/src/modules/mass-balance/components/CGEnvelopeChart.vue
+    see: IMP-MB-UI-002
+    note: Duplicate of IMP-MB-UI-002 in mb.yaml — canonical ID is IMP-MB-UI-002.
 
   IMP-UI-MB-004
+    status: merged
     title: Category Change Recalculation — changeCertificationCategory re-runs math core
-    req:
-      - REQ-UI-009
-    files:
-      - frontend/src/modules/mass-balance/stores/mass-balance.store.ts
+    see: IMP-MB-STORE-007
+    note: Duplicate of IMP-MB-STORE-007 in mb.yaml — canonical ID is IMP-MB-STORE-007.
 
   IMP-UI-MB-005
+    status: merged
     title: OUT_OF_RANGE Violation mapped as WARNING notification (WARN-UI-001)
-    req:
-      - REQ-UI-008
-    files:
-      - frontend/src/modules/mass-balance/stores/mass-balance.store.ts
+    see: IMP-MB-STORE-017
+    note: Duplicate of IMP-MB-STORE-017 in mb.yaml — canonical ID is IMP-MB-STORE-017.
 
 UI — Fleet Management — Passenger Profile UI
   IMP-UI-FLEET-001
+    status: merged
     title: Passenger profile CRUD form in FleetManagementView — add/remove profiles
-    req:
-      - REQ-UI-006
-      - REQ-AC-006
-    files:
-      - frontend/src/modules/aircraft/views/FleetManagementView.vue
+    see: IMP-AC-VIEW-007
+    note: Duplicate of IMP-AC-VIEW-007/IMP-AC-VIEW-008 in ac.yaml — canonical IDs are IMP-AC-VIEW-007 and IMP-AC-VIEW-008.
 
 UI — Verify / Mark-All-Verified
   IMP-UI-VERIFY-001
+    status: merged
     title: markFieldVerified action — transitions single station to Verified
-    req:
-      - REQ-UI-014
-    files:
-      - frontend/src/modules/mass-balance/stores/mass-balance.store.ts
+    see: IMP-MB-STORE-008
+    note: Duplicate of IMP-MB-STORE-008 in mb.yaml — canonical ID is IMP-MB-STORE-008.
 
   IMP-UI-VERIFY-002
+    status: merged
     title: markAllVerified action — transitions all available stations to Verified
-    req:
-      - REQ-UI-016
-    files:
-      - frontend/src/modules/mass-balance/stores/mass-balance.store.ts
+    see: IMP-MB-STORE-009
+    note: Duplicate of IMP-MB-STORE-009 in mb.yaml — canonical ID is IMP-MB-STORE-009.
 
 UI Pending — Future (Approved, Not Yet Implemented)
   IMP-UI-PENDING-001

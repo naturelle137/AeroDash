@@ -64,14 +64,12 @@ jobs:
         if: steps.json.outputs.json_ok == 'true'
         run: |
           echo "## Pending Requirements (no IMP chain)" >> "$GITHUB_STEP_SUMMARY"
-          # A REQ node is "pending" if it has no downstream link (target in links)
+          # v0.1.4 schema: a REQ is "pending" if no tag lists it in its from_tags.
           PENDING=$(jq -r '
-            .nodes as $nodes |
-            .links as $links |
-            ($links | map(.source) | unique) as $linked_sources |
-            $nodes[]
-            | select(.id | test("@REQ-"))
-            | select(.id as $id | $linked_sources | index($id) == null)
+            [.trace_tags[].from_tags[]] as $all_parents |
+            .trace_tags[]
+            | select(.id | startswith("@REQ-"))
+            | select(.id as $id | ($all_parents | index($id)) == null)
             | .id
           ' /tmp/trace.json 2>/dev/null || true)
 
@@ -93,13 +91,12 @@ jobs:
         if: steps.json.outputs.json_ok == 'true'
         run: |
           echo "## Unmitigated Hazards (no REQ)" >> "$GITHUB_STEP_SUMMARY"
+          # v0.1.4 schema: a hazard is "unmitigated" if no tag lists it in its from_tags.
           UNMITIGATED=$(jq -r '
-            .nodes as $nodes |
-            .links as $links |
-            ($links | map(.source) | unique) as $linked_sources |
-            $nodes[]
-            | select(.id | test("@H-"))
-            | select(.id as $id | $linked_sources | index($id) == null)
+            [.trace_tags[].from_tags[]] as $all_parents |
+            .trace_tags[]
+            | select(.id | startswith("@H-"))
+            | select(.id as $id | ($all_parents | index($id)) == null)
             | .id
           ' /tmp/trace.json 2>/dev/null || true)
 
@@ -116,19 +113,19 @@ jobs:
             echo "$UNMITIGATED"
           fi
 
-      # ── 5. Orphaned implementations (IMP with no upstream REQ) ────────────
+      # ── 5. Orphaned implementations (IMP with no upstream REQ or DES) ─────
       - name: Check for orphaned implementations
         if: steps.json.outputs.json_ok == 'true'
         run: |
           echo "## Orphaned Implementations (no upstream REQ)" >> "$GITHUB_STEP_SUMMARY"
-          # An IMP node is "orphaned" if nothing links TO it from a REQ
+          # v0.1.4 schema: an IMP is "orphaned" when its from_tags has no REQ or DES.
           ORPHANED=$(jq -r '
-            .nodes as $nodes |
-            .links as $links |
-            ($links | map(.target) | unique) as $linked_targets |
-            $nodes[]
-            | select(.id | test("@IMP-"))
-            | select(.id as $id | $linked_targets | index($id) == null)
+            .trace_tags[]
+            | select(.id | startswith("@IMP-"))
+            | select(
+                (.from_tags | length) == 0 or
+                ((.from_tags // []) | all(. | (startswith("@REQ-") or startswith("@DES-")) | not))
+              )
             | .id
           ' /tmp/trace.json 2>/dev/null || true)
 
@@ -150,27 +147,21 @@ jobs:
         if: steps.json.outputs.json_ok == 'true'
         run: |
           echo "## Unverified P1 Requirements (no E2E test)" >> "$GITHUB_STEP_SUMMARY"
-          # A chain has E2E coverage if it contains an @E2E- node.
-          # P1 REQs that start chains with no E2E anywhere in the chain are flagged.
+          # v0.1.4 schema: REQs "unverified" = implemented (in from_tags) but not in E2E chains.
           UNVERIFIED=$(jq -r '
-            .nodes as $nodes |
-            .chains as $chains |
-            # Build a set of REQ IDs that have at least one E2E in their chain
-            ($chains
-              | map(select(any(. ; test("@E2E-"))))
-              | map(map(select(test("@REQ-")))) | flatten | unique
+            [.trace_tags[].from_tags[]] as $all_parents |
+            (
+              [
+                .chains[]
+                | select(any(.[]; startswith("@E2E-")))
+                | .[]
+                | select(startswith("@REQ-"))
+              ] | unique
             ) as $verified_reqs |
-            # Now find P1 REQ nodes NOT in that set
-            # We identify P1 REQs by their ID prefix (REQ-SYS, REQ-MB, REQ-AC, REQ-AD, REQ-UI, etc.)
-            # and check that they have an IMP downstream (i.e., they are actually implemented)
-            .links as $links |
-            ($links | map(.source) | unique) as $linked_sources |
-            $nodes[]
-            | select(.id | test("@REQ-"))
+            .trace_tags[]
+            | select(.id | startswith("@REQ-"))
             | select(.id as $id |
-                # Must be linked (have downstream) to be "implemented"
-                ($linked_sources | index($id)) != null and
-                # Must NOT have E2E coverage
+                ($all_parents | index($id)) != null and
                 ($verified_reqs | index($id)) == null
               )
             | .id

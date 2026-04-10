@@ -1,14 +1,17 @@
 <script setup lang="ts">
 // @IMP-UI-SHARED-002@ (FROM: @REQ-UI-011@, @REQ-SYS-001@)
 // @IMP-SYS-SHARED-003@ (FROM: @REQ-SYS-005@)
+// @IMP-SYS-SHARED-006@ (FROM: @REQ-SYS-006@)
 import { ref, computed } from 'vue'
 import { RouterView, RouterLink, useRoute } from 'vue-router'
 import { useTheme } from '@/shared/composables/useTheme'
 import AppLogo from '@/shared/components/AppLogo.vue'
 import AppVersion from '@/shared/components/AppVersion.vue'
 import { usePwaUpdateStore } from '@/stores/pwa-update.store'
+import { useAppVersionStore } from '@/stores/app-version.store'
 
 const pwaStore = usePwaUpdateStore()
+const appVersionStore = useAppVersionStore()
 
 const { theme, toggleTheme } = useTheme()
 const route = useRoute()
@@ -172,8 +175,34 @@ const themeLabel = computed(() =>
     </div>
 
     <!-- ═══ Main content ════════════════════════════════════════════════════ -->
+    <!-- REQ-SYS-006: Block all safety-critical features when version is below minimum -->
     <main class="app-main" id="main-content">
-      <RouterView />
+      <div
+        v-if="appVersionStore.versionBlocked"
+        class="version-blocked-screen"
+        role="alert"
+        aria-live="assertive"
+        data-testid="version-blocked-screen"
+      >
+        <div class="version-blocked-screen__card">
+          <div class="version-blocked-screen__icon" aria-hidden="true">⛔</div>
+          <h1 class="version-blocked-screen__title">Application Update Required</h1>
+          <p class="version-blocked-screen__body">
+            This version of AeroDash (<strong>{{ appVersionStore.currentVersion }}</strong>) is
+            below the minimum required version
+            (<strong>{{ appVersionStore.minSafeVersion }}</strong>).
+          </p>
+          <p class="version-blocked-screen__body">
+            Safety-critical features (Mass &amp; Balance, Performance, Fuel &amp; Endurance) are
+            <strong>disabled</strong> until the application is updated.
+          </p>
+          <p class="version-blocked-screen__advisory">
+            Please refresh the page or update your PWA installation. If this error persists, clear
+            your browser cache and reload.
+          </p>
+        </div>
+      </div>
+      <RouterView v-else />
     </main>
 
     <!-- ═══ Bottom navigation (mobile only) ════════════════════════════════ -->

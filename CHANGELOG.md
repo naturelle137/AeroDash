@@ -29,6 +29,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Engineering
 
+- Populated `trace/` YAML registries for REQ-AC, REQ-AD, REQ-SYS, REQ-UI modules (v0.3.0) (closes #170)
+- Added CI Traceability Gate workflow (warn-only before v1.0.0) (closes #71)
+- Added traceability gate documentation to `docs/testing/TESTING.md` and `CONTRIBUTING.md`
 - 33 unit tests (ICAO validation × 16, import × 8, fleet FSM × 9) and 4 IndexedDB integration tests all passing
 - verifyProfile() now auto-updates active aircraft context when the verified Draft was in use
 - Canonical bilinear interpolation test vectors (TOR, TOD, LR, LD) established and passing in CI — de-risk for v0.4.0 performance distance calculations (closes #155)

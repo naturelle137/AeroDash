@@ -117,16 +117,33 @@ Real-world aviation data is incredibly dynamic. A METAR changes every 30-60 minu
 
 ## 🚦 4. Running the Tests Locally
 
-_(This section will be expanded once the technology stack is finalized)._
-
-Before pushing to your branch or opening a PR, ensure you have run the full local test suite:
+All commands run from the **repo root** via `pnpm`. Playwright auto-starts the Vite dev server — no separate server process is needed for E2E.
 
 ```bash
-# TBD: The command to run the test suite and output a coverage report.
-# Example: npm run test:coverage OR pytest --cov
+# Unit tests (Vitest — Node env, no browser)
+pnpm run test:unit
+
+# Integration tests (Vitest — uses fake-indexeddb for IndexedDB)
+pnpm run test:integration
+
+# P1 Safety Core tests in strict isolation (no Vue/Pinia allowed)
+pnpm --filter frontend test:p1
+
+# E2E tests (Playwright BDD — starts Vite dev server automatically)
+# On Linux VMs without MS Edge, always specify --project=chromium
+pnpm run test:e2e --project=chromium
+
+# Smoke tests only (fast first-pass gate)
+pnpm run test:smoke
+
+# Full coverage report for P1 core (must stay ≥ 90%)
+pnpm --filter frontend vitest run --config vitest.config.p1.ts --coverage
+
+# Full coverage report for all tiers
+pnpm run coverage:unit
 ```
 
-If your changes cause the coverage to dip below the required threshold, the CI pipeline **will fail your build**.
+If your changes cause coverage to dip below the required threshold (P1: 90%, P2: 80%, P3: 60%), the CI pipeline **will fail your build**.
 
 ---
 
@@ -177,13 +194,19 @@ The `Traceability Gate` GitHub Actions workflow (`.github/workflows/traceability
 .tools/shtracer/shtracer -v .tools/.shtracer.md
 
 # Generate full JSON for manual jq inspection
-.tools/shtracer/shtracer .tools/.shtracer.md > /tmp/trace.json
+.tools/shtracer/shtracer .tools/.shtracer.md 2>/dev/null > /tmp/trace.json
 
-# List all requirement nodes with no downstream link (pending)
-jq -r '.nodes[] | select(.id | test("@REQ-")) | .id' /tmp/trace.json
+# List all requirement tags with no downstream link (pending) — v0.1.4 schema
+jq -r '
+  [.trace_tags[].from_tags[]] as $all_parents |
+  .trace_tags[]
+  | select(.id | startswith("@REQ-"))
+  | select(.id as $id | ($all_parents | index($id)) == null)
+  | .id
+' /tmp/trace.json
 
 # List all chains that reach an E2E test
-jq '[.chains[] | select(any(. ; test("@E2E-")))]' /tmp/trace.json
+jq '[.chains[] | select(any(.[]; startswith("@E2E-")))]' /tmp/trace.json
 ```
 
 The raw `trace.json` is also uploaded as a GitHub Actions artifact (`traceability-report`) and retained for 30 days on every PR run.

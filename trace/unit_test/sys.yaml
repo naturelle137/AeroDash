@@ -600,6 +600,29 @@ SYS App — Vue Router (Unit)
     files:
       - frontend/src/router/index.spec.ts
 
+SYS App — Version-Blocked Screen (Unit)
+  UT-SYS-APP-026
+    title: renders RouterView when versionBlocked is false
+    impl:
+      - IMP-SYS-SHARED-006
+    files:
+      - frontend/src/stores/__tests__/app-version-blocked.spec.ts
+
+  UT-SYS-APP-027
+    title: renders version-blocked-screen and hides RouterView when versionBlocked is true
+    impl:
+      - IMP-SYS-SHARED-006
+    files:
+      - frontend/src/stores/__tests__/app-version-blocked.spec.ts
+
+  UT-SYS-APP-028
+    title: version-blocked screen displays current and minimum version strings
+    impl:
+      - IMP-SYS-SHARED-006
+    files:
+      - frontend/src/stores/__tests__/app-version-blocked.spec.ts
+
+
 SYS Store — Session Persistence (Unit)
   UT-SYS-STORE-001
     title: returns null when localStorage is empty

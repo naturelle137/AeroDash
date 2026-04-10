@@ -98,3 +98,10 @@ AD Core (domain + mass-balance input schema)
       - REQ-AD-019
     files:
       - frontend/src/core/adapters/aircraft.schema.ts
+
+  IMP-AD-CORE-013
+    title: WeighingReport validFrom field — versioned weighing date for lifecycle traceability
+    req:
+      - REQ-AD-013
+    files:
+      - frontend/src/core/adapters/aircraft.schema.ts
