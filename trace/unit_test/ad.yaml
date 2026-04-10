@@ -307,3 +307,18 @@ AD Profile Schema (full AircraftProfile Zod validation)
       - IMP-AD-CORE-004
     files:
       - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+AD Schema — Wind Limits (Unit)
+  UT-AD-CORE-045
+    title: Accepts a valid windLimits entry (MaxCrosswind, Demonstrated)
+    impl:
+      - IMP-AD-CORE-009
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AD-CORE-046
+    title: Accepts a valid windLimits entry (MaxCrosswind, Advisory)
+    impl:
+      - IMP-AD-CORE-009
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
