@@ -26,3 +26,25 @@ AC Store — Fleet Repository Integration Tests
       - IMP-AC-STORE-001
     files:
       - frontend/src/modules/aircraft/__tests__/fleet.repository.int.spec.ts
+
+AC Store — schemaVersion Persistence (refs #166)
+  IT-AC-STORE-010
+    title: schemaVersion field is persisted and retrieved correctly on create
+    impl:
+      - IMP-AC-CORE-002
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.repository.int.spec.ts
+
+  IT-AC-STORE-011
+    title: schemaVersion is preserved across update operations
+    impl:
+      - IMP-AC-CORE-002
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.repository.int.spec.ts
+
+  IT-AC-STORE-012
+    title: all profiles returned by findAll carry a positive integer schemaVersion field
+    impl:
+      - IMP-AC-CORE-002
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.repository.int.spec.ts

@@ -1,14 +1,22 @@
 <script setup lang="ts">
 // @IMP-UI-SHARED-002@ (FROM: @REQ-UI-011@, @REQ-SYS-001@)
 // @IMP-SYS-SHARED-003@ (FROM: @REQ-SYS-005@)
-import { ref, computed } from 'vue'
+// @IMP-SYS-SHARED-005@ (FROM: @REQ-SYS-006@)
+import { ref, computed, onMounted } from 'vue'
 import { RouterView, RouterLink, useRoute } from 'vue-router'
 import { useTheme } from '@/shared/composables/useTheme'
 import AppLogo from '@/shared/components/AppLogo.vue'
 import AppVersion from '@/shared/components/AppVersion.vue'
 import { usePwaUpdateStore } from '@/stores/pwa-update.store'
+import { useAppVersionStore } from '@/stores/app-version.store'
 
 const pwaStore = usePwaUpdateStore()
+const appVersionStore = useAppVersionStore()
+
+// REQ-SYS-006: check minimum safe version on startup (online-only)
+onMounted(() => {
+  void appVersionStore.checkMinSafeVersion()
+})
 
 const { theme, toggleTheme } = useTheme()
 const route = useRoute()
@@ -171,6 +179,19 @@ const themeLabel = computed(() =>
       <button class="pwa-update-btn" @click="pwaStore.applyUpdate()">Reload to update</button>
     </div>
 
+    <!-- ═══ Version blocked banner (REQ-SYS-006) ═════════════════════════════ -->
+    <div
+      v-if="appVersionStore.versionBlocked"
+      class="version-blocked-banner"
+      role="alert"
+      aria-live="assertive"
+    >
+      <strong>Operation blocked.</strong>
+      This version of AeroDash (v{{ appVersionStore.currentVersion }}) is below the
+      minimum safe version (v{{ appVersionStore.minSafeVersion }}). Please update the
+      application before continuing.
+    </div>
+
     <!-- ═══ Main content ════════════════════════════════════════════════════ -->
     <main class="app-main" id="main-content">
       <RouterView />
@@ -249,6 +270,23 @@ const themeLabel = computed(() =>
 
 .pwa-update-btn:hover {
   background: rgba(255, 255, 255, 0.25);
+}
+
+/* ─── Version blocked banner ──────────────────────────────────────────────── */
+
+.version-blocked-banner {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-danger, #b91c1c);
+  color: #fff;
+  font-size: var(--text-sm);
+  z-index: 300;
+  text-align: center;
+  flex-wrap: wrap;
 }
 
 /* ─── Shell grid ──────────────────────────────────────────────────────────── */
