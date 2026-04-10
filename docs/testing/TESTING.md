@@ -145,3 +145,45 @@ We use specific prefixes defined in `.tools/.shtracer.md`:
   - _Example:_ `# @E2E-STRESS-001@ (FROM: @UJ-STRESS-001@)`
 
 This acts as the final verification link in our Master Traceability Matrix, permanently proving that the mitigations required by a safety hazard are verified in code.
+
+---
+
+## 🚦 6. CI Traceability Gate
+
+The `Traceability Gate` GitHub Actions workflow (`.github/workflows/traceability.yml`) runs automatically on every Pull Request targeting `main`. It performs the following checks using the `shtracer` tool (`.tools/shtracer/`) and `jq`:
+
+| Check | What is detected |
+| :---- | :--------------- |
+| **Duplicate tags** | The same `@IMP-`, `@REQ-`, or other tag appears in more than one file |
+| **Isolated tags** | A tag exists but has no upstream or downstream link in the chain |
+| **Dangling FROM refs** | A `(FROM: @TAG@)` references a tag that does not exist |
+| **Pending requirements** | A `@REQ-` tag has no downstream IMP or DES link |
+| **Orphaned implementations** | An `@IMP-` tag has no upstream `@REQ-` or `@DES-` link |
+| **Unmitigated hazards** | An `@H-` tag has no downstream `@REQ-` link |
+| **Unverified P1 requirements** | An implemented `@REQ-` has no `@E2E-` anywhere in its chain |
+| **Registry drift** | `@IMP-` tags in source files differ from entries in `trace/implementation/` YAMLs |
+
+### Gate Severity Policy
+
+| Project version | Gate behaviour |
+| :-------------- | :------------- |
+| Pre-v1.0.0 (current) | **Warn-only** — always exits 0, gaps are reported in the Actions log and PR summary |
+| v1.0.0+ | **Hard-fail** — any gap causes the gate to exit non-zero and blocks merge to `main` |
+
+### Running the trace check locally
+
+```bash
+# Verify mode — detect isolated, duplicate, and dangling tags
+.tools/shtracer/shtracer -v .tools/.shtracer.md
+
+# Generate full JSON for manual jq inspection
+.tools/shtracer/shtracer .tools/.shtracer.md > /tmp/trace.json
+
+# List all requirement nodes with no downstream link (pending)
+jq -r '.nodes[] | select(.id | test("@REQ-")) | .id' /tmp/trace.json
+
+# List all chains that reach an E2E test
+jq '[.chains[] | select(any(. ; test("@E2E-")))]' /tmp/trace.json
+```
+
+The raw `trace.json` is also uploaded as a GitHub Actions artifact (`traceability-report`) and retained for 30 days on every PR run.

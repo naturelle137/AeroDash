@@ -114,6 +114,10 @@ When you open a PR, GitHub Actions will run comprehensive checks.
 
 * **Automated Tests:** All unit and integration tests must pass.
 * **Dependency Isolation:** The CI strictly verifies that architectural boundaries are maintained.
+* **Traceability Gate:** PRs targeting `main` trigger the **Traceability Gate** (`.github/workflows/traceability.yml`).
+  It checks for orphaned implementations, pending requirements, unmitigated hazards, unverified P1 requirements, and registry drift using `shtracer` (`.tools/shtracer/`).
+  Before v1.0.0 the gate is **warn-only** (always exits 0); from v1.0.0 it hard-fails on any gap.
+  For details and local commands, see [docs/testing/TESTING.md § CI Traceability Gate](docs/testing/TESTING.md).
 
 ### Release (Merge-to-Main)
 
