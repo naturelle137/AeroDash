@@ -298,6 +298,14 @@ AC Store — Fleet Store (Unit)
 
 AC Store — Fleet Repository (Unit)
   UT-AC-STORE-034
+    title: Fleet Repository unit tests (fake-indexeddb): CRUD, round-trip, passengerProfiles preservation
+    impl:
+      - IMP-AC-STORE-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.repository.spec.ts
+
+AC Store — Fleet Repository (Unit)
+  UT-AC-STORE-034
     title: fleet.repository — create stores profile and allows retrieval by id
     impl:
       - IMP-AC-STORE-001
