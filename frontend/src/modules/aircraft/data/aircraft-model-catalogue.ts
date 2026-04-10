@@ -10,6 +10,13 @@
 
 // @IMP-AC-VIEW-001@ (FROM: @REQ-UI-001@, @REQ-UI-003@, @REQ-UI-004@)
 
+/**
+ * Monotonically increasing catalogue data version string.
+ * Incremented whenever entries are added, removed, or corrected.
+ * Used by the update pipeline (ADR-007) to detect catalogue changes on app load.
+ */
+export const CATALOGUE_VERSION = '1.0.0'
+
 export interface AircraftModelEntry {
   manufacturer: string
   model: string
