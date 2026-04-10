@@ -84,7 +84,7 @@ The notification is delivered via the AeroDash notification bus
 
 | Notification Code | Trigger | Message |
 | :---------------- | :------ | :------ |
-| `WARN-CATALOGUE-001` | App load, stored version ≠ current `CATALOGUE_VERSION` | "Aircraft catalogue updated. Review profiles that use updated manufacturer/model data and re-verify if needed." |
+| `WARN-CATALOGUE-001` | App load, stored version ≠ `CATALOGUE_VERSION` | "Aircraft catalogue updated. Review profiles that use updated manufacturer/model data and re-verify if needed." |
 
 The notification persists until dismissed by the pilot. It is not re-emitted
 until the next catalogue version change.

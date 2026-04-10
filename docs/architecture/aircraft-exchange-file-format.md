@@ -22,31 +22,20 @@ The format is defined by and validated against the canonical
 
 | Constraint | Rationale |
 | :--------- | :-------- |
-| Imported profile is always forced to `status = 'Draft'` | Prevents unverified data from being used in safety calculations without pilot review |
+| Imported profile always forced to `status = 'Draft'` | Prevents unverified data being used in safety calculations without pilot review |
 | Imported profile always receives a new UUID | Prevents ID collisions with existing fleet entries |
-| Malformed JSON → `ImportError` thrown, fleet unmodified | Atomicity: the fleet is never partially updated |
-| Zod validation failure → `ImportError` thrown, fleet unmodified | All safety-critical fields must pass schema constraints before persistence |
+| Malformed JSON → `ImportError`, fleet unmodified | Atomicity: fleet is never partially updated |
+| Zod validation failure → `ImportError`, fleet unmodified | All safety-critical fields must pass schema constraints before persistence |
 
 ## File Format
 
-### File Extension
+### File Extension and Encoding
 
-`.aerodash.json`
-
-### Encoding
-
-UTF-8, no BOM.
-
-### MIME Type
-
-`application/json`
+`.aerodash.json` — UTF-8, no BOM, MIME type `application/json`.
 
 ### Top-Level Structure
 
-The file is a single JSON object that maps directly to an `AircraftProfile`
-document. All fields defined in `AircraftProfileSchema` may appear. The
-`schemaVersion` field determines which version of the schema the file was
-written against.
+The file is a single JSON object mapping directly to an `AircraftProfile` document.
 
 ```json
 {
@@ -64,46 +53,25 @@ written against.
   "shareCode": null,
   "passengerProfiles": [],
   "weighingReports": [
-    {
-      "bem": 432.0,
-      "emptyCg": 1.882,
-      "weighingDate": "2025-01-01",
-      "validFrom": "2025-01-01"
-    }
+    { "bem": 432.0, "emptyCg": 1.882, "weighingDate": "2025-01-01", "validFrom": "2025-01-01" }
   ],
   "loadPoints": [
     {
-      "name": "Pilot",
-      "arm": 1.8,
-      "armLookup": [],
-      "operationalLimit": 110,
-      "defaultQuantity": 0,
-      "unit": "kg",
-      "allowableCategories": null,
-      "fuelTank": null
+      "name": "Pilot", "arm": 1.8, "armLookup": [], "operationalLimit": 110,
+      "defaultQuantity": 0, "unit": "kg", "allowableCategories": null, "fuelTank": null
     }
   ],
   "certificationCategories": [
     {
-      "category": "Normal",
-      "mtom": 650,
-      "maxZeroFuelMass": null,
-      "graphType": "arm",
+      "category": "Normal", "mtom": 650, "maxZeroFuelMass": null, "graphType": "arm",
       "envelope": [
-        { "armOrMoment": 1.841, "mass": 432 },
-        { "armOrMoment": 1.841, "mass": 650 },
-        { "armOrMoment": 1.978, "mass": 650 },
-        { "armOrMoment": 1.978, "mass": 432 }
+        { "armOrMoment": 1.841, "mass": 432 }, { "armOrMoment": 1.841, "mass": 650 },
+        { "armOrMoment": 1.978, "mass": 650 }, { "armOrMoment": 1.978, "mass": 432 }
       ]
     }
   ],
   "costPerHour": 185.5,
-  "checklistScaffold": [
-    {
-      "title": "Pre-flight",
-      "items": ["Check fuel", "Check oil"]
-    }
-  ]
+  "checklistScaffold": [{ "title": "Pre-flight", "items": ["Check fuel", "Check oil"] }]
 }
 ```
 
@@ -124,8 +92,8 @@ written against.
 | `shareCode` | `string \| null` | Nullable |
 | `status` | `'Draft' \| 'Verified'` | Overridden to `'Draft'` on import |
 | `weighingReports` | `array` | Minimum 1 entry |
-| `loadPoints` | `array` | Maximum 20 entries; each entry must satisfy arm XOR armLookup |
-| `certificationCategories` | `array` | Minimum 1 entry; each envelope has 4–20 points |
+| `loadPoints` | `array` | Max 20; each entry must satisfy arm XOR armLookup |
+| `certificationCategories` | `array` | Min 1; each envelope 4–20 points |
 
 ## Optional Fields
 
@@ -136,54 +104,27 @@ written against.
 | `surfaceConditions` | `array` | Runway surface correction factors |
 | `safetyFactors` | `object` | Takeoff and landing safety multipliers |
 | `costPerHour` | `number` | Estimated operating cost per flight hour (non-negative) |
-| `checklistScaffold` | `array` | Checklist section scaffold (title + items) |
+| `checklistScaffold` | `array` | Checklist section scaffold — structure only, no functional UI in M3 |
 | `performanceProfiles` | `array` | M4 placeholder — ignored until milestone spec finalised |
 
-## Import Behaviour
+## Import Pipeline (`profile.import.ts`)
 
-The import pipeline (`profile.import.ts`) performs the following steps:
+1. **JSON parse** — malformed JSON throws `ImportError`
+2. **Zod validation** — `AircraftProfileSchema.safeParse`. Failure throws `ImportError`
+3. **Status override** — `status` forced to `'Draft'`
+4. **ID reassignment** — new UUID v4 assigned to prevent collision
+5. **Return** — caller persists via `fleetRepository.create()`
 
-1. **JSON parse** — `JSON.parse(jsonText)`. Malformed JSON throws `ImportError`.
-2. **Zod validation** — `AircraftProfileSchema.safeParse(parsed)`. Any
-   validation failure throws `ImportError` with a human-readable issues summary.
-3. **Status override** — `status` is forced to `'Draft'` regardless of file value.
-4. **ID reassignment** — A new UUID v4 is assigned to prevent collision with
-   existing fleet entries.
-5. **Return** — The validated `AircraftProfile` object is returned to the
-   caller (typically the fleet store), which then persists it via
-   `fleetRepository.create()`.
+## Export
 
-At no point is the fleet modified unless step 5 completes successfully.
+`exportProfileToJson(profile)` outputs `JSON.stringify(profile, null, 2)`.
+Round-trip fidelity: all fields except `id` and `status` are preserved (verified by `UT-AC-STORE-023`).
 
-## Export Behaviour
-
-`exportProfileToJson(profile)` serialises the profile as:
-
-```typescript
-JSON.stringify(profile, null, 2)
-```
-
-The result is a pretty-printed JSON string with 2-space indentation. The
-exported file can be re-imported with full round-trip fidelity (all fields
-except `id` and `status` are preserved exactly).
-
-## Round-Trip Fidelity
-
-A profile exported with `exportProfileToJson` and re-imported with
-`importProfileFromJson` must satisfy:
-
-- All fields **except** `id` (reassigned) and `status` (forced `'Draft'`)
-  are byte-identical to the original.
-
-This guarantee is verified by unit test `UT-AC-STORE-023`.
-
-## Versioning and Compatibility
-
-The `schemaVersion` field tracks the data model version:
+## Schema Versioning
 
 | Version | Description |
 | :------ | :---------- |
-| `1` | M2 + M3 fields: all current fields including `costPerHour`, `checklistScaffold`, `passengerProfiles`, `status` |
+| `1` | M2 + M3 fields including `costPerHour`, `checklistScaffold`, `passengerProfiles`, `status` |
 
 ## Related Documents
 
