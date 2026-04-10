@@ -56,15 +56,16 @@ display. P2 never calls back into P1 — P1 functions are invoked from P2 only.
 ```text
                    ┌─────────────────────────────────┐
                    │          NEW PROFILE              │
-                   │     createProfile() → Draft       │
+                   │     createProfile() → draft       │
                    └──────────────┬──────────────────┘
                                   │
                                   ▼
                   ┌───────────────────────────────┐
-                  │           DRAFT               │◄──────────────────┐
+                  │           draft               │◄──────────────────┐
                   │  - Editable in-place          │                   │
                   │  - Emits WARN-AC-002          │                   │
-                  │    when used in calculation   │                   │
+                  │    in Mass & Balance when used  │                   │
+                  │    for computation (REQ-AC-005) │                   │
                   └─────────────┬─────────────────┘                   │
                                 │                                     │
                      verifyProfile()                    editVerifiedProfile()
@@ -72,7 +73,7 @@ display. P2 never calls back into P1 — P1 functions are invoked from P2 only.
                                 │                                     │
                                 ▼                                     │
                   ┌───────────────────────────────┐                   │
-                  │          VERIFIED             │───────────────────┘
+                  │          verified             │───────────────────┘
                   │  - Immutable (read-only)      │
                   │  - Safe for calculations      │
                   │  - updateProfile() BLOCKED    │
@@ -81,13 +82,13 @@ display. P2 never calls back into P1 — P1 functions are invoked from P2 only.
 
 ### FSM Rules
 
-| Action | From Draft | From Verified |
+| Action | From draft | From verified |
 | :----- | :--------- | :------------ |
 | `updateProfile()` | Allowed | **Blocked** — throws `VerifiedMutationError` |
-| `verifyProfile()` | Creates Verified snapshot (new UUID), deletes Draft | Error: already Verified |
-| `editVerifiedProfile()` | Error: not Verified | Creates Draft copy (new UUID), Verified unchanged |
+| `verifyProfile()` | Creates verified snapshot (new UUID), deletes draft | Error: already verified |
+| `editVerifiedProfile()` | Error: not verified | Creates draft copy (new UUID); prior verified row unchanged |
 | `deleteProfile()` | Allowed | Allowed |
-| Use in calculations | Allowed + WARN-AC-002 | Allowed, no warning |
+| Use in M&B calculation | Allowed; store prepends `WARN-AC-002` | Allowed, no draft warning |
 
 ## IndexedDB Schema
 

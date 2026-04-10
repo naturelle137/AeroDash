@@ -106,6 +106,12 @@ active store notifications as individual lines. The `role="alert"` attribute is 
 set; `aria-live="assertive"` is used for `ERROR_CRITICAL` and `aria-live="polite"` for
 other states.
 
+When the loaded aircraft context carries fleet status `draft` (unverified profile),
+the Mass & Balance store prepends notification **`WARN-AC-002`** (“Draft Profile Active”,
+persistent WARNING per the notification register) on every computation pass, so the banner
+shows the advisory alongside any limit violations (REQ-AC-005 / H-011). Catalogue
+fixtures omit `status` and default to `verified` at validation time.
+
 ### 4.3 Two-Column Desktop Layout
 
 On viewports ≥ 900 px, the M&B content splits into:

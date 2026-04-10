@@ -3,7 +3,7 @@
  * P2 Feature Module — uses AircraftProfileSchema for Zod validation.
  *
  * Safety contract:
- * - Imported profiles are always forced to status='Draft' regardless of file content.
+ * - Imported profiles are always forced to status='draft' regardless of file content.
  * - On any error the fleet is NOT modified — ImportError is thrown instead.
  * - Round-trip fidelity: export JSON → parse → re-validate must produce identical data.
  *
@@ -35,7 +35,7 @@ export class ImportError extends Error {
  *
  * - Parses the JSON text.
  * - Validates against AircraftProfileSchema.
- * - Forces status = 'Draft' on the imported profile.
+ * - Forces status = 'draft' on the imported profile.
  * - Assigns a new UUID to prevent ID collisions with existing fleet entries.
  *
  * @throws ImportError if parsing or validation fails.
@@ -58,11 +58,11 @@ export function importProfileFromJson(jsonText: string): AircraftProfile {
     throw new ImportError(`Profile validation failed: ${issues}`, result.error)
   }
 
-  // Force Draft status and assign new UUID to prevent collisions
+  // Force draft status and assign new UUID to prevent collisions
   return {
     ...result.data,
     id: uuidv4(),
-    status: 'Draft',
+    status: 'draft',
   }
 }
 

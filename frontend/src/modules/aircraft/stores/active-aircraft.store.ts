@@ -20,7 +20,7 @@ export const useActiveAircraftStore = defineStore('activeAircraft', () => {
   // ─── Getters ──────────────────────────────────────────────────────────────
 
   /** True if the currently active profile is in Draft status. */
-  const isDraft = computed(() => activeProfile.value?.status === 'Draft')
+  const isDraft = computed(() => activeProfile.value?.status === 'draft')
 
   /** True if a profile is currently selected. */
   const hasActiveProfile = computed(() => activeProfile.value !== null)

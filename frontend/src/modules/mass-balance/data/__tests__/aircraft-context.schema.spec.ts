@@ -90,6 +90,27 @@ describe('AircraftContextSchema', () => {
       expect(result.success).toBe(true)
     })
 
+    // @UT-MB-DATA-036@ (FROM: @IMP-MB-DATA-001@, @REQ-AC-005@)
+    it('defaults status to verified when omitted (legacy catalogue)', () => {
+      const result = AircraftContextSchema.safeParse(buildValidContext())
+      expect(result.success).toBe(true)
+      if (!result.success) return
+      expect(result.data.status).toBe('verified')
+    })
+
+    // @UT-MB-DATA-037@ (FROM: @IMP-MB-DATA-001@, @REQ-AC-005@)
+    it('accepts draft status and normalizes legacy Title Case', () => {
+      const lower = AircraftContextSchema.safeParse(buildValidContext({ status: 'draft' }))
+      expect(lower.success).toBe(true)
+      if (!lower.success) return
+      expect(lower.data.status).toBe('draft')
+
+      const legacy = AircraftContextSchema.safeParse(buildValidContext({ status: 'Draft' }))
+      expect(legacy.success).toBe(true)
+      if (!legacy.success) return
+      expect(legacy.data.status).toBe('draft')
+    })
+
     // @UT-MB-DATA-002@ (FROM: @IMP-MB-DATA-001@)
     it('rejects id as empty string', () => {
       const result = AircraftContextSchema.safeParse(buildValidContext({ id: '' }))

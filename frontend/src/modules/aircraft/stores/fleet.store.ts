@@ -7,7 +7,7 @@
  * - verifyProfile(): creates a new immutable Verified snapshot (new UUID), deletes the Draft.
  * - editVerifiedProfile(): creates a new Draft copy (new UUID) with the provided changes.
  * - In-place mutation of a Verified profile is BLOCKED (throws VerifiedMutationError).
- * - Any computation using a Draft profile emits WARN-AC-002.
+ * - Any computation using a `draft` profile emits WARN-AC-002 (Mass & Balance gate).
  *
  * @see docs/requirements/aircraft_management.md REQ-AC-001 – REQ-AC-006
  * @see docs/architecture/aircraft-fleet-module.md
@@ -65,7 +65,7 @@ export const useFleetStore = defineStore('fleet', () => {
     notifications.value.push({
       type: 'WARNING',
       code: 'WARN-AC-002',
-      message: `Profile "${profile.registration}" is in Draft status. Verify all data before use in calculations.`,
+      message: `Draft Profile Active — "${profile.registration}" is unverified; verify data before safety-critical use.`,
     })
   }
 
@@ -111,7 +111,7 @@ export const useFleetStore = defineStore('fleet', () => {
     const newProfile: AircraftProfile = AircraftProfileSchema.parse({
       ...data,
       id: uuidv4(),
-      status: 'Draft',
+      status: 'draft',
       schemaVersion: 1,
     })
 
@@ -130,7 +130,7 @@ export const useFleetStore = defineStore('fleet', () => {
       throw new Error(`Profile not found: ${id}`)
     }
 
-    if (existing.status === 'Verified') {
+    if (existing.status === 'verified') {
       throw new VerifiedMutationError(id)
     }
 
@@ -147,7 +147,7 @@ export const useFleetStore = defineStore('fleet', () => {
       ...existing,
       ...changes,
       id,
-      status: 'Draft',
+      status: 'draft',
     })
 
     await fleetRepository.update(updated)
@@ -168,7 +168,7 @@ export const useFleetStore = defineStore('fleet', () => {
 
   /**
    * Verify a Draft profile:
-   * Creates a new immutable Verified snapshot (new UUID, same data, status='Verified').
+   * Creates a new immutable verified snapshot (new UUID, same data, status='verified').
    * Deletes the original Draft.
    *
    * SAFETY: The new Verified snapshot is written to IndexedDB before the Draft is removed.
@@ -179,14 +179,14 @@ export const useFleetStore = defineStore('fleet', () => {
     if (!draft) {
       throw new Error(`Profile not found: ${id}`)
     }
-    if (draft.status === 'Verified') {
-      throw new Error(`Profile "${id}" is already Verified.`)
+    if (draft.status === 'verified') {
+      throw new Error(`Profile "${id}" is already verified.`)
     }
 
     const snapshot: AircraftProfile = AircraftProfileSchema.parse({
       ...draft,
       id: uuidv4(),
-      status: 'Verified',
+      status: 'verified',
     })
 
     // Write the Verified snapshot first, then delete the Draft
@@ -220,15 +220,15 @@ export const useFleetStore = defineStore('fleet', () => {
     if (!verified) {
       throw new Error(`Profile not found: ${id}`)
     }
-    if (verified.status !== 'Verified') {
-      throw new Error(`Profile "${id}" is not Verified — use updateProfile() for Draft profiles.`)
+    if (verified.status !== 'verified') {
+      throw new Error(`Profile "${id}" is not verified — use updateProfile() for draft profiles.`)
     }
 
     const draftCopy: AircraftProfile = AircraftProfileSchema.parse({
       ...verified,
       ...changes,
       id: uuidv4(),
-      status: 'Draft',
+      status: 'draft',
     })
 
     await fleetRepository.create(draftCopy)
@@ -241,7 +241,7 @@ export const useFleetStore = defineStore('fleet', () => {
    * Call this before using a profile for calculations (REQ-AC-005).
    */
   function checkDraftWarning(profile: AircraftProfile): void {
-    if (profile.status === 'Draft') {
+    if (profile.status === 'draft') {
       emitDraftWarning(profile)
     }
   }

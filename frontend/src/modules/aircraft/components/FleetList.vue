@@ -33,7 +33,7 @@
 
           <!-- Verify draft profile -->
           <button
-            v-if="profile.status === 'Draft'"
+            v-if="profile.status === 'draft'"
             class="btn btn-success"
             @click="onVerify(profile.id)"
           >
@@ -42,7 +42,7 @@
 
           <!-- Edit verified profile (creates new Draft) -->
           <button
-            v-if="profile.status === 'Verified'"
+            v-if="profile.status === 'verified'"
             class="btn btn-secondary"
             @click="onEditVerified(profile.id)"
           >

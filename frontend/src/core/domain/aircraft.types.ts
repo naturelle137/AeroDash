@@ -61,6 +61,9 @@ export interface WeighingReport {
 
 /**
  * Subset of AircraftProfile required for Mass & Balance calculations.
+ *
+ * `status` follows the fleet FSM (`draft` | `verified`). Omitted in input data is
+ * treated as `verified` at validation time (legacy catalogue entries).
  */
 export interface AircraftContext {
   id: string
@@ -68,6 +71,8 @@ export interface AircraftContext {
   manufacturer: string
   model: string
   sourceUnit: string
+  /** Fleet verification state; drives WARN-AC-002 when `draft` (REQ-AC-005). */
+  status?: 'draft' | 'verified'
   weighingReports: WeighingReport[]
   loadPoints: LoadPointDefinition[]
   certificationCategories: CategoryDefinition[]
