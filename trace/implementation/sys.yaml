@@ -174,3 +174,26 @@ SYS Shared — Structured Logger Utility
       - REQ-UI-013
     files:
       - frontend/src/shared/components/AppVersion.vue
+
+SYS Shared — Theme Toggle
+  IMP-SYS-SHARED-004
+    title: useTheme composable — dark/light mode toggle with localStorage persistence
+    req:
+      - REQ-UI-011
+    files:
+      - frontend/src/shared/composables/useTheme.ts
+
+SYS Pending — Connectivity State (not yet implemented)
+  IMP-SYS-CONN-001
+    status: pending
+    title: Connectivity State Detection — online/offline monitoring and app-wide state
+    req:
+      - REQ-SYS-009
+    note: REQ-SYS-009 status is Approved. Implementation deferred to milestone 4+.
+
+  IMP-SYS-CONN-002
+    status: pending
+    title: Online Feature Gating — disable cloud/weather/airport features while offline
+    req:
+      - REQ-SYS-010
+    note: REQ-SYS-010 status is Approved. Deferred until IMP-SYS-CONN-001 provides connectivity state.

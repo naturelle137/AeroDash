@@ -188,4 +188,65 @@ describe('useFleetStore', () => {
     await store.deleteProfile(profile.id)
     expect(store.profiles).toHaveLength(0)
   })
+
+  // @UT-AC-STORE-066@ (FROM: @IMP-AC-STORE-005@)
+  it('loadAll sets isLoading=true during fetch and false after (LOADING to READY)', async () => {
+    const store = useFleetStore()
+    let capturedDuringLoad: boolean | undefined
+    const { fleetRepository } = await import('../services/fleet.repository')
+    vi.mocked(fleetRepository.findAll).mockImplementationOnce(async () => {
+      capturedDuringLoad = store.isLoading
+      return []
+    })
+    await store.loadAll()
+    expect(capturedDuringLoad).toBe(true)
+    expect(store.isLoading).toBe(false)
+  })
+
+  // @UT-AC-STORE-067@ (FROM: @IMP-AC-STORE-005@)
+  it('loadAll sets isLoading=false when IndexedDB throws (LOADING to ERROR)', async () => {
+    const store = useFleetStore()
+    const { fleetRepository } = await import('../services/fleet.repository')
+    vi.mocked(fleetRepository.findAll).mockRejectedValueOnce(new Error('IndexedDB unavailable'))
+    await expect(store.loadAll()).rejects.toThrow('IndexedDB unavailable')
+    expect(store.isLoading).toBe(false)
+  })
+
+  // @UT-AC-STORE-068@ (FROM: @IMP-AC-STORE-005@)
+  it('loadAll populates profiles from IndexedDB (READY state)', async () => {
+    const store = useFleetStore()
+    const { fleetRepository } = await import('../services/fleet.repository')
+    const mockProfile: AircraftProfile = {
+      id: '00000000-0000-4000-a000-000000000042',
+      ownerId: 'user-test',
+      registration: 'G-ABCD',
+      manufacturer: 'Cessna',
+      model: 'C172S Skyhawk SP',
+      icaoTypeDesignator: 'C172',
+      sourceUnit: 'kg',
+      referenceDatumDescription: 'Firewall',
+      referenceDatumLocation: 'Station 0',
+      shareCode: null,
+      status: 'Verified',
+      schemaVersion: 1,
+      passengerProfiles: [],
+      weighingReports: [{ bem: 780, emptyCg: 2.1, weighingDate: '2025-01-01', validFrom: '2025-01-01' }],
+      loadPoints: [{
+        name: 'Pilot', arm: 2.0, armLookup: [], operationalLimit: 110,
+        defaultQuantity: 0, unit: 'kg', allowableCategories: null, fuelTank: null,
+      }],
+      certificationCategories: [{
+        category: 'Normal', mtom: 1157, maxZeroFuelMass: null, graphType: 'arm',
+        envelope: [
+          { armOrMoment: 2.0, mass: 780 }, { armOrMoment: 2.0, mass: 1157 },
+          { armOrMoment: 2.45, mass: 1157 }, { armOrMoment: 2.45, mass: 780 },
+        ],
+      }],
+    }
+    vi.mocked(fleetRepository.findAll).mockResolvedValueOnce([mockProfile])
+    await store.loadAll()
+    expect(store.profiles).toHaveLength(1)
+    expect(store.profiles[0].registration).toBe('G-ABCD')
+    expect(store.isLoading).toBe(false)
+  })
 })
