@@ -295,3 +295,25 @@ AC Store — Fleet Store (Unit)
       - IMP-AC-STORE-005
     files:
       - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+  UT-AC-STORE-034
+    title: loadAll sets fleetLoadState LOADING then READY when IndexedDB succeeds
+    impl:
+      - IMP-AC-STORE-005
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+  UT-AC-STORE-035
+    title: loadAll sets fleetLoadState ERROR when IndexedDB fails
+    impl:
+      - IMP-AC-STORE-005
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+  UT-AC-STORE-036
+    title: starts with fleetLoadState LOADING until the first successful loadAll
+    impl:
+      - IMP-AC-STORE-005
+      - REQ-AC-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts

@@ -191,6 +191,18 @@ describe('useFleetStore', () => {
     expect(store.profiles).toHaveLength(0)
   })
 
+  // @UT-AC-STORE-036@ (FROM: @IMP-AC-STORE-005@, @REQ-AC-001@)
+  it('starts with fleetLoadState LOADING until the first successful loadAll', async () => {
+    vi.mocked(fleetRepository.findAll).mockResolvedValueOnce([])
+
+    const store = useFleetStore()
+    expect(store.fleetLoadState).toBe('LOADING')
+
+    await store.loadAll()
+    expect(store.fleetLoadState).toBe('READY')
+    expect(store.profiles).toHaveLength(0)
+  })
+
   // @UT-AC-STORE-034@ (FROM: @IMP-AC-STORE-005@)
   it('loadAll sets fleetLoadState LOADING then READY when IndexedDB succeeds', async () => {
     let resolveLoad!: (rows: AircraftProfile[]) => void

@@ -111,7 +111,7 @@ The `schemaVersion` field on each document enables structured migration in the
 
 | Field | Purpose |
 | :---- | :------ |
-| `fleetLoadState` | `'LOADING'` while `findAll()` is in flight; `'READY'` on success; `'ERROR'` on failure |
+| `fleetLoadState` | Initial `'LOADING'` until the first `loadAll()` completes; then `'LOADING'` while `findAll()` is in flight; `'READY'` on success; `'ERROR'` on failure |
 | `fleetLoadError` | Human-readable message when `fleetLoadState === 'ERROR'` |
 | `isLoading` | Computed alias for `fleetLoadState === 'LOADING'` (legacy) |
 

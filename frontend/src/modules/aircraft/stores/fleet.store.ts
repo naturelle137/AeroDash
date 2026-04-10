@@ -59,7 +59,8 @@ export const useFleetStore = defineStore('fleet', () => {
   // ─── State ────────────────────────────────────────────────────────────────
 
   const profiles = ref<AircraftProfile[]>([])
-  const fleetLoadState = ref<FleetLoadState>('READY')
+  /** Start LOADING so fleet UI never shows an empty list before the first `loadAll()` (#158 hydration). */
+  const fleetLoadState = ref<FleetLoadState>('LOADING')
   const fleetLoadError = ref<string | null>(null)
   const notifications = ref<FleetNotification[]>([])
 
