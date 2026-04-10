@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- ADR-008: IndexedDB migration strategy — defines schema versioning, forward-only migrations, and `schemaVersion` field contract for all IndexedDB stores
+- `docs/architecture/aircraft-exchange-file-format.md`: canonical specification for the aircraft profile exchange (`.adp.json`) file format used by import/export
+- Unit tests for `AircraftModelSelector.vue`: manufacturer list, model dropdown filter, ICAO auto-fill, reverse lookup, and free-text mode (`Other`) (refs #146)
+- Unit tests for `aircraft-model-catalogue.ts`: ICAO designator integrity (including C182T Skylane correction), catalogue lookup, and `getManufacturers()`/`getModelsByManufacturer()`/`findByIcaoDesignator()` functions (refs #146)
+- Unit tests for `FleetList.vue`: loading state, empty state, profile list rendering, active profile highlighting, and action button behaviour (Select/Active, Verify, Edit, Delete) (refs #144)
+- Unit tests for `ProfileStatusBadge.vue`: Verified/Draft label rendering, CSS class application, `aria-label`, and `title` accessibility attributes (refs #145)
+- Version-blocked screen in `App.vue` (REQ-SYS-006): `<RouterView>` is now wrapped in `v-if="!appVersionStore.versionBlocked"` — when version is below minimum, a full-screen error panel is rendered instead, blocking all safety-critical features
+- Offline E2E smoke test (`offline-smoke.feature`): verifies that the app shell loads and M\&B navigation is available after the browser goes offline (refs #162)
 - PWA Service Worker with offline-first app shell caching via `vite-plugin-pwa` and Workbox (closes #150)
 - PWA update notification (`INFO-SYS-001`) — no silent auto-update, user must confirm reload (`registerType: 'prompt'`) (closes #151)
 - Minimum safe version enforcement on startup (`useAppVersionStore.checkMinSafeVersion`) — blocks execution when local version is below minimum (REQ-SYS-006)
@@ -27,13 +35,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - In-session aircraft switching without full page reload (closes #153)
 - AircraftContext schemaVersion field for structured migration safety (closes #154)
 
+### Changed
+
+- ADR-007 enhanced with versioning, update-path, and notification sections documenting the PWA update lifecycle
+- `App.vue`: version-blocked screen replaces the prior banner — `<RouterView>` is now gated behind `v-if="!appVersionStore.versionBlocked"` so all safety-critical features are blocked when the version is below minimum (REQ-SYS-006)
+- `app-version.store.ts`: JSDoc updated to document the build-time constant limitation for `minSafeVersion` and the planned remote fetch path before v1.0.0 (REQ-SYS-006)
+- `pwa-update.store.ts`: `onNeedsRefresh()` documented to clarify that the direct banner in `App.vue` IS the INFO-SYS-001 notification (architectural exception per ADR-007)
+- C182T Skylane ICAO type designator corrected: `C82T` → `C182` (aviation safety data correction)
+
 ### Engineering
 
 - 33 unit tests (ICAO validation × 16, import × 8, fleet FSM × 9) and 4 IndexedDB integration tests all passing
-- verifyProfile() now auto-updates active aircraft context when the verified Draft was in use
+- `verifyProfile()` now auto-updates active aircraft context when the verified Draft was in use
 - Canonical bilinear interpolation test vectors (TOR, TOD, LR, LD) established and passing in CI — de-risk for v0.4.0 performance distance calculations (closes #155)
 - 40 canonical bilinear interpolation unit tests (VEC-TOR-001–015, VEC-TOD-001–004, VEC-LR-001–006, VEC-LD-001–005, VEC-EDGE-001–010) all passing in CI P1 isolation mode
 - 16 unit tests for `useSessionPersistenceStore` covering save, restore, clear, debounce, and round-trip scenarios
+- Added `FleetList.vue`, `ProfileStatusBadge.vue`, and additional `aircraft-model-catalogue` unit tests to bring `modules/aircraft` P2 coverage above the 80% threshold
+- Added `app-version-blocked.spec.ts` unit tests validating REQ-SYS-006 gate (version-blocked state renders blocked screen; content hidden when blocked; gate is reactive)
+- Offline E2E smoke test added for PWA offline-first DoD verification (refs #162)
 
 ## [0.2.0-alpha] - 2026-04-03
 
