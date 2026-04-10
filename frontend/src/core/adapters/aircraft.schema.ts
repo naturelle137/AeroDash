@@ -59,11 +59,11 @@ const CertificationCategorySchema = z.object({
 })
 
 // @IMP-AD-CORE-005@ (FROM: @REQ-AD-004@)
-// @IMP-AD-CORE-013@ (FROM: @REQ-AD-013@)
 const WeighingReportSchema = z.object({
   bem: z.number().positive(),
   emptyCg: z.number(),
   weighingDate: z.string().min(1),
+  // @IMP-AD-CORE-013@ (FROM: @REQ-AD-013@)
   validFrom: z.string().min(1),
 })
 
