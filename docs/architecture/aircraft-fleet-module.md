@@ -16,13 +16,14 @@ itself strictly P2 — it may use Vue, Pinia, and browser APIs.
 ```text
 frontend/src/modules/aircraft/
 ├── data/
-│   └── aircraft-model-catalogue.ts   — Static manufacturer/model/ICAO catalogue
+│   ├── aircraft-model-catalogue.json — Static catalogue rows (manufacturer → model → ICAO)
+│   └── aircraft-model-catalogue.ts   — Imports JSON + lookup helpers (getManufacturers, etc.)
 ├── services/
 │   ├── fleet.repository.ts           — Native IndexedDB CRUD (aerodash-fleet DB)
 │   ├── profile.validator.ts          — ICAO registration validation + duplicate check
 │   └── profile.import.ts             — JSON exchange file import/export
 ├── stores/
-│   ├── fleet.store.ts                — Fleet CRUD + Draft/Verified FSM (Pinia)
+│   ├── fleet.store.ts                — Fleet CRUD + Draft/Verified FSM; IndexedDB load emits LOADING/READY/ERROR
 │   └── active-aircraft.store.ts      — In-session active aircraft context (Pinia)
 ├── components/
 │   ├── AircraftModelSelector.vue     — Manufacturer→Model→ICAO hierarchy selector
@@ -33,7 +34,9 @@ frontend/src/modules/aircraft/
 └── __tests__/
     ├── profile.validator.spec.ts     — Unit tests (UT-AC-STORE-001..016)
     ├── profile.import.spec.ts        — Unit tests (UT-AC-STORE-017..024)
-    ├── fleet.store.spec.ts           — Unit tests (UT-AC-STORE-025..033)
+    ├── aircraft-model-catalogue.spec.ts — Unit tests (UT-AC-CAT-001..005)
+    ├── AircraftModelSelector.spec.ts — Unit tests (UT-AC-VIEW-009..011)
+    ├── fleet.store.spec.ts           — Unit tests (UT-AC-STORE-025..035)
     └── fleet.repository.int.spec.ts  — Integration tests (IT-AC-STORE-001..004)
 ```
 
@@ -56,15 +59,16 @@ display. P2 never calls back into P1 — P1 functions are invoked from P2 only.
 ```text
                    ┌─────────────────────────────────┐
                    │          NEW PROFILE              │
-                   │     createProfile() → Draft       │
+                   │     createProfile() → draft       │
                    └──────────────┬──────────────────┘
                                   │
                                   ▼
                   ┌───────────────────────────────┐
-                  │           DRAFT               │◄──────────────────┐
+                  │           draft               │◄──────────────────┐
                   │  - Editable in-place          │                   │
                   │  - Emits WARN-AC-002          │                   │
-                  │    when used in calculation   │                   │
+                  │    in Mass & Balance when used  │                   │
+                  │    for computation (REQ-AC-005) │                   │
                   └─────────────┬─────────────────┘                   │
                                 │                                     │
                      verifyProfile()                    editVerifiedProfile()
@@ -72,7 +76,7 @@ display. P2 never calls back into P1 — P1 functions are invoked from P2 only.
                                 │                                     │
                                 ▼                                     │
                   ┌───────────────────────────────┐                   │
-                  │          VERIFIED             │───────────────────┘
+                  │          verified             │───────────────────┘
                   │  - Immutable (read-only)      │
                   │  - Safe for calculations      │
                   │  - updateProfile() BLOCKED    │
@@ -81,13 +85,13 @@ display. P2 never calls back into P1 — P1 functions are invoked from P2 only.
 
 ### FSM Rules
 
-| Action | From Draft | From Verified |
+| Action | From draft | From verified |
 | :----- | :--------- | :------------ |
 | `updateProfile()` | Allowed | **Blocked** — throws `VerifiedMutationError` |
-| `verifyProfile()` | Creates Verified snapshot (new UUID), deletes Draft | Error: already Verified |
-| `editVerifiedProfile()` | Error: not Verified | Creates Draft copy (new UUID), Verified unchanged |
+| `verifyProfile()` | Creates verified snapshot (new UUID), deletes draft | Error: already verified |
+| `editVerifiedProfile()` | Error: not verified | Creates draft copy (new UUID); prior verified row unchanged |
 | `deleteProfile()` | Allowed | Allowed |
-| Use in calculations | Allowed + WARN-AC-002 | Allowed, no warning |
+| Use in M&B calculation | Allowed; store prepends `WARN-AC-002` | Allowed, no draft warning |
 
 ## IndexedDB Schema
 
@@ -100,6 +104,22 @@ Database: `aerodash-fleet`, Version: `1`
 The `schemaVersion` field on each document enables structured migration in the
 `onupgradeneeded` handler without data loss. See
 [ADR-006](adr/006-indexeddb-fleet-persistence.md) for migration strategy.
+
+## Fleet list hydration (`useFleetStore`)
+
+`loadAll()` reads the full fleet from IndexedDB asynchronously. The store exposes:
+
+| Field | Purpose |
+| :---- | :------ |
+| `fleetLoadState` | Initial `'LOADING'` until the first `loadAll()` completes; then `'LOADING'` while `findAll()` is in flight; `'READY'` on success; `'ERROR'` on failure |
+| `fleetLoadError` | Human-readable message when `fleetLoadState === 'ERROR'` |
+| `isLoading` | Computed alias for `fleetLoadState === 'LOADING'` (legacy) |
+
+`FleetList.vue` shows loading, error (with retry), or the profile list accordingly.
+
+## Model catalogue data
+
+Manufacturer → model → ICAO rows live in `aircraft-model-catalogue.json` (versioned source of truth). `aircraft-model-catalogue.ts` imports that JSON and exports pure helpers (`getManufacturers`, `getModelsByManufacturer`, `findByIcaoDesignator`, `findUniqueByIcaoDesignator`). Editing the catalogue means editing the JSON file only.
 
 ## Related Requirements
 

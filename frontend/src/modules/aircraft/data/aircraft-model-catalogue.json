@@ -1,0 +1,14 @@
+[
+  { "id": "cessna-c152", "manufacturer": "Cessna", "model": "C152", "icaoTypeDesignator": "C152" },
+  { "id": "cessna-c172s", "manufacturer": "Cessna", "model": "C172S Skyhawk SP", "icaoTypeDesignator": "C172" },
+  { "id": "cessna-c182t", "manufacturer": "Cessna", "model": "C182T Skylane", "icaoTypeDesignator": "C82T" },
+  { "id": "piper-pa28-161", "manufacturer": "Piper", "model": "PA-28-161 Warrior III", "icaoTypeDesignator": "PA28" },
+  { "id": "piper-pa28-181", "manufacturer": "Piper", "model": "PA-28-181 Archer III", "icaoTypeDesignator": "PA28" },
+  { "id": "piper-pa44", "manufacturer": "Piper", "model": "PA-44-180 Seminole", "icaoTypeDesignator": "PA44" },
+  { "id": "diamond-da40", "manufacturer": "Diamond", "model": "DA40 Diamond Star", "icaoTypeDesignator": "DA40" },
+  { "id": "diamond-da42", "manufacturer": "Diamond", "model": "DA42 Twin Star", "icaoTypeDesignator": "DA42" },
+  { "id": "tecnam-p2008", "manufacturer": "Tecnam", "model": "P2008 JC", "icaoTypeDesignator": "P208" },
+  { "id": "tecnam-p2010", "manufacturer": "Tecnam", "model": "P2010", "icaoTypeDesignator": "P210" },
+  { "id": "robin-dr400-120", "manufacturer": "Robin", "model": "DR400/120 Petit Prince", "icaoTypeDesignator": "DR40" },
+  { "id": "robin-dr400-140b", "manufacturer": "Robin", "model": "DR400/140B Major", "icaoTypeDesignator": "DR40" }
+]

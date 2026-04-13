@@ -69,12 +69,13 @@ AC Store — Fleet Repository
 
 AC View — Model Catalogue and Components
   IMP-AC-VIEW-001
-    title: AIRCRAFT_MODEL_CATALOGUE — static manufacturer→model→ICAO mapping with helper functions
+    title: AIRCRAFT_MODEL_CATALOGUE — JSON source + helper functions (manufacturer→model→ICAO)
     req:
       - REQ-UI-001
       - REQ-UI-003
       - REQ-UI-004
     files:
+      - frontend/src/modules/aircraft/data/aircraft-model-catalogue.json
       - frontend/src/modules/aircraft/data/aircraft-model-catalogue.ts
 
   IMP-AC-VIEW-002

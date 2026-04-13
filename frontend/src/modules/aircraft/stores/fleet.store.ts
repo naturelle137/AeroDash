@@ -14,7 +14,7 @@
  */
 
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { v4 as uuidv4 } from 'uuid'
 import { AircraftProfileSchema } from '@/core/adapters/aircraft.schema'
 import type { AircraftProfile } from '@/core/adapters/aircraft.schema'
@@ -52,12 +52,20 @@ export type FleetNotification = {
   message: string
 }
 
+/** IndexedDB fleet hydration lifecycle for UI feedback (refs #158). */
+export type FleetLoadState = 'LOADING' | 'READY' | 'ERROR'
+
 export const useFleetStore = defineStore('fleet', () => {
   // ─── State ────────────────────────────────────────────────────────────────
 
   const profiles = ref<AircraftProfile[]>([])
-  const isLoading = ref(false)
+  /** Start LOADING so fleet UI never shows an empty list before the first `loadAll()` (#158 hydration). */
+  const fleetLoadState = ref<FleetLoadState>('LOADING')
+  const fleetLoadError = ref<string | null>(null)
   const notifications = ref<FleetNotification[]>([])
+
+  /** @deprecated Prefer `fleetLoadState === 'LOADING'` for new code. */
+  const isLoading = computed(() => fleetLoadState.value === 'LOADING')
 
   // ─── Internal helpers ─────────────────────────────────────────────────────
 
@@ -85,11 +93,15 @@ export const useFleetStore = defineStore('fleet', () => {
 
   /** Load all profiles from IndexedDB into the store. */
   async function loadAll(): Promise<void> {
-    isLoading.value = true
+    fleetLoadState.value = 'LOADING'
+    fleetLoadError.value = null
     try {
       profiles.value = await fleetRepository.findAll()
-    } finally {
-      isLoading.value = false
+      fleetLoadState.value = 'READY'
+    } catch (err) {
+      fleetLoadState.value = 'ERROR'
+      fleetLoadError.value =
+        err instanceof Error ? err.message : 'Failed to load aircraft fleet from storage.'
     }
   }
 
@@ -249,6 +261,8 @@ export const useFleetStore = defineStore('fleet', () => {
   return {
     // State
     profiles,
+    fleetLoadState,
+    fleetLoadError,
     isLoading,
     notifications,
     // Actions

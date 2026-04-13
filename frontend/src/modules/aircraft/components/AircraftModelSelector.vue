@@ -36,7 +36,7 @@
           @change="onModelChange(($event.target as HTMLSelectElement).value)"
         >
           <option value="">-- Select Model --</option>
-          <option v-for="entry in availableModels" :key="entry.model" :value="entry.model">
+          <option v-for="entry in availableModels" :key="entry.id" :value="entry.model">
             {{ entry.model }}
           </option>
         </select>
@@ -58,7 +58,7 @@
       <ul v-if="icaoLookupResults.length > 0" class="icao-lookup-results" role="listbox">
         <li
           v-for="entry in icaoLookupResults"
-          :key="`${entry.manufacturer}-${entry.model}`"
+          :key="entry.id"
           role="option"
           class="icao-lookup-result"
           @click="selectFromLookup(entry)"
@@ -77,6 +77,7 @@ import {
   getManufacturers,
   getModelsByManufacturer,
   findByIcaoDesignator,
+  findUniqueByIcaoDesignator,
   type AircraftModelEntry,
 } from '../data/aircraft-model-catalogue'
 
@@ -138,7 +139,16 @@ function onIcaoInput(value: string): void {
   const normalized = value.trim().toUpperCase()
   emit('update:icaoTypeDesignator', normalized)
 
-  // Bidirectional lookup: populate suggestion list (REQ-UI-004)
+  // Full designator with a single catalogue match: auto-fill hierarchy (REQ-UI-003, REQ-UI-004)
+  const unique = findUniqueByIcaoDesignator(normalized)
+  if (unique) {
+    emit('update:manufacturer', unique.manufacturer)
+    emit('update:model', unique.model)
+    icaoLookupResults.value = []
+    return
+  }
+
+  // Partial or ambiguous: suggestion list (REQ-UI-004)
   if (normalized.length >= 2) {
     icaoLookupResults.value = findByIcaoDesignator(normalized)
   } else {
