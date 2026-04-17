@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Full aircraft data model implementation per REQ-AD-001..019: `fuelCostIncluded` boolean on `AircraftProfile` (REQ-AD-006) and fully-typed `performanceProfiles` with `flightPhase` enum and up to 1000 `PerformanceDataPoint` entries per profile (REQ-AD-008, REQ-AD-009)
+- `PerformanceProfile` / `PerformanceDataPoint` / `FlightPhase` domain types in `core/domain/aircraft.types.ts`
+- Eleven new unit tests covering `fuelCostIncluded`, flight phase enum validation, data-point boundary (1000), and data-point field constraints (`UT-AD-CORE-050`..`UT-AD-CORE-060`)
 - Aircraft model catalogue as versioned JSON (`aircraft-model-catalogue.json`) with stable row `id`s; ICAO reverse lookup auto-fills manufacturer/model when the designator matches exactly one row (closes #158)
 - `useFleetStore` fleet hydration states `fleetLoadState` (`LOADING` / `READY` / `ERROR`) and `fleetLoadError`; initial state is `LOADING` so the fleet list does not flash empty before `loadAll()`; fleet list shows error UI with retry on IndexedDB failure (closes #158)
 - ADR-008: IndexedDB migration strategy — defines schema versioning, forward-only migrations, and `schemaVersion` field contract for all IndexedDB stores

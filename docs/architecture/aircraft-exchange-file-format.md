@@ -71,7 +71,16 @@ The file is a single JSON object mapping directly to an `AircraftProfile` docume
     }
   ],
   "costPerHour": 185.5,
-  "checklistScaffold": [{ "title": "Pre-flight", "items": ["Check fuel", "Check oil"] }]
+  "fuelCostIncluded": false,
+  "checklistScaffold": [{ "title": "Pre-flight", "items": ["Check fuel", "Check oil"] }],
+  "performanceProfiles": [
+    {
+      "flightPhase": "TakeoffDistance50ft",
+      "dataPoints": [
+        { "distance": 380, "mass": 550, "pressureAltitude": 0, "temperature": 15 }
+      ]
+    }
+  ]
 }
 ```
 
@@ -104,8 +113,9 @@ The file is a single JSON object mapping directly to an `AircraftProfile` docume
 | `surfaceConditions` | `array` | Runway surface correction factors |
 | `safetyFactors` | `object` | Takeoff and landing safety multipliers |
 | `costPerHour` | `number` | Estimated operating cost per flight hour (non-negative) |
+| `fuelCostIncluded` | `boolean` | Whether fuel cost is bundled into `costPerHour` (REQ-AD-006) |
 | `checklistScaffold` | `array` | Checklist section scaffold — structure only, no functional UI in M3 |
-| `performanceProfiles` | `array` | M4 placeholder — ignored until milestone spec finalised |
+| `performanceProfiles` | `array` | One entry per flight phase (`TakeoffRoll`, `TakeoffDistance50ft`, `LandingRoll`, `LandingDistance50ft`); each carries up to 1000 interpolation data points (REQ-AD-008, REQ-AD-009) |
 
 ## Import Pipeline (`profile.import.ts`)
 
@@ -124,7 +134,7 @@ Round-trip fidelity: all fields except `id` and `status` are preserved (verified
 
 | Version | Description |
 | :------ | :---------- |
-| `1` | M2 + M3 fields including `costPerHour`, `checklistScaffold`, `passengerProfiles`, `status` |
+| `1` | M2 + M3 fields including `costPerHour`, `fuelCostIncluded`, `checklistScaffold`, `passengerProfiles`, `status`, and fully-typed `performanceProfiles` (REQ-AD-008, REQ-AD-009) |
 
 ## Related Documents
 
