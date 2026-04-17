@@ -62,3 +62,46 @@ AD Core (domain + mass-balance input schema)
       - REQ-AD-004
     files:
       - frontend/src/core/domain/aircraft.types.ts
+
+  IMP-AD-CORE-008
+    title: ChecklistScaffoldItemSchema — checklist storage Zod schema
+    req:
+      - REQ-AD-006
+      - REQ-AD-010
+    files:
+      - frontend/src/core/adapters/aircraft.schema.ts
+
+  IMP-AD-CORE-009
+    title: WindLimitSchema — wind limit Zod schema (component, value, classification)
+    req:
+      - REQ-AD-017
+    files:
+      - frontend/src/core/adapters/aircraft.schema.ts
+
+  IMP-AD-CORE-010
+    title: SurfaceConditionSchema — surface condition Zod schema (name, takeoffFactor, landingFactor)
+    req:
+      - REQ-AD-015
+    files:
+      - frontend/src/core/adapters/aircraft.schema.ts
+
+  IMP-AD-CORE-011
+    title: SafetyFactorsSchema — operational safety factors Zod schema (takeoff, landing)
+    req:
+      - REQ-AD-016
+    files:
+      - frontend/src/core/adapters/aircraft.schema.ts
+
+  IMP-AD-CORE-012
+    title: ownerId field in AircraftProfileSchema — owner identifier storage
+    req:
+      - REQ-AD-019
+    files:
+      - frontend/src/core/adapters/aircraft.schema.ts
+
+  IMP-AD-CORE-013
+    title: WeighingReport validFrom field — versioned weighing date for lifecycle traceability
+    req:
+      - REQ-AD-013
+    files:
+      - frontend/src/core/adapters/aircraft.schema.ts

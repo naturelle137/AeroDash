@@ -1,7 +1,17 @@
 /**
  * Unit tests for useAppVersionStore.
- * Covers version comparison, blocking logic, and offline skip.
+ * Covers version comparison, blocking logic, offline skip, and
+ * minimum safe version gate (REQ-SYS-006, INFO-SYS-001).
  */
+
+// @UT-SYS-STORE-021@ (FROM: @IMP-SYS-STORE-006@)
+// @UT-SYS-STORE-022@ (FROM: @IMP-SYS-STORE-007@)
+// @UT-SYS-STORE-023@ (FROM: @IMP-SYS-STORE-007@)
+// @UT-SYS-STORE-024@ (FROM: @IMP-SYS-STORE-008@)
+// @UT-SYS-STORE-025@ (FROM: @IMP-SYS-STORE-008@)
+// @UT-SYS-STORE-028@ (FROM: @IMP-SYS-STORE-007@)
+// @UT-SYS-STORE-029@ (FROM: @IMP-SYS-STORE-008@)
+// @UT-SYS-STORE-030@ (FROM: @IMP-SYS-STORE-006@)
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
@@ -37,7 +47,6 @@ describe('useAppVersionStore', () => {
   it('checkMinSafeVersion sets versionBlocked when below minimum', async () => {
     vi.stubGlobal('navigator', { onLine: true })
     const store = useAppVersionStore()
-    // Override internal refs to simulate old version below minimum
     store.currentVersion = '0.1.0'
     store.minSafeVersion = '0.3.0'
     await store.checkMinSafeVersion()
@@ -54,5 +63,29 @@ describe('useAppVersionStore', () => {
     await store.checkMinSafeVersion()
     expect(store.versionBlocked).toBe(false)
     vi.unstubAllGlobals()
+  })
+
+  // @UT-SYS-STORE-028@ (FROM: @IMP-SYS-STORE-007@)
+  it('isVersionBelow returns false when version is above minimum (major bump)', () => {
+    const store = useAppVersionStore()
+    expect(store.isVersionBelow('1.0.0', '0.3.0')).toBe(false)
+  })
+
+  // @UT-SYS-STORE-029@ (FROM: @IMP-SYS-STORE-008@)
+  it('checkMinSafeVersion does NOT set versionBlocked when version meets minimum', async () => {
+    vi.stubGlobal('navigator', { onLine: true })
+    const store = useAppVersionStore()
+    store.currentVersion = '0.3.0'
+    store.minSafeVersion = '0.3.0'
+    await store.checkMinSafeVersion()
+    expect(store.versionBlocked).toBe(false)
+    vi.unstubAllGlobals()
+  })
+
+  // @UT-SYS-STORE-030@ (FROM: @IMP-SYS-STORE-006@)
+  it('exposes minSafeVersion as a non-empty string', () => {
+    const store = useAppVersionStore()
+    expect(typeof store.minSafeVersion).toBe('string')
+    expect(store.minSafeVersion.length).toBeGreaterThan(0)
   })
 })

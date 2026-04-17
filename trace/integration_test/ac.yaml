@@ -26,3 +26,74 @@ AC Store — Fleet Repository Integration Tests
       - IMP-AC-STORE-001
     files:
       - frontend/src/modules/aircraft/__tests__/fleet.repository.int.spec.ts
+
+AC Store — Supplementary Field Round-Trip Persistence (Integration)
+  IT-AC-STORE-005
+    title: round-trip — costPerHour persists and retrieves with full fidelity
+    impl:
+      - IMP-AC-STORE-001
+      - IMP-AC-CORE-002
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.repository.int.spec.ts
+
+  IT-AC-STORE-006
+    title: round-trip — referenceDatumDescription persists and retrieves with full fidelity
+    impl:
+      - IMP-AC-STORE-001
+      - IMP-AC-CORE-002
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.repository.int.spec.ts
+
+  IT-AC-STORE-007
+    title: round-trip — checklistScaffold persists and retrieves with full fidelity
+    impl:
+      - IMP-AC-STORE-001
+      - IMP-AC-CORE-002
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.repository.int.spec.ts
+
+  IT-AC-STORE-008
+    title: round-trip — all three supplementary fields persist together with full fidelity
+    impl:
+      - IMP-AC-STORE-001
+      - IMP-AC-CORE-002
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.repository.int.spec.ts
+
+  IT-AC-STORE-009
+    title: round-trip — supplementary fields survive an update() cycle
+    impl:
+      - IMP-AC-STORE-001
+      - IMP-AC-CORE-002
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.repository.int.spec.ts
+
+AC Store — schemaVersion Persistence (refs #166)
+  IT-AC-STORE-010
+    title: schemaVersion field is persisted and retrieved correctly on create
+    impl:
+      - IMP-AC-CORE-002
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.repository.int.spec.ts
+
+  IT-AC-STORE-011
+    title: schemaVersion is preserved across update operations
+    impl:
+      - IMP-AC-CORE-002
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.repository.int.spec.ts
+
+  IT-AC-STORE-012
+    title: all profiles returned by findAll carry a positive integer schemaVersion field
+    impl:
+      - IMP-AC-CORE-002
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.repository.int.spec.ts
+
+AC Store — DB Migration (ADR-008)
+  IT-AC-STORE-013
+    title: DB v1→v2 migration normalizes legacy Draft/Verified status to lowercase
+    impl:
+      - IMP-AC-STORE-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.repository.int.spec.ts

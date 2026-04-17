@@ -22,22 +22,22 @@ interface Props {
 const props = defineProps<Props>()
 
 const statusLabel = computed(() => {
-  return props.status === 'Verified' ? 'Verified' : 'Draft'
+  return props.status === 'verified' ? 'Verified' : 'Draft'
 })
 
 const statusClass = computed(() => ({
-  'status-verified': props.status === 'Verified',
-  'status-draft': props.status === 'Draft',
+  'status-verified': props.status === 'verified',
+  'status-draft': props.status === 'draft',
 }))
 
 const statusTitle = computed(() => {
-  if (props.status === 'Verified') {
+  if (props.status === 'verified') {
     return 'Profile has been verified and is safe for calculations.'
   }
-  return 'Profile is in Draft status. Verify all data before use in safety-critical calculations.'
+  return 'Profile is in draft status. Verify all data before use in safety-critical calculations.'
 })
 
-const ariaLabel = computed(() => `Profile status: ${props.status}`)
+const ariaLabel = computed(() => `Profile status: ${statusLabel.value}`)
 </script>
 
 <style scoped>

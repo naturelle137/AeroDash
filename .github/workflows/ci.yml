@@ -138,6 +138,9 @@ jobs:
       - name: Install Playwright browsers (Chromium only)
         run: pnpm --filter frontend exec playwright install chromium --with-deps
 
+      - name: Build frontend
+        run: pnpm --filter frontend run build
+
       - name: Run E2E tests
         run: pnpm --filter frontend test:e2e
 

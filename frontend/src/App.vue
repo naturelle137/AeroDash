@@ -1,14 +1,22 @@
 <script setup lang="ts">
 // @IMP-UI-SHARED-002@ (FROM: @REQ-UI-011@, @REQ-SYS-001@)
 // @IMP-SYS-SHARED-003@ (FROM: @REQ-SYS-005@)
-import { ref, computed } from 'vue'
+// @IMP-SYS-SHARED-005@ (FROM: @REQ-SYS-006@)
+import { ref, computed, onMounted } from 'vue'
 import { RouterView, RouterLink, useRoute } from 'vue-router'
 import { useTheme } from '@/shared/composables/useTheme'
 import AppLogo from '@/shared/components/AppLogo.vue'
 import AppVersion from '@/shared/components/AppVersion.vue'
 import { usePwaUpdateStore } from '@/stores/pwa-update.store'
+import { useAppVersionStore } from '@/stores/app-version.store'
 
 const pwaStore = usePwaUpdateStore()
+const appVersionStore = useAppVersionStore()
+
+// REQ-SYS-006: check minimum safe version on startup (online-only)
+onMounted(() => {
+  void appVersionStore.checkMinSafeVersion()
+})
 
 const { theme, toggleTheme } = useTheme()
 const route = useRoute()
@@ -172,8 +180,34 @@ const themeLabel = computed(() =>
     </div>
 
     <!-- ═══ Main content ════════════════════════════════════════════════════ -->
+    <!-- REQ-SYS-006: Block all safety-critical features when version is below minimum -->
     <main class="app-main" id="main-content">
-      <RouterView />
+      <div
+        v-if="appVersionStore.versionBlocked"
+        class="version-blocked-screen"
+        role="alert"
+        aria-live="assertive"
+        data-testid="version-blocked-screen"
+      >
+        <div class="version-blocked-screen__card">
+          <div class="version-blocked-screen__icon" aria-hidden="true">⛔</div>
+          <h1 class="version-blocked-screen__title">Application Update Required</h1>
+          <p class="version-blocked-screen__body">
+            This version of AeroDash (<strong>{{ appVersionStore.currentVersion }}</strong>) is
+            below the minimum required version
+            (<strong>{{ appVersionStore.minSafeVersion }}</strong>).
+          </p>
+          <p class="version-blocked-screen__body">
+            Safety-critical features (Mass &amp; Balance, Performance, Fuel &amp; Endurance) are
+            <strong>disabled</strong> until the application is updated.
+          </p>
+          <p class="version-blocked-screen__advisory">
+            Please refresh the page or update your PWA installation. If this error persists, clear
+            your browser cache and reload.
+          </p>
+        </div>
+      </div>
+      <RouterView v-else />
     </main>
 
     <!-- ═══ Bottom navigation (mobile only) ════════════════════════════════ -->
@@ -249,6 +283,54 @@ const themeLabel = computed(() =>
 
 .pwa-update-btn:hover {
   background: rgba(255, 255, 255, 0.25);
+}
+
+/* ─── Version-blocked screen (REQ-SYS-006) ───────────────────────────────── */
+
+.version-blocked-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100%;
+  padding: var(--space-8);
+  background: var(--color-bg);
+}
+
+.version-blocked-screen__card {
+  max-width: 480px;
+  width: 100%;
+  padding: var(--space-8);
+  background: var(--color-surface);
+  border: 2px solid var(--color-danger, #dc2626);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  text-align: center;
+}
+
+.version-blocked-screen__icon {
+  font-size: 3rem;
+  margin-bottom: var(--space-4);
+}
+
+.version-blocked-screen__title {
+  font-size: var(--text-xl);
+  font-weight: 700;
+  color: var(--color-danger, #dc2626);
+  margin: 0 0 var(--space-4);
+}
+
+.version-blocked-screen__body {
+  font-size: var(--text-sm);
+  color: var(--color-text-primary);
+  margin: 0 0 var(--space-3);
+  line-height: 1.6;
+}
+
+.version-blocked-screen__advisory {
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+  margin: var(--space-4) 0 0;
+  line-height: 1.5;
 }
 
 /* ─── Shell grid ──────────────────────────────────────────────────────────── */

@@ -63,21 +63,25 @@ const WeighingReportSchema = z.object({
   bem: z.number().positive(),
   emptyCg: z.number(),
   weighingDate: z.string().min(1),
+  // @IMP-AD-CORE-013@ (FROM: @REQ-AD-013@)
   validFrom: z.string().min(1),
 })
 
+// @IMP-AD-CORE-009@ (FROM: @REQ-AD-017@)
 const WindLimitSchema = z.object({
   component: z.enum(['MaxCrosswind', 'MaxTailwind', 'MaxTotalWind', 'MaxGust']),
   value: z.number().nonnegative(),
   classification: z.enum(['Demonstrated', 'Limit']),
 })
 
+// @IMP-AD-CORE-010@ (FROM: @REQ-AD-015@)
 const SurfaceConditionSchema = z.object({
   name: z.string().min(1),
   takeoffFactor: z.number().positive(),
   landingFactor: z.number().positive(),
 })
 
+// @IMP-AD-CORE-011@ (FROM: @REQ-AD-016@)
 const SafetyFactorsSchema = z.object({
   takeoff: z.number().positive(),
   landing: z.number().positive(),
@@ -101,6 +105,7 @@ const ChecklistScaffoldItemSchema = z.object({
 export const AircraftProfileSchema = z
   .object({
     id: z.string().uuid(),
+    // @IMP-AD-CORE-012@ (FROM: @REQ-AD-019@)
     ownerId: z.string().min(1),
     registration: z.string().min(1),
     manufacturer: z.string().min(1),
@@ -110,8 +115,16 @@ export const AircraftProfileSchema = z
     referenceDatumDescription: z.string().min(1),
     referenceDatumLocation: z.string().min(1),
     shareCode: z.string().nullable(),
-    // M3: Profile status for Draft/Verified FSM (REQ-AC-005)
-    status: z.enum(['Draft', 'Verified']).default('Draft'),
+    // M3: Profile status for draft/verified FSM (REQ-AC-005, H-011). Lowercase is canonical;
+    // legacy Title-Case values from IndexedDB / exchange files normalize on parse.
+    status: z
+      .union([
+        z.literal('draft'),
+        z.literal('verified'),
+        z.literal('Draft').transform((): 'draft' => 'draft'),
+        z.literal('Verified').transform((): 'verified' => 'verified'),
+      ])
+      .default('draft'),
     // M3: Schema version for structured migration safety (refs #154)
     schemaVersion: z.number().int().positive().default(1),
     // M3: Passenger profiles with standard weights (REQ-AC-006)

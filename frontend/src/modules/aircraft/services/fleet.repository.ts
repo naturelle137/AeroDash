@@ -2,19 +2,30 @@
  * Fleet Repository — native IndexedDB persistence layer for AircraftProfile documents.
  * P2 Feature Module — may use browser APIs, no Vue/Pinia framework imports.
  *
- * Database: aerodash-fleet, version 1
+ * Database: aerodash-fleet, version 2 (status normalization migration)
  * Object store: aircraft_profiles, keyPath: id
  *
  * @see docs/architecture/adr/006-indexeddb-fleet-persistence.md
  */
 
+import { AircraftProfileSchema } from '@/core/adapters/aircraft.schema'
 import type { AircraftProfile } from '@/core/adapters/aircraft.schema'
 
 // @IMP-AC-STORE-001@ (FROM: @REQ-AC-001@, @DES-ARCH-007@)
 
 const DB_NAME = 'aerodash-fleet'
-const DB_VERSION = 1
+/** Bumped to 2: normalize legacy `Draft`/`Verified` status strings to lowercase (REQ-AC-005). */
+const DB_VERSION = 2
 const STORE_NAME = 'aircraft_profiles'
+
+function normalizeLegacyProfileStatus(raw: unknown): unknown {
+  if (raw === null || typeof raw !== 'object') return raw
+  const doc = raw as Record<string, unknown>
+  const s = doc.status
+  if (s === 'Draft') doc.status = 'draft'
+  else if (s === 'Verified') doc.status = 'verified'
+  return doc
+}
 
 function openDB(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
@@ -22,6 +33,7 @@ function openDB(): Promise<IDBDatabase> {
 
     request.onupgradeneeded = (event) => {
       const db = (event.target as IDBOpenDBRequest).result
+      const oldVersion = event.oldVersion
 
       // Create the object store if it doesn't exist
       if (!db.objectStoreNames.contains(STORE_NAME)) {
@@ -30,6 +42,23 @@ function openDB(): Promise<IDBDatabase> {
         store.createIndex('ownerId', 'ownerId', { unique: false })
         // Index by registration for duplicate detection
         store.createIndex('registration', 'registration', { unique: false })
+      }
+
+      // v1 → v2: rewrite status field to canonical lowercase
+      if (oldVersion < 2 && db.objectStoreNames.contains(STORE_NAME)) {
+        const tx = (event.target as IDBOpenDBRequest).transaction!
+        const store = tx.objectStore(STORE_NAME)
+        const cursorReq = store.openCursor()
+        cursorReq.onsuccess = () => {
+          const cursor = cursorReq.result
+          if (!cursor) return
+          const normalized = normalizeLegacyProfileStatus(cursor.value)
+          const parsed = AircraftProfileSchema.safeParse(normalized)
+          if (parsed.success) {
+            cursor.update(parsed.data)
+          }
+          cursor.continue()
+        }
       }
     }
 

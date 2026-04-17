@@ -56,13 +56,21 @@ const WeighingReportSchema = z.object({
   validFrom: z.string().min(1),
 })
 
-// @IMP-MB-DATA-001@ (FROM: @REQ-MB-002@, @DES-ARCH-005@)
+// @IMP-MB-DATA-001@ (FROM: @REQ-MB-002@, @DES-ARCH-005@, @REQ-AC-005@)
 export const AircraftContextSchema = z.object({
   id: z.string().min(1),
   registration: z.string().min(1),
   manufacturer: z.string().min(1),
   model: z.string().min(1),
   sourceUnit: z.string().min(1),
+  status: z
+    .union([
+      z.literal('draft'),
+      z.literal('verified'),
+      z.literal('Draft').transform((): 'draft' => 'draft'),
+      z.literal('Verified').transform((): 'verified' => 'verified'),
+    ])
+    .default('verified'),
   weighingReports: z.array(WeighingReportSchema).min(1),
   loadPoints: z.array(LoadPointSchema),
   certificationCategories: z.array(CategoryDefinitionSchema).min(1),

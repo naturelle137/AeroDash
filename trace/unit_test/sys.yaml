@@ -600,6 +600,29 @@ SYS App — Vue Router (Unit)
     files:
       - frontend/src/router/index.spec.ts
 
+SYS App — Version-Blocked Screen (Unit)
+  UT-SYS-APP-026
+    title: renders RouterView when versionBlocked is false
+    impl:
+      - IMP-SYS-SHARED-006
+    files:
+      - frontend/src/stores/__tests__/app-version-blocked.spec.ts
+
+  UT-SYS-APP-027
+    title: renders version-blocked-screen and hides RouterView when versionBlocked is true
+    impl:
+      - IMP-SYS-SHARED-006
+    files:
+      - frontend/src/stores/__tests__/app-version-blocked.spec.ts
+
+  UT-SYS-APP-028
+    title: version-blocked screen displays current and minimum version strings
+    impl:
+      - IMP-SYS-SHARED-006
+    files:
+      - frontend/src/stores/__tests__/app-version-blocked.spec.ts
+
+
 SYS Store — Session Persistence (Unit)
   UT-SYS-STORE-001
     title: returns null when localStorage is empty
@@ -742,6 +765,20 @@ SYS Store — PWA Update (Unit)
     files:
       - frontend/src/stores/__tests__/pwa-update.store.spec.ts
 
+  UT-SYS-STORE-026
+    title: applyUpdate falls back to window.location.reload when no updateSW is set
+    impl:
+      - IMP-SYS-STORE-009
+    files:
+      - frontend/src/stores/__tests__/pwa-update.store.spec.ts
+
+  UT-SYS-STORE-027
+    title: silent auto-update is absent — needsUpdate stays false until onNeedsRefresh is called
+    impl:
+      - IMP-SYS-STORE-004
+    files:
+      - frontend/src/stores/__tests__/pwa-update.store.spec.ts
+
 SYS Store — App Version (Unit)
   UT-SYS-STORE-021
     title: exposes currentVersion and buildDate
@@ -775,5 +812,26 @@ SYS Store — App Version (Unit)
     title: checkMinSafeVersion skips when offline
     impl:
       - IMP-SYS-STORE-008
+    files:
+      - frontend/src/stores/__tests__/app-version.store.spec.ts
+
+  UT-SYS-STORE-028
+    title: isVersionBelow returns false when version is above minimum (major bump)
+    impl:
+      - IMP-SYS-STORE-007
+    files:
+      - frontend/src/stores/__tests__/app-version.store.spec.ts
+
+  UT-SYS-STORE-029
+    title: checkMinSafeVersion does NOT set versionBlocked when version meets minimum
+    impl:
+      - IMP-SYS-STORE-008
+    files:
+      - frontend/src/stores/__tests__/app-version.store.spec.ts
+
+  UT-SYS-STORE-030
+    title: exposes minSafeVersion as a non-empty string
+    impl:
+      - IMP-SYS-STORE-006
     files:
       - frontend/src/stores/__tests__/app-version.store.spec.ts

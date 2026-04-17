@@ -11,6 +11,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Aircraft model catalogue as versioned JSON (`aircraft-model-catalogue.json`) with stable row `id`s; ICAO reverse lookup auto-fills manufacturer/model when the designator matches exactly one row (closes #158)
 - `useFleetStore` fleet hydration states `fleetLoadState` (`LOADING` / `READY` / `ERROR`) and `fleetLoadError`; initial state is `LOADING` so the fleet list does not flash empty before `loadAll()`; fleet list shows error UI with retry on IndexedDB failure (closes #158)
+- ADR-008: IndexedDB migration strategy — defines schema versioning, forward-only migrations, and `schemaVersion` field contract for all IndexedDB stores
+- `docs/architecture/aircraft-exchange-file-format.md`: canonical specification for the aircraft profile exchange (`.adp.json`) file format used by import/export
+- Unit tests for `AircraftModelSelector.vue`: manufacturer list, model dropdown filter, ICAO auto-fill, reverse lookup, and free-text mode (`Other`) (refs #146)
+- Unit tests for `aircraft-model-catalogue.ts`: ICAO designator integrity (including C182T Skylane correction), catalogue lookup, and `getManufacturers()`/`getModelsByManufacturer()`/`findByIcaoDesignator()` functions (refs #146)
+- Unit tests for `FleetList.vue`: loading state, empty state, profile list rendering, active profile highlighting, and action button behaviour (Select/Active, Verify, Edit, Delete) (refs #144)
+- Unit tests for `ProfileStatusBadge.vue`: Verified/Draft label rendering, CSS class application, `aria-label`, and `title` accessibility attributes (refs #145)
+- Version-blocked screen in `App.vue` (REQ-SYS-006): `<RouterView>` is now wrapped in `v-if="!appVersionStore.versionBlocked"` — when version is below minimum, a full-screen error panel is rendered instead, blocking all safety-critical features
+- Offline E2E smoke test (`offline-smoke.feature`): verifies that the app shell loads and M\&B navigation is available after the browser goes offline (refs #162)
 - PWA Service Worker with offline-first app shell caching via `vite-plugin-pwa` and Workbox (closes #150)
 - PWA update notification (`INFO-SYS-001`) — no silent auto-update, user must confirm reload (`registerType: 'prompt'`) (closes #151)
 - Minimum safe version enforcement on startup (`useAppVersionStore.checkMinSafeVersion`) — blocks execution when local version is below minimum (REQ-SYS-006)
@@ -29,14 +37,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - In-session aircraft switching without full page reload (closes #153)
 - AircraftContext schemaVersion field for structured migration safety (closes #154)
 
+### Changed
+
+- ADR-007 enhanced with versioning, update-path, and notification sections documenting the PWA update lifecycle
+- `App.vue`: version-blocked screen replaces the prior banner — `<RouterView>` is now gated behind `v-if="!appVersionStore.versionBlocked"` so all safety-critical features are blocked when the version is below minimum (REQ-SYS-006)
+- `app-version.store.ts`: JSDoc updated to document the build-time constant limitation for `minSafeVersion` and the planned remote fetch path before v1.0.0 (REQ-SYS-006)
+- `pwa-update.store.ts`: `onNeedsRefresh()` documented to clarify that the direct banner in `App.vue` IS the INFO-SYS-001 notification (architectural exception per ADR-007)
+- C182T Skylane ICAO type designator corrected: `C82T` → `C182` (aviation safety data correction)
+
 ### Engineering
 
 - Aircraft catalogue unit tests (filter, ICAO lookup, unique designator) and `AircraftModelSelector` component tests; fleet store tests for IndexedDB load state machine (closes #158)
+- Aircraft profile `status` canonical values `draft` / `verified` with Zod normalization of legacy Title Case, IndexedDB v2 migration, and Mass & Balance computation prepending `WARN-AC-002` for draft contexts; ADR-008 (closes #157)
+- `fleet.repository.spec.ts` (new, 14 tests, UT-AC-STORE-034..047): Full IndexedDB CRUD unit tests using `fake-indexeddb` — create, findById, findAll, update, deleteById, round-trip, passengerProfiles preservation (closes #156)
+- `active-aircraft.store.spec.ts` (new, 12 tests, UT-AC-STORE-068..079): Reactive hot-swap proof, clearActive, isDraft, hasActiveProfile, context-switch prior-state-absent, no-page-reload tests (closes #165)
+- `fleet.store.spec.ts` (extended, 23 new tests, UT-AC-STORE-048..067, 080..082): loadAll LOADING→READY/ERROR transitions, InvalidRegistrationError, WARN-AC-001 duplicate warning, WARN-AC-002 Draft WARNING, snapshot isolation, verifyProfile/editVerifiedProfile edge cases, passengerProfile standard weight application, updateProfile branch coverage, and DoD #165 notification-clear-on-switch (closes #157, #159)
+- fleet.store.ts branch coverage raised to 96.66%; all P2 modules meet the ≥80% P2 threshold
+- Trace ID collisions resolved: UT-AC-STORE-034 duplicate removed from `trace/unit_test/ac.yaml`; in-code `@UT-AC-STORE-NNN@` annotations aligned to the authoritative YAML registry (UT-AC-STORE-048..082)
+- Populated `trace/` YAML registries for REQ-AC, REQ-AD, REQ-SYS, REQ-UI modules (v0.3.0) (closes #170)
+- Added CI Traceability Gate workflow (warn-only before v1.0.0) (closes #71)
+- Added traceability gate documentation to `docs/testing/TESTING.md` and `CONTRIBUTING.md`
 - 33 unit tests (ICAO validation × 16, import × 8, fleet FSM × 9) and 4 IndexedDB integration tests all passing
-- verifyProfile() now auto-updates active aircraft context when the verified Draft was in use
+- `verifyProfile()` now auto-updates active aircraft context when the verified Draft was in use
 - Canonical bilinear interpolation test vectors (TOR, TOD, LR, LD) established and passing in CI — de-risk for v0.4.0 performance distance calculations (closes #155)
 - 40 canonical bilinear interpolation unit tests (VEC-TOR-001–015, VEC-TOD-001–004, VEC-LR-001–006, VEC-LD-001–005, VEC-EDGE-001–010) all passing in CI P1 isolation mode
 - 16 unit tests for `useSessionPersistenceStore` covering save, restore, clear, debounce, and round-trip scenarios
+- Added `FleetList.vue`, `ProfileStatusBadge.vue`, and additional `aircraft-model-catalogue` unit tests to bring `modules/aircraft` P2 coverage above the 80% threshold
+- Added `app-version-blocked.spec.ts` unit tests validating REQ-SYS-006 gate (version-blocked state renders blocked screen; content hidden when blocked; gate is reactive)
+- Offline E2E smoke test added for PWA offline-first DoD verification (refs #162)
 
 ## [0.2.0-alpha] - 2026-04-03
 

@@ -190,23 +190,32 @@ describe('AircraftProfileSchema — valid profiles', () => {
   })
 
   // @UT-AC-CORE-001@ (FROM: @IMP-AC-CORE-002@)
-  it('defaults status to Draft when status is omitted', () => {
+  it('defaults status to draft when status is omitted', () => {
     const result = AircraftProfileSchema.safeParse(createValidProfile())
     expect(result.success).toBe(true)
     if (!result.success) return
-    expect(result.data.status).toBe('Draft')
+    expect(result.data.status).toBe('draft')
   })
 
   // @UT-AC-CORE-002@ (FROM: @IMP-AC-CORE-002@)
-  it('accepts status = Verified', () => {
-    const result = AircraftProfileSchema.safeParse(
+  it('accepts status = verified and normalizes legacy Title Case', () => {
+    const lower = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        p.status = 'verified'
+      }),
+    )
+    expect(lower.success).toBe(true)
+    if (!lower.success) return
+    expect(lower.data.status).toBe('verified')
+
+    const legacy = AircraftProfileSchema.safeParse(
       cloneWith((p) => {
         p.status = 'Verified'
       }),
     )
-    expect(result.success).toBe(true)
-    if (!result.success) return
-    expect(result.data.status).toBe('Verified')
+    expect(legacy.success).toBe(true)
+    if (!legacy.success) return
+    expect(legacy.data.status).toBe('verified')
   })
 
   // @UT-AC-CORE-003@ (FROM: @IMP-AC-CORE-002@)
