@@ -1,0 +1,271 @@
+name: Traceability Gate
+
+# Runs on PRs targeting main only.
+# Before v1.0.0 this job is WARN-ONLY (always exits 0) so it never blocks a
+# merge but makes every gap visible in the GitHub Actions log.
+on:
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: traceability-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  trace-gate:
+    name: Traceability Validation (warn-only)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # ── 1. Verify mode: duplicate / isolated / dangling tags ───────────────
+      - name: Run shtracer in verify mode
+        id: verify
+        # Always continue so later steps can still run and collect output.
+        continue-on-error: true
+        run: |
+          chmod +x .tools/shtracer/shtracer
+          .tools/shtracer/shtracer -v .tools/.shtracer.md 2>&1 | tee /tmp/shtracer-verify.txt
+          echo "exit_code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"
+
+      - name: Report verify results
+        run: |
+          EXIT="${{ steps.verify.outputs.exit_code }}"
+          echo "## Traceability Verify Mode" >> "$GITHUB_STEP_SUMMARY"
+          if [ "$EXIT" = "0" ]; then
+            echo "✅ No duplicate, isolated, or dangling tags detected." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "⚠️ Verify mode detected issues (exit $EXIT)." >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+            cat /tmp/shtracer-verify.txt >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      # ── 2. Generate full JSON trace for advanced checks ────────────────────
+      - name: Generate traceability JSON
+        id: json
+        continue-on-error: true
+        run: |
+          chmod +x .tools/shtracer/shtracer
+          if .tools/shtracer/shtracer .tools/.shtracer.md > /tmp/trace.json 2>/tmp/trace-stderr.txt; then
+            echo "json_ok=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "json_ok=false" >> "$GITHUB_OUTPUT"
+            echo "JSON generation produced warnings:" >&2
+            cat /tmp/trace-stderr.txt >&2
+          fi
+
+      # ── 3. Pending requirements (REQ-xxx with no downstream chain) ─────────
+      - name: Check for pending requirements
+        if: steps.json.outputs.json_ok == 'true'
+        run: |
+          echo "## Pending Requirements (no IMP chain)" >> "$GITHUB_STEP_SUMMARY"
+          # v0.1.4 schema: a REQ is "pending" if no tag lists it in its from_tags.
+          PENDING=$(jq -r '
+            [.trace_tags[].from_tags[]] as $all_parents |
+            .trace_tags[]
+            | select(.id | startswith("@REQ-"))
+            | select(.id as $id | ($all_parents | index($id)) == null)
+            | .id
+          ' /tmp/trace.json 2>/dev/null || true)
+
+          if [ -z "$PENDING" ]; then
+            echo "✅ All requirements have at least one downstream link." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "⚠️ The following requirements have no downstream implementation/design links:" >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+            echo "$PENDING" >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+            echo ""
+            echo "⚠️ WARN: Pending requirements detected (no downstream chain):"
+            echo "$PENDING"
+          fi
+
+      # ── 4. Unmitigated hazards (H-xxx with no downstream REQ) ─────────────
+      - name: Check for unmitigated hazards
+        if: steps.json.outputs.json_ok == 'true'
+        run: |
+          echo "## Unmitigated Hazards (no REQ)" >> "$GITHUB_STEP_SUMMARY"
+          # v0.1.4 schema: a hazard is "unmitigated" if no tag lists it in its from_tags.
+          UNMITIGATED=$(jq -r '
+            [.trace_tags[].from_tags[]] as $all_parents |
+            .trace_tags[]
+            | select(.id | startswith("@H-"))
+            | select(.id as $id | ($all_parents | index($id)) == null)
+            | .id
+          ' /tmp/trace.json 2>/dev/null || true)
+
+          if [ -z "$UNMITIGATED" ]; then
+            echo "✅ All hazards have at least one mitigating requirement." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "⚠️ The following hazards have no downstream requirement link:" >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+            echo "$UNMITIGATED" >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+            echo ""
+            echo "⚠️ WARN: Unmitigated hazards detected (no REQ link):"
+            echo "$UNMITIGATED"
+          fi
+
+      # ── 5. Orphaned implementations (IMP with no upstream REQ or DES) ─────
+      - name: Check for orphaned implementations
+        if: steps.json.outputs.json_ok == 'true'
+        run: |
+          echo "## Orphaned Implementations (no upstream REQ)" >> "$GITHUB_STEP_SUMMARY"
+          # v0.1.4 schema: an IMP is "orphaned" when its from_tags has no REQ or DES.
+          ORPHANED=$(jq -r '
+            .trace_tags[]
+            | select(.id | startswith("@IMP-"))
+            | select(
+                (.from_tags | length) == 0 or
+                ((.from_tags // []) | all(. | (startswith("@REQ-") or startswith("@DES-")) | not))
+              )
+            | .id
+          ' /tmp/trace.json 2>/dev/null || true)
+
+          if [ -z "$ORPHANED" ]; then
+            echo "✅ All implementations link back to a requirement or design." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "⚠️ The following implementations have no upstream REQ/DES link:" >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+            echo "$ORPHANED" >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+            echo ""
+            echo "⚠️ WARN: Orphaned implementations detected (no upstream REQ/DES):"
+            echo "$ORPHANED"
+          fi
+
+      # ── 6. Unverified P1 requirements (P1 REQ with no E2E chain) ──────────
+      - name: Check for unverified P1 requirements
+        if: steps.json.outputs.json_ok == 'true'
+        run: |
+          echo "## Unverified P1 Requirements (no E2E test)" >> "$GITHUB_STEP_SUMMARY"
+          # v0.1.4 schema: REQs "unverified" = implemented (in from_tags) but not in E2E chains.
+          UNVERIFIED=$(jq -r '
+            [.trace_tags[].from_tags[]] as $all_parents |
+            (
+              [
+                .chains[]
+                | select(any(.[]; startswith("@E2E-")))
+                | .[]
+                | select(startswith("@REQ-"))
+              ] | unique
+            ) as $verified_reqs |
+            .trace_tags[]
+            | select(.id | startswith("@REQ-"))
+            | select(.id as $id |
+                ($all_parents | index($id)) != null and
+                ($verified_reqs | index($id)) == null
+              )
+            | .id
+          ' /tmp/trace.json 2>/dev/null || true)
+
+          if [ -z "$UNVERIFIED" ]; then
+            echo "✅ All implemented requirements have at least one E2E test in their chain." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "⚠️ The following implemented requirements have no E2E test coverage:" >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+            echo "$UNVERIFIED" >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+            echo ""
+            echo "⚠️ WARN: Unverified requirements detected (implemented but no E2E):"
+            echo "$UNVERIFIED"
+          fi
+
+      # ── 7. Registry drift check ────────────────────────────────────────────
+      # The trace/ YAML registry must stay in sync. Drift is detected by
+      # comparing tags found in source files against entries in trace/ YAMLs.
+      - name: Check registry drift
+        if: steps.json.outputs.json_ok == 'true'
+        run: |
+          echo "## Registry Drift Check" >> "$GITHUB_STEP_SUMMARY"
+
+          # Extract all @IMP-...-...@ tags actually present in source files
+          SOURCE_IMPS=$(grep -rh --include="*.ts" --include="*.vue" \
+            -oE '@IMP-[A-Z]+-[A-Z]+-[0-9]+@' \
+            frontend/src/ 2>/dev/null | sort -u || true)
+
+          # Extract all IMP IDs listed in trace/implementation/ YAML files
+          REGISTRY_IMPS=$(grep -rh \
+            -oE 'IMP-[A-Z]+-[A-Z]+-[0-9]+' \
+            trace/implementation/ 2>/dev/null \
+            | sed 's/^/@/' | sed 's/$/@/' | sort -u || true)
+
+          # IMPs in source but not in registry
+          IN_SOURCE_NOT_REGISTRY=$(comm -23 \
+            <(echo "$SOURCE_IMPS" | sort) \
+            <(echo "$REGISTRY_IMPS" | sort) || true)
+
+          # IMPs in registry but not in source (stale entries)
+          IN_REGISTRY_NOT_SOURCE=$(comm -13 \
+            <(echo "$SOURCE_IMPS" | sort) \
+            <(echo "$REGISTRY_IMPS" | sort) || true)
+
+          DRIFT=false
+
+          if [ -n "$IN_SOURCE_NOT_REGISTRY" ]; then
+            DRIFT=true
+            echo "⚠️ IMP tags in source files but **missing from** \`trace/implementation/\` registry:" >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+            echo "$IN_SOURCE_NOT_REGISTRY" >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+            echo ""
+            echo "⚠️ WARN: IMP tags in source missing from trace registry:"
+            echo "$IN_SOURCE_NOT_REGISTRY"
+          fi
+
+          if [ -n "$IN_REGISTRY_NOT_SOURCE" ]; then
+            DRIFT=true
+            echo "⚠️ IMP entries in \`trace/implementation/\` registry but **not found** in source files:" >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+            echo "$IN_REGISTRY_NOT_SOURCE" >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+            echo ""
+            echo "⚠️ WARN: IMP entries in trace registry not found in source files:"
+            echo "$IN_REGISTRY_NOT_SOURCE"
+          fi
+
+          if [ "$DRIFT" = "false" ]; then
+            echo "✅ No registry drift detected — trace/ YAML entries match source file IMP tags." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      # ── 8. Upload raw trace JSON as artifact ──────────────────────────────
+      - name: Upload trace JSON artifact
+        if: steps.json.outputs.json_ok == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: traceability-report
+          path: /tmp/trace.json
+          retention-days: 30
+
+      # ── Final summary header ───────────────────────────────────────────────
+      - name: Write gate summary header
+        if: always()
+        run: |
+          {
+            echo ""
+            echo "---"
+            echo ""
+            echo "> **Gate status:** ⚠️ WARN-ONLY (pre-v1.0.0)"
+            echo "> This job reports traceability gaps but never blocks a merge before v1.0.0."
+            echo "> From v1.0.0 onward, all warnings above will become hard failures."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # ── Always exit 0 before v1.0.0 ───────────────────────────────────────
+      # This step ensures the job never fails the PR check, even when gaps are
+      # found. Replace with `exit 1` when the project reaches v1.0.0.
+      - name: Gate exit (warn-only before v1.0.0)
+        if: always()
+        run: |
+          echo "Traceability gate complete — warn-only mode active (pre-v1.0.0)."
+          exit 0

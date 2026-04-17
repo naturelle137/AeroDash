@@ -182,6 +182,7 @@ SYS Shared — Structured Logger Utility
     files:
       - frontend/src/App.vue
 
+
 SYS Shared — Theme Toggle
   IMP-SYS-SHARED-004
     title: useTheme composable — dark/light mode toggle with localStorage persistence
@@ -189,6 +190,15 @@ SYS Shared — Theme Toggle
       - REQ-UI-011
     files:
       - frontend/src/shared/composables/useTheme.ts
+
+
+SYS App Shell — Version Blocking
+  IMP-SYS-SHARED-006
+    title: App.vue version-blocked screen — blocks RouterView when versionBlocked is true (REQ-SYS-006)
+    req:
+      - REQ-SYS-006
+    files:
+      - frontend/src/App.vue
 
 SYS Pending — Connectivity State (not yet implemented)
   IMP-SYS-CONN-001

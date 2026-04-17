@@ -972,3 +972,161 @@ AC View — AircraftModelSelector Component (Unit)
       - IMP-AC-VIEW-003
     files:
       - frontend/src/modules/aircraft/__tests__/AircraftModelSelector.spec.ts
+
+
+AC View — FleetList Component (Unit)
+  UT-AC-VIEW-080
+    title: FleetList — shows loading message when isLoading is true
+    impl:
+      - IMP-AC-VIEW-005
+      - IMP-AC-VIEW-006
+    files:
+      - frontend/src/modules/aircraft/__tests__/FleetList.spec.ts
+
+  UT-AC-VIEW-081
+    title: FleetList — shows empty-state message when no profiles exist
+    impl:
+      - IMP-AC-VIEW-005
+    files:
+      - frontend/src/modules/aircraft/__tests__/FleetList.spec.ts
+
+  UT-AC-VIEW-082
+    title: FleetList — does not render the profiles list when empty
+    impl:
+      - IMP-AC-VIEW-005
+    files:
+      - frontend/src/modules/aircraft/__tests__/FleetList.spec.ts
+
+  UT-AC-VIEW-083
+    title: FleetList — renders a list item for each profile
+    impl:
+      - IMP-AC-VIEW-005
+    files:
+      - frontend/src/modules/aircraft/__tests__/FleetList.spec.ts
+
+  UT-AC-VIEW-084
+    title: FleetList — displays registration and model for each profile
+    impl:
+      - IMP-AC-VIEW-005
+    files:
+      - frontend/src/modules/aircraft/__tests__/FleetList.spec.ts
+
+  UT-AC-VIEW-085
+    title: FleetList — shows ProfileStatusBadge for each profile
+    impl:
+      - IMP-AC-VIEW-005
+    files:
+      - frontend/src/modules/aircraft/__tests__/FleetList.spec.ts
+
+  UT-AC-VIEW-086
+    title: FleetList — applies active CSS class to the active profile item
+    impl:
+      - IMP-AC-VIEW-006
+    files:
+      - frontend/src/modules/aircraft/__tests__/FleetList.spec.ts
+
+  UT-AC-VIEW-087
+    title: FleetList — does not apply active CSS class when no active profile
+    impl:
+      - IMP-AC-VIEW-006
+    files:
+      - frontend/src/modules/aircraft/__tests__/FleetList.spec.ts
+
+  UT-AC-VIEW-088
+    title: FleetList — Select button is disabled when profile is already active
+    impl:
+      - IMP-AC-VIEW-006
+    files:
+      - frontend/src/modules/aircraft/__tests__/FleetList.spec.ts
+
+  UT-AC-VIEW-089
+    title: FleetList — Select button is enabled when profile is not active
+    impl:
+      - IMP-AC-VIEW-006
+    files:
+      - frontend/src/modules/aircraft/__tests__/FleetList.spec.ts
+
+  UT-AC-VIEW-090
+    title: FleetList — shows Verify button only for Draft profiles
+    impl:
+      - IMP-AC-VIEW-006
+    files:
+      - frontend/src/modules/aircraft/__tests__/FleetList.spec.ts
+
+  UT-AC-VIEW-091
+    title: FleetList — shows Edit button only for Verified profiles
+    impl:
+      - IMP-AC-VIEW-006
+    files:
+      - frontend/src/modules/aircraft/__tests__/FleetList.spec.ts
+
+  UT-AC-VIEW-092
+    title: FleetList — always shows Delete button for each profile
+    impl:
+      - IMP-AC-VIEW-006
+    files:
+      - frontend/src/modules/aircraft/__tests__/FleetList.spec.ts
+
+AC View — ProfileStatusBadge Component (Unit)
+  UT-AC-VIEW-070
+    title: ProfileStatusBadge — renders Verified label for Verified status
+    impl:
+      - IMP-AC-VIEW-004
+    files:
+      - frontend/src/modules/aircraft/__tests__/ProfileStatusBadge.spec.ts
+
+  UT-AC-VIEW-071
+    title: ProfileStatusBadge — applies status-verified CSS class for Verified status
+    impl:
+      - IMP-AC-VIEW-004
+    files:
+      - frontend/src/modules/aircraft/__tests__/ProfileStatusBadge.spec.ts
+
+  UT-AC-VIEW-072
+    title: ProfileStatusBadge — sets correct aria-label for Verified status
+    impl:
+      - IMP-AC-VIEW-004
+    files:
+      - frontend/src/modules/aircraft/__tests__/ProfileStatusBadge.spec.ts
+
+  UT-AC-VIEW-073
+    title: ProfileStatusBadge — sets informative title for Verified status
+    impl:
+      - IMP-AC-VIEW-004
+    files:
+      - frontend/src/modules/aircraft/__tests__/ProfileStatusBadge.spec.ts
+
+  UT-AC-VIEW-074
+    title: ProfileStatusBadge — has role="status" for accessibility
+    impl:
+      - IMP-AC-VIEW-004
+    files:
+      - frontend/src/modules/aircraft/__tests__/ProfileStatusBadge.spec.ts
+
+  UT-AC-VIEW-075
+    title: ProfileStatusBadge — renders Draft label for Draft status
+    impl:
+      - IMP-AC-VIEW-004
+    files:
+      - frontend/src/modules/aircraft/__tests__/ProfileStatusBadge.spec.ts
+
+  UT-AC-VIEW-076
+    title: ProfileStatusBadge — applies status-draft CSS class for Draft status
+    impl:
+      - IMP-AC-VIEW-004
+    files:
+      - frontend/src/modules/aircraft/__tests__/ProfileStatusBadge.spec.ts
+
+  UT-AC-VIEW-077
+    title: ProfileStatusBadge — sets correct aria-label for Draft status
+    impl:
+      - IMP-AC-VIEW-004
+    files:
+      - frontend/src/modules/aircraft/__tests__/ProfileStatusBadge.spec.ts
+
+  UT-AC-VIEW-078
+    title: ProfileStatusBadge — sets safety warning in title for Draft status
+    impl:
+      - IMP-AC-VIEW-004
+    files:
+      - frontend/src/modules/aircraft/__tests__/ProfileStatusBadge.spec.ts

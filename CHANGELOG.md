@@ -54,6 +54,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `fleet.store.spec.ts` (extended, 23 new tests, UT-AC-STORE-048..067, 080..082): loadAll LOADING→READY/ERROR transitions, InvalidRegistrationError, WARN-AC-001 duplicate warning, WARN-AC-002 Draft WARNING, snapshot isolation, verifyProfile/editVerifiedProfile edge cases, passengerProfile standard weight application, updateProfile branch coverage, and DoD #165 notification-clear-on-switch (closes #157, #159)
 - fleet.store.ts branch coverage raised to 96.66%; all P2 modules meet the ≥80% P2 threshold
 - Trace ID collisions resolved: UT-AC-STORE-034 duplicate removed from `trace/unit_test/ac.yaml`; in-code `@UT-AC-STORE-NNN@` annotations aligned to the authoritative YAML registry (UT-AC-STORE-048..082)
+- Populated `trace/` YAML registries for REQ-AC, REQ-AD, REQ-SYS, REQ-UI modules (v0.3.0) (closes #170)
+- Added CI Traceability Gate workflow (warn-only before v1.0.0) (closes #71)
+- Added traceability gate documentation to `docs/testing/TESTING.md` and `CONTRIBUTING.md`
 - 33 unit tests (ICAO validation × 16, import × 8, fleet FSM × 9) and 4 IndexedDB integration tests all passing
 - `verifyProfile()` now auto-updates active aircraft context when the verified Draft was in use
 - Canonical bilinear interpolation test vectors (TOR, TOD, LR, LD) established and passing in CI — de-risk for v0.4.0 performance distance calculations (closes #155)
