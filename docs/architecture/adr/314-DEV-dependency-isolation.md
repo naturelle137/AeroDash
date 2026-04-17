@@ -48,8 +48,8 @@ Add an ESLint rule block scoped to `src/core/**/*.ts` that prohibits importing
 from Vue/Pinia/Router packages and from any `modules/`, `shared/`, `stores/`,
 `plugins/`, or `router/` path segment.
 
-* **Pro:** Enforced at IDE-time (editor red squiggles) and in CI (existing
-  `linting.yml` already runs ESLint on every push/PR).
+* **Pro:** Enforced at IDE-time (editor red squiggles) and in CI (the
+  `ci.yml` Lint job already runs ESLint on every PR to `develop`/`main`).
 * **Pro:** Minimal friction — no structural refactoring required.
 * **Pro:** Clear, actionable error messages pointing to the isolation rule.
 * **Con:** Catches import-level coupling only; runtime injection (e.g. passing a
@@ -124,8 +124,8 @@ when stricter compiler-level guarantees are required.
 
 * **IDE-time feedback:** ESLint flags illegal P1 imports with a descriptive
   message before code reaches review.
-* **CI enforcement:** The existing `linting.yml` workflow enforces the rule on
-  every push and PR without additional pipeline changes.
+* **CI enforcement:** The Lint job in `ci.yml` enforces the rule on every PR
+  to `develop`/`main` without additional pipeline changes.
 * **Provable test isolation:** `pnpm --filter frontend test:p1` runs the full
   P1 test suite in a pure Node.js environment, confirming zero framework
   coupling at the test-runner level.

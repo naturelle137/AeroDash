@@ -234,10 +234,8 @@ either fails, the build fails.
 
 | Workflow | File | Runs |
 |----------|------|------|
-| Unit tests | `vitest.yml` | `pnpm test:unit` |
-| P1 + type-check + lint + build | `ci.yml` | `test:unit`, `test:p1:coverage`, `type-check`, lint, build |
-| E2E | `playwright.yml` | `pnpm test:e2e` with Chromium |
-| Linting | `linting.yml` | ESLint, oxlint, markdownlint |
+| Lint + type-check + unit tests + P1 + build + E2E | `ci.yml` | `lint:md`, `lint:ci:oxlint`, `lint:ci:eslint`, `type-check`, `test:unit`, `test:p1:coverage`, `build`, `test:e2e` |
+| E2E (scheduled) | `playwright.yml` | `pnpm test:e2e` with Chromium |
 | Reports | `deploy-reports.yml` | Vitest HTML + coverage + Stryker + Playwright → GitHub Pages |
 
 ---
