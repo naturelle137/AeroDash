@@ -1,6 +1,6 @@
 # CI using the pre-built dev container image from GHCR.
 # Image is published by publish-devcontainer.yml when .devcontainer/** changes.
-# Lint runs in linting.yml; unit tests run in vitest.yml — both without the container.
+# Lint and unit tests run in ci.yml without the container.
 # This workflow is reserved for tests that require the container (Playwright Chromium for E2E).
 
 name: CI (dev container)
