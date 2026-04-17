@@ -17,6 +17,7 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import { useActiveAircraftStore } from '../stores/active-aircraft.store'
+import { useMassBalanceStore } from '@/modules/mass-balance/stores/mass-balance.store'
 import type { AircraftProfile } from '@/core/adapters/aircraft.schema'
 
 /** Minimal valid Draft aircraft profile for test use. */
@@ -238,5 +239,118 @@ describe('useActiveAircraftStore', () => {
     store.clearActive()
     expect(store.hasActiveProfile).toBe(false)
     expect(store.isDraft).toBe(false)
+  })
+
+  // ─── Hot-swap dependent-state reset (Issue #165 DoD) ───────────────────────
+
+  /**
+   * Stage a "previous aircraft" MB session to prove that switching airframes
+   * wipes load inputs, results and notifications — i.e. no stale data leaks
+   * into the next computation.
+   */
+  function stageDirtyMbSession(): ReturnType<typeof useMassBalanceStore> {
+    const mbStore = useMassBalanceStore()
+    mbStore.$patch({
+      aircraft: {
+        id: 'prior-aircraft-id',
+        registration: 'D-EBPN',
+        manufacturer: 'Tecnam',
+        model: 'P2008 JC',
+        sourceUnit: 'kg',
+        status: 'verified',
+        weighingReports: [],
+        loadPoints: [],
+        certificationCategories: [],
+      },
+      activeCategory: 'Normal',
+      stations: [
+        { index: 0, name: 'Pilot', weight: 85, verified: true, mandatory: true, touched: true, hasError: false },
+      ],
+      notifications: [
+        { id: 'PRIOR-NOTE', severity: 'WARNING', message: 'prior aircraft note', context: 'test', persistent: false, dismissible: true },
+      ],
+      lastResult: { violations: [], tom: 650, zfm: 550, cgAtTakeoff: 1.9, cgAtLanding: 1.9, migrationPath: [] } as unknown as ReturnType<typeof useMassBalanceStore>['lastResult'],
+      uiState: 'VERIFIED_SAFE',
+    })
+    return mbStore
+  }
+
+  // @UT-AC-STORE-080@ (FROM: @IMP-AC-STORE-006@)
+  it('switching to a different airframe clears the M&B store (load data, results, notifications)', () => {
+    const store = useActiveAircraftStore()
+    const aircraft1 = buildProfile({ registration: 'D-EBPN' })
+    store.setActiveProfile(aircraft1)
+
+    const mbStore = stageDirtyMbSession()
+    expect(mbStore.aircraft).not.toBeNull()
+    expect(mbStore.stations.length).toBe(1)
+    expect(mbStore.notifications.length).toBe(1)
+    expect(mbStore.lastResult).not.toBeNull()
+
+    const aircraft2 = buildProfile({
+      id: 'aaaaaaaa-0000-4000-a000-000000000002',
+      registration: 'G-ABCD',
+    })
+    store.setActiveProfile(aircraft2)
+
+    expect(mbStore.aircraft).toBeNull()
+    expect(mbStore.activeCategory).toBeNull()
+    expect(mbStore.stations).toEqual([])
+    expect(mbStore.notifications).toEqual([])
+    expect(mbStore.lastResult).toBeNull()
+    expect(mbStore.uiState).toBe('INITIAL')
+  })
+
+  // @UT-AC-STORE-081@ (FROM: @IMP-AC-STORE-006@)
+  it('first-time setActiveProfile (no prior profile) does not clear pre-existing M&B state', () => {
+    const store = useActiveAircraftStore()
+    const mbStore = stageDirtyMbSession()
+
+    store.setActiveProfile(buildProfile({ registration: 'G-NEW' }))
+
+    // Nothing was active before, so there's no "prior airframe" to evict.
+    expect(mbStore.aircraft).not.toBeNull()
+    expect(mbStore.stations.length).toBe(1)
+  })
+
+  // @UT-AC-STORE-082@ (FROM: @IMP-AC-STORE-006@, @IMP-AC-STORE-005@)
+  it('swapping the active profile with the same registration (Draft→Verified snapshot) preserves M&B state', () => {
+    const store = useActiveAircraftStore()
+    const draft = buildProfile({
+      id: 'aaaaaaaa-0000-4000-a000-000000000001',
+      registration: 'D-EBPN',
+      status: 'draft',
+    })
+    store.setActiveProfile(draft)
+
+    const mbStore = stageDirtyMbSession()
+
+    // verifyProfile mints a new UUID but keeps the same registration
+    const verifiedSnapshot = buildProfile({
+      id: 'aaaaaaaa-0000-4000-a000-0000000000ff',
+      registration: 'D-EBPN',
+      status: 'verified',
+    })
+    store.setActiveProfile(verifiedSnapshot)
+
+    expect(mbStore.aircraft).not.toBeNull()
+    expect(mbStore.stations.length).toBe(1)
+    expect(mbStore.notifications.length).toBe(1)
+  })
+
+  // @UT-AC-STORE-083@ (FROM: @IMP-AC-STORE-006@)
+  it('clearActive wipes the M&B store so no stale aircraft data survives', () => {
+    const store = useActiveAircraftStore()
+    store.setActiveProfile(buildProfile({ registration: 'D-EBPN' }))
+    const mbStore = stageDirtyMbSession()
+
+    store.clearActive()
+
+    expect(store.activeProfile).toBeNull()
+    expect(mbStore.aircraft).toBeNull()
+    expect(mbStore.stations).toEqual([])
+    expect(mbStore.notifications).toEqual([])
+    expect(mbStore.lastResult).toBeNull()
+    expect(mbStore.uiState).toBe('INITIAL')
   })
 })

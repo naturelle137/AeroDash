@@ -297,6 +297,24 @@ describe('useSessionPersistenceStore — startWatching() debounced auto-save', (
     const rawAfterSwitch = localStorage.getItem('aerodash:session:payload')
     expect(rawAfterSwitch === null || JSON.parse(rawAfterSwitch!).aircraftId !== 'aircraft-uuid-A').toBe(true)
   })
+
+  // @UT-SYS-STORE-017@ (FROM: @IMP-SYS-STORE-001@, @IMP-MB-STORE-018@)
+  it('clearProfile on mass-balance store evicts the persisted session payload', async () => {
+    loadProfile(MOCK_PROFILE_A)
+    const store = useSessionPersistenceStore()
+    store.startWatching()
+    store.saveSession()
+
+    expect(localStorage.getItem('aerodash:session:payload')).not.toBeNull()
+
+    // Aircraft hot-swap path — active-aircraft.store.setActiveProfile calls
+    // clearProfile when the airframe changes; the watcher on aircraft.id must
+    // treat `undefined` as a swap and evict the saved payload.
+    useMassBalanceStore().clearProfile()
+    await nextTick()
+
+    expect(localStorage.getItem('aerodash:session:payload')).toBeNull()
+  })
 })
 
 describe('useSessionPersistenceStore — round-trip save → restore', () => {

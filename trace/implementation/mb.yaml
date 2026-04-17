@@ -267,6 +267,13 @@ MB Store - Error Flag Derivation
     files:
       - frontend/src/modules/mass-balance/stores/mass-balance.store.ts
 
+  IMP-MB-STORE-018
+    title: clearProfile — detach aircraft and reset M&B state on hot-swap (no stale-data leak)
+    req:
+      - REQ-AC-005
+    files:
+      - frontend/src/modules/mass-balance/stores/mass-balance.store.ts
+
 MB UI Components
   IMP-MB-UI-001
     title: CG Envelope Polygon + Mass Point Markers Rendering

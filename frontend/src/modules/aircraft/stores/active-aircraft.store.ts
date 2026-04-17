@@ -9,6 +9,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { AircraftProfile } from '@/core/adapters/aircraft.schema'
+import { useMassBalanceStore } from '@/modules/mass-balance/stores/mass-balance.store'
 
 // @IMP-AC-STORE-006@ (FROM: @REQ-AC-005@)
 
@@ -29,17 +30,31 @@ export const useActiveAircraftStore = defineStore('activeAircraft', () => {
 
   /**
    * Set the active aircraft profile for in-session use.
-   * Hot-swaps the aircraft context without a page reload.
-   * Any modules observing activeProfile will reactively update.
+   *
+   * Hot-swaps the aircraft context without a page reload. When switching to a
+   * different airframe, the mass-balance store is cleared so prior-aircraft
+   * load data, results, and notifications cannot leak into the next flight's
+   * computation. The persisted session payload (`localStorage`) is cleared via
+   * session-persistence's watcher on `mbStore.aircraft.id`.
+   *
+   * Identity for the "same airframe" test is `registration` — not `id` —
+   * because verifying a Draft and editing a Verified profile both mint a new
+   * UUID but keep the same airframe, and the pilot's M&B inputs should be
+   * preserved across those status transitions.
    */
   function setActiveProfile(profile: AircraftProfile): void {
+    const priorRegistration = activeProfile.value?.registration
+    if (priorRegistration !== undefined && priorRegistration !== profile.registration) {
+      useMassBalanceStore().clearProfile()
+    }
     activeProfile.value = profile
   }
 
   /**
-   * Clear the currently active aircraft profile.
+   * Clear the currently active aircraft profile and any dependent M&B state.
    */
   function clearActive(): void {
+    useMassBalanceStore().clearProfile()
     activeProfile.value = null
   }
 
