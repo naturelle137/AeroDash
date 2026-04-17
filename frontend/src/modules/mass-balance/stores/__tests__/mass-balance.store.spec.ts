@@ -259,6 +259,28 @@ describe('MassBalance Store', () => {
     expect(mockedCalculate).toHaveBeenCalledTimes(1)
   })
 
+  // @UT-MB-STORE-059@ (FROM: @IMP-MB-STORE-013@, @REQ-AC-005@, @H-011@)
+  it('emits WARN-AC-002 when aircraft context status is draft (computation entry)', () => {
+    mockedCalculate.mockReturnValue(buildSuccessResult())
+
+    const store = useMassBalanceStore()
+    store.loadProfile({ ...mockProfile, status: 'draft' })
+
+    expect(store.notifications.some((n) => n.id === 'WARN-AC-002')).toBe(true)
+    expect(store.uiState).toBe('WARNING')
+  })
+
+  // @UT-MB-STORE-019@ (FROM: @IMP-MB-STORE-013@, @REQ-AC-005@)
+  it('does not emit WARN-AC-002 when aircraft context status is verified', () => {
+    mockedCalculate.mockReturnValue(buildSuccessResult())
+
+    const store = useMassBalanceStore()
+    store.loadProfile({ ...mockProfile, status: 'verified' })
+
+    expect(store.notifications.some((n) => n.id === 'WARN-AC-002')).toBe(false)
+    expect(store.uiState).toBe('VERIFIED_SAFE')
+  })
+
   // ─── updateStationWeight ──────────────────────────────────────────────
 
   // @UT-MB-STORE-008@ (FROM: @IMP-MB-STORE-006@, @IMP-MB-STORE-012@)

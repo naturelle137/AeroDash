@@ -61,7 +61,7 @@ describe('importProfileFromJson', () => {
   it('creates Draft profile from valid exchange file', () => {
     const json = JSON.stringify(createValidExportedProfile())
     const profile = importProfileFromJson(json)
-    expect(profile.status).toBe('Draft')
+    expect(profile.status).toBe('draft')
     expect(profile.registration).toBe('D-EBPN')
     expect(profile.manufacturer).toBe('Tecnam')
   })
@@ -84,7 +84,7 @@ describe('importProfileFromJson', () => {
     data.status = 'Verified'
     const json = JSON.stringify(data)
     const profile = importProfileFromJson(json)
-    expect(profile.status).toBe('Draft')
+    expect(profile.status).toBe('draft')
   })
 
   // @UT-AC-STORE-020@ (FROM: @IMP-AC-STORE-004@)
@@ -119,7 +119,7 @@ describe('importProfileFromJson', () => {
     const profileForExport: AircraftProfile = {
       ...(original as AircraftProfile),
       id: '00000000-0000-4000-a000-000000000099',
-      status: 'Draft',
+      status: 'draft',
       schemaVersion: 1,
       passengerProfiles: [],
     }
@@ -135,7 +135,7 @@ describe('importProfileFromJson', () => {
     expect(reimported.weighingReports).toEqual(profileForExport.weighingReports)
     expect(reimported.loadPoints).toEqual(profileForExport.loadPoints)
     expect(reimported.certificationCategories).toEqual(profileForExport.certificationCategories)
-    expect(reimported.status).toBe('Draft')
+    expect(reimported.status).toBe('draft')
   })
 })
 

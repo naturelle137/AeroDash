@@ -287,22 +287,34 @@ export const useMassBalanceStore = defineStore('massBalance', {
         return
       }
 
+      /** Draft fleet profiles may be used for planning but must surface H-011 / WARN-AC-002 (REQ-AC-005). */
+      const draftProfileWarning: Notification | null =
+        this.aircraft.status === 'draft'
+          ? {
+              id: 'WARN-AC-002',
+              severity: 'WARNING',
+              message: 'Draft Profile Active',
+              context: 'Aircraft.Status',
+              persistent: true,
+              dismissible: true,
+            }
+          : null
+
       // Find the active weighing report (most recent by validFrom)
       const reports = [...this.aircraft.weighingReports].sort((a, b) =>
         b.validFrom.localeCompare(a.validFrom),
       )
       const activeReport = reports[0]
       if (!activeReport) {
-        this.notifications = [
-          {
-            id: 'CRIT-SYS-001',
-            severity: 'CRITICAL',
-            message: 'No valid weighing report found',
-            context: 'System',
-            persistent: false,
-            dismissible: true,
-          },
-        ]
+        const crit: Notification = {
+          id: 'CRIT-SYS-001',
+          severity: 'CRITICAL',
+          message: 'No valid weighing report found',
+          context: 'System',
+          persistent: false,
+          dismissible: true,
+        }
+        this.notifications = draftProfileWarning ? [draftProfileWarning, crit] : [crit]
         this.lastResult = null
         return
       }
@@ -361,16 +373,15 @@ export const useMassBalanceStore = defineStore('massBalance', {
       try {
         result = calculateMassBalance(input)
       } catch {
-        this.notifications = [
-          {
-            id: 'CRIT-SYS-002',
-            severity: 'CRITICAL',
-            message: 'Calculation failed unexpectedly — verify inputs and retry',
-            context: 'System',
-            persistent: false,
-            dismissible: true,
-          },
-        ]
+        const crit: Notification = {
+          id: 'CRIT-SYS-002',
+          severity: 'CRITICAL',
+          message: 'Calculation failed unexpectedly — verify inputs and retry',
+          context: 'System',
+          persistent: false,
+          dismissible: true,
+        }
+        this.notifications = draftProfileWarning ? [draftProfileWarning, crit] : [crit]
         this.lastResult = null
         return
       }
@@ -387,8 +398,8 @@ export const useMassBalanceStore = defineStore('massBalance', {
       }
 
       // Map raw violations to UI notifications
-      // @IMP-MB-STORE-011@ (FROM: @REQ-MB-004@, @REQ-MB-005@, @REQ-MB-009@, @REQ-MB-011@, @REQ-SYS-011@, @REQ-SYS-012@, @DES-UX-010@, @DES-ARCH-001@)
-      this.notifications = result.violations.map((v) => {
+      // @IMP-MB-STORE-011@ (FROM: @REQ-MB-004@, @REQ-MB-005@, @REQ-MB-009@, @REQ-MB-011@, @REQ-SYS-011@, @REQ-SYS-012@, @DES-UX-010@, @DES-ARCH-001@, @REQ-AC-005@)
+      const violationNotes: Notification[] = result.violations.map((v): Notification => {
         switch (v.type) {
           case 'MTOM_EXCEEDED':
             return {
@@ -468,6 +479,10 @@ export const useMassBalanceStore = defineStore('massBalance', {
             }
         }
       })
+
+      this.notifications = draftProfileWarning
+        ? [draftProfileWarning, ...violationNotes]
+        : violationNotes
 
       this.lastResult = result
 

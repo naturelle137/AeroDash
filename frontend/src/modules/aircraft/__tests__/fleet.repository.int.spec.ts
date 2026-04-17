@@ -33,7 +33,7 @@ function buildProfile(overrides: Partial<AircraftProfile> = {}): AircraftProfile
     referenceDatumDescription: 'Leading edge',
     referenceDatumLocation: 'Station 0',
     shareCode: null,
-    status: 'Draft',
+    status: 'draft',
     schemaVersion: 1,
     passengerProfiles: [],
     weighingReports: [
@@ -81,15 +81,15 @@ describe('fleetRepository — CRUD lifecycle', () => {
     const found = await findById(profile.id)
     expect(found).toBeDefined()
     expect(found!.registration).toBe('D-EBPN')
-    expect(found!.status).toBe('Draft')
+    expect(found!.status).toBe('draft')
 
     // Update
-    const updated: AircraftProfile = { ...profile, registration: 'D-ECSM', status: 'Verified' }
+    const updated: AircraftProfile = { ...profile, registration: 'D-ECSM', status: 'verified' }
     await update(updated)
 
     const afterUpdate = await findById(profile.id)
     expect(afterUpdate!.registration).toBe('D-ECSM')
-    expect(afterUpdate!.status).toBe('Verified')
+    expect(afterUpdate!.status).toBe('verified')
 
     // Delete
     await deleteById(profile.id)
@@ -123,5 +123,44 @@ describe('fleetRepository — CRUD lifecycle', () => {
   it('findAll returns empty array when store is empty', async () => {
     const all = await findAll()
     expect(all).toEqual([])
+  })
+
+  // @IT-AC-STORE-005@ (FROM: @IMP-AC-STORE-001@, @REQ-AC-005@)
+  it('DB v1→v2 migration normalizes legacy Draft/Verified status to lowercase', async () => {
+    const legacyId = '00000000-0000-4000-a000-0000000000aa'
+    const legacyDoc = {
+      ...buildProfile({ id: legacyId }),
+      status: 'Draft' as const,
+    }
+
+    await new Promise<void>((resolve, reject) => {
+      const req = indexedDB.open('aerodash-fleet', 1)
+      req.onupgradeneeded = () => {
+        const db = req.result
+        if (!db.objectStoreNames.contains('aircraft_profiles')) {
+          const store = db.createObjectStore('aircraft_profiles', { keyPath: 'id' })
+          store.createIndex('ownerId', 'ownerId', { unique: false })
+          store.createIndex('registration', 'registration', { unique: false })
+        }
+      }
+      req.onsuccess = () => {
+        const db = req.result
+        const tx = db.transaction('aircraft_profiles', 'readwrite')
+        const store = tx.objectStore('aircraft_profiles')
+        const putReq = store.put(legacyDoc)
+        putReq.onsuccess = () => undefined
+        putReq.onerror = () => reject(putReq.error)
+        tx.oncomplete = () => {
+          db.close()
+          resolve()
+        }
+        tx.onerror = () => reject(tx.error)
+      }
+      req.onerror = () => reject(req.error)
+    })
+
+    const rows = await findAll()
+    const migrated = rows.find((p) => p.id === legacyId)
+    expect(migrated?.status).toBe('draft')
   })
 })

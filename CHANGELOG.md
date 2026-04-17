@@ -32,6 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Engineering
 
 - Aircraft catalogue unit tests (filter, ICAO lookup, unique designator) and `AircraftModelSelector` component tests; fleet store tests for IndexedDB load state machine (closes #158)
+- Aircraft profile `status` canonical values `draft` / `verified` with Zod normalization of legacy Title Case, IndexedDB v2 migration, and Mass & Balance computation prepending `WARN-AC-002` for draft contexts; ADR-008 (closes #157)
 - 33 unit tests (ICAO validation × 16, import × 8, fleet FSM × 9) and 4 IndexedDB integration tests all passing
 - verifyProfile() now auto-updates active aircraft context when the verified Draft was in use
 - Canonical bilinear interpolation test vectors (TOR, TOD, LR, LD) established and passing in CI — de-risk for v0.4.0 performance distance calculations (closes #155)

@@ -38,7 +38,7 @@ Use the native `IndexedDB` browser API directly via a thin repository
 | Setting | Value |
 | :------ | :---- |
 | Database name | `aerodash-fleet` |
-| Database version | `1` (increment on schema change) |
+| Database version | `2` (v2: normalize legacy `Draft`/`Verified` status to `draft`/`verified`) |
 | Object store | `aircraft_profiles` |
 | Key path | `id` (UUID string) |
 | Indexes | `ownerId` (non-unique), `registration` (non-unique) |
@@ -56,9 +56,10 @@ structured migration:
 
 ### Safety Constraint on Draft/Verified
 
-All new profiles are written with `status = 'Draft'`. The `verifyProfile()`
-store action writes the Verified snapshot **before** deleting the Draft —
-ensuring the fleet is never empty between the two operations.
+All new profiles are written with `status = 'draft'`. The `verifyProfile()`
+store action writes the verified snapshot **before** deleting the draft —
+ensuring the fleet is never empty between the two operations. See
+[ADR-008](008-aircraft-profile-status-canonical-values.md) for canonical status values and migration.
 
 ## Consequences
 

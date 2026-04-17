@@ -110,8 +110,16 @@ export const AircraftProfileSchema = z
     referenceDatumDescription: z.string().min(1),
     referenceDatumLocation: z.string().min(1),
     shareCode: z.string().nullable(),
-    // M3: Profile status for Draft/Verified FSM (REQ-AC-005)
-    status: z.enum(['Draft', 'Verified']).default('Draft'),
+    // M3: Profile status for draft/verified FSM (REQ-AC-005, H-011). Lowercase is canonical;
+    // legacy Title-Case values from IndexedDB / exchange files normalize on parse.
+    status: z
+      .union([
+        z.literal('draft'),
+        z.literal('verified'),
+        z.literal('Draft').transform((): 'draft' => 'draft'),
+        z.literal('Verified').transform((): 'verified' => 'verified'),
+      ])
+      .default('draft'),
     // M3: Schema version for structured migration safety (refs #154)
     schemaVersion: z.number().int().positive().default(1),
     // M3: Passenger profiles with standard weights (REQ-AC-006)

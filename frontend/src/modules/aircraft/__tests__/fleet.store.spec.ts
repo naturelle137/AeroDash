@@ -78,10 +78,10 @@ describe('useFleetStore', () => {
   it('creates Draft profile by default', async () => {
     const store = useFleetStore()
     const profile = await store.createProfile(minimalProfileData())
-    expect(profile.status).toBe('Draft')
+    expect(profile.status).toBe('draft')
     expect(profile.schemaVersion).toBe(1)
     expect(store.profiles).toHaveLength(1)
-    expect(store.profiles[0]!.status).toBe('Draft')
+    expect(store.profiles[0]!.status).toBe('draft')
   })
 
   // @UT-AC-STORE-026@ (FROM: @IMP-AC-STORE-005@)
@@ -92,7 +92,7 @@ describe('useFleetStore', () => {
 
     const verified = await store.verifyProfile(draftId)
 
-    expect(verified.status).toBe('Verified')
+    expect(verified.status).toBe('verified')
     // New UUID must have been assigned
     expect(verified.id).not.toBe(draftId)
     // Original Draft is removed
@@ -114,11 +114,11 @@ describe('useFleetStore', () => {
     // Original Verified must still exist and be unchanged
     const stillVerified = store.profiles.find((p) => p.id === verifiedId)
     expect(stillVerified).toBeDefined()
-    expect(stillVerified!.status).toBe('Verified')
+    expect(stillVerified!.status).toBe('verified')
     expect(stillVerified!.registration).toBe('D-EBPN') // unchanged
 
     // New draft has the modified registration
-    expect(newDraft.status).toBe('Draft')
+    expect(newDraft.status).toBe('draft')
     expect(newDraft.registration).toBe('D-ECSM')
   })
 
@@ -130,14 +130,14 @@ describe('useFleetStore', () => {
 
     const newDraft = await store.editVerifiedProfile(verified.id, { model: 'P2010' })
 
-    expect(newDraft.status).toBe('Draft')
+    expect(newDraft.status).toBe('draft')
     expect(newDraft.id).not.toBe(verified.id)
     expect(newDraft.model).toBe('P2010')
 
     // Verified is untouched
     const verifiedInFleet = store.profiles.find((p) => p.id === verified.id)
     expect(verifiedInFleet!.model).toBe('P2008 JC')
-    expect(verifiedInFleet!.status).toBe('Verified')
+    expect(verifiedInFleet!.status).toBe('verified')
   })
 
   // @UT-AC-STORE-029@ (FROM: @IMP-AC-STORE-005@)
@@ -233,5 +233,19 @@ describe('useFleetStore', () => {
     expect(store.fleetLoadState).toBe('ERROR')
     expect(store.fleetLoadError).toBe('IndexedDB unavailable')
     expect(store.isLoading).toBe(false)
+  })
+
+  // @UT-AC-STORE-037@ (FROM: @IMP-AC-STORE-005@, @REQ-AC-005@)
+  it('prior verified snapshot JSON is byte-identical after editVerifiedProfile', async () => {
+    const store = useFleetStore()
+    const draft = await store.createProfile(minimalProfileData())
+    const verified = await store.verifyProfile(draft.id)
+    const verifiedId = verified.id
+    const verifiedJson = JSON.stringify(store.profiles.find((p) => p.id === verifiedId))
+
+    await store.editVerifiedProfile(verifiedId, { registration: 'D-ECSM' })
+
+    const stillVerified = store.profiles.find((p) => p.id === verifiedId)
+    expect(JSON.stringify(stillVerified)).toBe(verifiedJson)
   })
 })
