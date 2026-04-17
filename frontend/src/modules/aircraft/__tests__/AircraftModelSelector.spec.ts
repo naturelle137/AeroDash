@@ -148,10 +148,10 @@ describe('AircraftModelSelector — ICAO bidirectional reverse lookup (REQ-UI-00
   it('shows lookup results when ICAO input has 2+ characters matching catalogue', async () => {
     const wrapper = mountSelector({ manufacturer: '', model: '', icaoTypeDesignator: '' })
     const icaoInput = wrapper.find('#icao-designator-input')
-    await icaoInput.setValue('C172')
+    await icaoInput.setValue('PA28')
     const results = wrapper.find('.icao-lookup-results')
     expect(results.exists()).toBe(true)
-    expect(results.text()).toContain('Cessna')
+    expect(results.text()).toContain('Piper')
   })
 
   // @UT-AC-VIEW-037@ (FROM: @IMP-AC-VIEW-003@)
@@ -167,7 +167,7 @@ describe('AircraftModelSelector — ICAO bidirectional reverse lookup (REQ-UI-00
   it('emits manufacturer, model and ICAO when a lookup result is clicked', async () => {
     const wrapper = mountSelector({ manufacturer: '', model: '', icaoTypeDesignator: '' })
     const icaoInput = wrapper.find('#icao-designator-input')
-    await icaoInput.setValue('C152')
+    await icaoInput.setValue('PA28')
     const resultItem = wrapper.find('.icao-lookup-result')
     expect(resultItem.exists()).toBe(true)
     await resultItem.trigger('click')
@@ -175,7 +175,7 @@ describe('AircraftModelSelector — ICAO bidirectional reverse lookup (REQ-UI-00
     expect(wrapper.emitted('update:model')).toBeDefined()
     expect(wrapper.emitted('update:icaoTypeDesignator')).toBeDefined()
     const lastIcao = wrapper.emitted('update:icaoTypeDesignator')
-    expect(lastIcao![lastIcao!.length - 1]).toEqual(['C152'])
+    expect(lastIcao![lastIcao!.length - 1]).toEqual(['PA28'])
   })
 
   // @UT-AC-VIEW-039@ (FROM: @IMP-AC-VIEW-003@)

@@ -70,13 +70,29 @@ function makeFleetStore(overrides: {
 }) {
   return defineStore('fleet', () => {
     const isLoading = ref(overrides.isLoading ?? false)
+    const fleetLoadState = ref<'LOADING' | 'READY' | 'ERROR'>(
+      overrides.isLoading ? 'LOADING' : 'READY',
+    )
+    const fleetLoadError = ref<string | null>(null)
     const profiles = ref<AircraftProfile[]>(overrides.profiles ?? [])
     const notifications = ref<unknown[]>([])
     const checkDraftWarning = vi.fn<(p: AircraftProfile) => void>()
     const verifyProfile = vi.fn<() => Promise<void>>().mockResolvedValue(undefined)
     const editVerifiedProfile = vi.fn<() => Promise<void>>().mockResolvedValue(undefined)
     const deleteProfile = vi.fn<() => Promise<void>>().mockResolvedValue(undefined)
-    return { isLoading, profiles, notifications, checkDraftWarning, verifyProfile, editVerifiedProfile, deleteProfile }
+    const loadAll = vi.fn<() => Promise<void>>().mockResolvedValue(undefined)
+    return {
+      isLoading,
+      fleetLoadState,
+      fleetLoadError,
+      profiles,
+      notifications,
+      checkDraftWarning,
+      verifyProfile,
+      editVerifiedProfile,
+      deleteProfile,
+      loadAll,
+    }
   })
 }
 

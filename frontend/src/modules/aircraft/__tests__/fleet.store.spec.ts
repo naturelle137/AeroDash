@@ -229,7 +229,9 @@ describe('useFleetStore', () => {
     const { fleetRepository } = await import('../services/fleet.repository')
     vi.mocked(fleetRepository.findAll).mockRejectedValueOnce(new Error('IndexedDB unavailable'))
 
-    await expect(store.loadAll()).rejects.toThrow('IndexedDB unavailable')
+    await store.loadAll()
+    expect(store.fleetLoadState).toBe('ERROR')
+    expect(store.fleetLoadError).toBe('IndexedDB unavailable')
     expect(store.isLoading).toBe(false)
   })
 
@@ -368,7 +370,7 @@ describe('useFleetStore', () => {
     const draft = await store.createProfile(minimalProfileData())
     const verified = await store.verifyProfile(draft.id)
     await expect(store.verifyProfile(verified.id)).rejects.toThrow(
-      `Profile "${verified.id}" is already Verified.`,
+      `Profile "${verified.id}" is already verified.`,
     )
   })
 
@@ -391,7 +393,7 @@ describe('useFleetStore', () => {
     const store = useFleetStore()
     const draft = await store.createProfile(minimalProfileData())
     await expect(store.editVerifiedProfile(draft.id, {})).rejects.toThrow(
-      `Profile "${draft.id}" is not Verified`,
+      `Profile "${draft.id}" is not verified`,
     )
   })
 

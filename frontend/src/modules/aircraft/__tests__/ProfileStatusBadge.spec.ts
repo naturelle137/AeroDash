@@ -75,7 +75,7 @@ describe('ProfileStatusBadge — Draft status', () => {
   it('sets safety warning in title for Draft status', () => {
     const wrapper = mount(ProfileStatusBadge, { props: { status: 'draft' } })
     const title = wrapper.find('[role="status"]').attributes('title')
-    expect(title).toContain('Draft')
+    expect(title).toContain('draft')
     expect(title).toContain('safety-critical')
   })
 })
