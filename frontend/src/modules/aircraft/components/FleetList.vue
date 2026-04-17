@@ -118,14 +118,14 @@ async function onDelete(id: string, registration: string): Promise<void> {
 .error-state {
   padding: 1rem;
   text-align: center;
-  color: #6b7280;
+  color: var(--color-text-secondary, #6b7280);
 }
 
 .error-state {
-  border: 1px solid #fecaca;
+  border: 1px solid var(--color-critical, #fecaca);
   border-radius: 6px;
-  background: #fef2f2;
-  color: #991b1b;
+  background: var(--color-critical-bg, #fef2f2);
+  color: var(--color-critical, #991b1b);
 }
 
 .error-state__detail {
@@ -142,8 +142,8 @@ async function onDelete(id: string, registration: string): Promise<void> {
   font-size: 0.875rem;
   cursor: pointer;
   font-weight: 500;
-  background: #dc2626;
-  color: white;
+  background: var(--color-critical, #dc2626);
+  color: var(--neutral-0, #ffffff);
 }
 
 .profiles-list {
@@ -160,15 +160,16 @@ async function onDelete(id: string, registration: string): Promise<void> {
   align-items: center;
   justify-content: space-between;
   padding: 0.75rem 1rem;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--color-border, #e5e7eb);
   border-radius: 6px;
-  background: white;
+  background: var(--color-surface, #ffffff);
+  color: var(--color-text-primary, #212121);
   gap: 1rem;
 }
 
 .profile-item--active {
-  border-color: #3b82f6;
-  background: #eff6ff;
+  border-color: var(--color-primary, #3b82f6);
+  background: var(--color-primary-bg, #eff6ff);
 }
 
 .profile-item__info {
@@ -183,10 +184,11 @@ async function onDelete(id: string, registration: string): Promise<void> {
   font-weight: 700;
   font-size: 1rem;
   white-space: nowrap;
+  color: var(--color-text-primary, #212121);
 }
 
 .profile-item__model {
-  color: #6b7280;
+  color: var(--color-text-secondary, #6b7280);
   font-size: 0.875rem;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -214,22 +216,26 @@ async function onDelete(id: string, registration: string): Promise<void> {
 }
 
 .btn-primary {
-  background: #3b82f6;
-  color: white;
+  background: var(--color-primary, #3b82f6);
+  color: var(--color-primary-text, #ffffff);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--color-primary-hover, #2563eb);
 }
 
 .btn-success {
-  background: #10b981;
-  color: white;
+  background: var(--color-success, #10b981);
+  color: var(--neutral-0, #ffffff);
 }
 
 .btn-secondary {
-  background: #6b7280;
-  color: white;
+  background: var(--color-text-secondary, #6b7280);
+  color: var(--neutral-0, #ffffff);
 }
 
 .btn-danger {
-  background: #ef4444;
-  color: white;
+  background: var(--color-critical, #ef4444);
+  color: var(--neutral-0, #ffffff);
 }
 </style>

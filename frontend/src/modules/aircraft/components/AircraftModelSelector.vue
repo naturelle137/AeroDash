@@ -188,23 +188,31 @@ watch(
 .field-group label {
   font-weight: 600;
   font-size: 0.875rem;
+  color: var(--color-text-primary, #212121);
 }
 
 .field-group select,
 .field-group input[type='text'] {
   padding: 0.5rem;
-  border: 1px solid #ccc;
+  border: 1px solid var(--color-border, #ccc);
   border-radius: 4px;
   font-size: 1rem;
+  background: var(--color-surface, #ffffff);
+  color: var(--color-text-primary, #212121);
+}
+
+.field-group input[type='text']::placeholder {
+  color: var(--color-text-secondary, #9ca3af);
 }
 
 .icao-lookup-results {
   list-style: none;
   margin: 0;
   padding: 0;
-  border: 1px solid #ccc;
+  border: 1px solid var(--color-border, #ccc);
   border-radius: 4px;
-  background: white;
+  background: var(--color-surface-raised, #ffffff);
+  color: var(--color-text-primary, #212121);
   max-height: 200px;
   overflow-y: auto;
 }
@@ -215,6 +223,6 @@ watch(
 }
 
 .icao-lookup-result:hover {
-  background: #f0f0f0;
+  background: var(--color-surface-hover, #f0f0f0);
 }
 </style>
