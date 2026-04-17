@@ -1,9 +1,10 @@
 version: 2
 
 updates:
-  # Scan the pnpm workspace (npm ecosystem) in the frontend package
+  # Scan the pnpm workspace from the repo root (single shared pnpm-lock.yaml
+  # covers both the root dev tooling and the frontend workspace package).
   - package-ecosystem: npm
-    directory: /frontend
+    directory: /
     target-branch: develop
     schedule:
       interval: weekly
@@ -12,21 +13,6 @@ updates:
     open-pull-requests-limit: 10
     groups:
       # Bundle all minor and patch updates together to reduce PR noise
-      minor-and-patch:
-        update-types:
-          - minor
-          - patch
-
-  # Scan the root pnpm workspace
-  - package-ecosystem: npm
-    directory: /
-    target-branch: develop
-    schedule:
-      interval: weekly
-      day: monday
-      time: '06:00'
-    open-pull-requests-limit: 5
-    groups:
       minor-and-patch:
         update-types:
           - minor
