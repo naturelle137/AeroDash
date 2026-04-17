@@ -296,24 +296,368 @@ AC Store — Fleet Store (Unit)
     files:
       - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
 
+AC Store — Fleet Repository (Unit)
   UT-AC-STORE-034
-    title: loadAll sets fleetLoadState LOADING then READY when IndexedDB succeeds
+    title: fleet.repository — create stores profile and allows retrieval by id
     impl:
-      - IMP-AC-STORE-005
+      - IMP-AC-STORE-001
     files:
-      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+      - frontend/src/modules/aircraft/__tests__/fleet.repository.spec.ts
 
   UT-AC-STORE-035
-    title: loadAll sets fleetLoadState ERROR when IndexedDB fails
+    title: fleet.repository — create preserves all fields including passengerProfiles
+    impl:
+      - IMP-AC-STORE-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.repository.spec.ts
+
+  UT-AC-STORE-036
+    title: fleet.repository — create rejects duplicate id
+    impl:
+      - IMP-AC-STORE-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.repository.spec.ts
+
+  UT-AC-STORE-037
+    title: fleet.repository — findById returns undefined for a non-existent id
+    impl:
+      - IMP-AC-STORE-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.repository.spec.ts
+
+  UT-AC-STORE-038
+    title: fleet.repository — findById returns the correct profile when multiple exist
+    impl:
+      - IMP-AC-STORE-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.repository.spec.ts
+
+  UT-AC-STORE-039
+    title: fleet.repository — findAll returns empty array when the store is empty
+    impl:
+      - IMP-AC-STORE-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.repository.spec.ts
+
+  UT-AC-STORE-040
+    title: fleet.repository — findAll returns all stored profiles
+    impl:
+      - IMP-AC-STORE-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.repository.spec.ts
+
+  UT-AC-STORE-041
+    title: fleet.repository — update replaces a profile document in the store
+    impl:
+      - IMP-AC-STORE-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.repository.spec.ts
+
+  UT-AC-STORE-042
+    title: fleet.repository — update does not affect other profiles
+    impl:
+      - IMP-AC-STORE-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.repository.spec.ts
+
+  UT-AC-STORE-043
+    title: fleet.repository — deleteById removes a profile so findById returns undefined
+    impl:
+      - IMP-AC-STORE-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.repository.spec.ts
+
+  UT-AC-STORE-044
+    title: fleet.repository — deleteById is idempotent for non-existent id
+    impl:
+      - IMP-AC-STORE-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.repository.spec.ts
+
+  UT-AC-STORE-045
+    title: fleet.repository — deleteById does not remove other profiles
+    impl:
+      - IMP-AC-STORE-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.repository.spec.ts
+
+  UT-AC-STORE-046
+    title: fleet.repository — full CRUD lifecycle round-trip
+    impl:
+      - IMP-AC-STORE-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.repository.spec.ts
+
+  UT-AC-STORE-047
+    title: fleet.repository — preserves Verified status and passengerProfiles through round-trip
+    impl:
+      - IMP-AC-STORE-001
+      - IMP-AC-CORE-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.repository.spec.ts
+
+AC Store — Fleet Store Extended (Unit)
+  UT-AC-STORE-048
+    title: fleet.store — loadAll sets isLoading=true during fetch and false after (LOADING→READY)
     impl:
       - IMP-AC-STORE-005
     files:
       - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
 
-  UT-AC-STORE-036
-    title: starts with fleetLoadState LOADING until the first successful loadAll
+  UT-AC-STORE-049
+    title: fleet.store — loadAll sets isLoading=false even when repository throws (LOADING→ERROR)
     impl:
       - IMP-AC-STORE-005
-      - REQ-AC-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+  UT-AC-STORE-050
+    title: fleet.store — loadAll populates profiles from IndexedDB (READY state)
+    impl:
+      - IMP-AC-STORE-005
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+  UT-AC-STORE-051
+    title: fleet.store — createProfile rejects invalid ICAO registration format
+    impl:
+      - IMP-AC-STORE-005
+      - IMP-AC-STORE-002
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+  UT-AC-STORE-052
+    title: fleet.store — updateProfile rejects invalid ICAO registration on edit
+    impl:
+      - IMP-AC-STORE-005
+      - IMP-AC-STORE-002
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+  UT-AC-STORE-053
+    title: fleet.store — updateProfile emits duplicate warning when registration conflicts
+    impl:
+      - IMP-AC-STORE-005
+      - IMP-AC-STORE-003
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+  UT-AC-STORE-054
+    title: fleet.store — updateProfile throws when profile not found
+    impl:
+      - IMP-AC-STORE-005
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+  UT-AC-STORE-055
+    title: fleet.store — WARNING WARN-AC-002 visible after checkDraftWarning on Draft used for computation
+    impl:
+      - IMP-AC-STORE-005
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+  UT-AC-STORE-056
+    title: fleet.store — snapshot isolation: prior Verified byte-identical after editVerifiedProfile
+    impl:
+      - IMP-AC-STORE-005
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+  UT-AC-STORE-057
+    title: fleet.store — verifyProfile throws if profile is already Verified
+    impl:
+      - IMP-AC-STORE-005
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+  UT-AC-STORE-058
+    title: fleet.store — verifyProfile throws if profile not found
+    impl:
+      - IMP-AC-STORE-005
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+  UT-AC-STORE-059
+    title: fleet.store — editVerifiedProfile throws if profile not found
+    impl:
+      - IMP-AC-STORE-005
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+  UT-AC-STORE-060
+    title: fleet.store — editVerifiedProfile throws if called on Draft profile
+    impl:
+      - IMP-AC-STORE-005
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+  UT-AC-STORE-061
+    title: fleet.store — verifyProfile updates activeAircraftStore when Draft was active profile
+    impl:
+      - IMP-AC-STORE-005
+      - IMP-AC-STORE-006
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+  UT-AC-STORE-062
+    title: fleet.store — verifyProfile does not change activeAircraftStore when different profile is active
+    impl:
+      - IMP-AC-STORE-005
+      - IMP-AC-STORE-006
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+  UT-AC-STORE-063
+    title: fleet.store — passengerProfiles persisted in store state after createProfile
+    impl:
+      - IMP-AC-STORE-005
+      - IMP-AC-CORE-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+  UT-AC-STORE-064
+    title: fleet.store — passengerProfiles survive verify → editVerified cycle unmodified
+    impl:
+      - IMP-AC-STORE-005
+      - IMP-AC-CORE-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+  UT-AC-STORE-065
+    title: fleet.store — passenger standard weight application matches schema value
+    impl:
+      - IMP-AC-STORE-005
+      - IMP-AC-CORE-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+  UT-AC-STORE-066
+    title: fleet.store — passengerProfiles default to empty array
+    impl:
+      - IMP-AC-STORE-005
+      - IMP-AC-CORE-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+  UT-AC-STORE-067
+    title: fleet.store — clearNotifications empties the notifications array
+    impl:
+      - IMP-AC-STORE-005
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+AC Store — Active Aircraft Store (Unit)
+  UT-AC-STORE-068
+    title: active-aircraft.store — initial state: activeProfile is null, hasActiveProfile is false
+    impl:
+      - IMP-AC-STORE-006
+    files:
+      - frontend/src/modules/aircraft/__tests__/active-aircraft.store.spec.ts
+
+  UT-AC-STORE-069
+    title: active-aircraft.store — setActiveProfile sets the active profile reactively
+    impl:
+      - IMP-AC-STORE-006
+    files:
+      - frontend/src/modules/aircraft/__tests__/active-aircraft.store.spec.ts
+
+  UT-AC-STORE-070
+    title: active-aircraft.store — context switch replaces prior profile without page reload
+    impl:
+      - IMP-AC-STORE-006
+    files:
+      - frontend/src/modules/aircraft/__tests__/active-aircraft.store.spec.ts
+
+  UT-AC-STORE-071
+    title: active-aircraft.store — setActiveProfile performs synchronous in-place state swap (no reload)
+    impl:
+      - IMP-AC-STORE-006
+    files:
+      - frontend/src/modules/aircraft/__tests__/active-aircraft.store.spec.ts
+
+  UT-AC-STORE-072
+    title: active-aircraft.store — clearActive sets activeProfile to null and hasActiveProfile to false
+    impl:
+      - IMP-AC-STORE-006
+    files:
+      - frontend/src/modules/aircraft/__tests__/active-aircraft.store.spec.ts
+
+  UT-AC-STORE-073
+    title: active-aircraft.store — isDraft is true when active profile has Draft status
+    impl:
+      - IMP-AC-STORE-006
+    files:
+      - frontend/src/modules/aircraft/__tests__/active-aircraft.store.spec.ts
+
+  UT-AC-STORE-074
+    title: active-aircraft.store — isDraft is false when active profile has Verified status
+    impl:
+      - IMP-AC-STORE-006
+    files:
+      - frontend/src/modules/aircraft/__tests__/active-aircraft.store.spec.ts
+
+  UT-AC-STORE-075
+    title: active-aircraft.store — isDraft is false when no profile is active
+    impl:
+      - IMP-AC-STORE-006
+    files:
+      - frontend/src/modules/aircraft/__tests__/active-aircraft.store.spec.ts
+
+  UT-AC-STORE-076
+    title: active-aircraft.store — context switch: prior state absent after switching aircraft
+    impl:
+      - IMP-AC-STORE-006
+    files:
+      - frontend/src/modules/aircraft/__tests__/active-aircraft.store.spec.ts
+
+  UT-AC-STORE-077
+    title: active-aircraft.store — setActiveProfile replaces profile object reference (reactive hot-swap)
+    impl:
+      - IMP-AC-STORE-006
+    files:
+      - frontend/src/modules/aircraft/__tests__/active-aircraft.store.spec.ts
+
+  UT-AC-STORE-078
+    title: active-aircraft.store — clearActive then setActiveProfile starts fresh context
+    impl:
+      - IMP-AC-STORE-006
+    files:
+      - frontend/src/modules/aircraft/__tests__/active-aircraft.store.spec.ts
+
+  UT-AC-STORE-079
+    title: active-aircraft.store — hasActiveProfile is false after clearActive
+    impl:
+      - IMP-AC-STORE-006
+    files:
+      - frontend/src/modules/aircraft/__tests__/active-aircraft.store.spec.ts
+
+AC Store — Fleet Store Branch Coverage (Unit)
+  UT-AC-STORE-080
+    title: fleet.store — updateProfile succeeds when no registration field is in changes
+    impl:
+      - IMP-AC-STORE-005
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+  UT-AC-STORE-081
+    title: fleet.store — updateProfile succeeds with valid new registration that is not a duplicate
+    impl:
+      - IMP-AC-STORE-005
+      - IMP-AC-STORE-003
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+  UT-AC-STORE-082
+    title: fleet.store — notifications are cleared after clearNotifications on aircraft context switch (DoD #165)
+    impl:
+      - IMP-AC-STORE-005
+      - IMP-AC-STORE-006
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+  UT-AC-STORE-083
+    title: fleet.store — starts with fleetLoadState LOADING until the first successful loadAll
+    impl:
+      - IMP-AC-STORE-005
     files:
       - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
