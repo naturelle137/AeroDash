@@ -27,6 +27,7 @@ AC Store — Fleet Repository Integration Tests
     files:
       - frontend/src/modules/aircraft/__tests__/fleet.repository.int.spec.ts
 
+AC Store — Supplementary Field Round-Trip Persistence (Integration)
   IT-AC-STORE-005
     title: round-trip — costPerHour persists and retrieves with full fidelity
     impl:
@@ -86,5 +87,13 @@ AC Store — schemaVersion Persistence (refs #166)
     title: all profiles returned by findAll carry a positive integer schemaVersion field
     impl:
       - IMP-AC-CORE-002
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.repository.int.spec.ts
+
+AC Store — DB Migration (ADR-008)
+  IT-AC-STORE-013
+    title: DB v1→v2 migration normalizes legacy Draft/Verified status to lowercase
+    impl:
+      - IMP-AC-STORE-001
     files:
       - frontend/src/modules/aircraft/__tests__/fleet.repository.int.spec.ts

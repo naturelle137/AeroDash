@@ -1,0 +1,7 @@
+UI Routing — Route Table (Unit)
+  UT-UI-ROUTE-001
+    title: resolves named home route to / path
+    impl:
+      - IMP-UI-ROUTE-001
+    files:
+      - frontend/src/router/index.spec.ts

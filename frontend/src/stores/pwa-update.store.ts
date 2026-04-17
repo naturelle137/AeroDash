@@ -20,9 +20,22 @@ export const usePwaUpdateStore = defineStore('pwaUpdate', () => {
   }
 
   // @IMP-SYS-STORE-004@ (FROM: @REQ-SYS-005@)
+  /**
+   * Called by the Service Worker registration when a new version is available.
+   * Sets `needsUpdate = true`, which causes `App.vue` to render the PWA update
+   * banner (REQ-SYS-005, INFO-SYS-001).
+   *
+   * ## INFO-SYS-001 — Notification Strategy
+   * The direct banner rendered by `App.vue` (`v-if="pwaStore.needsUpdate"`) IS the
+   * INFO-SYS-001 notification for this specific case. This is an intentional
+   * architectural exception: the PWA update banner must be rendered at the app-shell
+   * level (above the router view) so it remains visible on every page, which cannot be
+   * achieved via the centralized `useNotificationStore` bus without bypassing the store
+   * routing layer. This decision is documented in ADR-007 (PWA update lifecycle).
+   * See also REQ-SYS-007 and REQ-SYS-008 for the general notification requirements.
+   */
   function onNeedsRefresh(): void {
     needsUpdate.value = true
-    // INFO-SYS-001: caller/composable must emit notification
   }
 
   // @IMP-SYS-STORE-005@ (FROM: @REQ-SYS-005@)
