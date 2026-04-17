@@ -52,14 +52,14 @@ const ariaLabel = computed(() => `Profile status: ${statusLabel.value}`)
 }
 
 .status-verified {
-  background-color: #d1fae5;
-  color: #065f46;
-  border: 1px solid #6ee7b7;
+  background-color: var(--color-success-bg, #d1fae5);
+  color: var(--color-success, #065f46);
+  border: 1px solid var(--color-success, #6ee7b7);
 }
 
 .status-draft {
-  background-color: #fef3c7;
-  color: #92400e;
-  border: 1px solid #fcd34d;
+  background-color: var(--color-warning-bg, #fef3c7);
+  color: var(--color-warning, #92400e);
+  border: 1px solid var(--color-warning, #fcd34d);
 }
 </style>

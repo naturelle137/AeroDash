@@ -279,36 +279,41 @@ async function onImportFile(event: Event): Promise<void> {
   display: flex;
   flex-direction: column;
   gap: 2rem;
+  color: var(--color-text, #212121);
 }
 
 h1 {
   font-size: 1.75rem;
   font-weight: 700;
   margin: 0;
+  color: var(--color-text-primary, #212121);
 }
 
 h2 {
   font-size: 1.25rem;
   font-weight: 600;
   margin: 0 0 1rem 0;
+  color: var(--color-text-primary, #212121);
 }
 
 .fleet-section,
 .add-aircraft-section {
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--color-border, #e5e7eb);
   border-radius: 8px;
   padding: 1.5rem;
-  background: #f9fafb;
+  background: var(--color-surface-card, #f9fafb);
+  color: var(--color-text, #212121);
 }
 
 .notifications-banner {
-  background: #fef3c7;
-  border: 1px solid #fcd34d;
+  background: var(--color-warning-bg, #fef3c7);
+  border: 1px solid var(--color-warning, #fcd34d);
   border-radius: 8px;
   padding: 1rem;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  color: var(--color-warning, #92400e);
 }
 
 .notification {
@@ -316,14 +321,14 @@ h2 {
 }
 
 .notification--warning {
-  color: #92400e;
+  color: var(--color-warning, #92400e);
 }
 
 .btn-clear-notifications {
   align-self: flex-end;
   background: none;
-  border: 1px solid #d97706;
-  color: #92400e;
+  border: 1px solid var(--color-warning, #d97706);
+  color: var(--color-warning, #92400e);
   padding: 0.25rem 0.75rem;
   border-radius: 4px;
   cursor: pointer;
@@ -345,28 +350,41 @@ h2 {
 .field-group label {
   font-weight: 600;
   font-size: 0.875rem;
+  color: var(--color-text-primary, #212121);
 }
 
 .field-group input,
 .field-group select {
   padding: 0.5rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--color-border, #d1d5db);
   border-radius: 4px;
   font-size: 1rem;
+  background: var(--color-surface, #ffffff);
+  color: var(--color-text-primary, #212121);
+}
+
+.field-group input::placeholder {
+  color: var(--color-text-secondary, #9ca3af);
 }
 
 .field-error {
-  color: #dc2626;
+  color: var(--color-critical, #dc2626);
   font-size: 0.8rem;
 }
 
 .passenger-profiles-fieldset {
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--color-border, #d1d5db);
   border-radius: 6px;
   padding: 1rem;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  color: var(--color-text, #212121);
+}
+
+.passenger-profiles-fieldset legend {
+  color: var(--color-text-primary, #212121);
+  font-weight: 600;
 }
 
 .passenger-profile-row {
@@ -379,22 +397,24 @@ h2 {
 .passenger-profile-row select {
   flex: 1;
   padding: 0.375rem 0.5rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--color-border, #d1d5db);
   border-radius: 4px;
+  background: var(--color-surface, #ffffff);
+  color: var(--color-text-primary, #212121);
 }
 
 .btn-remove-pax {
   background: none;
   border: none;
-  color: #ef4444;
+  color: var(--color-critical, #ef4444);
   cursor: pointer;
   font-size: 1rem;
 }
 
 .btn-add-pax {
   background: none;
-  border: 1px dashed #9ca3af;
-  color: #6b7280;
+  border: 1px dashed var(--color-border, #9ca3af);
+  color: var(--color-text-secondary, #6b7280);
   padding: 0.375rem 0.75rem;
   border-radius: 4px;
   cursor: pointer;
@@ -411,6 +431,11 @@ h2 {
 .import-section label {
   font-weight: 600;
   font-size: 0.875rem;
+  color: var(--color-text-primary, #212121);
+}
+
+.import-section input[type='file'] {
+  color: var(--color-text, #212121);
 }
 
 .form-actions {
@@ -433,7 +458,11 @@ h2 {
 }
 
 .btn-primary {
-  background: #3b82f6;
-  color: white;
+  background: var(--color-primary, #3b82f6);
+  color: var(--color-primary-text, #ffffff);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--color-primary-hover, #2563eb);
 }
 </style>
