@@ -255,6 +255,25 @@ export const useMassBalanceStore = defineStore('massBalance', {
     },
 
     /**
+     * Clear the entire M&B context on aircraft hot-swap (refs #165).
+     *
+     * Unlike `resetPayload()` (which only zeroes weights for the current
+     * aircraft), this fully detaches the aircraft profile and returns the
+     * store to `INITIAL`. Required so prior-aircraft load data, results, and
+     * notifications cannot leak into a newly selected aircraft's computation.
+     * Session-persistence clears itself via its watcher on `aircraft.id`.
+     */
+    // @IMP-MB-STORE-018@ (FROM: @REQ-AC-005@)
+    clearProfile(): void {
+      this.aircraft = null
+      this.activeCategory = null
+      this.stations = []
+      this.notifications = []
+      this.lastResult = null
+      this.uiState = 'INITIAL'
+    },
+
+    /**
      * Reset all station weights to 0.
      *
      * This is a deliberate user action, so all stations are marked as touched

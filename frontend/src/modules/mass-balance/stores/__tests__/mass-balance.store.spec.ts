@@ -389,6 +389,27 @@ describe('MassBalance Store', () => {
     expect(store.stations[1]!.verified).toBe(false)
   })
 
+  // ─── clearProfile (aircraft hot-swap, refs #165) ──────────────────────
+
+  // @UT-MB-STORE-034@ (FROM: @IMP-MB-STORE-018@)
+  it('clearProfile fully detaches aircraft, stations, results, notifications and returns to INITIAL', () => {
+    const store = useMassBalanceStore()
+    store.loadProfile(mockProfile)
+    store.updateStationWeight(0, 80)
+
+    expect(store.aircraft).not.toBeNull()
+    expect(store.stations.length).toBeGreaterThan(0)
+
+    store.clearProfile()
+
+    expect(store.aircraft).toBeNull()
+    expect(store.activeCategory).toBeNull()
+    expect(store.stations).toEqual([])
+    expect(store.notifications).toEqual([])
+    expect(store.lastResult).toBeNull()
+    expect(store.uiState).toBe('INITIAL')
+  })
+
   // ─── resetPayload ─────────────────────────────────────────────────────
 
   // @UT-MB-STORE-018@ (FROM: @IMP-MB-STORE-010@)
