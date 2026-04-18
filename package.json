@@ -50,7 +50,7 @@
   },
   "lint-staged": {
     "*.md": "pnpm run lint:md",
-    "frontend/**/*.{js,ts,vue,json,yaml,yml}": [
+    "frontend/**/*.{js,ts,vue}": [
       "pnpm run lint:oxlint",
       "pnpm run lint:eslint"
     ]
