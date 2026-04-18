@@ -1,5 +1,5 @@
 <template>
-  <!-- @IMP-AC-VIEW-015@ (FROM: @REQ-AC-001@, @REQ-AC-005@, @REQ-AD-001@, @REQ-AD-004@, @REQ-AD-007@, @REQ-AD-013@, @REQ-AD-014@, @REQ-AD-018@, @REQ-AD-019@) -->
+  <!-- @IMP-AC-VIEW-015@ (FROM: @REQ-AC-001@, @REQ-AC-005@, @REQ-AD-001@, @REQ-AD-002@, @REQ-AD-003@, @REQ-AD-004@, @REQ-AD-005@, @REQ-AD-007@, @REQ-AD-011@, @REQ-AD-012@, @REQ-AD-013@, @REQ-AD-014@, @REQ-AD-018@, @REQ-AD-019@) -->
   <main class="profile-editor-view">
     <header class="editor-header">
       <div class="editor-title">
@@ -22,7 +22,7 @@
     <div v-else class="editor-body">
       <p v-if="source.status === 'verified'" class="verified-note" role="status">
         This profile is <strong>Verified</strong>. Saving will create a new <strong>Draft</strong>
-        copy and leave the original untouched (REQ-AC-005).
+        copy and leave the original untouched.
       </p>
 
       <AccordionSection
@@ -49,6 +49,19 @@
         <WeighingReportsSection
           v-model="weighingReports"
           :section-id="`${profileId}-weighing`"
+        />
+      </AccordionSection>
+
+      <AccordionSection
+        title="Load Stations"
+        :summary="loadPointsSummary"
+        :section-id="`${profileId}-loadpoints`"
+        :model-value="openSections.loadPoints"
+        @update:model-value="openSections.loadPoints = $event"
+      >
+        <LoadPointsSection
+          v-model="loadPoints"
+          :section-id="`${profileId}-loadpoints`"
         />
       </AccordionSection>
 
@@ -82,16 +95,18 @@ import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import type {
   AircraftProfile,
+  AircraftProfileLoadPoint,
   AircraftProfileWeighingReport,
 } from '@/core/adapters/aircraft.schema'
 import { useFleetStore } from '../stores/fleet.store'
 import { validateIcaoRegistration } from '../services/profile.validator'
 import AccordionSection from '../components/AccordionSection.vue'
 import IdentitySection, { type IdentityFields } from '../components/IdentitySection.vue'
+import LoadPointsSection from '../components/LoadPointsSection.vue'
 import WeighingReportsSection from '../components/WeighingReportsSection.vue'
 import ProfileStatusBadge from '../components/ProfileStatusBadge.vue'
 
-// @IMP-AC-VIEW-016@ (FROM: @REQ-AC-001@, @REQ-AC-005@, @REQ-AD-001@, @REQ-AD-004@, @REQ-AD-007@, @REQ-AD-013@, @REQ-AD-014@, @REQ-AD-018@, @REQ-AD-019@)
+// @IMP-AC-VIEW-016@ (FROM: @REQ-AC-001@, @REQ-AC-005@, @REQ-AD-001@, @REQ-AD-002@, @REQ-AD-003@, @REQ-AD-004@, @REQ-AD-005@, @REQ-AD-007@, @REQ-AD-011@, @REQ-AD-012@, @REQ-AD-013@, @REQ-AD-014@, @REQ-AD-018@, @REQ-AD-019@)
 
 const route = useRoute()
 const router = useRouter()
@@ -107,7 +122,7 @@ const isSaving = ref(false)
 const source = ref<AircraftProfile | null>(null)
 const draft = ref<AircraftProfile | null>(null)
 
-const openSections = reactive({ identity: true, weighing: true })
+const openSections = reactive({ identity: true, loadPoints: true, weighing: true })
 
 const identityFields = computed<IdentityFields>({
   get(): IdentityFields {
@@ -153,6 +168,16 @@ const weighingReports = computed<AircraftProfileWeighingReport[]>({
   },
 })
 
+const loadPoints = computed<AircraftProfileLoadPoint[]>({
+  get(): AircraftProfileLoadPoint[] {
+    return draft.value?.loadPoints ?? []
+  },
+  set(next: AircraftProfileLoadPoint[]): void {
+    if (!draft.value) return
+    draft.value = { ...draft.value, loadPoints: next }
+  },
+})
+
 const identitySummary = computed(() => {
   const d = draft.value
   if (!d) return ''
@@ -166,6 +191,16 @@ const weighingSummary = computed(() => {
   return n === 1 ? '1 report' : `${n} reports`
 })
 
+const loadPointsSummary = computed(() => {
+  const points = draft.value?.loadPoints ?? []
+  const total = points.length
+  const tanks = points.filter((lp) => lp.fuelTank !== null).length
+  if (total === 0) return 'No stations yet'
+  const stationLabel = total === 1 ? '1 station' : `${total} stations`
+  if (tanks === 0) return stationLabel
+  return `${stationLabel} (${tanks} fuel)`
+})
+
 const isDirty = computed(() => {
   if (!source.value || !draft.value) return false
   return JSON.stringify(source.value) !== JSON.stringify(draft.value)
@@ -176,9 +211,18 @@ const canSave = computed(() => {
   if (!d) return false
   if (!validateIcaoRegistration(d.registration)) return false
   if (d.weighingReports.length < 1) return false
-  return d.weighingReports.every(
+  const weighingOk = d.weighingReports.every(
     (r) => Number.isFinite(r.bem) && r.bem > 0 && !!r.weighingDate && !!r.validFrom,
   )
+  if (!weighingOk) return false
+  const loadPointsOk = d.loadPoints.every((lp) => {
+    if (lp.name.trim() === '') return false
+    const armOk = (lp.arm !== null) !== (lp.armLookup.length > 0)
+    if (!armOk) return false
+    if (lp.fuelTank && lp.fuelTank.permissibleFuelTypes.length === 0) return false
+    return true
+  })
+  return loadPointsOk
 })
 
 const saveButtonLabel = computed(() => {

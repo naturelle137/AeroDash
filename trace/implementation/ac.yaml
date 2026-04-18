@@ -223,3 +223,25 @@ AC View — Model Catalogue and Components
       - REQ-AD-019
     files:
       - frontend/src/modules/aircraft/views/AircraftProfileEditorView.vue
+
+  IMP-AC-VIEW-017
+    title: LoadPointsSection template — per-station editor with fuel-tank extension
+    req:
+      - REQ-AD-002
+      - REQ-AD-003
+      - REQ-AD-005
+      - REQ-AD-011
+      - REQ-AD-012
+    files:
+      - frontend/src/modules/aircraft/components/LoadPointsSection.vue
+
+  IMP-AC-VIEW-018
+    title: LoadPointsSection script — add/remove row, fuel-tank toggle, fuel-type multi-select
+    req:
+      - REQ-AD-002
+      - REQ-AD-003
+      - REQ-AD-005
+      - REQ-AD-011
+      - REQ-AD-012
+    files:
+      - frontend/src/modules/aircraft/components/LoadPointsSection.vue

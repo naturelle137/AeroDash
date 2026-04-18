@@ -4,7 +4,7 @@
     <p class="section-intro">
       Each weighing report records the aircraft's Basic Empty Mass (BEM), Empty CG, and its
       effective date. Reports are kept in full history so every M&amp;B calculation can reference
-      the record that was valid on the flight date (REQ-AD-013).
+      the record that was valid on the flight date.
     </p>
 
     <div
@@ -66,7 +66,7 @@
     <button type="button" class="btn-add-row" @click="addRow">+ Add Weighing Report</button>
 
     <p v-if="modelValue.length === 0" class="field-error" role="alert">
-      At least one weighing report is required (REQ-AD-004).
+      At least one weighing report is required.
     </p>
   </div>
 </template>

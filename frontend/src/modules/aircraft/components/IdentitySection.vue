@@ -11,7 +11,7 @@
     />
 
     <div class="field-group">
-      <label :for="`${sectionId}-registration`">Registration (REQ-AD-001)</label>
+      <label :for="`${sectionId}-registration`">Registration</label>
       <input
         :id="`${sectionId}-registration`"
         :value="modelValue.registration"
@@ -24,7 +24,7 @@
     </div>
 
     <div class="field-group">
-      <label :for="`${sectionId}-ownerId`">Owner ID (REQ-AD-019)</label>
+      <label :for="`${sectionId}-ownerId`">Owner</label>
       <input
         :id="`${sectionId}-ownerId`"
         :value="modelValue.ownerId"
@@ -35,19 +35,23 @@
     </div>
 
     <div class="field-group">
-      <label :for="`${sectionId}-sourceUnit`">POH Source Unit (REQ-AD-014)</label>
-      <input
+      <label :for="`${sectionId}-sourceUnit`">POH Mass Unit</label>
+      <select
         :id="`${sectionId}-sourceUnit`"
         :value="modelValue.sourceUnit"
-        type="text"
-        placeholder="kg"
-        @input="patch({ sourceUnit: ($event.target as HTMLInputElement).value })"
-      />
-      <span class="field-hint">The unit system from the manufacturer's POH/AFM (e.g. kg, lb).</span>
+        @change="patch({ sourceUnit: ($event.target as HTMLSelectElement).value })"
+      >
+        <option value="kg">kg (kilograms)</option>
+        <option value="lb">lb (pounds)</option>
+      </select>
+      <span class="field-hint">
+        Mass unit used by this aircraft's POH/AFM. Per-station quantities and fuel volume units
+        are configured in <strong>Load Stations</strong>.
+      </span>
     </div>
 
     <div class="field-group">
-      <label :for="`${sectionId}-refDatumDesc`">Reference Datum Description (REQ-AD-007)</label>
+      <label :for="`${sectionId}-refDatumDesc`">Reference Datum — Description</label>
       <input
         :id="`${sectionId}-refDatumDesc`"
         :value="modelValue.referenceDatumDescription"
@@ -60,7 +64,7 @@
     </div>
 
     <div class="field-group">
-      <label :for="`${sectionId}-refDatumLoc`">Reference Datum Location (REQ-AD-007)</label>
+      <label :for="`${sectionId}-refDatumLoc`">Reference Datum — Location</label>
       <input
         :id="`${sectionId}-refDatumLoc`"
         :value="modelValue.referenceDatumLocation"
@@ -71,7 +75,9 @@
     </div>
 
     <div class="field-group">
-      <label :for="`${sectionId}-shareCode`">Share Code (REQ-AD-018, optional)</label>
+      <label :for="`${sectionId}-shareCode`">
+        Share Code <span class="optional-tag">(optional)</span>
+      </label>
       <input
         :id="`${sectionId}-shareCode`"
         :value="modelValue.shareCode ?? ''"

@@ -1328,3 +1328,87 @@ AC View — ProfileStatusBadge Component (Unit)
       - IMP-AC-VIEW-016
     files:
       - frontend/src/modules/aircraft/__tests__/AircraftProfileEditorView.spec.ts
+
+  UT-AC-VIEW-140
+    title: LoadPointsSection — renders one row per load point
+    impl:
+      - IMP-AC-VIEW-017
+    files:
+      - frontend/src/modules/aircraft/__tests__/LoadPointsSection.spec.ts
+
+  UT-AC-VIEW-141
+    title: LoadPointsSection — empty-state shown when no rows
+    impl:
+      - IMP-AC-VIEW-017
+    files:
+      - frontend/src/modules/aircraft/__tests__/LoadPointsSection.spec.ts
+
+  UT-AC-VIEW-142
+    title: LoadPointsSection — arm input disabled and hinted when armLookup is present
+    impl:
+      - IMP-AC-VIEW-017
+    files:
+      - frontend/src/modules/aircraft/__tests__/LoadPointsSection.spec.ts
+
+  UT-AC-VIEW-143
+    title: LoadPointsSection — fuel-tank rows get accent modifier
+    impl:
+      - IMP-AC-VIEW-017
+    files:
+      - frontend/src/modules/aircraft/__tests__/LoadPointsSection.spec.ts
+
+  UT-AC-VIEW-144
+    title: LoadPointsSection — emits patched name on input change
+    impl:
+      - IMP-AC-VIEW-018
+    files:
+      - frontend/src/modules/aircraft/__tests__/LoadPointsSection.spec.ts
+
+  UT-AC-VIEW-145
+    title: LoadPointsSection — + Add Load Station appends a non-fuel row
+    impl:
+      - IMP-AC-VIEW-018
+    files:
+      - frontend/src/modules/aircraft/__tests__/LoadPointsSection.spec.ts
+
+  UT-AC-VIEW-146
+    title: LoadPointsSection — + Add Fuel Tank seeds a fuel-tank extension
+    impl:
+      - IMP-AC-VIEW-018
+    files:
+      - frontend/src/modules/aircraft/__tests__/LoadPointsSection.spec.ts
+
+  UT-AC-VIEW-147
+    title: LoadPointsSection — ✕ removes the targeted row
+    impl:
+      - IMP-AC-VIEW-018
+    files:
+      - frontend/src/modules/aircraft/__tests__/LoadPointsSection.spec.ts
+
+  UT-AC-VIEW-148
+    title: LoadPointsSection — toggle enables fuel-tank extension with default fuel type
+    impl:
+      - IMP-AC-VIEW-018
+    files:
+      - frontend/src/modules/aircraft/__tests__/LoadPointsSection.spec.ts
+
+  UT-AC-VIEW-149
+    title: LoadPointsSection — toggle clears fuel-tank extension when unchecked
+    impl:
+      - IMP-AC-VIEW-018
+    files:
+      - frontend/src/modules/aircraft/__tests__/LoadPointsSection.spec.ts
+
+  UT-AC-VIEW-150
+    title: LoadPointsSection — fuel-type checkbox adds the selected type
+    impl:
+      - IMP-AC-VIEW-018
+    files:
+      - frontend/src/modules/aircraft/__tests__/LoadPointsSection.spec.ts
+
+  UT-AC-VIEW-151
+    title: LoadPointsSection — shows error when no fuel types remain
+    impl:
+      - IMP-AC-VIEW-018
+    files:
+      - frontend/src/modules/aircraft/__tests__/LoadPointsSection.spec.ts
