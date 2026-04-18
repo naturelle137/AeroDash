@@ -315,26 +315,103 @@ Exclusions for lint: `.tools/`, `.logs/`, `node_modules/`
 
 ## Issue Workflow for Agents
 
-When processing GitHub issues, follow these steps exactly. Full rules in `docs/architecture/adr/303-DEV-ticket-workflow.md`.
+When processing GitHub issues, follow these steps exactly. Full rules in `docs/architecture/adr/303-DEV-ticket-workflow.md` and `CONTRIBUTING.md §10`.
 
-### Starting Work on a Ticket
+### Issue Types
 
-1. Read the issue with `mcp__github__get_issue`.
-2. **Set project status to `In Progress`** on the `AeroDash Dashboard` project board before writing any code.
+| Type | Meaning | Has children? |
+| :--- | :------ | :------------ |
+| `Feature` | New functionality or enhancement (product or engineering). | Can have child `Task` issues. |
+| `Bug` | Flaw, error, or regression. | Can have child `Task` issues. |
+| `Task` | Concrete sub-step of a parent `Feature` or `Bug`. Never stands alone. | No. Always has a parent. |
+
+### Required Labels
+
+Every issue must carry exactly one label from each of the following sets during its lifetime:
+
+| Set | Values | When applied |
+| :-- | :----- | :----------- |
+| **Type** | `Feature`, `Bug`, `Task` | At creation. |
+| **Scope** | `product`, `engineering` | At creation — controls CHANGELOG section. |
+| **Status** (open) | `open` → `accepted` | `open` on creation; `accepted` once triaged as valid. |
+| **Resolution** (closed) | `fixed`, `duplicate`, `wont do` | Applied **only** at the moment of closing. |
+| **Safety** (conditional) | `safety-critical` | If the issue touches P1 Safety Core. |
+| **Module scope** (conditional) | `ac`, `ad`, `ap`, `fe`, `mb`, `pf`, `wx`, `ui`, `uq`, `sys`, `doc`, `sc`, `repo` | Matches commit scope of the work. |
+
+### Lifecycle → Board Column → Label Map
+
+| Phase | Board column | Status label | Resolution label | Agent action |
+| :---- | :----------- | :----------- | :--------------- | :----------- |
+| Created | `Backlog` | `open` | — | Wait for triage. |
+| Triaged | `Waiting for Implementation` | `accepted` | — | Pick up when ready. |
+| Working | `In Progress` | `accepted` | — | Agent sets this **before writing code**. |
+| PR open | `In Verification` | `accepted` | — | Agent sets this **when PR is created**. |
+| Merged to `develop` | `Done` | — | `fixed` | GitHub auto-closes via `Closes #`. Verify column moved. |
+| Rejected / superseded | removed from board | — | `duplicate` or `wont do` | Document rationale in the closing comment. |
+
+> There is **no `ready` label** and **no `Ready for Release` column**. Issues close on `develop` merge, not on `main` merge.
+
+### Starting Work on a Ticket — Pre-Flight Checks
+
+Before writing any code:
+
+1. `mcp__github__issue_read` (method `get`) — read the issue.
+2. **Identify the parent.** If it is a `Task`, read the "Parent Feature / Issue" field and fetch the parent with `mcp__github__issue_read`.
+3. **Verify the parent is open.** If the parent is already closed:
+   - **STOP.** Do not assume the task is greenfield work.
+   - The parent closure is a workflow violation (see ADR-303). The code may already be partially or fully implemented by earlier work.
+   - Before touching code: search `git log --all --grep="#<task-number>"` and inspect the DoD checkboxes against the current repo state. Confirm with the user what remains.
+4. **Check sibling tasks.** Use `mcp__github__issue_read` with method `get_sub_issues` on the parent to find siblings; their status informs ordering and dependencies.
+5. Confirm the issue is `accepted` (not `open` awaiting triage, not already `fixed`).
+6. **Set project status to `In Progress`** on the `AeroDash Dashboard` project board before writing code.
    - Resolve project/item/field IDs via `gh project list`, `gh project item-list`, `gh project field-list`.
    - Update: `gh project item-edit --project-id <ID> --id <ITEM_ID> --field-id <STATUS_ID> --single-select-option-id <IN_PROGRESS_ID>`
-3. Implement the work on a `feature/*` branch.
+7. Create a `feature/issue-<n>-<desc>` branch from `develop`.
 
 ### Creating the PR
 
 1. Use `.github/pull_request_template.md` as the PR body template.
-2. Reference the issue with `Closes #<ISSUE_ID>` — this closes the issue automatically on merge to `develop`.
-3. **Set project status to `In Verification`** on the project board.
+2. **Target `develop`.** Never target a long-lived integration branch or a parent-feature branch — auto-close only fires when the PR merges to `develop`, `release/*`, or `hotfix/*`.
+3. Reference the issue with `Closes #<TASK_ID>`. A PR closing multiple tasks lists them: `Closes #156, closes #157`.
+4. **Set project status to `In Verification`** on the project board.
 
 ### After PR Merges to `develop`
 
-- GitHub auto-closes the issue and applies the `fixed` label (via `Closes #` keyword).
-- Verify the project status moved to `Done`. Correct manually if needed.
+- GitHub auto-closes each referenced issue and applies the `fixed` label (via `Closes #` keyword).
+- Verify the project column moved to `Done`. Correct manually if needed.
+- **Do not close the parent automatically.** See parent rules below.
+
+### Parent / Sub-Task Rules — MANDATORY
+
+- **`Task` (sub-task):** Closed with `fixed` when its own PR merges to `develop`. A `Task` closed as `wont do` counts as closed provided the rationale is documented in the closing comment.
+- **`Feature` / `Bug` (parent):** May be closed with `fixed` **only after every child `Task` is closed**. A parent closed while any child remains `open` is a workflow defect.
+
+#### Pre-Close Parent Checklist (run every time before closing a parent)
+
+```text
+□ List child tasks:    mcp__github__issue_read method=get_sub_issues issue_number=<parent>
+□ Every child state == "closed" (status_reason = "completed" or "not_planned")
+□ Every child carries exactly one resolution label: fixed, duplicate, or wont do
+□ Parent DoD checklist is fully ticked
+□ No sibling PR is still open against any child
+```
+
+If any box is unchecked: **do not close the parent.** Leave a comment noting the open child and move on.
+
+#### Recovery: Open Task With a Closed Parent (Orphaned Sub-Task)
+
+This is the situation milestone v0.3.0-alpha inherited. If you encounter it:
+
+1. **Do not start coding blind.** The parent `Feature` / `Bug` was closed as `fixed`, which implies its child work was believed done — so the feature's code may already be in the repo, partially or fully.
+2. **Audit what exists** before planning new work:
+   - `git log --all --grep="#<task-number>"` — find commits that referenced this task (including `closes #` / `refs #`).
+   - `git log --all --grep="<REQ-XX-YYY>"` — find commits that cite the task's requirement IDs.
+   - Inspect the DoD checkboxes in the issue body against real files, schemas, tests, and `trace/` YAML entries.
+   - Check the module's `trace/implementation/*.yaml` for IMP entries corresponding to the task's REQs.
+3. **Summarise the gap for the user** before writing code. State what is present, what is missing, and what the minimum diff is to satisfy the DoD.
+4. **Do not re-open the parent.** The parent's history is kept accurate as-is; the recovery PR closes the child and, if needed, ships a follow-up `Bug` issue to cover any gap discovered in the parent's scope.
+5. If the task is fully satisfied by existing code, open a small PR that only adds the missing traceability / CHANGELOG / trace YAML entries and uses `Closes #<task-number>`. Explain in the PR body why no feature code was necessary.
+6. If the task turns out to be a duplicate of already-merged work, close it as `duplicate` with a link to the implementing PR — do not invent a new PR just to satisfy auto-close.
 
 ### Issue Label Flow
 
@@ -343,13 +420,6 @@ open → accepted → fixed (closed, PR merged to develop)
 open → duplicate (closed, link canonical issue)
 open → wont do  (closed, rationale documented)
 ```
-
-There is **no `ready` label** and **no `Ready for Release` status**. Issues close on `develop` merge, not on `main` merge.
-
-### Parent / Sub-Task Rules
-
-- **`Task` (sub-task):** Close with `fixed` when its own PR merges to `develop`.
-- **`Feature` / `Bug` (parent):** Close with `fixed` only after **all** child `Task` issues are closed.
 
 ---
 
@@ -363,3 +433,6 @@ There is **no `ready` label** and **no `Ready for Release` status**. Issues clos
 - **Never** use JSX — Vue SFCs only
 - **Never** put P1 math logic directly inside `src/modules/` — it must live in `src/core/`
 - **Never** add `// eslint-disable` comments without documenting the architectural reason in the PR
+- **Never** close a parent `Feature` / `Bug` while any child `Task` is still open — run the Pre-Close Parent Checklist first
+- **Never** start coding on a `Task` whose parent is already closed without auditing the repo for existing implementation — see *Recovery: Open Task With a Closed Parent*
+- **Never** target a PR at anything other than `develop` (or a `release/*` / `hotfix/*` branch) — `Closes #` auto-close only fires there
