@@ -136,8 +136,8 @@ describe('AircraftProfileEditorView — hydration', () => {
   it('shows verified notice only when source profile is verified', async () => {
     const verified = makeProfile({ status: 'verified' })
     const { wrapper } = await mountEditor({ profile: verified })
-    expect(wrapper.text()).toMatch(/will create a new/i)
-    expect(wrapper.text()).toContain('Save as New Draft')
+    expect(wrapper.text()).toMatch(/convert it back to a/i)
+    expect(wrapper.text()).toContain('Save (converts to Draft)')
   })
 
   // @UT-AC-VIEW-132@

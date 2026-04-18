@@ -21,8 +21,9 @@
 
     <div v-else class="editor-body">
       <p v-if="source.status === 'verified'" class="verified-note" role="status">
-        This profile is <strong>Verified</strong>. Saving will create a new <strong>Draft</strong>
-        copy and leave the original untouched.
+        This profile is <strong>Verified</strong>. Saving will convert it back to a
+        <strong>Draft</strong> and update the entry in place. You can Verify it again afterwards
+        to lock it.
       </p>
 
       <AccordionSection
@@ -227,7 +228,7 @@ const canSave = computed(() => {
 
 const saveButtonLabel = computed(() => {
   if (!source.value) return 'Save'
-  return source.value.status === 'verified' ? 'Save as New Draft' : 'Save Draft'
+  return source.value.status === 'verified' ? 'Save (converts to Draft)' : 'Save Draft'
 })
 
 // ─── Load profile on mount ───────────────────────────────────────────────────

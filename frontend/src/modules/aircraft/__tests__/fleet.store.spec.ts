@@ -105,42 +105,41 @@ describe('useFleetStore', () => {
   })
 
   // @UT-AC-STORE-027@ (FROM: @IMP-AC-STORE-005@)
-  it('prior Verified version is unmodified after subsequent editVerifiedProfile', async () => {
+  it('editVerifiedProfile replaces the Verified record in place with a Draft', async () => {
     const store = useFleetStore()
     const draft = await store.createProfile(minimalProfileData())
     const verified = await store.verifyProfile(draft.id)
     const verifiedId = verified.id
 
-    // Create a draft copy from the Verified
-    const newDraft = await store.editVerifiedProfile(verifiedId, { registration: 'D-ECSM' })
+    const edited = await store.editVerifiedProfile(verifiedId, { registration: 'D-ECSM' })
 
-    // Original Verified must still exist and be unchanged
-    const stillVerified = store.profiles.find((p) => p.id === verifiedId)
-    expect(stillVerified).toBeDefined()
-    expect(stillVerified!.status).toBe('verified')
-    expect(stillVerified!.registration).toBe('D-EBPN') // unchanged
+    // Same id — no duplicate row in the fleet
+    expect(edited.id).toBe(verifiedId)
+    expect(store.profiles.filter((p) => p.id === verifiedId)).toHaveLength(1)
 
-    // New draft has the modified registration
-    expect(newDraft.status).toBe('draft')
-    expect(newDraft.registration).toBe('D-ECSM')
+    // The record at that id is now the edited Draft
+    const inFleet = store.profiles.find((p) => p.id === verifiedId)
+    expect(inFleet!.status).toBe('draft')
+    expect(inFleet!.registration).toBe('D-ECSM')
   })
 
   // @UT-AC-STORE-028@ (FROM: @IMP-AC-STORE-005@)
-  it('editVerifiedProfile creates new Draft, does not mutate Verified', async () => {
+  it('editVerifiedProfile converts status Verified → Draft and applies changes', async () => {
     const store = useFleetStore()
     const draft = await store.createProfile(minimalProfileData())
     const verified = await store.verifyProfile(draft.id)
 
-    const newDraft = await store.editVerifiedProfile(verified.id, { model: 'P2010' })
+    const edited = await store.editVerifiedProfile(verified.id, { model: 'P2010' })
 
-    expect(newDraft.status).toBe('draft')
-    expect(newDraft.id).not.toBe(verified.id)
-    expect(newDraft.model).toBe('P2010')
+    expect(edited.status).toBe('draft')
+    expect(edited.id).toBe(verified.id)
+    expect(edited.model).toBe('P2010')
 
-    // Verified is untouched
-    const verifiedInFleet = store.profiles.find((p) => p.id === verified.id)
-    expect(verifiedInFleet!.model).toBe('P2008 JC')
-    expect(verifiedInFleet!.status).toBe('verified')
+    // Fleet has exactly one row at that id, now Draft with the new model
+    const rows = store.profiles.filter((p) => p.id === verified.id)
+    expect(rows).toHaveLength(1)
+    expect(rows[0]!.status).toBe('draft')
+    expect(rows[0]!.model).toBe('P2010')
   })
 
   // @UT-AC-STORE-029@ (FROM: @IMP-AC-STORE-005@)
@@ -344,24 +343,27 @@ describe('useFleetStore', () => {
     expect(warning!.message).toContain(draftProfile.registration)
   })
 
-  // ── Verified snapshot isolation (Issue #157 DoD) ──
+  // ── editVerifiedProfile in-place replacement ──
 
   // @UT-AC-STORE-056@ (FROM: @IMP-AC-STORE-005@)
-  it('snapshot isolation: prior Verified version is byte-identical after editVerifiedProfile', async () => {
+  it('editVerifiedProfile preserves untouched fields when converting Verified to Draft', async () => {
     const store = useFleetStore()
     const draft = await store.createProfile(minimalProfileData())
     const verified = await store.verifyProfile(draft.id)
 
-    const verifiedSnapshot = JSON.parse(JSON.stringify(verified)) as AircraftProfile
-
-    await store.editVerifiedProfile(verified.id, {
+    const edited = await store.editVerifiedProfile(verified.id, {
       registration: 'D-ECSM',
       model: 'P2010',
     })
 
-    const verifiedInFleet = store.profiles.find((p) => p.id === verified.id)
-    expect(verifiedInFleet).toBeDefined()
-    expect(JSON.stringify(verifiedInFleet)).toBe(JSON.stringify(verifiedSnapshot))
+    expect(edited.id).toBe(verified.id)
+    expect(edited.status).toBe('draft')
+    expect(edited.registration).toBe('D-ECSM')
+    expect(edited.model).toBe('P2010')
+    // Fields that were not in the changes payload carry over unchanged
+    expect(edited.manufacturer).toBe(verified.manufacturer)
+    expect(edited.ownerId).toBe(verified.ownerId)
+    expect(edited.weighingReports).toEqual(verified.weighingReports)
   })
 
   // @UT-AC-STORE-057@ (FROM: @IMP-AC-STORE-005@)
@@ -461,8 +463,10 @@ describe('useFleetStore', () => {
     const editedDraft = await store.editVerifiedProfile(verified.id, { model: 'P2010' })
     expect(editedDraft.passengerProfiles).toEqual(passengerProfiles)
 
-    const verifiedInFleet = store.profiles.find((p) => p.id === verified.id)
-    expect(verifiedInFleet!.passengerProfiles).toEqual(passengerProfiles)
+    // Record at that id is now the edited Draft (Verified was replaced in place)
+    const inFleet = store.profiles.find((p) => p.id === verified.id)
+    expect(inFleet!.passengerProfiles).toEqual(passengerProfiles)
+    expect(inFleet!.status).toBe('draft')
   })
 
   // @UT-AC-STORE-065@ (FROM: @IMP-AC-STORE-005@, @IMP-AC-CORE-001@)

@@ -72,7 +72,7 @@ display. P2 never calls back into P1 — P1 functions are invoked from P2 only.
                   └─────────────┬─────────────────┘                   │
                                 │                                     │
                      verifyProfile()                    editVerifiedProfile()
-                     (new UUID, new snapshot)           (new UUID, Draft copy)
+                     (new UUID, new snapshot)           (same id, Verified → Draft)
                                 │                                     │
                                 ▼                                     │
                   ┌───────────────────────────────┐                   │
@@ -89,7 +89,7 @@ display. P2 never calls back into P1 — P1 functions are invoked from P2 only.
 | :----- | :--------- | :------------ |
 | `updateProfile()` | Allowed | **Blocked** — throws `VerifiedMutationError` |
 | `verifyProfile()` | Creates verified snapshot (new UUID), deletes draft | Error: already verified |
-| `editVerifiedProfile()` | Error: not verified | Creates draft copy (new UUID); prior verified row unchanged |
+| `editVerifiedProfile()` | Error: not verified | Replaces record in place (same id) with status `draft` and merged changes |
 | `deleteProfile()` | Allowed | Allowed |
 | Use in M&B calculation | Allowed; store prepends `WARN-AC-002` | Allowed, no draft warning |
 
