@@ -81,6 +81,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `app-version-blocked.spec.ts` unit tests validating REQ-SYS-006 gate (version-blocked state renders blocked screen; content hidden when blocked; gate is reactive)
 - Offline E2E smoke test added for PWA offline-first DoD verification (refs #162)
 - Bumped GitHub Actions to Node.js 24 runtime versions (`actions/checkout@v5`, `actions/upload-artifact@v5`, `actions/upload-pages-artifact@v5`, `github/codeql-action@v4`) to eliminate Node.js 20 deprecation warnings ahead of the June 2, 2026 runner cutover
+- Upgraded Vite from `^7.3.2` to `^8.0.8` in `frontend/package.json`; full build, type-check, lint, P1 isolation tests (302), and full unit suite (738) all pass. Peer-dependency warnings emitted by `vite-plugin-pwa@1.2.0` and `vite-plugin-vue-devtools@8.1.1` (both still advertise Vite ≤ 7 in peer deps); verified at runtime that PWA service-worker generation and devtools still function on Vite 8
+- Pinned `build.target` in `frontend/vite.config.ts` to `['chrome107', 'edge107', 'firefox104', 'safari16.0']` so the Vite 8 upgrade does not silently tighten the browser-compatibility envelope. Vite 8 advanced its `baseline-widely-available` preset to Chrome 111 / Edge 111 / Firefox 114 / Safari 16.4; pinning preserves Vite 7's prior baseline for pilots on older iPads and Chromebooks (safety-critical device continuity)
 
 ## [0.2.0-alpha] - 2026-04-03
 
