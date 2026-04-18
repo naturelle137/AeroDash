@@ -80,6 +80,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `FleetList.vue`, `ProfileStatusBadge.vue`, and additional `aircraft-model-catalogue` unit tests to bring `modules/aircraft` P2 coverage above the 80% threshold
 - Added `app-version-blocked.spec.ts` unit tests validating REQ-SYS-006 gate (version-blocked state renders blocked screen; content hidden when blocked; gate is reactive)
 - Offline E2E smoke test added for PWA offline-first DoD verification (refs #162)
+- Bumped GitHub Actions to Node.js 24 runtime versions (`actions/checkout@v5`, `actions/upload-artifact@v5`, `actions/upload-pages-artifact@v5`, `github/codeql-action@v4`) to eliminate Node.js 20 deprecation warnings ahead of the June 2, 2026 runner cutover
 
 ## [0.2.0-alpha] - 2026-04-03
 
