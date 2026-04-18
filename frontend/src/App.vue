@@ -34,7 +34,7 @@ interface NavItem {
 const navItems: NavItem[] = [
   { id: 'home',        label: 'Home',        path: '/',            icon: 'home' },
   { id: 'flight-prep', label: 'Flight Prep', path: '/mass-balance', icon: 'prep' },
-  { id: 'fleet',       label: 'Fleet',       path: '/fleet',       icon: 'fleet', soon: true },
+  { id: 'fleet',       label: 'Fleet',       path: '/fleet',       icon: 'fleet' },
   { id: 'weather',     label: 'Weather',     path: '/weather',     icon: 'wx',   soon: true },
   { id: 'fuel',        label: 'Fuel',        path: '/fuel',        icon: 'fuel', soon: true },
   { id: 'airport',     label: 'Airport DB',  path: '/airport',     icon: 'ap',   soon: true },

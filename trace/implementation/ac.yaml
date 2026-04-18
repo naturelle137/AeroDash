@@ -139,3 +139,109 @@ AC View — Model Catalogue and Components
       - REQ-AC-006
     files:
       - frontend/src/modules/aircraft/views/FleetManagementView.vue
+
+  IMP-AC-VIEW-009
+    title: AccordionSection template — reusable collapsible section with aria attributes
+    req:
+      - REQ-AC-001
+      - REQ-AC-005
+    files:
+      - frontend/src/modules/aircraft/components/AccordionSection.vue
+
+  IMP-AC-VIEW-010
+    title: AccordionSection script — toggle + modelValue contract
+    req:
+      - REQ-AC-001
+      - REQ-AC-005
+    files:
+      - frontend/src/modules/aircraft/components/AccordionSection.vue
+
+  IMP-AC-VIEW-011
+    title: IdentitySection template — identity fields editor wrapping AircraftModelSelector
+    req:
+      - REQ-AD-001
+      - REQ-AD-007
+      - REQ-AD-014
+      - REQ-AD-018
+      - REQ-AD-019
+    files:
+      - frontend/src/modules/aircraft/components/IdentitySection.vue
+
+  IMP-AC-VIEW-012
+    title: IdentitySection script — patch contract and shareCode null normalization
+    req:
+      - REQ-AD-001
+      - REQ-AD-007
+      - REQ-AD-014
+      - REQ-AD-018
+      - REQ-AD-019
+    files:
+      - frontend/src/modules/aircraft/components/IdentitySection.vue
+
+  IMP-AC-VIEW-013
+    title: WeighingReportsSection template — multi-row bem/cg/date editor (min 1 row)
+    req:
+      - REQ-AD-004
+      - REQ-AD-013
+    files:
+      - frontend/src/modules/aircraft/components/WeighingReportsSection.vue
+
+  IMP-AC-VIEW-014
+    title: WeighingReportsSection script — add/remove/patch with invalid-row detection
+    req:
+      - REQ-AD-004
+      - REQ-AD-013
+    files:
+      - frontend/src/modules/aircraft/components/WeighingReportsSection.vue
+
+  IMP-AC-VIEW-015
+    title: AircraftProfileEditorView template — accordion container with sticky save
+    req:
+      - REQ-AC-001
+      - REQ-AC-005
+      - REQ-AD-001
+      - REQ-AD-004
+      - REQ-AD-007
+      - REQ-AD-013
+      - REQ-AD-014
+      - REQ-AD-018
+      - REQ-AD-019
+    files:
+      - frontend/src/modules/aircraft/views/AircraftProfileEditorView.vue
+
+  IMP-AC-VIEW-016
+    title: AircraftProfileEditorView script — hydrate, dirty-track, dispatch updateProfile/editVerifiedProfile
+    req:
+      - REQ-AC-001
+      - REQ-AC-005
+      - REQ-AD-001
+      - REQ-AD-004
+      - REQ-AD-007
+      - REQ-AD-013
+      - REQ-AD-014
+      - REQ-AD-018
+      - REQ-AD-019
+    files:
+      - frontend/src/modules/aircraft/views/AircraftProfileEditorView.vue
+
+  IMP-AC-VIEW-017
+    title: LoadPointsSection template — per-station editor with fuel-tank extension
+    req:
+      - REQ-AD-002
+      - REQ-AD-003
+      - REQ-AD-005
+      - REQ-AD-011
+      - REQ-AD-012
+    files:
+      - frontend/src/modules/aircraft/components/LoadPointsSection.vue
+
+  IMP-AC-VIEW-018
+    title: LoadPointsSection script — add/remove row, fuel-tank toggle, fuel-type multi-select
+    req:
+      - REQ-AD-002
+      - REQ-AD-003
+      - REQ-AD-005
+      - REQ-AD-011
+      - REQ-AD-012
+    files:
+      - frontend/src/modules/aircraft/components/LoadPointsSection.vue

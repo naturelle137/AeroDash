@@ -119,7 +119,7 @@ Active route detection uses a helper function `isActive(item)`:
 | --- | --- | --- | --- |
 | `home` | Home | `/` | Active |
 | `flight-prep` | Flight Prep | `/mass-balance` | Active |
-| `fleet` | Fleet | `/fleet` | Coming soon |
+| `fleet` | Fleet | `/fleet` | Active |
 | `weather` | Weather | `/weather` | Coming soon |
 | `fuel` | Fuel | `/fuel` | Coming soon |
 | `airport` | Airport DB | `/airport` | Coming soon |
@@ -134,6 +134,8 @@ Defined in `frontend/src/router/index.ts` — tagged `@IMP-UI-ROUTE-001@`.
 | --- | --- | --- | --- |
 | `/` | `home` | `HomeView.vue` | Lazy-loaded |
 | `/mass-balance` | `mass-balance` | `MassBalanceView.vue` | Eager-loaded |
+| `/fleet` | `fleet` | `FleetManagementView.vue` | Eager-loaded |
+| `/fleet/:id/edit` | `fleet-edit` | `AircraftProfileEditorView.vue` | Lazy-loaded |
 
 All future module routes follow the pattern `/module-id` matching the nav item paths
 above. When a module ships, its route is added here and the `soon` flag removed from

@@ -51,14 +51,8 @@
             Verify
           </button>
 
-          <!-- Edit verified profile (creates new Draft) -->
-          <button
-            v-if="profile.status === 'verified'"
-            class="btn btn-secondary"
-            @click="onEditVerified(profile.id)"
-          >
-            Edit
-          </button>
+          <!-- Edit profile (draft: in-place save; verified: saving creates a new Draft) -->
+          <button class="btn btn-secondary" @click="onEdit(profile.id)">Edit</button>
 
           <!-- Delete profile -->
           <button class="btn btn-danger" @click="onDelete(profile.id, profile.registration)">
@@ -71,6 +65,7 @@
 </template>
 
 <script setup lang="ts">
+import { useRouter } from 'vue-router'
 import type { AircraftProfile } from '@/core/adapters/aircraft.schema'
 import { useFleetStore } from '../stores/fleet.store'
 import { useActiveAircraftStore } from '../stores/active-aircraft.store'
@@ -78,6 +73,7 @@ import ProfileStatusBadge from './ProfileStatusBadge.vue'
 
 // @IMP-AC-VIEW-006@ (FROM: @REQ-AC-001@, @REQ-AC-005@)
 
+const router = useRouter()
 const fleetStore = useFleetStore()
 const activeStore = useActiveAircraftStore()
 
@@ -91,8 +87,8 @@ async function onVerify(id: string): Promise<void> {
   await fleetStore.verifyProfile(id)
 }
 
-async function onEditVerified(id: string): Promise<void> {
-  await fleetStore.editVerifiedProfile(id, {})
+function onEdit(id: string): void {
+  router.push({ name: 'fleet-edit', params: { id } })
 }
 
 async function onDelete(id: string, registration: string): Promise<void> {

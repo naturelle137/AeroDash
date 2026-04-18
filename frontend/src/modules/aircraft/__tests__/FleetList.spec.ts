@@ -12,6 +12,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { createPinia, setActivePinia, defineStore } from 'pinia'
 import { ref } from 'vue'
+import { createRouter, createMemoryHistory, type Router } from 'vue-router'
 import FleetList from '../components/FleetList.vue'
 import type { AircraftProfile } from '@/core/adapters/aircraft.schema'
 
@@ -105,16 +106,31 @@ function makeActiveStore(activeProfile: AircraftProfile | null = null) {
   })
 }
 
+function makeRouter(): Router {
+  const router = createRouter({
+    history: createMemoryHistory('/'),
+    routes: [
+      { path: '/', name: 'home', component: { template: '<div />' } },
+      { path: '/fleet', name: 'fleet', component: { template: '<div />' } },
+      { path: '/fleet/:id/edit', name: 'fleet-edit', component: { template: '<div />' } },
+    ],
+  })
+  return router
+}
+
 function mountFleetList(options: {
   isLoading?: boolean
   profiles?: AircraftProfile[]
   activeProfile?: AircraftProfile | null
+  router?: Router
 }) {
   const pinia = createPinia()
   setActivePinia(pinia)
   makeFleetStore({ isLoading: options.isLoading, profiles: options.profiles })()
   makeActiveStore(options.activeProfile ?? null)()
-  return mount(FleetList, { global: { plugins: [pinia] } })
+  const router = options.router ?? makeRouter()
+  router.push('/fleet')
+  return mount(FleetList, { global: { plugins: [pinia, router] } })
 }
 
 describe('FleetList — loading state', () => {
@@ -220,11 +236,24 @@ describe('FleetList — action buttons', () => {
   })
 
   // @UT-AC-VIEW-091@ (FROM: @IMP-AC-VIEW-006@)
-  it('shows Edit button only for Verified profiles', () => {
-    const verified = makeProfile({ status: 'verified' })
-    const wrapper = mountFleetList({ profiles: [verified] })
-    expect(wrapper.find('.btn-secondary').exists()).toBe(true)
-    expect(wrapper.find('.btn-success').exists()).toBe(false)
+  it('shows Edit button for both Draft and Verified profiles', () => {
+    const verified = makeProfile({ id: 'v1', status: 'verified' })
+    const draft = makeProfile({ id: 'd1', status: 'draft' })
+    const wrapperV = mountFleetList({ profiles: [verified] })
+    expect(wrapperV.find('.btn-secondary').exists()).toBe(true)
+    expect(wrapperV.find('.btn-success').exists()).toBe(false)
+    const wrapperD = mountFleetList({ profiles: [draft] })
+    expect(wrapperD.find('.btn-secondary').exists()).toBe(true)
+  })
+
+  // @UT-AC-VIEW-093@ (FROM: @IMP-AC-VIEW-006@, @IMP-UI-ROUTE-002@)
+  it('navigates to fleet-edit route when Edit is clicked', async () => {
+    const router = makeRouter()
+    const pushSpy = vi.spyOn(router, 'push')
+    const profile = makeProfile({ id: 'p-nav-1', status: 'verified' })
+    const wrapper = mountFleetList({ profiles: [profile], router })
+    await wrapper.find('.btn-secondary').trigger('click')
+    expect(pushSpy).toHaveBeenCalledWith({ name: 'fleet-edit', params: { id: 'p-nav-1' } })
   })
 
   // @UT-AC-VIEW-092@ (FROM: @IMP-AC-VIEW-006@)

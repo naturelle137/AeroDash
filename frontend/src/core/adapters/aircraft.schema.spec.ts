@@ -652,6 +652,170 @@ describe('AircraftProfileSchema — fuel tank extension violations', () => {
   })
 })
 
+// ─── Operating cost violations (REQ-AD-006) ─────────────────────────────────
+
+describe('AircraftProfileSchema — operating cost (fuelCostIncluded)', () => {
+  // @UT-AD-CORE-050@ (FROM: @IMP-AD-CORE-016@)
+  it('accepts fuelCostIncluded = true alongside costPerHour', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        p.costPerHour = 180
+        p.fuelCostIncluded = true
+      }),
+    )
+    expect(result.success).toBe(true)
+    if (!result.success) return
+    expect(result.data.fuelCostIncluded).toBe(true)
+  })
+
+  // @UT-AD-CORE-051@ (FROM: @IMP-AD-CORE-016@)
+  it('accepts fuelCostIncluded = false alongside costPerHour', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        p.costPerHour = 180
+        p.fuelCostIncluded = false
+      }),
+    )
+    expect(result.success).toBe(true)
+    if (!result.success) return
+    expect(result.data.fuelCostIncluded).toBe(false)
+  })
+
+  // @UT-AD-CORE-052@ (FROM: @IMP-AD-CORE-016@)
+  it('rejects a non-boolean fuelCostIncluded value', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        p.fuelCostIncluded = 'yes'
+      }),
+    )
+    expect(result.success).toBe(false)
+  })
+})
+
+// ─── Performance profile validation (REQ-AD-008, REQ-AD-009) ────────────────
+
+describe('AircraftProfileSchema — performance profiles', () => {
+  // @UT-AD-CORE-053@ (FROM: @IMP-AD-CORE-014@)
+  it('accepts a performance profile with a valid flight phase and empty data points', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        p.performanceProfiles = [{ flightPhase: 'TakeoffRoll', dataPoints: [] }]
+      }),
+    )
+    expect(result.success).toBe(true)
+  })
+
+  // @UT-AD-CORE-054@ (FROM: @IMP-AD-CORE-014@)
+  it('accepts all four documented flight phases', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        p.performanceProfiles = [
+          { flightPhase: 'TakeoffRoll', dataPoints: [] },
+          { flightPhase: 'TakeoffDistance50ft', dataPoints: [] },
+          { flightPhase: 'LandingRoll', dataPoints: [] },
+          { flightPhase: 'LandingDistance50ft', dataPoints: [] },
+        ]
+      }),
+    )
+    expect(result.success).toBe(true)
+  })
+
+  // @UT-AD-CORE-055@ (FROM: @IMP-AD-CORE-014@)
+  it('rejects a performance profile with an invalid flight phase enum', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        p.performanceProfiles = [{ flightPhase: 'Climb', dataPoints: [] }]
+      }),
+    )
+    expect(result.success).toBe(false)
+  })
+
+  // @UT-AD-CORE-056@ (FROM: @IMP-AD-CORE-014@)
+  it('accepts exactly 1000 performance data points (upper boundary)', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        p.performanceProfiles = [
+          {
+            flightPhase: 'TakeoffDistance50ft',
+            dataPoints: Array.from({ length: 1000 }, (_, i) => ({
+              distance: 100 + i,
+              mass: 600,
+              pressureAltitude: i,
+              temperature: 15,
+            })),
+          },
+        ]
+      }),
+    )
+    expect(result.success).toBe(true)
+  })
+
+  // @UT-AD-CORE-057@ (FROM: @IMP-AD-CORE-014@)
+  it('rejects a performance profile with more than 1000 data points', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        p.performanceProfiles = [
+          {
+            flightPhase: 'TakeoffDistance50ft',
+            dataPoints: Array.from({ length: 1001 }, (_, i) => ({
+              distance: 100 + i,
+              mass: 600,
+              pressureAltitude: i,
+              temperature: 15,
+            })),
+          },
+        ]
+      }),
+    )
+    expect(result.success).toBe(false)
+  })
+
+  // @UT-AD-CORE-058@ (FROM: @IMP-AD-CORE-015@)
+  it('rejects a performance data point missing the required mass field', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        p.performanceProfiles = [
+          {
+            flightPhase: 'LandingRoll',
+            dataPoints: [{ distance: 200, pressureAltitude: 0, temperature: 15 }],
+          },
+        ]
+      }),
+    )
+    expect(result.success).toBe(false)
+  })
+
+  // @UT-AD-CORE-059@ (FROM: @IMP-AD-CORE-015@)
+  it('rejects a performance data point with non-positive mass', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        p.performanceProfiles = [
+          {
+            flightPhase: 'LandingRoll',
+            dataPoints: [{ distance: 200, mass: 0, pressureAltitude: 0, temperature: 15 }],
+          },
+        ]
+      }),
+    )
+    expect(result.success).toBe(false)
+  })
+
+  // @UT-AD-CORE-060@ (FROM: @IMP-AD-CORE-015@)
+  it('rejects a performance data point with a negative distance', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        p.performanceProfiles = [
+          {
+            flightPhase: 'LandingDistance50ft',
+            dataPoints: [{ distance: -1, mass: 600, pressureAltitude: 0, temperature: 15 }],
+          },
+        ]
+      }),
+    )
+    expect(result.success).toBe(false)
+  })
+})
+
 // ─── Wind limit violations ────────────────────────────────────────────────────
 
 describe('AircraftProfileSchema — wind limit violations', () => {

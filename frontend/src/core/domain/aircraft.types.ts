@@ -59,6 +59,25 @@ export interface WeighingReport {
   validFrom: string
 }
 
+// @IMP-AD-CORE-017@ (FROM: @REQ-AD-008@, @REQ-AD-009@)
+export type FlightPhase =
+  | 'TakeoffRoll'
+  | 'TakeoffDistance50ft'
+  | 'LandingRoll'
+  | 'LandingDistance50ft'
+
+export interface PerformanceDataPoint {
+  distance: number
+  mass: number
+  pressureAltitude: number
+  temperature: number
+}
+
+export interface PerformanceProfile {
+  flightPhase: FlightPhase
+  dataPoints: PerformanceDataPoint[]
+}
+
 /**
  * Subset of AircraftProfile required for Mass & Balance calculations.
  *

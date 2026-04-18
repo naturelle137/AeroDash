@@ -5,11 +5,14 @@ import { z } from 'zod'
  * P1 Safety Core — pure TypeScript, no framework dependencies.
  *
  * M2 (Basic M&B): All fields in this file except the M3/M4 placeholder
- * fields are strictly validated. Performance and Checklists are typed as
- * unknown until their milestone specs are finalized.
+ * fields are strictly validated.
  *
  * M3 (Aircraft Fleet Management): Added status, schemaVersion,
  * passengerProfiles, costPerHour, and checklistScaffold fields.
+ *
+ * M4 (Performance): performanceProfiles fully typed with flight phase
+ * enumeration and up to 1000 data points per profile (REQ-AD-008, REQ-AD-009).
+ * fuelCostIncluded flag added alongside costPerHour (REQ-AD-006).
  *
  * @see docs/architecture/aircraft_data_model.md
  * @see docs/architecture/adr/003-aircraft-data-model.md
@@ -100,6 +103,25 @@ const ChecklistScaffoldItemSchema = z.object({
   items: z.array(z.string()),
 })
 
+// @IMP-AD-CORE-015@ (FROM: @REQ-AD-009@, @DES-ARCH-002@)
+const PerformanceDataPointSchema = z.object({
+  distance: z.number().nonnegative(),
+  mass: z.number().positive(),
+  pressureAltitude: z.number(),
+  temperature: z.number(),
+})
+
+// @IMP-AD-CORE-014@ (FROM: @REQ-AD-008@, @REQ-AD-009@, @DES-ARCH-002@)
+const PerformanceProfileSchema = z.object({
+  flightPhase: z.enum([
+    'TakeoffRoll',
+    'TakeoffDistance50ft',
+    'LandingRoll',
+    'LandingDistance50ft',
+  ]),
+  dataPoints: z.array(PerformanceDataPointSchema).max(1000),
+})
+
 // @IMP-AD-CORE-004@ (FROM: @REQ-AD-001@, @REQ-AD-002@, @REQ-AD-003@, @REQ-AD-005@, @REQ-AD-011@, @REQ-AD-012@, @REQ-AD-014@, @DES-ARCH-002@)
 // @IMP-AC-CORE-002@ (FROM: @REQ-AC-001@, @REQ-AC-005@, @REQ-AC-006@, @REQ-AD-006@, @REQ-AD-007@, @REQ-AD-010@)
 export const AircraftProfileSchema = z
@@ -137,9 +159,11 @@ export const AircraftProfileSchema = z
     safetyFactors: SafetyFactorsSchema.optional(),
     // M3: Supplementary fields (REQ-AD-006, REQ-AD-007)
     costPerHour: z.number().nonnegative().optional(),
+    // @IMP-AD-CORE-016@ (FROM: @REQ-AD-006@)
+    fuelCostIncluded: z.boolean().optional(),
     checklistScaffold: z.array(ChecklistScaffoldItemSchema).optional(),
-    // M4 placeholder field — typed as unknown until milestone spec is finalized
-    performanceProfiles: z.array(z.unknown()).optional(),
+    // M4: Performance profiles fully typed (REQ-AD-008, REQ-AD-009)
+    performanceProfiles: z.array(PerformanceProfileSchema).optional(),
   })
   .superRefine((data, ctx) => {
     const fuelTankCount = data.loadPoints.filter((lp) => lp.fuelTank !== null).length
@@ -183,3 +207,6 @@ export type AircraftProfileSafetyFactors = z.infer<typeof SafetyFactorsSchema>
 export type AircraftProfileStatus = z.infer<typeof AircraftProfileSchema>['status']
 export type AircraftProfilePassengerProfile = z.infer<typeof PassengerProfileSchema>
 export type AircraftProfileChecklistScaffoldItem = z.infer<typeof ChecklistScaffoldItemSchema>
+// M4 types
+export type AircraftProfilePerformanceProfile = z.infer<typeof PerformanceProfileSchema>
+export type AircraftProfilePerformanceDataPoint = z.infer<typeof PerformanceDataPointSchema>

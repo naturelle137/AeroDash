@@ -105,3 +105,37 @@ AD Core (domain + mass-balance input schema)
       - REQ-AD-013
     files:
       - frontend/src/core/adapters/aircraft.schema.ts
+
+  IMP-AD-CORE-014
+    title: PerformanceProfileSchema — flight phase enum and dataPoints (max 1000) Zod schema
+    req:
+      - REQ-AD-008
+      - REQ-AD-009
+    des:
+      - DES-ARCH-002
+    files:
+      - frontend/src/core/adapters/aircraft.schema.ts
+
+  IMP-AD-CORE-015
+    title: PerformanceDataPointSchema — distance, mass, pressureAltitude, temperature Zod schema
+    req:
+      - REQ-AD-009
+    des:
+      - DES-ARCH-002
+    files:
+      - frontend/src/core/adapters/aircraft.schema.ts
+
+  IMP-AD-CORE-016
+    title: fuelCostIncluded field on AircraftProfileSchema — completes REQ-AD-006 cost pair
+    req:
+      - REQ-AD-006
+    files:
+      - frontend/src/core/adapters/aircraft.schema.ts
+
+  IMP-AD-CORE-017
+    title: PerformanceProfile and PerformanceDataPoint domain types
+    req:
+      - REQ-AD-008
+      - REQ-AD-009
+    files:
+      - frontend/src/core/domain/aircraft.types.ts

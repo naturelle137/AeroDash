@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Fleet module accordion-style aircraft profile editor (`AircraftProfileEditorView.vue`) with Identity, Load Stations, and Weighing Reports sections, always-visible sticky Save footer, and dirty-tracking so no draft-bump occurs on edit-start — only on save (REQ-AC-001, REQ-AC-005, REQ-AD-001, REQ-AD-002, REQ-AD-003, REQ-AD-004, REQ-AD-005, REQ-AD-007, REQ-AD-011, REQ-AD-012, REQ-AD-013, REQ-AD-014, REQ-AD-018, REQ-AD-019)
+- Reusable `AccordionSection.vue`, `IdentitySection.vue`, `LoadPointsSection.vue`, and `WeighingReportsSection.vue` components backing the editor; LoadPointsSection covers station name, arm (with armLookup passthrough), operational limit, default quantity, unit (kg/lb/L/USG/IMP gal), and fuel-tank extension (unusable fuel + permissible fuel types: MoGas, AvGas 100LL, AvGas UL91, Jet A-1, Diesel)
+- `sourceUnit` in the Identity section is a constrained select (`kg` | `lb`) — POH mass unit only; per-station quantities and fuel volume units are configured per LoadPoint
+- `/fleet/:id/edit` route and FleetList "Edit" button now navigates to the editor; saving a Verified profile creates a new Draft snapshot via `editVerifiedProfile()`, saving a Draft updates it in-place via `updateProfile()`
+- Fleet tab enabled in the sidebar and bottom navigation (removed `soon` flag)
+- Unit tests for `AccordionSection`, `IdentitySection`, `LoadPointsSection`, `WeighingReportsSection`, and `AircraftProfileEditorView` (`UT-AC-VIEW-093`, `UT-AC-VIEW-100..151`)
+- Full aircraft data model implementation per REQ-AD-001..019: `fuelCostIncluded` boolean on `AircraftProfile` (REQ-AD-006) and fully-typed `performanceProfiles` with `flightPhase` enum and up to 1000 `PerformanceDataPoint` entries per profile (REQ-AD-008, REQ-AD-009)
+- `PerformanceProfile` / `PerformanceDataPoint` / `FlightPhase` domain types in `core/domain/aircraft.types.ts`
+- Eleven new unit tests covering `fuelCostIncluded`, flight phase enum validation, data-point boundary (1000), and data-point field constraints (`UT-AD-CORE-050`..`UT-AD-CORE-060`)
 - Aircraft model catalogue as versioned JSON (`aircraft-model-catalogue.json`) with stable row `id`s; ICAO reverse lookup auto-fills manufacturer/model when the designator matches exactly one row (closes #158)
 - `useFleetStore` fleet hydration states `fleetLoadState` (`LOADING` / `READY` / `ERROR`) and `fleetLoadError`; initial state is `LOADING` so the fleet list does not flash empty before `loadAll()`; fleet list shows error UI with retry on IndexedDB failure (closes #158)
 - ADR-008: IndexedDB migration strategy — defines schema versioning, forward-only migrations, and `schemaVersion` field contract for all IndexedDB stores
@@ -39,6 +48,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Aircraft profile editor UI: removed engineering-only requirement IDs (`REQ-AD-*`, `REQ-AC-*`) from user-facing labels, hints, and error messages — traceability tags remain in `@IMP-*@` code comments where they belong
+- Aircraft profile editor UI: `sourceUnit` field restricted to `kg` | `lb` via a dropdown — previously a free-text input that accepted arbitrary strings
+- Aircraft profile editor UI: new Load Stations accordion section makes the previously inaccessible `loadPoints` aggregate editable so pilots can define seats, baggage areas, and fuel tanks needed to perform mass & balance
+- `fleetStore.editVerifiedProfile()` now replaces the Verified record **in place** with the new Draft (same `id`) instead of inserting a new UUID'd row beside the untouched Verified — eliminates the "edit produces a duplicate row" UX. REQ-AC-005 store-layer immutability is still enforced (`VerifiedMutationError` on direct `updateProfile()` of Verified profiles; the only path Verified → Draft remains `editVerifiedProfile()`).
 - ADR-007 enhanced with versioning, update-path, and notification sections documenting the PWA update lifecycle
 - `App.vue`: version-blocked screen replaces the prior banner — `<RouterView>` is now gated behind `v-if="!appVersionStore.versionBlocked"` so all safety-critical features are blocked when the version is below minimum (REQ-SYS-006)
 - `app-version.store.ts`: JSDoc updated to document the build-time constant limitation for `minSafeVersion` and the planned remote fetch path before v1.0.0 (REQ-SYS-006)

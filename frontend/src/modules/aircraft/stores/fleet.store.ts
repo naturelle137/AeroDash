@@ -219,10 +219,16 @@ export const useFleetStore = defineStore('fleet', () => {
 
   /**
    * Begin editing a Verified profile:
-   * Creates a new Draft copy (new UUID) with the provided changes.
-   * The original Verified snapshot is NOT modified.
+   * Replaces the Verified record with a new Draft at the **same `id`**, merging
+   * the provided changes. The Verified → Draft transition is the only way to
+   * mutate a Verified record — direct `updateProfile()` on a Verified profile
+   * is still blocked by {@link VerifiedMutationError}.
    *
-   * SAFETY: The original Verified profile remains in the fleet as the source of truth.
+   * Rationale: REQ-AC-005 requires Verified records to be immutable at the store
+   * layer, which this contract preserves (we never write a mutation to a record
+   * that is still Verified). It does not require retaining the old Verified row
+   * as an audit trail — keeping duplicate rows around confuses the pilot's fleet
+   * view and was the source of perceived "new entry on every edit" behaviour.
    */
   async function editVerifiedProfile(
     id: string,
@@ -239,12 +245,23 @@ export const useFleetStore = defineStore('fleet', () => {
     const draftCopy: AircraftProfile = AircraftProfileSchema.parse({
       ...verified,
       ...changes,
-      id: uuidv4(),
+      id,
       status: 'draft',
     })
 
-    await fleetRepository.create(draftCopy)
-    profiles.value.push(draftCopy)
+    await fleetRepository.update(draftCopy)
+    const idx = profiles.value.findIndex((p) => p.id === id)
+    if (idx !== -1) {
+      profiles.value[idx] = draftCopy
+    }
+
+    // If the edited Verified was the active aircraft, the reference needs to
+    // track the new Draft so the rest of the app sees the updated data.
+    const activeStore = useActiveAircraftStore()
+    if (activeStore.activeProfile?.id === id) {
+      activeStore.setActiveProfile(draftCopy)
+    }
+
     return draftCopy
   }
 

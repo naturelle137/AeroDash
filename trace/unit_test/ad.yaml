@@ -322,3 +322,82 @@ AD Schema — Wind Limits (Unit)
       - IMP-AD-CORE-009
     files:
       - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+AD Schema — Operating Cost (Unit)
+  UT-AD-CORE-050
+    title: Accepts fuelCostIncluded = true alongside costPerHour
+    impl:
+      - IMP-AD-CORE-016
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AD-CORE-051
+    title: Accepts fuelCostIncluded = false alongside costPerHour
+    impl:
+      - IMP-AD-CORE-016
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AD-CORE-052
+    title: Rejects a non-boolean fuelCostIncluded value
+    impl:
+      - IMP-AD-CORE-016
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+AD Schema — Performance Profiles (Unit)
+  UT-AD-CORE-053
+    title: Accepts a performance profile with a valid flight phase and empty data points
+    impl:
+      - IMP-AD-CORE-014
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AD-CORE-054
+    title: Accepts all four documented flight phases
+    impl:
+      - IMP-AD-CORE-014
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AD-CORE-055
+    title: Rejects a performance profile with an invalid flight phase enum
+    impl:
+      - IMP-AD-CORE-014
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AD-CORE-056
+    title: Accepts exactly 1000 performance data points (upper boundary)
+    impl:
+      - IMP-AD-CORE-014
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AD-CORE-057
+    title: Rejects a performance profile with more than 1000 data points
+    impl:
+      - IMP-AD-CORE-014
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AD-CORE-058
+    title: Rejects a performance data point missing the required mass field
+    impl:
+      - IMP-AD-CORE-015
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AD-CORE-059
+    title: Rejects a performance data point with non-positive mass
+    impl:
+      - IMP-AD-CORE-015
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AD-CORE-060
+    title: Rejects a performance data point with a negative distance
+    impl:
+      - IMP-AD-CORE-015
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
