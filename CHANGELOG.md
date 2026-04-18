@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Fleet module accordion-style aircraft profile editor (`AircraftProfileEditorView.vue`) with Identity and Weighing Reports sections, always-visible sticky Save footer, and dirty-tracking so no draft-bump occurs on edit-start — only on save (REQ-AC-001, REQ-AC-005, REQ-AD-001, REQ-AD-004, REQ-AD-007, REQ-AD-013, REQ-AD-014, REQ-AD-018, REQ-AD-019)
+- Reusable `AccordionSection.vue`, `IdentitySection.vue`, and `WeighingReportsSection.vue` components backing the editor
+- `/fleet/:id/edit` route and FleetList "Edit" button now navigates to the editor; saving a Verified profile creates a new Draft snapshot via `editVerifiedProfile()`, saving a Draft updates it in-place via `updateProfile()`
+- Fleet tab enabled in the sidebar and bottom navigation (removed `soon` flag)
+- Unit tests for `AccordionSection`, `IdentitySection`, `WeighingReportsSection`, and `AircraftProfileEditorView` (`UT-AC-VIEW-093`, `UT-AC-VIEW-100..137`)
 - Full aircraft data model implementation per REQ-AD-001..019: `fuelCostIncluded` boolean on `AircraftProfile` (REQ-AD-006) and fully-typed `performanceProfiles` with `flightPhase` enum and up to 1000 `PerformanceDataPoint` entries per profile (REQ-AD-008, REQ-AD-009)
 - `PerformanceProfile` / `PerformanceDataPoint` / `FlightPhase` domain types in `core/domain/aircraft.types.ts`
 - Eleven new unit tests covering `fuelCostIncluded`, flight phase enum validation, data-point boundary (1000), and data-point field constraints (`UT-AD-CORE-050`..`UT-AD-CORE-060`)

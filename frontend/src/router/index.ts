@@ -22,6 +22,12 @@ const router = createRouter({
       name: 'fleet',
       component: FleetManagementView,
     },
+    // @IMP-UI-ROUTE-002@ (FROM: @REQ-AC-001@, @REQ-AC-005@)
+    {
+      path: '/fleet/:id/edit',
+      name: 'fleet-edit',
+      component: () => import('@/modules/aircraft/views/AircraftProfileEditorView.vue'),
+    },
   ],
 })
 
