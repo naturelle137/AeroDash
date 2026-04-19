@@ -87,6 +87,7 @@ function decrement(): void {
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem;
+  flex-wrap: wrap;
 }
 
 .mass-station-input--disabled {
@@ -178,5 +179,38 @@ function decrement(): void {
 .mass-station-input__field::-webkit-outer-spin-button {
   -webkit-appearance: none;
   margin: 0;
+}
+
+/* ─── Mobile portrait: stack label above control so the + button is never clipped ─── */
+@media (max-width: 480px) {
+  .mass-station-input {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.375rem;
+  }
+
+  .mass-station-input__label {
+    min-width: 0;
+  }
+
+  .mass-station-input__control {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .mass-station-input__field {
+    flex: 1 1 auto;
+    width: auto;
+  }
+
+  .mass-station-input__unit {
+    position: absolute;
+    right: 0.75rem;
+    top: 0.5rem;
+  }
+
+  .mass-station-input {
+    position: relative;
+  }
 }
 </style>
