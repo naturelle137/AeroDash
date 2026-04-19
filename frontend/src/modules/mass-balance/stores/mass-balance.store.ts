@@ -25,6 +25,7 @@
 import { defineStore } from 'pinia'
 import { calculateMassBalance } from '@/core/adapters/mass-balance.adapter'
 import { normalizeMassToKg, normalizeArmToM } from '@/core/logic/unit-normalization'
+import { normalizeFuelQuantityToKg, isFuelQuantityUnit } from '@/core/logic/fuel-mass'
 import type { MassUnit, ArmUnit } from '@/core/domain/units'
 import type {
   MassBalanceState,
@@ -375,14 +376,22 @@ export const useMassBalanceStore = defineStore('massBalance', {
           .map((s) => {
             const def = this.aircraft!.loadPoints[s.index]!
             const ft = def.fuelTank!
-            const massUnit = (def.unit || sourceUnit) as MassUnit
+            // Fuel tanks may be expressed in volume (L, USG, IMPgal) or mass
+            // (kg, lb). normalizeFuelQuantityToKg converts either into kg using
+            // the density of the tank's first permissible fuel type — a volume
+            // input must go through fuel-density conversion, not through the
+            // mass-only normalizeMassToKg which silently treats 'L' as 'kg'
+            // (H-002 — fuel unit confusion).
+            const rawUnit = def.unit || sourceUnit
+            const fuelUnit = isFuelQuantityUnit(rawUnit) ? rawUnit : (sourceUnit as MassUnit)
+            const permissible = ft.permissibleFuelTypes
             const armUnit = 'm' as ArmUnit
             return {
               index: s.index,
-              mass: normalizeMassToKg(s.weight, massUnit),
+              mass: normalizeFuelQuantityToKg(s.weight, fuelUnit, permissible),
               arm: def.arm !== null ? normalizeArmToM(def.arm, armUnit) : null,
               armLookup: def.armLookup,
-              unusableFuel: normalizeMassToKg(ft.unusableFuel, massUnit),
+              unusableFuel: normalizeFuelQuantityToKg(ft.unusableFuel, fuelUnit, permissible),
               burnSequences: ft.burnSequences,
             }
           }),
