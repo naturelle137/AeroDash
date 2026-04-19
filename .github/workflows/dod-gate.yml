@@ -32,7 +32,13 @@ jobs:
           script: |
             const { owner, repo } = context.repo;
             const pr = context.payload.pull_request;
-            const body = pr.body || '';
+            const rawBody = pr.body || '';
+
+            // Strip code regions so example text like `Closes #116` in prose
+            // does not trigger the gate. Fenced blocks first, then inline code.
+            const body = rawBody
+              .replace(/```[\s\S]*?```/g, '')
+              .replace(/`[^`\n]*`/g, '');
 
             // Match "closes #123", "fixes #45", "resolves #6" (case-insensitive).
             // Captures repeated references after a single keyword too
