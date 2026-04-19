@@ -52,6 +52,10 @@
         :value="icaoTypeDesignator"
         placeholder="e.g. C172"
         maxlength="4"
+        autocapitalize="characters"
+        autocorrect="off"
+        autocomplete="off"
+        spellcheck="false"
         @input="onIcaoInput(($event.target as HTMLInputElement).value)"
       />
       <!-- Bidirectional lookup results (REQ-UI-004) -->

@@ -50,21 +50,20 @@ describe('IdentitySection — rendering', () => {
     expect(wrapper.text()).toContain('Invalid registration format.')
   })
 
-  // @UT-AC-VIEW-112@
-  it('renders empty string for null shareCode', () => {
-    const wrapper = mount(IdentitySection, {
-      props: { modelValue: makeFields({ shareCode: null }), sectionId: 'test' },
-    })
-    const share = wrapper.find('#test-shareCode')
-    expect((share.element as HTMLInputElement).value).toBe('')
-  })
-
   // @UT-AC-VIEW-116@
   it('does not render an ownerId input field', () => {
     const wrapper = mount(IdentitySection, {
       props: { modelValue: makeFields(), sectionId: 'test' },
     })
     expect(wrapper.find('#test-ownerId').exists()).toBe(false)
+  })
+
+  // @UT-AC-VIEW-117@ — share code is a future cloud-generated field; never user input
+  it('does not render a share-code input field', () => {
+    const wrapper = mount(IdentitySection, {
+      props: { modelValue: makeFields({ shareCode: null }), sectionId: 'test' },
+    })
+    expect(wrapper.find('#test-shareCode').exists()).toBe(false)
   })
 })
 
@@ -81,25 +80,21 @@ describe('IdentitySection — emits', () => {
     expect(emitted[emitted.length - 1]?.[0]).toMatchObject({ registration: 'G-ABCD' })
   })
 
-  // @UT-AC-VIEW-114@
-  it('emits null shareCode when input is blanked', async () => {
+  // @UT-AC-VIEW-118@ — multi-emit batch preserves prior changes (iOS defect regression)
+  it('preserves prior patches when AircraftModelSelector fires manufacturer + model + icao back-to-back', async () => {
     const wrapper = mount(IdentitySection, {
-      props: { modelValue: makeFields({ shareCode: 'ABC-123' }), sectionId: 'test' },
+      props: { modelValue: makeFields({ manufacturer: '', model: '', icaoTypeDesignator: '' }), sectionId: 'test' },
     })
-    const share = wrapper.find('#test-shareCode')
-    await share.setValue('')
+    const selector = wrapper.findComponent({ name: 'AircraftModelSelector' })
+    // Simulate AircraftModelSelector's onManufacturerChange which fires three emits
+    // synchronously. Before the local-ref fix, the last emit's spread of stale
+    // props.modelValue clobbered the manufacturer back to ''.
+    selector.vm.$emit('update:manufacturer', 'Cessna')
+    selector.vm.$emit('update:model', '')
+    selector.vm.$emit('update:icao-type-designator', '')
+    await wrapper.vm.$nextTick()
     const emitted = (wrapper.emitted('update:modelValue') ?? []) as unknown[][]
-    expect(emitted[emitted.length - 1]?.[0]).toMatchObject({ shareCode: null })
-  })
-
-  // @UT-AC-VIEW-115@
-  it('emits trimmed non-empty shareCode', async () => {
-    const wrapper = mount(IdentitySection, {
-      props: { modelValue: makeFields({ shareCode: null }), sectionId: 'test' },
-    })
-    const share = wrapper.find('#test-shareCode')
-    await share.setValue('  FOO-42  ')
-    const emitted = (wrapper.emitted('update:modelValue') ?? []) as unknown[][]
-    expect(emitted[emitted.length - 1]?.[0]).toMatchObject({ shareCode: 'FOO-42' })
+    const last = emitted[emitted.length - 1]?.[0] as IdentityFields
+    expect(last.manufacturer).toBe('Cessna')
   })
 })

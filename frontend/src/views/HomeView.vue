@@ -58,9 +58,10 @@ const modules: Module[] = [
   {
     id: 'fleet',
     label: 'Fleet Management',
-    description: 'Aircraft profiles, club fleet, organisation sync',
+    description: 'Aircraft profiles, envelopes, weighing reports',
     path: '/fleet',
-    soon: true,
+    soon: false,
+    active: true,
     icon: 'fleet',
   },
   {
@@ -129,6 +130,11 @@ const soonModules = modules.filter((m) => m.soon)
               <path d="M8 14h2M14 14h2M8 17h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
               <circle cx="12" cy="4" r="2" stroke="currentColor" stroke-width="1.5" />
               <path d="M12 6v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+            </svg>
+            <!-- Fleet icon -->
+            <svg v-else-if="mod.icon === 'fleet'" width="28" height="28" viewBox="0 0 24 24" fill="none">
+              <path d="M21 7.5L10 12l5 3 2 6 4-13.5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" />
+              <path d="M10 12L3 9l3 3-3 3 7-3z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" />
             </svg>
           </div>
           <div class="module-card__body">
