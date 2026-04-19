@@ -282,8 +282,19 @@ export const useMassBalanceStore = defineStore('massBalance', {
      */
     // @IMP-MB-STORE-010@ (FROM: @DES-UX-012@)
     resetPayload(): void {
+      // Reset semantics (per product call):
+      //   1. Each station resets to the greater of the profile's defaultQuantity
+      //      and its minimum-allowed load (unusableFuel for fuel tanks, 0 for
+      //      non-fuel stations). A raw zero reset would wipe below the unusable
+      //      floor on fuel tanks — modelling a dry tank that contradicts the POH.
+      //   2. When defaultQuantity > 0 the pilot's "zero out" is by design a
+      //      return to the profile-declared baseline, not to an empty tank.
+      const lps = this.aircraft?.loadPoints ?? []
       for (const station of this.stations) {
-        station.weight = 0
+        const lp = lps[station.index]
+        const defaultQty = lp?.defaultQuantity ?? 0
+        const unusable = lp?.fuelTank?.unusableFuel ?? 0
+        station.weight = Math.max(defaultQty, unusable)
         station.verified = false
         station.touched = true
         station.hasError = false
