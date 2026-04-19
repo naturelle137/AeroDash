@@ -42,6 +42,174 @@ const sortedProfiles = computed(() =>
   [...fleetStore.profiles].sort((a, b) => a.registration.localeCompare(b.registration)),
 )
 
+// ---------------------------------------------------------------------------
+// Stacking sticky strips (REQ-UI-SCROLL)
+// ---------------------------------------------------------------------------
+//
+// Why a single fixed-position stack instead of per-card `position: sticky`?
+// - `position: sticky` is bounded by the nearest scrolling ancestor's content
+//   area. As soon as the pilot scrolls past the bottom of a card, that card's
+//   sticky header un-pins and disappears. So once you're deep inside card 02,
+//   card 01's strip is gone — the breadcrumb of past widgets evaporates.
+// - iOS Safari adds a known stacking-context defect when stacking multiple
+//   `position: sticky` siblings with custom z-index — the wrong header paints
+//   on top mid-scroll, looking like a title is "weirdly floating in front".
+//
+// The fix: render ONE fixed stack at the top of the viewport that mirrors the
+// title + badge of every card the pilot has scrolled past. Each card keeps
+// its own in-flow (non-sticky) header for the full-height rendering when
+// it's in view. A scroll listener computes which cards are past, in DOM
+// order, and rebuilds the stack reactively. Tapping a strip smooth-scrolls
+// the page back to that card with a custom eased animation so it feels
+// natural — not the snap-fast `scrollIntoView({behavior: 'smooth'})` that
+// Safari produces.
+//
+// Each strip is `--prep-sticky-h` tall. The stack pins below the app header
+// (`--nav-header-height`).
+
+interface CardMeta {
+  id: string
+  badge: string
+  title: string
+  /** When set, the strip uses the muted "coming soon" badge styling. */
+  soon?: boolean
+}
+
+const CARD_ORDER: readonly CardMeta[] = [
+  { id: 'aircraft', badge: '01', title: 'Aircraft' },
+  { id: 'mb', badge: '02', title: 'Mass & Balance' },
+  { id: 'performance', badge: '03', title: 'Performance', soon: true },
+  { id: 'weather', badge: '04', title: 'Weather', soon: true },
+  { id: 'fuel', badge: '05', title: 'Fuel & Endurance', soon: true },
+]
+
+/** Strip height in px — kept in sync with --prep-sticky-h (2.75rem @16px). */
+const STRIP_HEIGHT_PX = 44
+
+/** Cards the pilot has scrolled past, currently shown as compressed strips. */
+const stuckCards = ref<CardMeta[]>([])
+
+function getNavHeaderHeightPx(): number {
+  if (typeof document === 'undefined') return 56
+  const raw = getComputedStyle(document.documentElement).getPropertyValue('--nav-header-height')
+  const n = parseFloat(raw)
+  return Number.isFinite(n) ? n : 56
+}
+
+/**
+ * Walk the cards top-to-bottom: a card joins the stack when its in-flow
+ * header has scrolled above the bottom of the next strip slot. The cumulative
+ * offset grows by STRIP_HEIGHT_PX for each stuck card so deeper cards have
+ * a higher entry threshold — that's how we stack symmetrically on the way
+ * down AND release symmetrically on the way back up.
+ */
+function recomputeStuck(): void {
+  if (typeof document === 'undefined') return
+  const navHeader = getNavHeaderHeightPx()
+  const next: CardMeta[] = []
+  let cumOffset = navHeader
+
+  for (const meta of CARD_ORDER) {
+    const el = document.getElementById(`prep-card-${meta.id}`)
+    if (!el) continue
+
+    const rect = el.getBoundingClientRect()
+    const stripBottom = cumOffset + STRIP_HEIGHT_PX
+
+    // The card's natural top has scrolled above the bottom of where its
+    // strip would sit → the card is "past" → keep its strip pinned.
+    if (rect.top < stripBottom) {
+      next.push(meta)
+      cumOffset = stripBottom
+    }
+  }
+
+  // Cheap reference-equality short-circuit so Vue doesn't re-render every
+  // scroll frame when the stack hasn't changed.
+  if (
+    next.length === stuckCards.value.length &&
+    next.every((c, i) => c.id === stuckCards.value[i]?.id)
+  ) {
+    return
+  }
+  stuckCards.value = next
+}
+
+let scrollRafPending = false
+let stickyCleanup: (() => void) | null = null
+
+function setupStickyStackObserver(): void {
+  if (typeof window === 'undefined') return
+
+  const onScroll = (): void => {
+    if (scrollRafPending) return
+    scrollRafPending = true
+    window.requestAnimationFrame(() => {
+      recomputeStuck()
+      scrollRafPending = false
+    })
+  }
+
+  window.addEventListener('scroll', onScroll, { passive: true })
+  window.addEventListener('resize', onScroll)
+  stickyCleanup = () => {
+    window.removeEventListener('scroll', onScroll)
+    window.removeEventListener('resize', onScroll)
+  }
+  recomputeStuck()
+}
+
+/**
+ * Custom-duration eased scroll. The browser's
+ * `scrollIntoView({behavior:'smooth'})` runs in well under 200ms on iOS
+ * which the pilot perceives as a hard snap; 500ms with easeInOutCubic
+ * feels natural and clearly conveys the page motion. Falls back to native
+ * smooth scroll when prefers-reduced-motion is set.
+ */
+function smoothScrollTo(targetY: number, duration = 500): void {
+  if (typeof window === 'undefined') return
+
+  const reduceMotion =
+    typeof window.matchMedia === 'function' &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+  if (reduceMotion) {
+    window.scrollTo({ top: targetY, behavior: 'smooth' })
+    return
+  }
+
+  const startY = window.scrollY
+  const dy = targetY - startY
+  if (Math.abs(dy) < 1) return
+  const t0 = performance.now()
+
+  const step = (now: number): void => {
+    const t = Math.min(1, (now - t0) / duration)
+    // easeInOutCubic
+    const eased = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2
+    window.scrollTo(0, startY + dy * eased)
+    if (t < 1) window.requestAnimationFrame(step)
+  }
+
+  window.requestAnimationFrame(step)
+}
+
+/** Tap a strip → smooth-scroll the page back to its owning card. */
+function onStripTap(meta: CardMeta): void {
+  const el = document.getElementById(`prep-card-${meta.id}`)
+  if (!el) return
+
+  // Strips above the tapped one stay pinned, so the card needs to land just
+  // below them. Index in the current stack determines how many strips remain.
+  const idxInStack = stuckCards.value.findIndex((c) => c.id === meta.id)
+  const remainingStripsAbove = Math.max(0, idxInStack)
+  const navHeader = getNavHeaderHeightPx()
+  const offsetFromTop = navHeader + remainingStripsAbove * STRIP_HEIGHT_PX
+
+  const absTop = el.getBoundingClientRect().top + window.scrollY
+  smoothScrollTo(absTop - offsetFromTop)
+}
+
 onMounted(async () => {
   // Only auto-load on the first mount (initial LOADING state). If a previous
   // attempt errored, let the pilot retry explicitly via the Retry button.
@@ -63,67 +231,13 @@ onMounted(async () => {
     }
   }
 
-  // Toggle `.is-stuck` on each prep-card header as it pins to the top of the
-  // viewport so the CSS can compress it into a one-liner that tap-scrolls
-  // back to its owning card. Safe-noop when IntersectionObserver isn't
-  // available (older browsers / some test envs).
-  setupStickyHeaderObserver()
+  setupStickyStackObserver()
 })
-
-function setupStickyHeaderObserver(): void {
-  const headers = Array.from(
-    document.querySelectorAll<HTMLElement>('.fp-view .prep-card__header'),
-  )
-  if (headers.length === 0) return
-
-  // Compare each header's actual viewport top (getBoundingClientRect) to its
-  // own computed sticky `top` value. When they match (within 1px), sticky has
-  // engaged — the natural top has passed the pin line and the browser is now
-  // pinning the element. This works for stacked stickies where each header
-  // pins at a different `top`, unlike a single-threshold IntersectionObserver.
-  const update = (): void => {
-    for (const h of headers) {
-      const stickyTop = parseFloat(getComputedStyle(h).top || '0')
-      const rectTop = h.getBoundingClientRect().top
-      const isStuck = Math.abs(rectTop - stickyTop) < 1 && Number.isFinite(stickyTop)
-      h.classList.toggle('is-stuck', isStuck)
-    }
-  }
-
-  let ticking = false
-  const onScroll = (): void => {
-    if (ticking) return
-    ticking = true
-    window.requestAnimationFrame(() => {
-      update()
-      ticking = false
-    })
-  }
-
-  window.addEventListener('scroll', onScroll, { passive: true })
-  window.addEventListener('resize', onScroll)
-  stickyScrollCleanup = () => {
-    window.removeEventListener('scroll', onScroll)
-    window.removeEventListener('resize', onScroll)
-  }
-  // Initial pass so headers that are already stuck on mount are marked.
-  update()
-}
-
-let stickyScrollCleanup: (() => void) | null = null
 
 onBeforeUnmount(() => {
-  stickyScrollCleanup?.()
-  stickyScrollCleanup = null
+  stickyCleanup?.()
+  stickyCleanup = null
 })
-
-/** Smooth-scroll a card into view when the pilot taps its stuck-header strip. */
-function onHeaderTap(event: MouseEvent): void {
-  const header = (event.currentTarget as HTMLElement) ?? null
-  if (!header?.classList.contains('is-stuck')) return
-  const card = header.closest<HTMLElement>('.prep-card')
-  card?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-}
 
 function onAddAircraft(): void {
   if (router.hasRoute('fleet-new')) {
@@ -257,6 +371,30 @@ function onAircraftSelected(event: Event): void {
 <template>
   <div class="fp-view" :class="viewModel.stateClass">
 
+    <!-- ═══ Sticky breadcrumb stack (REQ-UI-SCROLL) ════════════════════════ -->
+    <!-- One row per card the pilot has scrolled past. Tap a strip to return. -->
+    <div
+      v-if="stuckCards.length > 0"
+      class="prep-sticky-stack"
+      role="navigation"
+      aria-label="Scrolled-past sections"
+    >
+      <button
+        v-for="card in stuckCards"
+        :key="card.id"
+        type="button"
+        class="prep-sticky-strip"
+        :class="{ 'prep-sticky-strip--soon': card.soon }"
+        :aria-label="`Scroll to ${card.title}`"
+        @click="onStripTap(card)"
+      >
+        <span class="prep-sticky-strip__badge" :class="{ 'prep-sticky-strip__badge--soon': card.soon }">
+          {{ card.badge }}
+        </span>
+        <span class="prep-sticky-strip__title">{{ card.title }}</span>
+      </button>
+    </div>
+
     <!-- ═══ Page header ════════════════════════════════════════════════════ -->
     <div class="fp-page-header">
       <h1 class="fp-page-title">Flight Preparation</h1>
@@ -265,11 +403,11 @@ function onAircraftSelected(event: Event): void {
 
     <!-- ═══ AIRCRAFT SELECTION CARD (always visible) ══════════════════════ -->
     <section
+      id="prep-card-aircraft"
       class="prep-card prep-card--aircraft"
-      style="--prep-card-index: 0"
       aria-label="Aircraft selection"
     >
-      <div class="prep-card__header" @click="onHeaderTap">
+      <div class="prep-card__header">
         <span class="prep-card__badge">01</span>
         <h2 class="prep-card__title">Aircraft</h2>
         <span v-if="aircraftLabel" class="aircraft-label">{{ aircraftLabel }}</span>
@@ -363,12 +501,12 @@ function onAircraftSelected(event: Event): void {
 
     <!-- ═══ MASS & BALANCE CARD ════════════════════════════════════════════ -->
     <section
+      id="prep-card-mb"
       class="prep-card prep-card--mb"
       :class="{ 'prep-card--locked': viewModel.mbLocked }"
-      style="--prep-card-index: 1"
       aria-label="Mass and Balance"
     >
-      <div class="prep-card__header" @click="onHeaderTap">
+      <div class="prep-card__header">
         <span class="prep-card__badge">02</span>
         <h2 class="prep-card__title">Mass &amp; Balance</h2>
         <span v-if="viewModel.mbLocked" class="locked-badge" aria-label="Select an aircraft to unlock">
@@ -476,11 +614,11 @@ function onAircraftSelected(event: Event): void {
 
     <!-- ═══ COMING SOON: Performance ══════════════════════════════════════ -->
     <section
+      id="prep-card-performance"
       class="prep-card prep-card--soon"
-      style="--prep-card-index: 2"
       aria-label="Performance — coming soon"
     >
-      <div class="prep-card__header" @click="onHeaderTap">
+      <div class="prep-card__header">
         <span class="prep-card__badge prep-card__badge--soon">03</span>
         <h2 class="prep-card__title prep-card__title--soon">Performance</h2>
         <span class="soon-pill">Coming soon</span>
@@ -493,11 +631,11 @@ function onAircraftSelected(event: Event): void {
 
     <!-- ═══ COMING SOON: Weather ════════════════════════════════════════════ -->
     <section
+      id="prep-card-weather"
       class="prep-card prep-card--soon"
-      style="--prep-card-index: 3"
       aria-label="Weather — coming soon"
     >
-      <div class="prep-card__header" @click="onHeaderTap">
+      <div class="prep-card__header">
         <span class="prep-card__badge prep-card__badge--soon">04</span>
         <h2 class="prep-card__title prep-card__title--soon">Weather</h2>
         <span class="soon-pill">Coming soon</span>
@@ -510,11 +648,11 @@ function onAircraftSelected(event: Event): void {
 
     <!-- ═══ COMING SOON: Fuel & Endurance ══════════════════════════════════ -->
     <section
+      id="prep-card-fuel"
       class="prep-card prep-card--soon"
-      style="--prep-card-index: 4"
       aria-label="Fuel and Endurance — coming soon"
     >
-      <div class="prep-card__header" @click="onHeaderTap">
+      <div class="prep-card__header">
         <span class="prep-card__badge prep-card__badge--soon">05</span>
         <h2 class="prep-card__title prep-card__title--soon">Fuel &amp; Endurance</h2>
         <span class="soon-pill">Coming soon</span>
@@ -543,6 +681,105 @@ function onAircraftSelected(event: Event): void {
   padding: var(--space-6);
   max-width: 1280px;
   margin: 0 auto;
+  --prep-sticky-h: 2.75rem;
+}
+
+/* ─── Sticky breadcrumb stack (fixed-position, fills the gap below the
+ *      app header with one strip per card the pilot has scrolled past) ── */
+
+.prep-sticky-stack {
+  position: fixed;
+  top: var(--nav-header-height);
+  left: 0;
+  right: 0;
+  z-index: 150; /* below app header (200) + PWA banner (150), above main content */
+  display: flex;
+  flex-direction: column;
+  pointer-events: none; /* let the underlying scroll show through gaps */
+}
+
+.prep-sticky-strip {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  height: var(--prep-sticky-h);
+  padding: 0 var(--space-6);
+  background: var(--color-surface-card);
+  border: 0;
+  border-bottom: 1px solid var(--color-divider);
+  color: var(--color-text-primary);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+  /* iOS Safari: avoid double-tap zoom + the 300ms tap delay */
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background var(--transition-fast, 120ms) ease,
+    color var(--transition-fast, 120ms) ease;
+}
+
+.prep-sticky-strip:hover,
+.prep-sticky-strip:focus-visible {
+  background: var(--color-surface-hover, var(--color-surface-card));
+  color: var(--color-primary);
+}
+
+.prep-sticky-strip:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: -2px;
+}
+
+.prep-sticky-strip__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  background: var(--color-primary-bg);
+  color: var(--color-primary);
+  border-radius: var(--radius-full);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.prep-sticky-strip__badge--soon {
+  background: var(--color-tag-soon-bg);
+  color: var(--color-tag-soon-text);
+}
+
+.prep-sticky-strip__title {
+  font-size: var(--text-base);
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+}
+
+.prep-sticky-strip--soon .prep-sticky-strip__title {
+  color: var(--color-text-secondary);
+}
+
+@media (max-width: 767.98px) {
+  .prep-sticky-strip {
+    padding: 0 var(--space-4);
+  }
+}
+
+/*
+ * scroll-margin-top reserves space below the strip stack so anchor /
+ * smooth-scroll targets land BELOW the remaining strips. The custom-eased
+ * smoothScrollTo() in the script accounts for this manually, but keeping
+ * the CSS hint in place means anchor links and devtools-driven scrollIntoView
+ * also behave correctly.
+ */
+.prep-card {
+  scroll-margin-top: calc(var(--nav-header-height) + 5 * var(--prep-sticky-h));
 }
 
 /* ─── Page header ─────────────────────────────────────────────────────────── */
@@ -596,85 +833,12 @@ function onAircraftSelected(event: Event): void {
   opacity: 0.5;
 }
 
-/*
- * Stacking sticky widget headers (REQ-UI-SCROLL):
- * Every prep-card title pins under the app header as the pilot scrolls past
- * it. Each card's `top` is offset by the *compressed* height of all prior
- * cards, so already-scrolled-past titles stack as a growing breadcrumb of
- * one-liners at the top. Once a header pins, the IntersectionObserver in
- * setupStickyHeaderObserver() adds `.is-stuck` to compress it. Tapping a
- * stuck header smooth-scrolls back to that card.
- *
- * Layout notes:
- * - `.app-main` drops its `overflow-y: auto` so the window scrolls. Sticky
- *   inside overflow:auto has known iOS Safari bugs — see App.vue.
- * - --prep-sticky-h is the compressed-header height. We use it both for the
- *   `top` stack offset and for scroll-margin-top so scrollIntoView lands the
- *   card BELOW the stuck stack of prior headers.
- * - `nth-of-type` works because all prep-card children of .fp-view are the
- *   only <section> siblings. If another <section> is added later, update
- *   these rules accordingly.
- */
-
-.fp-view {
-  --prep-sticky-h: 2.75rem;
-}
-
-.prep-card {
-  scroll-margin-top: calc(
-    var(--nav-header-height) + var(--prep-card-index, 0) * var(--prep-sticky-h)
-  );
-}
-
 .prep-card__header {
-  position: sticky;
-  top: calc(
-    var(--nav-header-height) + var(--prep-card-index, 0) * var(--prep-sticky-h)
-  );
-  z-index: calc(10 - var(--prep-card-index, 0));
   display: flex;
   align-items: center;
   gap: var(--space-3);
   margin: 0 0 var(--space-4);
-  padding: var(--space-3) 0;
-  background: var(--color-surface-card);
   flex-wrap: wrap;
-  transition:
-    padding var(--transition-fast, 120ms) ease,
-    box-shadow var(--transition-fast, 120ms) ease;
-}
-
-/* Compressed one-liner when pinned at the top of the viewport. */
-.prep-card__header.is-stuck {
-  padding: var(--space-2) 0;
-  margin-bottom: 0;
-  cursor: pointer;
-  box-shadow: 0 1px 0 var(--color-divider);
-  min-height: var(--prep-sticky-h);
-}
-
-/* When stuck, hide the soon-pill and state-badge so the strip stays one-line. */
-.prep-card__header.is-stuck .soon-pill,
-.prep-card__header.is-stuck .state-badge,
-.prep-card__header.is-stuck .locked-badge,
-.prep-card__header.is-stuck .aircraft-label {
-  display: none;
-}
-
-.prep-card__header.is-stuck .prep-card__title {
-  font-size: var(--text-base);
-}
-
-.prep-card__header.is-stuck .prep-card__badge {
-  width: 18px;
-  height: 18px;
-  font-size: 0.625rem;
-}
-
-@media (max-width: 767.98px) {
-  .prep-card__header.is-stuck {
-    padding: var(--space-2) var(--space-4);
-  }
 }
 
 .prep-card__badge {
@@ -1121,14 +1285,6 @@ function onAircraftSelected(event: Event): void {
 
   .prep-card {
     padding: var(--space-4);
-  }
-
-  /* On mobile the card padding shrinks to --space-4, so the sticky-header's
-   * negative margins must match or the header background paints past the
-   * card edge. */
-  .prep-card__header {
-    margin: calc(var(--space-4) * -1) calc(var(--space-4) * -1) var(--space-3);
-    padding: var(--space-4) var(--space-4) var(--space-2);
   }
 
   .aircraft-selector-row {
