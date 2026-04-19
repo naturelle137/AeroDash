@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Auto-save of the active Mass & Balance session to `localStorage` — the `sessionPersistence` store was shipped in a prior milestone but never instantiated by the running app, so reloading the Flight Preparation page always dropped the pilot's aircraft selection, category, and station weights back to profile defaults. `MassBalanceView` now restores the payload on mount (after the fleet hydrates), re-applies it through the new `massBalance.applyRestoredSession(payload)` action, and starts the debounced auto-save watcher; stale payloads whose aircraft has since been removed from the fleet are discarded. `startWatching()` is now idempotent so view remounts don't stack watchers. (REQ-SYS-013)
+
 ### Added
 
 - Fleet editor / wizard: per-load-station **allowable-categories** selector — when an aircraft is certified in more than one category (e.g. Normal + Utility + Aerobatic), each seat, baggage area, or fuel tank can be restricted to the subset of categories in which it is approved (e.g. rear seats not approved in Aerobatic). Stations default to unrestricted (available in every category); the UI auto-prunes stale category references no longer present on the aircraft. Previously the `allowableCategories` field existed in the schema but was always persisted as `null`, forcing pilots with multi-category aircraft to ignore POH placards. (REQ-AD-012)

@@ -30,6 +30,7 @@ export const useSessionPersistenceStore = defineStore('sessionPersistence', () =
   // ── Private state ─────────────────────────────────────────────────────────
 
   let _debounceTimer: ReturnType<typeof setTimeout> | null = null
+  let _watching = false
 
   // ── Actions ───────────────────────────────────────────────────────────────
 
@@ -138,8 +139,13 @@ export const useSessionPersistenceStore = defineStore('sessionPersistence', () =
    * Watch station weights and active category; schedule a debounced save on
    * any change.  Uses a lazy watch so the initial state is not saved before
    * the aircraft profile has been fully loaded.
+   *
+   * Idempotent — calling a second time (e.g. on view remount) is a no-op so
+   * watchers do not stack and trigger duplicate saves on every mutation.
    */
   function startWatching(): void {
+    if (_watching) return
+    _watching = true
     const mbStore = useMassBalanceStore()
 
     // Watch for aircraft switch → clear prior session data.

@@ -1012,3 +1012,126 @@ describe('MassBalance Store', () => {
     expect(store.lastResult).toStrictEqual(expectedResult)
   })
 })
+
+// ═══════════════════════════════════════════════════════════════════════════
+// applyRestoredSession — persisted-session restore path (REQ-SYS-013)
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe('Mass Balance Store - applyRestoredSession', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    mockedCalculate.mockReturnValue(buildSuccessResult())
+  })
+
+  // @UT-MB-STORE-051@ (FROM: @IMP-MB-STORE-019@)
+  it('restores station weights and interaction flags onto a freshly-loaded profile', () => {
+    const store = useMassBalanceStore()
+    store.loadProfile(mockProfile)
+
+    store.applyRestoredSession({
+      version: 1,
+      aircraftId: 'tecnam-p2008',
+      activeCategory: 'Normal',
+      stations: [
+        { index: 0, weight: 160, touched: true, verified: true },
+        { index: 1, weight: 50, touched: true, verified: false },
+      ],
+      savedAt: '2026-04-19T10:00:00.000Z',
+    })
+
+    expect(store.stations[0]!.weight).toBe(160)
+    expect(store.stations[0]!.touched).toBe(true)
+    expect(store.stations[0]!.verified).toBe(true)
+    expect(store.stations[1]!.weight).toBe(50)
+    expect(store.stations[1]!.verified).toBe(false)
+  })
+
+  // @UT-MB-STORE-052@ (FROM: @IMP-MB-STORE-019@)
+  it('is a no-op when no aircraft is loaded (guards against out-of-order restore)', () => {
+    const store = useMassBalanceStore()
+
+    store.applyRestoredSession({
+      version: 1,
+      aircraftId: 'tecnam-p2008',
+      activeCategory: 'Normal',
+      stations: [{ index: 0, weight: 160, touched: true, verified: true }],
+      savedAt: '2026-04-19T10:00:00.000Z',
+    })
+
+    expect(store.aircraft).toBeNull()
+    expect(store.stations).toHaveLength(0)
+  })
+
+  // @UT-MB-STORE-053@ (FROM: @IMP-MB-STORE-019@)
+  it('is a no-op when the payload aircraftId does not match the loaded profile', () => {
+    const store = useMassBalanceStore()
+    store.loadProfile(mockProfile)
+
+    store.applyRestoredSession({
+      version: 1,
+      aircraftId: 'not-this-aircraft',
+      activeCategory: 'Normal',
+      stations: [{ index: 0, weight: 999, touched: true, verified: true }],
+      savedAt: '2026-04-19T10:00:00.000Z',
+    })
+
+    // Default from loadProfile, untouched by the ignored payload.
+    expect(store.stations[0]!.weight).toBe(0)
+  })
+
+  // @UT-MB-STORE-054@ (FROM: @IMP-MB-STORE-019@)
+  it('silently skips station entries whose index is out of range', () => {
+    const store = useMassBalanceStore()
+    store.loadProfile(mockProfile)
+
+    expect(() => {
+      store.applyRestoredSession({
+        version: 1,
+        aircraftId: 'tecnam-p2008',
+        activeCategory: 'Normal',
+        stations: [
+          { index: 0, weight: 160, touched: true, verified: true },
+          { index: 99, weight: 12, touched: true, verified: true },
+        ],
+        savedAt: '2026-04-19T10:00:00.000Z',
+      })
+    }).not.toThrow()
+
+    expect(store.stations[0]!.weight).toBe(160)
+    expect(store.stations).toHaveLength(2) // profile's load points, unchanged
+  })
+
+  // @UT-MB-STORE-055@ (FROM: @IMP-MB-STORE-019@)
+  it('ignores an unknown activeCategory and keeps the profile default', () => {
+    const store = useMassBalanceStore()
+    store.loadProfile(mockProfile)
+    const defaultCategory = store.activeCategory
+
+    store.applyRestoredSession({
+      version: 1,
+      aircraftId: 'tecnam-p2008',
+      activeCategory: 'Aerobatic', // not in mockProfile
+      stations: [],
+      savedAt: '2026-04-19T10:00:00.000Z',
+    })
+
+    expect(store.activeCategory).toBe(defaultCategory)
+  })
+
+  // @UT-MB-STORE-056@ (FROM: @IMP-MB-STORE-019@)
+  it('re-runs the math core after applying the payload', () => {
+    const store = useMassBalanceStore()
+    store.loadProfile(mockProfile)
+    mockedCalculate.mockClear()
+
+    store.applyRestoredSession({
+      version: 1,
+      aircraftId: 'tecnam-p2008',
+      activeCategory: 'Normal',
+      stations: [{ index: 0, weight: 160, touched: true, verified: true }],
+      savedAt: '2026-04-19T10:00:00.000Z',
+    })
+
+    expect(mockedCalculate).toHaveBeenCalledTimes(1)
+  })
+})
