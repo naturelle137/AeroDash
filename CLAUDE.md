@@ -373,11 +373,12 @@ Before writing any code:
 1. Use `.github/pull_request_template.md` as the PR body template.
 2. **Target `develop`.** Never target a long-lived integration branch or a parent-feature branch — auto-close only fires when the PR merges to `develop`, `release/*`, or `hotfix/*`.
 3. Reference the issue with `Closes #<TASK_ID>`. A PR closing multiple tasks lists them: `Closes #156, closes #157`.
-4. **Set project status to `In Verification`** on the project board.
+4. **Attest the DoD before adding `Closes #N`.** Open each referenced issue and read every Definition of Done item. Tick a box **only** after verifying against code, tests, and docs that the item is truly done; an unchecked box means *"not done — do not close the issue yet"*. If any DoD item cannot be honestly ticked, either complete the work, split the residual into a follow-up `Task`, or omit the `Closes` keyword for this PR. The boxes are attestations, not decorations — auto-ticking them on close would defeat the purpose. CI enforces this via the `dod-gate` check on PRs to `develop` / `release/*` / `hotfix/*` (`.github/workflows/dod-gate.yml`).
+5. **Set project status to `In Verification`** on the project board.
 
 ### After PR Merges to `develop`
 
-- GitHub auto-closes each referenced issue and applies the `fixed` label (via `Closes #` keyword).
+- GitHub auto-closes each referenced issue; `.github/workflows/issue-labels.yml` then strips any status label (`open` / `accepted` / `ready`) and applies the resolution label (`fixed` for `state_reason=completed`, `duplicate` for explicit duplicates, `wont do` for `not_planned`).
 - Verify the project column moved to `Done`. Correct manually if needed.
 - **Do not close the parent automatically.** See parent rules below.
 
