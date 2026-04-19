@@ -521,17 +521,18 @@ function onAircraftSelected(event: Event): void {
 /*
  * Sticky widget header (REQ-UI-SCROLL): when the pilot scrolls through a
  * prep-card's content, the title + status badge stay pinned to the top of
- * the scrollable main area. `.app-main` has `overflow-y: auto` so it is the
- * sticky scroll container — we sticky at top: 0 relative to it, which places
- * the header directly under the fixed app header in the window. Because the
- * sticky is scoped to the card (no inner scroll container), the header
- * naturally releases when the card's bottom scrolls past — the next card's
- * header then takes over. Margins are extended to the card's padding edges
- * so the background paints across the full card width.
+ * the viewport just under the fixed app header. The window/body is the scroll
+ * container (see App.vue note about removing overflow:auto from .app-main),
+ * so `top: var(--nav-header-height)` parks the sticky directly under the
+ * 56px-tall app header. Because the sticky is scoped to the card (no inner
+ * scroll container), the header naturally releases when the card's bottom
+ * scrolls past — the next card's header then takes over. Margins are
+ * extended to the card's padding edges so the background paints across the
+ * full card width.
  */
 .prep-card__header {
   position: sticky;
-  top: 0;
+  top: var(--nav-header-height);
   z-index: 5;
   display: flex;
   align-items: center;
