@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useMassBalanceStore } from '@/modules/mass-balance/stores/mass-balance.store'
 import { AircraftContextSchema } from '@/modules/mass-balance/data/aircraft-context.schema'
@@ -62,7 +62,53 @@ onMounted(async () => {
       store.loadProfile(validation.data)
     }
   }
+
+  // Toggle `.is-stuck` on each prep-card header as it pins to the top of the
+  // viewport so the CSS can compress it into a one-liner that tap-scrolls
+  // back to its owning card. Safe-noop when IntersectionObserver isn't
+  // available (older browsers / some test envs).
+  setupStickyHeaderObserver()
 })
+
+function setupStickyHeaderObserver(): void {
+  if (typeof IntersectionObserver === 'undefined') return
+  const headers = document.querySelectorAll<HTMLElement>('.fp-view .prep-card__header')
+  if (headers.length === 0) return
+  const navHeight = parseInt(
+    getComputedStyle(document.documentElement).getPropertyValue('--nav-header-height') || '56',
+    10,
+  )
+  stickyObserver?.disconnect()
+  stickyObserver = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        const isStuck =
+          entry.intersectionRatio < 1 && entry.boundingClientRect.top <= navHeight + 1
+        entry.target.classList.toggle('is-stuck', isStuck)
+      }
+    },
+    {
+      threshold: [1],
+      rootMargin: `-${navHeight + 1}px 0px 0px 0px`,
+    },
+  )
+  headers.forEach((h) => stickyObserver!.observe(h))
+}
+
+let stickyObserver: IntersectionObserver | null = null
+
+onBeforeUnmount(() => {
+  stickyObserver?.disconnect()
+  stickyObserver = null
+})
+
+/** Smooth-scroll a card into view when the pilot taps its stuck-header strip. */
+function onHeaderTap(event: MouseEvent): void {
+  const header = (event.currentTarget as HTMLElement) ?? null
+  if (!header?.classList.contains('is-stuck')) return
+  const card = header.closest<HTMLElement>('.prep-card')
+  card?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+}
 
 function onAddAircraft(): void {
   if (router.hasRoute('fleet-new')) {
@@ -204,7 +250,7 @@ function onAircraftSelected(event: Event): void {
 
     <!-- ═══ AIRCRAFT SELECTION CARD (always visible) ══════════════════════ -->
     <section class="prep-card prep-card--aircraft" aria-label="Aircraft selection">
-      <div class="prep-card__header">
+      <div class="prep-card__header" @click="onHeaderTap">
         <span class="prep-card__badge">01</span>
         <h2 class="prep-card__title">Aircraft</h2>
         <span v-if="aircraftLabel" class="aircraft-label">{{ aircraftLabel }}</span>
@@ -302,7 +348,7 @@ function onAircraftSelected(event: Event): void {
       :class="{ 'prep-card--locked': viewModel.mbLocked }"
       aria-label="Mass and Balance"
     >
-      <div class="prep-card__header">
+      <div class="prep-card__header" @click="onHeaderTap">
         <span class="prep-card__badge">02</span>
         <h2 class="prep-card__title">Mass &amp; Balance</h2>
         <span v-if="viewModel.mbLocked" class="locked-badge" aria-label="Select an aircraft to unlock">
@@ -410,7 +456,7 @@ function onAircraftSelected(event: Event): void {
 
     <!-- ═══ COMING SOON: Performance ══════════════════════════════════════ -->
     <section class="prep-card prep-card--soon" aria-label="Performance — coming soon">
-      <div class="prep-card__header">
+      <div class="prep-card__header" @click="onHeaderTap">
         <span class="prep-card__badge prep-card__badge--soon">03</span>
         <h2 class="prep-card__title prep-card__title--soon">Performance</h2>
         <span class="soon-pill">Coming soon</span>
@@ -423,7 +469,7 @@ function onAircraftSelected(event: Event): void {
 
     <!-- ═══ COMING SOON: Weather ════════════════════════════════════════════ -->
     <section class="prep-card prep-card--soon" aria-label="Weather — coming soon">
-      <div class="prep-card__header">
+      <div class="prep-card__header" @click="onHeaderTap">
         <span class="prep-card__badge prep-card__badge--soon">04</span>
         <h2 class="prep-card__title prep-card__title--soon">Weather</h2>
         <span class="soon-pill">Coming soon</span>
@@ -436,7 +482,7 @@ function onAircraftSelected(event: Event): void {
 
     <!-- ═══ COMING SOON: Fuel & Endurance ══════════════════════════════════ -->
     <section class="prep-card prep-card--soon" aria-label="Fuel and Endurance — coming soon">
-      <div class="prep-card__header">
+      <div class="prep-card__header" @click="onHeaderTap">
         <span class="prep-card__badge prep-card__badge--soon">05</span>
         <h2 class="prep-card__title prep-card__title--soon">Fuel &amp; Endurance</h2>
         <span class="soon-pill">Coming soon</span>
@@ -519,21 +565,47 @@ function onAircraftSelected(event: Event): void {
 }
 
 /*
- * Sticky widget header (REQ-UI-SCROLL): when the pilot scrolls through a
- * prep-card's content, the title + status badge stay pinned to the top of
- * the viewport just under the fixed app header. The window/body is the scroll
- * container (see App.vue note about removing overflow:auto from .app-main),
- * so `top: var(--nav-header-height)` parks the sticky directly under the
- * 56px-tall app header. Because the sticky is scoped to the card (no inner
- * scroll container), the header naturally releases when the card's bottom
- * scrolls past — the next card's header then takes over. Margins are
- * extended to the card's padding edges so the background paints across the
- * full card width.
+ * Stacking sticky widget headers (REQ-UI-SCROLL):
+ * Every prep-card title pins under the app header as the pilot scrolls past
+ * it. Each card's `top` is offset by the *compressed* height of all prior
+ * cards, so already-scrolled-past titles stack as a growing breadcrumb of
+ * one-liners at the top. Once a header pins, the IntersectionObserver in
+ * setupStickyHeaderObserver() adds `.is-stuck` to compress it. Tapping a
+ * stuck header smooth-scrolls back to that card.
+ *
+ * Layout notes:
+ * - `.app-main` drops its `overflow-y: auto` so the window scrolls. Sticky
+ *   inside overflow:auto has known iOS Safari bugs — see App.vue.
+ * - --prep-sticky-h is the compressed-header height. We use it both for the
+ *   `top` stack offset and for scroll-margin-top so scrollIntoView lands the
+ *   card BELOW the stuck stack of prior headers.
+ * - `nth-of-type` works because all prep-card children of .fp-view are the
+ *   only <section> siblings. If another <section> is added later, update
+ *   these rules accordingly.
  */
+
+.fp-view {
+  --prep-sticky-h: 2.75rem;
+}
+
+.fp-view > section.prep-card:nth-of-type(1) { --prep-card-index: 0; }
+.fp-view > section.prep-card:nth-of-type(2) { --prep-card-index: 1; }
+.fp-view > section.prep-card:nth-of-type(3) { --prep-card-index: 2; }
+.fp-view > section.prep-card:nth-of-type(4) { --prep-card-index: 3; }
+.fp-view > section.prep-card:nth-of-type(5) { --prep-card-index: 4; }
+
+.prep-card {
+  scroll-margin-top: calc(
+    var(--nav-header-height) + var(--prep-card-index, 0) * var(--prep-sticky-h)
+  );
+}
+
 .prep-card__header {
   position: sticky;
-  top: var(--nav-header-height);
-  z-index: 5;
+  top: calc(
+    var(--nav-header-height) + var(--prep-card-index, 0) * var(--prep-sticky-h)
+  );
+  z-index: calc(10 - var(--prep-card-index, 0));
   display: flex;
   align-items: center;
   gap: var(--space-3);
@@ -543,6 +615,45 @@ function onAircraftSelected(event: Event): void {
   border-top-left-radius: var(--radius-xl);
   border-top-right-radius: var(--radius-xl);
   flex-wrap: wrap;
+  transition:
+    padding var(--transition-fast, 120ms) ease,
+    margin var(--transition-fast, 120ms) ease,
+    box-shadow var(--transition-fast, 120ms) ease;
+}
+
+/* Compressed one-liner when pinned at the top of the viewport. */
+.prep-card__header.is-stuck {
+  padding: var(--space-2) var(--space-6);
+  margin-bottom: 0;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  cursor: pointer;
+  box-shadow: 0 1px 0 var(--color-divider);
+  min-height: var(--prep-sticky-h);
+}
+
+/* When stuck, hide the soon-pill and state-badge so the strip stays one-line. */
+.prep-card__header.is-stuck .soon-pill,
+.prep-card__header.is-stuck .state-badge,
+.prep-card__header.is-stuck .locked-badge,
+.prep-card__header.is-stuck .aircraft-label {
+  display: none;
+}
+
+.prep-card__header.is-stuck .prep-card__title {
+  font-size: var(--text-base);
+}
+
+.prep-card__header.is-stuck .prep-card__badge {
+  width: 18px;
+  height: 18px;
+  font-size: 0.625rem;
+}
+
+@media (max-width: 767.98px) {
+  .prep-card__header.is-stuck {
+    padding: var(--space-2) var(--space-4);
+  }
 }
 
 .prep-card__badge {
