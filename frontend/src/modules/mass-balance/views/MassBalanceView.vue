@@ -249,7 +249,11 @@ function onAircraftSelected(event: Event): void {
     </div>
 
     <!-- ═══ AIRCRAFT SELECTION CARD (always visible) ══════════════════════ -->
-    <section class="prep-card prep-card--aircraft" aria-label="Aircraft selection">
+    <section
+      class="prep-card prep-card--aircraft"
+      style="--prep-card-index: 0"
+      aria-label="Aircraft selection"
+    >
       <div class="prep-card__header" @click="onHeaderTap">
         <span class="prep-card__badge">01</span>
         <h2 class="prep-card__title">Aircraft</h2>
@@ -346,6 +350,7 @@ function onAircraftSelected(event: Event): void {
     <section
       class="prep-card prep-card--mb"
       :class="{ 'prep-card--locked': viewModel.mbLocked }"
+      style="--prep-card-index: 1"
       aria-label="Mass and Balance"
     >
       <div class="prep-card__header" @click="onHeaderTap">
@@ -455,7 +460,11 @@ function onAircraftSelected(event: Event): void {
     </section>
 
     <!-- ═══ COMING SOON: Performance ══════════════════════════════════════ -->
-    <section class="prep-card prep-card--soon" aria-label="Performance — coming soon">
+    <section
+      class="prep-card prep-card--soon"
+      style="--prep-card-index: 2"
+      aria-label="Performance — coming soon"
+    >
       <div class="prep-card__header" @click="onHeaderTap">
         <span class="prep-card__badge prep-card__badge--soon">03</span>
         <h2 class="prep-card__title prep-card__title--soon">Performance</h2>
@@ -468,7 +477,11 @@ function onAircraftSelected(event: Event): void {
     </section>
 
     <!-- ═══ COMING SOON: Weather ════════════════════════════════════════════ -->
-    <section class="prep-card prep-card--soon" aria-label="Weather — coming soon">
+    <section
+      class="prep-card prep-card--soon"
+      style="--prep-card-index: 3"
+      aria-label="Weather — coming soon"
+    >
       <div class="prep-card__header" @click="onHeaderTap">
         <span class="prep-card__badge prep-card__badge--soon">04</span>
         <h2 class="prep-card__title prep-card__title--soon">Weather</h2>
@@ -481,7 +494,11 @@ function onAircraftSelected(event: Event): void {
     </section>
 
     <!-- ═══ COMING SOON: Fuel & Endurance ══════════════════════════════════ -->
-    <section class="prep-card prep-card--soon" aria-label="Fuel and Endurance — coming soon">
+    <section
+      class="prep-card prep-card--soon"
+      style="--prep-card-index: 4"
+      aria-label="Fuel and Endurance — coming soon"
+    >
       <div class="prep-card__header" @click="onHeaderTap">
         <span class="prep-card__badge prep-card__badge--soon">05</span>
         <h2 class="prep-card__title prep-card__title--soon">Fuel &amp; Endurance</h2>
@@ -587,12 +604,6 @@ function onAircraftSelected(event: Event): void {
 .fp-view {
   --prep-sticky-h: 2.75rem;
 }
-
-.fp-view > section.prep-card:nth-of-type(1) { --prep-card-index: 0; }
-.fp-view > section.prep-card:nth-of-type(2) { --prep-card-index: 1; }
-.fp-view > section.prep-card:nth-of-type(3) { --prep-card-index: 2; }
-.fp-view > section.prep-card:nth-of-type(4) { --prep-card-index: 3; }
-.fp-view > section.prep-card:nth-of-type(5) { --prep-card-index: 4; }
 
 .prep-card {
   scroll-margin-top: calc(
