@@ -73,3 +73,39 @@ export function importProfileFromJson(jsonText: string): AircraftProfile {
 export function exportProfileToJson(profile: AircraftProfile): string {
   return JSON.stringify(profile, null, 2)
 }
+
+/**
+ * Build a safe filename for an aircraft exchange file.
+ *
+ * Produces `<sanitized-registration>.aerodash.json`. The registration is
+ * stripped of any character outside `[A-Za-z0-9_-]` so the resulting name is
+ * safe on every major filesystem. Falls back to `aircraft` when the
+ * sanitised registration is empty.
+ */
+export function buildExchangeFilename(registration: string): string {
+  const safe = registration.trim().replace(/[^A-Za-z0-9_-]+/g, '_').replace(/^_+|_+$/g, '')
+  const base = safe.length > 0 ? safe : 'aircraft'
+  return `${base}.aerodash.json`
+}
+
+/**
+ * Trigger a browser download of the aircraft profile as a `.aerodash.json`
+ * exchange file. The emitted file is byte-for-byte compatible with
+ * `importProfileFromJson` (round-trip safe).
+ *
+ * The download is performed via a transient `<a>` element with an object URL.
+ * The object URL is revoked after the click to avoid memory leaks.
+ */
+export function downloadProfileAsJson(profile: AircraftProfile): void {
+  const json = exportProfileToJson(profile)
+  const blob = new Blob([json], { type: 'application/json' })
+  const url = URL.createObjectURL(blob)
+  const anchor = document.createElement('a')
+  anchor.href = url
+  anchor.download = buildExchangeFilename(profile.registration)
+  anchor.rel = 'noopener'
+  document.body.appendChild(anchor)
+  anchor.click()
+  document.body.removeChild(anchor)
+  URL.revokeObjectURL(url)
+}

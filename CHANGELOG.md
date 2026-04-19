@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Download aircraft profile as `.aerodash.json` exchange file from the fleet list: new `downloadProfileAsJson` / `buildExchangeFilename` helpers in `services/profile.import.ts` produce round-trip-safe files accepted by the existing import flow. A dedicated icon button on every fleet row triggers the download (REQ-AC-004)
+
+### Changed
+
+- Redesigned fleet-list action buttons for mobile / cockpit use: Edit is now a pencil icon, Delete a trash icon, Download a download-arrow icon. Icon buttons are 44×44 px (≥48×48 px on mobile) with 0.75 rem spacing to meet WCAG 2.2 SC 2.5.8 target-size AAA and remain tappable under moderate vibration. Select / Verify keep their text labels so safety-critical state transitions stay unambiguous. Hover / focus-visible / active states use theme CSS variables for light/dark parity (refs REQ-UQ-003)
+
 - 5-step aircraft creation wizard at `/fleet/new` (`AircraftProfileWizardView.vue`): Identity → Certification & Envelope → Weighing Reports → Load Stations → Review & Save. Step indicator with forward-lock until the current step is valid, `beforeRouteLeave` dirty guard, saves as Draft and routes back to the fleet list (REQ-AC-001, REQ-UQ-003)
 - `EnvelopeSection.vue` component: certification-category editor with MTOM / MZFM / graph-type and an envelope-polygon table (4–20 points enforced); wired as a new accordion section in the profile editor between Identity and Weighing Reports. Previously the envelope was stubbed as a unit-square default at aircraft creation — pilots can now enter real POH envelope data (REQ-AD-011, REQ-MB-001, H-005, H-006)
 - Reusable `DecimalInput.vue` shared component: `type="text" inputmode="decimal"` with raw-string internal state so intermediate typing states like `1.105` and trailing zeros are preserved exactly; accepts both `.` and `,` as decimal separators for European pilots. Applied to BEM, Empty CG, station Arm, Operational Limit, Default Quantity, and Unusable Fuel — resolves the iOS Safari "cannot enter a decimal CG" defect

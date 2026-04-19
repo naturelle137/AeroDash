@@ -4,8 +4,14 @@
  * @see frontend/src/modules/aircraft/services/profile.import.ts
  */
 
-import { describe, it, expect } from 'vitest'
-import { importProfileFromJson, exportProfileToJson, ImportError } from '../services/profile.import'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import {
+  importProfileFromJson,
+  exportProfileToJson,
+  buildExchangeFilename,
+  downloadProfileAsJson,
+  ImportError,
+} from '../services/profile.import'
 import type { AircraftProfile } from '@/core/adapters/aircraft.schema'
 
 /** Minimal valid profile for import testing. */
@@ -147,5 +153,84 @@ describe('exportProfileToJson', () => {
     expect(() => JSON.parse(json)).not.toThrow()
     const reimported = importProfileFromJson(json)
     expect(reimported.registration).toBe(data.registration)
+  })
+})
+
+describe('buildExchangeFilename', () => {
+  // @UT-AC-STORE-025@ (FROM: @IMP-AC-STORE-004@)
+  it('returns `<registration>.aerodash.json` for a normal registration', () => {
+    expect(buildExchangeFilename('D-EBPN')).toBe('D-EBPN.aerodash.json')
+    expect(buildExchangeFilename('N123AB')).toBe('N123AB.aerodash.json')
+  })
+
+  // @UT-AC-STORE-026@ (FROM: @IMP-AC-STORE-004@)
+  it('sanitises unsafe filesystem characters', () => {
+    expect(buildExchangeFilename('A/B:C*?')).toBe('A_B_C.aerodash.json')
+  })
+
+  // @UT-AC-STORE-027@ (FROM: @IMP-AC-STORE-004@)
+  it('falls back to `aircraft` when registration has no safe characters', () => {
+    expect(buildExchangeFilename('///')).toBe('aircraft.aerodash.json')
+    expect(buildExchangeFilename('')).toBe('aircraft.aerodash.json')
+  })
+})
+
+describe('downloadProfileAsJson', () => {
+  const createObjectURL = vi.fn<(arg: Blob) => string>(() => 'blob:fake')
+  const revokeObjectURL = vi.fn<(url: string) => void>()
+  const originalCreate = globalThis.URL.createObjectURL
+  const originalRevoke = globalThis.URL.revokeObjectURL
+
+  beforeEach(() => {
+    createObjectURL.mockClear()
+    createObjectURL.mockImplementation(() => 'blob:fake')
+    revokeObjectURL.mockClear()
+    globalThis.URL.createObjectURL = createObjectURL as unknown as typeof URL.createObjectURL
+    globalThis.URL.revokeObjectURL = revokeObjectURL as unknown as typeof URL.revokeObjectURL
+  })
+
+  afterEach(() => {
+    globalThis.URL.createObjectURL = originalCreate
+    globalThis.URL.revokeObjectURL = originalRevoke
+  })
+
+  // @UT-AC-STORE-028@ (FROM: @IMP-AC-STORE-004@)
+  it('creates and revokes a blob URL and clicks a download anchor', () => {
+    const profile = createValidExportedProfile() as unknown as AircraftProfile
+    const clickSpy = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {})
+
+    downloadProfileAsJson(profile)
+
+    expect(createObjectURL).toHaveBeenCalledTimes(1)
+    const firstCall = createObjectURL.mock.calls[0]
+    expect(firstCall).toBeDefined()
+    const blob = firstCall![0]
+    expect(blob.type).toBe('application/json')
+    expect(clickSpy).toHaveBeenCalledTimes(1)
+    expect(revokeObjectURL).toHaveBeenCalledWith('blob:fake')
+
+    clickSpy.mockRestore()
+  })
+
+  // @UT-AC-STORE-029@ (FROM: @IMP-AC-STORE-004@)
+  it('downloaded blob content re-imports successfully (round-trip safe)', async () => {
+    const profile = createValidExportedProfile() as unknown as AircraftProfile
+    let capturedBlob: Blob | null = null
+    createObjectURL.mockImplementation((arg: Blob) => {
+      capturedBlob = arg
+      return 'blob:capture'
+    })
+    const clickSpy = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {})
+
+    downloadProfileAsJson(profile)
+
+    expect(capturedBlob).not.toBeNull()
+    const blob = capturedBlob as unknown as Blob
+    const text = await blob.text()
+    const reimported = importProfileFromJson(text)
+    expect(reimported.registration).toBe(profile.registration)
+    expect(reimported.status).toBe('draft')
+
+    clickSpy.mockRestore()
   })
 })
