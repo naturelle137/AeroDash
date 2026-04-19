@@ -71,35 +71,50 @@ onMounted(async () => {
 })
 
 function setupStickyHeaderObserver(): void {
-  if (typeof IntersectionObserver === 'undefined') return
-  const headers = document.querySelectorAll<HTMLElement>('.fp-view .prep-card__header')
+  const headers = Array.from(
+    document.querySelectorAll<HTMLElement>('.fp-view .prep-card__header'),
+  )
   if (headers.length === 0) return
-  const navHeight = parseInt(
-    getComputedStyle(document.documentElement).getPropertyValue('--nav-header-height') || '56',
-    10,
-  )
-  stickyObserver?.disconnect()
-  stickyObserver = new IntersectionObserver(
-    (entries) => {
-      for (const entry of entries) {
-        const isStuck =
-          entry.intersectionRatio < 1 && entry.boundingClientRect.top <= navHeight + 1
-        entry.target.classList.toggle('is-stuck', isStuck)
-      }
-    },
-    {
-      threshold: [1],
-      rootMargin: `-${navHeight + 1}px 0px 0px 0px`,
-    },
-  )
-  headers.forEach((h) => stickyObserver!.observe(h))
+
+  // Compare each header's actual viewport top (getBoundingClientRect) to its
+  // own computed sticky `top` value. When they match (within 1px), sticky has
+  // engaged — the natural top has passed the pin line and the browser is now
+  // pinning the element. This works for stacked stickies where each header
+  // pins at a different `top`, unlike a single-threshold IntersectionObserver.
+  const update = (): void => {
+    for (const h of headers) {
+      const stickyTop = parseFloat(getComputedStyle(h).top || '0')
+      const rectTop = h.getBoundingClientRect().top
+      const isStuck = Math.abs(rectTop - stickyTop) < 1 && Number.isFinite(stickyTop)
+      h.classList.toggle('is-stuck', isStuck)
+    }
+  }
+
+  let ticking = false
+  const onScroll = (): void => {
+    if (ticking) return
+    ticking = true
+    window.requestAnimationFrame(() => {
+      update()
+      ticking = false
+    })
+  }
+
+  window.addEventListener('scroll', onScroll, { passive: true })
+  window.addEventListener('resize', onScroll)
+  stickyScrollCleanup = () => {
+    window.removeEventListener('scroll', onScroll)
+    window.removeEventListener('resize', onScroll)
+  }
+  // Initial pass so headers that are already stuck on mount are marked.
+  update()
 }
 
-let stickyObserver: IntersectionObserver | null = null
+let stickyScrollCleanup: (() => void) | null = null
 
 onBeforeUnmount(() => {
-  stickyObserver?.disconnect()
-  stickyObserver = null
+  stickyScrollCleanup?.()
+  stickyScrollCleanup = null
 })
 
 /** Smooth-scroll a card into view when the pilot taps its stuck-header strip. */
@@ -620,24 +635,19 @@ function onAircraftSelected(event: Event): void {
   display: flex;
   align-items: center;
   gap: var(--space-3);
-  margin: calc(var(--space-5) * -1) calc(var(--space-6) * -1) var(--space-4);
-  padding: var(--space-5) var(--space-6) var(--space-3);
+  margin: 0 0 var(--space-4);
+  padding: var(--space-3) 0;
   background: var(--color-surface-card);
-  border-top-left-radius: var(--radius-xl);
-  border-top-right-radius: var(--radius-xl);
   flex-wrap: wrap;
   transition:
     padding var(--transition-fast, 120ms) ease,
-    margin var(--transition-fast, 120ms) ease,
     box-shadow var(--transition-fast, 120ms) ease;
 }
 
 /* Compressed one-liner when pinned at the top of the viewport. */
 .prep-card__header.is-stuck {
-  padding: var(--space-2) var(--space-6);
+  padding: var(--space-2) 0;
   margin-bottom: 0;
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
   cursor: pointer;
   box-shadow: 0 1px 0 var(--color-divider);
   min-height: var(--prep-sticky-h);
