@@ -2,9 +2,9 @@
   <!-- @IMP-AC-VIEW-011@ (FROM: @REQ-AD-001@, @REQ-AD-007@, @REQ-AD-014@, @REQ-AD-018@, @REQ-AD-019@) -->
   <div class="identity-section">
     <AircraftModelSelector
-      :manufacturer="modelValue.manufacturer"
-      :model="modelValue.model"
-      :icao-type-designator="modelValue.icaoTypeDesignator"
+      :manufacturer="local.manufacturer"
+      :model="local.model"
+      :icao-type-designator="local.icaoTypeDesignator"
       @update:manufacturer="(v) => patch({ manufacturer: v })"
       @update:model="(v) => patch({ model: v })"
       @update:icao-type-designator="(v) => patch({ icaoTypeDesignator: v })"
@@ -14,31 +14,24 @@
       <label :for="`${sectionId}-registration`">Registration</label>
       <input
         :id="`${sectionId}-registration`"
-        :value="modelValue.registration"
+        :value="local.registration"
         type="text"
         maxlength="7"
         placeholder="D-EBPN"
+        autocapitalize="characters"
+        autocorrect="off"
+        autocomplete="off"
+        spellcheck="false"
         @input="patch({ registration: ($event.target as HTMLInputElement).value })"
       />
       <span v-if="registrationError" class="field-error" role="alert">{{ registrationError }}</span>
     </div>
 
     <div class="field-group">
-      <label :for="`${sectionId}-ownerId`">Owner</label>
-      <input
-        :id="`${sectionId}-ownerId`"
-        :value="modelValue.ownerId"
-        type="text"
-        placeholder="user-123"
-        @input="patch({ ownerId: ($event.target as HTMLInputElement).value })"
-      />
-    </div>
-
-    <div class="field-group">
       <label :for="`${sectionId}-sourceUnit`">POH Mass Unit</label>
       <select
         :id="`${sectionId}-sourceUnit`"
-        :value="modelValue.sourceUnit"
+        :value="local.sourceUnit"
         @change="patch({ sourceUnit: ($event.target as HTMLSelectElement).value })"
       >
         <option value="kg">kg (kilograms)</option>
@@ -54,7 +47,7 @@
       <label :for="`${sectionId}-refDatumDesc`">Reference Datum — Description</label>
       <input
         :id="`${sectionId}-refDatumDesc`"
-        :value="modelValue.referenceDatumDescription"
+        :value="local.referenceDatumDescription"
         type="text"
         placeholder="Leading edge of wing root"
         @input="
@@ -67,29 +60,17 @@
       <label :for="`${sectionId}-refDatumLoc`">Reference Datum — Location</label>
       <input
         :id="`${sectionId}-refDatumLoc`"
-        :value="modelValue.referenceDatumLocation"
+        :value="local.referenceDatumLocation"
         type="text"
         placeholder="Station 0"
         @input="patch({ referenceDatumLocation: ($event.target as HTMLInputElement).value })"
-      />
-    </div>
-
-    <div class="field-group">
-      <label :for="`${sectionId}-shareCode`">
-        Share Code <span class="optional-tag">(optional)</span>
-      </label>
-      <input
-        :id="`${sectionId}-shareCode`"
-        :value="modelValue.shareCode ?? ''"
-        type="text"
-        placeholder="e.g. ABC-123"
-        @input="onShareCodeInput(($event.target as HTMLInputElement).value)"
       />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref, watch } from 'vue'
 import AircraftModelSelector from './AircraftModelSelector.vue'
 
 // @IMP-AC-VIEW-012@ (FROM: @REQ-AD-001@, @REQ-AD-007@, @REQ-AD-014@, @REQ-AD-018@, @REQ-AD-019@)
@@ -99,10 +80,10 @@ export interface IdentityFields {
   manufacturer: string
   model: string
   icaoTypeDesignator: string
-  ownerId: string
   sourceUnit: string
   referenceDatumDescription: string
   referenceDatumLocation: string
+  /** System-generated in a future cloud sync feature; never exposed as a user input. */
   shareCode: string | null
 }
 
@@ -116,13 +97,41 @@ const emit = defineEmits<{
   (e: 'update:modelValue', value: IdentityFields): void
 }>()
 
-function patch(changes: Partial<IdentityFields>): void {
-  emit('update:modelValue', { ...props.modelValue, ...changes })
+// Local mirror of modelValue so multiple rapid patch() calls within one event
+// handler (e.g. AircraftModelSelector emitting manufacturer + model + icao
+// back-to-back, or the ICAO unique-match auto-fill path) all mutate one source
+// of truth. Reading from props.modelValue directly causes later patches in the
+// same synchronous batch to see stale state and clobber earlier changes —
+// manifested on iOS Safari as "manufacturer tap doesn't stick" and "ICAO
+// typing reverts the 4th character".
+const local = ref<IdentityFields>({ ...props.modelValue })
+
+watch(
+  () => props.modelValue,
+  (next) => {
+    if (!isSameIdentity(next, local.value)) {
+      local.value = { ...next }
+    }
+  },
+  { deep: true },
+)
+
+function isSameIdentity(a: IdentityFields, b: IdentityFields): boolean {
+  return (
+    a.registration === b.registration &&
+    a.manufacturer === b.manufacturer &&
+    a.model === b.model &&
+    a.icaoTypeDesignator === b.icaoTypeDesignator &&
+    a.sourceUnit === b.sourceUnit &&
+    a.referenceDatumDescription === b.referenceDatumDescription &&
+    a.referenceDatumLocation === b.referenceDatumLocation &&
+    a.shareCode === b.shareCode
+  )
 }
 
-function onShareCodeInput(raw: string): void {
-  const trimmed = raw.trim()
-  patch({ shareCode: trimmed === '' ? null : trimmed })
+function patch(changes: Partial<IdentityFields>): void {
+  local.value = { ...local.value, ...changes }
+  emit('update:modelValue', local.value)
 }
 </script>
 
@@ -162,5 +171,11 @@ function onShareCodeInput(raw: string): void {
 .field-error {
   font-size: 0.8125rem;
   color: var(--color-critical, #dc2626);
+}
+
+.optional-tag {
+  font-weight: 400;
+  color: var(--color-text-secondary, #6b7280);
+  font-size: 0.8125rem;
 }
 </style>

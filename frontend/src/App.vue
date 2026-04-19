@@ -257,7 +257,10 @@ const themeLabel = computed(() =>
 /* ─── PWA update banner ───────────────────────────────────────────────────── */
 
 .pwa-update-banner {
-  grid-column: 1 / -1;
+  position: fixed;
+  top: var(--nav-header-height);
+  left: 0;
+  right: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -266,7 +269,8 @@ const themeLabel = computed(() =>
   background: var(--color-info, #1d4ed8);
   color: #fff;
   font-size: var(--text-sm);
-  z-index: 300;
+  z-index: 150; /* above main content (scrolls under banner) but below header (z-index 200) */
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
 }
 
 .pwa-update-btn {
@@ -504,7 +508,12 @@ const themeLabel = computed(() =>
 .app-main {
   grid-area: main;
   min-width: 0;
-  overflow-y: auto;
+  /* Intentionally no `overflow-y: auto` — letting the document/window be the
+   * scroll container is the only reliable way to make `position: sticky`
+   * children (e.g. prep-card titles) actually pin on iOS Safari, which has a
+   * long-standing quirk where sticky inside an overflow:auto box fails to
+   * engage. The header / sidebar / bottom-nav stay put via their own
+   * `position: sticky | fixed` rules. */
 }
 
 /* ─── Icon / collapse buttons ─────────────────────────────────────────────── */

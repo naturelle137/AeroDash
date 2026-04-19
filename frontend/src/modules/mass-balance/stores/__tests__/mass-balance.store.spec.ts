@@ -413,17 +413,43 @@ describe('MassBalance Store', () => {
   // ─── resetPayload ─────────────────────────────────────────────────────
 
   // @UT-MB-STORE-018@ (FROM: @IMP-MB-STORE-010@)
-  it('resets all weights to zero, re-runs calculation, and keeps results visible', () => {
+  it('resets each station to max(defaultQuantity, unusableFuel) and keeps results visible', () => {
     const store = useMassBalanceStore()
     store.loadProfile(mockProfile)
     store.updateStationWeight(0, 80)
+    store.updateStationWeight(1, 50)
 
     store.resetPayload()
-    expect(store.stations.every((s) => s.weight === 0)).toBe(true)
+
+    // Pilot station: defaultQuantity=0, no fuelTank → reset to 0
+    expect(store.stations[0]?.weight).toBe(0)
+    // Fuel station: defaultQuantity=0, unusableFuel=3 → reset to 3 (the minimum legal load)
+    expect(store.stations[1]?.weight).toBe(3)
     expect(store.stations.every((s) => !s.verified)).toBe(true)
     expect(store.stations.every((s) => s.touched)).toBe(true)
     expect(store.lastResult).not.toBeNull()
     expect(store.uiState).toBe('VERIFIED_SAFE')
+  })
+
+  // @UT-MB-STORE-018B@ (FROM: @IMP-MB-STORE-010@)
+  it('resets to defaultQuantity when it exceeds unusableFuel', () => {
+    const store = useMassBalanceStore()
+    // Profile where default fuel is 40 L; unusable is 3 L
+    const profileWithDefaults: AircraftContext = {
+      ...mockProfile,
+      loadPoints: [
+        { ...mockProfile.loadPoints[0]!, defaultQuantity: 85 },
+        { ...mockProfile.loadPoints[1]!, defaultQuantity: 40 },
+      ],
+    }
+    store.loadProfile(profileWithDefaults)
+    store.updateStationWeight(0, 10)
+    store.updateStationWeight(1, 10)
+
+    store.resetPayload()
+
+    expect(store.stations[0]?.weight).toBe(85) // defaults win over 0 unusable
+    expect(store.stations[1]?.weight).toBe(40) // defaultQuantity (40) > unusableFuel (3)
   })
 
   // ─── _runCalculation ──────────────────────────────────────────────────
@@ -883,7 +909,9 @@ describe('MassBalance Store', () => {
 
     store.resetPayload()
     expect(store.uiState).toBe('VERIFIED_SAFE')
-    expect(store.stations.every((s) => s.weight === 0)).toBe(true)
+    // Pilot resets to 0 (no default, no unusable); fuel resets to 3 (unusableFuel floor).
+    expect(store.stations[0]?.weight).toBe(0)
+    expect(store.stations[1]?.weight).toBe(3)
     expect(store.lastResult).not.toBeNull()
   })
 

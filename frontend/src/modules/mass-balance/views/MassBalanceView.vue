@@ -1,12 +1,17 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { useMassBalanceStore } from '@/modules/mass-balance/stores/mass-balance.store'
 import { AircraftContextSchema } from '@/modules/mass-balance/data/aircraft-context.schema'
+import { mapFleetProfileToContext } from '@/modules/mass-balance/services/fleet-profile.mapper'
+import { useFleetStore } from '@/modules/aircraft/stores/fleet.store'
+import { useActiveAircraftStore } from '@/modules/aircraft/stores/active-aircraft.store'
 import InputGroupCard from '@/modules/mass-balance/components/InputGroupCard.vue'
 import MassStationInput from '@/modules/mass-balance/components/MassStationInput.vue'
 import CGEnvelopeChart from '@/modules/mass-balance/components/CGEnvelopeChart.vue'
 import ResultSummary from '@/modules/mass-balance/components/ResultSummary.vue'
-import { AIRCRAFT_CATALOGUE } from '@/modules/mass-balance/data/aircraft-catalogue'
+
+// @IMP-MB-UI-FLEET-001@ (FROM: @REQ-AC-001@, @REQ-MB-002@, @UJ-F-002@)
 
 const catalogueError = ref<string | null>(null)
 
@@ -15,6 +20,122 @@ const catalogueError = ref<string | null>(null)
 // ---------------------------------------------------------------------------
 
 const store = useMassBalanceStore()
+const fleetStore = useFleetStore()
+const activeAircraftStore = useActiveAircraftStore()
+const router = useRouter()
+
+// ---------------------------------------------------------------------------
+// Fleet projections
+// ---------------------------------------------------------------------------
+
+const isFleetLoading = computed(() => fleetStore.fleetLoadState === 'LOADING')
+const isFleetError = computed(() => fleetStore.fleetLoadState === 'ERROR')
+const hasFleet = computed(
+  () => fleetStore.fleetLoadState === 'READY' && fleetStore.profiles.length > 0,
+)
+const isFleetEmpty = computed(
+  () => fleetStore.fleetLoadState === 'READY' && fleetStore.profiles.length === 0,
+)
+
+/** Fleet profiles sorted alphabetically by registration for the picker. */
+const sortedProfiles = computed(() =>
+  [...fleetStore.profiles].sort((a, b) => a.registration.localeCompare(b.registration)),
+)
+
+onMounted(async () => {
+  // Only auto-load on the first mount (initial LOADING state). If a previous
+  // attempt errored, let the pilot retry explicitly via the Retry button.
+  if (fleetStore.fleetLoadState === 'LOADING' && fleetStore.profiles.length === 0) {
+    try {
+      await fleetStore.loadAll()
+    } catch {
+      /* fleetLoadState handles the error surface */
+    }
+  }
+
+  // Restore active aircraft selection across reloads
+  const active = activeAircraftStore.activeProfile
+  if (active && !store.aircraft) {
+    const mapped = mapFleetProfileToContext(active)
+    const validation = AircraftContextSchema.safeParse(mapped)
+    if (validation.success) {
+      store.loadProfile(validation.data)
+    }
+  }
+
+  // Toggle `.is-stuck` on each prep-card header as it pins to the top of the
+  // viewport so the CSS can compress it into a one-liner that tap-scrolls
+  // back to its owning card. Safe-noop when IntersectionObserver isn't
+  // available (older browsers / some test envs).
+  setupStickyHeaderObserver()
+})
+
+function setupStickyHeaderObserver(): void {
+  const headers = Array.from(
+    document.querySelectorAll<HTMLElement>('.fp-view .prep-card__header'),
+  )
+  if (headers.length === 0) return
+
+  // Compare each header's actual viewport top (getBoundingClientRect) to its
+  // own computed sticky `top` value. When they match (within 1px), sticky has
+  // engaged — the natural top has passed the pin line and the browser is now
+  // pinning the element. This works for stacked stickies where each header
+  // pins at a different `top`, unlike a single-threshold IntersectionObserver.
+  const update = (): void => {
+    for (const h of headers) {
+      const stickyTop = parseFloat(getComputedStyle(h).top || '0')
+      const rectTop = h.getBoundingClientRect().top
+      const isStuck = Math.abs(rectTop - stickyTop) < 1 && Number.isFinite(stickyTop)
+      h.classList.toggle('is-stuck', isStuck)
+    }
+  }
+
+  let ticking = false
+  const onScroll = (): void => {
+    if (ticking) return
+    ticking = true
+    window.requestAnimationFrame(() => {
+      update()
+      ticking = false
+    })
+  }
+
+  window.addEventListener('scroll', onScroll, { passive: true })
+  window.addEventListener('resize', onScroll)
+  stickyScrollCleanup = () => {
+    window.removeEventListener('scroll', onScroll)
+    window.removeEventListener('resize', onScroll)
+  }
+  // Initial pass so headers that are already stuck on mount are marked.
+  update()
+}
+
+let stickyScrollCleanup: (() => void) | null = null
+
+onBeforeUnmount(() => {
+  stickyScrollCleanup?.()
+  stickyScrollCleanup = null
+})
+
+/** Smooth-scroll a card into view when the pilot taps its stuck-header strip. */
+function onHeaderTap(event: MouseEvent): void {
+  const header = (event.currentTarget as HTMLElement) ?? null
+  if (!header?.classList.contains('is-stuck')) return
+  const card = header.closest<HTMLElement>('.prep-card')
+  card?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+}
+
+function onAddAircraft(): void {
+  if (router.hasRoute('fleet-new')) {
+    void router.push({ name: 'fleet-new' })
+  } else {
+    void router.push('/fleet')
+  }
+}
+
+function onRetry(): void {
+  void fleetStore.loadAll()
+}
 
 // ---------------------------------------------------------------------------
 // Data bindings — direct store projections for child component props
@@ -117,16 +238,19 @@ function onAircraftSelected(event: Event): void {
   const id = (event.target as HTMLSelectElement).value
   if (!id) return
   catalogueError.value = null
-  const profile = AIRCRAFT_CATALOGUE.find((a) => a.id === id)
-  if (!profile) return
 
-  const validation = AircraftContextSchema.safeParse(profile)
+  const fleetProfile = fleetStore.profiles.find((a) => a.id === id)
+  if (!fleetProfile) return
+
+  const mapped = mapFleetProfileToContext(fleetProfile)
+  const validation = AircraftContextSchema.safeParse(mapped)
   if (!validation.success) {
     catalogueError.value = `Aircraft profile "${id}" failed validation — data may be corrupted.`
     return
   }
 
-  store.loadProfile(profile)
+  activeAircraftStore.setActiveProfile(fleetProfile)
+  store.loadProfile(validation.data)
 }
 </script>
 
@@ -140,8 +264,12 @@ function onAircraftSelected(event: Event): void {
     </div>
 
     <!-- ═══ AIRCRAFT SELECTION CARD (always visible) ══════════════════════ -->
-    <section class="prep-card prep-card--aircraft" aria-label="Aircraft selection">
-      <div class="prep-card__header">
+    <section
+      class="prep-card prep-card--aircraft"
+      style="--prep-card-index: 0"
+      aria-label="Aircraft selection"
+    >
+      <div class="prep-card__header" @click="onHeaderTap">
         <span class="prep-card__badge">01</span>
         <h2 class="prep-card__title">Aircraft</h2>
         <span v-if="aircraftLabel" class="aircraft-label">{{ aircraftLabel }}</span>
@@ -152,21 +280,59 @@ function onAircraftSelected(event: Event): void {
         {{ catalogueError }}
       </div>
 
-      <div class="aircraft-selector-row">
+      <!-- Fleet hydrating -->
+      <div v-if="isFleetLoading" class="loading" aria-busy="true" aria-live="polite">
+        <span class="loading-spinner" aria-hidden="true" />
+        <span>Loading your fleet…</span>
+      </div>
+
+      <!-- Fleet load error -->
+      <div
+        v-else-if="isFleetError"
+        class="inline-alert inline-alert--critical fleet-error"
+        role="alert"
+      >
+        <span>{{ fleetStore.fleetLoadError }}</span>
+        <button type="button" class="retry-btn" @click="onRetry">Retry</button>
+      </div>
+
+      <!-- Empty fleet CTA (REQ-AC-001, UJ-F-002) -->
+      <section
+        v-else-if="isFleetEmpty"
+        class="fleet-empty"
+        aria-label="No aircraft in fleet"
+      >
+        <p class="fleet-empty__text">
+          No aircraft in your fleet yet. Add your first aircraft to start Mass &amp; Balance
+          planning.
+        </p>
+        <button type="button" class="fleet-empty__cta" @click="onAddAircraft">
+          + Add Aircraft
+        </button>
+      </section>
+
+      <!-- Populated fleet picker -->
+      <div v-else-if="hasFleet" class="aircraft-selector-row">
         <div class="aircraft-selector-field">
-          <!-- Label text changes so "Select aircraft" is absent from rendered text after an aircraft is loaded (spec line 283) -->
+          <!-- Label text changes so "Select aircraft" is absent from rendered text after an aircraft is loaded -->
           <label for="aircraft-select" class="field-label">
             {{ store.aircraft ? 'Aircraft' : 'Select aircraft' }}
           </label>
           <select
             id="aircraft-select"
+            :value="store.aircraft?.id ?? ''"
             aria-label="Select aircraft"
             class="aircraft-select"
             @change="onAircraftSelected"
           >
             <option value="">— choose aircraft —</option>
-            <option v-for="aircraft in AIRCRAFT_CATALOGUE" :key="aircraft.id" :value="aircraft.id">
-              {{ aircraft.registration }} — {{ aircraft.manufacturer }} {{ aircraft.model }}
+            <option
+              v-for="aircraft in sortedProfiles"
+              :key="aircraft.id"
+              :value="aircraft.id"
+            >
+              {{ aircraft.registration }} — {{ aircraft.manufacturer }} {{ aircraft.model
+              }}{{ aircraft.status === 'draft' ? ' [Draft]' : '' }}
             </option>
           </select>
         </div>
@@ -188,7 +354,7 @@ function onAircraftSelected(event: Event): void {
         </div>
       </div>
 
-      <!-- Loading state -->
+      <!-- Mass-balance profile-loading spinner (distinct from fleet hydration) -->
       <div v-if="viewModel.isLoading" class="loading" aria-busy="true" aria-live="polite">
         <span class="loading-spinner" aria-hidden="true" />
         <span>Loading aircraft profile…</span>
@@ -199,9 +365,10 @@ function onAircraftSelected(event: Event): void {
     <section
       class="prep-card prep-card--mb"
       :class="{ 'prep-card--locked': viewModel.mbLocked }"
+      style="--prep-card-index: 1"
       aria-label="Mass and Balance"
     >
-      <div class="prep-card__header">
+      <div class="prep-card__header" @click="onHeaderTap">
         <span class="prep-card__badge">02</span>
         <h2 class="prep-card__title">Mass &amp; Balance</h2>
         <span v-if="viewModel.mbLocked" class="locked-badge" aria-label="Select an aircraft to unlock">
@@ -265,6 +432,10 @@ function onAircraftSelected(event: Event): void {
                 :key="station.index"
                 :station="station"
                 :unit="store.aircraft?.loadPoints[station.index]?.unit"
+                :unusable-fuel="store.aircraft?.loadPoints[station.index]?.fuelTank?.unusableFuel ?? 0"
+                :max-capacity="store.aircraft?.loadPoints[station.index]?.fuelTank
+                  ? (store.aircraft?.loadPoints[station.index]?.operationalLimit ?? null)
+                  : null"
                 :disabled="viewModel.inputsDisabled"
                 @update:weight="onStationWeightChange(station.index, $event)"
               />
@@ -304,8 +475,12 @@ function onAircraftSelected(event: Event): void {
     </section>
 
     <!-- ═══ COMING SOON: Performance ══════════════════════════════════════ -->
-    <section class="prep-card prep-card--soon" aria-label="Performance — coming soon">
-      <div class="prep-card__header">
+    <section
+      class="prep-card prep-card--soon"
+      style="--prep-card-index: 2"
+      aria-label="Performance — coming soon"
+    >
+      <div class="prep-card__header" @click="onHeaderTap">
         <span class="prep-card__badge prep-card__badge--soon">03</span>
         <h2 class="prep-card__title prep-card__title--soon">Performance</h2>
         <span class="soon-pill">Coming soon</span>
@@ -317,8 +492,12 @@ function onAircraftSelected(event: Event): void {
     </section>
 
     <!-- ═══ COMING SOON: Weather ════════════════════════════════════════════ -->
-    <section class="prep-card prep-card--soon" aria-label="Weather — coming soon">
-      <div class="prep-card__header">
+    <section
+      class="prep-card prep-card--soon"
+      style="--prep-card-index: 3"
+      aria-label="Weather — coming soon"
+    >
+      <div class="prep-card__header" @click="onHeaderTap">
         <span class="prep-card__badge prep-card__badge--soon">04</span>
         <h2 class="prep-card__title prep-card__title--soon">Weather</h2>
         <span class="soon-pill">Coming soon</span>
@@ -330,8 +509,12 @@ function onAircraftSelected(event: Event): void {
     </section>
 
     <!-- ═══ COMING SOON: Fuel & Endurance ══════════════════════════════════ -->
-    <section class="prep-card prep-card--soon" aria-label="Fuel and Endurance — coming soon">
-      <div class="prep-card__header">
+    <section
+      class="prep-card prep-card--soon"
+      style="--prep-card-index: 4"
+      aria-label="Fuel and Endurance — coming soon"
+    >
+      <div class="prep-card__header" @click="onHeaderTap">
         <span class="prep-card__badge prep-card__badge--soon">05</span>
         <h2 class="prep-card__title prep-card__title--soon">Fuel &amp; Endurance</h2>
         <span class="soon-pill">Coming soon</span>
@@ -413,12 +596,85 @@ function onAircraftSelected(event: Event): void {
   opacity: 0.5;
 }
 
+/*
+ * Stacking sticky widget headers (REQ-UI-SCROLL):
+ * Every prep-card title pins under the app header as the pilot scrolls past
+ * it. Each card's `top` is offset by the *compressed* height of all prior
+ * cards, so already-scrolled-past titles stack as a growing breadcrumb of
+ * one-liners at the top. Once a header pins, the IntersectionObserver in
+ * setupStickyHeaderObserver() adds `.is-stuck` to compress it. Tapping a
+ * stuck header smooth-scrolls back to that card.
+ *
+ * Layout notes:
+ * - `.app-main` drops its `overflow-y: auto` so the window scrolls. Sticky
+ *   inside overflow:auto has known iOS Safari bugs — see App.vue.
+ * - --prep-sticky-h is the compressed-header height. We use it both for the
+ *   `top` stack offset and for scroll-margin-top so scrollIntoView lands the
+ *   card BELOW the stuck stack of prior headers.
+ * - `nth-of-type` works because all prep-card children of .fp-view are the
+ *   only <section> siblings. If another <section> is added later, update
+ *   these rules accordingly.
+ */
+
+.fp-view {
+  --prep-sticky-h: 2.75rem;
+}
+
+.prep-card {
+  scroll-margin-top: calc(
+    var(--nav-header-height) + var(--prep-card-index, 0) * var(--prep-sticky-h)
+  );
+}
+
 .prep-card__header {
+  position: sticky;
+  top: calc(
+    var(--nav-header-height) + var(--prep-card-index, 0) * var(--prep-sticky-h)
+  );
+  z-index: calc(10 - var(--prep-card-index, 0));
   display: flex;
   align-items: center;
   gap: var(--space-3);
-  margin-bottom: var(--space-4);
+  margin: 0 0 var(--space-4);
+  padding: var(--space-3) 0;
+  background: var(--color-surface-card);
   flex-wrap: wrap;
+  transition:
+    padding var(--transition-fast, 120ms) ease,
+    box-shadow var(--transition-fast, 120ms) ease;
+}
+
+/* Compressed one-liner when pinned at the top of the viewport. */
+.prep-card__header.is-stuck {
+  padding: var(--space-2) 0;
+  margin-bottom: 0;
+  cursor: pointer;
+  box-shadow: 0 1px 0 var(--color-divider);
+  min-height: var(--prep-sticky-h);
+}
+
+/* When stuck, hide the soon-pill and state-badge so the strip stays one-line. */
+.prep-card__header.is-stuck .soon-pill,
+.prep-card__header.is-stuck .state-badge,
+.prep-card__header.is-stuck .locked-badge,
+.prep-card__header.is-stuck .aircraft-label {
+  display: none;
+}
+
+.prep-card__header.is-stuck .prep-card__title {
+  font-size: var(--text-base);
+}
+
+.prep-card__header.is-stuck .prep-card__badge {
+  width: 18px;
+  height: 18px;
+  font-size: 0.625rem;
+}
+
+@media (max-width: 767.98px) {
+  .prep-card__header.is-stuck {
+    padding: var(--space-2) var(--space-4);
+  }
 }
 
 .prep-card__badge {
@@ -475,6 +731,72 @@ function onAircraftSelected(event: Event): void {
   background: var(--color-critical-bg);
   border: 1px solid var(--color-critical);
   color: var(--color-critical);
+}
+
+.fleet-error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.retry-btn {
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid currentColor;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.retry-btn:hover {
+  background: var(--color-critical);
+  color: #fff;
+}
+
+/* ─── Empty fleet CTA ────────────────────────────────────────────────────── */
+
+.fleet-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-alt);
+}
+
+.fleet-empty__text {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
+.fleet-empty__cta {
+  padding: var(--space-2) var(--space-4);
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-primary);
+  color: var(--color-primary-text, #fff);
+  font: inherit;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  min-height: 44px;
+}
+
+.fleet-empty__cta:hover {
+  background: var(--color-primary-hover, var(--color-primary));
+}
+
+.fleet-empty__cta:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
 }
 
 /* ─── Aircraft selector row ──────────────────────────────────────────────── */
@@ -732,17 +1054,29 @@ function onAircraftSelected(event: Event): void {
   }
 }
 
-/* ─── Mobile: sticky result footer ──────────────────────────────────────── */
+/* ─── Mobile: chart + result flow naturally below inputs ──────────────── */
+/* Previously the results were pinned as a sticky footer above the bottom
+ * nav. On a 390px portrait iPhone that cram-fit the 600×400 CG chart plus
+ * ResultSummary into ~250px of vertical space — chart truncated and the
+ * summary overflowed. Let the results flow in normal page order on mobile
+ * so the pilot can scroll between inputs and the chart. The chart height
+ * is capped so it can't exceed half the viewport. */
 
 @media (max-width: 899.98px) {
   .mb-layout__results {
-    position: sticky;
-    bottom: var(--nav-bottom-height);
-    background: var(--color-surface-card);
-    z-index: 10;
-    padding: var(--space-2);
-    border-top: 1px solid var(--color-border);
-    margin: 0 calc(-1 * var(--space-6));
+    position: static;
+    background: transparent;
+    padding: 0;
+    border-top: none;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    margin-top: var(--space-4);
+  }
+
+  .mb-layout__results :deep(.cg-chart) {
+    max-height: 50vh;
   }
 }
 
@@ -787,6 +1121,14 @@ function onAircraftSelected(event: Event): void {
 
   .prep-card {
     padding: var(--space-4);
+  }
+
+  /* On mobile the card padding shrinks to --space-4, so the sticky-header's
+   * negative margins must match or the header background paints past the
+   * card edge. */
+  .prep-card__header {
+    margin: calc(var(--space-4) * -1) calc(var(--space-4) * -1) var(--space-3);
+    padding: var(--space-4) var(--space-4) var(--space-2);
   }
 
   .aircraft-selector-row {

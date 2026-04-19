@@ -15,12 +15,15 @@
  * Jet A-1 / Diesel = 0.84 kg/L
  */
 export const FUEL_DENSITY_KG_PER_L: Readonly<Record<string, number>> = {
-  AVGAS: 0.72,
-  MOGAS: 0.72,
+  // Canonical keys matching the AircraftProfile schema enum (`MoGas`, `AvGas 100LL`, …)
+  MoGas: 0.72,
   'AvGas 100LL': 0.72,
   'AvGas UL91': 0.72,
   'Jet A-1': 0.84,
   Diesel: 0.84,
+  // Legacy uppercase aliases (pre-schema fixtures / ad-hoc callers)
+  AVGAS: 0.72,
+  MOGAS: 0.72,
 } as const
 
 /** Fallback density when the fuel type is unrecognized (conservative — heavier). */

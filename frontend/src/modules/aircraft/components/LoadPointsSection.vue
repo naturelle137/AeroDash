@@ -43,14 +43,13 @@
       <div class="row-grid">
         <div class="field-group">
           <label :for="`${sectionId}-arm-${idx}`">Arm</label>
-          <input
+          <DecimalInput
             :id="`${sectionId}-arm-${idx}`"
-            :value="lp.arm ?? ''"
-            type="number"
-            step="0.001"
+            :model-value="lp.arm"
+            :allow-null="true"
             :disabled="lp.armLookup.length > 0"
             :placeholder="lp.armLookup.length > 0 ? 'Uses arm table' : '1.900'"
-            @input="patchRow(idx, { arm: asNullableNumber(($event.target as HTMLInputElement).value) })"
+            @update:model-value="(v) => patchRow(idx, { arm: v })"
           />
           <span v-if="lp.armLookup.length > 0" class="field-hint">
             This station uses a variable-arm lookup table ({{ lp.armLookup.length }} rows).
@@ -59,36 +58,33 @@
 
         <div class="field-group">
           <label :for="`${sectionId}-limit-${idx}`">Operational Limit</label>
-          <input
+          <DecimalInput
             :id="`${sectionId}-limit-${idx}`"
-            :value="lp.operationalLimit ?? ''"
-            type="number"
-            step="0.001"
-            min="0"
+            :model-value="lp.operationalLimit"
+            :allow-null="true"
+            :min="0"
             placeholder="optional"
-            @input="
-              patchRow(idx, {
-                operationalLimit: asNullableNumber(($event.target as HTMLInputElement).value),
-              })
-            "
+            @update:model-value="(v) => patchRow(idx, { operationalLimit: v })"
           />
           <span class="field-hint">Maximum quantity allowed at this station.</span>
         </div>
 
         <div class="field-group">
           <label :for="`${sectionId}-qty-${idx}`">Default Quantity</label>
-          <input
+          <DecimalInput
             :id="`${sectionId}-qty-${idx}`"
-            :value="lp.defaultQuantity"
-            type="number"
-            step="0.001"
-            min="0"
-            @input="
-              patchRow(idx, {
-                defaultQuantity: asNonNegative(($event.target as HTMLInputElement).value),
-              })
-            "
+            :model-value="lp.defaultQuantity"
+            :min="0"
+            @update:model-value="(v) => patchRow(idx, { defaultQuantity: v ?? 0 })"
           />
+          <span
+            v-if="willPromoteToUnusable(lp)"
+            class="field-hint field-hint--info"
+            role="note"
+          >
+            Will save as {{ lp.fuelTank!.unusableFuel }} {{ lp.unit }} — a fuel tank cannot
+            default below its unusable fuel.
+          </span>
         </div>
 
         <div class="field-group">
@@ -124,17 +120,11 @@
         <div v-if="lp.fuelTank" class="fuel-tank-fields">
           <div class="field-group">
             <label :for="`${sectionId}-unusable-${idx}`">Unusable Fuel</label>
-            <input
+            <DecimalInput
               :id="`${sectionId}-unusable-${idx}`"
-              :value="lp.fuelTank.unusableFuel"
-              type="number"
-              step="0.001"
-              min="0"
-              @input="
-                patchFuelTank(idx, {
-                  unusableFuel: asNonNegative(($event.target as HTMLInputElement).value),
-                })
-              "
+              :model-value="lp.fuelTank.unusableFuel"
+              :min="0"
+              @update:model-value="(v) => patchFuelTank(idx, { unusableFuel: v ?? 0 })"
             />
             <span class="field-hint">Quantity (in this station's unit) that cannot be burned.</span>
           </div>
@@ -177,6 +167,7 @@ import type {
   AircraftProfileFuelTankExtension,
   AircraftProfileLoadPoint,
 } from '@/core/adapters/aircraft.schema'
+import DecimalInput from '@/shared/components/DecimalInput.vue'
 
 // @IMP-AC-VIEW-018@ (FROM: @REQ-AD-002@, @REQ-AD-003@, @REQ-AD-005@, @REQ-AD-011@, @REQ-AD-012@)
 
@@ -199,18 +190,6 @@ const emit = defineEmits<{
   (e: 'update:modelValue', value: AircraftProfileLoadPoint[]): void
 }>()
 
-function asNullableNumber(raw: string): number | null {
-  if (raw.trim() === '') return null
-  const parsed = Number(raw)
-  return Number.isFinite(parsed) ? parsed : null
-}
-
-function asNonNegative(raw: string): number {
-  const parsed = Number(raw)
-  if (!Number.isFinite(parsed) || parsed < 0) return 0
-  return parsed
-}
-
 function patchRow(idx: number, changes: Partial<AircraftProfileLoadPoint>): void {
   const next = props.modelValue.map((row, i) => (i === idx ? { ...row, ...changes } : row))
   emit('update:modelValue', next)
@@ -221,6 +200,14 @@ function patchFuelTank(idx: number, changes: Partial<AircraftProfileFuelTankExte
   if (!row || !row.fuelTank) return
   const nextTank: AircraftProfileFuelTankExtension = { ...row.fuelTank, ...changes }
   patchRow(idx, { fuelTank: nextTank })
+}
+
+function willPromoteToUnusable(lp: AircraftProfileLoadPoint): boolean {
+  return (
+    lp.fuelTank !== null &&
+    lp.fuelTank.unusableFuel > 0 &&
+    lp.defaultQuantity < lp.fuelTank.unusableFuel
+  )
 }
 
 function toggleFuelTank(idx: number, enabled: boolean): void {
@@ -417,6 +404,11 @@ function removeRow(idx: number): void {
 .field-hint {
   font-size: 0.75rem;
   color: var(--color-text-secondary, #6b7280);
+}
+
+.field-hint--info {
+  color: var(--color-info, #1d4ed8);
+  font-weight: 500;
 }
 
 .field-error {
