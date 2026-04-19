@@ -1,12 +1,17 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { useMassBalanceStore } from '@/modules/mass-balance/stores/mass-balance.store'
 import { AircraftContextSchema } from '@/modules/mass-balance/data/aircraft-context.schema'
+import { mapFleetProfileToContext } from '@/modules/mass-balance/services/fleet-profile.mapper'
+import { useFleetStore } from '@/modules/aircraft/stores/fleet.store'
+import { useActiveAircraftStore } from '@/modules/aircraft/stores/active-aircraft.store'
 import InputGroupCard from '@/modules/mass-balance/components/InputGroupCard.vue'
 import MassStationInput from '@/modules/mass-balance/components/MassStationInput.vue'
 import CGEnvelopeChart from '@/modules/mass-balance/components/CGEnvelopeChart.vue'
 import ResultSummary from '@/modules/mass-balance/components/ResultSummary.vue'
-import { AIRCRAFT_CATALOGUE } from '@/modules/mass-balance/data/aircraft-catalogue'
+
+// @IMP-MB-UI-FLEET-001@ (FROM: @REQ-AC-001@, @REQ-MB-002@, @UJ-F-002@)
 
 const catalogueError = ref<string | null>(null)
 
@@ -15,6 +20,61 @@ const catalogueError = ref<string | null>(null)
 // ---------------------------------------------------------------------------
 
 const store = useMassBalanceStore()
+const fleetStore = useFleetStore()
+const activeAircraftStore = useActiveAircraftStore()
+const router = useRouter()
+
+// ---------------------------------------------------------------------------
+// Fleet projections
+// ---------------------------------------------------------------------------
+
+const isFleetLoading = computed(() => fleetStore.fleetLoadState === 'LOADING')
+const isFleetError = computed(() => fleetStore.fleetLoadState === 'ERROR')
+const hasFleet = computed(
+  () => fleetStore.fleetLoadState === 'READY' && fleetStore.profiles.length > 0,
+)
+const isFleetEmpty = computed(
+  () => fleetStore.fleetLoadState === 'READY' && fleetStore.profiles.length === 0,
+)
+
+/** Fleet profiles sorted alphabetically by registration for the picker. */
+const sortedProfiles = computed(() =>
+  [...fleetStore.profiles].sort((a, b) => a.registration.localeCompare(b.registration)),
+)
+
+onMounted(async () => {
+  // Only auto-load on the first mount (initial LOADING state). If a previous
+  // attempt errored, let the pilot retry explicitly via the Retry button.
+  if (fleetStore.fleetLoadState === 'LOADING' && fleetStore.profiles.length === 0) {
+    try {
+      await fleetStore.loadAll()
+    } catch {
+      /* fleetLoadState handles the error surface */
+    }
+  }
+
+  // Restore active aircraft selection across reloads
+  const active = activeAircraftStore.activeProfile
+  if (active && !store.aircraft) {
+    const mapped = mapFleetProfileToContext(active)
+    const validation = AircraftContextSchema.safeParse(mapped)
+    if (validation.success) {
+      store.loadProfile(validation.data)
+    }
+  }
+})
+
+function onAddAircraft(): void {
+  if (router.hasRoute('fleet-new')) {
+    void router.push({ name: 'fleet-new' })
+  } else {
+    void router.push('/fleet')
+  }
+}
+
+function onRetry(): void {
+  void fleetStore.loadAll()
+}
 
 // ---------------------------------------------------------------------------
 // Data bindings — direct store projections for child component props
@@ -117,16 +177,19 @@ function onAircraftSelected(event: Event): void {
   const id = (event.target as HTMLSelectElement).value
   if (!id) return
   catalogueError.value = null
-  const profile = AIRCRAFT_CATALOGUE.find((a) => a.id === id)
-  if (!profile) return
 
-  const validation = AircraftContextSchema.safeParse(profile)
+  const fleetProfile = fleetStore.profiles.find((a) => a.id === id)
+  if (!fleetProfile) return
+
+  const mapped = mapFleetProfileToContext(fleetProfile)
+  const validation = AircraftContextSchema.safeParse(mapped)
   if (!validation.success) {
     catalogueError.value = `Aircraft profile "${id}" failed validation — data may be corrupted.`
     return
   }
 
-  store.loadProfile(profile)
+  activeAircraftStore.setActiveProfile(fleetProfile)
+  store.loadProfile(validation.data)
 }
 </script>
 
@@ -152,21 +215,59 @@ function onAircraftSelected(event: Event): void {
         {{ catalogueError }}
       </div>
 
-      <div class="aircraft-selector-row">
+      <!-- Fleet hydrating -->
+      <div v-if="isFleetLoading" class="loading" aria-busy="true" aria-live="polite">
+        <span class="loading-spinner" aria-hidden="true" />
+        <span>Loading your fleet…</span>
+      </div>
+
+      <!-- Fleet load error -->
+      <div
+        v-else-if="isFleetError"
+        class="inline-alert inline-alert--critical fleet-error"
+        role="alert"
+      >
+        <span>{{ fleetStore.fleetLoadError }}</span>
+        <button type="button" class="retry-btn" @click="onRetry">Retry</button>
+      </div>
+
+      <!-- Empty fleet CTA (REQ-AC-001, UJ-F-002) -->
+      <section
+        v-else-if="isFleetEmpty"
+        class="fleet-empty"
+        aria-label="No aircraft in fleet"
+      >
+        <p class="fleet-empty__text">
+          No aircraft in your fleet yet. Add your first aircraft to start Mass &amp; Balance
+          planning.
+        </p>
+        <button type="button" class="fleet-empty__cta" @click="onAddAircraft">
+          + Add Aircraft
+        </button>
+      </section>
+
+      <!-- Populated fleet picker -->
+      <div v-else-if="hasFleet" class="aircraft-selector-row">
         <div class="aircraft-selector-field">
-          <!-- Label text changes so "Select aircraft" is absent from rendered text after an aircraft is loaded (spec line 283) -->
+          <!-- Label text changes so "Select aircraft" is absent from rendered text after an aircraft is loaded -->
           <label for="aircraft-select" class="field-label">
             {{ store.aircraft ? 'Aircraft' : 'Select aircraft' }}
           </label>
           <select
             id="aircraft-select"
+            :value="store.aircraft?.id ?? ''"
             aria-label="Select aircraft"
             class="aircraft-select"
             @change="onAircraftSelected"
           >
             <option value="">— choose aircraft —</option>
-            <option v-for="aircraft in AIRCRAFT_CATALOGUE" :key="aircraft.id" :value="aircraft.id">
-              {{ aircraft.registration }} — {{ aircraft.manufacturer }} {{ aircraft.model }}
+            <option
+              v-for="aircraft in sortedProfiles"
+              :key="aircraft.id"
+              :value="aircraft.id"
+            >
+              {{ aircraft.registration }} — {{ aircraft.manufacturer }} {{ aircraft.model
+              }}{{ aircraft.status === 'draft' ? ' [Draft]' : '' }}
             </option>
           </select>
         </div>
@@ -188,7 +289,7 @@ function onAircraftSelected(event: Event): void {
         </div>
       </div>
 
-      <!-- Loading state -->
+      <!-- Mass-balance profile-loading spinner (distinct from fleet hydration) -->
       <div v-if="viewModel.isLoading" class="loading" aria-busy="true" aria-live="polite">
         <span class="loading-spinner" aria-hidden="true" />
         <span>Loading aircraft profile…</span>
@@ -475,6 +576,72 @@ function onAircraftSelected(event: Event): void {
   background: var(--color-critical-bg);
   border: 1px solid var(--color-critical);
   color: var(--color-critical);
+}
+
+.fleet-error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.retry-btn {
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid currentColor;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.retry-btn:hover {
+  background: var(--color-critical);
+  color: #fff;
+}
+
+/* ─── Empty fleet CTA ────────────────────────────────────────────────────── */
+
+.fleet-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-alt);
+}
+
+.fleet-empty__text {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
+.fleet-empty__cta {
+  padding: var(--space-2) var(--space-4);
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-primary);
+  color: var(--color-primary-text, #fff);
+  font: inherit;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  min-height: 44px;
+}
+
+.fleet-empty__cta:hover {
+  background: var(--color-primary-hover, var(--color-primary));
+}
+
+.fleet-empty__cta:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
 }
 
 /* ─── Aircraft selector row ──────────────────────────────────────────────── */

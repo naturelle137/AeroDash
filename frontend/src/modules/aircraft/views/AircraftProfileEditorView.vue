@@ -41,6 +41,18 @@
       </AccordionSection>
 
       <AccordionSection
+        title="Certification &amp; Envelope"
+        :section-id="`${profileId}-envelope`"
+        :model-value="openSections.envelope"
+        @update:model-value="openSections.envelope = $event"
+      >
+        <EnvelopeSection
+          v-model="certificationCategories"
+          :section-id="`${profileId}-envelope`"
+        />
+      </AccordionSection>
+
+      <AccordionSection
         title="Weighing Reports"
         :summary="weighingSummary"
         :section-id="`${profileId}-weighing`"
@@ -96,6 +108,7 @@ import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import type {
   AircraftProfile,
+  AircraftProfileCertificationCategory,
   AircraftProfileLoadPoint,
   AircraftProfileWeighingReport,
 } from '@/core/adapters/aircraft.schema'
@@ -103,6 +116,7 @@ import { useFleetStore } from '../stores/fleet.store'
 import { validateIcaoRegistration } from '../services/profile.validator'
 import AccordionSection from '../components/AccordionSection.vue'
 import IdentitySection, { type IdentityFields } from '../components/IdentitySection.vue'
+import EnvelopeSection from '../components/EnvelopeSection.vue'
 import LoadPointsSection from '../components/LoadPointsSection.vue'
 import WeighingReportsSection from '../components/WeighingReportsSection.vue'
 import ProfileStatusBadge from '../components/ProfileStatusBadge.vue'
@@ -123,7 +137,7 @@ const isSaving = ref(false)
 const source = ref<AircraftProfile | null>(null)
 const draft = ref<AircraftProfile | null>(null)
 
-const openSections = reactive({ identity: true, loadPoints: true, weighing: true })
+const openSections = reactive({ identity: true, envelope: true, loadPoints: true, weighing: true })
 
 const identityFields = computed<IdentityFields>({
   get(): IdentityFields {
@@ -134,7 +148,6 @@ const identityFields = computed<IdentityFields>({
         manufacturer: '',
         model: '',
         icaoTypeDesignator: '',
-        ownerId: '',
         sourceUnit: '',
         referenceDatumDescription: '',
         referenceDatumLocation: '',
@@ -146,7 +159,6 @@ const identityFields = computed<IdentityFields>({
       manufacturer: d.manufacturer,
       model: d.model,
       icaoTypeDesignator: d.icaoTypeDesignator,
-      ownerId: d.ownerId,
       sourceUnit: d.sourceUnit,
       referenceDatumDescription: d.referenceDatumDescription,
       referenceDatumLocation: d.referenceDatumLocation,
@@ -155,7 +167,18 @@ const identityFields = computed<IdentityFields>({
   },
   set(next: IdentityFields): void {
     if (!draft.value) return
+    // ownerId is managed by the store — never flows through IdentitySection
     draft.value = { ...draft.value, ...next }
+  },
+})
+
+const certificationCategories = computed<AircraftProfileCertificationCategory[]>({
+  get(): AircraftProfileCertificationCategory[] {
+    return draft.value?.certificationCategories ?? []
+  },
+  set(next: AircraftProfileCertificationCategory[]): void {
+    if (!draft.value) return
+    draft.value = { ...draft.value, certificationCategories: next }
   },
 })
 
@@ -223,7 +246,12 @@ const canSave = computed(() => {
     if (lp.fuelTank && lp.fuelTank.permissibleFuelTypes.length === 0) return false
     return true
   })
-  return loadPointsOk
+  if (!loadPointsOk) return false
+  // Validate certificationCategories
+  const envelopeOk = d.certificationCategories.every(
+    (cat) => cat.mtom > 0 && cat.envelope.length >= 4 && cat.envelope.length <= 20,
+  )
+  return envelopeOk
 })
 
 const saveButtonLabel = computed(() => {

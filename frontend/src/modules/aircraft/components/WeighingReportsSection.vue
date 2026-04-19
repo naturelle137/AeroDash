@@ -15,23 +15,21 @@
     >
       <div class="field-group">
         <label :for="`${sectionId}-bem-${idx}`">BEM</label>
-        <input
+        <DecimalInput
           :id="`${sectionId}-bem-${idx}`"
-          :value="report.bem"
-          type="number"
-          step="0.001"
-          min="0.001"
-          @input="patchRow(idx, { bem: asNumber(($event.target as HTMLInputElement).value) })"
+          :model-value="report.bem"
+          :min="0.001"
+          placeholder="e.g. 432.5"
+          @update:model-value="(v) => patchRow(idx, { bem: v ?? 0 })"
         />
       </div>
       <div class="field-group">
         <label :for="`${sectionId}-cg-${idx}`">Empty CG</label>
-        <input
+        <DecimalInput
           :id="`${sectionId}-cg-${idx}`"
-          :value="report.emptyCg"
-          type="number"
-          step="0.001"
-          @input="patchRow(idx, { emptyCg: asNumber(($event.target as HTMLInputElement).value) })"
+          :model-value="report.emptyCg"
+          placeholder="e.g. 1.882"
+          @update:model-value="(v) => patchRow(idx, { emptyCg: v ?? 0 })"
         />
       </div>
       <div class="field-group">
@@ -74,6 +72,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { AircraftProfileWeighingReport } from '@/core/adapters/aircraft.schema'
+import DecimalInput from '@/shared/components/DecimalInput.vue'
 
 // @IMP-AC-VIEW-014@ (FROM: @REQ-AD-004@, @REQ-AD-013@)
 
@@ -91,11 +90,6 @@ const rowErrors = computed(() =>
     (r) => !r.weighingDate || !r.validFrom || !Number.isFinite(r.bem) || r.bem <= 0,
   ),
 )
-
-function asNumber(raw: string): number {
-  const parsed = Number(raw)
-  return Number.isFinite(parsed) ? parsed : 0
-}
 
 function patchRow(idx: number, changes: Partial<AircraftProfileWeighingReport>): void {
   const next = props.modelValue.map((row, i) => (i === idx ? { ...row, ...changes } : row))

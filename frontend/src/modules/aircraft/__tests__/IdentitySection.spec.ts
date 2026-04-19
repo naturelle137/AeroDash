@@ -20,7 +20,6 @@ function makeFields(overrides: Partial<IdentityFields> = {}): IdentityFields {
     manufacturer: 'Tecnam',
     model: 'P2008 JC',
     icaoTypeDesignator: 'P208',
-    ownerId: 'user-test',
     sourceUnit: 'kg',
     referenceDatumDescription: 'Leading edge',
     referenceDatumLocation: 'Station 0',
@@ -58,6 +57,14 @@ describe('IdentitySection — rendering', () => {
     })
     const share = wrapper.find('#test-shareCode')
     expect((share.element as HTMLInputElement).value).toBe('')
+  })
+
+  // @UT-AC-VIEW-116@
+  it('does not render an ownerId input field', () => {
+    const wrapper = mount(IdentitySection, {
+      props: { modelValue: makeFields(), sectionId: 'test' },
+    })
+    expect(wrapper.find('#test-ownerId').exists()).toBe(false)
   })
 })
 

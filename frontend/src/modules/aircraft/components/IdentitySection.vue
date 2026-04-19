@@ -24,17 +24,6 @@
     </div>
 
     <div class="field-group">
-      <label :for="`${sectionId}-ownerId`">Owner</label>
-      <input
-        :id="`${sectionId}-ownerId`"
-        :value="modelValue.ownerId"
-        type="text"
-        placeholder="user-123"
-        @input="patch({ ownerId: ($event.target as HTMLInputElement).value })"
-      />
-    </div>
-
-    <div class="field-group">
       <label :for="`${sectionId}-sourceUnit`">POH Mass Unit</label>
       <select
         :id="`${sectionId}-sourceUnit`"
@@ -99,7 +88,6 @@ export interface IdentityFields {
   manufacturer: string
   model: string
   icaoTypeDesignator: string
-  ownerId: string
   sourceUnit: string
   referenceDatumDescription: string
   referenceDatumLocation: string
@@ -162,5 +150,11 @@ function onShareCodeInput(raw: string): void {
 .field-error {
   font-size: 0.8125rem;
   color: var(--color-critical, #dc2626);
+}
+
+.optional-tag {
+  font-weight: 400;
+  color: var(--color-text-secondary, #6b7280);
+  font-size: 0.8125rem;
 }
 </style>

@@ -1,21 +1,89 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 import { mount } from '@vue/test-utils'
+import { createRouter, createMemoryHistory } from 'vue-router'
 import MassBalanceView from '../MassBalanceView.vue'
 import { useMassBalanceStore } from '@/modules/mass-balance/stores/mass-balance.store'
+import { useFleetStore } from '@/modules/aircraft/stores/fleet.store'
 import type {
   AircraftContext,
   MathCoreResult,
   Violation,
 } from '@/modules/mass-balance/stores/mass-balance.types'
+import type { AircraftProfile } from '@/core/adapters/aircraft.schema'
 
 vi.mock('@/core/adapters/mass-balance.adapter', () => ({
   calculateMassBalance: vi.fn<(input: unknown) => MathCoreResult>(),
 }))
 
+// Mock fleet repository so mountView() doesn't touch IndexedDB.
+vi.mock('@/modules/aircraft/services/fleet.repository', () => ({
+  fleetRepository: {
+    findAll: vi.fn<() => Promise<AircraftProfile[]>>().mockResolvedValue([]),
+    create: vi.fn<() => Promise<void>>().mockResolvedValue(undefined),
+    update: vi.fn<() => Promise<void>>().mockResolvedValue(undefined),
+    deleteById: vi.fn<() => Promise<void>>().mockResolvedValue(undefined),
+    findById: vi.fn<() => Promise<AircraftProfile | undefined>>().mockResolvedValue(undefined),
+    openDB: vi.fn<() => Promise<IDBDatabase>>().mockResolvedValue({} as IDBDatabase),
+  },
+}))
+
 import { calculateMassBalance } from '@/core/adapters/mass-balance.adapter'
 
 const mockedCalculate = vi.mocked(calculateMassBalance)
+
+/** Build a fleet-store `AircraftProfile` that maps to the given `AircraftContext`. */
+function toFleetProfile(ctx: AircraftContext): AircraftProfile {
+  return {
+    id: ctx.id,
+    ownerId: 'test-owner',
+    registration: ctx.registration,
+    manufacturer: ctx.manufacturer,
+    model: ctx.model,
+    icaoTypeDesignator: 'ZZZZ',
+    sourceUnit: ctx.sourceUnit,
+    referenceDatumDescription: 'Test',
+    referenceDatumLocation: 'Station 0',
+    shareCode: null,
+    status: ctx.status ?? 'verified',
+    schemaVersion: 1,
+    passengerProfiles: [],
+    weighingReports: ctx.weighingReports.map((wr) => ({
+      bem: wr.basicEmptyMass,
+      emptyCg: wr.emptyCg,
+      weighingDate: wr.weighingDate,
+      validFrom: wr.validFrom,
+    })),
+    loadPoints: ctx.loadPoints as AircraftProfile['loadPoints'],
+    certificationCategories: ctx.certificationCategories.map((cc) => ({
+      category: cc.category,
+      mtom: cc.maxTakeoffMass,
+      maxZeroFuelMass: cc.maxZeroFuelMass,
+      graphType: cc.graphType,
+      envelope: cc.envelope,
+    })),
+  }
+}
+
+/** Seed the fleet store synchronously in the READY state (bypass IndexedDB). */
+function seedFleet(profiles: AircraftProfile[]): void {
+  const fleet = useFleetStore()
+  fleet.profiles = profiles
+  fleet.fleetLoadState = 'READY'
+  fleet.fleetLoadError = null
+}
+
+/** Make a tiny router so `useRouter()` inside the view resolves without errors. */
+function makeRouter() {
+  return createRouter({
+    history: createMemoryHistory(),
+    routes: [
+      { path: '/', component: { template: '<div />' } },
+      { path: '/mass-balance', component: MassBalanceView },
+      { path: '/fleet', name: 'fleet', component: { template: '<div />' } },
+    ],
+  })
+}
 
 function buildSuccessResult(overrides: Partial<MathCoreResult> = {}): MathCoreResult {
   return {
@@ -112,7 +180,7 @@ const multiCategoryProfile: AircraftContext = {
 }
 
 function mountView() {
-  return mount(MassBalanceView)
+  return mount(MassBalanceView, { global: { plugins: [makeRouter()] } })
 }
 
 describe('MassBalanceView integration', () => {
@@ -120,6 +188,10 @@ describe('MassBalanceView integration', () => {
     setActivePinia(createPinia())
     vi.clearAllMocks()
     mockedCalculate.mockReturnValue(buildSuccessResult())
+    // Default: seed the fleet so the aircraft <select> renders. Individual
+    // tests that need empty/loading/error states override this.
+    // Only seed mockProfile (multiCategoryProfile shares the same id).
+    seedFleet([toFleetProfile(mockProfile)])
   })
 
   it('renders INITIAL state with disabled controls and no chart/results', () => {
