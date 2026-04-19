@@ -211,21 +211,25 @@ describe('FleetList — action buttons', () => {
   beforeEach(() => { setActivePinia(createPinia()) })
 
   // @UT-AC-VIEW-088@ (FROM: @IMP-AC-VIEW-006@)
-  it('Select button is disabled when profile is already active', () => {
+  it('Select button is disabled and aria-pressed=true when profile is already active', () => {
     const profile = makeProfile({ id: 'p1' })
     const wrapper = mountFleetList({ profiles: [profile], activeProfile: profile })
     const btn = wrapper.find('.btn-primary')
     expect(btn.attributes('disabled')).toBeDefined()
-    expect(btn.text()).toBe('Active')
+    expect(btn.attributes('aria-pressed')).toBe('true')
+    expect(btn.attributes('aria-label')).toContain('active aircraft')
+    expect(btn.text()).toContain('Active')
   })
 
   // @UT-AC-VIEW-089@ (FROM: @IMP-AC-VIEW-006@)
-  it('Select button is enabled when profile is not active', () => {
+  it('Select button is enabled and aria-pressed=false when profile is not active', () => {
     const profile = makeProfile({ id: 'p1' })
     const wrapper = mountFleetList({ profiles: [profile], activeProfile: null })
     const btn = wrapper.find('.btn-primary')
     expect(btn.attributes('disabled')).toBeUndefined()
-    expect(btn.text()).toBe('Select')
+    expect(btn.attributes('aria-pressed')).toBe('false')
+    expect(btn.attributes('aria-label')).toContain('Select')
+    expect(btn.text()).toContain('Select')
   })
 
   // @UT-AC-VIEW-090@ (FROM: @IMP-AC-VIEW-006@)
@@ -261,5 +265,52 @@ describe('FleetList — action buttons', () => {
     const profile = makeProfile()
     const wrapper = mountFleetList({ profiles: [profile] })
     expect(wrapper.find('.btn-danger').exists()).toBe(true)
+  })
+
+  // @UT-AC-VIEW-094@ (FROM: @IMP-AC-VIEW-006@, @IMP-AC-STORE-004@)
+  it('always shows Download button for each profile', () => {
+    const profile = makeProfile()
+    const wrapper = mountFleetList({ profiles: [profile] })
+    const downloadBtn = wrapper.find('.btn-download')
+    expect(downloadBtn.exists()).toBe(true)
+    expect(downloadBtn.attributes('aria-label')).toContain(profile.registration)
+  })
+
+  // @UT-AC-VIEW-095@ (FROM: @IMP-AC-VIEW-006@)
+  it('icon buttons expose an aria-label referencing the registration', () => {
+    const profile = makeProfile({ registration: 'D-EBPN', status: 'draft' })
+    const wrapper = mountFleetList({ profiles: [profile] })
+    expect(wrapper.find('.btn-primary').attributes('aria-label')).toContain('D-EBPN')
+    expect(wrapper.find('.btn-success').attributes('aria-label')).toContain('D-EBPN')
+    expect(wrapper.find('.btn-secondary').attributes('aria-label')).toContain('D-EBPN')
+    expect(wrapper.find('.btn-danger').attributes('aria-label')).toContain('D-EBPN')
+    expect(wrapper.find('.btn-download').attributes('aria-label')).toContain('D-EBPN')
+  })
+})
+
+describe('FleetList — download action', () => {
+  beforeEach(() => { setActivePinia(createPinia()) })
+
+  // @UT-AC-VIEW-096@ (FROM: @IMP-AC-VIEW-006@, @IMP-AC-STORE-004@)
+  it('clicking the download icon triggers a blob URL + anchor click', async () => {
+    const createObjectURL = vi.fn<(arg: Blob) => string>(() => 'blob:test')
+    const revokeObjectURL = vi.fn<(url: string) => void>()
+    const originalCreate = globalThis.URL.createObjectURL
+    const originalRevoke = globalThis.URL.revokeObjectURL
+    globalThis.URL.createObjectURL = createObjectURL as unknown as typeof URL.createObjectURL
+    globalThis.URL.revokeObjectURL = revokeObjectURL as unknown as typeof URL.revokeObjectURL
+    const clickSpy = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {})
+
+    const profile = makeProfile({ id: 'dl-1', registration: 'D-EBPN' })
+    const wrapper = mountFleetList({ profiles: [profile] })
+    await wrapper.find('.btn-download').trigger('click')
+
+    expect(createObjectURL).toHaveBeenCalledTimes(1)
+    expect(clickSpy).toHaveBeenCalledTimes(1)
+    expect(revokeObjectURL).toHaveBeenCalledWith('blob:test')
+
+    clickSpy.mockRestore()
+    globalThis.URL.createObjectURL = originalCreate
+    globalThis.URL.revokeObjectURL = originalRevoke
   })
 })
