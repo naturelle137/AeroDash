@@ -1,30 +1,46 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import type { StationInput } from '@/modules/mass-balance/stores/mass-balance.types'
 
 const props = defineProps<{
   station: StationInput
   disabled?: boolean
   unit?: string
+  /**
+   * Unusable fuel for fuel stations, in the same `unit` as the station. For
+   * non-fuel stations pass 0 (default). The pilot can never set the loaded
+   * quantity below the unusable amount — the tank always carries unusable
+   * fuel, so entering less would model a dry tank and contradict the POH.
+   */
+  unusableFuel?: number
 }>()
 
 const emit = defineEmits<{
   'update:weight': [weight: number]
 }>()
 
+const minWeight = computed(() => props.unusableFuel ?? 0)
+const hasUnusable = computed(() => (props.unusableFuel ?? 0) > 0)
+
+function clamp(value: number): number {
+  if (!Number.isFinite(value)) return minWeight.value
+  return Math.max(minWeight.value, value)
+}
+
 function onInput(event: Event): void {
   const raw = (event.target as HTMLInputElement).value
   const parsed = parseFloat(raw)
   if (!Number.isNaN(parsed)) {
-    emit('update:weight', parsed)
+    emit('update:weight', clamp(parsed))
   }
 }
 
 function increment(): void {
-  emit('update:weight', props.station.weight + 1)
+  emit('update:weight', clamp(props.station.weight + 1))
 }
 
 function decrement(): void {
-  emit('update:weight', Math.max(0, props.station.weight - 1))
+  emit('update:weight', clamp(props.station.weight - 1))
 }
 </script>
 
@@ -37,15 +53,19 @@ function decrement(): void {
       'mass-station-input--error': station.hasError,
     }"
   >
-    <label :for="`station-${station.index}`" class="mass-station-input__label">
-      {{ station.name }}
-    </label>
+    <div class="mass-station-input__header">
+      <label :for="`station-${station.index}`" class="mass-station-input__label">
+        {{ station.name }}
+      </label>
+      <!-- @IMP-MB-UI-007@ (FROM: @REQ-UQ-005@) -->
+      <span v-if="unit" class="mass-station-input__unit" aria-label="unit">{{ unit }}</span>
+    </div>
 
     <div class="mass-station-input__control">
       <button
         type="button"
         class="mass-station-input__stepper"
-        :disabled="disabled || station.weight <= 0"
+        :disabled="disabled || station.weight <= minWeight"
         aria-label="Decrease"
         @click="decrement"
       >
@@ -60,7 +80,7 @@ function decrement(): void {
         :disabled="disabled"
         :aria-invalid="station.hasError || undefined"
         inputmode="decimal"
-        min="0"
+        :min="minWeight"
         step="1"
         @input="onInput"
       />
@@ -76,18 +96,29 @@ function decrement(): void {
       </button>
     </div>
 
-    <!-- @IMP-MB-UI-007@ (FROM: @REQ-UQ-005@) -->
-    <span v-if="unit" class="mass-station-input__unit" aria-label="unit">{{ unit }}</span>
+    <p
+      v-if="hasUnusable"
+      class="mass-station-input__unusable"
+      :aria-label="`Unusable fuel: ${unusableFuel} ${unit ?? ''}`"
+    >
+      {{ unusableFuel }}{{ unit ? ` ${unit}` : '' }} unusable — minimum load
+    </p>
   </div>
 </template>
 
 <style scoped>
 .mass-station-input {
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  flex-direction: column;
+  gap: 0.375rem;
   padding: 0.5rem;
-  flex-wrap: wrap;
+}
+
+.mass-station-input__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
 }
 
 .mass-station-input--disabled {
@@ -110,11 +141,24 @@ function decrement(): void {
 }
 
 .mass-station-input__label {
-  flex: 1 1 auto;
-  min-width: 6rem;
   font-size: 0.875rem;
   font-weight: 500;
   color: var(--color-text-primary, #212121);
+}
+
+.mass-station-input__unit {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: var(--color-text-secondary, #666);
+  text-transform: none;
+}
+
+.mass-station-input__unusable {
+  margin: 0;
+  font-size: 0.6875rem;
+  color: var(--color-text-secondary, #757575);
+  font-style: italic;
 }
 
 .mass-station-input__control {
@@ -168,47 +212,23 @@ function decrement(): void {
   outline-offset: -2px;
 }
 
-.mass-station-input__unit {
-  font-size: 0.75rem;
-  color: var(--color-text-secondary, #666);
-  min-width: 1.75rem;
-  text-align: left;
-}
-
 .mass-station-input__field::-webkit-inner-spin-button,
 .mass-station-input__field::-webkit-outer-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
 
-/* ─── Mobile portrait: stack label above control so the + button is never clipped ─── */
+/* ─── Mobile portrait: stretch the control full width so steppers can't clip ── */
 @media (max-width: 600px) {
-  .mass-station-input {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.25rem;
-  }
-
-  .mass-station-input__label {
-    min-width: 0;
-  }
-
   .mass-station-input__control {
     width: 100%;
     box-sizing: border-box;
-    align-self: stretch;
   }
 
   .mass-station-input__field {
     flex: 1 1 auto;
     width: auto;
     min-width: 0;
-  }
-
-  .mass-station-input__unit {
-    align-self: flex-end;
-    min-width: 0;
-    padding-right: 0.25rem;
   }
 }
 </style>
