@@ -77,6 +77,14 @@
             :min="0"
             @update:model-value="(v) => patchRow(idx, { defaultQuantity: v ?? 0 })"
           />
+          <span
+            v-if="willPromoteToUnusable(lp)"
+            class="field-hint field-hint--info"
+            role="note"
+          >
+            Will save as {{ lp.fuelTank!.unusableFuel }} {{ lp.unit }} — a fuel tank cannot
+            default below its unusable fuel.
+          </span>
         </div>
 
         <div class="field-group">
@@ -192,6 +200,14 @@ function patchFuelTank(idx: number, changes: Partial<AircraftProfileFuelTankExte
   if (!row || !row.fuelTank) return
   const nextTank: AircraftProfileFuelTankExtension = { ...row.fuelTank, ...changes }
   patchRow(idx, { fuelTank: nextTank })
+}
+
+function willPromoteToUnusable(lp: AircraftProfileLoadPoint): boolean {
+  return (
+    lp.fuelTank !== null &&
+    lp.fuelTank.unusableFuel > 0 &&
+    lp.defaultQuantity < lp.fuelTank.unusableFuel
+  )
 }
 
 function toggleFuelTank(idx: number, enabled: boolean): void {
@@ -388,6 +404,11 @@ function removeRow(idx: number): void {
 .field-hint {
   font-size: 0.75rem;
   color: var(--color-text-secondary, #6b7280);
+}
+
+.field-hint--info {
+  color: var(--color-info, #1d4ed8);
+  font-weight: 500;
 }
 
 .field-error {

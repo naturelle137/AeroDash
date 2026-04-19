@@ -354,6 +354,16 @@ async function onSave(): Promise<void> {
       envelope: sortEnvelopeCcw(cat.envelope),
     }))
 
+    // For fuel tanks with unusableFuel > 0, a saved defaultQuantity below the
+    // unusable floor is invalid — unusable fuel is always on board, so a
+    // default of 0 would contradict the POH. Promote default to the unusable
+    // amount before persisting.
+    const normalizedLoadPoints = loadPoints.value.map((lp) =>
+      lp.fuelTank && lp.fuelTank.unusableFuel > 0 && lp.defaultQuantity < lp.fuelTank.unusableFuel
+        ? { ...lp, defaultQuantity: lp.fuelTank.unusableFuel }
+        : lp,
+    )
+
     await fleetStore.createProfile({
       ownerId: uuidv4(),
       registration: identityFields.value.registration.toUpperCase(),
@@ -367,7 +377,7 @@ async function onSave(): Promise<void> {
       shareCode: identityFields.value.shareCode,
       certificationCategories: sortedCategories,
       weighingReports: weighingReports.value,
-      loadPoints: loadPoints.value,
+      loadPoints: normalizedLoadPoints,
       passengerProfiles: [],
     })
 
