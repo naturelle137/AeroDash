@@ -177,6 +177,7 @@ import type {
   AircraftProfileLoadPoint,
   AircraftProfileWeighingReport,
 } from '@/core/adapters/aircraft.schema'
+import { sortEnvelopeCcw } from '@/core/logic/envelope-sort'
 import { useFleetStore } from '../stores/fleet.store'
 import { validateIcaoRegistration } from '../services/profile.validator'
 import IdentitySection, { type IdentityFields } from '../components/IdentitySection.vue'
@@ -343,6 +344,16 @@ async function onSave(): Promise<void> {
   isSaving.value = true
 
   try {
+    // Normalise each category's envelope into CCW polygon order before save so
+    // the stored vertices never produce a self-intersecting ("bowtie") polygon.
+    // The pilot can enter vertices in any order they read off the POH; the
+    // sort puts them into winding order around the centroid so both the chart
+    // and the P1 ray-cast in mb.envelope agree on what is inside the envelope.
+    const sortedCategories = certificationCategories.value.map((cat) => ({
+      ...cat,
+      envelope: sortEnvelopeCcw(cat.envelope),
+    }))
+
     await fleetStore.createProfile({
       ownerId: uuidv4(),
       registration: identityFields.value.registration.toUpperCase(),
@@ -354,7 +365,7 @@ async function onSave(): Promise<void> {
         identityFields.value.referenceDatumDescription || 'To be defined',
       referenceDatumLocation: identityFields.value.referenceDatumLocation || 'Station 0',
       shareCode: identityFields.value.shareCode,
-      certificationCategories: certificationCategories.value,
+      certificationCategories: sortedCategories,
       weighingReports: weighingReports.value,
       loadPoints: loadPoints.value,
       passengerProfiles: [],

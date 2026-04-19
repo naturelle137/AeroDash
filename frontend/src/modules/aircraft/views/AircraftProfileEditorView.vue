@@ -112,6 +112,7 @@ import type {
   AircraftProfileLoadPoint,
   AircraftProfileWeighingReport,
 } from '@/core/adapters/aircraft.schema'
+import { sortEnvelopeCcw } from '@/core/logic/envelope-sort'
 import { useFleetStore } from '../stores/fleet.store'
 import { validateIcaoRegistration } from '../services/profile.validator'
 import AccordionSection from '../components/AccordionSection.vue'
@@ -312,6 +313,15 @@ async function onSave(): Promise<void> {
     delete (changes as { id?: string }).id
     delete (changes as { status?: AircraftProfile['status'] }).status
     delete (changes as { schemaVersion?: number }).schemaVersion
+
+    // Normalise envelope vertices into CCW polygon order so the stored shape
+    // never self-intersects (see core/logic/envelope-sort.ts).
+    if (changes.certificationCategories) {
+      changes.certificationCategories = changes.certificationCategories.map((cat) => ({
+        ...cat,
+        envelope: sortEnvelopeCcw(cat.envelope),
+      }))
+    }
 
     if (source.value.status === 'verified') {
       await fleetStore.editVerifiedProfile(source.value.id, changes)
