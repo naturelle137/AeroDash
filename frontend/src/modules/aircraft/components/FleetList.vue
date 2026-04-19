@@ -195,6 +195,29 @@ async function onDelete(id: string, registration: string): Promise<void> {
   display: flex;
   gap: 0.5rem;
   flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+/* ─── Mobile: stack identity above actions so buttons don't overlap the registration ─── */
+@media (max-width: 600px) {
+  .profile-item {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+
+  .profile-item__info {
+    flex-wrap: wrap;
+  }
+
+  .profile-item__actions {
+    justify-content: flex-end;
+  }
+
+  .profile-item__actions .btn {
+    flex: 1 1 auto;
+    min-width: 4rem;
+  }
 }
 
 .btn {
