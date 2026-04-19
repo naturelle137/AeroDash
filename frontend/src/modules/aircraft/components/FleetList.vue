@@ -36,21 +36,79 @@
           <!-- Select as active aircraft (refs #153) -->
           <button
             type="button"
-            class="btn btn-primary btn-select"
+            class="icon-btn icon-btn--select btn-primary btn-select"
+            :class="{ 'icon-btn--select-active': activeStore.activeProfile?.id === profile.id }"
             :disabled="activeStore.activeProfile?.id === profile.id"
+            :aria-label="
+              activeStore.activeProfile?.id === profile.id
+                ? `${profile.registration} is the active aircraft`
+                : `Select ${profile.registration} as active aircraft`
+            "
+            :aria-pressed="activeStore.activeProfile?.id === profile.id ? 'true' : 'false'"
+            :title="
+              activeStore.activeProfile?.id === profile.id
+                ? `Active: ${profile.registration}`
+                : `Select ${profile.registration}`
+            "
             @click="onSelectActive(profile)"
           >
-            {{ activeStore.activeProfile?.id === profile.id ? 'Active' : 'Select' }}
+            <!-- Active: filled check-circle.  Inactive: outline check-circle. -->
+            <svg
+              v-if="activeStore.activeProfile?.id === profile.id"
+              class="icon-btn__icon"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path
+                d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm4.7 8.3-5.4 5.4a1 1 0 0 1-1.4 0l-2.6-2.6a1 1 0 1 1 1.4-1.4l1.9 1.9 4.7-4.7a1 1 0 0 1 1.4 1.4Z"
+              />
+            </svg>
+            <svg
+              v-else
+              class="icon-btn__icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <circle cx="12" cy="12" r="9" />
+              <path d="m8 12 3 3 5-6" />
+            </svg>
+            <span class="sr-only">
+              {{ activeStore.activeProfile?.id === profile.id ? 'Active' : 'Select' }}
+            </span>
           </button>
 
           <!-- Verify draft profile -->
           <button
             v-if="profile.status === 'draft'"
             type="button"
-            class="btn btn-success btn-verify"
+            class="icon-btn icon-btn--verify btn-success btn-verify"
+            :aria-label="`Verify ${profile.registration}`"
+            :title="`Verify ${profile.registration}`"
             @click="onVerify(profile.id)"
           >
-            Verify
+            <svg
+              class="icon-btn__icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path d="M12 2 4 5v6c0 5 3.4 9.3 8 11 4.6-1.7 8-6 8-11V5l-8-3Z" />
+              <path d="m9 12 2 2 4-4" />
+            </svg>
+            <span class="sr-only">Verify</span>
           </button>
 
           <!-- Download profile as exchange file (.aerodash.json) -->
@@ -280,63 +338,27 @@ async function onDelete(id: string, registration: string): Promise<void> {
   flex-wrap: wrap;
 }
 
-/* ─── Labelled buttons (Select / Verify) ─── */
-
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 2.75rem; /* 44px — WCAG AAA touch-target minimum */
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 8px;
-  font-size: 0.9375rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background var(--transition-fast, 150ms ease),
-    box-shadow var(--transition-fast, 150ms ease),
-    transform var(--transition-fast, 150ms ease);
-}
-
-.btn:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-}
-
-.btn:focus-visible {
-  outline: 2px solid var(--color-focus, var(--color-primary, #3b82f6));
-  outline-offset: 2px;
-}
-
-.btn:active:not(:disabled) {
-  transform: translateY(1px);
-}
-
-.btn-primary {
-  background: var(--color-primary, #3b82f6);
-  color: var(--color-primary-text, #ffffff);
-}
-
-.btn-primary:hover:not(:disabled) {
-  background: var(--color-primary-hover, #2563eb);
-}
-
-.btn-success {
-  background: var(--color-success, #10b981);
-  color: var(--neutral-0, #ffffff);
-}
-
-.btn-success:hover:not(:disabled) {
-  filter: brightness(1.05);
-}
-
-/* ─── Icon-only buttons (Download / Edit / Delete) ───
+/* ─── Icon-only action buttons (Select / Verify / Download / Edit / Delete) ───
  *
  * Sized generously for touch use under cockpit vibration:
  *   • 2.75rem × 2.75rem (≈44 px) meets WCAG 2.2 SC 2.5.8 AAA target size.
  *   • 0.75rem gap between siblings prevents mis-tap.
  *   • Clear focus ring + hover colour differentiation for gloved use.
+ *   • Every button carries an `aria-label` and a `.sr-only` text label so
+ *     screen readers and automated tests can still discriminate actions.
  */
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
 
 .icon-btn {
   display: inline-flex;
@@ -375,6 +397,44 @@ async function onDelete(id: string, registration: string): Promise<void> {
   transform: translateY(1px);
 }
 
+.icon-btn:disabled {
+  cursor: not-allowed;
+}
+
+/* Select / Active — primary colour circle-check */
+.icon-btn--select {
+  color: var(--color-primary, #3b82f6);
+}
+
+.icon-btn--select:hover:not(:disabled) {
+  color: var(--color-primary-hover, var(--color-primary, #2563eb));
+  border-color: var(--color-primary, #3b82f6);
+  background: var(--color-primary-bg, #eff6ff);
+}
+
+/* "Active" resting state: filled primary, no hover colour change needed. */
+.icon-btn--select-active {
+  background: var(--color-primary, #3b82f6);
+  border-color: var(--color-primary, #3b82f6);
+  color: var(--color-primary-text, #ffffff);
+  opacity: 1; /* override :disabled dim — active is a positive signal, not a blocked affordance */
+}
+
+.icon-btn--select-active:disabled {
+  opacity: 1;
+}
+
+/* Verify — success colour shield-check */
+.icon-btn--verify {
+  color: var(--color-success, #10b981);
+}
+
+.icon-btn--verify:hover:not(:disabled) {
+  color: var(--neutral-0, #ffffff);
+  background: var(--color-success, #10b981);
+  border-color: var(--color-success, #10b981);
+}
+
 .icon-btn--download:hover:not(:disabled) {
   color: var(--color-primary, #3b82f6);
   border-color: var(--color-primary, #3b82f6);
@@ -398,13 +458,13 @@ async function onDelete(id: string, registration: string): Promise<void> {
   border-color: var(--color-critical, #dc2626);
 }
 
-/* Keep .btn-danger selector alive for legacy test selectors (Delete target). */
+/* Legacy .btn-* selectors preserved for existing test selectors — visuals
+   inherit from .icon-btn / .icon-btn--* above. */
+.btn-primary,
+.btn-success,
+.btn-secondary,
 .btn-danger {
-  /* visual inherits from .icon-btn--danger */
-}
-
-.btn-secondary {
-  /* visual inherits from .icon-btn / .icon-btn--edit */
+  /* intentionally empty — class exists only as a stable selector */
 }
 
 /* ─── Mobile: stack identity above actions so buttons don't overlap the registration ─── */
@@ -422,11 +482,6 @@ async function onDelete(id: string, registration: string): Promise<void> {
   .profile-item__actions {
     justify-content: space-between;
     gap: 0.75rem;
-  }
-
-  .profile-item__actions .btn {
-    flex: 1 1 auto;
-    min-width: 5rem;
   }
 
   .profile-item__actions .icon-btn {

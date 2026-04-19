@@ -211,21 +211,25 @@ describe('FleetList — action buttons', () => {
   beforeEach(() => { setActivePinia(createPinia()) })
 
   // @UT-AC-VIEW-088@ (FROM: @IMP-AC-VIEW-006@)
-  it('Select button is disabled when profile is already active', () => {
+  it('Select button is disabled and aria-pressed=true when profile is already active', () => {
     const profile = makeProfile({ id: 'p1' })
     const wrapper = mountFleetList({ profiles: [profile], activeProfile: profile })
     const btn = wrapper.find('.btn-primary')
     expect(btn.attributes('disabled')).toBeDefined()
-    expect(btn.text()).toBe('Active')
+    expect(btn.attributes('aria-pressed')).toBe('true')
+    expect(btn.attributes('aria-label')).toContain('active aircraft')
+    expect(btn.text()).toContain('Active')
   })
 
   // @UT-AC-VIEW-089@ (FROM: @IMP-AC-VIEW-006@)
-  it('Select button is enabled when profile is not active', () => {
+  it('Select button is enabled and aria-pressed=false when profile is not active', () => {
     const profile = makeProfile({ id: 'p1' })
     const wrapper = mountFleetList({ profiles: [profile], activeProfile: null })
     const btn = wrapper.find('.btn-primary')
     expect(btn.attributes('disabled')).toBeUndefined()
-    expect(btn.text()).toBe('Select')
+    expect(btn.attributes('aria-pressed')).toBe('false')
+    expect(btn.attributes('aria-label')).toContain('Select')
+    expect(btn.text()).toContain('Select')
   })
 
   // @UT-AC-VIEW-090@ (FROM: @IMP-AC-VIEW-006@)
@@ -274,8 +278,10 @@ describe('FleetList — action buttons', () => {
 
   // @UT-AC-VIEW-095@ (FROM: @IMP-AC-VIEW-006@)
   it('icon buttons expose an aria-label referencing the registration', () => {
-    const profile = makeProfile({ registration: 'D-EBPN' })
+    const profile = makeProfile({ registration: 'D-EBPN', status: 'draft' })
     const wrapper = mountFleetList({ profiles: [profile] })
+    expect(wrapper.find('.btn-primary').attributes('aria-label')).toContain('D-EBPN')
+    expect(wrapper.find('.btn-success').attributes('aria-label')).toContain('D-EBPN')
     expect(wrapper.find('.btn-secondary').attributes('aria-label')).toContain('D-EBPN')
     expect(wrapper.find('.btn-danger').attributes('aria-label')).toContain('D-EBPN')
     expect(wrapper.find('.btn-download').attributes('aria-label')).toContain('D-EBPN')
