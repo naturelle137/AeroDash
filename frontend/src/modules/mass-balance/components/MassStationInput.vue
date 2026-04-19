@@ -182,11 +182,11 @@ function decrement(): void {
 }
 
 /* ─── Mobile portrait: stack label above control so the + button is never clipped ─── */
-@media (max-width: 480px) {
+@media (max-width: 600px) {
   .mass-station-input {
     flex-direction: column;
     align-items: stretch;
-    gap: 0.375rem;
+    gap: 0.25rem;
   }
 
   .mass-station-input__label {
@@ -195,22 +195,20 @@ function decrement(): void {
 
   .mass-station-input__control {
     width: 100%;
-    justify-content: space-between;
+    box-sizing: border-box;
+    align-self: stretch;
   }
 
   .mass-station-input__field {
     flex: 1 1 auto;
     width: auto;
+    min-width: 0;
   }
 
   .mass-station-input__unit {
-    position: absolute;
-    right: 0.75rem;
-    top: 0.5rem;
-  }
-
-  .mass-station-input {
-    position: relative;
+    align-self: flex-end;
+    min-width: 0;
+    padding-right: 0.25rem;
   }
 }
 </style>
