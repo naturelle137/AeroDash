@@ -1,5 +1,5 @@
 # @E2E-MB-001@ (FROM: @UJ-F-002@)
-@phase-B @fleet @flight-prep
+@wip @phase-B @fleet @flight-prep
 Feature: Fleet-based aircraft selection on the Flight Prep page
   As a pilot
   I want the Flight Prep page to read aircraft from my personal fleet

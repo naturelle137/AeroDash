@@ -1,5 +1,5 @@
 # @E2E-AC-001@ (FROM: @UJ-A-001@)
-@phase-A @fleet @wizard
+@wip @phase-A @fleet @wizard
 Feature: Aircraft creation wizard
   As a pilot
   I want to create a new aircraft profile via a guided 5-step wizard

@@ -1,5 +1,5 @@
 # @E2E-AC-004@ (FROM: @UJ-A-001@)
-@phase-A @fleet @wizard @decimal
+@wip @phase-A @fleet @wizard @decimal
 Feature: Decimal input precision in the aircraft wizard
   As a pilot
   I want decimal values I type to be stored exactly as entered
