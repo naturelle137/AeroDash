@@ -284,4 +284,14 @@ a:hover {
 
 button {
   font-family: inherit;
+  /*
+   * touch-action: manipulation disables the iOS Safari double-tap-to-zoom
+   * gesture on buttons. Rapidly tapping M&B stepper buttons (+ / −) or
+   * the wizard Continue button was triggering browser zoom instead of the
+   * expected stepper action. Pinch-to-zoom on the rest of the page is
+   * unaffected. Tap-highlight is dimmed on touch to avoid distracting
+   * grey rectangles on every press.
+   */
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0.05);
 }
