@@ -518,11 +518,26 @@ function onAircraftSelected(event: Event): void {
   opacity: 0.5;
 }
 
+/*
+ * Sticky widget header (REQ-UI-SCROLL): when the pilot scrolls through a
+ * prep-card's content, the title + status badge stay pinned to the top under
+ * the global nav header. Each card is in the document scroll flow, so the
+ * sticky element releases naturally when the card's bottom scrolls past —
+ * the next card's header then takes over. Margins are extended to the card's
+ * padding edges so the background paints across the full card width.
+ */
 .prep-card__header {
+  position: sticky;
+  top: var(--nav-header-height);
+  z-index: 5;
   display: flex;
   align-items: center;
   gap: var(--space-3);
-  margin-bottom: var(--space-4);
+  margin: calc(var(--space-5) * -1) calc(var(--space-6) * -1) var(--space-4);
+  padding: var(--space-5) var(--space-6) var(--space-3);
+  background: var(--color-surface-card);
+  border-top-left-radius: var(--radius-xl);
+  border-top-right-radius: var(--radius-xl);
   flex-wrap: wrap;
 }
 
@@ -970,6 +985,14 @@ function onAircraftSelected(event: Event): void {
 
   .prep-card {
     padding: var(--space-4);
+  }
+
+  /* On mobile the card padding shrinks to --space-4, so the sticky-header's
+   * negative margins must match or the header background paints past the
+   * card edge. */
+  .prep-card__header {
+    margin: calc(var(--space-4) * -1) calc(var(--space-4) * -1) var(--space-3);
+    padding: var(--space-4) var(--space-4) var(--space-2);
   }
 
   .aircraft-selector-row {
