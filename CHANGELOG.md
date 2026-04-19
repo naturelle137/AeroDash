@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Fleet editor / wizard: per-load-station **allowable-categories** selector — when an aircraft is certified in more than one category (e.g. Normal + Utility + Aerobatic), each seat, baggage area, or fuel tank can be restricted to the subset of categories in which it is approved (e.g. rear seats not approved in Aerobatic). Stations default to unrestricted (available in every category); the UI auto-prunes stale category references no longer present on the aircraft. Previously the `allowableCategories` field existed in the schema but was always persisted as `null`, forcing pilots with multi-category aircraft to ignore POH placards. (REQ-AD-012)
+- Fleet editor / wizard: **burn-sequence editor** on fuel tanks — a tank can now declare its ordinal position in one or more named drain orders (e.g. "Standard" Aft → Forward; "Alternative" Forward → Aft). The P1 mass-balance core already computed per-sequence CG waypoints from this data; the UI now lets pilots configure it without hand-editing JSON. Validation prevents duplicate sequence names on a single tank, non-positive ordinal positions, and blank sequence names. (REQ-AD-005)
+- Unit tests for the new LoadPointsSection controls: 6 for allowable-category checkboxes (single-category hide, multi-category render, restrict/collapse/clear, stale drop), 7 for the burn-sequence editor (empty state, seeded add, ordinal auto-increment, name edit, row removal, duplicate-name error, blank-name error) (`UT-AC-VIEW-152`..`UT-AC-VIEW-164`)
 - Download aircraft profile as `.aerodash.json` exchange file from the fleet list: new `downloadProfileAsJson` / `buildExchangeFilename` helpers in `services/profile.import.ts` produce round-trip-safe files accepted by the existing import flow. A dedicated icon button on every fleet row triggers the download (REQ-AC-004)
 
 ### Changed

@@ -78,6 +78,7 @@
         </div>
         <LoadPointsSection
           v-model="loadPoints"
+          :available-categories="availableCategoryNames"
           section-id="wizard-loadpoints"
         />
       </section>
@@ -237,6 +238,14 @@ const weighingReports = ref<AircraftProfileWeighingReport[]>([
 ])
 
 const loadPoints = ref<AircraftProfileLoadPoint[]>([])
+
+// Distinct certification category names (Normal / Utility / Aerobatic) feeding
+// the per-station category-restriction UI. Deduplicated in case the pilot adds
+// two envelope entries for the same category (e.g. two Normal envelopes) —
+// both should collapse to a single checkbox.
+const availableCategoryNames = computed<AircraftProfileCertificationCategory['category'][]>(
+  () => Array.from(new Set(certificationCategories.value.map((c) => c.category))),
+)
 
 // ─── Dirty detection ────────────────────────────────────────────────────────
 

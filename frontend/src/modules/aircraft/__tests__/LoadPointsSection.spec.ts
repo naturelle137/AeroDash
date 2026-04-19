@@ -205,3 +205,247 @@ describe('LoadPointsSection — emits', () => {
     expect(wrapper.text()).toContain('At least one permissible fuel type is required')
   })
 })
+
+describe('LoadPointsSection — per-station category restriction', () => {
+  // @UT-AC-VIEW-152@ (FROM: @IMP-AC-VIEW-017@, @IMP-AC-VIEW-018@)
+  it('hides the category-restriction controls when the aircraft has a single category', () => {
+    const wrapper = mount(LoadPointsSection, {
+      props: {
+        modelValue: [makeRow()],
+        sectionId: 'test',
+        availableCategories: ['Normal'],
+      },
+    })
+    expect(wrapper.find('.category-restriction').exists()).toBe(false)
+  })
+
+  // @UT-AC-VIEW-153@
+  it('renders a checkbox per available category when the aircraft has multiple', () => {
+    const wrapper = mount(LoadPointsSection, {
+      props: {
+        modelValue: [makeRow()],
+        sectionId: 'test',
+        availableCategories: ['Normal', 'Utility', 'Aerobatic'],
+      },
+    })
+    const boxes = wrapper.findAll('.category-restriction .checkbox-inline')
+    expect(boxes).toHaveLength(3)
+    for (const b of boxes) {
+      const input = b.find('input[type="checkbox"]').element as HTMLInputElement
+      expect(input.checked).toBe(true)
+    }
+  })
+
+  // @UT-AC-VIEW-154@
+  it('emits a restricted subset when one category is unchecked', async () => {
+    const wrapper = mount(LoadPointsSection, {
+      props: {
+        modelValue: [makeRow()],
+        sectionId: 'test',
+        availableCategories: ['Normal', 'Utility', 'Aerobatic'],
+      },
+    })
+    const aerobaticBox = wrapper
+      .findAll('.category-restriction .checkbox-inline')
+      .find((l) => l.text().includes('Aerobatic'))!
+    await aerobaticBox.find('input[type="checkbox"]').setValue(false)
+    const emitted = (wrapper.emitted('update:modelValue') ?? []) as unknown[][]
+    const last = emitted[emitted.length - 1]?.[0] as AircraftProfileLoadPoint[]
+    expect(last[0]?.allowableCategories).toEqual(['Normal', 'Utility'])
+  })
+
+  // @UT-AC-VIEW-155@
+  it('collapses restriction back to null when every available category is re-checked', async () => {
+    const row = makeRow({ allowableCategories: ['Normal'] })
+    const wrapper = mount(LoadPointsSection, {
+      props: {
+        modelValue: [row],
+        sectionId: 'test',
+        availableCategories: ['Normal', 'Utility'],
+      },
+    })
+    const utilityBox = wrapper
+      .findAll('.category-restriction .checkbox-inline')
+      .find((l) => l.text().includes('Utility'))!
+    await utilityBox.find('input[type="checkbox"]').setValue(true)
+    const emitted = (wrapper.emitted('update:modelValue') ?? []) as unknown[][]
+    const last = emitted[emitted.length - 1]?.[0] as AircraftProfileLoadPoint[]
+    expect(last[0]?.allowableCategories).toBeNull()
+  })
+
+  // @UT-AC-VIEW-156@
+  it('shows an error when every category is unchecked', async () => {
+    const row = makeRow({ allowableCategories: [] })
+    const wrapper = mount(LoadPointsSection, {
+      props: {
+        modelValue: [row],
+        sectionId: 'test',
+        availableCategories: ['Normal', 'Utility'],
+      },
+    })
+    expect(wrapper.text()).toContain('Select at least one category')
+  })
+
+  // @UT-AC-VIEW-157@
+  it('silently drops stale categories no longer present on the aircraft', async () => {
+    // Station was restricted to Aerobatic, but the aircraft is now only
+    // certified in Normal + Utility. First interaction must prune the stale
+    // entry and emit only currently-available values.
+    const row = makeRow({ allowableCategories: ['Aerobatic'] })
+    const wrapper = mount(LoadPointsSection, {
+      props: {
+        modelValue: [row],
+        sectionId: 'test',
+        availableCategories: ['Normal', 'Utility'],
+      },
+    })
+    const normalBox = wrapper
+      .findAll('.category-restriction .checkbox-inline')
+      .find((l) => l.text().includes('Normal'))!
+    await normalBox.find('input[type="checkbox"]').setValue(true)
+    const emitted = (wrapper.emitted('update:modelValue') ?? []) as unknown[][]
+    const last = emitted[emitted.length - 1]?.[0] as AircraftProfileLoadPoint[]
+    // Only Normal is ticked; the stale Aerobatic entry is gone.
+    expect(last[0]?.allowableCategories).toEqual(['Normal'])
+  })
+})
+
+describe('LoadPointsSection — burn sequence editor', () => {
+  // @UT-AC-VIEW-158@ (FROM: @IMP-AC-VIEW-017@, @IMP-AC-VIEW-018@)
+  it('shows an empty-state when a tank has no burn sequences', () => {
+    const tank = makeRow({
+      unit: 'L',
+      fuelTank: {
+        unusableFuel: 0,
+        permissibleFuelTypes: ['AvGas 100LL'],
+        burnSequences: [],
+      },
+    })
+    const wrapper = mount(LoadPointsSection, {
+      props: { modelValue: [tank], sectionId: 'test' },
+    })
+    expect(wrapper.text()).toContain('No burn sequence entries yet')
+  })
+
+  // @UT-AC-VIEW-159@
+  it('emits a seeded burn sequence entry when + Add Sequence Entry is clicked', async () => {
+    const tank = makeRow({
+      unit: 'L',
+      fuelTank: {
+        unusableFuel: 0,
+        permissibleFuelTypes: ['AvGas 100LL'],
+        burnSequences: [],
+      },
+    })
+    const wrapper = mount(LoadPointsSection, {
+      props: { modelValue: [tank], sectionId: 'test' },
+    })
+    await wrapper.find('.btn-add-seq').trigger('click')
+    const emitted = (wrapper.emitted('update:modelValue') ?? []) as unknown[][]
+    const last = emitted[emitted.length - 1]?.[0] as AircraftProfileLoadPoint[]
+    expect(last[0]?.fuelTank?.burnSequences).toEqual([
+      { sequenceName: 'Standard', ordinalPosition: 1 },
+    ])
+  })
+
+  // @UT-AC-VIEW-160@
+  it('seeds the next ordinal position as (max existing + 1)', async () => {
+    const tank = makeRow({
+      unit: 'L',
+      fuelTank: {
+        unusableFuel: 0,
+        permissibleFuelTypes: ['AvGas 100LL'],
+        burnSequences: [
+          { sequenceName: 'Standard', ordinalPosition: 1 },
+          { sequenceName: 'Standard', ordinalPosition: 3 },
+        ],
+      },
+    })
+    const wrapper = mount(LoadPointsSection, {
+      props: { modelValue: [tank], sectionId: 'test' },
+    })
+    await wrapper.find('.btn-add-seq').trigger('click')
+    const emitted = (wrapper.emitted('update:modelValue') ?? []) as unknown[][]
+    const last = emitted[emitted.length - 1]?.[0] as AircraftProfileLoadPoint[]
+    const entries = last[0]?.fuelTank?.burnSequences ?? []
+    expect(entries[entries.length - 1]?.ordinalPosition).toBe(4)
+  })
+
+  // @UT-AC-VIEW-161@
+  it('emits the updated sequence name when the name input changes', async () => {
+    const tank = makeRow({
+      unit: 'L',
+      fuelTank: {
+        unusableFuel: 0,
+        permissibleFuelTypes: ['AvGas 100LL'],
+        burnSequences: [{ sequenceName: 'Standard', ordinalPosition: 1 }],
+      },
+    })
+    const wrapper = mount(LoadPointsSection, {
+      props: { modelValue: [tank], sectionId: 'test' },
+    })
+    await wrapper.find('#test-bs-name-0-0').setValue('Alternative')
+    const emitted = (wrapper.emitted('update:modelValue') ?? []) as unknown[][]
+    const last = emitted[emitted.length - 1]?.[0] as AircraftProfileLoadPoint[]
+    expect(last[0]?.fuelTank?.burnSequences[0]?.sequenceName).toBe('Alternative')
+  })
+
+  // @UT-AC-VIEW-162@
+  it('removes a sequence entry when its ✕ button is clicked', async () => {
+    const tank = makeRow({
+      unit: 'L',
+      fuelTank: {
+        unusableFuel: 0,
+        permissibleFuelTypes: ['AvGas 100LL'],
+        burnSequences: [
+          { sequenceName: 'Standard', ordinalPosition: 1 },
+          { sequenceName: 'Alternative', ordinalPosition: 1 },
+        ],
+      },
+    })
+    const wrapper = mount(LoadPointsSection, {
+      props: { modelValue: [tank], sectionId: 'test' },
+    })
+    await wrapper.findAll('.btn-remove-seq')[0]!.trigger('click')
+    const emitted = (wrapper.emitted('update:modelValue') ?? []) as unknown[][]
+    const last = emitted[emitted.length - 1]?.[0] as AircraftProfileLoadPoint[]
+    expect(last[0]?.fuelTank?.burnSequences).toEqual([
+      { sequenceName: 'Alternative', ordinalPosition: 1 },
+    ])
+  })
+
+  // @UT-AC-VIEW-163@
+  it('flags duplicate sequence names on the same tank', () => {
+    const tank = makeRow({
+      unit: 'L',
+      fuelTank: {
+        unusableFuel: 0,
+        permissibleFuelTypes: ['AvGas 100LL'],
+        burnSequences: [
+          { sequenceName: 'Standard', ordinalPosition: 1 },
+          { sequenceName: 'Standard', ordinalPosition: 2 },
+        ],
+      },
+    })
+    const wrapper = mount(LoadPointsSection, {
+      props: { modelValue: [tank], sectionId: 'test' },
+    })
+    expect(wrapper.text()).toContain('sequence names must be unique')
+  })
+
+  // @UT-AC-VIEW-164@
+  it('flags a blank sequence name', () => {
+    const tank = makeRow({
+      unit: 'L',
+      fuelTank: {
+        unusableFuel: 0,
+        permissibleFuelTypes: ['AvGas 100LL'],
+        burnSequences: [{ sequenceName: '  ', ordinalPosition: 1 }],
+      },
+    })
+    const wrapper = mount(LoadPointsSection, {
+      props: { modelValue: [tank], sectionId: 'test' },
+    })
+    expect(wrapper.text()).toContain('Sequence name cannot be empty')
+  })
+})

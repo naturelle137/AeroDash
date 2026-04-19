@@ -1412,3 +1412,107 @@ AC View — ProfileStatusBadge Component (Unit)
       - IMP-AC-VIEW-018
     files:
       - frontend/src/modules/aircraft/__tests__/LoadPointsSection.spec.ts
+
+  UT-AC-VIEW-152
+    title: LoadPointsSection — hides category-restriction controls for single-category aircraft
+    impl:
+      - IMP-AC-VIEW-017
+      - IMP-AC-VIEW-018
+    files:
+      - frontend/src/modules/aircraft/__tests__/LoadPointsSection.spec.ts
+
+  UT-AC-VIEW-153
+    title: LoadPointsSection — renders a checkbox per available category for multi-category aircraft
+    impl:
+      - IMP-AC-VIEW-017
+      - IMP-AC-VIEW-018
+    files:
+      - frontend/src/modules/aircraft/__tests__/LoadPointsSection.spec.ts
+
+  UT-AC-VIEW-154
+    title: LoadPointsSection — emits a restricted category subset when a box is unchecked
+    impl:
+      - IMP-AC-VIEW-017
+      - IMP-AC-VIEW-018
+    files:
+      - frontend/src/modules/aircraft/__tests__/LoadPointsSection.spec.ts
+
+  UT-AC-VIEW-155
+    title: LoadPointsSection — collapses restriction to null when every category is re-checked
+    impl:
+      - IMP-AC-VIEW-017
+      - IMP-AC-VIEW-018
+    files:
+      - frontend/src/modules/aircraft/__tests__/LoadPointsSection.spec.ts
+
+  UT-AC-VIEW-156
+    title: LoadPointsSection — shows an error when every category is unchecked
+    impl:
+      - IMP-AC-VIEW-017
+      - IMP-AC-VIEW-018
+    files:
+      - frontend/src/modules/aircraft/__tests__/LoadPointsSection.spec.ts
+
+  UT-AC-VIEW-157
+    title: LoadPointsSection — silently drops stale categories no longer on the aircraft
+    impl:
+      - IMP-AC-VIEW-017
+      - IMP-AC-VIEW-018
+    files:
+      - frontend/src/modules/aircraft/__tests__/LoadPointsSection.spec.ts
+
+  UT-AC-VIEW-158
+    title: LoadPointsSection — burn-sequence empty-state when no entries exist
+    impl:
+      - IMP-AC-VIEW-017
+      - IMP-AC-VIEW-018
+    files:
+      - frontend/src/modules/aircraft/__tests__/LoadPointsSection.spec.ts
+
+  UT-AC-VIEW-159
+    title: LoadPointsSection — + Add Sequence Entry emits a seeded burn-sequence row
+    impl:
+      - IMP-AC-VIEW-017
+      - IMP-AC-VIEW-018
+    files:
+      - frontend/src/modules/aircraft/__tests__/LoadPointsSection.spec.ts
+
+  UT-AC-VIEW-160
+    title: LoadPointsSection — new burn-sequence entry seeds ordinal as (max existing + 1)
+    impl:
+      - IMP-AC-VIEW-017
+      - IMP-AC-VIEW-018
+    files:
+      - frontend/src/modules/aircraft/__tests__/LoadPointsSection.spec.ts
+
+  UT-AC-VIEW-161
+    title: LoadPointsSection — emits updated burn-sequence name when name input changes
+    impl:
+      - IMP-AC-VIEW-017
+      - IMP-AC-VIEW-018
+    files:
+      - frontend/src/modules/aircraft/__tests__/LoadPointsSection.spec.ts
+
+  UT-AC-VIEW-162
+    title: LoadPointsSection — ✕ removes a burn-sequence entry
+    impl:
+      - IMP-AC-VIEW-017
+      - IMP-AC-VIEW-018
+    files:
+      - frontend/src/modules/aircraft/__tests__/LoadPointsSection.spec.ts
+
+  UT-AC-VIEW-163
+    title: LoadPointsSection — flags duplicate burn-sequence names on one tank
+    impl:
+      - IMP-AC-VIEW-017
+      - IMP-AC-VIEW-018
+    files:
+      - frontend/src/modules/aircraft/__tests__/LoadPointsSection.spec.ts
+
+  UT-AC-VIEW-164
+    title: LoadPointsSection — flags blank burn-sequence name
+    impl:
+      - IMP-AC-VIEW-017
+      - IMP-AC-VIEW-018
+    files:
+      - frontend/src/modules/aircraft/__tests__/LoadPointsSection.spec.ts

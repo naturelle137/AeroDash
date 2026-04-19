@@ -74,6 +74,7 @@
       >
         <LoadPointsSection
           v-model="loadPoints"
+          :available-categories="availableCategoryNames"
           :section-id="`${profileId}-loadpoints`"
         />
       </AccordionSection>
@@ -202,6 +203,12 @@ const loadPoints = computed<AircraftProfileLoadPoint[]>({
     draft.value = { ...draft.value, loadPoints: next }
   },
 })
+
+// Distinct certification category names — feed the per-station
+// category-restriction UI in LoadPointsSection.
+const availableCategoryNames = computed<AircraftProfileCertificationCategory['category'][]>(
+  () => Array.from(new Set(certificationCategories.value.map((c) => c.category))),
+)
 
 const identitySummary = computed(() => {
   const d = draft.value
