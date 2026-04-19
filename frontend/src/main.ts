@@ -52,17 +52,39 @@ const SESSION_KEY = 'aerodash.session.active'
  * Reads the sessionStorage flag and immediately sets it for this tab lifetime.
  * Returns `true` if a session was already active (in-session path),
  * `false` for a cold start.
+ *
+ * A browser refresh preserves sessionStorage but is still effectively a fresh
+ * page load — the pilot explicitly asked for a reload. We therefore also treat
+ * any navigation of `PerformanceNavigationTiming.type === 'reload'` as a cold
+ * start, so a refresh applies the pending update silently instead of surfacing
+ * the banner again.
+ *
  * If sessionStorage is unavailable, returns `true` (fail-safe: banner shown).
  */
 export function captureAndMarkSession(): boolean {
   try {
     const wasActive = sessionStorage.getItem(SESSION_KEY) === '1'
     sessionStorage.setItem(SESSION_KEY, '1')
+    if (wasActive && isBrowserReload()) {
+      // Treat a browser refresh as a cold start — pilot asked for a reload,
+      // so the newest build should load without an extra banner step.
+      return false
+    }
     return wasActive
   } catch {
     // sessionStorage unavailable (e.g. Safari private mode, sandboxed iframe).
     // Fail-safe to the in-session path so REQ-SYS-005 / H-019 mitigation holds.
     return true
+  }
+}
+
+/** Detect whether the current navigation is a browser reload (back/refresh). */
+function isBrowserReload(): boolean {
+  try {
+    const entries = performance.getEntriesByType('navigation') as PerformanceNavigationTiming[]
+    return entries[0]?.type === 'reload'
+  } catch {
+    return false
   }
 }
 

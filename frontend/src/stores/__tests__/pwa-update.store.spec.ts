@@ -150,6 +150,36 @@ describe('captureAndMarkSession', () => {
       Object.defineProperty(window, 'sessionStorage', originalStorage)
     }
   })
+
+  // @UT-SYS-STORE-035@ (FROM: @IMP-SYS-STORE-010@)
+  it('returns false on a browser reload even though sessionStorage still has the flag', () => {
+    sessionStorage.setItem('aerodash.session.active', '1')
+    const getEntriesSpy = vi
+      .spyOn(performance, 'getEntriesByType')
+      .mockReturnValue([
+        { type: 'reload' } as unknown as PerformanceNavigationTiming,
+      ] as PerformanceEntryList)
+
+    const result = captureAndMarkSession()
+    expect(result).toBe(false)
+
+    getEntriesSpy.mockRestore()
+  })
+
+  // @UT-SYS-STORE-036@ (FROM: @IMP-SYS-STORE-010@)
+  it('returns true for a non-reload navigation when the session key is already set', () => {
+    sessionStorage.setItem('aerodash.session.active', '1')
+    const getEntriesSpy = vi
+      .spyOn(performance, 'getEntriesByType')
+      .mockReturnValue([
+        { type: 'navigate' } as unknown as PerformanceNavigationTiming,
+      ] as PerformanceEntryList)
+
+    const result = captureAndMarkSession()
+    expect(result).toBe(true)
+
+    getEntriesSpy.mockRestore()
+  })
 })
 
 // ---------------------------------------------------------------------------

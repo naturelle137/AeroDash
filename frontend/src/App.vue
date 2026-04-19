@@ -257,7 +257,10 @@ const themeLabel = computed(() =>
 /* ─── PWA update banner ───────────────────────────────────────────────────── */
 
 .pwa-update-banner {
-  grid-column: 1 / -1;
+  position: fixed;
+  top: var(--nav-header-height);
+  left: 0;
+  right: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -266,7 +269,8 @@ const themeLabel = computed(() =>
   background: var(--color-info, #1d4ed8);
   color: #fff;
   font-size: var(--text-sm);
-  z-index: 300;
+  z-index: 150; /* above main content (scrolls under banner) but below header (z-index 200) */
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
 }
 
 .pwa-update-btn {
