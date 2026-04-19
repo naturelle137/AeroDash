@@ -13,6 +13,13 @@ const props = defineProps<{
    * fuel, so entering less would model a dry tank and contradict the POH.
    */
   unusableFuel?: number
+  /**
+   * Maximum capacity of this station, in the same `unit`. For fuel stations
+   * this is the operational limit from the profile. When provided AND greater
+   * than the minimum, a slider is rendered so pilots can scrub the fuel load.
+   * Pass null / undefined for non-fuel stations or tanks without a capacity.
+   */
+  maxCapacity?: number | null
 }>()
 
 const emit = defineEmits<{
@@ -21,10 +28,17 @@ const emit = defineEmits<{
 
 const minWeight = computed(() => props.unusableFuel ?? 0)
 const hasUnusable = computed(() => (props.unusableFuel ?? 0) > 0)
+const showSlider = computed(
+  () =>
+    props.maxCapacity !== null &&
+    props.maxCapacity !== undefined &&
+    props.maxCapacity > minWeight.value,
+)
 
 function clamp(value: number): number {
   if (!Number.isFinite(value)) return minWeight.value
-  return Math.max(minWeight.value, value)
+  const ceiling = showSlider.value && props.maxCapacity != null ? props.maxCapacity : Infinity
+  return Math.min(ceiling, Math.max(minWeight.value, value))
 }
 
 function onInput(event: Event): void {
@@ -103,6 +117,22 @@ function decrement(): void {
     >
       {{ unusableFuel }}{{ unit ? ` ${unit}` : '' }} unusable — minimum load
     </p>
+
+    <div v-if="showSlider" class="mass-station-input__slider-row">
+      <span class="mass-station-input__slider-bound">{{ minWeight }}</span>
+      <input
+        type="range"
+        class="mass-station-input__slider"
+        :aria-label="`${station.name} fuel load slider`"
+        :value="station.weight"
+        :min="minWeight"
+        :max="maxCapacity ?? undefined"
+        :disabled="disabled"
+        step="1"
+        @input="onInput"
+      />
+      <span class="mass-station-input__slider-bound">{{ maxCapacity }}</span>
+    </div>
   </div>
 </template>
 
@@ -159,6 +189,42 @@ function decrement(): void {
   font-size: 0.6875rem;
   color: var(--color-text-secondary, #757575);
   font-style: italic;
+}
+
+.mass-station-input__slider-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0;
+}
+
+.mass-station-input__slider-bound {
+  font-size: 0.6875rem;
+  color: var(--color-text-secondary, #757575);
+  font-variant-numeric: tabular-nums;
+  min-width: 2.25rem;
+  text-align: center;
+}
+
+.mass-station-input__slider {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 2.75rem;
+  accent-color: var(--color-primary, #1976d2);
+  touch-action: manipulation;
+}
+
+.mass-station-input__slider:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Landscape on wide phones / tablets: place slider inline to the right of the
+ * stepper control so the input row stays compact. */
+@media (min-width: 720px) and (orientation: landscape) {
+  .mass-station-input__slider-row {
+    padding: 0;
+  }
 }
 
 .mass-station-input__control {

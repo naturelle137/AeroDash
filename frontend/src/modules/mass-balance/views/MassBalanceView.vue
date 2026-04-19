@@ -367,6 +367,9 @@ function onAircraftSelected(event: Event): void {
                 :station="station"
                 :unit="store.aircraft?.loadPoints[station.index]?.unit"
                 :unusable-fuel="store.aircraft?.loadPoints[station.index]?.fuelTank?.unusableFuel ?? 0"
+                :max-capacity="store.aircraft?.loadPoints[station.index]?.fuelTank
+                  ? (store.aircraft?.loadPoints[station.index]?.operationalLimit ?? null)
+                  : null"
                 :disabled="viewModel.inputsDisabled"
                 @update:weight="onStationWeightChange(station.index, $event)"
               />
