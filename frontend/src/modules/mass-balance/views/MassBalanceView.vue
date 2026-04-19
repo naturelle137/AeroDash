@@ -194,6 +194,17 @@ function smoothScrollTo(targetY: number, duration = 500): void {
   window.requestAnimationFrame(step)
 }
 
+/**
+ * Whether a strip should carry the green left-accent border, mirroring
+ * the in-flow card. Cards 01 and 02 (when not locked) are accented; the
+ * three "coming soon" cards are not.
+ */
+function stripIsAccented(meta: CardMeta): boolean {
+  if (meta.soon) return false
+  if (meta.id === 'mb') return !viewModel.value.mbLocked
+  return true
+}
+
 /** Tap a strip → smooth-scroll the page back to its owning card. */
 function onStripTap(meta: CardMeta): void {
   const el = document.getElementById(`prep-card-${meta.id}`)
@@ -372,7 +383,10 @@ function onAircraftSelected(event: Event): void {
   <div class="fp-view" :class="viewModel.stateClass">
 
     <!-- ═══ Sticky breadcrumb stack (REQ-UI-SCROLL) ════════════════════════ -->
-    <!-- One row per card the pilot has scrolled past. Tap a strip to return. -->
+    <!-- One row per card the pilot has scrolled past. Each strip mirrors  -->
+    <!-- the in-flow card header — same badge, title, accent border, AND   -->
+    <!-- the right-aligned trailing content (aircraft label / state badge  -->
+    <!-- / locked badge / "Coming soon" pill). Tap a strip to return.       -->
     <div
       v-if="stuckCards.length > 0"
       class="prep-sticky-stack"
@@ -384,14 +398,51 @@ function onAircraftSelected(event: Event): void {
         :key="card.id"
         type="button"
         class="prep-sticky-strip"
-        :class="{ 'prep-sticky-strip--soon': card.soon }"
+        :class="{
+          'prep-sticky-strip--accent': stripIsAccented(card),
+          'prep-sticky-strip--soon': card.soon,
+        }"
         :aria-label="`Scroll to ${card.title}`"
         @click="onStripTap(card)"
       >
-        <span class="prep-sticky-strip__badge" :class="{ 'prep-sticky-strip__badge--soon': card.soon }">
+        <span
+          class="prep-sticky-strip__badge"
+          :class="{ 'prep-sticky-strip__badge--soon': card.soon }"
+        >
           {{ card.badge }}
         </span>
-        <span class="prep-sticky-strip__title">{{ card.title }}</span>
+        <span
+          class="prep-sticky-strip__title"
+          :class="{ 'prep-sticky-strip__title--soon': card.soon }"
+        >{{ card.title }}</span>
+
+        <!-- Trailing content — same as the in-flow card header so the
+             pinned strip carries the card's identity (registration,
+             verification state, or coming-soon hint). -->
+        <template v-if="card.id === 'aircraft'">
+          <span v-if="aircraftLabel" class="prep-sticky-strip__aircraft-label">{{ aircraftLabel }}</span>
+        </template>
+        <template v-else-if="card.id === 'mb'">
+          <span
+            v-if="viewModel.mbLocked"
+            class="prep-sticky-strip__locked"
+            aria-label="Select an aircraft to unlock"
+          >
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+              <rect x="2" y="6" width="10" height="7" rx="1.5" stroke="currentColor" stroke-width="1.2" />
+              <path d="M4 6V4a3 3 0 016 0v2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
+            </svg>
+            <span class="prep-sticky-strip__locked-text">Select aircraft to unlock</span>
+          </span>
+          <span
+            v-else-if="viewModel.bannerSeverity"
+            class="prep-sticky-strip__state-badge"
+            :class="`prep-sticky-strip__state-badge--${viewModel.bannerSeverity}`"
+          >
+            {{ viewModel.isSafe ? 'VERIFIED SAFE' : viewModel.isWarning ? 'WARNING' : 'CRITICAL' }}
+          </span>
+        </template>
+        <span v-else-if="card.soon" class="prep-sticky-strip__soon-pill">Coming soon</span>
       </button>
     </div>
 
@@ -704,11 +755,16 @@ function onAircraftSelected(event: Event): void {
   align-items: center;
   gap: var(--space-3);
   width: 100%;
-  height: var(--prep-sticky-h);
+  min-height: var(--prep-sticky-h);
   padding: 0 var(--space-6);
   background: var(--color-surface-card);
   border: 0;
   border-bottom: 1px solid var(--color-divider);
+  /* Mirror the in-flow card's left accent. The in-flow `.prep-card` uses
+   * `border-left: 3px solid var(--color-primary)` when active; we use a
+   * box-shadow inset instead so the strip still reaches edge-to-edge of
+   * the viewport. */
+  box-shadow: none;
   color: var(--color-text-primary);
   font: inherit;
   font-weight: 600;
@@ -722,10 +778,13 @@ function onAircraftSelected(event: Event): void {
     color var(--transition-fast, 120ms) ease;
 }
 
+.prep-sticky-strip--accent {
+  box-shadow: inset 3px 0 0 0 var(--color-primary);
+}
+
 .prep-sticky-strip:hover,
 .prep-sticky-strip:focus-visible {
   background: var(--color-surface-hover, var(--color-surface-card));
-  color: var(--color-primary);
 }
 
 .prep-sticky-strip:focus-visible {
@@ -758,16 +817,92 @@ function onAircraftSelected(event: Event): void {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  flex: 1;
+  flex-shrink: 0;
 }
 
-.prep-sticky-strip--soon .prep-sticky-strip__title {
+.prep-sticky-strip__title--soon {
   color: var(--color-text-secondary);
+}
+
+/* ── Trailing content (mirrors the in-flow card header) ──────────────── */
+
+.prep-sticky-strip__aircraft-label {
+  flex: 1;
+  text-align: right;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.prep-sticky-strip__locked {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin-left: auto;
+  font-size: var(--text-xs);
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+}
+
+/* On narrow viewports the icon is enough; the text would push the title
+ * off-screen. */
+@media (max-width: 479.98px) {
+  .prep-sticky-strip__locked-text {
+    display: none;
+  }
+}
+
+.prep-sticky-strip__state-badge {
+  display: inline-flex;
+  align-items: center;
+  margin-left: auto;
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 0.2em 0.6em;
+  border-radius: var(--radius-full);
+  white-space: nowrap;
+}
+
+.prep-sticky-strip__state-badge--success {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+}
+
+.prep-sticky-strip__state-badge--warning {
+  background: var(--color-warning-bg);
+  color: var(--color-warning);
+}
+
+.prep-sticky-strip__state-badge--critical {
+  background: var(--color-critical-bg);
+  color: var(--color-critical);
+}
+
+.prep-sticky-strip__soon-pill {
+  display: inline-flex;
+  align-items: center;
+  margin-left: auto;
+  font-size: 0.625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 0.2em 0.5em;
+  background: var(--color-tag-soon-bg);
+  color: var(--color-tag-soon-text);
+  border-radius: var(--radius-full);
+  white-space: nowrap;
 }
 
 @media (max-width: 767.98px) {
   .prep-sticky-strip {
     padding: 0 var(--space-4);
+    gap: var(--space-2);
   }
 }
 

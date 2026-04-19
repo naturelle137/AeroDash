@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /**
  * Standalone Playwright test for the prep-card sticky breadcrumb stack on
  * the Mass & Balance / Flight Preparation view.
@@ -5,11 +6,39 @@
  * Not part of the regular E2E suite — this is a scripted manual-style test
  * driven from a Cursor cloud agent, used to capture artifacts proving the
  * UI fix works at iPhone-portrait viewport. Skipped from CI.
+ *
+ * Console output is intentional (it's the script's only reporting
+ * channel), hence the file-level disable of `no-console`.
  */
 
-import { chromium } from 'playwright'
 import path from 'node:path'
-import { mkdirSync } from 'node:fs'
+import { mkdirSync, readdirSync } from 'node:fs'
+import { fileURLToPath, pathToFileURL } from 'node:url'
+
+// `playwright` is only available under pnpm's hidden virtual store
+// (node_modules/.pnpm/playwright@<version>/...) — there's no top-level
+// `node_modules/playwright` symlink in this workspace. Resolve it
+// dynamically so the script works regardless of pnpm version bumps.
+const HERE = path.dirname(fileURLToPath(import.meta.url))
+// frontend/scripts/foo.mjs → repo root is two levels up
+const REPO_ROOT = path.resolve(HERE, '..', '..')
+async function resolvePlaywright() {
+  try {
+    const m = await import('playwright')
+    return m.chromium
+  } catch {
+    /* fall through to manual lookup */
+  }
+  const pnpmDir = path.join(REPO_ROOT, 'node_modules', '.pnpm')
+  const entry = readdirSync(pnpmDir).find((d) => d.startsWith('playwright@'))
+  if (!entry) throw new Error('playwright is not installed')
+  const url = pathToFileURL(
+    path.join(pnpmDir, entry, 'node_modules', 'playwright', 'index.mjs'),
+  ).href
+  const m = await import(url)
+  return m.chromium
+}
+const chromium = await resolvePlaywright()
 
 const ARTIFACT_DIR = '/opt/cursor/artifacts'
 mkdirSync(ARTIFACT_DIR, { recursive: true })
@@ -220,6 +249,24 @@ async function main() {
     path: path.join(ARTIFACT_DIR, 'mb_after_tap_03_performance.png'),
     fullPage: false,
   })
+
+  // Variant capture: drive the M&B card into ERROR_CRITICAL and verify the
+  // sticky strip's right-aligned badge swaps colour + label to match the
+  // in-flow header.
+  console.log('8b. screenshot strip with CRITICAL state (overload pilot) …')
+  await page.evaluate(() => window.scrollTo(0, 0))
+  await page.waitForTimeout(150)
+  await page.fill('input#station-0', '210') // overload → MTOM_EXCEEDED → CRITICAL
+  await page.waitForTimeout(150)
+  await scrollToBottom()
+  await page.screenshot({
+    path: path.join(ARTIFACT_DIR, 'mb_bottom_strips_critical.png'),
+    fullPage: false,
+  })
+
+  // Restore valid weights for the final assertion below
+  await page.fill('input#station-0', '80')
+  await page.waitForTimeout(150)
 
   console.log('9. confirm card 01 strip never disappears between cards …')
   // Scroll down slowly: track when "01 Aircraft" first appears in the stack
