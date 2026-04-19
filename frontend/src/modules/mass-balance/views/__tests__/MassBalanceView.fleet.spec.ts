@@ -65,6 +65,7 @@ function buildFleetProfile(overrides: Partial<AircraftProfile> = {}): AircraftPr
     shareCode: null,
     status: 'verified',
     schemaVersion: 1,
+    powertrain: 'combustion',
     passengerProfiles: [],
     weighingReports: [
       { bem: 433, emptyCg: 1.877, weighingDate: '2025-01-01', validFrom: '2025-01-01' },

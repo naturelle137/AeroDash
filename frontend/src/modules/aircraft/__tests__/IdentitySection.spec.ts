@@ -23,6 +23,7 @@ function makeFields(overrides: Partial<IdentityFields> = {}): IdentityFields {
     sourceUnit: 'kg',
     referenceDatumDescription: 'Leading edge',
     referenceDatumLocation: 'Station 0',
+    powertrain: 'combustion',
     shareCode: null,
     ...overrides,
   }

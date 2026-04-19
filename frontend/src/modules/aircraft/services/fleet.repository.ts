@@ -116,33 +116,46 @@ function withStore<T>(
 
 /**
  * Create a new AircraftProfile document in IndexedDB.
- * Throws if a profile with the same id already exists.
+ * Validates cross-field invariants (powertrain ↔ fuel tank ↔ battery pack)
+ * via the Zod schema before writing. Throws if invalid or if a profile with
+ * the same id already exists.
  */
-export function create(profile: AircraftProfile): Promise<void> {
-  return withStore<IDBValidKey>('readwrite', (store) => store.add(profile)).then(() => undefined)
+export async function create(profile: AircraftProfile): Promise<void> {
+  const parsed = AircraftProfileSchema.parse(profile)
+  await withStore<IDBValidKey>('readwrite', (store) => store.add(parsed))
 }
 
 /**
  * Retrieve a single AircraftProfile by id.
- * Returns undefined if not found.
+ * Returns undefined if not found. Legacy documents (written before the
+ * powertrain discriminator shipped) are rehydrated through the schema so
+ * the default `powertrain: 'combustion'` is injected.
  */
 export function findById(id: string): Promise<AircraftProfile | undefined> {
-  return withStore<AircraftProfile | undefined>('readonly', (store) => store.get(id))
+  return withStore<AircraftProfile | undefined>('readonly', (store) => store.get(id)).then(
+    (doc) => (doc ? AircraftProfileSchema.parse(doc) : undefined),
+  )
 }
 
 /**
  * Retrieve all AircraftProfile documents.
+ * Each document is rehydrated through the schema so legacy records receive
+ * the `powertrain: 'combustion'` default.
  */
 export function findAll(): Promise<AircraftProfile[]> {
-  return withStore<AircraftProfile[]>('readonly', (store) => store.getAll())
+  return withStore<AircraftProfile[]>('readonly', (store) => store.getAll()).then((docs) =>
+    docs.map((doc) => AircraftProfileSchema.parse(doc)),
+  )
 }
 
 /**
  * Replace an existing AircraftProfile document.
- * Uses put() which inserts or replaces by keyPath.
+ * Validates cross-field invariants before writing. Uses put() which inserts
+ * or replaces by keyPath.
  */
-export function update(profile: AircraftProfile): Promise<void> {
-  return withStore<IDBValidKey>('readwrite', (store) => store.put(profile)).then(() => undefined)
+export async function update(profile: AircraftProfile): Promise<void> {
+  const parsed = AircraftProfileSchema.parse(profile)
+  await withStore<IDBValidKey>('readwrite', (store) => store.put(parsed))
 }
 
 /**

@@ -47,6 +47,7 @@ function toFleetProfile(ctx: AircraftContext): AircraftProfile {
     shareCode: null,
     status: ctx.status ?? 'verified',
     schemaVersion: 1,
+    powertrain: ctx.powertrain ?? 'combustion',
     passengerProfiles: [],
     weighingReports: ctx.weighingReports.map((wr) => ({
       bem: wr.basicEmptyMass,

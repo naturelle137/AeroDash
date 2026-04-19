@@ -83,6 +83,7 @@ import {
   findByIcaoDesignator,
   findUniqueByIcaoDesignator,
   type AircraftModelEntry,
+  type CataloguePowertrainHint,
 } from '../data/aircraft-model-catalogue'
 
 // @IMP-AC-VIEW-003@ (FROM: @REQ-UI-001@, @REQ-UI-002@, @REQ-UI-003@, @REQ-UI-004@)
@@ -97,6 +98,14 @@ interface Emits {
   (e: 'update:manufacturer', value: string): void
   (e: 'update:model', value: string): void
   (e: 'update:icaoTypeDesignator', value: string): void
+  /**
+   * Emitted when the resolved catalogue entry exposes a powertrain hint
+   * (e.g. Pipistrel Velis Electro → `'electric'`). The wizard listens for
+   * this to flip the powertrain selector without forcing the pilot to
+   * re-confirm the choice. Hint is `undefined` when no opinion is available
+   * (Other manufacturer, free-text model, legacy entries).
+   */
+  (e: 'powertrain-hint', value: CataloguePowertrainHint | undefined): void
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -120,6 +129,9 @@ function onManufacturerChange(value: string): void {
   emit('update:manufacturer', value)
   emit('update:model', '')
   emit('update:icaoTypeDesignator', '')
+  // Manufacturer change clears any previously-resolved powertrain hint —
+  // the wizard should fall back to its own state until a model is picked.
+  emit('powertrain-hint', undefined)
   icaoLookupResults.value = []
 }
 
@@ -131,12 +143,17 @@ function onModelChange(value: string): void {
   )
   if (entry) {
     emit('update:icaoTypeDesignator', entry.icaoTypeDesignator)
+    emit('powertrain-hint', entry.powertrain)
     icaoLookupResults.value = []
+  } else {
+    emit('powertrain-hint', undefined)
   }
 }
 
 function onModelInput(value: string): void {
   emit('update:model', value)
+  // Free-text manufacturer (Other) — no catalogue hint applies.
+  emit('powertrain-hint', undefined)
 }
 
 function onIcaoInput(value: string): void {
@@ -148,6 +165,7 @@ function onIcaoInput(value: string): void {
   if (unique) {
     emit('update:manufacturer', unique.manufacturer)
     emit('update:model', unique.model)
+    emit('powertrain-hint', unique.powertrain)
     icaoLookupResults.value = []
     return
   }
@@ -164,6 +182,7 @@ function selectFromLookup(entry: AircraftModelEntry): void {
   emit('update:manufacturer', entry.manufacturer)
   emit('update:model', entry.model)
   emit('update:icaoTypeDesignator', entry.icaoTypeDesignator)
+  emit('powertrain-hint', entry.powertrain)
   icaoLookupResults.value = []
 }
 

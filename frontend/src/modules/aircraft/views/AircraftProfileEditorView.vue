@@ -153,6 +153,7 @@ const identityFields = computed<IdentityFields>({
         sourceUnit: '',
         referenceDatumDescription: '',
         referenceDatumLocation: '',
+        powertrain: 'combustion',
         shareCode: null,
       }
     }
@@ -164,6 +165,7 @@ const identityFields = computed<IdentityFields>({
       sourceUnit: d.sourceUnit,
       referenceDatumDescription: d.referenceDatumDescription,
       referenceDatumLocation: d.referenceDatumLocation,
+      powertrain: d.powertrain ?? 'combustion',
       shareCode: d.shareCode,
     }
   },

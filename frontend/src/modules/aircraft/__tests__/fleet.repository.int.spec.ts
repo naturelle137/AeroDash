@@ -38,6 +38,7 @@ function buildProfile(overrides: Partial<AircraftProfile> = {}): AircraftProfile
     shareCode: null,
     status: 'draft',
     schemaVersion: 1,
+    powertrain: 'combustion',
     passengerProfiles: [],
     weighingReports: [
       { bem: 432, emptyCg: 1.882, weighingDate: '2025-01-01', validFrom: '2025-01-01' },
@@ -304,5 +305,70 @@ describe('fleetRepository — schemaVersion persistence (refs #166)', () => {
       expect(Number.isInteger(p.schemaVersion)).toBe(true)
       expect(p.schemaVersion).toBeGreaterThan(0)
     }
+  })
+})
+
+// ─── Battery-electric profiles (REQ-AD-020, REQ-AD-021) ─────────────────────
+// @IT-AC-STORE-013@ (FROM: @IMP-AD-CORE-018@, @IMP-AD-CORE-019@)
+describe('fleetRepository — electric aircraft persistence', () => {
+  it('persists and rehydrates an electric Pipistrel Velis Electro profile with its battery pack', async () => {
+    const electric = buildProfile({
+      id: '00000000-0000-4000-a000-000000000030',
+      registration: 'OO-ELV',
+      manufacturer: 'Pipistrel',
+      model: 'Velis Electro',
+      icaoTypeDesignator: 'PIVE',
+      powertrain: 'electric',
+      batteryPack: {
+        usableEnergyKwh: 24.8,
+        reserveFloorKwh: 4.0,
+        nominalVoltage: 345,
+        chemistry: 'LiFePO4',
+      },
+    })
+
+    await create(electric)
+    const retrieved = await findById(electric.id)
+
+    expect(retrieved).not.toBeNull()
+    expect(retrieved!.powertrain).toBe('electric')
+    expect(retrieved!.batteryPack).toEqual({
+      usableEnergyKwh: 24.8,
+      reserveFloorKwh: 4.0,
+      nominalVoltage: 345,
+      chemistry: 'LiFePO4',
+    })
+  })
+
+  it('rejects a combustion profile that has a battery pack attached', async () => {
+    const bad = buildProfile({
+      id: '00000000-0000-4000-a000-000000000031',
+      registration: 'OO-BAD',
+      powertrain: 'combustion',
+      batteryPack: { usableEnergyKwh: 24.8, reserveFloorKwh: 4.0 },
+    })
+    // create() validates through AircraftProfileSchema, which rejects the
+    // combustion + batteryPack combination via
+    // BATTERY_PACK_NOT_ALLOWED_FOR_COMBUSTION.
+    await expect(create(bad)).rejects.toThrow(/BATTERY_PACK_NOT_ALLOWED_FOR_COMBUSTION/)
+  })
+
+  it('defaults legacy profiles (no powertrain field) to combustion when rehydrating', async () => {
+    // Simulate an IndexedDB record written by a pre-electric build of the
+    // app. We bypass buildProfile() and write a raw document without the
+    // powertrain key so we can observe the schema's default behaviour on read.
+    const legacy = {
+      ...buildProfile({
+        id: '00000000-0000-4000-a000-000000000032',
+        registration: 'OO-LEG',
+      }),
+    } as Partial<AircraftProfile> & { powertrain?: string }
+    delete legacy.powertrain
+    await create(legacy as AircraftProfile)
+
+    const retrieved = await findById((legacy as AircraftProfile).id)
+    expect(retrieved).not.toBeNull()
+    expect(retrieved!.powertrain).toBe('combustion')
+    expect(retrieved!.batteryPack).toBeUndefined()
   })
 })

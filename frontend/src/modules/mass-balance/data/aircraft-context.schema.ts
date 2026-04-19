@@ -56,6 +56,14 @@ const WeighingReportSchema = z.object({
   validFrom: z.string().min(1),
 })
 
+// @IMP-MB-DATA-002@ (FROM: @REQ-AD-020@, @REQ-AD-021@)
+const BatteryPackSchema = z.object({
+  usableEnergyKwh: z.number().positive(),
+  reserveFloorKwh: z.number().nonnegative(),
+  nominalVoltage: z.number().positive().optional(),
+  chemistry: z.string().min(1).optional(),
+})
+
 // @IMP-MB-DATA-001@ (FROM: @REQ-MB-002@, @DES-ARCH-005@, @REQ-AC-005@)
 export const AircraftContextSchema = z.object({
   id: z.string().min(1),
@@ -71,6 +79,11 @@ export const AircraftContextSchema = z.object({
       z.literal('Verified').transform((): 'verified' => 'verified'),
     ])
     .default('verified'),
+  // Powertrain — omitted on legacy records, defaulting to combustion so the
+  // M&B view preserves its existing fuel-centric render for every pre-PIVE
+  // aircraft without any data migration.
+  powertrain: z.enum(['combustion', 'electric']).default('combustion'),
+  batteryPack: BatteryPackSchema.optional(),
   weighingReports: z.array(WeighingReportSchema).min(1),
   loadPoints: z.array(LoadPointSchema),
   certificationCategories: z.array(CategoryDefinitionSchema).min(1),

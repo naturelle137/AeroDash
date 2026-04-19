@@ -75,13 +75,15 @@ interface CardMeta {
   soon?: boolean
 }
 
-const CARD_ORDER: readonly CardMeta[] = [
+const CARD_ORDER = computed<readonly CardMeta[]>(() => [
   { id: 'aircraft', badge: '01', title: 'Aircraft' },
   { id: 'mb', badge: '02', title: 'Mass & Balance' },
   { id: 'performance', badge: '03', title: 'Performance', soon: true },
   { id: 'weather', badge: '04', title: 'Weather', soon: true },
-  { id: 'fuel', badge: '05', title: 'Fuel & Endurance', soon: true },
-]
+  // `title` follows the electric/combustion discriminator so the sticky
+  // strip chip reads "Energy & Endurance" on a Velis Electro profile.
+  { id: 'fuel', badge: '05', title: energySectionTitle.value, soon: true },
+])
 
 /** Strip height in px — kept in sync with --prep-sticky-h (2.75rem @16px). */
 const STRIP_HEIGHT_PX = 44
@@ -109,7 +111,7 @@ function recomputeStuck(): void {
   const next: CardMeta[] = []
   let cumOffset = navHeader
 
-  for (const meta of CARD_ORDER) {
+  for (const meta of CARD_ORDER.value) {
     const el = document.getElementById(`prep-card-${meta.id}`)
     if (!el) continue
 
@@ -274,6 +276,22 @@ const aircraftLabel = computed(() => {
   if (!store.aircraft) return ''
   return `${store.aircraft.registration} — ${store.aircraft.manufacturer} ${store.aircraft.model}`
 })
+
+// @IMP-MB-VIEW-010@ (FROM: @REQ-AD-020@)
+// Battery-electric airframes surface an "Energy & Endurance" placeholder
+// rather than the combustion "Fuel & Endurance" card. The page-header subtitle
+// and sticky-strip chip follow the same discriminator so the pilot never sees
+// fuel-centric language on an electric profile. Legacy profiles (missing
+// `powertrain`) fall through to the combustion default.
+const isElectric = computed(() => store.aircraft?.powertrain === 'electric')
+
+const energySectionTitle = computed(() => (isElectric.value ? 'Energy & Endurance' : 'Fuel & Endurance'))
+
+const energySectionDescription = computed(() =>
+  isElectric.value
+    ? 'Battery state-of-charge projection, energy reserve margin, motor-hour endurance.'
+    : 'Fuel density correction, endurance vs planned flight time, reserve calculation.',
+)
 
 const categories = computed(
   () => store.aircraft?.certificationCategories.map((c) => c.category) ?? [],
@@ -449,7 +467,7 @@ function onAircraftSelected(event: Event): void {
     <!-- ═══ Page header ════════════════════════════════════════════════════ -->
     <div class="fp-page-header">
       <h1 class="fp-page-title">Flight Preparation</h1>
-      <p class="fp-page-sub">Mass &amp; Balance · Performance · Weather · Fuel</p>
+      <p class="fp-page-sub">Mass &amp; Balance · Performance · Weather · {{ isElectric ? 'Energy' : 'Fuel' }}</p>
     </div>
 
     <!-- ═══ AIRCRAFT SELECTION CARD (always visible) ══════════════════════ -->
@@ -697,20 +715,18 @@ function onAircraftSelected(event: Event): void {
       </p>
     </section>
 
-    <!-- ═══ COMING SOON: Fuel & Endurance ══════════════════════════════════ -->
+    <!-- ═══ COMING SOON: Fuel / Energy & Endurance ═════════════════════════ -->
     <section
       id="prep-card-fuel"
       class="prep-card prep-card--soon"
-      aria-label="Fuel and Endurance — coming soon"
+      :aria-label="`${energySectionTitle} — coming soon`"
     >
       <div class="prep-card__header">
         <span class="prep-card__badge prep-card__badge--soon">05</span>
-        <h2 class="prep-card__title prep-card__title--soon">Fuel &amp; Endurance</h2>
+        <h2 class="prep-card__title prep-card__title--soon">{{ energySectionTitle }}</h2>
         <span class="soon-pill">Coming soon</span>
       </div>
-      <p class="soon-desc">
-        Fuel density correction, endurance vs planned flight time, reserve calculation.
-      </p>
+      <p class="soon-desc">{{ energySectionDescription }}</p>
     </section>
 
     <!-- ═══ Operational disclaimer (bottom, non-blocking) ═════════════════ -->

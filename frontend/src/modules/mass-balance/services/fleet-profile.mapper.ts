@@ -33,6 +33,11 @@ export function mapFleetProfileToContext(profile: AircraftProfile): AircraftCont
     model: profile.model,
     sourceUnit: profile.sourceUnit,
     status: profile.status,
+    // Forward the powertrain discriminator so the M&B store can branch its
+    // notification vocabulary and the view can swap fuel-centric labels for
+    // energy-centric ones without re-querying the fleet store.
+    powertrain: profile.powertrain,
+    ...(profile.batteryPack ? { batteryPack: profile.batteryPack } : {}),
     weighingReports: profile.weighingReports.map((wr) => ({
       basicEmptyMass: wr.bem,
       emptyCg: wr.emptyCg,

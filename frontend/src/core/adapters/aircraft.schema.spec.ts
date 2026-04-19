@@ -839,3 +839,163 @@ describe('AircraftProfileSchema — wind limit violations', () => {
     expect(result.success).toBe(false)
   })
 })
+
+// ─── Powertrain discriminator + battery pack (REQ-AD-020, REQ-AD-021) ───────
+// @UT-AD-CORE-045@ (FROM: @IMP-AD-CORE-018@, @IMP-AD-CORE-019@)
+
+describe('AircraftProfileSchema — powertrain discriminator', () => {
+  it('defaults powertrain to "combustion" when the field is omitted (legacy records)', () => {
+    const result = AircraftProfileSchema.safeParse(createValidProfile())
+    expect(result.success).toBe(true)
+    if (!result.success) return
+    expect(result.data.powertrain).toBe('combustion')
+  })
+
+  it('accepts an explicit combustion profile without a battery pack', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        p.powertrain = 'combustion'
+      }),
+    )
+    expect(result.success).toBe(true)
+  })
+
+  it('rejects a combustion profile that also carries a battery pack', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        p.powertrain = 'combustion'
+        p.batteryPack = { usableEnergyKwh: 24.8, reserveFloorKwh: 4.0 }
+      }),
+    )
+    expect(result.success).toBe(false)
+    if (result.success) return
+    const issue = result.error.issues.find(
+      (i) => i.message === 'BATTERY_PACK_NOT_ALLOWED_FOR_COMBUSTION',
+    )
+    expect(issue).toBeDefined()
+  })
+
+  it('accepts an electric profile with a valid battery pack', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        p.powertrain = 'electric'
+        p.batteryPack = {
+          usableEnergyKwh: 24.8,
+          reserveFloorKwh: 4.0,
+          nominalVoltage: 345,
+          chemistry: 'LiFePO4',
+        }
+      }),
+    )
+    expect(result.success).toBe(true)
+  })
+
+  it('accepts an electric profile with only the required battery fields', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        p.powertrain = 'electric'
+        p.batteryPack = { usableEnergyKwh: 24.8, reserveFloorKwh: 4.0 }
+      }),
+    )
+    expect(result.success).toBe(true)
+  })
+
+  it('rejects an electric profile with no battery pack', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        p.powertrain = 'electric'
+      }),
+    )
+    expect(result.success).toBe(false)
+    if (result.success) return
+    const issue = result.error.issues.find(
+      (i) => i.message === 'BATTERY_PACK_REQUIRED_FOR_ELECTRIC',
+    )
+    expect(issue).toBeDefined()
+  })
+
+  it('rejects an electric profile where the reserve floor equals usable energy', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        p.powertrain = 'electric'
+        p.batteryPack = { usableEnergyKwh: 24.8, reserveFloorKwh: 24.8 }
+      }),
+    )
+    expect(result.success).toBe(false)
+    if (result.success) return
+    const issue = result.error.issues.find(
+      (i) => i.message === 'RESERVE_EXCEEDS_USABLE_ENERGY',
+    )
+    expect(issue).toBeDefined()
+  })
+
+  it('rejects an electric profile where the reserve floor exceeds usable energy', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        p.powertrain = 'electric'
+        p.batteryPack = { usableEnergyKwh: 24.8, reserveFloorKwh: 30.0 }
+      }),
+    )
+    expect(result.success).toBe(false)
+  })
+
+  it('rejects a battery pack with non-positive usable energy', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        p.powertrain = 'electric'
+        p.batteryPack = { usableEnergyKwh: 0, reserveFloorKwh: 0 }
+      }),
+    )
+    expect(result.success).toBe(false)
+  })
+
+  it('rejects an electric profile that still carries a fuel tank load point', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        p.powertrain = 'electric'
+        p.batteryPack = { usableEnergyKwh: 24.8, reserveFloorKwh: 4.0 }
+        p.loadPoints = [
+          {
+            name: 'Pilot',
+            arm: 0.85,
+            armLookup: [],
+            operationalLimit: 110,
+            defaultQuantity: 0,
+            unit: 'kg',
+            allowableCategories: null,
+            fuelTank: null,
+          },
+          {
+            name: 'Main Fuel',
+            arm: 1.1,
+            armLookup: [],
+            operationalLimit: 100,
+            defaultQuantity: 0,
+            unit: 'L',
+            allowableCategories: null,
+            fuelTank: {
+              unusableFuel: 1,
+              permissibleFuelTypes: ['AvGas 100LL'],
+              burnSequences: [],
+            },
+          },
+        ]
+      }),
+    )
+    expect(result.success).toBe(false)
+    if (result.success) return
+    const issue = result.error.issues.find(
+      (i) => i.message === 'ELECTRIC_AIRCRAFT_HAS_FUEL_TANK',
+    )
+    expect(issue).toBeDefined()
+  })
+
+  it('rejects an unknown powertrain value', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        p.powertrain = 'hybrid'
+      }),
+    )
+    expect(result.success).toBe(false)
+  })
+})

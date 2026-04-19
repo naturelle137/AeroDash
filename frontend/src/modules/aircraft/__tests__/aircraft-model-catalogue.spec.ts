@@ -17,6 +17,7 @@ import {
   getModelsByManufacturer,
   findByIcaoDesignator,
   findUniqueByIcaoDesignator,
+  getPowertrainHintFor,
 } from '../data/aircraft-model-catalogue'
 
 describe('aircraft-model-catalogue', () => {
@@ -256,5 +257,50 @@ describe("'Other' manufacturer triggers manual entry (REQ-UI-002)", () => {
   // @UT-AC-VIEW-024@ (FROM: @IMP-AC-VIEW-001@)
   it("getModelsByManufacturer('Other') returns empty to signal free-text mode", () => {
     expect(getModelsByManufacturer('Other')).toHaveLength(0)
+  })
+})
+
+// ─── Battery-electric support (REQ-AD-020, REQ-AD-021) ─────────────────────
+// @UT-AC-VIEW-025@ (FROM: @IMP-AC-VIEW-001@)
+describe('Pipistrel Velis Electro (PIVE) catalogue entry', () => {
+  it('lists Pipistrel as a known manufacturer', () => {
+    expect(getManufacturers()).toContain('Pipistrel')
+  })
+
+  it("includes the Velis Electro model under Pipistrel's models", () => {
+    const models = getModelsByManufacturer('Pipistrel')
+    expect(models.map((e) => e.model)).toContain('Velis Electro')
+  })
+
+  it('Velis Electro uses the PIVE ICAO type designator', () => {
+    const entry = findUniqueByIcaoDesignator('PIVE')
+    expect(entry).not.toBeNull()
+    expect(entry!.manufacturer).toBe('Pipistrel')
+    expect(entry!.model).toBe('Velis Electro')
+  })
+
+  it('Velis Electro carries an electric powertrain hint', () => {
+    const models = getModelsByManufacturer('Pipistrel')
+    const entry = models.find((e) => e.model === 'Velis Electro')
+    expect(entry).toBeDefined()
+    expect(entry!.powertrain).toBe('electric')
+  })
+})
+
+describe('getPowertrainHintFor (powertrain lookup helper)', () => {
+  it('returns "electric" for Pipistrel Velis Electro', () => {
+    expect(getPowertrainHintFor('Pipistrel', 'Velis Electro')).toBe('electric')
+  })
+
+  it('returns undefined for legacy combustion entries with no explicit hint', () => {
+    expect(getPowertrainHintFor('Cessna', 'C152')).toBeUndefined()
+  })
+
+  it('returns undefined for the Other manufacturer', () => {
+    expect(getPowertrainHintFor('Other', 'Custom Experimental')).toBeUndefined()
+  })
+
+  it('returns undefined when the (manufacturer, model) pair is not in the catalogue', () => {
+    expect(getPowertrainHintFor('Cessna', 'Not A Real Model')).toBeUndefined()
   })
 })
