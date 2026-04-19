@@ -899,17 +899,29 @@ function onAircraftSelected(event: Event): void {
   }
 }
 
-/* ─── Mobile: sticky result footer ──────────────────────────────────────── */
+/* ─── Mobile: chart + result flow naturally below inputs ──────────────── */
+/* Previously the results were pinned as a sticky footer above the bottom
+ * nav. On a 390px portrait iPhone that cram-fit the 600×400 CG chart plus
+ * ResultSummary into ~250px of vertical space — chart truncated and the
+ * summary overflowed. Let the results flow in normal page order on mobile
+ * so the pilot can scroll between inputs and the chart. The chart height
+ * is capped so it can't exceed half the viewport. */
 
 @media (max-width: 899.98px) {
   .mb-layout__results {
-    position: sticky;
-    bottom: var(--nav-bottom-height);
-    background: var(--color-surface-card);
-    z-index: 10;
-    padding: var(--space-2);
-    border-top: 1px solid var(--color-border);
-    margin: 0 calc(-1 * var(--space-6));
+    position: static;
+    background: transparent;
+    padding: 0;
+    border-top: none;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    margin-top: var(--space-4);
+  }
+
+  .mb-layout__results :deep(.cg-chart) {
+    max-height: 50vh;
   }
 }
 
