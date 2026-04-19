@@ -6,6 +6,8 @@ import { AircraftContextSchema } from '@/modules/mass-balance/data/aircraft-cont
 import { mapFleetProfileToContext } from '@/modules/mass-balance/services/fleet-profile.mapper'
 import { useFleetStore } from '@/modules/aircraft/stores/fleet.store'
 import { useActiveAircraftStore } from '@/modules/aircraft/stores/active-aircraft.store'
+import { useSessionPersistenceStore } from '@/stores/session-persistence.store'
+import type { AircraftProfile } from '@/core/adapters/aircraft.schema'
 import InputGroupCard from '@/modules/mass-balance/components/InputGroupCard.vue'
 import MassStationInput from '@/modules/mass-balance/components/MassStationInput.vue'
 import CGEnvelopeChart from '@/modules/mass-balance/components/CGEnvelopeChart.vue'
@@ -22,6 +24,7 @@ const catalogueError = ref<string | null>(null)
 const store = useMassBalanceStore()
 const fleetStore = useFleetStore()
 const activeAircraftStore = useActiveAircraftStore()
+const sessionPersistenceStore = useSessionPersistenceStore()
 const router = useRouter()
 
 // ---------------------------------------------------------------------------
@@ -221,6 +224,20 @@ function onStripTap(meta: CardMeta): void {
   smoothScrollTo(absTop - offsetFromTop)
 }
 
+/**
+ * Map + validate a fleet profile into an AircraftContext and load it into the
+ * M&B store. Returns true when the store was populated, false on validation
+ * failure (a corrupt profile leaves the store in INITIAL).
+ */
+function loadProfileIntoStore(profile: AircraftProfile): boolean {
+  const mapped = mapFleetProfileToContext(profile)
+  const validation = AircraftContextSchema.safeParse(mapped)
+  if (!validation.success) return false
+  store.loadProfile(validation.data)
+  return true
+}
+
+// @IMP-MB-UI-SESSION-001@ (FROM: @REQ-SYS-013@)
 onMounted(async () => {
   // Only auto-load on the first mount (initial LOADING state). If a previous
   // attempt errored, let the pilot retry explicitly via the Retry button.
@@ -232,15 +249,34 @@ onMounted(async () => {
     }
   }
 
-  // Restore active aircraft selection across reloads
-  const active = activeAircraftStore.activeProfile
-  if (active && !store.aircraft) {
-    const mapped = mapFleetProfileToContext(active)
-    const validation = AircraftContextSchema.safeParse(mapped)
-    if (validation.success) {
-      store.loadProfile(validation.data)
+  if (!store.aircraft) {
+    // In-memory active aircraft survives SPA navigation but not a full reload.
+    const active = activeAircraftStore.activeProfile
+    if (active) {
+      loadProfileIntoStore(active)
+    } else {
+      // Full-reload path: attempt to restore the pilot's last session from
+      // localStorage. An invalid/stale payload has already been cleared by
+      // `restoreSession()`, so a null result means "start clean".
+      const payload = sessionPersistenceStore.restoreSession()
+      if (payload) {
+        const fleetProfile = fleetStore.profiles.find((p) => p.id === payload.aircraftId)
+        if (fleetProfile && loadProfileIntoStore(fleetProfile)) {
+          activeAircraftStore.setActiveProfile(fleetProfile)
+          store.applyRestoredSession(payload)
+        } else {
+          // Aircraft no longer in the fleet (deleted between sessions) —
+          // discard the payload so it doesn't haunt future reloads.
+          sessionPersistenceStore.clearSession()
+        }
+      }
     }
   }
+
+  // Start the debounced auto-save watcher. Must run after any restoration is
+  // finished so the initial default-state mutation doesn't overwrite the
+  // payload we just applied. `startWatching()` is idempotent for remounts.
+  sessionPersistenceStore.startWatching()
 
   setupStickyStackObserver()
 })

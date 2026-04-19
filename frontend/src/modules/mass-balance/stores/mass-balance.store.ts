@@ -27,6 +27,7 @@ import { calculateMassBalance } from '@/core/adapters/mass-balance.adapter'
 import { normalizeMassToKg, normalizeArmToM } from '@/core/logic/unit-normalization'
 import { normalizeFuelQuantityToKg, isFuelQuantityUnit } from '@/core/logic/fuel-mass'
 import type { MassUnit, ArmUnit } from '@/core/domain/units'
+import type { SessionPayload } from '@/core/domain/session.schema'
 import type {
   MassBalanceState,
   AircraftContext,
@@ -252,6 +253,47 @@ export const useMassBalanceStore = defineStore('massBalance', {
       for (const station of this.availableStations) {
         station.verified = true
       }
+      this.evaluateState()
+    },
+
+    /**
+     * Re-apply a persisted session payload to a freshly loaded aircraft profile.
+     *
+     * Callers must first invoke `loadProfile()` so the store holds the correct
+     * aircraft context; this action then overrides the default station weights
+     * and the active category with the pilot's last-entered values before
+     * re-running the math core.
+     *
+     * Defensive invariants:
+     *  - No-op when no aircraft is loaded.
+     *  - No-op when the payload's `aircraftId` does not match the loaded
+     *    profile (prevents cross-airframe pollution after a fleet edit).
+     *  - Station entries whose index is out of range are silently skipped so
+     *    a stale payload from an older profile revision does not corrupt the
+     *    current station array.
+     *  - An unknown `activeCategory` leaves the profile default in place.
+     */
+    // @IMP-MB-STORE-019@ (FROM: @REQ-SYS-013@)
+    applyRestoredSession(payload: SessionPayload): void {
+      if (!this.aircraft) return
+      if (this.aircraft.id !== payload.aircraftId) return
+
+      const categoryExists = this.aircraft.certificationCategories.some(
+        (c) => c.category === payload.activeCategory,
+      )
+      if (categoryExists) {
+        this.activeCategory = payload.activeCategory
+      }
+
+      for (const sp of payload.stations) {
+        const station = this.stations[sp.index]
+        if (!station) continue
+        station.weight = sp.weight
+        station.touched = sp.touched
+        station.verified = sp.verified
+      }
+
+      this._runCalculation()
       this.evaluateState()
     },
 

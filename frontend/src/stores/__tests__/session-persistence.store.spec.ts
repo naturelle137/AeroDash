@@ -317,6 +317,35 @@ describe('useSessionPersistenceStore — startWatching() debounced auto-save', (
   })
 })
 
+describe('useSessionPersistenceStore — startWatching() idempotency', () => {
+  // @UT-SYS-STORE-018@ (FROM: @IMP-SYS-STORE-001@)
+  it('does not stack watchers when called multiple times', async () => {
+    loadProfile(MOCK_PROFILE_A)
+    const store = useSessionPersistenceStore()
+
+    // Simulate a view remount that calls startWatching again.
+    store.startWatching()
+    store.startWatching()
+    store.startWatching()
+
+    const setItemSpy = vi.spyOn(Storage.prototype, 'setItem')
+
+    const mbStore = useMassBalanceStore()
+    mbStore.updateStationWeight(0, 77)
+
+    await nextTick()
+    vi.runAllTimers()
+
+    // A single mutation must produce a single persisted write, not three.
+    const aerodashWrites = setItemSpy.mock.calls.filter(
+      ([key]) => key === 'aerodash:session:payload',
+    )
+    expect(aerodashWrites).toHaveLength(1)
+
+    setItemSpy.mockRestore()
+  })
+})
+
 describe('useSessionPersistenceStore — round-trip save → restore', () => {
   // @UT-SYS-STORE-016@ (FROM: @IMP-SYS-STORE-001@)
   it('restores all station fields correctly after a full save/restore cycle', () => {
