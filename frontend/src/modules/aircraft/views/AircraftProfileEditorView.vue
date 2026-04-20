@@ -37,6 +37,7 @@
           v-model="identityFields"
           :registration-error="registrationError"
           :section-id="`${profileId}-identity`"
+          :lock-powertrain="true"
         />
       </AccordionSection>
 
@@ -49,6 +50,20 @@
         <EnvelopeSection
           v-model="certificationCategories"
           :section-id="`${profileId}-envelope`"
+        />
+      </AccordionSection>
+
+      <AccordionSection
+        v-if="isElectric"
+        title="Battery Pack"
+        :summary="batteryPackSummary"
+        :section-id="`${profileId}-battery`"
+        :model-value="openSections.battery"
+        @update:model-value="openSections.battery = $event"
+      >
+        <BatteryPackSection
+          v-model="batteryPack"
+          :section-id="`${profileId}-battery`"
         />
       </AccordionSection>
 
@@ -109,6 +124,7 @@ import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import type {
   AircraftProfile,
+  AircraftProfileBatteryPack,
   AircraftProfileCertificationCategory,
   AircraftProfileLoadPoint,
   AircraftProfileWeighingReport,
@@ -121,6 +137,7 @@ import IdentitySection, { type IdentityFields } from '../components/IdentitySect
 import EnvelopeSection from '../components/EnvelopeSection.vue'
 import LoadPointsSection from '../components/LoadPointsSection.vue'
 import WeighingReportsSection from '../components/WeighingReportsSection.vue'
+import BatteryPackSection from '../components/BatteryPackSection.vue'
 import ProfileStatusBadge from '../components/ProfileStatusBadge.vue'
 
 // @IMP-AC-VIEW-016@ (FROM: @REQ-AC-001@, @REQ-AC-005@, @REQ-AD-001@, @REQ-AD-002@, @REQ-AD-003@, @REQ-AD-004@, @REQ-AD-005@, @REQ-AD-007@, @REQ-AD-011@, @REQ-AD-012@, @REQ-AD-013@, @REQ-AD-014@, @REQ-AD-018@, @REQ-AD-019@)
@@ -139,7 +156,13 @@ const isSaving = ref(false)
 const source = ref<AircraftProfile | null>(null)
 const draft = ref<AircraftProfile | null>(null)
 
-const openSections = reactive({ identity: true, envelope: true, loadPoints: true, weighing: true })
+const openSections = reactive({
+  identity: true,
+  envelope: true,
+  loadPoints: true,
+  weighing: true,
+  battery: true,
+})
 
 const identityFields = computed<IdentityFields>({
   get(): IdentityFields {
@@ -153,6 +176,7 @@ const identityFields = computed<IdentityFields>({
         sourceUnit: '',
         referenceDatumDescription: '',
         referenceDatumLocation: '',
+        powertrain: 'combustion',
         shareCode: null,
       }
     }
@@ -164,6 +188,7 @@ const identityFields = computed<IdentityFields>({
       sourceUnit: d.sourceUnit,
       referenceDatumDescription: d.referenceDatumDescription,
       referenceDatumLocation: d.referenceDatumLocation,
+      powertrain: d.powertrain ?? 'combustion',
       shareCode: d.shareCode,
     }
   },
@@ -204,6 +229,22 @@ const loadPoints = computed<AircraftProfileLoadPoint[]>({
   },
 })
 
+const isElectric = computed(() => draft.value?.powertrain === 'electric')
+
+// Fallback seed mirrors the wizard's BatteryPackSection default — only used in
+// the unlikely case that a legacy electric profile slipped through without a
+// persisted battery pack (the schema's superRefine should have rejected that
+// on save, but the editor must still render a usable form rather than crash).
+const batteryPack = computed<AircraftProfileBatteryPack>({
+  get(): AircraftProfileBatteryPack {
+    return draft.value?.batteryPack ?? { usableEnergyKwh: 0, reserveFloorKwh: 0 }
+  },
+  set(next: AircraftProfileBatteryPack): void {
+    if (!draft.value) return
+    draft.value = { ...draft.value, batteryPack: next }
+  },
+})
+
 // Distinct certification category names — feed the per-station
 // category-restriction UI in LoadPointsSection.
 const availableCategoryNames = computed<AircraftProfileCertificationCategory['category'][]>(
@@ -233,6 +274,12 @@ const loadPointsSummary = computed(() => {
   return `${stationLabel} (${tanks} fuel)`
 })
 
+const batteryPackSummary = computed(() => {
+  const bp = draft.value?.batteryPack
+  if (!bp || bp.usableEnergyKwh <= 0) return 'Not configured'
+  return `${bp.usableEnergyKwh} kWh usable · ${bp.reserveFloorKwh} kWh reserve`
+})
+
 const isDirty = computed(() => {
   if (!source.value || !draft.value) return false
   return JSON.stringify(source.value) !== JSON.stringify(draft.value)
@@ -259,7 +306,20 @@ const canSave = computed(() => {
   const envelopeOk = d.certificationCategories.every(
     (cat) => cat.mtom > 0 && cat.envelope.length >= 4 && cat.envelope.length <= 20,
   )
-  return envelopeOk
+  if (!envelopeOk) return false
+  // Electric profiles must carry a valid battery pack — mirrors the Zod
+  // superRefine guards (`BATTERY_PACK_REQUIRED_FOR_ELECTRIC` and
+  // `RESERVE_EXCEEDS_USABLE_ENERGY`) so the Save button stays disabled rather
+  // than throwing a schema error when the pilot opens the accordion and clears
+  // usableEnergyKwh.
+  if (d.powertrain === 'electric') {
+    const bp = d.batteryPack
+    if (!bp) return false
+    if (!(bp.usableEnergyKwh > 0)) return false
+    if (bp.reserveFloorKwh < 0) return false
+    if (bp.reserveFloorKwh >= bp.usableEnergyKwh) return false
+  }
+  return true
 })
 
 const saveButtonLabel = computed(() => {

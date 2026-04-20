@@ -29,9 +29,9 @@
 
     <!-- Step content -->
     <div class="wizard-body">
-      <!-- Step 1: Identity -->
-      <section v-if="currentStep === 0" class="wizard-step">
-        <h2>Step 1: Aircraft Identity</h2>
+      <!-- Step: Identity -->
+      <section v-if="stepId === 'identity'" class="wizard-step">
+        <h2>Step {{ stepNumber }}: Aircraft Identity</h2>
         <p class="step-intro">Enter the basic details that identify this aircraft.</p>
         <IdentitySection
           v-model="identityFields"
@@ -40,9 +40,9 @@
         />
       </section>
 
-      <!-- Step 2: Certification & Envelope -->
-      <section v-else-if="currentStep === 1" class="wizard-step">
-        <h2>Step 2: Certification &amp; Envelope</h2>
+      <!-- Step: Certification & Envelope -->
+      <section v-else-if="stepId === 'envelope'" class="wizard-step">
+        <h2>Step {{ stepNumber }}: Certification &amp; Envelope</h2>
         <p class="step-intro">
           Enter the certification categories and CG envelope from your POH/AFM. This data is
           required for correct Mass &amp; Balance calculations.
@@ -53,9 +53,9 @@
         />
       </section>
 
-      <!-- Step 3: Weighing Reports -->
-      <section v-else-if="currentStep === 2" class="wizard-step">
-        <h2>Step 3: Weighing Reports</h2>
+      <!-- Step: Weighing Reports -->
+      <section v-else-if="stepId === 'weighing'" class="wizard-step">
+        <h2>Step {{ stepNumber }}: Weighing Reports</h2>
         <p class="step-intro">
           Enter the aircraft's Basic Empty Mass (BEM) and Empty CG from the latest weighing report
           in your POH/AFM.
@@ -66,26 +66,40 @@
         />
       </section>
 
-      <!-- Step 4: Load Stations -->
-      <section v-else-if="currentStep === 3" class="wizard-step">
-        <h2>Step 4: Load Stations</h2>
+      <!-- Step: Load Stations -->
+      <section v-else-if="stepId === 'load-stations'" class="wizard-step">
+        <h2>Step {{ stepNumber }}: Load Stations</h2>
         <p class="step-intro">
-          Define the seats, baggage areas, and fuel tanks for this aircraft.
+          {{
+            isElectric
+              ? 'Define the seats and baggage areas for this aircraft. Fuel tanks are not applicable — battery pack capacity is entered on the next step.'
+              : 'Define the seats, baggage areas, and fuel tanks for this aircraft.'
+          }}
         </p>
         <div v-if="loadPoints.length === 0" class="step-warning" role="note">
-          No load stations defined. You can add seats, baggage areas, and fuel tanks later in the
-          Fleet editor, but Mass &amp; Balance will have no stations to load until you do.
+          No load stations defined. You can add seats and baggage areas later in the Fleet
+          editor, but Mass &amp; Balance will have no stations to load until you do.
         </div>
         <LoadPointsSection
           v-model="loadPoints"
           :available-categories="availableCategoryNames"
+          :powertrain="identityFields.powertrain"
           section-id="wizard-loadpoints"
         />
       </section>
 
-      <!-- Step 5: Review & Save -->
-      <section v-else-if="currentStep === 4" class="wizard-step">
-        <h2>Step 5: Review &amp; Save</h2>
+      <!-- Step: Battery Pack (electric only) -->
+      <section v-else-if="stepId === 'battery-pack'" class="wizard-step">
+        <h2>Step {{ stepNumber }}: Battery Pack</h2>
+        <p class="step-intro">
+          Enter the battery pack description for this electric airframe.
+        </p>
+        <BatteryPackSection v-model="batteryPack" section-id="wizard-battery" />
+      </section>
+
+      <!-- Step: Review & Save -->
+      <section v-else-if="stepId === 'review'" class="wizard-step">
+        <h2>Step {{ stepNumber }}: Review &amp; Save</h2>
         <p class="step-intro">Review what you've entered before saving.</p>
 
         <div class="review-panel">
@@ -100,6 +114,8 @@
               <dd>{{ identityFields.icaoTypeDesignator || '—' }}</dd>
               <dt>POH Mass Unit</dt>
               <dd>{{ identityFields.sourceUnit }}</dd>
+              <dt>Powertrain</dt>
+              <dd>{{ isElectric ? 'Electric' : 'Combustion' }}</dd>
             </dl>
           </div>
 
@@ -125,6 +141,24 @@
               {{ lp.name }} — arm {{ lp.arm ?? 'table' }}, unit {{ lp.unit }}
               <span v-if="lp.fuelTank"> (fuel tank)</span>
             </div>
+          </div>
+
+          <div v-if="isElectric" class="review-section">
+            <h3>Battery Pack</h3>
+            <dl class="review-dl">
+              <dt>Usable Energy</dt>
+              <dd>{{ batteryPack.usableEnergyKwh }} kWh</dd>
+              <dt>Reserve Floor</dt>
+              <dd>{{ batteryPack.reserveFloorKwh }} kWh</dd>
+              <template v-if="batteryPack.nominalVoltage">
+                <dt>Nominal Voltage</dt>
+                <dd>{{ batteryPack.nominalVoltage }} V</dd>
+              </template>
+              <template v-if="batteryPack.chemistry">
+                <dt>Chemistry</dt>
+                <dd>{{ batteryPack.chemistry }}</dd>
+              </template>
+            </dl>
           </div>
         </div>
 
@@ -170,10 +204,11 @@
 
 <script setup lang="ts">
 // @IMP-AC-VIEW-WIZARD-002@ (FROM: @REQ-AC-001@, @REQ-UQ-003@)
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
 import { v4 as uuidv4 } from 'uuid'
 import type {
+  AircraftProfileBatteryPack,
   AircraftProfileCertificationCategory,
   AircraftProfileLoadPoint,
   AircraftProfileWeighingReport,
@@ -185,19 +220,31 @@ import IdentitySection, { type IdentityFields } from '../components/IdentitySect
 import EnvelopeSection from '../components/EnvelopeSection.vue'
 import WeighingReportsSection from '../components/WeighingReportsSection.vue'
 import LoadPointsSection from '../components/LoadPointsSection.vue'
+import BatteryPackSection from '../components/BatteryPackSection.vue'
 
 const router = useRouter()
 const fleetStore = useFleetStore()
 
 // ─── Step definitions ───────────────────────────────────────────────────────
+//
+// @IMP-AC-VIEW-WIZARD-003@ (FROM: @REQ-AD-020@)
+// Steps are composed dynamically from a static base list so that the Battery
+// Pack step only appears for electric airframes. Keeping the list explicit
+// (rather than, say, a flag on each step) means the `step-indicator` can render
+// the right count without having to reason about whether the pilot chose
+// electric halfway through.
 
-const STEPS = [
+const BASE_STEPS = [
   { id: 'identity', label: 'Identity' },
   { id: 'envelope', label: 'Envelope' },
   { id: 'weighing', label: 'Weighing' },
   { id: 'load-stations', label: 'Load Stations' },
   { id: 'review', label: 'Review' },
 ] as const
+
+const BATTERY_STEP = { id: 'battery-pack', label: 'Battery Pack' } as const
+type StepId = (typeof BASE_STEPS)[number]['id'] | typeof BATTERY_STEP.id
+type WizardStep = { id: StepId; label: string }
 
 const currentStep = ref(0)
 const isSaving = ref(false)
@@ -215,8 +262,30 @@ const identityFields = ref<IdentityFields>({
   sourceUnit: 'kg',
   referenceDatumDescription: '',
   referenceDatumLocation: '',
+  powertrain: 'combustion',
   shareCode: null,
 })
+
+// @IMP-AC-VIEW-WIZARD-004@ (FROM: @REQ-AD-020@, @REQ-AD-021@)
+// Battery pack draft. Seeded with zero so DecimalInput has a number to bind to;
+// schema validation (`usableEnergyKwh > 0`, `reserveFloorKwh < usableEnergyKwh`)
+// is the final guard at save time. The field-level validations in
+// BatteryPackSection catch the obvious cases earlier in the flow.
+const batteryPack = ref<AircraftProfileBatteryPack>({
+  usableEnergyKwh: 0,
+  reserveFloorKwh: 0,
+})
+
+const isElectric = computed(() => identityFields.value.powertrain === 'electric')
+
+const STEPS = computed<readonly WizardStep[]>(() => {
+  if (!isElectric.value) return BASE_STEPS
+  // Insert Battery Pack between Load Stations and Review for electric builds.
+  const idx = BASE_STEPS.findIndex((s) => s.id === 'review')
+  return [...BASE_STEPS.slice(0, idx), BATTERY_STEP, ...BASE_STEPS.slice(idx)]
+})
+
+const stepId = computed<StepId>(() => STEPS.value[currentStep.value]?.id ?? 'identity')
 
 const certificationCategories = ref<AircraftProfileCertificationCategory[]>([
   {
@@ -272,7 +341,7 @@ const registrationError = computed<string>(() => {
 
 // ─── Step validation ────────────────────────────────────────────────────────
 
-const step0Valid = computed(() => {
+const identityValid = computed(() => {
   const f = identityFields.value
   return (
     f.registration.trim() !== '' &&
@@ -283,13 +352,13 @@ const step0Valid = computed(() => {
   )
 })
 
-const step1Valid = computed(() => {
+const envelopeValid = computed(() => {
   return certificationCategories.value.every(
     (cat) => cat.mtom > 0 && cat.envelope.length >= 4 && cat.envelope.length <= 20,
   )
 })
 
-const step2Valid = computed(() => {
+const weighingValid = computed(() => {
   return (
     weighingReports.value.length >= 1 &&
     weighingReports.value.every(
@@ -298,32 +367,57 @@ const step2Valid = computed(() => {
   )
 })
 
-// Step 3 (load stations) is optional — always valid
-const step3Valid = computed(() => true)
+// Load stations is optional.
+const loadStationsValid = computed(() => true)
 
-const canContinue = computed(() => {
-  switch (currentStep.value) {
-    case 0:
-      return step0Valid.value
-    case 1:
-      return step1Valid.value
-    case 2:
-      return step2Valid.value
-    case 3:
-      return step3Valid.value
-    default:
-      return false
-  }
+// Battery pack only needs to validate when present (electric). Usable energy
+// must be > 0 and reserve must be strictly below usable energy — mirrors the
+// schema's `RESERVE_EXCEEDS_USABLE_ENERGY` guard so users see blocked Continue
+// before hitting the save path.
+const batteryPackValid = computed(() => {
+  const bp = batteryPack.value
+  return (
+    Number.isFinite(bp.usableEnergyKwh) &&
+    bp.usableEnergyKwh > 0 &&
+    Number.isFinite(bp.reserveFloorKwh) &&
+    bp.reserveFloorKwh >= 0 &&
+    bp.reserveFloorKwh < bp.usableEnergyKwh
+  )
 })
 
+function isStepValid(id: StepId): boolean {
+  switch (id) {
+    case 'identity':
+      return identityValid.value
+    case 'envelope':
+      return envelopeValid.value
+    case 'weighing':
+      return weighingValid.value
+    case 'load-stations':
+      return loadStationsValid.value
+    case 'battery-pack':
+      return batteryPackValid.value
+    case 'review':
+      return true
+  }
+}
+
+const stepNumber = computed(() => currentStep.value + 1)
+
+const canContinue = computed(() => isStepValid(stepId.value))
+
 const canSave = computed(
-  () => step0Valid.value && step1Valid.value && step2Valid.value,
+  () =>
+    identityValid.value &&
+    envelopeValid.value &&
+    weighingValid.value &&
+    (!isElectric.value || batteryPackValid.value),
 )
 
 // ─── Navigation ─────────────────────────────────────────────────────────────
 
 function goNext(): void {
-  if (currentStep.value < STEPS.length - 1) {
+  if (currentStep.value < STEPS.value.length - 1) {
     currentStep.value++
   }
 }
@@ -333,6 +427,17 @@ function goBack(): void {
     currentStep.value--
   }
 }
+
+// When the pilot flips the powertrain mid-wizard the step list changes length.
+// Clamp currentStep so it can never point past the last step. We intentionally
+// do NOT try to preserve "the step the user was on" across the transition —
+// the Battery Pack step only appears for electric, and sliding backwards when
+// switching to combustion is safer than risking an out-of-bounds index.
+watch(STEPS, (next) => {
+  if (currentStep.value > next.length - 1) {
+    currentStep.value = next.length - 1
+  }
+})
 
 function onNavigateBack(): void {
   if (isDirty.value && !confirm('Discard unsaved changes and leave the wizard?')) return
@@ -367,11 +472,21 @@ async function onSave(): Promise<void> {
     // unusable floor is invalid — unusable fuel is always on board, so a
     // default of 0 would contradict the POH. Promote default to the unusable
     // amount before persisting.
-    const normalizedLoadPoints = loadPoints.value.map((lp) =>
-      lp.fuelTank && lp.fuelTank.unusableFuel > 0 && lp.defaultQuantity < lp.fuelTank.unusableFuel
+    //
+    // Electric airframes additionally drop any `fuelTank` extension — the
+    // schema's ELECTRIC_AIRCRAFT_HAS_FUEL_TANK guard would otherwise reject
+    // the payload and we want the wizard to succeed even if the pilot flipped
+    // the powertrain after configuring a tank earlier in the flow.
+    const normalizedLoadPoints = loadPoints.value.map((lp) => {
+      if (isElectric.value && lp.fuelTank) {
+        return { ...lp, fuelTank: null }
+      }
+      return lp.fuelTank &&
+        lp.fuelTank.unusableFuel > 0 &&
+        lp.defaultQuantity < lp.fuelTank.unusableFuel
         ? { ...lp, defaultQuantity: lp.fuelTank.unusableFuel }
-        : lp,
-    )
+        : lp
+    })
 
     await fleetStore.createProfile({
       ownerId: uuidv4(),
@@ -388,6 +503,8 @@ async function onSave(): Promise<void> {
       weighingReports: weighingReports.value,
       loadPoints: normalizedLoadPoints,
       passengerProfiles: [],
+      powertrain: identityFields.value.powertrain,
+      ...(isElectric.value ? { batteryPack: { ...batteryPack.value } } : {}),
     })
 
     router.push({ name: 'fleet' })

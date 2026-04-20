@@ -144,8 +144,8 @@
         </span>
       </div>
 
-      <div class="row-footer">
-        <label class="toggle">
+      <div v-if="!isElectric || lp.fuelTank" class="row-footer">
+        <label v-if="!isElectric" class="toggle">
           <input
             type="checkbox"
             :checked="!!lp.fuelTank"
@@ -283,13 +283,23 @@
     </div>
 
     <button type="button" class="btn-add-row" @click="addRow">+ Add Load Station</button>
-    <button type="button" class="btn-add-row btn-add-fuel" @click="addFuelTank">
+    <button
+      v-if="!isElectric"
+      type="button"
+      class="btn-add-row btn-add-fuel"
+      @click="addFuelTank"
+    >
       + Add Fuel Tank
     </button>
+    <p v-else class="section-intro section-intro--electric">
+      This aircraft is battery-electric — fuel tanks are not available. Battery pack capacity is
+      managed in the dedicated Battery Pack section.
+    </p>
   </div>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import type {
   AircraftProfileFuelTankExtension,
   AircraftProfileLoadPoint,
@@ -315,11 +325,23 @@ const props = withDefaults(
     modelValue: AircraftProfileLoadPoint[]
     sectionId: string
     availableCategories?: readonly Category[]
+    /**
+     * Controls whether fuel-tank UI (toggle + "+ Add Fuel Tank" button + the
+     * per-row unusable/permissible/burn-sequence fields) is visible. Defaults
+     * to `'combustion'` so existing callers that do not pass the prop retain
+     * the full fuel editor. For `'electric'` airframes the fuel editor is
+     * suppressed entirely — see @REQ-AD-020@ and ADR-009. The schema's
+     * `ELECTRIC_AIRCRAFT_HAS_FUEL_TANK` guard backstops the UI omission.
+     */
+    powertrain?: 'combustion' | 'electric'
   }>(),
   {
     availableCategories: () => [],
+    powertrain: 'combustion',
   },
 )
+
+const isElectric = computed(() => props.powertrain === 'electric')
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: AircraftProfileLoadPoint[]): void
@@ -530,6 +552,13 @@ function removeRow(idx: number): void {
   margin: 0;
   font-size: 0.875rem;
   color: var(--color-text-secondary, #6b7280);
+}
+
+.section-intro--electric {
+  padding: 0.625rem 0.75rem;
+  border: 1px dashed var(--color-border, #d1d5db);
+  border-radius: 4px;
+  background: var(--color-surface-alt, #f9fafb);
 }
 
 .empty-state {

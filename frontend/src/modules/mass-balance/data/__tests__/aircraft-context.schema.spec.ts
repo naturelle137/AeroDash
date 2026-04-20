@@ -463,4 +463,46 @@ describe('AircraftContextSchema', () => {
       expect(result.success).toBe(true)
     })
   })
+
+  // ─── Powertrain discriminator + battery pack (REQ-AD-020, REQ-AD-021) ─────
+  // @UT-MB-DATA-001@ (FROM: @IMP-MB-DATA-002@)
+  describe('powertrain discriminator', () => {
+    it('defaults to combustion when the field is omitted (legacy contexts)', () => {
+      const result = AircraftContextSchema.safeParse(buildValidContext())
+      expect(result.success).toBe(true)
+      if (!result.success) return
+      expect(result.data.powertrain).toBe('combustion')
+    })
+
+    it('accepts an electric context with a battery pack', () => {
+      const result = AircraftContextSchema.safeParse(
+        buildValidContext({
+          powertrain: 'electric',
+          batteryPack: { usableEnergyKwh: 24.8, reserveFloorKwh: 4.0 },
+        }),
+      )
+      expect(result.success).toBe(true)
+    })
+
+    it('rejects a combustion context that contains a battery pack', () => {
+      // AircraftContextSchema does not superRefine — battery pack is simply
+      // passed through. Schema accepts both fields independently. The cross-
+      // field guard lives in AircraftProfileSchema (the fleet source of truth)
+      // so this test asserts the M&B layer stays structural only.
+      const result = AircraftContextSchema.safeParse(
+        buildValidContext({
+          powertrain: 'combustion',
+          batteryPack: { usableEnergyKwh: 24.8, reserveFloorKwh: 4.0 },
+        }),
+      )
+      expect(result.success).toBe(true)
+    })
+
+    it('rejects an unknown powertrain value', () => {
+      const result = AircraftContextSchema.safeParse(
+        buildValidContext({ powertrain: 'hybrid' }),
+      )
+      expect(result.success).toBe(false)
+    })
+  })
 })

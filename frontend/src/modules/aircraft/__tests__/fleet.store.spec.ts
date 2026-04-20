@@ -38,6 +38,7 @@ function minimalProfileData(): Omit<AircraftProfile, 'id' | 'status' | 'schemaVe
     referenceDatumDescription: 'Leading edge',
     referenceDatumLocation: 'Station 0',
     shareCode: null,
+    powertrain: 'combustion',
     passengerProfiles: [],
     weighingReports: [
       { bem: 432, emptyCg: 1.882, weighingDate: '2025-01-01', validFrom: '2025-01-01' },
@@ -251,6 +252,7 @@ describe('useFleetStore', () => {
       shareCode: null,
       status: 'verified',
       schemaVersion: 1,
+      powertrain: 'combustion',
       passengerProfiles: [],
       weighingReports: [{ bem: 780, emptyCg: 2.1, weighingDate: '2025-01-01', validFrom: '2025-01-01' }],
       loadPoints: [

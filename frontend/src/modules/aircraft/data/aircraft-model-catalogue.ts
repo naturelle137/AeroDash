@@ -16,8 +16,20 @@ import rawCatalogue from './aircraft-model-catalogue.json'
  * Monotonically increasing catalogue data version string.
  * Incremented whenever entries are added, removed, or corrected.
  * Used by the update pipeline (ADR-007) to detect catalogue changes on app load.
+ *
+ * v1.1.0 — added Pipistrel Velis Electro (ICAO `PIVE`) and the optional
+ * `powertrain` hint so the wizard can pre-select the electric path.
  */
-export const CATALOGUE_VERSION = '1.0.0'
+export const CATALOGUE_VERSION = '1.1.0'
+
+/**
+ * Optional powertrain hint persisted alongside catalogue entries. The wizard
+ * uses this to pre-select the powertrain after the pilot picks a known model
+ * — `'electric'` for battery-electric airframes (Pipistrel Velis Electro,
+ * future Bristell Energic, eFlyer 2…), `'combustion'` (or omitted) for the
+ * piston/turbine majority. Pilots can still override the choice.
+ */
+export type CataloguePowertrainHint = 'combustion' | 'electric'
 
 export interface AircraftModelEntry {
   /** Stable key for list rendering (unique per catalogue row). */
@@ -25,6 +37,12 @@ export interface AircraftModelEntry {
   manufacturer: string
   model: string
   icaoTypeDesignator: string
+  /**
+   * Optional pre-selection for the wizard's powertrain step. Absent on every
+   * legacy combustion entry so the wizard's combustion default still applies
+   * without a backfill of the catalogue JSON.
+   */
+  powertrain?: CataloguePowertrainHint
 }
 
 export const AIRCRAFT_MODEL_CATALOGUE: AircraftModelEntry[] = rawCatalogue as AircraftModelEntry[]
@@ -68,4 +86,23 @@ export function findUniqueByIcaoDesignator(icaoTypeDesignator: string): Aircraft
   if (normalized.length !== 4) return null
   const matches = findByIcaoDesignator(normalized)
   return matches.length === 1 ? matches[0]! : null
+}
+
+/**
+ * Look up the powertrain hint for a (manufacturer, model) pair.
+ * Returns `undefined` when the entry isn't in the catalogue, the manufacturer
+ * is `'Other'`, or the entry has no explicit powertrain hint (legacy entries).
+ *
+ * Callers should treat `undefined` as "no opinion" — typically by falling back
+ * to the wizard's existing combustion default (see ADR-009).
+ */
+export function getPowertrainHintFor(
+  manufacturer: string,
+  model: string,
+): CataloguePowertrainHint | undefined {
+  if (manufacturer === 'Other') return undefined
+  const entry = AIRCRAFT_MODEL_CATALOGUE.find(
+    (e) => e.manufacturer === manufacturer && e.model === model,
+  )
+  return entry?.powertrain
 }

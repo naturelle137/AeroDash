@@ -30,6 +30,7 @@ function makeProfile(overrides: Partial<AircraftProfile> = {}): AircraftProfile 
     shareCode: null,
     status: 'draft',
     schemaVersion: 1,
+    powertrain: 'combustion',
     passengerProfiles: [],
     weighingReports: [{ bem: 432, emptyCg: 1.882, weighingDate: '2025-01-01', validFrom: '2025-01-01' }],
     loadPoints: [],
@@ -228,5 +229,64 @@ describe('AircraftProfileEditorView — navigation', () => {
     const pushSpy = vi.spyOn(router, 'push')
     await wrapper.find('.btn-secondary').trigger('click')
     expect(pushSpy).toHaveBeenCalledWith({ name: 'fleet' })
+  })
+})
+
+// @UT-AC-VIEW-138@ (FROM: @IMP-AC-VIEW-015@, @REQ-AD-022@)
+describe('AircraftProfileEditorView — powertrain immutability & battery pack', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+  })
+
+  it('locks the powertrain control (no radio buttons) when editing a combustion profile', async () => {
+    const draft = makeProfile({ status: 'draft', powertrain: 'combustion' })
+    const { wrapper } = await mountEditor({ profile: draft })
+
+    expect(wrapper.findAll('input[type="radio"][name="powertrain"]')).toHaveLength(0)
+    expect(wrapper.find('.powertrain-readonly').exists()).toBe(true)
+    expect(wrapper.find('.powertrain-readonly').text()).toContain('Combustion')
+  })
+
+  it('locks the powertrain control when editing an electric profile and renders the Battery Pack section', async () => {
+    const electric = makeProfile({
+      status: 'draft',
+      powertrain: 'electric',
+      batteryPack: { usableEnergyKwh: 24.8, reserveFloorKwh: 4 },
+    })
+    const { wrapper } = await mountEditor({ profile: electric })
+
+    expect(wrapper.findAll('input[type="radio"][name="powertrain"]')).toHaveLength(0)
+    expect(wrapper.find('.powertrain-readonly').text()).toContain('Electric')
+    // Battery Pack accordion title is surfaced once the profile is electric.
+    expect(wrapper.text()).toContain('Battery Pack')
+    // BatteryPackSection's usable-energy label + the seeded value.
+    expect(wrapper.text()).toContain('Usable Energy')
+  })
+
+  it('does NOT render the Battery Pack section for a combustion profile', async () => {
+    const draft = makeProfile({ status: 'draft', powertrain: 'combustion' })
+    const { wrapper } = await mountEditor({ profile: draft })
+
+    expect(wrapper.text()).not.toContain('Battery Pack')
+    expect(wrapper.text()).not.toContain('Usable Energy')
+  })
+
+  it('disables the Save button when an electric profile has a reserve floor ≥ usable energy', async () => {
+    const electric = makeProfile({
+      status: 'draft',
+      powertrain: 'electric',
+      batteryPack: { usableEnergyKwh: 24.8, reserveFloorKwh: 4 },
+    })
+    const { wrapper } = await mountEditor({ profile: electric })
+
+    // Force reserve floor above usable energy via the component's input.
+    const reserveInput = wrapper.find(`input[id="${electric.id}-battery-reserve-floor"]`)
+    expect(reserveInput.exists()).toBe(true)
+    await reserveInput.setValue('40')
+    await flushPromises()
+    await nextTick()
+
+    const save = wrapper.find('.btn-primary')
+    expect(save.attributes('disabled')).toBeDefined()
   })
 })

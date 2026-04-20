@@ -10,5 +10,6 @@
   { "id": "tecnam-p2008", "manufacturer": "Tecnam", "model": "P2008 JC", "icaoTypeDesignator": "P208" },
   { "id": "tecnam-p2010", "manufacturer": "Tecnam", "model": "P2010", "icaoTypeDesignator": "P210" },
   { "id": "robin-dr400-120", "manufacturer": "Robin", "model": "DR400/120 Petit Prince", "icaoTypeDesignator": "DR40" },
-  { "id": "robin-dr400-140b", "manufacturer": "Robin", "model": "DR400/140B Major", "icaoTypeDesignator": "DR40" }
+  { "id": "robin-dr400-140b", "manufacturer": "Robin", "model": "DR400/140B Major", "icaoTypeDesignator": "DR40" },
+  { "id": "pipistrel-velis-electro", "manufacturer": "Pipistrel", "model": "Velis Electro", "icaoTypeDesignator": "PIVE", "powertrain": "electric" }
 ]

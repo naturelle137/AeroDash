@@ -200,6 +200,26 @@ This document defines the user interface behavior using the **EARS** (Easy Appro
 **Status:** Approved
 **Design Reference:** n/a
 
+<!-- @REQ-UI-021@ (FROM: @REQ-AD-020@) -->
+
+### REQ-UI-021: Powertrain Selector in Aircraft Wizard
+
+**Requirement:** The aircraft wizard shall present a Powertrain selector with the options `Combustion` and `Electric`. When the selected catalogue entry declares an `electric` powertrain, the system shall pre-select `Electric`. The pilot shall be able to override the selection.
+**Rationale:** Pilots choose the powertrain once at creation; the catalogue hint turns picking "Pipistrel Velis Electro" into the correct configuration without extra clicks, while the override keeps one-off or non-catalogued aircraft supported.
+**Priority:** P1
+**Status:** Approved
+**Design Reference:** [Native Electric Aircraft UX](../ux/native-electric-aircraft.md)
+
+<!-- @REQ-UI-022@ (FROM: @REQ-AD-020@, @REQ-AD-022@) -->
+
+### REQ-UI-022: Powertrain-Gated Editor Sections
+
+**Requirement:** While `powertrain` is `electric`, the aircraft wizard and editor shall hide every fuel-tank control (fuel-tank toggle on load points, `+ Add Fuel Tank` button, fuel-type selector, burn-sequence editor) and shall show the Battery Pack section. While `powertrain` is `combustion`, the aircraft wizard and editor shall hide the Battery Pack section.
+**Rationale:** Combustion pilots must never see battery fields and electric pilots must never see fuel fields; mixed UI invites invalid data and is the defect called out in issue #225.
+**Priority:** P1
+**Status:** Approved
+**Design Reference:** [Native Electric Aircraft UX](../ux/native-electric-aircraft.md)
+
 ---
 
 ## Design References

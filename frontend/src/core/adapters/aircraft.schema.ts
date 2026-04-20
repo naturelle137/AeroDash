@@ -37,6 +37,30 @@ const FuelTankExtensionSchema = z.object({
   burnSequences: z.array(BurnSequenceEntrySchema),
 })
 
+// @IMP-AD-CORE-018@ (FROM: @REQ-AD-020@, @REQ-AD-021@)
+// Battery pack description for battery-electric aircraft. A single pack per
+// aircraft at v1 — multi-pack topologies (redundant strings, motor-glider
+// hybrids) are deferred. Mass is a fixed contribution to BEM and does NOT
+// change with state of charge (unlike fuel), which is why it lives here
+// rather than as a load station quantity.
+const BatteryPackSchema = z.object({
+  /** Nameplate usable energy at 100% SoC, in kWh. */
+  usableEnergyKwh: z.number().positive(),
+  /**
+   * Reserve floor below which operation is prohibited by POH/AFM (kWh).
+   * Must be < usableEnergyKwh so there is always a usable working band.
+   */
+  reserveFloorKwh: z.number().nonnegative(),
+  /** Optional nominal voltage (V) — used for future derating lookups. */
+  nominalVoltage: z.number().positive().optional(),
+  /**
+   * Optional cell chemistry free-text label (e.g. "LiFePO4", "NMC").
+   * Not enumerated — regulatory labelling is still evolving for aviation
+   * batteries. Informational only at v1.
+   */
+  chemistry: z.string().min(1).optional(),
+})
+
 const LoadPointSchema = z.object({
   name: z.string().min(1),
   arm: z.number().nullable(),
@@ -164,6 +188,16 @@ export const AircraftProfileSchema = z
     checklistScaffold: z.array(ChecklistScaffoldItemSchema).optional(),
     // M4: Performance profiles fully typed (REQ-AD-008, REQ-AD-009)
     performanceProfiles: z.array(PerformanceProfileSchema).optional(),
+    // M3.5: Powertrain discriminator (REQ-AD-020). Legacy combustion-only
+    // profiles omit this field and default to 'combustion' on parse, so
+    // IndexedDB records persisted before electric support remain valid
+    // without any explicit migration write.
+    powertrain: z.enum(['combustion', 'electric']).default('combustion'),
+    // M3.5: Battery pack is required when powertrain === 'electric' and
+    // forbidden otherwise. The presence / absence constraint is enforced in
+    // the superRefine below so the Zod error surface is one level up from
+    // a field-level "missing" message.
+    batteryPack: BatteryPackSchema.optional(),
   })
   .superRefine((data, ctx) => {
     const fuelTankCount = data.loadPoints.filter((lp) => lp.fuelTank !== null).length
@@ -193,6 +227,50 @@ export const AircraftProfileSchema = z
         })
       }
     })
+
+    // @IMP-AD-CORE-019@ (FROM: @REQ-AD-020@, @REQ-AD-021@)
+    // Powertrain / BatteryPack consistency. Deliberately modelled via
+    // superRefine rather than a Zod discriminated union so the rest of
+    // AircraftProfile's sprawling optional surface (performanceProfiles,
+    // windLimits, …) doesn't have to be duplicated across both branches.
+    if (data.powertrain === 'electric') {
+      if (!data.batteryPack) {
+        ctx.addIssue({
+          code: 'custom',
+          message: 'BATTERY_PACK_REQUIRED_FOR_ELECTRIC',
+          path: ['batteryPack'],
+        })
+      } else if (data.batteryPack.reserveFloorKwh >= data.batteryPack.usableEnergyKwh) {
+        // Reserve must leave a usable working band. Reserve equal to the
+        // full pack means the aircraft is always below the operational
+        // floor — a configuration error, not a runtime state.
+        ctx.addIssue({
+          code: 'custom',
+          message: 'RESERVE_EXCEEDS_USABLE_ENERGY',
+          path: ['batteryPack', 'reserveFloorKwh'],
+        })
+      }
+      // Electric aircraft must not carry fuel tanks — Carsten (#225): "do
+      // not try to fit an electric plane in the classical fuel schema".
+      // We surface this as a hard validation so import/export files with
+      // mismatched topologies cannot be persisted in a broken state.
+      if (fuelTankCount > 0) {
+        ctx.addIssue({
+          code: 'custom',
+          message: 'ELECTRIC_AIRCRAFT_HAS_FUEL_TANK',
+          path: ['loadPoints'],
+        })
+      }
+    } else {
+      // powertrain === 'combustion': no batteryPack allowed.
+      if (data.batteryPack !== undefined) {
+        ctx.addIssue({
+          code: 'custom',
+          message: 'BATTERY_PACK_NOT_ALLOWED_FOR_COMBUSTION',
+          path: ['batteryPack'],
+        })
+      }
+    }
   })
 
 export type AircraftProfile = z.infer<typeof AircraftProfileSchema>
@@ -210,3 +288,6 @@ export type AircraftProfileChecklistScaffoldItem = z.infer<typeof ChecklistScaff
 // M4 types
 export type AircraftProfilePerformanceProfile = z.infer<typeof PerformanceProfileSchema>
 export type AircraftProfilePerformanceDataPoint = z.infer<typeof PerformanceDataPointSchema>
+// M3.5 types — powertrain discriminator + battery pack
+export type AircraftProfilePowertrain = z.infer<typeof AircraftProfileSchema>['powertrain']
+export type AircraftProfileBatteryPack = z.infer<typeof BatteryPackSchema>
