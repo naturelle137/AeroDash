@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- CG Envelope Chart: the migration path and its arrowhead are now suppressed when the on-screen path is shorter than half the arrow length (e.g. electric aircraft with no fuel burn, or a combustion flight where takeoff and landing mass happen to coincide). The TOM label is staggered above the ZFM label when the two markers are within 12 px of each other, so legend labels no longer overlap. (reported via #231 preview review)
+- CG Envelope Chart: the migration path and its arrowhead are now suppressed when the on-screen path is shorter than 1.5× the arrow length (e.g. electric aircraft with no fuel burn, or a combustion flight where takeoff and landing mass happen to coincide). Below that threshold the line segment would be fully swallowed by the arrowhead, leaving a stray glyph with nothing leading into it. The TOM label is also staggered above the ZFM label when the two markers are within 12 px of each other, so legend labels no longer overlap. (reported via #231 preview review)
 
 ### Changed
 

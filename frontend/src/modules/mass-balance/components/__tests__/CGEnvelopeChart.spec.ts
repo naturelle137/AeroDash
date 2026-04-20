@@ -227,9 +227,9 @@ describe('CGEnvelopeChart — migration path rendering', () => {
     expect(wrapper.find('path').exists()).toBe(false)
   })
 
-  it('does not render a migration path when the on-screen length is below half the arrow length', () => {
+  it('does not render a migration path when the on-screen length is below 1.5× the arrow length', () => {
     // Start and end points are identical — migration path length = 0 px on
-    // screen, which is below the 4 px (half of markerWidth=8) threshold.
+    // screen, which is below the 12 px (1.5 × markerWidth of 8) threshold.
     const result = buildResult({
       takeoffCenterOfGravityPoint: { arm: 1.9, mass: 500, moment: 950 },
       landingCenterOfGravityPoint: { arm: 1.9, mass: 500, moment: 950 },
@@ -243,7 +243,7 @@ describe('CGEnvelopeChart — migration path rendering', () => {
     expect(wrapper.find('path').exists()).toBe(false)
   })
 
-  it('renders the migration path when on-screen length exceeds the arrow threshold', () => {
+  it('renders the migration path when on-screen length exceeds 1.5× the arrow length', () => {
     // Large arm delta → many pixels of screen-space migration → path renders.
     const result = buildResult({
       migrationPath: [

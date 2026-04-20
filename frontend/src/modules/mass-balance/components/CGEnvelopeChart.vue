@@ -160,10 +160,12 @@ const cgMarkers = computed(() => {
 // @IMP-MB-UI-002@ (FROM: @REQ-UI-010@)
 /** SVG marker length in user-space pixels — matches markerWidth on #cg-arrow. */
 const ARROW_LENGTH_PX = 8
-/** Below this on-screen path length, the arrow would visually dominate the
- *  line (or the markers would hide it entirely); in that case we suppress the
- *  migration path — the three CG-point markers already communicate the state. */
-const MIGRATION_MIN_PX = ARROW_LENGTH_PX / 2
+/** Below this on-screen path length, the arrowhead would visually dominate
+ *  the line (or swallow it entirely); in that case we suppress the migration
+ *  path — the three CG-point markers already communicate the state. The
+ *  threshold is 1.5× the arrow length so the line segment visibly leads into
+ *  the arrow rather than starting inside the arrow geometry. */
+const MIGRATION_MIN_PX = ARROW_LENGTH_PX * 1.5
 
 const migrationLengthPx = computed(() => {
   if (props.graphType !== 'arm' || !props.result || props.result.migrationPath.length < 2) {
