@@ -160,12 +160,13 @@ const cgMarkers = computed(() => {
 // @IMP-MB-UI-002@ (FROM: @REQ-UI-010@)
 /** SVG marker length in user-space pixels — matches markerWidth on #cg-arrow. */
 const ARROW_LENGTH_PX = 8
-/** Below this on-screen path length, the arrowhead would visually dominate
- *  the line (or swallow it entirely); in that case we suppress the migration
- *  path — the three CG-point markers already communicate the state. The
- *  threshold is 1.5× the arrow length so the line segment visibly leads into
- *  the arrow rather than starting inside the arrow geometry. */
-const MIGRATION_MIN_PX = ARROW_LENGTH_PX * 1.5
+/** Below this on-screen path length, the arrowhead is suppressed. The line
+ *  itself is still drawn — a very short migration is still information — but
+ *  the arrowhead is withheld until the line has enough trailing length to
+ *  read as a clear directional cue rather than a stray glyph. 3× the arrow
+ *  length guarantees the line is visibly longer than the arrowhead before
+ *  the arrow starts painting. */
+const ARROW_MIN_PX = ARROW_LENGTH_PX * 3
 
 const migrationLengthPx = computed(() => {
   if (props.graphType !== 'arm' || !props.result || props.result.migrationPath.length < 2) {
@@ -182,11 +183,15 @@ const migrationLengthPx = computed(() => {
 })
 
 const migrationD = computed(() => {
-  if (migrationLengthPx.value < MIGRATION_MIN_PX) return null
-  return props
-    .result!.migrationPath.map((mp, i) => `${i === 0 ? 'M' : 'L'}${sx(mp.arm)},${sy(mp.mass)}`)
+  if (props.graphType !== 'arm' || !props.result || props.result.migrationPath.length < 2) {
+    return null
+  }
+  return props.result.migrationPath
+    .map((mp, i) => `${i === 0 ? 'M' : 'L'}${sx(mp.arm)},${sy(mp.mass)}`)
     .join(' ')
 })
+
+const showMigrationArrow = computed(() => migrationLengthPx.value >= ARROW_MIN_PX)
 
 // ─── Severity-driven palette ───────────────────────────────────────────────
 // @IMP-MB-UI-003@ (FROM: @REQ-UI-018@)
@@ -385,7 +390,7 @@ const ariaLabel = computed(() => {
         :stroke="palette.line"
         :stroke-width="pathStroke"
         :stroke-dasharray="pathDash"
-        marker-end="url(#cg-arrow)"
+        :marker-end="showMigrationArrow ? 'url(#cg-arrow)' : undefined"
       />
 
       <!-- ─── CG point markers ────────────────────────────────────────── -->

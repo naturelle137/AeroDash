@@ -227,9 +227,11 @@ describe('CGEnvelopeChart — migration path rendering', () => {
     expect(wrapper.find('path').exists()).toBe(false)
   })
 
-  it('does not render a migration path when the on-screen length is below 1.5× the arrow length', () => {
-    // Start and end points are identical — migration path length = 0 px on
-    // screen, which is below the 12 px (1.5 × markerWidth of 8) threshold.
+  it('renders the migration path line but omits the arrowhead when the on-screen length is below 3× the arrow length', () => {
+    // Takeoff and landing share arm/mass values — zero-length path on screen.
+    // The `<path>` element is still emitted (a zero-length line is invisible
+    // anyway), but the marker-end attribute is withheld so no stray arrow
+    // glyph appears at the coincident endpoint.
     const result = buildResult({
       takeoffCenterOfGravityPoint: { arm: 1.9, mass: 500, moment: 950 },
       landingCenterOfGravityPoint: { arm: 1.9, mass: 500, moment: 950 },
@@ -240,11 +242,31 @@ describe('CGEnvelopeChart — migration path rendering', () => {
     })
     const wrapper = mountChart({ result, graphType: 'arm', severity: 'success' })
 
-    expect(wrapper.find('path').exists()).toBe(false)
+    const path = wrapper.find('path')
+    expect(path.exists()).toBe(true)
+    expect(path.attributes('marker-end')).toBeUndefined()
   })
 
-  it('renders the migration path when on-screen length exceeds 1.5× the arrow length', () => {
-    // Large arm delta → many pixels of screen-space migration → path renders.
+  it('renders the migration path line for a short migration but still withholds the arrow', () => {
+    // ~0.002 arm delta → a handful of screen pixels — enough to show a line
+    // but well below the 3×8 = 24 px arrow threshold.
+    const result = buildResult({
+      zeroFuelCenterOfGravityPoint: { arm: 1.9, mass: 500, moment: 950 },
+      takeoffCenterOfGravityPoint: { arm: 1.901, mass: 500, moment: 950.5 },
+      landingCenterOfGravityPoint: { arm: 1.902, mass: 500, moment: 951 },
+      migrationPath: [
+        { arm: 1.901, mass: 500, label: 'Takeoff' },
+        { arm: 1.902, mass: 500, label: 'Landing' },
+      ],
+    })
+    const wrapper = mountChart({ result, graphType: 'arm', severity: 'success' })
+
+    const path = wrapper.find('path')
+    expect(path.exists()).toBe(true)
+    expect(path.attributes('marker-end')).toBeUndefined()
+  })
+
+  it('renders both the migration path line and the arrowhead when on-screen length exceeds 3× the arrow length', () => {
     const result = buildResult({
       migrationPath: [
         { arm: 1.85, mass: 520, label: 'Takeoff' },
@@ -253,7 +275,9 @@ describe('CGEnvelopeChart — migration path rendering', () => {
     })
     const wrapper = mountChart({ result, graphType: 'arm', severity: 'success' })
 
-    expect(wrapper.find('path').exists()).toBe(true)
+    const path = wrapper.find('path')
+    expect(path.exists()).toBe(true)
+    expect(path.attributes('marker-end')).toBe('url(#cg-arrow)')
   })
 })
 
