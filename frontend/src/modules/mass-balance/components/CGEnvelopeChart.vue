@@ -135,38 +135,54 @@ const envelopePts = computed(() =>
 const cgMarkers = computed(() => {
   if (!props.result) return null
   const r = props.result
+
+  const zfmX = sx(xValOf(r.zeroFuelCenterOfGravityPoint))
+  const zfmY = sy(r.zeroFuelCenterOfGravityPoint.mass)
+  const tomX = sx(xValOf(r.takeoffCenterOfGravityPoint))
+  const tomY = sy(r.takeoffCenterOfGravityPoint.mass)
+  const lmX = sx(xValOf(r.landingCenterOfGravityPoint))
+  const lmY = sy(r.landingCenterOfGravityPoint.mass)
+
+  // When two CG points are within PROX pixels on screen, their labels would
+  // overlap at the default offsets. Stagger the vertically-adjacent labels so
+  // ZFM, TOM, and LM remain legible even for aircraft with no CG migration
+  // (electric, or combustion with a full-burn start that leaves CG unchanged).
+  const PROX = 12
+  const tomNearZfm = Math.hypot(tomX - zfmX, tomY - zfmY) < PROX
+
   return [
-    {
-      key: 'zfm',
-      cx: sx(xValOf(r.zeroFuelCenterOfGravityPoint)),
-      cy: sy(r.zeroFuelCenterOfGravityPoint.mass),
-      label: 'ZFM',
-      labelDy: -10,
-    },
-    {
-      key: 'tom',
-      cx: sx(xValOf(r.takeoffCenterOfGravityPoint)),
-      cy: sy(r.takeoffCenterOfGravityPoint.mass),
-      label: 'TOM',
-      labelDy: -10,
-    },
-    {
-      key: 'lm',
-      cx: sx(xValOf(r.landingCenterOfGravityPoint)),
-      cy: sy(r.landingCenterOfGravityPoint.mass),
-      label: 'LM',
-      labelDy: 16,
-    },
+    { key: 'zfm', cx: zfmX, cy: zfmY, label: 'ZFM', labelDy: -10 },
+    { key: 'tom', cx: tomX, cy: tomY, label: 'TOM', labelDy: tomNearZfm ? -24 : -10 },
+    { key: 'lm', cx: lmX, cy: lmY, label: 'LM', labelDy: 16 },
   ]
 })
 
 // @IMP-MB-UI-002@ (FROM: @REQ-UI-010@)
-const migrationD = computed(() => {
+/** SVG marker length in user-space pixels — matches markerWidth on #cg-arrow. */
+const ARROW_LENGTH_PX = 8
+/** Below this on-screen path length, the arrow would visually dominate the
+ *  line (or the markers would hide it entirely); in that case we suppress the
+ *  migration path — the three CG-point markers already communicate the state. */
+const MIGRATION_MIN_PX = ARROW_LENGTH_PX / 2
+
+const migrationLengthPx = computed(() => {
   if (props.graphType !== 'arm' || !props.result || props.result.migrationPath.length < 2) {
-    return null
+    return 0
   }
-  return props.result.migrationPath
-    .map((mp, i) => `${i === 0 ? 'M' : 'L'}${sx(mp.arm)},${sy(mp.mass)}`)
+  let total = 0
+  const path = props.result.migrationPath
+  for (let i = 1; i < path.length; i++) {
+    const dx = sx(path[i]!.arm) - sx(path[i - 1]!.arm)
+    const dy = sy(path[i]!.mass) - sy(path[i - 1]!.mass)
+    total += Math.hypot(dx, dy)
+  }
+  return total
+})
+
+const migrationD = computed(() => {
+  if (migrationLengthPx.value < MIGRATION_MIN_PX) return null
+  return props
+    .result!.migrationPath.map((mp, i) => `${i === 0 ? 'M' : 'L'}${sx(mp.arm)},${sy(mp.mass)}`)
     .join(' ')
 })
 

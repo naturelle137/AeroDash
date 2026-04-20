@@ -15,6 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Unit tests for the new LoadPointsSection controls: 6 for allowable-category checkboxes (single-category hide, multi-category render, restrict/collapse/clear, stale drop), 7 for the burn-sequence editor (empty state, seeded add, ordinal auto-increment, name edit, row removal, duplicate-name error, blank-name error) (`UT-AC-VIEW-152`..`UT-AC-VIEW-164`)
 - Download aircraft profile as `.aerodash.json` exchange file from the fleet list: new `downloadProfileAsJson` / `buildExchangeFilename` helpers in `services/profile.import.ts` produce round-trip-safe files accepted by the existing import flow. A dedicated icon button on every fleet row triggers the download (REQ-AC-004)
 
+### Fixed
+
+- CG Envelope Chart: the migration path and its arrowhead are now suppressed when the on-screen path is shorter than half the arrow length (e.g. electric aircraft with no fuel burn, or a combustion flight where takeoff and landing mass happen to coincide). The TOM label is staggered above the ZFM label when the two markers are within 12 px of each other, so legend labels no longer overlap. (reported via #231 preview review)
+
 ### Changed
 
 - Redesigned fleet-list action buttons for mobile / cockpit use: every row action — **Select / Active**, **Verify**, **Download**, **Edit**, **Delete** — is now a 44 × 44 px (≥48 × 48 px on mobile) icon button with 0.75 rem spacing, meeting WCAG 2.2 SC 2.5.8 target-size AAA and staying tappable under moderate vibration. Icons use distinct colour families (primary = Select/Download, success = Verify, neutral = Edit, critical = Delete); Select renders a filled primary check-circle when the aircraft is active. Every button carries an `aria-label` (and `aria-pressed` for Select) plus a visually-hidden `sr-only` text label so screen readers and automated tests remain unambiguous (refs REQ-UQ-003)

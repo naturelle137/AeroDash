@@ -226,6 +226,35 @@ describe('CGEnvelopeChart — migration path rendering', () => {
 
     expect(wrapper.find('path').exists()).toBe(false)
   })
+
+  it('does not render a migration path when the on-screen length is below half the arrow length', () => {
+    // Start and end points are identical — migration path length = 0 px on
+    // screen, which is below the 4 px (half of markerWidth=8) threshold.
+    const result = buildResult({
+      takeoffCenterOfGravityPoint: { arm: 1.9, mass: 500, moment: 950 },
+      landingCenterOfGravityPoint: { arm: 1.9, mass: 500, moment: 950 },
+      migrationPath: [
+        { arm: 1.9, mass: 500, label: 'Takeoff' },
+        { arm: 1.9, mass: 500, label: 'Landing' },
+      ],
+    })
+    const wrapper = mountChart({ result, graphType: 'arm', severity: 'success' })
+
+    expect(wrapper.find('path').exists()).toBe(false)
+  })
+
+  it('renders the migration path when on-screen length exceeds the arrow threshold', () => {
+    // Large arm delta → many pixels of screen-space migration → path renders.
+    const result = buildResult({
+      migrationPath: [
+        { arm: 1.85, mass: 520, label: 'Takeoff' },
+        { arm: 1.95, mass: 440, label: 'Landing' },
+      ],
+    })
+    const wrapper = mountChart({ result, graphType: 'arm', severity: 'success' })
+
+    expect(wrapper.find('path').exists()).toBe(true)
+  })
 })
 
 // ─── CG markers — cgMarkers computed and isCritical branch ──────────────────
@@ -277,6 +306,49 @@ describe('CGEnvelopeChart — CG markers', () => {
     for (const circle of circles) {
       expect(circle.attributes('opacity')).toBe('1')
     }
+  })
+
+  it('staggers the TOM label away from ZFM when both markers coincide on screen', () => {
+    // Coincident ZFM and TOM (no fuel burned, or electric aircraft): default
+    // label offsets would overlap. The chart pushes the TOM label further up.
+    const result = buildResult({
+      zeroFuelCenterOfGravityPoint: { arm: 1.9, mass: 500, moment: 950 },
+      takeoffCenterOfGravityPoint: { arm: 1.9, mass: 500, moment: 950 },
+      landingCenterOfGravityPoint: { arm: 1.9, mass: 500, moment: 950 },
+      migrationPath: [],
+    })
+    const wrapper = mountChart({ result, graphType: 'arm', severity: 'success' })
+
+    const labels = wrapper.findAll('text.point-label')
+    const zfmLabel = labels.find((l) => l.text() === 'ZFM')!
+    const tomLabel = labels.find((l) => l.text() === 'TOM')!
+
+    // Same x (same marker x + 9), but ZFM sits directly above the point and
+    // TOM sits further above it — labels must not share a y coordinate.
+    expect(zfmLabel.attributes('x')).toBe(tomLabel.attributes('x'))
+    expect(zfmLabel.attributes('y')).not.toBe(tomLabel.attributes('y'))
+  })
+
+  it('keeps TOM at the default offset when TOM and ZFM are far apart on screen', () => {
+    // Distinct ZFM and TOM positions: TOM's label uses the default offset
+    // (cy - 10), not the staggered cy - 24 we apply for coincident markers.
+    const result = buildResult({
+      zeroFuelCenterOfGravityPoint: { arm: 1.85, mass: 460, moment: 851 },
+      takeoffCenterOfGravityPoint: { arm: 1.95, mass: 560, moment: 1092 },
+    })
+    const wrapper = mountChart({ result, graphType: 'arm', severity: 'success' })
+
+    // cgMarkers is emitted in order [zfm, tom, lm] so the corresponding
+    // circle and label indices line up.
+    const circles = wrapper.findAll('circle')
+    const labels = wrapper.findAll('text.point-label')
+    const zfmDy = Number(labels[0]!.attributes('y')) - Number(circles[0]!.attributes('cy'))
+    const tomDy = Number(labels[1]!.attributes('y')) - Number(circles[1]!.attributes('cy'))
+
+    expect(labels[0]!.text()).toBe('ZFM')
+    expect(labels[1]!.text()).toBe('TOM')
+    expect(zfmDy).toBe(-10)
+    expect(tomDy).toBe(-10)
   })
 })
 
