@@ -11,14 +11,23 @@
       @powertrain-hint="onPowertrainHint"
     />
 
-    <!-- @IMP-AC-VIEW-031@ (FROM: @REQ-AD-020@)
+    <!-- @IMP-AC-VIEW-031@ (FROM: @REQ-AD-020@, @REQ-AD-022@)
          Powertrain choice. Visible at the very top of the wizard so the rest
          of the flow can branch — combustion-only profiles see fuel tanks and
          burn sequences in the Load Stations step, electric profiles see a
          Battery Pack section instead. The choice persists even when the
          catalogue hint disagrees, since the pilot may be entering a custom
-         airframe (Other manufacturer) for which no hint exists. -->
-    <fieldset class="powertrain-fieldset">
+         airframe (Other manufacturer) for which no hint exists.
+
+         When `lockPowertrain` is true (the edit-existing-aircraft flow) the
+         radio group is replaced with a read-only badge. Flipping propulsion on
+         a saved profile is not a real-world operation — it also leads to
+         invalid cross-field state (electric profile with orphaned fuel tanks,
+         or combustion profile missing a battery pack) that our Zod guards
+         reject on save. Locking the control is the simplest way to keep the
+         editor deterministic. Pilots who genuinely need a different powertrain
+         should delete the profile and create a new one. -->
+    <fieldset v-if="!lockPowertrain" class="powertrain-fieldset">
       <legend>Powertrain</legend>
       <p class="field-hint">
         Pick the energy source for this airframe. Combustion shows fuel tanks
@@ -56,6 +65,20 @@
         </label>
       </div>
     </fieldset>
+
+    <div v-else class="powertrain-readonly" aria-label="Powertrain (read-only)">
+      <span class="powertrain-readonly__label">Powertrain</span>
+      <span
+        class="powertrain-readonly__value"
+        :class="{ 'powertrain-readonly__value--electric': local.powertrain === 'electric' }"
+      >
+        {{ local.powertrain === 'electric' ? 'Electric' : 'Combustion' }}
+      </span>
+      <span class="field-hint">
+        Propulsion type is set when the aircraft is first created. Delete the
+        profile and recreate if the energy source actually changes.
+      </span>
+    </div>
 
     <div class="field-group">
       <label :for="`${sectionId}-registration`">Registration</label>
@@ -142,11 +165,20 @@ export interface IdentityFields {
   shareCode: string | null
 }
 
-const props = defineProps<{
-  modelValue: IdentityFields
-  registrationError?: string
-  sectionId: string
-}>()
+const props = withDefaults(
+  defineProps<{
+    modelValue: IdentityFields
+    registrationError?: string
+    sectionId: string
+    /**
+     * When true the powertrain radio group is replaced with a read-only
+     * badge and catalogue-driven powertrain hints are ignored. Used by the
+     * edit-existing-aircraft flow (see @REQ-AD-022@).
+     */
+    lockPowertrain?: boolean
+  }>(),
+  { lockPowertrain: false },
+)
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: IdentityFields): void
@@ -200,6 +232,10 @@ function patch(changes: Partial<IdentityFields>): void {
  */
 function onPowertrainHint(hint: CataloguePowertrainHint | undefined): void {
   if (hint === undefined) return
+  // In edit mode the powertrain is immutable, so ignore catalogue-derived
+  // hints — accepting them would silently flip the saved aircraft's propulsion
+  // and cascade into schema violations on save.
+  if (props.lockPowertrain) return
   if (local.value.powertrain === hint) return
   patch({ powertrain: hint })
 }
@@ -314,5 +350,31 @@ function onPowertrainHint(hint: CataloguePowertrainHint | undefined): void {
   grid-column: 2;
   font-size: 0.75rem;
   color: var(--color-text-secondary, #6b7280);
+}
+
+.powertrain-readonly {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.75rem;
+  border: 1px solid var(--color-border, #d1d5db);
+  border-radius: 4px;
+  background: var(--color-surface-alt, #f9fafb);
+}
+
+.powertrain-readonly__label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text, #111827);
+}
+
+.powertrain-readonly__value {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-text, #111827);
+}
+
+.powertrain-readonly__value--electric {
+  color: var(--color-success, #16a34a);
 }
 </style>

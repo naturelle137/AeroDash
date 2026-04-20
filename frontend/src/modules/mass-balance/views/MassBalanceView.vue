@@ -1139,6 +1139,15 @@ function onAircraftSelected(event: Event): void {
 }
 
 .aircraft-select {
+  /* Native <select> sizes itself to its widest option unless width is
+     explicitly constrained. With long registrations + manufacturer + model
+     (e.g. "D-EBPN — Pipistrel Velis Electro [Draft]") the control was
+     overflowing the parent card on 390 px viewports. width:100% + max-width:100%
+     + box-sizing:border-box pins it to the flex container, and the browser
+     handles truncation of the selected-option display natively. */
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
   padding: var(--space-2) var(--space-3);
   font-size: var(--text-base);
   font-family: inherit;

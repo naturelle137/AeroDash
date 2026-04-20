@@ -101,3 +101,80 @@ describe('IdentitySection — powertrain selector', () => {
     }
   })
 })
+
+// @UT-AC-VIEW-IDENT-002@ (FROM: @IMP-AC-VIEW-031@, @REQ-AD-022@)
+describe('IdentitySection — lockPowertrain (edit-existing-aircraft flow)', () => {
+  it('hides the powertrain radio group when lockPowertrain is true', () => {
+    const wrapper = mount(IdentitySection, {
+      props: {
+        modelValue: makeFields({ powertrain: 'electric' }),
+        sectionId: 'edit',
+        lockPowertrain: true,
+      },
+    })
+
+    expect(wrapper.findAll('input[type="radio"][name="powertrain"]')).toHaveLength(0)
+    expect(wrapper.find('.powertrain-fieldset').exists()).toBe(false)
+  })
+
+  it('renders a read-only "Electric" label when powertrain is electric and lockPowertrain is true', () => {
+    const wrapper = mount(IdentitySection, {
+      props: {
+        modelValue: makeFields({ powertrain: 'electric' }),
+        sectionId: 'edit',
+        lockPowertrain: true,
+      },
+    })
+
+    const readonly = wrapper.find('.powertrain-readonly')
+    expect(readonly.exists()).toBe(true)
+    expect(readonly.text()).toContain('Powertrain')
+    expect(readonly.text()).toContain('Electric')
+  })
+
+  it('renders a read-only "Combustion" label when powertrain is combustion and lockPowertrain is true', () => {
+    const wrapper = mount(IdentitySection, {
+      props: {
+        modelValue: makeFields({ powertrain: 'combustion' }),
+        sectionId: 'edit',
+        lockPowertrain: true,
+      },
+    })
+
+    expect(wrapper.find('.powertrain-readonly').text()).toContain('Combustion')
+  })
+
+  it('ignores catalogue powertrain hints when lockPowertrain is true', async () => {
+    const wrapper = mount(IdentitySection, {
+      props: {
+        modelValue: makeFields({ powertrain: 'combustion' }),
+        sectionId: 'edit',
+        lockPowertrain: true,
+      },
+    })
+    const selector = wrapper.findComponent({ name: 'AircraftModelSelector' })
+    await selector.vm.$emit('powertrain-hint', 'electric')
+
+    const emitted = wrapper.emitted('update:modelValue') ?? []
+    // Pilots editing a saved profile must never see the powertrain silently
+    // flipped by the catalogue hint — it would cascade into schema violations
+    // on save and confuse the Save button's enable state.
+    for (const call of emitted) {
+      const payload = call[0] as IdentityFields
+      expect(payload.powertrain).toBe('combustion')
+    }
+  })
+
+  it('renders the radio group when lockPowertrain is explicitly false (wizard default)', () => {
+    const wrapper = mount(IdentitySection, {
+      props: {
+        modelValue: makeFields(),
+        sectionId: 'wizard',
+        lockPowertrain: false,
+      },
+    })
+
+    expect(wrapper.findAll('input[type="radio"][name="powertrain"]')).toHaveLength(2)
+    expect(wrapper.find('.powertrain-readonly').exists()).toBe(false)
+  })
+})
