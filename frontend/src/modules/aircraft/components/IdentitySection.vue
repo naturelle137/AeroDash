@@ -11,7 +11,7 @@
       @powertrain-hint="onPowertrainHint"
     />
 
-    <!-- @IMP-AC-VIEW-031@ (FROM: @REQ-AD-020@, @REQ-AD-022@)
+    <!-- @IMP-AC-VIEW-031@ (FROM: @REQ-AD-020@, @REQ-AD-022@, @REQ-UI-023@)
          Powertrain choice. Visible at the very top of the wizard so the rest
          of the flow can branch — combustion-only profiles see fuel tanks and
          burn sequences in the Load Stations step, electric profiles see a
