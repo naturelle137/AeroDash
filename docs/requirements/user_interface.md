@@ -220,6 +220,16 @@ This document defines the user interface behavior using the **EARS** (Easy Appro
 **Status:** Approved
 **Design Reference:** [Native Electric Aircraft UX](../ux/native-electric-aircraft.md)
 
+<!-- @REQ-UI-023@ (FROM: @H-011@, @REQ-AD-022@) -->
+
+### REQ-UI-023: Powertrain Field Immutability in Aircraft Editor
+
+**Requirement:** While the user is editing a persisted aircraft profile, the system shall render the profile's `powertrain` value as a read-only label, shall not present any input control that writes to `powertrain`, and shall retain the stored `powertrain` value when the user selects a model whose catalogue entry declares a different powertrain.
+**Rationale:** A persisted profile has a topology (fuel tanks or battery pack) bound to its `powertrain` by [REQ-AD-022](./detailed_aircraft_data.md#req-ad-022-powertrain-field-exclusivity). Any path that mutates `powertrain` on an existing profile without rebuilding the dependent fields produces orphaned state that the schema then rejects on save (`BATTERY_PACK_NOT_ALLOWED_FOR_COMBUSTION`, `ELECTRIC_AIRCRAFT_HAS_FUEL_TANK`, `BATTERY_PACK_REQUIRED_FOR_ELECTRIC`). Locking both the direct radio control and the catalogue-driven hint closes the two known pathways and mirrors the physical reality that an airframe does not change propulsion type after it has been weighed. The wizard retains the selector per [REQ-UI-021](#req-ui-021-powertrain-selector-in-aircraft-wizard); lock applies only to the editor flow.
+**Priority:** P1
+**Status:** Approved
+**Design Reference:** [Native Electric Aircraft UX](../ux/native-electric-aircraft.md)
+
 ---
 
 ## Design References
