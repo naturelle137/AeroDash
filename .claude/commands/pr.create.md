@@ -93,11 +93,21 @@ concise conventional-commit-style summary derived from commits + diff
 - start from `.github/pull_request_template.md` — preserve headings, order, checklists
 - `### Issue State Management`: keep the bullet if merging to `develop`; delete it if merging to `main`
 - remove placeholder `-` / empty list lines under `### Related Issues` once filled
-- N/A allowed only on rows that literally include `OR N/A` in the template — never on Target Branch, DoD, self-review, ADR, or Safety bullets
-- if disposition is N/A, fill Reason and `[x]` (not `[ ]`)
-- every checkbox must be dispositioned: `[x]` after work, OR valid N/A+Reason on allowed rows
-- never `[x]` without work or valid N/A
-- the `If merging to <base>…` post-merge line may stay `[ ]` until merge
+
+### Checklist disposition (every box ends as `[x]`)
+
+A PR is "ready" only when every checkbox is `[x]`. An unchecked `[ ]` reads as **"open / not done"** even when the row is genuinely N/A — leaving boxes empty misrepresents the PR's state to reviewers and CI gates.
+
+**Done means:** the work was performed, OR the row is genuinely not applicable AND its template line includes `OR N/A` AND a Reason is filled. In **both** cases, the box ends `[x]`.
+
+Negative rules — never violate any of these:
+
+- **Never** `[x]` work that wasn't actually done.
+- **Never** `[x]` an N/A row without a Reason.
+- **Never** `[x]` N/A on a row that does not allow `OR N/A` (Target Branch, DoD, Review, ADR, Safety bullets are never N/A-eligible — verify or do the work).
+- **Never** mark a row N/A when it is actually applicable — do the work or split the PR.
+
+The only legitimate `[ ]` is the post-merge `If merging to <base>…` line under Issue State Management, which stays unchecked until the merge actually happens.
 
 ### Body sections (filled honestly)
 
