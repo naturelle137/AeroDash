@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0-alpha] - 2026-05-07
+
 ### Fixed
 
 - Auto-save of the active Mass & Balance session to `localStorage` — the `sessionPersistence` store was shipped in a prior milestone but never instantiated by the running app, so reloading the Flight Preparation page always dropped the pilot's aircraft selection, category, and station weights back to profile defaults. `MassBalanceView` now restores the payload on mount (after the fleet hydrates), re-applies it through the new `massBalance.applyRestoredSession(payload)` action, and starts the debounced auto-save watcher; stale payloads whose aircraft has since been removed from the fleet are discarded. `startWatching()` is now idempotent so view remounts don't stack watchers. (REQ-SYS-013)
@@ -92,7 +94,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Engineering
 
 - Aircraft catalogue unit tests (filter, ICAO lookup, unique designator) and `AircraftModelSelector` component tests; fleet store tests for IndexedDB load state machine (closes #158)
-- Aircraft profile `status` canonical values `draft` / `verified` with Zod normalization of legacy Title Case, IndexedDB v2 migration, and Mass & Balance computation prepending `WARN-AC-002` for draft contexts; ADR-008 (closes #157)
+- Aircraft profile `status` canonical values `draft` / `verified` with Zod normalization of legacy Title Case, IndexedDB v2 migration, and Mass & Balance computation prepending `WARN-AC-002` for draft contexts; ADR-010 (closes #157)
 - `fleet.repository.spec.ts` (new, 14 tests, UT-AC-STORE-034..047): Full IndexedDB CRUD unit tests using `fake-indexeddb` — create, findById, findAll, update, deleteById, round-trip, passengerProfiles preservation (closes #156)
 - `active-aircraft.store.spec.ts` (12 tests + 4 new, UT-AC-STORE-068..083): Reactive hot-swap proof, clearActive, isDraft, hasActiveProfile, context-switch prior-state-absent, no-page-reload tests, plus Issue #165 DoD tests proving M&B store load data / results / notifications cleared on airframe switch, same-registration snapshots preserve M&B state, and clearActive wipes M&B (closes #165)
 - `mass-balance.store.ts` gains `clearProfile()` (IMP-MB-STORE-018): fully detaches aircraft, stations, results, notifications on aircraft hot-swap so no stale prior-aircraft data leaks into the next flight (refs #165, REQ-AC-005)

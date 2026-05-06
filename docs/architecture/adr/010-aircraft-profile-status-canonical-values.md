@@ -1,4 +1,4 @@
-# ADR-008: Canonical Lowercase Values for Aircraft Profile `status`
+# ADR-010: Canonical Lowercase Values for Aircraft Profile `status`
 
 <!-- @DES-ARCH-010@ (FROM: @REQ-AC-005@, @H-011@) -->
 
