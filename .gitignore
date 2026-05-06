@@ -49,6 +49,9 @@ reports
 # Vitest
 __screenshots__/
 
+# Stryker mutation testing sandbox
+.stryker-tmp/
+
 # Vite
 *.timestamp-*-*.mjs
 

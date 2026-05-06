@@ -8,6 +8,7 @@
     ".agent/**",
     "frontend/playwright-report/**",
     "frontend/test-results/**",
+    "frontend/.stryker-tmp/**",
     ".cursor/**",
     ".tmp/**",
     ".claude/**",
