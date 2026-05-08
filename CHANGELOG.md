@@ -7,11 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Engineering
-
-- Fix `Deploy CI Reports to GitHub Pages` workflow so Vitest, coverage, Stryker and Playwright pages stop 404'ing or returning empty reports: `pnpm --filter frontend exec vitest …` (was a missing-script lookup), `pnpm test:e2e` so `bddgen` runs before Playwright (was "No tests found"), and rename Stryker `mutation.html` → `index.html` (was no directory index)
-
-## [0.3.0-alpha] - 2026-05-07
+## [0.3.0-alpha] - 2026-05-08
 
 ### Added
 
@@ -73,6 +69,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `.cursor/` developer tooling migrated to Claude Code primitives under `.claude/`: 5 audit subagents, `/audit.full` orchestrator, skill bundles for `milestone` / `e2e` / `gherkin` / `traceability` / `implement-issue`; `/issue` and `/pr.create` commands; CLAUDE.md trimmed 440 → 173 lines
 - `frontend/.stryker-tmp/` excluded from `.gitignore` and `markdownlint-cli2` ignore list
 - Milestone 3 issue recovery: backfilled `Closes #` keywords for tasks #71, #156, #157, #158, #159, #160, #161, #162, #163, #165, #166, #167, #170 whose source PRs merged without auto-close
+- `Deploy CI Reports to GitHub Pages` workflow repaired so Vitest, coverage, Stryker and Playwright pages stop 404'ing or returning empty reports: `pnpm --filter frontend exec vitest …` (was a missing-script lookup → ERR_PNPM_RECURSIVE_RUN_NO_SCRIPT), `pnpm test:e2e` so `bddgen` compiles `.feature` files before Playwright (was "No tests found"), and rename Stryker `mutation.html` → `index.html` (was no directory index under `/stryker/`)
 
 ## [0.2.0-alpha] - 2026-04-03
 
