@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Engineering
+
+- Fix `Deploy CI Reports to GitHub Pages` workflow so Vitest, coverage, Stryker and Playwright pages stop 404'ing or returning empty reports: `pnpm --filter frontend exec vitest …` (was a missing-script lookup), `pnpm test:e2e` so `bddgen` runs before Playwright (was "No tests found"), and rename Stryker `mutation.html` → `index.html` (was no directory index)
+
 ## [0.3.0-alpha] - 2026-05-07
 
 ### Added
