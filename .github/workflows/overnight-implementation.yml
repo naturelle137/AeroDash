@@ -30,6 +30,12 @@ on:
         required: false
         type: string
         default: ''
+      scope:
+        description: 'Narrow selection to one scope. "any" = all accepted issues (product + engineering).'
+        required: false
+        type: choice
+        options: [any, engineering, product]
+        default: any
       dry_run:
         description: 'Plan only — compute and report the queue, open no branches or PRs.'
         required: false
@@ -94,13 +100,22 @@ jobs:
           MS: ${{ steps.ms.outputs.milestone }}
           ISSUE_INPUT: ${{ github.event.inputs.issue_number }}
           BATCH_INPUT: ${{ github.event.inputs.batch_size }}
+          SCOPE_INPUT: ${{ github.event.inputs.scope }}
         run: |
           set -euo pipefail
           BATCH="${BATCH_INPUT:-}"; BATCH="${BATCH:-$BATCH_SIZE_DEFAULT}"
           ISSUE="${ISSUE_INPUT:-}"
+          SCOPE="${SCOPE_INPUT:-any}"
 
-          # Candidate set: open + accepted + engineering (gh ANDs --label flags).
-          gh issue list --state open --label accepted --label engineering \
+          # Candidate set: open + accepted, ANY scope by default (product + engineering).
+          # Optionally narrow to one scope label (gh ANDs --label flags).
+          LABEL_ARGS=(--label accepted)
+          REQUIRED='["accepted"]'
+          if [ "$SCOPE" = "engineering" ] || [ "$SCOPE" = "product" ]; then
+            LABEL_ARGS+=(--label "$SCOPE")
+            REQUIRED=$(jq -nc --arg s "$SCOPE" '["accepted",$s]')
+          fi
+          gh issue list --state open "${LABEL_ARGS[@]}" \
             --json number,title,labels,milestone,body,createdAt --limit 200 > candidates.json
           # All open issue numbers — used to resolve whether a dependency is unresolved.
           gh issue list --state open --json number --limit 500 --jq '[.[].number]' > open.json
@@ -111,11 +126,13 @@ jobs:
             --arg ms "${MS:-}" \
             --arg batch "$BATCH" \
             --arg issue "$ISSUE" \
+            --argjson required "$REQUIRED" \
             '{
                issues: $c[0],
                openIssueNumbers: $o[0],
                currentMilestone: (if $ms == "" then null else ($ms|tonumber) end),
                batchSize: ($batch|tonumber),
+               requiredLabels: $required,
                issueNumber: (if $issue == "" then null else ($issue|tonumber) end)
              }' > envelope.json
 

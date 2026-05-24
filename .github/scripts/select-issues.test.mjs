@@ -55,14 +55,29 @@ test('evaluateEligibility accepts a fully-qualified candidate', () => {
   assert.deepEqual(evaluateEligibility(issue(), cfg()), { eligible: true, reason: 'eligible' });
 });
 
-test('evaluateEligibility rejects closed / mislabelled / wrong-milestone / opted-out', () => {
+test('evaluateEligibility accepts a product issue (no engineering label required)', () => {
+  const product = issue({ labels: [{ name: 'accepted' }, { name: 'product' }] });
+  assert.deepEqual(evaluateEligibility(product, cfg()), { eligible: true, reason: 'eligible' });
+  // An accepted issue with no scope label at all is still eligible by default.
+  const bare = issue({ labels: [{ name: 'accepted' }] });
+  assert.equal(evaluateEligibility(bare, cfg()).eligible, true);
+});
+
+test('evaluateEligibility can be narrowed to a scope via requiredLabels', () => {
+  const product = issue({ labels: [{ name: 'accepted' }, { name: 'product' }] });
+  const narrowed = cfg({ requiredLabels: ['accepted', 'engineering'] });
+  assert.match(evaluateEligibility(product, narrowed).reason, /engineering/);
+  const eng = issue({ labels: [{ name: 'accepted' }, { name: 'engineering' }] });
+  assert.equal(evaluateEligibility(eng, narrowed).eligible, true);
+});
+
+test('evaluateEligibility rejects closed / unaccepted / wrong-milestone / opted-out', () => {
   assert.match(evaluateEligibility(issue({ state: 'closed' }), cfg()).reason, /not open/);
-  assert.match(evaluateEligibility(issue({ labels: [{ name: 'accepted' }] }), cfg()).reason, /engineering/);
   assert.match(evaluateEligibility(issue({ labels: [{ name: 'engineering' }] }), cfg()).reason, /accepted/);
   assert.match(evaluateEligibility(issue({ milestone: { number: 99 } }), cfg()).reason, /≠ current/);
   assert.match(evaluateEligibility(issue({ milestone: null }), cfg()).reason, /no milestone/);
   assert.match(
-    evaluateEligibility(issue({ labels: [{ name: 'accepted' }, { name: 'engineering' }, { name: 'automation:opt-out' }] }), cfg()).reason,
+    evaluateEligibility(issue({ labels: [{ name: 'accepted' }, { name: 'automation:opt-out' }] }), cfg()).reason,
     /opted out/,
   );
 });

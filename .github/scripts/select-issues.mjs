@@ -5,14 +5,20 @@
 // on stdin; the script prints the prioritised queue + deferral/skip reasons.
 //
 // Governed by ADR-317-DEV (autonomous AI contribution). Selection invariants:
-//   * eligible = open + `accepted` + `engineering` + current milestone + not opted-out
+//   * eligible = open + `accepted` + current milestone + not opted-out — ANY scope
+//     (product OR engineering). A run may be narrowed by passing extra
+//     `requiredLabels` (e.g. add `engineering`), but nothing is scope-limited by default.
 //   * ordering is deterministic (no random choice)
 //   * issues blocked by an unresolved dependency are deferred, never selected
 //   * every decision carries an explainable reason (run report)
 //
+// Product issues can touch the P1 Safety Core, so the safety net is the workflow
+// (Draft-only output, no auto-merge, mandatory human Lead review on P1), NOT this
+// filter — see ADR-317-DEV.
+//
 // refs #318 (parent #316)
 
-export const REQUIRED_LABELS = ['accepted', 'engineering'];
+export const REQUIRED_LABELS = ['accepted'];
 export const DEFAULT_OPT_OUT_LABEL = 'automation:opt-out';
 export const DEFAULT_BATCH_SIZE = 1;
 
@@ -236,6 +242,8 @@ async function main() {
     openIssueNumbers: input.openIssueNumbers ?? [],
     batchSize: input.batchSize ?? DEFAULT_BATCH_SIZE,
     optOutLabel: input.optOutLabel ?? DEFAULT_OPT_OUT_LABEL,
+    // Optional scope narrowing (default: just `accepted` — product + engineering).
+    requiredLabels: input.requiredLabels ?? REQUIRED_LABELS,
     issueNumber: input.issueNumber ?? null,
   };
   const result = buildQueue(input.issues ?? [], config);

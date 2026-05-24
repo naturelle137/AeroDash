@@ -76,10 +76,13 @@ following **non-negotiable invariants**:
 
 ### Selection invariants (MUST)
 
-1. **Eligibility.** Only `open` issues labelled `accepted` **and** `engineering`,
-   assigned to the **current (active) milestone**, and **not** carrying the
-   opt-out label are eligible. Issues with no milestone or a different milestone
-   are skipped.
+1. **Eligibility.** Only `open` issues labelled `accepted`, assigned to the
+   **current (active) milestone**, and **not** carrying the opt-out label are
+   eligible — across **any scope** (`product` *or* `engineering`). A run may be
+   narrowed to a single scope (e.g. engineering-only nightly), but scope is **not**
+   a safety boundary: product issues can touch the P1 Safety Core, and the safety
+   net is the Draft-only + human-Lead-review-on-P1 + no-auto-merge regime below,
+   not this filter. Issues with no milestone or a different milestone are skipped.
 2. **Deterministic, dependency-aware ordering.** Selection is computed by a
    pure, unit-tested function (no random choice). Issues blocked by an
    unresolved dependency are deferred until their prerequisites land.
@@ -91,6 +94,7 @@ following **non-negotiable invariants**:
 | Knob | Default | Where |
 | :--- | :------ | :---- |
 | Schedule | `0 2 * * *` (02:00 UTC nightly) | `overnight-implementation.yml` `on.schedule` |
+| Scope | `any` (product + engineering) | `scope` dispatch input (`any` / `engineering` / `product`) |
 | Batch size | `1` | `BATCH_SIZE` env / `batch_size` dispatch input |
 | Model | `claude-opus-4-7` | `MODEL` env / `model` dispatch input |
 | Max iterations | `3` | `MAX_ITERATIONS` env (`pr-iteration.yml`) |

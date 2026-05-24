@@ -18,16 +18,22 @@ schedule / dispatch
         │
         ▼
   select  ──► .github/scripts/select-issues.mjs ──► explainable queue (run report)
-        │       (open + accepted + engineering + current milestone, dependency-aware)
+        │       (open + accepted + current milestone, any scope, dependency-aware)
         ▼
  implement  ──► /implement-issue <n> on feature/issue-<n> ──► Draft PR → develop
 ```
 
 1. **Select** — a deterministic, dependency-aware queue is built from open issues
-   labelled `accepted` **and** `engineering` in the **current milestone**. Issues
-   blocked by an unresolved dependency, or parents with still-open child tasks,
-   are deferred. The queue (with selected / deferred / skipped reasons) is written
-   to the run's job summary.
+   labelled `accepted` in the **current milestone**, across **any scope**
+   (`product` *and* `engineering`). Issues blocked by an unresolved dependency, or
+   parents with still-open child tasks, are deferred. The queue (with selected /
+   deferred / skipped reasons) is written to the run's job summary.
+
+   > ⚠️ **Scope is not a safety boundary.** Because `product` issues are included,
+   > the bot can draft **P1 Safety-Core** code (Mass & Balance, Performance, Fuel).
+   > That is contained by the safety regime below — every such PR is a Draft and
+   > requires human **Lead Developer** review; nothing is auto-merged. Narrow a run
+   > with the `scope` input, or exclude a specific issue with `automation:opt-out`.
 2. **Implement** — for each selected issue, the bot branches `feature/issue-<n>`
    from `develop`, runs the repository's `/implement-issue` flow, and opens a
    **Draft** PR referencing the issue with `refs #<n>` (never `Closes`).
@@ -47,6 +53,7 @@ declares both triggers:
   | `issue_number` | Implement exactly this issue, bypassing selection | (blank ⇒ normal selection) |
   | `batch_size` | Max issues to implement this run | `1` |
   | `model` | Model override (e.g. `claude-opus-4-7`, `claude-sonnet-4-6`) | `claude-opus-4-7` |
+  | `scope` | Narrow selection — `any` (product + engineering), `engineering`, or `product` | `any` |
   | `dry_run` | Plan only — compute & report the queue, open no branches/PRs | `false` |
 
   Use `dry_run: true` first to preview what a run *would* do.
