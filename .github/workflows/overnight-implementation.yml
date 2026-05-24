@@ -205,8 +205,11 @@ jobs:
           - All CI gates apply unchanged; review the diffs, traceability, and tests carefully.
           EOF
           )
-          gh pr create --draft --base develop --head "feature/issue-${{ matrix.issue }}" \
+          PR_URL=$(gh pr create --draft --base develop --head "feature/issue-${{ matrix.issue }}" \
             --title "feat: ${TITLE} (refs #${{ matrix.issue }})" \
             --body "Implements the work for #${{ matrix.issue }} (refs #${{ matrix.issue }}, not Closes).
 
-          ${BODY}"
+          ${BODY}")
+          # Per-issue summary comment (run report links from the job summary).
+          gh issue comment "${{ matrix.issue }}" --body \
+            "🤖 Overnight automation opened a Draft PR for this issue: ${PR_URL}. It is a Draft pending human review (Lead review required for P1/safety-critical)."
