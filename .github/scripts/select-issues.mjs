@@ -215,7 +215,7 @@ export function renderReport({ queue, deferred, skipped }, config = {}) {
     } else {
       lines.push('| Issue | Title | Reason |');
       lines.push('| :---- | :---- | :----- |');
-      for (const r of rows) lines.push(`| #${r.number} | ${String(r.title).replace(/\|/g, '\\|')} | ${r.reason} |`);
+      for (const r of rows) lines.push(`| #${r.number} | ${String(r.title).replace(/\\/g, '\\\\').replace(/\|/g, '\\|')} | ${r.reason} |`);
     }
     lines.push('');
   };
