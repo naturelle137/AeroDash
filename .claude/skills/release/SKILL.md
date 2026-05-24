@@ -46,7 +46,10 @@ Both `main` and `develop` are protected identically, and it breaks every release
   Release and back-merge PRs close nothing (issues already closed on their `develop` feature merges) —
   use `Ref #` only, never a closing keyword, or the gate goes red.
 - **`deleteBranchOnMerge: true`.** The `release/*` branch is auto-deleted the instant it merges to
-  `main`. So Step 6 back-merges from **`main`**, never the (now-gone) release branch.
+  `main`. So back-merge the release branch into **`develop` first** (Step 4, while it still exists),
+  then merge it into **`main` last** (Step 5), which both publishes the release and disposes of the
+  branch. Do **not** route the back-merge through `main` — that was only a workaround for the branch
+  being gone.
 
 ## Always-fresh refs (read every run)
 
@@ -105,60 +108,65 @@ shipped `v0.2.0-alpha.md` / `v0.3.0-alpha.md`.
   conventional commit (e.g. `docs(repo): add v<version> release notes`), then push the branch:
   `git push origin <branch>`. (`.github/release-notes/**` and `CHANGELOG.md` are markdownlint-exempt.)
 
-## Step 4 — Publish to `main`
+## Step 4 — Back-merge to `develop` (do this FIRST, from the release branch)
+
+Merge the **release branch into `develop` before `main`**, so the branch still exists — the merge to
+`main` in Step 5 auto-deletes it. This is the canonical Gitflow back-merge (release → develop) done
+right, not the `main → develop` workaround forced by the branch being gone.
+
+- **Confirmation gate #2 (mandatory):** the next steps merge the release into `develop` and then
+  publish it to `main`. Get an explicit go-ahead **before the first merge** — once `develop` has it,
+  backing out means reverting.
+
+1. Open the back-merge PR from the release branch (reuse an open `head:<branch> base:develop` PR):
+   `gh pr create --base develop --head <branch> --title "chore(repo): back-merge release v<version> to develop"`
+   Body: short summary + `Ref #<n>` if useful. **No `Closes`/`Fixes`/`Resolves`** — it closes nothing,
+   and a closing keyword trips the DoD gate.
+2. Mergeability: `gh pr view <pr> --json mergeable,mergeStateStatus`.
+   - `MERGEABLE` → go to 3.
+   - `CONFLICTING` → resolve on an integration branch, never in `develop`:
+     `git switch -c chore/back-merge-v<version> origin/develop` → `git merge origin/<branch>` →
+     resolve (CHANGELOG = union: develop's `[Unreleased]` **plus** the released `[<version>]` section;
+     `package.json` = the released version) → commit (sign it if you can) →
+     `git push -u origin chore/back-merge-v<version>` → re-open the PR with `--head chore/back-merge-v<version>`.
+3. Wait for the required `develop` checks (`gh pr checks <pr> --watch`):
+   `Lint`, `Type Check`, `Unit Tests`, `Build`, `E2E Tests`.
+4. Merge via admin override (`develop` is locked + the review can't be self-approved):
+   `gh pr merge <pr> --merge --admin`. GitHub signs the merge commit. Delete any integration branch
+   after. **Do not delete the release branch — Step 5 needs it.**
+
+## Step 5 — Publish to `main` (LAST — this releases and disposes of the branch)
 
 1. Open the release PR using the template (`### Issue State Management` bullet removed for `main`;
-   Related Issues use `Ref #` only, never `Closes #`):
+   Related Issues use `Ref #` only, never a closing keyword):
    `gh pr create --base main --head <branch> --title "Release v<version>" --body-file <filled-template>`
    Reuse an existing open `head:<branch> base:main` PR instead of duplicating.
-2. Wait for the required check (`lint-markdown`) to pass: `gh pr checks <pr> --watch`.
-3. **Confirmation gate #2 (mandatory):** the next action publishes the release. Confirm with the user
-   before merging.
-4. Merge via admin override — see "Merging into protected branches" above:
-   `gh pr merge <pr> --merge --admin`. GitHub signs the merge commit. The `release/*` branch is
-   auto-deleted on merge (`deleteBranchOnMerge`) — that is expected; Step 6 back-merges from `main`.
-   If the operator is not an admin, stop and ask the user to merge in the UI.
+2. Wait for the required check (`lint-markdown`): `gh pr checks <pr> --watch`.
+3. Merge via admin override — see "Merging into protected branches":
+   `gh pr merge <pr> --merge --admin`. GitHub signs the merge commit, the push to `main` triggers
+   `publish-release.yml`, and the `release/*` branch auto-deletes (`deleteBranchOnMerge`) — all expected.
+   If the operator is not an admin, hand the merge to the user.
 
-## Step 5 — Verify the GitHub Release
+## Step 6 — Verify the GitHub Release
 
 The push to `main` triggers `publish-release.yml`. Watch and verify:
 
 - `gh run list --workflow="Publish GitHub Release" --limit 1` → `gh run watch <id>`
 - `gh release view v<version>` — body equals `.github/release-notes/v<version>.md`; tag exists.
 - Pre-release flag correct: `gh api repos/naturelle137/AeroDash/releases/tags/v<version> --jq .prerelease`.
-  If wrong, fix it: `gh release edit v<version> --prerelease` (pre-release) or
+  If wrong: `gh release edit v<version> --prerelease` (pre-release) or
   `gh release edit v<version> --prerelease=false --latest` (GA).
 - **Fallback** (workflow disabled/failed/no tag): create it manually —
   `gh release create v<version> --title "v<version>" --notes-file .github/release-notes/v<version>.md`
-  add `--prerelease` for a pre-release tag. (Tag first if needed: `git tag -a v<version> -m "Release v<version>" && git push origin v<version>`.)
+  add `--prerelease` for a pre-release tag. (Tag first if needed:
+  `git tag -a v<version> -m "Release v<version>" && git push origin v<version>`.)
 - Optional: attach a release asset if an audit bundle exists for this version (`gh release upload`).
-
-## Step 6 — Back-merge to `develop`
-
-Gitflow requires the released state to land back on `develop`. Source it from **`main`** — the
-release branch is gone after Step 4. **This is the step that broke before; follow it exactly.**
-
-1. `git fetch origin`.
-2. Open the back-merge PR from `main`:
-   `gh pr create --base develop --head main --title "chore(repo): back-merge release v<version> to develop"`
-   Body: short summary + `Ref #<n>` if useful. **No `Closes`/`Fixes`/`Resolves`** — the back-merge
-   closes nothing, and a closing keyword trips the DoD gate.
-3. Check mergeability: `gh pr view <pr> --json mergeable,mergeStateStatus`.
-   - `MERGEABLE` (no conflicts) → go to 5.
-   - `CONFLICTING` → resolve on an integration branch, never in `develop`:
-     `git switch -c chore/back-merge-v<version> origin/develop` → `git merge origin/main` →
-     resolve (CHANGELOG = union: develop's `[Unreleased]` **plus** the released `[<version>]` section;
-     `package.json` = the released version) → commit (sign it if you can) →
-     `git push -u origin chore/back-merge-v<version>` → re-open the PR with `--head chore/back-merge-v<version>`.
-4. Wait for the required `develop` checks to pass (`gh pr checks <pr> --watch`):
-   `Lint`, `Type Check`, `Unit Tests`, `Build`, `E2E Tests`.
-5. Merge via admin override (`develop` is locked + the review can't be self-approved):
-   `gh pr merge <pr> --merge --admin`. GitHub signs the merge commit. Delete any integration branch after.
 
 ## Step 7 — Finish
 
 - The `release/*` branch was auto-deleted on its merge to `main` (`deleteBranchOnMerge`) — nothing to
-  do; just delete any integration branch created in Step 6.
+  do; delete any integration branch created in Step 4.
+- Confirm both targets hold the release: the tag on `main`, and `develop`'s tip carries the back-merge.
 - **Optional, confirm first:** close the milestone once its issues are resolved —
   `gh api -X PATCH repos/naturelle137/AeroDash/milestones/<n> -f state=closed`.
 - Output a summary: release URL, tag, pre-release flag, `develop` synced (yes/no), milestone status.
@@ -167,11 +175,12 @@ release branch is gone after Step 4. **This is the step that broke before; follo
 
 - Never push directly to `main` or `develop` — always via PR.
 - Never `--no-verify`, never weaken or skip a gate to get green.
-- Never publish release notes the user hasn't approved (gate #1); never merge to `main` without gate #2.
+- Never publish release notes the user hasn't approved (gate #1); never start the merge sequence
+  (Step 4, `develop` → then `main`) without gate #2.
 - Never fabricate changelog/notes entries — everything traces to the dated CHANGELOG section.
 - Keep the release notes pilot-facing — defer all wording decisions to `release-notes.md`.
 - `--admin` merges are the documented bypass **only** because the maintainer is the sole code owner;
   name it each time you use it. If the operator is not an admin, hand the merge to the user.
 - Treat the release as irreversible once published: a wrong tag/body needs `gh release delete` +
-  `git push origin --delete v<version>` and a re-run — avoid it by verifying before gate #2.
+  `git push origin --delete v<version>` and a re-run — avoid it by verifying before the merge sequence.
 - Temp files (filled PR template, etc.) go in `.tmp/` only.

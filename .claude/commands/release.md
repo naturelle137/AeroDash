@@ -19,12 +19,12 @@ Invoke the `release` skill and follow it exactly:
 2. **Readiness gate** — `type-check`, `lint`, `test:unit` + `test:p1`, `build` must be green. Never weaken a gate.
 3. **Author the notes** — write/refine `.github/release-notes/v<version>.md` per `release-notes.md` (pilot-facing,
    not a dev changelog). **Get user approval** before it goes public, then commit + push the release branch.
-4. **Publish to `main`** — open the release PR (template; `Ref #` only), wait for `lint-markdown`, **confirm**,
-   then admin-merge (sole code owner can't self-approve; GitHub signs the merge commit).
-5. **Verify** — the `publish-release.yml` workflow tags + publishes from the notes file; check the release body,
-   tag, and pre-release flag; manual fallback if the workflow didn't run.
-6. **Back-merge `main`→`develop`** — both branches are locked with a self-unapprovable code-owner review,
-   so the merge is `gh pr merge --admin` (head = `main`, since the release branch auto-deletes; PR body uses
-   `Ref #`, never `Closes`, to clear the DoD gate). Then finish (cleanup, optional milestone close, release-URL summary).
+4. **Back-merge release→`develop` FIRST** — `develop` is locked with a self-unapprovable code-owner review,
+   so after **confirming**, admin-merge it (`gh pr merge --admin`; PR body uses `Ref #`, never `Closes`, to
+   clear the DoD gate). Done before `main` so the release branch still exists.
+5. **Publish to `main` LAST** — open the release PR (template; `Ref #` only), wait for `lint-markdown`, admin-merge.
+   This triggers `publish-release.yml` and auto-deletes the release branch (`deleteBranchOnMerge`).
+6. **Verify & finish** — the workflow tags + publishes from the notes file; check the release body, tag, and
+   pre-release flag (manual fallback if it didn't run); then cleanup, optional milestone close, release-URL summary.
 
 Run `/release-audit` first to clear release blockers. Pairs with `/pr.create` for PR conventions.
