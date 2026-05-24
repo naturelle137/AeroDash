@@ -63,12 +63,23 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          if [ -n "${{ steps.notes.outputs.file }}" ]; then
-            gh release create "v${{ steps.version.outputs.version }}" \
-              --title "v${{ steps.version.outputs.version }}" \
-              --notes-file "${{ steps.notes.outputs.file }}"
+          VERSION="${{ steps.version.outputs.version }}"
+          # SemVer pre-release tags carry a hyphenated identifier (e.g. -alpha,
+          # -beta, -rc). Mark those as GitHub pre-releases; tag stable versions
+          # as the latest release. gh does NOT infer this from the tag name.
+          if [[ "$VERSION" == *-* ]]; then
+            RELEASE_FLAG="--prerelease"
           else
-            gh release create "v${{ steps.version.outputs.version }}" \
-              --title "v${{ steps.version.outputs.version }}" \
-              --generate-notes
+            RELEASE_FLAG="--latest"
+          fi
+          if [ -n "${{ steps.notes.outputs.file }}" ]; then
+            gh release create "v$VERSION" \
+              --title "v$VERSION" \
+              --notes-file "${{ steps.notes.outputs.file }}" \
+              "$RELEASE_FLAG"
+          else
+            gh release create "v$VERSION" \
+              --title "v$VERSION" \
+              --generate-notes \
+              "$RELEASE_FLAG"
           fi
