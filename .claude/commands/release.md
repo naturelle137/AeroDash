@@ -23,6 +23,8 @@ Invoke the `release` skill and follow it exactly:
    then admin-merge (sole code owner can't self-approve; GitHub signs the merge commit).
 5. **Verify** — the `publish-release.yml` workflow tags + publishes from the notes file; check the release body,
    tag, and pre-release flag; manual fallback if the workflow didn't run.
-6. **Back-merge to `develop`** and finish (branch cleanup, optional milestone close, summary with the release URL).
+6. **Back-merge `main`→`develop`** — both branches are locked with a self-unapprovable code-owner review,
+   so the merge is `gh pr merge --admin` (head = `main`, since the release branch auto-deletes; PR body uses
+   `Ref #`, never `Closes`, to clear the DoD gate). Then finish (cleanup, optional milestone close, release-URL summary).
 
 Run `/release-audit` first to clear release blockers. Pairs with `/pr.create` for PR conventions.

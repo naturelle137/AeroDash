@@ -21,6 +21,33 @@ a GitHub Release whose body is `.github/release-notes/v<version>.md` (auto-detec
 pre-release flag from the SemVer suffix). **So the merge to `main` is what releases.** This
 skill prepares the inputs that workflow consumes, triggers the merge, then verifies the result.
 
+## Merging into protected branches (`main` and `develop`) — read before Steps 4 & 6
+
+Both `main` and `develop` are protected identically, and it breaks every release if you forget it:
+
+- **Locked + un-self-approvable review.** Each branch has `lock_branch: true` (read-only) and
+  requires **1 code-owner review**; the sole code owner is `@naturelle137`, who cannot approve their
+  own PR. A normal merge is therefore **always rejected** for a solo maintainer — this is what failed
+  before.
+- **Admin override is the merge mechanism.** `enforce_admins` is **false**, so the working path is
+  `gh pr merge <pr> --merge --admin` (bypasses the lock + the missing review). This is exactly how the
+  v0.2.0 back-merge (PR #138) actually merged — by admin, with `reviewDecision: REVIEW_REQUIRED` and
+  zero reviews. **Name the override every time**; it is legitimate only because the maintainer is the
+  sole code owner and authored the release. If the operator is not a repo admin, stop and hand the
+  merge to the user.
+- **Signatures are handled for you.** GitHub signs the merge commit it creates (PR #138's was
+  `verified: true`), satisfying `required_signatures` — *provided* you merge through GitHub
+  (`gh pr merge`), not a local push. Only locally-authored commits (e.g. conflict resolution) risk an
+  unsigned commit; `--admin` bypasses that too, but sign them if you can.
+- **Required checks must be green first.** `main` → `lint-markdown`. `develop` → `Lint`, `Type Check`,
+  `Unit Tests`, `Build`, `E2E Tests` (these run via `ci.yml` on PRs into `develop`). Non-required
+  checks (`pnpm audit`, `verify-dod-attestation`) may show red without blocking — note, don't gate.
+- **The DoD Attestation Gate (`dod-gate.yml`) fails any PR body containing `Closes`/`Fixes`/`Resolves #N`.**
+  Release and back-merge PRs close nothing (issues already closed on their `develop` feature merges) —
+  use `Ref #` only, never a closing keyword, or the gate goes red.
+- **`deleteBranchOnMerge: true`.** The `release/*` branch is auto-deleted the instant it merges to
+  `main`. So Step 6 back-merges from **`main`**, never the (now-gone) release branch.
+
 ## Always-fresh refs (read every run)
 
 - `docs/development/BRANCHING_STRATEGY.md` (Gitflow publish/back-merge steps)
@@ -87,12 +114,10 @@ shipped `v0.2.0-alpha.md` / `v0.3.0-alpha.md`.
 2. Wait for the required check (`lint-markdown`) to pass: `gh pr checks <pr> --watch`.
 3. **Confirmation gate #2 (mandatory):** the next action publishes the release. Confirm with the user
    before merging.
-4. Merge. `main` requires a code-owner review (sole owner `@naturelle137`, who cannot approve their
-   own PR) and signed commits, but `enforce_admins` is **false**, so an admin merge is the path:
-   `gh pr merge <pr> --merge --admin`. The GitHub merge commit is auto-signed, satisfying the
-   signature rule. **Flag explicitly** that `--admin` bypasses the review/lock — legitimate only
-   because the maintainer is the sole code owner and authored the release. If `--admin` is refused,
-   stop and ask the user to approve/merge in the UI. Do **not** delete the release branch yet.
+4. Merge via admin override — see "Merging into protected branches" above:
+   `gh pr merge <pr> --merge --admin`. GitHub signs the merge commit. The `release/*` branch is
+   auto-deleted on merge (`deleteBranchOnMerge`) — that is expected; Step 6 back-merges from `main`.
+   If the operator is not an admin, stop and ask the user to merge in the UI.
 
 ## Step 5 — Verify the GitHub Release
 
@@ -110,17 +135,30 @@ The push to `main` triggers `publish-release.yml`. Watch and verify:
 
 ## Step 6 — Back-merge to `develop`
 
-Gitflow requires the release to land back on `develop` (version bump, changelog, any release fixes).
+Gitflow requires the released state to land back on `develop`. Source it from **`main`** — the
+release branch is gone after Step 4. **This is the step that broke before; follow it exactly.**
 
-- `gh pr create --base develop --head <branch> --title "chore(repo): back-merge release v<version> to develop"`
-- Resolve conflicts deliberately: keep the released `[<version>]` changelog section and version
-  numbers, but preserve any new `## [Unreleased]` entries already on `develop`.
-- Wait for the full `develop` CI to pass (`gh pr checks <pr> --watch`).
-- Merge (code-owner review applies here too → `gh pr merge <pr> --merge --admin` for the sole maintainer).
+1. `git fetch origin`.
+2. Open the back-merge PR from `main`:
+   `gh pr create --base develop --head main --title "chore(repo): back-merge release v<version> to develop"`
+   Body: short summary + `Ref #<n>` if useful. **No `Closes`/`Fixes`/`Resolves`** — the back-merge
+   closes nothing, and a closing keyword trips the DoD gate.
+3. Check mergeability: `gh pr view <pr> --json mergeable,mergeStateStatus`.
+   - `MERGEABLE` (no conflicts) → go to 5.
+   - `CONFLICTING` → resolve on an integration branch, never in `develop`:
+     `git switch -c chore/back-merge-v<version> origin/develop` → `git merge origin/main` →
+     resolve (CHANGELOG = union: develop's `[Unreleased]` **plus** the released `[<version>]` section;
+     `package.json` = the released version) → commit (sign it if you can) →
+     `git push -u origin chore/back-merge-v<version>` → re-open the PR with `--head chore/back-merge-v<version>`.
+4. Wait for the required `develop` checks to pass (`gh pr checks <pr> --watch`):
+   `Lint`, `Type Check`, `Unit Tests`, `Build`, `E2E Tests`.
+5. Merge via admin override (`develop` is locked + the review can't be self-approved):
+   `gh pr merge <pr> --merge --admin`. GitHub signs the merge commit. Delete any integration branch after.
 
 ## Step 7 — Finish
 
-- Delete the release branch (`deleteBranchOnMerge` may auto-remove it; else `git push origin --delete <branch>`).
+- The `release/*` branch was auto-deleted on its merge to `main` (`deleteBranchOnMerge`) — nothing to
+  do; just delete any integration branch created in Step 6.
 - **Optional, confirm first:** close the milestone once its issues are resolved —
   `gh api -X PATCH repos/naturelle137/AeroDash/milestones/<n> -f state=closed`.
 - Output a summary: release URL, tag, pre-release flag, `develop` synced (yes/no), milestone status.
