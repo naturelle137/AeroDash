@@ -1,0 +1,238 @@
+name: Overnight Autonomous Implementation
+
+# Autonomously implements triaged `accepted` + `engineering` issues from the
+# current milestone and opens reviewable **Draft** PRs to `develop`.
+# Governed by ADR-317-DEV. Safety invariants enforced here:
+#   * Draft-only output, never auto-merge, never mark ready-for-review.
+#   * Selection is deterministic + dependency-aware (.github/scripts/select-issues.mjs).
+#   * Bounded effort per issue (timeout + --max-turns).
+#   * Ships DISABLED: nightly runs require repo variable AUTOMATION_ENABLED=true.
+# refs #317, #316
+
+on:
+  schedule:
+    # 02:00 UTC nightly. Only runs when AUTOMATION_ENABLED=true (see select.if).
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: 'Implement exactly this issue (bypasses selection). Leave blank for normal selection.'
+        required: false
+        type: string
+        default: ''
+      batch_size:
+        description: 'Max issues to implement this run (overrides default).'
+        required: false
+        type: string
+        default: ''
+      model:
+        description: 'Model override (e.g. claude-opus-4-7, claude-sonnet-4-6).'
+        required: false
+        type: string
+        default: ''
+      scope:
+        description: 'Narrow selection to one scope. "any" = all accepted issues (product + engineering).'
+        required: false
+        type: choice
+        options: [any, engineering, product]
+        default: any
+      dry_run:
+        description: 'Plan only — compute and report the queue, open no branches or PRs.'
+        required: false
+        type: boolean
+        default: false
+
+# Never cancel an in-flight implementation; serialise runs instead.
+concurrency:
+  group: overnight-implementation
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+env:
+  MODEL_DEFAULT: claude-opus-4-7
+  BATCH_SIZE_DEFAULT: '1'
+  # Per-issue budgets (ADR-317-DEV operational defaults).
+  MAX_TURNS: '40'
+  RUN_TIMEOUT_MINUTES: '30'
+
+jobs:
+  # ── Deterministic, dependency-aware selection + run report ──────────────────
+  select:
+    name: Select issues
+    runs-on: ubuntu-latest
+    # Kill switch: scheduled runs require AUTOMATION_ENABLED=true; manual
+    # dispatch is always allowed (explicit operator intent).
+    if: ${{ github.event_name != 'schedule' || vars.AUTOMATION_ENABLED == 'true' }}
+    outputs:
+      queue: ${{ steps.select.outputs.queue }}
+      has_work: ${{ steps.select.outputs.has_work }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - name: Resolve current milestone
+        id: ms
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ -n "${{ vars.CURRENT_MILESTONE }}" ]; then
+            MS="${{ vars.CURRENT_MILESTONE }}"
+          else
+            # Active milestone = lowest-numbered OPEN milestone (earliest unfinished release).
+            MS=$(gh api "repos/$GITHUB_REPOSITORY/milestones?state=open" --jq 'sort_by(.number)[0].number // empty')
+          fi
+          echo "Active milestone: ${MS:-<none>}"
+          echo "milestone=$MS" >> "$GITHUB_OUTPUT"
+
+      - name: Build selection queue
+        id: select
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MS: ${{ steps.ms.outputs.milestone }}
+          ISSUE_INPUT: ${{ github.event.inputs.issue_number }}
+          BATCH_INPUT: ${{ github.event.inputs.batch_size }}
+          SCOPE_INPUT: ${{ github.event.inputs.scope }}
+        run: |
+          set -euo pipefail
+          BATCH="${BATCH_INPUT:-}"; BATCH="${BATCH:-$BATCH_SIZE_DEFAULT}"
+          ISSUE="${ISSUE_INPUT:-}"
+          SCOPE="${SCOPE_INPUT:-any}"
+
+          # Candidate set: open + accepted, ANY scope by default (product + engineering).
+          # Optionally narrow to one scope label (gh ANDs --label flags).
+          LABEL_ARGS=(--label accepted)
+          REQUIRED='["accepted"]'
+          if [ "$SCOPE" = "engineering" ] || [ "$SCOPE" = "product" ]; then
+            LABEL_ARGS+=(--label "$SCOPE")
+            REQUIRED=$(jq -nc --arg s "$SCOPE" '["accepted",$s]')
+          fi
+          gh issue list --state open "${LABEL_ARGS[@]}" \
+            --json number,title,labels,milestone,body,createdAt --limit 200 > candidates.json
+          # All open issue numbers — used to resolve whether a dependency is unresolved.
+          gh issue list --state open --json number --limit 500 --jq '[.[].number]' > open.json
+
+          jq -n \
+            --slurpfile c candidates.json \
+            --slurpfile o open.json \
+            --arg ms "${MS:-}" \
+            --arg batch "$BATCH" \
+            --arg issue "$ISSUE" \
+            --argjson required "$REQUIRED" \
+            '{
+               issues: $c[0],
+               openIssueNumbers: $o[0],
+               currentMilestone: (if $ms == "" then null else ($ms|tonumber) end),
+               batchSize: ($batch|tonumber),
+               requiredLabels: $required,
+               issueNumber: (if $issue == "" then null else ($issue|tonumber) end)
+             }' > envelope.json
+
+          node .github/scripts/select-issues.mjs < envelope.json > result.json
+
+          jq -r .report result.json >> "$GITHUB_STEP_SUMMARY"
+          echo "queue=$(jq -c '[.queue[].number]' result.json)" >> "$GITHUB_OUTPUT"
+          echo "has_work=$(jq -r 'if (.queue|length) > 0 then "true" else "false" end' result.json)" >> "$GITHUB_OUTPUT"
+
+  # ── Implement each selected issue → Draft PR (serialised) ───────────────────
+  implement:
+    name: Implement #${{ matrix.issue }}
+    needs: select
+    if: ${{ needs.select.outputs.has_work == 'true' && github.event.inputs.dry_run != 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      max-parallel: 1
+      fail-fast: false
+      matrix:
+        issue: ${{ fromJSON(needs.select.outputs.queue) }}
+    steps:
+      - name: Checkout develop
+        uses: actions/checkout@v5
+        with:
+          ref: develop
+          fetch-depth: 0
+          # A PAT (or GitHub App token) is required so the Draft PR triggers CI
+          # and the reviewer bot; the default GITHUB_TOKEN cannot trigger them.
+          token: ${{ secrets.AUTOMATION_PAT || secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - name: Create feature branch
+        run: |
+          git config user.name 'aerodash-bot'
+          git config user.email 'aerodash-bot@users.noreply.github.com'
+          git switch -c "feature/issue-${{ matrix.issue }}"
+          echo "BASE_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - name: Implement via Claude Code
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          # Swap the line above for the API-key path if preferred:
+          #   anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            You are running unattended in CI on branch feature/issue-${{ matrix.issue }}.
+
+            Task: implement GitHub issue #${{ matrix.issue }} by following the
+            repository's `/implement-issue ${{ matrix.issue }}` workflow exactly.
+
+            Before committing, run the local pipeline and make it pass so CI is green
+            on the first push: `pnpm install --frozen-lockfile`, `pnpm lint`,
+            `pnpm --filter frontend type-check`, `pnpm test:unit`,
+            `pnpm test:integration`, `pnpm build`. Fix any failures you introduced.
+
+            Hard rules (ADR-317-DEV — do not violate):
+            - Honour every quality gate. NEVER use --no-verify or bypass Husky/ESLint/tests.
+            - Do NOT edit files under .github/workflows/**, repository secrets, or
+              security configuration. Stay within product, docs, trace, and test paths.
+            - Commit your work on the CURRENT branch with Conventional Commits.
+            - Do NOT open a pull request and do NOT mark anything ready for review —
+              the workflow opens a Draft PR; the ready-gate marks it Ready automatically
+              once CI is green and the automated review is clean.
+            - If you cannot complete the issue safely, stop and leave a clear summary
+              of what remains; do not force a partial or unsafe change.
+          claude_args: |
+            --model ${{ github.event.inputs.model || env.MODEL_DEFAULT }}
+            --max-turns ${{ env.MAX_TURNS }}
+
+      - name: Push branch & open Draft PR
+        env:
+          GH_TOKEN: ${{ secrets.AUTOMATION_PAT || secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ "$(git rev-parse HEAD)" = "$BASE_SHA" ]; then
+            echo "No commits produced for #${{ matrix.issue }} — skipping PR."
+            gh issue comment "${{ matrix.issue }}" --body \
+              "🤖 Overnight automation produced no changes for this issue; left untouched for human attention."
+            exit 0
+          fi
+          git push --set-upstream origin "feature/issue-${{ matrix.issue }}"
+          TITLE=$(gh issue view "${{ matrix.issue }}" --json title --jq .title)
+          BODY=$(cat <<'EOF'
+          🤖 **Autonomous draft** generated by the overnight implementation workflow (ADR-317-DEV).
+
+          - This PR is a **Draft** and must be reviewed by a human before merge.
+          - P1 (`frontend/src/core/`) / `safety-critical` changes require **Lead Developer** approval — automated review is an aid, never a substitute.
+          - All CI gates apply unchanged; review the diffs, traceability, and tests carefully.
+          EOF
+          )
+          PR_URL=$(gh pr create --draft --base develop --head "feature/issue-${{ matrix.issue }}" \
+            --title "feat: ${TITLE} (refs #${{ matrix.issue }})" \
+            --body "Implements the work for #${{ matrix.issue }} (refs #${{ matrix.issue }}, not Closes).
+
+          ${BODY}")
+          # Per-issue summary comment (run report links from the job summary).
+          gh issue comment "${{ matrix.issue }}" --body \
+            "🤖 Overnight automation opened a Draft PR for this issue: ${PR_URL}. It is a Draft pending human review (Lead review required for P1/safety-critical)."

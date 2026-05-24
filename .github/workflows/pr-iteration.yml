@@ -1,0 +1,213 @@
+name: Bounded PR Iteration & Ready Gate
+
+# Drives BOT-authored Draft PRs (feature/issue-*) toward "Ready for review" while
+# ingesting BOTH reviewer feedback and CI/pipeline results. Governed by ADR-317-DEV.
+#
+# State machine (same-repo bot Draft PRs only):
+#   * review requested changes  OR  CI failed  -> correction (ingests review + CI
+#     logs), bounded to MAX_CORRECTIONS rounds; on exhaustion -> stay Draft + summary.
+#   * CI green AND a clean (non-changes-requested) review exists -> mark Ready + comment.
+#   * any uncertainty (checks pending, no review yet, red CI) -> stay Draft (fail-safe).
+#
+# Safety: never merges; only marks Ready when CI is green; P1/safety-critical still
+# requires human Lead review (branch protection) and is never auto-merged.
+# refs #320, #316
+
+on:
+  pull_request_review:
+    types: [submitted]
+  workflow_run:
+    workflows: ['CI']
+    types: [completed]
+
+# Serialise per branch across BOTH trigger types so the correction budget is honoured.
+concurrency:
+  group: pr-iteration-${{ github.event.pull_request.head.ref || github.event.workflow_run.head_branch }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+  checks: read
+  statuses: read
+
+env:
+  MODEL: claude-opus-4-7
+  MAX_CORRECTIONS: '2'
+  MAX_TURNS: '40'
+
+jobs:
+  orchestrate:
+    name: Iterate / ready-gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      # ── Decide what to do from the triggering event + live PR/CI/review state ──
+      - name: Resolve action
+        id: ctx
+        uses: actions/github-script@v9
+        env:
+          MAX_CORRECTIONS: ${{ env.MAX_CORRECTIONS }}
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const slug = `${owner}/${repo}`;
+            const max = Number(process.env.MAX_CORRECTIONS);
+            const out = (o) => { for (const [k, v] of Object.entries(o)) core.setOutput(k, String(v)); };
+            const none = (why) => { core.info(`No action: ${why}`); out({ action: 'none' }); };
+
+            // 1) Identify the PR + the trigger reason ('feedback' | 'maybe_ready' | null).
+            let prNumber, headRef, headSha, reason = null;
+            if (context.eventName === 'pull_request_review') {
+              const pr = context.payload.pull_request;
+              if (pr.head.repo.full_name !== slug) return none('fork PR');
+              prNumber = pr.number; headRef = pr.head.ref; headSha = pr.head.sha;
+              reason = context.payload.review.state === 'changes_requested' ? 'feedback' : 'maybe_ready';
+            } else { // workflow_run
+              const wr = context.payload.workflow_run;
+              if (wr.event !== 'pull_request') return none('CI not from a PR');
+              if (wr.head_repository.full_name !== slug) return none('fork PR');
+              headRef = wr.head_branch; headSha = wr.head_sha;
+              const prs = await github.rest.pulls.list({ owner, repo, state: 'open', head: `${owner}:${headRef}` });
+              if (!prs.data.length) return none('no open PR for branch');
+              prNumber = prs.data[0].number;
+              reason = wr.conclusion === 'success' ? 'maybe_ready'
+                     : wr.conclusion === 'failure' ? 'feedback' : null;
+            }
+            if (!reason) return none('uninteresting conclusion');
+            if (!headRef || !headRef.startsWith('feature/issue-')) return none('not a bot branch');
+
+            // 2) Live PR state.
+            const { data: pr } = await github.rest.pulls.get({ owner, repo, pull_number: prNumber });
+            if (!pr.draft && reason === 'maybe_ready') return none('already ready');
+
+            // 3) Correction budget (counted via hidden comment markers).
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner, repo, issue_number: prNumber, per_page: 100,
+            });
+            const used = comments.filter((c) => (c.body || '').includes('<!-- auto-correction:')).length;
+
+            // 4) Latest review verdict.
+            const reviews = await github.paginate(github.rest.pulls.listReviews, {
+              owner, repo, pull_number: prNumber, per_page: 100,
+            });
+            const decisive = reviews.filter((r) => ['CHANGES_REQUESTED', 'APPROVED'].includes(r.state));
+            const last = decisive[decisive.length - 1];
+            const reviewClean = Boolean(last) && last.state !== 'CHANGES_REQUESTED';
+
+            // 5) CI green = all check runs on the head SHA done with no failure.
+            const checks = await github.paginate(github.rest.checks.listForRef, {
+              owner, repo, ref: headSha, per_page: 100,
+            });
+            const bad = new Set(['failure', 'cancelled', 'timed_out', 'action_required']);
+            const pending = checks.some((c) => c.status !== 'completed');
+            const failed = checks.some((c) => bad.has(c.conclusion));
+            const ciGreen = checks.length > 0 && !pending && !failed;
+
+            // 6) Decide.
+            let action = 'none';
+            if (reason === 'feedback') {
+              action = used < max ? 'correct' : 'handoff';
+            } else if (pr.draft && ciGreen && reviewClean) {
+              action = 'ready';
+            }
+            core.info(`reason=${reason} draft=${pr.draft} ciGreen=${ciGreen} reviewClean=${reviewClean} used=${used}/${max} -> ${action}`);
+            out({ action, pr: prNumber, head_ref: headRef, next: used + 1, max });
+
+      # ── Flip to Ready: CI green + clean review ──────────────────────────────────
+      - name: Mark Ready for review
+        if: ${{ steps.ctx.outputs.action == 'ready' }}
+        env:
+          GH_TOKEN: ${{ secrets.AUTOMATION_PAT || secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          gh pr ready "${{ steps.ctx.outputs.pr }}"
+          gh pr comment "${{ steps.ctx.outputs.pr }}" --body \
+            "🤖 CI is green and the automated review is clean — **marked Ready for your review**. Nothing is auto-merged; P1/safety-critical still requires human Lead approval (ADR-317-DEV)."
+
+      # ── Hand off: correction budget exhausted ───────────────────────────────────
+      - name: Hand off to humans
+        if: ${{ steps.ctx.outputs.action == 'handoff' }}
+        env:
+          GH_TOKEN: ${{ secrets.AUTOMATION_PAT || secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          gh pr comment "${{ steps.ctx.outputs.pr }}" --body \
+            "🤖 **Automated cycle complete — awaiting your review.** After ${{ steps.ctx.outputs.max }} correction round(s) plus a final review, outstanding feedback or CI failures remain. Left as a Draft; no further automated corrections will run (ADR-317-DEV)."
+
+      # ── Correct: address review feedback AND/OR CI failures ─────────────────────
+      - name: Checkout PR branch
+        if: ${{ steps.ctx.outputs.action == 'correct' }}
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ steps.ctx.outputs.head_ref }}
+          fetch-depth: 0
+          token: ${{ secrets.AUTOMATION_PAT || secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        if: ${{ steps.ctx.outputs.action == 'correct' }}
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - name: Ensure Draft & configure git
+        if: ${{ steps.ctx.outputs.action == 'correct' }}
+        env:
+          GH_TOKEN: ${{ secrets.AUTOMATION_PAT || secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          gh pr ready "${{ steps.ctx.outputs.pr }}" --undo || true   # back to Draft while correcting
+          git config user.name 'aerodash-bot'
+          git config user.email 'aerodash-bot@users.noreply.github.com'
+          echo "BASE_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - name: Correct via Claude Code
+        if: ${{ steps.ctx.outputs.action == 'correct' }}
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          # API-key alternative: anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            You are correcting Draft PR #${{ steps.ctx.outputs.pr }}
+            (correction ${{ steps.ctx.outputs.next }} of ${{ steps.ctx.outputs.max }}).
+
+            Address ALL outstanding automated feedback on the CURRENT branch:
+            1. The latest PR review's requested changes (read it and its line comments).
+            2. Any failing CI checks — inspect them with `gh pr checks ${{ steps.ctx.outputs.pr }}`
+               and `gh run view --log-failed` and fix the root cause.
+
+            Before committing, run the local pipeline and make it pass:
+            `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm --filter frontend type-check`,
+            `pnpm test:unit`, `pnpm test:integration`, `pnpm build`. Commit on the CURRENT branch.
+
+            Hard rules (ADR-317-DEV — do not violate):
+            - NEVER use --no-verify or bypass any gate.
+            - Do NOT edit .github/workflows/**, secrets, or security configuration.
+            - Do NOT merge, do NOT mark the PR ready-for-review — leave it Draft;
+              the ready-gate flips it automatically once CI is green and review is clean.
+            - For a pre-existing/unrelated CI failure (out of scope), do NOT hack around
+              it — file a deduplicated `Bug` (a new one only if none open tracks it;
+              otherwise comment on the existing one) and note it in the PR.
+            - If you cannot safely converge, stop and summarise what remains.
+          claude_args: |
+            --model ${{ env.MODEL }}
+            --max-turns ${{ env.MAX_TURNS }}
+
+      - name: Push correction & record round
+        if: ${{ steps.ctx.outputs.action == 'correct' }}
+        env:
+          GH_TOKEN: ${{ secrets.AUTOMATION_PAT || secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          PR='${{ steps.ctx.outputs.pr }}'
+          N='${{ steps.ctx.outputs.next }}'
+          MAX='${{ steps.ctx.outputs.max }}'
+          if [ "$(git rev-parse HEAD)" = "$BASE_SHA" ]; then
+            gh pr comment "$PR" --body \
+              "<!-- auto-correction:${N} --> 🤖 Correction ${N}/${MAX}: no actionable change could be made automatically. Awaiting your review."
+            exit 0
+          fi
+          git push origin "HEAD:${{ steps.ctx.outputs.head_ref }}"
+          gh pr comment "$PR" --body \
+            "<!-- auto-correction:${N} --> 🤖 Correction ${N}/${MAX}: pushed a revision addressing review feedback and/or CI failures. CI + re-review will run automatically; the PR is marked Ready once green and clean. Still a Draft — human Lead review required for P1/safety-critical."
