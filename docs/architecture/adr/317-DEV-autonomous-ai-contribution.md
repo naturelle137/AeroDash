@@ -59,25 +59,32 @@ following **non-negotiable invariants**:
 
 ### Safety invariants (MUST)
 
-1. **Draft-only.** Every PR the automation opens is a **Draft** targeting
-   `develop`. The agent never marks a PR ready-for-review and never merges.
-2. **No auto-merge anywhere.** No workflow in this feature enables auto-merge.
+1. **Draft until green, then Ready.** Every PR the automation opens is a **Draft**
+   targeting `develop`. A *ready-gate* marks it **Ready for review only when CI is
+   green and the automated review is clean**; it stays Draft otherwise, and is
+   **never** marked Ready while CI is red. The agent never merges. (CI already runs
+   on Drafts; the Draft state is a work-in-progress signal, not a CI gate.) Safety
+   therefore rests on the human-review + no-auto-merge invariants below, plus the
+   ready⇒green guarantee — not on Draft status alone.
+2. **No auto-merge anywhere.** No workflow in this feature enables auto-merge;
+   merge remains gated by branch protection (required human review).
 3. **Human Lead review on P1.** Any PR touching `frontend/src/core/` or carrying
-   `safety-critical` requires human Lead Developer approval (CONTRIBUTING §7).
-   The automated reviewer is an **aid, never a substitute**, and is forbidden
-   from approving such PRs.
+   `safety-critical` requires human Lead Developer approval (CONTRIBUTING §7) —
+   marking a PR Ready does **not** satisfy this. The automated reviewer is an
+   **aid, never a substitute**, and is forbidden from approving such PRs.
 4. **Gates are never bypassed.** Husky, ESLint (incl. `[P1-ISOLATION]`),
    traceability tags, unit/integration tests, and the coverage tiers
    (P1 90 % / P2 80 % / P3 60 %, per `docs/testing/TESTING.md`) run unchanged.
    `--no-verify` is forbidden. Failed CI leaves a diagnosed Draft PR.
-5. **Bounded effort.** The implement→review→correct loop is capped at
+5. **Bounded effort, CI-aware.** The implement→review→correct loop is capped at
    `MAX_CORRECTIONS` automated correction rounds (default 2), each followed by a
-   re-review, plus a per-round time/turn budget. The loop exits early to await
-   human review as soon as a review returns no Blocker/Major findings; once the
-   cap is reached a final review runs and the Draft PR is handed to humans with a
-   summary. No infinite retries. The full flow is:
-   `implement → review → correction → review → (minor⇒stop | major⇒correction →
-   final review) → stop, await human review`.
+   re-review, plus a per-round time/turn budget. A correction is triggered by a
+   review requesting changes **or a failing CI run**, and ingests **both** the
+   review feedback and the failing CI logs. The loop exits early to await human
+   review as soon as a review returns no Blocker/Major findings; once the cap is
+   reached the Draft PR is handed to humans with a summary. No infinite retries.
+   Happy path: `implement → CI+review → (green & clean ⇒ mark Ready)`. With
+   feedback: `… → correction → CI+review → (minor/green ⇒ Ready | major/red ⇒ correction) → final review → Ready or Draft-handoff`.
 
 ### Selection invariants (MUST)
 

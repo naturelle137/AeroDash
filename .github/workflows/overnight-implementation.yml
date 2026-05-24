@@ -188,13 +188,19 @@ jobs:
             Task: implement GitHub issue #${{ matrix.issue }} by following the
             repository's `/implement-issue ${{ matrix.issue }}` workflow exactly.
 
+            Before committing, run the local pipeline and make it pass so CI is green
+            on the first push: `pnpm install --frozen-lockfile`, `pnpm lint`,
+            `pnpm --filter frontend type-check`, `pnpm test:unit`,
+            `pnpm test:integration`, `pnpm build`. Fix any failures you introduced.
+
             Hard rules (ADR-317-DEV — do not violate):
             - Honour every quality gate. NEVER use --no-verify or bypass Husky/ESLint/tests.
             - Do NOT edit files under .github/workflows/**, repository secrets, or
               security configuration. Stay within product, docs, trace, and test paths.
             - Commit your work on the CURRENT branch with Conventional Commits.
             - Do NOT open a pull request and do NOT mark anything ready for review —
-              the workflow opens a Draft PR after you finish.
+              the workflow opens a Draft PR; the ready-gate marks it Ready automatically
+              once CI is green and the automated review is clean.
             - If you cannot complete the issue safely, stop and leave a clear summary
               of what remains; do not force a partial or unsafe change.
           claude_args: |

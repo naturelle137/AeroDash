@@ -21,6 +21,13 @@ schedule / dispatch
         │       (open + accepted + current milestone, any scope, dependency-aware)
         ▼
  implement  ──► /implement-issue <n> on feature/issue-<n> ──► Draft PR → develop
+        │
+        ▼
+ CI + automated review ◄────────────┐
+        │                           │ correction (≤ MAX_CORRECTIONS, ingests
+        ├─ red CI / changes-req. ───┘ review feedback + CI logs)
+        │
+        └─ CI green + review clean ─► mark Ready for review ─► your review
 ```
 
 1. **Select** — a deterministic, dependency-aware queue is built from open issues
@@ -113,33 +120,47 @@ authored by the overnight bot or a human collaborator.
 Reviewer model defaults to `claude-opus-4-7` (override via the `REVIEW_MODEL`
 env in the workflow).
 
-## Bounded implement↔review loop
+## Bounded iteration & ready-gate
 
-[`pr-iteration.yml`](../../.github/workflows/pr-iteration.yml) closes the loop for
-**bot-authored Draft PRs** (`feature/issue-*`). The exact flow:
+[`pr-iteration.yml`](../../.github/workflows/pr-iteration.yml) drives
+**bot-authored Draft PRs** (`feature/issue-*`) toward Ready, ingesting **both**
+reviewer feedback and **CI/pipeline** results. It triggers on review submission
+**and on CI completion** (`workflow_run`). The flow:
 
 ```text
-implement → review #1 → correction #1 → review #2
-   ├─ no / only-minor findings  → STOP, wait for your review
-   └─ major / blocker findings  → correction #2 → review #3 (final) → STOP, wait for your review
+implement → CI + review
+   ├─ CI green & review clean (no Blocker/Major) ───► mark Ready for your review
+   ├─ review changes-requested OR CI failed ───────► correction (ingests review
+   │      (≤ MAX_CORRECTIONS rounds)                 comments + failing CI logs) → CI + review …
+   └─ cap reached, still not green/clean ──────────► stay Draft + "awaiting your review" summary
 ```
 
-- **Severity early-exit:** the reviewer only emits `changes_requested` for
-  **Blocker/Major** findings; **Minor/Nit** findings get a `COMMENT` review, which
-  does *not* trigger a correction — so the PR is left for you the moment a review
-  comes back clean or only-minor.
-- **Bounded:** at most `MAX_CORRECTIONS` automated correction rounds (default
-  **2**), each followed by a re-review, counted via hidden
-  `<!-- auto-correction:N -->` comment markers (no repo-label setup needed), plus
-  a per-round `timeout-minutes` (time budget) and `--max-turns` (turn budget).
-- **Hand-off:** once the cap is reached, the final review still runs, then a
-  "awaiting your review" comment is posted and **no further automated corrections
-  run** — you take over. No infinite retries.
-- **Out-of-scope failures:** if a CI failure is pre-existing/unrelated, the bot
-  files a **deduplicated `Bug`** issue (linking an existing one if present)
-  instead of hacking around it. In-scope failures are fixed within the loop.
-- **Safety:** the loop never merges and never un-drafts the PR; P1 /
-  `safety-critical` PRs always remain Draft pending human Lead review.
+- **CI runs on Drafts.** GitHub runs the full pipeline on Draft PRs; Draft only
+  blocks *merging*. So the bot gets pipeline feedback while Draft, and you never
+  see a PR marked Ready with red CI.
+- **Ready-gate:** the PR is flipped to **Ready for review only when CI is green
+  *and* a clean (non-changes-requested) review exists**. Any uncertainty (checks
+  pending, no review yet, red CI) → it stays Draft (fail-safe). A correction
+  temporarily flips it back to Draft.
+- **Severity early-exit:** the reviewer emits `changes_requested` only for
+  **Blocker/Major** findings; **Minor/Nit** get a `COMMENT` (no correction).
+- **Bounded:** at most `MAX_CORRECTIONS` correction rounds (default **2**),
+  counted via hidden `<!-- auto-correction:N -->` markers, plus per-round
+  `timeout-minutes` and `--max-turns` budgets. Cap reached → handed to you as a
+  Draft with a summary; no infinite retries.
+- **CI-aware corrections:** a correction is triggered by a `changes_requested`
+  review **or a failing CI run**, and fixes both; the implementer also runs the
+  local pipeline before committing so CI is usually green on the first push.
+- **Out-of-scope failures:** a pre-existing/unrelated CI failure is filed as a
+  **deduplicated `Bug`** (linking an existing one if present), not hacked around.
+- **Safety:** the loop never merges; marking Ready never bypasses required human
+  review; P1 / `safety-critical` PRs still need human **Lead** approval (branch
+  protection), and the reviewer never approves them.
+
+> **Requires `AUTOMATION_PAT`.** The ready-gate/correction loop reacts to CI via
+> `workflow_run` and pushes follow-up commits; use a PAT (or GitHub App token) so
+> those pushes themselves re-trigger CI and review. This path leans on
+> `workflow_run` timing — watch the first few live runs.
 
 Tune `MAX_CORRECTIONS` empirically (token efficiency vs. convergence) via the env
 in the workflow.
