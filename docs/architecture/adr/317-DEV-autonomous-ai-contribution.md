@@ -70,9 +70,14 @@ following **non-negotiable invariants**:
    traceability tags, unit/integration tests, and the coverage tiers
    (P1 90 % / P2 80 % / P3 60 %, per `docs/testing/TESTING.md`) run unchanged.
    `--no-verify` is forbidden. Failed CI leaves a diagnosed Draft PR.
-5. **Bounded effort.** The implement↔review loop is capped at `MAX_ITERATIONS`
-   and a per-issue time budget; on exhaustion the Draft PR is handed to humans
-   with a summary. No infinite retries.
+5. **Bounded effort.** The implement→review→correct loop is capped at
+   `MAX_CORRECTIONS` automated correction rounds (default 2), each followed by a
+   re-review, plus a per-round time/turn budget. The loop exits early to await
+   human review as soon as a review returns no Blocker/Major findings; once the
+   cap is reached a final review runs and the Draft PR is handed to humans with a
+   summary. No infinite retries. The full flow is:
+   `implement → review → correction → review → (minor⇒stop | major⇒correction →
+   final review) → stop, await human review`.
 
 ### Selection invariants (MUST)
 
@@ -97,7 +102,7 @@ following **non-negotiable invariants**:
 | Scope | `any` (product + engineering) | `scope` dispatch input (`any` / `engineering` / `product`) |
 | Batch size | `1` | `BATCH_SIZE` env / `batch_size` dispatch input |
 | Model | `claude-opus-4-7` | `MODEL` env / `model` dispatch input |
-| Max iterations | `3` | `MAX_ITERATIONS` env (`pr-iteration.yml`) |
+| Max corrections | `2` | `MAX_CORRECTIONS` env (`pr-iteration.yml`) |
 | Per-issue time budget | `30` min | `timeout-minutes` per job |
 | Per-issue turn budget | `40` turns | `--max-turns` in `claude_args` |
 | Opt-out label | `automation:opt-out` | selection filter |

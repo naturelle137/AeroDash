@@ -116,23 +116,32 @@ env in the workflow).
 ## Bounded implement↔review loop
 
 [`pr-iteration.yml`](../../.github/workflows/pr-iteration.yml) closes the loop for
-**bot-authored Draft PRs**. When the reviewer submits a `changes_requested`
-review on a Draft PR whose branch is `feature/issue-*`, the implementer revises
-the branch and pushes; the new push re-triggers review, and so on.
+**bot-authored Draft PRs** (`feature/issue-*`). The exact flow:
 
-- **Bounded:** capped at `MAX_ITERATIONS` (default **3**), counted via hidden
-  `<!-- auto-iter:N -->` comment markers (no repo-label setup needed), plus a
-  per-iteration `timeout-minutes` (time budget) and `--max-turns` (turn budget).
-- **Stop conditions:** the reviewer stops requesting changes (loop ends
-  naturally), **or** the cap/budget is reached — at which point a handoff comment
-  is posted and **no further automated revisions run**; a human takes over.
+```text
+implement → review #1 → correction #1 → review #2
+   ├─ no / only-minor findings  → STOP, wait for your review
+   └─ major / blocker findings  → correction #2 → review #3 (final) → STOP, wait for your review
+```
+
+- **Severity early-exit:** the reviewer only emits `changes_requested` for
+  **Blocker/Major** findings; **Minor/Nit** findings get a `COMMENT` review, which
+  does *not* trigger a correction — so the PR is left for you the moment a review
+  comes back clean or only-minor.
+- **Bounded:** at most `MAX_CORRECTIONS` automated correction rounds (default
+  **2**), each followed by a re-review, counted via hidden
+  `<!-- auto-correction:N -->` comment markers (no repo-label setup needed), plus
+  a per-round `timeout-minutes` (time budget) and `--max-turns` (turn budget).
+- **Hand-off:** once the cap is reached, the final review still runs, then a
+  "awaiting your review" comment is posted and **no further automated corrections
+  run** — you take over. No infinite retries.
 - **Out-of-scope failures:** if a CI failure is pre-existing/unrelated, the bot
   files a **deduplicated `Bug`** issue (linking an existing one if present)
   instead of hacking around it. In-scope failures are fixed within the loop.
 - **Safety:** the loop never merges and never un-drafts the PR; P1 /
   `safety-critical` PRs always remain Draft pending human Lead review.
 
-Tune `MAX_ITERATIONS` empirically (token efficiency vs. convergence) via the env
+Tune `MAX_CORRECTIONS` empirically (token efficiency vs. convergence) via the env
 in the workflow.
 
 ## Guardrails (enforced by design)
