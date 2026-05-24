@@ -1,0 +1,1610 @@
+AC Core — Aircraft Schema M3 fields (Unit)
+  UT-AC-CORE-001
+    title: defaults status to Draft when status is omitted
+    impl:
+      - IMP-AC-CORE-002
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AC-CORE-002
+    title: accepts status = Verified
+    impl:
+      - IMP-AC-CORE-002
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AC-CORE-003
+    title: rejects an invalid status value
+    impl:
+      - IMP-AC-CORE-002
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AC-CORE-004
+    title: defaults schemaVersion to 1 when omitted
+    impl:
+      - IMP-AC-CORE-002
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AC-CORE-005
+    title: rejects schemaVersion = 0 (must be positive integer)
+    impl:
+      - IMP-AC-CORE-002
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AC-CORE-006
+    title: defaults passengerProfiles to empty array when omitted
+    impl:
+      - IMP-AC-CORE-001
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AC-CORE-007
+    title: accepts valid passengerProfiles array
+    impl:
+      - IMP-AC-CORE-001
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AC-CORE-008
+    title: rejects a passengerProfile with standardWeight = 0
+    impl:
+      - IMP-AC-CORE-001
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AC-CORE-009
+    title: rejects a passengerProfile with an invalid unit
+    impl:
+      - IMP-AC-CORE-001
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+AC Store — ICAO Registration Validator (Unit)
+  UT-AC-STORE-001
+    title: validates D-EBPN as valid ICAO registration
+    impl:
+      - IMP-AC-STORE-002
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.validator.spec.ts
+
+  UT-AC-STORE-002
+    title: rejects "123" as invalid registration (must start with a letter)
+    impl:
+      - IMP-AC-STORE-002
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.validator.spec.ts
+
+  UT-AC-STORE-003
+    title: accepts N12345 (US-style registration)
+    impl:
+      - IMP-AC-STORE-002
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.validator.spec.ts
+
+  UT-AC-STORE-004
+    title: accepts G-ABCD (UK-style registration)
+    impl:
+      - IMP-AC-STORE-002
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.validator.spec.ts
+
+  UT-AC-STORE-005
+    title: rejects empty string
+    impl:
+      - IMP-AC-STORE-002
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.validator.spec.ts
+
+  UT-AC-STORE-006
+    title: rejects a single character (too short)
+    impl:
+      - IMP-AC-STORE-002
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.validator.spec.ts
+
+  UT-AC-STORE-007
+    title: rejects 8 characters (too long)
+    impl:
+      - IMP-AC-STORE-002
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.validator.spec.ts
+
+  UT-AC-STORE-008
+    title: rejects registration with special characters
+    impl:
+      - IMP-AC-STORE-002
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.validator.spec.ts
+
+  UT-AC-STORE-009
+    title: accepts 2-character registration (minimum valid length)
+    impl:
+      - IMP-AC-STORE-002
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.validator.spec.ts
+
+  UT-AC-STORE-010
+    title: accepts 7-character registration (maximum valid length)
+    impl:
+      - IMP-AC-STORE-002
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.validator.spec.ts
+
+  UT-AC-STORE-011
+    title: detects duplicate registration in fleet (case-insensitive)
+    impl:
+      - IMP-AC-STORE-003
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.validator.spec.ts
+
+  UT-AC-STORE-012
+    title: detects duplicate registration case-insensitively
+    impl:
+      - IMP-AC-STORE-003
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.validator.spec.ts
+
+  UT-AC-STORE-013
+    title: returns false when registration is not in fleet
+    impl:
+      - IMP-AC-STORE-003
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.validator.spec.ts
+
+  UT-AC-STORE-014
+    title: allows same reg when excludeId matches the profile owning that registration
+    impl:
+      - IMP-AC-STORE-003
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.validator.spec.ts
+
+  UT-AC-STORE-015
+    title: still detects duplicate when excludeId does not match the conflicting profile
+    impl:
+      - IMP-AC-STORE-003
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.validator.spec.ts
+
+  UT-AC-STORE-016
+    title: returns false when profiles array is empty
+    impl:
+      - IMP-AC-STORE-003
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.validator.spec.ts
+
+AC Store — Profile Import (Unit)
+  UT-AC-STORE-017
+    title: creates Draft profile from valid exchange file
+    impl:
+      - IMP-AC-STORE-004
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.import.spec.ts
+
+  UT-AC-STORE-018
+    title: assigns a new UUID on import (does not reuse the original id)
+    impl:
+      - IMP-AC-STORE-004
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.import.spec.ts
+
+  UT-AC-STORE-019
+    title: forces status = Draft even when exchange file has status = Verified
+    impl:
+      - IMP-AC-STORE-004
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.import.spec.ts
+
+  UT-AC-STORE-020
+    title: throws ImportError on malformed JSON, fleet unmodified
+    impl:
+      - IMP-AC-STORE-004
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.import.spec.ts
+
+  UT-AC-STORE-021
+    title: throws ImportError on Zod validation failure (missing required field)
+    impl:
+      - IMP-AC-STORE-004
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.import.spec.ts
+
+  UT-AC-STORE-022
+    title: throws ImportError when certificationCategories is empty array
+    impl:
+      - IMP-AC-STORE-004
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.import.spec.ts
+
+  UT-AC-STORE-023
+    title: round-trip — export → import → equality (excluding id and status)
+    impl:
+      - IMP-AC-STORE-004
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.import.spec.ts
+
+  UT-AC-STORE-024
+    title: produces valid JSON that round-trips through importProfileFromJson
+    impl:
+      - IMP-AC-STORE-004
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.import.spec.ts
+
+AC Store — Import File Guard (Unit)
+  UT-AC-STORE-084
+    title: rejects an oversized file before reading it (CS-003)
+    impl:
+      - IMP-AC-STORE-007
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.import.spec.ts
+
+  UT-AC-STORE-085
+    title: rejects an empty (0-byte) file
+    impl:
+      - IMP-AC-STORE-007
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.import.spec.ts
+
+  UT-AC-STORE-086
+    title: rejects a non-JSON MIME type even with a .json name
+    impl:
+      - IMP-AC-STORE-007
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.import.spec.ts
+
+  UT-AC-STORE-087
+    title: rejects a non-.json extension even with a JSON MIME type
+    impl:
+      - IMP-AC-STORE-007
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.import.spec.ts
+
+  UT-AC-STORE-088
+    title: accepts a well-formed .json file at the size limit
+    impl:
+      - IMP-AC-STORE-007
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.import.spec.ts
+
+  UT-AC-STORE-089
+    title: tolerates an empty MIME type when the extension is .json
+    impl:
+      - IMP-AC-STORE-007
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.import.spec.ts
+
+AC Store — Fleet Store (Unit)
+  UT-AC-STORE-025
+    title: creates Draft profile by default
+    impl:
+      - IMP-AC-STORE-005
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+  UT-AC-STORE-026
+    title: verifyProfile creates new immutable snapshot with Verified status
+    impl:
+      - IMP-AC-STORE-005
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+  UT-AC-STORE-027
+    title: prior Verified version is unmodified after subsequent editVerifiedProfile
+    impl:
+      - IMP-AC-STORE-005
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+  UT-AC-STORE-028
+    title: editVerifiedProfile creates new Draft, does not mutate Verified
+    impl:
+      - IMP-AC-STORE-005
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+  UT-AC-STORE-029
+    title: blocks direct in-place mutation of Verified profile via updateProfile
+    impl:
+      - IMP-AC-STORE-005
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+  UT-AC-STORE-030
+    title: emits a duplicate warning when creating profile with existing registration
+    impl:
+      - IMP-AC-STORE-005
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+  UT-AC-STORE-031
+    title: emits draft warning when checkDraftWarning is called with Draft profile
+    impl:
+      - IMP-AC-STORE-005
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+  UT-AC-STORE-032
+    title: does not emit draft warning when profile is Verified
+    impl:
+      - IMP-AC-STORE-005
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+  UT-AC-STORE-033
+    title: deleteProfile removes the profile from the store
+    impl:
+      - IMP-AC-STORE-005
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+AC Store — Fleet Repository (Unit)
+  UT-AC-STORE-034
+    title: fleet.repository — create stores profile and allows retrieval by id
+    impl:
+      - IMP-AC-STORE-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.repository.spec.ts
+
+  UT-AC-STORE-035
+    title: fleet.repository — create preserves all fields including passengerProfiles
+    impl:
+      - IMP-AC-STORE-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.repository.spec.ts
+
+  UT-AC-STORE-036
+    title: fleet.repository — create rejects duplicate id
+    impl:
+      - IMP-AC-STORE-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.repository.spec.ts
+
+  UT-AC-STORE-037
+    title: fleet.repository — findById returns undefined for a non-existent id
+    impl:
+      - IMP-AC-STORE-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.repository.spec.ts
+
+  UT-AC-STORE-038
+    title: fleet.repository — findById returns the correct profile when multiple exist
+    impl:
+      - IMP-AC-STORE-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.repository.spec.ts
+
+  UT-AC-STORE-039
+    title: fleet.repository — findAll returns empty array when the store is empty
+    impl:
+      - IMP-AC-STORE-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.repository.spec.ts
+
+  UT-AC-STORE-040
+    title: fleet.repository — findAll returns all stored profiles
+    impl:
+      - IMP-AC-STORE-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.repository.spec.ts
+
+  UT-AC-STORE-041
+    title: fleet.repository — update replaces a profile document in the store
+    impl:
+      - IMP-AC-STORE-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.repository.spec.ts
+
+  UT-AC-STORE-042
+    title: fleet.repository — update does not affect other profiles
+    impl:
+      - IMP-AC-STORE-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.repository.spec.ts
+
+  UT-AC-STORE-043
+    title: fleet.repository — deleteById removes a profile so findById returns undefined
+    impl:
+      - IMP-AC-STORE-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.repository.spec.ts
+
+  UT-AC-STORE-044
+    title: fleet.repository — deleteById is idempotent for non-existent id
+    impl:
+      - IMP-AC-STORE-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.repository.spec.ts
+
+  UT-AC-STORE-045
+    title: fleet.repository — deleteById does not remove other profiles
+    impl:
+      - IMP-AC-STORE-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.repository.spec.ts
+
+  UT-AC-STORE-046
+    title: fleet.repository — full CRUD lifecycle round-trip
+    impl:
+      - IMP-AC-STORE-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.repository.spec.ts
+
+  UT-AC-STORE-047
+    title: fleet.repository — preserves Verified status and passengerProfiles through round-trip
+    impl:
+      - IMP-AC-STORE-001
+      - IMP-AC-CORE-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.repository.spec.ts
+
+AC Store — Fleet Store Extended (Unit)
+  UT-AC-STORE-048
+    title: fleet.store — loadAll sets isLoading=true during fetch and false after (LOADING→READY)
+    impl:
+      - IMP-AC-STORE-005
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+  UT-AC-STORE-049
+    title: fleet.store — loadAll sets isLoading=false even when repository throws (LOADING→ERROR)
+    impl:
+      - IMP-AC-STORE-005
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+  UT-AC-STORE-050
+    title: fleet.store — loadAll populates profiles from IndexedDB (READY state)
+    impl:
+      - IMP-AC-STORE-005
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+  UT-AC-STORE-051
+    title: fleet.store — createProfile rejects invalid ICAO registration format
+    impl:
+      - IMP-AC-STORE-005
+      - IMP-AC-STORE-002
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+  UT-AC-STORE-052
+    title: fleet.store — updateProfile rejects invalid ICAO registration on edit
+    impl:
+      - IMP-AC-STORE-005
+      - IMP-AC-STORE-002
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+  UT-AC-STORE-053
+    title: fleet.store — updateProfile emits duplicate warning when registration conflicts
+    impl:
+      - IMP-AC-STORE-005
+      - IMP-AC-STORE-003
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+  UT-AC-STORE-054
+    title: fleet.store — updateProfile throws when profile not found
+    impl:
+      - IMP-AC-STORE-005
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+  UT-AC-STORE-055
+    title: fleet.store — WARNING WARN-AC-002 visible after checkDraftWarning on Draft used for computation
+    impl:
+      - IMP-AC-STORE-005
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+  UT-AC-STORE-056
+    title: fleet.store — snapshot isolation: prior Verified byte-identical after editVerifiedProfile
+    impl:
+      - IMP-AC-STORE-005
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+  UT-AC-STORE-057
+    title: fleet.store — verifyProfile throws if profile is already Verified
+    impl:
+      - IMP-AC-STORE-005
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+  UT-AC-STORE-058
+    title: fleet.store — verifyProfile throws if profile not found
+    impl:
+      - IMP-AC-STORE-005
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+  UT-AC-STORE-059
+    title: fleet.store — editVerifiedProfile throws if profile not found
+    impl:
+      - IMP-AC-STORE-005
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+  UT-AC-STORE-060
+    title: fleet.store — editVerifiedProfile throws if called on Draft profile
+    impl:
+      - IMP-AC-STORE-005
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+  UT-AC-STORE-061
+    title: fleet.store — verifyProfile updates activeAircraftStore when Draft was active profile
+    impl:
+      - IMP-AC-STORE-005
+      - IMP-AC-STORE-006
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+  UT-AC-STORE-062
+    title: fleet.store — verifyProfile does not change activeAircraftStore when different profile is active
+    impl:
+      - IMP-AC-STORE-005
+      - IMP-AC-STORE-006
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+  UT-AC-STORE-063
+    title: fleet.store — passengerProfiles persisted in store state after createProfile
+    impl:
+      - IMP-AC-STORE-005
+      - IMP-AC-CORE-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+  UT-AC-STORE-064
+    title: fleet.store — passengerProfiles survive verify → editVerified cycle unmodified
+    impl:
+      - IMP-AC-STORE-005
+      - IMP-AC-CORE-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+  UT-AC-STORE-065
+    title: fleet.store — passenger standard weight application matches schema value
+    impl:
+      - IMP-AC-STORE-005
+      - IMP-AC-CORE-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+  UT-AC-STORE-066
+    title: fleet.store — passengerProfiles default to empty array
+    impl:
+      - IMP-AC-STORE-005
+      - IMP-AC-CORE-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+  UT-AC-STORE-067
+    title: fleet.store — clearNotifications empties the notifications array
+    impl:
+      - IMP-AC-STORE-005
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+AC Store — Active Aircraft Store (Unit)
+  UT-AC-STORE-068
+    title: active-aircraft.store — initial state: activeProfile is null, hasActiveProfile is false
+    impl:
+      - IMP-AC-STORE-006
+    files:
+      - frontend/src/modules/aircraft/__tests__/active-aircraft.store.spec.ts
+
+  UT-AC-STORE-069
+    title: active-aircraft.store — setActiveProfile sets the active profile reactively
+    impl:
+      - IMP-AC-STORE-006
+    files:
+      - frontend/src/modules/aircraft/__tests__/active-aircraft.store.spec.ts
+
+  UT-AC-STORE-070
+    title: active-aircraft.store — context switch replaces prior profile without page reload
+    impl:
+      - IMP-AC-STORE-006
+    files:
+      - frontend/src/modules/aircraft/__tests__/active-aircraft.store.spec.ts
+
+  UT-AC-STORE-071
+    title: active-aircraft.store — setActiveProfile performs synchronous in-place state swap (no reload)
+    impl:
+      - IMP-AC-STORE-006
+    files:
+      - frontend/src/modules/aircraft/__tests__/active-aircraft.store.spec.ts
+
+  UT-AC-STORE-072
+    title: active-aircraft.store — clearActive sets activeProfile to null and hasActiveProfile to false
+    impl:
+      - IMP-AC-STORE-006
+    files:
+      - frontend/src/modules/aircraft/__tests__/active-aircraft.store.spec.ts
+
+  UT-AC-STORE-073
+    title: active-aircraft.store — isDraft is true when active profile has Draft status
+    impl:
+      - IMP-AC-STORE-006
+    files:
+      - frontend/src/modules/aircraft/__tests__/active-aircraft.store.spec.ts
+
+  UT-AC-STORE-074
+    title: active-aircraft.store — isDraft is false when active profile has Verified status
+    impl:
+      - IMP-AC-STORE-006
+    files:
+      - frontend/src/modules/aircraft/__tests__/active-aircraft.store.spec.ts
+
+  UT-AC-STORE-075
+    title: active-aircraft.store — isDraft is false when no profile is active
+    impl:
+      - IMP-AC-STORE-006
+    files:
+      - frontend/src/modules/aircraft/__tests__/active-aircraft.store.spec.ts
+
+  UT-AC-STORE-076
+    title: active-aircraft.store — context switch: prior state absent after switching aircraft
+    impl:
+      - IMP-AC-STORE-006
+    files:
+      - frontend/src/modules/aircraft/__tests__/active-aircraft.store.spec.ts
+
+  UT-AC-STORE-077
+    title: active-aircraft.store — setActiveProfile replaces profile object reference (reactive hot-swap)
+    impl:
+      - IMP-AC-STORE-006
+    files:
+      - frontend/src/modules/aircraft/__tests__/active-aircraft.store.spec.ts
+
+  UT-AC-STORE-078
+    title: active-aircraft.store — clearActive then setActiveProfile starts fresh context
+    impl:
+      - IMP-AC-STORE-006
+    files:
+      - frontend/src/modules/aircraft/__tests__/active-aircraft.store.spec.ts
+
+  UT-AC-STORE-079
+    title: active-aircraft.store — hasActiveProfile is false after clearActive
+    impl:
+      - IMP-AC-STORE-006
+    files:
+      - frontend/src/modules/aircraft/__tests__/active-aircraft.store.spec.ts
+
+AC Store — Fleet Store Branch Coverage (Unit)
+  UT-AC-STORE-080
+    title: fleet.store — updateProfile succeeds when no registration field is in changes
+    impl:
+      - IMP-AC-STORE-005
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+  UT-AC-STORE-081
+    title: fleet.store — updateProfile succeeds with valid new registration that is not a duplicate
+    impl:
+      - IMP-AC-STORE-005
+      - IMP-AC-STORE-003
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+  UT-AC-STORE-082
+    title: fleet.store — notifications are cleared after clearNotifications on aircraft context switch (DoD #165)
+    impl:
+      - IMP-AC-STORE-005
+      - IMP-AC-STORE-006
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+  UT-AC-STORE-083
+    title: fleet.store — starts with fleetLoadState LOADING until the first successful loadAll
+    impl:
+      - IMP-AC-STORE-005
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+AC View — Aircraft Model Catalogue helpers (Unit)
+  UT-AC-CAT-001
+    title: getManufacturers lists sorted names with Other last
+    impl:
+      - IMP-AC-VIEW-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/aircraft-model-catalogue.spec.ts
+
+  UT-AC-CAT-002
+    title: getModelsByManufacturer returns only models for that manufacturer
+    impl:
+      - IMP-AC-VIEW-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/aircraft-model-catalogue.spec.ts
+
+  UT-AC-CAT-003
+    title: getModelsByManufacturer returns empty for Other
+    impl:
+      - IMP-AC-VIEW-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/aircraft-model-catalogue.spec.ts
+
+  UT-AC-CAT-004
+    title: findByIcaoDesignator is case-insensitive and returns all matches
+    impl:
+      - IMP-AC-VIEW-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/aircraft-model-catalogue.spec.ts
+
+  UT-AC-CAT-005
+    title: findUniqueByIcaoDesignator returns entry only for unambiguous 4-char designator
+    impl:
+      - IMP-AC-VIEW-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/aircraft-model-catalogue.spec.ts
+
+AC View — Aircraft Model Catalogue (Unit)
+  UT-AC-VIEW-001
+    title: AIRCRAFT_MODEL_CATALOGUE contains at least one entry per expected manufacturer
+    impl:
+      - IMP-AC-VIEW-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/aircraft-model-catalogue.spec.ts
+
+  UT-AC-VIEW-002
+    title: every catalogue entry has a non-empty manufacturer, model, and icaoTypeDesignator
+    impl:
+      - IMP-AC-VIEW-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/aircraft-model-catalogue.spec.ts
+
+  UT-AC-VIEW-003
+    title: CATALOGUE_VERSION is a non-empty string
+    impl:
+      - IMP-AC-VIEW-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/aircraft-model-catalogue.spec.ts
+
+  UT-AC-VIEW-004
+    title: getManufacturers returns all unique manufacturers
+    impl:
+      - IMP-AC-VIEW-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/aircraft-model-catalogue.spec.ts
+
+  UT-AC-VIEW-005
+    title: getManufacturers appends 'Other' as the last entry (REQ-UI-002)
+    impl:
+      - IMP-AC-VIEW-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/aircraft-model-catalogue.spec.ts
+
+  UT-AC-VIEW-006
+    title: getManufacturers returns manufacturers in alphabetical order before Other
+    impl:
+      - IMP-AC-VIEW-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/aircraft-model-catalogue.spec.ts
+
+  UT-AC-VIEW-007
+    title: getManufacturers does not contain duplicates
+    impl:
+      - IMP-AC-VIEW-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/aircraft-model-catalogue.spec.ts
+
+  UT-AC-VIEW-008
+    title: getModelsByManufacturer returns all Cessna models
+    impl:
+      - IMP-AC-VIEW-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/aircraft-model-catalogue.spec.ts
+
+  UT-AC-VIEW-009
+    title: getModelsByManufacturer returns only models matching the requested manufacturer
+    impl:
+      - IMP-AC-VIEW-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/aircraft-model-catalogue.spec.ts
+
+  UT-AC-VIEW-010
+    title: getModelsByManufacturer returns empty array for manufacturer = 'Other' (REQ-UI-002)
+    impl:
+      - IMP-AC-VIEW-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/aircraft-model-catalogue.spec.ts
+
+  UT-AC-VIEW-011
+    title: getModelsByManufacturer returns empty array for unknown manufacturer
+    impl:
+      - IMP-AC-VIEW-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/aircraft-model-catalogue.spec.ts
+
+  UT-AC-VIEW-012
+    title: each returned entry has the expected fields
+    impl:
+      - IMP-AC-VIEW-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/aircraft-model-catalogue.spec.ts
+
+  UT-AC-VIEW-013
+    title: Diamond has DA40 Diamond Star in its model list
+    impl:
+      - IMP-AC-VIEW-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/aircraft-model-catalogue.spec.ts
+
+  UT-AC-VIEW-014
+    title: findByIcaoDesignator returns correct entry for C172
+    impl:
+      - IMP-AC-VIEW-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/aircraft-model-catalogue.spec.ts
+
+  UT-AC-VIEW-015
+    title: findByIcaoDesignator performs case-insensitive lookup
+    impl:
+      - IMP-AC-VIEW-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/aircraft-model-catalogue.spec.ts
+
+  UT-AC-VIEW-016
+    title: findByIcaoDesignator trims whitespace before lookup
+    impl:
+      - IMP-AC-VIEW-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/aircraft-model-catalogue.spec.ts
+
+  UT-AC-VIEW-017
+    title: findByIcaoDesignator returns empty array for unknown ICAO designator
+    impl:
+      - IMP-AC-VIEW-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/aircraft-model-catalogue.spec.ts
+
+  UT-AC-VIEW-018
+    title: findByIcaoDesignator returns multiple entries when models share an ICAO designator (PA28)
+    impl:
+      - IMP-AC-VIEW-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/aircraft-model-catalogue.spec.ts
+
+  UT-AC-VIEW-019
+    title: reverse lookup returns correct manufacturer for P208 (Tecnam P2008 JC)
+    impl:
+      - IMP-AC-VIEW-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/aircraft-model-catalogue.spec.ts
+
+  UT-AC-VIEW-020
+    title: reverse lookup returns correct manufacturer for DA40 (Diamond DA40 Diamond Star)
+    impl:
+      - IMP-AC-VIEW-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/aircraft-model-catalogue.spec.ts
+
+  UT-AC-VIEW-021
+    title: C172S Skyhawk SP auto-fills ICAO designator C172 (REQ-UI-003)
+    impl:
+      - IMP-AC-VIEW-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/aircraft-model-catalogue.spec.ts
+
+  UT-AC-VIEW-022
+    title: PA-44-180 Seminole auto-fills ICAO designator PA44 (REQ-UI-003)
+    impl:
+      - IMP-AC-VIEW-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/aircraft-model-catalogue.spec.ts
+
+  UT-AC-VIEW-023
+    title: getManufacturers includes 'Other' as an option (REQ-UI-002)
+    impl:
+      - IMP-AC-VIEW-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/aircraft-model-catalogue.spec.ts
+
+  UT-AC-VIEW-024
+    title: getModelsByManufacturer('Other') returns empty to signal free-text mode
+    impl:
+      - IMP-AC-VIEW-001
+    files:
+      - frontend/src/modules/aircraft/__tests__/aircraft-model-catalogue.spec.ts
+
+AC View — AircraftModelSelector Component (Unit)
+  UT-AC-VIEW-025
+    title: renders manufacturer select with known manufacturers
+    impl:
+      - IMP-AC-VIEW-002
+    files:
+      - frontend/src/modules/aircraft/__tests__/AircraftModelSelector.spec.ts
+
+  UT-AC-VIEW-026
+    title: renders 'Other' as the last manufacturer option
+    impl:
+      - IMP-AC-VIEW-002
+    files:
+      - frontend/src/modules/aircraft/__tests__/AircraftModelSelector.spec.ts
+
+  UT-AC-VIEW-027
+    title: shows only Cessna models when manufacturer is Cessna
+    impl:
+      - IMP-AC-VIEW-002
+    files:
+      - frontend/src/modules/aircraft/__tests__/AircraftModelSelector.spec.ts
+
+  UT-AC-VIEW-028
+    title: shows only Piper models when manufacturer is Piper
+    impl:
+      - IMP-AC-VIEW-002
+    files:
+      - frontend/src/modules/aircraft/__tests__/AircraftModelSelector.spec.ts
+
+  UT-AC-VIEW-029
+    title: model select is disabled when no manufacturer is selected
+    impl:
+      - IMP-AC-VIEW-002
+    files:
+      - frontend/src/modules/aircraft/__tests__/AircraftModelSelector.spec.ts
+
+  UT-AC-VIEW-030
+    title: renders a text input for model when manufacturer is 'Other' (REQ-UI-002)
+    impl:
+      - IMP-AC-VIEW-002
+    files:
+      - frontend/src/modules/aircraft/__tests__/AircraftModelSelector.spec.ts
+
+  UT-AC-VIEW-031
+    title: does not render a model dropdown when manufacturer is 'Other'
+    impl:
+      - IMP-AC-VIEW-002
+    files:
+      - frontend/src/modules/aircraft/__tests__/AircraftModelSelector.spec.ts
+
+  UT-AC-VIEW-032
+    title: emits 'update:model' when free-text model input changes
+    impl:
+      - IMP-AC-VIEW-002
+    files:
+      - frontend/src/modules/aircraft/__tests__/AircraftModelSelector.spec.ts
+
+  UT-AC-VIEW-033
+    title: emits 'update:icaoTypeDesignator' with C172 when C172S Skyhawk SP is selected (REQ-UI-003)
+    impl:
+      - IMP-AC-VIEW-003
+    files:
+      - frontend/src/modules/aircraft/__tests__/AircraftModelSelector.spec.ts
+
+  UT-AC-VIEW-034
+    title: emits 'update:icaoTypeDesignator' with DA42 when DA42 Twin Star is selected
+    impl:
+      - IMP-AC-VIEW-003
+    files:
+      - frontend/src/modules/aircraft/__tests__/AircraftModelSelector.spec.ts
+
+  UT-AC-VIEW-035
+    title: emits empty model and ICAO when manufacturer changes
+    impl:
+      - IMP-AC-VIEW-003
+    files:
+      - frontend/src/modules/aircraft/__tests__/AircraftModelSelector.spec.ts
+
+  UT-AC-VIEW-036
+    title: shows lookup results when ICAO input has 2+ matching characters (REQ-UI-004)
+    impl:
+      - IMP-AC-VIEW-003
+    files:
+      - frontend/src/modules/aircraft/__tests__/AircraftModelSelector.spec.ts
+
+  UT-AC-VIEW-037
+    title: shows no lookup results when ICAO input has fewer than 2 characters
+    impl:
+      - IMP-AC-VIEW-003
+    files:
+      - frontend/src/modules/aircraft/__tests__/AircraftModelSelector.spec.ts
+
+  UT-AC-VIEW-038
+    title: emits manufacturer, model and ICAO when a lookup result is clicked
+    impl:
+      - IMP-AC-VIEW-003
+    files:
+      - frontend/src/modules/aircraft/__tests__/AircraftModelSelector.spec.ts
+
+  UT-AC-VIEW-039
+    title: normalises ICAO input to uppercase before emitting
+    impl:
+      - IMP-AC-VIEW-003
+    files:
+      - frontend/src/modules/aircraft/__tests__/AircraftModelSelector.spec.ts
+
+
+AC View — FleetList Component (Unit)
+  UT-AC-VIEW-080
+    title: FleetList — shows loading message when isLoading is true
+    impl:
+      - IMP-AC-VIEW-005
+      - IMP-AC-VIEW-006
+    files:
+      - frontend/src/modules/aircraft/__tests__/FleetList.spec.ts
+
+  UT-AC-VIEW-081
+    title: FleetList — shows empty-state message when no profiles exist
+    impl:
+      - IMP-AC-VIEW-005
+    files:
+      - frontend/src/modules/aircraft/__tests__/FleetList.spec.ts
+
+  UT-AC-VIEW-082
+    title: FleetList — does not render the profiles list when empty
+    impl:
+      - IMP-AC-VIEW-005
+    files:
+      - frontend/src/modules/aircraft/__tests__/FleetList.spec.ts
+
+  UT-AC-VIEW-083
+    title: FleetList — renders a list item for each profile
+    impl:
+      - IMP-AC-VIEW-005
+    files:
+      - frontend/src/modules/aircraft/__tests__/FleetList.spec.ts
+
+  UT-AC-VIEW-084
+    title: FleetList — displays registration and model for each profile
+    impl:
+      - IMP-AC-VIEW-005
+    files:
+      - frontend/src/modules/aircraft/__tests__/FleetList.spec.ts
+
+  UT-AC-VIEW-085
+    title: FleetList — shows ProfileStatusBadge for each profile
+    impl:
+      - IMP-AC-VIEW-005
+    files:
+      - frontend/src/modules/aircraft/__tests__/FleetList.spec.ts
+
+  UT-AC-VIEW-086
+    title: FleetList — applies active CSS class to the active profile item
+    impl:
+      - IMP-AC-VIEW-006
+    files:
+      - frontend/src/modules/aircraft/__tests__/FleetList.spec.ts
+
+  UT-AC-VIEW-087
+    title: FleetList — does not apply active CSS class when no active profile
+    impl:
+      - IMP-AC-VIEW-006
+    files:
+      - frontend/src/modules/aircraft/__tests__/FleetList.spec.ts
+
+  UT-AC-VIEW-088
+    title: FleetList — Select button is disabled when profile is already active
+    impl:
+      - IMP-AC-VIEW-006
+    files:
+      - frontend/src/modules/aircraft/__tests__/FleetList.spec.ts
+
+  UT-AC-VIEW-089
+    title: FleetList — Select button is enabled when profile is not active
+    impl:
+      - IMP-AC-VIEW-006
+    files:
+      - frontend/src/modules/aircraft/__tests__/FleetList.spec.ts
+
+  UT-AC-VIEW-090
+    title: FleetList — shows Verify button only for Draft profiles
+    impl:
+      - IMP-AC-VIEW-006
+    files:
+      - frontend/src/modules/aircraft/__tests__/FleetList.spec.ts
+
+  UT-AC-VIEW-091
+    title: FleetList — shows Edit button only for Verified profiles
+    impl:
+      - IMP-AC-VIEW-006
+    files:
+      - frontend/src/modules/aircraft/__tests__/FleetList.spec.ts
+
+  UT-AC-VIEW-092
+    title: FleetList — always shows Delete button for each profile
+    impl:
+      - IMP-AC-VIEW-006
+    files:
+      - frontend/src/modules/aircraft/__tests__/FleetList.spec.ts
+
+AC View — ProfileStatusBadge Component (Unit)
+  UT-AC-VIEW-070
+    title: ProfileStatusBadge — renders Verified label for Verified status
+    impl:
+      - IMP-AC-VIEW-004
+    files:
+      - frontend/src/modules/aircraft/__tests__/ProfileStatusBadge.spec.ts
+
+  UT-AC-VIEW-071
+    title: ProfileStatusBadge — applies status-verified CSS class for Verified status
+    impl:
+      - IMP-AC-VIEW-004
+    files:
+      - frontend/src/modules/aircraft/__tests__/ProfileStatusBadge.spec.ts
+
+  UT-AC-VIEW-072
+    title: ProfileStatusBadge — sets correct aria-label for Verified status
+    impl:
+      - IMP-AC-VIEW-004
+    files:
+      - frontend/src/modules/aircraft/__tests__/ProfileStatusBadge.spec.ts
+
+  UT-AC-VIEW-073
+    title: ProfileStatusBadge — sets informative title for Verified status
+    impl:
+      - IMP-AC-VIEW-004
+    files:
+      - frontend/src/modules/aircraft/__tests__/ProfileStatusBadge.spec.ts
+
+  UT-AC-VIEW-074
+    title: ProfileStatusBadge — has role="status" for accessibility
+    impl:
+      - IMP-AC-VIEW-004
+    files:
+      - frontend/src/modules/aircraft/__tests__/ProfileStatusBadge.spec.ts
+
+  UT-AC-VIEW-075
+    title: ProfileStatusBadge — renders Draft label for Draft status
+    impl:
+      - IMP-AC-VIEW-004
+    files:
+      - frontend/src/modules/aircraft/__tests__/ProfileStatusBadge.spec.ts
+
+  UT-AC-VIEW-076
+    title: ProfileStatusBadge — applies status-draft CSS class for Draft status
+    impl:
+      - IMP-AC-VIEW-004
+    files:
+      - frontend/src/modules/aircraft/__tests__/ProfileStatusBadge.spec.ts
+
+  UT-AC-VIEW-077
+    title: ProfileStatusBadge — sets correct aria-label for Draft status
+    impl:
+      - IMP-AC-VIEW-004
+    files:
+      - frontend/src/modules/aircraft/__tests__/ProfileStatusBadge.spec.ts
+
+  UT-AC-VIEW-078
+    title: ProfileStatusBadge — sets safety warning in title for Draft status
+    impl:
+      - IMP-AC-VIEW-004
+    files:
+      - frontend/src/modules/aircraft/__tests__/ProfileStatusBadge.spec.ts
+
+  UT-AC-VIEW-093
+    title: FleetList — navigates to fleet-edit route when Edit is clicked
+    impl:
+      - IMP-AC-VIEW-006
+    files:
+      - frontend/src/modules/aircraft/__tests__/FleetList.spec.ts
+
+  UT-AC-VIEW-100
+    title: AccordionSection — renders title and summary
+    impl:
+      - IMP-AC-VIEW-009
+      - IMP-AC-VIEW-010
+    files:
+      - frontend/src/modules/aircraft/__tests__/AccordionSection.spec.ts
+
+  UT-AC-VIEW-101
+    title: AccordionSection — hides body when modelValue is false
+    impl:
+      - IMP-AC-VIEW-009
+    files:
+      - frontend/src/modules/aircraft/__tests__/AccordionSection.spec.ts
+
+  UT-AC-VIEW-102
+    title: AccordionSection — shows body when modelValue is true
+    impl:
+      - IMP-AC-VIEW-009
+    files:
+      - frontend/src/modules/aircraft/__tests__/AccordionSection.spec.ts
+
+  UT-AC-VIEW-103
+    title: AccordionSection — aria-expanded reflects open state
+    impl:
+      - IMP-AC-VIEW-009
+    files:
+      - frontend/src/modules/aircraft/__tests__/AccordionSection.spec.ts
+
+  UT-AC-VIEW-104
+    title: AccordionSection — emits update:modelValue true when closed and clicked
+    impl:
+      - IMP-AC-VIEW-010
+    files:
+      - frontend/src/modules/aircraft/__tests__/AccordionSection.spec.ts
+
+  UT-AC-VIEW-105
+    title: AccordionSection — emits update:modelValue false when open and clicked
+    impl:
+      - IMP-AC-VIEW-010
+    files:
+      - frontend/src/modules/aircraft/__tests__/AccordionSection.spec.ts
+
+  UT-AC-VIEW-110
+    title: IdentitySection — displays provided field values
+    impl:
+      - IMP-AC-VIEW-011
+    files:
+      - frontend/src/modules/aircraft/__tests__/IdentitySection.spec.ts
+
+  UT-AC-VIEW-111
+    title: IdentitySection — renders registration error when provided
+    impl:
+      - IMP-AC-VIEW-011
+    files:
+      - frontend/src/modules/aircraft/__tests__/IdentitySection.spec.ts
+
+  UT-AC-VIEW-112
+    title: IdentitySection — renders empty string for null shareCode
+    impl:
+      - IMP-AC-VIEW-011
+    files:
+      - frontend/src/modules/aircraft/__tests__/IdentitySection.spec.ts
+
+  UT-AC-VIEW-113
+    title: IdentitySection — emits patched modelValue when registration changes
+    impl:
+      - IMP-AC-VIEW-012
+    files:
+      - frontend/src/modules/aircraft/__tests__/IdentitySection.spec.ts
+
+  UT-AC-VIEW-114
+    title: IdentitySection — emits null shareCode when input is blanked
+    impl:
+      - IMP-AC-VIEW-012
+    files:
+      - frontend/src/modules/aircraft/__tests__/IdentitySection.spec.ts
+
+  UT-AC-VIEW-115
+    title: IdentitySection — emits trimmed non-empty shareCode
+    impl:
+      - IMP-AC-VIEW-012
+    files:
+      - frontend/src/modules/aircraft/__tests__/IdentitySection.spec.ts
+
+  UT-AC-VIEW-120
+    title: WeighingReportsSection — renders a row per report
+    impl:
+      - IMP-AC-VIEW-013
+    files:
+      - frontend/src/modules/aircraft/__tests__/WeighingReportsSection.spec.ts
+
+  UT-AC-VIEW-121
+    title: WeighingReportsSection — disables remove button when one row
+    impl:
+      - IMP-AC-VIEW-013
+    files:
+      - frontend/src/modules/aircraft/__tests__/WeighingReportsSection.spec.ts
+
+  UT-AC-VIEW-122
+    title: WeighingReportsSection — enables remove button when more than one row
+    impl:
+      - IMP-AC-VIEW-013
+    files:
+      - frontend/src/modules/aircraft/__tests__/WeighingReportsSection.spec.ts
+
+  UT-AC-VIEW-123
+    title: WeighingReportsSection — highlights invalid rows
+    impl:
+      - IMP-AC-VIEW-014
+    files:
+      - frontend/src/modules/aircraft/__tests__/WeighingReportsSection.spec.ts
+
+  UT-AC-VIEW-124
+    title: WeighingReportsSection — emits patched bem on input change
+    impl:
+      - IMP-AC-VIEW-014
+    files:
+      - frontend/src/modules/aircraft/__tests__/WeighingReportsSection.spec.ts
+
+  UT-AC-VIEW-125
+    title: WeighingReportsSection — emits array with added row
+    impl:
+      - IMP-AC-VIEW-014
+    files:
+      - frontend/src/modules/aircraft/__tests__/WeighingReportsSection.spec.ts
+
+  UT-AC-VIEW-126
+    title: WeighingReportsSection — emits array without the removed row
+    impl:
+      - IMP-AC-VIEW-014
+    files:
+      - frontend/src/modules/aircraft/__tests__/WeighingReportsSection.spec.ts
+
+  UT-AC-VIEW-130
+    title: AircraftProfileEditorView — loads profile by route id
+    impl:
+      - IMP-AC-VIEW-015
+      - IMP-AC-VIEW-016
+    files:
+      - frontend/src/modules/aircraft/__tests__/AircraftProfileEditorView.spec.ts
+
+  UT-AC-VIEW-131
+    title: AircraftProfileEditorView — shows verified notice for Verified source
+    impl:
+      - IMP-AC-VIEW-015
+    files:
+      - frontend/src/modules/aircraft/__tests__/AircraftProfileEditorView.spec.ts
+
+  UT-AC-VIEW-132
+    title: AircraftProfileEditorView — shows draft save label for Draft source
+    impl:
+      - IMP-AC-VIEW-015
+    files:
+      - frontend/src/modules/aircraft/__tests__/AircraftProfileEditorView.spec.ts
+
+  UT-AC-VIEW-133
+    title: AircraftProfileEditorView — dispatches updateProfile when saving a Draft
+    impl:
+      - IMP-AC-VIEW-016
+    files:
+      - frontend/src/modules/aircraft/__tests__/AircraftProfileEditorView.spec.ts
+
+  UT-AC-VIEW-134
+    title: AircraftProfileEditorView — dispatches editVerifiedProfile when saving a Verified profile
+    impl:
+      - IMP-AC-VIEW-016
+    files:
+      - frontend/src/modules/aircraft/__tests__/AircraftProfileEditorView.spec.ts
+
+  UT-AC-VIEW-135
+    title: AircraftProfileEditorView — save disabled with no changes (no draft-bump on open)
+    impl:
+      - IMP-AC-VIEW-016
+    files:
+      - frontend/src/modules/aircraft/__tests__/AircraftProfileEditorView.spec.ts
+
+  UT-AC-VIEW-136
+    title: AircraftProfileEditorView — enables save and shows unsaved-changes indicator on edit
+    impl:
+      - IMP-AC-VIEW-016
+    files:
+      - frontend/src/modules/aircraft/__tests__/AircraftProfileEditorView.spec.ts
+
+  UT-AC-VIEW-137
+    title: AircraftProfileEditorView — Cancel navigates back to fleet when not dirty
+    impl:
+      - IMP-AC-VIEW-016
+    files:
+      - frontend/src/modules/aircraft/__tests__/AircraftProfileEditorView.spec.ts
+
+  UT-AC-VIEW-140
+    title: LoadPointsSection — renders one row per load point
+    impl:
+      - IMP-AC-VIEW-017
+    files:
+      - frontend/src/modules/aircraft/__tests__/LoadPointsSection.spec.ts
+
+  UT-AC-VIEW-141
+    title: LoadPointsSection — empty-state shown when no rows
+    impl:
+      - IMP-AC-VIEW-017
+    files:
+      - frontend/src/modules/aircraft/__tests__/LoadPointsSection.spec.ts
+
+  UT-AC-VIEW-142
+    title: LoadPointsSection — arm input disabled and hinted when armLookup is present
+    impl:
+      - IMP-AC-VIEW-017
+    files:
+      - frontend/src/modules/aircraft/__tests__/LoadPointsSection.spec.ts
+
+  UT-AC-VIEW-143
+    title: LoadPointsSection — fuel-tank rows get accent modifier
+    impl:
+      - IMP-AC-VIEW-017
+    files:
+      - frontend/src/modules/aircraft/__tests__/LoadPointsSection.spec.ts
+
+  UT-AC-VIEW-144
+    title: LoadPointsSection — emits patched name on input change
+    impl:
+      - IMP-AC-VIEW-018
+    files:
+      - frontend/src/modules/aircraft/__tests__/LoadPointsSection.spec.ts
+
+  UT-AC-VIEW-145
+    title: LoadPointsSection — + Add Load Station appends a non-fuel row
+    impl:
+      - IMP-AC-VIEW-018
+    files:
+      - frontend/src/modules/aircraft/__tests__/LoadPointsSection.spec.ts
+
+  UT-AC-VIEW-146
+    title: LoadPointsSection — + Add Fuel Tank seeds a fuel-tank extension
+    impl:
+      - IMP-AC-VIEW-018
+    files:
+      - frontend/src/modules/aircraft/__tests__/LoadPointsSection.spec.ts
+
+  UT-AC-VIEW-147
+    title: LoadPointsSection — ✕ removes the targeted row
+    impl:
+      - IMP-AC-VIEW-018
+    files:
+      - frontend/src/modules/aircraft/__tests__/LoadPointsSection.spec.ts
+
+  UT-AC-VIEW-148
+    title: LoadPointsSection — toggle enables fuel-tank extension with default fuel type
+    impl:
+      - IMP-AC-VIEW-018
+    files:
+      - frontend/src/modules/aircraft/__tests__/LoadPointsSection.spec.ts
+
+  UT-AC-VIEW-149
+    title: LoadPointsSection — toggle clears fuel-tank extension when unchecked
+    impl:
+      - IMP-AC-VIEW-018
+    files:
+      - frontend/src/modules/aircraft/__tests__/LoadPointsSection.spec.ts
+
+  UT-AC-VIEW-150
+    title: LoadPointsSection — fuel-type checkbox adds the selected type
+    impl:
+      - IMP-AC-VIEW-018
+    files:
+      - frontend/src/modules/aircraft/__tests__/LoadPointsSection.spec.ts
+
+  UT-AC-VIEW-151
+    title: LoadPointsSection — shows error when no fuel types remain
+    impl:
+      - IMP-AC-VIEW-018
+    files:
+      - frontend/src/modules/aircraft/__tests__/LoadPointsSection.spec.ts
+
+  UT-AC-VIEW-152
+    title: LoadPointsSection — hides category-restriction controls for single-category aircraft
+    impl:
+      - IMP-AC-VIEW-017
+      - IMP-AC-VIEW-018
+    files:
+      - frontend/src/modules/aircraft/__tests__/LoadPointsSection.spec.ts
+
+  UT-AC-VIEW-153
+    title: LoadPointsSection — renders a checkbox per available category for multi-category aircraft
+    impl:
+      - IMP-AC-VIEW-017
+      - IMP-AC-VIEW-018
+    files:
+      - frontend/src/modules/aircraft/__tests__/LoadPointsSection.spec.ts
+
+  UT-AC-VIEW-154
+    title: LoadPointsSection — emits a restricted category subset when a box is unchecked
+    impl:
+      - IMP-AC-VIEW-017
+      - IMP-AC-VIEW-018
+    files:
+      - frontend/src/modules/aircraft/__tests__/LoadPointsSection.spec.ts
+
+  UT-AC-VIEW-155
+    title: LoadPointsSection — collapses restriction to null when every category is re-checked
+    impl:
+      - IMP-AC-VIEW-017
+      - IMP-AC-VIEW-018
+    files:
+      - frontend/src/modules/aircraft/__tests__/LoadPointsSection.spec.ts
+
+  UT-AC-VIEW-156
+    title: LoadPointsSection — shows an error when every category is unchecked
+    impl:
+      - IMP-AC-VIEW-017
+      - IMP-AC-VIEW-018
+    files:
+      - frontend/src/modules/aircraft/__tests__/LoadPointsSection.spec.ts
+
+  UT-AC-VIEW-157
+    title: LoadPointsSection — silently drops stale categories no longer on the aircraft
+    impl:
+      - IMP-AC-VIEW-017
+      - IMP-AC-VIEW-018
+    files:
+      - frontend/src/modules/aircraft/__tests__/LoadPointsSection.spec.ts
+
+  UT-AC-VIEW-158
+    title: LoadPointsSection — burn-sequence empty-state when no entries exist
+    impl:
+      - IMP-AC-VIEW-017
+      - IMP-AC-VIEW-018
+    files:
+      - frontend/src/modules/aircraft/__tests__/LoadPointsSection.spec.ts
+
+  UT-AC-VIEW-159
+    title: LoadPointsSection — + Add Sequence Entry emits a seeded burn-sequence row
+    impl:
+      - IMP-AC-VIEW-017
+      - IMP-AC-VIEW-018
+    files:
+      - frontend/src/modules/aircraft/__tests__/LoadPointsSection.spec.ts
+
+  UT-AC-VIEW-160
+    title: LoadPointsSection — new burn-sequence entry seeds ordinal as (max existing + 1)
+    impl:
+      - IMP-AC-VIEW-017
+      - IMP-AC-VIEW-018
+    files:
+      - frontend/src/modules/aircraft/__tests__/LoadPointsSection.spec.ts
+
+  UT-AC-VIEW-161
+    title: LoadPointsSection — emits updated burn-sequence name when name input changes
+    impl:
+      - IMP-AC-VIEW-017
+      - IMP-AC-VIEW-018
+    files:
+      - frontend/src/modules/aircraft/__tests__/LoadPointsSection.spec.ts
+
+  UT-AC-VIEW-162
+    title: LoadPointsSection — ✕ removes a burn-sequence entry
+    impl:
+      - IMP-AC-VIEW-017
+      - IMP-AC-VIEW-018
+    files:
+      - frontend/src/modules/aircraft/__tests__/LoadPointsSection.spec.ts
+
+  UT-AC-VIEW-163
+    title: LoadPointsSection — flags duplicate burn-sequence names on one tank
+    impl:
+      - IMP-AC-VIEW-017
+      - IMP-AC-VIEW-018
+    files:
+      - frontend/src/modules/aircraft/__tests__/LoadPointsSection.spec.ts
+
+  UT-AC-VIEW-164
+    title: LoadPointsSection — flags blank burn-sequence name
+    impl:
+      - IMP-AC-VIEW-017
+      - IMP-AC-VIEW-018
+    files:
+      - frontend/src/modules/aircraft/__tests__/LoadPointsSection.spec.ts
+
+  UT-AC-VIEW-165
+    title: FleetList — does not use native window.confirm() when deleting
+    impl:
+      - IMP-AC-VIEW-019
+    files:
+      - frontend/src/modules/aircraft/__tests__/FleetList.spec.ts
+
+  UT-AC-VIEW-166
+    title: FleetList — opens an in-app confirmation dialog naming the aircraft on delete tap
+    impl:
+      - IMP-AC-VIEW-019
+    files:
+      - frontend/src/modules/aircraft/__tests__/FleetList.spec.ts
+
+  UT-AC-VIEW-167
+    title: FleetList — cancelling the confirmation does not delete and shows no undo toast
+    impl:
+      - IMP-AC-VIEW-019
+    files:
+      - frontend/src/modules/aircraft/__tests__/FleetList.spec.ts
+
+  UT-AC-VIEW-168
+    title: FleetList — accepting the confirmation deletes and surfaces an undo toast
+    impl:
+      - IMP-AC-VIEW-019
+    files:
+      - frontend/src/modules/aircraft/__tests__/FleetList.spec.ts
+
+  UT-AC-VIEW-169
+    title: FleetList — undo restores the deleted profile via the repository
+    impl:
+      - IMP-AC-VIEW-019
+    files:
+      - frontend/src/modules/aircraft/__tests__/FleetList.spec.ts
+
+  UT-AC-VIEW-170
+    title: FleetList — delete control disabled while the profile is the active aircraft
+    impl:
+      - IMP-AC-VIEW-019
+    files:
+      - frontend/src/modules/aircraft/__tests__/FleetList.spec.ts
+
+  UT-AC-VIEW-171
+    title: FleetList — delete handler is a no-op for the active aircraft (defence in depth)
+    impl:
+      - IMP-AC-VIEW-019
+    files:
+      - frontend/src/modules/aircraft/__tests__/FleetList.spec.ts

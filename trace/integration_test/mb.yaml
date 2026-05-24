@@ -54,3 +54,25 @@ MB Core - Arm Lookup Integration via computeMassBalanceCore
       - IMP-MB-CORE-012
     files:
       - frontend/src/core/logic/__tests__/mass-balance.int.spec.ts
+
+MB Store ↔ Real Adapter Integration
+  IT-MB-STORE-001
+    title: Imperial profile (inches/lb) normalizes to SI and yields correct CG + envelope verdict
+    impl:
+      - IMP-MB-STORE-020
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.int.spec.ts
+
+  IT-MB-STORE-002
+    title: NaN-filled failed compute is blocked from lastResult; ERROR surfaced instead
+    impl:
+      - IMP-MB-STORE-022
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.int.spec.ts
+
+  IT-MB-STORE-003
+    title: Unknown fuel type fails closed (WARN-FE-001); canonical types do not warn
+    impl:
+      - IMP-MB-STORE-021
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.int.spec.ts

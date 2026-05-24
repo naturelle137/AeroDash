@@ -10,7 +10,7 @@ alwaysApply: false
 - scope.domain: `product` `engineering`
 - scope.module: `ac` `ap` `ad` `fe` `mb` `pf` `wx` `ui` `uq` `sys` `doc` `sc` `repo`
 - tag.safety: `safety-critical`
-- status.active: `open` `accepted` `ready`
+- status.active: `open` `accepted`
 - status.closed: `fixed` `duplicate` `wont do`
 
 - type.`Bug`: flaw error failure
@@ -19,12 +19,11 @@ alwaysApply: false
 
 - flow.create: add `open`
 - flow.`open`: `accepted` | `duplicate` | `wont do`
-- flow.`accepted`: `ready` | `wont do`
-- flow.`ready`: `fixed`
+- flow.`accepted`: `fixed` (PR merged to `develop`) | `wont do`
+- flow.close.`fixed`: PR merged to `develop` | `release/*` | `hotfix/*`; use `Closes #` keyword
 - flow.close.`duplicate`: canonical issue link required
 - flow.close.`wont do`: rationale required
-- flow.parent.`ready`: all child `Task` issues closed
-- flow.parent.`fixed`: released on `main`
+- flow.parent.`fixed`: all child `Task` issues closed first
 - flow.task.done: merged to `develop` | `release/*` | `hotfix/*`
 
 - safety.path: `frontend/src/core/`

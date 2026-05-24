@@ -99,26 +99,97 @@ To ensure a consistent UI experience and facilitate automated visual regression 
 
 The brand and primary action color is **Teal**, chosen for its high visibility and psychological association with clarity/calm in high-stress environments.
 
-**Primitive Tokens (The Palette):**
+Implementation: `frontend/src/assets/theme.css`.
 
-- `--color-teal-500`: `#14b8a6` (Primary Light/Dark)
-- `--color-teal-600`: `#0d9488` (Hover/Active)
-- `--color-slate-900`: `#0f172a` (App Background Dark Mode)
-- `--color-slate-50`: `#f8fafc` (App Background Light Mode)
-- `--color-red-500`: `#ef4444` (Critical)
-- `--color-amber-500`: `#f59e0b` (Warning)
-- `--color-emerald-500`: `#10b981` (Safe/Success)
+#### 5.1.1 Primitive Tokens (The Palette)
 
-**Semantic Tokens (The Application):**
-UI components must exclusively use semantic tokens. This allows seamless Dark Mode flipping and guarantees WCAG AAA contrast ratios.
+Primitives define raw hue/value steps. They are **never** used directly in component CSS — always through semantic tokens.
 
-- `--text-primary`: Pure White (`#ffffff`) in Dark Mode, Slate-900 in Light Mode.
-- `--text-muted`: Slate-400 in Dark, Slate-500 in Light.
-- `--bg-surface`: Slate-800 in Dark Mode, White (`#ffffff`) in Light Mode (Cards/Modals).
-- `--color-status-critical`: Mapped to `--color-red-500`.
-- `--color-status-warning`: Mapped to `--color-amber-500`.
-- `--color-status-safe`: Mapped to `--color-emerald-500`.
-- `--color-action-primary`: Mapped to `--color-teal-500`.
+| Token | Hex | Usage context |
+| --- | --- | --- |
+| `--teal-50` | `#e0f2f1` | Light-mode primary backgrounds |
+| `--teal-100` | `#b2dfdb` | Subtle tints |
+| `--teal-200` | `#80cbc4` | Dark-mode hover states, selection |
+| `--teal-300` | `#4db6ac` | Dark-mode primary (7.3:1 on #1e1e1e) |
+| `--teal-400` | `#26a69a` | Dark-mode focus ring |
+| `--teal-500` | `#009688` | Mid-range teal |
+| `--teal-600` | `#00897b` | Light-mode focus ring |
+| `--teal-700` | `#00796b` | Light-mode primary (4.85:1 on white) |
+| `--teal-800` | `#00695c` | Light-mode primary hover (5.74:1) |
+| `--teal-900` | `#004d40` | Deepest teal accent |
+
+| Token | Hex | Usage context |
+| --- | --- | --- |
+| `--neutral-0` | `#ffffff` | White |
+| `--neutral-50` | `#fafafa` | Page bg |
+| `--neutral-100` | `#f5f5f5` | Alt surface |
+| `--neutral-200` | `#eeeeee` | Grid lines |
+| `--neutral-300` | `#e0e0e0` | Borders |
+| `--neutral-400` | `#bdbdbd` | Axis lines |
+| `--neutral-500` | `#9e9e9e` | Disabled |
+| `--neutral-600` | `#757575` | Secondary txt |
+| `--neutral-700` | `#616161` | Chart labels |
+| `--neutral-800` | `#424242` | Body text |
+| `--neutral-900` | `#212121` | Primary text |
+| `--neutral-950` | `#121212` | Dark bg |
+
+Status primitives: `--red-{50,200,600,700,900}`, `--amber-{50,200,600,700}`, `--green-{50,200,600,700}`.
+
+#### 5.1.2 Semantic Tokens (The Application)
+
+UI components must **exclusively** use semantic tokens. This allows seamless Dark Mode flipping and guarantees WCAG AAA contrast ratios. Tokens are defined under `:root` (light, default) and `[data-theme="dark"]`.
+
+**Surfaces & Backgrounds:**
+
+| Token | Light | Dark |
+| --- | --- | --- |
+| `--color-surface` | `#ffffff` | `#1e1e1e` |
+| `--color-surface-alt` | `#f5f5f5` | `#2a2a2a` |
+| `--color-surface-hover` | `#e0e0e0` | `#3a3a3a` |
+| `--color-bg` | `#fafafa` | `#121212` |
+
+**Brand / Primary Action:**
+
+| Token | Light | Dark | Contrast |
+| --- | --- | --- | --- |
+| `--color-primary` | `--teal-700` | `--teal-300` | 4.85 / 7.3:1 |
+| `--color-primary-hover` | `--teal-800` | `--teal-200` | 5.74 / 9.5:1 |
+| `--color-primary-text` | white | `#121212` | matched |
+| `--color-primary-bg` | `--teal-50` | `#0d302d` | subtle |
+
+**Text Hierarchy:**
+
+| Token | Light | Dark | Contrast on surface |
+| --- | --- | --- | --- |
+| `--color-text-primary` | `#212121` | `#e8e8e8` | 16.1 / 13.5:1 |
+| `--color-text-secondary` | `#757575` | `#a0a0a0` | 4.6 / 6.2:1 |
+| `--color-text` | `#424242` | `#d0d0d0` | 10.4 / 10.6:1 |
+
+**Borders & Focus:**
+
+| Token | Light | Dark |
+| --- | --- | --- |
+| `--color-border` | `#e0e0e0` | `#3a3a3a` |
+| `--color-focus` | teal-600 | teal-400 |
+
+**Status — each pair background + foreground:**
+
+| Semantic | Light fg / bg | Dark fg / bg |
+| --- | --- | --- |
+| Success | `#388e3c` / `#e8f5e9` | `#a5d6a7` / `#1b2e1b` |
+| Warning | `#ef6c00` / `#fff3e0` | `#ffcc80` / `#332200` |
+| Critical | `#c62828` / `#ffebee` | `#ef9a9a` / `#2e1515` |
+
+All status pairs maintain ≥ 4.5:1 contrast. Color is **never** the sole indicator of state — icons and shape changes are mandatory (see §3.3).
+
+**Chart Tokens:** `--chart-grid`, `--chart-axis`, `--chart-tick-text`, `--chart-label` — see `theme.css` for exact values per theme.
+
+#### 5.1.3 Logo & Favicon
+
+- **Source SVG:** `frontend/public/favicon.svg` — teal circle (`#00796b`) with white compass/arrow motif.
+- **ICO fallback:** `frontend/public/favicon.ico` — 32 × 32 pixel legacy format.
+- **Inline SVG logo:** rendered in `App.vue` header using `currentColor` so it inherits `--color-primary` in both themes.
+- PWA manifest icons: to be added when `vite-plugin-pwa` is integrated per ADR-310.
 
 ### 5.2 Typography
 
@@ -152,3 +223,211 @@ Motion is strictly functional. It must draw attention to state changes without c
 - **Duration Constraints:** Maximum `200ms` for all UI transitions (modals, color fades, hover states).
 - **Easing:** Real-world physics (`ease-out` for entering elements, `ease-in` for exiting).
 - **Prohibited:** Indeterminate spinners blocking synchronous math. Lengthy layout animations that shift interactive touch-targets while the user is actively attempting to tap them.
+
+### 5.5 Shadow Tokens
+
+Elevation is expressed through a five-step shadow scale. Dark mode shadows are deeper and more dramatic to compensate for the lower ambient contrast.
+
+| Token | Use case |
+| --- | --- |
+| `--shadow-xs` | Subtle card lift, sticky header |
+| `--shadow-sm` | Standard module cards, nav items |
+| `--shadow-md` | Raised dialogs, CTA buttons |
+| `--shadow-lg` | Floating overlays, mobile bottom nav |
+| `--shadow-xl` | Full-screen modals |
+
+In dark mode an additional `--glow-primary` token (`0 0 24px rgba(77,182,172,0.18)`) is available for active elements to provide a teal ambient glow. It evaluates to `none` in light mode.
+
+### 5.6 Border Radius Tokens
+
+| Token | Value | Use case |
+| --- | --- | --- |
+| `--radius-sm` | `0.25rem` | Tight badges, tags |
+| `--radius-md` | `0.5rem` | Input fields, small buttons |
+| `--radius-lg` | `0.75rem` | Standard buttons, nav items, icon containers |
+| `--radius-xl` | `1rem` | Module cards, prep cards |
+| `--radius-2xl` | `1.5rem` | Hero sections |
+| `--radius-full` | `9999px` | Pills, step badges, avatar circles |
+
+### 5.7 Navigation Dimension Tokens
+
+Fixed dimensions for the app shell layout. Set on `:root` only — they do not change between themes.
+
+| Token | Value | Purpose |
+| --- | --- | --- |
+| `--nav-sidebar-width` | `220px` | Expanded desktop sidebar width |
+| `--nav-sidebar-collapsed` | `64px` | Collapsed/icon-only sidebar width |
+| `--nav-header-height` | `56px` | Fixed top header height |
+| `--nav-bottom-height` | `56px` | Mobile bottom tab bar height |
+
+### 5.8 Transition Tokens
+
+| Token | Value | Use case |
+| --- | --- | --- |
+| `--transition-fast` | `0.1s ease-out` | Hover colour/border changes |
+| `--transition-normal` | `0.2s ease-out` | Sidebar collapse, panel open/close |
+| `--transition-slow` | `0.3s ease-out` | Prep card unlock animation |
+
+### 5.9 Additional Surface & Nav Color Tokens
+
+These tokens extend the core surface set and are required by the navigation shell.
+
+**Light / Dark:**
+
+| Token | Purpose |
+| --- | --- |
+| `--color-surface-card` | Card and prep-card backgrounds |
+| `--color-surface-sunken` | Recessed areas (e.g., locked section placeholder) |
+| `--color-surface-raised` | Elevated panels |
+| `--color-divider` | Horizontal rules, sidebar borders |
+| `--color-nav-bg` | Header and sidebar background |
+| `--color-nav-active-bg` | Active nav item background tint |
+| `--color-nav-active-text` | Active nav item label/icon color |
+| `--color-nav-text` | Default nav item label/icon color |
+| `--color-tag-soon-bg` | "Soon" pill background |
+| `--color-tag-soon-text` | "Soon" pill label color |
+
+---
+
+## 6. Navigation Shell
+
+<!-- @DES-UX-007@ (FROM: @REQ-UI-011@, @REQ-SYS-001@) -->
+
+### 6.1 App Shell Layout
+
+The app shell uses a CSS Grid layout with two primary breakpoints.
+
+**Desktop (≥ 768 px):** Three-area grid — fixed header spanning full width, left sidebar, and main content area.
+
+```text
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  header (56 px, sticky, z-index 200)                                        │
+├──────────────────┬──────────────────────────────────────────────────────────┤
+│  sidebar         │  main content (RouterView)                               │
+│  (220 px / 64px) │                                                          │
+│  sticky, scrolls │                                                          │
+└──────────────────┴──────────────────────────────────────────────────────────┘
+```
+
+**Mobile (< 768 px):** Single-column grid — header, main content (full width), and a fixed bottom tab bar.
+
+```text
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  header (56 px, sticky)                                                     │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  main content (RouterView)                                                  │
+│  (padding-bottom = nav-bottom-height to clear the tab bar)                  │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  bottom tab bar (56 px, fixed, z-index 200)                                 │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+### 6.2 Desktop Sidebar
+
+- **Width:** `--nav-sidebar-width` (220 px) expanded; `--nav-sidebar-collapsed` (64 px) when collapsed.
+- **Collapse trigger:** Hamburger button in the header. State held in a local `ref` — no Pinia store required.
+- **Collapsed state:** Labels and "Soon" badges are hidden; icon-only layout. The logo in the header switches to icon-only mode via `:icon-only="sidebarCollapsed"`.
+- **Narrow desktop (768–1023 px):** Sidebar auto-collapses to 64 px regardless of toggle state.
+- **Background:** `--color-nav-bg`; right border `--color-divider`.
+- **Position:** `sticky`, top = `--nav-header-height`, height = `calc(100vh - --nav-header-height)`.
+
+### 6.3 Mobile Bottom Tab Bar
+
+- Shows the first four nav items (Home, Flight Prep, Fleet, Weather).
+- `display: none` on desktop; `display: block` on `< 768 px` via `position: fixed`.
+- Each tab: icon (22 px) stacked above a micro-label (uppercase, `0.625rem`).
+- Active state uses `--color-nav-active-text`; disabled/soon items drop to `0.4` opacity.
+
+### 6.4 Nav Item States
+
+| State | Visual treatment |
+| --- | --- |
+| Default | `--color-nav-text`, no background |
+| Hover (active links only) | `--color-surface-hover` background, `--color-text-primary` text |
+| Active (current route) | `--color-nav-active-bg` background, `--color-nav-active-text` text, `font-weight: 600`, dark-mode glow |
+| Soon / disabled | `opacity: 0.5` (sidebar), `opacity: 0.4` (bottom tab); rendered as `<span>`, not `<RouterLink>`; `aria-disabled="true"` |
+
+### 6.5 AppLogo Component
+
+`frontend/src/shared/components/AppLogo.vue` — tagged `@IMP-UI-SHARED-001@`.
+
+Accepts two props:
+
+- `iconOnly: boolean` — when `true`, hides the wordmark (used in collapsed sidebar header).
+- `size: number` — icon mark size in px (default `32`).
+
+The SVG mark is a stylised "A" letterform with an aircraft silhouette and a runway sweep curve replacing the traditional crossbar. It renders with `currentColor` so it inherits `--color-primary` in both themes.
+
+The wordmark splits into two `<span>` elements: `.app-logo__word-aero` (primary color) and `.app-logo__word-dash` (secondary text color).
+
+---
+
+## 7. HomeView Layout Pattern
+
+<!-- @DES-UX-008@ (FROM: @REQ-UI-011@, @REQ-SYS-001@) -->
+
+`frontend/src/views/HomeView.vue` — tagged `@IMP-UI-VIEW-001@`.
+
+The dashboard home page is structured as three vertically stacked sections with a `max-width: 900px` centered container.
+
+### 7.1 Hero Section
+
+- Card with `--radius-2xl` and a radial gradient accent in the top-left corner (`--color-primary-bg`).
+- Contains: time-of-day greeting (computed from `new Date().getHours()`), headline "Ready for departure?", and guiding principle sub-text.
+- Primary CTA button linking to `/mass-balance` ("Start Flight Preparation"), minimum height 44 px, labeled for screen readers.
+- Advisory disclaimer rendered below the CTA in a warning-tinted `<p role="note">`.
+
+### 7.2 Active Modules Grid
+
+- `auto-fill` CSS grid, minimum column width 260 px.
+- Each active module renders as a `<RouterLink>` module card with: icon container (44 × 44 px, teal background), title, description, and a chevron arrow.
+- Hover: border turns `--color-primary`, card lifts `2px`, glow applied in dark mode.
+
+### 7.3 Coming Soon Modules Grid
+
+- Same grid layout but cards are rendered as `<div>` (not links), `border-style: dashed`, `opacity: 0.55`.
+- A "Soon" pill (`.soon-pill`) replaces the chevron arrow.
+- Module list: Performance, Weather, Fuel & Endurance, Fleet Management, Airport Database.
+
+### 7.4 Mobile Adaptations
+
+Below 768 px the hero collapses to a single column (logo and copy stack vertically), and all grids become single-column. Padding reduces from `--space-8 --space-6` to `--space-4`.
+
+---
+
+## 8. Prep Card Pattern
+
+<!-- @DES-UX-009@ (FROM: @REQ-UI-011@, @REQ-MB-003@) -->
+
+The Flight Preparation view (`MassBalanceView.vue`) introduces the **prep card** as a reusable UI pattern for presenting numbered workflow steps.
+
+### 8.1 Anatomy
+
+Each prep card is a `<section>` with:
+
+| Element | Class | Purpose |
+| --- | --- | --- |
+| Step badge | `.prep-card__badge` | Circular pill with two-digit step number (01–05) |
+| Title | `.prep-card__title` | Section name |
+| Status badge | `.state-badge` / `.locked-badge` / `.soon-pill` | Contextual state indicator |
+| Body | varies | Section-specific content |
+
+### 8.2 Card States
+
+| State | Visual treatment | When applied |
+| --- | --- | --- |
+| Active (aircraft card) | `border-left: 3px solid --color-primary` | Always (section 01) |
+| Unlocked M&B | `border-left: 3px solid --color-primary` | Aircraft selected |
+| Locked M&B | `border-left: 3px solid --color-border`, `opacity: 0.7`, lock overlay | No aircraft selected |
+| Coming soon | `border-style: dashed`, `opacity: 0.5` | Sections 03–05 |
+
+### 8.3 Lock / Unlock Transition
+
+When the user selects an aircraft:
+
+1. Store state transitions `INITIAL → LOADING → UNCONFIGURED`.
+2. `viewModel.mbLocked` becomes `false`.
+3. The locked overlay (`v-if="viewModel.mbLocked"`) is removed and M&B inputs mount.
+4. The border color transitions from `--color-border` to `--color-primary` via `transition: border-color --transition-normal`.
+
+The step badge color distinguishes active steps (teal badge, `--color-primary-bg` / `--color-primary`) from coming-soon steps (muted badge, `--color-tag-soon-bg` / `--color-tag-soon-text`).

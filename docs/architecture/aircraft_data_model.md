@@ -28,7 +28,7 @@ erDiagram
     AircraftProfile ||--o{ PerformanceProfile : "has"
     AircraftProfile ||--o{ SurfaceCondition : "has"
     AircraftProfile ||--o{ WindLimit : "has"
-    AircraftProfile ||--o{ Checklist : "has"
+    AircraftProfile ||--o{ ChecklistScaffoldItem : "has"
     LoadPoint ||--o| FuelTankExtension : "optionally extends"
     LoadPoint ||--o{ ArmLookupEntry : "variable arm (opt.)"
     FuelTankExtension ||--o{ BurnSequenceEntry : "has"
@@ -46,6 +46,10 @@ erDiagram
         string sourceUnit
         string referenceDatumDescription
         string referenceDatumLocation
+        number costPerHour "optional"
+        boolean fuelCostIncluded "optional"
+        string status "draft | verified"
+        number schemaVersion
     }
 
     WeighingReport {
@@ -113,7 +117,7 @@ erDiagram
         string classification "Demonstrated | Limit"
     }
 
-    Checklist {
+    ChecklistScaffoldItem {
         string title
         string[] items
     }
@@ -137,15 +141,19 @@ The top-level aggregate root. One IndexedDB record = one `AircraftProfile`.
 | `referenceDatumDescription` | `string`                  |   Yes    | Textual description of the reference datum.       |
 | `referenceDatumLocation`    | `string`                  |   Yes    | Physical location of the reference datum.         |
 | `shareCode`                 | `string \| null`          |    No    | Share-code for ad-hoc profile sharing.            |
-| `operatingCost`             | `OperatingCost`           |    No    | See Section 3.8.                                  |
+| `costPerHour`               | `number`                  |    No    | See Section 3.8. Non-negative.                    |
+| `fuelCostIncluded`          | `boolean`                 |    No    | See Section 3.8. True when fuel is included.      |
 | `weighingReports`           | `WeighingReport[]`        |   Yes    | See Section 3.2. At least one entry required.     |
 | `loadPoints`                | `LoadPoint[]`             |   Yes    | See Section 3.3. Max 20.                          |
 | `certificationCategories`   | `CertificationCategory[]` |   Yes    | See Section 3.5. At least one entry required.     |
-| `performanceProfiles`       | `PerformanceProfile[]`    |   Yes    | See Section 3.6.                                  |
-| `surfaceConditions`         | `SurfaceCondition[]`      |   Yes    | See Section 3.7.                                  |
+| `performanceProfiles`       | `PerformanceProfile[]`    |    No    | See Section 3.6.                                  |
+| `surfaceConditions`         | `SurfaceCondition[]`      |    No    | See Section 3.7.                                  |
 | `safetyFactors`             | `SafetyFactors`           |    No    | See Section 3.7.                                  |
 | `windLimits`                | `WindLimit[]`             |    No    | See Section 3.9.                                  |
-| `checklists`                | `Checklist[]`             |    No    | See Section 3.10.                                 |
+| `checklistScaffold`         | `ChecklistScaffoldItem[]` |    No    | See Section 3.10.                                 |
+| `passengerProfiles`         | `PassengerProfile[]`      |    No    | Standard passenger weight profiles (M3).          |
+| `status`                    | `'draft' \| 'verified'`   |    No    | Profile verification state (defaults to `draft`). |
+| `schemaVersion`             | `number`                  |    No    | Schema version, currently `1` (defaults to `1`).  |
 
 ### 3.2 WeighingReport
 
@@ -223,23 +231,24 @@ A single vertex of the CG envelope polygon.
 
 ### 3.6 PerformanceProfile
 
-Container for performance data of a specific flight phase.
+Container for performance data of a specific flight phase. Backs `REQ-AD-008`
+(flight phase container) and `REQ-AD-009` (data points).
 
 | Field         | Type                     | Required | Description                                                                       |
 | :------------ | :----------------------- | :------: | :-------------------------------------------------------------------------------- |
 | `flightPhase` | `string`                 |   Yes    | Enum: `TakeoffRoll`, `TakeoffDistance50ft`, `LandingRoll`, `LandingDistance50ft`. |
-| `dataPoints`  | `PerformanceDataPoint[]` |   Yes    | Max 1000 entries.                                                                 |
+| `dataPoints`  | `PerformanceDataPoint[]` |   Yes    | 0–1000 entries. Zod-enforced upper bound.                                         |
 
 #### 3.6.1 PerformanceDataPoint
 
 A single interpolation point for performance calculations.
 
-| Field              | Type     | Required | Description                   |
-| :----------------- | :------- | :------: | :---------------------------- |
-| `distance`         | `number` |   Yes    | Result value (distance).      |
-| `mass`             | `number` |   Yes    | Condition: aircraft mass.     |
-| `pressureAltitude` | `number` |   Yes    | Condition: pressure altitude. |
-| `temperature`      | `number` |   Yes    | Condition: temperature.       |
+| Field              | Type     | Required | Description                                  |
+| :----------------- | :------- | :------: | :------------------------------------------- |
+| `distance`         | `number` |   Yes    | Result value (distance). Non-negative.       |
+| `mass`             | `number` |   Yes    | Condition: aircraft mass. Positive.          |
+| `pressureAltitude` | `number` |   Yes    | Condition: pressure altitude (may be < 0).   |
+| `temperature`      | `number` |   Yes    | Condition: temperature (may be < 0).         |
 
 ### 3.7 SurfaceCondition & SafetyFactors
 
@@ -258,12 +267,16 @@ A single interpolation point for performance calculations.
 | `takeoff` | `number` |   Yes    | POH-mandated minimum safety factor for takeoff. |
 | `landing` | `number` |   Yes    | POH-mandated minimum safety factor for landing. |
 
-### 3.8 OperatingCost
+### 3.8 Operating Cost (REQ-AD-006)
 
-| Field              | Type      | Required | Description                                |
-| :----------------- | :-------- | :------: | :----------------------------------------- |
-| `costPerHour`      | `number`  |   Yes    | Operating cost per flight hour.            |
-| `fuelCostIncluded` | `boolean` |   Yes    | Whether fuel cost is included in the rate. |
+Operating cost is represented as two optional flat fields on the `AircraftProfile`
+root, rather than a nested object. Both are optional; if `costPerHour` is set,
+`fuelCostIncluded` SHOULD also be set to disambiguate the rate.
+
+| Field              | Type      | Required | Description                                         |
+| :----------------- | :-------- | :------: | :-------------------------------------------------- |
+| `costPerHour`      | `number`  |    No    | Operating cost per flight hour. Non-negative.       |
+| `fuelCostIncluded` | `boolean` |    No    | Whether fuel cost is included in `costPerHour`.     |
 
 ### 3.9 WindLimit
 
@@ -275,11 +288,15 @@ Per-component wind limitation with classification.
 | `value`          | `number` |   Yes    | Limit value.                                                    |
 | `classification` | `string` |   Yes    | Enum: `Demonstrated`, `Limit`.                                  |
 
-### 3.10 Checklist
+### 3.10 ChecklistScaffoldItem (REQ-AD-010)
+
+Checklists are stored as a scaffold (title + ordered item strings); functional
+UI interaction is not included in M3. The canonical field name on the root is
+`checklistScaffold`.
 
 | Field   | Type       | Required | Description                      |
 | :------ | :--------- | :------: | :------------------------------- |
-| `title` | `string`   |   Yes    | Checklist title.                 |
+| `title` | `string`   |   Yes    | Checklist title (non-empty).     |
 | `items` | `string[]` |   Yes    | Ordered list of checklist items. |
 
 ## 4. Implementation Notes

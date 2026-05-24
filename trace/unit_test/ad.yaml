@@ -307,3 +307,147 @@ AD Profile Schema (full AircraftProfile Zod validation)
       - IMP-AD-CORE-004
     files:
       - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+AD Schema — Wind Limits (Unit)
+  UT-AD-CORE-045
+    title: Accepts a valid windLimits entry (MaxCrosswind, Demonstrated)
+    impl:
+      - IMP-AD-CORE-009
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AD-CORE-046
+    title: Accepts a valid windLimits entry (MaxCrosswind, Advisory)
+    impl:
+      - IMP-AD-CORE-009
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+AD Schema — Operating Cost (Unit)
+  UT-AD-CORE-050
+    title: Accepts fuelCostIncluded = true alongside costPerHour
+    impl:
+      - IMP-AD-CORE-016
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AD-CORE-051
+    title: Accepts fuelCostIncluded = false alongside costPerHour
+    impl:
+      - IMP-AD-CORE-016
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AD-CORE-052
+    title: Rejects a non-boolean fuelCostIncluded value
+    impl:
+      - IMP-AD-CORE-016
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+AD Schema — Performance Profiles (Unit)
+  UT-AD-CORE-053
+    title: Accepts a performance profile with a valid flight phase and empty data points
+    impl:
+      - IMP-AD-CORE-014
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AD-CORE-054
+    title: Accepts all four documented flight phases
+    impl:
+      - IMP-AD-CORE-014
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AD-CORE-055
+    title: Rejects a performance profile with an invalid flight phase enum
+    impl:
+      - IMP-AD-CORE-014
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AD-CORE-056
+    title: Accepts exactly 1000 performance data points (upper boundary)
+    impl:
+      - IMP-AD-CORE-014
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AD-CORE-057
+    title: Rejects a performance profile with more than 1000 data points
+    impl:
+      - IMP-AD-CORE-014
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AD-CORE-058
+    title: Rejects a performance data point missing the required mass field
+    impl:
+      - IMP-AD-CORE-015
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AD-CORE-059
+    title: Rejects a performance data point with non-positive mass
+    impl:
+      - IMP-AD-CORE-015
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AD-CORE-060
+    title: Rejects a performance data point with a negative distance
+    impl:
+      - IMP-AD-CORE-015
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+AD Core — Finite + numeric range guards (Unit)
+  UT-AD-CORE-061
+    title: Rejects Infinity for weighing-report bem
+    impl:
+      - IMP-AD-CORE-022
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AD-CORE-062
+    title: Rejects -Infinity for a load point arm
+    impl:
+      - IMP-AD-CORE-022
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AD-CORE-063
+    title: Rejects NaN for mtom
+    impl:
+      - IMP-AD-CORE-022
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AD-CORE-064
+    title: Rejects an absurd mtom magnitude (1e308) as out of physical range
+    impl:
+      - IMP-AD-CORE-022
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AD-CORE-065
+    title: Rejects an absurd bem magnitude (1e30)
+    impl:
+      - IMP-AD-CORE-022
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AD-CORE-066
+    title: Rejects Infinity for batteryPack.usableEnergyKwh
+    impl:
+      - IMP-AD-CORE-022
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AD-CORE-067
+    title: Accepts a near-edge finite mtom just under the ceiling
+    impl:
+      - IMP-AD-CORE-022
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts

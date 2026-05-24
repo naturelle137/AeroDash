@@ -1,0 +1,67 @@
+name: Issue Resolution Labels
+
+# On issue close, swap status labels (open / accepted / ready) for the
+# appropriate resolution label (fixed / duplicate / wont do). Labels only —
+# never edits the issue body, so DoD attestation semantics are preserved.
+
+on:
+  issues:
+    types: [closed]
+
+permissions:
+  issues: write
+
+jobs:
+  swap-labels:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Swap status → resolution label
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const issue = context.payload.issue;
+            const number = issue.number;
+            const stateReason = issue.state_reason;
+
+            const STATUS_LABELS = ['open', 'accepted', 'ready'];
+            const RESOLUTION_LABELS = ['fixed', 'duplicate', 'wont do'];
+
+            const current = new Set(issue.labels.map(l => l.name));
+
+            let resolution = null;
+            if (stateReason === 'completed') {
+              resolution = 'fixed';
+            } else if (stateReason === 'duplicate') {
+              resolution = 'duplicate';
+            } else if (stateReason === 'not_planned') {
+              resolution = 'wont do';
+            } else {
+              core.info(`Unknown state_reason=${stateReason}; no label change.`);
+              return;
+            }
+
+            // Skip if issue already carries any resolution label (manual override).
+            const existingResolution = RESOLUTION_LABELS.find(l => current.has(l));
+            if (existingResolution && existingResolution !== resolution) {
+              core.info(`Issue already has resolution label '${existingResolution}'; leaving as-is.`);
+              return;
+            }
+
+            for (const name of STATUS_LABELS) {
+              if (current.has(name)) {
+                try {
+                  await github.rest.issues.removeLabel({ owner, repo, issue_number: number, name });
+                  core.info(`Removed status label: ${name}`);
+                } catch (err) {
+                  if (err.status !== 404) throw err;
+                }
+              }
+            }
+
+            if (!current.has(resolution)) {
+              await github.rest.issues.addLabels({
+                owner, repo, issue_number: number, labels: [resolution],
+              });
+              core.info(`Added resolution label: ${resolution}`);
+            }

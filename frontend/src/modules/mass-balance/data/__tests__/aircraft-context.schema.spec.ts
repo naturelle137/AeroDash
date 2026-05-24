@@ -90,6 +90,27 @@ describe('AircraftContextSchema', () => {
       expect(result.success).toBe(true)
     })
 
+    // @UT-MB-DATA-036@ (FROM: @IMP-MB-DATA-001@, @REQ-AC-005@)
+    it('defaults status to verified when omitted (legacy catalogue)', () => {
+      const result = AircraftContextSchema.safeParse(buildValidContext())
+      expect(result.success).toBe(true)
+      if (!result.success) return
+      expect(result.data.status).toBe('verified')
+    })
+
+    // @UT-MB-DATA-037@ (FROM: @IMP-MB-DATA-001@, @REQ-AC-005@)
+    it('accepts draft status and normalizes legacy Title Case', () => {
+      const lower = AircraftContextSchema.safeParse(buildValidContext({ status: 'draft' }))
+      expect(lower.success).toBe(true)
+      if (!lower.success) return
+      expect(lower.data.status).toBe('draft')
+
+      const legacy = AircraftContextSchema.safeParse(buildValidContext({ status: 'Draft' }))
+      expect(legacy.success).toBe(true)
+      if (!legacy.success) return
+      expect(legacy.data.status).toBe('draft')
+    })
+
     // @UT-MB-DATA-002@ (FROM: @IMP-MB-DATA-001@)
     it('rejects id as empty string', () => {
       const result = AircraftContextSchema.safeParse(buildValidContext({ id: '' }))
@@ -355,7 +376,7 @@ describe('AircraftContextSchema', () => {
             buildValidLoadPoint({
               fuelTank: {
                 unusableFuel: 1.5,
-                permissibleFuelTypes: ['AVGAS 100LL'],
+                permissibleFuelTypes: ['AvGas 100LL'],
                 burnSequences: [{ sequenceName: 'Main', ordinalPosition: 1 }],
               },
             }),
@@ -391,7 +412,7 @@ describe('AircraftContextSchema', () => {
             buildValidLoadPoint({
               fuelTank: {
                 unusableFuel: 0,
-                permissibleFuelTypes: [],
+                permissibleFuelTypes: ['AvGas 100LL'],
                 burnSequences: [],
               },
             }),
@@ -409,7 +430,7 @@ describe('AircraftContextSchema', () => {
             buildValidLoadPoint({
               fuelTank: {
                 unusableFuel: 0,
-                permissibleFuelTypes: ['AVGAS 100LL', 'MOGAS'],
+                permissibleFuelTypes: ['AvGas 100LL', 'MoGas'],
                 burnSequences: [
                   { sequenceName: 'Main', ordinalPosition: 1 },
                   { sequenceName: 'Aux', ordinalPosition: 2 },
@@ -420,6 +441,61 @@ describe('AircraftContextSchema', () => {
         }),
       )
       expect(result.success).toBe(true)
+    })
+
+    // @UT-MB-DATA-038@ (FROM: @IMP-MB-DATA-003@, @REQ-FE-001@, H-002)
+    it('rejects a genuinely unknown fuel-type string (CS-009 fail-closed)', () => {
+      const result = AircraftContextSchema.safeParse(
+        buildValidContext({
+          loadPoints: [
+            buildValidLoadPoint({
+              fuelTank: {
+                unusableFuel: 0,
+                // typo / attacker value that would silently hit the 0.84 fallback
+                permissibleFuelTypes: ['Kerosene'],
+                burnSequences: [],
+              },
+            }),
+          ],
+        }),
+      )
+      expect(result.success).toBe(false)
+    })
+
+    // @UT-MB-DATA-040@ (FROM: @IMP-MB-DATA-003@, @REQ-FE-001@)
+    it('tolerates the deprecated uppercase aliases that resolve a correct density', () => {
+      const result = AircraftContextSchema.safeParse(
+        buildValidContext({
+          loadPoints: [
+            buildValidLoadPoint({
+              fuelTank: {
+                unusableFuel: 0,
+                permissibleFuelTypes: ['AVGAS', 'MOGAS'],
+                burnSequences: [],
+              },
+            }),
+          ],
+        }),
+      )
+      expect(result.success).toBe(true)
+    })
+
+    // @UT-MB-DATA-039@ (FROM: @IMP-MB-DATA-003@, @REQ-FE-001@)
+    it('rejects an empty permissibleFuelTypes array (min 1)', () => {
+      const result = AircraftContextSchema.safeParse(
+        buildValidContext({
+          loadPoints: [
+            buildValidLoadPoint({
+              fuelTank: {
+                unusableFuel: 0,
+                permissibleFuelTypes: [],
+                burnSequences: [],
+              },
+            }),
+          ],
+        }),
+      )
+      expect(result.success).toBe(false)
     })
   })
 
@@ -440,6 +516,48 @@ describe('AircraftContextSchema', () => {
         }),
       )
       expect(result.success).toBe(true)
+    })
+  })
+
+  // ─── Powertrain discriminator + battery pack (REQ-AD-020, REQ-AD-021) ─────
+  // @UT-MB-DATA-001@ (FROM: @IMP-MB-DATA-002@)
+  describe('powertrain discriminator', () => {
+    it('defaults to combustion when the field is omitted (legacy contexts)', () => {
+      const result = AircraftContextSchema.safeParse(buildValidContext())
+      expect(result.success).toBe(true)
+      if (!result.success) return
+      expect(result.data.powertrain).toBe('combustion')
+    })
+
+    it('accepts an electric context with a battery pack', () => {
+      const result = AircraftContextSchema.safeParse(
+        buildValidContext({
+          powertrain: 'electric',
+          batteryPack: { usableEnergyKwh: 24.8, reserveFloorKwh: 4.0 },
+        }),
+      )
+      expect(result.success).toBe(true)
+    })
+
+    it('rejects a combustion context that contains a battery pack', () => {
+      // AircraftContextSchema does not superRefine — battery pack is simply
+      // passed through. Schema accepts both fields independently. The cross-
+      // field guard lives in AircraftProfileSchema (the fleet source of truth)
+      // so this test asserts the M&B layer stays structural only.
+      const result = AircraftContextSchema.safeParse(
+        buildValidContext({
+          powertrain: 'combustion',
+          batteryPack: { usableEnergyKwh: 24.8, reserveFloorKwh: 4.0 },
+        }),
+      )
+      expect(result.success).toBe(true)
+    })
+
+    it('rejects an unknown powertrain value', () => {
+      const result = AircraftContextSchema.safeParse(
+        buildValidContext({ powertrain: 'hybrid' }),
+      )
+      expect(result.success).toBe(false)
     })
   })
 })

@@ -13,7 +13,7 @@ This document defines the user interface behavior using the **EARS** (Easy Appro
 **Requirement:** When the user selects a manufacturer from the dropdown, the model dropdown shall be populated with models for that manufacturer.
 **Rationale:** Context-aware selection.
 **Priority:** P2
-**Status:** Approved
+**Status:** Implemented
 **Design Reference:** n/a
 
 <!-- @REQ-UI-002@ -->
@@ -23,7 +23,7 @@ This document defines the user interface behavior using the **EARS** (Easy Appro
 **Requirement:** When 'Other' is selected for manufacturer, the system shall replace the model dropdown with a text input field for manual entry.
 **Rationale:** Support for rare or one-off aircraft.
 **Priority:** P1
-**Status:** Approved
+**Status:** Implemented
 **Design Reference:** n/a
 
 <!-- @REQ-UI-003@ -->
@@ -33,7 +33,7 @@ This document defines the user interface behavior using the **EARS** (Easy Appro
 **Requirement:** When a model is selected, the ICAO aircraft type designator field shall be auto-filled.
 **Rationale:** Faster and more accurate identification.
 **Priority:** P2
-**Status:** Approved
+**Status:** Implemented
 **Design Reference:** n/a
 
 <!-- @REQ-UI-004@ -->
@@ -43,7 +43,7 @@ This document defines the user interface behavior using the **EARS** (Easy Appro
 **Requirement:** When a valid ICAO type designator is entered, the system shall display a selection list of matching Manufacturer/Model combinations.
 **Rationale:** Bidirectional lookup for convenience.
 **Priority:** P2
-**Status:** Approved
+**Status:** Implemented
 **Design Reference:** n/a
 
 <!-- @REQ-UI-005@ -->
@@ -63,7 +63,7 @@ This document defines the user interface behavior using the **EARS** (Easy Appro
 **Requirement:** The system shall display available Passenger Profiles for quick selection within the load station input fields
 **Rationale:** Operational efficiency for frequent flyers.
 **Priority:** P2
-**Status:** Approved
+**Status:** Implemented
 **Design Reference:** n/a
 
 ### REQ-UI-007
@@ -77,7 +77,7 @@ This document defines the user interface behavior using the **EARS** (Easy Appro
 **Requirement:** When numeric inputs are outside standard operational ranges ($QNH \notin [950, 1100]\,\text{hPa}$, Temperature $\notin [-40, +50]\,\text{°C}$), the system shall emit a WARNING notification (`WARN-UI-001`) alerting the user that the input is out of range, but shall allow entry confirmation.
 **Rationale:** Prevents fat-finger errors during planning.
 **Priority:** P1
-**Status:** Approved
+**Status:** Implemented
 **Design Reference:** [Notification Schema](../architecture/notification_schema.md)
 
 <!-- @REQ-UI-009@ (FROM: @H-005@) -->
@@ -127,7 +127,7 @@ This document defines the user interface behavior using the **EARS** (Easy Appro
 **Requirement:** The system shall display the current Semantic Version (SemVer) and Release Date in a dedicated "About" view.
 **Rationale:** Enables manual verification of the software state by the pilot.
 **Priority:** P2
-**Status:** Approved
+**Status:** Implemented
 **Design Reference:** n/a
 
 <!-- @REQ-UI-014@ -->
@@ -199,6 +199,36 @@ This document defines the user interface behavior using the **EARS** (Easy Appro
 **Priority:** P2
 **Status:** Approved
 **Design Reference:** n/a
+
+<!-- @REQ-UI-021@ (FROM: @REQ-AD-020@) -->
+
+### REQ-UI-021: Powertrain Selector in Aircraft Wizard
+
+**Requirement:** The aircraft wizard shall present a Powertrain selector with the options `Combustion` and `Electric`. When the selected catalogue entry declares an `electric` powertrain, the system shall pre-select `Electric`. The pilot shall be able to override the selection.
+**Rationale:** Pilots choose the powertrain once at creation; the catalogue hint turns picking "Pipistrel Velis Electro" into the correct configuration without extra clicks, while the override keeps one-off or non-catalogued aircraft supported.
+**Priority:** P1
+**Status:** Approved
+**Design Reference:** [Native Electric Aircraft UX](../ux/native-electric-aircraft.md)
+
+<!-- @REQ-UI-022@ (FROM: @REQ-AD-020@, @REQ-AD-022@) -->
+
+### REQ-UI-022: Powertrain-Gated Editor Sections
+
+**Requirement:** While `powertrain` is `electric`, the aircraft wizard and editor shall hide every fuel-tank control (fuel-tank toggle on load points, `+ Add Fuel Tank` button, fuel-type selector, burn-sequence editor) and shall show the Battery Pack section. While `powertrain` is `combustion`, the aircraft wizard and editor shall hide the Battery Pack section.
+**Rationale:** Combustion pilots must never see battery fields and electric pilots must never see fuel fields; mixed UI invites invalid data and is the defect called out in issue #225.
+**Priority:** P1
+**Status:** Approved
+**Design Reference:** [Native Electric Aircraft UX](../ux/native-electric-aircraft.md)
+
+<!-- @REQ-UI-023@ (FROM: @H-011@, @REQ-AD-022@) -->
+
+### REQ-UI-023: Powertrain Field Immutability in Aircraft Editor
+
+**Requirement:** While the user is editing a persisted aircraft profile, the system shall render the profile's `powertrain` value as a read-only label, shall not present any input control that writes to `powertrain`, and shall retain the stored `powertrain` value when the user selects a model whose catalogue entry declares a different powertrain.
+**Rationale:** A persisted profile has a topology (fuel tanks or battery pack) bound to its `powertrain` by [REQ-AD-022](./detailed_aircraft_data.md#req-ad-022-powertrain-field-exclusivity). Any path that mutates `powertrain` on an existing profile without rebuilding the dependent fields produces orphaned state that the schema then rejects on save (`BATTERY_PACK_NOT_ALLOWED_FOR_COMBUSTION`, `ELECTRIC_AIRCRAFT_HAS_FUEL_TANK`, `BATTERY_PACK_REQUIRED_FOR_ELECTRIC`). Locking both the direct radio control and the catalogue-driven hint closes the two known pathways and mirrors the physical reality that an airframe does not change propulsion type after it has been weighed. The wizard retains the selector per [REQ-UI-021](#req-ui-021-powertrain-selector-in-aircraft-wizard); lock applies only to the editor flow.
+**Priority:** P1
+**Status:** Approved
+**Design Reference:** [Native Electric Aircraft UX](../ux/native-electric-aircraft.md)
 
 ---
 

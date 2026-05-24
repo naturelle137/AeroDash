@@ -31,6 +31,23 @@ export interface FuelTankDefinition {
   burnSequences: BurnSequenceEntry[]
 }
 
+// @IMP-AD-CORE-020@ (FROM: @REQ-AD-020@)
+/**
+ * Powertrain discriminator. Drives a large chunk of the downstream UX —
+ * combustion profiles show fuel tanks, burn sequences and fuel-mass based
+ * endurance; electric profiles show a battery pack and energy-based
+ * endurance. See ADR-009 (powertrain-discriminator) for the rationale.
+ */
+export type PowertrainType = 'combustion' | 'electric'
+
+// @IMP-AD-CORE-021@ (FROM: @REQ-AD-021@)
+export interface BatteryPackDefinition {
+  usableEnergyKwh: number
+  reserveFloorKwh: number
+  nominalVoltage?: number
+  chemistry?: string
+}
+
 export interface LoadPointDefinition {
   name: string
   arm: number | null
@@ -59,8 +76,30 @@ export interface WeighingReport {
   validFrom: string
 }
 
+// @IMP-AD-CORE-017@ (FROM: @REQ-AD-008@, @REQ-AD-009@)
+export type FlightPhase =
+  | 'TakeoffRoll'
+  | 'TakeoffDistance50ft'
+  | 'LandingRoll'
+  | 'LandingDistance50ft'
+
+export interface PerformanceDataPoint {
+  distance: number
+  mass: number
+  pressureAltitude: number
+  temperature: number
+}
+
+export interface PerformanceProfile {
+  flightPhase: FlightPhase
+  dataPoints: PerformanceDataPoint[]
+}
+
 /**
  * Subset of AircraftProfile required for Mass & Balance calculations.
+ *
+ * `status` follows the fleet FSM (`draft` | `verified`). Omitted in input data is
+ * treated as `verified` at validation time (legacy catalogue entries).
  */
 export interface AircraftContext {
   id: string
@@ -68,6 +107,15 @@ export interface AircraftContext {
   manufacturer: string
   model: string
   sourceUnit: string
+  /** Fleet verification state; drives WARN-AC-002 when `draft` (REQ-AC-005). */
+  status?: 'draft' | 'verified'
+  /**
+   * Powertrain discriminator. Omitted on legacy records; callers must treat
+   * `undefined` as `'combustion'` (the legacy default) for backwards-compat.
+   */
+  powertrain?: PowertrainType
+  /** Present when `powertrain === 'electric'`. */
+  batteryPack?: BatteryPackDefinition
   weighingReports: WeighingReport[]
   loadPoints: LoadPointDefinition[]
   certificationCategories: CategoryDefinition[]

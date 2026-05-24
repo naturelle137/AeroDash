@@ -180,15 +180,164 @@ describe('AircraftProfileSchema — valid profiles', () => {
   })
 
   // @UT-AD-CORE-022@ (FROM: @IMP-AD-CORE-004@)
-  it('accepts optional M3/M4 placeholder fields when provided as arrays', () => {
+  it('accepts optional M4 placeholder field performanceProfiles when provided as array', () => {
     const result = AircraftProfileSchema.safeParse(
       cloneWith((p) => {
         p.performanceProfiles = [{ flightPhase: 'TakeoffRoll', dataPoints: [] }]
-        p.checklists = [{ title: 'Before Takeoff', items: ['Check fuel'] }]
-        p.operatingCost = { costPerHour: 120, fuelCostIncluded: true }
       }),
     )
     expect(result.success).toBe(true)
+  })
+
+  // @UT-AC-CORE-001@ (FROM: @IMP-AC-CORE-002@)
+  it('defaults status to draft when status is omitted', () => {
+    const result = AircraftProfileSchema.safeParse(createValidProfile())
+    expect(result.success).toBe(true)
+    if (!result.success) return
+    expect(result.data.status).toBe('draft')
+  })
+
+  // @UT-AC-CORE-002@ (FROM: @IMP-AC-CORE-002@)
+  it('accepts status = verified and normalizes legacy Title Case', () => {
+    const lower = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        p.status = 'verified'
+      }),
+    )
+    expect(lower.success).toBe(true)
+    if (!lower.success) return
+    expect(lower.data.status).toBe('verified')
+
+    const legacy = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        p.status = 'Verified'
+      }),
+    )
+    expect(legacy.success).toBe(true)
+    if (!legacy.success) return
+    expect(legacy.data.status).toBe('verified')
+  })
+
+  // @UT-AC-CORE-003@ (FROM: @IMP-AC-CORE-002@)
+  it('rejects an invalid status value', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        p.status = 'Pending'
+      }),
+    )
+    expect(result.success).toBe(false)
+  })
+
+  // @UT-AC-CORE-004@ (FROM: @IMP-AC-CORE-002@)
+  it('defaults schemaVersion to 1 when omitted', () => {
+    const result = AircraftProfileSchema.safeParse(createValidProfile())
+    expect(result.success).toBe(true)
+    if (!result.success) return
+    expect(result.data.schemaVersion).toBe(1)
+  })
+
+  // @UT-AC-CORE-005@ (FROM: @IMP-AC-CORE-002@)
+  it('rejects schemaVersion = 0 (must be positive integer)', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        p.schemaVersion = 0
+      }),
+    )
+    expect(result.success).toBe(false)
+  })
+
+  // @UT-AC-CORE-006@ (FROM: @IMP-AC-CORE-001@)
+  it('defaults passengerProfiles to empty array when omitted', () => {
+    const result = AircraftProfileSchema.safeParse(createValidProfile())
+    expect(result.success).toBe(true)
+    if (!result.success) return
+    expect(result.data.passengerProfiles).toEqual([])
+  })
+
+  // @UT-AC-CORE-007@ (FROM: @IMP-AC-CORE-001@)
+  it('accepts valid passengerProfiles array', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        p.passengerProfiles = [
+          { name: 'Adult', standardWeight: 86, unit: 'kg' },
+          { name: 'Child', standardWeight: 35, unit: 'kg' },
+        ]
+      }),
+    )
+    expect(result.success).toBe(true)
+  })
+
+  // @UT-AC-CORE-008@ (FROM: @IMP-AC-CORE-001@)
+  it('rejects a passengerProfile with standardWeight = 0', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        p.passengerProfiles = [{ name: 'Adult', standardWeight: 0, unit: 'kg' }]
+      }),
+    )
+    expect(result.success).toBe(false)
+  })
+
+  // @UT-AC-CORE-009@ (FROM: @IMP-AC-CORE-001@)
+  it('rejects a passengerProfile with an invalid unit', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        p.passengerProfiles = [{ name: 'Adult', standardWeight: 86, unit: 'stone' }]
+      }),
+    )
+    expect(result.success).toBe(false)
+  })
+
+  // @UT-AD-CORE-045@ (FROM: @IMP-AD-CORE-008@)
+  it('accepts valid costPerHour when provided', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        p.costPerHour = 120
+      }),
+    )
+    expect(result.success).toBe(true)
+  })
+
+  // @UT-AD-CORE-046@ (FROM: @IMP-AD-CORE-008@)
+  it('accepts costPerHour = 0 (zero is valid, nonnegative)', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        p.costPerHour = 0
+      }),
+    )
+    expect(result.success).toBe(true)
+  })
+
+  // @UT-AD-CORE-047@ (FROM: @IMP-AD-CORE-008@)
+  it('rejects a negative costPerHour', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        p.costPerHour = -10
+      }),
+    )
+    expect(result.success).toBe(false)
+  })
+
+  // @UT-AD-CORE-048@ (FROM: @IMP-AD-CORE-008@)
+  it('accepts valid checklistScaffold when provided', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        p.checklistScaffold = [
+          { title: 'Before Takeoff', items: ['Check fuel', 'Trim set'] },
+          { title: 'Cruise', items: [] },
+        ]
+      }),
+    )
+    expect(result.success).toBe(true)
+  })
+
+  // @UT-AD-CORE-049@ (FROM: @IMP-AD-CORE-008@)
+  it('rejects a checklistScaffold item with an empty title', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        p.checklistScaffold = [{ title: '', items: [] }]
+      }),
+    )
+    expect(result.success).toBe(false)
   })
 })
 
@@ -503,6 +652,170 @@ describe('AircraftProfileSchema — fuel tank extension violations', () => {
   })
 })
 
+// ─── Operating cost violations (REQ-AD-006) ─────────────────────────────────
+
+describe('AircraftProfileSchema — operating cost (fuelCostIncluded)', () => {
+  // @UT-AD-CORE-050@ (FROM: @IMP-AD-CORE-016@)
+  it('accepts fuelCostIncluded = true alongside costPerHour', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        p.costPerHour = 180
+        p.fuelCostIncluded = true
+      }),
+    )
+    expect(result.success).toBe(true)
+    if (!result.success) return
+    expect(result.data.fuelCostIncluded).toBe(true)
+  })
+
+  // @UT-AD-CORE-051@ (FROM: @IMP-AD-CORE-016@)
+  it('accepts fuelCostIncluded = false alongside costPerHour', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        p.costPerHour = 180
+        p.fuelCostIncluded = false
+      }),
+    )
+    expect(result.success).toBe(true)
+    if (!result.success) return
+    expect(result.data.fuelCostIncluded).toBe(false)
+  })
+
+  // @UT-AD-CORE-052@ (FROM: @IMP-AD-CORE-016@)
+  it('rejects a non-boolean fuelCostIncluded value', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        p.fuelCostIncluded = 'yes'
+      }),
+    )
+    expect(result.success).toBe(false)
+  })
+})
+
+// ─── Performance profile validation (REQ-AD-008, REQ-AD-009) ────────────────
+
+describe('AircraftProfileSchema — performance profiles', () => {
+  // @UT-AD-CORE-053@ (FROM: @IMP-AD-CORE-014@)
+  it('accepts a performance profile with a valid flight phase and empty data points', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        p.performanceProfiles = [{ flightPhase: 'TakeoffRoll', dataPoints: [] }]
+      }),
+    )
+    expect(result.success).toBe(true)
+  })
+
+  // @UT-AD-CORE-054@ (FROM: @IMP-AD-CORE-014@)
+  it('accepts all four documented flight phases', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        p.performanceProfiles = [
+          { flightPhase: 'TakeoffRoll', dataPoints: [] },
+          { flightPhase: 'TakeoffDistance50ft', dataPoints: [] },
+          { flightPhase: 'LandingRoll', dataPoints: [] },
+          { flightPhase: 'LandingDistance50ft', dataPoints: [] },
+        ]
+      }),
+    )
+    expect(result.success).toBe(true)
+  })
+
+  // @UT-AD-CORE-055@ (FROM: @IMP-AD-CORE-014@)
+  it('rejects a performance profile with an invalid flight phase enum', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        p.performanceProfiles = [{ flightPhase: 'Climb', dataPoints: [] }]
+      }),
+    )
+    expect(result.success).toBe(false)
+  })
+
+  // @UT-AD-CORE-056@ (FROM: @IMP-AD-CORE-014@)
+  it('accepts exactly 1000 performance data points (upper boundary)', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        p.performanceProfiles = [
+          {
+            flightPhase: 'TakeoffDistance50ft',
+            dataPoints: Array.from({ length: 1000 }, (_, i) => ({
+              distance: 100 + i,
+              mass: 600,
+              pressureAltitude: i,
+              temperature: 15,
+            })),
+          },
+        ]
+      }),
+    )
+    expect(result.success).toBe(true)
+  })
+
+  // @UT-AD-CORE-057@ (FROM: @IMP-AD-CORE-014@)
+  it('rejects a performance profile with more than 1000 data points', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        p.performanceProfiles = [
+          {
+            flightPhase: 'TakeoffDistance50ft',
+            dataPoints: Array.from({ length: 1001 }, (_, i) => ({
+              distance: 100 + i,
+              mass: 600,
+              pressureAltitude: i,
+              temperature: 15,
+            })),
+          },
+        ]
+      }),
+    )
+    expect(result.success).toBe(false)
+  })
+
+  // @UT-AD-CORE-058@ (FROM: @IMP-AD-CORE-015@)
+  it('rejects a performance data point missing the required mass field', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        p.performanceProfiles = [
+          {
+            flightPhase: 'LandingRoll',
+            dataPoints: [{ distance: 200, pressureAltitude: 0, temperature: 15 }],
+          },
+        ]
+      }),
+    )
+    expect(result.success).toBe(false)
+  })
+
+  // @UT-AD-CORE-059@ (FROM: @IMP-AD-CORE-015@)
+  it('rejects a performance data point with non-positive mass', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        p.performanceProfiles = [
+          {
+            flightPhase: 'LandingRoll',
+            dataPoints: [{ distance: 200, mass: 0, pressureAltitude: 0, temperature: 15 }],
+          },
+        ]
+      }),
+    )
+    expect(result.success).toBe(false)
+  })
+
+  // @UT-AD-CORE-060@ (FROM: @IMP-AD-CORE-015@)
+  it('rejects a performance data point with a negative distance', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        p.performanceProfiles = [
+          {
+            flightPhase: 'LandingDistance50ft',
+            dataPoints: [{ distance: -1, mass: 600, pressureAltitude: 0, temperature: 15 }],
+          },
+        ]
+      }),
+    )
+    expect(result.success).toBe(false)
+  })
+})
+
 // ─── Wind limit violations ────────────────────────────────────────────────────
 
 describe('AircraftProfileSchema — wind limit violations', () => {
@@ -524,5 +837,249 @@ describe('AircraftProfileSchema — wind limit violations', () => {
       }),
     )
     expect(result.success).toBe(false)
+  })
+})
+
+// ─── Powertrain discriminator + battery pack (REQ-AD-020, REQ-AD-021) ───────
+// @UT-AD-CORE-045@ (FROM: @IMP-AD-CORE-018@, @IMP-AD-CORE-019@)
+
+describe('AircraftProfileSchema — powertrain discriminator', () => {
+  it('defaults powertrain to "combustion" when the field is omitted (legacy records)', () => {
+    const result = AircraftProfileSchema.safeParse(createValidProfile())
+    expect(result.success).toBe(true)
+    if (!result.success) return
+    expect(result.data.powertrain).toBe('combustion')
+  })
+
+  it('accepts an explicit combustion profile without a battery pack', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        p.powertrain = 'combustion'
+      }),
+    )
+    expect(result.success).toBe(true)
+  })
+
+  it('rejects a combustion profile that also carries a battery pack', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        p.powertrain = 'combustion'
+        p.batteryPack = { usableEnergyKwh: 24.8, reserveFloorKwh: 4.0 }
+      }),
+    )
+    expect(result.success).toBe(false)
+    if (result.success) return
+    const issue = result.error.issues.find(
+      (i) => i.message === 'BATTERY_PACK_NOT_ALLOWED_FOR_COMBUSTION',
+    )
+    expect(issue).toBeDefined()
+  })
+
+  it('accepts an electric profile with a valid battery pack', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        p.powertrain = 'electric'
+        p.batteryPack = {
+          usableEnergyKwh: 24.8,
+          reserveFloorKwh: 4.0,
+          nominalVoltage: 345,
+          chemistry: 'LiFePO4',
+        }
+      }),
+    )
+    expect(result.success).toBe(true)
+  })
+
+  it('accepts an electric profile with only the required battery fields', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        p.powertrain = 'electric'
+        p.batteryPack = { usableEnergyKwh: 24.8, reserveFloorKwh: 4.0 }
+      }),
+    )
+    expect(result.success).toBe(true)
+  })
+
+  it('rejects an electric profile with no battery pack', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        p.powertrain = 'electric'
+      }),
+    )
+    expect(result.success).toBe(false)
+    if (result.success) return
+    const issue = result.error.issues.find(
+      (i) => i.message === 'BATTERY_PACK_REQUIRED_FOR_ELECTRIC',
+    )
+    expect(issue).toBeDefined()
+  })
+
+  it('rejects an electric profile where the reserve floor equals usable energy', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        p.powertrain = 'electric'
+        p.batteryPack = { usableEnergyKwh: 24.8, reserveFloorKwh: 24.8 }
+      }),
+    )
+    expect(result.success).toBe(false)
+    if (result.success) return
+    const issue = result.error.issues.find(
+      (i) => i.message === 'RESERVE_EXCEEDS_USABLE_ENERGY',
+    )
+    expect(issue).toBeDefined()
+  })
+
+  it('rejects an electric profile where the reserve floor exceeds usable energy', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        p.powertrain = 'electric'
+        p.batteryPack = { usableEnergyKwh: 24.8, reserveFloorKwh: 30.0 }
+      }),
+    )
+    expect(result.success).toBe(false)
+  })
+
+  it('rejects a battery pack with non-positive usable energy', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        p.powertrain = 'electric'
+        p.batteryPack = { usableEnergyKwh: 0, reserveFloorKwh: 0 }
+      }),
+    )
+    expect(result.success).toBe(false)
+  })
+
+  it('rejects an electric profile that still carries a fuel tank load point', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        p.powertrain = 'electric'
+        p.batteryPack = { usableEnergyKwh: 24.8, reserveFloorKwh: 4.0 }
+        p.loadPoints = [
+          {
+            name: 'Pilot',
+            arm: 0.85,
+            armLookup: [],
+            operationalLimit: 110,
+            defaultQuantity: 0,
+            unit: 'kg',
+            allowableCategories: null,
+            fuelTank: null,
+          },
+          {
+            name: 'Main Fuel',
+            arm: 1.1,
+            armLookup: [],
+            operationalLimit: 100,
+            defaultQuantity: 0,
+            unit: 'L',
+            allowableCategories: null,
+            fuelTank: {
+              unusableFuel: 1,
+              permissibleFuelTypes: ['AvGas 100LL'],
+              burnSequences: [],
+            },
+          },
+        ]
+      }),
+    )
+    expect(result.success).toBe(false)
+    if (result.success) return
+    const issue = result.error.issues.find(
+      (i) => i.message === 'ELECTRIC_AIRCRAFT_HAS_FUEL_TANK',
+    )
+    expect(issue).toBeDefined()
+  })
+
+  it('rejects an unknown powertrain value', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        p.powertrain = 'hybrid'
+      }),
+    )
+    expect(result.success).toBe(false)
+  })
+})
+
+// ─── Finite + numeric domain ranges (TECH-003 / CS-002) ──────────────────────
+
+describe('AircraftProfileSchema — finite + numeric range guards', () => {
+  // @UT-AD-CORE-061@ (FROM: @IMP-AD-CORE-022@)
+  it('rejects Infinity for bem (Zod number() would otherwise accept it)', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        const reports = p.weighingReports as Record<string, unknown>[]
+        reports[0]!.bem = Infinity
+      }),
+    )
+    expect(result.success).toBe(false)
+  })
+
+  // @UT-AD-CORE-062@ (FROM: @IMP-AD-CORE-022@)
+  it('rejects -Infinity for a load point arm', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        const lps = p.loadPoints as Record<string, unknown>[]
+        lps[0]!.arm = -Infinity
+      }),
+    )
+    expect(result.success).toBe(false)
+  })
+
+  // @UT-AD-CORE-063@ (FROM: @IMP-AD-CORE-022@)
+  it('rejects NaN for mtom', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        const cats = p.certificationCategories as Record<string, unknown>[]
+        cats[0]!.mtom = NaN
+      }),
+    )
+    expect(result.success).toBe(false)
+  })
+
+  // @UT-AD-CORE-064@ (FROM: @IMP-AD-CORE-022@)
+  it('rejects an absurd mtom magnitude (1e308) as out of physical range', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        const cats = p.certificationCategories as Record<string, unknown>[]
+        cats[0]!.mtom = 1e308
+      }),
+    )
+    expect(result.success).toBe(false)
+  })
+
+  // @UT-AD-CORE-065@ (FROM: @IMP-AD-CORE-022@)
+  it('rejects an absurd bem magnitude (1e30)', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        const reports = p.weighingReports as Record<string, unknown>[]
+        reports[0]!.bem = 1e30
+      }),
+    )
+    expect(result.success).toBe(false)
+  })
+
+  // @UT-AD-CORE-066@ (FROM: @IMP-AD-CORE-022@)
+  it('rejects Infinity for batteryPack.usableEnergyKwh', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        p.powertrain = 'electric'
+        p.batteryPack = { usableEnergyKwh: Infinity, reserveFloorKwh: 4 }
+        // electric forbids fuel tanks; the minimal fixture has none.
+      }),
+    )
+    expect(result.success).toBe(false)
+  })
+
+  // @UT-AD-CORE-067@ (FROM: @IMP-AD-CORE-022@)
+  it('still accepts a near-edge finite mtom (199_999 kg) just under the ceiling', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        const cats = p.certificationCategories as Record<string, unknown>[]
+        cats[0]!.mtom = 199_999
+        // keep envelope mass below mtom so no cross-field surprise; not enforced
+        // here but realistic.
+      }),
+    )
+    expect(result.success).toBe(true)
   })
 })

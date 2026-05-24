@@ -63,7 +63,7 @@ This document defines the detailed aircraft data behavior using the **EARS** (Ea
 **Requirement:** The system shall store cost per hour and indicate whether fuel cost is included.
 **Rationale:** Cost management feature for flight preparation.
 **Priority:** P3
-**Status:** Approved
+**Status:** Implemented
 **Design Reference:** n/a
 
 <!-- @REQ-AD-007@ -->
@@ -73,7 +73,7 @@ This document defines the detailed aircraft data behavior using the **EARS** (Ea
 **Requirement:** The system shall store the reference datum definition (description and location) for each aircraft.
 **Rationale:** Ensures pilot understands the origin of the coordinate system.
 **Priority:** P2
-**Status:** Approved
+**Status:** Implemented
 **Design Reference:** n/a
 
 <!-- @REQ-AD-008@ -->
@@ -103,7 +103,7 @@ This document defines the detailed aircraft data behavior using the **EARS** (Ea
 **Requirement:** The system shall store checklists associated with each aircraft.
 **Rationale:** Integrated safety documentation.
 **Priority:** P3
-**Status:** Approved
+**Status:** Implemented
 **Design Reference:** n/a
 
 <!-- @REQ-AD-011@ -->
@@ -143,7 +143,7 @@ This document defines the detailed aircraft data behavior using the **EARS** (Ea
 **Requirement:** The system shall store aircraft profile data (POH/AFM values and units of the values) in the original unit of the manufacturer's documentation.
 **Rationale:** Prevent calculation errors due to using wrong units.
 **Priority:** P1
-**Status:** Approved
+**Status:** Implemented
 **Design Reference:** n/a
 
 <!-- @REQ-AD-015@ -->
@@ -195,6 +195,36 @@ This document defines the detailed aircraft data behavior using the **EARS** (Ea
 **Priority:** P2
 **Status:** Approved
 **Design Reference:** n/a
+
+<!-- @REQ-AD-020@ -->
+
+### REQ-AD-020: Powertrain Discriminator
+
+**Requirement:** The system shall store a `powertrain` field on each aircraft profile with value `combustion` or `electric`. If the field is absent on an existing record, the system shall treat it as `combustion`.
+**Rationale:** Electric airframes (e.g. Pipistrel Velis Electro) carry no fuel and must not be represented through the fuel schema. The discriminator selects the correct data shape, UI, and endurance model per profile without a schema migration for existing combustion records.
+**Priority:** P1
+**Status:** Approved
+**Design Reference:** [ADR-009: Powertrain Discriminator](../architecture/adr/009-powertrain-discriminator.md)
+
+<!-- @REQ-AD-021@ (FROM: @REQ-AD-020@) -->
+
+### REQ-AD-021: Battery Pack Description
+
+**Requirement:** While `powertrain` is `electric`, the system shall store exactly one battery pack record containing `usableEnergyKwh` (> 0), `reserveFloorKwh` (≥ 0 and < `usableEnergyKwh`), and optionally `nominalVoltage` (V, > 0) and `chemistry` (free text).
+**Rationale:** Electric energy planning requires a pack nameplate and a reserve floor instead of a fuel tank and burn sequence. The inequality `reserveFloor < usableEnergy` guarantees a non-zero usable working band.
+**Priority:** P1
+**Status:** Approved
+**Design Reference:** [ADR-009: Powertrain Discriminator](../architecture/adr/009-powertrain-discriminator.md)
+
+<!-- @REQ-AD-022@ (FROM: @REQ-AD-020@) -->
+
+### REQ-AD-022: Powertrain Field Exclusivity
+
+**Requirement:** If `powertrain` is `electric`, the system shall reject any aircraft profile that contains a fuel tank load point. If `powertrain` is `combustion`, the system shall reject any aircraft profile that contains a battery pack.
+**Rationale:** Mixed topologies corrupt downstream calculations (fuel-mass CG migration on an electric profile; battery energy endurance on a combustion profile). The rule is enforced at the schema layer so import/export cannot bypass it.
+**Priority:** P1
+**Status:** Approved
+**Design Reference:** [ADR-009: Powertrain Discriminator](../architecture/adr/009-powertrain-discriminator.md)
 
 ---
 

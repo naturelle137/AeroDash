@@ -1,0 +1,261 @@
+AC Core — Aircraft Profile Schema
+  IMP-AC-CORE-001
+    title: PassengerProfileSchema — Zod schema for passenger profiles with standard weights
+    req:
+      - REQ-AC-005
+      - REQ-AC-006
+    files:
+      - frontend/src/core/adapters/aircraft.schema.ts
+
+  IMP-AC-CORE-002
+    title: AircraftProfileSchema — M3 fields (status, schemaVersion, passengerProfiles, costPerHour, checklistScaffold)
+    req:
+      - REQ-AC-001
+      - REQ-AC-005
+      - REQ-AC-006
+      - REQ-AD-006
+      - REQ-AD-007
+      - REQ-AD-010
+    files:
+      - frontend/src/core/adapters/aircraft.schema.ts
+
+AC Store — Fleet Repository
+  IMP-AC-STORE-001
+    title: Fleet Repository — IndexedDB CRUD persistence layer for AircraftProfile documents
+    req:
+      - REQ-AC-001
+    des:
+      - DES-ARCH-007
+    files:
+      - frontend/src/modules/aircraft/services/fleet.repository.ts
+
+  IMP-AC-STORE-002
+    title: validateIcaoRegistration — ICAO registration format validation
+    req:
+      - REQ-AC-002
+    files:
+      - frontend/src/modules/aircraft/services/profile.validator.ts
+
+  IMP-AC-STORE-003
+    title: hasDuplicateRegistration — duplicate registration detection (case-insensitive)
+    req:
+      - REQ-AC-003
+    files:
+      - frontend/src/modules/aircraft/services/profile.validator.ts
+
+  IMP-AC-STORE-004
+    title: importProfileFromJson / exportProfileToJson — profile exchange file import with forced Draft status
+    req:
+      - REQ-AC-004
+    files:
+      - frontend/src/modules/aircraft/services/profile.import.ts
+
+  IMP-AC-STORE-007
+    title: validateImportFile — fail-closed file size/MIME guard for exchange-file import (CS-003)
+    req:
+      - REQ-AC-004
+    files:
+      - frontend/src/modules/aircraft/services/profile.import.ts
+
+  IMP-AC-STORE-005
+    title: useFleetStore — Pinia store for fleet CRUD and Draft/Verified FSM
+    req:
+      - REQ-AC-001
+      - REQ-AC-003
+      - REQ-AC-005
+      - REQ-AC-006
+    files:
+      - frontend/src/modules/aircraft/stores/fleet.store.ts
+
+  IMP-AC-STORE-006
+    title: useActiveAircraftStore — in-session aircraft context hot-swap without page reload
+    req:
+      - REQ-AC-005
+    files:
+      - frontend/src/modules/aircraft/stores/active-aircraft.store.ts
+
+AC View — Model Catalogue and Components
+  IMP-AC-VIEW-001
+    title: AIRCRAFT_MODEL_CATALOGUE — JSON source + helper functions (manufacturer→model→ICAO)
+    req:
+      - REQ-UI-001
+      - REQ-UI-003
+      - REQ-UI-004
+    files:
+      - frontend/src/modules/aircraft/data/aircraft-model-catalogue.json
+      - frontend/src/modules/aircraft/data/aircraft-model-catalogue.ts
+
+  IMP-AC-VIEW-002
+    title: AircraftModelSelector template — manufacturer/model hierarchy selector UI
+    req:
+      - REQ-UI-001
+      - REQ-UI-002
+      - REQ-UI-003
+      - REQ-UI-004
+    files:
+      - frontend/src/modules/aircraft/components/AircraftModelSelector.vue
+
+  IMP-AC-VIEW-003
+    title: AircraftModelSelector script — composable logic for manufacturer/model/ICAO selection
+    req:
+      - REQ-UI-001
+      - REQ-UI-002
+      - REQ-UI-003
+      - REQ-UI-004
+    files:
+      - frontend/src/modules/aircraft/components/AircraftModelSelector.vue
+
+  IMP-AC-VIEW-004
+    title: ProfileStatusBadge template — Draft/Verified status badge component
+    req:
+      - REQ-AC-005
+    files:
+      - frontend/src/modules/aircraft/components/ProfileStatusBadge.vue
+
+  IMP-AC-VIEW-005
+    title: FleetList template — fleet profile list with active profile highlighting
+    req:
+      - REQ-AC-001
+      - REQ-AC-005
+    files:
+      - frontend/src/modules/aircraft/components/FleetList.vue
+
+  IMP-AC-VIEW-006
+    title: FleetList script — store wiring for fleet list actions and active profile
+    req:
+      - REQ-AC-001
+      - REQ-AC-005
+    files:
+      - frontend/src/modules/aircraft/components/FleetList.vue
+
+  IMP-AC-VIEW-007
+    title: FleetManagementView template — main fleet management view with add/import forms
+    req:
+      - REQ-AC-001
+      - REQ-AC-004
+      - REQ-AC-005
+      - REQ-AC-006
+    files:
+      - frontend/src/modules/aircraft/views/FleetManagementView.vue
+
+  IMP-AC-VIEW-008
+    title: FleetManagementView script — fleet CRUD orchestration with import and passenger profiles
+    req:
+      - REQ-AC-001
+      - REQ-AC-004
+      - REQ-AC-006
+    files:
+      - frontend/src/modules/aircraft/views/FleetManagementView.vue
+
+  IMP-AC-VIEW-009
+    title: AccordionSection template — reusable collapsible section with aria attributes
+    req:
+      - REQ-AC-001
+      - REQ-AC-005
+    files:
+      - frontend/src/modules/aircraft/components/AccordionSection.vue
+
+  IMP-AC-VIEW-010
+    title: AccordionSection script — toggle + modelValue contract
+    req:
+      - REQ-AC-001
+      - REQ-AC-005
+    files:
+      - frontend/src/modules/aircraft/components/AccordionSection.vue
+
+  IMP-AC-VIEW-011
+    title: IdentitySection template — identity fields editor wrapping AircraftModelSelector
+    req:
+      - REQ-AD-001
+      - REQ-AD-007
+      - REQ-AD-014
+      - REQ-AD-018
+      - REQ-AD-019
+    files:
+      - frontend/src/modules/aircraft/components/IdentitySection.vue
+
+  IMP-AC-VIEW-012
+    title: IdentitySection script — patch contract and shareCode null normalization
+    req:
+      - REQ-AD-001
+      - REQ-AD-007
+      - REQ-AD-014
+      - REQ-AD-018
+      - REQ-AD-019
+    files:
+      - frontend/src/modules/aircraft/components/IdentitySection.vue
+
+  IMP-AC-VIEW-013
+    title: WeighingReportsSection template — multi-row bem/cg/date editor (min 1 row)
+    req:
+      - REQ-AD-004
+      - REQ-AD-013
+    files:
+      - frontend/src/modules/aircraft/components/WeighingReportsSection.vue
+
+  IMP-AC-VIEW-014
+    title: WeighingReportsSection script — add/remove/patch with invalid-row detection
+    req:
+      - REQ-AD-004
+      - REQ-AD-013
+    files:
+      - frontend/src/modules/aircraft/components/WeighingReportsSection.vue
+
+  IMP-AC-VIEW-015
+    title: AircraftProfileEditorView template — accordion container with sticky save
+    req:
+      - REQ-AC-001
+      - REQ-AC-005
+      - REQ-AD-001
+      - REQ-AD-004
+      - REQ-AD-007
+      - REQ-AD-013
+      - REQ-AD-014
+      - REQ-AD-018
+      - REQ-AD-019
+    files:
+      - frontend/src/modules/aircraft/views/AircraftProfileEditorView.vue
+
+  IMP-AC-VIEW-016
+    title: AircraftProfileEditorView script — hydrate, dirty-track, dispatch updateProfile/editVerifiedProfile
+    req:
+      - REQ-AC-001
+      - REQ-AC-005
+      - REQ-AD-001
+      - REQ-AD-004
+      - REQ-AD-007
+      - REQ-AD-013
+      - REQ-AD-014
+      - REQ-AD-018
+      - REQ-AD-019
+    files:
+      - frontend/src/modules/aircraft/views/AircraftProfileEditorView.vue
+
+  IMP-AC-VIEW-017
+    title: LoadPointsSection template — per-station editor with fuel-tank extension
+    req:
+      - REQ-AD-002
+      - REQ-AD-003
+      - REQ-AD-005
+      - REQ-AD-011
+      - REQ-AD-012
+    files:
+      - frontend/src/modules/aircraft/components/LoadPointsSection.vue
+
+  IMP-AC-VIEW-018
+    title: LoadPointsSection script — add/remove row, fuel-tank toggle, fuel-type multi-select
+    req:
+      - REQ-AD-002
+      - REQ-AD-003
+      - REQ-AD-005
+      - REQ-AD-011
+      - REQ-AD-012
+    files:
+      - frontend/src/modules/aircraft/components/LoadPointsSection.vue
+
+  IMP-AC-VIEW-019
+    title: FleetList delete — confirm-then-undo destructive delete (in-app modal + undo toast, active-aircraft delete disabled) (UX-001)
+    req:
+      - REQ-AC-001
+    files:
+      - frontend/src/modules/aircraft/components/FleetList.vue

@@ -1,0 +1,107 @@
+name: DoD Attestation Gate
+
+# On PRs targeting develop (or release/hotfix), for every issue referenced by
+# a closing keyword (Closes / Fixes / Resolves) in the PR body, verify that
+# the issue's Definition of Done block has zero unchecked boxes.
+#
+# An unchecked box means the closer has NOT attested completion of that item.
+# Merging a PR that auto-closes such an issue would record a false attestation,
+# so the gate fails the check. The author must either (a) evaluate and tick the
+# box if truly done, (b) finish the work, or (c) remove the closing keyword to
+# defer closure.
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened, ready_for_review]
+    branches:
+      - develop
+      - 'release/**'
+      - 'hotfix/**'
+
+permissions:
+  issues: read
+  pull-requests: read
+
+jobs:
+  verify-dod-attestation:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify DoD ticks on every referenced issue
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const pr = context.payload.pull_request;
+            const rawBody = pr.body || '';
+
+            // Strip code regions so example text like `Closes #116` in prose
+            // does not trigger the gate. Fenced blocks first, then inline code.
+            const body = rawBody
+              .replace(/```[\s\S]*?```/g, '')
+              .replace(/`[^`\n]*`/g, '');
+
+            // Match "closes #123", "fixes #45", "resolves #6" (case-insensitive).
+            // Captures repeated references after a single keyword too
+            // (e.g. "Closes #1, closes #2").
+            const keywordRe = /\b(close[sd]?|fix(?:e[sd])?|resolve[sd]?)\b/i;
+            const issueRefs = new Set();
+            for (const line of body.split(/\r?\n/)) {
+              if (!keywordRe.test(line)) continue;
+              for (const m of line.matchAll(/#(\d+)/g)) {
+                issueRefs.add(Number(m[1]));
+              }
+            }
+
+            if (issueRefs.size === 0) {
+              core.info('No closing keywords found; nothing to verify.');
+              return;
+            }
+
+            core.info(`Verifying DoD for issues: ${[...issueRefs].join(', ')}`);
+
+            const failures = [];
+            for (const n of issueRefs) {
+              const { data: issue } = await github.rest.issues.get({
+                owner, repo, issue_number: n,
+              });
+              const issueBody = issue.body || '';
+
+              // Extract the DoD block. Heading variants accepted.
+              const dodHeading = /^#{1,6}\s*(Definition of Done[^\n]*|DoD[^\n]*|DoD \/ Checklist|Definition of Done \/ Checklist)/im;
+              const headingMatch = issueBody.match(dodHeading);
+              if (!headingMatch) {
+                core.warning(`Issue #${n}: no DoD section found — skipping.`);
+                continue;
+              }
+              const startIdx = headingMatch.index + headingMatch[0].length;
+              const after = issueBody.slice(startIdx);
+              // Block ends at the next heading of equal-or-higher level, or end-of-body.
+              const nextHeading = after.search(/\n#{1,6}\s/);
+              const block = nextHeading === -1 ? after : after.slice(0, nextHeading);
+
+              const uncheckedCount = (block.match(/^\s*-\s*\[\s\]/gm) || []).length;
+              if (uncheckedCount > 0) {
+                failures.push({ issue: n, uncheckedCount });
+              }
+            }
+
+            if (failures.length === 0) {
+              core.info('All referenced issues have every DoD item ticked.');
+              return;
+            }
+
+            let summary = '## ❌ DoD Attestation Gate failed\n\n';
+            summary += 'The following issues are closed by this PR but still have unchecked DoD items:\n\n';
+            for (const f of failures) {
+              summary += `- #${f.issue}: **${f.uncheckedCount}** unchecked DoD item(s)\n`;
+            }
+            summary += '\n';
+            summary += '### What to do\n';
+            summary += 'For each issue, read every DoD item and decide:\n';
+            summary += '1. **It is truly done** → tick the box in the issue body (attestation).\n';
+            summary += '2. **Not done yet** → finish the work, or split the residual into a follow-up `Task`.\n';
+            summary += '3. **Out of scope for this PR** → remove the closing keyword and leave the issue open.\n\n';
+            summary += 'Do NOT tick boxes without verifying against code/tests/docs — the boxes are attestations, not decorations.\n';
+            await core.summary.addRaw(summary).write();
+
+            core.setFailed(`DoD attestation gate failed for issues: ${failures.map(f => '#' + f.issue).join(', ')}`);

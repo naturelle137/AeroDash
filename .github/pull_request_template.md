@@ -3,16 +3,15 @@
 <!-- Briefly describe the code and documentation changes made in this PR. -->
 
 ### Related Issues
-<!-- How Does this PR relate to tickets? Use the correct keyword for your target branch! -->
-<!-- Target: develop  -> DO NOT CLOSE. Use "Related to #" or "Ref #" (e.g., Ref #123) -->
-<!-- Target: main     -> CLOSE ISSUE.   Use "Closes #" or "Fixes #" (e.g., Closes #123) -->
+<!-- How does this PR relate to tickets? Use the correct keyword for your target branch! -->
+<!-- Target: develop  -> CLOSE ISSUE.  Use "Closes #" or "Fixes #" (e.g., Closes #123) -->
+<!-- Target: main     -> No open issues expected (already closed on develop merge). Use "Ref #" if needed. -->
 -
 
 ### Issue State Management (Post-Merge)
 <!-- Please ensure these manual steps are taken once the PR is merged: -->
 <!-- Delete the following lines if not applicable: -->
-- [ ] If merging to `develop`: Changed Issue Label to `ready` & Project Status to `Ready for Release`
-- [ ] If merging to `main`: Changed Issue Label to `fixed` & Project Status to `Done`
+- [ ] If merging to `develop`: Issue auto-closed by `Closes #` keyword; verify Issue Label is `fixed` & Project Status is `Done`
 
 ### Affected Items
 <!-- What existing items are implemented or affected by these code changes? -->

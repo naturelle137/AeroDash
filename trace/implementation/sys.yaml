@@ -33,6 +33,126 @@ SYS Core
     files:
       - frontend/src/core/domain/notification.schema.ts
 
+  IMP-SYS-CORE-005
+    title: Supported Units Enumeration — Single Source of Truth
+    req:
+      - REQ-SYS-004
+    files:
+      - frontend/src/core/domain/units.ts
+
+  IMP-SYS-CORE-006
+    title: SI Unit Normalization (mass kg, arm m, volume L)
+    req:
+      - REQ-SYS-003
+    files:
+      - frontend/src/core/logic/unit-normalization.ts
+
+  IMP-SYS-CORE-007
+    title: Conservative Display Rounding (ceil for mass, floor for fuel/endurance)
+    req:
+      - REQ-UQ-004
+    files:
+      - frontend/src/core/logic/display-rounding.ts
+
+  IMP-SYS-CORE-008
+    title: Decimal Precision Policy per Unit Type (REQ-UQ-003)
+    req:
+      - REQ-UQ-003
+    files:
+      - frontend/src/core/logic/display-rounding.ts
+
+SYS Core — Moment & sourceUnit Normalization
+  IMP-SYS-CORE-010
+    title: Moment Normalization to SI (kg·m) via arm-unit length factor
+    req:
+      - REQ-SYS-003
+    files:
+      - frontend/src/core/logic/unit-normalization.ts
+
+  IMP-SYS-CORE-011
+    title: sourceUnit Parsing into Mass and Arm Components
+    req:
+      - REQ-SYS-003
+      - REQ-AD-014
+    files:
+      - frontend/src/core/logic/unit-normalization.ts
+
+SYS Core — Session Payload Schema
+  IMP-SYS-CORE-009
+    title: Session Payload Zod Schema for localStorage Persistence Validation
+    req:
+      - REQ-SYS-013
+    files:
+      - frontend/src/core/domain/session.schema.ts
+
+SYS Store — Session Persistence
+  IMP-SYS-STORE-001
+    title: Session Payload Auto-save and Restore (useSessionPersistenceStore)
+    req:
+      - REQ-SYS-013
+    files:
+      - frontend/src/stores/session-persistence.store.ts
+
+SYS Store — PWA Update
+  IMP-SYS-STORE-002
+    title: PWA Update Store — needsUpdate and offlineReady state (usePwaUpdateStore)
+    req:
+      - REQ-SYS-005
+    files:
+      - frontend/src/stores/pwa-update.store.ts
+
+  IMP-SYS-STORE-003
+    title: onOfflineReady — marks app shell as cached for offline use
+    req:
+      - REQ-SYS-001
+      - REQ-SYS-002
+    files:
+      - frontend/src/stores/pwa-update.store.ts
+
+  IMP-SYS-STORE-004
+    title: onNeedsRefresh — captures SW registration and sets needsUpdate flag
+    req:
+      - REQ-SYS-005
+    files:
+      - frontend/src/stores/pwa-update.store.ts
+
+  IMP-SYS-STORE-005
+    title: setUpdateSW — stores the registerSW updater callback for later use
+    req:
+      - REQ-SYS-005
+    files:
+      - frontend/src/stores/pwa-update.store.ts
+
+  IMP-SYS-STORE-009
+    title: applyUpdate — calls updateSW(true) to trigger SW activation and reload with user consent
+    req:
+      - REQ-SYS-005
+    files:
+      - frontend/src/stores/pwa-update.store.ts
+
+SYS Store — App Version
+  IMP-SYS-STORE-006
+    title: App Version Store — currentVersion, buildDate, minSafeVersion, versionBlocked (useAppVersionStore)
+    req:
+      - REQ-SYS-006
+      - REQ-UI-013
+    files:
+      - frontend/src/stores/app-version.store.ts
+
+  IMP-SYS-STORE-007
+    title: isVersionBelow — SemVer comparison returning true when current < minimum
+    req:
+      - REQ-SYS-006
+    files:
+      - frontend/src/stores/app-version.store.ts
+
+  IMP-SYS-STORE-008
+    title: checkMinSafeVersion — sets versionBlocked when local version is below minimum (online-only)
+    req:
+      - REQ-SYS-006
+    files:
+      - frontend/src/stores/app-version.store.ts
+
 SYS App — Vue Router
   IMP-SYS-APP-001
     title: Application route table (root redirect and mass-balance view)
@@ -40,6 +160,14 @@ SYS App — Vue Router
       - REQ-SYS-001
     files:
       - frontend/src/router/index.ts
+
+  IMP-SYS-APP-002
+    title: Service Worker registration wired in main.ts with prompt-mode callbacks
+    req:
+      - REQ-SYS-001
+      - REQ-SYS-005
+    files:
+      - frontend/src/main.ts
 
 SYS Shared — Structured Logger Utility
   IMP-SYS-SHARED-001
@@ -55,3 +183,50 @@ SYS Shared — Structured Logger Utility
       - DES-ARCH-001
     files:
       - frontend/src/shared/utils/logger.ts
+
+  IMP-SYS-SHARED-003
+    title: AppVersion component — displays SemVer and build date in sidebar footer
+    req:
+      - REQ-UI-013
+    files:
+      - frontend/src/shared/components/AppVersion.vue
+
+  IMP-SYS-SHARED-005
+    title: checkMinSafeVersion called on App mount — blocks operation below minimum safe version (REQ-SYS-006)
+    req:
+      - REQ-SYS-006
+    files:
+      - frontend/src/App.vue
+
+
+SYS Shared — Theme Toggle
+  IMP-SYS-SHARED-004
+    title: useTheme composable — dark/light mode toggle with localStorage persistence
+    req:
+      - REQ-UI-011
+    files:
+      - frontend/src/shared/composables/useTheme.ts
+
+
+SYS App Shell — Version Blocking
+  IMP-SYS-SHARED-006
+    title: App.vue version-blocked screen — blocks RouterView when versionBlocked is true (REQ-SYS-006)
+    req:
+      - REQ-SYS-006
+    files:
+      - frontend/src/App.vue
+
+SYS Pending — Connectivity State (not yet implemented)
+  IMP-SYS-CONN-001
+    status: pending
+    title: Connectivity State Detection — online/offline monitoring and app-wide state
+    req:
+      - REQ-SYS-009
+    note: REQ-SYS-009 status is Approved. Implementation deferred to milestone 4+.
+
+  IMP-SYS-CONN-002
+    status: pending
+    title: Online Feature Gating — disable cloud/weather/airport features while offline
+    req:
+      - REQ-SYS-010
+    note: REQ-SYS-010 status is Approved. Deferred until IMP-SYS-CONN-001 provides connectivity state.

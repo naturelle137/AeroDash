@@ -114,6 +114,10 @@ When you open a PR, GitHub Actions will run comprehensive checks.
 
 * **Automated Tests:** All unit and integration tests must pass.
 * **Dependency Isolation:** The CI strictly verifies that architectural boundaries are maintained.
+* **Traceability Gate:** PRs targeting `main` trigger the **Traceability Gate** (`.github/workflows/traceability.yml`).
+  It checks for orphaned implementations, pending requirements, unmitigated hazards, unverified P1 requirements, and registry drift using `shtracer` (`.tools/shtracer/`).
+  Before v1.0.0 the gate is **warn-only** (always exits 0); from v1.0.0 it hard-fails on any gap.
+  For details and local commands, see [docs/testing/TESTING.md § CI Traceability Gate](docs/testing/TESTING.md).
 
 ### Release (Merge-to-Main)
 
@@ -266,14 +270,13 @@ We use the GitHub Project Board (`AeroDash Dashboard`) to track all tasks and en
 
 ### Workflow Statuses & Lifecycle
 
-The following diagram shows how **issue labels** transition through the lifecycle. Labels above the line (`open`, `accepted`, `ready`) are **status labels** tracking active work. Labels below (`fixed`, `duplicate`, `wont_do`) are **resolution labels** applied when closing an issue.
+The following diagram shows how **issue labels** transition through the lifecycle. Labels above the line (`open`, `accepted`) are **status labels** tracking active work. Labels below (`fixed`, `duplicate`, `wont_do`) are **resolution labels** applied when closing an issue.
 
 ```mermaid
 stateDiagram-v2
     direction LR
     state "issue Open<br/>Status: open" as open
     state "issue Open<br/>Status: accepted" as accepted
-    state "issue Open<br/>Status: ready" as ready
     state "issue Closed<br/>Resolution: fixed" as fixed
     state "issue Closed<br/>Resolution: duplicate" as duplicate
     state "issue Closed<br/>Resolution: wont do" as wont_do
@@ -283,10 +286,8 @@ stateDiagram-v2
     open --> duplicate : Exists
     open --> wont_do : Rejected
 
-    accepted --> ready : PR merged (develop)
     accepted --> wont_do : Rejected later
-
-    ready --> fixed : Released (main)
+    accepted --> fixed : PR merged (develop)
     fixed --> [*]
     duplicate --> [*]
     wont_do --> [*]
@@ -296,11 +297,10 @@ stateDiagram-v2
 
 * **`open`**: Ticket created. This is the initial default label of any new ticket.
 * **`accepted`**: The ticket is reviewed, recognized as valid, and moved to *Waiting for Implementation* on the board.
-* **`ready`**: The ticket was implemented, verified, and the PR on `develop` is done. It is now waiting for the next release phase.
 
 **Resolution Labels** (applied when closing):
 
-* **`fixed`**: The ticket is released to production (`main`). The issue is closed and moved to *Done*.
+* **`fixed`**: The PR implementing the ticket was merged to `develop`. The issue is closed and moved to *Done*.
 * **`duplicate`**: The ticket already exists. You must link the duplicate issue before closing.
 * **`wont do`**: The ticket is valid but will not be implemented. The rationale must be documented.
 
@@ -312,13 +312,11 @@ stateDiagram-v2
 | Waiting for Implementation | Triaged, valid, prioritised |
 | In Progress | Actively being worked on |
 | In Verification | PR open, under review |
-| Ready for Release | PR merged to `develop` |
-| Done | Released on `main`, issue closed |
+| Done | PR merged to `develop`, issue closed |
 
 ### ⚠️ Special Rules: Parent Tickets vs. Sub-Tasks
 
 * A **`Task`** acts as a sub-task to a parent **`Feature`** or **`Bug`**.
-* **Sub-tasks (`Task`)**: Can be closed and moved to *Done* on the project board as soon as the developer finishes the work and it is merged into `develop`, a `release/`, or a `hotfix/` branch.
-* **Parent Tickets (`Feature` / `Bug`)**: Can **only** be marked **`ready`** (and moved to *Ready for Release* on the board) when **all** of its sub-tasks are closed. *(Note: A sub-task closed as `wont do` counts as closed, provided the rationale is documented in the ticket).*
-* The parent `Feature` or `Bug` itself is only labelled **`fixed`**, closed, and moved to *Done* **after** it has been formally released on the `main` branch.
+* **Sub-tasks (`Task`)**: Are closed with `fixed` and moved to *Done* as soon as their PR is merged into `develop`, a `release/`, or a `hotfix/` branch.
+* **Parent Tickets (`Feature` / `Bug`)**: Can **only** be labelled `fixed`, closed, and moved to *Done* when **all** of its sub-tasks are closed. *(Note: A sub-task closed as `wont do` counts as closed, provided the rationale is documented in the ticket).*
 * Tickets labelled `duplicate` or `wont do` are removed from the project board entirely.

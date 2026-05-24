@@ -210,6 +210,77 @@ SYS Core — Notification Schema (Unit)
     files:
       - frontend/src/core/domain/notification.schema.spec.ts
 
+SYS Core — Moment & sourceUnit Normalization (Unit)
+  UT-SYS-CORE-031
+    title: normalizeMomentToSI returns value unchanged for kg·m input
+    impl:
+      - IMP-SYS-CORE-010
+    files:
+      - frontend/src/core/logic/unit-normalization.spec.ts
+
+  UT-SYS-CORE-032
+    title: normalizeMomentToSI scales kg·in moment by the inch factor
+    impl:
+      - IMP-SYS-CORE-010
+    files:
+      - frontend/src/core/logic/unit-normalization.spec.ts
+
+  UT-SYS-CORE-033
+    title: normalizeMomentToSI scales kg·ft moment by the foot factor
+    impl:
+      - IMP-SYS-CORE-010
+    files:
+      - frontend/src/core/logic/unit-normalization.spec.ts
+
+  UT-SYS-CORE-034
+    title: normalizeMomentToSI is consistent with mass×arm normalization
+    impl:
+      - IMP-SYS-CORE-010
+    files:
+      - frontend/src/core/logic/unit-normalization.spec.ts
+
+  UT-SYS-CORE-035
+    title: parseSourceUnit parses mass-only "kg" to { kg, m }
+    impl:
+      - IMP-SYS-CORE-011
+    files:
+      - frontend/src/core/logic/unit-normalization.spec.ts
+
+  UT-SYS-CORE-036
+    title: parseSourceUnit parses mass-only "lb" to { lb, m }
+    impl:
+      - IMP-SYS-CORE-011
+    files:
+      - frontend/src/core/logic/unit-normalization.spec.ts
+
+  UT-SYS-CORE-037
+    title: parseSourceUnit parses combined "lb-in" to { lb, in }
+    impl:
+      - IMP-SYS-CORE-011
+    files:
+      - frontend/src/core/logic/unit-normalization.spec.ts
+
+  UT-SYS-CORE-038
+    title: parseSourceUnit parses combined "kg-m" and "lb-ft"
+    impl:
+      - IMP-SYS-CORE-011
+    files:
+      - frontend/src/core/logic/unit-normalization.spec.ts
+
+  UT-SYS-CORE-039
+    title: parseSourceUnit is case-insensitive and trims whitespace
+    impl:
+      - IMP-SYS-CORE-011
+    files:
+      - frontend/src/core/logic/unit-normalization.spec.ts
+
+  UT-SYS-CORE-040
+    title: parseSourceUnit falls back to SI defaults for unknown components
+    impl:
+      - IMP-SYS-CORE-011
+    files:
+      - frontend/src/core/logic/unit-normalization.spec.ts
+
 SYS Shared — Structured Logger Utility (Unit)
   UT-SYS-SHARED-001
     title: Returns primitives unchanged
@@ -317,6 +388,302 @@ SYS Shared — Structured Logger Utility (Unit)
     files:
       - frontend/src/shared/utils/__tests__/logger.spec.ts
 
+  UT-SYS-SHARED-016
+    title: Suppresses debug() output in production (DP-011)
+    impl:
+      - IMP-SYS-SHARED-002
+    files:
+      - frontend/src/shared/utils/__tests__/logger.spec.ts
+
+  UT-SYS-SHARED-017
+    title: Suppresses info() output in production (DP-011)
+    impl:
+      - IMP-SYS-SHARED-002
+    files:
+      - frontend/src/shared/utils/__tests__/logger.spec.ts
+
+  UT-SYS-SHARED-018
+    title: Suppresses telemetryTrace() (INFO level) output in production (DP-011)
+    impl:
+      - IMP-SYS-SHARED-002
+    files:
+      - frontend/src/shared/utils/__tests__/logger.spec.ts
+
+  UT-SYS-SHARED-019
+    title: Still emits warn() in production (DP-011)
+    impl:
+      - IMP-SYS-SHARED-002
+    files:
+      - frontend/src/shared/utils/__tests__/logger.spec.ts
+
+  UT-SYS-SHARED-020
+    title: Still emits error() in production (DP-011)
+    impl:
+      - IMP-SYS-SHARED-002
+    files:
+      - frontend/src/shared/utils/__tests__/logger.spec.ts
+
+SYS Core — SI Unit Normalization (Unit)
+  UT-SYS-CORE-031
+    title: normalizeMassToKg returns value unchanged for kg input
+    impl:
+      - IMP-SYS-CORE-006
+    files:
+      - frontend/src/core/logic/unit-normalization.spec.ts
+
+  UT-SYS-CORE-032
+    title: normalizeMassToKg converts lb to kg correctly
+    impl:
+      - IMP-SYS-CORE-006
+    files:
+      - frontend/src/core/logic/unit-normalization.spec.ts
+
+  UT-SYS-CORE-033
+    title: normalizeMassToKg is invertible with massKgToUnit
+    impl:
+      - IMP-SYS-CORE-006
+    files:
+      - frontend/src/core/logic/unit-normalization.spec.ts
+
+  UT-SYS-CORE-034
+    title: massKgToUnit returns value unchanged for kg target
+    impl:
+      - IMP-SYS-CORE-006
+    files:
+      - frontend/src/core/logic/unit-normalization.spec.ts
+
+  UT-SYS-CORE-035
+    title: massKgToUnit converts kg to lb correctly
+    impl:
+      - IMP-SYS-CORE-006
+    files:
+      - frontend/src/core/logic/unit-normalization.spec.ts
+
+  UT-SYS-CORE-036
+    title: normalizeArmToM returns value unchanged for m input
+    impl:
+      - IMP-SYS-CORE-006
+    files:
+      - frontend/src/core/logic/unit-normalization.spec.ts
+
+  UT-SYS-CORE-037
+    title: normalizeArmToM converts inches to metres correctly
+    impl:
+      - IMP-SYS-CORE-006
+    files:
+      - frontend/src/core/logic/unit-normalization.spec.ts
+
+  UT-SYS-CORE-038
+    title: normalizeArmToM converts feet to metres correctly
+    impl:
+      - IMP-SYS-CORE-006
+    files:
+      - frontend/src/core/logic/unit-normalization.spec.ts
+
+  UT-SYS-CORE-039
+    title: normalizeArmToM is invertible with armMToUnit
+    impl:
+      - IMP-SYS-CORE-006
+    files:
+      - frontend/src/core/logic/unit-normalization.spec.ts
+
+  UT-SYS-CORE-040
+    title: armMToUnit returns value unchanged for m target
+    impl:
+      - IMP-SYS-CORE-006
+    files:
+      - frontend/src/core/logic/unit-normalization.spec.ts
+
+  UT-SYS-CORE-041
+    title: armMToUnit converts metres to feet correctly
+    impl:
+      - IMP-SYS-CORE-006
+    files:
+      - frontend/src/core/logic/unit-normalization.spec.ts
+
+  UT-SYS-CORE-042
+    title: normalizeVolumeToL returns value unchanged for L input
+    impl:
+      - IMP-SYS-CORE-006
+    files:
+      - frontend/src/core/logic/unit-normalization.spec.ts
+
+  UT-SYS-CORE-043
+    title: normalizeVolumeToL converts US gallons to litres correctly
+    impl:
+      - IMP-SYS-CORE-006
+    files:
+      - frontend/src/core/logic/unit-normalization.spec.ts
+
+  UT-SYS-CORE-044
+    title: normalizeVolumeToL is invertible with volumeLToUnit
+    impl:
+      - IMP-SYS-CORE-006
+    files:
+      - frontend/src/core/logic/unit-normalization.spec.ts
+
+  UT-SYS-CORE-045
+    title: volumeLToUnit returns value unchanged for L target
+    impl:
+      - IMP-SYS-CORE-006
+    files:
+      - frontend/src/core/logic/unit-normalization.spec.ts
+
+  UT-SYS-CORE-046
+    title: volumeLToUnit converts litres to US gallons correctly
+    impl:
+      - IMP-SYS-CORE-006
+    files:
+      - frontend/src/core/logic/unit-normalization.spec.ts
+
+SYS Core — Decimal Precision Policy (Unit)
+  UT-UQ-CORE-001
+    title: formatMassConservative rounds mass UP at 1 decimal place (ceil)
+    impl:
+      - IMP-SYS-CORE-007
+    files:
+      - frontend/src/core/logic/display-rounding.spec.ts
+
+  UT-UQ-CORE-002
+    title: formatMassConservative returns exact value when no rounding needed
+    impl:
+      - IMP-SYS-CORE-007
+    files:
+      - frontend/src/core/logic/display-rounding.spec.ts
+
+  UT-UQ-CORE-003
+    title: formatMassConservative rounds up at 0 decimal places
+    impl:
+      - IMP-SYS-CORE-007
+    files:
+      - frontend/src/core/logic/display-rounding.spec.ts
+
+  UT-UQ-CORE-004
+    title: formatMassConservative never rounds down for mass
+    impl:
+      - IMP-SYS-CORE-007
+    files:
+      - frontend/src/core/logic/display-rounding.spec.ts
+
+  UT-UQ-CORE-005
+    title: formatMassConservative uses 1 decimal by default
+    impl:
+      - IMP-SYS-CORE-007
+    files:
+      - frontend/src/core/logic/display-rounding.spec.ts
+
+  UT-UQ-CORE-006
+    title: formatFuelConservative rounds fuel DOWN at 1 decimal place (floor)
+    impl:
+      - IMP-SYS-CORE-007
+    files:
+      - frontend/src/core/logic/display-rounding.spec.ts
+
+  UT-UQ-CORE-007
+    title: formatFuelConservative returns exact value when no rounding needed
+    impl:
+      - IMP-SYS-CORE-007
+    files:
+      - frontend/src/core/logic/display-rounding.spec.ts
+
+  UT-UQ-CORE-008
+    title: formatFuelConservative rounds down at 0 decimal places
+    impl:
+      - IMP-SYS-CORE-007
+    files:
+      - frontend/src/core/logic/display-rounding.spec.ts
+
+  UT-UQ-CORE-009
+    title: formatFuelConservative never rounds up for fuel
+    impl:
+      - IMP-SYS-CORE-007
+    files:
+      - frontend/src/core/logic/display-rounding.spec.ts
+
+  UT-UQ-CORE-010
+    title: formatArm formats arm to 3 decimal places by default
+    impl:
+      - IMP-SYS-CORE-007
+    files:
+      - frontend/src/core/logic/display-rounding.spec.ts
+
+  UT-UQ-CORE-011
+    title: formatArm formats arm to specified decimal places
+    impl:
+      - IMP-SYS-CORE-007
+    files:
+      - frontend/src/core/logic/display-rounding.spec.ts
+
+  UT-UQ-CORE-012
+    title: formatArm uses standard rounding (not conservative) for arm
+    impl:
+      - IMP-SYS-CORE-007
+    files:
+      - frontend/src/core/logic/display-rounding.spec.ts
+
+  UT-UQ-CORE-013
+    title: getDecimalPrecision returns 3 for metres
+    impl:
+      - IMP-SYS-CORE-008
+    files:
+      - frontend/src/core/logic/display-rounding.spec.ts
+
+  UT-UQ-CORE-014
+    title: getDecimalPrecision returns 1 for centimetres
+    impl:
+      - IMP-SYS-CORE-008
+    files:
+      - frontend/src/core/logic/display-rounding.spec.ts
+
+  UT-UQ-CORE-015
+    title: getDecimalPrecision returns 0 for millimetres
+    impl:
+      - IMP-SYS-CORE-008
+    files:
+      - frontend/src/core/logic/display-rounding.spec.ts
+
+  UT-UQ-CORE-016
+    title: getDecimalPrecision returns 2 for inches
+    impl:
+      - IMP-SYS-CORE-008
+    files:
+      - frontend/src/core/logic/display-rounding.spec.ts
+
+  UT-UQ-CORE-017
+    title: getDecimalPrecision returns 1 for kg
+    impl:
+      - IMP-SYS-CORE-008
+    files:
+      - frontend/src/core/logic/display-rounding.spec.ts
+
+  UT-UQ-CORE-018
+    title: getDecimalPrecision returns 1 for lb
+    impl:
+      - IMP-SYS-CORE-008
+    files:
+      - frontend/src/core/logic/display-rounding.spec.ts
+
+  UT-UQ-CORE-019
+    title: getDecimalPrecision returns 1 for litres
+    impl:
+      - IMP-SYS-CORE-008
+    files:
+      - frontend/src/core/logic/display-rounding.spec.ts
+
+  UT-UQ-CORE-020
+    title: getDecimalPrecision returns 1 for US gallons
+    impl:
+      - IMP-SYS-CORE-008
+    files:
+      - frontend/src/core/logic/display-rounding.spec.ts
+
+  UT-UQ-CORE-021
+    title: getDecimalPrecision returns 1 for unknown unit (safe default)
+    impl:
+      - IMP-SYS-CORE-008
+    files:
+      - frontend/src/core/logic/display-rounding.spec.ts
+
 SYS App — Vue Router (Unit)
   UT-SYS-APP-001
     title: Applies redirect from / to /mass-balance on navigation
@@ -338,3 +705,239 @@ SYS App — Vue Router (Unit)
       - IMP-SYS-APP-001
     files:
       - frontend/src/router/index.spec.ts
+
+SYS App — Version-Blocked Screen (Unit)
+  UT-SYS-APP-026
+    title: renders RouterView when versionBlocked is false
+    impl:
+      - IMP-SYS-SHARED-006
+    files:
+      - frontend/src/stores/__tests__/app-version-blocked.spec.ts
+
+  UT-SYS-APP-027
+    title: renders version-blocked-screen and hides RouterView when versionBlocked is true
+    impl:
+      - IMP-SYS-SHARED-006
+    files:
+      - frontend/src/stores/__tests__/app-version-blocked.spec.ts
+
+  UT-SYS-APP-028
+    title: version-blocked screen displays current and minimum version strings
+    impl:
+      - IMP-SYS-SHARED-006
+    files:
+      - frontend/src/stores/__tests__/app-version-blocked.spec.ts
+
+
+SYS Store — Session Persistence (Unit)
+  UT-SYS-STORE-001
+    title: returns null when localStorage is empty
+    impl:
+      - IMP-SYS-STORE-001
+    files:
+      - frontend/src/stores/__tests__/session-persistence.store.spec.ts
+
+  UT-SYS-STORE-002
+    title: returns null and clears storage when JSON is malformed
+    impl:
+      - IMP-SYS-STORE-001
+    files:
+      - frontend/src/stores/__tests__/session-persistence.store.spec.ts
+
+  UT-SYS-STORE-003
+    title: returns null and clears storage when Zod validation fails (wrong version)
+    impl:
+      - IMP-SYS-STORE-001
+    files:
+      - frontend/src/stores/__tests__/session-persistence.store.spec.ts
+
+  UT-SYS-STORE-004
+    title: returns null and clears storage when schema is missing required fields
+    impl:
+      - IMP-SYS-STORE-001
+    files:
+      - frontend/src/stores/__tests__/session-persistence.store.spec.ts
+
+  UT-SYS-STORE-005
+    title: returns parsed payload when valid JSON with correct schema is stored
+    impl:
+      - IMP-SYS-STORE-001
+    files:
+      - frontend/src/stores/__tests__/session-persistence.store.spec.ts
+
+  UT-SYS-STORE-006
+    title: does not remove valid payload from storage after restore
+    impl:
+      - IMP-SYS-STORE-001
+    files:
+      - frontend/src/stores/__tests__/session-persistence.store.spec.ts
+
+  UT-SYS-STORE-007
+    title: does nothing when no aircraft is loaded
+    impl:
+      - IMP-SYS-STORE-001
+    files:
+      - frontend/src/stores/__tests__/session-persistence.store.spec.ts
+
+  UT-SYS-STORE-008
+    title: writes a valid payload to localStorage after profile load
+    impl:
+      - IMP-SYS-STORE-001
+    files:
+      - frontend/src/stores/__tests__/session-persistence.store.spec.ts
+
+  UT-SYS-STORE-009
+    title: payload saved by saveSession() passes restoreSession() validation
+    impl:
+      - IMP-SYS-STORE-001
+    files:
+      - frontend/src/stores/__tests__/session-persistence.store.spec.ts
+
+  UT-SYS-STORE-010
+    title: serialises station weights correctly
+    impl:
+      - IMP-SYS-STORE-001
+    files:
+      - frontend/src/stores/__tests__/session-persistence.store.spec.ts
+
+  UT-SYS-STORE-011
+    title: removes the payload from localStorage
+    impl:
+      - IMP-SYS-STORE-001
+    files:
+      - frontend/src/stores/__tests__/session-persistence.store.spec.ts
+
+  UT-SYS-STORE-012
+    title: is idempotent — no error when storage is already empty
+    impl:
+      - IMP-SYS-STORE-001
+    files:
+      - frontend/src/stores/__tests__/session-persistence.store.spec.ts
+
+  UT-SYS-STORE-013
+    title: does not save immediately on startWatching — waits for debounce
+    impl:
+      - IMP-SYS-STORE-001
+    files:
+      - frontend/src/stores/__tests__/session-persistence.store.spec.ts
+
+  UT-SYS-STORE-014
+    title: saves after debounce timeout elapses
+    impl:
+      - IMP-SYS-STORE-001
+    files:
+      - frontend/src/stores/__tests__/session-persistence.store.spec.ts
+
+  UT-SYS-STORE-015
+    title: clears prior aircraft session when aircraft is switched
+    impl:
+      - IMP-SYS-STORE-001
+    files:
+      - frontend/src/stores/__tests__/session-persistence.store.spec.ts
+
+  UT-SYS-STORE-016
+    title: restores all station fields correctly after a full save/restore cycle
+    impl:
+      - IMP-SYS-STORE-001
+    files:
+      - frontend/src/stores/__tests__/session-persistence.store.spec.ts
+
+SYS Store — PWA Update (Unit)
+  UT-SYS-STORE-017
+    title: needsUpdate is false initially
+    impl:
+      - IMP-SYS-STORE-002
+    files:
+      - frontend/src/stores/__tests__/pwa-update.store.spec.ts
+
+  UT-SYS-STORE-018
+    title: onNeedsRefresh sets needsUpdate to true
+    impl:
+      - IMP-SYS-STORE-004
+    files:
+      - frontend/src/stores/__tests__/pwa-update.store.spec.ts
+
+  UT-SYS-STORE-019
+    title: offlineReady set by onOfflineReady
+    impl:
+      - IMP-SYS-STORE-003
+    files:
+      - frontend/src/stores/__tests__/pwa-update.store.spec.ts
+
+  UT-SYS-STORE-020
+    title: applyUpdate calls updateSW when set
+    impl:
+      - IMP-SYS-STORE-009
+    files:
+      - frontend/src/stores/__tests__/pwa-update.store.spec.ts
+
+  UT-SYS-STORE-026
+    title: applyUpdate falls back to window.location.reload when no updateSW is set
+    impl:
+      - IMP-SYS-STORE-009
+    files:
+      - frontend/src/stores/__tests__/pwa-update.store.spec.ts
+
+  UT-SYS-STORE-027
+    title: silent auto-update is absent — needsUpdate stays false until onNeedsRefresh is called
+    impl:
+      - IMP-SYS-STORE-004
+    files:
+      - frontend/src/stores/__tests__/pwa-update.store.spec.ts
+
+SYS Store — App Version (Unit)
+  UT-SYS-STORE-021
+    title: exposes currentVersion and buildDate
+    impl:
+      - IMP-SYS-STORE-006
+    files:
+      - frontend/src/stores/__tests__/app-version.store.spec.ts
+
+  UT-SYS-STORE-022
+    title: isVersionBelow returns true when 0.2.0 < 0.3.0
+    impl:
+      - IMP-SYS-STORE-007
+    files:
+      - frontend/src/stores/__tests__/app-version.store.spec.ts
+
+  UT-SYS-STORE-023
+    title: isVersionBelow returns false when 0.3.0 >= 0.3.0
+    impl:
+      - IMP-SYS-STORE-007
+    files:
+      - frontend/src/stores/__tests__/app-version.store.spec.ts
+
+  UT-SYS-STORE-024
+    title: checkMinSafeVersion sets versionBlocked when below minimum
+    impl:
+      - IMP-SYS-STORE-008
+    files:
+      - frontend/src/stores/__tests__/app-version.store.spec.ts
+
+  UT-SYS-STORE-025
+    title: checkMinSafeVersion skips when offline
+    impl:
+      - IMP-SYS-STORE-008
+    files:
+      - frontend/src/stores/__tests__/app-version.store.spec.ts
+
+  UT-SYS-STORE-028
+    title: isVersionBelow returns false when version is above minimum (major bump)
+    impl:
+      - IMP-SYS-STORE-007
+    files:
+      - frontend/src/stores/__tests__/app-version.store.spec.ts
+
+  UT-SYS-STORE-029
+    title: checkMinSafeVersion does NOT set versionBlocked when version meets minimum
+    impl:
+      - IMP-SYS-STORE-008
+    files:
+      - frontend/src/stores/__tests__/app-version.store.spec.ts
+
+  UT-SYS-STORE-030
+    title: exposes minSafeVersion as a non-empty string
+    impl:
+      - IMP-SYS-STORE-006
+    files:
+      - frontend/src/stores/__tests__/app-version.store.spec.ts

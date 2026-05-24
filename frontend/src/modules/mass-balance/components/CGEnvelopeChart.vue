@@ -4,6 +4,7 @@ import type {
   MathCoreResult,
   EnvelopePoint,
 } from '@/modules/mass-balance/stores/mass-balance.types'
+import { useTheme } from '@/shared/composables/useTheme'
 
 const props = defineProps<{
   result: MathCoreResult | null
@@ -11,6 +12,8 @@ const props = defineProps<{
   graphType: 'arm' | 'moment'
   severity: 'success' | 'warning' | 'critical' | null
 }>()
+
+const { theme } = useTheme()
 
 // ─── SVG layout constants ──────────────────────────────────────────────────
 
@@ -132,32 +135,53 @@ const envelopePts = computed(() =>
 const cgMarkers = computed(() => {
   if (!props.result) return null
   const r = props.result
+
+  const zfmX = sx(xValOf(r.zeroFuelCenterOfGravityPoint))
+  const zfmY = sy(r.zeroFuelCenterOfGravityPoint.mass)
+  const tomX = sx(xValOf(r.takeoffCenterOfGravityPoint))
+  const tomY = sy(r.takeoffCenterOfGravityPoint.mass)
+  const lmX = sx(xValOf(r.landingCenterOfGravityPoint))
+  const lmY = sy(r.landingCenterOfGravityPoint.mass)
+
+  // When two CG points are within PROX pixels on screen, their labels would
+  // overlap at the default offsets. Stagger the vertically-adjacent labels so
+  // ZFM, TOM, and LM remain legible even for aircraft with no CG migration
+  // (electric, or combustion with a full-burn start that leaves CG unchanged).
+  const PROX = 12
+  const tomNearZfm = Math.hypot(tomX - zfmX, tomY - zfmY) < PROX
+
   return [
-    {
-      key: 'zfm',
-      cx: sx(xValOf(r.zeroFuelCenterOfGravityPoint)),
-      cy: sy(r.zeroFuelCenterOfGravityPoint.mass),
-      label: 'ZFM',
-      labelDy: -10,
-    },
-    {
-      key: 'tom',
-      cx: sx(xValOf(r.takeoffCenterOfGravityPoint)),
-      cy: sy(r.takeoffCenterOfGravityPoint.mass),
-      label: 'TOM',
-      labelDy: -10,
-    },
-    {
-      key: 'lm',
-      cx: sx(xValOf(r.landingCenterOfGravityPoint)),
-      cy: sy(r.landingCenterOfGravityPoint.mass),
-      label: 'LM',
-      labelDy: 16,
-    },
+    { key: 'zfm', cx: zfmX, cy: zfmY, label: 'ZFM', labelDy: -10 },
+    { key: 'tom', cx: tomX, cy: tomY, label: 'TOM', labelDy: tomNearZfm ? -24 : -10 },
+    { key: 'lm', cx: lmX, cy: lmY, label: 'LM', labelDy: 16 },
   ]
 })
 
 // @IMP-MB-UI-002@ (FROM: @REQ-UI-010@)
+/** SVG marker length in user-space pixels — matches markerWidth on #cg-arrow. */
+const ARROW_LENGTH_PX = 8
+/** Below this on-screen path length, the arrowhead is suppressed. The line
+ *  itself is still drawn — a very short migration is still information — but
+ *  the arrowhead is withheld until the line has enough trailing length to
+ *  read as a clear directional cue rather than a stray glyph. 3× the arrow
+ *  length guarantees the line is visibly longer than the arrowhead before
+ *  the arrow starts painting. */
+const ARROW_MIN_PX = ARROW_LENGTH_PX * 3
+
+const migrationLengthPx = computed(() => {
+  if (props.graphType !== 'arm' || !props.result || props.result.migrationPath.length < 2) {
+    return 0
+  }
+  let total = 0
+  const path = props.result.migrationPath
+  for (let i = 1; i < path.length; i++) {
+    const dx = sx(path[i]!.arm) - sx(path[i - 1]!.arm)
+    const dy = sy(path[i]!.mass) - sy(path[i - 1]!.mass)
+    total += Math.hypot(dx, dy)
+  }
+  return total
+})
+
 const migrationD = computed(() => {
   if (props.graphType !== 'arm' || !props.result || props.result.migrationPath.length < 2) {
     return null
@@ -167,6 +191,8 @@ const migrationD = computed(() => {
     .join(' ')
 })
 
+const showMigrationArrow = computed(() => migrationLengthPx.value >= ARROW_MIN_PX)
+
 // ─── Severity-driven palette ───────────────────────────────────────────────
 // @IMP-MB-UI-003@ (FROM: @REQ-UI-018@)
 
@@ -174,34 +200,35 @@ const isCritical = computed(() => props.severity === 'critical')
 const isNeutral = computed(() => props.severity === null)
 
 const palette = computed(() => {
+  const dark = theme.value === 'dark'
   switch (props.severity) {
     case 'critical':
       return {
-        pt: '#d32f2f',
-        line: '#d32f2f',
+        pt: dark ? '#ef9a9a' : '#d32f2f',
+        line: dark ? '#ef9a9a' : '#d32f2f',
         envFill: 'url(#cg-crosshatch)',
-        envStroke: '#d32f2f',
+        envStroke: dark ? '#ef9a9a' : '#d32f2f',
       }
     case 'warning':
       return {
-        pt: '#ef6c00',
-        line: '#ef6c00',
-        envFill: 'rgba(255,152,0,0.10)',
-        envStroke: '#ef6c00',
+        pt: dark ? '#ffcc80' : '#ef6c00',
+        line: dark ? '#ffcc80' : '#ef6c00',
+        envFill: dark ? 'rgba(255,204,128,0.12)' : 'rgba(255,152,0,0.10)',
+        envStroke: dark ? '#ffcc80' : '#ef6c00',
       }
     case 'success':
       return {
-        pt: '#2e7d32',
-        line: '#2e7d32',
-        envFill: 'rgba(76,175,80,0.10)',
-        envStroke: '#388e3c',
+        pt: dark ? '#a5d6a7' : '#2e7d32',
+        line: dark ? '#a5d6a7' : '#2e7d32',
+        envFill: dark ? 'rgba(165,214,167,0.12)' : 'rgba(76,175,80,0.10)',
+        envStroke: dark ? '#a5d6a7' : '#388e3c',
       }
     default:
       return {
-        pt: '#616161',
-        line: '#757575',
-        envFill: 'rgba(158,158,158,0.08)',
-        envStroke: '#9e9e9e',
+        pt: dark ? '#a0a0a0' : '#616161',
+        line: dark ? '#b0b0b0' : '#757575',
+        envFill: dark ? 'rgba(160,160,160,0.08)' : 'rgba(158,158,158,0.08)',
+        envStroke: dark ? '#777777' : '#9e9e9e',
       }
   }
 })
@@ -254,7 +281,7 @@ const ariaLabel = computed(() => {
           height="8"
           patternTransform="rotate(45)"
         >
-          <line x1="0" y1="0" x2="0" y2="8" stroke="#d32f2f" stroke-width="1.5" opacity="0.25" />
+          <line x1="0" y1="0" x2="0" y2="8" :stroke="palette.envStroke" stroke-width="1.5" opacity="0.25" />
         </pattern>
         <marker id="cg-arrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
           <polygon points="0,0 8,3 0,6" :fill="palette.line" />
@@ -363,7 +390,7 @@ const ariaLabel = computed(() => {
         :stroke="palette.line"
         :stroke-width="pathStroke"
         :stroke-dasharray="pathDash"
-        marker-end="url(#cg-arrow)"
+        :marker-end="showMigrationArrow ? 'url(#cg-arrow)' : undefined"
       />
 
       <!-- ─── CG point markers ────────────────────────────────────────── -->

@@ -1,3 +1,5 @@
+// @UT-MB-UI-001@ (FROM: @IMP-MB-UI-006@, @IMP-MB-UI-008@)
+
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
 import MassStationInput from '../MassStationInput.vue'
@@ -11,6 +13,7 @@ function makeStation(overrides: Partial<StationInput> = {}): StationInput {
     verified: false,
     mandatory: true,
     touched: true,
+    hasError: false,
     ...overrides,
   }
 }
@@ -76,8 +79,8 @@ describe('MassStationInput', () => {
       props: { station: makeStation({ weight: 0 }) },
     })
 
-    const [decrement] = wrapper.findAll('button')
-    expect((decrement!.element as HTMLButtonElement).disabled).toBe(true)
+    const decrement = wrapper.find('button[aria-label="Decrease"]')
+    expect((decrement.element as HTMLButtonElement).disabled).toBe(true)
   })
 
   it('enables the decrement button when weight is above 0 and not disabled', () => {
@@ -85,8 +88,8 @@ describe('MassStationInput', () => {
       props: { station: makeStation({ weight: 5 }) },
     })
 
-    const [decrement] = wrapper.findAll('button')
-    expect((decrement!.element as HTMLButtonElement).disabled).toBe(false)
+    const decrement = wrapper.find('button[aria-label="Decrease"]')
+    expect((decrement.element as HTMLButtonElement).disabled).toBe(false)
   })
 
   it('disables the decrement button when the disabled prop is true even if weight > 0', () => {
@@ -94,8 +97,8 @@ describe('MassStationInput', () => {
       props: { station: makeStation({ weight: 50 }), disabled: true },
     })
 
-    const [decrement] = wrapper.findAll('button')
-    expect((decrement!.element as HTMLButtonElement).disabled).toBe(true)
+    const decrement = wrapper.find('button[aria-label="Decrease"]')
+    expect((decrement.element as HTMLButtonElement).disabled).toBe(true)
   })
 
   // ─── Increment button — disabled branch ─────────────────────────────────
@@ -105,8 +108,8 @@ describe('MassStationInput', () => {
       props: { station: makeStation({ weight: 0 }), disabled: true },
     })
 
-    const buttons = wrapper.findAll('button')
-    expect((buttons[1]!.element as HTMLButtonElement).disabled).toBe(true)
+    const increment = wrapper.find('button[aria-label="Increase"]')
+    expect((increment.element as HTMLButtonElement).disabled).toBe(true)
   })
 
   it('enables the increment button when the disabled prop is false', () => {
@@ -114,8 +117,8 @@ describe('MassStationInput', () => {
       props: { station: makeStation({ weight: 0 }), disabled: false },
     })
 
-    const buttons = wrapper.findAll('button')
-    expect((buttons[1]!.element as HTMLButtonElement).disabled).toBe(false)
+    const increment = wrapper.find('button[aria-label="Increase"]')
+    expect((increment.element as HTMLButtonElement).disabled).toBe(false)
   })
 
   it('also disables the input field when the disabled prop is true', () => {
@@ -133,8 +136,7 @@ describe('MassStationInput', () => {
       props: { station: makeStation({ weight: 5 }) },
     })
 
-    const [decrement] = wrapper.findAll('button')
-    await decrement!.trigger('click')
+    await wrapper.find('button[aria-label="Decrease"]').trigger('click')
 
     expect(wrapper.emitted('update:weight')).toEqual([[4]])
   })
@@ -155,8 +157,7 @@ describe('MassStationInput', () => {
       props: { station: makeStation({ weight: 1 }) },
     })
 
-    const [decrement] = wrapper.findAll('button')
-    await decrement!.trigger('click')
+    await wrapper.find('button[aria-label="Decrease"]').trigger('click')
 
     expect(wrapper.emitted('update:weight')).toEqual([[0]])
   })
@@ -168,8 +169,7 @@ describe('MassStationInput', () => {
       props: { station: makeStation({ weight: 10 }) },
     })
 
-    const buttons = wrapper.findAll('button')
-    await buttons[1]!.trigger('click')
+    await wrapper.find('button[aria-label="Increase"]').trigger('click')
 
     expect(wrapper.emitted('update:weight')).toEqual([[11]])
   })
@@ -179,8 +179,7 @@ describe('MassStationInput', () => {
       props: { station: makeStation({ weight: 0 }) },
     })
 
-    const buttons = wrapper.findAll('button')
-    await buttons[1]!.trigger('click')
+    await wrapper.find('button[aria-label="Increase"]').trigger('click')
 
     expect(wrapper.emitted('update:weight')).toEqual([[1]])
   })
@@ -218,5 +217,101 @@ describe('MassStationInput', () => {
     onInput.call(wrapper.vm, { target: { value: '' } } as unknown as Event)
 
     expect(wrapper.emitted('update:weight')).toBeUndefined()
+  })
+
+  // ─── UX-002: coarse step + presets + wider field ────────────────────────
+
+  it('renders coarse +/- controls in addition to the fine +/- control', () => {
+    const wrapper = mount(MassStationInput, {
+      props: { station: makeStation({ weight: 80 }), unit: 'kg' },
+    })
+
+    const coarse = wrapper.findAll('.mass-station-input__stepper--coarse')
+    // One coarse decrease + one coarse increase.
+    expect(coarse).toHaveLength(2)
+    // Fine controls are retained (the original ± buttons still exist).
+    expect(wrapper.find('button[aria-label="Decrease"]').exists()).toBe(true)
+    expect(wrapper.find('button[aria-label="Increase"]').exists()).toBe(true)
+  })
+
+  it('defaults the coarse step to 5 for kilograms', async () => {
+    const wrapper = mount(MassStationInput, {
+      props: { station: makeStation({ weight: 80 }), unit: 'kg' },
+    })
+
+    await wrapper.find('button[aria-label="Increase by 5"]').trigger('click')
+    expect(wrapper.emitted('update:weight')).toEqual([[85]])
+  })
+
+  it('defaults the coarse step to 10 for pounds', async () => {
+    const wrapper = mount(MassStationInput, {
+      props: { station: makeStation({ weight: 80 }), unit: 'lb' },
+    })
+
+    await wrapper.find('button[aria-label="Increase by 10"]').trigger('click')
+    expect(wrapper.emitted('update:weight')).toEqual([[90]])
+  })
+
+  it('honours an explicit coarseStep prop', async () => {
+    const wrapper = mount(MassStationInput, {
+      props: { station: makeStation({ weight: 80 }), unit: 'kg', coarseStep: 25 },
+    })
+
+    await wrapper.find('button[aria-label="Increase by 25"]').trigger('click')
+    expect(wrapper.emitted('update:weight')).toEqual([[105]])
+  })
+
+  it('coarse decrement clamps to the minimum (unusable fuel)', async () => {
+    const wrapper = mount(MassStationInput, {
+      props: { station: makeStation({ weight: 6 }), unit: 'kg', unusableFuel: 3 },
+    })
+
+    // 6 - 5 = 1, clamped up to the 3 kg unusable floor.
+    await wrapper.find('button[aria-label="Decrease by 5"]').trigger('click')
+    expect(wrapper.emitted('update:weight')).toEqual([[3]])
+  })
+
+  it('reaches a 75 kg passenger in far fewer taps via the coarse step', async () => {
+    const wrapper = mount(MassStationInput, {
+      props: { station: makeStation({ weight: 0 }), unit: 'kg', coarseStep: 25 },
+    })
+    const coarseUp = wrapper.find('button[aria-label="Increase by 25"]')
+
+    // 3 coarse taps would be 75 (vs 75 fine taps) — prove the first emits 25.
+    await coarseUp.trigger('click')
+    const emissions = wrapper.emitted('update:weight')!
+    expect(emissions[emissions.length - 1]).toEqual([25])
+  })
+
+  it('does not render preset chips when no presets are provided', () => {
+    const wrapper = mount(MassStationInput, {
+      props: { station: makeStation(), unit: 'kg' },
+    })
+    expect(wrapper.find('.mass-station-input__presets').exists()).toBe(false)
+  })
+
+  it('renders one preset chip per provided preset and emits its value on tap', async () => {
+    const wrapper = mount(MassStationInput, {
+      props: { station: makeStation({ weight: 0 }), unit: 'kg', presets: [55, 70, 85] },
+    })
+
+    const chips = wrapper.findAll('.mass-station-input__preset-chip')
+    expect(chips).toHaveLength(3)
+    expect(chips[1]!.text()).toContain('70')
+
+    await chips[1]!.trigger('click')
+    expect(wrapper.emitted('update:weight')).toEqual([[70]])
+  })
+
+  it('disables coarse controls and preset chips when the disabled prop is true', () => {
+    const wrapper = mount(MassStationInput, {
+      props: { station: makeStation({ weight: 80 }), unit: 'kg', disabled: true, presets: [70] },
+    })
+
+    const coarse = wrapper.findAll('.mass-station-input__stepper--coarse')
+    expect(coarse.every((b) => (b.element as HTMLButtonElement).disabled)).toBe(true)
+    expect(
+      (wrapper.find('.mass-station-input__preset-chip').element as HTMLButtonElement).disabled,
+    ).toBe(true)
   })
 })

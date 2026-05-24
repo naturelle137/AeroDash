@@ -439,4 +439,85 @@ describe('M&B Zod Adapter', () => {
 
     expect(() => calculateMassBalance(input)).toThrow('Fatal Core Failure')
   })
+
+  // ─── .finite() + domain ranges (TECH-003 / CS-002) ──────────────────────────
+
+  // @UT-MB-CORE-098@ (FROM: @IMP-MB-CORE-016@)
+  it('rejects Infinity for basicEmptyMass as INVALID_INPUT (does not produce success:true with NaN CG)', () => {
+    const input = createMathCoreInput()
+    ;(input as unknown as Record<string, unknown>).basicEmptyMass = Infinity
+
+    const result = calculateMassBalance(input)
+
+    expect(result.success).toBe(false)
+    expect(result.violations.some((v) => v.type === 'INVALID_INPUT' && v.field === 'BEM')).toBe(true)
+    expect(Number.isNaN(result.takeoffCenterOfGravityPoint.arm)).toBe(true)
+  })
+
+  // @UT-MB-CORE-099@ (FROM: @IMP-MB-CORE-016@)
+  it('rejects -Infinity for a station arm', () => {
+    const input = createMathCoreInput()
+    input.stations[0]!.arm = -Infinity
+
+    const result = calculateMassBalance(input)
+
+    expect(result.success).toBe(false)
+    expect(
+      result.violations.some((v) => v.type === 'INVALID_INPUT' && v.field === 'STATIONS[0].ARM'),
+    ).toBe(true)
+  })
+
+  // @UT-MB-CORE-100@ (FROM: @IMP-MB-CORE-016@)
+  it('rejects NaN for emptyCenterOfGravity', () => {
+    const input = createMathCoreInput()
+    ;(input as unknown as Record<string, unknown>).emptyCenterOfGravity = NaN
+
+    const result = calculateMassBalance(input)
+
+    expect(result.success).toBe(false)
+    expect(
+      result.violations.some((v) => v.type === 'INVALID_INPUT' && v.field === 'EMPTY_CG'),
+    ).toBe(true)
+  })
+
+  // @UT-MB-CORE-101@ (FROM: @IMP-MB-CORE-016@)
+  it('rejects an absurd finite mass magnitude (1e30) as OUT_OF_RANGE', () => {
+    const input = createMathCoreInput()
+    input.stations[0]!.mass = 1e30
+
+    const result = calculateMassBalance(input)
+
+    expect(result.success).toBe(false)
+    expect(
+      result.violations.some(
+        (v) =>
+          v.type === 'INVALID_INPUT' && v.field === 'STATIONS[0].MASS' && v.code === 'OUT_OF_RANGE',
+      ),
+    ).toBe(true)
+  })
+
+  // @UT-MB-CORE-102@ (FROM: @IMP-MB-CORE-016@)
+  it('rejects an absurd finite maxTakeoffMass (1e308)', () => {
+    const input = createMathCoreInput()
+    input.maxTakeoffMass = 1e308
+
+    const result = calculateMassBalance(input)
+
+    expect(result.success).toBe(false)
+    expect(result.violations.some((v) => v.field === 'MTOM' && v.code === 'OUT_OF_RANGE')).toBe(true)
+  })
+
+  // @UT-MB-CORE-103@ (FROM: @IMP-MB-CORE-016@)
+  it('still accepts a near-edge finite value just under the ceiling (no false rejection)', () => {
+    const input = createMathCoreInput()
+    // 199_999 kg is just below the 200_000 kg ceiling — a heavy but finite,
+    // in-range value must still compute.
+    input.basicEmptyMass = 199_999
+    input.maxTakeoffMass = 200_000
+
+    const result = calculateMassBalance(input)
+
+    expect(result.success).toBe(true)
+    expect(Number.isFinite(result.takeoffCenterOfGravityPoint.arm)).toBe(true)
+  })
 })

@@ -1,0 +1,280 @@
+PF Core — Bilinear Interpolation (Unit)
+  UT-PF-CORE-001
+    title: VEC-TOR-001: exact grid point (850 kg, 0 ft) → 210 m
+    impl:
+      - IMP-PF-CORE-001
+    files:
+      - frontend/src/core/logic/performance.bilinear-interpolation.spec.ts
+
+  UT-PF-CORE-002
+    title: VEC-TOR-002: exact grid point (1157 kg, 6000 ft) → 585 m
+    impl:
+      - IMP-PF-CORE-001
+    files:
+      - frontend/src/core/logic/performance.bilinear-interpolation.spec.ts
+
+  UT-PF-CORE-003
+    title: VEC-TOR-003: exact grid point (1000 kg, 2000 ft) → 325 m
+    impl:
+      - IMP-PF-CORE-001
+    files:
+      - frontend/src/core/logic/performance.bilinear-interpolation.spec.ts
+
+  UT-PF-CORE-004
+    title: VEC-TOR-004: mass midpoint between 850–1000 kg at 0 ft → 240 m
+    impl:
+      - IMP-PF-CORE-001
+    files:
+      - frontend/src/core/logic/performance.bilinear-interpolation.spec.ts
+
+  UT-PF-CORE-005
+    title: VEC-TOR-005: mass midpoint between 850–1000 kg at 4000 ft → 347.5 m
+    impl:
+      - IMP-PF-CORE-001
+    files:
+      - frontend/src/core/logic/performance.bilinear-interpolation.spec.ts
+
+  UT-PF-CORE-006
+    title: VEC-TOR-006: altitude midpoint 0–2000 ft at 850 kg → 232.5 m
+    impl:
+      - IMP-PF-CORE-001
+    files:
+      - frontend/src/core/logic/performance.bilinear-interpolation.spec.ts
+
+  UT-PF-CORE-007
+    title: VEC-TOR-007: altitude midpoint 4000–6000 ft at 1157 kg → 537.5 m
+    impl:
+      - IMP-PF-CORE-001
+    files:
+      - frontend/src/core/logic/performance.bilinear-interpolation.spec.ts
+
+  UT-PF-CORE-008
+    title: VEC-TOR-008: bilinear at (925 kg, 1000 ft) → 265 m
+    impl:
+      - IMP-PF-CORE-001
+    files:
+      - frontend/src/core/logic/performance.bilinear-interpolation.spec.ts
+
+  UT-PF-CORE-009
+    title: VEC-TOR-009: bilinear at (1078.5 kg, 3000 ft) → 403.75 m
+    impl:
+      - IMP-PF-CORE-001
+    files:
+      - frontend/src/core/logic/performance.bilinear-interpolation.spec.ts
+
+  UT-PF-CORE-010
+    title: VEC-TOR-010: mass below min (700 kg, 0 ft) → 210 m, massClamped=true
+    impl:
+      - IMP-PF-CORE-001
+    files:
+      - frontend/src/core/logic/performance.bilinear-interpolation.spec.ts
+
+  UT-PF-CORE-011
+    title: VEC-TOR-011: mass above max (1200 kg, 0 ft) → 340 m, massClamped=true
+    impl:
+      - IMP-PF-CORE-001
+    files:
+      - frontend/src/core/logic/performance.bilinear-interpolation.spec.ts
+
+  UT-PF-CORE-012
+    title: VEC-TOR-012: altitude above max (1000 kg, 8000 ft) → 465 m, altitudeClamped=true
+    impl:
+      - IMP-PF-CORE-001
+    files:
+      - frontend/src/core/logic/performance.bilinear-interpolation.spec.ts
+
+  UT-PF-CORE-013
+    title: VEC-TOR-013: altitude below min (850 kg, -500 ft) → 210 m, altitudeClamped=true
+    impl:
+      - IMP-PF-CORE-001
+    files:
+      - frontend/src/core/logic/performance.bilinear-interpolation.spec.ts
+
+  UT-PF-CORE-014
+    title: VEC-TOR-014: both out of bounds (700 kg, -500 ft) → 210 m, both clamped
+    impl:
+      - IMP-PF-CORE-001
+    files:
+      - frontend/src/core/logic/performance.bilinear-interpolation.spec.ts
+
+  UT-PF-CORE-015
+    title: VEC-TOR-015: both out of bounds (1300 kg, 9000 ft) → 585 m, both clamped
+    impl:
+      - IMP-PF-CORE-001
+    files:
+      - frontend/src/core/logic/performance.bilinear-interpolation.spec.ts
+
+  UT-PF-CORE-016
+    title: VEC-TOD-001: exact grid point (850 kg, 0 ft) → 340 m
+    impl:
+      - IMP-PF-CORE-001
+    files:
+      - frontend/src/core/logic/performance.bilinear-interpolation.spec.ts
+
+  UT-PF-CORE-017
+    title: VEC-TOD-002: exact grid point (1157 kg, 6000 ft) → 940 m
+    impl:
+      - IMP-PF-CORE-001
+    files:
+      - frontend/src/core/logic/performance.bilinear-interpolation.spec.ts
+
+  UT-PF-CORE-018
+    title: VEC-TOD-003: bilinear at (925 kg, 1000 ft) → 426.25 m
+    impl:
+      - IMP-PF-CORE-001
+    files:
+      - frontend/src/core/logic/performance.bilinear-interpolation.spec.ts
+
+  UT-PF-CORE-019
+    title: VEC-TOD-004: mass above max (1200 kg, 4000 ft) → 785 m, massClamped=true
+    impl:
+      - IMP-PF-CORE-001
+    files:
+      - frontend/src/core/logic/performance.bilinear-interpolation.spec.ts
+
+  UT-PF-CORE-020
+    title: VEC-LR-001: exact grid point (850 kg, 0 ft) → 185 m
+    impl:
+      - IMP-PF-CORE-001
+    files:
+      - frontend/src/core/logic/performance.bilinear-interpolation.spec.ts
+
+  UT-PF-CORE-021
+    title: VEC-LR-002: exact grid point (1157 kg, 6000 ft) → 310 m
+    impl:
+      - IMP-PF-CORE-001
+    files:
+      - frontend/src/core/logic/performance.bilinear-interpolation.spec.ts
+
+  UT-PF-CORE-022
+    title: VEC-LR-003: mass midpoint at 0 ft (925 kg) → 202.5 m
+    impl:
+      - IMP-PF-CORE-001
+    files:
+      - frontend/src/core/logic/performance.bilinear-interpolation.spec.ts
+
+  UT-PF-CORE-023
+    title: VEC-LR-004: altitude midpoint at 850 kg (1000 ft) → 190 m
+    impl:
+      - IMP-PF-CORE-001
+    files:
+      - frontend/src/core/logic/performance.bilinear-interpolation.spec.ts
+
+  UT-PF-CORE-024
+    title: VEC-LR-005: bilinear at (925 kg, 1000 ft) → 207.5 m
+    impl:
+      - IMP-PF-CORE-001
+    files:
+      - frontend/src/core/logic/performance.bilinear-interpolation.spec.ts
+
+  UT-PF-CORE-025
+    title: VEC-LR-006: altitude above max (1000 kg, 8000 ft) → 260 m, altitudeClamped=true
+    impl:
+      - IMP-PF-CORE-001
+    files:
+      - frontend/src/core/logic/performance.bilinear-interpolation.spec.ts
+
+  UT-PF-CORE-026
+    title: VEC-LD-001: exact grid point (850 kg, 0 ft) → 315 m
+    impl:
+      - IMP-PF-CORE-001
+    files:
+      - frontend/src/core/logic/performance.bilinear-interpolation.spec.ts
+
+  UT-PF-CORE-027
+    title: VEC-LD-002: exact grid point (1157 kg, 6000 ft) → 525 m
+    impl:
+      - IMP-PF-CORE-001
+    files:
+      - frontend/src/core/logic/performance.bilinear-interpolation.spec.ts
+
+  UT-PF-CORE-028
+    title: VEC-LD-003: bilinear at (925 kg, 1000 ft) → 352.5 m
+    impl:
+      - IMP-PF-CORE-001
+    files:
+      - frontend/src/core/logic/performance.bilinear-interpolation.spec.ts
+
+  UT-PF-CORE-029
+    title: VEC-LD-004: exact mass, altitude midpoint 2000–4000 ft at 1000 kg → 402.5 m
+    impl:
+      - IMP-PF-CORE-001
+    files:
+      - frontend/src/core/logic/performance.bilinear-interpolation.spec.ts
+
+  UT-PF-CORE-030
+    title: VEC-LD-005: mass below min (600 kg, 2000 ft) → 330 m, massClamped=true
+    impl:
+      - IMP-PF-CORE-001
+    files:
+      - frontend/src/core/logic/performance.bilinear-interpolation.spec.ts
+
+  UT-PF-CORE-031
+    title: VEC-EDGE-001: 1×1 degenerate table returns single value
+    impl:
+      - IMP-PF-CORE-001
+    files:
+      - frontend/src/core/logic/performance.bilinear-interpolation.spec.ts
+
+  UT-PF-CORE-032
+    title: VEC-EDGE-002: 1×1 table with out-of-range input clamps and returns single value
+    impl:
+      - IMP-PF-CORE-001
+    files:
+      - frontend/src/core/logic/performance.bilinear-interpolation.spec.ts
+
+  UT-PF-CORE-033
+    title: VEC-EDGE-003: single mass column, multiple altitude rows — interpolates altitude only
+    impl:
+      - IMP-PF-CORE-001
+    files:
+      - frontend/src/core/logic/performance.bilinear-interpolation.spec.ts
+
+  UT-PF-CORE-034
+    title: VEC-EDGE-004: single altitude row, multiple mass columns — interpolates mass only
+    impl:
+      - IMP-PF-CORE-001
+    files:
+      - frontend/src/core/logic/performance.bilinear-interpolation.spec.ts
+
+  UT-PF-CORE-035
+    title: VEC-EDGE-005: throws when massAxis is empty
+    impl:
+      - IMP-PF-CORE-001
+    files:
+      - frontend/src/core/logic/performance.bilinear-interpolation.spec.ts
+
+  UT-PF-CORE-036
+    title: VEC-EDGE-006: throws when altitudeAxis is empty
+    impl:
+      - IMP-PF-CORE-001
+    files:
+      - frontend/src/core/logic/performance.bilinear-interpolation.spec.ts
+
+  UT-PF-CORE-037
+    title: VEC-EDGE-007: throws when values row count mismatches altitudeAxis
+    impl:
+      - IMP-PF-CORE-001
+    files:
+      - frontend/src/core/logic/performance.bilinear-interpolation.spec.ts
+
+  UT-PF-CORE-038
+    title: VEC-EDGE-008: throws when values column count mismatches massAxis
+    impl:
+      - IMP-PF-CORE-001
+    files:
+      - frontend/src/core/logic/performance.bilinear-interpolation.spec.ts
+
+  UT-PF-CORE-039
+    title: VEC-EDGE-009: exact upper-boundary mass and altitude — no clamping flags
+    impl:
+      - IMP-PF-CORE-001
+    files:
+      - frontend/src/core/logic/performance.bilinear-interpolation.spec.ts
+
+  UT-PF-CORE-040
+    title: VEC-EDGE-010: exact lower-boundary mass and altitude — no clamping flags
+    impl:
+      - IMP-PF-CORE-001
+    files:
+      - frontend/src/core/logic/performance.bilinear-interpolation.spec.ts

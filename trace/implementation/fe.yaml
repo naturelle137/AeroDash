@@ -1,0 +1,15 @@
+FE Core — Fuel & Endurance
+  IMP-FE-CORE-001
+    title: Fuel Density Constants and Volume-to-Mass Conversion
+    req:
+      - REQ-FE-001
+    files:
+      - frontend/src/core/logic/fuel-density.ts
+
+  IMP-FE-CORE-002
+    title: Canonical Fuel-Type Set and Fail-Closed Known-Type Guard
+    req:
+      - REQ-FE-001
+      - REQ-SYS-003
+    files:
+      - frontend/src/core/logic/fuel-density.ts

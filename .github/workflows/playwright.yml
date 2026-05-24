@@ -2,6 +2,8 @@ name: E2E Tests (Playwright)
 
 on:
   push:
+    # Post-merge regression check on integration branches.
+    # PRs are covered by the e2e job in ci.yml instead.
     branches: [main, develop]
     paths:
       - 'frontend/src/**'
@@ -10,8 +12,6 @@ on:
       - 'frontend/package.json'
       - 'package.json'
       - 'pnpm-lock.yaml'
-  pull_request:
-    branches: [main, develop]
 
 jobs:
   playwright:
@@ -19,13 +19,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v5
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 24
           cache: 'pnpm'
@@ -44,7 +44,7 @@ jobs:
 
       - name: Upload Playwright report
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: playwright-report
           path: frontend/playwright-report/
@@ -52,7 +52,7 @@ jobs:
 
       - name: Upload test results (traces, screenshots, videos)
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: playwright-test-results
           path: frontend/test-results/

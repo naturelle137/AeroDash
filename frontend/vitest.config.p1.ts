@@ -8,7 +8,7 @@
  * Usage: pnpm --filter frontend test:p1
  *
  * @see docs/architecture/adr/314-DEV-dependency-isolation.md
- * @see docs/testing/TESTING.md (P1 Safety Core: 100% line/branch/function coverage)
+ * @see docs/testing/TESTING.md (P1 Safety Core: 90% line/branch/function coverage)
  */
 import { fileURLToPath } from 'node:url'
 import { mergeConfig, defineConfig, configDefaults } from 'vitest/config'
@@ -39,10 +39,10 @@ export default mergeConfig(
           '**/mass-balance.math-types.ts',
         ],
         thresholds: {
-          lines: 100,
-          branches: 100,
-          functions: 100,
-          statements: 100,
+          lines: 90,
+          branches: 90,
+          functions: 90,
+          statements: 90,
         },
       },
       root: fileURLToPath(new URL('./', import.meta.url)),

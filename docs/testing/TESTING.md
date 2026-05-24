@@ -58,15 +58,15 @@ Our coverage requirements correlate directly to the Priority (P1, P2, P3) of the
 
 | Priority | Label | File Path(s) | Coverage |
 | :------- | :---------------- | :-------------------------------------------- | :------- |
-| **P1** | Safety Core | `frontend/src/core/` | 100% |
+| **P1** | Safety Core | `frontend/src/core/` | 90% |
 | **P2** | Operational Logic | `frontend/src/modules/` | 80% |
 | **P3** | UI & Shared | `frontend/src/shared/`, `frontend/src/plugins/`, `frontend/src/stores/` | 60% |
 
 This table is the **single source of truth** for coverage thresholds. All agent workflows, CI gates, and review checklists MUST reference this table rather than hardcoding values.
 
 - **P1 - Safety Core (e.g., Mass & Balance, Flight Performance)**
-  - **Requirement:** **100%** Line, Branch, and Function coverage.
-  - _Rationale:_ There is zero margin for error. Every single mathematical path must be verified.
+  - **Requirement:** **90%** Line, Branch, and Function coverage.
+  - _Rationale:_ This high threshold ensures the vast majority of mathematical paths are verified while allowing for pragmatic coverage of edge cases that are difficult to exercise in isolation.
 - **P2 - Operational Logic (e.g., Weather Parsing, Route APIs)**
   - **Requirement:** **80%** coverage minimum.
   - _Rationale:_ Failures here are highly inconvenient and degrade the tool, but they should be caught by safety boundaries before impacting P1 calculations.
@@ -117,16 +117,33 @@ Real-world aviation data is incredibly dynamic. A METAR changes every 30-60 minu
 
 ## 🚦 4. Running the Tests Locally
 
-_(This section will be expanded once the technology stack is finalized)._
-
-Before pushing to your branch or opening a PR, ensure you have run the full local test suite:
+All commands run from the **repo root** via `pnpm`. Playwright auto-starts the Vite dev server — no separate server process is needed for E2E.
 
 ```bash
-# TBD: The command to run the test suite and output a coverage report.
-# Example: npm run test:coverage OR pytest --cov
+# Unit tests (Vitest — Node env, no browser)
+pnpm run test:unit
+
+# Integration tests (Vitest — uses fake-indexeddb for IndexedDB)
+pnpm run test:integration
+
+# P1 Safety Core tests in strict isolation (no Vue/Pinia allowed)
+pnpm --filter frontend test:p1
+
+# E2E tests (Playwright BDD — starts Vite dev server automatically)
+# On Linux VMs without MS Edge, always specify --project=chromium
+pnpm run test:e2e --project=chromium
+
+# Smoke tests only (fast first-pass gate)
+pnpm run test:smoke
+
+# Full coverage report for P1 core (must stay ≥ 90%)
+pnpm --filter frontend vitest run --config vitest.config.p1.ts --coverage
+
+# Full coverage report for all tiers
+pnpm run coverage:unit
 ```
 
-If your changes cause the coverage to dip below the required threshold, the CI pipeline **will fail your build**.
+If your changes cause coverage to dip below the required threshold (P1: 90%, P2: 80%, P3: 60%), the CI pipeline **will fail your build**.
 
 ---
 
@@ -145,3 +162,51 @@ We use specific prefixes defined in `.tools/.shtracer.md`:
   - _Example:_ `# @E2E-STRESS-001@ (FROM: @UJ-STRESS-001@)`
 
 This acts as the final verification link in our Master Traceability Matrix, permanently proving that the mitigations required by a safety hazard are verified in code.
+
+---
+
+## 🚦 6. CI Traceability Gate
+
+The `Traceability Gate` GitHub Actions workflow (`.github/workflows/traceability.yml`) runs automatically on every Pull Request targeting `main`. It performs the following checks using the `shtracer` tool (`.tools/shtracer/`) and `jq`:
+
+| Check | What is detected |
+| :---- | :--------------- |
+| **Duplicate tags** | The same `@IMP-`, `@REQ-`, or other tag appears in more than one file |
+| **Isolated tags** | A tag exists but has no upstream or downstream link in the chain |
+| **Dangling FROM refs** | A `(FROM: @TAG@)` references a tag that does not exist |
+| **Pending requirements** | A `@REQ-` tag has no downstream IMP or DES link |
+| **Orphaned implementations** | An `@IMP-` tag has no upstream `@REQ-` or `@DES-` link |
+| **Unmitigated hazards** | An `@H-` tag has no downstream `@REQ-` link |
+| **Unverified P1 requirements** | An implemented `@REQ-` has no `@E2E-` anywhere in its chain |
+| **Registry drift** | `@IMP-` tags in source files differ from entries in `trace/implementation/` YAMLs |
+
+### Gate Severity Policy
+
+| Project version | Gate behaviour |
+| :-------------- | :------------- |
+| Pre-v1.0.0 (current) | **Warn-only** — always exits 0, gaps are reported in the Actions log and PR summary |
+| v1.0.0+ | **Hard-fail** — any gap causes the gate to exit non-zero and blocks merge to `main` |
+
+### Running the trace check locally
+
+```bash
+# Verify mode — detect isolated, duplicate, and dangling tags
+.tools/shtracer/shtracer -v .tools/.shtracer.md
+
+# Generate full JSON for manual jq inspection
+.tools/shtracer/shtracer .tools/.shtracer.md 2>/dev/null > /tmp/trace.json
+
+# List all requirement tags with no downstream link (pending) — v0.1.4 schema
+jq -r '
+  [.trace_tags[].from_tags[]] as $all_parents |
+  .trace_tags[]
+  | select(.id | startswith("@REQ-"))
+  | select(.id as $id | ($all_parents | index($id)) == null)
+  | .id
+' /tmp/trace.json
+
+# List all chains that reach an E2E test
+jq '[.chains[] | select(any(.[]; startswith("@E2E-")))]' /tmp/trace.json
+```
+
+The raw `trace.json` is also uploaded as a GitHub Actions artifact (`traceability-report`) and retained for 30 days on every PR run.

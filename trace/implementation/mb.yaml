@@ -81,6 +81,13 @@ MB Core Logic
     files:
       - frontend/src/core/logic/mb.arm-lookup.ts
 
+  IMP-MB-CORE-015
+    title: CG Migration Segment-Polygon Intersection Check
+    req:
+      - REQ-MB-011
+    files:
+      - frontend/src/core/logic/mb.envelope.ts
+
 MB Domain Types
   IMP-MB-CORE-013
     title: Mass & Balance Math Core Type Definitions
@@ -96,6 +103,15 @@ MB Adapter Entry (delegation to core)
       - REQ-MB-002
     des:
       - DES-ARCH-005
+    files:
+      - frontend/src/core/adapters/mass-balance.adapter.ts
+
+  IMP-MB-CORE-016
+    title: Finite + Numeric Domain-Range Guards on Math-Core Adapter Inputs
+    req:
+      - REQ-MB-002
+      - REQ-SYS-003
+      - REQ-SYS-012
     files:
       - frontend/src/core/adapters/mass-balance.adapter.ts
 
@@ -236,6 +252,69 @@ MB Data Schema
     files:
       - frontend/src/modules/mass-balance/data/aircraft-context.schema.ts
 
+  IMP-MB-DATA-003
+    title: AircraftContext Fuel-Type Enum Convergence (fail-closed on unknown)
+    req:
+      - REQ-FE-001
+      - REQ-SYS-003
+    files:
+      - frontend/src/modules/mass-balance/data/aircraft-context.schema.ts
+
+MB Store - Error Flag Derivation
+  IMP-MB-STORE-015
+    title: Per-Station Error Flag Derivation from INVALID_INPUT Violations
+    req:
+      - REQ-UQ-004
+    files:
+      - frontend/src/modules/mass-balance/stores/mass-balance.store.ts
+
+  IMP-MB-STORE-016
+    title: SI Normalization at Adapter Boundary using load-point unit field
+    req:
+      - REQ-AD-014
+      - REQ-SYS-003
+    files:
+      - frontend/src/modules/mass-balance/stores/mass-balance.store.ts
+
+  IMP-MB-STORE-017
+    title: OUT_OF_RANGE Violation Mapped as WARNING (Soft Operational Range Advisory)
+    req:
+      - REQ-UI-008
+      - REQ-SYS-012
+    files:
+      - frontend/src/modules/mass-balance/stores/mass-balance.store.ts
+
+  IMP-MB-STORE-018
+    title: clearProfile — detach aircraft and reset M&B state on hot-swap (no stale-data leak)
+    req:
+      - REQ-AC-005
+    files:
+      - frontend/src/modules/mass-balance/stores/mass-balance.store.ts
+
+  IMP-MB-STORE-020
+    title: Full Geometric SI Normalization at Adapter Boundary (arm/moment/envelope via sourceUnit)
+    req:
+      - REQ-SYS-003
+      - REQ-AD-014
+    files:
+      - frontend/src/modules/mass-balance/stores/mass-balance.store.ts
+
+  IMP-MB-STORE-021
+    title: Fail-Closed Warning on Unrecognized Fuel Type (no silent fallback density)
+    req:
+      - REQ-FE-001
+      - REQ-SYS-003
+    files:
+      - frontend/src/modules/mass-balance/stores/mass-balance.store.ts
+
+  IMP-MB-STORE-022
+    title: Block NaN-Filled Failed Compute from Reaching lastResult / UI
+    req:
+      - REQ-SYS-012
+      - REQ-UI-008
+    files:
+      - frontend/src/modules/mass-balance/stores/mass-balance.store.ts
+
 MB UI Components
   IMP-MB-UI-001
     title: CG Envelope Polygon + Mass Point Markers Rendering
@@ -272,3 +351,33 @@ MB UI Components
       - REQ-UQ-005
     files:
       - frontend/src/modules/mass-balance/components/ResultSummary.vue
+
+  IMP-MB-UI-006
+    title: Per-Station Error Highlight for INVALID_INPUT Validation Failures
+    req:
+      - REQ-UQ-004
+    files:
+      - frontend/src/modules/mass-balance/components/MassStationInput.vue
+
+  IMP-MB-UI-007
+    title: Per-Station Unit Label from LoadPointDefinition.unit
+    req:
+      - REQ-UQ-005
+    files:
+      - frontend/src/modules/mass-balance/components/MassStationInput.vue
+      - frontend/src/modules/mass-balance/views/MassBalanceView.vue
+
+  IMP-MB-UI-008
+    title: Turbulence-tolerant station stepper — coarse (±N) controls, unit-aware step, and one-tap preset chips (UX-002)
+    req:
+      - REQ-UQ-004
+    files:
+      - frontend/src/modules/mass-balance/components/MassStationInput.vue
+      - frontend/src/modules/mass-balance/views/MassBalanceView.vue
+
+  IMP-MB-UI-FLEET-002
+    title: Reset Payload confirm-then-undo — in-app confirmation with discard count plus a short undo window restoring pre-reset weights (UX-004)
+    req:
+      - REQ-UI-018
+    files:
+      - frontend/src/modules/mass-balance/views/MassBalanceView.vue

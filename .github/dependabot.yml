@@ -1,23 +1,24 @@
 version: 2
 
-updates:
-  # Scan the pnpm workspace (npm ecosystem) in the frontend package
-  - package-ecosystem: npm
-    directory: /frontend
-    target-branch: develop
-    schedule:
-      interval: weekly
-      day: monday
-      time: '06:00'
-    open-pull-requests-limit: 10
-    groups:
-      # Bundle all minor and patch updates together to reduce PR noise
-      minor-and-patch:
-        update-types:
-          - minor
-          - patch
+# ---------------------------------------------------------------------------
+# Dependabot configuration for AeroDash
+#
+# Goals (in priority order):
+#   1. Stay up-to-date on security-relevant versions (security PRs are always
+#      raised individually and are NOT affected by grouping or cooldown).
+#   2. Minimize PR noise by grouping semantically related packages so a single
+#      PR updates a cohesive slice of the toolchain (e.g. the Vue stack, the
+#      test runner stack, the lint stack).
+#   3. Keep breaking (major) bumps within their logical group so reviewers
+#      see compatible versions together, instead of N independent major PRs.
+#   4. Let fresh releases settle before opening a PR (cooldown) to avoid
+#      thrash on packages that publish multiple times per week.
+# ---------------------------------------------------------------------------
 
-  # Scan the root pnpm workspace
+updates:
+  # -------------------------------------------------------------------------
+  # npm / pnpm workspace (root + frontend share one pnpm-lock.yaml)
+  # -------------------------------------------------------------------------
   - package-ecosystem: npm
     directory: /
     target-branch: develop
@@ -25,24 +26,120 @@ updates:
       interval: weekly
       day: monday
       time: '06:00'
+      timezone: Europe/Berlin
     open-pull-requests-limit: 5
+    labels:
+      - dependencies
+    # Use the allowed commitlint scope so commits match project standards.
+    commit-message:
+      prefix: 'chore(repo)'
+      prefix-development: 'chore(repo)'
+    # Wait for releases to stabilize before proposing a bump. Majors get a
+    # longer window to surface regressions before we spend reviewer time.
+    cooldown:
+      default-days: 7
+      semver-major-days: 14
+      semver-minor-days: 3
+      semver-patch-days: 1
     groups:
-      minor-and-patch:
+      # Vue runtime + build-plugins + PWA + router + state. These versions
+      # track each other closely; bumping one in isolation usually breaks
+      # peer-dependency resolution.
+      vue-ecosystem:
+        patterns:
+          - 'vue'
+          - 'vue-*'
+          - '@vue/*'
+          - '@vitejs/plugin-vue'
+          - 'pinia'
+          - 'vite-plugin-vue-*'
+          - 'vite-plugin-pwa'
+          - 'workbox-*'
+          - 'eslint-plugin-vue'
+
+      # Test tooling: Vitest, Playwright, coverage, mutation testing,
+      # DOM/IndexedDB polyfills used by tests.
+      test-tooling:
+        patterns:
+          - 'vitest'
+          - '@vitest/*'
+          - '@vue/test-utils'
+          - '@playwright/*'
+          - 'playwright'
+          - 'playwright-*'
+          - 'eslint-plugin-playwright'
+          - '@stryker-mutator/*'
+          - 'fake-indexeddb'
+          - 'jsdom'
+          - '@types/jsdom'
+
+      # Linters & formatters. Bumping eslint without its plugins usually
+      # breaks the config, so keep them together.
+      lint-tooling:
+        patterns:
+          - 'eslint'
+          - 'eslint-*'
+          - '@vue/eslint-config-*'
+          - 'oxlint'
+          - 'prettier'
+          - 'markdownlint-cli2'
+
+      # Build + language toolchain.
+      build-tooling:
+        patterns:
+          - 'vite'
+          - 'typescript'
+          - '@tsconfig/*'
+          - '@types/node'
+          - 'npm-run-all2'
+
+      # Commit / release / husky pipeline. Bumping commitlint without its
+      # config package breaks pre-commit hooks.
+      repo-tooling:
+        patterns:
+          - '@commitlint/*'
+          - 'commitlint'
+          - 'husky'
+          - 'lint-staged'
+          - 'release-it'
+          - '@release-it/*'
+
+      # Catch-all for anything not matched above. Split prod vs. dev so the
+      # production-group PR is small and can be reviewed with higher care
+      # (shipped code) while dev-tooling bumps batch freely.
+      production-minor-and-patch:
+        dependency-type: production
+        update-types:
+          - minor
+          - patch
+      dev-minor-and-patch:
+        dependency-type: development
         update-types:
           - minor
           - patch
 
-  # Keep GitHub Actions up to date
+  # -------------------------------------------------------------------------
+  # GitHub Actions
+  # Actions change infrequently; monthly cadence + single group is enough.
+  # -------------------------------------------------------------------------
   - package-ecosystem: github-actions
     directory: /
     target-branch: develop
     schedule:
-      interval: weekly
+      interval: monthly
       day: monday
       time: '06:00'
-    open-pull-requests-limit: 5
+      timezone: Europe/Berlin
+    open-pull-requests-limit: 2
+    labels:
+      - dependencies
+      - ci
+    commit-message:
+      prefix: 'chore(repo)'
+    cooldown:
+      default-days: 7
+      semver-major-days: 14
     groups:
-      actions-minor-and-patch:
-        update-types:
-          - minor
-          - patch
+      github-actions-all:
+        patterns:
+          - '*'

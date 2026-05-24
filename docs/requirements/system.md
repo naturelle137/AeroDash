@@ -13,7 +13,7 @@ This document defines the system behavior using the **EARS** (Easy Approach to R
 **Requirement:** The system shall be fully functional without an active internet connection; all aircraft profiles and calculation logic shall be stored locally.
 **Rationale:** Ensure usability in remote airfields or during flight.
 **Priority:** P2
-**Status:** Approved
+**Status:** Implemented
 **Design Reference:** n/a
 
 <!-- @REQ-SYS-002@ -->
@@ -23,7 +23,7 @@ This document defines the system behavior using the **EARS** (Easy Approach to R
 **Requirement:** The system shall store aircraft profiles and flight plans in a standardized, portable format.
 **Rationale:** Human-readable format and future-proofing.
 **Priority:** P1
-**Status:** Approved
+**Status:** Implemented
 **Design Reference:** n/a
 
 <!-- @REQ-SYS-003@ (FROM: @H-001@, @H-002@) -->
@@ -33,7 +33,7 @@ This document defines the system behavior using the **EARS** (Easy Approach to R
 **Requirement:** The system shall normalize all physical input parameters to a unified internal SI reference frame (kg, m, L, s) for the internal calculation logic.
 **Rationale:** Ensure mathematical consistency across mixed fleets.
 **Priority:** P1
-**Status:** Approved
+**Status:** Implemented
 **Design Reference:** n/a
 
 <!-- @REQ-SYS-004@ -->
@@ -43,7 +43,7 @@ This document defines the system behavior using the **EARS** (Easy Approach to R
 **Requirement:** The system shall accept the following units for data storage, input and display: <ul><li>Volume: L, gal (US)</li> <li>Mass: kg, lb</li> <li>Speed: km/h, mph, kt, m/s</li> <li>Arm: m, in, ft</li> <li>Moment: kg·m, in-lb, ft-lb</li> <li>Temperature: °C, °F</li> <li>Altitude: ft, m</li> <li>Distance: km, mi, nm </li> <li>Pressure: hPa, inHg, mmHg</li></ul>
 **Rationale:** Ensures compatibility with POH data from both metric and imperial manufacturers.
 **Priority:** P1
-**Status:** Approved
+**Status:** Implemented
 **Design Reference:** n/a
 
 <!-- @REQ-SYS-005@ (FROM: @H-019@) -->
@@ -53,7 +53,7 @@ This document defines the system behavior using the **EARS** (Easy Approach to R
 **Requirement:** When a new software version is detected, the system shall prevent silent background updates and emit an INFO notification (`INFO-SYS-001`) informing the user about the available update and offering a reload action.
 **Rationale:** Prevents "State Confusion" where the pilot plans on an old version while the new one loads in the background.
 **Priority:** P1
-**Status:** Approved
+**Status:** Implemented
 **Design Reference:** [Notification Schema](../architecture/notification_schema.md)
 
 <!-- @REQ-SYS-006@ (FROM: @H-019@) -->
@@ -63,7 +63,7 @@ This document defines the system behavior using the **EARS** (Easy Approach to R
 **Requirement:** When the application initializes online, the system shall verify the local version against a remote "minimum safe version" and block execution if the local version is marked as unsafe
 **Rationale:** "Kill Switch" for critical bugs (e.g., calculation errors discovered post-release).
 **Priority:** P1
-**Status:** Approved
+**Status:** Implemented
 **Design Reference:** n/a
 
 <!-- @REQ-SYS-007@ -->
@@ -125,6 +125,15 @@ This document defines the system behavior using the **EARS** (Easy Approach to R
 **Priority:** P1
 **Status:** Implemented
 **Design Reference:** [Notification Schema](../architecture/notification_schema.md)
+
+<!-- @REQ-SYS-013@ -->
+
+### REQ-SYS-013: Session Payload Persistence
+
+**Priority:** P3
+**Status:** Implemented
+
+**Requirement:** When the pilot has entered preflight data, the system shall automatically serialise the active session payload to `localStorage` on each value change (debounced) and restore it on page reload, provided the restored payload passes Zod schema validation. An invalid or absent payload shall result in a clean session with no pre-population. The session payload shall be cleared when a different aircraft profile is selected.
 
 ---
 

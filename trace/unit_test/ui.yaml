@@ -1,0 +1,24 @@
+UI Routing — Route Table (Unit)
+  UT-UI-ROUTE-001
+    title: resolves named home route to / path
+    impl:
+      - IMP-UI-ROUTE-001
+    files:
+      - frontend/src/router/index.spec.ts
+
+UI Shared Components (Unit)
+  UT-UI-SHARED-001
+    title: ConfirmDialog — accessible alertdialog, confirm/cancel + backdrop/Escape, danger/primary variants, custom labels (UX-001/UX-004)
+    impl:
+      - IMP-UI-SHARED-003
+      - IMP-UI-SHARED-004
+    files:
+      - frontend/src/shared/components/__tests__/ConfirmDialog.spec.ts
+
+  UT-UI-SHARED-002
+    title: UndoToast — live-region rendering, undo/dismiss emits, auto-dismiss timer + timer cleanup on undo (UX-001/UX-004)
+    impl:
+      - IMP-UI-SHARED-005
+      - IMP-UI-SHARED-006
+    files:
+      - frontend/src/shared/components/__tests__/UndoToast.spec.ts

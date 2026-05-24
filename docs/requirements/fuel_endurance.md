@@ -12,7 +12,7 @@ This document defines the fuel & endurance behavior using the **EARS** (Easy App
 **Requirement:** When a fuel type is selected, the system shall automatically calculate mass using the specific density of that fuel type: <ul><li>AvGas, MoGas = 0.72 kg/L,</li> <li>Jet A-1, Diesel = 0.84 kg/L.</li></ul>
 **Rationale:** Prevents weight errors due to fuel density differences.
 **Priority:** P1
-**Status:** Approved
+**Status:** Implemented
 **Design Reference:** n/a
 
 <!-- @REQ-FE-002@ (FROM: @H-010@) -->
@@ -50,6 +50,16 @@ This document defines the fuel & endurance behavior using the **EARS** (Easy App
 **Priority:** P1
 **Status:** Approved
 **Design Reference:** n/a
+
+<!-- @REQ-FE-006@ (FROM: @REQ-AD-020@, @REQ-AD-021@) -->
+
+### REQ-FE-006: Electric Endurance Card
+
+**Requirement:** While the selected aircraft's `powertrain` is `electric`, the Mass & Balance view shall label the Fuel & Endurance card `Energy & Endurance`. The system shall not render fuel-tank rows, burn-sequence selectors, or fuel-type controls for an electric aircraft.
+**Rationale:** Electric pilots plan with a battery pack (kWh) and a reserve floor, not fuel quantity and density. Surfacing the fuel vocabulary on an electric aircraft is the shoehorn defect called out in issue #225.
+**Priority:** P1
+**Status:** Approved
+**Design Reference:** [Native Electric Aircraft UX](../ux/native-electric-aircraft.md)
 
 ---
 

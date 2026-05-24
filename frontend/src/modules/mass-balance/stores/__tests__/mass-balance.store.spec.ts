@@ -66,7 +66,7 @@ const mockProfile: AircraftContext = {
       allowableCategories: ['Normal'],
       fuelTank: {
         unusableFuel: 3,
-        permissibleFuelTypes: ['MOGAS', 'AVGAS'],
+        permissibleFuelTypes: ['MoGas', 'AvGas 100LL'],
         burnSequences: [],
       },
     },
@@ -121,7 +121,7 @@ const multiCatProfile: AircraftContext = {
       allowableCategories: null,
       fuelTank: {
         unusableFuel: 2,
-        permissibleFuelTypes: ['AVGAS'],
+        permissibleFuelTypes: ['AvGas 100LL'],
         burnSequences: [],
       },
     },
@@ -200,6 +200,7 @@ describe('MassBalance Store', () => {
       verified: false,
       mandatory: true,
       touched: true,
+      hasError: false,
     })
     expect(store.stations[1]).toEqual({
       index: 1,
@@ -208,6 +209,7 @@ describe('MassBalance Store', () => {
       verified: false,
       mandatory: false,
       touched: false,
+      hasError: false,
     })
   })
 
@@ -255,6 +257,28 @@ describe('MassBalance Store', () => {
     store.loadProfile(mockProfile)
 
     expect(mockedCalculate).toHaveBeenCalledTimes(1)
+  })
+
+  // @UT-MB-STORE-059@ (FROM: @IMP-MB-STORE-013@, @REQ-AC-005@, @H-011@)
+  it('emits WARN-AC-002 when aircraft context status is draft (computation entry)', () => {
+    mockedCalculate.mockReturnValue(buildSuccessResult())
+
+    const store = useMassBalanceStore()
+    store.loadProfile({ ...mockProfile, status: 'draft' })
+
+    expect(store.notifications.some((n) => n.id === 'WARN-AC-002')).toBe(true)
+    expect(store.uiState).toBe('WARNING')
+  })
+
+  // @UT-MB-STORE-019@ (FROM: @IMP-MB-STORE-013@, @REQ-AC-005@)
+  it('does not emit WARN-AC-002 when aircraft context status is verified', () => {
+    mockedCalculate.mockReturnValue(buildSuccessResult())
+
+    const store = useMassBalanceStore()
+    store.loadProfile({ ...mockProfile, status: 'verified' })
+
+    expect(store.notifications.some((n) => n.id === 'WARN-AC-002')).toBe(false)
+    expect(store.uiState).toBe('VERIFIED_SAFE')
   })
 
   // ─── updateStationWeight ──────────────────────────────────────────────
@@ -365,20 +389,67 @@ describe('MassBalance Store', () => {
     expect(store.stations[1]!.verified).toBe(false)
   })
 
-  // ─── resetPayload ─────────────────────────────────────────────────────
+  // ─── clearProfile (aircraft hot-swap, refs #165) ──────────────────────
 
-  // @UT-MB-STORE-018@ (FROM: @IMP-MB-STORE-010@)
-  it('resets all weights to zero, re-runs calculation, and keeps results visible', () => {
+  // @UT-MB-STORE-034@ (FROM: @IMP-MB-STORE-018@)
+  it('clearProfile fully detaches aircraft, stations, results, notifications and returns to INITIAL', () => {
     const store = useMassBalanceStore()
     store.loadProfile(mockProfile)
     store.updateStationWeight(0, 80)
 
+    expect(store.aircraft).not.toBeNull()
+    expect(store.stations.length).toBeGreaterThan(0)
+
+    store.clearProfile()
+
+    expect(store.aircraft).toBeNull()
+    expect(store.activeCategory).toBeNull()
+    expect(store.stations).toEqual([])
+    expect(store.notifications).toEqual([])
+    expect(store.lastResult).toBeNull()
+    expect(store.uiState).toBe('INITIAL')
+  })
+
+  // ─── resetPayload ─────────────────────────────────────────────────────
+
+  // @UT-MB-STORE-018@ (FROM: @IMP-MB-STORE-010@)
+  it('resets each station to max(defaultQuantity, unusableFuel) and keeps results visible', () => {
+    const store = useMassBalanceStore()
+    store.loadProfile(mockProfile)
+    store.updateStationWeight(0, 80)
+    store.updateStationWeight(1, 50)
+
     store.resetPayload()
-    expect(store.stations.every((s) => s.weight === 0)).toBe(true)
+
+    // Pilot station: defaultQuantity=0, no fuelTank → reset to 0
+    expect(store.stations[0]?.weight).toBe(0)
+    // Fuel station: defaultQuantity=0, unusableFuel=3 → reset to 3 (the minimum legal load)
+    expect(store.stations[1]?.weight).toBe(3)
     expect(store.stations.every((s) => !s.verified)).toBe(true)
     expect(store.stations.every((s) => s.touched)).toBe(true)
     expect(store.lastResult).not.toBeNull()
     expect(store.uiState).toBe('VERIFIED_SAFE')
+  })
+
+  // @UT-MB-STORE-018B@ (FROM: @IMP-MB-STORE-010@)
+  it('resets to defaultQuantity when it exceeds unusableFuel', () => {
+    const store = useMassBalanceStore()
+    // Profile where default fuel is 40 L; unusable is 3 L
+    const profileWithDefaults: AircraftContext = {
+      ...mockProfile,
+      loadPoints: [
+        { ...mockProfile.loadPoints[0]!, defaultQuantity: 85 },
+        { ...mockProfile.loadPoints[1]!, defaultQuantity: 40 },
+      ],
+    }
+    store.loadProfile(profileWithDefaults)
+    store.updateStationWeight(0, 10)
+    store.updateStationWeight(1, 10)
+
+    store.resetPayload()
+
+    expect(store.stations[0]?.weight).toBe(85) // defaults win over 0 unusable
+    expect(store.stations[1]?.weight).toBe(40) // defaultQuantity (40) > unusableFuel (3)
   })
 
   // ─── _runCalculation ──────────────────────────────────────────────────
@@ -838,7 +909,9 @@ describe('MassBalance Store', () => {
 
     store.resetPayload()
     expect(store.uiState).toBe('VERIFIED_SAFE')
-    expect(store.stations.every((s) => s.weight === 0)).toBe(true)
+    // Pilot resets to 0 (no default, no unusable); fuel resets to 3 (unusableFuel floor).
+    expect(store.stations[0]?.weight).toBe(0)
+    expect(store.stations[1]?.weight).toBe(3)
     expect(store.lastResult).not.toBeNull()
   })
 
@@ -937,5 +1010,128 @@ describe('MassBalance Store', () => {
     store.loadProfile(mockProfile)
 
     expect(store.lastResult).toStrictEqual(expectedResult)
+  })
+})
+
+// ═══════════════════════════════════════════════════════════════════════════
+// applyRestoredSession — persisted-session restore path (REQ-SYS-013)
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe('Mass Balance Store - applyRestoredSession', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    mockedCalculate.mockReturnValue(buildSuccessResult())
+  })
+
+  // @UT-MB-STORE-051@ (FROM: @IMP-MB-STORE-019@)
+  it('restores station weights and interaction flags onto a freshly-loaded profile', () => {
+    const store = useMassBalanceStore()
+    store.loadProfile(mockProfile)
+
+    store.applyRestoredSession({
+      version: 1,
+      aircraftId: 'tecnam-p2008',
+      activeCategory: 'Normal',
+      stations: [
+        { index: 0, weight: 160, touched: true, verified: true },
+        { index: 1, weight: 50, touched: true, verified: false },
+      ],
+      savedAt: '2026-04-19T10:00:00.000Z',
+    })
+
+    expect(store.stations[0]!.weight).toBe(160)
+    expect(store.stations[0]!.touched).toBe(true)
+    expect(store.stations[0]!.verified).toBe(true)
+    expect(store.stations[1]!.weight).toBe(50)
+    expect(store.stations[1]!.verified).toBe(false)
+  })
+
+  // @UT-MB-STORE-052@ (FROM: @IMP-MB-STORE-019@)
+  it('is a no-op when no aircraft is loaded (guards against out-of-order restore)', () => {
+    const store = useMassBalanceStore()
+
+    store.applyRestoredSession({
+      version: 1,
+      aircraftId: 'tecnam-p2008',
+      activeCategory: 'Normal',
+      stations: [{ index: 0, weight: 160, touched: true, verified: true }],
+      savedAt: '2026-04-19T10:00:00.000Z',
+    })
+
+    expect(store.aircraft).toBeNull()
+    expect(store.stations).toHaveLength(0)
+  })
+
+  // @UT-MB-STORE-053@ (FROM: @IMP-MB-STORE-019@)
+  it('is a no-op when the payload aircraftId does not match the loaded profile', () => {
+    const store = useMassBalanceStore()
+    store.loadProfile(mockProfile)
+
+    store.applyRestoredSession({
+      version: 1,
+      aircraftId: 'not-this-aircraft',
+      activeCategory: 'Normal',
+      stations: [{ index: 0, weight: 999, touched: true, verified: true }],
+      savedAt: '2026-04-19T10:00:00.000Z',
+    })
+
+    // Default from loadProfile, untouched by the ignored payload.
+    expect(store.stations[0]!.weight).toBe(0)
+  })
+
+  // @UT-MB-STORE-054@ (FROM: @IMP-MB-STORE-019@)
+  it('silently skips station entries whose index is out of range', () => {
+    const store = useMassBalanceStore()
+    store.loadProfile(mockProfile)
+
+    expect(() => {
+      store.applyRestoredSession({
+        version: 1,
+        aircraftId: 'tecnam-p2008',
+        activeCategory: 'Normal',
+        stations: [
+          { index: 0, weight: 160, touched: true, verified: true },
+          { index: 99, weight: 12, touched: true, verified: true },
+        ],
+        savedAt: '2026-04-19T10:00:00.000Z',
+      })
+    }).not.toThrow()
+
+    expect(store.stations[0]!.weight).toBe(160)
+    expect(store.stations).toHaveLength(2) // profile's load points, unchanged
+  })
+
+  // @UT-MB-STORE-055@ (FROM: @IMP-MB-STORE-019@)
+  it('ignores an unknown activeCategory and keeps the profile default', () => {
+    const store = useMassBalanceStore()
+    store.loadProfile(mockProfile)
+    const defaultCategory = store.activeCategory
+
+    store.applyRestoredSession({
+      version: 1,
+      aircraftId: 'tecnam-p2008',
+      activeCategory: 'Aerobatic', // not in mockProfile
+      stations: [],
+      savedAt: '2026-04-19T10:00:00.000Z',
+    })
+
+    expect(store.activeCategory).toBe(defaultCategory)
+  })
+
+  // @UT-MB-STORE-056@ (FROM: @IMP-MB-STORE-019@)
+  it('re-runs the math core after applying the payload', () => {
+    const store = useMassBalanceStore()
+    store.loadProfile(mockProfile)
+    mockedCalculate.mockClear()
+
+    store.applyRestoredSession({
+      version: 1,
+      aircraftId: 'tecnam-p2008',
+      activeCategory: 'Normal',
+      stations: [{ index: 0, weight: 160, touched: true, verified: true }],
+      savedAt: '2026-04-19T10:00:00.000Z',
+    })
+
+    expect(mockedCalculate).toHaveBeenCalledTimes(1)
   })
 })

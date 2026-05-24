@@ -30,15 +30,15 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           submodules: true
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v5
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 24
           cache: 'pnpm'
@@ -62,9 +62,12 @@ jobs:
           mv reports/traceability_matrix.json reports/traceability/traceability_matrix.json
 
       # ── Vitest: Unit Test HTML Report + Coverage ─────────────────────────
+      # NOTE: must use `exec` — `pnpm --filter frontend vitest ...` would be
+      # interpreted as a script lookup ("vitest" is not a script in
+      # frontend/package.json) and fail with ERR_PNPM_RECURSIVE_RUN_NO_SCRIPT.
       - name: Run Vitest with HTML reporter and coverage
         id: vitest
-        run: pnpm --filter frontend vitest run --reporter=html --coverage
+        run: pnpm --filter frontend exec vitest run --reporter=html --coverage
         continue-on-error: true
 
       - name: Copy Vitest HTML test report
@@ -92,11 +95,16 @@ jobs:
         run: pnpm exec stryker run --reporters html
         continue-on-error: true
 
+      # Stryker emits `mutation.html`, not `index.html` — rename so that
+      # GitHub Pages resolves /stryker/ instead of returning a 404.
       - name: Copy Stryker HTML report
         if: always()
         run: |
           if [ -d "frontend/reports/mutation" ]; then
             cp -r frontend/reports/mutation/. reports/stryker/
+            if [ -f reports/stryker/mutation.html ] && [ ! -f reports/stryker/index.html ]; then
+              mv reports/stryker/mutation.html reports/stryker/index.html
+            fi
           else
             echo "No Stryker mutation report found — step skipped gracefully"
           fi
@@ -112,11 +120,16 @@ jobs:
         run: pnpm --filter frontend exec playwright install chromium --with-deps
         continue-on-error: true
 
+      # Use the package script so `bddgen` runs first and compiles
+      # `.feature` files into specs (playwright-bdd). Running
+      # `playwright test` directly produces "No tests found" and an empty
+      # HTML report. The HTML reporter is wired in playwright.config.ts when
+      # CI=true, so we don't override --reporter here.
       - name: Run Playwright E2E tests
         id: playwright
         if: steps.build.outcome == 'success'
         working-directory: frontend
-        run: pnpm exec playwright test --reporter=html
+        run: pnpm test:e2e
         env:
           CI: 'true'
         continue-on-error: true
@@ -229,10 +242,10 @@ jobs:
 
       # ── Pages Deployment ──────────────────────────────────────────────────
       - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-pages-artifact@v5
         with:
           path: reports/
 
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5

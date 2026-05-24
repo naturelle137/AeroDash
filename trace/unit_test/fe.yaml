@@ -1,0 +1,133 @@
+FE Core — Fuel Density (Unit)
+  UT-FE-CORE-001
+    title: Verify FUEL_DENSITY_KG_PER_L contains 0.72 for AVGAS
+    impl:
+      - IMP-FE-CORE-001
+    files:
+      - frontend/src/core/logic/fuel-density.spec.ts
+
+  UT-FE-CORE-002
+    title: Verify FUEL_DENSITY_KG_PER_L contains 0.72 for MOGAS
+    impl:
+      - IMP-FE-CORE-001
+    files:
+      - frontend/src/core/logic/fuel-density.spec.ts
+
+  UT-FE-CORE-003
+    title: Verify FUEL_DENSITY_KG_PER_L contains 0.72 for AvGas 100LL
+    impl:
+      - IMP-FE-CORE-001
+    files:
+      - frontend/src/core/logic/fuel-density.spec.ts
+
+  UT-FE-CORE-004
+    title: Verify FUEL_DENSITY_KG_PER_L contains 0.72 for AvGas UL91
+    impl:
+      - IMP-FE-CORE-001
+    files:
+      - frontend/src/core/logic/fuel-density.spec.ts
+
+  UT-FE-CORE-005
+    title: Verify FUEL_DENSITY_KG_PER_L contains 0.84 for Jet A-1
+    impl:
+      - IMP-FE-CORE-001
+    files:
+      - frontend/src/core/logic/fuel-density.spec.ts
+
+  UT-FE-CORE-006
+    title: Verify FUEL_DENSITY_KG_PER_L contains 0.84 for Diesel
+    impl:
+      - IMP-FE-CORE-001
+    files:
+      - frontend/src/core/logic/fuel-density.spec.ts
+
+  UT-FE-CORE-007
+    title: Verify getFuelDensityKgPerL returns 0.72 for AvGas 100LL
+    impl:
+      - IMP-FE-CORE-001
+    files:
+      - frontend/src/core/logic/fuel-density.spec.ts
+
+  UT-FE-CORE-008
+    title: Verify getFuelDensityKgPerL returns 0.84 for Jet A-1
+    impl:
+      - IMP-FE-CORE-001
+    files:
+      - frontend/src/core/logic/fuel-density.spec.ts
+
+  UT-FE-CORE-009
+    title: Verify getFuelDensityKgPerL returns conservative fallback 0.84 for unknown fuel type
+    impl:
+      - IMP-FE-CORE-001
+    files:
+      - frontend/src/core/logic/fuel-density.spec.ts
+
+  UT-FE-CORE-010
+    title: Verify fuelVolumeToMassKg converts 100 L of AvGas to 72 kg (floor)
+    impl:
+      - IMP-FE-CORE-001
+    files:
+      - frontend/src/core/logic/fuel-density.spec.ts
+
+  UT-FE-CORE-011
+    title: Verify fuelVolumeToMassKg converts 50 L of Jet A-1 to 42 kg (floor)
+    impl:
+      - IMP-FE-CORE-001
+    files:
+      - frontend/src/core/logic/fuel-density.spec.ts
+
+  UT-FE-CORE-012
+    title: Verify fuelVolumeToMassKg floors fractional result for conservative fuel rounding
+    impl:
+      - IMP-FE-CORE-001
+    files:
+      - frontend/src/core/logic/fuel-density.spec.ts
+
+  UT-FE-CORE-013
+    title: Verify fuelVolumeToMassKg returns 0 for negative volume
+    impl:
+      - IMP-FE-CORE-001
+    files:
+      - frontend/src/core/logic/fuel-density.spec.ts
+
+  UT-FE-CORE-014
+    title: Verify fuelVolumeToMassKg returns 0 for zero volume
+    impl:
+      - IMP-FE-CORE-001
+    files:
+      - frontend/src/core/logic/fuel-density.spec.ts
+
+  UT-FE-CORE-015
+    title: Verify CANONICAL_FUEL_TYPES matches the AircraftProfile schema enum set
+    impl:
+      - IMP-FE-CORE-002
+    files:
+      - frontend/src/core/logic/fuel-density.spec.ts
+
+  UT-FE-CORE-016
+    title: Verify every canonical type resolves to an explicit (non-fallback) density
+    impl:
+      - IMP-FE-CORE-002
+    files:
+      - frontend/src/core/logic/fuel-density.spec.ts
+
+  UT-FE-CORE-017
+    title: Verify isKnownFuelType accepts canonical types and recognised legacy aliases
+    impl:
+      - IMP-FE-CORE-002
+    files:
+      - frontend/src/core/logic/fuel-density.spec.ts
+
+  UT-FE-CORE-018
+    title: Verify isKnownFuelType rejects genuinely unknown types (fallback risk)
+    impl:
+      - IMP-FE-CORE-002
+    files:
+      - frontend/src/core/logic/fuel-density.spec.ts
+
+  UT-FE-CORE-019
+    title: Verify isCanonicalFuelType accepts only the canonical enum (rejects aliases)
+    impl:
+      - IMP-FE-CORE-002
+    files:
+      - frontend/src/core/logic/fuel-density.spec.ts

@@ -240,6 +240,88 @@ MB Core Logic
     files:
       - frontend/src/core/logic/mass-balance.logic.spec.ts
 
+  UT-MB-CORE-087
+    title: Verify doesSegmentCrossEnvelope returns false for segment entirely inside envelope
+    impl:
+      - IMP-MB-CORE-015
+    files:
+      - frontend/src/core/logic/mb.envelope.spec.ts
+
+  UT-MB-CORE-088
+    title: Verify doesSegmentCrossEnvelope returns false for segment entirely outside envelope
+    impl:
+      - IMP-MB-CORE-015
+    files:
+      - frontend/src/core/logic/mb.envelope.spec.ts
+
+  UT-MB-CORE-089
+    title: Verify doesSegmentCrossEnvelope returns true when segment exits through right edge
+    impl:
+      - IMP-MB-CORE-015
+    files:
+      - frontend/src/core/logic/mb.envelope.spec.ts
+
+  UT-MB-CORE-090
+    title: Verify doesSegmentCrossEnvelope returns true for segment exiting through forward boundary
+    impl:
+      - IMP-MB-CORE-015
+    files:
+      - frontend/src/core/logic/mb.envelope.spec.ts
+
+  UT-MB-CORE-091
+    title: Verify doesSegmentCrossEnvelope returns false for parallel segment above envelope
+    impl:
+      - IMP-MB-CORE-015
+    files:
+      - frontend/src/core/logic/mb.envelope.spec.ts
+
+  UT-MB-CORE-092
+    title: Verify doesSegmentCrossEnvelope throws for envelope with fewer than 3 vertices
+    impl:
+      - IMP-MB-CORE-015
+    files:
+      - frontend/src/core/logic/mb.envelope.spec.ts
+
+  UT-MB-CORE-093
+    title: Verify doesSegmentCrossEnvelope returns true when segment passes entirely through envelope
+    impl:
+      - IMP-MB-CORE-015
+    files:
+      - frontend/src/core/logic/mb.envelope.spec.ts
+
+  UT-MB-CORE-094
+    title: Verify CG migration violation detected when burn-down segment crosses concave envelope boundary between waypoints
+    impl:
+      - IMP-MB-CORE-010
+      - IMP-MB-CORE-011
+      - IMP-MB-CORE-015
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
+  UT-MB-CORE-095
+    title: Verify only MTOM_EXCEEDED emitted (not CG_OUT_OF_ENVELOPE) when TOM exceeds MTOM but arm is within horizontal envelope limits
+    impl:
+      - IMP-MB-CORE-003
+      - IMP-MB-CORE-008
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
+  UT-MB-CORE-096
+    title: Verify no violation emitted when TOM is exactly at MTOM and arm is within horizontal limits
+    impl:
+      - IMP-MB-CORE-003
+      - IMP-MB-CORE-008
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
+  UT-MB-CORE-097
+    title: Verify both MTOM_EXCEEDED and CG_OUT_OF_ENVELOPE emitted when TOM exceeds MTOM AND arm is outside horizontal limits
+    impl:
+      - IMP-MB-CORE-003
+      - IMP-MB-CORE-008
+    files:
+      - frontend/src/core/logic/mass-balance.logic.spec.ts
+
 MB Core - Arm Lookup (Unit)
   UT-MB-CORE-043
     title: Verify arm interpolation at midpoint between two entries
@@ -495,6 +577,49 @@ MB Adapter entry (Unit)
     title: Verify core logic failure propagation and error logging
     impl:
       - IMP-MB-CORE-014
+    files:
+      - frontend/src/core/adapters/mass-balance.adapter.spec.ts
+
+MB Adapter — Finite + numeric range guards (Unit)
+  UT-MB-CORE-098
+    title: Rejects Infinity for basicEmptyMass (no success:true with NaN CG)
+    impl:
+      - IMP-MB-CORE-016
+    files:
+      - frontend/src/core/adapters/mass-balance.adapter.spec.ts
+
+  UT-MB-CORE-099
+    title: Rejects -Infinity for a station arm
+    impl:
+      - IMP-MB-CORE-016
+    files:
+      - frontend/src/core/adapters/mass-balance.adapter.spec.ts
+
+  UT-MB-CORE-100
+    title: Rejects NaN for emptyCenterOfGravity
+    impl:
+      - IMP-MB-CORE-016
+    files:
+      - frontend/src/core/adapters/mass-balance.adapter.spec.ts
+
+  UT-MB-CORE-101
+    title: Rejects an absurd finite station mass (1e30) as OUT_OF_RANGE
+    impl:
+      - IMP-MB-CORE-016
+    files:
+      - frontend/src/core/adapters/mass-balance.adapter.spec.ts
+
+  UT-MB-CORE-102
+    title: Rejects an absurd finite maxTakeoffMass (1e308)
+    impl:
+      - IMP-MB-CORE-016
+    files:
+      - frontend/src/core/adapters/mass-balance.adapter.spec.ts
+
+  UT-MB-CORE-103
+    title: Accepts a near-edge finite value just under the ceiling
+    impl:
+      - IMP-MB-CORE-016
     files:
       - frontend/src/core/adapters/mass-balance.adapter.spec.ts
 
@@ -1114,6 +1239,28 @@ MB Data Schema
     files:
       - frontend/src/modules/mass-balance/data/__tests__/aircraft-context.schema.spec.ts
 
+MB Data — Fuel-Type Enum Convergence (Unit)
+  UT-MB-DATA-038
+    title: Rejects a genuinely unknown fuel-type string (fail-closed)
+    impl:
+      - IMP-MB-DATA-003
+    files:
+      - frontend/src/modules/mass-balance/data/__tests__/aircraft-context.schema.spec.ts
+
+  UT-MB-DATA-039
+    title: Rejects an empty permissibleFuelTypes array (min 1)
+    impl:
+      - IMP-MB-DATA-003
+    files:
+      - frontend/src/modules/mass-balance/data/__tests__/aircraft-context.schema.spec.ts
+
+  UT-MB-DATA-040
+    title: Tolerates deprecated uppercase aliases that resolve a correct density
+    impl:
+      - IMP-MB-DATA-003
+    files:
+      - frontend/src/modules/mass-balance/data/__tests__/aircraft-context.schema.spec.ts
+
 MB Store - Mutant-Killing Boundary Tests
   UT-MB-STORE-051
     title: Verify availableStations empty when aircraft loaded but activeCategory null
@@ -1171,3 +1318,29 @@ MB Store - Mutant-Killing Boundary Tests
       - IMP-MB-STORE-012
     files:
       - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+  UT-MB-STORE-059
+    title: Verify WARN-AC-002 emitted when aircraft context status is draft at computation entry
+    impl:
+      - IMP-MB-STORE-013
+      - REQ-AC-005
+      - H-011
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+MB UI — Station Input & View Recovery (Unit)
+  UT-MB-UI-001
+    title: MassStationInput — coarse (±N) controls, unit-aware step, clamping, and one-tap preset chips (UX-002)
+    impl:
+      - IMP-MB-UI-006
+      - IMP-MB-UI-008
+    files:
+      - frontend/src/modules/mass-balance/components/__tests__/MassStationInput.spec.ts
+
+  UT-MB-VIEW-021
+    title: MassBalanceView — Reset Payload confirm-then-undo flow (confirmation gate, discard count, undo restore) (UX-004)
+    impl:
+      - IMP-MB-UI-FLEET-002
+      - IMP-MB-UI-008
+    files:
+      - frontend/src/modules/mass-balance/views/__tests__/MassBalanceView.spec.ts
