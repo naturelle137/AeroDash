@@ -147,6 +147,16 @@ test('buildQueue reports an unknown requested issue as skipped', () => {
   assert.match(skipped[0].reason, /not found/);
 });
 
+test('renderReport escapes backslashes and pipes in titles (table integrity)', () => {
+  const result = buildQueue(
+    [issue({ number: 1, title: 'a\\b|c' })],
+    cfg({ batchSize: 5, openIssueNumbers: [1] }),
+  );
+  const md = renderReport(result, cfg());
+  // Backslash escaped first, then pipe — so a literal `a\b|c` renders as `a\\b\|c`.
+  assert.match(md, /a\\\\b\\\|c/);
+});
+
 test('renderReport produces a Markdown summary with all three sections', () => {
   const result = buildQueue(
     [issue({ number: 1 }), issue({ number: 2, state: 'closed' })],
