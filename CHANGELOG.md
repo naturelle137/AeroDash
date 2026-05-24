@@ -86,6 +86,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Release-audit remediation: 5-domain audit (`.logs/audit.*-2026-05-08.md`) triaged against milestones; 13 blocker bundles fixed for this release and 35 deferred findings filed as milestone-scoped issues #259–#292 / #294 (tracked under #293, closes #293)
 - E2E traceability corrected: `@E2E-` tags moved from `.ts` step definitions into `.feature` files, E2E IDs renumbered to the phase namespace (A / B / D), dangling `@UJ-SYS-001` / `@UJ-F-002` references resolved, and the passing fleet-selection + offline-smoke flows un-`@wip` (release-audit PR-001/003/004; TECH-006 partial — remaining M&B-math E2E flows tracked in #294)
 - Write-capable remediation subagents `fix-{tech,cybersecurity,dp,process,ux}`, the `release-audit` skill, and the `/release-audit` command added under `.claude/` to process future release audits end-to-end
+- `release` skill and `/release` command added under `.claude/` to author the pilot-facing GitHub release description from the changelog + milestone and run the full Gitflow publish end-to-end (PR release→main, signed tag, GitHub Release, back-merge to develop)
 
 ## [0.2.0-alpha] - 2026-04-03
 
