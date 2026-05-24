@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Engineering
+
+- `publish-release.yml` now marks SemVer pre-release tags (`-alpha` / `-beta` / `-rc`) as GitHub pre-releases and stable tags as `latest`, instead of always publishing a stable "latest" release (`gh release create` does not infer this from the tag)
+
 ## [0.3.0-alpha] - 2026-05-24
 
 ### Added
