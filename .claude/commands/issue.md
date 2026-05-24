@@ -78,6 +78,7 @@ If user picks update:
 - draft comment or patch
 - review with user
 - exec via `add_issue_comment` (comment) or `issue_write method:update` (field)
+- if the update establishes or changes a parent (e.g. back-linking an existing `Task`), also set the **native** sub-issue relationship (see `## Parent/child linkage`) — never body-text only
 - stop after exec
 
 ## Branch 2: create new (no good match OR user chose create)
@@ -107,6 +108,7 @@ If user picks update:
 #### `Task`
 - ask if missing: `parent_issue` | `description`
 - ask if applicable: `technical_details` | `dod`
+- `parent_issue` is REQUIRED — record it in the body "Parent Feature / Issue" field **and** set the native sub-issue relationship after create (see `## Parent/child linkage`). A `Task` whose parent exists only as body text is incomplete.
 
 ### Title
 
@@ -129,7 +131,27 @@ If user picks update:
 ### Exec
 
 - `mcp__github__issue_write` `method: create` with `title | body | labels`; optional `milestone` numeric id
-- on success show: issue number | title | url | labels
+- if type is `Task`: immediately set the **native** parent/child link (see `## Parent/child linkage`) and verify it before reporting success
+- on success show: issue number | title | url | labels | parent (for `Task`)
+
+## Parent/child linkage (native sub-issues)
+
+GitHub's parent/child relationship is the **source of truth** — a body reference like `#123` is human-friendly fallback, never a substitute. Every `Task` must be attached to its parent via the sub-issues API. There is no `mcp__github__` tool for this; use `gh api` (Bash).
+
+Link child `#C` under parent `#P` (repo `naturelle137/AeroDash`):
+
+1. Resolve the child's **database id** (integer — NOT the issue number, NOT the `node_id`):
+   `gh api repos/naturelle137/AeroDash/issues/C --jq '.id'`
+2. Attach it (send the id as a number via `-F`, not `-f`):
+   `gh api --method POST repos/naturelle137/AeroDash/issues/P/sub_issues -F sub_issue_id=<child_db_id>`
+3. Verify it landed — this list MUST include `C`:
+   `gh api repos/naturelle137/AeroDash/issues/P/sub_issues --jq '.[].number'`
+
+Rules & edge cases:
+- Idempotent: if `C` already appears under `P`, skip (do not re-POST).
+- If `C` already has a *different* parent, the POST errors — surface to the user, never force-move silently.
+- Keep the body "Parent Feature / Issue #P" field populated too (readability + fallback).
+- Back-linking an existing `Task` uses the exact same POST.
 
 ## Forbidden
 
@@ -137,3 +159,4 @@ If user picks update:
 - fabricated hazard refs | requirement IDs | environment values
 - skipping dedupe
 - creating a `Task` without a parent
+- declaring a `Task`'s parent in body text only — the native sub-issue relationship MUST be set and verified
