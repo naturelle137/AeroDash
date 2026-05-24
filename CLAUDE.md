@@ -170,4 +170,4 @@ For full invariants, edge cases, and registry schemas, the `traceability` skill 
 
 ## Specialized workflows
 
-GitHub issue handling, P1 PR review, milestone planning, E2E authoring, and audits are handled by dedicated subagents/skills/commands under `.claude/`. Invoke directly (`/issue`, `/pr.create`, `/audit.full`) or describe what you want — relevant skills auto-load.
+GitHub issue handling, P1 PR review, milestone planning, E2E authoring, audits, and releases are handled by dedicated subagents/skills/commands under `.claude/`. Invoke directly (`/issue`, `/pr.create`, `/audit.full`, `/release-audit`, `/release`) or describe what you want — relevant skills auto-load.
