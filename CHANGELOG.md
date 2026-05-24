@@ -178,6 +178,7 @@ developer experience tooling, and the complete product documentation suite.
 - ADR 001: Notification System
 - ADR 300–308 DEV: Documentation as Code, Branching Strategy, Contributing Guidelines, Ticket Workflow, Testing Guidelines, Linting Strategy, Local Hooks, Master Traceability Structure, Traceability Engine
 
+[0.3.0-alpha]: https://github.com/naturelle137/AeroDash/releases/tag/v0.3.0-alpha
 [0.2.0-alpha]: https://github.com/naturelle137/AeroDash/releases/tag/v0.2.0-alpha
 [0.1.0-pre-alpha.1]: https://github.com/naturelle137/AeroDash/releases/tag/v0.1.0-pre-alpha.1
 [0.1.0-pre-alpha]: https://github.com/naturelle137/AeroDash/releases/tag/v0.1.0-pre-alpha
