@@ -10,6 +10,8 @@ import {
   exportProfileToJson,
   buildExchangeFilename,
   downloadProfileAsJson,
+  validateImportFile,
+  MAX_IMPORT_FILE_BYTES,
   ImportError,
 } from '../services/profile.import'
 import type { AircraftProfile } from '@/core/adapters/aircraft.schema'
@@ -142,6 +144,55 @@ describe('importProfileFromJson', () => {
     expect(reimported.loadPoints).toEqual(profileForExport.loadPoints)
     expect(reimported.certificationCategories).toEqual(profileForExport.certificationCategories)
     expect(reimported.status).toBe('draft')
+  })
+})
+
+describe('validateImportFile', () => {
+  /** Build a File whose reported `.size` is forced to `sizeBytes` regardless of content. */
+  function makeFile(sizeBytes: number, type: string, name: string): File {
+    const file = new File(['x'], name, { type })
+    Object.defineProperty(file, 'size', { value: sizeBytes, configurable: true })
+    return file
+  }
+
+  // @UT-AC-STORE-084@ (FROM: @IMP-AC-STORE-007@)
+  it('rejects an oversized file before reading it (CS-003)', () => {
+    const tooBig = makeFile(MAX_IMPORT_FILE_BYTES + 1, 'application/json', 'evil.json')
+    expect(() => validateImportFile(tooBig)).toThrow(ImportError)
+    expect(() => validateImportFile(tooBig)).toThrow('too large')
+  })
+
+  // @UT-AC-STORE-085@ (FROM: @IMP-AC-STORE-007@)
+  it('rejects an empty (0-byte) file', () => {
+    const empty = makeFile(0, 'application/json', 'empty.json')
+    expect(() => validateImportFile(empty)).toThrow(ImportError)
+    expect(() => validateImportFile(empty)).toThrow('empty')
+  })
+
+  // @UT-AC-STORE-086@ (FROM: @IMP-AC-STORE-007@)
+  it('rejects a non-JSON MIME type even with a .json name', () => {
+    const spoofed = makeFile(100, 'application/x-msdownload', 'malware.json')
+    expect(() => validateImportFile(spoofed)).toThrow(ImportError)
+    expect(() => validateImportFile(spoofed)).toThrow('only .json')
+  })
+
+  // @UT-AC-STORE-087@ (FROM: @IMP-AC-STORE-007@)
+  it('rejects a non-.json extension even with a JSON MIME type', () => {
+    const wrongExt = makeFile(100, 'application/json', 'profile.txt')
+    expect(() => validateImportFile(wrongExt)).toThrow(ImportError)
+    expect(() => validateImportFile(wrongExt)).toThrow('only .json')
+  })
+
+  // @UT-AC-STORE-088@ (FROM: @IMP-AC-STORE-007@)
+  it('accepts a well-formed .json file at the size limit', () => {
+    const ok = makeFile(MAX_IMPORT_FILE_BYTES, 'application/json', 'D-EBPN.aerodash.json')
+    expect(() => validateImportFile(ok)).not.toThrow()
+  })
+
+  // @UT-AC-STORE-089@ (FROM: @IMP-AC-STORE-007@)
+  it('tolerates an empty MIME type when the extension is .json', () => {
+    const noMime = makeFile(100, '', 'D-EBPN.aerodash.json')
+    expect(() => validateImportFile(noMime)).not.toThrow()
   })
 })
 

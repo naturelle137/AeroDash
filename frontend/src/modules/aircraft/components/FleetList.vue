@@ -160,13 +160,24 @@
             </svg>
           </button>
 
-          <!-- Delete profile -->
+          <!-- Delete profile — disabled while this profile is the active
+               aircraft so a stray tap can't destroy the airframe currently
+               feeding the M&B Go/No-Go computation (UX-001). -->
           <button
             type="button"
             class="icon-btn icon-btn--danger btn-danger"
-            :aria-label="`Delete ${profile.registration}`"
-            :title="`Delete ${profile.registration}`"
-            @click="onDelete(profile.id, profile.registration)"
+            :disabled="activeStore.activeProfile?.id === profile.id"
+            :aria-label="
+              activeStore.activeProfile?.id === profile.id
+                ? `Cannot delete ${profile.registration} — it is the active aircraft`
+                : `Delete ${profile.registration}`
+            "
+            :title="
+              activeStore.activeProfile?.id === profile.id
+                ? `Active aircraft cannot be deleted`
+                : `Delete ${profile.registration}`
+            "
+            @click="onDelete(profile)"
           >
             <svg
               class="icon-btn__icon"
@@ -189,22 +200,65 @@
         </div>
       </li>
     </ul>
+
+    <!-- UX-001: in-app delete confirmation (replaces native confirm) -->
+    <ConfirmDialog
+      :open="pendingDelete !== null"
+      title="Delete aircraft profile?"
+      :message="
+        pendingDelete
+          ? `Delete ‘${pendingDelete.registration}’ (${pendingDelete.manufacturer} ${pendingDelete.model})? This removes its envelope, weighing reports and burn sequences. You can undo for a few seconds.`
+          : ''
+      "
+      confirm-label="Delete"
+      cancel-label="Keep"
+      variant="danger"
+      @confirm="onConfirmDelete"
+      @cancel="onCancelDelete"
+    />
+
+    <!-- UX-001: post-delete undo toast (restores the profile if tapped) -->
+    <UndoToast
+      :open="recentlyDeleted !== null"
+      :message="
+        recentlyDeleted ? `Deleted ‘${recentlyDeleted.registration}’` : ''
+      "
+      action-label="Undo"
+      :duration="8000"
+      @undo="onUndoDelete"
+      @dismiss="onDismissUndo"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import type { AircraftProfile } from '@/core/adapters/aircraft.schema'
 import { useFleetStore } from '../stores/fleet.store'
 import { useActiveAircraftStore } from '../stores/active-aircraft.store'
+import { fleetRepository } from '../services/fleet.repository'
 import { downloadProfileAsJson } from '../services/profile.import'
 import ProfileStatusBadge from './ProfileStatusBadge.vue'
+import ConfirmDialog from '@/shared/components/ConfirmDialog.vue'
+import UndoToast from '@/shared/components/UndoToast.vue'
 
 // @IMP-AC-VIEW-006@ (FROM: @REQ-AC-001@, @REQ-AC-004@, @REQ-AC-005@)
 
 const router = useRouter()
 const fleetStore = useFleetStore()
 const activeStore = useActiveAircraftStore()
+
+// ─── UX-001: confirm-then-undo destructive delete ──────────────────────────
+// @IMP-AC-VIEW-019@ (FROM: @REQ-AC-001@)
+//
+// `pendingDelete` drives the confirmation modal; once confirmed the profile is
+// removed and stashed in `recentlyDeleted` so the undo toast can re-create the
+// exact record (same id) via the repository, then rehydrate the store. The
+// active aircraft can never reach this flow — its delete control is disabled.
+
+const pendingDelete = ref<AircraftProfile | null>(null)
+const recentlyDeleted = ref<AircraftProfile | null>(null)
 
 function onSelectActive(profile: AircraftProfile): void {
   // Emit draft warning if profile is a Draft (REQ-AC-005)
@@ -224,14 +278,38 @@ function onDownload(profile: AircraftProfile): void {
   downloadProfileAsJson(profile)
 }
 
-async function onDelete(id: string, registration: string): Promise<void> {
-  if (confirm(`Delete aircraft "${registration}"? This action cannot be undone.`)) {
-    // If deleting the active profile, clear it
-    if (activeStore.activeProfile?.id === id) {
-      activeStore.clearActive()
-    }
-    await fleetStore.deleteProfile(id)
-  }
+function onDelete(profile: AircraftProfile): void {
+  // Active aircraft is guarded by the disabled control; defend in depth.
+  if (activeStore.activeProfile?.id === profile.id) return
+  pendingDelete.value = profile
+}
+
+function onCancelDelete(): void {
+  pendingDelete.value = null
+}
+
+async function onConfirmDelete(): Promise<void> {
+  const profile = pendingDelete.value
+  pendingDelete.value = null
+  if (!profile) return
+  await fleetStore.deleteProfile(profile.id)
+  // Open the undo window with the full profile snapshot.
+  recentlyDeleted.value = profile
+}
+
+async function onUndoDelete(): Promise<void> {
+  const profile = recentlyDeleted.value
+  recentlyDeleted.value = null
+  if (!profile) return
+  // Re-create the exact record (same id, envelope, reports) and rehydrate the
+  // store. We restore through the repository because the fleet store owns no
+  // restore action; loadAll() resyncs the in-memory list from persistence.
+  await fleetRepository.create(profile)
+  await fleetStore.loadAll()
+}
+
+function onDismissUndo(): void {
+  recentlyDeleted.value = null
 }
 </script>
 

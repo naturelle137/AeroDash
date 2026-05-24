@@ -5,11 +5,26 @@ import vue from '@vitejs/plugin-vue'
 import vueDevTools from 'vite-plugin-vue-devtools'
 import { VitePWA } from 'vite-plugin-pwa'
 
+// Production gate for dev-only tooling (DP-016 vue-devtools). Kept as a plain
+// boolean rather than a `defineConfig(({ command }) => …)` callback so the
+// exported config stays an object: vitest.config.ts imports this value and
+// passes it to `mergeConfig`, which throws on a callback-form config.
+//
+// `vite build` sets NODE_ENV='production'; the dev server and Vitest do not.
+//
+// NB: production console stripping (DP-011) is handled in the logger
+// (`import.meta.env.PROD`), not here — Vite 8's default minifier is oxc, which
+// ignores esbuild's `pure`/`drop` options, so a build-time strip here would be
+// silently dropped.
+const isProd = process.env.NODE_ENV === 'production'
+
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
     vue(),
-    vueDevTools(),
+    // DP-016 — vue-devtools must never ship in a production bundle (it exposes
+    // component internals and store state). Enabled for dev only.
+    ...(isProd ? [] : [vueDevTools()]),
     VitePWA({
       registerType: 'prompt',
       injectRegister: 'auto',

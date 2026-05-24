@@ -139,3 +139,12 @@ AD Core (domain + mass-balance input schema)
       - REQ-AD-009
     files:
       - frontend/src/core/domain/aircraft.types.ts
+
+  IMP-AD-CORE-022
+    title: Finite + Numeric Domain-Range Guards on AircraftProfile Schema Fields
+    req:
+      - REQ-AD-002
+      - REQ-AD-014
+      - REQ-SYS-003
+    files:
+      - frontend/src/core/adapters/aircraft.schema.ts

@@ -1,4 +1,6 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+// @UT-MB-VIEW-021@ (FROM: @IMP-MB-UI-FLEET-002@, @IMP-MB-UI-008@)
+
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 import { mount } from '@vue/test-utils'
 import { createRouter, createMemoryHistory } from 'vue-router'
@@ -301,7 +303,7 @@ describe('MassBalanceView integration', () => {
     expect(wrapper.text()).toContain('Mass & Balance verified')
   })
 
-  it('calls resetPayload from Reset Payload action and keeps results visible', async () => {
+  it('calls resetPayload after confirming the Reset Payload action and keeps results visible', async () => {
     const store = useMassBalanceStore()
     store.loadProfile(mockProfile)
     const resetSpy = vi.spyOn(store, 'resetPayload')
@@ -310,14 +312,20 @@ describe('MassBalanceView integration', () => {
     await wrapper.find('input#station-0').setValue('80')
     expect(store.uiState).toBe('VERIFIED_SAFE')
 
+    // UX-004: the tap now opens a confirm dialog; reset only fires on confirm.
     await wrapper
       .findAll('button')
       .find((b) => b.text() === 'Reset Payload')!
       .trigger('click')
+    expect(resetSpy).not.toHaveBeenCalled()
+    ;(document.querySelector('.confirm-dialog__btn--danger') as HTMLButtonElement).click()
+    await wrapper.vm.$nextTick()
 
     expect(resetSpy).toHaveBeenCalledTimes(1)
     expect(store.uiState).toBe('VERIFIED_SAFE')
     expect(store.lastResult).not.toBeNull()
+
+    document.body.innerHTML = ''
   })
 
   it('does not render a Verify All button (verification not applicable to M&B inputs)', () => {
@@ -369,5 +377,87 @@ describe('MassBalanceView integration', () => {
 
     expect(categorySpy).toHaveBeenCalledWith('Utility')
     expect(store.activeCategory).toBe('Utility')
+  })
+})
+
+// ─── UX-004: confirm-then-undo Reset Payload ───────────────────────────────
+
+describe('MassBalanceView — Reset Payload confirm + undo (UX-004)', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    vi.clearAllMocks()
+    mockedCalculate.mockReturnValue(buildSuccessResult())
+    seedFleet([toFleetProfile(mockProfile)])
+  })
+
+  afterEach(() => {
+    // ConfirmDialog + UndoToast teleport to <body>.
+    document.body.innerHTML = ''
+  })
+
+  function findResetButton(wrapper: ReturnType<typeof mountView>) {
+    return wrapper.findAll('button').find((b) => b.text() === 'Reset Payload')!
+  }
+
+  it('does not reset on tap — opens an in-app confirmation with a discard count', async () => {
+    const store = useMassBalanceStore()
+    store.loadProfile(mockProfile)
+    const resetSpy = vi.spyOn(store, 'resetPayload')
+    const wrapper = mountView()
+
+    await wrapper.find('input#station-0').setValue('80')
+    await findResetButton(wrapper).trigger('click')
+
+    expect(resetSpy).not.toHaveBeenCalled()
+    const dialog = document.querySelector('.confirm-dialog')
+    expect(dialog).not.toBeNull()
+    // One station carries an entered weight → "discard 1 ... weight".
+    expect(dialog?.textContent).toContain('Discard 1')
+  })
+
+  it('cancelling the confirmation leaves weights untouched', async () => {
+    const store = useMassBalanceStore()
+    store.loadProfile(mockProfile)
+    const resetSpy = vi.spyOn(store, 'resetPayload')
+    const wrapper = mountView()
+
+    await wrapper.find('input#station-0').setValue('80')
+    await findResetButton(wrapper).trigger('click')
+    ;(document.querySelector('.confirm-dialog__btn--cancel') as HTMLButtonElement).click()
+    await wrapper.vm.$nextTick()
+
+    expect(resetSpy).not.toHaveBeenCalled()
+    expect(store.stations[0]!.weight).toBe(80)
+    expect(document.querySelector('.confirm-dialog')).toBeNull()
+  })
+
+  it('confirming resets the payload and surfaces an undo toast', async () => {
+    const store = useMassBalanceStore()
+    store.loadProfile(mockProfile)
+    const wrapper = mountView()
+
+    await wrapper.find('input#station-0').setValue('80')
+    await findResetButton(wrapper).trigger('click')
+    ;(document.querySelector('.confirm-dialog__btn--danger') as HTMLButtonElement).click()
+    await wrapper.vm.$nextTick()
+
+    expect(store.stations[0]!.weight).toBe(0)
+    expect(document.querySelector('.undo-toast')).not.toBeNull()
+  })
+
+  it('undo restores the pre-reset station weights', async () => {
+    const store = useMassBalanceStore()
+    store.loadProfile(mockProfile)
+    const wrapper = mountView()
+
+    await wrapper.find('input#station-0').setValue('80')
+    await findResetButton(wrapper).trigger('click')
+    ;(document.querySelector('.confirm-dialog__btn--danger') as HTMLButtonElement).click()
+    await wrapper.vm.$nextTick()
+    expect(store.stations[0]!.weight).toBe(0)
+    ;(document.querySelector('.undo-toast__action') as HTMLButtonElement).click()
+    await wrapper.vm.$nextTick()
+
+    expect(store.stations[0]!.weight).toBe(80)
   })
 })

@@ -1,4 +1,3 @@
-# @E2E-AC-004@ (FROM: @UJ-A-001@)
 @wip @phase-A @fleet @wizard @decimal
 Feature: Decimal input precision in the aircraft wizard
   As a pilot
@@ -13,8 +12,8 @@ Feature: Decimal input precision in the aircraft wizard
     And the pilot sets MTOM to "630"
     And the pilot clicks "Continue"
 
-  # @E2E-AC-004@ (FROM: @UJ-A-001@)
-  @E2E-AC-004
+  # @E2E-A-005@ (FROM: @UJ-A-001@)
+  @UJ-A-001 @phase-A @e2e @E2E-A-005
   Scenario: High-precision decimal values survive the Weighing Reports step intact
     When the pilot types "433.75" into the BEM field and tabs away
     Then the BEM field retains the value "433.75"
@@ -26,8 +25,8 @@ Feature: Decimal input precision in the aircraft wizard
     And the pilot adds a seat station named "Pilot" with arm "1.877"
     Then the arm field for station "Pilot" retains the value "1.877"
 
-  # @E2E-AC-005@ (FROM: @UJ-A-001@)
-  @E2E-AC-005
+  # @E2E-A-006@ (FROM: @UJ-A-001@)
+  @UJ-A-001 @phase-A @e2e @E2E-A-006
   Scenario: European comma decimal separator is accepted and treated identically to a period
     When the pilot types "433,75" into the BEM field and tabs away
     Then the BEM field retains the value "433.75"

@@ -210,3 +210,65 @@ describe('createLogger', () => {
     expect(output.data.momentTable[100]).toBe('[...+100 items]')
   })
 })
+
+// DP-011 — production console gating. DEBUG/INFO must be suppressed in
+// production builds; WARN/ERROR must always reach the console.
+describe('createLogger — production gating (DP-011)', () => {
+  let consoleSpy: {
+    info: ReturnType<typeof vi.spyOn>
+    warn: ReturnType<typeof vi.spyOn>
+    error: ReturnType<typeof vi.spyOn>
+    debug: ReturnType<typeof vi.spyOn>
+  }
+
+  beforeEach(() => {
+    consoleSpy = {
+      info: vi.spyOn(console, 'info').mockImplementation(() => {}),
+      warn: vi.spyOn(console, 'warn').mockImplementation(() => {}),
+      error: vi.spyOn(console, 'error').mockImplementation(() => {}),
+      debug: vi.spyOn(console, 'debug').mockImplementation(() => {}),
+    }
+    // Simulate a production build.
+    vi.stubEnv('PROD', true)
+  })
+
+  afterEach(() => {
+    vi.unstubAllEnvs()
+    vi.restoreAllMocks()
+  })
+
+  // @UT-SYS-SHARED-016@ (FROM: @IMP-SYS-SHARED-002@)
+  it('suppresses debug() output in production', () => {
+    const logger = createLogger('Prod')
+    logger.debug('debug message')
+    expect(consoleSpy.debug).not.toHaveBeenCalled()
+  })
+
+  // @UT-SYS-SHARED-017@ (FROM: @IMP-SYS-SHARED-002@)
+  it('suppresses info() output in production', () => {
+    const logger = createLogger('Prod')
+    logger.info('info message')
+    expect(consoleSpy.info).not.toHaveBeenCalled()
+  })
+
+  // @UT-SYS-SHARED-018@ (FROM: @IMP-SYS-SHARED-002@)
+  it('suppresses telemetryTrace() (INFO level) output in production', () => {
+    const logger = createLogger('Prod')
+    logger.telemetryTrace({ inputs: { mass: 80 }, outputs: { cg: 2.3 } })
+    expect(consoleSpy.info).not.toHaveBeenCalled()
+  })
+
+  // @UT-SYS-SHARED-019@ (FROM: @IMP-SYS-SHARED-002@)
+  it('still emits warn() in production', () => {
+    const logger = createLogger('Prod')
+    logger.warn('warning message')
+    expect(consoleSpy.warn).toHaveBeenCalledOnce()
+  })
+
+  // @UT-SYS-SHARED-020@ (FROM: @IMP-SYS-SHARED-002@)
+  it('still emits error() in production', () => {
+    const logger = createLogger('Prod')
+    logger.error('error message')
+    expect(consoleSpy.error).toHaveBeenCalledOnce()
+  })
+})

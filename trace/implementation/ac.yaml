@@ -50,6 +50,13 @@ AC Store — Fleet Repository
     files:
       - frontend/src/modules/aircraft/services/profile.import.ts
 
+  IMP-AC-STORE-007
+    title: validateImportFile — fail-closed file size/MIME guard for exchange-file import (CS-003)
+    req:
+      - REQ-AC-004
+    files:
+      - frontend/src/modules/aircraft/services/profile.import.ts
+
   IMP-AC-STORE-005
     title: useFleetStore — Pinia store for fleet CRUD and Draft/Verified FSM
     req:
@@ -245,3 +252,10 @@ AC View — Model Catalogue and Components
       - REQ-AD-012
     files:
       - frontend/src/modules/aircraft/components/LoadPointsSection.vue
+
+  IMP-AC-VIEW-019
+    title: FleetList delete — confirm-then-undo destructive delete (in-app modal + undo toast, active-aircraft delete disabled) (UX-001)
+    req:
+      - REQ-AC-001
+    files:
+      - frontend/src/modules/aircraft/components/FleetList.vue

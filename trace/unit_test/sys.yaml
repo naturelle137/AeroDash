@@ -210,6 +210,77 @@ SYS Core — Notification Schema (Unit)
     files:
       - frontend/src/core/domain/notification.schema.spec.ts
 
+SYS Core — Moment & sourceUnit Normalization (Unit)
+  UT-SYS-CORE-031
+    title: normalizeMomentToSI returns value unchanged for kg·m input
+    impl:
+      - IMP-SYS-CORE-010
+    files:
+      - frontend/src/core/logic/unit-normalization.spec.ts
+
+  UT-SYS-CORE-032
+    title: normalizeMomentToSI scales kg·in moment by the inch factor
+    impl:
+      - IMP-SYS-CORE-010
+    files:
+      - frontend/src/core/logic/unit-normalization.spec.ts
+
+  UT-SYS-CORE-033
+    title: normalizeMomentToSI scales kg·ft moment by the foot factor
+    impl:
+      - IMP-SYS-CORE-010
+    files:
+      - frontend/src/core/logic/unit-normalization.spec.ts
+
+  UT-SYS-CORE-034
+    title: normalizeMomentToSI is consistent with mass×arm normalization
+    impl:
+      - IMP-SYS-CORE-010
+    files:
+      - frontend/src/core/logic/unit-normalization.spec.ts
+
+  UT-SYS-CORE-035
+    title: parseSourceUnit parses mass-only "kg" to { kg, m }
+    impl:
+      - IMP-SYS-CORE-011
+    files:
+      - frontend/src/core/logic/unit-normalization.spec.ts
+
+  UT-SYS-CORE-036
+    title: parseSourceUnit parses mass-only "lb" to { lb, m }
+    impl:
+      - IMP-SYS-CORE-011
+    files:
+      - frontend/src/core/logic/unit-normalization.spec.ts
+
+  UT-SYS-CORE-037
+    title: parseSourceUnit parses combined "lb-in" to { lb, in }
+    impl:
+      - IMP-SYS-CORE-011
+    files:
+      - frontend/src/core/logic/unit-normalization.spec.ts
+
+  UT-SYS-CORE-038
+    title: parseSourceUnit parses combined "kg-m" and "lb-ft"
+    impl:
+      - IMP-SYS-CORE-011
+    files:
+      - frontend/src/core/logic/unit-normalization.spec.ts
+
+  UT-SYS-CORE-039
+    title: parseSourceUnit is case-insensitive and trims whitespace
+    impl:
+      - IMP-SYS-CORE-011
+    files:
+      - frontend/src/core/logic/unit-normalization.spec.ts
+
+  UT-SYS-CORE-040
+    title: parseSourceUnit falls back to SI defaults for unknown components
+    impl:
+      - IMP-SYS-CORE-011
+    files:
+      - frontend/src/core/logic/unit-normalization.spec.ts
+
 SYS Shared — Structured Logger Utility (Unit)
   UT-SYS-SHARED-001
     title: Returns primitives unchanged
@@ -313,6 +384,41 @@ SYS Shared — Structured Logger Utility (Unit)
     title: Safely serializes large aircraft schematic objects without choking
     impl:
       - IMP-SYS-SHARED-001
+      - IMP-SYS-SHARED-002
+    files:
+      - frontend/src/shared/utils/__tests__/logger.spec.ts
+
+  UT-SYS-SHARED-016
+    title: Suppresses debug() output in production (DP-011)
+    impl:
+      - IMP-SYS-SHARED-002
+    files:
+      - frontend/src/shared/utils/__tests__/logger.spec.ts
+
+  UT-SYS-SHARED-017
+    title: Suppresses info() output in production (DP-011)
+    impl:
+      - IMP-SYS-SHARED-002
+    files:
+      - frontend/src/shared/utils/__tests__/logger.spec.ts
+
+  UT-SYS-SHARED-018
+    title: Suppresses telemetryTrace() (INFO level) output in production (DP-011)
+    impl:
+      - IMP-SYS-SHARED-002
+    files:
+      - frontend/src/shared/utils/__tests__/logger.spec.ts
+
+  UT-SYS-SHARED-019
+    title: Still emits warn() in production (DP-011)
+    impl:
+      - IMP-SYS-SHARED-002
+    files:
+      - frontend/src/shared/utils/__tests__/logger.spec.ts
+
+  UT-SYS-SHARED-020
+    title: Still emits error() in production (DP-011)
+    impl:
       - IMP-SYS-SHARED-002
     files:
       - frontend/src/shared/utils/__tests__/logger.spec.ts

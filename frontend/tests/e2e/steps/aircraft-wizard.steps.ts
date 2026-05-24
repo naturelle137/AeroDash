@@ -1,5 +1,5 @@
-// @E2E-AC-001@ (FROM: @UJ-A-001@)
 // Step definitions for aircraft-wizard-creation.feature and decimal-input-precision.feature
+// E2E trace tags live in the .feature file only (STC §B.3 / §3.4).
 
 import { expect } from '@playwright/test'
 import { createBdd } from 'playwright-bdd'

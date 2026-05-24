@@ -401,3 +401,53 @@ AD Schema — Performance Profiles (Unit)
       - IMP-AD-CORE-015
     files:
       - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+AD Core — Finite + numeric range guards (Unit)
+  UT-AD-CORE-061
+    title: Rejects Infinity for weighing-report bem
+    impl:
+      - IMP-AD-CORE-022
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AD-CORE-062
+    title: Rejects -Infinity for a load point arm
+    impl:
+      - IMP-AD-CORE-022
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AD-CORE-063
+    title: Rejects NaN for mtom
+    impl:
+      - IMP-AD-CORE-022
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AD-CORE-064
+    title: Rejects an absurd mtom magnitude (1e308) as out of physical range
+    impl:
+      - IMP-AD-CORE-022
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AD-CORE-065
+    title: Rejects an absurd bem magnitude (1e30)
+    impl:
+      - IMP-AD-CORE-022
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AD-CORE-066
+    title: Rejects Infinity for batteryPack.usableEnergyKwh
+    impl:
+      - IMP-AD-CORE-022
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+  UT-AD-CORE-067
+    title: Accepts a near-edge finite mtom just under the ceiling
+    impl:
+      - IMP-AD-CORE-022
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts

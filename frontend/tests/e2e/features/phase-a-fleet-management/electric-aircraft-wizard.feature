@@ -1,4 +1,3 @@
-# @E2E-AC-ELECTRIC-001@ (FROM: @UJ-A-004@, @REQ-AD-020@, @REQ-AD-021@, @REQ-UI-021@, @REQ-UI-022@)
 @wip @phase-A @fleet @wizard @electric
 Feature: Battery-electric aircraft wizard (Pipistrel Velis Electro)
   As a pilot / flight-school instructor
@@ -6,8 +5,8 @@ Feature: Battery-electric aircraft wizard (Pipistrel Velis Electro)
   So that the aircraft is represented on its own terms (battery pack, reserve floor)
   And so that the combustion UX for the rest of my fleet is unchanged
 
-  # @E2E-AC-ELECTRIC-001@ (FROM: @UJ-A-004@)
-  @smoke @E2E-AC-ELECTRIC-001
+  # @E2E-A-007@ (FROM: @UJ-A-004@)
+  @UJ-A-004 @phase-A @e2e @smoke @E2E-A-007
   Scenario: Pilot creates a Pipistrel Velis Electro, the wizard flips to electric and fuel UI is hidden
     Given the pilot navigates to the Fleet page
     When the pilot clicks "Add New Aircraft"
@@ -46,8 +45,8 @@ Feature: Battery-electric aircraft wizard (Pipistrel Velis Electro)
     Then the pilot is back on the Fleet page
     And the aircraft "OK-VVV" is listed with a "Draft" status badge
 
-  # @E2E-AC-ELECTRIC-002@ (FROM: @UJ-A-004@, @REQ-AD-020@)
-  @E2E-AC-ELECTRIC-002
+  # @E2E-A-008@ (FROM: @UJ-A-004@)
+  @UJ-A-004 @phase-A @e2e @E2E-A-008
   Scenario: Combustion wizard is unchanged — fuel tank button remains visible for a Tecnam P2008 JC
     Given the pilot navigates to the Fleet page
     When the pilot clicks "Add New Aircraft"
