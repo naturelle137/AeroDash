@@ -5,7 +5,7 @@ import { createBdd } from 'playwright-bdd'
 
 const { Given, When, Then } = createBdd()
 
-// @E2E-SYS-001@ (FROM: @UJ-SYS-001@)
+// E2E trace tags live in the .feature file only (STC §B.3 / §3.4).
 
 Given('the pilot loads the app while online', async ({ page }) => {
   await page.goto('/')

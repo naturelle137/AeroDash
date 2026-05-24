@@ -376,7 +376,7 @@ describe('AircraftContextSchema', () => {
             buildValidLoadPoint({
               fuelTank: {
                 unusableFuel: 1.5,
-                permissibleFuelTypes: ['AVGAS 100LL'],
+                permissibleFuelTypes: ['AvGas 100LL'],
                 burnSequences: [{ sequenceName: 'Main', ordinalPosition: 1 }],
               },
             }),
@@ -412,7 +412,7 @@ describe('AircraftContextSchema', () => {
             buildValidLoadPoint({
               fuelTank: {
                 unusableFuel: 0,
-                permissibleFuelTypes: [],
+                permissibleFuelTypes: ['AvGas 100LL'],
                 burnSequences: [],
               },
             }),
@@ -430,7 +430,7 @@ describe('AircraftContextSchema', () => {
             buildValidLoadPoint({
               fuelTank: {
                 unusableFuel: 0,
-                permissibleFuelTypes: ['AVGAS 100LL', 'MOGAS'],
+                permissibleFuelTypes: ['AvGas 100LL', 'MoGas'],
                 burnSequences: [
                   { sequenceName: 'Main', ordinalPosition: 1 },
                   { sequenceName: 'Aux', ordinalPosition: 2 },
@@ -441,6 +441,61 @@ describe('AircraftContextSchema', () => {
         }),
       )
       expect(result.success).toBe(true)
+    })
+
+    // @UT-MB-DATA-038@ (FROM: @IMP-MB-DATA-003@, @REQ-FE-001@, H-002)
+    it('rejects a genuinely unknown fuel-type string (CS-009 fail-closed)', () => {
+      const result = AircraftContextSchema.safeParse(
+        buildValidContext({
+          loadPoints: [
+            buildValidLoadPoint({
+              fuelTank: {
+                unusableFuel: 0,
+                // typo / attacker value that would silently hit the 0.84 fallback
+                permissibleFuelTypes: ['Kerosene'],
+                burnSequences: [],
+              },
+            }),
+          ],
+        }),
+      )
+      expect(result.success).toBe(false)
+    })
+
+    // @UT-MB-DATA-040@ (FROM: @IMP-MB-DATA-003@, @REQ-FE-001@)
+    it('tolerates the deprecated uppercase aliases that resolve a correct density', () => {
+      const result = AircraftContextSchema.safeParse(
+        buildValidContext({
+          loadPoints: [
+            buildValidLoadPoint({
+              fuelTank: {
+                unusableFuel: 0,
+                permissibleFuelTypes: ['AVGAS', 'MOGAS'],
+                burnSequences: [],
+              },
+            }),
+          ],
+        }),
+      )
+      expect(result.success).toBe(true)
+    })
+
+    // @UT-MB-DATA-039@ (FROM: @IMP-MB-DATA-003@, @REQ-FE-001@)
+    it('rejects an empty permissibleFuelTypes array (min 1)', () => {
+      const result = AircraftContextSchema.safeParse(
+        buildValidContext({
+          loadPoints: [
+            buildValidLoadPoint({
+              fuelTank: {
+                unusableFuel: 0,
+                permissibleFuelTypes: [],
+                burnSequences: [],
+              },
+            }),
+          ],
+        }),
+      )
+      expect(result.success).toBe(false)
     })
   })
 

@@ -1,12 +1,11 @@
-# @E2E-AC-001@ (FROM: @UJ-A-001@)
 @wip @phase-A @fleet @wizard
 Feature: Aircraft creation wizard
   As a pilot
   I want to create a new aircraft profile via a guided 5-step wizard
   So that my Mass & Balance calculations use correct limits from my POH/AFM
 
-  # @E2E-AC-001@ (FROM: @UJ-A-001@)
-  @smoke @E2E-AC-001
+  # @E2E-A-002@ (FROM: @UJ-A-001@)
+  @UJ-A-001 @phase-A @e2e @smoke @E2E-A-002
   Scenario: Pilot completes all 5 wizard steps and sees the new aircraft on the Fleet page with a Draft badge
     Given the pilot navigates to the Fleet page
     When the pilot clicks "Add New Aircraft"
@@ -42,8 +41,8 @@ Feature: Aircraft creation wizard
     Then the pilot is back on the Fleet page
     And the aircraft "D-EBPN" is listed with a "Draft" status badge
 
-  # @E2E-AC-002@ (FROM: @UJ-A-001@)
-  @E2E-AC-002
+  # @E2E-A-003@ (FROM: @UJ-A-001@)
+  @UJ-A-001 @phase-A @e2e @E2E-A-003
   Scenario: Pilot cannot advance past Step 2 with fewer than 4 envelope points — Continue is disabled and an error is visible
     Given the pilot navigates to the Fleet page
     When the pilot clicks "Add New Aircraft"
@@ -59,8 +58,8 @@ Feature: Aircraft creation wizard
     When the pilot adds a fourth envelope point
     Then the "Continue" button is enabled
 
-  # @E2E-AC-003@ (FROM: @UJ-A-001@)
-  @E2E-AC-003
+  # @E2E-A-004@ (FROM: @UJ-A-001@)
+  @UJ-A-001 @phase-A @e2e @E2E-A-004
   Scenario: Owner ID field is not present anywhere in the wizard — system generates it automatically (REQ-AD-019)
     Given the pilot navigates to the Fleet page
     When the pilot clicks "Add New Aircraft"

@@ -580,6 +580,49 @@ MB Adapter entry (Unit)
     files:
       - frontend/src/core/adapters/mass-balance.adapter.spec.ts
 
+MB Adapter — Finite + numeric range guards (Unit)
+  UT-MB-CORE-098
+    title: Rejects Infinity for basicEmptyMass (no success:true with NaN CG)
+    impl:
+      - IMP-MB-CORE-016
+    files:
+      - frontend/src/core/adapters/mass-balance.adapter.spec.ts
+
+  UT-MB-CORE-099
+    title: Rejects -Infinity for a station arm
+    impl:
+      - IMP-MB-CORE-016
+    files:
+      - frontend/src/core/adapters/mass-balance.adapter.spec.ts
+
+  UT-MB-CORE-100
+    title: Rejects NaN for emptyCenterOfGravity
+    impl:
+      - IMP-MB-CORE-016
+    files:
+      - frontend/src/core/adapters/mass-balance.adapter.spec.ts
+
+  UT-MB-CORE-101
+    title: Rejects an absurd finite station mass (1e30) as OUT_OF_RANGE
+    impl:
+      - IMP-MB-CORE-016
+    files:
+      - frontend/src/core/adapters/mass-balance.adapter.spec.ts
+
+  UT-MB-CORE-102
+    title: Rejects an absurd finite maxTakeoffMass (1e308)
+    impl:
+      - IMP-MB-CORE-016
+    files:
+      - frontend/src/core/adapters/mass-balance.adapter.spec.ts
+
+  UT-MB-CORE-103
+    title: Accepts a near-edge finite value just under the ceiling
+    impl:
+      - IMP-MB-CORE-016
+    files:
+      - frontend/src/core/adapters/mass-balance.adapter.spec.ts
+
 MB Store - Initialization
   UT-MB-STORE-001
     title: Verify store starts in INITIAL state with null aircraft
@@ -1196,6 +1239,28 @@ MB Data Schema
     files:
       - frontend/src/modules/mass-balance/data/__tests__/aircraft-context.schema.spec.ts
 
+MB Data — Fuel-Type Enum Convergence (Unit)
+  UT-MB-DATA-038
+    title: Rejects a genuinely unknown fuel-type string (fail-closed)
+    impl:
+      - IMP-MB-DATA-003
+    files:
+      - frontend/src/modules/mass-balance/data/__tests__/aircraft-context.schema.spec.ts
+
+  UT-MB-DATA-039
+    title: Rejects an empty permissibleFuelTypes array (min 1)
+    impl:
+      - IMP-MB-DATA-003
+    files:
+      - frontend/src/modules/mass-balance/data/__tests__/aircraft-context.schema.spec.ts
+
+  UT-MB-DATA-040
+    title: Tolerates deprecated uppercase aliases that resolve a correct density
+    impl:
+      - IMP-MB-DATA-003
+    files:
+      - frontend/src/modules/mass-balance/data/__tests__/aircraft-context.schema.spec.ts
+
 MB Store - Mutant-Killing Boundary Tests
   UT-MB-STORE-051
     title: Verify availableStations empty when aircraft loaded but activeCategory null
@@ -1262,3 +1327,20 @@ MB Store - Mutant-Killing Boundary Tests
       - H-011
     files:
       - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+
+MB UI — Station Input & View Recovery (Unit)
+  UT-MB-UI-001
+    title: MassStationInput — coarse (±N) controls, unit-aware step, clamping, and one-tap preset chips (UX-002)
+    impl:
+      - IMP-MB-UI-006
+      - IMP-MB-UI-008
+    files:
+      - frontend/src/modules/mass-balance/components/__tests__/MassStationInput.spec.ts
+
+  UT-MB-VIEW-021
+    title: MassBalanceView — Reset Payload confirm-then-undo flow (confirmation gate, discard count, undo restore) (UX-004)
+    impl:
+      - IMP-MB-UI-FLEET-002
+      - IMP-MB-UI-008
+    files:
+      - frontend/src/modules/mass-balance/views/__tests__/MassBalanceView.spec.ts

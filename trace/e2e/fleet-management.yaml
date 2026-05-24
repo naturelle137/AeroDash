@@ -3,3 +3,38 @@ Phase A End-to-End Tests
     title: Utility category applies tighter limits and removes rear-seat loading
     files:
       - frontend/tests/e2e/features/phase-a-fleet-management/certification-category-switch.feature
+
+  E2E-A-002
+    title: Pilot completes all 5 wizard steps and sees the new aircraft on the Fleet page with a Draft badge
+    files:
+      - frontend/tests/e2e/features/phase-a-fleet-management/aircraft-wizard-creation.feature
+
+  E2E-A-003
+    title: Pilot cannot advance past Step 2 with fewer than 4 envelope points
+    files:
+      - frontend/tests/e2e/features/phase-a-fleet-management/aircraft-wizard-creation.feature
+
+  E2E-A-004
+    title: Owner ID field is not present anywhere in the wizard
+    files:
+      - frontend/tests/e2e/features/phase-a-fleet-management/aircraft-wizard-creation.feature
+
+  E2E-A-005
+    title: High-precision decimal values survive the Weighing Reports step intact
+    files:
+      - frontend/tests/e2e/features/phase-a-fleet-management/decimal-input-precision.feature
+
+  E2E-A-006
+    title: European comma decimal separator is accepted and treated identically to a period
+    files:
+      - frontend/tests/e2e/features/phase-a-fleet-management/decimal-input-precision.feature
+
+  E2E-A-007
+    title: Pilot creates a Pipistrel Velis Electro, the wizard flips to electric and fuel UI is hidden
+    files:
+      - frontend/tests/e2e/features/phase-a-fleet-management/electric-aircraft-wizard.feature
+
+  E2E-A-008
+    title: Combustion wizard is unchanged — fuel tank button remains visible for a Tecnam P2008 JC
+    files:
+      - frontend/tests/e2e/features/phase-a-fleet-management/electric-aircraft-wizard.feature

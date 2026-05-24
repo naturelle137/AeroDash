@@ -1,0 +1,5 @@
+Phase D System & Usability End-to-End Tests
+  E2E-D-001
+    title: App shell loads and M&B navigation works while offline (technical smoke)
+    files:
+      - frontend/tests/e2e/features/phase-sys-pwa/offline-smoke.feature

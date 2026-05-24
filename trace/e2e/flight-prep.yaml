@@ -33,3 +33,18 @@ Phase B End-to-End Tests
     title: Redistributing load resolves burn-sequence CG migration violation
     files:
       - frontend/tests/e2e/features/phase-b-flight-preparation/burn-sequence-polygon.feature
+
+  E2E-B-008
+    title: Empty fleet shows "No aircraft" CTA that navigates to the wizard
+    files:
+      - frontend/tests/e2e/features/phase-b-flight-preparation/fleet-based-aircraft-selection.feature
+
+  E2E-B-009
+    title: Aircraft added via wizard appears in the Flight Prep dropdown with a [Draft] label
+    files:
+      - frontend/tests/e2e/features/phase-b-flight-preparation/fleet-based-aircraft-selection.feature
+
+  E2E-B-010
+    title: Hardcoded catalogue aircraft are not in the dropdown when the fleet is empty
+    files:
+      - frontend/tests/e2e/features/phase-b-flight-preparation/fleet-based-aircraft-selection.feature

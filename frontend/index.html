@@ -2,6 +2,44 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8">
+    <!--
+      Content-Security-Policy (CS-005 / TECH-018 / DP-012).
+      Defense-in-depth: this PWA is offline-first and same-origin only — it loads
+      no third-party scripts, fonts, or analytics. The policy below is fail-closed:
+      anything not explicitly allowed is denied.
+
+      Directive rationale:
+      - default-src 'self'         baseline: only same-origin resources.
+      - script-src 'self'          no inline/eval scripts; the Vite/PWA bundle and
+                                   the Workbox service worker are emitted as same-origin
+                                   .js files, so no 'unsafe-inline'/'unsafe-eval' needed.
+      - style-src 'self' 'unsafe-inline'
+                                   RELAXED: Vue injects scoped component styles as inline
+                                   <style> blocks at runtime (dev HMR and prod alike).
+                                   Removing 'unsafe-inline' blanks all component styling.
+                                   Scoped to style only — script-src stays strict.
+      - img-src 'self' data: blob: data:/blob: cover favicons and any generated
+                                   image/object URLs without widening to remote origins.
+      - font-src 'self'            fonts are bundled, none remote.
+      - connect-src 'self'         no backend; offline-first. Same-origin XHR/fetch only.
+      - worker-src 'self'          the Workbox service worker is same-origin.
+      - manifest-src 'self'        PWA web app manifest is same-origin.
+      - object-src 'none'          no <object>/<embed>/<applet> plugins.
+      - base-uri 'self'            block <base> tag injection that could re-root URLs.
+      - frame-ancestors 'none'     clickjacking guard — equivalent to X-Frame-Options: DENY.
+      - form-action 'self'         restrict where forms may submit.
+
+      Host-header equivalents (cannot be set from a <meta> tag — configure at the
+      deploy edge / reverse proxy when AeroDash is hosted):
+        Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+        X-Content-Type-Options: nosniff
+        Referrer-Policy: no-referrer
+        Cross-Origin-Opener-Policy: same-origin
+      (frame-ancestors above already supersedes the legacy X-Frame-Options header.)
+    -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#00796b" media="(prefers-color-scheme: light)">
     <meta name="theme-color" content="#1e1e1e" media="(prefers-color-scheme: dark)">

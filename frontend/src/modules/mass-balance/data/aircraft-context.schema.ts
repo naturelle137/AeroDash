@@ -8,15 +8,29 @@
  * @see AircraftContext in core/domain/aircraft.types.ts
  */
 import { z } from 'zod'
+import { CANONICAL_FUEL_TYPES } from '@/core/logic/fuel-density'
 
 const BurnSequenceEntrySchema = z.object({
   sequenceName: z.string(),
   ordinalPosition: z.number(),
 })
 
+// @IMP-MB-DATA-003@ (FROM: @REQ-FE-001@, @REQ-SYS-003@, H-002)
+// Converge the runtime context onto the fuel-type enum (CS-009 / TECH-011): a
+// loose `z.array(z.string())` let arbitrary strings reach fuel-density, where a
+// typo / attacker value silently resolved to the 0.84 fallback and miscomputed
+// AvGas vs Jet-A mass. We accept the canonical keys PLUS the two deprecated
+// uppercase aliases (`AVGAS`, `MOGAS`) that still resolve a CORRECT (non-
+// fallback) density — these are tolerated here so in-flight runtime data mid-
+// migration is not rejected. The authoritative fleet/exchange document schema
+// (AircraftProfileSchema) remains canonical-only, so newly written profiles can
+// never persist a legacy alias. `.min(1)` keeps the "at least one permissible
+// fuel" invariant.
+const ACCEPTED_FUEL_TYPES = [...CANONICAL_FUEL_TYPES, 'AVGAS', 'MOGAS'] as const
+
 const FuelTankSchema = z.object({
   unusableFuel: z.number().nonnegative(),
-  permissibleFuelTypes: z.array(z.string()),
+  permissibleFuelTypes: z.array(z.enum(ACCEPTED_FUEL_TYPES)).min(1),
   burnSequences: z.array(BurnSequenceEntrySchema),
 })
 

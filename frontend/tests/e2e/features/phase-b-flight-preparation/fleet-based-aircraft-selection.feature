@@ -1,12 +1,11 @@
-# @E2E-MB-001@ (FROM: @UJ-F-002@)
-@wip @phase-B @fleet @flight-prep
+@phase-B @fleet @flight-prep
 Feature: Fleet-based aircraft selection on the Flight Prep page
   As a pilot
   I want the Flight Prep page to read aircraft from my personal fleet
   So that only my own aircraft are available for Mass & Balance planning
 
-  # @E2E-MB-001@ (FROM: @UJ-F-002@)
-  @E2E-MB-001
+  # @E2E-B-008@ (FROM: @UJ-B-005@)
+  @UJ-B-005 @phase-B @e2e @E2E-B-008
   Scenario: Empty fleet shows "No aircraft" CTA that navigates to the wizard
     Given the pilot opens the Flight Prep page on a fresh browser session
     Then the "No aircraft in your fleet yet" message is visible
@@ -15,8 +14,10 @@ Feature: Fleet-based aircraft selection on the Flight Prep page
     When the pilot clicks the "Add Aircraft" button on the Flight Prep page
     Then the pilot is taken to the aircraft creation wizard
 
-  # @E2E-MB-002@ (FROM: @UJ-F-002@)
-  @smoke @E2E-MB-002
+  # @E2E-B-009@ (FROM: @UJ-B-005@)
+  # @wip: depends on the wizard-creation flow (completeWizardFlow helper), which is
+  # not yet stable end-to-end — un-wip together with aircraft-wizard-creation.feature.
+  @wip @UJ-B-005 @phase-B @e2e @E2E-B-009
   Scenario: Aircraft added via wizard appears in the Flight Prep dropdown with a [Draft] label
     Given the pilot has added an aircraft with registration "D-EBPN" via the wizard
     When the pilot navigates to the Flight Prep page
@@ -26,8 +27,8 @@ Feature: Fleet-based aircraft selection on the Flight Prep page
     When the pilot selects the "D-EBPN" aircraft from the dropdown
     Then the M&B section becomes unlocked
 
-  # @E2E-MB-003@ (FROM: @UJ-F-002@)
-  @E2E-MB-003
+  # @E2E-B-010@ (FROM: @UJ-B-005@)
+  @UJ-B-005 @phase-B @e2e @E2E-B-010
   Scenario: Hardcoded catalogue aircraft are not in the dropdown when the fleet is empty — regression against AIRCRAFT_CATALOGUE leak
     Given the pilot opens the Flight Prep page on a fresh browser session
     Then the "No aircraft in your fleet yet" message is visible

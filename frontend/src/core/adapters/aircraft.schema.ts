@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { CANONICAL_FUEL_TYPES } from '../logic/fuel-density'
 
 /**
  * Canonical Zod schemas for the AircraftProfile aggregate-root document.
@@ -19,9 +20,33 @@ import { z } from 'zod'
  * @see docs/architecture/adr/006-indexeddb-fleet-persistence.md
  */
 
+// @IMP-AD-CORE-022@ (FROM: @REQ-AD-002@, @REQ-AD-014@, @REQ-SYS-003@)
+// All numeric profile fields are `.finite()`: Zod's `z.number()` (incl.
+// `.positive()`/`.nonnegative()`) accepts ±Infinity, which would propagate to
+// the M&B math core as Infinity → CG = NaN with `success: true` (TECH-003 /
+// CS-002). Profile documents are stored at rest in their SOURCE unit
+// (REQ-AD-014: mass kg|lb, arm m|in|ft, moment kg·m|in-lb), so the bounds here
+// are intentionally generous — wide enough for the largest supported unit
+// (lb ≈ 2.2× kg, in ≈ 39× m) while still rejecting absurd magnitudes
+// (1e30 / 1e308) that can only be tampering or corruption.
+const MAX_MASS_SRC = 500_000 // 200 t in kg ≈ 440k lb → 500k covers both
+const MAX_LEN_SRC = 5_000 // 100 m ≈ 3937 in ≈ 328 ft → 5000 covers all arm units
+const MAX_MOMENT_SRC = 1_000_000_000 // generous: covers lb·in moment magnitudes
+const MAX_ENERGY_KWH = 2_000 // largest credible GA battery pack
+const MAX_VOLTAGE_V = 2_000
+
+/** Finite number (rejects NaN and ±Infinity). */
+const finiteNum = () => z.number().finite()
+/** Finite mass (source unit), bounded but unsigned-constraint left to caller. */
+const finiteMass = () => finiteNum().max(MAX_MASS_SRC)
+/** Finite length/arm (source unit), may be negative (datum behind station). */
+const finiteLen = () => finiteNum().min(-MAX_LEN_SRC).max(MAX_LEN_SRC)
+/** Finite moment (source unit), may be negative. */
+const finiteMoment = () => finiteNum().min(-MAX_MOMENT_SRC).max(MAX_MOMENT_SRC)
+
 const ArmLookupEntrySchema = z.object({
-  massOrVolume: z.number(),
-  moment: z.number(),
+  massOrVolume: finiteMass().nonnegative(),
+  moment: finiteMoment(),
 })
 
 const BurnSequenceEntrySchema = z.object({
@@ -30,10 +55,8 @@ const BurnSequenceEntrySchema = z.object({
 })
 
 const FuelTankExtensionSchema = z.object({
-  unusableFuel: z.number().nonnegative(),
-  permissibleFuelTypes: z
-    .array(z.enum(['MoGas', 'AvGas 100LL', 'Jet A-1', 'AvGas UL91', 'Diesel']))
-    .min(1),
+  unusableFuel: finiteMass().nonnegative(),
+  permissibleFuelTypes: z.array(z.enum(CANONICAL_FUEL_TYPES)).min(1),
   burnSequences: z.array(BurnSequenceEntrySchema),
 })
 
@@ -45,14 +68,14 @@ const FuelTankExtensionSchema = z.object({
 // rather than as a load station quantity.
 const BatteryPackSchema = z.object({
   /** Nameplate usable energy at 100% SoC, in kWh. */
-  usableEnergyKwh: z.number().positive(),
+  usableEnergyKwh: finiteNum().positive().max(MAX_ENERGY_KWH),
   /**
    * Reserve floor below which operation is prohibited by POH/AFM (kWh).
    * Must be < usableEnergyKwh so there is always a usable working band.
    */
-  reserveFloorKwh: z.number().nonnegative(),
+  reserveFloorKwh: finiteNum().nonnegative().max(MAX_ENERGY_KWH),
   /** Optional nominal voltage (V) — used for future derating lookups. */
-  nominalVoltage: z.number().positive().optional(),
+  nominalVoltage: finiteNum().positive().max(MAX_VOLTAGE_V).optional(),
   /**
    * Optional cell chemistry free-text label (e.g. "LiFePO4", "NMC").
    * Not enumerated — regulatory labelling is still evolving for aviation
@@ -63,32 +86,34 @@ const BatteryPackSchema = z.object({
 
 const LoadPointSchema = z.object({
   name: z.string().min(1),
-  arm: z.number().nullable(),
+  arm: finiteLen().nullable(),
   armLookup: z.array(ArmLookupEntrySchema).default([]),
-  operationalLimit: z.number().nonnegative().nullable(),
-  defaultQuantity: z.number().nonnegative(),
+  operationalLimit: finiteMass().nonnegative().nullable(),
+  defaultQuantity: finiteMass().nonnegative(),
   unit: z.string().min(1),
   allowableCategories: z.array(z.enum(['Normal', 'Utility', 'Aerobatic'])).nullable(),
   fuelTank: FuelTankExtensionSchema.nullable(),
 })
 
 const EnvelopePointSchema = z.object({
-  armOrMoment: z.number(),
-  mass: z.number(),
+  // armOrMoment is an arm (length) in arm-graph mode or a moment in
+  // moment-graph mode; the moment bound is the wider of the two.
+  armOrMoment: finiteMoment(),
+  mass: finiteMass().nonnegative(),
 })
 
 const CertificationCategorySchema = z.object({
   category: z.enum(['Normal', 'Utility', 'Aerobatic']),
-  mtom: z.number().positive(),
-  maxZeroFuelMass: z.number().positive().nullable(),
+  mtom: finiteMass().positive(),
+  maxZeroFuelMass: finiteMass().positive().nullable(),
   graphType: z.enum(['arm', 'moment']),
   envelope: z.array(EnvelopePointSchema).min(4).max(20),
 })
 
 // @IMP-AD-CORE-005@ (FROM: @REQ-AD-004@)
 const WeighingReportSchema = z.object({
-  bem: z.number().positive(),
-  emptyCg: z.number(),
+  bem: finiteMass().positive(),
+  emptyCg: finiteLen(),
   weighingDate: z.string().min(1),
   // @IMP-AD-CORE-013@ (FROM: @REQ-AD-013@)
   validFrom: z.string().min(1),
@@ -97,27 +122,27 @@ const WeighingReportSchema = z.object({
 // @IMP-AD-CORE-009@ (FROM: @REQ-AD-017@)
 const WindLimitSchema = z.object({
   component: z.enum(['MaxCrosswind', 'MaxTailwind', 'MaxTotalWind', 'MaxGust']),
-  value: z.number().nonnegative(),
+  value: finiteNum().nonnegative(),
   classification: z.enum(['Demonstrated', 'Limit']),
 })
 
 // @IMP-AD-CORE-010@ (FROM: @REQ-AD-015@)
 const SurfaceConditionSchema = z.object({
   name: z.string().min(1),
-  takeoffFactor: z.number().positive(),
-  landingFactor: z.number().positive(),
+  takeoffFactor: finiteNum().positive(),
+  landingFactor: finiteNum().positive(),
 })
 
 // @IMP-AD-CORE-011@ (FROM: @REQ-AD-016@)
 const SafetyFactorsSchema = z.object({
-  takeoff: z.number().positive(),
-  landing: z.number().positive(),
+  takeoff: finiteNum().positive(),
+  landing: finiteNum().positive(),
 })
 
 // @IMP-AC-CORE-001@ (FROM: @REQ-AC-005@, @REQ-AC-006@)
 const PassengerProfileSchema = z.object({
   name: z.string().min(1),
-  standardWeight: z.number().positive(),
+  standardWeight: finiteMass().positive(),
   unit: z.enum(['kg', 'lbs']),
 })
 
@@ -129,10 +154,10 @@ const ChecklistScaffoldItemSchema = z.object({
 
 // @IMP-AD-CORE-015@ (FROM: @REQ-AD-009@, @DES-ARCH-002@)
 const PerformanceDataPointSchema = z.object({
-  distance: z.number().nonnegative(),
-  mass: z.number().positive(),
-  pressureAltitude: z.number(),
-  temperature: z.number(),
+  distance: finiteNum().nonnegative(),
+  mass: finiteMass().positive(),
+  pressureAltitude: finiteNum(),
+  temperature: finiteNum(),
 })
 
 // @IMP-AD-CORE-014@ (FROM: @REQ-AD-008@, @REQ-AD-009@, @DES-ARCH-002@)
@@ -172,7 +197,7 @@ export const AircraftProfileSchema = z
       ])
       .default('draft'),
     // M3: Schema version for structured migration safety (refs #154)
-    schemaVersion: z.number().int().positive().default(1),
+    schemaVersion: z.number().int().positive().finite().default(1),
     // M3: Passenger profiles with standard weights (REQ-AC-006)
     passengerProfiles: z.array(PassengerProfileSchema).default([]),
     weighingReports: z.array(WeighingReportSchema).min(1),
@@ -182,7 +207,7 @@ export const AircraftProfileSchema = z
     surfaceConditions: z.array(SurfaceConditionSchema).optional(),
     safetyFactors: SafetyFactorsSchema.optional(),
     // M3: Supplementary fields (REQ-AD-006, REQ-AD-007)
-    costPerHour: z.number().nonnegative().optional(),
+    costPerHour: finiteNum().nonnegative().optional(),
     // @IMP-AD-CORE-016@ (FROM: @REQ-AD-006@)
     fuelCostIncluded: z.boolean().optional(),
     checklistScaffold: z.array(ChecklistScaffoldItemSchema).optional(),

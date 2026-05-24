@@ -24,9 +24,15 @@
 
 import { defineStore } from 'pinia'
 import { calculateMassBalance } from '@/core/adapters/mass-balance.adapter'
-import { normalizeMassToKg, normalizeArmToM } from '@/core/logic/unit-normalization'
+import {
+  normalizeMassToKg,
+  normalizeArmToM,
+  normalizeMomentToSI,
+  parseSourceUnit,
+} from '@/core/logic/unit-normalization'
 import { normalizeFuelQuantityToKg, isFuelQuantityUnit } from '@/core/logic/fuel-mass'
-import type { MassUnit, ArmUnit } from '@/core/domain/units'
+import { isKnownFuelType } from '@/core/logic/fuel-density'
+import type { MassUnit } from '@/core/domain/units'
 import type { SessionPayload } from '@/core/domain/session.schema'
 import type {
   MassBalanceState,
@@ -393,10 +399,38 @@ export const useMassBalanceStore = defineStore('massBalance', {
       }
 
       // @IMP-MB-STORE-016@ (FROM: @REQ-AD-014@, @REQ-SYS-003@)
-      // Values stored at rest in their original source unit (per REQ-AD-014).
-      // Normalize to SI (kg, m) at the adapter boundary before passing to the
-      // math core, using the load point's unit field and the profile's sourceUnit.
-      const sourceUnit = this.aircraft!.sourceUnit as MassUnit
+      // @IMP-MB-STORE-020@ (FROM: @REQ-SYS-003@, @REQ-AD-014@)
+      // Values are stored at rest in their original source unit (REQ-AD-014).
+      // Normalize EVERY geometric quantity to SI (kg, m, kg·m) at the adapter
+      // boundary before passing to the math core — not just mass. The arm unit
+      // is derived from the profile's `sourceUnit` (e.g. `lb-in`) rather than
+      // hardcoded to metres (TECH-001 / TECH-002): an imperial profile with
+      // arms in inches would otherwise yield a wrong CG and a false in-envelope
+      // verdict (H-005 / H-006 class defect).
+      const { massUnit: profileMassUnit, armUnit } = parseSourceUnit(this.aircraft!.sourceUnit)
+
+      // @IMP-MB-STORE-021@ (FROM: @REQ-FE-001@, @REQ-SYS-003@, H-002)
+      // Fail-closed on an unrecognized fuel type: surface a WARNING instead of
+      // silently substituting the conservative fallback density (TECH-013 /
+      // CS-008). Collected here and merged into the notification set below.
+      const fuelFallbackNotes: Notification[] = []
+
+      // Normalize an armLookup table (mass/volume axis → kg, moment → kg·m).
+      const normalizeArmLookup = (
+        entries: { massOrVolume: number; moment: number }[],
+        massToKg: (v: number) => number,
+      ) =>
+        entries.map((e) => ({
+          massOrVolume: massToKg(e.massOrVolume),
+          moment: normalizeMomentToSI(e.moment, armUnit),
+        }))
+
+      // Normalize an envelope point's armOrMoment: it is an ARM (length) in
+      // arm-graph mode and a MOMENT in moment-graph mode.
+      const normalizeArmOrMoment = (value: number) =>
+        catDef.graphType === 'arm'
+          ? normalizeArmToM(value, armUnit)
+          : normalizeMomentToSI(value, armUnit)
 
       const input: MathCoreInput = {
         stations: this.availableStations
@@ -406,20 +440,25 @@ export const useMassBalanceStore = defineStore('massBalance', {
           })
           .map((s) => {
             const def = this.aircraft!.loadPoints[s.index]!
-            const massUnit = (def.unit || sourceUnit) as MassUnit
-            const armUnit = 'm' as ArmUnit
+            const massUnit = (def.unit || profileMassUnit) as MassUnit
             return {
               index: s.index,
               mass: normalizeMassToKg(s.weight, massUnit),
               arm: def.arm !== null ? normalizeArmToM(def.arm, armUnit) : null,
-              armLookup: def.armLookup,
+              armLookup: normalizeArmLookup(def.armLookup, (v) => normalizeMassToKg(v, massUnit)),
             }
           }),
-        basicEmptyMass: normalizeMassToKg(activeReport.basicEmptyMass, sourceUnit),
-        emptyCenterOfGravity: activeReport.emptyCg,
-        maxTakeoffMass: catDef.maxTakeoffMass,
-        maxZeroFuelMass: catDef.maxZeroFuelMass,
-        envelope: catDef.envelope,
+        basicEmptyMass: normalizeMassToKg(activeReport.basicEmptyMass, profileMassUnit),
+        emptyCenterOfGravity: normalizeArmToM(activeReport.emptyCg, armUnit),
+        maxTakeoffMass: normalizeMassToKg(catDef.maxTakeoffMass, profileMassUnit),
+        maxZeroFuelMass:
+          catDef.maxZeroFuelMass !== null
+            ? normalizeMassToKg(catDef.maxZeroFuelMass, profileMassUnit)
+            : null,
+        envelope: catDef.envelope.map((p) => ({
+          mass: normalizeMassToKg(p.mass, profileMassUnit),
+          armOrMoment: normalizeArmOrMoment(p.armOrMoment),
+        })),
         graphType: catDef.graphType,
         fuelStations: this.availableStations
           .filter((_s) => {
@@ -435,15 +474,33 @@ export const useMassBalanceStore = defineStore('massBalance', {
             // input must go through fuel-density conversion, not through the
             // mass-only normalizeMassToKg which silently treats 'L' as 'kg'
             // (H-002 — fuel unit confusion).
-            const rawUnit = def.unit || sourceUnit
-            const fuelUnit = isFuelQuantityUnit(rawUnit) ? rawUnit : (sourceUnit as MassUnit)
+            const rawUnit = def.unit || profileMassUnit
+            const fuelUnit = isFuelQuantityUnit(rawUnit)
+              ? rawUnit
+              : (profileMassUnit as MassUnit)
             const permissible = ft.permissibleFuelTypes
-            const armUnit = 'm' as ArmUnit
+
+            // Fail-closed: if the tank's first permissible fuel type is not
+            // canonical, the density used would be the silent fallback. Warn.
+            const primaryFuel = permissible[0]
+            if (primaryFuel === undefined || !isKnownFuelType(primaryFuel)) {
+              fuelFallbackNotes.push({
+                id: 'WARN-FE-001',
+                severity: 'WARNING',
+                message: `Unknown fuel type${primaryFuel ? ` "${primaryFuel}"` : ''} — using conservative fallback density; verify fuel mass`,
+                context: 'FuelEndurance.Density',
+                persistent: false,
+                dismissible: true,
+              })
+            }
+
             return {
               index: s.index,
               mass: normalizeFuelQuantityToKg(s.weight, fuelUnit, permissible),
               arm: def.arm !== null ? normalizeArmToM(def.arm, armUnit) : null,
-              armLookup: def.armLookup,
+              armLookup: normalizeArmLookup(def.armLookup, (v) =>
+                normalizeFuelQuantityToKg(v, fuelUnit, permissible),
+              ),
               unusableFuel: normalizeFuelQuantityToKg(ft.unusableFuel, fuelUnit, permissible),
               burnSequences: ft.burnSequences,
             }
@@ -464,6 +521,43 @@ export const useMassBalanceStore = defineStore('massBalance', {
         }
         this.notifications = draftProfileWarning ? [draftProfileWarning, crit] : [crit]
         this.lastResult = null
+        return
+      }
+
+      // @IMP-MB-STORE-022@ (FROM: @REQ-SYS-012@, @REQ-UI-008@)
+      // Fail-closed on adapter validation failure (TECH-004). The adapter
+      // returns `success: false` with NaN-filled CgPoints; if we assigned that
+      // to `lastResult` the UI would render "NaN kg" to the pilot, masking the
+      // failure. Take the notifications path and NEVER set `lastResult` from a
+      // failed compute. The error/warning violations still surface so the state
+      // machine resolves to ERROR_CRITICAL / WARNING (never VERIFIED_SAFE).
+      if (!result.success) {
+        const failureNotes = result.violations.map((v): Notification =>
+          v.type === 'INVALID_INPUT' && v.code === 'OUT_OF_RANGE'
+            ? {
+                id: 'WARN-UI-001',
+                severity: 'WARNING',
+                message: `${v.field ?? 'Input'} is out of standard operational range`,
+                context: 'MassBalance.Validation',
+                persistent: false,
+                dismissible: true,
+              }
+            : {
+                id: 'ERR-SYS-001',
+                severity: 'ERROR',
+                message: `Invalid input: ${v.field ?? 'unknown'} (${v.code ?? 'validation failed'})`,
+                context: 'MassBalance.Validation',
+                persistent: false,
+                dismissible: true,
+              },
+        )
+        this.notifications = [
+          ...(draftProfileWarning ? [draftProfileWarning] : []),
+          ...fuelFallbackNotes,
+          ...failureNotes,
+        ]
+        this.lastResult = null
+        this._updateStationErrorFlags(result.violations)
         return
       }
 
@@ -561,9 +655,11 @@ export const useMassBalanceStore = defineStore('massBalance', {
         }
       })
 
-      this.notifications = draftProfileWarning
-        ? [draftProfileWarning, ...violationNotes]
-        : violationNotes
+      this.notifications = [
+        ...(draftProfileWarning ? [draftProfileWarning] : []),
+        ...fuelFallbackNotes,
+        ...violationNotes,
+      ]
 
       this.lastResult = result
 

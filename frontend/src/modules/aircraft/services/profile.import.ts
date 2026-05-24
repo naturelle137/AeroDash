@@ -17,6 +17,25 @@ import type { AircraftProfile } from '@/core/adapters/aircraft.schema'
 // @IMP-AC-STORE-004@ (FROM: @REQ-AC-004@)
 
 /**
+ * Maximum accepted size (in bytes) for an aircraft exchange file.
+ *
+ * Real `.aerodash.json` profiles are a few kilobytes; the schema caps load
+ * points at 20 and envelope points at 20, so even a maximal valid profile is
+ * well under this bound. 256 KB leaves generous headroom for whitespace-pretty
+ * JSON while preventing an attacker-supplied multi-megabyte file from being read
+ * wholesale into memory via `File.text()` (CS-003 / TECH-008).
+ */
+export const MAX_IMPORT_FILE_BYTES = 256 * 1024 // 256 KB
+
+/**
+ * Accepted MIME types for an aircraft exchange file. Browsers report `.json`
+ * files as `application/json` (and historically `text/json`); some report an
+ * empty string when the OS has no MIME mapping, which we tolerate provided the
+ * extension and size checks pass — the JSON parser is the final structural gate.
+ */
+const ACCEPTED_MIME_TYPES = new Set(['application/json', 'text/json'])
+
+/**
  * Error thrown when an import operation fails.
  * The fleet is guaranteed to be unmodified when this error is thrown.
  */
@@ -27,6 +46,48 @@ export class ImportError extends Error {
   ) {
     super(message)
     this.name = 'ImportError'
+  }
+}
+
+/**
+ * Fail-closed pre-flight guard for an imported exchange file (CS-003 / TECH-008).
+ *
+ * Validates the file's size and content-type BEFORE any byte is read into memory
+ * (`File.text()`), so a hostile oversized or spoofed payload is rejected early.
+ *
+ * Rejection rules:
+ * - Empty file (0 bytes) → cannot be a valid profile.
+ * - Size above {@link MAX_IMPORT_FILE_BYTES} → reject without reading.
+ * - Reported MIME type not JSON AND extension not `.json` → reject. An empty
+ *   reported type is tolerated only when the `.json` extension is present.
+ *
+ * @throws ImportError if the file fails any guard; the fleet is never modified.
+ */
+// @IMP-AC-STORE-007@ (FROM: @REQ-AC-004@)
+export function validateImportFile(file: File): void {
+  if (file.size === 0) {
+    throw new ImportError('Import failed: file is empty')
+  }
+
+  if (file.size > MAX_IMPORT_FILE_BYTES) {
+    const limitKb = Math.round(MAX_IMPORT_FILE_BYTES / 1024)
+    throw new ImportError(
+      `Import failed: file is too large (max ${limitKb} KB). Exchange files are only a few KB.`,
+    )
+  }
+
+  const type = file.type.toLowerCase()
+  const hasJsonExtension = file.name.toLowerCase().endsWith('.json')
+  const hasJsonMime = ACCEPTED_MIME_TYPES.has(type)
+
+  // Accept when the MIME type is JSON, or when the browser reported no type but
+  // the extension is `.json`. Reject any explicitly non-JSON MIME type.
+  if (!hasJsonMime && !(type === '' && hasJsonExtension)) {
+    throw new ImportError('Import failed: only .json exchange files are accepted')
+  }
+
+  if (!hasJsonExtension) {
+    throw new ImportError('Import failed: only .json exchange files are accepted')
   }
 }
 

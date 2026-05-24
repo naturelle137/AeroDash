@@ -8,13 +8,28 @@
 
 // @UT-AC-VIEW-080@ (FROM: @IMP-AC-VIEW-005@, @IMP-AC-VIEW-006@)
 
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { mount, flushPromises } from '@vue/test-utils'
 import { createPinia, setActivePinia, defineStore } from 'pinia'
 import { ref } from 'vue'
 import { createRouter, createMemoryHistory, type Router } from 'vue-router'
 import FleetList from '../components/FleetList.vue'
 import type { AircraftProfile } from '@/core/adapters/aircraft.schema'
+
+// UX-001: the undo path re-creates the deleted record via the repository, then
+// rehydrates the store. Mock the repository so no test touches IndexedDB.
+vi.mock('../services/fleet.repository', () => ({
+  fleetRepository: {
+    create: vi.fn<(p: AircraftProfile) => Promise<void>>().mockResolvedValue(undefined),
+    findAll: vi.fn<() => Promise<AircraftProfile[]>>().mockResolvedValue([]),
+    update: vi.fn<() => Promise<void>>().mockResolvedValue(undefined),
+    deleteById: vi.fn<() => Promise<void>>().mockResolvedValue(undefined),
+    findById: vi.fn<() => Promise<AircraftProfile | undefined>>().mockResolvedValue(undefined),
+    openDB: vi.fn<() => Promise<unknown>>(),
+  },
+}))
+
+import { fleetRepository } from '../services/fleet.repository'
 
 /** Minimal valid AircraftProfile for testing. */
 function makeProfile(overrides: Partial<AircraftProfile> = {}): AircraftProfile {
@@ -313,5 +328,108 @@ describe('FleetList — download action', () => {
     clickSpy.mockRestore()
     globalThis.URL.createObjectURL = originalCreate
     globalThis.URL.revokeObjectURL = originalRevoke
+  })
+})
+
+// ─── UX-001: confirm-then-undo destructive delete ──────────────────────────
+
+describe('FleetList — delete confirmation + undo (UX-001)', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    vi.clearAllMocks()
+  })
+
+  afterEach(() => {
+    // ConfirmDialog + UndoToast teleport into <body>; clean between tests.
+    document.body.innerHTML = ''
+  })
+
+  // @UT-AC-VIEW-165@ (FROM: @IMP-AC-VIEW-019@)
+  it('does not use the native window.confirm() when deleting', async () => {
+    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true)
+    const profile = makeProfile({ id: 'p1', registration: 'D-EBPN' })
+    const wrapper = mountFleetList({ profiles: [profile] })
+
+    await wrapper.find('.btn-danger').trigger('click')
+
+    expect(confirmSpy).not.toHaveBeenCalled()
+    confirmSpy.mockRestore()
+  })
+
+  // @UT-AC-VIEW-166@ (FROM: @IMP-AC-VIEW-019@)
+  it('opens an in-app confirmation dialog naming the aircraft on delete tap', async () => {
+    const profile = makeProfile({ id: 'p1', registration: 'D-EBPN' })
+    const wrapper = mountFleetList({ profiles: [profile] })
+
+    expect(document.querySelector('.confirm-dialog')).toBeNull()
+    await wrapper.find('.btn-danger').trigger('click')
+
+    const dialog = document.querySelector('.confirm-dialog')
+    expect(dialog).not.toBeNull()
+    expect(dialog?.textContent).toContain('D-EBPN')
+  })
+
+  // @UT-AC-VIEW-167@ (FROM: @IMP-AC-VIEW-019@)
+  it('does not delete (no undo toast) when the confirmation is cancelled', async () => {
+    const profile = makeProfile({ id: 'p1', registration: 'D-EBPN' })
+    const wrapper = mountFleetList({ profiles: [profile] })
+
+    await wrapper.find('.btn-danger').trigger('click')
+    ;(document.querySelector('.confirm-dialog__btn--cancel') as HTMLButtonElement).click()
+    await flushPromises()
+
+    // No delete happened → the undo affordance never opens and the dialog closes.
+    expect(document.querySelector('.undo-toast')).toBeNull()
+    expect(document.querySelector('.confirm-dialog')).toBeNull()
+  })
+
+  // @UT-AC-VIEW-168@ (FROM: @IMP-AC-VIEW-019@)
+  it('deletes and shows an undo toast when the confirmation is accepted', async () => {
+    const profile = makeProfile({ id: 'p1', registration: 'D-EBPN' })
+    const wrapper = mountFleetList({ profiles: [profile] })
+
+    await wrapper.find('.btn-danger').trigger('click')
+    ;(document.querySelector('.confirm-dialog__btn--danger') as HTMLButtonElement).click()
+    await flushPromises()
+
+    const toast = document.querySelector('.undo-toast')
+    expect(toast).not.toBeNull()
+    expect(toast?.textContent).toContain('D-EBPN')
+  })
+
+  // @UT-AC-VIEW-169@ (FROM: @IMP-AC-VIEW-019@)
+  it('restores the deleted profile via the repository when undo is tapped', async () => {
+    const profile = makeProfile({ id: 'p1', registration: 'D-EBPN' })
+    const wrapper = mountFleetList({ profiles: [profile] })
+
+    await wrapper.find('.btn-danger').trigger('click')
+    ;(document.querySelector('.confirm-dialog__btn--danger') as HTMLButtonElement).click()
+    await flushPromises()
+    ;(document.querySelector('.undo-toast__action') as HTMLButtonElement).click()
+    await flushPromises()
+
+    expect(fleetRepository.create).toHaveBeenCalledWith(profile)
+  })
+
+  // @UT-AC-VIEW-170@ (FROM: @IMP-AC-VIEW-019@)
+  it('disables the delete control while the profile is the active aircraft', () => {
+    const profile = makeProfile({ id: 'p1', registration: 'D-EBPN' })
+    const wrapper = mountFleetList({ profiles: [profile], activeProfile: profile })
+
+    const deleteBtn = wrapper.find('.btn-danger')
+    expect(deleteBtn.attributes('disabled')).toBeDefined()
+    expect(deleteBtn.attributes('aria-label')).toContain('active aircraft')
+  })
+
+  // @UT-AC-VIEW-171@ (FROM: @IMP-AC-VIEW-019@)
+  it('does not open the confirmation for the active aircraft (defence in depth)', async () => {
+    const profile = makeProfile({ id: 'p1', registration: 'D-EBPN' })
+    const wrapper = mountFleetList({ profiles: [profile], activeProfile: profile })
+
+    // The DOM button is disabled; call the handler directly to prove the guard.
+    ;(wrapper.vm as unknown as { onDelete(p: AircraftProfile): void }).onDelete(profile)
+    await wrapper.vm.$nextTick()
+
+    expect(document.querySelector('.confirm-dialog')).toBeNull()
   })
 })
