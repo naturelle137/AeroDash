@@ -59,7 +59,7 @@ structured migration:
 All new profiles are written with `status = 'draft'`. The `verifyProfile()`
 store action writes the verified snapshot **before** deleting the draft —
 ensuring the fleet is never empty between the two operations. See
-[ADR-008](008-aircraft-profile-status-canonical-values.md) for canonical status values and migration.
+[ADR-010](010-aircraft-profile-status-canonical-values.md) for canonical status values and migration.
 
 ## Consequences
 

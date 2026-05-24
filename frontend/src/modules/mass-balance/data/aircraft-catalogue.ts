@@ -53,7 +53,7 @@ export const AIRCRAFT_CATALOGUE: AircraftContext[] = [
         allowableCategories: ['Normal'],
         fuelTank: {
           unusableFuel: 3,
-          permissibleFuelTypes: ['MOGAS', 'AVGAS'],
+          permissibleFuelTypes: ['MoGas', 'AvGas 100LL'],
           burnSequences: [],
         },
       },
@@ -108,7 +108,7 @@ export const AIRCRAFT_CATALOGUE: AircraftContext[] = [
         allowableCategories: ['Normal'],
         fuelTank: {
           unusableFuel: 3,
-          permissibleFuelTypes: ['MOGAS', 'AVGAS'],
+          permissibleFuelTypes: ['MoGas', 'AvGas 100LL'],
           burnSequences: [],
         },
       },

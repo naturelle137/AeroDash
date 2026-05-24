@@ -66,7 +66,7 @@ const mockProfile: AircraftContext = {
       allowableCategories: ['Normal'],
       fuelTank: {
         unusableFuel: 3,
-        permissibleFuelTypes: ['MOGAS', 'AVGAS'],
+        permissibleFuelTypes: ['MoGas', 'AvGas 100LL'],
         burnSequences: [],
       },
     },
@@ -121,7 +121,7 @@ const multiCatProfile: AircraftContext = {
       allowableCategories: null,
       fuelTank: {
         unusableFuel: 2,
-        permissibleFuelTypes: ['AVGAS'],
+        permissibleFuelTypes: ['AvGas 100LL'],
         burnSequences: [],
       },
     },

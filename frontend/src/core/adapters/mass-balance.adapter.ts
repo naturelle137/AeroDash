@@ -2,15 +2,47 @@ import { z } from 'zod'
 import type { MathCoreInput, MathCoreResult } from '../domain/mass-balance.math-types'
 import { computeMassBalanceCore } from '../logic/mass-balance.logic'
 import { mapZodErrorToViolations } from './mb.zod-violation-mapping'
-const createNumReq = () => z.number()
-const createNumGt0Req = () => createNumReq().gt(0, { message: 'NEGATIVE_VALUE' })
-const createNumMin0Req = () => createNumReq().min(0, { message: 'NEGATIVE_VALUE' })
-const createIndexReq = () => createNumMin0Req().max(19, { message: 'OUT_OF_RANGE' })
+// @IMP-MB-CORE-016@ (FROM: @REQ-MB-002@, @REQ-SYS-003@, @REQ-SYS-012@)
+// Every numeric field feeding the math core is `.finite()`: Zod's
+// `z.number()` (and `.positive()`/`.nonnegative()`) accept ±Infinity, which
+// would propagate to `zeroFuelMoment = Infinity` → CG = NaN with
+// `success: true` (TECH-003 / CS-002). `.finite()` rejects ±Infinity as
+// NOT_A_NUMBER, and explicit SI domain bounds reject absurd magnitudes
+// (1e30 / 1e308) as OUT_OF_RANGE before they can corrupt a Go/No-Go advisory.
+//
+// All values reaching this adapter are already normalized to SI (kg, m, kg·m)
+// at the store boundary, so bounds below are in SI units.
+//
+// Generous-but-physical SI ceilings:
+//   mass        ≤ 200_000 kg  (well above any Part-NCO SEP; covers misuse)
+//   arm         ∈ [-100, 100] m
+//   moment      ∈ [-20_000_000, 20_000_000] kg·m
+const MAX_MASS_KG = 200_000
+const MAX_ARM_M = 100
+const MAX_MOMENT_KGM = 20_000_000
+
+const createNumReq = () => z.number().finite({ message: 'NOT_A_NUMBER' })
+const createNumGt0Req = () =>
+  createNumReq().gt(0, { message: 'NEGATIVE_VALUE' }).max(MAX_MASS_KG, { message: 'OUT_OF_RANGE' })
+const createNumMin0Req = () =>
+  createNumReq().min(0, { message: 'NEGATIVE_VALUE' }).max(MAX_MASS_KG, { message: 'OUT_OF_RANGE' })
+const createIndexReq = () =>
+  createNumReq().min(0, { message: 'NEGATIVE_VALUE' }).max(19, { message: 'OUT_OF_RANGE' })
+/** Arm (length, m) — finite, bounded, may be negative (datum behind station). */
+const createArmReq = () =>
+  createNumReq()
+    .min(-MAX_ARM_M, { message: 'OUT_OF_RANGE' })
+    .max(MAX_ARM_M, { message: 'OUT_OF_RANGE' })
+/** Moment (kg·m) — finite, bounded, may be negative. */
+const createMomentReq = () =>
+  createNumReq()
+    .min(-MAX_MOMENT_KGM, { message: 'OUT_OF_RANGE' })
+    .max(MAX_MOMENT_KGM, { message: 'OUT_OF_RANGE' })
 
 const ArmLookupEntrySchema = z.object({
   massOrVolume: createNumMin0Req(),
-  arm: createNumReq().optional(),
-  moment: createNumReq(),
+  arm: createArmReq().optional(),
+  moment: createMomentReq(),
 })
 
 const BurnSequenceEntrySchema = z.object({
@@ -19,8 +51,10 @@ const BurnSequenceEntrySchema = z.object({
 })
 
 const EnvelopePointSchema = z.object({
-  mass: createNumReq(),
-  armOrMoment: createNumReq(),
+  mass: createNumMin0Req(),
+  // armOrMoment is an arm (m) in arm-graph mode or a moment (kg·m) in
+  // moment-graph mode; the moment bound is the wider of the two, so use it.
+  armOrMoment: createMomentReq(),
 })
 
 // @IMP-AD-CORE-002@ (FROM: @REQ-AD-002@, @REQ-AD-003@, @REQ-AD-005@, @REQ-AD-012@, @DES-ARCH-002@)
@@ -31,13 +65,13 @@ export const MathCoreInputSchema = z
         z.object({
           index: createIndexReq(),
           mass: createNumMin0Req(),
-          arm: createNumReq().nullable(),
+          arm: createArmReq().nullable(),
           armLookup: z.array(ArmLookupEntrySchema).optional().default([]),
         }),
       )
       .max(20, { message: 'TOO_MANY_ITEMS' }),
     basicEmptyMass: createNumGt0Req(),
-    emptyCenterOfGravity: createNumReq(),
+    emptyCenterOfGravity: createArmReq(),
     maxTakeoffMass: createNumGt0Req(),
     maxZeroFuelMass: createNumGt0Req().nullable(),
     envelope: z.array(EnvelopePointSchema),
@@ -52,7 +86,7 @@ export const MathCoreInputSchema = z
         z.object({
           index: createIndexReq(),
           mass: createNumMin0Req(),
-          arm: createNumReq().nullable(),
+          arm: createArmReq().nullable(),
           armLookup: z.array(ArmLookupEntrySchema).optional().default([]),
           unusableFuel: createNumMin0Req(),
           burnSequences: z.array(BurnSequenceEntrySchema).optional().default([]),

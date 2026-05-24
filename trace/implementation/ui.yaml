@@ -14,6 +14,34 @@ UI Shared Components
     files:
       - frontend/src/App.vue
 
+  IMP-UI-SHARED-003
+    title: ConfirmDialog template — accessible dark-mode-safe confirmation modal (in-app replacement for native window.confirm on destructive actions)
+    req:
+      - REQ-UI-011
+    files:
+      - frontend/src/shared/components/ConfirmDialog.vue
+
+  IMP-UI-SHARED-004
+    title: ConfirmDialog script — focus management, Escape/backdrop cancel, confirm/cancel emits, danger/primary variants
+    req:
+      - REQ-UI-011
+    files:
+      - frontend/src/shared/components/ConfirmDialog.vue
+
+  IMP-UI-SHARED-005
+    title: UndoToast template — transient undo affordance (live region) for recoverable destructive actions
+    req:
+      - REQ-UI-011
+    files:
+      - frontend/src/shared/components/UndoToast.vue
+
+  IMP-UI-SHARED-006
+    title: UndoToast script — auto-dismiss timer, undo/dismiss emits, timer cleanup on undo
+    req:
+      - REQ-UI-011
+    files:
+      - frontend/src/shared/components/UndoToast.vue
+
 UI Views
   IMP-UI-VIEW-001
     title: HomeView — Dashboard landing page with module navigation

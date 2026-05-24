@@ -20,6 +20,18 @@ const props = defineProps<{
    * Pass null / undefined for non-fuel stations or tanks without a capacity.
    */
   maxCapacity?: number | null
+  /**
+   * Coarse increment for the secondary ± buttons (UX-002). Reaching a 75 kg
+   * passenger via the fine ±1 control is 75 taps under turbulence; the coarse
+   * control gets there in a handful of taps. Defaults to a unit-aware value
+   * (10 for lb, 5 otherwise) when omitted.
+   */
+  coarseStep?: number
+  /**
+   * Optional preset quantities (in `unit`) rendered as one-tap chips — e.g.
+   * standard passenger weights. Omit / empty for stations without presets.
+   */
+  presets?: readonly number[]
 }>()
 
 const emit = defineEmits<{
@@ -35,6 +47,14 @@ const showSlider = computed(
     props.maxCapacity > minWeight.value,
 )
 
+/** Unit-aware coarse step: pounds tend to want a bigger jump than kilograms. */
+const coarseStepValue = computed(() => {
+  if (props.coarseStep && props.coarseStep > 0) return props.coarseStep
+  return props.unit?.toLowerCase() === 'lb' ? 10 : 5
+})
+
+const presetList = computed(() => props.presets ?? [])
+
 function clamp(value: number): number {
   if (!Number.isFinite(value)) return minWeight.value
   const ceiling = showSlider.value && props.maxCapacity != null ? props.maxCapacity : Infinity
@@ -49,12 +69,28 @@ function onInput(event: Event): void {
   }
 }
 
+function adjust(delta: number): void {
+  emit('update:weight', clamp(props.station.weight + delta))
+}
+
 function increment(): void {
-  emit('update:weight', clamp(props.station.weight + 1))
+  adjust(1)
 }
 
 function decrement(): void {
-  emit('update:weight', clamp(props.station.weight - 1))
+  adjust(-1)
+}
+
+function incrementCoarse(): void {
+  adjust(coarseStepValue.value)
+}
+
+function decrementCoarse(): void {
+  adjust(-coarseStepValue.value)
+}
+
+function applyPreset(value: number): void {
+  emit('update:weight', clamp(value))
 }
 </script>
 
@@ -75,7 +111,20 @@ function decrement(): void {
       <span v-if="unit" class="mass-station-input__unit" aria-label="unit">{{ unit }}</span>
     </div>
 
+    <!-- @IMP-MB-UI-008@ (FROM: @REQ-UQ-004@) -->
+    <!-- UX-002: coarse (±N) controls flank the fine (±1) control so a 75 kg
+         passenger is a handful of taps, not 75. The fine control is retained. -->
     <div class="mass-station-input__control">
+      <button
+        type="button"
+        class="mass-station-input__stepper mass-station-input__stepper--coarse"
+        :disabled="disabled || station.weight <= minWeight"
+        :aria-label="`Decrease by ${coarseStepValue}`"
+        @click="decrementCoarse"
+      >
+        −{{ coarseStepValue }}
+      </button>
+
       <button
         type="button"
         class="mass-station-input__stepper"
@@ -107,6 +156,36 @@ function decrement(): void {
         @click="increment"
       >
         +
+      </button>
+
+      <button
+        type="button"
+        class="mass-station-input__stepper mass-station-input__stepper--coarse"
+        :disabled="disabled"
+        :aria-label="`Increase by ${coarseStepValue}`"
+        @click="incrementCoarse"
+      >
+        +{{ coarseStepValue }}
+      </button>
+    </div>
+
+    <!-- UX-002: one-tap preset chips (e.g. standard passenger weights). -->
+    <div
+      v-if="presetList.length > 0"
+      class="mass-station-input__presets"
+      role="group"
+      :aria-label="`${station.name} quick presets`"
+    >
+      <button
+        v-for="preset in presetList"
+        :key="preset"
+        type="button"
+        class="mass-station-input__preset-chip"
+        :disabled="disabled"
+        :aria-label="`Set ${station.name} to ${preset}${unit ? ` ${unit}` : ''}`"
+        @click="applyPreset(preset)"
+      >
+        {{ preset }}{{ unit ? ` ${unit}` : '' }}
       </button>
     </div>
 
@@ -259,8 +338,57 @@ function decrement(): void {
   cursor: not-allowed;
 }
 
+.mass-station-input__stepper--coarse {
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  padding: 0 0.25rem;
+  color: var(--color-primary, #1976d2);
+}
+
+/* UX-002: one-tap preset chips ─────────────────────────────────────────── */
+.mass-station-input__presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+.mass-station-input__preset-chip {
+  min-height: 2.25rem;
+  padding: 0.25rem 0.75rem;
+  border: 1px solid var(--color-border, #e0e0e0);
+  border-radius: 1rem;
+  background: var(--color-surface-alt, #f5f5f5);
+  color: var(--color-text-primary, #212121);
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition:
+    background 0.1s ease,
+    border-color 0.1s ease;
+}
+
+.mass-station-input__preset-chip:hover:not(:disabled) {
+  background: var(--color-surface-hover, #e0e0e0);
+  border-color: var(--color-primary, #1976d2);
+}
+
+.mass-station-input__preset-chip:focus-visible {
+  outline: 2px solid var(--color-focus, #1976d2);
+  outline-offset: 1px;
+}
+
+.mass-station-input__preset-chip:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 .mass-station-input__field {
-  width: 5rem;
+  /* UX-002: widened from 5rem so 4+ digit loads (e.g. avgas in lb) read with
+     tabular-nums without cramped precision typing under turbulence. */
+  width: 7rem;
   min-height: 2.75rem;
   border: none;
   border-left: 1px solid var(--color-border, #e0e0e0);

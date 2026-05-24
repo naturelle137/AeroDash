@@ -96,3 +96,38 @@ FE Core — Fuel Density (Unit)
       - IMP-FE-CORE-001
     files:
       - frontend/src/core/logic/fuel-density.spec.ts
+
+  UT-FE-CORE-015
+    title: Verify CANONICAL_FUEL_TYPES matches the AircraftProfile schema enum set
+    impl:
+      - IMP-FE-CORE-002
+    files:
+      - frontend/src/core/logic/fuel-density.spec.ts
+
+  UT-FE-CORE-016
+    title: Verify every canonical type resolves to an explicit (non-fallback) density
+    impl:
+      - IMP-FE-CORE-002
+    files:
+      - frontend/src/core/logic/fuel-density.spec.ts
+
+  UT-FE-CORE-017
+    title: Verify isKnownFuelType accepts canonical types and recognised legacy aliases
+    impl:
+      - IMP-FE-CORE-002
+    files:
+      - frontend/src/core/logic/fuel-density.spec.ts
+
+  UT-FE-CORE-018
+    title: Verify isKnownFuelType rejects genuinely unknown types (fallback risk)
+    impl:
+      - IMP-FE-CORE-002
+    files:
+      - frontend/src/core/logic/fuel-density.spec.ts
+
+  UT-FE-CORE-019
+    title: Verify isCanonicalFuelType accepts only the canonical enum (rejects aliases)
+    impl:
+      - IMP-FE-CORE-002
+    files:
+      - frontend/src/core/logic/fuel-density.spec.ts

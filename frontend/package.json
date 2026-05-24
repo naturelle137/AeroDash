@@ -44,7 +44,6 @@
   "homepage": "https://github.com/naturelle137/AeroDash#readme",
   "dependencies": {
     "pinia": "^3.0.4",
-    "serve": "^14.2.6",
     "uuid": "^14.0.0",
     "vue": "^3.5.33",
     "vue-router": "^5.0.6",
@@ -77,6 +76,7 @@
     "oxlint": "~1.62.0",
     "playwright-bdd": "^8.5.0",
     "prettier": "3.8.3",
+    "serve": "^14.2.6",
     "typescript": "~6.0.3",
     "vite": "^8.0.10",
     "vite-plugin-pwa": "^1.2.0",

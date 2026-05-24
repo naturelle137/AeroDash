@@ -61,6 +61,22 @@ SYS Core
     files:
       - frontend/src/core/logic/display-rounding.ts
 
+SYS Core — Moment & sourceUnit Normalization
+  IMP-SYS-CORE-010
+    title: Moment Normalization to SI (kg·m) via arm-unit length factor
+    req:
+      - REQ-SYS-003
+    files:
+      - frontend/src/core/logic/unit-normalization.ts
+
+  IMP-SYS-CORE-011
+    title: sourceUnit Parsing into Mass and Arm Components
+    req:
+      - REQ-SYS-003
+      - REQ-AD-014
+    files:
+      - frontend/src/core/logic/unit-normalization.ts
+
 SYS Core — Session Payload Schema
   IMP-SYS-CORE-009
     title: Session Payload Zod Schema for localStorage Persistence Validation

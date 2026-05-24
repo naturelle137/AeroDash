@@ -69,9 +69,33 @@ function formatEntry(entry: LogEntry): LogEntry {
   }
 }
 
+/**
+ * DP-011 — diagnostic console gating.
+ *
+ * In production builds (`import.meta.env.PROD`) DEBUG and INFO output is
+ * suppressed: these levels carry verbose telemetry that may echo pilot-entered
+ * M&B inputs and aircraft data, and have no place on a shipped console. WARN and
+ * ERROR are always emitted — they carry operational and safety-relevant
+ * diagnostics. In development (dev server, tests) all levels are emitted.
+ *
+ * Gating lives in the logger rather than the bundler because Vite 8's default
+ * minifier (oxc) ignores esbuild's `pure`/`drop` options, so a build-time strip
+ * would silently no-op.
+ *
+ * NOTE: broader PII redaction of WARN/ERROR payloads (DP-004) is deferred to
+ * issue #263 and intentionally NOT implemented here.
+ */
+function isLevelEnabled(level: LogLevel): boolean {
+  if (level === 'WARN' || level === 'ERROR') return true
+  // DEBUG / INFO: suppressed in production builds only.
+  return !import.meta.env.PROD
+}
+
 // @IMP-SYS-SHARED-002@ (FROM: @DES-ARCH-001@)
 export function createLogger(context: string): Logger {
   const log = (level: LogLevel, message: string, data?: unknown): void => {
+    if (!isLevelEnabled(level)) return
+
     const entry = formatEntry({
       timestamp: new Date().toISOString(),
       level,

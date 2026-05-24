@@ -232,6 +232,49 @@ AC Store — Profile Import (Unit)
     files:
       - frontend/src/modules/aircraft/__tests__/profile.import.spec.ts
 
+AC Store — Import File Guard (Unit)
+  UT-AC-STORE-084
+    title: rejects an oversized file before reading it (CS-003)
+    impl:
+      - IMP-AC-STORE-007
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.import.spec.ts
+
+  UT-AC-STORE-085
+    title: rejects an empty (0-byte) file
+    impl:
+      - IMP-AC-STORE-007
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.import.spec.ts
+
+  UT-AC-STORE-086
+    title: rejects a non-JSON MIME type even with a .json name
+    impl:
+      - IMP-AC-STORE-007
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.import.spec.ts
+
+  UT-AC-STORE-087
+    title: rejects a non-.json extension even with a JSON MIME type
+    impl:
+      - IMP-AC-STORE-007
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.import.spec.ts
+
+  UT-AC-STORE-088
+    title: accepts a well-formed .json file at the size limit
+    impl:
+      - IMP-AC-STORE-007
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.import.spec.ts
+
+  UT-AC-STORE-089
+    title: tolerates an empty MIME type when the extension is .json
+    impl:
+      - IMP-AC-STORE-007
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.import.spec.ts
+
 AC Store — Fleet Store (Unit)
   UT-AC-STORE-025
     title: creates Draft profile by default
@@ -1516,3 +1559,52 @@ AC View — ProfileStatusBadge Component (Unit)
       - IMP-AC-VIEW-018
     files:
       - frontend/src/modules/aircraft/__tests__/LoadPointsSection.spec.ts
+
+  UT-AC-VIEW-165
+    title: FleetList — does not use native window.confirm() when deleting
+    impl:
+      - IMP-AC-VIEW-019
+    files:
+      - frontend/src/modules/aircraft/__tests__/FleetList.spec.ts
+
+  UT-AC-VIEW-166
+    title: FleetList — opens an in-app confirmation dialog naming the aircraft on delete tap
+    impl:
+      - IMP-AC-VIEW-019
+    files:
+      - frontend/src/modules/aircraft/__tests__/FleetList.spec.ts
+
+  UT-AC-VIEW-167
+    title: FleetList — cancelling the confirmation does not delete and shows no undo toast
+    impl:
+      - IMP-AC-VIEW-019
+    files:
+      - frontend/src/modules/aircraft/__tests__/FleetList.spec.ts
+
+  UT-AC-VIEW-168
+    title: FleetList — accepting the confirmation deletes and surfaces an undo toast
+    impl:
+      - IMP-AC-VIEW-019
+    files:
+      - frontend/src/modules/aircraft/__tests__/FleetList.spec.ts
+
+  UT-AC-VIEW-169
+    title: FleetList — undo restores the deleted profile via the repository
+    impl:
+      - IMP-AC-VIEW-019
+    files:
+      - frontend/src/modules/aircraft/__tests__/FleetList.spec.ts
+
+  UT-AC-VIEW-170
+    title: FleetList — delete control disabled while the profile is the active aircraft
+    impl:
+      - IMP-AC-VIEW-019
+    files:
+      - frontend/src/modules/aircraft/__tests__/FleetList.spec.ts
+
+  UT-AC-VIEW-171
+    title: FleetList — delete handler is a no-op for the active aircraft (defence in depth)
+    impl:
+      - IMP-AC-VIEW-019
+    files:
+      - frontend/src/modules/aircraft/__tests__/FleetList.spec.ts

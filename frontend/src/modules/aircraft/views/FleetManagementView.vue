@@ -68,7 +68,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import type { AircraftProfile } from '@/core/adapters/aircraft.schema'
 import { useFleetStore } from '../stores/fleet.store'
-import { importProfileFromJson, ImportError } from '../services/profile.import'
+import { importProfileFromJson, validateImportFile, ImportError } from '../services/profile.import'
 import FleetList from '../components/FleetList.vue'
 
 // @IMP-AC-VIEW-008@ (FROM: @REQ-AC-001@, @REQ-AC-004@, @REQ-AC-006@)
@@ -100,6 +100,9 @@ async function onImportFile(event: Event): Promise<void> {
   if (!file) return
 
   try {
+    // Fail-closed guard: reject oversized / non-JSON files BEFORE reading them
+    // into memory (CS-003 / TECH-008).
+    validateImportFile(file)
     const text = await file.text()
     const profile = importProfileFromJson(text)
     // Create in fleet via store (handles duplicate detection etc.)

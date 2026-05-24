@@ -999,3 +999,87 @@ describe('AircraftProfileSchema — powertrain discriminator', () => {
     expect(result.success).toBe(false)
   })
 })
+
+// ─── Finite + numeric domain ranges (TECH-003 / CS-002) ──────────────────────
+
+describe('AircraftProfileSchema — finite + numeric range guards', () => {
+  // @UT-AD-CORE-061@ (FROM: @IMP-AD-CORE-022@)
+  it('rejects Infinity for bem (Zod number() would otherwise accept it)', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        const reports = p.weighingReports as Record<string, unknown>[]
+        reports[0]!.bem = Infinity
+      }),
+    )
+    expect(result.success).toBe(false)
+  })
+
+  // @UT-AD-CORE-062@ (FROM: @IMP-AD-CORE-022@)
+  it('rejects -Infinity for a load point arm', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        const lps = p.loadPoints as Record<string, unknown>[]
+        lps[0]!.arm = -Infinity
+      }),
+    )
+    expect(result.success).toBe(false)
+  })
+
+  // @UT-AD-CORE-063@ (FROM: @IMP-AD-CORE-022@)
+  it('rejects NaN for mtom', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        const cats = p.certificationCategories as Record<string, unknown>[]
+        cats[0]!.mtom = NaN
+      }),
+    )
+    expect(result.success).toBe(false)
+  })
+
+  // @UT-AD-CORE-064@ (FROM: @IMP-AD-CORE-022@)
+  it('rejects an absurd mtom magnitude (1e308) as out of physical range', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        const cats = p.certificationCategories as Record<string, unknown>[]
+        cats[0]!.mtom = 1e308
+      }),
+    )
+    expect(result.success).toBe(false)
+  })
+
+  // @UT-AD-CORE-065@ (FROM: @IMP-AD-CORE-022@)
+  it('rejects an absurd bem magnitude (1e30)', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        const reports = p.weighingReports as Record<string, unknown>[]
+        reports[0]!.bem = 1e30
+      }),
+    )
+    expect(result.success).toBe(false)
+  })
+
+  // @UT-AD-CORE-066@ (FROM: @IMP-AD-CORE-022@)
+  it('rejects Infinity for batteryPack.usableEnergyKwh', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        p.powertrain = 'electric'
+        p.batteryPack = { usableEnergyKwh: Infinity, reserveFloorKwh: 4 }
+        // electric forbids fuel tanks; the minimal fixture has none.
+      }),
+    )
+    expect(result.success).toBe(false)
+  })
+
+  // @UT-AD-CORE-067@ (FROM: @IMP-AD-CORE-022@)
+  it('still accepts a near-edge finite mtom (199_999 kg) just under the ceiling', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        const cats = p.certificationCategories as Record<string, unknown>[]
+        cats[0]!.mtom = 199_999
+        // keep envelope mass below mtom so no cross-field surprise; not enforced
+        // here but realistic.
+      }),
+    )
+    expect(result.success).toBe(true)
+  })
+})

@@ -1,5 +1,5 @@
-// @E2E-MB-001@ (FROM: @UJ-F-002@)
 // Step definitions for fleet-based-aircraft-selection.feature
+// E2E trace tags live in the .feature file only (STC §B.3 / §3.4).
 
 import { expect } from '@playwright/test'
 import { createBdd } from 'playwright-bdd'

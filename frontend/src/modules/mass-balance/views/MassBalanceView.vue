@@ -12,6 +12,8 @@ import InputGroupCard from '@/modules/mass-balance/components/InputGroupCard.vue
 import MassStationInput from '@/modules/mass-balance/components/MassStationInput.vue'
 import CGEnvelopeChart from '@/modules/mass-balance/components/CGEnvelopeChart.vue'
 import ResultSummary from '@/modules/mass-balance/components/ResultSummary.vue'
+import ConfirmDialog from '@/shared/components/ConfirmDialog.vue'
+import UndoToast from '@/shared/components/UndoToast.vue'
 
 // @IMP-MB-UI-FLEET-001@ (FROM: @REQ-AC-001@, @REQ-MB-002@, @UJ-F-002@)
 
@@ -308,6 +310,16 @@ const stations = computed(() => store.availableStations)
 const notifications = computed(() => store.notifications)
 const lastResult = computed(() => store.lastResult)
 
+// UX-002: one-tap preset weights for occupant (non-fuel) stations. Fuel tanks
+// are scrubbed via their slider, so they get no presets. Presets are unit-aware
+// so an imperial profile sees pound figures.
+function presetsForStation(stationIndex: number): readonly number[] {
+  const lp = store.aircraft?.loadPoints[stationIndex]
+  if (!lp || lp.fuelTank) return []
+  const isImperial = lp.unit?.toLowerCase() === 'lb'
+  return isImperial ? [120, 160, 200] : [55, 70, 85]
+}
+
 const aircraftLabel = computed(() => {
   if (!store.aircraft) return ''
   return `${store.aircraft.registration} — ${store.aircraft.manufacturer} ${store.aircraft.model}`
@@ -409,8 +421,48 @@ function onCategoryChange(category: string): void {
   store.changeCertificationCategory(category)
 }
 
+// ─── UX-004: confirm-then-undo Reset Payload ──────────────────────────────
+// @IMP-MB-UI-FLEET-002@ (FROM: @REQ-UI-018@)
+//
+// A single tap on Reset Payload wipes every station weight — catastrophic
+// workload at a just-loaded, engine-running aircraft. Gate it behind a confirm
+// carrying the discard count, then offer a short undo window that restores the
+// captured pre-reset weights via the public updateStationWeight action.
+
+const showResetConfirm = ref(false)
+const resetSnapshot = ref<{ index: number; weight: number }[] | null>(null)
+
+/** Stations the pilot has actually entered a non-default weight for. */
+const resetCandidateCount = computed(
+  () => stations.value.filter((s) => s.touched && s.weight > 0).length,
+)
+
 function onResetPayload(): void {
+  showResetConfirm.value = true
+}
+
+function onCancelReset(): void {
+  showResetConfirm.value = false
+}
+
+function onConfirmReset(): void {
+  showResetConfirm.value = false
+  // Snapshot before wiping so undo can restore the exact prior load.
+  resetSnapshot.value = stations.value.map((s) => ({ index: s.index, weight: s.weight }))
   store.resetPayload()
+}
+
+function onUndoReset(): void {
+  const snapshot = resetSnapshot.value
+  resetSnapshot.value = null
+  if (!snapshot) return
+  for (const s of snapshot) {
+    store.updateStationWeight(s.index, s.weight)
+  }
+}
+
+function onDismissResetUndo(): void {
+  resetSnapshot.value = null
 }
 
 function onAircraftSelected(event: Event): void {
@@ -679,6 +731,7 @@ function onAircraftSelected(event: Event): void {
                 :max-capacity="store.aircraft?.loadPoints[station.index]?.fuelTank
                   ? (store.aircraft?.loadPoints[station.index]?.operationalLimit ?? null)
                   : null"
+                :presets="presetsForStation(station.index)"
                 :disabled="viewModel.inputsDisabled"
                 @update:weight="onStationWeightChange(station.index, $event)"
               />
@@ -770,6 +823,31 @@ function onAircraftSelected(event: Event): void {
       <strong>Advisory only</strong> — verify all results against the official POH/AFM before
       flight. This tool is not a certified aviation device.
     </div>
+
+    <!-- UX-004: Reset Payload confirmation + undo -->
+    <ConfirmDialog
+      :open="showResetConfirm"
+      title="Reset payload?"
+      :message="
+        resetCandidateCount > 0
+          ? `Discard ${resetCandidateCount} entered ${resetCandidateCount === 1 ? 'weight' : 'weights'} and reset all stations to POH defaults? You can undo for a few seconds.`
+          : 'Reset all stations to POH defaults?'
+      "
+      confirm-label="Reset"
+      cancel-label="Keep"
+      variant="danger"
+      @confirm="onConfirmReset"
+      @cancel="onCancelReset"
+    />
+
+    <UndoToast
+      :open="resetSnapshot !== null"
+      message="Payload reset"
+      action-label="Undo"
+      :duration="5000"
+      @undo="onUndoReset"
+      @dismiss="onDismissResetUndo"
+    />
 
   </div>
 </template>
