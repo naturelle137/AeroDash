@@ -165,6 +165,21 @@ The components residing in the Safety Core (P1) are governed by stricter rules:
 * **ADR Requirement:** If you are changing the fundamental way a P1 module operates, or altering the developer workflow, you **must** draft a new Architectural Decision Record (ADR) or update an existing one. See our **[Documentation as Code / ADR Guide](docs/architecture/adr/README.md)** for instructions on how to write an ADR.
 * **No "Quick Hacks":** Workarounds are not acceptable in P1. If a library doesn't behave, fix the library or find a different, verifiable approach.
 
+### Autonomous AI Contributions
+
+An optional overnight automation can implement triaged `accepted` + `engineering`
+issues and open **Draft** PRs (see
+[ADR-317-DEV](docs/architecture/adr/317-DEV-autonomous-ai-contribution.md) and the
+[operator guide](docs/development/autonomous-implementation.md)). It is an aid to,
+**never a replacement for**, human review:
+
+* Every machine-authored PR is a **Draft** and is **never auto-merged**.
+* Any P1 (`frontend/src/core/`) or `safety-critical` change still requires human
+  **Lead Developer** approval — the automated reviewer cannot satisfy that gate.
+* All quality gates run unchanged; the automation never uses `--no-verify`.
+* **Opt an issue out** of automation by adding the **`automation:opt-out`** label;
+  the nightly kill switch is the repo variable `AUTOMATION_ENABLED`.
+
 ## 8. 🏷️ P1/P2/P3 Dependency Classification Guide
 
 AeroDash enforces a strict unidirectional dependency flow. Every piece of source

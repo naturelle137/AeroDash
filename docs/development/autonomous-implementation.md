@@ -106,6 +106,28 @@ authored by the overnight bot or a human collaborator.
 Reviewer model defaults to `claude-opus-4-7` (override via the `REVIEW_MODEL`
 env in the workflow).
 
+## Bounded implement↔review loop
+
+[`pr-iteration.yml`](../../.github/workflows/pr-iteration.yml) closes the loop for
+**bot-authored Draft PRs**. When the reviewer submits a `changes_requested`
+review on a Draft PR whose branch is `feature/issue-*`, the implementer revises
+the branch and pushes; the new push re-triggers review, and so on.
+
+- **Bounded:** capped at `MAX_ITERATIONS` (default **3**), counted via hidden
+  `<!-- auto-iter:N -->` comment markers (no repo-label setup needed), plus a
+  per-iteration `timeout-minutes` (time budget) and `--max-turns` (turn budget).
+- **Stop conditions:** the reviewer stops requesting changes (loop ends
+  naturally), **or** the cap/budget is reached — at which point a handoff comment
+  is posted and **no further automated revisions run**; a human takes over.
+- **Out-of-scope failures:** if a CI failure is pre-existing/unrelated, the bot
+  files a **deduplicated `Bug`** issue (linking an existing one if present)
+  instead of hacking around it. In-scope failures are fixed within the loop.
+- **Safety:** the loop never merges and never un-drafts the PR; P1 /
+  `safety-critical` PRs always remain Draft pending human Lead review.
+
+Tune `MAX_ITERATIONS` empirically (token efficiency vs. convergence) via the env
+in the workflow.
+
 ## Guardrails (enforced by design)
 
 - **Least privilege** — the workflow requests only `contents`, `issues`, and

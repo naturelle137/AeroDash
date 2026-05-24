@@ -1,0 +1,144 @@
+name: Bounded PR Iteration Loop
+
+# Closes the implement -> review -> revise loop for BOT-authored Draft PRs.
+# When the reviewer requests changes, the implementer revises the branch — up to
+# a bounded MAX_ITERATIONS, then hands the Draft PR to humans with a summary.
+# Governed by ADR-317-DEV. Safety: P1/safety-critical stays Draft; never merges,
+# never marks ready-for-review, gates never bypassed.
+# refs #320, #316
+
+on:
+  pull_request_review:
+    types: [submitted]
+
+concurrency:
+  group: pr-iteration-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+env:
+  MODEL: claude-opus-4-7
+  MAX_ITERATIONS: '3'
+  MAX_TURNS: '40'
+
+jobs:
+  iterate:
+    name: Revise on review feedback
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # Only for: same-repo + bot-authored Draft (feature/issue-*) + REQUEST_CHANGES.
+    if: >-
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.draft == true &&
+      startsWith(github.event.pull_request.head.ref, 'feature/issue-') &&
+      github.event.review.state == 'changes_requested'
+    steps:
+      - name: Evaluate iteration budget
+        id: gate
+        uses: actions/github-script@v9
+        env:
+          MAX_ITERATIONS: ${{ env.MAX_ITERATIONS }}
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const prNumber = context.payload.pull_request.number;
+            const max = Number(process.env.MAX_ITERATIONS);
+            const marker = '<!-- auto-iter:';
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner, repo, issue_number: prNumber, per_page: 100,
+            });
+            const used = comments.filter((c) => (c.body || '').includes(marker)).length;
+            const proceed = used < max;
+            core.info(`Iterations used: ${used}/${max} — proceed=${proceed}`);
+            core.setOutput('used', String(used));
+            core.setOutput('next', String(used + 1));
+            core.setOutput('max', String(max));
+            core.setOutput('proceed', String(proceed));
+
+      - name: Hand off to humans (budget exhausted)
+        if: ${{ steps.gate.outputs.proceed == 'false' }}
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const prNumber = context.payload.pull_request.number;
+            const max = '${{ steps.gate.outputs.max }}';
+            await github.rest.issues.createComment({
+              owner, repo, issue_number: prNumber,
+              body: `🤖 **Iteration budget reached (${max}/${max}).**\n\n` +
+                `This Draft PR has used its bounded implement↔review iterations ` +
+                `without converging. Leaving it for human attention — please review ` +
+                `the outstanding feedback and take it from here. No further automated ` +
+                `revisions will run on this PR (ADR-317-DEV).`,
+            });
+
+      - name: Checkout PR branch
+        if: ${{ steps.gate.outputs.proceed == 'true' }}
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 0
+          token: ${{ secrets.AUTOMATION_PAT || secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        if: ${{ steps.gate.outputs.proceed == 'true' }}
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - name: Configure git
+        if: ${{ steps.gate.outputs.proceed == 'true' }}
+        run: |
+          git config user.name 'aerodash-bot'
+          git config user.email 'aerodash-bot@users.noreply.github.com'
+          echo "BASE_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - name: Revise via Claude Code
+        if: ${{ steps.gate.outputs.proceed == 'true' }}
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          # API-key alternative: anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            You are revising Draft PR #${{ github.event.pull_request.number }} in
+            response to a review that requested changes
+            (iteration ${{ steps.gate.outputs.next }} of ${{ steps.gate.outputs.max }}).
+
+            Read the most recent PR review and its line comments, then implement
+            the requested changes on the CURRENT branch and commit them.
+
+            Hard rules (ADR-317-DEV — do not violate):
+            - Honour every quality gate. NEVER use --no-verify.
+            - Do NOT edit .github/workflows/**, secrets, or security configuration.
+            - Do NOT merge, do NOT mark the PR ready-for-review — keep it Draft.
+            - Distinguish failure scope: if a CI failure is caused by YOUR change,
+              fix it here; if it is pre-existing/unrelated (out of scope), do NOT
+              hack around it — instead file a deduplicated `Bug` issue (open a new
+              one only if no open bug already tracks the same failure; otherwise
+              comment on the existing one) and note it in the PR.
+            - If you cannot safely converge, stop and summarise what remains.
+          claude_args: |
+            --model ${{ env.MODEL }}
+            --max-turns ${{ env.MAX_TURNS }}
+
+      - name: Push revision & record iteration
+        if: ${{ steps.gate.outputs.proceed == 'true' }}
+        env:
+          GH_TOKEN: ${{ secrets.AUTOMATION_PAT || secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          PR='${{ github.event.pull_request.number }}'
+          ITER='${{ steps.gate.outputs.next }}'
+          MAX='${{ steps.gate.outputs.max }}'
+          if [ "$(git rev-parse HEAD)" = "$BASE_SHA" ]; then
+            gh pr comment "$PR" --body \
+              "<!-- auto-iter:${ITER} --> 🤖 Iteration ${ITER}/${MAX}: no actionable revision could be made automatically. Leaving for human attention."
+            exit 0
+          fi
+          git push origin "HEAD:${{ github.event.pull_request.head.ref }}"
+          gh pr comment "$PR" --body \
+            "<!-- auto-iter:${ITER} --> 🤖 Iteration ${ITER}/${MAX}: pushed a revision addressing review feedback. Re-review will run automatically. Still a Draft — human Lead review required for P1/safety-critical."
