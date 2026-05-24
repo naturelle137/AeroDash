@@ -51,6 +51,7 @@ permissions:
   contents: write
   issues: write
   pull-requests: write
+  id-token: write # required by anthropics/claude-code-action (OIDC)
 
 env:
   MODEL_DEFAULT: claude-opus-4-7

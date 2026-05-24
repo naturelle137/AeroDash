@@ -31,6 +31,7 @@ permissions:
   issues: write
   checks: read
   statuses: read
+  id-token: write # required by anthropics/claude-code-action (OIDC)
 
 env:
   MODEL: claude-opus-4-7
