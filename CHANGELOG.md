@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.3.0-alpha] - 2026-05-08
+## [0.3.0-alpha] - 2026-05-24
 
 ### Added
 
@@ -47,12 +47,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - PWA update banner pinned to top; in-flow card header mirrored on pinned strips
 - C182T Skylane ICAO type designator corrected: `C82T` → `C182` (aviation safety data correction)
 - ADR-007 enhanced with versioning, update-path, and notification sections documenting the PWA update lifecycle
+- Mass & Balance station input gains a coarse step and one-tap weight presets with a wider value field for gloved / turbulence use; destructive actions (delete aircraft, Reset Payload) now require in-app confirmation and offer a 5–10 s undo, with delete disabled for the active aircraft — replaces native `confirm()` via new shared `ConfirmDialog` / `UndoToast` components (release-audit UX-001/002/004, #293)
+- `PRIVACY.md` "Current State" rewritten to describe the actual shipped storage surface — IndexedDB `aerodash-fleet`, `localStorage` session payload, `sessionStorage` cold-start flag; data is local-only and unencrypted (previously and incorrectly stated as "no persistent storage") (release-audit DP-001, #293)
 
 ### Fixed
 
 - CG migration leaving the envelope during fuel burn-down now triggers the missing out-of-envelope warning (closes #120, REQ-MB-011, H-006)
 - Input validation errors now highlight the affected input field (closes #119, REQ-UQ-003)
 - CG-out-of-envelope vs MTOM-exceeded notification mismatch resolved (closes #118)
+- Mass & Balance now normalizes arm, empty CG, moments, and the CG envelope to SI from each profile's declared units instead of assuming metres — corrects CG position and envelope membership for imperial-unit (in / lb) profiles (safety-critical, release-audit TECH-001/002, #293)
+- Math core rejects non-finite (`Infinity` / `NaN`) inputs as invalid instead of returning a successful result containing `NaN`; a failed computation no longer renders "NaN" to the pilot (safety-critical, release-audit TECH-003/004, CS-002, #293)
+- Unknown / unrecognized fuel types now fail closed with a warning instead of silently substituting a default density; fuel-type enum unified across profile schema, runtime context, and catalogue (`MOGAS` / `AVGAS` → canonical `MoGas` / `AvGas 100LL`) (safety-critical, release-audit TECH-010/011/013, CS-008/009/010, #293)
+
+### Security
+
+- Strict `Content-Security-Policy` meta tag added (`default-src 'self'`, `object-src 'none'`, `base-uri 'self'`, `frame-ancestors 'none'`; `style-src` permits inline for Vue scoped styles) (release-audit CS-005, #293)
+- Aircraft-profile import guarded by a 256 KB file-size cap plus MIME / extension checks before the file is read or parsed (release-audit CS-003, #293)
+- Numeric profile fields constrained with finite + physical-range validation, blocking absurd magnitudes from reaching the math core (release-audit CS-002, #293)
+- `vue-devtools` excluded from production builds and `DEBUG` / `INFO` console output suppressed in production builds (release-audit DP-016 / DP-011, #293)
+- `serve` moved from runtime `dependencies` to `devDependencies` to shrink the install surface (release-audit CS-013, #293)
 
 ### Engineering
 
@@ -70,6 +83,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `frontend/.stryker-tmp/` excluded from `.gitignore` and `markdownlint-cli2` ignore list
 - Milestone 3 issue recovery: backfilled `Closes #` keywords for tasks #71, #156, #157, #158, #159, #160, #161, #162, #163, #165, #166, #167, #170 whose source PRs merged without auto-close
 - `Deploy CI Reports to GitHub Pages` workflow repaired so Vitest, coverage, Stryker and Playwright pages stop 404'ing or returning empty reports: `pnpm --filter frontend exec vitest …` (was a missing-script lookup → ERR_PNPM_RECURSIVE_RUN_NO_SCRIPT), `pnpm test:e2e` so `bddgen` compiles `.feature` files before Playwright (was "No tests found"), and rename Stryker `mutation.html` → `index.html` (was no directory index under `/stryker/`)
+- Release-audit remediation: 5-domain audit (`.logs/audit.*-2026-05-08.md`) triaged against milestones; 13 blocker bundles fixed for this release and 35 deferred findings filed as milestone-scoped issues #259–#292 / #294 (tracked under #293, closes #293)
+- E2E traceability corrected: `@E2E-` tags moved from `.ts` step definitions into `.feature` files, E2E IDs renumbered to the phase namespace (A / B / D), dangling `@UJ-SYS-001` / `@UJ-F-002` references resolved, and the passing fleet-selection + offline-smoke flows un-`@wip` (release-audit PR-001/003/004; TECH-006 partial — remaining M&B-math E2E flows tracked in #294)
+- Write-capable remediation subagents `fix-{tech,cybersecurity,dp,process,ux}`, the `release-audit` skill, and the `/release-audit` command added under `.claude/` to process future release audits end-to-end
 
 ## [0.2.0-alpha] - 2026-04-03
 
