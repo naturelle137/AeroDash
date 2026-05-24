@@ -1,0 +1,74 @@
+name: Autonomous PR Reviewer
+
+# Posts a structured automated review on every new PR targeting `develop`
+# (bot- or human-authored). An AID to human review, never a substitute — and
+# never an approval. Governed by ADR-317-DEV.
+#
+# Fork safety: triggers on `pull_request` (NOT pull_request_target) and only runs
+# the secret-bearing review for SAME-REPO PRs, so secrets never reach untrusted
+# fork code.
+# refs #319, #316
+
+on:
+  pull_request:
+    types: [opened, synchronize, ready_for_review]
+    branches: [develop]
+
+concurrency:
+  group: pr-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: read
+
+env:
+  REVIEW_MODEL: claude-opus-4-7
+  MAX_TURNS: '30'
+
+jobs:
+  review:
+    name: Automated review
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    # Same-repo only: fork PRs do not receive secrets, so skip rather than fail.
+    if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
+    steps:
+      - name: Checkout PR
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Review with Claude Code
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          # API-key alternative: anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            Review pull request #${{ github.event.pull_request.number }} in this
+            repository and post a single structured PR review.
+
+            Use the repository's `code-review` skill if available; otherwise apply
+            its standards. For P1 safety-core changes, also apply the project's P1
+            PR-review checklist (CONTRIBUTING §8).
+
+            Focus, in priority order:
+            1. Correctness — especially any math feeding a Go/No-Go advisory.
+            2. P1 isolation — no vue/pinia/vue-router import under frontend/src/core/;
+               no [P1-ISOLATION] violations; pure, deterministic, Zod-validated.
+            3. Safety gates — tests, coverage tiers, traceability tags/registries.
+            4. Architecture (P1/P2/P3 boundaries), then style/nits.
+
+            Classify each finding by severity: Blocker / Major / Minor / Nit.
+
+            Hard rules (ADR-317-DEV — do not violate):
+            - NEVER approve. Post the review as COMMENT, or REQUEST_CHANGES when
+              there are Blocker/Major findings. You are an aid, not an approver.
+            - If the PR touches frontend/src/core/ OR carries the `safety-critical`
+              label, begin the review with a bold notice that **human Lead Developer
+              review is mandatory** and that this automated review does not satisfy it.
+            - Do not modify code, push commits, or change PR/merge state — review only.
+          claude_args: |
+            --model ${{ env.REVIEW_MODEL }}
+            --max-turns ${{ env.MAX_TURNS }}

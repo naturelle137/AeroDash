@@ -87,6 +87,25 @@ you can test safely.
 - **Stop a run in progress:** cancel it from the Actions tab; the
   `concurrency: overnight-implementation` group also prevents overlapping runs.
 
+## Automated PR review
+
+[`pr-review-bot.yml`](../../.github/workflows/pr-review-bot.yml) posts a
+structured automated review on **every new PR targeting `develop`** — whether
+authored by the overnight bot or a human collaborator.
+
+- Triggers on `pull_request` (`opened` / `synchronize` / `ready_for_review`).
+- **Fork safety:** runs only for **same-repo** PRs. PRs from forks do not receive
+  secrets, so the review is skipped (not failed) for them.
+- **Never approves.** It posts a `COMMENT` review, escalating to
+  `REQUEST_CHANGES` when it finds Blocker/Major issues. There is no auto-merge
+  anywhere.
+- **P1 / `safety-critical`:** the review opens with a bold notice that **human
+  Lead Developer review is mandatory** and that the automated review does not
+  satisfy it (CONTRIBUTING §7–§8).
+
+Reviewer model defaults to `claude-opus-4-7` (override via the `REVIEW_MODEL`
+env in the workflow).
+
 ## Guardrails (enforced by design)
 
 - **Least privilege** — the workflow requests only `contents`, `issues`, and
