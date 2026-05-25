@@ -56,9 +56,15 @@ permissions:
 env:
   MODEL_DEFAULT: claude-opus-4-7
   BATCH_SIZE_DEFAULT: '1'
-  # Per-issue budgets (ADR-317-DEV operational defaults).
-  MAX_TURNS: '40'
-  RUN_TIMEOUT_MINUTES: '30'
+  # Per-issue budgets (ADR-317-DEV operational defaults). 40 turns proved far
+  # too small: run #4 hit `error_max_turns` mid-implementation (the agent was
+  # working, not stuck). A full /implement-issue + lint/type-check/test/build +
+  # fix loop needs a much larger cap, so the turn budget — not the wall clock —
+  # is the binding limit and the graceful-degradation push step below can run.
+  MAX_TURNS: '150'
+  # Mirrors the job-level `timeout-minutes` below. GitHub does not expose the
+  # workflow `env` context to a job-level `timeout-minutes`, so keep them in sync.
+  RUN_TIMEOUT_MINUTES: '90'
 
 jobs:
   # ── Deterministic, dependency-aware selection + run report ──────────────────
@@ -149,7 +155,10 @@ jobs:
     needs: select
     if: ${{ needs.select.outputs.has_work == 'true' && github.event.inputs.dry_run != 'true' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    # Keep in sync with RUN_TIMEOUT_MINUTES. Must exceed the wall-clock time
+    # MAX_TURNS can consume, so the agent's own turn cap is hit first and the
+    # graceful-degradation push step runs (a hard job timeout cancels everything).
+    timeout-minutes: 90
     strategy:
       max-parallel: 1
       fail-fast: false
@@ -189,13 +198,27 @@ jobs:
           echo "BASE_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
 
       - name: Implement via Claude Code
+        id: claude
+        # Budget exhaustion (error_max_turns) and other agent errors must NOT
+        # discard partial work: keep the job alive so the push step below can
+        # still open a Draft PR from whatever was committed (ADR-317-DEV §5 —
+        # "the Draft PR is handed to humans with a summary"). The agent outcome
+        # is surfaced via steps.claude.outcome in that step.
+        continue-on-error: true
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           # Swap the line above for the API-key path if preferred:
           #   anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          # On real CI this is empty, so the action mints a GitHub token via OIDC
+          # (needs `id-token: write`, see permissions block). Under local `act`
+          # there is no OIDC provider, so we hand it the runner token directly —
+          # the action skips the OIDC exchange when github_token is set. Empty on
+          # CI ⇒ unchanged production behaviour.
+          github_token: ${{ env.ACT == 'true' && secrets.GITHUB_TOKEN || '' }}
           prompt: |
             You are running unattended in CI on branch feature/issue-${{ matrix.issue }}.
+            ${{ env.ACT == 'true' && 'LOCAL ACT TEST RUN — make NO remote/GitHub changes: no project-board claim or move, no issue assignment, no label edits, no issue comments, no PR or sub-issue creation, and do NOT git push to any remote. Only read from GitHub, edit files, run the pipeline, and commit locally. (This line is empty on real CI.)' || '' }}
 
             Task: implement GitHub issue #${{ matrix.issue }} by following the
             repository's `/implement-issue ${{ matrix.issue }}` workflow exactly.
@@ -210,6 +233,9 @@ jobs:
             - Do NOT edit files under .github/workflows/**, repository secrets, or
               security configuration. Stay within product, docs, trace, and test paths.
             - Commit your work on the CURRENT branch with Conventional Commits.
+              Commit incrementally as you finish coherent steps — do NOT leave all
+              commits to the very end — so partial progress is preserved as a
+              reviewable Draft if you run low on the turn/time budget.
             - Do NOT open a pull request and do NOT mark anything ready for review —
               the workflow opens a Draft PR; the ready-gate marks it Ready automatically
               once CI is green and the automated review is clean.
@@ -231,15 +257,34 @@ jobs:
             --allowedTools "Bash,Edit,Write,Read,Glob,Grep,Task,TodoWrite,WebFetch,WebSearch,Skill"
 
       - name: Push branch & open Draft PR
+        # Runs even when the agent step reported failure (continue-on-error above)
+        # so partial work is never silently dropped. Skipped only on cancellation
+        # (e.g. hard job timeout), where the runner is being torn down anyway.
+        # `!env.ACT` makes local `act` runs validate the agent without pushing a
+        # branch or opening a real PR; on GitHub `env.ACT` is unset so it runs.
+        if: ${{ !cancelled() && !env.ACT }}
         env:
           GH_TOKEN: ${{ secrets.AUTOMATION_PAT || secrets.GITHUB_TOKEN }}
+          AGENT_OUTCOME: ${{ steps.claude.outcome }}
         run: |
           set -euo pipefail
           if [ "$(git rev-parse HEAD)" = "$BASE_SHA" ]; then
-            echo "No commits produced for #${{ matrix.issue }} — skipping PR."
+            echo "No commits produced for #${{ matrix.issue }} (agent outcome: ${AGENT_OUTCOME}) — skipping PR."
+            if [ "$AGENT_OUTCOME" = "success" ]; then
+              NOTE="completed but produced no changes"
+            else
+              NOTE="could not complete (agent outcome: \`${AGENT_OUTCOME}\` — e.g. ran out of turn/time budget) and produced no commits"
+            fi
             gh issue comment "${{ matrix.issue }}" --body \
-              "🤖 Overnight automation produced no changes for this issue; left untouched for human attention."
+              "🤖 Overnight automation ${NOTE}; left for human attention."
             exit 0
+          fi
+          # Partial-work banner when the agent did not report success.
+          PARTIAL_NOTE=""
+          if [ "$AGENT_OUTCOME" != "success" ]; then
+            PARTIAL_NOTE="
+
+          > ⚠️ **Partial draft** — the agent did not report success (outcome: \`${AGENT_OUTCOME}\`, likely the turn/time budget). This is work-in-progress that a human must finish; review the diff for completeness before relying on it."
           fi
           git push --set-upstream origin "feature/issue-${{ matrix.issue }}"
           TITLE=$(gh issue view "${{ matrix.issue }}" --json title --jq .title)
@@ -253,9 +298,9 @@ jobs:
           )
           PR_URL=$(gh pr create --draft --base develop --head "feature/issue-${{ matrix.issue }}" \
             --title "feat: ${TITLE} (refs #${{ matrix.issue }})" \
-            --body "Implements the work for #${{ matrix.issue }} (refs #${{ matrix.issue }}, not Closes).
+            --body "Implements the work for #${{ matrix.issue }} (refs #${{ matrix.issue }}, not Closes).${PARTIAL_NOTE}
 
           ${BODY}")
           # Per-issue summary comment (run report links from the job summary).
           gh issue comment "${{ matrix.issue }}" --body \
-            "🤖 Overnight automation opened a Draft PR for this issue: ${PR_URL}. It is a Draft pending human review (Lead review required for P1/safety-critical)."
+            "🤖 Overnight automation opened a Draft PR for this issue: ${PR_URL} (agent outcome: ${AGENT_OUTCOME}). It is a Draft pending human review (Lead review required for P1/safety-critical)."
