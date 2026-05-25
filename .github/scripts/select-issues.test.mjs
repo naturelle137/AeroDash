@@ -135,6 +135,30 @@ test('buildQueue defers a parent that still has open child tasks', () => {
   assert.equal(deferred.find((d) => d.number === 100).reason.includes('#101'), true);
 });
 
+test('buildQueue defers an issue that already has an open PR', () => {
+  const issues = [issue({ number: 230 }), issue({ number: 231, createdAt: '2026-02-01T00:00:00Z' })];
+  const { queue, deferred } = buildQueue(
+    issues,
+    cfg({ batchSize: 5, openIssueNumbers: [230, 231], issuesWithOpenPr: [230] }),
+  );
+  // 230 has a PR in flight -> deferred; 231 is free -> selected.
+  assert.deepEqual(queue.map((q) => q.number), [231]);
+  assert.match(deferred.find((d) => d.number === 230).reason, /open PR already in progress/);
+});
+
+test('buildQueue defers a parent that has open NATIVE sub-issues', () => {
+  // Parent #230 with native children #331/#332 (no body-text parent link at all).
+  const issues = [issue({ number: 230, title: 'Discovery parent' })];
+  const { queue, deferred } = buildQueue(
+    issues,
+    cfg({ batchSize: 5, openIssueNumbers: [230, 331, 332], nativeChildrenByParent: { 230: [331, 332] } }),
+  );
+  assert.deepEqual(queue.map((q) => q.number), []);
+  const d = deferred.find((x) => x.number === 230);
+  assert.equal(d.reason.includes('#331'), true);
+  assert.equal(d.reason.includes('#332'), true);
+});
+
 test('buildQueue skips ineligible issues with reasons', () => {
   const issues = [
     issue({ number: 1, state: 'closed' }),

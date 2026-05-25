@@ -127,9 +127,28 @@ jobs:
           # All open issue numbers — used to resolve whether a dependency is unresolved.
           gh issue list --state open --json number --limit 500 --jq '[.[].number]' > open.json
 
+          # Issues whose work is already in flight in an open `feature/issue-<n>` PR —
+          # the selector defers these so a done-but-not-merged ticket isn't re-picked.
+          gh pr list --state open --json headRefName --limit 200 \
+            --jq '[.[].headRefName | select(test("^feature/issue-[0-9]+$")) | capture("issue-(?<n>[0-9]+)").n | tonumber]' \
+            > open_pr_issues.json
+
+          # GitHub NATIVE sub-issues per current-milestone candidate → defer parents
+          # that still have open children (native links, not just body-text parents).
+          echo '{}' > native_children.json
+          for n in $(jq -r --arg ms "${MS:-0}" '.[] | select((.milestone.number // 0) == ($ms|tonumber)) | .number' candidates.json); do
+            kids=$(gh api "repos/$GITHUB_REPOSITORY/issues/$n/sub_issues" \
+              --jq '[.[] | select(.state=="open") | .number]' 2>/dev/null || echo '[]')
+            [ "$kids" = '[]' ] && continue
+            jq --arg p "$n" --argjson k "$kids" '.[$p]=$k' native_children.json > native_children.tmp
+            mv native_children.tmp native_children.json
+          done
+
           jq -n \
             --slurpfile c candidates.json \
             --slurpfile o open.json \
+            --slurpfile pr open_pr_issues.json \
+            --slurpfile nc native_children.json \
             --arg ms "${MS:-}" \
             --arg batch "$BATCH" \
             --arg issue "$ISSUE" \
@@ -137,6 +156,8 @@ jobs:
             '{
                issues: $c[0],
                openIssueNumbers: $o[0],
+               issuesWithOpenPr: $pr[0],
+               nativeChildrenByParent: $nc[0],
                currentMilestone: (if $ms == "" then null else ($ms|tonumber) end),
                batchSize: ($batch|tonumber),
                requiredLabels: $required,
@@ -256,6 +277,14 @@ jobs:
               add `Closes #<parent-feature>` and attest the parent's DoD; if it is a
               feature, only `Closes` it when all its children are already closed. Never
               close a feature that still has unfinished children.
+            - EXCEPTION — discovery/scoping tickets: if this issue's body says it is a
+              discovery/scoping ticket ("not an implementation ticket", "produce a
+              recommendation", "file follow-up issues"), its deliverable is the written
+              recommendation + the filed follow-ups. Produce those, then `Closes
+              #${{ matrix.issue }}`. File each follow-up as an INDEPENDENT issue that
+              references this one in its body (e.g. "Spawned by #${{ matrix.issue }}") —
+              do NOT attach them as native sub-issues and do NOT keep this ticket open
+              as an umbrella.
 
             Hard rules (ADR-317-DEV — do not violate):
             - Honour every quality gate. NEVER use --no-verify or bypass Husky/ESLint/tests.
