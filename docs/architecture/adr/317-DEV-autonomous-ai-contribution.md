@@ -110,10 +110,17 @@ following **non-negotiable invariants**:
 | Batch size | `1` | `BATCH_SIZE` env / `batch_size` dispatch input |
 | Model | `claude-opus-4-7` | `MODEL` env / `model` dispatch input |
 | Max corrections | `2` | `MAX_CORRECTIONS` env (`pr-iteration.yml`) |
-| Per-issue time budget | `30` min | `timeout-minutes` per job |
-| Per-issue turn budget | `40` turns | `--max-turns` in `claude_args` |
+| Per-issue time budget | `90` min | `timeout-minutes` per job (mirrors `RUN_TIMEOUT_MINUTES`) |
+| Per-issue turn budget | `150` turns | `--max-turns` in `claude_args` |
 | Opt-out label | `automation:opt-out` | selection filter |
 | Global kill switch | repo variable `AUTOMATION_ENABLED` ≠ `true` ⇒ no-op | guard step |
+
+> **Budget revision (post-pilot):** the initial `40` turns / `30` min proved far
+> too small — the first live runs exhausted the turn cap *mid-implementation*
+> (`error_max_turns`) and produced no Draft. Budgets were raised to `150` turns /
+> `90` min, the turn cap kept below the wall-clock cap so it binds first, and the
+> push step made resilient to agent failure (`continue-on-error` + always-run)
+> so partial work still lands as a flagged Draft per invariant 5.
 
 ### Authentication
 
