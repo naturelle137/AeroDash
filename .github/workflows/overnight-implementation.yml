@@ -220,27 +220,49 @@ jobs:
             You are running unattended in CI on branch feature/issue-${{ matrix.issue }}.
             ${{ env.ACT == 'true' && 'LOCAL ACT TEST RUN — make NO remote/GitHub changes: no project-board claim or move, no issue assignment, no label edits, no issue comments, no PR or sub-issue creation, and do NOT git push to any remote. Only read from GitHub, edit files, run the pipeline, and commit locally. (This line is empty on real CI.)' || '' }}
 
-            Task: implement GitHub issue #${{ matrix.issue }} by following the
-            repository's `/implement-issue ${{ matrix.issue }}` workflow exactly.
+            Task: FULLY implement GitHub issue #${{ matrix.issue }} by following the
+            repository's `/implement-issue ${{ matrix.issue }}` workflow exactly,
+            end to end. "Done" means EVERY acceptance criterion and EVERY Definition
+            of Done (DoD) item is genuinely satisfied — code, tests, traceability and
+            docs — not a partial slice that merely looks finished. A half-done ticket
+            dressed up as complete is a defect, not progress.
 
             Before committing, run the local pipeline and make it pass so CI is green
             on the first push: `pnpm install --frozen-lockfile`, `pnpm lint`,
             `pnpm --filter frontend type-check`, `pnpm test:unit`,
             `pnpm test:integration`, `pnpm build`. Fix any failures you introduced.
 
+            Completion & attestation (per the implement-issue skill — NOT optional):
+            - Finish the whole ticket. Tick the issue's DoD checkboxes ONLY for items
+              you have genuinely verified done; never tick skipped, unverified, or
+              human-only items (e.g. manual flight testing).
+            - Author the PR description by FILLING OUT the repository PR template at
+              `.github/pull_request_template.md` and writing the result to the file
+              `$RUNNER_TEMP/pr-body.md` — the workflow uses that file verbatim as the
+              PR body. Templates are mandatory. Complete every section; for each
+              checklist row write `[x]` once satisfied, using `N/A (Reason: …)` where
+              it truly does not apply — every row must END ticked `[x]` (an unticked
+              box reads as an open obligation).
+            - In the template's "Related Issues" section use `Closes #${{ matrix.issue }}`
+              ONLY when the issue is 100% complete and every DoD item is genuinely
+              ticked; otherwise use `Refs #${{ matrix.issue }}` and state plainly what
+              remains. Do NOT claim `Closes` for incomplete work.
+
             Hard rules (ADR-317-DEV — do not violate):
             - Honour every quality gate. NEVER use --no-verify or bypass Husky/ESLint/tests.
             - Do NOT edit files under .github/workflows/**, repository secrets, or
               security configuration. Stay within product, docs, trace, and test paths.
-            - Commit your work on the CURRENT branch with Conventional Commits.
-              Commit incrementally as you finish coherent steps — do NOT leave all
-              commits to the very end — so partial progress is preserved as a
-              reviewable Draft if you run low on the turn/time budget.
-            - Do NOT open a pull request and do NOT mark anything ready for review —
-              the workflow opens a Draft PR; the ready-gate marks it Ready automatically
-              once CI is green and the automated review is clean.
-            - If you cannot complete the issue safely, stop and leave a clear summary
-              of what remains; do not force a partial or unsafe change.
+            - Commit your work on the CURRENT branch with Conventional Commits, committing
+              incrementally as you complete coherent steps. Aim to finish the ENTIRE
+              issue — the turn/time budget is generous; do not stop early or hand off a
+              half-done ticket.
+            - Do NOT open the pull request yourself and do NOT mark anything ready for
+              review — the workflow opens the Draft PR from `$RUNNER_TEMP/pr-body.md`
+              and the ready-gate marks it Ready once CI is green and the review is clean.
+            - Only if a step is genuinely blocked or unsafe: finish every part you safely
+              can, leave the unfinished DoD items unticked, use `Refs` (not `Closes`),
+              and write a clear "what remains" summary in the PR body — never force an
+              unsafe or fake-complete change.
           # claude-code-action does NOT grant Bash by default, and CI has no
           # human to approve tool prompts — so without an explicit allow-list the
           # agent's pnpm/git/gh commands are all auto-denied and it produces zero
@@ -294,19 +316,24 @@ jobs:
           gh auth setup-git
           git push --set-upstream origin "feature/issue-${{ matrix.issue }}"
           TITLE=$(gh issue view "${{ matrix.issue }}" --json title --jq .title)
-          BODY=$(cat <<'EOF'
-          🤖 **Autonomous draft** generated by the overnight implementation workflow (ADR-317-DEV).
-
-          - This PR is a **Draft** and must be reviewed by a human before merge.
-          - P1 (`frontend/src/core/`) / `safety-critical` changes require **Lead Developer** approval — automated review is an aid, never a substitute.
-          - All CI gates apply unchanged; review the diffs, traceability, and tests carefully.
-          EOF
-          )
-          PR_URL=$(gh pr create --draft --base develop --head "feature/issue-${{ matrix.issue }}" \
-            --title "feat: ${TITLE} (refs #${{ matrix.issue }})" \
-            --body "Implements the work for #${{ matrix.issue }} (refs #${{ matrix.issue }}, not Closes).${PARTIAL_NOTE}
-
-          ${BODY}")
+          # Prefer the agent-authored, PR-template-filled body it wrote to
+          # $RUNNER_TEMP/pr-body.md (mandatory template + correct Closes/Refs). Fall
+          # back to a minimal refs-only body — with NO close/fix/resolve tokens, so
+          # the DoD gate does not false-trigger — only when the agent produced none
+          # (e.g. it failed). Append the partial banner when the agent didn't succeed.
+          PR_BODY_FILE="${RUNNER_TEMP}/pr-body.md"
+          if [ -s "$PR_BODY_FILE" ]; then
+            [ -n "$PARTIAL_NOTE" ] && printf '%s\n' "$PARTIAL_NOTE" >> "$PR_BODY_FILE"
+            PR_URL=$(gh pr create --draft --base develop \
+              --head "feature/issue-${{ matrix.issue }}" \
+              --title "feat: ${TITLE} (#${{ matrix.issue }})" \
+              --body-file "$PR_BODY_FILE")
+          else
+            PR_URL=$(gh pr create --draft --base develop \
+              --head "feature/issue-${{ matrix.issue }}" \
+              --title "feat: ${TITLE} (#${{ matrix.issue }})" \
+              --body "🤖 Autonomous draft for #${{ matrix.issue }} (refs #${{ matrix.issue }}). Agent outcome: \`${AGENT_OUTCOME}\`. The agent did not produce a PR description from the template — treat as work-in-progress that a human must complete before merge.${PARTIAL_NOTE}")
+          fi
           # Per-issue summary comment (run report links from the job summary).
           gh issue comment "${{ matrix.issue }}" --body \
             "🤖 Overnight automation opened a Draft PR for this issue: ${PR_URL} (agent outcome: ${AGENT_OUTCOME}). It is a Draft pending human review (Lead review required for P1/safety-critical)."
