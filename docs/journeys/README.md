@@ -44,3 +44,13 @@ Each journey carries a `FROM` tag tracing it to the requirements it demonstrates
 | **UJ-F-xxx** | **Phase F: Fuel & Endurance** | [06_fuel_endurance.md](./06_fuel_endurance.md) |
 | **UJ-G-xxx** | **Phase G: Onboarding & Sync** | [07_onboarding_sync.md](./07_onboarding_sync.md) |
 | **UJ-STRESS-xxx** | **Stress Tests** | [08_stress_tests.md](./08_stress_tests.md) |
+
+## Discovery & Scoping Analyses
+
+Scoping documents that evaluate *whether* and *how* to extend the journey set.
+These are recommendations only — they author no journeys and carry no `@UJ-…@`
+tags. Accepted proposals are realised through the follow-up tickets they file.
+
+| Analysis | Scope | Document |
+| :--- | :--- | :--- |
+| **Flight-training personas** | Students (ab-initio / advanced), FI, CRI | [discovery/230-training-personas.md](./discovery/230-training-personas.md) |
