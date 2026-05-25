@@ -33,16 +33,20 @@ jobs:
             const { owner, repo } = context.repo;
             const pr = context.payload.pull_request;
 
-            // Dependency bots (Dependabot/Renovate) paste upstream changelogs
-            // into the PR body. Those contain closing keywords + issue numbers
-            // from OTHER repos (e.g. "closes #14729" from vuejs/core), which the
-            // scraper below would try to resolve against AeroDash and crash on a
-            // 404. Bot PRs never close AeroDash issues, so there is nothing to
-            // attest — pass the check explicitly so it satisfies branch
-            // protection instead of skipping the job (a skipped required check
-            // never reports and blocks the PR forever).
-            if (pr.user && pr.user.type === 'Bot') {
-              core.info(`PR authored by bot "${pr.user.login}"; DoD attestation not applicable.`);
+            // Dependabot pastes upstream changelogs into the PR body. Those
+            // contain closing keywords + issue numbers from OTHER repos (e.g.
+            // "closes #14729" from vuejs/core), which the scraper below would
+            // try to resolve against AeroDash and crash on a 404. Dependabot
+            // PRs never close AeroDash issues, so there is nothing to attest —
+            // pass the check explicitly so it satisfies branch protection
+            // instead of skipping the job (a skipped required check never
+            // reports and blocks the PR forever).
+            //
+            // Scoped to Dependabot deliberately. If another bot ever needs the
+            // same exemption, add its login here explicitly rather than
+            // broadening this to all bots.
+            if (pr.user && pr.user.login === 'dependabot[bot]') {
+              core.info(`PR authored by ${pr.user.login}; DoD attestation not applicable.`);
               return;
             }
 
