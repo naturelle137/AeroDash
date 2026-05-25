@@ -17,7 +17,16 @@ on:
   pull_request_review:
     types: [submitted]
   workflow_run:
-    workflows: ['CI']
+    # React to EVERY PR-gating workflow, not just CI. A red DoD/Security/E2E/
+    # Traceability/branching gate must also drive a correction — otherwise a PR
+    # whose CI is green but another gate is red sits red forever with no action.
+    workflows:
+      - CI
+      - DoD Attestation Gate
+      - Security Scanning
+      - Traceability Gate
+      - E2E Tests (Playwright)
+      - Enforce Branching Model
     types: [completed]
 
 # Serialise per branch across BOTH trigger types so the correction budget is honoured.
@@ -36,13 +45,16 @@ permissions:
 env:
   MODEL: claude-opus-4-7
   MAX_CORRECTIONS: '2'
-  MAX_TURNS: '40'
+  # A correction round runs the full pipeline + fixes; 40 turns proved too small
+  # for the implementer (see overnight-implementation.yml), so give corrections
+  # comparable headroom. Kept below timeout-minutes so the turn cap binds first.
+  MAX_TURNS: '80'
 
 jobs:
   orchestrate:
     name: Iterate / ready-gate
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
     steps:
       # ── Decide what to do from the triggering event + live PR/CI/review state ──
       - name: Resolve action
@@ -58,30 +70,27 @@ jobs:
             const out = (o) => { for (const [k, v] of Object.entries(o)) core.setOutput(k, String(v)); };
             const none = (why) => { core.info(`No action: ${why}`); out({ action: 'none' }); };
 
-            // 1) Identify the PR + the trigger reason ('feedback' | 'maybe_ready' | null).
-            let prNumber, headRef, headSha, reason = null;
+            // 1) Identify the PR from the triggering event (review or ANY gate workflow).
+            let prNumber, headRef;
             if (context.eventName === 'pull_request_review') {
               const pr = context.payload.pull_request;
               if (pr.head.repo.full_name !== slug) return none('fork PR');
-              prNumber = pr.number; headRef = pr.head.ref; headSha = pr.head.sha;
-              reason = context.payload.review.state === 'changes_requested' ? 'feedback' : 'maybe_ready';
-            } else { // workflow_run
+              prNumber = pr.number; headRef = pr.head.ref;
+            } else { // workflow_run from one of the gating workflows
               const wr = context.payload.workflow_run;
-              if (wr.event !== 'pull_request') return none('CI not from a PR');
+              if (wr.event !== 'pull_request') return none('not a PR-triggered run');
               if (wr.head_repository.full_name !== slug) return none('fork PR');
-              headRef = wr.head_branch; headSha = wr.head_sha;
+              headRef = wr.head_branch;
               const prs = await github.rest.pulls.list({ owner, repo, state: 'open', head: `${owner}:${headRef}` });
               if (!prs.data.length) return none('no open PR for branch');
               prNumber = prs.data[0].number;
-              reason = wr.conclusion === 'success' ? 'maybe_ready'
-                     : wr.conclusion === 'failure' ? 'feedback' : null;
             }
-            if (!reason) return none('uninteresting conclusion');
             if (!headRef || !headRef.startsWith('feature/issue-')) return none('not a bot branch');
 
-            // 2) Live PR state.
+            // 2) Live PR state — evaluate against the CURRENT head (events can be stale).
             const { data: pr } = await github.rest.pulls.get({ owner, repo, pull_number: prNumber });
-            if (!pr.draft && reason === 'maybe_ready') return none('already ready');
+            if (pr.state !== 'open') return none('PR not open');
+            const headSha = pr.head.sha;
 
             // 3) Correction budget (counted via hidden comment markers).
             const comments = await github.paginate(github.rest.issues.listComments, {
@@ -89,31 +98,40 @@ jobs:
             });
             const used = comments.filter((c) => (c.body || '').includes('<!-- auto-correction:')).length;
 
-            // 4) Latest review verdict.
+            // 4) Latest review verdict. The bot NEVER approves (ADR invariant 3), so a
+            //    COMMENT review with no changes requested counts as a CLEAN review.
             const reviews = await github.paginate(github.rest.pulls.listReviews, {
               owner, repo, pull_number: prNumber, per_page: 100,
             });
-            const decisive = reviews.filter((r) => ['CHANGES_REQUESTED', 'APPROVED'].includes(r.state));
-            const last = decisive[decisive.length - 1];
+            const verdicts = reviews.filter((r) => ['CHANGES_REQUESTED', 'APPROVED', 'COMMENTED'].includes(r.state));
+            const last = verdicts[verdicts.length - 1];
+            const changesRequested = Boolean(last) && last.state === 'CHANGES_REQUESTED';
             const reviewClean = Boolean(last) && last.state !== 'CHANGES_REQUESTED';
 
-            // 5) CI green = all check runs on the head SHA done with no failure.
+            // 5) Aggregate check state on the current head — EVERY gate, not just CI.
+            //    Exclude this workflow's own check to avoid a self-referential race.
             const checks = await github.paginate(github.rest.checks.listForRef, {
               owner, repo, ref: headSha, per_page: 100,
             });
+            const relevant = checks.filter((c) => c.name !== 'Iterate / ready-gate');
             const bad = new Set(['failure', 'cancelled', 'timed_out', 'action_required']);
-            const pending = checks.some((c) => c.status !== 'completed');
-            const failed = checks.some((c) => bad.has(c.conclusion));
-            const ciGreen = checks.length > 0 && !pending && !failed;
+            const pending = relevant.some((c) => c.status !== 'completed');
+            const failed = relevant.some((c) => bad.has(c.conclusion));
+            const ciGreen = relevant.length > 0 && !pending && !failed;
 
-            // 6) Decide.
+            // 6) Decide purely from live aggregate state (trigger-agnostic, fail-safe):
+            //    * any gate failed OR review requested changes -> correct (bounded) / handoff;
+            //    * all gates green AND a clean review AND still Draft -> mark Ready;
+            //    * anything still pending / no review yet -> wait.
             let action = 'none';
-            if (reason === 'feedback') {
+            if (pending) {
+              core.info('checks still pending — waiting');
+            } else if (failed || changesRequested) {
               action = used < max ? 'correct' : 'handoff';
             } else if (pr.draft && ciGreen && reviewClean) {
               action = 'ready';
             }
-            core.info(`reason=${reason} draft=${pr.draft} ciGreen=${ciGreen} reviewClean=${reviewClean} used=${used}/${max} -> ${action}`);
+            core.info(`draft=${pr.draft} pending=${pending} failed=${failed} ciGreen=${ciGreen} changesRequested=${changesRequested} reviewClean=${reviewClean} used=${used}/${max} -> ${action}`);
             out({ action, pr: prNumber, head_ref: headRef, next: used + 1, max });
 
       # ── Flip to Ready: CI green + clean review ──────────────────────────────────
@@ -146,11 +164,23 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.AUTOMATION_PAT || secrets.GITHUB_TOKEN }}
 
+      - name: Setup pnpm
+        if: ${{ steps.ctx.outputs.action == 'correct' }}
+        uses: pnpm/action-setup@v5
+
       - name: Setup Node.js
         if: ${{ steps.ctx.outputs.action == 'correct' }}
         uses: actions/setup-node@v6
         with:
           node-version: 24
+          cache: 'pnpm'
+
+      # Pre-install so `pnpm` is on PATH and Husky hooks are active before the
+      # agent runs the pipeline (same toolchain bootstrap as the implementer job;
+      # without a pnpm setup the agent's `pnpm install` cannot resolve the binary).
+      - name: Install dependencies
+        if: ${{ steps.ctx.outputs.action == 'correct' }}
+        run: pnpm install --frozen-lockfile
 
       - name: Ensure Draft & configure git
         if: ${{ steps.ctx.outputs.action == 'correct' }}
@@ -175,8 +205,15 @@ jobs:
 
             Address ALL outstanding automated feedback on the CURRENT branch:
             1. The latest PR review's requested changes (read it and its line comments).
-            2. Any failing CI checks — inspect them with `gh pr checks ${{ steps.ctx.outputs.pr }}`
-               and `gh run view --log-failed` and fix the root cause.
+            2. Any failing check — inspect with `gh pr checks ${{ steps.ctx.outputs.pr }}`
+               and `gh run view --log-failed` and fix the ROOT CAUSE (this includes
+               non-CI gates: DoD, Security, Traceability, E2E).
+            3. If the **DoD Attestation Gate** is red, the PR body closes an issue
+               (`Closes`/`Fixes`) that still has unticked DoD items. Either genuinely
+               COMPLETE and tick those items, or — if they cannot be honestly completed
+               here (e.g. human-only) — `gh pr edit` the body to use `Refs #<n>` instead
+               of `Closes`, leave the items unticked, and note what remains. NEVER tick a
+               box you cannot verify, and keep the PR body on the repository template.
 
             Before committing, run the local pipeline and make it pass:
             `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm --filter frontend type-check`,
@@ -194,6 +231,7 @@ jobs:
           claude_args: |
             --model ${{ env.MODEL }}
             --max-turns ${{ env.MAX_TURNS }}
+            --allowedTools "Bash,Edit,Write,Read,Glob,Grep,Task,TodoWrite,WebFetch,WebSearch,Skill"
 
       - name: Push correction & record round
         if: ${{ steps.ctx.outputs.action == 'correct' }}
@@ -209,6 +247,11 @@ jobs:
               "<!-- auto-correction:${N} --> 🤖 Correction ${N}/${MAX}: no actionable change could be made automatically. Awaiting your review."
             exit 0
           fi
+          # claude-code-action strips checkout's PAT auth and repoints origin at its
+          # own token; plain `git push` does not read GH_TOKEN. Re-establish PAT auth
+          # on a clean URL first (same fix as the implementer's push step).
+          git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
+          gh auth setup-git
           git push origin "HEAD:${{ steps.ctx.outputs.head_ref }}"
           gh pr comment "$PR" --body \
             "<!-- auto-correction:${N} --> 🤖 Correction ${N}/${MAX}: pushed a revision addressing review feedback and/or CI failures. CI + re-review will run automatically; the PR is marked Ready once green and clean. Still a Draft — human Lead review required for P1/safety-critical."
