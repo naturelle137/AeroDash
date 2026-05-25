@@ -43,7 +43,9 @@ schedule / dispatch
    > with the `scope` input, or exclude a specific issue with `automation:opt-out`.
 2. **Implement** — for each selected issue, the bot branches `feature/issue-<n>`
    from `develop`, runs the repository's `/implement-issue` flow, and opens a
-   **Draft** PR referencing the issue with `refs #<n>` (never `Closes`).
+   **Draft** PR. A genuinely complete issue uses `Closes #<n>` so merging to
+   `develop` closes the ticket; an incomplete one uses `Refs #<n>` and flags what
+   remains. Every issue is closed by its PR to `develop` — never deferred to `main`.
 
 ## Triggers
 

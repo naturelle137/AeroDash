@@ -29,9 +29,9 @@ argument-hint: <ISSUE_ID>
 - `p1.gate`: no code before approval
 - `p1.frr`: present once; all P1 work
 - `p1.frr.fields`: `REQ` | `H` | output impact | pure-TS guarantee | deterministic guarantee | Zod plan | formula LaTeX | unit normalization | test plan | `>=3` edge cases | ADR need
-- `cycle.mode`: standalone issue | each open child in order
+- `cycle.mode`: a `Feature` is finished only when ALL children are finished — standalone -> PR `Closes #{ISSUE_ID}`; feature all-in-one -> implement feature + every open child on ONE branch, PR `Closes` feature + each child; sub-task incremental -> PR `Closes #{TASK_ID}`, and ALSO `Closes #{PARENT_ID}` when no sibling remains open
 - `cycle.per-item`: read -> classify boundary -> trace discovery -> edit -> trace update -> registry update -> tests -> commit
-- `cycle.blocked`: skip blocked item; record reason; continue
+- `cycle.blocked`: skip genuinely-blocked item; record reason; leave parent open; never fake-close a feature with unfinished children
 - `read.before-write`: all touched source; all touched registries; relevant issue bodies
 - `code.rules`: `ARCHITECTURE.md`; `CONTRIBUTING.md`; Composition API; Pinia stores; math delegation to `core/`
 - `trace.discovery`: issue body; `docs/requirements/`; `trace/`; relevant registries; next sequential ids
@@ -56,10 +56,10 @@ argument-hint: <ISSUE_ID>
 - `commit.format`: `{type}({scope}): {description} (refs #{ISSUE_ID})`
 - `commit.unit`: one commit per implemented child; else one standalone commit
 - `commit.refs.child`: child id first; parent id optional extra ref
-- `update.child.done`: check completed DoD only; comment `changes` + `files` + `trace` + `tests` + `Part of #{PARENT_ID}`
-- `update.child.skipped`: comment reason only; no DoD checks
-- `update.parent.body`: check completed DoD only
-- `update.parent.forbid`: no skipped/unverified/manual-flight items checked
+- `update.child.done`: attest DoD so EVERY box ends `[x]` (genuinely done, or tick + `N/A — <reason>`); never tick an applies-but-undone item; comment `changes` + `files` + `trace` + `tests` + `Part of #{PARENT_ID}`
+- `update.child.skipped`: comment reason only; no DoD checks; parent stays open
+- `update.parent.body`: attest parent DoD so every box ends `[x]` (done, or `N/A — <reason>`); close parent only when all children closed
+- `update.parent.forbid`: never tick skipped/unverified/manual-flight items
 - `comment.parent.fields`: implementation summary | sub-issue status | files modified | trace ids + upstreams | test results | coverage compliance if `product` | DoD status
 - `comment.parent.subissues`: omit when none
 - `final.labels.read`: current labels first

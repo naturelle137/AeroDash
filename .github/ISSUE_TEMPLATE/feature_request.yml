@@ -43,7 +43,7 @@ body:
     id: dod
     attributes:
       label: Definition of Done / Checklist
-      description: What specific tasks and conditions must be met for this feature to be considered complete? (Use - [ ] for checkboxes)
+      description: "What specific tasks and conditions must be met for this feature to be considered complete? (Use - [ ] for checkboxes.) At closing, EVERY box must end ticked [x] — done, or ticked and marked `N/A — <reason>` if it does not apply. An unticked box blocks closing (DoD Attestation Gate)."
       placeholder: "- [ ] The feature is implemented\n- [ ] Unit tests are written\n- [ ] Documentation is updated"
     validations:
       required: true
