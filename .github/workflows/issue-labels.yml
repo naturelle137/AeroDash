@@ -1,18 +1,24 @@
-name: Issue Resolution Labels
+name: Issue Labels
 
-# On issue close, swap status labels (open / accepted / ready) for the
-# appropriate resolution label (fixed / duplicate / wont do). Labels only —
-# never edits the issue body, so DoD attestation semantics are preserved.
+# Two label guards (labels only — never edits the issue body, so DoD attestation
+# semantics are preserved):
+#   * on close → swap status labels (open / accepted / ready) for the resolution
+#     label (fixed / duplicate / wont do).
+#   * on open/label → strip a NEWLY-applied `Task` label. The Task / sub-task
+#     issue type and parent/child sub-issues are DISCONTINUED — no new sub-tasks
+#     may be created. Existing Task issues (labelled in the past) are untouched
+#     and continue to be processed until closed.
 
 on:
   issues:
-    types: [closed]
+    types: [opened, labeled, closed]
 
 permissions:
   issues: write
 
 jobs:
   swap-labels:
+    if: ${{ github.event.action == 'closed' }}
     runs-on: ubuntu-latest
     steps:
       - name: Swap status → resolution label
@@ -65,3 +71,38 @@ jobs:
               });
               core.info(`Added resolution label: ${resolution}`);
             }
+
+  # ── Block creation of new Task / sub-task issues ────────────────────────────
+  # The Task issue type is discontinued. This fires only when the `Task` label is
+  # NEWLY applied (a fresh issue opened with it, or the label added later), so
+  # existing Task issues — whose label was set in the past — are never touched.
+  block-new-tasks:
+    name: Block new Task / sub-task issues
+    if: >-
+      ${{ (github.event.action == 'labeled' && github.event.label.name == 'Task') ||
+          (github.event.action == 'opened' && contains(github.event.issue.labels.*.name, 'Task')) }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Strip the Task label and explain
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const number = context.payload.issue.number;
+            try {
+              await github.rest.issues.removeLabel({ owner, repo, issue_number: number, name: 'Task' });
+              core.notice(`Removed 'Task' label from #${number} — Task type is discontinued.`);
+            } catch (err) {
+              if (err.status !== 404) throw err;
+            }
+            await github.rest.issues.createComment({
+              owner, repo, issue_number: number,
+              body: [
+                '🚫 The **`Task` / sub-task** issue type and parent/child sub-issues are **discontinued** —',
+                'no new sub-tasks may be created (by bots, contributors, or users). The `Task` label was',
+                'removed automatically.',
+                '',
+                'If this work needs tracking, file a **standalone `Feature` or `Bug`** (no parent link) —',
+                'see `CONTRIBUTING.md` §10. Existing `Task` issues continue to be processed until closed.',
+              ].join('\n'),
+            });

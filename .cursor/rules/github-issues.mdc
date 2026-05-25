@@ -6,7 +6,7 @@ alwaysApply: false
 - repo: `naturelle137/AeroDash`
 - tools: `search_issues` `list_issues` `issue_read` `issue_write` `add_issue_comment`
 
-- types: `Bug` `Feature` `Task`
+- types: `Bug` `Feature` (`Task` discontinued)
 - scope.domain: `product` `engineering`
 - scope.module: `ac` `ap` `ad` `fe` `mb` `pf` `wx` `ui` `uq` `sys` `doc` `sc` `repo`
 - tag.safety: `safety-critical`
@@ -15,7 +15,7 @@ alwaysApply: false
 
 - type.`Bug`: flaw error failure
 - type.`Feature`: new capability enhancement infra docs requirements contributing
-- type.`Task`: child item of `Bug` or `Feature`
+- type.`Task`: DISCONTINUED — never create; no `Task` issue, no `Task` label, no parent/child sub-issue link; split large work into independent `Feature`/`Bug`
 
 - flow.create: add `open`
 - flow.`open`: `accepted` | `duplicate` | `wont do`
@@ -23,8 +23,7 @@ alwaysApply: false
 - flow.close.`fixed`: PR merged to `develop` | `release/*` | `hotfix/*`; use `Closes #` keyword
 - flow.close.`duplicate`: canonical issue link required
 - flow.close.`wont do`: rationale required
-- flow.parent.`fixed`: all child `Task` issues closed first
-- flow.task.done: merged to `develop` | `release/*` | `hotfix/*`
+- legacy.existing_task: existing `Task` issues are processed by `/implement-issue` until closed; create no new ones
 
 - safety.path: `frontend/src/core/`
 - safety.match: calculations formulas weight balance performance Go/No-Go
@@ -49,10 +48,7 @@ alwaysApply: false
 - create.optional.`Feature`: `req_id` `safety_impact`
 - create.checks.`Feature`: duplicate_checked not_already_implemented
 
-- create.title.`Task`: `[Task]: `
-- create.labels.`Task`: `Task` `open`
-- create.required.`Task`: `parent_issue` `description`
-- create.optional.`Task`: `technical_details` `dod`
+- create.`Task`: FORBIDDEN — the `Task` type and parent/child sub-issues are discontinued
 
 - create.labels.extra: one `scope.module` + one `scope.domain`
 - create.labels.never: `fixed` `duplicate` `wont do`
@@ -64,10 +60,11 @@ alwaysApply: false
 - update.status: unchanged unless valid `flow.*`
 - update.labels: preserve; removal needs documented reason
 - update.body: append or patch; no full overwrite without user request
-- update.parent_issue: never remove from `Task`
+- update.subissue_link: never create or modify a parent/child sub-issue link (discontinued)
 
 - forbid.hardcode: no invented types labels scopes template fields
 - forbid.fabrication: no invented hazard refs requirement IDs environment
 - forbid.no_open: blocked
 - forbid.skip_dedupe: blocked
-- forbid.task_without_parent: blocked
+- forbid.task_create: creating a `Task` issue or applying the `Task` label — blocked
+- forbid.subissue_link: creating or modifying any parent/child native sub-issue — blocked

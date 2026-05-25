@@ -99,7 +99,7 @@ jobs:
             summary += '### What to do\n';
             summary += 'For each issue, read every DoD item and decide:\n';
             summary += '1. **It is truly done** → tick the box in the issue body (attestation).\n';
-            summary += '2. **Not done yet** → finish the work, or split the residual into a follow-up `Task`.\n';
+            summary += '2. **Not done yet** → finish the work, or file a follow-up `Feature`/`Bug` issue for the residual.\n';
             summary += '3. **Out of scope for this PR** → remove the closing keyword and leave the issue open.\n\n';
             summary += 'Do NOT tick boxes without verifying against code/tests/docs — the boxes are attestations, not decorations.\n';
             await core.summary.addRaw(summary).write();

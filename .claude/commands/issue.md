@@ -16,7 +16,6 @@ You are the AeroDash Issue Manager. Convert a rough description into a properly 
 - `CONTRIBUTING.md`
 - `.github/ISSUE_TEMPLATE/bug_report.yml`
 - `.github/ISSUE_TEMPLATE/feature_request.yml`
-- `.github/ISSUE_TEMPLATE/sub_task.yml`
 
 Use them for: rule constraints, scope mapping, template schema, required/optional fields, title prefix, default labels, valid select options.
 
@@ -27,7 +26,7 @@ Use them for: rule constraints, scope mapping, template schema, required/optiona
 ## Repo / scope vocabulary (AeroDash-specific)
 
 - repo: `naturelle137/AeroDash`
-- types: `Bug`, `Feature`, `Task`
+- types: `Bug`, `Feature` — the `Task` / sub-task type is **discontinued** (see below)
 - scope.domain: `product` | `engineering`
 - scope.module: `ac` `ap` `ad` `fe` `mb` `pf` `wx` `ui` `uq` `sys` `doc` `sc` `repo`
 - safety tag: `safety-critical`
@@ -38,7 +37,12 @@ Use them for: rule constraints, scope mapping, template schema, required/optiona
 
 - `Bug`: flaw | error | failure
 - `Feature`: new capability | enhancement | infra | docs | requirements | contributing
-- `Task`: child item of a `Bug` or `Feature` (never standalone)
+- `Task`: **DISCONTINUED — never create one.** Do not create a `Task` issue, apply the
+  `Task` label, or create any parent/child sub-issue link. If a `Feature`/`Bug` is
+  large, scope it down or split it into **independent** `Feature`/`Bug` issues (no
+  parent linkage). A newly-applied `Task` label is auto-stripped by the `Issue Labels`
+  workflow. Existing `Task` issues are processed by `/implement-issue` until closed,
+  after which the type is removed entirely.
 
 ### Lifecycle
 
@@ -48,7 +52,6 @@ Use them for: rule constraints, scope mapping, template schema, required/optiona
 - close `fixed`: PR merged to `develop` | `release/*` | `hotfix/*`; use `Closes #` keyword
 - close `duplicate`: link canonical issue
 - close `wont do`: rationale required
-- parent `fixed`: all child `Task`s closed first
 
 ### Safety classification
 
@@ -72,20 +75,21 @@ Use them for: rule constraints, scope mapping, template schema, required/optiona
 3. ask: `update existing` | `create new`
 
 If user picks update:
+
 - ask target issue number
 - ask `comment` | `field update`
 - read target issue first (`issue_read`)
 - draft comment or patch
 - review with user
 - exec via `add_issue_comment` (comment) or `issue_write method:update` (field)
-- if the update establishes or changes a parent (e.g. back-linking an existing `Task`), also set the **native** sub-issue relationship (see `## Parent/child linkage`) — never body-text only
+- never add or change a parent/child sub-issue link (discontinued)
 - stop after exec
 
 ## Branch 2: create new (no good match OR user chose create)
 
 ### Classify
 
-- type: from `$ARGUMENTS` + rule file; confirm with user
+- type: `Bug` | `Feature` only — from `$ARGUMENTS` + rule file; confirm with user
 - module scope: from `CONTRIBUTING.md`; ambiguous -> ask
 - domain scope: from rules + `CONTRIBUTING.md`
 - safety: rules + description + referenced paths/files; unclear -> ask
@@ -96,23 +100,20 @@ If user picks update:
 - fill in template field order: user data first, then ask for unresolved required fields, then optional when known
 
 #### `Bug`
+
 - expand description
 - ask if missing: `reproduction` | `severity` | `environment`
 - ask if applicable: `hazard_ref`
 
 #### `Feature`
+
 - shape: problem | solution
 - ask if missing: `dod`
 - ask if applicable: `req_id` | `safety_impact`
 
-#### `Task`
-- ask if missing: `parent_issue` | `description`
-- ask if applicable: `technical_details` | `dod`
-- `parent_issue` is REQUIRED — record it in the body "Parent Feature / Issue" field **and** set the native sub-issue relationship after create (see `## Parent/child linkage`). A `Task` whose parent exists only as body text is incomplete.
-
 ### Title
 
-- prefix from template (`[Bug]: `, `[Feat]: `, `[Task]: `)
+- prefix from template (`[Bug]: `, `[Feat]: `)
 - body: concise
 
 ### Labels
@@ -121,7 +122,7 @@ If user picks update:
 - add one `scope.module`
 - add one `scope.domain`
 - add `safety-critical` if applicable
-- never apply: `fixed`, `duplicate`, `wont do` at creation time
+- never apply: `Task`, `fixed`, `duplicate`, `wont do` at creation time
 
 ### Review
 
@@ -131,32 +132,19 @@ If user picks update:
 ### Exec
 
 - `mcp__github__issue_write` `method: create` with `title | body | labels`; optional `milestone` numeric id
-- if type is `Task`: immediately set the **native** parent/child link (see `## Parent/child linkage`) and verify it before reporting success
-- on success show: issue number | title | url | labels | parent (for `Task`)
+- on success show: issue number | title | url | labels
 
-## Parent/child linkage (native sub-issues)
+## Parent/child sub-issues — DISCONTINUED
 
-GitHub's parent/child relationship is the **source of truth** — a body reference like `#123` is human-friendly fallback, never a substitute. Every `Task` must be attached to its parent via the sub-issues API. There is no `mcp__github__` tool for this; use `gh api` (Bash).
-
-Link child `#C` under parent `#P` (repo `naturelle137/AeroDash`):
-
-1. Resolve the child's **database id** (integer — NOT the issue number, NOT the `node_id`):
-   `gh api repos/naturelle137/AeroDash/issues/C --jq '.id'`
-2. Attach it (send the id as a number via `-F`, not `-f`):
-   `gh api --method POST repos/naturelle137/AeroDash/issues/P/sub_issues -F sub_issue_id=<child_db_id>`
-3. Verify it landed — this list MUST include `C`:
-   `gh api repos/naturelle137/AeroDash/issues/P/sub_issues --jq '.[].number'`
-
-Rules & edge cases:
-- Idempotent: if `C` already appears under `P`, skip (do not re-POST).
-- If `C` already has a *different* parent, the POST errors — surface to the user, never force-move silently.
-- Keep the body "Parent Feature / Issue #P" field populated too (readability + fallback).
-- Back-linking an existing `Task` uses the exact same POST.
+Do **not** create or modify any GitHub parent/child sub-issue relationship, and do
+**not** create `Task` issues. The `Task` type and sub-issues are discontinued; new
+work is filed as **independent** `Feature`/`Bug` issues. Existing parent/child trees
+are processed by `/implement-issue` until closed, then removed entirely.
 
 ## Forbidden
 
 - invented types | labels | scopes | template fields
 - fabricated hazard refs | requirement IDs | environment values
 - skipping dedupe
-- creating a `Task` without a parent
-- declaring a `Task`'s parent in body text only — the native sub-issue relationship MUST be set and verified
+- creating a `Task` issue or applying the `Task` label — the type is discontinued
+- creating or modifying ANY parent/child native sub-issue link
