@@ -147,6 +147,52 @@ vMAJOR.MINOR.PATCH
 
 ---
 
+## Releases, Versioning & Changelog
+
+The release version is **set deliberately by the maintainer — never inferred
+from commit history**. There is no `release-it` / `semantic-release` step; the
+approach and its rationale are recorded in
+[`ADR-318-DEV`](../architecture/adr/318-DEV-changelog-and-release-versioning.md).
+
+### Source of truth
+
+* **Version** lives in root `package.json` and must equal
+  `frontend/package.json`. It is set on the `release/vX.Y.Z` branch to match the
+  branch name (strip the leading `v`).
+* **Pre-release** status is encoded in the version string itself: a
+  `-alpha` / `-beta` / `-rc` suffix marks a GitHub *pre-release*; an un-suffixed
+  SemVer is published as `latest`.
+* **`CHANGELOG.md`** is curated by hand in the [Keep a Changelog] format — a
+  short, human-readable summary, not a commit dump.
+* **`.github/release-notes/v<version>.md`** holds the curated, pilot-facing
+  release description published as the GitHub Release body.
+
+### Maintainer workflow
+
+1. **During development**, add user-visible changes under `## [Unreleased]` in
+   `CHANGELOG.md` as part of the change's PR.
+2. **On the `release/vX.Y.Z` branch**, bump the `version` field in both
+   `package.json` files to `X.Y.Z`, then move the `## [Unreleased]` content into
+   a dated `## [X.Y.Z] - YYYY-MM-DD` section and add the matching compare link at
+   the foot of the file.
+3. **Author the release notes** in `.github/release-notes/vX.Y.Z.md`
+   (pilot-facing — what changed and why it matters, not a developer changelog).
+4. **Merge `release/vX.Y.Z` → `main`** (see *Publishing a Release* above). The
+   push to `main` triggers `.github/workflows/publish-release.yml`, which reads
+   the version from `package.json`, creates and pushes the `vX.Y.Z` tag, and
+   publishes a GitHub Release using the notes file (auto-detecting the
+   pre-release flag from the version suffix).
+5. **Back-merge to `develop`** so the dated changelog section and version bump
+   return to the integration branch.
+
+The pipeline automates **tagging and the GitHub Release only** — it does not
+compute the version, edit `package.json`, or generate changelog prose. The
+`/release` skill drives this end-to-end and is the operational reference.
+
+[Keep a Changelog]: https://keepachangelog.com/en/1.1.0/
+
+---
+
 ## Protected Branch Rules (GitHub Settings)
 
 Configure the following rules in **Settings → Branches → Branch protection rules**:
