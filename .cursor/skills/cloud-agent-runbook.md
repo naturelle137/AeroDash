@@ -26,7 +26,7 @@ pnpm install
 pnpm --filter frontend exec playwright install chromium --with-deps
 ```
 
-**Node version**: `^20.19.0 || >=22.12.0` (devcontainer ships Node 24).
+**Node version**: `>=22.12.0` (devcontainer ships Node 24).
 If `corepack` is missing, install pnpm directly: `npm i -g pnpm@10`.
 
 ### No login / auth required
