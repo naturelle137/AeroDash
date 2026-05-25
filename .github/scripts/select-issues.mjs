@@ -147,6 +147,12 @@ export function buildQueue(issues, config) {
     issueNumber = null,
   } = config;
   const openSet = asNumberSet(config.openIssueNumbers);
+  // Issue numbers that already have an open `feature/issue-<n>` PR (work in flight).
+  const withOpenPr = asNumberSet(config.issuesWithOpenPr);
+  // GitHub *native* sub-issues: { "<parentNumber>": [openChildNumbers] }. The
+  // workflow gathers these (already filtered to open) because issue bodies no
+  // longer carry the parent link reliably once native sub-issues are used.
+  const nativeChildrenByParent = config.nativeChildrenByParent ?? {};
 
   const entry = (issue, reason) => ({ number: issue.number, title: issue.title, reason });
 
@@ -169,20 +175,35 @@ export function buildQueue(issues, config) {
 
   // Reverse parent map: a parent issue with any still-open child is deferred so
   // children land first (a parent Feature only closes once its Tasks are done).
+  // Sources: (1) the child's body "Parent Feature / Issue #N" field, and
+  // (2) GitHub native sub-issues passed in via nativeChildrenByParent.
   const openChildrenOf = new Map();
+  const addChild = (parent, child) => {
+    if (parent == null) return;
+    const cur = openChildrenOf.get(parent) ?? [];
+    if (!cur.includes(child)) cur.push(child);
+    openChildrenOf.set(parent, cur);
+  };
   for (const issue of issues) {
-    const parent = parseParent(issue.body);
-    if (parent != null && openSet.has(issue.number)) {
-      if (!openChildrenOf.has(parent)) openChildrenOf.set(parent, []);
-      openChildrenOf.get(parent).push(issue.number);
-    }
+    if (openSet.has(issue.number)) addChild(parseParent(issue.body), issue.number);
   }
+  for (const [parent, kids] of Object.entries(nativeChildrenByParent)) {
+    for (const child of kids ?? []) addChild(Number(parent), Number(child));
+  }
+  // Stable ordering of children for reproducible reasons.
+  for (const [p, kids] of openChildrenOf) openChildrenOf.set(p, kids.sort((a, b) => a - b));
 
   eligible.sort(compareIssues);
 
   const queue = [];
   const deferred = [];
   for (const issue of eligible) {
+    // Defer issues whose work is already in flight in an open PR — re-implementing
+    // it wastes a run and risks a duplicate branch (this is what trapped #230).
+    if (withOpenPr.has(issue.number)) {
+      deferred.push(entry(issue, 'open PR already in progress'));
+      continue;
+    }
     // Defer parents that still have open children.
     const openChildren = openChildrenOf.get(issue.number) ?? [];
     if (openChildren.length > 0) {
@@ -245,6 +266,8 @@ async function main() {
     // Optional scope narrowing (default: just `accepted` — product + engineering).
     requiredLabels: input.requiredLabels ?? REQUIRED_LABELS,
     issueNumber: input.issueNumber ?? null,
+    issuesWithOpenPr: input.issuesWithOpenPr ?? [],
+    nativeChildrenByParent: input.nativeChildrenByParent ?? {},
   };
   const result = buildQueue(input.issues ?? [], config);
   process.stdout.write(JSON.stringify({ ...result, report: renderReport(result, config) }, null, 2));

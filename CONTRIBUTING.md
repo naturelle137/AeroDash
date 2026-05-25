@@ -338,6 +338,7 @@ stateDiagram-v2
     1. **All-in-one:** implement the feature *and* **all** its sub-tasks on the same branch; that single PR to `develop` carries `Closes #<feature>` plus `Closes #<each-sub-task>`.
     2. **Incremental:** implement the sub-tasks first (each its own branch + PR, `Closes #<sub-task>`); the **last** sub-task's PR — opened once every sibling is already closed — *also* carries `Closes #<feature>`, closing the parent in the same merge.
   Never close a feature while any sub-task is still open, and never leave a feature open once its last sub-task is done.
+* **Discovery / scoping tickets are the exception to the umbrella rule.** A ticket whose deliverable is an *evaluation or recommendation* — it says so ("discovery / scoping ticket", "not an implementation ticket", "produce a recommendation", "file follow-up issues") — is **finished once its recommendation is written and its follow-ups are filed**. Close it then with `Closes #`; do **not** hold it open as an umbrella. The follow-ups it spawns are **independent** issues that merely *reference* it (e.g. "Spawned by #N") — they are **not** native sub-issues and must **not** block its closure.
 * Tickets labelled `duplicate` or `wont do` are removed from the project board entirely.
 
 ### Closing requires a complete, ticked attestation
