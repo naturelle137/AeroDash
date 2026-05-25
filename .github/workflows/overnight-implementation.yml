@@ -286,6 +286,12 @@ jobs:
 
           > ⚠️ **Partial draft** — the agent did not report success (outcome: \`${AGENT_OUTCOME}\`, likely the turn/time budget). This is work-in-progress that a human must finish; review the diff for completeness before relying on it."
           fi
+          # claude-code-action strips the PAT auth that actions/checkout set up
+          # and repoints origin at its own claude[bot] token, which cannot push
+          # here. Plain `git push` does not read GH_TOKEN, so re-establish auth
+          # with AUTOMATION_PAT on a clean URL before pushing.
+          git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
+          gh auth setup-git
           git push --set-upstream origin "feature/issue-${{ matrix.issue }}"
           TITLE=$(gh issue view "${{ matrix.issue }}" --json title --jq .title)
           BODY=$(cat <<'EOF'
