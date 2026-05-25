@@ -39,6 +39,6 @@
 - [ ] **Unit Tests:** Added/updated and passing locally OR `N/A` (Reason: _________).
 - [ ] **Integration Tests:** Passing OR `N/A` (Reason: _________).
 - [ ] **Manual Testing:** Performed successfully (Mandatory for `main`) OR `N/A` (Reason: _________).
-- [ ] **DoD:** All Definition of Done items from the linked Sub-Task/Feature/Bug are met.
+- [ ] **DoD:** All Definition of Done items from the linked Feature/Bug are met.
 - [ ] **Review:** I have performed a self-review of my own code and documentation.
 - [ ] **ADR:** Does this change require an Architectural Decision Record (ADR) update/creation? If yes, it is included.

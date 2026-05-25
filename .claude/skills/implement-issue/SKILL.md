@@ -20,6 +20,11 @@ Always read these before classification:
 
 ## Issue intake (parent/child-aware)
 
+> **Legacy — existing `Task`/parent trees only.** The `Task` type and parent/child
+> sub-issues are discontinued; **never create** a `Task` or a sub-issue link. The
+> parent/child handling below exists solely to implement and close the `Task` issues
+> that already exist. New work is filed as independent `Feature`/`Bug` issues.
+
 1. `mcp__github__issue_read` `get` on the issue
 2. `mcp__github__issue_read` `get_labels`
 3. `mcp__github__issue_read` `get_sub_issues`

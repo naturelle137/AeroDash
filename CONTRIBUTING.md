@@ -16,7 +16,7 @@ First of all: **Don't panic!** The rules below might look strict, but they are h
 If you are new here, the best way to get started is:
 
 1. **Read the Code of Conduct:** All participation is governed by our [Bilingual Code of Conduct / Verhaltenskodex (Just Culture)](CODE_OF_CONDUCT.md). Please read it first!
-2. **Find a "good first issue":** Check the GitHub Project Board for specific `Task` or `Bug` tickets.
+2. **Find a "good first issue":** Check the GitHub Project Board for specific `Feature` or `Bug` tickets.
 3. **Ask Questions:** If you're unsure about the architecture, where to put a file, or how to write an ADR—just ask in the issue or draft PR! Our senior developers will gladly mentor you.
 4. **Draft Early:** You don't have to be perfect from the start. Open a Draft PR early, run the local checks, and we will review and guide you to the finish line.
 
@@ -272,7 +272,7 @@ We use the GitHub Project Board (`AeroDash Dashboard`) to track all tasks and en
 
 * **`Bug`**: A flaw, error, or failure in the system.
 * **`Feature`**: A request for new functionality or enhancements. Note that this is **not limited strictly to runtime product features!** It also applies to enhancements in project infrastructure, such as adding Documentation as Code (`docs`), defining new Requirements, or creating Contributing Guidelines.
-* **`Task`**: A specific sub-task belonging to a parent `Feature` or `Bug`.
+* **`Task` — ⛔ DISCONTINUED.** The `Task` / sub-task type and parent/child sub-issues are no longer used: **do not create new `Task` issues or sub-issue links** (the template is gone and a newly-applied `Task` label is auto-stripped by the `Issue Labels` workflow). Split large work into **independent `Feature`/`Bug` issues** instead. Existing `Task` issues are still implemented and closed normally; once all are closed the type will be removed entirely (tracked by #341).
 
 ### Scope Labels
 
@@ -329,7 +329,12 @@ stateDiagram-v2
 | In Verification | PR open, under review |
 | Done | PR merged to `develop`, issue closed |
 
-### ⚠️ Special Rules: Parent Tickets vs. Sub-Tasks
+### ⚠️ Special Rules: Parent Tickets vs. Sub-Tasks (⛔ LEGACY — being phased out)
+
+> **Sub-tasks are discontinued.** No new `Task` issues or parent/child sub-issues are
+> created (see *Issue Types* above). The rules in this section apply **only to the
+> `Task` issues that already exist**, so they can be implemented and closed correctly.
+> Once every existing `Task` is closed, this whole section — and the type — is removed (tracked by #341).
 
 * A **`Task`** acts as a sub-task to a parent **`Feature`** or **`Bug`**.
 * **Sub-tasks (`Task`)**: Are closed with `fixed` and moved to *Done* as soon as their PR is merged into `develop`, a `release/`, or a `hotfix/` branch.
@@ -347,6 +352,6 @@ A ticket is closed (`fixed`) only when its **Definition of Done is genuinely met
 
 * Tick `[x]` an item you have genuinely completed and verified.
 * If an item does **not apply** to this change, still tick it `[x]`, mark it `N/A`, and give a one-line reason. An unticked `[ ]` reads as an open obligation — even when truly N/A.
-* **Never** tick an item that applies but is not done — that is a false attestation. Finish it, or (for a sub-task) split the residue into a follow-up `Task` and keep the parent open.
+* **Never** tick an item that applies but is not done — that is a false attestation. Finish it, or split the residue into a follow-up **`Feature`/`Bug`** issue.
 
 The **DoD Attestation Gate** (`.github/workflows/dod-gate.yml`) enforces this on the issue side — a PR that closes an issue with any unticked DoD box fails the check — and the PR template's checklist enforces it on the PR side (see `/pr.create`).

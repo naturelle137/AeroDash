@@ -33,8 +33,9 @@ schedule / dispatch
 1. **Select** — a deterministic, dependency-aware queue is built from open issues
    labelled `accepted` in the **current milestone**, across **any scope**
    (`product` *and* `engineering`). Issues blocked by an unresolved dependency, or
-   parents with still-open child tasks, are deferred. The queue (with selected /
-   deferred / skipped reasons) is written to the run's job summary.
+   parents with still-open child tasks, are deferred (the latter is **legacy**
+   handling for the existing `Task` trees only — no new sub-tasks are created). The
+   queue (with selected / deferred / skipped reasons) is written to the run's job summary.
 
    > ⚠️ **Scope is not a safety boundary.** Because `product` issues are included,
    > the bot can draft **P1 Safety-Core** code (Mass & Balance, Performance, Fuel).

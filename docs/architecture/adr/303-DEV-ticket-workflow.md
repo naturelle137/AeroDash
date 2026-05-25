@@ -2,13 +2,15 @@
 
 * **Status:** Accepted
 * **Date:** 2026-02-27
-* **Amended:** 2026-04-07
+* **Amended:** 2026-04-07, 2026-05-25
 
 ## Context
 
 As AeroDash grows, managing the backlog, tracking in-progress work, and correlating development tasks with production releases becomes complex. Without a rigid, predefined lifecycle for tickets, we risk releasing unverified features, losing track of sub-tasks, or cluttering the project board with stale issues. We need a defined, scalable process to govern how `Features`, `Bugs`, and `Tasks` flow from creation to completion, ensuring the Project Board accurately reflects the state of the codebase.
 
 **Amendment (2026-04-07):** The original workflow required a two-phase close: `ready` on merge to `develop`, then `fixed` + closed on merge to `main`. This created unnecessary overhead and deferred issue closure long past when the work was actually done. The amended workflow closes issues immediately on merge to `develop`, removing the intermediate `ready` state and `Ready for Release` board column.
+
+**Amendment (2026-05-25) — `Task` / sub-task type deprecated:** The `Task` issue type and all parent/child **sub-issue** relationships are discontinued — they proved error-prone for AI/bot-driven workflows. **No new `Task` issues or sub-issues may be created** (the `sub_task.yml` template is removed and a newly-applied `Task` label is auto-stripped by the `Issue Labels` workflow); large work is split into **independent** `Feature`/`Bug` issues. The existing `Task` issues and the parent/sub-task closing rules (§9) remain in force **only until those issues are closed**, after which the type, label, and all sub-task machinery are removed entirely — tracked by **#341**.
 
 ## Considered Options
 
@@ -35,7 +37,7 @@ We will use a canonical GitHub Project Board ("AeroDash Dashboard") driven by sp
     * All issue types (`Task`, `Feature`, `Bug`) are closed with the `fixed` label when their PR is merged to `develop` (or `release/*` / `hotfix/*`).
     * PR must use `Closes #` / `Fixes #` keywords so GitHub closes the issue automatically on merge.
 
-9. **Parent/Sub-Task Rules:**
+9. **Parent/Sub-Task Rules** *(⛔ LEGACY — superseded by the 2026-05-25 amendment; applies only to the `Task` issues that already exist, until they are closed; no new sub-tasks are created):*
     * `Task` tickets (sub-tasks) are closed individually as soon as their specific PR is merged to `develop`.
     * Parent tickets (`Feature` or `Bug`) are closed with `fixed` and moved to `Done` only when **all** corresponding sub-tasks are closed. *(A sub-task closed as `wont do` counts as closed, provided the rationale is documented.)*
 

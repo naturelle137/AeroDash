@@ -14,7 +14,6 @@ argument-hint: <rough description of the issue>
   - `CONTRIBUTING.md`
   - `.github/ISSUE_TEMPLATE/bug_report.yml`
   - `.github/ISSUE_TEMPLATE/feature_request.yml`
-  - `.github/ISSUE_TEMPLATE/sub_task.yml`
 - refs.read.when: each invocation; before GitHub MCP ops
 - refs.use:
   - rule constraints from `.cursor/rules/github-issues.mdc`
@@ -44,6 +43,7 @@ argument-hint: <rough description of the issue>
   - review: user approval required
   - exec.comment: `add_issue_comment`
   - exec.update: `issue_write` `method:update`
+  - subissue.link: forbidden (parent/child sub-issues discontinued)
   - stop.after: true
 - create.branch.enter: no good match | user chose `create new`
 - classify.type:
@@ -71,9 +71,8 @@ argument-hint: <rough description of the issue>
   - shape: problem | solution
   - ask.if.missing: dod
   - ask.if.applicable: req id | safety impact
-- draft.type.`Task`:
-  - ask.if.missing: parent issue | description
-  - ask.if.applicable: technical details | dod
+- draft.type.`Task`: DISCONTINUED — never create; no `Task` issues, no `Task` label,
+  no parent/child sub-issue links. Split large work into independent `Feature`/`Bug`.
 - draft.title:
   - prefix: from template
   - body: concise title text

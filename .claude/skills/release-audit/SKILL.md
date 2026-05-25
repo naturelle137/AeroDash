@@ -40,7 +40,7 @@ Bundle related findings across domains (e.g. all fuel-enum findings → one fix)
 ## Step 3 — File deferred findings as issues
 
 Per the `/issue` conventions and `.github/ISSUE_TEMPLATE/*`:
-- group related findings into one coherent issue; type `Feature`/`Bug`/`Task`; one `scope.module` + one `scope.domain`; `safety-critical` when it touches `frontend/src/core/` or Go/No-Go; status `open`; **always add `resubmission`** (deferred-from-release).
+- group related findings into one coherent issue; type `Feature`/`Bug` (the `Task` / sub-task type is discontinued — never create one); one `scope.module` + one `scope.domain`; `safety-critical` when it touches `frontend/src/core/` or Go/No-Go; status `open`; **always add `resubmission`** (deferred-from-release).
 - assign the milestone that first delivers the relevant feature (resolve numbers from `gh`).
 - body: problem + the audit finding id(s)/evidence + proposed fix + DoD checklist (N/A rows end ticked `[x]` per repo convention).
 - dedupe against existing issues first.
