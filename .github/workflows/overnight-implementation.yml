@@ -165,10 +165,21 @@ jobs:
           # and the reviewer bot; the default GITHUB_TOKEN cannot trigger them.
           token: ${{ secrets.AUTOMATION_PAT || secrets.GITHUB_TOKEN }}
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v5
+
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
           node-version: 24
+          cache: 'pnpm'
+
+      # Pre-install so `pnpm` is on PATH and Husky hooks are active before the
+      # agent runs the pipeline. Without a pnpm setup the agent's `pnpm install`
+      # cannot resolve the binary at all; pre-installing also primes the cache
+      # and stops the agent burning turns bootstrapping the toolchain.
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
       - name: Create feature branch
         run: |
@@ -204,9 +215,20 @@ jobs:
               once CI is green and the automated review is clean.
             - If you cannot complete the issue safely, stop and leave a clear summary
               of what remains; do not force a partial or unsafe change.
+          # claude-code-action does NOT grant Bash by default, and CI has no
+          # human to approve tool prompts — so without an explicit allow-list the
+          # agent's pnpm/git/gh commands are all auto-denied and it produces zero
+          # commits (observed in runs #2/#3: permission_denials_count > 0 →
+          # "No commits produced"). --allowedTools MERGES with the action's
+          # baseline (file ops + GitHub tools); we add Bash plus search/task
+          # tools needed by the /implement-issue flow. Safety is unchanged: it
+          # rests on the Draft-only + human-Lead-review + CI-gate regime
+          # (ADR-317-DEV), not on local permission gating — the Draft PR re-runs
+          # every gate and is never auto-merged.
           claude_args: |
             --model ${{ github.event.inputs.model || env.MODEL_DEFAULT }}
             --max-turns ${{ env.MAX_TURNS }}
+            --allowedTools "Bash,Edit,Write,Read,Glob,Grep,Task,TodoWrite,WebFetch,WebSearch,Skill"
 
       - name: Push branch & open Draft PR
         env:
