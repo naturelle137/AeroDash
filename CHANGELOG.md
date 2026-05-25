@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `publish-release.yml` now marks SemVer pre-release tags (`-alpha` / `-beta` / `-rc`) as GitHub pre-releases and stable tags as `latest`, instead of always publishing a stable "latest" release (`gh release create` does not infer this from the tag)
 - `pnpm` overrides force patched transitive dev dependencies (`fast-uri` ≥3.1.2, `@babel/plugin-transform-modules-systemjs` ≥7.29.4, `js-cookie` ≥3.0.7), clearing the four high-severity advisories that failed the `pnpm audit --audit-level high` CI gate
 - `/issue` command now sets GitHub's native parent/child (sub-issue) relationship for Tasks via the sub-issues API, instead of recording the parent only as body text
+- Changelog automation re-evaluated and `release-it` retired: release versions are set explicitly on the `release/vX.Y.Z` branch and read from `package.json` by `publish-release.yml` (never inferred from commit counts), while `CHANGELOG.md` and the per-version `.github/release-notes/` files stay hand-curated; removes the `release` script, the `release-it` + `@release-it/conventional-changelog` dev-dependencies, and `.release-it.json` (ADR-318-DEV, refs #121, supersedes #22)
 
 ## [0.3.0-alpha] - 2026-05-24
 
