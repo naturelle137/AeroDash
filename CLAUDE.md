@@ -54,7 +54,7 @@ For full P1 isolation rules, ESLint fix recipes, and library governance, see `CO
 
 Vue 3 (Composition API, SFCs — **no JSX**) · strict TypeScript · Vite · Pinia · Vue Router · Zod (P1 only) · Vitest · Playwright BDD (`playwright-bdd`) · ESLint + Oxlint + Prettier · markdownlint-cli2 · pnpm (Corepack) · Husky + commitlint + lint-staged.
 
-Node: `^20.19.0 || >=22.12.0` (devcontainer ships Node 24 LTS).
+Node: `>=22.12.0` (devcontainer ships Node 24 LTS).
 
 ---
 
