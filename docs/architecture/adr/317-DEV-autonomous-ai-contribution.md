@@ -121,6 +121,24 @@ following **non-negotiable invariants**:
 > `90` min, the turn cap kept below the wall-clock cap so it binds first, and the
 > push step made resilient to agent failure (`continue-on-error` + always-run)
 > so partial work still lands as a flagged Draft per invariant 5.
+>
+> **Loop-closure revision (post-pilot):** the first complete run (#121 → PR #328)
+> reached a stuck red Draft that the loop never acted on, exposing three defects
+> now fixed so the implement→review→ready loop actually closes:
+>
+> 1. **Complete, templated, closing PRs.** The implementer must genuinely finish
+>    the whole ticket (all DoD items), attest DoD honestly, fill the repository PR
+>    template, and reference the issue with `Closes #` when complete (else `Refs #`,
+>    noting what remains). A half-done ticket dressed up as finished is a defect; the
+>    DoD gate blocks a `Closes` PR from going green with unticked DoD items.
+> 2. **Gate-agnostic correction.** The ready-gate reacts to the **aggregate** state
+>    of *every* PR-gating workflow (CI, DoD, Security, Traceability, E2E, branching),
+>    not just `CI` — any red gate drives a bounded correction instead of sitting red.
+> 3. **Clean-review semantics.** Because the reviewer is forbidden from approving
+>    (invariant 3), a clean **COMMENT** review (no changes requested) satisfies the
+>    ready-gate; the reviewer must always submit exactly one formal review so the
+>    signal exists. Marking Ready still never merges and never bypasses human Lead
+>    review on P1/safety-critical.
 
 ### Authentication
 
