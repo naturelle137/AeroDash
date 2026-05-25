@@ -82,6 +82,13 @@ FRR fields (present once for all P1 work in this issue):
 
 A `Feature` is finished only when EVERY child is finished — never partial. Pick the mode:
 
+- **Discovery / scoping ticket** (body says "discovery/scoping", "not an
+  implementation ticket", "produce a recommendation", "file follow-up issues"):
+  its deliverable is the written recommendation + the filed follow-ups. When those
+  exist, it is DONE — its PR `Closes #{ISSUE_ID}`. File the follow-ups as
+  **independent** issues that *reference* this one in their body (e.g. "Spawned by
+  #{ISSUE_ID}") — do NOT attach them as native sub-issues, and do NOT hold this
+  ticket open as an umbrella waiting on them.
 - **Standalone issue** (no children): implement it; its PR `Closes #{ISSUE_ID}`.
 - **Feature with open children — all-in-one:** implement the feature AND every open
   child on THIS branch, in dependency order; the single PR `Closes` the feature *and*
