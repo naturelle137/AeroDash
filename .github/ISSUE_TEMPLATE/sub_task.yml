@@ -46,6 +46,7 @@ body:
     id: dod
     attributes:
       label: Definition of Done (DoD)
+      description: "At closing, EVERY box must end ticked [x] — done, or ticked and marked `N/A — <reason>` if it does not apply. An unticked box blocks closing (DoD Attestation Gate)."
       options:
         - label: Implementation is complete.
           required: false

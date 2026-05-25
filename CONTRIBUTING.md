@@ -334,4 +334,18 @@ stateDiagram-v2
 * A **`Task`** acts as a sub-task to a parent **`Feature`** or **`Bug`**.
 * **Sub-tasks (`Task`)**: Are closed with `fixed` and moved to *Done* as soon as their PR is merged into `develop`, a `release/`, or a `hotfix/` branch.
 * **Parent Tickets (`Feature` / `Bug`)**: Can **only** be labelled `fixed`, closed, and moved to *Done* when **all** of its sub-tasks are closed. *(Note: A sub-task closed as `wont do` counts as closed, provided the rationale is documented in the ticket).*
+* **A feature is "finished" only when every child is finished.** Implement a parent feature one of two ways — never partially:
+    1. **All-in-one:** implement the feature *and* **all** its sub-tasks on the same branch; that single PR to `develop` carries `Closes #<feature>` plus `Closes #<each-sub-task>`.
+    2. **Incremental:** implement the sub-tasks first (each its own branch + PR, `Closes #<sub-task>`); the **last** sub-task's PR — opened once every sibling is already closed — *also* carries `Closes #<feature>`, closing the parent in the same merge.
+  Never close a feature while any sub-task is still open, and never leave a feature open once its last sub-task is done.
 * Tickets labelled `duplicate` or `wont do` are removed from the project board entirely.
+
+### Closing requires a complete, ticked attestation
+
+A ticket is closed (`fixed`) only when its **Definition of Done is genuinely met and attested** — and attestation means **every checkbox is ticked `[x]`**, in **both** the issue *and* the closing PR:
+
+* Tick `[x]` an item you have genuinely completed and verified.
+* If an item does **not apply** to this change, still tick it `[x]`, mark it `N/A`, and give a one-line reason. An unticked `[ ]` reads as an open obligation — even when truly N/A.
+* **Never** tick an item that applies but is not done — that is a false attestation. Finish it, or (for a sub-task) split the residue into a follow-up `Task` and keep the parent open.
+
+The **DoD Attestation Gate** (`.github/workflows/dod-gate.yml`) enforces this on the issue side — a PR that closes an issue with any unticked DoD box fails the check — and the PR template's checklist enforces it on the PR side (see `/pr.create`).

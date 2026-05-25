@@ -29,7 +29,7 @@ argument-hint: <target-branch> [changelog=yes|no]
 - `pr.body.template`: draft PR body from `.github/pull_request_template.md`; preserve section order
 - `pr.body.template.checklist`: obey `template.issue_state` `template.no_stray_markers` `template.na.allow` `template.na.checked` `template.checklist.complete` `template.post_merge` in applied `github-pr` rule
 - `pr.body.summary`: brief bullets only
-- `pr.body.related`: `develop` target -> `Ref #...` or `Related to #...`; `main` target -> close keywords allowed
+- `pr.body.related`: `develop` target -> `Closes #...` | `Fixes #...` (auto-closes the issue on merge); `main` target -> `Ref #...` only (issues already closed on the develop merge)
 - `pr.body.docs`: include only real requirement, architecture, risk, journey, code-doc, and changelog updates
 - `pr.body.testing`: record only checks actually run; otherwise use `N/A` with reason
 - `pr.exec.create`: `create_pull_request` with `owner=naturelle137` `repo=AeroDash` `draft=false` `maintainer_can_modify=true`

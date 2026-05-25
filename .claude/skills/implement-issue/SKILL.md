@@ -80,11 +80,20 @@ FRR fields (present once for all P1 work in this issue):
 
 ## Implementation cycle
 
-Mode: standalone issue OR each open child in order.
+A `Feature` is finished only when EVERY child is finished — never partial. Pick the mode:
+
+- **Standalone issue** (no children): implement it; its PR `Closes #{ISSUE_ID}`.
+- **Feature with open children — all-in-one:** implement the feature AND every open
+  child on THIS branch, in dependency order; the single PR `Closes` the feature *and*
+  every child.
+- **Sub-task (`Task`) — incremental:** implement this task; its PR `Closes #{TASK_ID}`.
+  If NO sibling remains open afterwards, this is the feature's last task — its PR ALSO
+  `Closes #{PARENT_ID}` (attest the parent DoD too). If siblings remain open, close
+  only this task and leave the parent open.
 
 Per item: read -> classify boundary -> trace discovery -> edit -> trace update -> registry update -> tests -> commit.
 
-If blocked: skip blocked item; record reason; continue.
+If a child is genuinely blocked: skip it, record the reason, leave the parent open — never fake-close a feature with unfinished children.
 
 ## Read-before-write
 
@@ -135,13 +144,13 @@ Verify after each logical unit. Coverage cmd: `pnpm --filter frontend vitest run
 ## Issue updates
 
 ### Child task done (DoD-attested)
-Comment: `changes` + `files` + `trace` + `tests` + `Part of #{PARENT_ID}`. Tick only DoD items genuinely completed.
+Comment: `changes` + `files` + `trace` + `tests` + `Part of #{PARENT_ID}`. Attest the DoD so EVERY box ends ticked `[x]`: tick items genuinely done; for an item that does not apply, tick it and mark `N/A — <reason>`; NEVER tick an item that applies but is not done (finish it, or split the residue into a follow-up `Task`). The DoD gate rejects a closing PR whose issue still has any unticked box.
 
 ### Child task skipped
-Comment reason only; no DoD checks.
+Comment reason only; no DoD checks. The parent stays open.
 
 ### Parent
-Tick only DoD items genuinely completed. Forbid ticking skipped/unverified/manual-flight items.
+Attest the parent DoD the same way — every box ends `[x]` (genuinely done, or `N/A — <reason>`); never tick skipped/unverified/manual-flight items. Only close the parent when all children are closed and every parent DoD box is ticked.
 
 Parent comment fields: implementation summary | sub-issue status | files modified | trace ids + upstreams | test results | coverage compliance (if `product`) | DoD status. Omit sub-issues field when none.
 

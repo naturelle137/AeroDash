@@ -233,9 +233,12 @@ jobs:
             `pnpm test:integration`, `pnpm build`. Fix any failures you introduced.
 
             Completion & attestation (per the implement-issue skill — NOT optional):
-            - Finish the whole ticket. Tick the issue's DoD checkboxes ONLY for items
-              you have genuinely verified done; never tick skipped, unverified, or
-              human-only items (e.g. manual flight testing).
+            - Finish the whole ticket and attest its DoD so EVERY checkbox in the issue
+              ends ticked `[x]`: tick items genuinely verified done; for an item that
+              does not apply, tick it and mark `N/A — <reason>`; never tick a skipped,
+              unverified, or human-only item (e.g. manual flight testing) — those keep
+              the issue open. The DoD gate rejects a `Closes` PR whose issue still has
+              any unticked box.
             - Author the PR description by FILLING OUT the repository PR template at
               `.github/pull_request_template.md` and writing the result to the file
               `$RUNNER_TEMP/pr-body.md` — the workflow uses that file verbatim as the
@@ -246,7 +249,13 @@ jobs:
             - In the template's "Related Issues" section use `Closes #${{ matrix.issue }}`
               ONLY when the issue is 100% complete and every DoD item is genuinely
               ticked; otherwise use `Refs #${{ matrix.issue }}` and state plainly what
-              remains. Do NOT claim `Closes` for incomplete work.
+              remains. Do NOT claim `Closes` for incomplete work. (Merging to `develop`
+              auto-closes via `Closes` — every issue is closed by its PR to develop.)
+            - Parent/child closing: a feature is finished only when EVERY child is. If
+              this issue is a sub-task and NO sibling remains open after your work, also
+              add `Closes #<parent-feature>` and attest the parent's DoD; if it is a
+              feature, only `Closes` it when all its children are already closed. Never
+              close a feature that still has unfinished children.
 
             Hard rules (ADR-317-DEV — do not violate):
             - Honour every quality gate. NEVER use --no-verify or bypass Husky/ESLint/tests.
