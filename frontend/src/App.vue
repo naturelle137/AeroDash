@@ -2,7 +2,7 @@
 // @IMP-UI-SHARED-002@ (FROM: @REQ-UI-011@, @REQ-SYS-001@)
 // @IMP-SYS-SHARED-003@ (FROM: @REQ-SYS-005@)
 // @IMP-SYS-SHARED-005@ (FROM: @REQ-SYS-006@)
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { RouterView, RouterLink, useRoute } from 'vue-router'
 import { useTheme } from '@/shared/composables/useTheme'
 import AppLogo from '@/shared/components/AppLogo.vue'
@@ -22,6 +22,34 @@ const { theme, toggleTheme } = useTheme()
 const route = useRoute()
 
 const sidebarCollapsed = ref(false)
+
+// @IMP-SYS-SHARED-007@ (FROM: @REQ-SYS-001@)
+// iOS Safari aggressively restores SPA pages from the back/forward cache
+// (bfcache) when the pilot uses the browser back button — or, more commonly
+// on a tablet, the swipe-back edge gesture — to return from a deep route
+// (e.g. /fleet/:id/edit → /fleet). The restored page comes back with its
+// previous DOM and JS state intact, but Vue's reactive bindings and any
+// pending microtasks are not re-initialised, so template @click handlers
+// silently no-op even though the button itself is still focusable and
+// visually enabled (issue #232: the Fleet list Delete control). Listening
+// for `pageshow` with `event.persisted === true` lets us spot the bfcache
+// restore and force the active route component to remount cleanly via a
+// route key, which re-runs `onMounted` and re-binds every reactive handler.
+const bfcacheNonce = ref(0)
+
+function handlePageShow(event: PageTransitionEvent): void {
+  if (event.persisted) {
+    bfcacheNonce.value += 1
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('pageshow', handlePageShow)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('pageshow', handlePageShow)
+})
 
 interface NavItem {
   id: string
@@ -207,7 +235,7 @@ const themeLabel = computed(() =>
           </p>
         </div>
       </div>
-      <RouterView v-else />
+      <RouterView v-else :key="bfcacheNonce" />
     </main>
 
     <!-- ═══ Bottom navigation (mobile only) ════════════════════════════════ -->

@@ -729,6 +729,43 @@ SYS App — Version-Blocked Screen (Unit)
       - frontend/src/stores/__tests__/app-version-blocked.spec.ts
 
 
+SYS App — bfcache Restoration Handler (Unit)
+  UT-SYS-APP-031
+    title: bfcache gate mounts the wrapped child exactly once on initial render (issue #232)
+    impl:
+      - IMP-SYS-SHARED-007
+    files:
+      - frontend/src/__tests__/App.bfcache.spec.ts
+
+  UT-SYS-APP-032
+    title: pageshow with persisted=false does not remount the child (normal page load)
+    impl:
+      - IMP-SYS-SHARED-007
+    files:
+      - frontend/src/__tests__/App.bfcache.spec.ts
+
+  UT-SYS-APP-033
+    title: pageshow with persisted=true forces a remount of the active RouterView child (bfcache restore — issue #232)
+    impl:
+      - IMP-SYS-SHARED-007
+    files:
+      - frontend/src/__tests__/App.bfcache.spec.ts
+
+  UT-SYS-APP-034
+    title: each subsequent bfcache restoration advances the route key and re-mounts the child cleanly
+    impl:
+      - IMP-SYS-SHARED-007
+    files:
+      - frontend/src/__tests__/App.bfcache.spec.ts
+
+  UT-SYS-APP-035
+    title: pageshow listener is detached on unmount — no leak across component tear-down (issue #232)
+    impl:
+      - IMP-SYS-SHARED-007
+    files:
+      - frontend/src/__tests__/App.bfcache.spec.ts
+
+
 SYS Store — Session Persistence (Unit)
   UT-SYS-STORE-001
     title: returns null when localStorage is empty

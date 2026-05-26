@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Fleet list **Delete** control no longer silently no-ops after the pilot returns from the profile editor via the browser back button or the iOS Safari swipe-back gesture. `App.vue` now listens for `pageshow` with `event.persisted === true` (the bfcache restore signal) and re-keys the active `<RouterView>`, forcing the restored route component to remount cleanly so reactive bindings and template `@click` handlers are re-bound (closes #232)
+
 ### Engineering
 
 - `publish-release.yml` now marks SemVer pre-release tags (`-alpha` / `-beta` / `-rc`) as GitHub pre-releases and stable tags as `latest`, instead of always publishing a stable "latest" release (`gh release create` does not infer this from the tag)
