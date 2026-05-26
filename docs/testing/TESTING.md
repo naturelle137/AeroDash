@@ -219,3 +219,100 @@ The `shtracer` engine is still bundled (`.tools/shtracer/`) for visualisation an
 The raw `trace.json` is also uploaded as a GitHub Actions artifact (`traceability-report`) and retained for 30 days on every PR run.
 
 For full CLI documentation see [CONTRIBUTING.md § 5.1 Trace authoring CLI](../../CONTRIBUTING.md#51-trace-authoring-cli).
+
+---
+
+## 🧬 7. Mutation Testing — P1 Safety Core Gate
+
+Line/branch/function coverage proves the unit tests _execute_ every path
+through the P1 Safety Core. It does not prove the tests _catch defects_ on
+those paths — a test can execute a line while asserting nothing meaningful
+about its output. Mutation testing closes that gap: a [Stryker](https://stryker-mutator.io/)
+runner introduces small, semantics-changing edits ("mutants") into the
+source, then re-runs the unit suite. A mutant that survives is a defect the
+tests would have missed in production.
+
+For AeroDash this is a non-negotiable second line of defence on Mass &
+Balance, Performance, and Fuel/Endurance math: a surviving mutant in
+`frontend/src/core/` can yield an **incorrect Go/No-Go advisory** (H-class
+hazard). The gate's runtime cost is acceptable because the scope is narrow.
+
+### Scope (what is mutated)
+
+| Included | Excluded |
+| :------- | :------- |
+| `frontend/src/core/**/*.ts` (all P1 logic, adapters, domain) | `**/*.spec.ts`, `**/*.int.spec.ts`, `**/*.e2e.spec.ts` (the tests themselves) |
+| | `**/*.types.ts` (type-only modules — no executable statements) |
+| | `**/__fixtures__/**` (canonical test vectors — mutating these would test the fixtures, not the math) |
+| | `**/__tests__/**` (shared test helpers) |
+| | Everything outside `src/core/` (P2/P3 — see _Coverage Requirements_ above for their thresholds) |
+
+P2/P3 code is intentionally out of scope: a UI mutation that survives is at
+worst an inconvenience; a P1 mutation that survives can sign off an unsafe
+flight. Widening the scope would dilute the signal and inflate runtime.
+
+### Threshold
+
+The gate is a **binary pass/fail contract**: the mutation score either
+meets the floor or it doesn't. A "near-failure" is operationally identical
+to a pass — neither changes what a reviewer does next — so there is no
+"amber" tier. `stryker.config.mjs` therefore collapses `thresholds.high`,
+`thresholds.low`, and `thresholds.break` onto the same value; the HTML and
+clear-text reporters then render the score as pure green-or-red, with no
+intermediate "passing but cautionary" colour to interpret.
+
+| Threshold | Value | Behaviour |
+| :-------- | :---- | :-------- |
+| `break` (= `low` = `high`) | **70** | **Hard fail floor** — CI exits non-zero when the score is below this value (no `continue-on-error`). At or above, the PR passes the gate. |
+
+The floor is calibrated so existing P1 tests can pass it without
+rewriting every assertion, while still rejecting tests that merely call
+code without inspecting outputs. Tightening the floor post-v1.0.0 is
+tracked separately.
+
+### Runner & Runtime
+
+The Stryker config (`frontend/stryker.config.mjs`) drives the
+`@stryker-mutator/vitest-runner` against `vitest.config.p1.ts` — the same
+isolated, pure-Node configuration that powers `pnpm --filter frontend test:p1`.
+This keeps mutation runs framework-free (no Vue, no Pinia, no jsdom) so the
+score reflects the math, not the UI shell.
+
+Typical local runtime is in the order of minutes — the run is single-shot,
+not interactive. The CI gate is intentionally allowed to be slow (it runs as
+its own job and does not block faster gates).
+
+### Running Locally
+
+```bash
+# Full P1 mutation run (writes HTML report to frontend/reports/mutation/)
+pnpm --filter frontend test:mutation
+
+# Inspect the survivor report
+open frontend/reports/mutation/mutation.html  # or your platform equivalent
+```
+
+For every surviving mutant, the HTML report shows the source line and the
+mutation that escaped — typically the fix is to add or sharpen a test
+assertion rather than change the math.
+
+### CI Integration
+
+`.github/workflows/mutation.yml` runs `pnpm --filter frontend test:mutation`
+(with `--reporters dots,clear-text,html` for quiet CI logs) on PRs targeting
+`develop` and `main`, gated by a small `paths-filter` pre-job:
+
+| PR target branch | Run policy |
+| :--------------- | :--------- |
+| `main` | **Always run.** Releases ship from `main`, so the mutation score is re-verified as the last quality gate before production regardless of which files the PR touches. |
+| `develop` | **Run only when the diff touches paths that can change the score:** `frontend/src/core/**`, `frontend/stryker.config.mjs`, `frontend/vitest.config.p1.ts`, `frontend/tsconfig.stryker.json`, `frontend/package.json`, `pnpm-lock.yaml`, or the workflow file itself. Other diffs (docs, P2/P3 UI tweaks, unrelated workflow polish) cannot move the score, so the expensive job is skipped. |
+
+The step is **not** marked `continue-on-error`: a score below
+`thresholds.break = 70` exits Stryker non-zero and fails the **P1 Mutation
+Score** check on the PR. The HTML report is uploaded as the
+`mutation-report` artifact (14-day retention) so reviewers can triage
+survivors even when the gate has just failed.
+
+The `deploy-reports.yml` workflow continues to publish the latest Stryker
+HTML report from `main` for visibility — see the
+[CI Reports page](https://naturelle137.github.io/AeroDash/stryker/).

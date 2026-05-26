@@ -1,0 +1,134 @@
+name: Mutation Score (P1 Safety Core)
+
+# Second line of defence behind P1 unit-test coverage: Stryker introduces
+# semantics-changing mutants into `frontend/src/core/**` and re-runs the
+# isolated P1 unit suite. A surviving mutant is a P1 test that executes a
+# code path without meaningfully asserting on its output — i.e. a defect
+# the unit suite would have missed in production.
+#
+# The runner config (`frontend/stryker.config.mjs`) pins:
+#   • mutate scope → `frontend/src/core/**/*.ts` (no specs / fixtures /
+#     type-only / test helpers)
+#   • thresholds  → high = low = break = 70 (pure pass/fail gate)
+#
+# A score below `thresholds.break` exits Stryker non-zero, so this job
+# fails the pipeline — there is intentionally NO `continue-on-error`. The
+# job is allowed to be slow: it runs as its own check and does not block
+# faster gates.
+#
+# Run-policy (see the `mutation-score` job's `if:` below):
+#   • PR to `main`     → ALWAYS run. Releases ship from `main`, so the
+#     mutation score must be re-verified regardless of whether the
+#     diff itself touches P1 (a release PR is the last quality gate
+#     before production).
+#   • PR to `develop`  → run ONLY when the diff touches the files that
+#     can actually change the mutation score (the P1 source itself, the
+#     Stryker / Vitest-P1 configs, the lockfile, or this workflow).
+#     Other diffs (docs, P2/P3 UI, unrelated workflow polish) cannot
+#     move the score, so re-running on them only burns CI minutes.
+#
+# Refs: issue #260 (TECH-007/PR-015 from the v0.3.0-alpha release audit),
+#       docs/testing/TESTING.md §7,
+#       docs/architecture/adr/314-DEV-dependency-isolation.md (P1 isolation
+#       reused via vitest.config.p1.ts).
+
+on:
+  pull_request:
+    branches: [develop, main]
+
+concurrency:
+  group: mutation-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  # Tiny detector job — runs on every triggering PR (~10 s) and reports
+  # whether the diff touches any path that can affect the mutation score.
+  # The expensive `mutation-score` job consults its output to decide
+  # whether to actually spin up Stryker on a `develop`-bound PR.
+  changes:
+    name: Detect P1-touching changes
+    runs-on: ubuntu-latest
+    outputs:
+      core: ${{ steps.filter.outputs.core }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Filter changed paths
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            core:
+              - 'frontend/src/core/**'
+              - 'frontend/stryker.config.mjs'
+              - 'frontend/vitest.config.p1.ts'
+              - 'frontend/tsconfig.stryker.json'
+              - 'frontend/package.json'
+              - 'pnpm-lock.yaml'
+              - '.github/workflows/mutation.yml'
+
+  mutation-score:
+    name: P1 Mutation Score
+    needs: [changes]
+    # Always on `main`; conditional on `develop`. See the workflow header
+    # block for the rationale. When the condition is false the job is
+    # *skipped*, which GitHub reports as a neutral conclusion — fine
+    # because this check is not (currently) required by branch protection.
+    if: ${{ github.base_ref == 'main' || needs.changes.outputs.core == 'true' }}
+    runs-on: ubuntu-latest
+    # Generous wall-clock budget — Stryker re-runs the P1 vitest suite for
+    # every generated mutant. The current P1 scope is small enough that
+    # this typically completes in well under the cap, but a regression in
+    # P1 size or test runtime should fail loudly rather than be masked by
+    # a tight timeout.
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # NOTE: explicitly NOT marked `continue-on-error`. The Stryker config
+      # exits non-zero when the score drops below `thresholds.break = 70`,
+      # so any regression in the P1 mutation score must fail the PR check.
+      #
+      # `--reporters dots,clear-text,html` overrides the local default
+      # (`progress,clear-text,html`): `progress` is the live progress bar
+      # that's useful when a human is watching a local run, but in CI it
+      # degrades to one log line per tick — `dots` is the standard quiet
+      # reporter (one `.` per mutant). `clear-text` keeps the survivor
+      # summary; `html` is the artefact-uploaded report.
+      #
+      # We call `stryker` directly via `pnpm exec` rather than going
+      # through the `test:mutation` script: pnpm forwards arguments after
+      # `--` as positional arguments to the script's first token, and
+      # `stryker run` only accepts one positional argument (the optional
+      # config file), so `pnpm run test:mutation -- --reporters …` is a
+      # parse error. `pnpm exec` bypasses the wrapper and is what scripts
+      # like this are designed for.
+      - name: Run Stryker mutation tests (P1 Safety Core)
+        run: pnpm --filter frontend exec stryker run --reporters dots,clear-text,html
+
+      # Always upload the HTML report so reviewers can triage survivors,
+      # even when the gate has just failed.
+      - name: Upload mutation report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v5
+        with:
+          name: mutation-report
+          path: frontend/reports/mutation/
+          retention-days: 14

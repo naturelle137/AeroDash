@@ -21,6 +21,7 @@
     "test:smoke": "bddgen && playwright test --grep @smoke --grep-invert @wip",
     "coverage:unit": "vitest run --coverage",
     "test:integration": "vitest run --config vitest.config.int.ts",
+    "test:mutation": "stryker run",
     "test:e2e": "bddgen && playwright test --grep-invert @wip",
     "trace": "node scripts/trace/index.mjs",
     "trace:check": "node scripts/trace/index.mjs check",
