@@ -97,3 +97,76 @@ AC Store — DB Migration (ADR-008)
       - IMP-AC-STORE-001
     files:
       - frontend/src/modules/aircraft/__tests__/fleet.repository.int.spec.ts
+
+AC Migration — Downgrade + Corruption Recovery (#259)
+  IT-AC-STORE-101
+    title: Migration suite header — fleet.repository on-read migration tests for #259
+    impl:
+      - IMP-AC-STORE-001
+      - IMP-AC-CORE-003
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.repository.migration.int.spec.ts
+
+  IT-AC-STORE-102
+    title: Drops a single document whose schemaVersion is from a future build
+    impl:
+      - IMP-AC-STORE-001
+      - IMP-AC-CORE-003
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.repository.migration.int.spec.ts
+
+  IT-AC-STORE-103
+    title: findById returns undefined and emits a future-version diagnostic
+    impl:
+      - IMP-AC-STORE-001
+      - IMP-AC-CORE-003
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.repository.migration.int.spec.ts
+
+  IT-AC-STORE-104
+    title: Keeps readable v1 profiles when one v-future doc is present (partial load)
+    impl:
+      - IMP-AC-STORE-001
+      - IMP-AC-CORE-003
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.repository.migration.int.spec.ts
+
+  IT-AC-STORE-105
+    title: Drops a structurally invalid document and emits a corrupt diagnostic
+    impl:
+      - IMP-AC-STORE-001
+      - IMP-AC-CORE-003
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.repository.migration.int.spec.ts
+
+  IT-AC-STORE-106
+    title: Recovers cleanly from a mid-migration state (mix of v0 legacy + v1 docs)
+    impl:
+      - IMP-AC-STORE-001
+      - IMP-AC-CORE-003
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.repository.migration.int.spec.ts
+
+  IT-AC-STORE-107
+    title: Handles a fleet with a corrupt doc, a future-version doc, and a healthy doc together
+    impl:
+      - IMP-AC-STORE-001
+      - IMP-AC-CORE-003
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.repository.migration.int.spec.ts
+
+  IT-AC-STORE-108
+    title: consumeMigrationDiagnostics is one-shot — second drain returns empty
+    impl:
+      - IMP-AC-STORE-001
+      - IMP-AC-CORE-003
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.repository.migration.int.spec.ts
+
+  IT-AC-STORE-109
+    title: A profile imported from a legacy bare-profile JSON persists with schemaVersion=1
+    impl:
+      - IMP-AC-STORE-008
+      - IMP-AC-CORE-003
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.repository.migration.int.spec.ts

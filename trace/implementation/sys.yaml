@@ -238,3 +238,11 @@ SYS Pending — Connectivity State (not yet implemented)
     req:
       - REQ-SYS-010
     note: REQ-SYS-010 status is Approved. Deferred until IMP-SYS-CONN-001 provides connectivity state.
+
+SYS Core — Session Payload Migration Registry (#259)
+  IMP-SYS-CORE-012
+    title: migrateSessionPayload — session-payload migration table with INFO-severity drop notification on incompatible / corrupt payload (#259)
+    req:
+      - REQ-SYS-013
+    files:
+      - frontend/src/core/logic/session-migrations.ts

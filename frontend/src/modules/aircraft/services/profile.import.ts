@@ -7,6 +7,16 @@
  * - On any error the fleet is NOT modified — ImportError is thrown instead.
  * - Round-trip fidelity: export JSON → parse → re-validate must produce identical data.
  *
+ * Exchange-file envelope (refs #259, audit finding TECH-022):
+ * - New exports wrap the profile in
+ *   `{ format: 'aerodash-aircraft', version: 1, profile: {...} }` so the file
+ *   identifies its schema family up-front and a future schema bump can be
+ *   detected before any field is parsed.
+ * - Import accepts BOTH the envelope form (preferred, written by current
+ *   builds) AND legacy bare-profile JSON (written by builds before this
+ *   wrapper shipped, including AeroDash v0.3.0-alpha). The detector
+ *   inspects the top-level keys to decide which shape is on disk.
+ *
  * @see docs/requirements/aircraft_management.md REQ-AC-004
  */
 
@@ -26,6 +36,30 @@ import type { AircraftProfile } from '@/core/adapters/aircraft.schema'
  * wholesale into memory via `File.text()` (CS-003 / TECH-008).
  */
 export const MAX_IMPORT_FILE_BYTES = 256 * 1024 // 256 KB
+
+/**
+ * Magic `format` marker used in the exchange-file envelope. Distinguishes
+ * an aerodash aircraft profile from any other JSON document the user might
+ * point the import dialog at by accident.
+ */
+export const EXCHANGE_FORMAT = 'aerodash-aircraft' as const
+
+/**
+ * Current exchange-file envelope version.
+ *
+ * Bump in lockstep with the {@link AircraftProfileSchema}'s structural
+ * version when adding new required fields. Reading code rejects envelopes
+ * whose `version` is greater than this constant so a future profile cannot
+ * be imported into an older build (PWA-cache rollback semantics).
+ */
+export const EXCHANGE_VERSION = 1 as const
+
+/** Envelope shape that wraps an exported aircraft profile (since #259). */
+export interface ExchangeEnvelope {
+  readonly format: typeof EXCHANGE_FORMAT
+  readonly version: number
+  readonly profile: unknown
+}
 
 /**
  * Accepted MIME types for an aircraft exchange file. Browsers report `.json`
@@ -92,9 +126,35 @@ export function validateImportFile(file: File): void {
 }
 
 /**
+ * Identify whether a parsed JSON tree is the new envelope or a legacy
+ * bare-profile document.
+ *
+ * The detector is intentionally conservative: a tree only counts as an
+ * envelope when both the `format` marker and a numeric `version` are present.
+ * Any other shape (including a tree that *looks* like an envelope but is
+ * missing one of those keys) falls back to the legacy bare-profile path.
+ */
+// @IMP-AC-STORE-008@ (FROM: @REQ-AC-004@)
+export function isExchangeEnvelope(value: unknown): value is ExchangeEnvelope {
+  if (value === null || typeof value !== 'object' || Array.isArray(value)) return false
+  const obj = value as Record<string, unknown>
+  if (obj.format !== EXCHANGE_FORMAT) return false
+  if (typeof obj.version !== 'number') return false
+  if (!Number.isInteger(obj.version) || obj.version <= 0) return false
+  if (!('profile' in obj)) return false
+  return true
+}
+
+/**
  * Parse and validate an aircraft profile from a JSON exchange file string.
  *
  * - Parses the JSON text.
+ * - If the top-level shape is an {@link ExchangeEnvelope}, the envelope's
+ *   `version` is checked against {@link EXCHANGE_VERSION} (a newer version
+ *   is rejected — the user must update the app). The inner `profile` is
+ *   then validated.
+ * - Otherwise the entire tree is treated as a legacy bare-profile document
+ *   (back-compat with builds that shipped before #259).
  * - Validates against AircraftProfileSchema.
  * - Forces status = 'draft' on the imported profile.
  * - Assigns a new UUID to prevent ID collisions with existing fleet entries.
@@ -110,7 +170,21 @@ export function importProfileFromJson(jsonText: string): AircraftProfile {
     throw new ImportError('Invalid JSON: could not parse exchange file', err)
   }
 
-  const result = AircraftProfileSchema.safeParse(parsed)
+  let profileDoc: unknown
+  if (isExchangeEnvelope(parsed)) {
+    if (parsed.version > EXCHANGE_VERSION) {
+      throw new ImportError(
+        `Import failed: exchange file format version ${parsed.version} is newer than ` +
+          `this build can read (max v${EXCHANGE_VERSION}). Update the app to import this profile.`,
+      )
+    }
+    profileDoc = parsed.profile
+  } else {
+    // Legacy bare-profile JSON — accept for back-compat with pre-#259 exports.
+    profileDoc = parsed
+  }
+
+  const result = AircraftProfileSchema.safeParse(profileDoc)
 
   if (!result.success) {
     const issues = result.error.issues
@@ -129,10 +203,23 @@ export function importProfileFromJson(jsonText: string): AircraftProfile {
 
 /**
  * Export an AircraftProfile to a JSON string suitable for exchange.
- * The exported string can be re-imported with importProfileFromJson.
+ *
+ * Emits the {@link ExchangeEnvelope} wrapper (since #259). The output is
+ * a JSON object with three keys:
+ *   - `format`: always `"aerodash-aircraft"` so the file self-identifies.
+ *   - `version`: the {@link EXCHANGE_VERSION} number — older builds detect
+ *     this and refuse the import rather than silently dropping new fields.
+ *   - `profile`: the {@link AircraftProfile} aggregate.
+ *
+ * The exported string can be re-imported with {@link importProfileFromJson}.
  */
 export function exportProfileToJson(profile: AircraftProfile): string {
-  return JSON.stringify(profile, null, 2)
+  const envelope: ExchangeEnvelope = {
+    format: EXCHANGE_FORMAT,
+    version: EXCHANGE_VERSION,
+    profile,
+  }
+  return JSON.stringify(envelope, null, 2)
 }
 
 /**

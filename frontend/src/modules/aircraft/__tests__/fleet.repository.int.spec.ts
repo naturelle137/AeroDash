@@ -266,20 +266,25 @@ describe('fleetRepository — schemaVersion persistence (refs #166)', () => {
     expect(found!.schemaVersion).toBe(1)
   })
 
-  // @IT-AC-STORE-011@ (FROM: @IMP-AC-CORE-002@)
-  it('schemaVersion is preserved across update operations', async () => {
+  // @IT-AC-STORE-011@ (FROM: @IMP-AC-CORE-002@, @IMP-AC-CORE-003@)
+  it('schemaVersion is preserved across update operations at the current version', async () => {
+    // After the migration registry shipped (#259), `schemaVersion` is a
+    // strictly-monotone marker rather than a free-form counter: writing a
+    // value > CURRENT_PROFILE_SCHEMA_VERSION is rejected on read as
+    // "future version" and the document is dropped from the in-memory fleet.
+    // Round-trip semantics still hold for the current version.
     const profile = buildProfile({
       id: '00000000-0000-4000-a000-000000000021',
       schemaVersion: 1,
     })
     await create(profile)
 
-    const updated: AircraftProfile = { ...profile, registration: 'G-UPDT', schemaVersion: 2 }
+    const updated: AircraftProfile = { ...profile, registration: 'G-UPDT', schemaVersion: 1 }
     await update(updated)
 
     const found = await findById(profile.id)
     expect(found).toBeDefined()
-    expect(found!.schemaVersion).toBe(2)
+    expect(found!.schemaVersion).toBe(1)
     expect(found!.registration).toBe('G-UPDT')
   })
 

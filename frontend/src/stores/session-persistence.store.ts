@@ -11,26 +11,67 @@
  *  - An invalid or missing payload → clean session (no pre-population).
  *  - Aircraft switch → prior payload immediately cleared.
  *  - Saves are debounced to avoid writing on every keystroke.
- *  - Restored data is validated with Zod before returning to callers.
+ *  - Restored payloads are routed through the P1 migration registry. Payloads
+ *    from a *future* build (PWA-cache rollback) are dropped with an INFO
+ *    notification rather than silently truncated (refs #259). Outright
+ *    corruption clears storage and starts a clean session.
  *
  * @see docs/architecture/frontend_state_machine.md
  */
 
 import { defineStore } from 'pinia'
-import { watch } from 'vue'
+import { ref, watch } from 'vue'
 import { useMassBalanceStore } from '@/modules/mass-balance/stores/mass-balance.store'
-import { SessionPayloadSchema, type SessionPayload } from '@/core/domain/session.schema'
+import {
+  CURRENT_SESSION_PAYLOAD_VERSION,
+  type SessionPayload,
+} from '@/core/domain/session.schema'
+import { migrateSessionPayload } from '@/core/logic/session-migrations'
 
 // @IMP-SYS-STORE-001@ (FROM: @REQ-SYS-013@)
 
 const STORAGE_KEY = 'aerodash:session:payload' as const
 const DEBOUNCE_MS = 300
 
+/** Why a persisted session payload was discarded during `restoreSession()`. */
+export type SessionDropReason =
+  | 'unsupported-future-version'
+  | 'corrupt'
+
+/**
+ * One-shot notification emitted when the persisted session payload could not
+ * be restored. Severity is always INFO — the user has not *lost* anything
+ * they expected to keep (the auto-save is an aid, not a primary store), but
+ * they should know the restore was attempted and skipped.
+ */
+export interface SessionDropNotification {
+  readonly severity: 'INFO'
+  readonly code: 'INFO-SYS-001'
+  readonly reason: SessionDropReason
+  readonly message: string
+  readonly storedVersion: number
+}
+
+function buildDropNotification(
+  reason: SessionDropReason,
+  storedVersion: number,
+): SessionDropNotification {
+  const message =
+    reason === 'unsupported-future-version'
+      ? `Saved preflight data was created by a newer app build (v${storedVersion}). ` +
+        `Update the app to restore it; this build (v${CURRENT_SESSION_PAYLOAD_VERSION}) cannot read it safely.`
+      : `Saved preflight data could not be restored — the stored payload was corrupt. A fresh session was started.`
+  return { severity: 'INFO', code: 'INFO-SYS-001', reason, message, storedVersion }
+}
+
 export const useSessionPersistenceStore = defineStore('sessionPersistence', () => {
   // ── Private state ─────────────────────────────────────────────────────────
 
   let _debounceTimer: ReturnType<typeof setTimeout> | null = null
   let _watching = false
+
+  /** Most-recent drop notification, drained by callers after `restoreSession()`. */
+  const lastDropNotification = ref<SessionDropNotification | null>(null)
 
   // ── Actions ───────────────────────────────────────────────────────────────
 
@@ -45,7 +86,7 @@ export const useSessionPersistenceStore = defineStore('sessionPersistence', () =
     }
 
     const payload: SessionPayload = {
-      version: 1,
+      version: CURRENT_SESSION_PAYLOAD_VERSION,
       aircraftId: mbStore.aircraft.id,
       activeCategory: mbStore.activeCategory,
       stations: mbStore.stations.map((s) => ({
@@ -95,16 +136,22 @@ export const useSessionPersistenceStore = defineStore('sessionPersistence', () =
   }
 
   /**
-   * Read, validate, and return the persisted session payload.
+   * Read, migrate, validate, and return the persisted session payload.
    *
    * Returns `null` when:
    *  - `localStorage` is empty or the key is absent.
-   *  - The stored JSON fails Zod validation (schema mismatch / corruption).
-   *
-   * An invalid payload is removed from storage so it does not persist across
-   * future page loads.
+   *  - JSON parse fails (storage clears, no notification — a fresh page load
+   *    after a corruption needs no INFO toast).
+   *  - The stored payload's version is *newer* than this build can read
+   *    (PWA-cache rollback). The payload is dropped, storage is cleared,
+   *    and an `unsupported-future-version` {@link SessionDropNotification}
+   *    is emitted on {@link lastDropNotification}.
+   *  - The stored payload fails migration / Zod validation. Storage is
+   *    cleared and a `corrupt` drop notification is emitted.
    */
   function restoreSession(): SessionPayload | null {
+    lastDropNotification.value = null
+
     let raw: string | null = null
     try {
       raw = localStorage.getItem(STORAGE_KEY)
@@ -120,17 +167,40 @@ export const useSessionPersistenceStore = defineStore('sessionPersistence', () =
     try {
       parsed = JSON.parse(raw)
     } catch {
+      // Storage held a string that was not valid JSON — treat the same as a
+      // corrupt migration outcome (clear + notify) so the pilot sees one
+      // unified INFO message rather than the silent-clear pre-#259 behaviour.
       clearSession()
+      lastDropNotification.value = buildDropNotification('corrupt', 0)
       return null
     }
 
-    const result = SessionPayloadSchema.safeParse(parsed)
-    if (!result.success) {
-      clearSession()
-      return null
+    const outcome = migrateSessionPayload(parsed)
+
+    if (outcome.kind === 'migrated') {
+      return outcome.payload
     }
 
-    return result.data
+    // Drop path — either unsupported-future-version (PWA cache rollback) or
+    // corrupt (Zod / migration failure). In both cases we clear storage so
+    // the same drop is not re-emitted on every reload and surface a single
+    // INFO notification for the UI to render. The pilot is not silently
+    // deprived of context — they learn the saved session was not restored
+    // and a fresh session was started.
+    clearSession()
+    lastDropNotification.value = buildDropNotification(outcome.kind, outcome.storedVersion)
+    return null
+  }
+
+  /**
+   * Consume and clear the most recent drop notification. Returns `null` when
+   * the last `restoreSession()` did not drop a payload. Callers that surface
+   * INFO toasts should invoke this once after restoring.
+   */
+  function consumeDropNotification(): SessionDropNotification | null {
+    const n = lastDropNotification.value
+    lastDropNotification.value = null
+    return n
   }
 
   // ── Watchers ──────────────────────────────────────────────────────────────
@@ -177,6 +247,8 @@ export const useSessionPersistenceStore = defineStore('sessionPersistence', () =
     saveSession,
     clearSession,
     restoreSession,
+    consumeDropNotification,
+    lastDropNotification,
     startWatching,
   }
 })

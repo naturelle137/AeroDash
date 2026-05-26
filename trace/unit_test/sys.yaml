@@ -999,3 +999,28 @@ SYS Store — App Version (Unit)
       - IMP-SYS-STORE-006
     files:
       - frontend/src/stores/__tests__/app-version.store.spec.ts
+
+SYS Core — Session Migration Tests (#259)
+  UT-SYS-CORE-101
+    title: migrateSessionPayload suite — session payload migration registry tests (#259)
+    impl:
+      - IMP-SYS-CORE-012
+    files:
+      - frontend/src/core/logic/session-migrations.spec.ts
+
+SYS Store — Session Drop Notification Tests (#259)
+  UT-SYS-STORE-037
+    title: restoreSession clears any prior drop notification when restoring a valid payload
+    impl:
+      - IMP-SYS-STORE-001
+      - IMP-SYS-CORE-012
+    files:
+      - frontend/src/stores/__tests__/session-persistence.store.spec.ts
+
+  UT-SYS-STORE-038
+    title: restoreSession emits no notification when localStorage is empty (clean session is not a drop)
+    impl:
+      - IMP-SYS-STORE-001
+      - IMP-SYS-CORE-012
+    files:
+      - frontend/src/stores/__tests__/session-persistence.store.spec.ts

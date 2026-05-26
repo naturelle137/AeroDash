@@ -74,6 +74,23 @@ AC Store — Fleet Repository
     files:
       - frontend/src/modules/aircraft/stores/active-aircraft.store.ts
 
+AC Core — schemaVersion Migration Registry (#259)
+  IMP-AC-CORE-003
+    title: migrateProfileDocument — schemaVersion-keyed migration registry with per-version up-functions for AircraftProfile documents (#259)
+    req:
+      - REQ-AC-001
+      - REQ-SYS-013
+    files:
+      - frontend/src/core/logic/profile-migrations.ts
+
+AC Store — Exchange Envelope (#259)
+  IMP-AC-STORE-008
+    title: isExchangeEnvelope — detector and exporter for aerodash-aircraft profile envelope with legacy bare-profile back-compat (#259)
+    req:
+      - REQ-AC-004
+    files:
+      - frontend/src/modules/aircraft/services/profile.import.ts
+
 AC View — Model Catalogue and Components
   IMP-AC-VIEW-001
     title: AIRCRAFT_MODEL_CATALOGUE — JSON source + helper functions (manufacturer→model→ICAO)
