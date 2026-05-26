@@ -15,6 +15,7 @@ import { configFor, knownExtensions, REGISTRY_TARGETS } from '../lib/config.mjs'
 import { scanAll } from '../lib/parser.mjs'
 import {
   entryFromOccurrence,
+  isTombstone,
   loadRegistryDir,
   serialiseRegistry,
   writeRegistry,
@@ -23,13 +24,10 @@ import {
 /** @typedef {import('../lib/config.mjs').TagType} TagType */
 /** @typedef {import('../lib/registry.mjs').RegistryEntry} RegistryEntry */
 
-/**
- * Status values that suppress automatic removal. `deleted` / `obsolete`
- * match STC §5.2; `pending` covers registry stubs that document a
- * planned artifact whose source hasn't landed yet (e.g. cross-module
- * placeholders blocked on a future milestone).
- */
-const PRESERVE_STATUSES = new Set(['deleted', 'obsolete', 'pending'])
+// Sync delegates "should this entry survive a removal pass?" to the
+// shared `isTombstone(entry)` predicate in lib/registry.mjs. Keep the two
+// in lockstep — diverging here while `check`'s `diffRegistry` reads the
+// same predicate is exactly what review M2 flagged.
 
 /**
  * Decide which YAML file a newly-discovered occurrence should be written
@@ -133,7 +131,7 @@ export function planSync(type, occurrences, existing) {
   for (const [fileKey, entries] of byFile.entries()) {
     const filtered = entries.filter((e) => {
       if (sourceById.has(e.id)) return true
-      if (PRESERVE_STATUSES.has(e.scalars.status)) return true
+      if (isTombstone(e)) return true
       // Non-canonical legacy id (e.g. extra segments the scanner can't
       // match) — keep, surface as drift via `check`.
       if (canonicalIdRegex && !canonicalIdRegex.test(e.id)) {

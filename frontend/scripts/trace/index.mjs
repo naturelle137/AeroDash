@@ -136,17 +136,39 @@ export async function run(argv, ctx = {}) {
     case 'tag': {
       const [type, ...segments] = rest
       if (!type) throw new Error('trace tag: TYPE positional is required')
-      const file = flags.file ? String(flags.file) : undefined
+      // Defensive m2: `--module --layer X` would otherwise resolve `module`
+      // to `true`, which then becomes the literal segment 'TRUE'. Reject
+      // boolean values for flags that demand a string.
+      const requireValue = (name) => {
+        const v = flags[name]
+        if (v === undefined) return undefined
+        if (v === true) throw new Error(`trace tag: --${name} requires a value`)
+        return String(v)
+      }
+      const file = requireValue('file')
       if (!file) throw new Error('trace tag: --file is required')
+      const moduleFlag = requireValue('module')
+      const layerFlag = requireValue('layer')
+      const phaseFlag = requireValue('phase')
       const segmentList = segments.length > 0
         ? segments.map((s) => s.toUpperCase())
-        : flags.module || flags.layer || flags.phase
-          ? [flags.module, flags.layer, flags.phase].filter(Boolean).map((s) => String(s).toUpperCase())
+        : moduleFlag || layerFlag || phaseFlag
+          ? [moduleFlag, layerFlag, phaseFlag].filter(Boolean).map((s) => String(s).toUpperCase())
           : undefined
       const fromTags = parseFromTags(flags.from)
       const technical = Boolean(flags.technical)
       const dryRun = Boolean(flags['dry-run'])
-      const lineIndex = flags.line ? Number(flags.line) : undefined
+      // Defensive m3: `--line foo` previously yielded NaN → falsy → silent
+      // append at EOF. Validate as a finite positive integer.
+      const lineRaw = requireValue('line')
+      let lineIndex
+      if (lineRaw !== undefined) {
+        const n = Number(lineRaw)
+        if (!Number.isInteger(n) || n < 1) {
+          throw new Error(`trace tag: --line must be a positive integer, got "${lineRaw}"`)
+        }
+        lineIndex = n
+      }
       const { exitCode } = await runTag({
         repoRoot,
         type: /** @type {any} */ (type.toUpperCase()),

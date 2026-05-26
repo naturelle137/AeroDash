@@ -89,6 +89,75 @@ describe('registry parser/serialiser', () => {
     expect(entries[0].scalars.file).toBe('docs/architecture/notification_schema.md')
     expect(entries[0].lists.req).toEqual(['REQ-SYS-007'])
   })
+
+  // Regression for review B1 — parseRegistry previously did `entry = null`
+  // on a group header without first pushing the in-progress entry, so the
+  // last entry of every non-terminal group was silently dropped. Verified
+  // before the fix against the real repo: `trace/implementation/mb.yaml`
+  // lost 8 of 47 IMP entries, and `sync --apply` would overwrite the
+  // curated titles with `TODO: describe this artifact` stubs.
+  it('does not drop the last entry of a non-terminal group (B1 regression)', () => {
+    const text = [
+      'Group A',
+      '  IMP-A-CORE-001',
+      '    title: First in A',
+      '  IMP-A-CORE-002',
+      '    title: Last in A — was dropped pre-fix',
+      '',
+      'Group B',
+      '  IMP-B-CORE-001',
+      '    title: First in B',
+      '',
+    ].join('\n')
+
+    const entries = parseRegistry(text)
+    expect(entries.map((e) => e.id)).toEqual([
+      'IMP-A-CORE-001',
+      'IMP-A-CORE-002',
+      'IMP-B-CORE-001',
+    ])
+    expect(entries[1].scalars.title).toBe('Last in A — was dropped pre-fix')
+  })
+
+  // Regression for review M1 — serialiseRegistry previously hoisted every
+  // scalar above every list, so a curator who interleaved `title:` →
+  // `req:` (list) → `file:` (scalar) would lose layout. Re-parsing the
+  // output then re-serialising must produce the same bytes (idempotence).
+  it('serialise → parse → serialise is idempotent across interleaved scalar/list layouts (M1 regression)', () => {
+    const text = [
+      'Architecture Design',
+      '  DES-ARCH-001',
+      '    title: Notification System Architecture',
+      '    req:',
+      '      - REQ-SYS-007',
+      '      - REQ-SYS-008',
+      '    file: docs/architecture/notification_schema.md',
+      '',
+      '  DES-ARCH-002',
+      '    title: Second entry',
+      '    files:',
+      '      - docs/architecture/second.md',
+      '    note: trailing scalar after list',
+      '',
+    ].join('\n')
+
+    const first = serialiseRegistry(parseRegistry(text))
+    const second = serialiseRegistry(parseRegistry(first))
+    expect(second).toBe(first)
+    // The interleaved layout MUST be preserved (title → req → file, not
+    // title → file → req as the pre-fix serialiser produced).
+    const reparsed = parseRegistry(first)
+    expect(reparsed[0].fields?.map((f) => f.key)).toEqual(['title', 'req', 'file'])
+    expect(reparsed[1].fields?.map((f) => f.key)).toEqual(['title', 'files', 'note'])
+  })
+
+  // Defensive m1 — a non-empty input that yields zero entries (e.g. a
+  // tab-indented file the parser doesn't recognise) must throw rather
+  // than let `sync --apply` blank the source by writing serialise([]).
+  it('refuses to silently parse a non-empty input to zero entries (m1 defence)', () => {
+    const tabbed = ['MB Core', '\tIMP-MB-CORE-001', '\t\ttitle: Tab-indented'].join('\n')
+    expect(() => parseRegistry(tabbed)).toThrow(/no entries were extracted/)
+  })
 })
 
 describe('diffRegistry', () => {
@@ -160,6 +229,26 @@ describe('diffRegistry', () => {
     )
     expect(result.onlyInRegistry).toEqual([])
   })
+
+  // Regression for review M2 — sync preserves `status: pending` per the
+  // shared isTombstone predicate; diffRegistry must align so the gate
+  // doesn't report a pending entry as `onlyInRegistry` drift.
+  it('ignores status: pending tombstones (same predicate as sync)', () => {
+    const pending: Entry = {
+      id: 'IMP-MB-CORE-098',
+      group: 'MB Core',
+      scalars: { status: 'pending', note: 'Awaiting upstream milestone' },
+      lists: {},
+    }
+    const reg = new Map(registry)
+    reg.set('IMP-MB-CORE-098', { entry: pending, relPath: 'trace/implementation/mb.yaml' })
+    const result = diffRegistry(
+      [occ('IMP-MB-CORE-001', 'frontend/src/core/logic/mass-balance.logic.ts'),
+       occ('IMP-MB-CORE-002', 'frontend/src/core/logic/mass-balance.logic.ts')],
+      reg,
+    )
+    expect(result.onlyInRegistry).toEqual([])
+  })
 })
 
 describe('entryFromOccurrence', () => {
@@ -178,6 +267,24 @@ describe('entryFromOccurrence', () => {
     expect(entry.lists.req).toEqual(['REQ-MB-001'])
     expect(entry.lists.des).toEqual(['DES-ARCH-002'])
     expect(entry.lists.files).toEqual(['frontend/src/core/logic/mass-balance.logic.ts'])
+  })
+
+  // Regression for review m4-registry — hazard refs cited from IMPs were
+  // silently dropped because the IMP branch only mapped req/des. They must
+  // surface on a `hazard:` list parallel to REQ's hazard mapping.
+  it('maps @H- FROM refs on an IMP onto a hazard: list', () => {
+    const entry = entryFromOccurrence({
+      id: '@IMP-MB-CORE-009@',
+      type: 'IMP',
+      segments: ['MB', 'CORE'],
+      number: 9,
+      file: 'frontend/src/core/logic/mass-balance.logic.ts',
+      line: 42,
+      fromTags: ['@REQ-MB-001@', '@H-007@'],
+      technical: false,
+    })
+    expect(entry.lists.req).toEqual(['REQ-MB-001'])
+    expect(entry.lists.hazard).toEqual(['H-007'])
   })
 
   it('builds a UT entry with impl trace', () => {

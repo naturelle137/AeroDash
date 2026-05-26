@@ -13,7 +13,6 @@
  */
 
 import { readFile, writeFile } from 'node:fs/promises'
-import path from 'node:path'
 
 import { scanAll } from '../lib/parser.mjs'
 import {
@@ -21,6 +20,7 @@ import {
   resolvePlaceholders,
 } from '../lib/id-generator.mjs'
 import { inferSegments } from '../lib/path-inference.mjs'
+import { resolveCliFilePath } from '../lib/file-resolve.mjs'
 
 /**
  * @param {Object} opts
@@ -39,8 +39,11 @@ export async function runResolve({ repoRoot, files, dryRun = false, log = () => 
   const summary = []
 
   for (const inputPath of files) {
-    const abs = path.isAbsolute(inputPath) ? inputPath : path.join(repoRoot, inputPath)
-    const rel = path.relative(repoRoot, abs).replace(/\\/g, '/')
+    // Resolve against cwd FIRST so `pnpm trace` (which runs with
+    // cwd=frontend/) finds `src/modules/…` under `frontend/src/modules/…`
+    // and only falls back to a repo-root match when nothing exists under
+    // cwd (review M3).
+    const { absolute: abs, rel } = await resolveCliFilePath(inputPath, repoRoot)
     const text = await readFile(abs, 'utf8')
     if (!placeholderProbeRegex().test(text)) {
       log(`${rel}: no @TYPE@ placeholder found, skipping`)

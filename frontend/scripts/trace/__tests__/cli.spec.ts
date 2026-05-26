@@ -311,4 +311,28 @@ describe('run dispatcher', () => {
     expect(code).toBe(0)
     expect(written).toContain('"@IMP-PF-CORE-001@"')
   })
+
+  // Defensive m2 — `--module --layer CORE` would otherwise turn
+  // flags.module into the literal segment 'TRUE' and surface as the
+  // confusing "Unknown module: TRUE".
+  it('rejects boolean values for --module / --layer / --phase / --file / --line', async () => {
+    await expect(
+      run(['tag', 'IMP', '--module', '--layer', 'CORE', '--file', 'frontend/src/x.ts'],
+         { repoRoot: sandbox }),
+    ).rejects.toThrow(/--module requires a value/)
+  })
+
+  // Defensive m3 — `--line foo` previously evaluated to NaN → falsy →
+  // silently appended at EOF instead of failing fast.
+  it('rejects non-integer --line values', async () => {
+    await writeFileEnsuring(
+      'frontend/src/modules/mass-balance/views/MbView.ts',
+      'export const x = 1\n',
+    )
+    await expect(
+      run(['tag', 'IMP', '--file', 'frontend/src/modules/mass-balance/views/MbView.ts',
+          '--line', 'foo'],
+         { repoRoot: sandbox }),
+    ).rejects.toThrow(/--line must be a positive integer/)
+  })
 })

@@ -23,12 +23,12 @@
  */
 
 import { readFile, writeFile } from 'node:fs/promises'
-import path from 'node:path'
 
 import { scanAll } from '../lib/parser.mjs'
 import { nextTagId } from '../lib/id-generator.mjs'
 import { assertCanonical, inferSegments } from '../lib/path-inference.mjs'
 import { insertTagComment } from '../lib/tag-insert.mjs'
+import { resolveCliFilePath } from '../lib/file-resolve.mjs'
 
 /** @typedef {import('../lib/config.mjs').TagType} TagType */
 
@@ -96,12 +96,12 @@ export async function runTag({
   dryRun = false,
   log = () => {},
 }) {
-  const tag = await computeNextTag({ repoRoot, type, segments, file })
-  const abs = path.isAbsolute(file) ? file : path.join(repoRoot, file)
-  // Comment-style detection is suffix-based; pass the repo-relative path
-  // so the rest of the CLI stays internally consistent and Windows path
-  // separators in `abs` never confuse downstream helpers.
-  const rel = path.relative(repoRoot, abs).replace(/\\/g, '/')
+  // Resolve against cwd FIRST (e.g. `pnpm trace` runs with cwd=frontend/),
+  // falling back to repoRoot. Returns both forms; we hand `rel` to
+  // path inference + comment-style detection so they stay Windows-safe
+  // and consistent with the rest of the CLI (review M3).
+  const { absolute: abs, rel } = await resolveCliFilePath(file, repoRoot)
+  const tag = await computeNextTag({ repoRoot, type, segments, file: rel })
   const text = await readFile(abs, 'utf8')
   // Heads-up when a sibling tag of the same (type, segments) already lives
   // in this file. We don't refuse — a file may legitimately host several

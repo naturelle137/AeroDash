@@ -20,6 +20,17 @@ describe('path-inference', () => {
     it('returns undefined when no module token is in the path', () => {
       expect(inferModule('frontend/src/main.ts')).toBeUndefined()
     })
+
+    // Regression for review m5 — AC's `'aircraft'` alias prefix-matched
+    // `aircraft-data` before AD's exact `'aircraft-data'` alias was tried,
+    // mis-routing tags to module AC. Exact match must win across all ids
+    // before any prefix match is considered.
+    it('prefers exact alias match over prefix match (AC vs AD on aircraft-data/)', () => {
+      expect(inferModule('frontend/src/modules/aircraft-data/profile.ts')).toBe('AD')
+      expect(inferModule('frontend/src/modules/detailed-aircraft/profile.ts')).toBe('AD')
+      // Sanity: actual AC still resolves
+      expect(inferModule('frontend/src/modules/aircraft/Foo.vue')).toBe('AC')
+    })
   })
 
   describe('inferLayer', () => {

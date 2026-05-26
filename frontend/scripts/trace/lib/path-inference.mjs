@@ -90,12 +90,25 @@ function pathSegments(filePath) {
  * @returns {string|undefined}
  */
 function matchFromSegments(dict, segments) {
+  // Two-pass deepest-first scan. Pass 1 tries EXACT alias matches across
+  // every id; only when none match do we fall back to prefix-with-`-`
+  // matches in Pass 2. Pre-fix the single-loop order meant AC's
+  // `'aircraft'` alias prefix-matched `aircraft-data` before AD's exact
+  // `'aircraft-data'` alias was tested, mis-routing tags to module AC
+  // (review m5). Inside each pass, the longest alias wins to make the
+  // intent obvious for any future maintainer reading the rule.
+  const longestFirst = (a, b) => b.length - a.length
+
   for (let i = segments.length - 1; i >= 0; i -= 1) {
     const seg = segments[i]
     for (const [id, aliases] of Object.entries(dict)) {
-      if (aliases.includes(seg)) return id
-      // Prefix match: alias "phase-a" matches segment "phase-a-…".
-      if (aliases.some((alias) => seg.startsWith(`${alias}-`))) return id
+      if ([...aliases].sort(longestFirst).some((alias) => alias === seg)) return id
+    }
+  }
+  for (let i = segments.length - 1; i >= 0; i -= 1) {
+    const seg = segments[i]
+    for (const [id, aliases] of Object.entries(dict)) {
+      if ([...aliases].sort(longestFirst).some((alias) => seg.startsWith(`${alias}-`))) return id
     }
   }
   return undefined

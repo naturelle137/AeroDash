@@ -28,11 +28,24 @@ import { REGISTRY_TARGETS } from './config.mjs'
 /** @typedef {import('./config.mjs').TagType} TagType */
 
 /**
+ * @typedef {{kind: 'scalar', key: string, value: string} | {kind: 'list', key: string, value: string[]}} RegistryField
+ */
+
+/**
  * @typedef {Object} RegistryEntry
  * @property {string} id                Tag id WITHOUT @ delimiters, e.g. "IMP-MB-CORE-001".
  * @property {string} group             Group title the entry belongs to.
  * @property {Record<string,string>} scalars    Scalar fields (title, file, status, note, …).
  * @property {Record<string,string[]>} lists    List fields (req, des, impl, files, …).
+ * @property {RegistryField[]} [fields]  Ordered field list as the source declared them.
+ *                                       When present, `serialiseRegistry` replays this order
+ *                                       instead of "all scalars then all lists" — that keeps
+ *                                       interleaved layouts (e.g. `title:` → `req:` → `file:`
+ *                                       in `trace/design/arch.yaml`) byte-stable across
+ *                                       parse → serialise → parse round-trips (review M1).
+ *                                       Constructed entries (from `entryFromOccurrence`) may
+ *                                       omit this; the serialiser then falls back to
+ *                                       scalars-then-lists.
  */
 
 /**
@@ -66,23 +79,33 @@ export function parseRegistry(text) {
   let pendingListField = null
   let currentGroup = ''
 
+  // Push the in-progress entry into the registry. Used both when a new ID
+  // line starts AND when a group header arrives — the latter previously
+  // dropped the last entry of every non-terminal group (review B1).
+  const flushEntry = () => {
+    if (entry) {
+      entries.push(entry)
+      entry = null
+    }
+  }
+
   for (const raw of lines) {
     if (raw.trim() === '') {
       pendingListField = null
       continue
     }
     if (isGroupHeader(raw)) {
+      flushEntry()
       currentGroup = raw.trim()
-      entry = null
       pendingListField = null
       continue
     }
 
     // Two-space indent → new ID block
     if (/^ {2}[^ ]/.test(raw)) {
-      if (entry) entries.push(entry)
+      flushEntry()
       const id = raw.trim()
-      entry = { id, group: currentGroup, scalars: {}, lists: {} }
+      entry = { id, group: currentGroup, scalars: {}, lists: {}, fields: [] }
       pendingListField = null
       continue
     }
@@ -101,6 +124,7 @@ export function parseRegistry(text) {
         const flat = body.trim()
         if (flat === 'obsolete' || flat === 'deleted' || flat === 'pending') {
           entry.scalars.status = flat
+          entry.fields.push({ kind: 'scalar', key: 'status', value: flat })
         }
         pendingListField = null
         continue
@@ -108,10 +132,13 @@ export function parseRegistry(text) {
       const key = body.slice(0, colonIdx).trim()
       const value = body.slice(colonIdx + 1).trim()
       if (value === '') {
-        entry.lists[key] = []
+        const items = /** @type {string[]} */ ([])
+        entry.lists[key] = items
+        entry.fields.push({ kind: 'list', key, value: items })
         pendingListField = key
       } else {
         entry.scalars[key] = value
+        entry.fields.push({ kind: 'scalar', key, value })
         pendingListField = null
       }
       continue
@@ -121,10 +148,24 @@ export function parseRegistry(text) {
     if (/^ {6}-\s+/.test(raw) && pendingListField) {
       const item = raw.replace(/^ {6}-\s+/, '').trim()
       entry.lists[pendingListField].push(item)
+      // No fields.push needed — list items live inside the existing list
+      // field's `value` array, which is shared by reference.
       continue
     }
   }
-  if (entry) entries.push(entry)
+  flushEntry()
+
+  // Defensive m1: a non-empty input that produces zero entries means the
+  // file uses an indentation/format the parser does not understand. Refuse
+  // silently — let the caller decide. Throwing here protects `sync --apply`
+  // from blanking a tab-indented (or otherwise-spaced) file with an empty
+  // serialisation.
+  if (entries.length === 0 && text.trim().length > 0) {
+    throw new Error(
+      'parseRegistry: input is non-empty but no entries were extracted. '
+      + 'Check indentation (2/4/6 spaces) and that ID lines begin at column 3.',
+    )
+  }
   return entries
 }
 
@@ -144,19 +185,35 @@ export function serialiseRegistry(entries) {
     byGroup.get(e.group).push(e)
   }
   let first = true
-  for (const [group, items] of byGroup.entries()) {
+  for (const [group, groupEntries] of byGroup.entries()) {
     if (!first) out.push('')
     first = false
     out.push(group)
-    items.forEach((entry, idx) => {
+    groupEntries.forEach((entry, idx) => {
       if (idx > 0) out.push('')
       out.push(`  ${entry.id}`)
-      for (const [k, v] of Object.entries(entry.scalars)) {
-        out.push(`    ${k}: ${v}`)
-      }
-      for (const [k, items] of Object.entries(entry.lists)) {
-        out.push(`    ${k}:`)
-        for (const item of items) out.push(`      - ${item}`)
+      // When parseRegistry built this entry, `fields` preserves the source
+      // declaration order so a file that interleaves scalar→list→scalar
+      // (e.g. `trace/design/arch.yaml`) round-trips byte-stably. New
+      // entries from `entryFromOccurrence` lack `fields`; fall back to
+      // scalars-then-lists order (review M1).
+      if (entry.fields && entry.fields.length > 0) {
+        for (const field of entry.fields) {
+          if (field.kind === 'scalar') {
+            out.push(`    ${field.key}: ${field.value}`)
+          } else {
+            out.push(`    ${field.key}:`)
+            for (const item of field.value) out.push(`      - ${item}`)
+          }
+        }
+      } else {
+        for (const [k, v] of Object.entries(entry.scalars)) {
+          out.push(`    ${k}: ${v}`)
+        }
+        for (const [k, listItems] of Object.entries(entry.lists)) {
+          out.push(`    ${k}:`)
+          for (const item of listItems) out.push(`      - ${item}`)
+        }
       }
     })
   }
@@ -230,6 +287,20 @@ export async function loadIndexedRegistry(repoRoot, type) {
 }
 
 /**
+ * Single tombstone predicate. Keep this aligned with `PRESERVE_STATUSES`
+ * in `commands/sync.mjs` — `sync` would otherwise preserve a `pending`
+ * entry while `check`'s drift report flagged it as `onlyInRegistry`
+ * (review M2). Exported so consumers don't drift again.
+ *
+ * @param {RegistryEntry} entry
+ * @returns {boolean}
+ */
+export function isTombstone(entry) {
+  const status = entry.scalars.status
+  return status === 'deleted' || status === 'obsolete' || status === 'pending'
+}
+
+/**
  * Drift analysis between source-of-truth occurrences and the existing
  * registry index. Reports entries that exist only in source, only in the
  * registry, and id collisions where a registry entry references a file
@@ -264,7 +335,7 @@ export function diffRegistry(occurrences, registryIndex) {
       onlyInSource.push(id)
       continue
     }
-    if (reg.entry.scalars.status === 'deleted' || reg.entry.scalars.status === 'obsolete') {
+    if (isTombstone(reg.entry)) {
       // Allowed: registry kept a tombstone for an id that still appears
       // in source. The check command surfaces this as a separate warning.
       continue
@@ -284,7 +355,7 @@ export function diffRegistry(occurrences, registryIndex) {
 
   for (const [id, { entry }] of registryIndex.entries()) {
     if (sourceFilesById.has(id)) continue
-    if (entry.scalars.status === 'deleted' || entry.scalars.status === 'obsolete') continue
+    if (isTombstone(entry)) continue
     onlyInRegistry.push(id)
   }
 
@@ -322,6 +393,11 @@ export function entryFromOccurrence(occ) {
     case 'IMP':
       if (reqRefs.length) entry.lists.req = reqRefs
       if (desRefs.length) entry.lists.des = desRefs
+      // Hazard refs on IMPs (e.g. `(FROM: @REQ-MB-001@, @H-007@)`) were
+      // silently dropped pre-fix because the IMP branch only mapped
+      // req/des. Surface them on the same `hazard:` list shape REQ uses
+      // (review m4-registry).
+      if (hazardRefs.length) entry.lists.hazard = hazardRefs
       break
     case 'UT':
     case 'IT':
