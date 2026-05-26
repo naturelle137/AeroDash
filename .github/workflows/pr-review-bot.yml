@@ -70,6 +70,21 @@ jobs:
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           # API-key alternative: anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          # This workflow triggers on `pull_request: synchronize` (and `opened`/
+          # `reopened`). When the iteration / overnight-implementation bot pushes
+          # a correction commit on a Draft PR, the synchronize event's initiator
+          # is `claude[bot]` — and the action's bot-actor safety gate refuses
+          # non-human initiators by default (prevents bot↔bot loops; see the
+          # action's docs/security.md). That leaves the ready-gate stuck on the
+          # previous, stale `CHANGES_REQUESTED` review.
+          #
+          # Allow ONLY `claude` — never `*`, which is documented as unsafe on
+          # public repos because external Apps could invoke the action with
+          # attacker-controlled prompts. Dependabot / github-actions / other
+          # bots commenting or pushing on a bot branch still cannot initiate a
+          # review round under this allow-list. Mirrors the same fix landed for
+          # `pr-iteration.yml` in #348; addresses #350.
+          allowed_bots: 'claude'
           prompt: |
             Review pull request #${{ github.event.pull_request.number }} in this
             repository and post a single structured PR review.

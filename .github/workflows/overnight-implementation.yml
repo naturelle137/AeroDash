@@ -238,6 +238,14 @@ jobs:
           # the action skips the OIDC exchange when github_token is set. Empty on
           # CI ⇒ unchanged production behaviour.
           github_token: ${{ env.ACT == 'true' && secrets.GITHUB_TOKEN || '' }}
+          # The action's bot-actor safety gate refuses non-human initiators by
+          # default. The cron trigger runs as `github-actions` so it is unaffected
+          # today, but `workflow_dispatch` invocations made via the GitHub API by
+          # `claude[bot]` (or any future bot-driven rerun) would be rejected. We
+          # whitelist ONLY `claude` for parity with the other two automation
+          # workflows (pr-iteration.yml from #348, pr-review-bot.yml from #350) —
+          # never `*`, which is documented as unsafe on public repos.
+          allowed_bots: 'claude'
           prompt: |
             You are running unattended in CI on branch feature/issue-${{ matrix.issue }}.
             ${{ env.ACT == 'true' && 'LOCAL ACT TEST RUN — make NO remote/GitHub changes: no project-board claim or move, no issue assignment, no label edits, no issue comments, no PR or sub-issue creation, and do NOT git push to any remote. Only read from GitHub, edit files, run the pipeline, and commit locally. (This line is empty on real CI.)' || '' }}
