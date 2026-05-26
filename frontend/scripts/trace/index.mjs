@@ -111,6 +111,11 @@ export async function run(argv, ctx = {}) {
           '  tag <TYPE> --file <p>    Generate and insert the next tag id',
           '  resolve <files...>       Replace @TYPE@ placeholders',
           '  sync [--apply]           Regenerate trace/ registries',
+          '',
+          'trace tag segment precedence (highest → lowest):',
+          '  1. positional segments (`trace tag IMP MB CORE --file …`)',
+          '  2. `--module`/`--layer`/`--phase` flags',
+          '  3. inference from the --file path',
         ].join('\n'),
       )
       return 0

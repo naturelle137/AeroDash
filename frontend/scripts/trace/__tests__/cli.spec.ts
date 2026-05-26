@@ -77,6 +77,26 @@ describe('runTag', () => {
     })
     expect(result.tag).toBe('@IMP-MB-VIEW-002@')
   })
+
+  it('warns when a same-(type, segments) tag already lives in the target file', async () => {
+    // m2 heads-up: a developer running `trace tag` twice in the same file
+    // gets a fresh `…-NNN+1` id by design (multiple distinct artifacts per
+    // file are legal), but the CLI surfaces the existing sibling tag so an
+    // accidental double-invocation is visible.
+    const filePath = 'frontend/src/modules/mass-balance/views/MbView.ts'
+    await writeFileEnsuring(filePath, '// @IMP-MB-VIEW-001@ (FROM: @REQ-MB-001@)\nexport const x = 1\n')
+
+    const messages: string[] = []
+    const result = await runTag({
+      repoRoot: sandbox,
+      type: 'IMP',
+      file: filePath,
+      fromTags: ['@REQ-MB-001@'],
+      log: (m) => messages.push(m),
+    })
+    expect(result.tag).toBe('@IMP-MB-VIEW-002@')
+    expect(messages.join('\n')).toMatch(/same \(type, segments\) is already present/i)
+  })
 })
 
 describe('runResolve', () => {

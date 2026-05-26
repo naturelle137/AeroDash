@@ -8,6 +8,15 @@
  *    isn't yet on disk or its path doesn't expose the segments.
  *  - FROM links (`--from REQ-MB-001,REQ-MB-002`) attach upstream parents.
  *
+ * Idempotence model: `runTag` only suppresses a write when the *exact*
+ * tag id it just computed is already present in the target file (this is
+ * what `lib/tag-insert.mjs` guarantees). Running `trace tag IMP --file
+ * foo.ts` twice will therefore mint a fresh `…-NNN+1` id on the second
+ * call. That is intentional — a file may host several distinct artifacts
+ * of the same type — but the CLI emits a heads-up log line when a tag of
+ * the same `(type, segments)` already lives in the file so unintended
+ * second invocations are easy to spot.
+ *
  * The CLI never prompts blocking input in CI: every parameter has a flag
  * equivalent. An interactive prompt is provided for local use via the
  * higher-level `index.mjs` dispatcher.
@@ -94,6 +103,17 @@ export async function runTag({
   // separators in `abs` never confuse downstream helpers.
   const rel = path.relative(repoRoot, abs).replace(/\\/g, '/')
   const text = await readFile(abs, 'utf8')
+  // Heads-up when a sibling tag of the same (type, segments) already lives
+  // in this file. We don't refuse — a file may legitimately host several
+  // distinct artifacts of the same type — but we surface the existing id so
+  // accidental double-invocations are visible in the log.
+  const siblingRegex = buildSiblingRegex(tag)
+  if (siblingRegex && siblingRegex.test(text)) {
+    log(
+      `${file}: a tag of the same (type, segments) is already present — minting ${tag}. ` +
+        `If this is unintended, revert and re-use the existing id.`,
+    )
+  }
   const { text: newText, alreadyPresent, insertedAt } = insertTagComment({
     fileText: text,
     filePath: rel,
@@ -109,4 +129,24 @@ export async function runTag({
   if (!dryRun) await writeFile(abs, newText, 'utf8')
   log(`${file}: inserted ${tag} at line ${insertedAt}${dryRun ? ' (dry-run)' : ''}`)
   return { tag, exitCode: 0 }
+}
+
+/**
+ * Build a `(type, segments)`-scoped sibling regex from a freshly minted
+ * tag id. Returns `null` when the input doesn't decompose into the
+ * expected `@TYPE-…-NNN@` shape (e.g. malformed callers).
+ *
+ * Example: `@IMP-MB-CORE-002@` → `/(?<![A-Z0-9-])@IMP-MB-CORE-\d+@(?![A-Z0-9-])/`.
+ *
+ * @param {string} tag
+ * @returns {RegExp|null}
+ */
+function buildSiblingRegex(tag) {
+  const match = /^@([A-Z]+)(?:-(.+))?-(\d+)@$/.exec(tag)
+  if (!match) return null
+  const [, type, midRaw] = match
+  const prefix = midRaw ? `${type}-${midRaw}` : type
+  // Escape the prefix in case any segment ever contains a regex metachar.
+  const escaped = prefix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  return new RegExp(`(?<![A-Z0-9-])@${escaped}-\\d+@(?![A-Z0-9-])`)
 }

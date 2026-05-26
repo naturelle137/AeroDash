@@ -76,8 +76,9 @@ export function parseAnnotations(line) {
 
   const fromMatch = /\(FROM:\s*([^)]+)\)/.exec(line)
   if (fromMatch) {
-    const refs = fromMatch[1].match(/@[A-Z0-9-]+@/g) ?? []
-    result.fromTags = refs
+    // `String.prototype.match` returns a `RegExpMatchArray`; widen to a
+    // plain `string[]` so the result is a stable consumer-friendly shape.
+    result.fromTags = Array.from(fromMatch[1].match(/@[A-Z0-9-]+@/g) ?? [])
   }
 
   if (/\(TECHNICAL\)/.test(line)) {

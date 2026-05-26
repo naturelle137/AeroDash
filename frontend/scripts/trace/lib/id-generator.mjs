@@ -155,20 +155,30 @@ export function resolvePlaceholders({ text, occurrences, segmentsFor }) {
  * more than one declaration site. Used by the `check` subcommand and unit
  * tests to enforce INV-007 / INV-008.
  *
+ * Two occurrences with the same `(file, line)` key would previously collapse
+ * into a single entry inside a `Set<string>`, so a malformed source line
+ * carrying two copies of the same id was invisible. We track every
+ * occurrence in an array and only de-duplicate the final `files:` report so
+ * the count stays accurate.
+ *
  * @param {TagOccurrence[]} occurrences
  * @returns {Array<{id: string, files: string[]}>}
  */
 export function findDuplicates(occurrences) {
-  /** @type {Map<string, Set<string>>} */
+  /** @type {Map<string, string[]>} */
   const map = new Map()
   for (const occ of occurrences) {
+    const key = `${occ.file}:${occ.line}`
     const entry = map.get(occ.id)
-    if (entry) entry.add(`${occ.file}:${occ.line}`)
-    else map.set(occ.id, new Set([`${occ.file}:${occ.line}`]))
+    if (entry) entry.push(key)
+    else map.set(occ.id, [key])
   }
   const duplicates = []
-  for (const [id, files] of map.entries()) {
-    if (files.size > 1) duplicates.push({ id, files: [...files].sort() })
+  for (const [id, sites] of map.entries()) {
+    if (sites.length > 1) {
+      const unique = Array.from(new Set(sites)).sort()
+      duplicates.push({ id, files: unique })
+    }
   }
   return duplicates
 }

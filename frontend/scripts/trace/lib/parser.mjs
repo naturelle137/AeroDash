@@ -65,6 +65,11 @@ async function* walk(dir, cfg) {
     throw err
   }
   for (const entry of entries) {
+    // Skip dotfiles/dotdirs (.git, .agent, .archive, …) and node_modules
+    // unconditionally. We do NOT consult `.gitignore` or a `.traceignore`
+    // file today — any tagged source that lives under an ignored path will
+    // be invisible to the scanner. Folders intended to ship tagged content
+    // (e.g. `docs/`, `frontend/src/`) must not start with `.`.
     if (entry.name.startsWith('.') || entry.name === 'node_modules') continue
     const absolute = path.join(dir, entry.name)
     if (entry.isDirectory()) {

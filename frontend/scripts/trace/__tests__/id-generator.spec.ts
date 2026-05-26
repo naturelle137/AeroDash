@@ -147,6 +147,18 @@ describe('id-generator', () => {
       expect(dupes[0].id).toBe('@IMP-MB-CORE-001@')
       expect(dupes[0].files).toEqual(['a.ts:1', 'b.ts:1'])
     })
+
+    it('reports two identical tags on the same source line (n5 regression)', () => {
+      // The previous implementation keyed sites by `${file}:${line}` inside
+      // a Set, so a malformed source line carrying two copies of the same
+      // id collapsed to a single site and the duplicate escaped detection.
+      const dupes = findDuplicates([
+        occ({ id: '@IMP-MB-CORE-001@', type: 'IMP', segments: ['MB', 'CORE'], number: 1, file: 'a.ts', line: 1 }),
+        occ({ id: '@IMP-MB-CORE-001@', type: 'IMP', segments: ['MB', 'CORE'], number: 1, file: 'a.ts', line: 1 }),
+      ])
+      expect(dupes).toHaveLength(1)
+      expect(dupes[0].id).toBe('@IMP-MB-CORE-001@')
+    })
   })
 
   describe('findDanglingFromRefs', () => {
