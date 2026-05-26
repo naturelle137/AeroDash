@@ -11,7 +11,7 @@
  * planned changes only.
  */
 
-import { REGISTRY_TARGETS } from '../lib/config.mjs'
+import { configFor, knownExtensions, REGISTRY_TARGETS } from '../lib/config.mjs'
 import { scanAll } from '../lib/parser.mjs'
 import {
   entryFromOccurrence,
@@ -24,10 +24,50 @@ import {
 /** @typedef {import('../lib/registry.mjs').RegistryEntry} RegistryEntry */
 
 /**
+ * Status values that suppress automatic removal. `deleted` / `obsolete`
+ * match STC §5.2; `pending` covers registry stubs that document a
+ * planned artifact whose source hasn't landed yet (e.g. cross-module
+ * placeholders blocked on a future milestone).
+ */
+const PRESERVE_STATUSES = new Set(['deleted', 'obsolete', 'pending'])
+
+/**
+ * Decide which YAML file a newly-discovered occurrence should be written
+ * into. The goal is to never split a curated group across two files. We
+ * therefore prefer the file that already contains an entry sharing the
+ * same group key (first segment), and only fall back to a `<key>.yaml`
+ * filename when no curated home exists.
+ *
+ * @param {import('../lib/parser.mjs').TagOccurrence} occ
+ * @param {string} typeDir                                    e.g. "trace/e2e"
+ * @param {Map<string, RegistryEntry[]>} byFile
+ * @param {TagType} type
+ * @returns {string}
+ */
+function pickRegistryFile(occ, typeDir, byFile, type) {
+  const groupKey = (occ.segments[0] ?? type).toLowerCase()
+  // First-pass: a curated file already owns an entry whose group key
+  // matches — route the new entry into it so phase A E2Es stay together
+  // in `fleet-management.yaml`, journeys stay in `phase-b.yaml`, etc.
+  for (const [filePath, entries] of byFile.entries()) {
+    if (!filePath.startsWith(`${typeDir}/`)) continue
+    for (const e of entries) {
+      const parts = e.id.split('-')
+      // For multi-segment ids (e.g. IMP-MB-CORE-001) the first segment is
+      // the group key. For single-segment ids (e.g. H-001) we use the type.
+      const existingKey = (parts[1] ?? parts[0]).toLowerCase()
+      if (existingKey === groupKey) return filePath
+    }
+  }
+  return `${typeDir}/${groupKey}.yaml`
+}
+
+/**
  * Build the merged entry list for one tag type. Returns the new list of
  * RegistryFile objects suitable for serialisation. The "owning file" of
  * each entry is preserved when present in the registry; new entries land
- * in a default file named after the first segment lower-cased.
+ * in a curated file that already serves the same group, or in a default
+ * `<group>.yaml` when no curated file exists.
  *
  * @param {TagType} type
  * @param {import('../lib/parser.mjs').TagOccurrence[]} occurrences
@@ -36,6 +76,7 @@ import {
  *   updatedFiles: Map<string, RegistryEntry[]>,
  *   added: string[],
  *   removed: string[],
+ *   preserved: string[],
  * }}
  */
 export function planSync(type, occurrences, existing) {
@@ -60,25 +101,54 @@ export function planSync(type, occurrences, existing) {
     if (!sourceById.has(id)) sourceById.set(id, occ)
   }
 
+  const exts = knownExtensions()
+  // Canonical-id check: if a registry entry's id doesn't match the type's
+  // strict tag regex (e.g. a legacy 3-segment IMP id `IMP-MB-UI-FLEET-002`
+  // when the canonical shape is 2 segments) the parser can never see it,
+  // so removing it would just be a scanner-blind-spot mistake.
+  const typeCfg = configFor(type)
+  const canonicalIdRegex = typeCfg
+    ? new RegExp(`^${typeCfg.tagRegex.source.replace(/\(\?<!\[A-Z0-9-]\)|\(\?!\[A-Z0-9-]\)/g, '').replace(/@/g, '')}$`)
+    : null
   const added = []
   const removed = []
+  const preserved = []
 
   // Add missing entries.
   for (const [id, occ] of sourceById.entries()) {
     if (fileOfEntry.has(id)) continue
     const entry = entryFromOccurrence(occ)
-    const fileKey = `${target.dir}/${(occ.segments[0] ?? type).toLowerCase()}.yaml`
+    const fileKey = pickRegistryFile(occ, target.dir, byFile, type)
     if (!byFile.has(fileKey)) byFile.set(fileKey, [])
     byFile.get(fileKey).push(entry)
     added.push(id)
   }
 
   // Remove stale entries (entries the source no longer declares). Skip
-  // tombstones (status: deleted/obsolete) per STC §5.2.
+  // tombstones (status: deleted/obsolete/pending) per STC §5.2 and the
+  // CLI's defensive-remove rule (m5): never drop an entry that points
+  // at a file extension the current scanner does not handle — e.g. a
+  // `.json` fixture or a future language — because that's a scanner
+  // gap, not a stale entry.
   for (const [fileKey, entries] of byFile.entries()) {
     const filtered = entries.filter((e) => {
       if (sourceById.has(e.id)) return true
-      if (e.scalars.status === 'deleted' || e.scalars.status === 'obsolete') return true
+      if (PRESERVE_STATUSES.has(e.scalars.status)) return true
+      // Non-canonical legacy id (e.g. extra segments the scanner can't
+      // match) — keep, surface as drift via `check`.
+      if (canonicalIdRegex && !canonicalIdRegex.test(e.id)) {
+        preserved.push(e.id)
+        return true
+      }
+      const files = e.lists.files ?? (e.scalars.file ? [e.scalars.file] : [])
+      const allOutOfScope = files.length > 0 && files.every((f) => {
+        const ext = f.includes('.') ? f.slice(f.lastIndexOf('.')) : ''
+        return !exts.has(ext)
+      })
+      if (allOutOfScope) {
+        preserved.push(e.id)
+        return true
+      }
       removed.push(e.id)
       return false
     })
@@ -86,7 +156,7 @@ export function planSync(type, occurrences, existing) {
   }
 
   // Update file lists for entries whose source files moved.
-  for (const [fileKey, entries] of byFile.entries()) {
+  for (const [, entries] of byFile.entries()) {
     for (const entry of entries) {
       const occ = sourceById.get(entry.id)
       if (!occ) continue
@@ -101,11 +171,15 @@ export function planSync(type, occurrences, existing) {
       entry.lists.files = desired
       // Suppress the legacy `file:` scalar to keep one source of truth.
       delete entry.scalars.file
-      void fileKey
     }
   }
 
-  return { updatedFiles: byFile, added: added.sort(), removed: removed.sort() }
+  return {
+    updatedFiles: byFile,
+    added: added.sort(),
+    removed: removed.sort(),
+    preserved: preserved.sort(),
+  }
 }
 
 /**
@@ -117,14 +191,29 @@ export function planSync(type, occurrences, existing) {
  */
 export async function runSync({ repoRoot, apply = false, types, log = () => {} }) {
   const scan = await scanAll(repoRoot)
-  const selectedTypes = types?.length ? types : Object.keys(REGISTRY_TARGETS)
-  const report = /** @type {Record<string, {added: string[], removed: string[], files: string[]}>} */ ({})
+  const allTypes = /** @type {TagType[]} */ (Object.keys(REGISTRY_TARGETS))
+  const selectedTypes = types?.length ? types : allTypes
+
+  // Validate caller-supplied types so a typo doesn't silently no-op.
+  if (types?.length) {
+    const unknown = types.filter((t) => !REGISTRY_TARGETS[t])
+    if (unknown.length) {
+      log(`trace sync: unknown type(s): ${unknown.join(', ')}. Expected one of: ${allTypes.join(', ')}`)
+      return { exitCode: 1, report: {} }
+    }
+  }
+
+  const report = /** @type {Record<string, {added: string[], removed: string[], preserved: string[], files: string[]}>} */ ({})
 
   for (const type of selectedTypes) {
     const target = REGISTRY_TARGETS[type]
     if (!target) continue
     const existing = await loadRegistryDir(repoRoot, target.dir)
-    const { updatedFiles, added, removed } = planSync(/** @type {TagType} */ (type), scan.byType[type] || [], existing)
+    const { updatedFiles, added, removed, preserved } = planSync(
+      /** @type {TagType} */ (type),
+      scan.byType[type] || [],
+      existing,
+    )
     const touched = []
     for (const [relPath, entries] of updatedFiles.entries()) {
       const original = existing.find((f) => f.relPath === relPath)
@@ -134,14 +223,17 @@ export async function runSync({ repoRoot, apply = false, types, log = () => {} }
       touched.push(relPath)
       if (apply) await writeRegistry(repoRoot, relPath, entries)
     }
-    report[type] = { added, removed, files: touched }
+    report[type] = { added, removed, preserved, files: touched }
   }
 
   for (const [type, info] of Object.entries(report)) {
-    if (!info.added.length && !info.removed.length && !info.files.length) continue
-    log(`[${type}] added=${info.added.length} removed=${info.removed.length} files=${info.files.length}`)
+    if (!info.added.length && !info.removed.length && !info.files.length && !info.preserved.length) {
+      continue
+    }
+    log(`[${type}] added=${info.added.length} removed=${info.removed.length} preserved=${info.preserved.length} files=${info.files.length}`)
     for (const id of info.added) log(`  + ${id}`)
     for (const id of info.removed) log(`  - ${id}`)
+    for (const id of info.preserved) log(`  ~ ${id} (out-of-scope file — kept)`)
   }
   if (!apply) log('(dry-run: pass --apply to write changes)')
   return { exitCode: 0, report }

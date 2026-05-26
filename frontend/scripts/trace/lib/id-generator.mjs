@@ -77,17 +77,47 @@ export function resolvePlaceholder({ placeholder, occurrences, segments }) {
 }
 
 /**
+ * Single source of truth for the `@TYPE@` placeholder shape. Exported so
+ * callers (e.g. `commands/resolve.mjs`) don't re-derive the alphabet of
+ * accepted prefixes and silently drift from this module.
+ *
+ * The `g` flag is intentional — callers `replace`/`exec` against the
+ * regex; consumers that need a fresh state should clone via `new RegExp(
+ * PLACEHOLDER_REGEX.source, PLACEHOLDER_REGEX.flags)` or use the helper
+ * below.
+ */
+export const PLACEHOLDER_REGEX = /@(H|REQ|UJ|DES|IMP|UT|IT|E2E)@/g
+
+/**
+ * Return a fresh non-global `RegExp` matching the same alphabet as
+ * `PLACEHOLDER_REGEX`. Useful for one-shot `.exec(text)` peeks that
+ * shouldn't share `lastIndex` state with concurrent callers.
+ *
+ * @returns {RegExp}
+ */
+export function placeholderProbeRegex() {
+  return new RegExp(PLACEHOLDER_REGEX.source)
+}
+
+/**
  * Replace every `@TYPE@` placeholder in `text` with a freshly generated
  * tag id. Multiple placeholders of the same type get monotonically
  * increasing numbers so a single file may declare several new artifacts.
  *
+ * `segmentsFor` is invoked per-placeholder so files containing mixed
+ * placeholder types (e.g. `@REQ@` next to `@IMP@`) produce structurally
+ * correct ids — passing a fixed segment list would either misformat the
+ * second type's id or hide it from the next scan entirely.
+ *
  * @param {Object} opts
  * @param {string} opts.text
  * @param {TagOccurrence[]} opts.occurrences
- * @param {string[]} opts.segments
+ * @param {((type: TagType) => string[])|string[]} opts.segmentsFor
+ *   Either a callback returning per-type segments, or a single static
+ *   list applied to every placeholder (legacy single-type usage).
  * @returns {{text: string, replacements: Array<{placeholder: string, generated: string}>}}
  */
-export function resolvePlaceholders({ text, occurrences, segments }) {
+export function resolvePlaceholders({ text, occurrences, segmentsFor }) {
   // We track per-namespace counters so multiple placeholders in the same
   // file don't collide.
   /** @type {Map<string, number>} */
@@ -95,13 +125,18 @@ export function resolvePlaceholders({ text, occurrences, segments }) {
   /** @type {Array<{placeholder: string, generated: string}>} */
   const replacements = []
 
-  // Placeholder must be `@TYPE@` with TYPE being one of the known node prefixes
-  // and not already followed by an extra segment that would make it a complete
-  // tag (e.g., `@IMP-MB-CORE-001@`).
-  const placeholderRegex = /@(H|REQ|UJ|DES|IMP|UT|IT|E2E)@/g
+  /** @param {TagType} t */
+  const segmentsForType = typeof segmentsFor === 'function'
+    ? segmentsFor
+    : () => /** @type {string[]} */ (segmentsFor)
+
+  // Use a fresh regex to avoid sharing `lastIndex` state with concurrent
+  // callers using the same exported regex.
+  const placeholderRegex = new RegExp(PLACEHOLDER_REGEX.source, PLACEHOLDER_REGEX.flags)
 
   const newText = text.replace(placeholderRegex, (match, typeRaw) => {
     const type = /** @type {TagType} */ (typeRaw)
+    const segments = segmentsForType(type)
     const key = namespaceKey(type, segments)
     const baseline = nextNumber(occurrences, type, segments)
     const counterOffset = counters.get(key) ?? 0

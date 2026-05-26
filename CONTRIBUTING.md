@@ -209,6 +209,18 @@ For phases, the leaf segment of `frontend/tests/e2e/features/phase-X-*/...` is m
 
 When inference fails (e.g. `frontend/src/main.ts`), the CLI exits with a clear `Cannot infer module from path …` message — supply the missing segments via positional arguments (`pnpm trace tag IMP SYS APP --file …`).
 
+#### File extensions in scope
+
+| Tag type | Extensions scanned | Comment styles recognised |
+| :------- | :----------------- | :------------------------ |
+| `IMP` | `.ts`, `.vue` (excludes `*.spec.ts`, `*.int.spec.ts`, `*.e2e.spec.ts`) | `// @IMP-…@` (script blocks), `<!-- @IMP-…@ -->` (Vue `<template>` blocks) |
+| `UT` | `.spec.ts` (excludes `*.int.spec.ts`, `*.e2e.spec.ts`) | `// @UT-…@` |
+| `IT` | `.int.spec.ts` | `// @IT-…@` |
+| `E2E` | `.feature` | `# @E2E-…@` |
+| `REQ`, `UJ`, `DES`, `H` | `.md` (Markdown) | `<!-- @…@ -->` |
+
+`pnpm trace sync --apply` will preserve any registry entry whose `files:` list points only to out-of-scope extensions (e.g. a `.json` fixture) or whose id doesn't match the type's canonical regex — these are scanner blind spots, not stale entries. The defensive behaviour is reported in the sync summary as `preserved=N` with one `~ <id>` line per entry.
+
 ## 6. 📖 Pull Request Standards
 
 A "Good PR" is small, focused, and easy to review.

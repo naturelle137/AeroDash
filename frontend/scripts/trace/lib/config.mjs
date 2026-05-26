@@ -36,6 +36,25 @@ export const LAYERS = ['CORE', 'STORE', 'VIEW', 'ROUTE', 'PLUGIN', 'SHARED']
 export const DES_SUBTYPES = ['ARCH', 'UX', 'API']
 
 /**
+ * Comment-line gate for Markdown documents. The parser already splits the
+ * file into individual lines, so a single-line pattern is sufficient — we
+ * only need to know "is this line a comment line that may carry a tag".
+ *
+ * The opener-only shape (`<!--` at line start, no closing `-->` required)
+ * avoids the bad-HTML-filter CodeQL signature and is strictly equivalent
+ * in practice: the per-type `tagRegex` still has to match before any
+ * occurrence is recorded.
+ */
+const MD_COMMENT_REGEX = /^\s*<!--/
+
+/**
+ * Comment-line gate for `.ts`, `.vue`, and Gherkin files. Matches either a
+ * `//` line comment (TypeScript / Vue `<script>` blocks) or an HTML-style
+ * comment opener (Vue `<template>` blocks).
+ */
+const TS_VUE_COMMENT_REGEX = /^\s*(\/\/|<!--)/
+
+/**
  * Scan rules per tag type. Anchored with `(?<![A-Z0-9-])` / `(?![A-Z0-9-])`
  * so a longer-tag prefix (e.g. `@IMP-MB-CORE-001@` does not match the REQ
  * regex `@REQ-MB-001@`).
@@ -48,7 +67,7 @@ export const SCAN_CONFIG = [
     paths: ['docs/risk_management'],
     extensions: ['.md'],
     tagRegex: /(?<![A-Z0-9-])@H-(\d+)@(?![A-Z0-9-])/g,
-    commentRegex: /^\s*<!--.*-->\s*$/,
+    commentRegex: MD_COMMENT_REGEX,
   },
   {
     type: 'REQ',
@@ -56,7 +75,7 @@ export const SCAN_CONFIG = [
     extensions: ['.md'],
     ignoreNames: ['README.md', 'traceability_matrix.md'],
     tagRegex: /(?<![A-Z0-9-])@REQ-([A-Z]+)-(\d+)@(?![A-Z0-9-])/g,
-    commentRegex: /^\s*<!--.*-->\s*$/,
+    commentRegex: MD_COMMENT_REGEX,
   },
   {
     type: 'UJ',
@@ -64,7 +83,7 @@ export const SCAN_CONFIG = [
     extensions: ['.md'],
     ignoreNames: ['README.md'],
     tagRegex: /(?<![A-Z0-9-])@UJ-([A-Z]+)-(\d+)@(?![A-Z0-9-])/g,
-    commentRegex: /^\s*<!--.*-->\s*$/,
+    commentRegex: MD_COMMENT_REGEX,
   },
   {
     type: 'DES',
@@ -72,15 +91,15 @@ export const SCAN_CONFIG = [
     extensions: ['.md'],
     ignoreNames: ['000-template.md', 'README.md'],
     tagRegex: /(?<![A-Z0-9-])@DES-([A-Z]+)-(\d+)@(?![A-Z0-9-])/g,
-    commentRegex: /^\s*<!--.*-->\s*$/,
+    commentRegex: MD_COMMENT_REGEX,
   },
   {
     type: 'IMP',
     paths: ['frontend/src'],
-    extensions: ['.ts'],
+    extensions: ['.ts', '.vue'],
     ignoreSuffix: /\.(spec|int\.spec|e2e\.spec)\.ts$/,
     tagRegex: /(?<![A-Z0-9-])@IMP-([A-Z]+)-([A-Z]+)-(\d+)@(?![A-Z0-9-])/g,
-    commentRegex: /^\s*\/\/.*$/,
+    commentRegex: TS_VUE_COMMENT_REGEX,
   },
   {
     type: 'UT',
@@ -129,4 +148,18 @@ export const REGISTRY_TARGETS = {
  */
 export function configFor(type) {
   return SCAN_CONFIG.find((c) => c.type === type)
+}
+
+/**
+ * Return the set of file extensions referenced by any scanner. Used as a
+ * defensive guard by `sync` so it never removes a registry entry that
+ * points to a file outside the current scanner's reach (e.g. a `.json`
+ * fixture or an as-yet-unsupported language).
+ *
+ * @returns {Set<string>}
+ */
+export function knownExtensions() {
+  const set = new Set()
+  for (const cfg of SCAN_CONFIG) for (const e of cfg.extensions) set.add(e)
+  return set
 }

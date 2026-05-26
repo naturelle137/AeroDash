@@ -63,6 +63,12 @@ describe('tag-format', () => {
       })
     })
 
+    it('round-trips hazard tags (no middle segments)', () => {
+      // Regression for m1: previously the regex required ≥2 hyphens so
+      // `@H-006@` (which has none between prefix and number) threw.
+      expect(parseTag('@H-006@')).toEqual({ type: 'H', segments: [], number: 6 })
+    })
+
     it('rejects malformed tags', () => {
       expect(() => parseTag('IMP-MB-CORE-001')).toThrow(/Malformed/)
       expect(() => parseTag('@IMP-MB@')).toThrow(/Malformed/)

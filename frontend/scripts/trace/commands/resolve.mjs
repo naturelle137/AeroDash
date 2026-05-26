@@ -6,13 +6,20 @@
  * (unless `--dry-run` is set), and the list of replacements is reported
  * to stdout. The first scan pass observes existing tags so the next-id
  * computation accounts for siblings already present in the same file.
+ *
+ * Segments are inferred per placeholder — a file containing both `@REQ@`
+ * and `@IMP@` will format each with the correct segment shape rather
+ * than reusing the first match's inference for every other type.
  */
 
 import { readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 
 import { scanAll } from '../lib/parser.mjs'
-import { resolvePlaceholders } from '../lib/id-generator.mjs'
+import {
+  placeholderProbeRegex,
+  resolvePlaceholders,
+} from '../lib/id-generator.mjs'
 import { inferSegments } from '../lib/path-inference.mjs'
 
 /**
@@ -35,21 +42,18 @@ export async function runResolve({ repoRoot, files, dryRun = false, log = () => 
     const abs = path.isAbsolute(inputPath) ? inputPath : path.join(repoRoot, inputPath)
     const rel = path.relative(repoRoot, abs).replace(/\\/g, '/')
     const text = await readFile(abs, 'utf8')
-    const placeholderMatch = /@(H|REQ|UJ|DES|IMP|UT|IT|E2E)@/.exec(text)
-    if (!placeholderMatch) {
+    if (!placeholderProbeRegex().test(text)) {
       log(`${rel}: no @TYPE@ placeholder found, skipping`)
       continue
     }
-    // Infer segments once per file. We rely on path inference, which
-    // throws when the file doesn't expose enough structure to pick a
-    // module/layer/phase. The caller can pre-edit the file to add a
-    // narrower path, or run trace tag instead.
-    const type = /** @type {import('../lib/config.mjs').TagType} */ (placeholderMatch[1])
-    const segments = inferSegments(type, rel)
+    // Path inference runs per placeholder so mixed-type files (e.g. a
+    // `.spec.ts` that contains `@UT@` and an inline `@IMP@`) produce
+    // structurally correct ids. Inference may throw when the path
+    // doesn't expose enough structure — surface that to the caller.
     const { text: newText, replacements } = resolvePlaceholders({
       text,
       occurrences: scan.occurrences,
-      segments,
+      segmentsFor: (type) => inferSegments(type, rel),
     })
     if (replacements.length === 0) continue
     summary.push({ file: rel, replacements })

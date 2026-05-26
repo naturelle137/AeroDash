@@ -53,6 +53,28 @@ describe('registry parser/serialiser', () => {
     expect(parseRegistry(out)).toEqual(entries)
   })
 
+  it('canonicalises legacy flat tombstones (e.g. bare `obsolete`) into a status scalar', () => {
+    // Regression: pre-existing registry entries authored before STC §5.2
+    // sometimes use a bare keyword `    obsolete` rather than `status:
+    // obsolete`. The parser previously dropped the line silently, which
+    // caused `sync --apply` to treat the tombstone as a stale entry and
+    // remove it.
+    const text = [
+      'MB Core',
+      '  IMP-MB-CORE-009',
+      '    obsolete',
+      '',
+      '  IMP-MB-CORE-010',
+      '    deleted',
+      '',
+      '  IMP-MB-CORE-011',
+      '    pending',
+      '',
+    ].join('\n')
+    const entries = parseRegistry(text)
+    expect(entries.map((e) => e.scalars.status)).toEqual(['obsolete', 'deleted', 'pending'])
+  })
+
   it('handles entries that carry only a scalar `file:` field', () => {
     const text = [
       'Architecture Design',

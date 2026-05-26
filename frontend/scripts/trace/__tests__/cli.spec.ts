@@ -104,6 +104,28 @@ describe('runResolve', () => {
     await runResolve({ repoRoot: sandbox, files: [filePath], log: (m) => messages.push(m) })
     expect(messages.join('\n')).toContain('no @TYPE@ placeholder')
   })
+
+  it('infers per-placeholder segments in mixed-type files (REQ + IMP)', async () => {
+    // Regression for M1: previously runResolve sampled the first @TYPE@
+    // it found, inferred segments for that type, then applied the same
+    // segments to every other placeholder — emitting structurally invalid
+    // ids that the next scan could not see.
+    const reqPath = 'docs/requirements/mass_balance.md'
+    await writeFileEnsuring(reqPath, ['<!-- @REQ@ -->', '### REQ-MB — Title'].join('\n'))
+    const impPath = 'frontend/src/modules/mass-balance/core/calc.ts'
+    await writeFileEnsuring(impPath, [
+      '// @IMP@ (FROM: @REQ-MB-001@)',
+      'export function calc() {}',
+    ].join('\n'))
+
+    const summary = await runResolve({ repoRoot: sandbox, files: [reqPath, impPath] })
+    expect(summary.exitCode).toBe(0)
+
+    const reqAfter = await readFile(path.join(sandbox, reqPath), 'utf8')
+    const impAfter = await readFile(path.join(sandbox, impPath), 'utf8')
+    expect(reqAfter).toContain('<!-- @REQ-MB-001@ -->')
+    expect(impAfter).toContain('// @IMP-MB-CORE-001@ (FROM: @REQ-MB-001@)')
+  })
 })
 
 describe('runSync', () => {
@@ -126,6 +148,81 @@ describe('runSync', () => {
     )
     expect(written).toContain('IMP-PF-CORE-001')
     expect(written).toContain('frontend/src/modules/performance/core/calc.ts')
+  })
+
+  it('routes new E2E entries into an existing curated phase file rather than forking a new <phase>.yaml', async () => {
+    // Regression for M2: previously every new @E2E-A-NNN@ landed in
+    // `trace/e2e/a.yaml`, splitting Phase A across `a.yaml` and the
+    // curated `fleet-management.yaml`. We expect the new entry to land
+    // in the existing curated file.
+    await writeFileEnsuring(
+      'trace/e2e/fleet-management.yaml',
+      [
+        'Fleet management (Phase A)',
+        '  E2E-A-001',
+        '    title: Existing curated scenario',
+        '',
+      ].join('\n'),
+    )
+    await writeFileEnsuring(
+      'frontend/tests/e2e/features/phase-a-fleet-management/existing.feature',
+      [
+        '# @E2E-A-001@ (TECHNICAL)',
+        'Feature: Existing',
+        '  Scenario: app starts',
+      ].join('\n'),
+    )
+    await writeFileEnsuring(
+      'frontend/tests/e2e/features/phase-a-fleet-management/smoke.feature',
+      [
+        '# @E2E-A-002@ (TECHNICAL)',
+        'Feature: Boot',
+        '  Scenario: app starts',
+      ].join('\n'),
+    )
+
+    const applied = await runSync({ repoRoot: sandbox, apply: true, types: ['E2E'] })
+    expect(applied.report.E2E.added).toEqual(['E2E-A-002'])
+    expect(applied.report.E2E.files).toContain('trace/e2e/fleet-management.yaml')
+    expect(applied.report.E2E.files).not.toContain('trace/e2e/a.yaml')
+
+    const written = await readFile(path.join(sandbox, 'trace/e2e/fleet-management.yaml'), 'utf8')
+    expect(written).toContain('E2E-A-001')
+    expect(written).toContain('E2E-A-002')
+  })
+
+  it('preserves registry entries whose files all point to out-of-scope extensions', async () => {
+    // Regression for m5: an entry whose file extension isn't scanned by
+    // any configured scanner (a `.json` fixture, a future language) must
+    // not be silently treated as stale — that's a scanner blind spot,
+    // not a deleted artifact.
+    await writeFileEnsuring(
+      'trace/implementation/sys.yaml',
+      [
+        'SYS — Out-of-scope artifact',
+        '  IMP-SYS-CORE-999',
+        '    title: Schema fixture',
+        '    files:',
+        '      - frontend/src/core/fixtures/aircraft.json',
+        '',
+      ].join('\n'),
+    )
+
+    const applied = await runSync({ repoRoot: sandbox, apply: true, types: ['IMP'] })
+    expect(applied.report.IMP.removed).not.toContain('IMP-SYS-CORE-999')
+    expect(applied.report.IMP.preserved).toContain('IMP-SYS-CORE-999')
+  })
+
+  it('rejects unknown --types and exits non-zero', async () => {
+    const messages: string[] = []
+    const result = await runSync({
+      repoRoot: sandbox,
+      apply: false,
+      types: ['NOPE'] as unknown as Array<'IMP'>,
+      log: (m) => messages.push(m),
+    })
+    expect(result.exitCode).toBe(1)
+    expect(messages.join('\n')).toMatch(/unknown type/i)
   })
 
   it('removes stale registry entries (without status: deleted) when source no longer declares them', async () => {

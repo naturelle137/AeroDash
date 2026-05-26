@@ -118,6 +118,33 @@ describe('parser', () => {
     expect(result.occurrences).toHaveLength(2)
   })
 
+  it('extracts IMP tags from .vue files (both <template> HTML comments and <script> //)', async () => {
+    // Regression for B1: IMP tags inside Vue single-file components were
+    // invisible to the scanner, so `sync --apply` would silently delete
+    // their registry entries.
+    await writeFileEnsuring(
+      'frontend/src/modules/aircraft/views/FleetView.vue',
+      [
+        '<template>',
+        '  <!-- @IMP-AC-VIEW-001@ (FROM: @REQ-AC-001@) -->',
+        '  <section />',
+        '</template>',
+        '',
+        '<script setup lang="ts">',
+        '// @IMP-AC-VIEW-002@ (FROM: @REQ-AC-001@)',
+        'const x = 1',
+        '</script>',
+      ].join('\n'),
+    )
+
+    const occurrences = await scanType(sandbox, 'IMP')
+    const ids = occurrences.map((o) => o.id).sort()
+    expect(ids).toEqual(['@IMP-AC-VIEW-001@', '@IMP-AC-VIEW-002@'])
+    const fromTagsByid = new Map(occurrences.map((o) => [o.id, o.fromTags]))
+    expect(fromTagsByid.get('@IMP-AC-VIEW-001@')).toEqual(['@REQ-AC-001@'])
+    expect(fromTagsByid.get('@IMP-AC-VIEW-002@')).toEqual(['@REQ-AC-001@'])
+  })
+
   it('indexById flags multiply-declared tags', async () => {
     const occurrences = [
       {

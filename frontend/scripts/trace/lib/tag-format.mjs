@@ -49,14 +49,18 @@ export function formatTag({ type, segments, number }) {
  * Parse a tag id back into its components. Permissive on the trailing
  * number (accepts ≥1 digit) so callers can normalise legacy 2-digit ids.
  *
- * @param {string} tag  e.g. "@IMP-MB-CORE-001@"
+ * Supports the two structural shapes the STC defines:
+ *  - `@H-NNN@` — hazards have no middle segments
+ *  - `@<TYPE>-<SEG>(-<SEG>)*-NNN@` — every other type has ≥1 segment
+ *
+ * @param {string} tag  e.g. "@IMP-MB-CORE-001@" or "@H-006@"
  * @returns {TagComponents}
  */
 export function parseTag(tag) {
-  const match = /^@([A-Z]+)-(.+)-(\d+)@$/.exec(tag)
+  const match = /^@([A-Z]+)(?:-(.+))?-(\d+)@$/.exec(tag)
   if (!match) throw new Error(`Malformed tag: ${tag}`)
   const [, type, midRaw, num] = match
-  const segments = midRaw.split('-')
+  const segments = midRaw ? midRaw.split('-') : []
   return { type: /** @type {TagType} */ (type), segments, number: Number(num) }
 }
 
@@ -116,6 +120,12 @@ export function buildComment({ tag, fromTags = [], technical = false, style }) {
 /**
  * Comment-style detector for path-inference. Picks the appropriate comment
  * syntax based on the file extension.
+ *
+ * Vue single-file components contain both `<template>` (HTML-comment) and
+ * `<script>` (`//`) blocks; new tag insertions default to the script-style
+ * `//` shape because `tag-insert.mjs` is line-oriented and the script
+ * block is the canonical place for new IMP tags (existing template tags
+ * are scanned but not authored automatically).
  *
  * @param {string} filePath
  * @returns {'md'|'ts'|'feature'}

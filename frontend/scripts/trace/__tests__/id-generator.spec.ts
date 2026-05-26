@@ -87,7 +87,7 @@ describe('id-generator', () => {
         occurrences: [
           occ({ id: '@IMP-MB-CORE-001@', type: 'IMP', segments: ['MB', 'CORE'], number: 1 }),
         ],
-        segments: ['MB', 'CORE'],
+        segmentsFor: ['MB', 'CORE'],
       })
 
       expect(replacements).toEqual([
@@ -103,10 +103,36 @@ describe('id-generator', () => {
       const { text: rewritten, replacements } = resolvePlaceholders({
         text,
         occurrences: [],
-        segments: ['MB', 'CORE'],
+        segmentsFor: ['MB', 'CORE'],
       })
       expect(replacements).toEqual([])
       expect(rewritten).toBe(text)
+    })
+
+    it('infers segments per placeholder when a callback is given (mixed types)', () => {
+      // Regression for M1: a file containing both @REQ@ and @IMP@ must
+      // get the correct number of segments for each — earlier code fed
+      // the first match's segments to every other placeholder.
+      const text = [
+        '<!-- @REQ@ -->',
+        '### REQ — description',
+        '',
+        '// @IMP@ (FROM: @REQ-MB-001@)',
+        'export function x() {}',
+      ].join('\n')
+
+      const { text: rewritten, replacements } = resolvePlaceholders({
+        text,
+        occurrences: [],
+        segmentsFor: (type) => (type === 'REQ' ? ['MB'] : ['MB', 'CORE']),
+      })
+
+      expect(replacements.map((r) => r.generated)).toEqual([
+        '@REQ-MB-001@',
+        '@IMP-MB-CORE-001@',
+      ])
+      expect(rewritten).toContain('<!-- @REQ-MB-001@ -->')
+      expect(rewritten).toContain('// @IMP-MB-CORE-001@ (FROM: @REQ-MB-001@)')
     })
   })
 

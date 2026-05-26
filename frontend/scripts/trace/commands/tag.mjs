@@ -89,10 +89,14 @@ export async function runTag({
 }) {
   const tag = await computeNextTag({ repoRoot, type, segments, file })
   const abs = path.isAbsolute(file) ? file : path.join(repoRoot, file)
+  // Comment-style detection is suffix-based; pass the repo-relative path
+  // so the rest of the CLI stays internally consistent and Windows path
+  // separators in `abs` never confuse downstream helpers.
+  const rel = path.relative(repoRoot, abs).replace(/\\/g, '/')
   const text = await readFile(abs, 'utf8')
   const { text: newText, alreadyPresent, insertedAt } = insertTagComment({
     fileText: text,
-    filePath: abs,
+    filePath: rel,
     tag,
     fromTags,
     technical,

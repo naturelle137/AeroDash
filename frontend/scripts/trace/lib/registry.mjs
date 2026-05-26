@@ -93,7 +93,18 @@ export function parseRegistry(text) {
     if (/^ {4}[^ ]/.test(raw)) {
       const body = raw.slice(4)
       const colonIdx = body.indexOf(':')
-      if (colonIdx === -1) continue
+      if (colonIdx === -1) {
+        // Legacy STC §5.2 tombstones were authored as a bare keyword
+        // (e.g. `    obsolete`) rather than `status: obsolete`. We
+        // canonicalise so `sync` recognises the tombstone instead of
+        // silently dropping the line and removing the entry.
+        const flat = body.trim()
+        if (flat === 'obsolete' || flat === 'deleted' || flat === 'pending') {
+          entry.scalars.status = flat
+        }
+        pendingListField = null
+        continue
+      }
       const key = body.slice(0, colonIdx).trim()
       const value = body.slice(colonIdx + 1).trim()
       if (value === '') {
