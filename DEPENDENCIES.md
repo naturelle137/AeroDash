@@ -43,7 +43,10 @@ Before adding any new dependency to the project, verify:
 4. **Dependency Footprint:** Avoid packages with excessive transitive dependencies.
 5. **P1 Restriction:** Safety Core (P1) modules prefer zero external runtime dependencies.
 6. **Inventory:** Add the dependency to the Current Dependencies table below in the same PR.
-7. **Major-version policy:** If the dependency is on a *bleeding-edge* major (pre-release line, or a major cut <~6 months ago whose ecosystem peers still pin the previous major), it must be recorded in the per-major decision matrix in [ADR 318-DEV — Dependency Major Version & Pre-release Policy](docs/architecture/adr/318-DEV-dependency-major-policy.md), with a named justification, a pinned regression suite, and a downshift target. PRs introducing such a dependency must edit that ADR in the same commit.
+7. **Major-version policy:** If the dependency is on a *bleeding-edge* major — that is, a pre-release line, a major cut less than ~6 months ago whose ecosystem peers still pin the previous major, or a peer plugin of such a major — record it in the per-major decision matrix in [ADR 318-DEV — Dependency Major Version & Pre-release Policy](docs/architecture/adr/318-DEV-dependency-major-policy.md) **in the same commit** that introduces it. The matrix row must contain:
+   - a *named justification* for retaining the bleeding-edge major (or a scheduled downshift),
+   - a *pinned regression suite* (the named subset of the standing AeroDash gates that proves no behavioural regression — see ADR 318-DEV §*Pinned regression suite*),
+   - and a *downshift target* (the version we drop back to if the regression suite begins to drift).
 
 ---
 
