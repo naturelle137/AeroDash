@@ -47,8 +47,10 @@ env:
   MAX_CORRECTIONS: '2'
   # A correction round runs the full pipeline + fixes; 40 turns proved too small
   # for the implementer (see overnight-implementation.yml), so give corrections
-  # comparable headroom. Kept below timeout-minutes so the turn cap binds first.
-  MAX_TURNS: '80'
+  # comparable headroom. Aligned with overnight-implementation.yml and
+  # pr-review-bot.yml at 150 so all three bots share one budget knob; kept
+  # below the 60-min job timeout so the turn cap still binds first.
+  MAX_TURNS: '150'
 
 jobs:
   orchestrate:
