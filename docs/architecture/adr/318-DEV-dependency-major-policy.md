@@ -20,7 +20,7 @@ bleeding-edge majors and one pre-release line:
 | `vitest` | `^4.1.7` | `4.1.7` | `3.x` series |
 | `eslint` | `^10.4.0` | `10.4.0` | `9.x` series |
 | `@types/node` | `^25.9.1` | `25.9.1` | `24.x` (matches devcontainer Node 24 LTS) |
-| `uuid` | `>=11.1.1` | `14.0.0` | `11.x` (most recent broadly-deployed line) |
+| `uuid` | `^14.0.0` | `14.0.0` | `11.x` (most recent broadly-deployed line; a `pnpm.overrides.uuid: ">=11.1.1"` entry at the workspace root floors transitive deps) |
 | `zod` | `^4.4.3` | `4.4.3` | `3.x` (Zod 4 changes NaN/Infinity handling — relevant to P1 numerics) |
 
 Two concrete risk classes flow from this posture:
@@ -110,7 +110,7 @@ already-deployed AeroDash gates, used together:
 | Gate | What it pins | CI / local command |
 | :--- | :----------- | :----------------- |
 | **P1 unit tests, Node env** | P1 math semantics under the chosen TypeScript + Zod + `@types/node` line; framework-free import boundary. | `pnpm --filter frontend test:p1` |
-| **P1 mutation gate** (ADR-307-DEV / #260) | Behavioural surface of the Safety Core under the chosen test runner. A drift in Vitest/Stryker that weakens mutation kills surfaces here. | `pnpm --filter frontend test:mutation` |
+| **P1 mutation gate** (#260) | Behavioural surface of the Safety Core under the chosen test runner. A drift in Vitest/Stryker that weakens mutation kills surfaces here. | `pnpm --filter frontend test:mutation` |
 | **P1 ESLint isolation rule** (ADR-314-DEV) | P1 import boundary under the chosen ESLint major. | `pnpm --filter frontend lint:ci:eslint` |
 | **Integration suite (jsdom)** | Pinia / Vue / Vue-Router interplay under the chosen Vue + Vue-Router + Vitest lines. | `pnpm --filter frontend test:integration` |
 | **Vite build** | Vite plugin graph (incl. `@vitejs/plugin-vue`, `vite-plugin-pwa`) under the chosen Vite + Node lines. | `pnpm --filter frontend build` |
@@ -123,7 +123,7 @@ major's retention, not the whole stack.
 
 | # | Package | Resolved | Decision | Justification | Pinned regression suite (subset) | Downshift target |
 | - | :------ | :------- | :------- | :------------ | :-------------------------------- | :--------------- |
-| 1 | `vue-router` | `5.0.7` | **Retain (review at next milestone exit)** | Already wired into the App Shell router config and verified end-to-end by Playwright BDD smoke + integration suites. Vue Router 5's pre-release status is the single largest residual risk in this matrix; a planned re-evaluation at the next milestone exit will revisit the downshift. | Integration suite + `test:e2e --grep @smoke` | `vue-router@^4` |
+| 1 | `vue-router` | `5.0.7` | **Retain (review at next milestone exit)** | Already wired into the App Shell router config and verified end-to-end by Playwright BDD smoke + integration suites. Vue Router 5's pre-release status is the single largest residual risk in this matrix; a planned re-evaluation at the next milestone exit will revisit the downshift. | Integration suite + `pnpm --filter frontend test:smoke` | `vue-router@^4` |
 | 2 | `typescript` | `6.0.3` | **Retain** | All three vue-tsc / `@vue/eslint-config-typescript` / `@stryker-mutator/typescript-checker` peers resolve against TS 6 without warnings; the P1 unit suite and Stryker mutation gate run clean. | P1 unit + P1 mutation + `type-check` | `typescript@~5.9` |
 | 3 | `vite` | `8.0.14` | **Retain** | `@vitejs/plugin-vue@6`, `vite-plugin-pwa@1.3`, and `vite-plugin-vue-devtools@8` all declare Vite 8 in their `peerDependencies` ranges; the production build, dev server and PWA precache list reproduce identically across CI runs. | `pnpm --filter frontend build` + integration suite | `vite@^7` |
 | 4 | `vitest` | `4.1.7` | **Retain** | The Stryker Vitest runner is pinned to `@stryker-mutator/vitest-runner@9.6.1` which targets Vitest 4; the P1 mutation gate has passed under it on `main`. Downshift would invalidate the mutation gate baseline. | P1 unit + P1 mutation + integration suite | `vitest@^3` |
@@ -142,8 +142,9 @@ The audit findings (TECH-009 / CS-014) also call for moving the existing
 `pnpm audit` from `--audit-level high` to `--audit-level moderate`, adding
 `osv-scanner` for cross-ecosystem CVE coverage, and emitting an SBOM. These
 are *workflow* changes to `.github/workflows/security.yml` and are
-intentionally **not** made in this PR — ADR-317-DEV restricts autonomous
-contributions from editing workflow files, and the scan rotation deserves a
+intentionally **not** made in this PR — as an operational policy (codified
+by the proposed ADR-317-DEV) autonomous contributions do not edit files
+under `.github/workflows/**`, and the scan rotation deserves a
 human-reviewed change. The work is filed as an independent follow-up issue
 referencing #261, with the recommended layout already drafted in the issue
 body:
