@@ -58,21 +58,35 @@ const config = {
     '!src/core/**/__tests__/**',
   ],
 
-  // Mutation-score gate (percentage of mutants killed):
-  //   ≥ high  → green; target score for P1 Safety Core
-  //   ≥ low   → amber; reported but not failing
-  //   < break → CI failure (gate fails; no continue-on-error)
-  // `break` is strictly below `low` so the amber band `[low, high)` has
-  // non-zero width — Stryker's convention is `break < low ≤ high`.
-  // The 69/70 split gives existing P1 tests headroom while still forcing
-  // them to assert behaviour, not just execute lines. Tightening the bar
-  // past v1.0.0 is tracked separately.
+  // Mutation-score gate (percentage of mutants killed) — a binary pass/fail
+  // contract: either the P1 unit suite catches enough defects or it does
+  // not. A near-failure is operationally identical to a pass — neither
+  // changes what we'd do about it — so there is no "amber" tier. `high`,
+  // `low`, and `break` are collapsed onto the same value, which produces a
+  // zero-width amber band; the HTML and clear-text reporters then render
+  // the score as pure green-or-red with no intermediate "passing but
+  // cautionary" colour to interpret. Stryker's constraint
+  // `break ≤ low ≤ high` is satisfied at equality.
+  //
+  // Floor calibrated so existing P1 tests pass without rewriting every
+  // assertion, while still rejecting tests that execute lines without
+  // inspecting outputs. Tightening the floor past v1.0.0 is tracked
+  // separately.
   thresholds: {
-    high: 85,
+    high: 70,
     low: 70,
-    break: 69,
+    break: 70,
   },
 
+  // Local default. CI overrides via the workflow run-line
+  // (`-- --reporters dots,clear-text,html`) so that:
+  //   • `progress` (live progress bar) is useful when a human is watching
+  //     a local run, and would only add log noise in CI where there is
+  //     no TTY (it degrades to one line per tick);
+  //   • `dots` is the standard CI quiet reporter (one `.` per mutant);
+  //   • `clear-text` keeps the survivor summary in both runs;
+  //   • `html` writes the report consumed by the deploy-reports page
+  //     locally and by the CI `mutation-report` upload artefact.
   reporters: ['progress', 'clear-text', 'html'],
   htmlReporter: {
     fileName: 'reports/mutation/mutation.html',
@@ -80,9 +94,11 @@ const config = {
 
   // Per-mutant timeout — long enough for the slowest P1 vector-driven test
   // (bilinear interpolation against canonical vectors) without masking real
-  // infinite loops introduced by a mutant.
+  // infinite loops introduced by a mutant. Worker concurrency is left at
+  // Stryker's default (`os.cpus().length - 1`) so the gate adapts to
+  // whichever runner size CI is using rather than capping at a hard-coded
+  // 4-vCPU assumption.
   timeoutMS: 60000,
-  concurrency: 4,
 }
 
 export default config
