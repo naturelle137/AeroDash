@@ -26,7 +26,14 @@ permissions:
 
 env:
   REVIEW_MODEL: claude-opus-4-7
-  MAX_TURNS: '30'
+  # A full structured review (read diff, walk affected files, cross-check P1
+  # isolation + traceability + safety, write findings, submit via `gh pr
+  # review`) needs comparable headroom to the implementer and iteration bots.
+  # 30 proved too small: the reviewer on PR #346 (25 files / +2916 lines) hit
+  # `error_max_turns` mid-review and posted no review at all, which leaves the
+  # ready-gate stuck. Aligned with overnight-implementation.yml and
+  # pr-iteration.yml at 150 so all three bots share one budget knob.
+  MAX_TURNS: '150'
 
 jobs:
   review:
