@@ -58,13 +58,14 @@ env:
   BATCH_SIZE_DEFAULT: '1'
   # Per-issue budgets (ADR-317-DEV operational defaults). 40 turns proved far
   # too small: run #4 hit `error_max_turns` mid-implementation (the agent was
-  # working, not stuck). A full /implement-issue + lint/type-check/test/build +
-  # fix loop needs a much larger cap, so the turn budget — not the wall clock —
-  # is the binding limit and the graceful-degradation push step below can run.
-  MAX_TURNS: '150'
+  # working, not stuck), and 150 likewise hit the cap on a real run. A full
+  # /implement-issue + lint/type-check/test/build + fix loop needs a much
+  # larger cap, so the turn budget — not the wall clock — is the binding
+  # limit and the graceful-degradation push step below can run.
+  MAX_TURNS: '250'
   # Mirrors the job-level `timeout-minutes` below. GitHub does not expose the
   # workflow `env` context to a job-level `timeout-minutes`, so keep them in sync.
-  RUN_TIMEOUT_MINUTES: '90'
+  RUN_TIMEOUT_MINUTES: '150'
 
 jobs:
   # ── Deterministic, dependency-aware selection + run report ──────────────────
@@ -179,7 +180,7 @@ jobs:
     # Keep in sync with RUN_TIMEOUT_MINUTES. Must exceed the wall-clock time
     # MAX_TURNS can consume, so the agent's own turn cap is hit first and the
     # graceful-degradation push step runs (a hard job timeout cancels everything).
-    timeout-minutes: 90
+    timeout-minutes: 150
     strategy:
       max-parallel: 1
       fail-fast: false
