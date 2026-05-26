@@ -109,8 +109,8 @@ describe('useSessionPersistenceStore — restoreSession()', () => {
     expect(localStorage.getItem('aerodash:session:payload')).toBeNull()
   })
 
-  // @UT-SYS-STORE-003@ (FROM: @IMP-SYS-STORE-001@)
-  it('returns null and clears storage when Zod validation fails (wrong version)', () => {
+  // @UT-SYS-STORE-003@ (FROM: @IMP-SYS-STORE-001@, @IMP-SYS-CORE-012@)
+  it('drops payload, clears storage, and emits INFO notification when version is from a future build (refs #259)', () => {
     localStorage.setItem(
       'aerodash:session:payload',
       JSON.stringify({ version: 99, aircraftId: 'x', activeCategory: 'Normal', stations: [], savedAt: new Date().toISOString() }),
@@ -118,10 +118,19 @@ describe('useSessionPersistenceStore — restoreSession()', () => {
     const store = useSessionPersistenceStore()
     expect(store.restoreSession()).toBeNull()
     expect(localStorage.getItem('aerodash:session:payload')).toBeNull()
+
+    const dropped = store.consumeDropNotification()
+    expect(dropped).not.toBeNull()
+    expect(dropped!.severity).toBe('INFO')
+    expect(dropped!.code).toBe('INFO-SYS-001')
+    expect(dropped!.reason).toBe('unsupported-future-version')
+    expect(dropped!.storedVersion).toBe(99)
+    // consume is idempotent — second drain returns null
+    expect(store.consumeDropNotification()).toBeNull()
   })
 
-  // @UT-SYS-STORE-004@ (FROM: @IMP-SYS-STORE-001@)
-  it('returns null and clears storage when schema is missing required fields', () => {
+  // @UT-SYS-STORE-004@ (FROM: @IMP-SYS-STORE-001@, @IMP-SYS-CORE-012@)
+  it('drops payload, clears storage, and emits INFO notification when schema is missing required fields', () => {
     localStorage.setItem(
       'aerodash:session:payload',
       JSON.stringify({ version: 1, aircraftId: 'x' }), // missing required fields
@@ -129,6 +138,40 @@ describe('useSessionPersistenceStore — restoreSession()', () => {
     const store = useSessionPersistenceStore()
     expect(store.restoreSession()).toBeNull()
     expect(localStorage.getItem('aerodash:session:payload')).toBeNull()
+
+    const dropped = store.consumeDropNotification()
+    expect(dropped).not.toBeNull()
+    expect(dropped!.severity).toBe('INFO')
+    expect(dropped!.reason).toBe('corrupt')
+  })
+
+  // @UT-SYS-STORE-037@ (FROM: @IMP-SYS-STORE-001@, @IMP-SYS-CORE-012@)
+  it('clears any prior drop notification when restoring a valid payload', () => {
+    // Seed a corrupt payload first so a drop is emitted.
+    localStorage.setItem('aerodash:session:payload', '{not json')
+    const store = useSessionPersistenceStore()
+    store.restoreSession()
+    expect(store.lastDropNotification).not.toBeNull()
+
+    // Now seed a valid payload; restore must clear the prior drop.
+    const validPayload = {
+      version: 1,
+      aircraftId: 'aircraft-uuid-A',
+      activeCategory: 'Normal',
+      stations: [],
+      savedAt: new Date().toISOString(),
+    }
+    localStorage.setItem('aerodash:session:payload', JSON.stringify(validPayload))
+    const restored = store.restoreSession()
+    expect(restored).not.toBeNull()
+    expect(store.lastDropNotification).toBeNull()
+  })
+
+  // @UT-SYS-STORE-038@ (FROM: @IMP-SYS-STORE-001@, @IMP-SYS-CORE-012@)
+  it('emits no notification when localStorage is empty (clean session is not a drop)', () => {
+    const store = useSessionPersistenceStore()
+    expect(store.restoreSession()).toBeNull()
+    expect(store.lastDropNotification).toBeNull()
   })
 
   // @UT-SYS-STORE-005@ (FROM: @IMP-SYS-STORE-001@)

@@ -1608,3 +1608,121 @@ AC View — ProfileStatusBadge Component (Unit)
       - IMP-AC-VIEW-019
     files:
       - frontend/src/modules/aircraft/__tests__/FleetList.spec.ts
+
+AC Core — Profile Migration Tests (#259)
+  UT-AC-CORE-101
+    title: migrateProfileDocument suite — schemaVersion migration registry tests for AircraftProfile (#259)
+    impl:
+      - IMP-AC-CORE-003
+    files:
+      - frontend/src/core/logic/profile-migrations.spec.ts
+
+AC Store — Exchange Envelope Tests (#259)
+  UT-AC-STORE-101
+    title: exportProfileToJson wraps the profile in an aerodash-aircraft envelope
+    impl:
+      - IMP-AC-STORE-008
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.import.spec.ts
+
+  UT-AC-STORE-102
+    title: isExchangeEnvelope accepts a well-formed envelope
+    impl:
+      - IMP-AC-STORE-008
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.import.spec.ts
+
+  UT-AC-STORE-103
+    title: isExchangeEnvelope rejects a bare-profile JSON tree
+    impl:
+      - IMP-AC-STORE-008
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.import.spec.ts
+
+  UT-AC-STORE-104
+    title: isExchangeEnvelope rejects a tree with wrong format marker
+    impl:
+      - IMP-AC-STORE-008
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.import.spec.ts
+
+  UT-AC-STORE-105
+    title: isExchangeEnvelope rejects a tree with non-numeric or non-positive version
+    impl:
+      - IMP-AC-STORE-008
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.import.spec.ts
+
+  UT-AC-STORE-106
+    title: isExchangeEnvelope rejects a tree without a profile key
+    impl:
+      - IMP-AC-STORE-008
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.import.spec.ts
+
+  UT-AC-STORE-107
+    title: isExchangeEnvelope rejects null, arrays, and primitives
+    impl:
+      - IMP-AC-STORE-008
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.import.spec.ts
+
+  UT-AC-STORE-108
+    title: importProfileFromJson imports a profile wrapped in the current-version envelope
+    impl:
+      - IMP-AC-STORE-008
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.import.spec.ts
+
+  UT-AC-STORE-109
+    title: importProfileFromJson imports a legacy bare-profile JSON (back-compat with pre-#259 exports)
+    impl:
+      - IMP-AC-STORE-008
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.import.spec.ts
+
+  UT-AC-STORE-110
+    title: importProfileFromJson rejects an envelope with version > EXCHANGE_VERSION
+    impl:
+      - IMP-AC-STORE-008
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.import.spec.ts
+
+  UT-AC-STORE-111
+    title: importProfileFromJson rejects an envelope whose inner profile fails Zod validation
+    impl:
+      - IMP-AC-STORE-008
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.import.spec.ts
+
+  UT-AC-STORE-112
+    title: round-trip — export → import via envelope preserves the registration
+    impl:
+      - IMP-AC-STORE-008
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.import.spec.ts
+
+AC Store — Migration Diagnostics Surfaced as INFO Notifications (Unit)
+  UT-AC-STORE-113
+    title: loadAll emits one INFO-AC-001 notification per dropped profile (future version)
+    impl:
+      - IMP-AC-STORE-005
+      - IMP-AC-CORE-003
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+  UT-AC-STORE-114
+    title: loadAll emits one INFO-AC-001 notification per dropped profile (corrupt)
+    impl:
+      - IMP-AC-STORE-005
+      - IMP-AC-CORE-003
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+  UT-AC-STORE-115
+    title: loadAll emits no INFO notification when no profile is dropped
+    impl:
+      - IMP-AC-STORE-005
+      - IMP-AC-CORE-003
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts

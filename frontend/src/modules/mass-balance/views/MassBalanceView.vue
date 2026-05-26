@@ -8,6 +8,7 @@ import { useFleetStore } from '@/modules/aircraft/stores/fleet.store'
 import { useActiveAircraftStore } from '@/modules/aircraft/stores/active-aircraft.store'
 import { useSessionPersistenceStore } from '@/stores/session-persistence.store'
 import type { AircraftProfile } from '@/core/adapters/aircraft.schema'
+import type { SessionDropNotification } from '@/stores/session-persistence.store'
 import InputGroupCard from '@/modules/mass-balance/components/InputGroupCard.vue'
 import MassStationInput from '@/modules/mass-balance/components/MassStationInput.vue'
 import CGEnvelopeChart from '@/modules/mass-balance/components/CGEnvelopeChart.vue'
@@ -18,6 +19,19 @@ import UndoToast from '@/shared/components/UndoToast.vue'
 // @IMP-MB-UI-FLEET-001@ (FROM: @REQ-AC-001@, @REQ-MB-002@, @UJ-F-002@)
 
 const catalogueError = ref<string | null>(null)
+
+/**
+ * One-shot INFO banner shown when a persisted session payload could not be
+ * restored on the most recent full reload (PWA-cache rollback / corrupt
+ * payload). Drained from `sessionPersistenceStore.consumeDropNotification()`
+ * after `restoreSession()` runs. The pilot dismisses it to acknowledge that
+ * a fresh session was started. Refs #259, #353 review feedback.
+ */
+const sessionDropBanner = ref<SessionDropNotification | null>(null)
+
+function dismissSessionDropBanner(): void {
+  sessionDropBanner.value = null
+}
 
 // ---------------------------------------------------------------------------
 // Store connection (single source of truth)
@@ -274,6 +288,10 @@ onMounted(async () => {
           sessionPersistenceStore.clearSession()
         }
       }
+      // Drain any drop notification produced by `restoreSession()` and surface
+      // it as a dismissible INFO banner. Without this, a dropped session would
+      // silently disappear with no recovery hint for the pilot (refs #259, #353).
+      sessionDropBanner.value = sessionPersistenceStore.consumeDropNotification()
     }
   }
 
@@ -556,6 +574,30 @@ function onAircraftSelected(event: Event): void {
     <div class="fp-page-header">
       <h1 class="fp-page-title">Flight Preparation</h1>
       <p class="fp-page-sub">Mass &amp; Balance · Performance · Weather · {{ isElectric ? 'Energy' : 'Fuel' }}</p>
+    </div>
+
+    <!-- ═══ Session restore banner (INFO-SYS-001) ════════════════════════════
+         Shown when the persisted preflight session could not be restored on
+         this reload (PWA-cache rollback or corrupt payload). Dismissible —
+         the pilot acknowledges that a fresh session was started.
+         Refs #259, #353. -->
+    <div
+      v-if="sessionDropBanner"
+      class="session-drop-banner"
+      :data-reason="sessionDropBanner.reason"
+      role="status"
+      aria-live="polite"
+    >
+      <strong>{{ sessionDropBanner.code }}</strong>
+      <span class="session-drop-banner__message">{{ sessionDropBanner.message }}</span>
+      <button
+        type="button"
+        class="session-drop-banner__dismiss"
+        aria-label="Dismiss notification"
+        @click="dismissSessionDropBanner"
+      >
+        Dismiss
+      </button>
     </div>
 
     <!-- ═══ AIRCRAFT SELECTION CARD (always visible) ══════════════════════ -->
@@ -1160,6 +1202,37 @@ function onAircraftSelected(event: Event): void {
   background: var(--color-critical-bg);
   border: 1px solid var(--color-critical);
   color: var(--color-critical);
+}
+
+/* ─── Session drop banner (INFO-SYS-001) ─────────────────────────────────── */
+
+.session-drop-banner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  margin-bottom: var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-info-bg, #eff6ff);
+  border: 1px solid var(--color-info, #3b82f6);
+  color: var(--color-info, #1e40af);
+  font-size: var(--text-sm);
+  flex-wrap: wrap;
+}
+
+.session-drop-banner__message {
+  flex: 1 1 auto;
+}
+
+.session-drop-banner__dismiss {
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid currentColor;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
 }
 
 .fleet-error {

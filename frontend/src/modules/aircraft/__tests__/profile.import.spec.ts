@@ -11,6 +11,9 @@ import {
   buildExchangeFilename,
   downloadProfileAsJson,
   validateImportFile,
+  isExchangeEnvelope,
+  EXCHANGE_FORMAT,
+  EXCHANGE_VERSION,
   MAX_IMPORT_FILE_BYTES,
   ImportError,
 } from '../services/profile.import'
@@ -204,6 +207,114 @@ describe('exportProfileToJson', () => {
     expect(() => JSON.parse(json)).not.toThrow()
     const reimported = importProfileFromJson(json)
     expect(reimported.registration).toBe(data.registration)
+  })
+
+  // @UT-AC-STORE-101@ (FROM: @IMP-AC-STORE-008@)
+  it('wraps the profile in an aerodash-aircraft envelope (refs #259)', () => {
+    const data = createValidExportedProfile() as AircraftProfile
+    const json = exportProfileToJson(data)
+    const parsed = JSON.parse(json) as Record<string, unknown>
+    expect(parsed.format).toBe(EXCHANGE_FORMAT)
+    expect(parsed.version).toBe(EXCHANGE_VERSION)
+    expect(parsed.profile).toBeDefined()
+    expect((parsed.profile as Record<string, unknown>).registration).toBe('D-EBPN')
+  })
+})
+
+// ─── Envelope detection + back-compat (refs #259) ─────────────────────────────
+
+describe('isExchangeEnvelope', () => {
+  // @UT-AC-STORE-102@ (FROM: @IMP-AC-STORE-008@)
+  it('accepts a well-formed envelope', () => {
+    expect(
+      isExchangeEnvelope({ format: 'aerodash-aircraft', version: 1, profile: {} }),
+    ).toBe(true)
+  })
+
+  // @UT-AC-STORE-103@ (FROM: @IMP-AC-STORE-008@)
+  it('rejects a bare-profile JSON tree (no envelope keys)', () => {
+    expect(isExchangeEnvelope(createValidExportedProfile())).toBe(false)
+  })
+
+  // @UT-AC-STORE-104@ (FROM: @IMP-AC-STORE-008@)
+  it('rejects a tree with wrong `format` marker', () => {
+    expect(
+      isExchangeEnvelope({ format: 'something-else', version: 1, profile: {} }),
+    ).toBe(false)
+  })
+
+  // @UT-AC-STORE-105@ (FROM: @IMP-AC-STORE-008@)
+  it('rejects a tree with non-numeric or non-positive `version`', () => {
+    expect(isExchangeEnvelope({ format: EXCHANGE_FORMAT, version: '1', profile: {} })).toBe(false)
+    expect(isExchangeEnvelope({ format: EXCHANGE_FORMAT, version: 0, profile: {} })).toBe(false)
+    expect(isExchangeEnvelope({ format: EXCHANGE_FORMAT, version: 1.5, profile: {} })).toBe(false)
+  })
+
+  // @UT-AC-STORE-106@ (FROM: @IMP-AC-STORE-008@)
+  it('rejects a tree without a `profile` key', () => {
+    expect(isExchangeEnvelope({ format: EXCHANGE_FORMAT, version: 1 })).toBe(false)
+  })
+
+  // @UT-AC-STORE-107@ (FROM: @IMP-AC-STORE-008@)
+  it('rejects null, arrays, and primitives', () => {
+    expect(isExchangeEnvelope(null)).toBe(false)
+    expect(isExchangeEnvelope(undefined)).toBe(false)
+    expect(isExchangeEnvelope([1, 2, 3])).toBe(false)
+    expect(isExchangeEnvelope('aerodash-aircraft')).toBe(false)
+  })
+})
+
+describe('importProfileFromJson — exchange envelope and back-compat (refs #259)', () => {
+  // @UT-AC-STORE-108@ (FROM: @IMP-AC-STORE-008@)
+  it('imports a profile wrapped in the current-version envelope', () => {
+    const envelope = {
+      format: EXCHANGE_FORMAT,
+      version: EXCHANGE_VERSION,
+      profile: createValidExportedProfile(),
+    }
+    const profile = importProfileFromJson(JSON.stringify(envelope))
+    expect(profile.registration).toBe('D-EBPN')
+    expect(profile.status).toBe('draft')
+  })
+
+  // @UT-AC-STORE-109@ (FROM: @IMP-AC-STORE-008@)
+  it('imports a legacy bare-profile JSON (back-compat with pre-#259 exports)', () => {
+    // No envelope: the entire tree IS the profile (the v0.3.0-alpha export shape).
+    const bare = createValidExportedProfile()
+    const profile = importProfileFromJson(JSON.stringify(bare))
+    expect(profile.registration).toBe('D-EBPN')
+    expect(profile.status).toBe('draft')
+  })
+
+  // @UT-AC-STORE-110@ (FROM: @IMP-AC-STORE-008@)
+  it('rejects an envelope with version > EXCHANGE_VERSION (future build)', () => {
+    const envelope = {
+      format: EXCHANGE_FORMAT,
+      version: EXCHANGE_VERSION + 1,
+      profile: createValidExportedProfile(),
+    }
+    expect(() => importProfileFromJson(JSON.stringify(envelope))).toThrow(ImportError)
+    expect(() => importProfileFromJson(JSON.stringify(envelope))).toThrow(/newer than/)
+  })
+
+  // @UT-AC-STORE-111@ (FROM: @IMP-AC-STORE-008@)
+  it('rejects an envelope whose inner profile fails Zod validation', () => {
+    const bad = createValidExportedProfile()
+    delete bad.registration
+    const envelope = { format: EXCHANGE_FORMAT, version: EXCHANGE_VERSION, profile: bad }
+    expect(() => importProfileFromJson(JSON.stringify(envelope))).toThrow(ImportError)
+    expect(() => importProfileFromJson(JSON.stringify(envelope))).toThrow('Profile validation failed')
+  })
+
+  // @UT-AC-STORE-112@ (FROM: @IMP-AC-STORE-008@)
+  it('round-trip: export → import via envelope preserves the registration', () => {
+    const profile = createValidExportedProfile() as AircraftProfile
+    const exported = exportProfileToJson(profile)
+    // exported MUST be envelope-shaped (assertion above), and reimport MUST succeed.
+    const parsed = JSON.parse(exported)
+    expect(parsed.format).toBe(EXCHANGE_FORMAT)
+    const reimported = importProfileFromJson(exported)
+    expect(reimported.registration).toBe(profile.registration)
   })
 })
 

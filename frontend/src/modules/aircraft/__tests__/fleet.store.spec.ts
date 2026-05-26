@@ -18,10 +18,16 @@ import { fleetRepository } from '../services/fleet.repository'
 vi.mock('../services/fleet.repository', () => ({
   fleetRepository: {
     findAll: vi.fn<() => Promise<AircraftProfile[]>>().mockResolvedValue([]),
+    findAllWithDiagnostics: vi
+      .fn<() => Promise<{ profiles: AircraftProfile[]; diagnostics: readonly unknown[] }>>()
+      .mockResolvedValue({ profiles: [], diagnostics: [] }),
     create: vi.fn<() => Promise<void>>().mockResolvedValue(undefined),
     update: vi.fn<() => Promise<void>>().mockResolvedValue(undefined),
     deleteById: vi.fn<() => Promise<void>>().mockResolvedValue(undefined),
     findById: vi.fn<() => Promise<AircraftProfile | undefined>>().mockResolvedValue(undefined),
+    findByIdWithDiagnostics: vi
+      .fn<() => Promise<{ profile: AircraftProfile | undefined; diagnostics: readonly unknown[] }>>()
+      .mockResolvedValue({ profile: undefined, diagnostics: [] }),
     openDB: vi.fn<() => Promise<IDBDatabase>>().mockResolvedValue({} as IDBDatabase),
   },
 }))
@@ -76,6 +82,10 @@ describe('useFleetStore', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
     vi.mocked(fleetRepository.findAll).mockResolvedValue([])
+    vi.mocked(fleetRepository.findAllWithDiagnostics).mockResolvedValue({
+      profiles: [],
+      diagnostics: [],
+    })
   })
 
   // @UT-AC-STORE-025@ (FROM: @IMP-AC-STORE-005@)
@@ -196,7 +206,10 @@ describe('useFleetStore', () => {
 
   // @UT-AC-STORE-083@ (FROM: @IMP-AC-STORE-005@, @REQ-AC-001@)
   it('starts with fleetLoadState LOADING until the first successful loadAll', async () => {
-    vi.mocked(fleetRepository.findAll).mockResolvedValueOnce([])
+    vi.mocked(fleetRepository.findAllWithDiagnostics).mockResolvedValueOnce({
+      profiles: [],
+      diagnostics: [],
+    })
 
     const store = useFleetStore()
     expect(store.fleetLoadState).toBe('LOADING')
@@ -212,9 +225,9 @@ describe('useFleetStore', () => {
     let capturedDuringLoad: boolean | undefined
 
     const { fleetRepository } = await import('../services/fleet.repository')
-    vi.mocked(fleetRepository.findAll).mockImplementationOnce(async () => {
+    vi.mocked(fleetRepository.findAllWithDiagnostics).mockImplementationOnce(async () => {
       capturedDuringLoad = store.isLoading
-      return []
+      return { profiles: [], diagnostics: [] }
     })
 
     await store.loadAll()
@@ -227,7 +240,9 @@ describe('useFleetStore', () => {
   it('loadAll sets isLoading=false even when IndexedDB throws (LOADING→ERROR)', async () => {
     const store = useFleetStore()
     const { fleetRepository } = await import('../services/fleet.repository')
-    vi.mocked(fleetRepository.findAll).mockRejectedValueOnce(new Error('IndexedDB unavailable'))
+    vi.mocked(fleetRepository.findAllWithDiagnostics).mockRejectedValueOnce(
+      new Error('IndexedDB unavailable'),
+    )
 
     await store.loadAll()
     expect(store.fleetLoadState).toBe('ERROR')
@@ -282,13 +297,77 @@ describe('useFleetStore', () => {
         },
       ],
     }
-    vi.mocked(fleetRepository.findAll).mockResolvedValueOnce([mockProfile])
+    vi.mocked(fleetRepository.findAllWithDiagnostics).mockResolvedValueOnce({
+      profiles: [mockProfile],
+      diagnostics: [],
+    })
 
     await store.loadAll()
 
     expect(store.profiles).toHaveLength(1)
     expect(store.profiles[0]!.registration).toBe('G-ABCD')
     expect(store.isLoading).toBe(false)
+  })
+
+  // ── Migration diagnostics surfaced as INFO notifications (refs #259, #353) ──
+
+  // @UT-AC-STORE-113@ (FROM: @IMP-AC-STORE-005@, @IMP-AC-CORE-003@, @REQ-SYS-013@)
+  it('loadAll emits one INFO-AC-001 notification per dropped profile (future version)', async () => {
+    // Without this, profiles dropped by the migration registry would silently
+    // disappear from the fleet UI — the pilot would think the aircraft was
+    // deleted. We surface one INFO toast per dropped record so they know the
+    // load was partial and what to do about it.
+    vi.mocked(fleetRepository.findAllWithDiagnostics).mockResolvedValueOnce({
+      profiles: [],
+      diagnostics: [
+        {
+          id: 'aircraft-from-future',
+          reason: 'unsupported-future-version',
+          storedVersion: 7,
+          detail: 'Aircraft profile dropped: stored schemaVersion 7 is newer than this build can read.',
+        },
+      ],
+    })
+
+    const store = useFleetStore()
+    await store.loadAll()
+
+    const infos = store.notifications.filter((n) => n.code === 'INFO-AC-001')
+    expect(infos).toHaveLength(1)
+    expect(infos[0]!.type).toBe('INFO')
+    expect(infos[0]!.message).toContain('aircraft-from-future')
+    expect(infos[0]!.message).toContain('newer than this build')
+  })
+
+  // @UT-AC-STORE-114@ (FROM: @IMP-AC-STORE-005@, @IMP-AC-CORE-003@, @REQ-SYS-013@)
+  it('loadAll emits one INFO-AC-001 notification per dropped profile (corrupt)', async () => {
+    vi.mocked(fleetRepository.findAllWithDiagnostics).mockResolvedValueOnce({
+      profiles: [],
+      diagnostics: [
+        { id: 'corrupt-a', reason: 'corrupt', storedVersion: 1, detail: 'Aircraft profile dropped: corrupt at storage layer — schema validation failed: root: missing' },
+        { id: 'corrupt-b', reason: 'corrupt', storedVersion: 1, detail: 'Aircraft profile dropped: corrupt at storage layer — schema validation failed: root: missing' },
+      ],
+    })
+
+    const store = useFleetStore()
+    await store.loadAll()
+
+    const infos = store.notifications.filter((n) => n.code === 'INFO-AC-001')
+    expect(infos).toHaveLength(2)
+    expect(infos.every((n) => n.type === 'INFO')).toBe(true)
+  })
+
+  // @UT-AC-STORE-115@ (FROM: @IMP-AC-STORE-005@, @IMP-AC-CORE-003@)
+  it('loadAll emits no INFO notification when no profile is dropped', async () => {
+    vi.mocked(fleetRepository.findAllWithDiagnostics).mockResolvedValueOnce({
+      profiles: [],
+      diagnostics: [],
+    })
+
+    const store = useFleetStore()
+    await store.loadAll()
+
+    expect(store.notifications.some((n) => n.code === 'INFO-AC-001')).toBe(false)
   })
 
   // ── ICAO registration validation ──

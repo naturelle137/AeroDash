@@ -5,11 +5,24 @@
  * Database: aerodash-fleet, version 2 (status normalization migration)
  * Object store: aircraft_profiles, keyPath: id
  *
+ * Each document read out of IndexedDB is routed through the P1 migration
+ * registry (`@/core/logic/profile-migrations`). Documents whose stored
+ * `schemaVersion` is from a future build (PWA-cache rollback) or whose
+ * contents fail to migrate are *dropped* from the in-memory fleet. The
+ * drop reason is returned to the caller alongside the data via the
+ * {@link findAllWithDiagnostics} / {@link findByIdWithDiagnostics} variants
+ * so the UI / store layer can surface an INFO notification per dropped
+ * record (refs #259).
+ *
  * @see docs/architecture/adr/006-indexeddb-fleet-persistence.md
  */
 
-import { AircraftProfileSchema } from '@/core/adapters/aircraft.schema'
+import {
+  migrateProfileDocument,
+  type ProfileMigrationOutcome,
+} from '@/core/logic/profile-migrations'
 import type { AircraftProfile } from '@/core/adapters/aircraft.schema'
+import { AircraftProfileSchema } from '@/core/adapters/aircraft.schema'
 
 // @IMP-AC-STORE-001@ (FROM: @REQ-AC-001@, @DES-ARCH-007@)
 
@@ -53,6 +66,8 @@ function openDB(): Promise<IDBDatabase> {
           const cursor = cursorReq.result
           if (!cursor) return
           const normalized = normalizeLegacyProfileStatus(cursor.value)
+          // Best-effort write: if the doc is corrupt at this point we skip it;
+          // the on-read migration registry will catch and surface it later.
           const parsed = AircraftProfileSchema.safeParse(normalized)
           if (parsed.success) {
             cursor.update(parsed.data)
@@ -114,6 +129,67 @@ function withStore<T>(
   )
 }
 
+// ─── Migration diagnostics (refs #259) ─────────────────────────────────────────
+// Each load call carries its own diagnostics list back to the caller. We do not
+// keep a module-level buffer: callers that interleave `findAll` and `findById`
+// across `await` boundaries would otherwise see each other's diagnostics. The
+// per-call return value is the only authoritative drain (#353 review feedback).
+
+/** Why a stored document was excluded from the in-memory fleet. */
+export type MigrationDropReason = 'unsupported-future-version' | 'corrupt'
+
+export interface MigrationDiagnostic {
+  /** IndexedDB key of the dropped document, when retrievable. */
+  readonly id: string | undefined
+  /** Why the document was dropped. */
+  readonly reason: MigrationDropReason
+  /** `schemaVersion` actually stored on the document (0 when missing / corrupt). */
+  readonly storedVersion: number
+  /** Human-readable detail for logging / UI tooltips. */
+  readonly detail: string
+}
+
+function toDiagnostic(rawId: unknown, outcome: ProfileMigrationOutcome): MigrationDiagnostic | null {
+  if (outcome.kind === 'migrated') return null
+  const id = typeof rawId === 'string' ? rawId : undefined
+  if (outcome.kind === 'unsupported-future-version') {
+    return {
+      id,
+      reason: 'unsupported-future-version',
+      storedVersion: outcome.storedVersion,
+      detail:
+        `Aircraft profile dropped: stored schemaVersion ${outcome.storedVersion} ` +
+        `is newer than this build can read. Update the app to restore the profile.`,
+    }
+  }
+  return {
+    id,
+    reason: 'corrupt',
+    storedVersion: outcome.storedVersion,
+    detail: `Aircraft profile dropped: corrupt at storage layer — ${outcome.reason}`,
+  }
+}
+
+/**
+ * Apply the schemaVersion migration registry to a single IndexedDB document.
+ *
+ * Returns the migrated profile when the document is accepted, or `undefined`
+ * when the document is dropped (future version / corrupt). When dropped, a
+ * diagnostic is appended to the caller-supplied `diagnostics` buffer.
+ */
+function applyMigration(raw: unknown, diagnostics: MigrationDiagnostic[]): AircraftProfile | undefined {
+  const outcome = migrateProfileDocument(raw)
+  if (outcome.kind === 'migrated') {
+    return outcome.profile
+  }
+  const rawId = raw !== null && typeof raw === 'object' ? (raw as Record<string, unknown>).id : undefined
+  const diag = toDiagnostic(rawId, outcome)
+  if (diag !== null) diagnostics.push(diag)
+  return undefined
+}
+
+// ─── CRUD API ──────────────────────────────────────────────────────────────────
+
 /**
  * Create a new AircraftProfile document in IndexedDB.
  * Validates cross-field invariants (powertrain ↔ fuel tank ↔ battery pack)
@@ -126,26 +202,75 @@ export async function create(profile: AircraftProfile): Promise<void> {
 }
 
 /**
+ * Retrieve a single AircraftProfile by id alongside any migration diagnostic.
+ *
+ * Returns `{ profile: undefined, diagnostics: [...] }` when the stored
+ * document fails the schemaVersion migration (future version / corrupt) so
+ * the caller can surface an INFO notification. `profile` is `undefined` if
+ * the key is absent and `diagnostics` is empty in that case.
+ *
+ * Prefer this race-free variant over the back-compat {@link findById}, which
+ * silently discards diagnostics.
+ */
+export function findByIdWithDiagnostics(
+  id: string,
+): Promise<{ profile: AircraftProfile | undefined; diagnostics: readonly MigrationDiagnostic[] }> {
+  return withStore<AircraftProfile | undefined>('readonly', (store) => store.get(id)).then((doc) => {
+    const diagnostics: MigrationDiagnostic[] = []
+    const profile = doc ? applyMigration(doc, diagnostics) : undefined
+    return { profile, diagnostics }
+  })
+}
+
+/**
  * Retrieve a single AircraftProfile by id.
- * Returns undefined if not found. Legacy documents (written before the
- * powertrain discriminator shipped) are rehydrated through the schema so
- * the default `powertrain: 'combustion'` is injected.
+ *
+ * Back-compat shim: returns the migrated profile (or `undefined` when the
+ * document is absent / dropped) and silently discards any drop diagnostic.
+ * For new code that needs to surface drop notifications, call
+ * {@link findByIdWithDiagnostics} instead.
  */
 export function findById(id: string): Promise<AircraftProfile | undefined> {
-  return withStore<AircraftProfile | undefined>('readonly', (store) => store.get(id)).then(
-    (doc) => (doc ? AircraftProfileSchema.parse(doc) : undefined),
-  )
+  return findByIdWithDiagnostics(id).then((result) => result.profile)
+}
+
+/**
+ * Retrieve all AircraftProfile documents alongside migration diagnostics.
+ *
+ * Documents whose stored `schemaVersion` is newer than this build can read
+ * (PWA-cache rollback) — or whose contents are otherwise structurally
+ * unmigratable — are *omitted* from `profiles` and a `MigrationDiagnostic`
+ * is appended to `diagnostics` per dropped record. This is the documented
+ * partial-load recovery path: the fleet UI keeps working with the readable
+ * subset rather than failing the entire load on a single corrupt record.
+ *
+ * Prefer this race-free variant over the back-compat {@link findAll}, which
+ * silently discards diagnostics.
+ */
+export function findAllWithDiagnostics(): Promise<{
+  profiles: AircraftProfile[]
+  diagnostics: readonly MigrationDiagnostic[]
+}> {
+  return withStore<AircraftProfile[]>('readonly', (store) => store.getAll()).then((docs) => {
+    const diagnostics: MigrationDiagnostic[] = []
+    const profiles: AircraftProfile[] = []
+    for (const doc of docs) {
+      const m = applyMigration(doc, diagnostics)
+      if (m !== undefined) profiles.push(m)
+    }
+    return { profiles, diagnostics }
+  })
 }
 
 /**
  * Retrieve all AircraftProfile documents.
- * Each document is rehydrated through the schema so legacy records receive
- * the `powertrain: 'combustion'` default.
+ *
+ * Back-compat shim: returns only the migrated profiles and silently discards
+ * any drop diagnostics. For new code that needs to surface drop notifications,
+ * call {@link findAllWithDiagnostics} instead.
  */
 export function findAll(): Promise<AircraftProfile[]> {
-  return withStore<AircraftProfile[]>('readonly', (store) => store.getAll()).then((docs) =>
-    docs.map((doc) => AircraftProfileSchema.parse(doc)),
-  )
+  return findAllWithDiagnostics().then((result) => result.profiles)
 }
 
 /**
@@ -169,7 +294,9 @@ export const fleetRepository = {
   openDB,
   create,
   findById,
+  findByIdWithDiagnostics,
   findAll,
+  findAllWithDiagnostics,
   update,
   deleteById,
 }
