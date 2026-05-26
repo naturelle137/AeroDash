@@ -201,6 +201,16 @@ jobs:
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           # API-key alternative: anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          # The `correct` path here is triggered by `pull_request_review.submitted`
+          # from our reviewer bot, whose initiating actor is `claude[bot]`. The
+          # action's bot-actor safety gate refuses non-human initiators by default
+          # (prevents bot↔bot loops; see the action's docs/security.md). Allow ONLY
+          # `claude` — never `*`, which is documented as unsafe on public repos
+          # because external Apps could invoke the action with attacker-controlled
+          # prompts. Dependabot / github-actions / other bots commenting or pushing
+          # on a bot branch still cannot initiate a correction round under this
+          # allow-list.
+          allowed_bots: 'claude'
           prompt: |
             You are correcting Draft PR #${{ steps.ctx.outputs.pr }}
             (correction ${{ steps.ctx.outputs.next }} of ${{ steps.ctx.outputs.max }}).
