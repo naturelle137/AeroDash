@@ -161,24 +161,6 @@ Given('the pilot is on the Fleet page', async ({ page }) => {
   await expect(page.locator('.profile-item').first()).toBeVisible()
 })
 
-When(
-  'the pilot taps {string} on the {string} row',
-  async ({ page }, action: string, registration: string) => {
-    const row = page.locator('.profile-item', { hasText: registration })
-    await expect(row).toBeVisible()
-    const button = row.getByRole('button', { name: new RegExp(`${action} ${registration}`, 'i') })
-    await button.click()
-  },
-)
-
-When('the pilot returns to the Fleet page using the browser back button', async ({ page }) => {
-  await expect(page).toHaveURL(/\/fleet\/.*\/edit$/)
-  await expect(page.getByRole('heading', { name: /Edit Aircraft/i })).toBeVisible()
-  await page.goBack()
-  await expect(page).toHaveURL(/\/fleet$/)
-  await expect(page.locator('.profile-item').first()).toBeVisible()
-})
-
 When('the device restores the Fleet page from the browser bfcache', async ({ page }) => {
   // Real bfcache restoration can only be triggered by browser navigation in
   // an isolated WebKit/iOS environment. Dispatching a synthetic
