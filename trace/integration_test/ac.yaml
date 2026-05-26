@@ -156,7 +156,15 @@ AC Migration — Downgrade + Corruption Recovery (#259)
       - frontend/src/modules/aircraft/__tests__/fleet.repository.migration.int.spec.ts
 
   IT-AC-STORE-108
-    title: consumeMigrationDiagnostics is one-shot — second drain returns empty
+    title: Diagnostics are per-call — interleaved findAll / findById do not cross-contaminate
+    impl:
+      - IMP-AC-STORE-001
+      - IMP-AC-CORE-003
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.repository.migration.int.spec.ts
+
+  IT-AC-STORE-110
+    title: Back-compat findAll / findById silently discard diagnostics for callers that opt out
     impl:
       - IMP-AC-STORE-001
       - IMP-AC-CORE-003

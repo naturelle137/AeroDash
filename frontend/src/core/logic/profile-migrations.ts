@@ -71,6 +71,15 @@ const migrations: ReadonlyMap<number, ProfileMigration> = new Map<number, Profil
      * documents are structurally identical to v1 documents (the field was the
      * only thing missing) and the schema's defaults reinstate any other field
      * that was nullable-by-omission.
+     *
+     * IMPORTANT — this `0 → 1` entry must be kept indefinitely (or replaced
+     * with an equivalent default-stamping step at the lowest registered
+     * version). The on-read walker does NOT write the migrated document back
+     * to IndexedDB, so a v0 document on disk is re-migrated on every load.
+     * Removing this entry — even after long soak time — would brick every
+     * legacy document that never went through a verify/edit write cycle. Any
+     * future ADR that proposes pruning legacy migrations MUST first migrate
+     * stored documents to the new floor version on write.
      */
     (doc) => ({ ...doc, schemaVersion: 1 }),
   ],

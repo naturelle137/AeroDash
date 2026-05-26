@@ -180,6 +180,10 @@ h2 {
   color: var(--color-warning, #92400e);
 }
 
+.notification--info {
+  color: var(--color-info, #1e40af);
+}
+
 .btn-clear-notifications {
   align-self: flex-end;
   background: none;

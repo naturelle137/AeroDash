@@ -8,9 +8,11 @@
  * Each document read out of IndexedDB is routed through the P1 migration
  * registry (`@/core/logic/profile-migrations`). Documents whose stored
  * `schemaVersion` is from a future build (PWA-cache rollback) or whose
- * contents fail to migrate are *dropped* from the in-memory fleet and the
- * drop reason is reported via {@link consumeMigrationDiagnostics} so the
- * UI / store layer can surface an INFO notification (refs #259).
+ * contents fail to migrate are *dropped* from the in-memory fleet. The
+ * drop reason is returned to the caller alongside the data via the
+ * {@link findAllWithDiagnostics} / {@link findByIdWithDiagnostics} variants
+ * so the UI / store layer can surface an INFO notification per dropped
+ * record (refs #259).
  *
  * @see docs/architecture/adr/006-indexeddb-fleet-persistence.md
  */
@@ -127,13 +129,11 @@ function withStore<T>(
   )
 }
 
-// ─── Migration diagnostics buffer (refs #259) ──────────────────────────────────
-// The repository accumulates a list of documents that failed migration so the
-// store layer can drain it once per load and surface an INFO notification per
-// dropped record. The buffer is process-local and intentionally not surfaced
-// through any kind of subscription API — `findAll` / `findById` consumers
-// drain it via `consumeMigrationDiagnostics()` immediately after their call
-// returns.
+// ─── Migration diagnostics (refs #259) ─────────────────────────────────────────
+// Each load call carries its own diagnostics list back to the caller. We do not
+// keep a module-level buffer: callers that interleave `findAll` and `findById`
+// across `await` boundaries would otherwise see each other's diagnostics. The
+// per-call return value is the only authoritative drain (#353 review feedback).
 
 /** Why a stored document was excluded from the in-memory fleet. */
 export type MigrationDropReason = 'unsupported-future-version' | 'corrupt'
@@ -149,58 +149,42 @@ export interface MigrationDiagnostic {
   readonly detail: string
 }
 
-let _migrationBuffer: MigrationDiagnostic[] = []
-
-/**
- * Drain and return the migration diagnostics produced by the most recent
- * `findAll` / `findById` call(s) on this repository.
- *
- * Callers are expected to invoke this immediately after a load operation;
- * subsequent calls return an empty array.
- */
-export function consumeMigrationDiagnostics(): readonly MigrationDiagnostic[] {
-  const drained = _migrationBuffer
-  _migrationBuffer = []
-  return drained
-}
-
-function recordDiagnostic(rawId: unknown, outcome: ProfileMigrationOutcome): void {
-  if (outcome.kind === 'migrated') return
+function toDiagnostic(rawId: unknown, outcome: ProfileMigrationOutcome): MigrationDiagnostic | null {
+  if (outcome.kind === 'migrated') return null
   const id = typeof rawId === 'string' ? rawId : undefined
   if (outcome.kind === 'unsupported-future-version') {
-    _migrationBuffer.push({
+    return {
       id,
       reason: 'unsupported-future-version',
       storedVersion: outcome.storedVersion,
       detail:
         `Aircraft profile dropped: stored schemaVersion ${outcome.storedVersion} ` +
         `is newer than this build can read. Update the app to restore the profile.`,
-    })
-    return
+    }
   }
-  _migrationBuffer.push({
+  return {
     id,
     reason: 'corrupt',
     storedVersion: outcome.storedVersion,
     detail: `Aircraft profile dropped: corrupt at storage layer — ${outcome.reason}`,
-  })
+  }
 }
 
 /**
  * Apply the schemaVersion migration registry to a single IndexedDB document.
  *
  * Returns the migrated profile when the document is accepted, or `undefined`
- * when the document is dropped (future version / corrupt). The drop reason is
- * recorded in the migration diagnostics buffer so consumers can surface a
- * single user-visible INFO notification per load.
+ * when the document is dropped (future version / corrupt). When dropped, a
+ * diagnostic is appended to the caller-supplied `diagnostics` buffer.
  */
-function applyMigration(raw: unknown): AircraftProfile | undefined {
+function applyMigration(raw: unknown, diagnostics: MigrationDiagnostic[]): AircraftProfile | undefined {
   const outcome = migrateProfileDocument(raw)
   if (outcome.kind === 'migrated') {
     return outcome.profile
   }
   const rawId = raw !== null && typeof raw === 'object' ? (raw as Record<string, unknown>).id : undefined
-  recordDiagnostic(rawId, outcome)
+  const diag = toDiagnostic(rawId, outcome)
+  if (diag !== null) diagnostics.push(diag)
   return undefined
 }
 
@@ -218,37 +202,75 @@ export async function create(profile: AircraftProfile): Promise<void> {
 }
 
 /**
+ * Retrieve a single AircraftProfile by id alongside any migration diagnostic.
+ *
+ * Returns `{ profile: undefined, diagnostics: [...] }` when the stored
+ * document fails the schemaVersion migration (future version / corrupt) so
+ * the caller can surface an INFO notification. `profile` is `undefined` if
+ * the key is absent and `diagnostics` is empty in that case.
+ *
+ * Prefer this race-free variant over the back-compat {@link findById}, which
+ * silently discards diagnostics.
+ */
+export function findByIdWithDiagnostics(
+  id: string,
+): Promise<{ profile: AircraftProfile | undefined; diagnostics: readonly MigrationDiagnostic[] }> {
+  return withStore<AircraftProfile | undefined>('readonly', (store) => store.get(id)).then((doc) => {
+    const diagnostics: MigrationDiagnostic[] = []
+    const profile = doc ? applyMigration(doc, diagnostics) : undefined
+    return { profile, diagnostics }
+  })
+}
+
+/**
  * Retrieve a single AircraftProfile by id.
  *
- * Returns `undefined` when the key is absent OR when the stored document
- * fails the schemaVersion migration (future version / corrupt). In the
- * latter case a diagnostic is appended to {@link consumeMigrationDiagnostics}.
+ * Back-compat shim: returns the migrated profile (or `undefined` when the
+ * document is absent / dropped) and silently discards any drop diagnostic.
+ * For new code that needs to surface drop notifications, call
+ * {@link findByIdWithDiagnostics} instead.
  */
 export function findById(id: string): Promise<AircraftProfile | undefined> {
-  return withStore<AircraftProfile | undefined>('readonly', (store) => store.get(id)).then(
-    (doc) => (doc ? applyMigration(doc) : undefined),
-  )
+  return findByIdWithDiagnostics(id).then((result) => result.profile)
+}
+
+/**
+ * Retrieve all AircraftProfile documents alongside migration diagnostics.
+ *
+ * Documents whose stored `schemaVersion` is newer than this build can read
+ * (PWA-cache rollback) — or whose contents are otherwise structurally
+ * unmigratable — are *omitted* from `profiles` and a `MigrationDiagnostic`
+ * is appended to `diagnostics` per dropped record. This is the documented
+ * partial-load recovery path: the fleet UI keeps working with the readable
+ * subset rather than failing the entire load on a single corrupt record.
+ *
+ * Prefer this race-free variant over the back-compat {@link findAll}, which
+ * silently discards diagnostics.
+ */
+export function findAllWithDiagnostics(): Promise<{
+  profiles: AircraftProfile[]
+  diagnostics: readonly MigrationDiagnostic[]
+}> {
+  return withStore<AircraftProfile[]>('readonly', (store) => store.getAll()).then((docs) => {
+    const diagnostics: MigrationDiagnostic[] = []
+    const profiles: AircraftProfile[] = []
+    for (const doc of docs) {
+      const m = applyMigration(doc, diagnostics)
+      if (m !== undefined) profiles.push(m)
+    }
+    return { profiles, diagnostics }
+  })
 }
 
 /**
  * Retrieve all AircraftProfile documents.
  *
- * Documents whose stored `schemaVersion` is newer than this build can read
- * (PWA-cache rollback) — or whose contents are otherwise structurally
- * unmigratable — are *omitted* from the returned array and surfaced via
- * {@link consumeMigrationDiagnostics}. This is the documented partial-load
- * recovery path: the fleet UI keeps working with the readable subset rather
- * than failing the entire load on a single corrupt record.
+ * Back-compat shim: returns only the migrated profiles and silently discards
+ * any drop diagnostics. For new code that needs to surface drop notifications,
+ * call {@link findAllWithDiagnostics} instead.
  */
 export function findAll(): Promise<AircraftProfile[]> {
-  return withStore<AircraftProfile[]>('readonly', (store) => store.getAll()).then((docs) => {
-    const migrated: AircraftProfile[] = []
-    for (const doc of docs) {
-      const m = applyMigration(doc)
-      if (m !== undefined) migrated.push(m)
-    }
-    return migrated
-  })
+  return findAllWithDiagnostics().then((result) => result.profiles)
 }
 
 /**
@@ -272,8 +294,9 @@ export const fleetRepository = {
   openDB,
   create,
   findById,
+  findByIdWithDiagnostics,
   findAll,
+  findAllWithDiagnostics,
   update,
   deleteById,
-  consumeMigrationDiagnostics,
 }

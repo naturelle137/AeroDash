@@ -18,7 +18,7 @@ import { ref, computed } from 'vue'
 import { v4 as uuidv4 } from 'uuid'
 import { AircraftProfileSchema } from '@/core/adapters/aircraft.schema'
 import type { AircraftProfile } from '@/core/adapters/aircraft.schema'
-import { fleetRepository } from '../services/fleet.repository'
+import { fleetRepository, type MigrationDiagnostic } from '../services/fleet.repository'
 import { validateIcaoRegistration, hasDuplicateRegistration } from '../services/profile.validator'
 import { useActiveAircraftStore } from './active-aircraft.store'
 
@@ -85,6 +85,26 @@ export const useFleetStore = defineStore('fleet', () => {
     })
   }
 
+  /**
+   * Surface one INFO notification per profile dropped by the schemaVersion
+   * migration registry on load (refs #259). Each diagnostic corresponds to a
+   * profile that was either (a) stamped with a `schemaVersion` newer than this
+   * build can read (PWA-cache rollback) or (b) structurally corrupt at the
+   * storage layer. Without this, dropped profiles would silently disappear
+   * from the pilot's fleet view — they need to know the aircraft was not
+   * deleted, only skipped for this load.
+   */
+  function emitMigrationDiagnostics(diagnostics: readonly MigrationDiagnostic[]): void {
+    for (const d of diagnostics) {
+      const detailWithId = d.id ? `${d.detail} (id: ${d.id})` : d.detail
+      notifications.value.push({
+        type: 'INFO',
+        code: 'INFO-AC-001',
+        message: detailWithId,
+      })
+    }
+  }
+
   function clearNotifications(): void {
     notifications.value = []
   }
@@ -96,7 +116,9 @@ export const useFleetStore = defineStore('fleet', () => {
     fleetLoadState.value = 'LOADING'
     fleetLoadError.value = null
     try {
-      profiles.value = await fleetRepository.findAll()
+      const { profiles: loaded, diagnostics } = await fleetRepository.findAllWithDiagnostics()
+      profiles.value = loaded
+      emitMigrationDiagnostics(diagnostics)
       fleetLoadState.value = 'READY'
     } catch (err) {
       fleetLoadState.value = 'ERROR'

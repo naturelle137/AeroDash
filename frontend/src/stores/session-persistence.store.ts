@@ -139,13 +139,15 @@ export const useSessionPersistenceStore = defineStore('sessionPersistence', () =
    * Read, migrate, validate, and return the persisted session payload.
    *
    * Returns `null` when:
-   *  - `localStorage` is empty or the key is absent.
-   *  - JSON parse fails (storage clears, no notification — a fresh page load
-   *    after a corruption needs no INFO toast).
+   *  - `localStorage` is empty or the key is absent (no notification — there
+   *    was nothing to restore in the first place).
+   *  - JSON parse fails: storage is cleared and a `corrupt`
+   *    {@link SessionDropNotification} is emitted so the pilot learns the
+   *    saved session could not be restored.
    *  - The stored payload's version is *newer* than this build can read
    *    (PWA-cache rollback). The payload is dropped, storage is cleared,
-   *    and an `unsupported-future-version` {@link SessionDropNotification}
-   *    is emitted on {@link lastDropNotification}.
+   *    and an `unsupported-future-version` drop notification is emitted on
+   *    {@link lastDropNotification}.
    *  - The stored payload fails migration / Zod validation. Storage is
    *    cleared and a `corrupt` drop notification is emitted.
    */

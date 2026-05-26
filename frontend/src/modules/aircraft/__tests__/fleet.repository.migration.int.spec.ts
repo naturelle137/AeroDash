@@ -23,7 +23,8 @@ import {
   create,
   findById,
   findAll,
-  consumeMigrationDiagnostics,
+  findAllWithDiagnostics,
+  findByIdWithDiagnostics,
 } from '../services/fleet.repository'
 import { CURRENT_PROFILE_SCHEMA_VERSION } from '@/core/logic/profile-migrations'
 import type { AircraftProfile } from '@/core/adapters/aircraft.schema'
@@ -34,8 +35,6 @@ beforeEach(() => {
     writable: true,
     configurable: true,
   })
-  // Drain any diagnostics that may have accumulated from previous tests.
-  consumeMigrationDiagnostics()
 })
 
 /** Minimal valid AircraftProfile fixture. */
@@ -139,10 +138,9 @@ describe('fleetRepository — downgrade after PWA cache rollback (refs #259)', (
 
     await seedRaw(futureDoc as unknown as Record<string, unknown>)
 
-    const all = await findAll()
-    expect(all).toHaveLength(0)
+    const { profiles, diagnostics } = await findAllWithDiagnostics()
+    expect(profiles).toHaveLength(0)
 
-    const diagnostics = consumeMigrationDiagnostics()
     expect(diagnostics).toHaveLength(1)
     expect(diagnostics[0]!.id).toBe(futureId)
     expect(diagnostics[0]!.reason).toBe('unsupported-future-version')
@@ -150,17 +148,16 @@ describe('fleetRepository — downgrade after PWA cache rollback (refs #259)', (
   })
 
   // @IT-AC-STORE-103@ (FROM: @IMP-AC-STORE-001@, @IMP-AC-CORE-003@)
-  it('returns undefined and emits a future-version diagnostic for findById', async () => {
+  it('returns undefined and emits a future-version diagnostic for findByIdWithDiagnostics', async () => {
     const futureId = '00000000-0000-4000-a000-0000000000f1'
     await seedRaw({
       ...buildProfile({ id: futureId, registration: 'D-F1ND' }),
       schemaVersion: 42,
     } as unknown as Record<string, unknown>)
 
-    const found = await findById(futureId)
-    expect(found).toBeUndefined()
+    const { profile, diagnostics } = await findByIdWithDiagnostics(futureId)
+    expect(profile).toBeUndefined()
 
-    const diagnostics = consumeMigrationDiagnostics()
     expect(diagnostics).toHaveLength(1)
     expect(diagnostics[0]!.reason).toBe('unsupported-future-version')
     expect(diagnostics[0]!.storedVersion).toBe(42)
@@ -172,19 +169,16 @@ describe('fleetRepository — downgrade after PWA cache rollback (refs #259)', (
     const futureId = '00000000-0000-4000-a000-0000000000f2'
 
     await create(buildProfile({ id: goodId, registration: 'D-OK01' }))
-    // consume the empty diagnostics from create's downstream reads (none)
-    consumeMigrationDiagnostics()
 
     await seedRaw({
       ...buildProfile({ id: futureId, registration: 'D-FU02' }),
       schemaVersion: 99,
     } as unknown as Record<string, unknown>)
 
-    const all = await findAll()
-    expect(all).toHaveLength(1)
-    expect(all[0]!.registration).toBe('D-OK01')
+    const { profiles, diagnostics } = await findAllWithDiagnostics()
+    expect(profiles).toHaveLength(1)
+    expect(profiles[0]!.registration).toBe('D-OK01')
 
-    const diagnostics = consumeMigrationDiagnostics()
     expect(diagnostics).toHaveLength(1)
     expect(diagnostics[0]!.reason).toBe('unsupported-future-version')
     expect(diagnostics[0]!.id).toBe(futureId)
@@ -204,10 +198,9 @@ describe('fleetRepository — corruption + partial-migration crash recovery (ref
       registration: 'D-CRPT',
     } as unknown as Record<string, unknown>)
 
-    const all = await findAll()
-    expect(all).toHaveLength(0)
+    const { profiles, diagnostics } = await findAllWithDiagnostics()
+    expect(profiles).toHaveLength(0)
 
-    const diagnostics = consumeMigrationDiagnostics()
     expect(diagnostics).toHaveLength(1)
     expect(diagnostics[0]!.id).toBe(badId)
     expect(diagnostics[0]!.reason).toBe('corrupt')
@@ -232,15 +225,14 @@ describe('fleetRepository — corruption + partial-migration crash recovery (ref
     delete legacyDoc.schemaVersion
     await seedRaw(legacyDoc as Record<string, unknown>)
 
-    const all = await findAll()
-    expect(all).toHaveLength(2)
-    const byReg = Object.fromEntries(all.map((p) => [p.registration, p]))
+    const { profiles, diagnostics } = await findAllWithDiagnostics()
+    expect(profiles).toHaveLength(2)
+    const byReg = Object.fromEntries(profiles.map((p) => [p.registration, p]))
     expect(byReg['D-V101']!.schemaVersion).toBe(1)
     expect(byReg['D-LEG0']!.schemaVersion).toBe(1)
 
     // The legacy doc must have been forward-stamped by the migration walker
     // even though the bytes on disk still carry no version field.
-    const diagnostics = consumeMigrationDiagnostics()
     expect(diagnostics).toHaveLength(0)
   })
 
@@ -264,29 +256,56 @@ describe('fleetRepository — corruption + partial-migration crash recovery (ref
       schemaVersion: 7,
     } as unknown as Record<string, unknown>)
 
-    const all = await findAll()
-    expect(all).toHaveLength(1)
-    expect(all[0]!.registration).toBe('D-OK99')
+    const { profiles, diagnostics } = await findAllWithDiagnostics()
+    expect(profiles).toHaveLength(1)
+    expect(profiles[0]!.registration).toBe('D-OK99')
 
-    const diagnostics = consumeMigrationDiagnostics()
     expect(diagnostics).toHaveLength(2)
     const reasons = diagnostics.map((d) => d.reason).sort()
     expect(reasons).toEqual(['corrupt', 'unsupported-future-version'])
   })
 
   // @IT-AC-STORE-108@ (FROM: @IMP-AC-STORE-001@, @IMP-AC-CORE-003@)
-  it('consumeMigrationDiagnostics is one-shot — second drain returns empty', async () => {
+  it('diagnostics are per-call — interleaved findAll / findById do not cross-contaminate', async () => {
+    // Before the per-call refactor (#353 review feedback), a single module
+    // buffer could mix diagnostics from two concurrent loads. With the tuple
+    // API each call's diagnostics are returned in its own promise resolution.
+    const futureId = '00000000-0000-4000-a000-0000000000e0'
+    const corruptId = '00000000-0000-4000-a000-0000000000e1'
+
     await seedRaw({
-      ...buildProfile({ id: '00000000-0000-4000-a000-0000000000e0', registration: 'D-DR01' }),
+      ...buildProfile({ id: futureId, registration: 'D-FU99' }),
+      schemaVersion: 50,
+    } as unknown as Record<string, unknown>)
+    await seedRaw({
+      id: corruptId,
+      schemaVersion: 1,
+      registration: 'D-CR99',
+    } as unknown as Record<string, unknown>)
+
+    const [allResult, byIdResult] = await Promise.all([
+      findAllWithDiagnostics(),
+      findByIdWithDiagnostics(futureId),
+    ])
+
+    // findAll sees both dropped docs; findById sees only the future one.
+    expect(allResult.diagnostics).toHaveLength(2)
+    expect(byIdResult.diagnostics).toHaveLength(1)
+    expect(byIdResult.diagnostics[0]!.reason).toBe('unsupported-future-version')
+    expect(byIdResult.profile).toBeUndefined()
+  })
+
+  // @IT-AC-STORE-110@ (FROM: @IMP-AC-STORE-001@, @IMP-AC-CORE-003@)
+  it('back-compat findAll / findById silently discard diagnostics for callers that opt out', async () => {
+    await seedRaw({
+      ...buildProfile({ id: '00000000-0000-4000-a000-0000000000ea', registration: 'D-DR01' }),
       schemaVersion: 50,
     } as unknown as Record<string, unknown>)
 
-    await findAll()
-    const first = consumeMigrationDiagnostics()
-    expect(first).toHaveLength(1)
-
-    const second = consumeMigrationDiagnostics()
-    expect(second).toHaveLength(0)
+    const all = await findAll()
+    expect(all).toHaveLength(0)
+    const one = await findById('00000000-0000-4000-a000-0000000000ea')
+    expect(one).toBeUndefined()
   })
 })
 

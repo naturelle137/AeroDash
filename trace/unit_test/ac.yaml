@@ -1701,3 +1701,28 @@ AC Store — Exchange Envelope Tests (#259)
       - IMP-AC-STORE-008
     files:
       - frontend/src/modules/aircraft/__tests__/profile.import.spec.ts
+
+AC Store — Migration Diagnostics Surfaced as INFO Notifications (Unit)
+  UT-AC-STORE-113
+    title: loadAll emits one INFO-AC-001 notification per dropped profile (future version)
+    impl:
+      - IMP-AC-STORE-005
+      - IMP-AC-CORE-003
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+  UT-AC-STORE-114
+    title: loadAll emits one INFO-AC-001 notification per dropped profile (corrupt)
+    impl:
+      - IMP-AC-STORE-005
+      - IMP-AC-CORE-003
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+  UT-AC-STORE-115
+    title: loadAll emits no INFO notification when no profile is dropped
+    impl:
+      - IMP-AC-STORE-005
+      - IMP-AC-CORE-003
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
