@@ -112,8 +112,16 @@ jobs:
       # degrades to one log line per tick — `dots` is the standard quiet
       # reporter (one `.` per mutant). `clear-text` keeps the survivor
       # summary; `html` is the artefact-uploaded report.
+      #
+      # We call `stryker` directly via `pnpm exec` rather than going
+      # through the `test:mutation` script: pnpm forwards arguments after
+      # `--` as positional arguments to the script's first token, and
+      # `stryker run` only accepts one positional argument (the optional
+      # config file), so `pnpm run test:mutation -- --reporters …` is a
+      # parse error. `pnpm exec` bypasses the wrapper and is what scripts
+      # like this are designed for.
       - name: Run Stryker mutation tests (P1 Safety Core)
-        run: pnpm --filter frontend test:mutation -- --reporters dots,clear-text,html
+        run: pnpm --filter frontend exec stryker run --reporters dots,clear-text,html
 
       # Always upload the HTML report so reviewers can triage survivors,
       # even when the gate has just failed.
