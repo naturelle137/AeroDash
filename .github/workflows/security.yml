@@ -115,8 +115,11 @@ jobs:
         # blocking PRs on those would create churn without a safety win
         # (the premise of CS-014). Push and schedule runs hard-fail, so
         # the moderate-CVE feedback loop still closes on the weekly cron.
+        #
+        # osv-scanner-action does not publish a floating `@v2` tag, only
+        # patched releases — pinned by exact tag and tracked by Dependabot.
         continue-on-error: ${{ github.event_name == 'pull_request' }}
-        uses: google/osv-scanner-action/osv-scanner-action@v2
+        uses: google/osv-scanner-action/osv-scanner-action@v2.3.8
         with:
           scan-args: |-
             --lockfile=pnpm-lock.yaml

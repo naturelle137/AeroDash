@@ -170,7 +170,7 @@ The as-implemented scan triple (see `.github/workflows/security.yml`):
 | # | Gate | Triggers | Severity / failure policy |
 | - | :--- | :------- | :------------------------ |
 | 1 | `dependency-audit` (`pnpm audit`) | push to `main` / `develop`, PR to either, weekly cron (Mon 07:00 UTC), `workflow_dispatch` | `--audit-level=high` on push / PR (preserves the existing PR gate); raised to `--audit-level=moderate` on the weekly cron via a conditional GitHub-Actions expression on `github.event_name == 'schedule'` — moderate CVEs become a weekly failure without churning every PR. |
-| 2 | `osv-scanner` (`google/osv-scanner-action@v2`, lockfile mode) | same triggers as #1 | Scans `pnpm-lock.yaml` and uploads SARIF to the GitHub Security tab (`security-events: write`). Fails the job on any finding by default. On PR runs the step is `continue-on-error: true` so moderate findings surface as warnings without blocking; on push and schedule the failure is hard. |
+| 2 | `osv-scanner` (`google/osv-scanner-action/osv-scanner-action@v2.3.8`, lockfile mode) | same triggers as #1 | Scans `pnpm-lock.yaml` and uploads SARIF to the GitHub Security tab (`security-events: write`). Fails the job on any finding by default. On PR runs the step is `continue-on-error: true` so moderate findings surface as warnings without blocking; on push and schedule the failure is hard. The Action does not publish a floating `@v2` tag, only patch releases — pinned exact and tracked by Dependabot. |
 | 3 | CycloneDX SBOM (`anchore/sbom-action@v0`, `cyclonedx-json` format) | same triggers as #1 plus `release: types: [published]` | Generates `aerodash-sbom.cdx.json` (Syft backend, pnpm-aware) and uploads it as a workflow artefact on every run. On `release: published`, additionally attaches it to the GitHub Release via `gh release upload --clobber`, completing the SBOM-with-release artefact chain. |
 
 Notes on the choices made:
@@ -241,11 +241,13 @@ Notes on the choices made:
   cron now tightening the CVE feedback loop.
 * **New CI surface area.** Three new jobs (`pnpm audit` at moderate,
   `osv-scanner`, SBOM) add ~2–4 minutes to the weekly cron run and
-  introduce two new third-party Actions (`google/osv-scanner-action@v2`,
+  introduce two new third-party Actions
+  (`google/osv-scanner-action/osv-scanner-action@v2.3.8`,
   `anchore/sbom-action@v0`) to the supply chain of the supply-chain scan.
-  Mitigated by major-version pinning of the Actions (matching the existing
-  repo convention) and by Dependabot already tracking GitHub-Actions
-  updates per ADR-315-DEV.
+  Mitigated by version pinning of the Actions (`@v0` matches the existing
+  floating-major repo convention; `osv-scanner-action` does not publish a
+  floating major so it is pinned exact) and by Dependabot already tracking
+  GitHub-Actions updates per ADR-315-DEV.
 * **Policy maintenance load.** This ADR is a living document; an out-of-date
   matrix is worse than no matrix because it would falsely attest. Mitigated
   by the milestone-bound row-1 re-review (closing milestone v0.4.0-alpha
