@@ -146,6 +146,81 @@ pnpm exec markdownlint-cli2 --fix "**/*.md"
 
 Comprehensive testing is required for all code changes. For detailed information on our testing practices, expectations, and test suite organization, please refer to our **[Testing Standards](docs/testing/TESTING.md)**.
 
+### 5.1 Trace authoring CLI
+
+AeroDash ships its own traceability authoring CLI under `frontend/scripts/trace/`. The CLI is the **only supported way to author and maintain trace tags + registries** — manual edits to `trace/*.yaml` are discouraged and flagged by `trace check`. `shtracer` is retained as the visualisation back-end only.
+
+Run any command from the repo root via `pnpm trace …`.
+
+| Command | Purpose |
+| :------ | :------ |
+| `pnpm trace parse` | Dump the full scanned tag graph as JSON to stdout (useful for `jq` queries). |
+| `pnpm trace check` | Validate invariants (orphans, duplicates, dangling FROM, registry drift). Exits non-zero on violations; pass `--warn-only` to downgrade. |
+| `pnpm trace tag <TYPE> --file <path> [--from REQ-...,DES-...] [--line N]` | Compute the next sequential id, write the comment into the file. Module/layer/phase are inferred from `<path>` — pass explicit segments only when inference cannot decide. |
+| `pnpm trace resolve <files...>` | Walk a list of files, replace every `@TYPE@` placeholder with the next generated id. |
+| `pnpm trace sync` | Dry-run the registry regeneration (reports planned add/remove/file-mismatch diffs). |
+| `pnpm trace sync --apply` | Persist the regenerated `trace/*.yaml` files. The CLI preserves curated titles and `status: deleted` tombstones (STC §5.2). |
+
+#### Authoring workflows
+
+**Placeholder workflow** — quickest when you're already in the editor:
+
+```ts
+// Write a placeholder where the tag belongs:
+// @IMP@ (FROM: @REQ-MB-001@)
+export function computeZeroFuelMass() { /* … */ }
+```
+
+Then run `pnpm trace resolve frontend/src/core/logic/mass-balance.logic.ts` and the placeholder turns into `@IMP-MB-CORE-001@` automatically.
+
+**Explicit tag insertion** — when scripting or fixing legacy code:
+
+```bash
+pnpm trace tag IMP \
+  --file frontend/src/core/logic/mass-balance.logic.ts \
+  --from REQ-MB-001,DES-ARCH-002 \
+  --line 7
+```
+
+The CLI infers `MB-CORE` from the path and chooses the next free integer.
+
+**Technical E2E** (no UJ trace):
+
+```bash
+pnpm trace tag E2E \
+  --file frontend/tests/e2e/features/phase-d-system-pwa/smoke.feature \
+  --technical \
+  --line 1
+```
+
+#### Path inference cheat sheet
+
+| Path segment | Inferred module | Inferred layer |
+| :----------- | :-------------- | :-------------- |
+| `modules/mass-balance/` | `MB` | (from sub-folder, e.g. `views/` → `VIEW`) |
+| `modules/performance/` | `PF` | — |
+| `core/` | (parent module folder) | `CORE` |
+| `stores/` | (parent module folder) | `STORE` |
+| `router/` | — | `ROUTE` |
+| `plugins/` | — | `PLUGIN` |
+| `shared/` | — | `SHARED` |
+
+For phases, the leaf segment of `frontend/tests/e2e/features/phase-X-*/...` is matched against `A`-`G`/`STRESS`.
+
+When inference fails (e.g. `frontend/src/main.ts`), the CLI exits with a clear `Cannot infer module from path …` message — supply the missing segments via positional arguments (`pnpm trace tag IMP SYS APP --file …`).
+
+#### File extensions in scope
+
+| Tag type | Extensions scanned | Comment styles recognised |
+| :------- | :----------------- | :------------------------ |
+| `IMP` | `.ts`, `.vue` (excludes `*.spec.ts`, `*.int.spec.ts`, `*.e2e.spec.ts`) | `// @IMP-…@` (script blocks), `<!-- @IMP-…@ -->` (Vue `<template>` blocks) |
+| `UT` | `.spec.ts` (excludes `*.int.spec.ts`, `*.e2e.spec.ts`) | `// @UT-…@` |
+| `IT` | `.int.spec.ts` | `// @IT-…@` |
+| `E2E` | `.feature` | `# @E2E-…@` |
+| `REQ`, `UJ`, `DES`, `H` | `.md` (Markdown) | `<!-- @…@ -->` |
+
+`pnpm trace sync --apply` will preserve any registry entry whose `files:` list points only to out-of-scope extensions (e.g. a `.json` fixture) or whose id doesn't match the type's canonical regex — these are scanner blind spots, not stale entries. The defensive behaviour is reported in the sync summary as `preserved=N` with one `~ <id>` line per entry.
+
 ## 6. 📖 Pull Request Standards
 
 A "Good PR" is small, focused, and easy to review.
@@ -153,7 +228,7 @@ A "Good PR" is small, focused, and easy to review.
 * **Review your own code first!**
 * You **must** use our `.github/pull_request_template.md` and check all applicable boxes, specifically the Safety Considerations and Traceability sections.
 * If your changes affect Requirements, Architecture, or Risk Mitigation, you must update the corresponding `docs/` files in the same PR.
-* **Traceability Tags:** You must include `shtracer` inline code tags (e.g., `// @IMP-SYS-001@ (FROM: @REQ-SYS-001@)`) inside your new source files linking your implementation to the upstream Master Traceability Matrix requirements.
+* **Traceability Tags:** You must include traceability inline code tags (e.g., `// @IMP-SYS-001@ (FROM: @REQ-SYS-001@)`) inside your new source files linking your implementation to the upstream Master Traceability Matrix requirements. Use the local **trace CLI** to generate the next free id and insert the comment — never hand-write the integer suffix. See [§ 5.1 Trace authoring CLI](#51-trace-authoring-cli) below.
 * **Journey Coverage:** If your PR adds or modifies a P1 requirement, verify that the requirement is tagged in at least one UJ in `docs/journeys/`. If not, extend an existing journey or propose a new one. Check with: `grep -r "@REQ-XX-YYY@" docs/journeys/`
 * **Changelog:** Add your changes under `## [Unreleased]` in `CHANGELOG.md`. Use `### Added`, `### Changed`, `### Fixed`, or `### Engineering` (for non-user-facing work). Entries are moved to the release version during the release branch.
 

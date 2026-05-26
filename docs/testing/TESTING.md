@@ -189,24 +189,33 @@ The `Traceability Gate` GitHub Actions workflow (`.github/workflows/traceability
 
 ### Running the trace check locally
 
+Prefer the **own trace CLI** (`frontend/scripts/trace/`) — it reports drift, orphans, and dangling refs in a single command and shares the same registry semantics as the CI gate:
+
+```bash
+# Single-shot invariant + drift validation (exits 1 on violation)
+pnpm trace check
+
+# Warn-only mode — never returns non-zero (matches the pre-v1.0.0 CI gate)
+pnpm trace check --warn-only
+
+# Dump the parsed tag graph for ad-hoc jq queries
+pnpm trace parse > /tmp/trace.json
+
+# Regenerate the trace/*.yaml registries from source-of-truth scans
+pnpm trace sync          # dry-run: prints planned changes only
+pnpm trace sync --apply  # write changes to disk
+```
+
+The `shtracer` engine is still bundled (`.tools/shtracer/`) for visualisation and remains the back-end the CI workflow uses to generate the `traceability-report` artifact:
+
 ```bash
 # Verify mode — detect isolated, duplicate, and dangling tags
 .tools/shtracer/shtracer -v .tools/.shtracer.md
 
 # Generate full JSON for manual jq inspection
 .tools/shtracer/shtracer .tools/.shtracer.md 2>/dev/null > /tmp/trace.json
-
-# List all requirement tags with no downstream link (pending) — v0.1.4 schema
-jq -r '
-  [.trace_tags[].from_tags[]] as $all_parents |
-  .trace_tags[]
-  | select(.id | startswith("@REQ-"))
-  | select(.id as $id | ($all_parents | index($id)) == null)
-  | .id
-' /tmp/trace.json
-
-# List all chains that reach an E2E test
-jq '[.chains[] | select(any(.[]; startswith("@E2E-")))]' /tmp/trace.json
 ```
 
 The raw `trace.json` is also uploaded as a GitHub Actions artifact (`traceability-report`) and retained for 30 days on every PR run.
+
+For full CLI documentation see [CONTRIBUTING.md § 5.1 Trace authoring CLI](../../CONTRIBUTING.md#51-trace-authoring-cli).
