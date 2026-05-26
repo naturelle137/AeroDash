@@ -1,5 +1,18 @@
 {
   "extends": "./tsconfig.app.json",
-  "include": ["env.d.ts", "src/**/*.ts", "src/**/*.mts", "src/**/*.vue"],
-  "exclude": ["eslint.config.ts", "vite.config.ts", "vitest.config.ts"]
+  // Stryker only mutates `frontend/src/core/**` (see `stryker.config.mjs >
+  // mutate`), so the typescript-checker that validates each generated mutant
+  // only needs to compile the P1 Safety Core plus its ambient declarations.
+  //
+  // Pulling the rest of `src/**` (modules / shared / stores / plugins) into
+  // the dry-run compile would surface unrelated P2/P3 type errors as fatal
+  // Stryker init failures, blocking the gate before a single mutant is run.
+  // P1 isolation (ADR-314-DEV) guarantees `src/core/**` has no P2/P3 type
+  // dependency, so narrowing here is safe.
+  "include": ["env.d.ts", "src/core/**/*.ts", "src/core/**/*.mts"],
+  "exclude": [
+    "src/core/**/*.spec.ts",
+    "src/core/**/*.int.spec.ts",
+    "src/core/**/*.e2e.spec.ts"
+  ]
 }
