@@ -765,6 +765,27 @@ SYS App — bfcache Restoration Handler (Unit)
     files:
       - frontend/src/__tests__/App.bfcache.spec.ts
 
+  UT-SYS-APP-036
+    title: real App.vue remounts <RouterView> on /fleet when pageshow fires with persisted=true (issue #232)
+    impl:
+      - IMP-SYS-SHARED-007
+    files:
+      - frontend/src/__tests__/App.bfcache.spec.ts
+
+  UT-SYS-APP-037
+    title: real App.vue does NOT remount <RouterView> on routes outside the bfcache allowlist (preserves Mass-Balance / wizard state)
+    impl:
+      - IMP-SYS-SHARED-007
+    files:
+      - frontend/src/__tests__/App.bfcache.spec.ts
+
+  UT-SYS-APP-038
+    title: real App.vue does not remount <RouterView> when pageshow fires with persisted=false on /fleet
+    impl:
+      - IMP-SYS-SHARED-007
+    files:
+      - frontend/src/__tests__/App.bfcache.spec.ts
+
 
 SYS Store — Session Persistence (Unit)
   UT-SYS-STORE-001

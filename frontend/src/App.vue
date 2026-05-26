@@ -35,10 +35,25 @@ const sidebarCollapsed = ref(false)
 // for `pageshow` with `event.persisted === true` lets us spot the bfcache
 // restore and force the active route component to remount cleanly via a
 // route key, which re-runs `onMounted` and re-binds every reactive handler.
+//
+// Scope: we only force-remount on routes we can safely tear down and rebuild.
+// Multi-step wizards and entry forms (/fleet/new, /fleet/:id/edit,
+// /mass-balance) hold partial pilot input in component-local refs — silently
+// wiping that input on an iOS app-switch / swipe-back would be a worse UX
+// regression than the original Delete-button bug. List/index views like
+// /fleet have no such hidden state, so a remount is safe there. Extend this
+// allowlist only after confirming the target route has no unsaved local
+// state (or after migrating that state to a store).
+//
+// The pageshow listener attaches in onMounted, so a `persisted=true` event
+// fired before App.vue itself is mounted (a bfcache restore on the very
+// first page load) is intentionally missed — at that point JS is freshly
+// initialised anyway and there is nothing to remount.
+const BFCACHE_REMOUNT_ROUTES: ReadonlySet<string> = new Set(['fleet'])
 const bfcacheNonce = ref(0)
 
 function handlePageShow(event: PageTransitionEvent): void {
-  if (event.persisted) {
+  if (event.persisted && BFCACHE_REMOUNT_ROUTES.has(String(route.name ?? ''))) {
     bfcacheNonce.value += 1
   }
 }

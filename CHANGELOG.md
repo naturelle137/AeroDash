@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Fleet list **Delete** control no longer silently no-ops after the pilot returns from the profile editor via the browser back button or the iOS Safari swipe-back gesture. `App.vue` now listens for `pageshow` with `event.persisted === true` (the bfcache restore signal) and re-keys the active `<RouterView>`, forcing the restored route component to remount cleanly so reactive bindings and template `@click` handlers are re-bound (closes #232)
+- Fleet list **Delete** control no longer silently no-ops after the pilot returns from the profile editor via the browser back button or the iOS Safari swipe-back gesture. `App.vue` now listens for `pageshow` with `event.persisted === true` (the bfcache restore signal) and re-keys the active `<RouterView>` — scoped via an explicit allowlist (currently `/fleet` only) so multi-step wizards and entry forms keep their partial pilot input on an iOS app-switch — forcing the restored route component to remount cleanly so reactive bindings and template `@click` handlers are re-bound (refs #232)
 
 ### Engineering
 
