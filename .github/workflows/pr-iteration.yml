@@ -20,6 +20,14 @@ on:
     # React to EVERY PR-gating workflow, not just CI. A red DoD/Security/E2E/
     # Traceability/branching gate must also drive a correction — otherwise a PR
     # whose CI is green but another gate is red sits red forever with no action.
+    # `Autonomous PR Reviewer` is listed defensively: a `pull_request_review`
+    # event fires while the reviewer workflow's own check is still in_progress
+    # (the review is submitted a few seconds before the workflow run reports
+    # `completed`), and the orchestrator's pending-gate (below) used to count
+    # that check as pending and refuse to act. The race is fixed at the source
+    # by excluding the reviewer's check from the pending-set, but listing the
+    # workflow here also makes the loop self-healing for any other transient
+    # race that ever leaves the orchestrator with a `wait` verdict.
     workflows:
       - CI
       - DoD Attestation Gate
@@ -27,6 +35,7 @@ on:
       - Traceability Gate
       - E2E Tests (Playwright)
       - Enforce Branching Model
+      - Autonomous PR Reviewer
     types: [completed]
 
 # Serialise per branch across BOTH trigger types so the correction budget is honoured.
@@ -111,11 +120,20 @@ jobs:
             const reviewClean = Boolean(last) && last.state !== 'CHANGES_REQUESTED';
 
             // 5) Aggregate check state on the current head — EVERY gate, not just CI.
-            //    Exclude this workflow's own check to avoid a self-referential race.
+            //    Exclude this workflow's own check to avoid a self-referential race,
+            //    AND exclude the reviewer's check ('Automated review' from
+            //    pr-review-bot.yml): on a `pull_request_review.submitted` trigger the
+            //    review is posted ~20s BEFORE the reviewer workflow itself reports
+            //    `completed`, so the orchestrator would otherwise see its sibling
+            //    check as pending, decide `wait`, and never re-fire (PR #346 was
+            //    stuck this way until this fix). The reviewer's verdict is already
+            //    consumed via the `reviews` API above; its check-run status carries
+            //    no extra information the orchestrator needs.
             const checks = await github.paginate(github.rest.checks.listForRef, {
               owner, repo, ref: headSha, per_page: 100,
             });
-            const relevant = checks.filter((c) => c.name !== 'Iterate / ready-gate');
+            const SELF_CHECKS = new Set(['Iterate / ready-gate', 'Automated review']);
+            const relevant = checks.filter((c) => !SELF_CHECKS.has(c.name));
             const bad = new Set(['failure', 'cancelled', 'timed_out', 'action_required']);
             const pending = relevant.some((c) => c.status !== 'completed');
             const failed = relevant.some((c) => bad.has(c.conclusion));
