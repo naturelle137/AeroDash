@@ -38,3 +38,8 @@ Phase A End-to-End Tests
     title: Combustion wizard is unchanged — fuel tank button remains visible for a Tecnam P2008 JC
     files:
       - frontend/tests/e2e/features/phase-a-fleet-management/electric-aircraft-wizard.feature
+
+  E2E-A-011
+    title: Fleet Delete confirmation opens after a synthetic bfcache restore (iOS Safari swipe-back path — issue #232)
+    files:
+      - frontend/tests/e2e/features/phase-a-fleet-management/fleet-delete-after-browser-back.feature

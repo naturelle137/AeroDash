@@ -216,6 +216,14 @@ SYS App Shell — Version Blocking
     files:
       - frontend/src/App.vue
 
+SYS App Shell — bfcache restoration handler
+  IMP-SYS-SHARED-007
+    title: App.vue bfcache-aware RouterView remount — re-mounts the active route component when iOS Safari (or any browser) restores the SPA page from the back/forward cache, so template @click handlers cannot silently no-op after a swipe-back / browser-back navigation (issue #232)
+    req:
+      - REQ-SYS-001
+    files:
+      - frontend/src/App.vue
+
 SYS Pending — Connectivity State (not yet implemented)
   IMP-SYS-CONN-001
     status: pending

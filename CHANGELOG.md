@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Fleet list **Delete** control no longer silently no-ops after the iOS Safari swipe-back gesture (or any other path that restores the Fleet page from the browser back/forward cache). `App.vue` now listens for `pageshow` with `event.persisted === true` (the bfcache restore signal) and re-keys the active `<RouterView>` — scoped via an explicit allowlist (currently `/fleet` only) so multi-step wizards and entry forms keep their partial pilot input on an iOS app-switch — forcing the restored route component to remount cleanly so reactive bindings and template `@click` handlers are re-bound. Standard Chromium SPA back (which does not bfcache the active document) already worked via vue-router's default remount-on-route-change; only the bfcache code path is changed by this fix (refs #232)
+
 ### Engineering
 
 - `publish-release.yml` now marks SemVer pre-release tags (`-alpha` / `-beta` / `-rc`) as GitHub pre-releases and stable tags as `latest`, instead of always publishing a stable "latest" release (`gh release create` does not infer this from the tag)
