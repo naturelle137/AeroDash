@@ -291,9 +291,14 @@ assertion rather than change the math.
 
 ### CI Integration
 
-The CI mutation-score gate is owned by the workflow definitions under
-`.github/workflows/` and is wired up separately by the maintainers. Until
-that job is configured (no `continue-on-error`, gated on a clean
-`thresholds.break` exit), the deploy-reports workflow continues to publish
-the Stryker HTML report for visibility — see the
+`.github/workflows/mutation.yml` runs `pnpm --filter frontend test:mutation`
+on every PR targeting `develop` or `main` whose diff touches `frontend/src/core/**`,
+the Stryker/Vitest P1 configs, or the workflow itself. The step is **not**
+marked `continue-on-error`: a score below `thresholds.break = 70` exits
+Stryker non-zero and fails the **P1 Mutation Score** check on the PR. The
+HTML report is uploaded as the `mutation-report` artifact (14-day retention)
+so reviewers can triage survivors even when the gate has just failed.
+
+The `deploy-reports.yml` workflow continues to publish the latest Stryker
+HTML report from `main` for visibility — see the
 [CI Reports page](https://naturelle137.github.io/AeroDash/stryker/).
