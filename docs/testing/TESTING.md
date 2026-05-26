@@ -256,8 +256,12 @@ flight. Widening the scope would dilute the signal and inflate runtime.
 | Threshold | Value | Behaviour |
 | :-------- | :---- | :-------- |
 | `high` | **85** | Target / green band — P1 Safety Core score should sit at or above this |
-| `low` | **70** | Amber band — reported in the CI summary but does not fail |
-| `break` | **70** | **Hard fail** — CI exits non-zero below this score (no `continue-on-error`) |
+| `low` | **70** | Amber-band floor — scores in `[70, 85)` are reported but do not fail |
+| `break` | **69** | **Hard fail** — CI exits non-zero at or below this score (no `continue-on-error`) |
+
+Stryker requires `break < low ≤ high`, so `break` is set one point below `low`
+to give the amber band non-zero width while keeping the _effective_ hard-fail
+floor at the 70-point line documented above.
 
 The bar is calibrated so existing P1 tests can pass it without rewriting
 every assertion, while still rejecting tests that merely call code without
@@ -294,7 +298,7 @@ assertion rather than change the math.
 `.github/workflows/mutation.yml` runs `pnpm --filter frontend test:mutation`
 on every PR targeting `develop` or `main` whose diff touches `frontend/src/core/**`,
 the Stryker/Vitest P1 configs, or the workflow itself. The step is **not**
-marked `continue-on-error`: a score below `thresholds.break = 70` exits
+marked `continue-on-error`: a score at or below `thresholds.break = 69` exits
 Stryker non-zero and fails the **P1 Mutation Score** check on the PR. The
 HTML report is uploaded as the `mutation-report` artifact (14-day retention)
 so reviewers can triage survivors even when the gate has just failed.
