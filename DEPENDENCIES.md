@@ -43,6 +43,7 @@ Before adding any new dependency to the project, verify:
 4. **Dependency Footprint:** Avoid packages with excessive transitive dependencies.
 5. **P1 Restriction:** Safety Core (P1) modules prefer zero external runtime dependencies.
 6. **Inventory:** Add the dependency to the Current Dependencies table below in the same PR.
+7. **Major-version policy:** If the dependency is on a *bleeding-edge* major (pre-release line, or a major cut <~6 months ago whose ecosystem peers still pin the previous major), it must be recorded in the per-major decision matrix in [ADR 318-DEV — Dependency Major Version & Pre-release Policy](docs/architecture/adr/318-DEV-dependency-major-policy.md), with a named justification, a pinned regression suite, and a downshift target. PRs introducing such a dependency must edit that ADR in the same commit.
 
 ---
 
@@ -76,3 +77,12 @@ Once AeroDash has runtime dependencies (`src/`), automated license checking will
 - **Not a Husky hook:** License scanning walks the full dependency tree — too slow for local pre-push.
 
 See also: [ADR 308-DEV](docs/architecture/adr/308-DEV-traceability-engine.md) for the traceability automation approach.
+
+## Major-Version & Supply-Chain Policy
+
+Dependency *major version* governance and the supply-chain scan rotation are tracked together:
+
+- [ADR 315-DEV — SAST & Dependency Scanning](docs/architecture/adr/315-DEV-sast-dependency-scanning.md) — CodeQL + `pnpm audit` + Dependabot, the baseline scan triple.
+- [ADR 318-DEV — Dependency Major Version & Pre-release Policy](docs/architecture/adr/318-DEV-dependency-major-policy.md) — when a bleeding-edge major is admitted, what justification, regression suite, and downshift target must be recorded, plus the current per-package decision matrix.
+
+The matrix in ADR 318-DEV is the single source of truth for "why is package X on a bleeding-edge line?". When a PR bumps a dependency to a pre-release / very-recent major, that ADR must be updated in the same commit.
