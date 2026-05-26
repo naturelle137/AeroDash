@@ -110,8 +110,8 @@ following **non-negotiable invariants**:
 | Batch size | `1` | `BATCH_SIZE` env / `batch_size` dispatch input |
 | Model | `claude-opus-4-7` | `MODEL` env / `model` dispatch input |
 | Max corrections | `2` | `MAX_CORRECTIONS` env (`pr-iteration.yml`) |
-| Per-issue time budget | `90` min | `timeout-minutes` per job (mirrors `RUN_TIMEOUT_MINUTES`) |
-| Per-issue turn budget | `150` turns | `--max-turns` in `claude_args` |
+| Per-issue time budget | `150` min | `timeout-minutes` per job (mirrors `RUN_TIMEOUT_MINUTES`) |
+| Per-issue turn budget | `250` turns | `--max-turns` in `claude_args` |
 | Opt-out label | `automation:opt-out` | selection filter |
 | Global kill switch | repo variable `AUTOMATION_ENABLED` ≠ `true` ⇒ no-op | guard step |
 
@@ -120,7 +120,11 @@ following **non-negotiable invariants**:
 > (`error_max_turns`) and produced no Draft. Budgets were raised to `150` turns /
 > `90` min, the turn cap kept below the wall-clock cap so it binds first, and the
 > push step made resilient to agent failure (`continue-on-error` + always-run)
-> so partial work still lands as a flagged Draft per invariant 5.
+> so partial work still lands as a flagged Draft per invariant 5. A subsequent
+> overnight run again hit `error_max_turns` at the `150` cap, so budgets were
+> raised again to `250` turns / `150` min (preserving the same invariant: the
+> wall-clock cap exceeds the time `MAX_TURNS` can consume at the realised
+> ~36 s/turn rate, so the turn cap binds first).
 >
 > **Loop-closure revision (post-pilot):** the first complete run (#121 → PR #328)
 > reached a stuck red Draft that the loop never acted on, exposing three defects
