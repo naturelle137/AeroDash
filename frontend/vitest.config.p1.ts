@@ -39,6 +39,11 @@ export default mergeConfig(
           '**/mass-balance.math-types.ts',
         ],
         thresholds: {
+          // `perFile: true` raises the 90% gate from a global aggregate to a
+          // per-file gate (refs #262). Without it, a single well-covered file
+          // could mask uncovered branches in another P1 file because the
+          // global rollup would still report ≥ 90%.
+          perFile: true,
           lines: 90,
           branches: 90,
           functions: 90,

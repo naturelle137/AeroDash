@@ -218,6 +218,18 @@ describe('AircraftProfileSchema — valid profiles', () => {
     expect(legacy.data.status).toBe('verified')
   })
 
+  // @UT-AC-CORE-002@ (FROM: @IMP-AC-CORE-002@)
+  it('normalizes legacy Title-Case status = Draft to canonical draft', () => {
+    const legacyDraft = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        p.status = 'Draft'
+      }),
+    )
+    expect(legacyDraft.success).toBe(true)
+    if (!legacyDraft.success) return
+    expect(legacyDraft.data.status).toBe('draft')
+  })
+
   // @UT-AC-CORE-003@ (FROM: @IMP-AC-CORE-002@)
   it('rejects an invalid status value', () => {
     const result = AircraftProfileSchema.safeParse(

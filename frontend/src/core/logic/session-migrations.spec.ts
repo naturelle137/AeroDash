@@ -16,6 +16,8 @@
 import { describe, it, expect } from 'vitest'
 import {
   migrateSessionPayload,
+  runSessionMigrationWalker,
+  type SessionMigration,
 } from './session-migrations'
 import { CURRENT_SESSION_PAYLOAD_VERSION } from '../domain/session.schema'
 
@@ -155,6 +157,64 @@ describe('migrateSessionPayload — corrupt input handling', () => {
   it('reports corrupt when savedAt is not a valid ISO datetime', () => {
     const result = migrateSessionPayload(buildV1Payload({ savedAt: 'not-a-date' }))
     expect(result.kind).toBe('corrupt')
+  })
+})
+
+describe('runSessionMigrationWalker — registry-injection branches', () => {
+  // Exercises the defensive branches that the production registry cannot reach
+  // today: a missing up-function for a version in [storedVersion, currentVersion)
+  // and an up-function that throws mid-walk. The contract — "a single throwing
+  // transform cannot escape the boundary" — only holds if these branches
+  // surface as `corrupt` exactly like an invalid-shape payload.
+  it('reports corrupt when an up-function is missing for an intermediate version', () => {
+    const emptyRegistry: ReadonlyMap<number, SessionMigration> = new Map()
+    const payload = buildV1Payload()
+    delete (payload as { version?: number }).version
+    const result = runSessionMigrationWalker(payload, emptyRegistry, 1)
+    expect(result.kind).toBe('corrupt')
+    if (result.kind !== 'corrupt') return
+    expect(result.reason).toContain('no migration registered for source version 0')
+    expect(result.storedVersion).toBe(0)
+  })
+
+  it('reports corrupt and includes the thrown error message when an up-function throws', () => {
+    const throwingRegistry: ReadonlyMap<number, SessionMigration> = new Map([
+      [
+        0,
+        (() => {
+          throw new Error('synthetic up-function failure')
+        }) as SessionMigration,
+      ],
+    ])
+    const payload = buildV1Payload()
+    delete (payload as { version?: number }).version
+    const result = runSessionMigrationWalker(payload, throwingRegistry, 1)
+    expect(result.kind).toBe('corrupt')
+    if (result.kind !== 'corrupt') return
+    expect(result.reason).toContain('migration 0 → 1 threw')
+    expect(result.reason).toContain('synthetic up-function failure')
+  })
+
+  it('reports corrupt when a throwing up-function rejects with a non-Error value', () => {
+    const throwingRegistry: ReadonlyMap<number, SessionMigration> = new Map([
+      [
+        0,
+        (() => {
+          throw 'string-rejection'
+        }) as SessionMigration,
+      ],
+    ])
+    const payload = buildV1Payload()
+    delete (payload as { version?: number }).version
+    const result = runSessionMigrationWalker(payload, throwingRegistry, 1)
+    expect(result.kind).toBe('corrupt')
+    if (result.kind !== 'corrupt') return
+    expect(result.reason).toContain('string-rejection')
+  })
+
+  it('still migrates successfully when wired with the production registry (wrapper-binding invariant)', () => {
+    const result = migrateSessionPayload(buildV1Payload())
+    expect(result.kind).toBe('migrated')
   })
 })
 
