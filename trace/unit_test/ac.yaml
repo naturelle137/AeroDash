@@ -62,6 +62,13 @@ AC Core — Aircraft Schema M3 fields (Unit)
     files:
       - frontend/src/core/adapters/aircraft.schema.spec.ts
 
+  UT-AC-CORE-102
+    title: normalizes legacy Title-Case status = Draft to canonical draft
+    impl:
+      - IMP-AC-CORE-002
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+
 AC Store — ICAO Registration Validator (Unit)
   UT-AC-STORE-001
     title: validates D-EBPN as valid ICAO registration

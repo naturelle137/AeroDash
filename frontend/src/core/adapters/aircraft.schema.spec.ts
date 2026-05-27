@@ -218,7 +218,7 @@ describe('AircraftProfileSchema — valid profiles', () => {
     expect(legacy.data.status).toBe('verified')
   })
 
-  // @UT-AC-CORE-002@ (FROM: @IMP-AC-CORE-002@)
+  // @UT-AC-CORE-102@ (FROM: @IMP-AC-CORE-002@)
   it('normalizes legacy Title-Case status = Draft to canonical draft', () => {
     const legacyDraft = AircraftProfileSchema.safeParse(
       cloneWith((p) => {
