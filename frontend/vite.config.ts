@@ -1,9 +1,11 @@
 import { fileURLToPath, URL } from 'node:url'
 
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueDevTools from 'vite-plugin-vue-devtools'
 import { VitePWA } from 'vite-plugin-pwa'
+
+import { assertNoTelemetryInProductionBuild } from './scripts/build/telemetry-guard'
 
 // Production gate for dev-only tooling (DP-016 vue-devtools). Kept as a plain
 // boolean rather than a `defineConfig(({ command }) => …)` callback so the
@@ -18,23 +20,31 @@ import { VitePWA } from 'vite-plugin-pwa'
 // silently dropped.
 const isProd = process.env.NODE_ENV === 'production'
 
-// DP-004 / CS-012 (issue #263, PR #361 MINOR-7) — telemetry must never ship in
-// a production bundle. `logger.telemetryTrace()` emits raw computation
-// inputs/outputs (pilot-entered M&B / Performance / Fuel data) and BYPASSES
-// the PII redactor by design — opting in is the operator's explicit
-// acceptance that those values will land in `console.info`. Documentation
-// alone (`.env.example`, CONTRIBUTING.md) is not enough; this guard fails the
-// production build fast if `VITE_LOG_TELEMETRY` is truthy in the build
-// environment, so an accidental `VITE_LOG_TELEMETRY=true pnpm build` cannot
-// ship to pilots. Vitest does not set `NODE_ENV=production`, so the guard is
-// inert for unit/integration test runs.
-const TELEMETRY_TRUTHY_RE = /^(true|1|yes|on)$/i
-if (isProd && typeof process.env.VITE_LOG_TELEMETRY === 'string' && TELEMETRY_TRUTHY_RE.test(process.env.VITE_LOG_TELEMETRY.trim())) {
-  throw new Error(
-    'AeroDash build aborted: VITE_LOG_TELEMETRY is enabled in a production build. ' +
-      '`logger.telemetryTrace()` bypasses the PII redactor by design (DP-004 / CS-012, issue #263) ' +
-      'and MUST NOT ship to pilots. Unset the env var or set it to `false` and rerun `pnpm build`.',
-  )
+// DP-004 / CS-012 (issue #263, PR #361 MAJOR review fix) — telemetry must
+// never ship in a production bundle. The guard logic + its truthy parser
+// live in `scripts/build/telemetry-guard.ts` so they can be unit-tested
+// without spawning `vite build`.
+//
+// CRITICAL: Vite does NOT load `.env*` files into `process.env` while
+// `vite.config.ts` is being evaluated — only shell-environment variables
+// are visible there. The bundler, however, reads `VITE_*` from `.env`,
+// `.env.local`, `.env.production`, etc. into `import.meta.env`. We must
+// therefore call `loadEnv()` explicitly so the guard sees the same value
+// the bundle will see; reading `process.env.VITE_LOG_TELEMETRY` directly
+// (as an earlier version of this guard did) silently no-op'd whenever a
+// developer dropped `VITE_LOG_TELEMETRY=true` into `.env.production` /
+// `.env.local`, letting a telemetry-enabled bundle ship to pilots while
+// the build appeared to pass cleanly.
+//
+// Vitest does not set `NODE_ENV=production`, so the guard is inert for
+// unit/integration test runs (the helper is exercised directly in its own
+// spec).
+if (isProd) {
+  // `envDir` follows Vite's own default — the directory containing
+  // `vite.config.ts` — so `loadEnv` reads the same files Vite's bundler
+  // will read regardless of where `pnpm build` was invoked from.
+  const envDir = fileURLToPath(new URL('.', import.meta.url))
+  assertNoTelemetryInProductionBuild(loadEnv('production', envDir, 'VITE_'))
 }
 
 // https://vite.dev/config/
