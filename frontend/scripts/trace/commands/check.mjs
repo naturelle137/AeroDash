@@ -23,6 +23,7 @@ import { readFile } from 'node:fs/promises'
 import { scanAll } from '../lib/parser.mjs'
 import { findDanglingFromRefs, findDuplicates } from '../lib/id-generator.mjs'
 import { REGISTRY_TARGETS } from '../lib/config.mjs'
+import { findUnmitigatedHazards } from '../lib/hazard-status.mjs'
 import { buildPresenceReport } from '../lib/presence.mjs'
 import { diffRegistry, loadIndexedRegistry } from '../lib/registry.mjs'
 
@@ -37,6 +38,9 @@ import { diffRegistry, loadIndexedRegistry } from '../lib/registry.mjs'
  * @property {import('../lib/presence.mjs').PresenceReport} presence
  *           Document-registry presence — REQ/UJ YAML files missing from
  *           trace/requirements/ and trace/journeys/ (issue #264 / STC §4.2).
+ * @property {import('../lib/hazard-status.mjs').UnmitigatedHazard[]} unmitigatedHazards
+ *           Hazards with no mitigating REQ in an active status — release
+ *           audit PR-009 / issue #267. A non-empty list hard-fails the gate.
  */
 
 /**
@@ -87,12 +91,14 @@ export async function buildCheckReport(repoRoot) {
     registryDrift[type] = diffRegistry(occurrences, registry)
   }
   const presence = await buildPresenceReport(repoRoot)
+  const { unmitigated } = await findUnmitigatedHazards(repoRoot)
   return {
     duplicates,
     danglingFromRefs,
     ...orphans,
     registryDrift,
     presence,
+    unmitigatedHazards: unmitigated,
   }
 }
 
@@ -337,6 +343,20 @@ export async function runCheck({ repoRoot, log = () => {}, warnOnly = false, str
     lines.push('Missing journey registries (STC §4.2):')
     for (const exp of report.presence.missingJourneys) {
       lines.push(`  ${exp.relPath} (needed by ${exp.sourceIds.length} UJ tag(s): ${exp.sourceIds.slice(0, 3).join(', ')}${exp.sourceIds.length > 3 ? '…' : ''})`)
+    }
+  }
+
+  // Issue #267 (release audit PR-009): hazards without a non-deprecated
+  // mitigating REQ are a hard-fail. A `Deprecated` REQ does NOT count —
+  // that is the bug class this gate closes.
+  if (report.unmitigatedHazards.length) {
+    violations += report.unmitigatedHazards.length
+    lines.push('Un-mitigated hazards (release audit PR-009 / issue #267):')
+    for (const h of report.unmitigatedHazards) {
+      const why = h.deprecatedMitigators.length
+        ? ` (all mitigators deprecated: ${h.deprecatedMitigators.join(', ')})`
+        : ' (no mitigating REQ found)'
+      lines.push(`  ${h.hazardId}${why}`)
     }
   }
 
