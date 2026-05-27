@@ -130,6 +130,20 @@ SYS Store — PWA Update
     files:
       - frontend/src/stores/pwa-update.store.ts
 
+  IMP-SYS-STORE-011
+    title: raiseSessionStorageAdvisory — surfaces one-time pilot advisory when sessionStorage is unreachable (#263)
+    req:
+      - REQ-SYS-005
+    files:
+      - frontend/src/stores/pwa-update.store.ts
+
+  IMP-SYS-STORE-012
+    title: dismissSessionStorageAdvisory — clears the sessionStorage advisory flag after pilot acknowledgement (#263)
+    req:
+      - REQ-SYS-005
+    files:
+      - frontend/src/stores/pwa-update.store.ts
+
 SYS Store — App Version
   IMP-SYS-STORE-006
     title: App Version Store — currentVersion, buildDate, minSafeVersion, versionBlocked (useAppVersionStore)
@@ -178,7 +192,14 @@ SYS Shared — Structured Logger Utility
       - frontend/src/shared/utils/logger.ts
 
   IMP-SYS-SHARED-002
-    title: Structured Logger Factory (createLogger)
+    title: Structured Logger Factory (createLogger) — env-gated DEBUG/TELEMETRY, redaction at boundary (#263)
+    des:
+      - DES-ARCH-001
+    files:
+      - frontend/src/shared/utils/logger.ts
+
+  IMP-SYS-SHARED-008
+    title: redactPayload — field-allow-list PII redaction applied to all WARN/ERROR/INFO data (#263)
     des:
       - DES-ARCH-001
     files:

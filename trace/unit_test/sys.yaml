@@ -423,6 +423,98 @@ SYS Shared — Structured Logger Utility (Unit)
     files:
       - frontend/src/shared/utils/__tests__/logger.spec.ts
 
+SYS Shared — Logger PII Redaction (#263 — DP-004 / CS-012)
+  UT-SYS-SHARED-021
+    title: redactPayload replaces values for keys outside the allow-list with [REDACTED]
+    impl:
+      - IMP-SYS-SHARED-008
+    files:
+      - frontend/src/shared/utils/__tests__/logger.spec.ts
+
+  UT-SYS-SHARED-022
+    title: redactPayload preserves values for keys in the default allow-list
+    impl:
+      - IMP-SYS-SHARED-008
+    files:
+      - frontend/src/shared/utils/__tests__/logger.spec.ts
+
+  UT-SYS-SHARED-023
+    title: redactPayload redacts nested object keys not in the allow-list
+    impl:
+      - IMP-SYS-SHARED-008
+    files:
+      - frontend/src/shared/utils/__tests__/logger.spec.ts
+
+  UT-SYS-SHARED-024
+    title: redactPayload redacts PII embedded in arrays of objects
+    impl:
+      - IMP-SYS-SHARED-008
+    files:
+      - frontend/src/shared/utils/__tests__/logger.spec.ts
+
+  UT-SYS-SHARED-025
+    title: redactPayload walks arrays redacting unknown keys per element
+    impl:
+      - IMP-SYS-SHARED-008
+    files:
+      - frontend/src/shared/utils/__tests__/logger.spec.ts
+
+  UT-SYS-SHARED-026
+    title: redactPayload passes primitives, null and undefined through unchanged
+    impl:
+      - IMP-SYS-SHARED-008
+    files:
+      - frontend/src/shared/utils/__tests__/logger.spec.ts
+
+  UT-SYS-SHARED-027
+    title: redactPayload accepts a custom allow-list
+    impl:
+      - IMP-SYS-SHARED-008
+    files:
+      - frontend/src/shared/utils/__tests__/logger.spec.ts
+
+  UT-SYS-SHARED-028
+    title: DEFAULT_SAFE_FIELDS exposes the documented load-bearing keys and excludes known-bad keys
+    impl:
+      - IMP-SYS-SHARED-008
+    files:
+      - frontend/src/shared/utils/__tests__/logger.spec.ts
+
+  UT-SYS-SHARED-029
+    title: debug() is suppressed by default (VITE_LOG_DEBUG unset) — #263 env-gating
+    impl:
+      - IMP-SYS-SHARED-002
+    files:
+      - frontend/src/shared/utils/__tests__/logger.spec.ts
+
+  UT-SYS-SHARED-030
+    title: telemetryTrace() is suppressed by default (VITE_LOG_TELEMETRY unset) — #263 env-gating
+    impl:
+      - IMP-SYS-SHARED-002
+    files:
+      - frontend/src/shared/utils/__tests__/logger.spec.ts
+
+  UT-SYS-SHARED-031
+    title: telemetryTrace() is suppressed when VITE_LOG_TELEMETRY is the string "false"
+    impl:
+      - IMP-SYS-SHARED-002
+    files:
+      - frontend/src/shared/utils/__tests__/logger.spec.ts
+
+  UT-SYS-SHARED-032
+    title: telemetryTrace() bypasses the production INFO gate when explicitly opted in
+    impl:
+      - IMP-SYS-SHARED-002
+    files:
+      - frontend/src/shared/utils/__tests__/logger.spec.ts
+
+  UT-SYS-SHARED-033
+    title: createLogger opts DEBUG into production output when VITE_LOG_DEBUG=true
+    impl:
+      - IMP-SYS-SHARED-002
+    files:
+      - frontend/src/shared/utils/__tests__/logger.spec.ts
+
 SYS Core — SI Unit Normalization (Unit)
   UT-SYS-CORE-031
     title: normalizeMassToKg returns value unchanged for kg input
@@ -999,6 +1091,49 @@ SYS Store — App Version (Unit)
       - IMP-SYS-STORE-006
     files:
       - frontend/src/stores/__tests__/app-version.store.spec.ts
+
+SYS Store — PWA Session-Storage Advisory (#263 — DP-004 / CS-012)
+  UT-SYS-STORE-039
+    title: sessionStorageAdvisory is false initially (issue #263)
+    impl:
+      - IMP-SYS-STORE-011
+    files:
+      - frontend/src/stores/__tests__/pwa-update.store.spec.ts
+
+  UT-SYS-STORE-040
+    title: raiseSessionStorageAdvisory sets the advisory flag (issue #263)
+    impl:
+      - IMP-SYS-STORE-011
+    files:
+      - frontend/src/stores/__tests__/pwa-update.store.spec.ts
+
+  UT-SYS-STORE-041
+    title: raiseSessionStorageAdvisory is idempotent — repeated calls leave the flag true
+    impl:
+      - IMP-SYS-STORE-011
+    files:
+      - frontend/src/stores/__tests__/pwa-update.store.spec.ts
+
+  UT-SYS-STORE-042
+    title: dismissSessionStorageAdvisory clears the flag (issue #263)
+    impl:
+      - IMP-SYS-STORE-012
+    files:
+      - frontend/src/stores/__tests__/pwa-update.store.spec.ts
+
+  UT-SYS-STORE-043
+    title: captureAndMarkSession reports sessionStorageAvailable=true on success (issue #263)
+    impl:
+      - IMP-SYS-STORE-010
+    files:
+      - frontend/src/stores/__tests__/pwa-update.store.spec.ts
+
+  UT-SYS-STORE-044
+    title: captureAndMarkSession reports sessionStorageAvailable=false when sessionStorage throws (issue #263)
+    impl:
+      - IMP-SYS-STORE-010
+    files:
+      - frontend/src/stores/__tests__/pwa-update.store.spec.ts
 
 SYS Core — Session Migration Tests (#259)
   UT-SYS-CORE-101
