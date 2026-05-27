@@ -658,6 +658,7 @@ export const useMassBalanceStore = defineStore('massBalance', {
       this.notifications = [
         ...(draftProfileWarning ? [draftProfileWarning] : []),
         ...fuelFallbackNotes,
+        ...this._collectPlausibilityWarnings(),
         ...violationNotes,
       ]
 
@@ -668,6 +669,55 @@ export const useMassBalanceStore = defineStore('massBalance', {
       // can highlight the affected input fields as described in the validation
       // error message.
       this._updateStationErrorFlags(result.violations)
+    },
+
+    /**
+     * Plausibility check — Zero-Value mandatory station mass.
+     *
+     * Emits one WARN-UQ-001 listing every mandatory non-fuel station whose
+     * current weight is exactly zero. A required occupant (pilot, crew,
+     * passenger) at zero mass is almost always a missed entry rather than an
+     * intentional empty seat, so surfacing it as a soft warning catches the
+     * Safety-Critical Design Check's "Garbage-In" defect class before it can
+     * propagate into a Go/No-Go advisory.
+     *
+     * Fuel quantity is intentionally excluded: zero fuel is a legitimate
+     * planning state and is already constrained from below by the
+     * unusable-fuel floor on `MassStationInput`.
+     *
+     * The predicate is **strict equality with zero** (`s.weight === 0`).
+     * Small positive masses are not flagged — REQ-UQ-006 narrows the
+     * checked condition to "recorded weight of zero", and widening to a
+     * threshold (e.g. < 10 kg) would put this branch in the path of a
+     * different hazard class (low-mass plausibility) that is not yet
+     * specified. Do not loosen this predicate without an accompanying
+     * requirement and updated UT-MB-STORE-060…063.
+     */
+    // @IMP-MB-STORE-023@ (FROM: @REQ-UQ-006@)
+    _collectPlausibilityWarnings(): Notification[] {
+      if (!this.aircraft) return []
+
+      const zeroNames = this.availableStations
+        .filter((s) => {
+          if (!s.mandatory) return false
+          const def = this.aircraft!.loadPoints[s.index]
+          if (!def || def.fuelTank !== null) return false
+          return s.weight === 0
+        })
+        .map((s) => s.name)
+
+      if (zeroNames.length === 0) return []
+
+      return [
+        {
+          id: 'WARN-UQ-001',
+          severity: 'WARNING',
+          message: `Implausible mass on required station${zeroNames.length === 1 ? '' : 's'}: ${zeroNames.join(', ')} — verify input`,
+          context: 'MassBalance.Plausibility',
+          persistent: true,
+          dismissible: true,
+        },
+      ]
     },
 
     /**

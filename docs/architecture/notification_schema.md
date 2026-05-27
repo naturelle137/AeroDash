@@ -79,6 +79,7 @@ This register lists all defined notifications in the system to ensure uniqueness
 | `INFO-SYS-001` | Update Available                   |   `INFO`   | [REQ-SYS-005](../requirements/system.md#REQ-SYS-005)                   | When a new software version is detected.                                                                                                                                                 |
 | `ERR-SYS-001`  | Invalid Input: {field} ({code})    |  `ERROR`   | [REQ-SYS-012](../requirements/system.md#REQ-SYS-012)                   | When module input validation (Zod schema) fails before core logic (REQ-SYS-011). Dynamic: field = field path, code = validation code.                                                    |
 | `WARN-UI-001`  | Input Out of Range                 | `WARNING`  | [REQ-UI-008](../requirements/user_interface.md#REQ-UI-008)             | When numeric inputs are outside standard operational ranges.                                                                                                                             |
+| `WARN-UQ-001`  | Implausible Zero-Mass Station      | `WARNING`  | [REQ-UQ-006](../requirements/usability_quality.md#REQ-UQ-006)          | When a mandatory non-fuel mass-input station (pilot, crew, passenger) has a recorded weight of zero. Persistent advisory until the pilot enters a plausible value.                       |
 | `CRIT-UI-001`  | Unverified Data Present            | `CRITICAL` | [REQ-UI-015](../requirements/user_interface.md#REQ-UI-015)             | When the user triggers the "Save" or "Export" action for a calculation containing parameters with `Unverified` status.                                                                   |
 | `CRIT-UI-002`  | Safety Factor Low                  | `CRITICAL` | [REQ-UI-017](../requirements/user_interface.md#REQ-UI-017)             | When the user triggers the "Save" or "Export" action for a calculation containing an Operational Safety Factor below the greater of the POH-mandated factor and the regulatory baseline. |
 | `INFO-API-003` | Share code could not be created.   |   `INFO`   | [API](../api/API.md)                                                   | When share code generation API request fails while online (e.g., 500).                                                                                                                   |
@@ -324,7 +325,24 @@ This section defines the complete JSON payload for each notification. These payl
 
 `currentFactor` and `requiredFactor` are dynamically populated with the actual factor values; `context` indicates the flight phase.
 
-### 6.8 API
+### 6.8 Usability & Quality (UQ)
+
+#### WARN-UQ-001 — Implausible Zero-Mass Station
+
+```json
+{
+  "id": "WARN-UQ-001",
+  "severity": "WARNING",
+  "message": "Implausible mass on required station(s): <station-name(s)> — verify input",
+  "context": "MassBalance.Plausibility",
+  "persistent": true,
+  "dismissible": true
+}
+```
+
+`<station-name(s)>` is dynamically populated with the comma-separated list of mandatory non-fuel stations whose current weight is zero.
+
+### 6.9 API
 
 #### INFO-API-003 — Share Code Creation Failed
 

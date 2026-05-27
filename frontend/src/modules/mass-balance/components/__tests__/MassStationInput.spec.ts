@@ -290,6 +290,36 @@ describe('MassStationInput', () => {
     expect(wrapper.find('.mass-station-input__presets').exists()).toBe(false)
   })
 
+  // ─── REQ-UQ-005 — Unit-Sticky Label (Safety-Critical Design Check) ──────
+
+  // @UT-MB-UI-002@ (FROM: @IMP-MB-UI-007@, @REQ-UQ-005@, @H-001@, @H-002@)
+  it('renders the active unit statically next to the station label', () => {
+    const wrapper = mount(MassStationInput, {
+      props: { station: makeStation({ name: 'Pilot' }), unit: 'kg' },
+    })
+
+    const unitLabel = wrapper.find('.mass-station-input__unit')
+    expect(unitLabel.exists()).toBe(true)
+    expect(unitLabel.text()).toBe('kg')
+    expect(unitLabel.attributes('aria-label')).toBe('unit')
+  })
+
+  // @UT-MB-UI-002@ (FROM: @IMP-MB-UI-007@, @REQ-UQ-005@)
+  it('omits the unit chip only when no unit prop is supplied', () => {
+    const wrapper = mount(MassStationInput, {
+      props: { station: makeStation() },
+    })
+    expect(wrapper.find('.mass-station-input__unit').exists()).toBe(false)
+  })
+
+  // @UT-MB-UI-002@ (FROM: @IMP-MB-UI-007@, @REQ-UQ-005@)
+  it('reflects an imperial mass unit (lb) on the static unit chip', () => {
+    const wrapper = mount(MassStationInput, {
+      props: { station: makeStation({ name: 'Front Seats' }), unit: 'lb' },
+    })
+    expect(wrapper.find('.mass-station-input__unit').text()).toBe('lb')
+  })
+
   it('renders one preset chip per provided preset and emits its value on tap', async () => {
     const wrapper = mount(MassStationInput, {
       props: { station: makeStation({ weight: 0 }), unit: 'kg', presets: [55, 70, 85] },

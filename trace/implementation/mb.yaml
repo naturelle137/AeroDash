@@ -403,3 +403,10 @@ MB (auto)
       - frontend/src/modules/mass-balance/views/MassBalanceView.vue
     req:
       - REQ-AD-020
+
+  IMP-MB-STORE-023
+    title: Zero-Value Plausibility Warning (WARN-UQ-001) for mandatory non-fuel stations
+    files:
+      - frontend/src/modules/mass-balance/stores/mass-balance.store.ts
+    req:
+      - REQ-UQ-006

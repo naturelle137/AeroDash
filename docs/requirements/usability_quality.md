@@ -51,10 +51,19 @@ This document defines the usability & quality behavior using the **EARS** (Easy 
 **Status:** Implemented
 **Design Reference:** n/a
 
+<!-- @REQ-UQ-006@ (FROM: @H-010@, @H-011@) -->
+### REQ-UQ-006: Zero-Value Plausibility Check
+
+**Requirement:** When a mandatory mass-input station (e.g. pilot, crew, passenger) has a recorded weight of zero, the system shall emit a WARNING notification (`WARN-UQ-001`) alerting the user that the entered mass is implausibly low. The notification shall identify the offending station(s) by name.
+**Rationale:** A required occupant station with zero mass is almost always a missed-entry rather than an intentional empty seat — surfacing it as a soft warning catches the "garbage-in" defect class called out in the Safety-Critical Design Check before it reaches a Go/No-Go advisory. Fuel quantity is intentionally excluded because zero fuel is a legitimate planning state and is already constrained from below by the unusable-fuel floor.
+**Priority:** P1
+**Status:** Implemented
+**Design Reference:** [Notification Schema](../architecture/notification_schema.md)
+
 ---
 
 ## Design References
 
-- None
+- **<a name="notificationScheme"></a>Notification Scheme:** [`docs/architecture/notification_schema.md`](../architecture/notification_schema.md)
 
 ---

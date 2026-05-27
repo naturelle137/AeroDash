@@ -322,7 +322,10 @@ describe('MassBalanceView integration', () => {
     await wrapper.vm.$nextTick()
 
     expect(resetSpy).toHaveBeenCalledTimes(1)
-    expect(store.uiState).toBe('VERIFIED_SAFE')
+    // REQ-UQ-006: the post-reset pilot mass is 0 kg, so the plausibility advisory
+    // re-fires and the state machine resolves to WARNING (not VERIFIED_SAFE).
+    expect(store.uiState).toBe('WARNING')
+    expect(store.notifications.some((n) => n.id === 'WARN-UQ-001')).toBe(true)
     expect(store.lastResult).not.toBeNull()
 
     document.body.innerHTML = ''
