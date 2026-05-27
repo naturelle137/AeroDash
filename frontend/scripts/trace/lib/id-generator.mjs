@@ -168,6 +168,10 @@ export function findDuplicates(occurrences) {
   /** @type {Map<string, string[]>} */
   const map = new Map()
   for (const occ of occurrences) {
+    // INV-008 is about single-source DEFINITION. A tag cited inside a
+    // downstream `(FROM: …)` clause is not a redefinition; counting it
+    // here would flag every well-formed REQ/UJ chain as a duplicate.
+    if (occ.declared === false) continue
     const key = `${occ.file}:${occ.line}`
     const entry = map.get(occ.id)
     if (entry) entry.push(key)

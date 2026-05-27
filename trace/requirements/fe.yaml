@@ -1,0 +1,30 @@
+Fuel & Endurance Requirements
+  REQ-FE-001
+    title: Fuel Density Calculation
+    file: docs/requirements/fuel_endurance.md
+    hazard:
+      - H-002
+
+  REQ-FE-002
+    title: Endurance Calculation
+    file: docs/requirements/fuel_endurance.md
+    hazard:
+      - H-010
+
+  REQ-FE-003
+    title: Endurance Exceedance Warning
+    file: docs/requirements/fuel_endurance.md
+
+  REQ-FE-004
+    title: Fuel Burn Sequence
+    file: docs/requirements/fuel_endurance.md
+    hazard:
+      - H-006
+
+  REQ-FE-005
+    title: Landing Mass Estimation
+    file: docs/requirements/fuel_endurance.md
+
+  REQ-FE-006
+    title: Electric Endurance Card
+    file: docs/requirements/fuel_endurance.md

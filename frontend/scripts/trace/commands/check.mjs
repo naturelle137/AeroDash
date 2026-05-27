@@ -13,6 +13,7 @@
 import { scanAll } from '../lib/parser.mjs'
 import { findDanglingFromRefs, findDuplicates } from '../lib/id-generator.mjs'
 import { REGISTRY_TARGETS } from '../lib/config.mjs'
+import { buildPresenceReport } from '../lib/presence.mjs'
 import { diffRegistry, loadIndexedRegistry } from '../lib/registry.mjs'
 
 /**
@@ -23,6 +24,9 @@ import { diffRegistry, loadIndexedRegistry } from '../lib/registry.mjs'
  * @property {string[]} orphanUnitTests        UT ids with no @IMP- in FROM.
  * @property {string[]} orphanIntegrationTests IT ids with no @IMP- in FROM.
  * @property {Record<string, ReturnType<typeof diffRegistry>>} registryDrift
+ * @property {import('../lib/presence.mjs').PresenceReport} presence
+ *           Document-registry presence — REQ/UJ YAML files missing from
+ *           trace/requirements/ and trace/journeys/ (issue #264 / STC §4.2).
  */
 
 /**
@@ -65,11 +69,13 @@ export async function buildCheckReport(repoRoot) {
     const occurrences = scan.byType[/** @type {any} */ (type)] || []
     registryDrift[type] = diffRegistry(occurrences, registry)
   }
+  const presence = await buildPresenceReport(repoRoot)
   return {
     duplicates,
     danglingFromRefs,
     ...orphans,
     registryDrift,
+    presence,
   }
 }
 
@@ -133,6 +139,24 @@ export async function runCheck({ repoRoot, log = () => {}, warnOnly = false }) {
       for (const m of diff.fileMismatches) {
         lines.push(`    ${m.id}: source=${m.sourceFiles.join(',')}; registry=${m.registryFiles.join(',')}`)
       }
+    }
+  }
+
+  // STC §4.2 / issue #264: every module with REQ tags and every phase
+  // with UJ tags MUST own a YAML registry file. Surface gaps so the
+  // shtracer registry never silently regresses to an empty index.
+  if (report.presence.missingRequirements.length) {
+    violations += report.presence.missingRequirements.length
+    lines.push('Missing requirement registries (STC §4.2):')
+    for (const exp of report.presence.missingRequirements) {
+      lines.push(`  ${exp.relPath} (needed by ${exp.sourceIds.length} REQ tag(s): ${exp.sourceIds.slice(0, 3).join(', ')}${exp.sourceIds.length > 3 ? '…' : ''})`)
+    }
+  }
+  if (report.presence.missingJourneys.length) {
+    violations += report.presence.missingJourneys.length
+    lines.push('Missing journey registries (STC §4.2):')
+    for (const exp of report.presence.missingJourneys) {
+      lines.push(`  ${exp.relPath} (needed by ${exp.sourceIds.length} UJ tag(s): ${exp.sourceIds.slice(0, 3).join(', ')}${exp.sourceIds.length > 3 ? '…' : ''})`)
     }
   }
 

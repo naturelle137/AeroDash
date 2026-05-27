@@ -1,0 +1,22 @@
+Phase G — Onboarding & Sync
+  UJ-G-001
+    title: New Club Member Onboarding (Organization Sync)
+    file: docs/journeys/07_onboarding_sync.md
+    req:
+      - REQ-SC-001
+      - REQ-SC-002
+      - REQ-SC-003
+      - REQ-SC-004
+
+  UJ-G-002
+    title: Ad-Hoc Aircraft Sharing (Share-Code)
+    file: docs/journeys/07_onboarding_sync.md
+    req:
+      - REQ-SC-005
+      - REQ-SC-006
+
+  UJ-G-003
+    title: The "Offline" Fallback
+    file: docs/journeys/07_onboarding_sync.md
+    req:
+      - REQ-SYS-001

@@ -1,0 +1,80 @@
+Performance Requirements
+  REQ-PF-001
+    title: Distinct Performance Variables
+    file: docs/requirements/performance.md
+
+  REQ-PF-002
+    title: Bilinear Interpolation
+    file: docs/requirements/performance.md
+    hazard:
+      - H-004
+
+  REQ-PF-003
+    title: Hierarchical Fallback
+    file: docs/requirements/performance.md
+
+  REQ-PF-004
+    title: Correction Application Isolation
+    file: docs/requirements/performance.md
+
+  REQ-PF-005
+    title: Missing Data Estimation
+    file: docs/requirements/performance.md
+
+  REQ-PF-006
+    title: Operational Required Distance
+    file: docs/requirements/performance.md
+
+  REQ-PF-007
+    title: Safety Margin Calculation
+    file: docs/requirements/performance.md
+
+  REQ-PF-008
+    title: Custom Obstacle Constraints
+    file: docs/requirements/performance.md
+
+  REQ-PF-009
+    title: Unverified Obstacle Notification
+    file: docs/requirements/performance.md
+    hazard:
+      - H-017
+
+  REQ-PF-010
+    title: Extrapolation Limits and Penalties
+    file: docs/requirements/performance.md
+    hazard:
+      - H-007
+      - H-012
+
+  REQ-PF-011
+    title: Performance Benefit Capping
+    file: docs/requirements/performance.md
+    hazard:
+      - H-013
+
+  REQ-PF-012
+    title: Extrapolation Acknowledgment
+    file: docs/requirements/performance.md
+    hazard:
+      - H-012
+
+  REQ-PF-013
+    title: Pressure Altitude Formula
+    file: docs/requirements/performance.md
+
+  REQ-PF-015
+    title: Runway Insufficient Notification
+    file: docs/requirements/performance.md
+    hazard:
+      - H-008
+
+  REQ-PF-016
+    title: Low Safety Factor Warning
+    file: docs/requirements/performance.md
+    hazard:
+      - H-008
+      - H-016
+
+  REQ-PF-017
+    title: Estimated Value Marking
+    file: docs/requirements/performance.md

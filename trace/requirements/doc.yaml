@@ -1,0 +1,26 @@
+Documentation & Export Requirements
+  REQ-DOC-001
+    title: PDF Export Function
+    file: docs/requirements/documentation_export.md
+
+  REQ-DOC-002
+    title: Unverified Data Marker
+    file: docs/requirements/documentation_export.md
+    hazard:
+      - H-015
+
+  REQ-DOC-003
+    title: Unverified Data Disclaimer
+    file: docs/requirements/documentation_export.md
+    hazard:
+      - H-015
+
+  REQ-DOC-004
+    title: Low Safety Margin Disclaimer
+    file: docs/requirements/documentation_export.md
+    hazard:
+      - H-016
+
+  REQ-DOC-005
+    title: Notification Rendering in Export
+    file: docs/requirements/documentation_export.md

@@ -1,0 +1,32 @@
+Cloud Sync & Collaboration Requirements
+  REQ-SC-001
+    title: OIDC Authentication
+    file: docs/requirements/cloud_sync_collaboration.md
+
+  REQ-SC-002
+    title: Cloud Synchronization
+    file: docs/requirements/cloud_sync_collaboration.md
+
+  REQ-SC-003
+    title: Workspace Segregation
+    file: docs/requirements/cloud_sync_collaboration.md
+
+  REQ-SC-004
+    title: Role-based Access Control
+    file: docs/requirements/cloud_sync_collaboration.md
+
+  REQ-SC-005
+    title: Share-Code Generation
+    file: docs/requirements/cloud_sync_collaboration.md
+
+  REQ-SC-006
+    title: Share-Code Import
+    file: docs/requirements/cloud_sync_collaboration.md
+
+  REQ-SC-007
+    title: JSON Export
+    file: docs/requirements/cloud_sync_collaboration.md
+
+  REQ-SC-008
+    title: JSON Import Validation
+    file: docs/requirements/cloud_sync_collaboration.md

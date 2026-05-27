@@ -1,0 +1,52 @@
+Phase B — Flight Preparation
+  UJ-B-001
+    title: M&B with CG Migration (The "Burn-Out" Check)
+    file: docs/journeys/02_flight_preparation.md
+    req:
+      - REQ-MB-002
+      - REQ-MB-008
+      - REQ-MB-011
+      - REQ-MB-004
+      - REQ-UI-010
+
+  UJ-B-002
+    title: The "Hybrid Engine" Performance Calculation
+    file: docs/journeys/02_flight_preparation.md
+    req:
+      - REQ-PF-003
+      - REQ-PF-004
+      - REQ-PF-006
+      - REQ-PF-015
+      - REQ-PF-016
+      - REQ-UI-017
+      - REQ-DOC-005
+
+  UJ-B-003
+    title: The "Overweight" Discovery
+    file: docs/journeys/02_flight_preparation.md
+    req:
+      - REQ-MB-005
+      - REQ-MB-009
+
+  UJ-B-004
+    title: The "Burn-Down Polygon" (Multi-Tank CG Migration)
+    file: docs/journeys/02_flight_preparation.md
+    req:
+      - REQ-FE-004
+      - REQ-MB-008
+      - REQ-MB-011
+      - REQ-UI-010
+      - REQ-UI-019
+
+  UJ-B-005
+    title: The "Textbook" Flight Prep (Happy Path)
+    file: docs/journeys/02_flight_preparation.md
+    req:
+      - REQ-AP-002
+      - REQ-FE-002
+      - REQ-MB-003
+      - REQ-UI-005
+      - REQ-UI-013
+      - REQ-WX-002
+      - REQ-WX-003
+      - REQ-WX-008

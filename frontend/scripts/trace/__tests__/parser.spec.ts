@@ -4,7 +4,7 @@ import path from 'node:path'
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
-import { indexById, scanAll, scanType } from '../lib/parser.mjs'
+import { extractMarkdownTitle, indexById, scanAll, scanType } from '../lib/parser.mjs'
 
 let sandbox: string
 
@@ -143,6 +143,114 @@ describe('parser', () => {
     const fromTagsByid = new Map(occurrences.map((o) => [o.id, o.fromTags]))
     expect(fromTagsByid.get('@IMP-AC-VIEW-001@')).toEqual(['@REQ-AC-001@'])
     expect(fromTagsByid.get('@IMP-AC-VIEW-002@')).toEqual(['@REQ-AC-001@'])
+  })
+
+  // Issue #264 — REQ and UJ registries depend on a human-readable title
+  // harvested from the markdown heading that follows each tag comment.
+  it('harvests the heading title for a REQ tag', async () => {
+    await writeFileEnsuring(
+      'docs/requirements/mass_balance.md',
+      [
+        '## Requirements',
+        '',
+        '<!-- @REQ-MB-001@ (FROM: @H-005@) -->',
+        '',
+        '### REQ-MB-001: Dynamic Envelope Updates',
+        '',
+        '**Requirement:** …',
+      ].join('\n'),
+    )
+
+    const occurrences = await scanType(sandbox, 'REQ')
+    expect(occurrences[0].title).toBe('Dynamic Envelope Updates')
+  })
+
+  it('harvests the heading title for a UJ tag wrapped in an anchor span', async () => {
+    await writeFileEnsuring(
+      'docs/journeys/01_fleet_management.md',
+      [
+        '<!-- @UJ-A-001@ (FROM: @REQ-AC-001@) -->',
+        '',
+        '## <a name="UJ-A-001"></a>UJ-A-001: The "Fleet Admin" Workflow (Complex Profile)',
+        '',
+        '**Persona:** Fleet Admin',
+      ].join('\n'),
+    )
+
+    const occurrences = await scanType(sandbox, 'UJ')
+    expect(occurrences[0].title).toBe('The "Fleet Admin" Workflow (Complex Profile)')
+  })
+
+  it('omits the title field when no heading follows the tag', async () => {
+    await writeFileEnsuring(
+      'docs/requirements/system.md',
+      [
+        '<!-- @REQ-SYS-001@ -->',
+        '',
+        'Not a heading line, just prose.',
+      ].join('\n'),
+    )
+
+    const occurrences = await scanType(sandbox, 'REQ')
+    expect(occurrences[0].title).toBeUndefined()
+  })
+
+  // Issue #264 — a REQ tag that appears inside a downstream
+  // `(FROM: @REQ-XX@)` clause must be classified as a citation, not as
+  // a competing declaration. Without this distinction the new
+  // trace/requirements/ registry would churn on file-list mismatches
+  // for every REQ that is cross-referenced from another REQ document.
+  it('marks tags inside (FROM: …) as citations and bare tags as declarations', async () => {
+    await writeFileEnsuring(
+      'docs/requirements/detailed_aircraft_data.md',
+      [
+        '<!-- @REQ-AD-020@ -->',
+        '### REQ-AD-020: Battery Pack Definition',
+      ].join('\n'),
+    )
+    await writeFileEnsuring(
+      'docs/requirements/fuel_endurance.md',
+      [
+        '<!-- @REQ-FE-006@ (FROM: @REQ-AD-020@) -->',
+        '### REQ-FE-006: Electric Endurance',
+      ].join('\n'),
+    )
+
+    const occurrences = await scanType(sandbox, 'REQ')
+    const adDecl = occurrences.find((o) => o.id === '@REQ-AD-020@' && o.declared)
+    const adCite = occurrences.find((o) => o.id === '@REQ-AD-020@' && !o.declared)
+    const feDecl = occurrences.find((o) => o.id === '@REQ-FE-006@')
+    expect(adDecl?.file).toBe('docs/requirements/detailed_aircraft_data.md')
+    expect(adCite?.file).toBe('docs/requirements/fuel_endurance.md')
+    expect(feDecl?.declared).toBe(true)
+  })
+
+  it('does not harvest titles for code-level tags (IMP/UT/IT/E2E)', async () => {
+    await writeFileEnsuring(
+      'frontend/src/core/logic/mass-balance.logic.ts',
+      [
+        '// @IMP-MB-CORE-001@ (FROM: @REQ-MB-001@)',
+        'export function zeroFuelMass() {}',
+      ].join('\n'),
+    )
+    const occurrences = await scanType(sandbox, 'IMP')
+    expect(occurrences[0].title).toBeUndefined()
+  })
+
+  describe('extractMarkdownTitle', () => {
+    it('strips heading markers, anchor spans, and ID prefix', () => {
+      expect(extractMarkdownTitle('### REQ-MB-001: Dynamic Envelope Updates')).toBe('Dynamic Envelope Updates')
+      expect(extractMarkdownTitle('## <a name="UJ-B-002"></a>UJ-B-002: The "Hybrid Engine" Performance Calculation')).toBe('The "Hybrid Engine" Performance Calculation')
+    })
+
+    it('returns empty when the line is not a heading', () => {
+      expect(extractMarkdownTitle('  not a heading')).toBe('')
+      expect(extractMarkdownTitle('')).toBe('')
+    })
+
+    it('handles a heading with no ID prefix (DES H1)', () => {
+      expect(extractMarkdownTitle('# AeroDash Architecture - Aircraft Data Model')).toBe('AeroDash Architecture - Aircraft Data Model')
+    })
   })
 
   it('indexById flags multiply-declared tags', async () => {
