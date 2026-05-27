@@ -182,10 +182,17 @@ The `Traceability Gate` GitHub Actions workflow (`.github/workflows/traceability
 
 ### Gate Severity Policy
 
-| Project version | Gate behaviour |
-| :-------------- | :------------- |
-| Pre-v1.0.0 (current) | **Warn-only** — always exits 0, gaps are reported in the Actions log and PR summary |
-| v1.0.0+ | **Hard-fail** — any gap causes the gate to exit non-zero and blocks merge to `main` |
+| Project version | Coverage gate behaviour (REQ→IMP, hazard→REQ, REQ→E2E) | Structural gate behaviour (duplicate / dangling-FROM / drift) |
+| :-------------- | :----------------------------------------------------- | :------------------------------------------------------------ |
+| Pre-v1.0.0 (current) | **Warn-only** — gaps are reported in the Actions log and PR summary, never block merge | **Hard-fail (baselined ratchet)** — pre-existing violations are grandfathered in `frontend/scripts/trace/baseline-structural.json`, but any NEW duplicate-tag, dangling-FROM, or registry-drift entry fails `pnpm test:unit` (and therefore CI). See issue #265. |
+| v1.0.0+ | **Hard-fail** — any coverage gap blocks merge to `main` | Same as pre-v1.0.0 plus baseline expected to be empty. |
+
+The hard-fail surface is the **structural traceability gate** vitest
+spec (`frontend/scripts/trace/__tests__/repo-structural-gate.spec.ts`)
+which drives `trace check --structural-only --baseline …` against the
+live repo. It is wired into `pnpm test:unit`, so CI picks it up
+without any workflow change. `pnpm lint:trace` mirrors the same gate
+locally so violations surface pre-push.
 
 ### Running the trace check locally
 
@@ -197,6 +204,13 @@ pnpm trace check
 
 # Warn-only mode — never returns non-zero (matches the pre-v1.0.0 CI gate)
 pnpm trace check --warn-only
+
+# Structural-only ratchet (the CI hard-fail surface)
+pnpm trace:check:structural
+# Equivalent: pnpm exec trace check --structural-only --baseline
+
+# Regenerate the structural baseline after clearing pre-existing debt
+node frontend/scripts/trace/scripts/regen-baseline.mjs
 
 # Dump the parsed tag graph for ad-hoc jq queries
 pnpm trace parse > /tmp/trace.json
