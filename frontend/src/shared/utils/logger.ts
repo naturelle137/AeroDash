@@ -192,6 +192,9 @@ function formatEntry(entry: LogEntry, opts: FormatOptions = {}): LogEntry {
  * `VITE_LOG_TELEMETRY === 'true'` (see {@link createLogger}). Telemetry
  * payloads carry raw computation inputs/outputs (i.e. pilot-entered data
  * by design); they MUST stay off unless an operator explicitly opts in.
+ * As defense-in-depth `frontend/vite.config.ts` ALSO fails any production
+ * build that sets `VITE_LOG_TELEMETRY` to a truthy value (PR #361 MINOR-7),
+ * so the runtime bypass below cannot reach pilots even by accident.
  *
  * Gating lives in the logger rather than the bundler because Vite 8's
  * default minifier (oxc) ignores esbuild's `pure`/`drop` options, so a

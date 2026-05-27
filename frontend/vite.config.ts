@@ -18,6 +18,25 @@ import { VitePWA } from 'vite-plugin-pwa'
 // silently dropped.
 const isProd = process.env.NODE_ENV === 'production'
 
+// DP-004 / CS-012 (issue #263, PR #361 MINOR-7) — telemetry must never ship in
+// a production bundle. `logger.telemetryTrace()` emits raw computation
+// inputs/outputs (pilot-entered M&B / Performance / Fuel data) and BYPASSES
+// the PII redactor by design — opting in is the operator's explicit
+// acceptance that those values will land in `console.info`. Documentation
+// alone (`.env.example`, CONTRIBUTING.md) is not enough; this guard fails the
+// production build fast if `VITE_LOG_TELEMETRY` is truthy in the build
+// environment, so an accidental `VITE_LOG_TELEMETRY=true pnpm build` cannot
+// ship to pilots. Vitest does not set `NODE_ENV=production`, so the guard is
+// inert for unit/integration test runs.
+const TELEMETRY_TRUTHY_RE = /^(true|1|yes|on)$/i
+if (isProd && typeof process.env.VITE_LOG_TELEMETRY === 'string' && TELEMETRY_TRUTHY_RE.test(process.env.VITE_LOG_TELEMETRY.trim())) {
+  throw new Error(
+    'AeroDash build aborted: VITE_LOG_TELEMETRY is enabled in a production build. ' +
+      '`logger.telemetryTrace()` bypasses the PII redactor by design (DP-004 / CS-012, issue #263) ' +
+      'and MUST NOT ship to pilots. Unset the env var or set it to `false` and rerun `pnpm build`.',
+  )
+}
+
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
