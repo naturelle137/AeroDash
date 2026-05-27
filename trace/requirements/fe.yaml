@@ -1,0 +1,36 @@
+FE (auto)
+  REQ-FE-001
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/fuel_endurance.md
+    hazard:
+      - H-002
+
+  REQ-FE-002
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/fuel_endurance.md
+    hazard:
+      - H-010
+
+  REQ-FE-003
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/fuel_endurance.md
+
+  REQ-FE-004
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/fuel_endurance.md
+    hazard:
+      - H-006
+
+  REQ-FE-005
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/fuel_endurance.md
+
+  REQ-FE-006
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/fuel_endurance.md

@@ -1,0 +1,25 @@
+G (auto)
+  UJ-G-001
+    title: TODO: describe this artifact
+    files:
+      - docs/journeys/07_onboarding_sync.md
+    req:
+      - REQ-SC-001
+      - REQ-SC-002
+      - REQ-SC-003
+      - REQ-SC-004
+
+  UJ-G-002
+    title: TODO: describe this artifact
+    files:
+      - docs/journeys/07_onboarding_sync.md
+    req:
+      - REQ-SC-005
+      - REQ-SC-006
+
+  UJ-G-003
+    title: TODO: describe this artifact
+    files:
+      - docs/journeys/07_onboarding_sync.md
+    req:
+      - REQ-SYS-001

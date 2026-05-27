@@ -1,0 +1,19 @@
+F (auto)
+  UJ-F-001
+    title: TODO: describe this artifact
+    files:
+      - docs/journeys/06_fuel_endurance.md
+    req:
+      - REQ-FE-002
+      - REQ-FE-003
+      - REQ-FE-005
+
+  UJ-F-002
+    title: TODO: describe this artifact
+    files:
+      - docs/journeys/06_fuel_endurance.md
+    req:
+      - REQ-AD-003
+      - REQ-FE-001
+      - REQ-FE-004
+      - REQ-MB-002

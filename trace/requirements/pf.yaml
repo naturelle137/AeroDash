@@ -1,0 +1,96 @@
+PF (auto)
+  REQ-PF-001
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/performance.md
+
+  REQ-PF-002
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/performance.md
+    hazard:
+      - H-004
+
+  REQ-PF-003
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/performance.md
+
+  REQ-PF-004
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/performance.md
+
+  REQ-PF-005
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/performance.md
+
+  REQ-PF-006
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/performance.md
+
+  REQ-PF-007
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/performance.md
+
+  REQ-PF-008
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/performance.md
+
+  REQ-PF-009
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/performance.md
+    hazard:
+      - H-017
+
+  REQ-PF-010
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/performance.md
+    hazard:
+      - H-007
+      - H-012
+
+  REQ-PF-011
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/performance.md
+    hazard:
+      - H-013
+
+  REQ-PF-012
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/performance.md
+    hazard:
+      - H-012
+
+  REQ-PF-013
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/performance.md
+
+  REQ-PF-015
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/performance.md
+    hazard:
+      - H-008
+
+  REQ-PF-016
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/performance.md
+    hazard:
+      - H-008
+      - H-016
+
+  REQ-PF-017
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/performance.md

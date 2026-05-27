@@ -1,0 +1,38 @@
+E (auto)
+  UJ-E-001
+    title: TODO: describe this artifact
+    files:
+      - docs/journeys/05_weather_environment.md
+    req:
+      - REQ-WX-001
+      - REQ-WX-003
+      - REQ-WX-004
+      - REQ-WX-005
+      - REQ-WX-006
+      - REQ-AP-004
+
+  UJ-E-002
+    title: TODO: describe this artifact
+    files:
+      - docs/journeys/05_weather_environment.md
+    req:
+      - REQ-WX-003
+      - REQ-WX-007
+      - REQ-WX-009
+
+  UJ-E-003
+    title: TODO: describe this artifact
+    files:
+      - docs/journeys/05_weather_environment.md
+    req:
+      - REQ-PF-010
+      - REQ-PF-011
+      - REQ-PF-012
+
+  UJ-E-004
+    title: TODO: describe this artifact
+    files:
+      - docs/journeys/05_weather_environment.md
+    req:
+      - REQ-AD-017
+      - REQ-WX-009

@@ -1,0 +1,31 @@
+DOC (auto)
+  REQ-DOC-001
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/documentation_export.md
+
+  REQ-DOC-002
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/documentation_export.md
+    hazard:
+      - H-015
+
+  REQ-DOC-003
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/documentation_export.md
+    hazard:
+      - H-015
+
+  REQ-DOC-004
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/documentation_export.md
+    hazard:
+      - H-016
+
+  REQ-DOC-005
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/documentation_export.md

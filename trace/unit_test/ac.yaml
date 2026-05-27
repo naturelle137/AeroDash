@@ -1030,7 +1030,6 @@ AC View — AircraftModelSelector Component (Unit)
     files:
       - frontend/src/modules/aircraft/__tests__/AircraftModelSelector.spec.ts
 
-
 AC View — FleetList Component (Unit)
   UT-AC-VIEW-080
     title: FleetList — shows loading message when isLoading is true
@@ -1252,29 +1251,8 @@ AC View — ProfileStatusBadge Component (Unit)
     files:
       - frontend/src/modules/aircraft/__tests__/IdentitySection.spec.ts
 
-  UT-AC-VIEW-112
-    title: IdentitySection — renders empty string for null shareCode
-    impl:
-      - IMP-AC-VIEW-011
-    files:
-      - frontend/src/modules/aircraft/__tests__/IdentitySection.spec.ts
-
   UT-AC-VIEW-113
     title: IdentitySection — emits patched modelValue when registration changes
-    impl:
-      - IMP-AC-VIEW-012
-    files:
-      - frontend/src/modules/aircraft/__tests__/IdentitySection.spec.ts
-
-  UT-AC-VIEW-114
-    title: IdentitySection — emits null shareCode when input is blanked
-    impl:
-      - IMP-AC-VIEW-012
-    files:
-      - frontend/src/modules/aircraft/__tests__/IdentitySection.spec.ts
-
-  UT-AC-VIEW-115
-    title: IdentitySection — emits trimmed non-empty shareCode
     impl:
       - IMP-AC-VIEW-012
     files:
@@ -1740,3 +1718,49 @@ AC Store — Migration Diagnostics Surfaced as INFO Notifications (Unit)
       - IMP-AC-CORE-003
     files:
       - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
+AC (auto)
+  UT-AC-VIEW-138
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/modules/aircraft/__tests__/AircraftProfileEditorView.spec.ts
+    impl:
+      - IMP-AC-VIEW-015
+
+  UT-AC-VIEW-094
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/modules/aircraft/__tests__/FleetList.spec.ts
+    impl:
+      - IMP-AC-VIEW-006
+      - IMP-AC-STORE-004
+
+  UT-AC-VIEW-095
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/modules/aircraft/__tests__/FleetList.spec.ts
+    impl:
+      - IMP-AC-VIEW-006
+
+  UT-AC-VIEW-096
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/modules/aircraft/__tests__/FleetList.spec.ts
+    impl:
+      - IMP-AC-VIEW-006
+      - IMP-AC-STORE-004
+
+  UT-AC-VIEW-116
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/modules/aircraft/__tests__/IdentitySection.spec.ts
+
+  UT-AC-VIEW-117
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/modules/aircraft/__tests__/IdentitySection.spec.ts
+
+  UT-AC-VIEW-118
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/modules/aircraft/__tests__/IdentitySection.spec.ts

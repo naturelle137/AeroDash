@@ -1,0 +1,68 @@
+MB (auto)
+  REQ-MB-001
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/mass_balance.md
+    hazard:
+      - H-005
+
+  REQ-MB-002
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/mass_balance.md
+
+  REQ-MB-003
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/mass_balance.md
+
+  REQ-MB-004
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/mass_balance.md
+    hazard:
+      - H-006
+
+  REQ-MB-005
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/mass_balance.md
+
+  REQ-MB-006
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/mass_balance.md
+
+  REQ-MB-007
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/mass_balance.md
+
+  REQ-MB-008
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/mass_balance.md
+    hazard:
+      - H-006
+
+  REQ-MB-009
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/mass_balance.md
+
+  REQ-MB-010
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/mass_balance.md
+
+  REQ-MB-011
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/mass_balance.md
+    hazard:
+      - H-006
+
+  REQ-MB-012
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/mass_balance.md

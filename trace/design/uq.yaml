@@ -1,0 +1,16 @@
+UQ (auto)
+  DES-UQ-001
+    title: TODO: describe this artifact
+    files:
+      - docs/ux/design_system.md
+    req:
+      - REQ-UQ-001
+      - REQ-UQ-003
+      - REQ-UQ-005
+
+  DES-UQ-002
+    title: TODO: describe this artifact
+    files:
+      - docs/ux/design_system.md
+    req:
+      - REQ-UQ-002

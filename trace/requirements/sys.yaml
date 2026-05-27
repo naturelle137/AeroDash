@@ -1,0 +1,72 @@
+SYS (auto)
+  REQ-SYS-001
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/system.md
+
+  REQ-SYS-002
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/system.md
+
+  REQ-SYS-003
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/system.md
+    hazard:
+      - H-001
+      - H-002
+
+  REQ-SYS-004
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/system.md
+
+  REQ-SYS-005
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/system.md
+    hazard:
+      - H-019
+
+  REQ-SYS-006
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/system.md
+    hazard:
+      - H-019
+
+  REQ-SYS-007
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/system.md
+
+  REQ-SYS-008
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/system.md
+
+  REQ-SYS-009
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/system.md
+
+  REQ-SYS-010
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/system.md
+
+  REQ-SYS-011
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/system.md
+
+  REQ-SYS-012
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/system.md
+
+  REQ-SYS-013
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/system.md

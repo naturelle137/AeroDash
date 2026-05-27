@@ -78,3 +78,11 @@ Architecture Design
       - REQ-AC-001
       - REQ-AC-005
     file: docs/architecture/aircraft-fleet-module.md
+
+ARCH (auto)
+  DES-ARCH-010
+    title: TODO: describe this artifact
+    files:
+      - docs/architecture/adr/010-aircraft-profile-status-canonical-values.md
+    req:
+      - REQ-AC-005

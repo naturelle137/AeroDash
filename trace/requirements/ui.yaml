@@ -1,0 +1,126 @@
+UI (auto)
+  REQ-UI-001
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/user_interface.md
+
+  REQ-UI-002
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/user_interface.md
+
+  REQ-UI-003
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/user_interface.md
+
+  REQ-UI-004
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/user_interface.md
+
+  REQ-UI-005
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/user_interface.md
+
+  REQ-UI-006
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/user_interface.md
+
+  REQ-UI-008
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/user_interface.md
+
+  REQ-UI-009
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/user_interface.md
+    hazard:
+      - H-005
+
+  REQ-UI-010
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/user_interface.md
+    hazard:
+      - H-006
+
+  REQ-UI-011
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/user_interface.md
+    hazard:
+      - H-018
+
+  REQ-UI-012
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/user_interface.md
+
+  REQ-UI-013
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/user_interface.md
+    hazard:
+      - H-019
+
+  REQ-UI-014
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/user_interface.md
+
+  REQ-UI-015
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/user_interface.md
+    hazard:
+      - H-015
+
+  REQ-UI-016
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/user_interface.md
+
+  REQ-UI-017
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/user_interface.md
+    hazard:
+      - H-016
+
+  REQ-UI-018
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/user_interface.md
+
+  REQ-UI-019
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/user_interface.md
+    hazard:
+      - H-006
+
+  REQ-UI-020
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/user_interface.md
+
+  REQ-UI-021
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/user_interface.md
+
+  REQ-UI-022
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/user_interface.md
+
+  REQ-UI-023
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/user_interface.md
+    hazard:
+      - H-011

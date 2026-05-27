@@ -59,66 +59,6 @@ UI Routing
     files:
       - frontend/src/router/index.ts
 
-UI — Mass & Balance View Components
-  IMP-UI-MB-001
-    title: Severity-Based State Banner and Notification Rendering (viewModel.bannerSeverity)
-    req:
-      - REQ-UI-018
-    files:
-      - frontend/src/modules/mass-balance/views/MassBalanceView.vue
-
-  IMP-UI-MB-002
-    title: CG Envelope Polygon + Mass Point Markers Rendering
-    req:
-      - REQ-UI-019
-    files:
-      - frontend/src/modules/mass-balance/components/CGEnvelopeChart.vue
-
-  IMP-UI-MB-003
-    title: CG Migration Trend Line / Burn Sequence Path Rendering
-    req:
-      - REQ-UI-010
-    files:
-      - frontend/src/modules/mass-balance/components/CGEnvelopeChart.vue
-
-  IMP-UI-MB-004
-    title: Category Change Recalculation — changeCertificationCategory re-runs math core
-    req:
-      - REQ-UI-009
-    files:
-      - frontend/src/modules/mass-balance/stores/mass-balance.store.ts
-
-  IMP-UI-MB-005
-    title: OUT_OF_RANGE Violation mapped as WARNING notification (WARN-UI-001)
-    req:
-      - REQ-UI-008
-    files:
-      - frontend/src/modules/mass-balance/stores/mass-balance.store.ts
-
-UI — Fleet Management — Passenger Profile UI
-  IMP-UI-FLEET-001
-    title: Passenger profile CRUD form in FleetManagementView — add/remove profiles
-    req:
-      - REQ-UI-006
-      - REQ-AC-006
-    files:
-      - frontend/src/modules/aircraft/views/FleetManagementView.vue
-
-UI — Verify / Mark-All-Verified
-  IMP-UI-VERIFY-001
-    title: markFieldVerified action — transitions single station to Verified
-    req:
-      - REQ-UI-014
-    files:
-      - frontend/src/modules/mass-balance/stores/mass-balance.store.ts
-
-  IMP-UI-VERIFY-002
-    title: markAllVerified action — transitions all available stations to Verified
-    req:
-      - REQ-UI-016
-    files:
-      - frontend/src/modules/mass-balance/stores/mass-balance.store.ts
-
 UI Pending — Future (Approved, Not Yet Implemented)
   IMP-UI-PENDING-001
     status: pending
@@ -154,3 +94,20 @@ UI Pending — Future (Approved, Not Yet Implemented)
     req:
       - REQ-UI-020
     note: REQ-UI-020 status is Approved. Depends on IMP-SYS-CONN-001 (M4+).
+
+UI (auto)
+  IMP-UI-ROUTE-003
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/router/index.ts
+    req:
+      - REQ-AC-001
+      - REQ-UQ-003
+
+  IMP-UI-ROUTE-002
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/router/index.ts
+    req:
+      - REQ-AC-001
+      - REQ-AC-005

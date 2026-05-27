@@ -1,0 +1,77 @@
+UX (auto)
+  DES-UX-003
+    title: TODO: describe this artifact
+    files:
+      - docs/ux/design_system.md
+    req:
+      - REQ-SYS-007
+      - REQ-UI-015
+
+  DES-UX-004
+    title: TODO: describe this artifact
+    files:
+      - docs/ux/design_system.md
+    req:
+      - REQ-UI-011
+      - REQ-UI-012
+
+  DES-UX-005
+    title: TODO: describe this artifact
+    files:
+      - docs/ux/design_system.md
+    req:
+      - REQ-SYS-001
+      - REQ-SYS-010
+
+  DES-UX-006
+    title: TODO: describe this artifact
+    files:
+      - docs/ux/design_system.md
+    req:
+      - REQ-UI-009
+      - REQ-MB-003
+
+  DES-UX-007
+    title: TODO: describe this artifact
+    files:
+      - docs/ux/design_system.md
+    req:
+      - REQ-UI-011
+      - REQ-SYS-001
+
+  DES-UX-008
+    title: TODO: describe this artifact
+    files:
+      - docs/ux/design_system.md
+    req:
+      - REQ-UI-011
+      - REQ-SYS-001
+
+  DES-UX-009
+    title: TODO: describe this artifact
+    files:
+      - docs/ux/design_system.md
+    req:
+      - REQ-UI-011
+      - REQ-MB-003
+
+  DES-UX-010
+    title: TODO: describe this artifact
+    files:
+      - docs/ux/mass_balance.md
+    req:
+      - REQ-UI-015
+
+  DES-UX-011
+    title: TODO: describe this artifact
+    files:
+      - docs/ux/mass_balance.md
+    req:
+      - REQ-UI-014
+
+  DES-UX-012
+    title: TODO: describe this artifact
+    files:
+      - docs/ux/mass_balance.md
+    req:
+      - REQ-UI-019

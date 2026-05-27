@@ -1,0 +1,51 @@
+WX (auto)
+  REQ-WX-001
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/weather_meterological_data.md
+
+  REQ-WX-002
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/weather_meterological_data.md
+
+  REQ-WX-003
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/weather_meterological_data.md
+
+  REQ-WX-004
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/weather_meterological_data.md
+    hazard:
+      - H-009
+
+  REQ-WX-005
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/weather_meterological_data.md
+    hazard:
+      - H-009
+
+  REQ-WX-006
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/weather_meterological_data.md
+
+  REQ-WX-007
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/weather_meterological_data.md
+
+  REQ-WX-008
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/weather_meterological_data.md
+
+  REQ-WX-009
+    title: TODO: describe this artifact
+    files:
+      - docs/requirements/weather_meterological_data.md
+    hazard:
+      - H-014
