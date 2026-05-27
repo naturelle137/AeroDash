@@ -1,0 +1,104 @@
+User Interface Requirements
+  REQ-UI-001
+    title: Manufacturer Model Population
+    file: docs/requirements/user_interface.md
+
+  REQ-UI-002
+    title: Manual Model Entry
+    file: docs/requirements/user_interface.md
+
+  REQ-UI-003
+    title: ICAO Designator Auto-fill
+    file: docs/requirements/user_interface.md
+
+  REQ-UI-004
+    title: Bidirectional ICAO Lookup
+    file: docs/requirements/user_interface.md
+
+  REQ-UI-005
+    title: Recent Airports Display
+    file: docs/requirements/user_interface.md
+
+  REQ-UI-006
+    title: Passenger Profile Selection
+    file: docs/requirements/user_interface.md
+
+  REQ-UI-008
+    title: Input Out of Range Warning
+    file: docs/requirements/user_interface.md
+
+  REQ-UI-009
+    title: Category Change Recalculation
+    file: docs/requirements/user_interface.md
+    hazard:
+      - H-005
+
+  REQ-UI-010
+    title: CG Migration Rendering
+    file: docs/requirements/user_interface.md
+    hazard:
+      - H-006
+
+  REQ-UI-011
+    title: Dark Mode Support
+    file: docs/requirements/user_interface.md
+    hazard:
+      - H-018
+
+  REQ-UI-012
+    title: Contextual Tooltips
+    file: docs/requirements/user_interface.md
+
+  REQ-UI-013
+    title: SemVer and Date Display
+    file: docs/requirements/user_interface.md
+    hazard:
+      - H-019
+
+  REQ-UI-014
+    title: Unverified Data Toggle
+    file: docs/requirements/user_interface.md
+
+  REQ-UI-015
+    title: Unverified Data Export Warning
+    file: docs/requirements/user_interface.md
+    hazard:
+      - H-015
+
+  REQ-UI-016
+    title: Mark All as Verified Option
+    file: docs/requirements/user_interface.md
+
+  REQ-UI-017
+    title: Low Safety Factor Export Warning
+    file: docs/requirements/user_interface.md
+    hazard:
+      - H-016
+
+  REQ-UI-018
+    title: Severity-Based Notification Rendering
+    file: docs/requirements/user_interface.md
+
+  REQ-UI-019
+    title: CG Envelope Polygon Rendering
+    file: docs/requirements/user_interface.md
+    hazard:
+      - H-006
+
+  REQ-UI-020
+    title: Connectivity State Indicator
+    file: docs/requirements/user_interface.md
+
+  REQ-UI-021
+    title: Powertrain Selector in Aircraft Wizard
+    file: docs/requirements/user_interface.md
+
+  REQ-UI-022
+    title: Powertrain-Gated Editor Sections
+    file: docs/requirements/user_interface.md
+
+  REQ-UI-023
+    title: Powertrain Field Immutability in Aircraft Editor
+    file: docs/requirements/user_interface.md
+    hazard:
+      - H-011

@@ -291,6 +291,77 @@ describe('runCheck', () => {
     const { exitCode } = await runCheck({ repoRoot: sandbox, warnOnly: true })
     expect(exitCode).toBe(0)
   })
+
+  // Issue #264 — `trace check` must reject a repo whose source declares
+  // REQ/UJ tags but is missing the matching trace/requirements/{module}.yaml
+  // or trace/journeys/{phase}.yaml registry file.
+  it('fails when a REQ module has no registry YAML and surfaces the missing path', async () => {
+    await writeFileEnsuring(
+      'docs/requirements/mass_balance.md',
+      ['<!-- @REQ-MB-001@ -->', '### REQ-MB-001: Title'].join('\n'),
+    )
+
+    const messages: string[] = []
+    const { exitCode, report } = await runCheck({
+      repoRoot: sandbox,
+      log: (m) => messages.push(m),
+    })
+    expect(exitCode).toBe(1)
+    expect(report.presence.missingRequirements.map((m) => m.relPath)).toEqual([
+      'trace/requirements/mb.yaml',
+    ])
+    expect(messages.join('\n')).toContain('Missing requirement registries')
+  })
+
+  it('fails when a UJ phase has no registry YAML', async () => {
+    await writeFileEnsuring(
+      'docs/requirements/aircraft_management.md',
+      ['<!-- @REQ-AC-001@ -->', '### REQ-AC-001: Title'].join('\n'),
+    )
+    await writeFileEnsuring(
+      'trace/requirements/ac.yaml',
+      ['Aircraft Management Requirements', '  REQ-AC-001', '    title: Title', ''].join('\n'),
+    )
+    await writeFileEnsuring(
+      'docs/journeys/01_fleet_management.md',
+      ['<!-- @UJ-A-001@ (FROM: @REQ-AC-001@) -->', '## UJ-A-001: Title'].join('\n'),
+    )
+
+    const messages: string[] = []
+    const { exitCode, report } = await runCheck({
+      repoRoot: sandbox,
+      log: (m) => messages.push(m),
+    })
+    expect(exitCode).toBe(1)
+    expect(report.presence.missingJourneys.map((m) => m.relPath)).toEqual([
+      'trace/journeys/a.yaml',
+    ])
+    expect(messages.join('\n')).toContain('Missing journey registries')
+  })
+
+  it('passes when every REQ module and UJ phase has a registry YAML', async () => {
+    await writeFileEnsuring(
+      'docs/requirements/mass_balance.md',
+      ['<!-- @REQ-MB-001@ -->', '### REQ-MB-001: Title'].join('\n'),
+    )
+    await writeFileEnsuring(
+      'trace/requirements/mb.yaml',
+      ['Mass & Balance Requirements', '  REQ-MB-001', '    title: Title', ''].join('\n'),
+    )
+    await writeFileEnsuring(
+      'docs/journeys/01_fleet_management.md',
+      ['<!-- @UJ-A-001@ (FROM: @REQ-MB-001@) -->', '## UJ-A-001: Title'].join('\n'),
+    )
+    await writeFileEnsuring(
+      'trace/journeys/a.yaml',
+      ['Phase A', '  UJ-A-001', '    title: Title', ''].join('\n'),
+    )
+
+    const { exitCode, report } = await runCheck({ repoRoot: sandbox })
+    expect(exitCode).toBe(0)
+    expect(report.presence.missingRequirements).toEqual([])
+    expect(report.presence.missingJourneys).toEqual([])
+  })
 })
 
 describe('run dispatcher', () => {

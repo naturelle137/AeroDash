@@ -1,0 +1,59 @@
+System Requirements
+  REQ-SYS-001
+    title: Offline Functionality
+    file: docs/requirements/system.md
+
+  REQ-SYS-002
+    title: Portable Storage Format
+    file: docs/requirements/system.md
+
+  REQ-SYS-003
+    title: SI Unit Normalization
+    file: docs/requirements/system.md
+    hazard:
+      - H-001
+      - H-002
+
+  REQ-SYS-004
+    title: Supported Units
+    file: docs/requirements/system.md
+
+  REQ-SYS-005
+    title: Update Available Notification
+    file: docs/requirements/system.md
+    hazard:
+      - H-019
+
+  REQ-SYS-006
+    title: Safe Version Verification
+    file: docs/requirements/system.md
+    hazard:
+      - H-019
+
+  REQ-SYS-007
+    title: Centralized Notification Service
+    file: docs/requirements/system.md
+
+  REQ-SYS-008
+    title: Uniform Notification Model
+    file: docs/requirements/system.md
+
+  REQ-SYS-009
+    title: Connectivity State Detection
+    file: docs/requirements/system.md
+
+  REQ-SYS-010
+    title: Online Feature Availability
+    file: docs/requirements/system.md
+
+  REQ-SYS-011
+    title: Input Validation Before Core Logic
+    file: docs/requirements/system.md
+
+  REQ-SYS-012
+    title: Validation Failure Error Notification
+    file: docs/requirements/system.md
+
+  REQ-SYS-013
+    title: Session Payload Persistence
+    file: docs/requirements/system.md

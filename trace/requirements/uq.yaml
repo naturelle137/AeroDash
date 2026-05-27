@@ -1,0 +1,22 @@
+Usability & Quality Requirements
+  REQ-UQ-001
+    title: Touch-Friendly Controls
+    file: docs/requirements/usability_quality.md
+
+  REQ-UQ-002
+    title: Responsive Layout Adaptation
+    file: docs/requirements/usability_quality.md
+
+  REQ-UQ-003
+    title: Decimal Precision Formatting
+    file: docs/requirements/usability_quality.md
+
+  REQ-UQ-004
+    title: Conservative Rounding Strategy
+    file: docs/requirements/usability_quality.md
+
+  REQ-UQ-005
+    title: Active Unit Display
+    file: docs/requirements/usability_quality.md
+    hazard:
+      - H-001

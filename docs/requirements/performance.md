@@ -12,7 +12,7 @@ This document defines the performance behavior using the **EARS** (Easy Approach
 **Requirement:** The system shall calculate four distinct performance variables for every flight: Takeoff Run (TOR), Takeoff Distance to 50ft (TOD), Landing Roll (LR), and Landing Distance from 50ft (LD).
 **Rationale:** Complete performance picture required for phase-specific corrections.
 **Priority:** P1
-**Status:** Approved
+**Status:** Implemented
 **Design Reference:** n/a
 
 <!-- @REQ-PF-002@ (FROM: @H-004@) -->
@@ -21,7 +21,7 @@ This document defines the performance behavior using the **EARS** (Easy Approach
 **Requirement:** The system shall determine base performance values via bilinear interpolation of the aircraft's POH tables, utilizing Mass, Pressure Altitude, and Temperature.
 **Rationale:** Core engine for certified baseline data.
 **Priority:** P1
-**Status:** Approved
+**Status:** Implemented
 **Design Reference:** n/a
 
 <!-- @REQ-PF-003@ -->

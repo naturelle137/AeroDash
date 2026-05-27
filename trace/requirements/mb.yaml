@@ -1,0 +1,56 @@
+Mass & Balance Requirements
+  REQ-MB-001
+    title: Dynamic Envelope Updates
+    file: docs/requirements/mass_balance.md
+    hazard:
+      - H-005
+
+  REQ-MB-002
+    title: Automatic CG Recalculation
+    file: docs/requirements/mass_balance.md
+
+  REQ-MB-003
+    title: Synchronous Chart Updates
+    file: docs/requirements/mass_balance.md
+
+  REQ-MB-004
+    title: Out of Envelope Notification
+    file: docs/requirements/mass_balance.md
+    hazard:
+      - H-006
+
+  REQ-MB-005
+    title: MTOM Exceedance Notification
+    file: docs/requirements/mass_balance.md
+
+  REQ-MB-006
+    title: Geometric Node Extraction
+    file: docs/requirements/mass_balance.md
+
+  REQ-MB-007
+    title: Polygon Bounds Verification
+    file: docs/requirements/mass_balance.md
+
+  REQ-MB-008
+    title: Take-off and Landing CG
+    file: docs/requirements/mass_balance.md
+    hazard:
+      - H-006
+
+  REQ-MB-009
+    title: MZFM Validation
+    file: docs/requirements/mass_balance.md
+
+  REQ-MB-010
+    title: Polygon Definition Output
+    file: docs/requirements/mass_balance.md
+
+  REQ-MB-011
+    title: CG Migration Exceedance
+    file: docs/requirements/mass_balance.md
+    hazard:
+      - H-006
+
+  REQ-MB-012
+    title: Variable Moment Calculation
+    file: docs/requirements/mass_balance.md

@@ -26,6 +26,17 @@ import { parseAnnotations } from './tag-format.mjs'
  * @property {number} line         1-indexed line number of the tag.
  * @property {string[]} fromTags   Upstream parents declared via (FROM: ...).
  * @property {boolean} technical   True iff the line carries the (TECHNICAL) marker.
+ * @property {boolean} declared    True when the match is the tag's own
+ *                                 declaration (bare `@TAG@`), false when it
+ *                                 appears inside a `(FROM: …)` citation on a
+ *                                 downstream artifact's line. Registry and
+ *                                 drift checks only count declarations as
+ *                                 the artifact's source file.
+ * @property {string} [title]      Human-readable title harvested from the next
+ *                                 markdown heading line for document tags
+ *                                 (H, REQ, UJ, DES). Empty when no heading is
+ *                                 reachable inside the lookahead window or for
+ *                                 non-markdown sources.
  */
 
 /**
@@ -47,6 +58,69 @@ function matchesConfig(cfg, fileName) {
   if (cfg.ignoreNames?.includes(fileName)) return false
   if (cfg.ignoreSuffix && cfg.ignoreSuffix.test(fileName)) return false
   return true
+}
+
+/**
+ * Document-level tag types whose markdown source contains a heading line
+ * immediately downstream of the tag comment. The CLI uses this set to
+ * decide when to harvest a `title:` field for the registry.
+ *
+ * @type {Set<TagType>}
+ */
+const TITLE_BEARING_TYPES = new Set(['H', 'REQ', 'UJ', 'DES'])
+
+/**
+ * Strip Markdown heading prefixes (`#`, `##`, …), optional HTML anchor
+ * wrappers (`<a name="UJ-A-001"></a>`), the id prefix (`UJ-A-001:` /
+ * `REQ-MB-001:`), and surrounding whitespace from a heading line.
+ *
+ * Returns an empty string when the line is not a heading or the residual
+ * title is empty — the caller then keeps looking down the file.
+ *
+ * @param {string} line
+ * @returns {string}
+ */
+export function extractMarkdownTitle(line) {
+  const trimmed = line.replace(/\r$/, '').trimEnd()
+  // Must start with one or more `#` markers followed by a space.
+  const headingMatch = /^#+\s+(.*)$/.exec(trimmed)
+  if (!headingMatch) return ''
+  let body = headingMatch[1].trim()
+  // Drop a leading anchor span — common in journey headings:
+  //   ## <a name="UJ-A-001"></a>UJ-A-001: Title
+  body = body.replace(/^<a\b[^>]*>\s*<\/a>\s*/i, '').trim()
+  // Drop an `ID:` prefix so the title remains the human-readable suffix.
+  body = body.replace(/^[A-Z]+(?:-[A-Z0-9]+)+\s*:\s*/, '').trim()
+  // Drop any trailing punctuation that would render awkwardly in YAML.
+  return body
+}
+
+/**
+ * Scan forward from the line immediately after a tag comment to find the
+ * next markdown heading. Blank lines and HTML-comment continuation lines
+ * are skipped so multi-line `<!-- … -->` blocks don't trip the search.
+ *
+ * @param {string[]} lines             All file lines.
+ * @param {number} tagIdx              0-indexed line of the tag comment.
+ * @returns {string}                   Title, or '' when none reachable.
+ */
+function findTitleAfter(lines, tagIdx) {
+  // Cap the lookahead so a missing heading on a malformed file doesn't
+  // pull the whole document into consideration.
+  const limit = Math.min(lines.length, tagIdx + 25)
+  for (let i = tagIdx + 1; i < limit; i += 1) {
+    const raw = lines[i]
+    if (raw == null) break
+    const text = raw.trim()
+    if (text === '') continue
+    if (text.startsWith('<!--') || text.startsWith('-->')) continue
+    const title = extractMarkdownTitle(raw)
+    if (title) return title
+    // First non-blank non-comment line that is not a heading: stop
+    // searching — the tag block is over.
+    if (!/^#+\s+/.test(text)) return ''
+  }
+  return ''
 }
 
 /**
@@ -107,8 +181,16 @@ export async function scanType(repoRoot, type) {
     for await (const file of walk(dir, cfg)) {
       const text = await readFile(file, 'utf8')
       const lines = text.split(/\r?\n/)
+      const harvestTitle = TITLE_BEARING_TYPES.has(type)
       lines.forEach((line, idx) => {
         if (!cfg.commentRegex.test(line)) return
+        // Locate the `(FROM: …)` span so each tag match can be classified
+        // as a declaration (bare `@TAG@`) or a citation (inside FROM).
+        // Citations must not pollute file-list mismatch reports because a
+        // downstream artifact's source file is not the cited tag's home.
+        const fromSpan = /\(FROM:\s*[^)]+\)/.exec(line)
+        const fromStart = fromSpan ? fromSpan.index : -1
+        const fromEnd = fromSpan ? fromSpan.index + fromSpan[0].length : -1
         // Reset lastIndex so a global regex stays stable inside forEach.
         cfg.tagRegex.lastIndex = 0
         let match
@@ -117,7 +199,9 @@ export async function scanType(repoRoot, type) {
           const segments = match.slice(1, -1).filter((s) => /^[A-Z]+$/.test(s))
           const number = Number(match[match.length - 1])
           const annotations = parseAnnotations(line)
-          occurrences.push({
+          const declared = fromStart < 0 || match.index < fromStart || match.index >= fromEnd
+          /** @type {TagOccurrence} */
+          const occ = {
             id,
             type,
             segments,
@@ -126,7 +210,13 @@ export async function scanType(repoRoot, type) {
             line: idx + 1,
             fromTags: annotations.fromTags,
             technical: annotations.technical,
-          })
+            declared,
+          }
+          if (harvestTitle && declared) {
+            const title = findTitleAfter(lines, idx)
+            if (title) occ.title = title
+          }
+          occurrences.push(occ)
         }
       })
     }

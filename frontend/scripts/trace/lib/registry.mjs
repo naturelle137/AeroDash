@@ -317,6 +317,11 @@ export function isTombstone(entry) {
 export function diffRegistry(occurrences, registryIndex) {
   const sourceFilesById = new Map()
   for (const occ of occurrences) {
+    // Citations inside `(FROM: …)` do not declare the tag and must not
+    // be reported as a competing source file. Pre-fix, a REQ-AD-020
+    // cited from three downstream files registered as a 4-way file
+    // mismatch even though the registry pointed at the actual home.
+    if (occ.declared === false) continue
     const bareId = occ.id.replaceAll('@', '')
     if (!sourceFilesById.has(bareId)) sourceFilesById.set(bareId, new Set())
     sourceFilesById.get(bareId).add(occ.file)
@@ -367,20 +372,97 @@ export function diffRegistry(occurrences, registryIndex) {
 }
 
 /**
+ * Friendly per-module group titles for REQ entries. Falls back to
+ * `<MODULE> Requirements` when the module is unknown — keeps the
+ * registry self-describing without needing a curator pass for any
+ * future module addition.
+ */
+const REQ_GROUP_TITLES = {
+  AC: 'Aircraft Management Requirements',
+  AP: 'Airport Database Requirements',
+  AD: 'Detailed Aircraft Data Requirements',
+  FE: 'Fuel & Endurance Requirements',
+  MB: 'Mass & Balance Requirements',
+  PF: 'Performance Requirements',
+  WX: 'Weather & Meteorological Data Requirements',
+  UI: 'User Interface Requirements',
+  UQ: 'Usability & Quality Requirements',
+  SYS: 'System Requirements',
+  DOC: 'Documentation & Export Requirements',
+  SC: 'Cloud Sync & Collaboration Requirements',
+}
+
+/**
+ * Friendly per-phase group titles for UJ entries.
+ */
+const UJ_GROUP_TITLES = {
+  A: 'Phase A — Fleet Management & Setup',
+  B: 'Phase B — Flight Preparation',
+  C: 'Phase C — Performance & Safety',
+  D: 'Phase D — System & Usability',
+  E: 'Phase E — Weather & Environment',
+  F: 'Phase F — Fuel & Endurance',
+  G: 'Phase G — Onboarding & Sync',
+  STRESS: 'Stress-Test Journeys',
+}
+
+/**
+ * Subtype titles for DES entries (currently only ARCH and UX are in use).
+ */
+const DES_GROUP_TITLES = {
+  ARCH: 'Architecture Design',
+  UX: 'UX Design',
+  API: 'API Design',
+}
+
+/**
+ * Resolve the curated group label for a newly-discovered occurrence, or
+ * synthesise a deterministic fallback that survives a future module/phase
+ * addition without manual editing.
+ *
+ * @param {import('./parser.mjs').TagOccurrence} occ
+ */
+function groupTitleFor(occ) {
+  const key = occ.segments[0] ?? occ.type
+  switch (occ.type) {
+    case 'REQ':
+      return REQ_GROUP_TITLES[key] ?? `${key} Requirements`
+    case 'UJ':
+      return UJ_GROUP_TITLES[key] ?? `Phase ${key} Journeys`
+    case 'DES':
+      return DES_GROUP_TITLES[key] ?? `${key} Design`
+    default:
+      return `${key} (auto)`
+  }
+}
+
+/**
  * Generate a deterministic registry entry skeleton for a newly-discovered
  * tag. Used by `sync --apply` to add stubs the developer then fills in.
+ *
+ * Document-level types (REQ, UJ, DES) carry a single `file:` scalar per
+ * STC §4.3.1 and use the markdown heading title harvested by the parser
+ * when available. Code-level types (IMP, UT, IT, E2E) carry a `files:`
+ * list to allow co-located tag declarations across multiple sources.
  *
  * @param {import('./parser.mjs').TagOccurrence} occ
  * @returns {RegistryEntry}
  */
 export function entryFromOccurrence(occ) {
   const bareId = occ.id.replaceAll('@', '')
+  const isDocumentLevel = occ.type === 'REQ' || occ.type === 'UJ' || occ.type === 'DES'
+  const title = (occ.title && occ.title.trim()) || 'TODO: describe this artifact'
   /** @type {RegistryEntry} */
   const entry = {
     id: bareId,
-    group: `${occ.segments[0] ?? occ.type} (auto)`,
-    scalars: { title: 'TODO: describe this artifact' },
-    lists: { files: [occ.file] },
+    group: groupTitleFor(occ),
+    scalars: { title },
+    lists: {},
+  }
+  if (isDocumentLevel) {
+    entry.scalars.file = occ.file
+  } else {
+    entry.lists.files = [occ.file]
   }
   // Map FROM annotations into the appropriate list field.
   const reqRefs = occ.fromTags.filter((t) => t.startsWith('@REQ-')).map((t) => t.replaceAll('@', ''))

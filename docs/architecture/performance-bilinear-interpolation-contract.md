@@ -259,3 +259,84 @@ distance  = lerp(367.5, 440.0, 0.5) = 403.75 m
   responsibility and must happen before calling this function.
 - This function is **pure** and **deterministic**: identical inputs always
   produce identical outputs. It has no side effects.
+
+---
+
+## 9. 3-Axis Extension — Mass × Pressure Altitude × Temperature
+
+REQ-PF-002 specifies interpolation over **three** continuous variables
+(mass, pressure altitude, temperature). Section 5 documents the 2-axis
+building block; this section documents the 3-axis facade that composes it.
+
+### 9.1 `PerformanceCube3D`
+
+| Field | Type | Constraint |
+| :---- | :--- | :--------- |
+| `massAxis` | `number[]` | ≥ 1 entry; strictly ascending; unit: **kg** |
+| `altitudeAxis` | `number[]` | ≥ 1 entry; strictly ascending; unit: **ft** |
+| `temperatureAxis` | `number[]` | ≥ 1 entry; strictly ascending; unit: **°C** |
+| `values` | `number[][][]` | `values[t][a][m]` — distance in metres |
+
+A degenerate axis (length 1) is supported: interpolation along that axis
+collapses to a constant, which models legacy POH tables that publish only
+one temperature column.
+
+### 9.2 `trilinearInterpolate(input)`
+
+Algorithm (composition over the 2-D engine):
+
+1. Validate cube shape (axis lengths and value dimensions).
+2. Clamp `mass`, `pressureAltitude`, `temperature` independently to their
+   axis bounds; flag any clamping.
+3. Locate the lo/hi temperature slice indices and the fraction `t_temp`.
+4. Run `bilinearInterpolate` on each slice for `(mass, pressureAltitude)`.
+5. Linearly interpolate the two resulting distances along the temperature
+   axis: `distance = lerp(dLo, dHi, t_temp)`.
+
+Returned `{ distance, massClamped, altitudeClamped, temperatureClamped }`
+mirror the 2-D contract.
+
+### 9.3 `pivotDataPointsToCube(dataPoints)`
+
+Aircraft profiles store performance data as a sparse
+`PerformanceDataPoint[]` (REQ-AD-008, REQ-AD-009). The facade pivots this
+list into a dense `PerformanceCube3D` before trilinear lookup. Constraints
+(all enforced via `[PF-PIVOT]` errors):
+
+- At least one data point.
+- Every numeric field finite (NaN / ±Infinity rejected).
+- Every `(mass, PA, temperature)` triple unique (no duplicates).
+- Points form a *regular* grid:
+  `|points| = |unique mass| × |unique PA| × |unique temp|`.
+  Irregular layouts are rejected in v1; a follow-up will define a
+  documented strategy for sparse POH data.
+
+### 9.4 `computePohDistances(profile, conditions)` — Verified-only facade
+
+Single entry point for the four certified distances (REQ-PF-001). The
+function is **pure**, never throws on valid call sites, and surfaces every
+non-success path as a typed `failure` so callers can render it without
+exception handling.
+
+| Failure reason | Trigger |
+| :------------- | :------ |
+| `profile_unverified` | `profile.status !== 'verified'` (architecture constraint — H-004 / H-011 mitigation) |
+| `profile_incomplete` | Any of the four phases missing or empty |
+| `invalid_input` | `mass`, `pressureAltitude`, or `temperature` not finite |
+| `invalid_grid` | Pivot fails (irregular grid, duplicates, non-finite cell) |
+
+On success the function returns `{ takeoffRoll, takeoffDistance50ft,
+landingRoll, landingDistance50ft }` plus a per-phase clamping flag block.
+Each `*Clamped` flag must be surfaced to the pilot UI — extrapolation
+cap + 20 % penalty + acknowledgement (REQ-PF-010 / REQ-PF-012) are applied
+by a sibling module that composes this facade.
+
+### 9.5 Safety Considerations (extension)
+
+- The Verified-status gate is the *only* mechanism that prevents Draft
+  profile data from feeding the math core. There is no alternate code path
+  that skips the gate.
+- The facade never returns `NaN` / `Infinity` for any input that passes
+  validation; structurally invalid cubes are surfaced as `invalid_grid`.
+- Implementation tags: `IMP-PF-CORE-002` … `IMP-PF-CORE-005` in
+  `frontend/src/core/logic/performance.poh-distance.ts`.

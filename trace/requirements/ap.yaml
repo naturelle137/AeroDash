@@ -1,0 +1,28 @@
+Airport Database Requirements
+  REQ-AP-001
+    title: Airport Data Object Definition
+    file: docs/requirements/airport_database.md
+
+  REQ-AP-002
+    title: Database Auto-population
+    file: docs/requirements/airport_database.md
+
+  REQ-AP-003
+    title: Manual Entry Fallback
+    file: docs/requirements/airport_database.md
+
+  REQ-AP-004
+    title: Surface Condition Selection
+    file: docs/requirements/airport_database.md
+    hazard:
+      - H-009
+
+  REQ-AP-005
+    title: Unverified State for External Data
+    file: docs/requirements/airport_database.md
+    hazard:
+      - H-015
+
+  REQ-AP-006
+    title: Manual Override Fields
+    file: docs/requirements/airport_database.md

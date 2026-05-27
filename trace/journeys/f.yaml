@@ -1,0 +1,17 @@
+Phase F — Fuel & Endurance
+  UJ-F-001
+    title: The "Long Haul" (Endurance Check)
+    file: docs/journeys/06_fuel_endurance.md
+    req:
+      - REQ-FE-002
+      - REQ-FE-003
+      - REQ-FE-005
+
+  UJ-F-002
+    title: Fuel Type Density Mix-up
+    file: docs/journeys/06_fuel_endurance.md
+    req:
+      - REQ-AD-003
+      - REQ-FE-001
+      - REQ-FE-004
+      - REQ-MB-002

@@ -171,7 +171,7 @@ The `Traceability Gate` GitHub Actions workflow (`.github/workflows/traceability
 
 | Check | What is detected |
 | :---- | :--------------- |
-| **Duplicate tags** | The same `@IMP-`, `@REQ-`, or other tag appears in more than one file |
+| **Duplicate tags** | The same `@IMP-`, `@REQ-`, or other tag is _declared_ in more than one file (citations inside `(FROM: …)` clauses don't count) |
 | **Isolated tags** | A tag exists but has no upstream or downstream link in the chain |
 | **Dangling FROM refs** | A `(FROM: @TAG@)` references a tag that does not exist |
 | **Pending requirements** | A `@REQ-` tag has no downstream IMP or DES link |
@@ -179,6 +179,7 @@ The `Traceability Gate` GitHub Actions workflow (`.github/workflows/traceability
 | **Unmitigated hazards** | An `@H-` tag has no downstream `@REQ-` link |
 | **Unverified P1 requirements** | An implemented `@REQ-` has no `@E2E-` anywhere in its chain |
 | **Registry drift** | `@IMP-` tags in source files differ from entries in `trace/implementation/` YAMLs |
+| **Registry presence** | A module that declares `@REQ-` tags has no `trace/requirements/{module}.yaml`, or a phase that declares `@UJ-` tags has no `trace/journeys/{phase}.yaml` (STC §4.2). Surfaced by `pnpm trace check`; also asserted by `frontend/scripts/trace/__tests__/presence.spec.ts` so the unit-test gate catches it independently. |
 
 ### Gate Severity Policy
 
