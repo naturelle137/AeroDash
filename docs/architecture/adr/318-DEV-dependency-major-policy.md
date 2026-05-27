@@ -208,6 +208,22 @@ Notes on the choices made:
   has explicitly authorised the workflow edit"* — which is what happened
   here.
 
+Inaugural finding (exercise of the rotation in the same PR). The first
+OSV-Scanner run after this workflow landed raised one medium-severity
+alert: [GHSA-q8mj-m7cp-5q26](https://github.com/advisories/GHSA-q8mj-m7cp-5q26)
+/ [CVE-2026-8723](https://osv.dev/CVE-2026-8723) on `qs@6.15.1`, reached
+us as a third-level transitive devDependency under
+`@stryker-mutator/core@9.6.1` → `typed-rest-client@2.3.0` → `qs`. The
+vulnerability requires a specific `qs.stringify` call shape
+(`arrayFormat: 'comma'` + `encodeValuesOnly: true` + `null`/`undefined`
+array element) that AeroDash source does not exercise — no `qs` import
+exists under `frontend/src/**` — and `qs` is not in the production PWA
+bundle. Even so, fixing it inside this PR rather than ignoring it via
+`osv-scanner.toml` keeps the inaugural exercise of the rotation honest:
+a one-line `pnpm.overrides` entry (`"qs": ">=6.15.2"`) floors the
+transitive dep at the patched line and clears the alert, demonstrating
+the moderate-CVE feedback loop end-to-end.
+
 ## Consequences
 
 ### Positive
