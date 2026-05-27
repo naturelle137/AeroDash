@@ -18,6 +18,8 @@ import { describe, it, expect } from 'vitest'
 import {
   CURRENT_PROFILE_SCHEMA_VERSION,
   migrateProfileDocument,
+  runProfileMigrationWalker,
+  type ProfileMigration,
 } from './profile-migrations'
 import type { AircraftProfile } from '../adapters/aircraft.schema'
 
@@ -222,6 +224,67 @@ describe('migrateProfileDocument — corrupt input handling', () => {
     const doc = buildV1Document({ id: 'not-a-uuid' })
     const result = migrateProfileDocument(doc)
     expect(result.kind).toBe('corrupt')
+  })
+})
+
+describe('runProfileMigrationWalker — registry-injection branches', () => {
+  // Exercises the defensive branches that the production registry cannot reach
+  // today: a missing up-function for a version in [storedVersion, currentVersion)
+  // and an up-function that throws mid-walk. The corresponding fleet-store
+  // contract — "no partial migration ever escapes the boundary" — only holds if
+  // these branches behave exactly like the corrupt-input path.
+  it('reports corrupt when an up-function is missing for an intermediate version', () => {
+    const emptyRegistry: ReadonlyMap<number, ProfileMigration> = new Map()
+    const doc = buildV1Document()
+    // Treat the document as v0 so the walker must look up step 0.
+    delete (doc as { schemaVersion?: number }).schemaVersion
+    const result = runProfileMigrationWalker(doc, emptyRegistry, 1)
+    expect(result.kind).toBe('corrupt')
+    if (result.kind !== 'corrupt') return
+    expect(result.reason).toContain('no migration registered for source version 0')
+    expect(result.storedVersion).toBe(0)
+  })
+
+  it('reports corrupt and includes the thrown error message when an up-function throws', () => {
+    const throwingRegistry: ReadonlyMap<number, ProfileMigration> = new Map([
+      [
+        0,
+        (() => {
+          throw new Error('synthetic up-function failure')
+        }) as ProfileMigration,
+      ],
+    ])
+    const doc = buildV1Document()
+    delete (doc as { schemaVersion?: number }).schemaVersion
+    const result = runProfileMigrationWalker(doc, throwingRegistry, 1)
+    expect(result.kind).toBe('corrupt')
+    if (result.kind !== 'corrupt') return
+    expect(result.reason).toContain('migration 0 → 1 threw')
+    expect(result.reason).toContain('synthetic up-function failure')
+  })
+
+  it('reports corrupt when a throwing up-function rejects with a non-Error value', () => {
+    const throwingRegistry: ReadonlyMap<number, ProfileMigration> = new Map([
+      [
+        0,
+        (() => {
+          throw 'string-rejection'
+        }) as ProfileMigration,
+      ],
+    ])
+    const doc = buildV1Document()
+    delete (doc as { schemaVersion?: number }).schemaVersion
+    const result = runProfileMigrationWalker(doc, throwingRegistry, 1)
+    expect(result.kind).toBe('corrupt')
+    if (result.kind !== 'corrupt') return
+    expect(result.reason).toContain('string-rejection')
+  })
+
+  it('still parses successfully when given the production registry (default-bound wrapper invariant)', () => {
+    // Smoke check that the wrapper-vs-walker split has not subtly broken the
+    // module-private binding used by migrateProfileDocument.
+    const a = migrateProfileDocument(buildV1Document())
+    expect(a.kind).toBe('migrated')
   })
 })
 

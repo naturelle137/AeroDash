@@ -121,14 +121,21 @@ function readStoredVersion(doc: Record<string, unknown>): number {
 }
 
 /**
- * Migrate a raw, IndexedDB-shaped document up to the current schema version.
+ * Walk a raw document through a supplied migration registry up to
+ * `currentVersion`. Pure, parameterised version of {@link migrateProfileDocument}
+ * — extracted so the defensive branches (missing-step and throwing-up-function)
+ * are reachable from tests with a synthetic registry without forcing the
+ * production caller to know about any of those knobs.
  *
- * `raw` is treated defensively — any non-object input is reported as `corrupt`
- * rather than crashing the caller. Each step is wrapped in a try/catch so a
- * single throwing up-function cannot poison the whole fleet load (the
- * partial-migration crash recovery guarantee).
+ * The default-bound wrapper {@link migrateProfileDocument} passes the
+ * module-private registry and {@link CURRENT_PROFILE_SCHEMA_VERSION}; callers
+ * MUST keep using the wrapper so the on-read walker stays consistent.
  */
-export function migrateProfileDocument(raw: unknown): ProfileMigrationOutcome {
+export function runProfileMigrationWalker(
+  raw: unknown,
+  registry: ReadonlyMap<number, ProfileMigration>,
+  currentVersion: number,
+): ProfileMigrationOutcome {
   if (raw === null || typeof raw !== 'object' || Array.isArray(raw)) {
     return { kind: 'corrupt', storedVersion: 0, reason: 'document is not an object' }
   }
@@ -136,15 +143,15 @@ export function migrateProfileDocument(raw: unknown): ProfileMigrationOutcome {
   const doc = raw as Record<string, unknown>
   const storedVersion = readStoredVersion(doc)
 
-  if (storedVersion > CURRENT_PROFILE_SCHEMA_VERSION) {
+  if (storedVersion > currentVersion) {
     return { kind: 'unsupported-future-version', storedVersion }
   }
 
   let working: Record<string, unknown> = { ...doc }
   const versionsApplied: number[] = []
 
-  for (let v = storedVersion; v < CURRENT_PROFILE_SCHEMA_VERSION; v++) {
-    const step = migrations.get(v)
+  for (let v = storedVersion; v < currentVersion; v++) {
+    const step = registry.get(v)
     if (!step) {
       return {
         kind: 'corrupt',
@@ -177,4 +184,16 @@ export function migrateProfileDocument(raw: unknown): ProfileMigrationOutcome {
   }
 
   return { kind: 'migrated', profile: parsed.data, versionsApplied }
+}
+
+/**
+ * Migrate a raw, IndexedDB-shaped document up to the current schema version.
+ *
+ * `raw` is treated defensively — any non-object input is reported as `corrupt`
+ * rather than crashing the caller. Each step is wrapped in a try/catch so a
+ * single throwing up-function cannot poison the whole fleet load (the
+ * partial-migration crash recovery guarantee).
+ */
+export function migrateProfileDocument(raw: unknown): ProfileMigrationOutcome {
+  return runProfileMigrationWalker(raw, migrations, CURRENT_PROFILE_SCHEMA_VERSION)
 }

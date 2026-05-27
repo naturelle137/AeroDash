@@ -80,14 +80,19 @@ function readStoredVersion(payload: Record<string, unknown>): number {
 }
 
 /**
- * Migrate a raw, localStorage-shaped payload up to the current schema version.
- *
- * `raw` is treated defensively — null, undefined, non-objects, and arrays
- * report `corrupt`. Each up-function is wrapped in a try/catch so a single
- * throwing transform cannot escape the boundary (matches the
- * fleet-store partial-migration crash-recovery guarantee, refs #259).
+ * Walk a raw payload through a supplied migration registry up to
+ * `currentVersion`. Pure, parameterised version of {@link migrateSessionPayload}
+ * — extracted so the defensive branches (missing-step and throwing-up-function)
+ * are reachable from tests with a synthetic registry. The production wrapper
+ * {@link migrateSessionPayload} passes the module-private registry and
+ * {@link CURRENT_SESSION_PAYLOAD_VERSION} and remains the only entry point
+ * callers should use.
  */
-export function migrateSessionPayload(raw: unknown): SessionMigrationOutcome {
+export function runSessionMigrationWalker(
+  raw: unknown,
+  registry: ReadonlyMap<number, SessionMigration>,
+  currentVersion: number,
+): SessionMigrationOutcome {
   if (raw === null || typeof raw !== 'object' || Array.isArray(raw)) {
     return { kind: 'corrupt', storedVersion: 0, reason: 'payload is not an object' }
   }
@@ -95,15 +100,15 @@ export function migrateSessionPayload(raw: unknown): SessionMigrationOutcome {
   const payload = raw as Record<string, unknown>
   const storedVersion = readStoredVersion(payload)
 
-  if (storedVersion > CURRENT_SESSION_PAYLOAD_VERSION) {
+  if (storedVersion > currentVersion) {
     return { kind: 'unsupported-future-version', storedVersion }
   }
 
   let working: Record<string, unknown> = { ...payload }
   const versionsApplied: number[] = []
 
-  for (let v = storedVersion; v < CURRENT_SESSION_PAYLOAD_VERSION; v++) {
-    const step = migrations.get(v)
+  for (let v = storedVersion; v < currentVersion; v++) {
+    const step = registry.get(v)
     if (!step) {
       return {
         kind: 'corrupt',
@@ -133,4 +138,16 @@ export function migrateSessionPayload(raw: unknown): SessionMigrationOutcome {
   }
 
   return { kind: 'migrated', payload: parsed.data, versionsApplied }
+}
+
+/**
+ * Migrate a raw, localStorage-shaped payload up to the current schema version.
+ *
+ * `raw` is treated defensively — null, undefined, non-objects, and arrays
+ * report `corrupt`. Each up-function is wrapped in a try/catch so a single
+ * throwing transform cannot escape the boundary (matches the
+ * fleet-store partial-migration crash-recovery guarantee, refs #259).
+ */
+export function migrateSessionPayload(raw: unknown): SessionMigrationOutcome {
+  return runSessionMigrationWalker(raw, migrations, CURRENT_SESSION_PAYLOAD_VERSION)
 }
