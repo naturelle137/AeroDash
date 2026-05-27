@@ -1200,3 +1200,185 @@ SYS (auto)
       - frontend/src/stores/__tests__/pwa-update.store.spec.ts
     impl:
       - IMP-SYS-STORE-010
+
+  UT-SYS-STORE-046
+    title: app-version.cache load returns null on first install (no record present)
+    files:
+      - frontend/src/stores/__tests__/app-version.cache.spec.ts
+    impl:
+      - IMP-SYS-STORE-013
+
+  UT-SYS-STORE-047
+    title: app-version.cache persist + load round-trip writes and reads SemVer + fetchedAt
+    files:
+      - frontend/src/stores/__tests__/app-version.cache.spec.ts
+    impl:
+      - IMP-SYS-STORE-014
+
+  UT-SYS-STORE-048
+    title: app-version.cache overwrites prior record on second persist (highest-floor selection lives in caller)
+    files:
+      - frontend/src/stores/__tests__/app-version.cache.spec.ts
+    impl:
+      - IMP-SYS-STORE-014
+
+  UT-SYS-STORE-049
+    title: app-version.cache rejects non-SemVer input (defence against corrupt callers)
+    files:
+      - frontend/src/stores/__tests__/app-version.cache.spec.ts
+    impl:
+      - IMP-SYS-STORE-014
+
+  UT-SYS-STORE-050
+    title: app-version.cache accepts pre-release SemVer suffix (0.4.0-alpha)
+    files:
+      - frontend/src/stores/__tests__/app-version.cache.spec.ts
+    impl:
+      - IMP-SYS-STORE-015
+
+  UT-SYS-STORE-051
+    title: app-version.cache treats a corrupt stored record as absent (shape guard)
+    files:
+      - frontend/src/stores/__tests__/app-version.cache.spec.ts
+    impl:
+      - IMP-SYS-STORE-015
+
+  UT-SYS-STORE-052
+    title: app-version.cache falls back to null/false when IndexedDB is unreachable (Safari private mode)
+    files:
+      - frontend/src/stores/__tests__/app-version.cache.spec.ts
+    impl:
+      - IMP-SYS-STORE-015
+
+  UT-SYS-STORE-053
+    title: app-version.cache clear removes the cached record
+    files:
+      - frontend/src/stores/__tests__/app-version.cache.spec.ts
+    impl:
+      - IMP-SYS-STORE-016
+
+  UT-SYS-STORE-054
+    title: app-version.cache clear is idempotent on an empty store
+    files:
+      - frontend/src/stores/__tests__/app-version.cache.spec.ts
+    impl:
+      - IMP-SYS-STORE-014
+
+  UT-SYS-STORE-055
+    title: fetchRemoteMinSafeVersion returns the SemVer string on a 200 JSON response (happy path)
+    files:
+      - frontend/src/stores/__tests__/app-version.remote.spec.ts
+    impl:
+      - IMP-SYS-STORE-017
+
+  UT-SYS-STORE-056
+    title: fetchRemoteMinSafeVersion honours an explicit endpoint override (test injection)
+    files:
+      - frontend/src/stores/__tests__/app-version.remote.spec.ts
+    impl:
+      - IMP-SYS-STORE-017
+
+  UT-SYS-STORE-057
+    title: fetchRemoteMinSafeVersion returns null on HTTP non-2xx (404 / 500)
+    files:
+      - frontend/src/stores/__tests__/app-version.remote.spec.ts
+    impl:
+      - IMP-SYS-STORE-017
+
+  UT-SYS-STORE-058
+    title: fetchRemoteMinSafeVersion returns null when fetch rejects (network error)
+    files:
+      - frontend/src/stores/__tests__/app-version.remote.spec.ts
+    impl:
+      - IMP-SYS-STORE-017
+
+  UT-SYS-STORE-059
+    title: fetchRemoteMinSafeVersion returns null when the body is not valid JSON
+    files:
+      - frontend/src/stores/__tests__/app-version.remote.spec.ts
+    impl:
+      - IMP-SYS-STORE-017
+
+  UT-SYS-STORE-060
+    title: fetchRemoteMinSafeVersion returns null when JSON is missing a minSafeVersion field
+    files:
+      - frontend/src/stores/__tests__/app-version.remote.spec.ts
+    impl:
+      - IMP-SYS-STORE-017
+
+  UT-SYS-STORE-061
+    title: fetchRemoteMinSafeVersion returns null when minSafeVersion is not a SemVer
+    files:
+      - frontend/src/stores/__tests__/app-version.remote.spec.ts
+    impl:
+      - IMP-SYS-STORE-017
+
+  UT-SYS-STORE-062
+    title: fetchRemoteMinSafeVersion returns null when no fetch implementation is available
+    files:
+      - frontend/src/stores/__tests__/app-version.remote.spec.ts
+    impl:
+      - IMP-SYS-STORE-017
+
+  UT-SYS-STORE-063
+    title: fetchRemoteMinSafeVersion returns null when the response body exceeds the MAX_BODY_BYTES guard
+    files:
+      - frontend/src/stores/__tests__/app-version.remote.spec.ts
+    impl:
+      - IMP-SYS-STORE-017
+
+  UT-SYS-STORE-064
+    title: useAppVersionStore.checkMinSafeVersion online no-cache run completes and persists the build-time floor
+    files:
+      - frontend/src/stores/__tests__/app-version.store.spec.ts
+    impl:
+      - IMP-SYS-STORE-008
+
+  UT-SYS-STORE-065
+    title: useAppVersionStore.checkMinSafeVersion first-install OFFLINE bypass — no cache, build-time only
+    files:
+      - frontend/src/stores/__tests__/app-version.store.spec.ts
+    impl:
+      - IMP-SYS-STORE-008
+
+  UT-SYS-STORE-066
+    title: useAppVersionStore.checkMinSafeVersion warns when cached record is older than TTL but still enforces it
+    files:
+      - frontend/src/stores/__tests__/app-version.store.spec.ts
+    impl:
+      - IMP-SYS-STORE-008
+
+  UT-SYS-STORE-067
+    title: useAppVersionStore.checkMinSafeVersion uses the higher of build-time, cached, and remote
+    files:
+      - frontend/src/stores/__tests__/app-version.store.spec.ts
+    impl:
+      - IMP-SYS-STORE-008
+
+  UT-SYS-STORE-068
+    title: useAppVersionStore.checkMinSafeVersion does not regress to a lower remote value
+    files:
+      - frontend/src/stores/__tests__/app-version.store.spec.ts
+    impl:
+      - IMP-SYS-STORE-008
+
+  UT-SYS-STORE-069
+    title: useAppVersionStore.checkMinSafeVersion logs WARN when remote refresh fails but keeps the existing floor
+    files:
+      - frontend/src/stores/__tests__/app-version.store.spec.ts
+    impl:
+      - IMP-SYS-STORE-008
+
+  UT-SYS-STORE-070
+    title: useAppVersionStore.checkMinSafeVersion persists cached/build-time floor on every successful online check
+    files:
+      - frontend/src/stores/__tests__/app-version.store.spec.ts
+    impl:
+      - IMP-SYS-STORE-008
+
+  UT-SYS-STORE-071
+    title: useAppVersionStore.attachConnectivityRefresh re-runs checkMinSafeVersion on window `online` and is detachable
+    files:
+      - frontend/src/stores/__tests__/app-version.store.spec.ts
+    impl:
+      - IMP-SYS-STORE-018
