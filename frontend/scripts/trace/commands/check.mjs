@@ -23,7 +23,11 @@ import { readFile } from 'node:fs/promises'
 import { scanAll } from '../lib/parser.mjs'
 import { findDanglingFromRefs, findDuplicates } from '../lib/id-generator.mjs'
 import { REGISTRY_TARGETS } from '../lib/config.mjs'
-import { findUnmitigatedHazards } from '../lib/hazard-status.mjs'
+import {
+  findUnmitigatedHazards,
+  isCoverageExcludedStatus,
+  loadReqStatuses,
+} from '../lib/hazard-status.mjs'
 import { buildPresenceReport } from '../lib/presence.mjs'
 import { diffRegistry, loadIndexedRegistry } from '../lib/registry.mjs'
 
@@ -41,6 +45,18 @@ import { diffRegistry, loadIndexedRegistry } from '../lib/registry.mjs'
  * @property {import('../lib/hazard-status.mjs').UnmitigatedHazard[]} unmitigatedHazards
  *           Hazards with no mitigating REQ in an active status — release
  *           audit PR-009 / issue #267. A non-empty list hard-fails the gate.
+ * @property {ReqCoverageReport} reqCoverage
+ *           Release-readiness coverage tally for declared REQs. Deferred
+ *           and Deprecated REQs are excluded from `pendingReqs` and
+ *           `unverifiedP1Reqs` so the audit signal is not bloated by
+ *           out-of-scope work (issue #269 / release-audit PR-017).
+ */
+
+/**
+ * @typedef {Object} ReqCoverageReport
+ * @property {string[]} pendingReqs        REQ ids in an active, in-scope status with no downstream IMP/DES citation.
+ * @property {string[]} excludedReqs       REQ ids skipped from coverage tallies because their status is Deferred or Deprecated.
+ * @property {Record<string, string>} statusByReq  Bare REQ id → trimmed status string (declarative snapshot for the audit log).
  */
 
 /**
@@ -49,6 +65,63 @@ import { diffRegistry, loadIndexedRegistry } from '../lib/registry.mjs'
  * @property {string[]} danglingFromRefs       Pre-existing undefined ids cited via FROM (with @ delimiters).
  * @property {Record<string, { onlyInSource: string[], onlyInRegistry: string[], fileMismatches: string[] }>} registryDrift
  */
+
+/**
+ * Compute the REQ-coverage tally — which Approved (or otherwise in-scope)
+ * REQs lack a downstream IMP/DES chain. Status-aware so Deferred /
+ * Deprecated REQs are not counted as "pending" (issue #269 /
+ * release-audit PR-017): a Deferred REQ is truthfully out of scope for
+ * the current release cycle, and a Deprecated REQ has been withdrawn —
+ * neither should bloat the "release blockers" list.
+ *
+ * The function only inspects REQ declarations under `docs/requirements/`
+ * (the same authoritative scope `loadReqStatuses` uses) and treats a
+ * REQ as "implemented chain present" when **any** IMP or DES tag cites
+ * it via `(FROM: …)`.
+ *
+ * @param {import('../lib/parser.mjs').ParseResult} scan
+ * @param {Map<string, string>} reqStatuses
+ * @returns {ReqCoverageReport}
+ */
+function computeReqCoverage(scan, reqStatuses) {
+  const downstreamReqIds = new Set()
+  for (const occ of scan.occurrences) {
+    if (occ.declared === false) continue
+    if (occ.type !== 'IMP' && occ.type !== 'DES') continue
+    for (const from of occ.fromTags) {
+      if (from.startsWith('@REQ-')) {
+        downstreamReqIds.add(from.replaceAll('@', ''))
+      }
+    }
+  }
+
+  const reqOccurrences = (scan.byType.REQ || []).filter(
+    (o) => o.declared !== false && o.file.startsWith('docs/requirements/'),
+  )
+  const seen = new Set()
+  /** @type {string[]} */
+  const pendingReqs = []
+  /** @type {string[]} */
+  const excludedReqs = []
+  /** @type {Record<string, string>} */
+  const statusByReq = {}
+  for (const occ of reqOccurrences) {
+    const bare = occ.id.replaceAll('@', '')
+    if (seen.has(bare)) continue
+    seen.add(bare)
+    const status = reqStatuses.get(bare)
+    if (status) statusByReq[bare] = status
+    if (isCoverageExcludedStatus(status)) {
+      excludedReqs.push(bare)
+      continue
+    }
+    if (downstreamReqIds.has(bare)) continue
+    pendingReqs.push(bare)
+  }
+  pendingReqs.sort()
+  excludedReqs.sort()
+  return { pendingReqs, excludedReqs, statusByReq }
+}
 
 /**
  * Apply the orphan rules (INV-001/INV-002/INV-003) to a parsed scan.
@@ -92,6 +165,8 @@ export async function buildCheckReport(repoRoot) {
   }
   const presence = await buildPresenceReport(repoRoot)
   const { unmitigated } = await findUnmitigatedHazards(repoRoot)
+  const reqStatuses = await loadReqStatuses(repoRoot)
+  const reqCoverage = computeReqCoverage(scan, reqStatuses)
   return {
     duplicates,
     danglingFromRefs,
@@ -99,6 +174,7 @@ export async function buildCheckReport(repoRoot) {
     registryDrift,
     presence,
     unmitigatedHazards: unmitigated,
+    reqCoverage,
   }
 }
 
@@ -344,6 +420,24 @@ export async function runCheck({ repoRoot, log = () => {}, warnOnly = false, str
     for (const exp of report.presence.missingJourneys) {
       lines.push(`  ${exp.relPath} (needed by ${exp.sourceIds.length} UJ tag(s): ${exp.sourceIds.slice(0, 3).join(', ')}${exp.sourceIds.length > 3 ? '…' : ''})`)
     }
+  }
+
+  // Issue #269 / release-audit PR-017: report REQs in an active, in-scope
+  // status that still have no IMP/DES chain. Pre-v1.0.0 this is warn-only
+  // (the coverage gate as a whole is warn-only — see TESTING.md §6) so
+  // the violation count is left untouched; the log line keeps the gap
+  // visible. Deferred and Deprecated REQs are excluded by construction.
+  if (report.reqCoverage.pendingReqs.length) {
+    lines.push('Pending requirements (no IMP/DES chain; Deferred/Deprecated excluded — warn-only pre-v1.0.0):')
+    for (const id of report.reqCoverage.pendingReqs) {
+      const status = report.reqCoverage.statusByReq[id]
+      lines.push(`  ${id}${status ? ` [${status}]` : ''}`)
+    }
+  }
+  if (report.reqCoverage.excludedReqs.length) {
+    lines.push(
+      `Coverage-excluded requirements (${report.reqCoverage.excludedReqs.length} Deferred/Deprecated — not counted toward release readiness):`,
+    )
   }
 
   // Issue #267 (release audit PR-009): hazards without a non-deprecated

@@ -21,7 +21,7 @@ This document defines the usability & quality behavior using the **EARS** (Easy 
 **Requirement:** The system shall adapt the layout to ensure all critical flight data (Envelope, Results) is fully visible without horizontal scrolling on viewports with a minimum width of 320px (standard mobile).
 **Rationale:** Usability on smartphone-sized devices.
 **Priority:** P2
-**Status:** Approved
+**Status:** Deferred
 **Design Reference:** n/a
 
 <!-- @REQ-UQ-003@ -->

@@ -53,7 +53,7 @@ This document defines the user interface behavior using the **EARS** (Easy Appro
 **Requirement:** The system shall display the 5 most recently used airports at the top of the airport selection interface.
 **Rationale:** Speed up data entry for frequent routes.
 **Priority:** P3
-**Status:** Approved
+**Status:** Deferred
 **Design Reference:** n/a
 
 <!-- @REQ-UI-006@ -->
@@ -117,7 +117,7 @@ This document defines the user interface behavior using the **EARS** (Easy Appro
 **Requirement:** When the user activates the dedicated information icon adjacent to a complex data field or acronym, the system shall display a contextual explanation of that term in a pop-over element (Tooltip).
 **Rationale:** Clarifies complex aviation terminology (e.g., TORA, ASDA, MZFM) to prevent misinterpretation and data entry errors. "Activates" ensures compatibility with touch devices.
 **Priority:** P2
-**Status:** Approved
+**Status:** Deferred
 **Design Reference:** n/a
 
 <!-- @REQ-UI-013@ (FROM: @H-019@) -->
@@ -147,7 +147,7 @@ This document defines the user interface behavior using the **EARS** (Easy Appro
 **Requirement:** When the user triggers the "Save" or "Export" action for a calculation containing parameters with `Unverified` status, the system shall emit a CRITICAL notification (`CRIT-UI-001`) alerting the user that unverified data is present and offering a review action that lists all unverified parameters.
 **Rationale:** Safety Gate. Prevents silent usage of unverified data.
 **Priority:** P1
-**Status:** Approved
+**Status:** Deferred
 **Design Reference:** [Notification Schema](../architecture/notification_schema.md)
 
 <!-- @REQ-UI-016@ -->
@@ -167,7 +167,7 @@ This document defines the user interface behavior using the **EARS** (Easy Appro
 **Requirement:** When the user triggers the "Save" or "Export" action for a calculation containing an Operational Safety Factor below the greater of the POH-mandated factor and the regulatory baseline (Takeoff: 1.25, Landing: 1.43), the system shall emit a CRITICAL notification (`CRIT-UI-002`) alerting the user that the safety factor is below the recommended minimum and offering a confirmation action.
 **Rationale:** Safety Gate. Prevents silent usage of too low safety factors.
 **Priority:** P1
-**Status:** Approved
+**Status:** Deferred
 **Design Reference:** [Notification Schema](../architecture/notification_schema.md)
 
 <!-- @REQ-UI-018@ -->
@@ -197,7 +197,7 @@ This document defines the user interface behavior using the **EARS** (Easy Appro
 **Requirement:** The system shall display a persistent visual indicator of the current connectivity state (`Online`/`Offline`) in the application header or status bar.
 **Rationale:** Replaces individual API failure notifications with a single, always-visible state indicator. Reduces notification fatigue for an offline-first application where disconnected operation is expected.
 **Priority:** P2
-**Status:** Approved
+**Status:** Deferred
 **Design Reference:** n/a
 
 <!-- @REQ-UI-021@ (FROM: @REQ-AD-020@) -->
@@ -207,7 +207,7 @@ This document defines the user interface behavior using the **EARS** (Easy Appro
 **Requirement:** The aircraft wizard shall present a Powertrain selector with the options `Combustion` and `Electric`. When the selected catalogue entry declares an `electric` powertrain, the system shall pre-select `Electric`. The pilot shall be able to override the selection.
 **Rationale:** Pilots choose the powertrain once at creation; the catalogue hint turns picking "Pipistrel Velis Electro" into the correct configuration without extra clicks, while the override keeps one-off or non-catalogued aircraft supported.
 **Priority:** P1
-**Status:** Approved
+**Status:** Deferred
 **Design Reference:** [Native Electric Aircraft UX](../ux/native-electric-aircraft.md)
 
 <!-- @REQ-UI-022@ (FROM: @REQ-AD-020@, @REQ-AD-022@) -->
@@ -217,7 +217,7 @@ This document defines the user interface behavior using the **EARS** (Easy Appro
 **Requirement:** While `powertrain` is `electric`, the aircraft wizard and editor shall hide every fuel-tank control (fuel-tank toggle on load points, `+ Add Fuel Tank` button, fuel-type selector, burn-sequence editor) and shall show the Battery Pack section. While `powertrain` is `combustion`, the aircraft wizard and editor shall hide the Battery Pack section.
 **Rationale:** Combustion pilots must never see battery fields and electric pilots must never see fuel fields; mixed UI invites invalid data and is the defect called out in issue #225.
 **Priority:** P1
-**Status:** Approved
+**Status:** Deferred
 **Design Reference:** [Native Electric Aircraft UX](../ux/native-electric-aircraft.md)
 
 <!-- @REQ-UI-023@ (FROM: @H-011@, @REQ-AD-022@) -->

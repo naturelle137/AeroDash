@@ -65,35 +65,35 @@ UI Pending — Future (Approved, Not Yet Implemented)
     title: Recent Airports Display — 5 most recently used airports at top of selector
     req:
       - REQ-UI-005
-    note: REQ-UI-005 status is Approved. Requires Airport module (M4+).
+    note: REQ-UI-005 status is Deferred. Requires Airport module (M4+).
 
   IMP-UI-PENDING-002
     status: pending
     title: Contextual Tooltips — pop-over explanation for complex fields and acronyms
     req:
       - REQ-UI-012
-    note: REQ-UI-012 status is Approved. Planned for M4+ UX pass.
+    note: REQ-UI-012 status is Deferred. Planned for M4+ UX pass.
 
   IMP-UI-PENDING-003
     status: pending
     title: Unverified Data Export Warning — CRITICAL notification on export with unverified data
     req:
       - REQ-UI-015
-    note: REQ-UI-015 status is Approved. Export feature deferred to M4+.
+    note: REQ-UI-015 status is Deferred. Export feature deferred to M4+.
 
   IMP-UI-PENDING-004
     status: pending
     title: Low Safety Factor Export Warning — CRITICAL notification on export with low safety factor
     req:
       - REQ-UI-017
-    note: REQ-UI-017 status is Approved. Requires performance module (M4+).
+    note: REQ-UI-017 status is Deferred. Requires performance module (M4+).
 
   IMP-UI-PENDING-005
     status: pending
     title: Connectivity State Indicator — persistent online/offline visual indicator
     req:
       - REQ-UI-020
-    note: REQ-UI-020 status is Approved. Depends on IMP-SYS-CONN-001 (M4+).
+    note: REQ-UI-020 status is Deferred. Depends on IMP-SYS-CONN-001 (M4+).
 
 UI (auto)
   IMP-UI-ROUTE-003

@@ -12,7 +12,7 @@ This document defines the airport database behavior using the **EARS** (Easy App
 **Requirement:** The system shall define an Airport Data Object comprising Metadata (ICAO, Name, Elevation) and Runway Infrastructure (Designator, Magnetic Heading, Base Surface Type, Slope, TORA, TODA, ASDA, LDA).
 **Rationale:** Centralized schema required for performance and wind calculations.
 **Priority:** P1
-**Status:** Approved
+**Status:** Deferred
 **Design Reference:** n/a
 
 <!-- @REQ-AP-002@ -->
@@ -21,7 +21,7 @@ This document defines the airport database behavior using the **EARS** (Easy App
 **Requirement:** When a valid ICAO code is entered, the system shall query an integrated external aviation database to auto-populate the Airport Data Object and populate the `AvailableRunways` list in the Data Model.
 **Rationale:** E.g. Open AIP or OurAirports. Operational efficiency and reduction of manual lookup errors.
 **Priority:** P2
-**Status:** Approved
+**Status:** Deferred
 **Design Reference:** n/a
 
 <!-- @REQ-AP-003@ -->
@@ -48,7 +48,7 @@ This document defines the airport database behavior using the **EARS** (Easy App
 **Requirement:** When the system retrieves airport data from an external source, the system shall set the verification status of all retrieved parameters to `Unverified`.
 **Rationale:** Safety: Open-source DBs may have outdated LDA/TORA. PIC must verify against official AIP.
 **Priority:** P1
-**Status:** Approved
+**Status:** Deferred
 **Design Reference:** n/a
 
 <!-- @REQ-AP-006@ -->

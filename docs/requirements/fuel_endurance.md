@@ -21,7 +21,7 @@ This document defines the fuel & endurance behavior using the **EARS** (Easy App
 **Requirement:** The system shall calculate maximum flight time (Endurance) based on usable fuel quantity and planned fuel flow rate.
 **Rationale:** Essential for flight planning and legal reserves check.
 **Priority:** P1
-**Status:** Approved
+**Status:** Deferred
 **Design Reference:** n/a
 
 <!-- @REQ-FE-003@ -->
@@ -30,7 +30,7 @@ This document defines the fuel & endurance behavior using the **EARS** (Easy App
 **Requirement:** If the planned flight time (including reserves) exceeds the calculated maximum flight time (Endurance), then the system shall emit a WARNING notification (`WARN-FE-001`) alerting the pilot about insufficient fuel for the planned mission.
 **Rationale:** Safety alert for insufficient fuel for the planned mission + reserves.
 **Priority:** P1
-**Status:** Approved
+**Status:** Deferred
 **Design Reference:** [Notification Schema](../architecture/notification_schema.md)
 
 <!-- @REQ-FE-004@ (FROM: @H-006@) -->
@@ -48,7 +48,7 @@ This document defines the fuel & endurance behavior using the **EARS** (Easy App
 **Requirement:** The system shall allow the user to enter a "Planned Flight Time" or "Trip Fuel" value to calculate the estimated Landing Mass.
 **Rationale:** Necessary to determine the "Landing Fuel" state for CG calculation [REQ-MB-008](../requirements/mass_balance.md#REQ-MB-008).
 **Priority:** P1
-**Status:** Approved
+**Status:** Deferred
 **Design Reference:** n/a
 
 <!-- @REQ-FE-006@ (FROM: @REQ-AD-020@, @REQ-AD-021@) -->
@@ -58,7 +58,7 @@ This document defines the fuel & endurance behavior using the **EARS** (Easy App
 **Requirement:** While the selected aircraft's `powertrain` is `electric`, the Mass & Balance view shall label the Fuel & Endurance card `Energy & Endurance`. The system shall not render fuel-tank rows, burn-sequence selectors, or fuel-type controls for an electric aircraft.
 **Rationale:** Electric pilots plan with a battery pack (kWh) and a reserve floor, not fuel quantity and density. Surfacing the fuel vocabulary on an electric aircraft is the shoehorn defect called out in issue #225.
 **Priority:** P1
-**Status:** Approved
+**Status:** Deferred
 **Design Reference:** [Native Electric Aircraft UX](../ux/native-electric-aircraft.md)
 
 ---
