@@ -12,7 +12,7 @@ This document defines the usability & quality behavior using the **EARS** (Easy 
 **Requirement:** The system shall provide touch-friendly input controls (steppers, sliders, or large hit targets) for all numerical data entry fields.
 **Rationale:** Tool is meant for cockpit use (tablet) and office prep (desktop).
 **Priority:** P2
-**Status:** Deferred
+**Status:** Approved
 **Design Reference:** n/a
 
 <!-- @REQ-UQ-002@ -->

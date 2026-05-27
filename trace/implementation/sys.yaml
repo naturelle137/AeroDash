@@ -241,14 +241,14 @@ SYS Pending — Connectivity State (not yet implemented)
     title: Connectivity State Detection — online/offline monitoring and app-wide state
     req:
       - REQ-SYS-009
-    note: REQ-SYS-009 status is Approved. Implementation deferred to milestone 4+.
+    note: REQ-SYS-009 status is Deferred. Implementation scheduled for milestone 4+.
 
   IMP-SYS-CONN-002
     status: pending
     title: Online Feature Gating — disable cloud/weather/airport features while offline
     req:
       - REQ-SYS-010
-    note: REQ-SYS-010 status is Approved. Deferred until IMP-SYS-CONN-001 provides connectivity state.
+    note: REQ-SYS-010 status is Deferred. Awaits IMP-SYS-CONN-001 connectivity state.
 
 SYS Core — Session Payload Migration Registry (#259)
   IMP-SYS-CORE-012
