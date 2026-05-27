@@ -91,12 +91,22 @@ export function planSync(type, occurrences, existing) {
     for (const e of file.entries) fileOfEntry.set(e.id, file.relPath)
   }
 
-  // Index source-of-truth occurrences by bare id.
+  // Index source-of-truth occurrences by bare id. A declaration always
+  // wins over a citation so the registry entry's `file` field points at
+  // the tag's home document — never at a downstream artifact that merely
+  // cites it via `(FROM: …)`.
   /** @type {Map<string, import('../lib/parser.mjs').TagOccurrence>} */
   const sourceById = new Map()
   for (const occ of occurrences) {
     const id = occ.id.replaceAll('@', '')
-    if (!sourceById.has(id)) sourceById.set(id, occ)
+    const existing = sourceById.get(id)
+    if (!existing) {
+      sourceById.set(id, occ)
+      continue
+    }
+    if (existing.declared === false && occ.declared !== false) {
+      sourceById.set(id, occ)
+    }
   }
 
   const exts = knownExtensions()

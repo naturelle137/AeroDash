@@ -1,0 +1,42 @@
+Weather & Meteorological Data Requirements
+  REQ-WX-001
+    title: METAR/TAF Retrieval
+    file: docs/requirements/weather_meterological_data.md
+
+  REQ-WX-002
+    title: Time-Specific Weather Forecast
+    file: docs/requirements/weather_meterological_data.md
+
+  REQ-WX-003
+    title: Weather Auto-population
+    file: docs/requirements/weather_meterological_data.md
+
+  REQ-WX-004
+    title: Precipitation Surface Default
+    file: docs/requirements/weather_meterological_data.md
+    hazard:
+      - H-009
+
+  REQ-WX-005
+    title: Heavy Precipitation Surface Default
+    file: docs/requirements/weather_meterological_data.md
+    hazard:
+      - H-009
+
+  REQ-WX-006
+    title: Manual Surface Override
+    file: docs/requirements/weather_meterological_data.md
+
+  REQ-WX-007
+    title: Wind Components Calculation
+    file: docs/requirements/weather_meterological_data.md
+
+  REQ-WX-008
+    title: Weather Metadata Display
+    file: docs/requirements/weather_meterological_data.md
+
+  REQ-WX-009
+    title: Wind Limit Exceedance Notification
+    file: docs/requirements/weather_meterological_data.md
+    hazard:
+      - H-014

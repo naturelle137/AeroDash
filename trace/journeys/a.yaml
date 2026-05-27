@@ -1,0 +1,39 @@
+Phase A — Fleet Management & Setup
+  UJ-A-001
+    title: The "Fleet Admin" Workflow (Complex Profile)
+    file: docs/journeys/01_fleet_management.md
+    req:
+      - REQ-AC-001
+      - REQ-AC-005
+      - REQ-AD-005
+      - REQ-AD-012
+      - REQ-AD-014
+      - REQ-UQ-005
+
+  UJ-A-002
+    title: Unit-Safety Across a Mixed Fleet
+    file: docs/journeys/01_fleet_management.md
+    req:
+      - REQ-SYS-003
+      - REQ-SYS-004
+      - REQ-UQ-005
+
+  UJ-A-003
+    title: Certification Category Switch
+    file: docs/journeys/01_fleet_management.md
+    req:
+      - REQ-AD-011
+      - REQ-MB-001
+      - REQ-UI-009
+
+  UJ-A-004
+    title: Adding a Battery-Electric Aircraft (Pipistrel Velis Electro)
+    file: docs/journeys/01_fleet_management.md
+    req:
+      - REQ-AD-020
+      - REQ-AD-021
+      - REQ-AD-022
+      - REQ-UI-021
+      - REQ-UI-022
+      - REQ-UI-023
+      - REQ-FE-006

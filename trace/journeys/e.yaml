@@ -1,0 +1,34 @@
+Phase E — Weather & Environment
+  UJ-E-001
+    title: The "Rainy Day" Scenario (WX Integration)
+    file: docs/journeys/05_weather_environment.md
+    req:
+      - REQ-WX-001
+      - REQ-WX-003
+      - REQ-WX-004
+      - REQ-WX-005
+      - REQ-WX-006
+      - REQ-AP-004
+
+  UJ-E-002
+    title: The "Crosswind Challenge"
+    file: docs/journeys/05_weather_environment.md
+    req:
+      - REQ-WX-003
+      - REQ-WX-007
+      - REQ-WX-009
+
+  UJ-E-003
+    title: Deep Winter Departure
+    file: docs/journeys/05_weather_environment.md
+    req:
+      - REQ-PF-010
+      - REQ-PF-011
+      - REQ-PF-012
+
+  UJ-E-004
+    title: Wind Limit Classification (Demonstrated vs. Limit)
+    file: docs/journeys/05_weather_environment.md
+    req:
+      - REQ-AD-017
+      - REQ-WX-009

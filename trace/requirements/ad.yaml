@@ -1,0 +1,94 @@
+Detailed Aircraft Data Requirements
+  REQ-AD-001
+    title: Basic Aircraft Attributes
+    file: docs/requirements/detailed_aircraft_data.md
+
+  REQ-AD-002
+    title: Load Point Configuration
+    file: docs/requirements/detailed_aircraft_data.md
+
+  REQ-AD-003
+    title: Fuel Tank Configuration
+    file: docs/requirements/detailed_aircraft_data.md
+    hazard:
+      - H-003
+
+  REQ-AD-004
+    title: Weighing Report Data
+    file: docs/requirements/detailed_aircraft_data.md
+
+  REQ-AD-005
+    title: Flight Envelope Definition
+    file: docs/requirements/detailed_aircraft_data.md
+
+  REQ-AD-006
+    title: Operating Cost Tracking
+    file: docs/requirements/detailed_aircraft_data.md
+
+  REQ-AD-007
+    title: Reference Datum Storage
+    file: docs/requirements/detailed_aircraft_data.md
+
+  REQ-AD-008
+    title: Performance Profile Definition
+    file: docs/requirements/detailed_aircraft_data.md
+
+  REQ-AD-009
+    title: Performance Data Points
+    file: docs/requirements/detailed_aircraft_data.md
+
+  REQ-AD-010
+    title: Checklist Storage
+    file: docs/requirements/detailed_aircraft_data.md
+
+  REQ-AD-011
+    title: Certification Categories
+    file: docs/requirements/detailed_aircraft_data.md
+
+  REQ-AD-012
+    title: Variable Loading Stations
+    file: docs/requirements/detailed_aircraft_data.md
+
+  REQ-AD-013
+    title: Weighing Report Versioning
+    file: docs/requirements/detailed_aircraft_data.md
+
+  REQ-AD-014
+    title: Original Unit Preservation
+    file: docs/requirements/detailed_aircraft_data.md
+    hazard:
+      - H-001
+
+  REQ-AD-015
+    title: Surface Condition Factors
+    file: docs/requirements/detailed_aircraft_data.md
+
+  REQ-AD-016
+    title: Operational Safety Factors
+    file: docs/requirements/detailed_aircraft_data.md
+
+  REQ-AD-017
+    title: Wind Limit Storage
+    file: docs/requirements/detailed_aircraft_data.md
+    hazard:
+      - H-014
+
+  REQ-AD-018
+    title: Share-Code Storage
+    file: docs/requirements/detailed_aircraft_data.md
+
+  REQ-AD-019
+    title: Owner Identifier Storage
+    file: docs/requirements/detailed_aircraft_data.md
+
+  REQ-AD-020
+    title: Powertrain Discriminator
+    file: docs/requirements/detailed_aircraft_data.md
+
+  REQ-AD-021
+    title: Battery Pack Description
+    file: docs/requirements/detailed_aircraft_data.md
+
+  REQ-AD-022
+    title: Powertrain Field Exclusivity
+    file: docs/requirements/detailed_aircraft_data.md

@@ -1,0 +1,26 @@
+Aircraft Management Requirements
+  REQ-AC-001
+    title: Profile CRUD Operations
+    file: docs/requirements/aircraft_management.md
+
+  REQ-AC-002
+    title: Registration Validation
+    file: docs/requirements/aircraft_management.md
+
+  REQ-AC-003
+    title: Duplicate Registration Warning
+    file: docs/requirements/aircraft_management.md
+
+  REQ-AC-004
+    title: Profile Import
+    file: docs/requirements/aircraft_management.md
+
+  REQ-AC-005
+    title: Profile Verification Status
+    file: docs/requirements/aircraft_management.md
+    hazard:
+      - H-011
+
+  REQ-AC-006
+    title: Passenger Profiles
+    file: docs/requirements/aircraft_management.md
