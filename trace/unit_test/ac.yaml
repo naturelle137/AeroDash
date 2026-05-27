@@ -1719,6 +1719,63 @@ AC Store — Migration Diagnostics Surfaced as INFO Notifications (Unit)
     files:
       - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
 
+AC Store — ICAO Registration Validator (Hyphen-Abuse Rejection) (Unit)
+  UT-AC-STORE-116
+    title: rejects a registration of letter + only hyphens ("A------")
+    impl:
+      - IMP-AC-STORE-002
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.validator.spec.ts
+
+  UT-AC-STORE-117
+    title: rejects a registration with multiple hyphen-separated segments ("A-A-A-A")
+    impl:
+      - IMP-AC-STORE-002
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.validator.spec.ts
+
+  UT-AC-STORE-118
+    title: rejects a registration with a leading hyphen ("-ABCD")
+    impl:
+      - IMP-AC-STORE-002
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.validator.spec.ts
+
+  UT-AC-STORE-119
+    title: rejects a registration with a trailing hyphen ("ABCD-")
+    impl:
+      - IMP-AC-STORE-002
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.validator.spec.ts
+
+  UT-AC-STORE-120
+    title: rejects a registration with consecutive hyphens ("A--BC")
+    impl:
+      - IMP-AC-STORE-002
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.validator.spec.ts
+
+  UT-AC-STORE-121
+    title: rejects a registration of only hyphens ("------")
+    impl:
+      - IMP-AC-STORE-002
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.validator.spec.ts
+
+  UT-AC-STORE-122
+    title: accepts a 2-letter prefix with hyphen + alnum suffix ("OE-KFB")
+    impl:
+      - IMP-AC-STORE-002
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.validator.spec.ts
+
+  UT-AC-STORE-123
+    title: rejects a registration whose suffix is only hyphens ("D------")
+    impl:
+      - IMP-AC-STORE-002
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.validator.spec.ts
+
 AC (auto)
   UT-AC-VIEW-138
     title: TODO: describe this artifact
