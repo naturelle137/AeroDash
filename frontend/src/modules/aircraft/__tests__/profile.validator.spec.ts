@@ -60,6 +60,48 @@ describe('validateIcaoRegistration', () => {
   it('accepts 7-character registration (maximum valid length)', () => {
     expect(validateIcaoRegistration('D-ABCDE')).toBe(true)
   })
+
+  // ─── Tightened regex — hyphen abuse rejection (refs #270, CS-007) ──────────
+
+  // @UT-AC-STORE-116@ (FROM: @IMP-AC-STORE-002@)
+  it('rejects a registration of letter + only hyphens ("A------")', () => {
+    expect(validateIcaoRegistration('A------')).toBe(false)
+  })
+
+  // @UT-AC-STORE-117@ (FROM: @IMP-AC-STORE-002@)
+  it('rejects a registration with multiple hyphen-separated segments ("A-A-A-A")', () => {
+    expect(validateIcaoRegistration('A-A-A-A')).toBe(false)
+  })
+
+  // @UT-AC-STORE-118@ (FROM: @IMP-AC-STORE-002@)
+  it('rejects a registration with a leading hyphen ("-ABCD")', () => {
+    expect(validateIcaoRegistration('-ABCD')).toBe(false)
+  })
+
+  // @UT-AC-STORE-119@ (FROM: @IMP-AC-STORE-002@)
+  it('rejects a registration with a trailing hyphen ("ABCD-")', () => {
+    expect(validateIcaoRegistration('ABCD-')).toBe(false)
+  })
+
+  // @UT-AC-STORE-120@ (FROM: @IMP-AC-STORE-002@)
+  it('rejects a registration with consecutive hyphens ("A--BC")', () => {
+    expect(validateIcaoRegistration('A--BC')).toBe(false)
+  })
+
+  // @UT-AC-STORE-121@ (FROM: @IMP-AC-STORE-002@)
+  it('rejects a registration of only hyphens ("------")', () => {
+    expect(validateIcaoRegistration('------')).toBe(false)
+  })
+
+  // @UT-AC-STORE-122@ (FROM: @IMP-AC-STORE-002@)
+  it('accepts a 2-letter prefix with hyphen + alnum suffix ("OE-KFB")', () => {
+    expect(validateIcaoRegistration('OE-KFB')).toBe(true)
+  })
+
+  // @UT-AC-STORE-123@ (FROM: @IMP-AC-STORE-002@)
+  it('rejects a registration whose suffix is only hyphens ("D------")', () => {
+    expect(validateIcaoRegistration('D------')).toBe(false)
+  })
 })
 
 describe('hasDuplicateRegistration', () => {
