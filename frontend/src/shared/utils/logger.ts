@@ -29,11 +29,22 @@ const MAX_ARRAY_LENGTH = 100
 /**
  * DP-004 / CS-012 — PII redaction allow-list (issue #263).
  *
- * Field names safe to log in raw form. Any object key NOT present in this
- * set has its value replaced with the {@link PII_REDACTED_MARKER}, regardless
+ * Field names safe to log in raw form when they appear as keys inside a
+ * caller-supplied `data` payload. Any object key NOT present in this set
+ * has its value replaced with the {@link PII_REDACTED_MARKER}, regardless
  * of nesting depth. The key itself is preserved so the resulting log entry
  * still carries useful structural information.
  *
+ * **Envelope vs. data:** the logger envelope (`timestamp`, `level`, `context`,
+ * `message`) is constructed by the logger itself and never traverses
+ * {@link redactPayload}; those names are therefore deliberately ABSENT from
+ * this set so that a caller passing `{ message: err.message }` as data
+ * (where `err.message` may echo pilot input) cannot smuggle PII into the
+ * log envelope by re-using the envelope key name (MAJOR-1 fix, PR #361).
+ *
+ * **Naming discipline:** every entry below is namespaced (`errorName` not
+ * `name`, `httpStatus` not `status`) so that ad-hoc domain objects can't
+ * collide with the allow-list (`{ name: pilot.fullName }` is now redacted).
  * Add fields here only when they are GUARANTEED not to carry pilot-entered
  * data, aircraft identifiers, position/route data, M&B/Performance/Fuel
  * inputs, or other safety-sensitive content. Operational metadata
@@ -42,11 +53,6 @@ const MAX_ARRAY_LENGTH = 100
 export const PII_REDACTED_MARKER = '[REDACTED]'
 
 export const DEFAULT_SAFE_FIELDS: ReadonlySet<string> = new Set([
-  // Log envelope (always allowed — produced by the logger itself).
-  'timestamp',
-  'level',
-  'context',
-  'message',
   // Operational metadata.
   'durationMs',
   'count',
@@ -56,21 +62,23 @@ export const DEFAULT_SAFE_FIELDS: ReadonlySet<string> = new Set([
   // build artifacts (no pilot input); scope is the SW scope path.
   'swUrl',
   'scope',
-  // Errors / status codes.
+  // Errors / status codes — namespaced to avoid collision with generic
+  // domain-object property names (MAJOR-2 fix, PR #361).
   'code',
-  'name',
-  'status',
+  'errorName',
+  'errorType',
+  'httpStatus',
   'statusCode',
-  'type',
   // App version / build metadata.
   'version',
   'buildDate',
   // Retry / attempt counters.
   'attempt',
   'retry',
-  // sessionStorage / advisory diagnostic payloads (issue #263).
-  'fallback',
-  'reason',
+  // sessionStorage / advisory diagnostic payloads (issue #263). Both keys
+  // carry app-controlled enum-like strings — never pilot input.
+  'fallbackPath',
+  'advisoryReason',
 ])
 
 // @IMP-SYS-SHARED-001@ (FROM: @DES-ARCH-001@)
@@ -120,23 +128,28 @@ export function safeSerialize(value: unknown, depth = 0): unknown {
  *
  * Defence-in-depth: this runs after {@link safeSerialize}, so it can rely on
  * the input being plain JSON-shaped (Record, Array, primitive, sentinel).
+ * Carries its own `MAX_DEPTH` guard so a caller bypassing `safeSerialize`
+ * and handing in a cyclic structure cannot stack-overflow the redactor
+ * (NIT-9 fix, PR #361).
  */
 // @IMP-SYS-SHARED-008@ (FROM: @DES-ARCH-001@)
 export function redactPayload(
   value: unknown,
   allowList: ReadonlySet<string> = DEFAULT_SAFE_FIELDS,
+  depth = 0,
 ): unknown {
+  if (depth > MAX_DEPTH) return '[MAX_DEPTH]'
   if (value === null || value === undefined) return value
   if (typeof value !== 'object') return value
 
   if (Array.isArray(value)) {
-    return value.map((item) => redactPayload(item, allowList))
+    return value.map((item) => redactPayload(item, allowList, depth + 1))
   }
 
   const result: Record<string, unknown> = {}
   for (const [key, val] of Object.entries(value as Record<string, unknown>)) {
     if (allowList.has(key)) {
-      result[key] = redactPayload(val, allowList)
+      result[key] = redactPayload(val, allowList, depth + 1)
     } else {
       result[key] = PII_REDACTED_MARKER
     }
@@ -155,7 +168,7 @@ interface FormatOptions {
 }
 
 function formatEntry(entry: LogEntry, opts: FormatOptions = {}): LogEntry {
-  if (entry.data === undefined) return entry
+  if (entry.data === undefined) return { ...entry }
   // safeSerialize → redactPayload: structural shaping first, then PII redaction.
   const sanitized = safeSerialize(entry.data)
   if (opts.redact === false) return { ...entry, data: sanitized }
@@ -184,8 +197,25 @@ function formatEntry(entry: LogEntry, opts: FormatOptions = {}): LogEntry {
  * default minifier (oxc) ignores esbuild's `pure`/`drop` options, so a
  * build-time strip would silently no-op.
  */
+/**
+ * Truthy-string parser for Vite env flags. Accepts the common conventions a
+ * developer is likely to drop into `.env.local` — `'true'` / `'1'` /
+ * `'TRUE'` / `'yes'` / `'on'` (case-insensitive) — so a `VITE_LOG_DEBUG=1`
+ * doesn't silently no-op (MINOR-3 fix, PR #361). The canonical form remains
+ * `'true'` in documentation.
+ */
 function isEnvFlagTrue(value: unknown): boolean {
-  return value === 'true' || value === true
+  if (value === true) return true
+  if (typeof value !== 'string') return false
+  switch (value.trim().toLowerCase()) {
+    case 'true':
+    case '1':
+    case 'yes':
+    case 'on':
+      return true
+    default:
+      return false
+  }
 }
 
 function isLevelEnabled(level: LogLevel): boolean {

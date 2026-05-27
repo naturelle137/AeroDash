@@ -27,9 +27,13 @@ export const usePwaUpdateStore = defineStore('pwaUpdate', () => {
    * pilot-visible explanation; this flag drives a one-time advisory in
    * `App.vue` so the pilot knows the silent cold-start path is unavailable
    * until storage is restored. Raised exactly once per tab lifetime and
-   * dismissible via `dismissSessionStorageAdvisory()`.
+   * dismissible via `dismissSessionStorageAdvisory()`; the dismissal latch
+   * below (`sessionStorageAdvisoryDismissed`) enforces the one-time-per-tab
+   * invariant so a re-raise after dismissal cannot re-surface the banner
+   * (NIT-11 fix, PR #361).
    */
   const sessionStorageAdvisory = ref(false)
+  const sessionStorageAdvisoryDismissed = ref(false)
   let _updateSW: ((reloadPage?: boolean) => Promise<void>) | null = null
 
   // @IMP-SYS-STORE-003@ (FROM: @REQ-SYS-001@, @REQ-SYS-002@)
@@ -92,23 +96,30 @@ export const usePwaUpdateStore = defineStore('pwaUpdate', () => {
   // @IMP-SYS-STORE-011@ (FROM: @REQ-SYS-005@)
   /**
    * Issue #263 (DP-004 / CS-012). Idempotent — repeated calls leave the
-   * advisory raised exactly once. The caller in `main.ts` invokes this
-   * after a sessionStorage exception so `App.vue` can render the one-time
+   * advisory raised exactly once. Once the pilot has dismissed the advisory
+   * this call is a no-op for the rest of the tab lifetime; the
+   * `App.vue` comment "Dismissible; not auto-recovered" is now enforced by
+   * the store rather than relying on `main.ts` call-site discipline (NIT-11
+   * fix, PR #361). The caller in `main.ts` invokes this after a
+   * sessionStorage exception so `App.vue` can render the one-time
    * pilot-facing banner.
    */
   function raiseSessionStorageAdvisory(): void {
+    if (sessionStorageAdvisoryDismissed.value) return
     sessionStorageAdvisory.value = true
   }
 
   // @IMP-SYS-STORE-012@ (FROM: @REQ-SYS-005@)
   function dismissSessionStorageAdvisory(): void {
     sessionStorageAdvisory.value = false
+    sessionStorageAdvisoryDismissed.value = true
   }
 
   return {
     needsUpdate,
     offlineReady,
     sessionStorageAdvisory,
+    sessionStorageAdvisoryDismissed,
     onOfflineReady,
     onNeedsRefresh,
     setUpdateSW,

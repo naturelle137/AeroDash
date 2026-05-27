@@ -146,6 +146,18 @@ describe('usePwaUpdateStore', () => {
     store.dismissSessionStorageAdvisory()
     expect(store.sessionStorageAdvisory).toBe(false)
   })
+
+  // @UT-SYS-STORE-045@ (FROM: @IMP-SYS-STORE-011@)
+  it('once dismissed, raiseSessionStorageAdvisory is a no-op (one-time-per-tab invariant, NIT-11 PR #361)', () => {
+    const store = usePwaUpdateStore()
+    store.raiseSessionStorageAdvisory()
+    store.dismissSessionStorageAdvisory()
+    // Simulate a router-guard retry / SW re-registration that re-invokes the
+    // bootstrap path: the banner must not re-surface for the rest of the tab.
+    store.raiseSessionStorageAdvisory()
+    expect(store.sessionStorageAdvisory).toBe(false)
+    expect(store.sessionStorageAdvisoryDismissed).toBe(true)
+  })
 })
 
 // ---------------------------------------------------------------------------
@@ -182,12 +194,18 @@ describe('captureAndMarkSession', () => {
       },
       configurable: true,
     })
-    const result = captureAndMarkSession()
-    expect(result.wasActiveSession).toBe(true)
-    expect(result.sessionStorageAvailable).toBe(false)
-    // Restore
-    if (originalStorage) {
-      Object.defineProperty(window, 'sessionStorage', originalStorage)
+    try {
+      const result = captureAndMarkSession()
+      expect(result.wasActiveSession).toBe(true)
+      expect(result.sessionStorageAvailable).toBe(false)
+    } finally {
+      // NIT-12 (PR #361). Restore even if the assertions above throw so a
+      // regression in this test cannot cascade into UT-SYS-STORE-035 (which
+      // calls `sessionStorage.setItem(...)` directly) and mask the real
+      // failure with a "storage disabled" stack trace.
+      if (originalStorage) {
+        Object.defineProperty(window, 'sessionStorage', originalStorage)
+      }
     }
   })
 

@@ -37,6 +37,7 @@ The rest of this document outlines the formal "Safety-First" rules we follow to 
 * **Production Build:** `pnpm --filter frontend build`
 * **Type-Check:** `pnpm --filter frontend type-check`
 * **IDE/Editor:** Visual Studio Code with the recommended workspace extensions (`.vscode/extensions.json`)
+* **Optional Vite flags:** copy `.env.example` to `.env.local` to enable diagnostic logging. `VITE_LOG_DEBUG=true` surfaces `logger.debug(...)` output and `VITE_LOG_TELEMETRY=true` enables `logger.telemetryTrace(...)` — both are OFF by default (issue #263 / DP-004 / CS-012). Accepted truthy values: `true`, `1`, `yes`, `on`. **Never enable `VITE_LOG_TELEMETRY` for a production deployment** — it bypasses the PII redactor by design.
 
 To ensure all quality gates (linting, commit standards) are active, please set up your local environment:
 

@@ -137,8 +137,15 @@ app.use(createPinia())
 app.use(router)
 
 app.config.errorHandler = (err) => {
-  const message = err instanceof Error ? err.message : String(err)
-  logger.error('Unhandled error', { message })
+  // Issue #263 (DP-004 / CS-012) — Vue runtime error messages can interpolate
+  // template-bound pilot input (e.g. an M&B form crash echoes the entered tail
+  // number). We surface only the error constructor name (`TypeError`,
+  // `RangeError`, …), which is allow-listed and safe; the message itself is
+  // omitted so the redactor cannot leak interpolated PII through `[REDACTED]`
+  // gaps.
+  const errorName = err instanceof Error ? err.name : 'NonErrorThrowable'
+  const errorType = err === null ? 'null' : typeof err
+  logger.error('Unhandled error', { errorName, errorType })
 }
 
 app.mount('#app')
@@ -155,8 +162,8 @@ const pwaStore = usePwaUpdateStore()
 if (!sessionStorageAvailable) {
   logger.warn('sessionStorage unavailable; PWA update consent forced in-session', {
     code: 'SESSION_STORAGE_UNAVAILABLE',
-    fallback: 'in-session',
-    reason: 'storage-throw',
+    fallbackPath: 'in-session',
+    advisoryReason: 'storage-throw',
   })
   pwaStore.raiseSessionStorageAdvisory()
 }
@@ -171,7 +178,12 @@ const updateSW = registerSW({
     logger.info('Service Worker registered', { swUrl, scope: registration?.scope })
   },
   onRegisterError(error: unknown) {
-    logger.error('Service Worker registration failed', { message: String(error) })
+    // Surface only the constructor name; a serialized DOMException / SW error
+    // message can include the SW URL plus internal browser detail. Matches
+    // the discipline applied to the global Vue errorHandler above.
+    const errorName = error instanceof Error ? error.name : 'NonErrorThrowable'
+    const errorType = error === null ? 'null' : typeof error
+    logger.error('Service Worker registration failed', { errorName, errorType })
   },
 })
 

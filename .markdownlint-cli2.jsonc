@@ -12,6 +12,7 @@
     ".cursor/**",
     ".tmp/**",
     ".claude/**",
+    ".claude-pr/**",
     ".claire/**",
     ".claude/worktrees/**",
     "CHANGELOG.md"

@@ -157,15 +157,66 @@ describe('redactPayload', () => {
   // @UT-SYS-SHARED-028@ (FROM: @IMP-SYS-SHARED-008@)
   it('exposes the documented default allow-list members', () => {
     // Spot-check load-bearing keys — drift here would silently leak PII.
-    expect(DEFAULT_SAFE_FIELDS.has('message')).toBe(true)
     expect(DEFAULT_SAFE_FIELDS.has('code')).toBe(true)
     expect(DEFAULT_SAFE_FIELDS.has('swUrl')).toBe(true)
     expect(DEFAULT_SAFE_FIELDS.has('durationMs')).toBe(true)
-    // …and known-bad keys are NOT members.
+    expect(DEFAULT_SAFE_FIELDS.has('errorName')).toBe(true)
+    expect(DEFAULT_SAFE_FIELDS.has('fallbackPath')).toBe(true)
+    expect(DEFAULT_SAFE_FIELDS.has('advisoryReason')).toBe(true)
+    // Envelope keys (added by the logger itself) must NOT be present —
+    // otherwise a caller could smuggle PII into `data.message` (MAJOR-1, PR #361).
+    expect(DEFAULT_SAFE_FIELDS.has('message')).toBe(false)
+    expect(DEFAULT_SAFE_FIELDS.has('timestamp')).toBe(false)
+    expect(DEFAULT_SAFE_FIELDS.has('level')).toBe(false)
+    expect(DEFAULT_SAFE_FIELDS.has('context')).toBe(false)
+    // Generic names that previously collided with domain-object fields
+    // (MAJOR-2, PR #361) must NOT be members.
+    expect(DEFAULT_SAFE_FIELDS.has('name')).toBe(false)
+    expect(DEFAULT_SAFE_FIELDS.has('type')).toBe(false)
+    expect(DEFAULT_SAFE_FIELDS.has('status')).toBe(false)
+    expect(DEFAULT_SAFE_FIELDS.has('reason')).toBe(false)
+    expect(DEFAULT_SAFE_FIELDS.has('fallback')).toBe(false)
+    // …and known-bad keys are still NOT members.
     expect(DEFAULT_SAFE_FIELDS.has('password')).toBe(false)
     expect(DEFAULT_SAFE_FIELDS.has('email')).toBe(false)
     expect(DEFAULT_SAFE_FIELDS.has('tailNumber')).toBe(false)
     expect(DEFAULT_SAFE_FIELDS.has('latitude')).toBe(false)
+  })
+
+  // @UT-SYS-SHARED-045@ (FROM: @IMP-SYS-SHARED-008@)
+  it('redacts a caller-supplied data.message even though the envelope uses that key (MAJOR-1)', () => {
+    // err.message can echo template-interpolated pilot input; passing it as a
+    // data key must not bypass redaction merely because the log envelope also
+    // happens to use a top-level `message` field.
+    const result = redactPayload({ message: 'crash near tail D-EABC' }) as Record<string, unknown>
+    expect(result.message).toBe(PII_REDACTED_MARKER)
+  })
+
+  // @UT-SYS-SHARED-046@ (FROM: @IMP-SYS-SHARED-008@)
+  it('redacts allow-listed-parent + non-allow-listed-child paths (MAJOR-2)', () => {
+    // A future maintainer writing `{ code: { pilotName: 'Anna' } }` must not
+    // silently leak `pilotName` just because `code` is allow-listed.
+    const result = redactPayload({
+      code: { pilotName: 'Anna', tailNumber: 'D-EABC' },
+    }) as Record<string, unknown>
+    expect(result.code).toEqual({
+      pilotName: PII_REDACTED_MARKER,
+      tailNumber: PII_REDACTED_MARKER,
+    })
+  })
+
+  // @UT-SYS-SHARED-047@ (FROM: @IMP-SYS-SHARED-008@)
+  it('guards against unbounded recursion when called outside the safeSerialize pipeline (NIT-9)', () => {
+    // Build a circular structure where each link uses an allow-listed key
+    // (`code`) — without that, the recursion is short-circuited by redaction
+    // at the first hop. A `code → code → code → …` cycle is the only path
+    // that can stack-overflow the redactor, so it's the only path the depth
+    // guard actually has to defend against.
+    type Cycle = { code: { code?: unknown } }
+    const cyclic: Cycle = { code: {} }
+    cyclic.code.code = cyclic.code
+    const result = redactPayload(cyclic) as Record<string, unknown>
+    expect(JSON.stringify(result)).toContain('[MAX_DEPTH]')
   })
 })
 
@@ -254,7 +305,7 @@ describe('createLogger', () => {
   })
 
   // @UT-SYS-SHARED-011@ (FROM: @IMP-SYS-SHARED-002@)
-  it('redacts non-allow-listed data fields on WARN/ERROR', () => {
+  it('redacts non-allow-listed data fields on WARN', () => {
     const logger = createLogger('Adapter')
     logger.warn('input received', {
       code: 'EVAL',
@@ -265,6 +316,25 @@ describe('createLogger', () => {
     const output = JSON.parse(consoleSpy.warn.mock.calls[0][0] as string)
     expect(output.data).toEqual({
       code: 'EVAL',
+      stations: PII_REDACTED_MARKER,
+      pilotName: PII_REDACTED_MARKER,
+    })
+  })
+
+  // @UT-SYS-SHARED-048@ (FROM: @IMP-SYS-SHARED-002@)
+  it('redacts non-allow-listed data fields on ERROR', () => {
+    // Split from UT-SYS-SHARED-011 (NIT-10, PR #361) so a future refactor
+    // that diverges the ERROR path from the shared `emit()` is caught.
+    const logger = createLogger('Adapter')
+    logger.error('input rejected', {
+      code: 'EVAL_FAIL',
+      stations: [{ mass: 80, arm: 2.4 }],
+      pilotName: 'Anna',
+    })
+
+    const output = JSON.parse(consoleSpy.error.mock.calls[0][0] as string)
+    expect(output.data).toEqual({
+      code: 'EVAL_FAIL',
       stations: PII_REDACTED_MARKER,
       pilotName: PII_REDACTED_MARKER,
     })

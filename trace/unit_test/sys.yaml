@@ -515,6 +515,34 @@ SYS Shared — Logger PII Redaction (#263 — DP-004 / CS-012)
     files:
       - frontend/src/shared/utils/__tests__/logger.spec.ts
 
+  UT-SYS-SHARED-045
+    title: redactPayload redacts a caller-supplied data.message even though the envelope reuses that key (MAJOR-1 PR #361)
+    impl:
+      - IMP-SYS-SHARED-008
+    files:
+      - frontend/src/shared/utils/__tests__/logger.spec.ts
+
+  UT-SYS-SHARED-046
+    title: redactPayload redacts allow-listed-parent + non-allow-listed-child paths (MAJOR-2 PR #361)
+    impl:
+      - IMP-SYS-SHARED-008
+    files:
+      - frontend/src/shared/utils/__tests__/logger.spec.ts
+
+  UT-SYS-SHARED-047
+    title: redactPayload guards against unbounded recursion via its own MAX_DEPTH (NIT-9 PR #361)
+    impl:
+      - IMP-SYS-SHARED-008
+    files:
+      - frontend/src/shared/utils/__tests__/logger.spec.ts
+
+  UT-SYS-SHARED-048
+    title: createLogger redacts non-allow-listed data fields on ERROR (split from UT-SYS-SHARED-011, NIT-10 PR #361)
+    impl:
+      - IMP-SYS-SHARED-002
+    files:
+      - frontend/src/shared/utils/__tests__/logger.spec.ts
+
 SYS Core — SI Unit Normalization (Unit)
   UT-SYS-CORE-031
     title: normalizeMassToKg returns value unchanged for kg input
@@ -1132,6 +1160,13 @@ SYS Store — PWA Session-Storage Advisory (#263 — DP-004 / CS-012)
     title: captureAndMarkSession reports sessionStorageAvailable=false when sessionStorage throws (issue #263)
     impl:
       - IMP-SYS-STORE-010
+    files:
+      - frontend/src/stores/__tests__/pwa-update.store.spec.ts
+
+  UT-SYS-STORE-045
+    title: once dismissed, raiseSessionStorageAdvisory is a no-op (one-time-per-tab invariant, NIT-11 PR #361)
+    impl:
+      - IMP-SYS-STORE-011
     files:
       - frontend/src/stores/__tests__/pwa-update.store.spec.ts
 
