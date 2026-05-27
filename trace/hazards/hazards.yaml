@@ -1,0 +1,174 @@
+Safety Hazards
+  H-001
+    title: Mass unit confusion error
+    file: docs/risk_management/safety_hazards.md
+    severity: S1
+    status: Mitigated
+    mitigated_by:
+      - REQ-SYS-003
+      - REQ-UQ-005
+      - REQ-AD-014
+
+  H-002
+    title: Fuel unit confusion error
+    file: docs/risk_management/safety_hazards.md
+    severity: S1
+    status: Mitigated
+    mitigated_by:
+      - REQ-FE-001
+      - REQ-SYS-003
+
+  H-003
+    title: Fuel density confusion
+    file: docs/risk_management/safety_hazards.md
+    severity: S2
+    status: Mitigated
+    mitigated_by:
+      - REQ-AD-003
+
+  H-004
+    title: Performance interpolation errors
+    file: docs/risk_management/safety_hazards.md
+    severity: S1
+    status: Mitigated
+    mitigated_by:
+      - REQ-PF-002
+
+  H-005
+    title: Certification category limits violation errors
+    file: docs/risk_management/safety_hazards.md
+    severity: S1
+    status: Mitigated
+    mitigated_by:
+      - REQ-MB-001
+      - REQ-UI-009
+
+  H-006
+    title: Errors by CG shift during flight
+    file: docs/risk_management/safety_hazards.md
+    severity: S1
+    status: Mitigated
+    mitigated_by:
+      - REQ-MB-004
+      - REQ-MB-008
+      - REQ-MB-011
+      - REQ-FE-004
+      - REQ-UI-010
+      - REQ-UI-019
+
+  H-007
+    title: Density altitude misjudgment errors
+    file: docs/risk_management/safety_hazards.md
+    severity: S1
+    status: Mitigated
+    mitigated_by:
+      - REQ-PF-010
+
+  H-008
+    title: Runway length errors
+    file: docs/risk_management/safety_hazards.md
+    severity: S2
+    status: Mitigated
+    mitigated_by:
+      - REQ-PF-015
+      - REQ-PF-016
+
+  H-009
+    title: Surface factor errors
+    file: docs/risk_management/safety_hazards.md
+    severity: S2
+    status: Mitigated
+    mitigated_by:
+      - REQ-AP-004
+      - REQ-WX-004
+      - REQ-WX-005
+
+  H-010
+    title: Fuel starvation errors
+    file: docs/risk_management/safety_hazards.md
+    severity: S1
+    status: Mitigated
+    mitigated_by:
+      - REQ-FE-002
+
+  H-011
+    title: Aircraft data integrity errors
+    file: docs/risk_management/safety_hazards.md
+    severity: S1
+    status: Mitigated
+    mitigated_by:
+      - REQ-AC-005
+      - REQ-UI-023
+
+  H-012
+    title: Performance data extrapolation errors
+    file: docs/risk_management/safety_hazards.md
+    severity: S1
+    status: Mitigated
+    mitigated_by:
+      - REQ-PF-010
+      - REQ-PF-012
+
+  H-013
+    title: Optimistic performance data extrapolation errors
+    file: docs/risk_management/safety_hazards.md
+    severity: S1
+    status: Mitigated
+    mitigated_by:
+      - REQ-PF-011
+
+  H-014
+    title: Crosswind limits errors
+    file: docs/risk_management/safety_hazards.md
+    severity: S1
+    status: Mitigated
+    mitigated_by:
+      - REQ-WX-009
+      - REQ-AD-017
+
+  H-015
+    title: Runway data errors
+    file: docs/risk_management/safety_hazards.md
+    severity: S1
+    status: Mitigated
+    mitigated_by:
+      - REQ-AP-005
+      - REQ-DOC-002
+      - REQ-DOC-003
+      - REQ-UI-015
+
+  H-016
+    title: Operational Safety Factors errors
+    file: docs/risk_management/safety_hazards.md
+    severity: S2
+    status: Mitigated
+    mitigated_by:
+      - REQ-DOC-004
+      - REQ-PF-016
+      - REQ-UI-017
+
+  H-017
+    title: Obstacle clearance errors
+    file: docs/risk_management/safety_hazards.md
+    severity: S1
+    status: Mitigated
+    mitigated_by:
+      - REQ-PF-009
+
+  H-018
+    title: Night vision loss
+    file: docs/risk_management/safety_hazards.md
+    severity: S3
+    status: Mitigated
+    mitigated_by:
+      - REQ-UI-011
+
+  H-019
+    title: PWA caching latency errors
+    file: docs/risk_management/safety_hazards.md
+    severity: S2
+    status: Mitigated
+    mitigated_by:
+      - REQ-SYS-005
+      - REQ-SYS-006
+      - REQ-UI-013
