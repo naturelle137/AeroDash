@@ -1,5 +1,20 @@
 name: Security Scanning
 
+# Supply-chain scan rotation for AeroDash. Three independent legs:
+#   1. CodeQL                          — SAST on source                            (ADR-315-DEV)
+#   2. Dependency Audit (pnpm audit)   — NPM Advisory CVE check                    (ADR-315-DEV, ADR-318-DEV)
+#   3. OSV-Scanner                     — OSV.dev cross-ecosystem CVE check         (ADR-318-DEV)
+#   4. CycloneDX SBOM                  — reproducibility artefact + release attach (ADR-318-DEV)
+#
+# Legs 2–4 are the CI half of issue #261 / audit findings TECH-009 + CS-014:
+# the matrix in ADR-318-DEV retains several bleeding-edge majors
+# (vue-router@5, typescript@6, vite@8, vitest@4, eslint@10, @types/node@25,
+# uuid@14, zod@4), and the moderate-severity weekly cron + OSV + SBOM are
+# the rotation that tightens the moderate-CVE feedback loop the matrix
+# bets on. The per-job rationale (why moderate only on the cron, why OSV
+# is warn-only on PRs, why we use Syft for SBOM despite the issue naming
+# `@cyclonedx/cyclonedx-npm`) lives in ADR-318-DEV §"Supply-chain scan in CI".
+
 on:
   push:
     branches:
@@ -12,11 +27,22 @@ on:
   schedule:
     # Weekly full scan every Monday at 07:00 UTC
     - cron: '0 7 * * 1'
+  # Manual trigger so the SBOM artefact / OSV scan can be reproduced
+  # off-cron on a non-blocking branch (per #356 DoD).
+  workflow_dispatch:
+  # Fires after publish-release.yml has created the GitHub Release on a
+  # tagged build; the SBOM job attaches the artefact to that release.
+  release:
+    types: [published]
 
 jobs:
   codeql:
     name: CodeQL SAST
     runs-on: ubuntu-latest
+    # CodeQL is SAST on source; it is the same on a release event as on a
+    # tagged push, so skip it when re-firing for `release.published` to
+    # avoid a redundant ~3 min run. The SBOM job still runs.
+    if: github.event_name != 'release'
     permissions:
       actions: read
       contents: read
@@ -41,6 +67,7 @@ jobs:
   dependency-audit:
     name: Dependency Audit (pnpm audit)
     runs-on: ubuntu-latest
+    if: github.event_name != 'release'
 
     steps:
       - name: Checkout repository
@@ -59,5 +86,103 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Run dependency audit
-        # Fail on high or critical severity vulnerabilities
-        run: pnpm audit --audit-level high
+        # PR and push paths block on `high` (preserves the existing PR
+        # gate from ADR-315-DEV). The Monday weekly cron tightens the
+        # bar to `moderate` so moderate-severity advisories become a
+        # weekly failure that we triage, without churning every PR with
+        # CVE-database lag against the bleeding-edge majors retained in
+        # ADR-318-DEV. See ADR-318-DEV §"Supply-chain scan in CI".
+        run: pnpm audit --audit-level=${{ github.event_name == 'schedule' && 'moderate' || 'high' }}
+
+  osv-scanner:
+    name: OSV-Scanner
+    runs-on: ubuntu-latest
+    if: github.event_name != 'release'
+    permissions:
+      # Required so the OSV-Scanner SARIF results show up in the
+      # repository Security tab alongside CodeQL findings.
+      security-events: write
+      contents: read
+      actions: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Run OSV-Scanner against pnpm lockfile
+        # PR runs are warn-only: lockfile scans of bleeding-edge majors
+        # are the first place OSV.dev moderate findings appear, and
+        # blocking PRs on those would create churn without a safety win
+        # (the premise of CS-014). Push and schedule runs hard-fail, so
+        # the moderate-CVE feedback loop still closes on the weekly cron.
+        #
+        # osv-scanner-action does not publish a floating `@v2` tag, only
+        # patched releases — pinned by exact tag and tracked by Dependabot.
+        continue-on-error: ${{ github.event_name == 'pull_request' }}
+        uses: google/osv-scanner-action/osv-scanner-action@v2.3.8
+        with:
+          scan-args: |-
+            --lockfile=pnpm-lock.yaml
+            --format=sarif
+            --output=osv-scanner-results.sarif
+
+      - name: Upload OSV-Scanner SARIF
+        # Always upload the SARIF (even on PR runs where the scan step
+        # may have soft-failed) so the Security tab carries the finding.
+        if: ${{ !cancelled() && hashFiles('osv-scanner-results.sarif') != '' }}
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: osv-scanner-results.sarif
+          category: osv-scanner
+
+  sbom:
+    name: CycloneDX SBOM
+    runs-on: ubuntu-latest
+    permissions:
+      # `contents: write` is needed only by the `release:published` path
+      # (gh release upload). All other triggers only read the source and
+      # write an Actions artefact.
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        # SBOM generators need the resolved dependency graph, not just
+        # the lockfile, to record license + transitive metadata that
+        # downstream auditors expect from a CycloneDX SBOM.
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate CycloneDX SBOM
+        # Issue #356 named `@cyclonedx/cyclonedx-npm` (or equivalent);
+        # `cyclonedx-npm` reads `package-lock.json` and is npm-only. The
+        # pnpm-aware equivalent here is `anchore/sbom-action@v0` (Syft
+        # backend) — it detects pnpm-lock.yaml natively, emits the same
+        # CycloneDX-JSON the issue asked for, and uploads the artefact
+        # in the same step. See ADR-318-DEV §"Supply-chain scan in CI".
+        uses: anchore/sbom-action@v0
+        with:
+          format: cyclonedx-json
+          output-file: aerodash-sbom.cdx.json
+          artifact-name: aerodash-sbom-cyclonedx
+          upload-artifact: true
+
+      - name: Attach SBOM to GitHub Release
+        # Triggered only by `release: types: [published]`, which fires
+        # after publish-release.yml has created the release on a tagged
+        # `push` to main. `--clobber` makes this re-runnable without a
+        # manual cleanup if the release already carries an SBOM artefact.
+        if: github.event_name == 'release'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload "${{ github.event.release.tag_name }}" aerodash-sbom.cdx.json --clobber

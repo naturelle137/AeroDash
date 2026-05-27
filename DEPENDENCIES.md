@@ -43,6 +43,10 @@ Before adding any new dependency to the project, verify:
 4. **Dependency Footprint:** Avoid packages with excessive transitive dependencies.
 5. **P1 Restriction:** Safety Core (P1) modules prefer zero external runtime dependencies.
 6. **Inventory:** Add the dependency to the Current Dependencies table below in the same PR.
+7. **Major-version policy:** If the dependency is on a *bleeding-edge* major — that is, a pre-release line, a major cut less than ~6 months ago whose ecosystem peers still pin the previous major, or a peer plugin of such a major — record it in the per-major decision matrix in [ADR 318-DEV — Dependency Major Version & Pre-release Policy](docs/architecture/adr/318-DEV-dependency-major-policy.md) **in the same commit** that introduces it. The matrix row must contain:
+   - a *named justification* for retaining the bleeding-edge major (or a scheduled downshift),
+   - a *pinned regression suite* (the named subset of the standing AeroDash gates that proves no behavioural regression — see ADR 318-DEV §*Pinned regression suite*),
+   - and a *downshift target* (the version we drop back to if the regression suite begins to drift).
 
 ---
 
@@ -76,3 +80,12 @@ Once AeroDash has runtime dependencies (`src/`), automated license checking will
 - **Not a Husky hook:** License scanning walks the full dependency tree — too slow for local pre-push.
 
 See also: [ADR 308-DEV](docs/architecture/adr/308-DEV-traceability-engine.md) for the traceability automation approach.
+
+## Major-Version & Supply-Chain Policy
+
+Dependency *major version* governance and the supply-chain scan rotation are tracked together:
+
+- [ADR 315-DEV — SAST & Dependency Scanning](docs/architecture/adr/315-DEV-sast-dependency-scanning.md) — CodeQL + `pnpm audit` + Dependabot, the baseline scan triple.
+- [ADR 318-DEV — Dependency Major Version & Pre-release Policy](docs/architecture/adr/318-DEV-dependency-major-policy.md) — when a bleeding-edge major is admitted, what justification, regression suite, and downshift target must be recorded, plus the current per-package decision matrix.
+
+The matrix in ADR 318-DEV is the single source of truth for "why is package X on a bleeding-edge line?". When a PR bumps a dependency to a pre-release / very-recent major, that ADR must be updated in the same commit.
