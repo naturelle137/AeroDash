@@ -39,9 +39,28 @@ When `onNeedRefresh` fires, branch on `wasActiveSession`:
 > A **cold start** is any navigation where `sessionStorage['aerodash.session.active']`
 > was absent at the time `captureAndMarkSession()` ran during bootstrap.
 
+`captureAndMarkSession()` returns a typed result rather than a bare boolean
+(amended in PR #361 — issue #263 / DP-004 / CS-012):
+
+```ts
+interface SessionCaptureResult {
+  wasActiveSession: boolean       // `true` → banner path; `false` → cold-start silent path.
+  sessionStorageAvailable: boolean // `false` → storage threw; pilot advisory raised in App.vue.
+}
+```
+
 Fail-safe: if `sessionStorage` throws (Safari private mode, sandboxed iframe),
-`captureAndMarkSession()` returns `true`, routing to the banner path and
-preserving the H-019 mitigation.
+`captureAndMarkSession()` returns `{ wasActiveSession: true,
+sessionStorageAvailable: false }`, routing every subsequent SW update to the
+banner path and preserving the H-019 mitigation. The
+`sessionStorageAvailable: false` signal is consumed by `main.ts` to emit a
+redacted WARN log entry and raise a one-time pilot advisory banner in
+`App.vue` (`pwaStore.sessionStorageAdvisory`) so the silent cold-start path
+disappearing is not invisible to the operator.
+
+> ⚠️ The pre-PR-#361 signature was `captureAndMarkSession(): boolean`.
+> Existing callers must destructure the new return shape — `if (captureAndMarkSession())` is
+> always truthy now (an object) and will silently break the cold-start branch.
 
 ## Consequences
 
