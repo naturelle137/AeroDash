@@ -48,10 +48,22 @@ const logger = createLogger('App')
 // ---------------------------------------------------------------------------
 const SESSION_KEY = 'aerodash.session.active'
 
+export interface SessionCaptureResult {
+  /** `true` when a session was already active in this tab (in-session path);
+   * `false` on a cold start. */
+  wasActiveSession: boolean
+  /** `false` when `sessionStorage` threw (Safari private mode, sandboxed
+   * iframe, storage disabled). Issue #263 — surfaces a one-time pilot
+   * advisory so cold-start silent updates are not silently downgraded to
+   * the in-session banner path without explanation. */
+  sessionStorageAvailable: boolean
+}
+
 /**
  * Reads the sessionStorage flag and immediately sets it for this tab lifetime.
- * Returns `true` if a session was already active (in-session path),
- * `false` for a cold start.
+ * Returns the classifier result plus a `sessionStorageAvailable` signal so
+ * the caller can surface a WARN telemetry entry + one-time pilot advisory
+ * when the storage backend is unreachable (DP-004 / CS-012, issue #263).
  *
  * A browser refresh preserves sessionStorage but is still effectively a fresh
  * page load — the pilot explicitly asked for a reload. We therefore also treat
@@ -59,22 +71,24 @@ const SESSION_KEY = 'aerodash.session.active'
  * start, so a refresh applies the pending update silently instead of surfacing
  * the banner again.
  *
- * If sessionStorage is unavailable, returns `true` (fail-safe: banner shown).
+ * If sessionStorage is unavailable, fail-safe to the in-session path
+ * (`wasActiveSession: true`) so REQ-SYS-005 / H-019 mitigation holds, and
+ * report `sessionStorageAvailable: false` so the caller can advise the pilot.
  */
-export function captureAndMarkSession(): boolean {
+export function captureAndMarkSession(): SessionCaptureResult {
   try {
     const wasActive = sessionStorage.getItem(SESSION_KEY) === '1'
     sessionStorage.setItem(SESSION_KEY, '1')
     if (wasActive && isBrowserReload()) {
       // Treat a browser refresh as a cold start — pilot asked for a reload,
       // so the newest build should load without an extra banner step.
-      return false
+      return { wasActiveSession: false, sessionStorageAvailable: true }
     }
-    return wasActive
+    return { wasActiveSession: wasActive, sessionStorageAvailable: true }
   } catch {
     // sessionStorage unavailable (e.g. Safari private mode, sandboxed iframe).
     // Fail-safe to the in-session path so REQ-SYS-005 / H-019 mitigation holds.
-    return true
+    return { wasActiveSession: true, sessionStorageAvailable: false }
   }
 }
 
@@ -115,7 +129,7 @@ export function createUpdateHandler(
 // ---------------------------------------------------------------------------
 // App bootstrap
 // ---------------------------------------------------------------------------
-const wasActiveSession = captureAndMarkSession()
+const { wasActiveSession, sessionStorageAvailable } = captureAndMarkSession()
 
 const app = createApp(App)
 
@@ -132,6 +146,20 @@ app.mount('#app')
 // Register Service Worker after mount — must not block initial render.
 // registerType: 'prompt' is enforced in vite.config.ts (REQ-SYS-005).
 const pwaStore = usePwaUpdateStore()
+
+// Issue #263 (DP-004 / CS-012) — when sessionStorage is unreachable, log a
+// WARN telemetry entry and raise a one-time pilot advisory. The classifier
+// already fails-safe to the in-session banner path; without this signal the
+// pilot has no way to learn that cold-start silent updates have been
+// downgraded for the remainder of the tab lifetime.
+if (!sessionStorageAvailable) {
+  logger.warn('sessionStorage unavailable; PWA update consent forced in-session', {
+    code: 'SESSION_STORAGE_UNAVAILABLE',
+    fallback: 'in-session',
+    reason: 'storage-throw',
+  })
+  pwaStore.raiseSessionStorageAdvisory()
+}
 
 const updateSW = registerSW({
   onOfflineReady() {

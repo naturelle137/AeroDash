@@ -222,6 +222,32 @@ const themeLabel = computed(() =>
       <button class="pwa-update-btn" @click="pwaStore.applyUpdate()">Reload to update</button>
     </div>
 
+    <!-- ═══ Session-storage advisory (issue #263 — DP-004 / CS-012) ═══════
+         Surfaced once per tab when sessionStorage is unreachable so the
+         pilot knows cold-start silent updates have been downgraded to the
+         consent-required banner path for the rest of the tab lifetime.
+         Dismissible; not auto-recovered (the failure is sticky for the tab). -->
+    <div
+      v-if="pwaStore.sessionStorageAdvisory"
+      class="session-storage-advisory"
+      role="status"
+      aria-live="polite"
+      data-testid="session-storage-advisory"
+    >
+      <span>
+        Session storage is unavailable in this browser tab. App updates will
+        require an explicit reload — silent cold-start updates are disabled.
+      </span>
+      <button
+        class="session-storage-advisory__btn"
+        type="button"
+        aria-label="Dismiss session-storage advisory"
+        @click="pwaStore.dismissSessionStorageAdvisory()"
+      >
+        Dismiss
+      </button>
+    </div>
+
     <!-- ═══ Main content ════════════════════════════════════════════════════ -->
     <!-- REQ-SYS-006: Block all safety-critical features when version is below minimum -->
     <main class="app-main" id="main-content">
@@ -329,6 +355,41 @@ const themeLabel = computed(() =>
 }
 
 .pwa-update-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* ─── Session-storage advisory (issue #263) ─────────────────────────────── */
+
+.session-storage-advisory {
+  position: fixed;
+  top: var(--nav-header-height);
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-warning, #b45309);
+  color: #fff;
+  font-size: var(--text-sm);
+  z-index: 150;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+}
+
+.session-storage-advisory__btn {
+  padding: 0.25rem 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.session-storage-advisory__btn:hover {
   background: rgba(255, 255, 255, 0.25);
 }
 

@@ -19,6 +19,17 @@ import { ref } from 'vue'
 export const usePwaUpdateStore = defineStore('pwaUpdate', () => {
   const needsUpdate = ref(false)
   const offlineReady = ref(false)
+  /**
+   * Issue #263 (DP-004 / CS-012). When sessionStorage is unreachable at
+   * bootstrap (Safari private mode, sandboxed iframe, storage disabled),
+   * the in-tab session classifier fails-safe to the in-session banner path
+   * for every subsequent SW update notice. That degradation has no
+   * pilot-visible explanation; this flag drives a one-time advisory in
+   * `App.vue` so the pilot knows the silent cold-start path is unavailable
+   * until storage is restored. Raised exactly once per tab lifetime and
+   * dismissible via `dismissSessionStorageAdvisory()`.
+   */
+  const sessionStorageAdvisory = ref(false)
   let _updateSW: ((reloadPage?: boolean) => Promise<void>) | null = null
 
   // @IMP-SYS-STORE-003@ (FROM: @REQ-SYS-001@, @REQ-SYS-002@)
@@ -78,13 +89,32 @@ export const usePwaUpdateStore = defineStore('pwaUpdate', () => {
     }
   }
 
+  // @IMP-SYS-STORE-011@ (FROM: @REQ-SYS-005@)
+  /**
+   * Issue #263 (DP-004 / CS-012). Idempotent — repeated calls leave the
+   * advisory raised exactly once. The caller in `main.ts` invokes this
+   * after a sessionStorage exception so `App.vue` can render the one-time
+   * pilot-facing banner.
+   */
+  function raiseSessionStorageAdvisory(): void {
+    sessionStorageAdvisory.value = true
+  }
+
+  // @IMP-SYS-STORE-012@ (FROM: @REQ-SYS-005@)
+  function dismissSessionStorageAdvisory(): void {
+    sessionStorageAdvisory.value = false
+  }
+
   return {
     needsUpdate,
     offlineReady,
+    sessionStorageAdvisory,
     onOfflineReady,
     onNeedsRefresh,
     setUpdateSW,
     applyUpdate,
     applyColdStartUpdate,
+    raiseSessionStorageAdvisory,
+    dismissSessionStorageAdvisory,
   }
 })
