@@ -684,6 +684,14 @@ export const useMassBalanceStore = defineStore('massBalance', {
      * Fuel quantity is intentionally excluded: zero fuel is a legitimate
      * planning state and is already constrained from below by the
      * unusable-fuel floor on `MassStationInput`.
+     *
+     * The predicate is **strict equality with zero** (`s.weight === 0`).
+     * Small positive masses are not flagged — REQ-UQ-006 narrows the
+     * checked condition to "recorded weight of zero", and widening to a
+     * threshold (e.g. < 10 kg) would put this branch in the path of a
+     * different hazard class (low-mass plausibility) that is not yet
+     * specified. Do not loosen this predicate without an accompanying
+     * requirement and updated UT-MB-STORE-060…063.
      */
     // @IMP-MB-STORE-023@ (FROM: @REQ-UQ-006@)
     _collectPlausibilityWarnings(): Notification[] {
@@ -704,7 +712,7 @@ export const useMassBalanceStore = defineStore('massBalance', {
         {
           id: 'WARN-UQ-001',
           severity: 'WARNING',
-          message: `Implausible mass on required station${zeroNames.length === 1 ? '' : 's'}: ${zeroNames.join(', ')} (zero kg) — verify input`,
+          message: `Implausible mass on required station${zeroNames.length === 1 ? '' : 's'}: ${zeroNames.join(', ')} — verify input`,
           context: 'MassBalance.Plausibility',
           persistent: true,
           dismissible: true,

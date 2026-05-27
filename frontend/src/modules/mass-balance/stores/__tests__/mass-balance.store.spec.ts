@@ -1197,8 +1197,13 @@ describe('Mass Balance Store - applyRestoredSession', () => {
   it('does NOT emit WARN-UQ-001 for a fuel station at zero (zero fuel is a legitimate planning state)', () => {
     const store = useMassBalanceStore()
     store.loadProfile(mockProfile)
+    // Guard the precondition explicitly: if a future loadProfile change auto-applies
+    // the unusable-fuel floor at load time (resetPayload already does) this would
+    // silently turn the test into a non-test.
+    expect(store.stations[1]?.weight).toBe(0)
     // Fuel station (index 1) is left at default 0 — must not trigger plausibility
     store.updateStationWeight(0, 80)
+    expect(store.stations[1]?.weight).toBe(0)
 
     const message = store.notifications.find((n) => n.id === 'WARN-UQ-001')?.message
     expect(message).toBeUndefined()

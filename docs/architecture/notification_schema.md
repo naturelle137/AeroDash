@@ -333,7 +333,7 @@ This section defines the complete JSON payload for each notification. These payl
 {
   "id": "WARN-UQ-001",
   "severity": "WARNING",
-  "message": "Implausible mass on required station(s): <station-name(s)> (zero kg) — verify input",
+  "message": "Implausible mass on required station(s): <station-name(s)> — verify input",
   "context": "MassBalance.Plausibility",
   "persistent": true,
   "dismissible": true

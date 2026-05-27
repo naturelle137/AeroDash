@@ -90,6 +90,7 @@ Safety Hazards
     status: Mitigated
     mitigated_by:
       - REQ-FE-002
+      - REQ-UQ-006
 
   H-011
     title: Aircraft data integrity errors
@@ -99,6 +100,7 @@ Safety Hazards
     mitigated_by:
       - REQ-AC-005
       - REQ-UI-023
+      - REQ-UQ-006
 
   H-012
     title: Performance data extrapolation errors
