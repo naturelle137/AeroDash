@@ -1360,3 +1360,38 @@ MB (auto)
     impl:
       - IMP-MB-SVC-001
       - IMP-MB-UI-004
+
+  UT-MB-UI-002
+    title: MassStationInput renders the active unit chip statically (REQ-UQ-005 Unit-Sticky Label)
+    files:
+      - frontend/src/modules/mass-balance/components/__tests__/MassStationInput.spec.ts
+    impl:
+      - IMP-MB-UI-007
+
+  UT-MB-STORE-060
+    title: WARN-UQ-001 fires with offending station name when a mandatory non-fuel station has zero kg
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+    impl:
+      - IMP-MB-STORE-023
+
+  UT-MB-STORE-061
+    title: WARN-UQ-001 clears once the pilot enters a plausible non-zero mass
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+    impl:
+      - IMP-MB-STORE-023
+
+  UT-MB-STORE-062
+    title: WARN-UQ-001 lists every offending mandatory station in one consolidated advisory
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+    impl:
+      - IMP-MB-STORE-023
+
+  UT-MB-STORE-063
+    title: WARN-UQ-001 does NOT fire on zero-quantity fuel stations (legitimate planning state)
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+    impl:
+      - IMP-MB-STORE-023

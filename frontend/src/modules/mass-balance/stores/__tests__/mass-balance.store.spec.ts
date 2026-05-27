@@ -176,16 +176,18 @@ describe('MassBalance Store', () => {
 
   // ─── loadProfile ──────────────────────────────────────────────────────
 
-  // @UT-MB-STORE-002@ (FROM: @IMP-MB-STORE-005@, @IMP-MB-STORE-014@)
-  it('transitions to VERIFIED_SAFE after loading profile with zero-weight mandatory defaults', () => {
+  // @UT-MB-STORE-002@ (FROM: @IMP-MB-STORE-005@, @IMP-MB-STORE-014@, @IMP-MB-STORE-023@, @REQ-UQ-006@)
+  it('transitions to WARNING with WARN-UQ-001 plausibility advisory when a mandatory station defaults to zero kg', () => {
     const store = useMassBalanceStore()
     store.loadProfile(mockProfile)
 
     expect(store.aircraft).toStrictEqual(mockProfile)
     expect(store.activeCategory).toBe('Normal')
     expect(store.stations).toHaveLength(2)
-    expect(store.uiState).toBe('VERIFIED_SAFE')
+    // REQ-UQ-006: a required occupant station at 0 kg trips the Zero-Value plausibility check
     expect(store.allMandatoryFieldsPopulated).toBe(true)
+    expect(store.notifications.some((n) => n.id === 'WARN-UQ-001')).toBe(true)
+    expect(store.uiState).toBe('WARNING')
   })
 
   // @UT-MB-STORE-003@ (FROM: @IMP-MB-STORE-005@, @IMP-MB-STORE-014@)
@@ -276,6 +278,8 @@ describe('MassBalance Store', () => {
 
     const store = useMassBalanceStore()
     store.loadProfile({ ...mockProfile, status: 'verified' })
+    // Populate the mandatory pilot mass so the REQ-UQ-006 plausibility check does not fire.
+    store.updateStationWeight(0, 80)
 
     expect(store.notifications.some((n) => n.id === 'WARN-AC-002')).toBe(false)
     expect(store.uiState).toBe('VERIFIED_SAFE')
@@ -412,8 +416,8 @@ describe('MassBalance Store', () => {
 
   // ─── resetPayload ─────────────────────────────────────────────────────
 
-  // @UT-MB-STORE-018@ (FROM: @IMP-MB-STORE-010@)
-  it('resets each station to max(defaultQuantity, unusableFuel) and keeps results visible', () => {
+  // @UT-MB-STORE-018@ (FROM: @IMP-MB-STORE-010@, @IMP-MB-STORE-023@, @REQ-UQ-006@)
+  it('resets each station to max(defaultQuantity, unusableFuel) and re-asserts the REQ-UQ-006 plausibility warning', () => {
     const store = useMassBalanceStore()
     store.loadProfile(mockProfile)
     store.updateStationWeight(0, 80)
@@ -428,7 +432,9 @@ describe('MassBalance Store', () => {
     expect(store.stations.every((s) => !s.verified)).toBe(true)
     expect(store.stations.every((s) => s.touched)).toBe(true)
     expect(store.lastResult).not.toBeNull()
-    expect(store.uiState).toBe('VERIFIED_SAFE')
+    // REQ-UQ-006: zero-mass on the required Pilot station re-fires WARN-UQ-001 after reset.
+    expect(store.notifications.some((n) => n.id === 'WARN-UQ-001')).toBe(true)
+    expect(store.uiState).toBe('WARNING')
   })
 
   // @UT-MB-STORE-018B@ (FROM: @IMP-MB-STORE-010@)
@@ -832,6 +838,8 @@ describe('MassBalance Store', () => {
     )
     const store = useMassBalanceStore()
     store.loadProfile(mockProfile)
+    // Populate pilot mass so the REQ-UQ-006 plausibility warning does not skew the assertion.
+    store.updateStationWeight(0, 80)
 
     expect(store.hasCriticalNotification).toBe(true)
     expect(store.hasWarningNotification).toBe(false)
@@ -856,6 +864,8 @@ describe('MassBalance Store', () => {
     )
     const store = useMassBalanceStore()
     store.loadProfile(mockProfile)
+    // Populate pilot mass so the REQ-UQ-006 plausibility warning does not skew the assertion.
+    store.updateStationWeight(0, 80)
 
     expect(store.hasErrorNotification).toBe(true)
     expect(store.hasCriticalNotification).toBe(false)
@@ -896,22 +906,27 @@ describe('MassBalance Store', () => {
 
   // ─── State Transitions (Full Cycle) ───────────────────────────────────
 
-  // @UT-MB-STORE-043@ (FROM: @IMP-MB-STORE-005@, @IMP-MB-STORE-006@, @IMP-MB-STORE-009@, @IMP-MB-STORE-010@)
-  it('full lifecycle: INITIAL → VERIFIED_SAFE (load) → VERIFIED_SAFE (edit) → reset → VERIFIED_SAFE', () => {
+  // @UT-MB-STORE-043@ (FROM: @IMP-MB-STORE-005@, @IMP-MB-STORE-006@, @IMP-MB-STORE-009@, @IMP-MB-STORE-010@, @IMP-MB-STORE-023@, @REQ-UQ-006@)
+  it('full lifecycle: INITIAL → WARNING (load, zero pilot) → VERIFIED_SAFE (edit) → reset → WARNING (zero pilot)', () => {
     const store = useMassBalanceStore()
     expect(store.uiState).toBe('INITIAL')
 
+    // REQ-UQ-006: catalogue default of 0 kg on a required pilot station is implausible
+    // and the Zero-Value plausibility check fires immediately.
     store.loadProfile(mockProfile)
-    expect(store.uiState).toBe('VERIFIED_SAFE')
+    expect(store.uiState).toBe('WARNING')
+    expect(store.notifications.some((n) => n.id === 'WARN-UQ-001')).toBe(true)
 
     store.updateStationWeight(0, 80)
     expect(store.uiState).toBe('VERIFIED_SAFE')
 
     store.resetPayload()
-    expect(store.uiState).toBe('VERIFIED_SAFE')
     // Pilot resets to 0 (no default, no unusable); fuel resets to 3 (unusableFuel floor).
     expect(store.stations[0]?.weight).toBe(0)
     expect(store.stations[1]?.weight).toBe(3)
+    // Plausibility warning re-asserts because the pilot mass is back to 0 kg.
+    expect(store.uiState).toBe('WARNING')
+    expect(store.notifications.some((n) => n.id === 'WARN-UQ-001')).toBe(true)
     expect(store.lastResult).not.toBeNull()
   })
 
@@ -944,8 +959,8 @@ describe('MassBalance Store', () => {
     expect(store.uiState).toBe('VERIFIED_SAFE')
   })
 
-  // @UT-MB-STORE-046@ (FROM: @IMP-MB-STORE-006@, @IMP-MB-STORE-012@)
-  it('remains VERIFIED_SAFE when mandatory field set to 0 (touched stays true)', () => {
+  // @UT-MB-STORE-046@ (FROM: @IMP-MB-STORE-006@, @IMP-MB-STORE-012@, @IMP-MB-STORE-023@, @REQ-UQ-006@)
+  it('transitions to WARNING with WARN-UQ-001 when a mandatory field is set back to 0 (touched stays true)', () => {
     const store = useMassBalanceStore()
     store.loadProfile(mockProfile)
     store.updateStationWeight(0, 80)
@@ -953,7 +968,9 @@ describe('MassBalance Store', () => {
 
     store.updateStationWeight(0, 0)
     expect(store.stations[0]!.touched).toBe(true)
-    expect(store.uiState).toBe('VERIFIED_SAFE')
+    // REQ-UQ-006: re-entering 0 on a required station trips the plausibility advisory.
+    expect(store.notifications.some((n) => n.id === 'WARN-UQ-001')).toBe(true)
+    expect(store.uiState).toBe('WARNING')
   })
 
   // @UT-MB-STORE-047@ (FROM: @IMP-MB-STORE-007@, @IMP-MB-STORE-012@)
@@ -1133,5 +1150,57 @@ describe('Mass Balance Store - applyRestoredSession', () => {
     })
 
     expect(mockedCalculate).toHaveBeenCalledTimes(1)
+  })
+
+  // ─── REQ-UQ-006 / WARN-UQ-001 — Zero-Value Plausibility Check ─────────
+
+  // @UT-MB-STORE-060@ (FROM: @IMP-MB-STORE-023@, @REQ-UQ-006@, @H-010@, @H-011@)
+  it('emits WARN-UQ-001 once a mandatory non-fuel station is at zero mass and identifies the station by name', () => {
+    const store = useMassBalanceStore()
+    store.loadProfile(mockProfile)
+
+    const warning = store.notifications.find((n) => n.id === 'WARN-UQ-001')
+    expect(warning).toBeDefined()
+    expect(warning!.severity).toBe('WARNING')
+    expect(warning!.persistent).toBe(true)
+    // Names the offending station so the pilot knows what to look at
+    expect(warning!.message).toContain('Pilot & Passenger')
+    expect(warning!.context).toBe('MassBalance.Plausibility')
+    expect(store.uiState).toBe('WARNING')
+  })
+
+  // @UT-MB-STORE-061@ (FROM: @IMP-MB-STORE-023@, @REQ-UQ-006@)
+  it('clears WARN-UQ-001 once the pilot enters a non-zero mass on the required station', () => {
+    const store = useMassBalanceStore()
+    store.loadProfile(mockProfile)
+    expect(store.notifications.some((n) => n.id === 'WARN-UQ-001')).toBe(true)
+
+    store.updateStationWeight(0, 80)
+
+    expect(store.notifications.some((n) => n.id === 'WARN-UQ-001')).toBe(false)
+    expect(store.uiState).toBe('VERIFIED_SAFE')
+  })
+
+  // @UT-MB-STORE-062@ (FROM: @IMP-MB-STORE-023@, @REQ-UQ-006@)
+  it('lists every offending mandatory station in a single WARN-UQ-001 message', () => {
+    const store = useMassBalanceStore()
+    store.loadProfile(multiCatProfile)
+
+    const warnings = store.notifications.filter((n) => n.id === 'WARN-UQ-001')
+    // One consolidated advisory, not one per station — avoids notification fatigue
+    expect(warnings).toHaveLength(1)
+    expect(warnings[0]!.message).toContain('Front Seats')
+    expect(warnings[0]!.message).toContain('Rear Seats')
+  })
+
+  // @UT-MB-STORE-063@ (FROM: @IMP-MB-STORE-023@, @REQ-UQ-006@)
+  it('does NOT emit WARN-UQ-001 for a fuel station at zero (zero fuel is a legitimate planning state)', () => {
+    const store = useMassBalanceStore()
+    store.loadProfile(mockProfile)
+    // Fuel station (index 1) is left at default 0 — must not trigger plausibility
+    store.updateStationWeight(0, 80)
+
+    const message = store.notifications.find((n) => n.id === 'WARN-UQ-001')?.message
+    expect(message).toBeUndefined()
   })
 })

@@ -174,10 +174,31 @@ The safety of this system is based on four pillars:
 
 ## Safety-Critical Design Check (UI)
 
-* [ ] **Blinking Warnings**: Critical alerts (Go/No-Go failures) must be implemented as blinking or high-contrast elements to prevent "Change Blindness."
-* [ ] **Unit-Sticky Labels**: Every input field must display the currently active unit (kg/lbs/L/Gal) statically next to the field; no hidden tooltips or assumptions.
-* [ ] **Zero-Value Check**: Warning if fuel or passenger mass values are unrealistically low or zero (plausibility check).
-* [ ] **Unverified Data Flagging**: Any data sourced externally (Open-Source Airports) or manually (Obstacles) must be prominently flagged until pilot verification.
+Each design check below is activated into the requirement → implementation →
+verification chain. A box is ticked **only** when every linked artifact exists in
+the repository (verified by the CI traceability gate). See issue #268 for the
+activation history.
+
+* [x] **Blinking Warnings**: Critical alerts (Go/No-Go failures) must be implemented as blinking or high-contrast elements to prevent "Change Blindness."
+  * **Requirement:** [REQ-UI-018](../requirements/user_interface.md#req-ui-018-severity-based-notification-rendering) — Severity-Based Notification Rendering (`CRITICAL` ⇒ Blocking Modal / Haptic / Flashing).
+  * **Implementation:** `@IMP-MB-UI-003@` (CGEnvelopeChart severity palette), `@IMP-MB-UI-004@` (MassBalanceView state banner with `role="alert"` + `aria-live="assertive"`), `@IMP-MB-UI-FLEET-002@` (reset-payload confirm).
+  * **Verification:** `@UT-MB-VIEW-021@` asserts the critical banner (`.state-banner.banner--critical[role="alert"]`) is rendered in `ERROR_CRITICAL` state and removed on recovery.
+  * **Hazard linkage:** mitigates the change-blindness contribution to H-008/H-014/H-016 by ensuring Go/No-Go failures present as a high-contrast, assertive alert.
+* [x] **Unit-Sticky Labels**: Every input field must display the currently active unit (kg/lbs/L/Gal) statically next to the field; no hidden tooltips or assumptions.
+  * **Requirement:** [REQ-UQ-005](../requirements/usability_quality.md#req-uq-005-active-unit-display) — Active Unit Display (`FROM: @H-001@`).
+  * **Implementation:** `@IMP-MB-UI-007@` (per-station unit chip in `MassStationInput.vue`), `@IMP-MB-UI-005@` (result summary unit labels in `ResultSummary.vue`).
+  * **Verification:** `@UT-MB-UI-002@` asserts the static `.mass-station-input__unit` element is rendered with the active unit (kg/lb) and `aria-label="unit"`.
+  * **Hazard linkage:** mitigates [H-001](#h-001-mass-unit-confusion-error) and [H-002](#h-002-fuel-unit-confusion-error) (mass/fuel unit confusion).
+* [x] **Zero-Value Check**: Warning if fuel or passenger mass values are unrealistically low or zero (plausibility check).
+  * **Requirement:** [REQ-UQ-006](../requirements/usability_quality.md#req-uq-006-zero-value-plausibility-check) — Zero-Value Plausibility Check (`FROM: @H-010@, @H-011@`).
+  * **Implementation:** `@IMP-MB-STORE-023@` (`_collectPlausibilityWarnings` in the M&B Pinia store, emits the persistent `WARN-UQ-001` notification listing every offending mandatory station by name).
+  * **Verification:** `@UT-MB-STORE-060@` (warning fires on load with zero pilot mass), `@UT-MB-STORE-061@` (warning clears once a non-zero mass is entered), `@UT-MB-STORE-062@` (single consolidated advisory lists every offending station), `@UT-MB-STORE-063@` (zero fuel does NOT trip the advisory — legitimate planning state).
+  * **Hazard linkage:** mitigates [H-010](#h-010-fuel-starvation-errors) (occupant fuel-starvation by mis-entry) and [H-011](#h-011-aircraft-data-integrity-errors) ("garbage-in" mass typo) by surfacing the Go/No-Go-impacting input before it reaches the result.
+* [x] **Unverified Data Flagging**: Any data sourced externally (Open-Source Airports) or manually (Obstacles) must be prominently flagged until pilot verification.
+  * **Requirements:** [REQ-AC-005](../requirements/aircraft_management.md#req-ac-005-profile-verification-status) (`FROM: @H-011@`, draft profile emits persistent `WARN-AC-002`), [REQ-AP-005](../requirements/airport_database.md#req-ap-005-unverified-state-for-external-data) (`FROM: @H-015@`, externally retrieved airport parameters default to `Unverified`), [REQ-UI-014](../requirements/user_interface.md#req-ui-014-unverified-data-toggle) (per-field Verify toggle), [REQ-UI-015](../requirements/user_interface.md#req-ui-015-unverified-data-export-warning) (`FROM: @H-015@`, `CRIT-UI-001` blocks export/save with unverified data), [REQ-PF-009](../requirements/performance.md#req-pf-009-unverified-obstacle-notification) (persistent `WARN-PF-001` while a pilot-defined obstacle is active).
+  * **Implementation:** `@IMP-AC-VIEW-004@` (`ProfileStatusBadge.vue` — visible Draft/Verified badge with role="status"), `@IMP-AC-STORE-005@` (fleet store fires `WARN-AC-002` whenever a draft profile is consumed for calculation).
+  * **Verification:** `@UT-AC-VIEW-070@` … `@UT-AC-VIEW-078@` (badge renders Draft vs Verified with distinct CSS class, aria-label, and tooltip referencing "safety-critical"), `@UT-MB-STORE-059@` (WARN-AC-002 fires for draft profile during computation), `@UT-MB-STORE-019@` (WARN-AC-002 absent for verified profile).
+  * **Hazard linkage:** mitigates [H-011](#h-011-aircraft-data-integrity-errors) (typo-prone POH data), [H-015](#h-015-runway-data-errors) (unverified open-source airport DB), and the obstacle-data path of [H-017](#h-017-obstacle-clearance-errors).
 
 ---
 

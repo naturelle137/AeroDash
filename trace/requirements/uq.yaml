@@ -20,3 +20,10 @@ Usability & Quality Requirements
     file: docs/requirements/usability_quality.md
     hazard:
       - H-001
+
+  REQ-UQ-006
+    title: Zero-Value Plausibility Check
+    file: docs/requirements/usability_quality.md
+    hazard:
+      - H-010
+      - H-011

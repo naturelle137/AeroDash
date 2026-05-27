@@ -177,7 +177,7 @@ This document defines the user interface behavior using the **EARS** (Easy Appro
 **Requirement:** The system shall subscribe to the Notification Service and render notifications based on their severity: <ul><li>`INFO`: Toast/Banner</li> <li>`WARNING`: Dismissible Alert or Field Indicator</li> <li>`CRITICAL`: Blocking Modal or Flashing Alert</li></ul>
 **Rationale:** Consistent user experience for different urgency levels.
 **Priority:** P1
-**Status:** Approved
+**Status:** Implemented
 **Design Reference:** [Notification Schema](../architecture/notification_schema.md)
 
 <!-- @REQ-UI-019@ (FROM: @H-006@) -->
