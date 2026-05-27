@@ -278,3 +278,14 @@ PF Core — Bilinear Interpolation (Unit)
       - IMP-PF-CORE-001
     files:
       - frontend/src/core/logic/performance.bilinear-interpolation.spec.ts
+
+PF Core — POH Distance (Trilinear / Pivot / Verified Gate) (Unit)
+  UT-PF-CORE-041
+    title: trilinear + pivot + computePohDistances facade — full unit suite (verified gate, profile_incomplete, invalid_grid, invalid_input, clamping)
+    impl:
+      - IMP-PF-CORE-002
+      - IMP-PF-CORE-003
+      - IMP-PF-CORE-004
+      - IMP-PF-CORE-005
+    files:
+      - frontend/src/core/logic/performance.poh-distance.spec.ts

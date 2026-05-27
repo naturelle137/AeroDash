@@ -1,0 +1,8 @@
+PF Core — POH Distance Facade (Integration)
+  IT-PF-CORE-001
+    title: raw doc → migrateProfileDocument → computePohDistances — Verified passes, Draft is blocked, legacy v0 is upgraded
+    impl:
+      - IMP-PF-CORE-005
+      - IMP-AC-CORE-003
+    files:
+      - frontend/src/core/logic/__tests__/performance.poh-distance.int.spec.ts

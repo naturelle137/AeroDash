@@ -7,3 +7,37 @@ PF Core — Bilinear Interpolation
       - DES-ARCH-006
     files:
       - frontend/src/core/logic/performance.bilinear-interpolation.ts
+
+PF Core — POH Distance (3-D Trilinear) Facade
+  IMP-PF-CORE-002
+    title: PerformanceCube3D — 3-D (mass × PA × temperature) POH cube type
+    req:
+      - REQ-PF-002
+      - REQ-AD-008
+      - REQ-AD-009
+    files:
+      - frontend/src/core/logic/performance.poh-distance.ts
+
+  IMP-PF-CORE-003
+    title: trilinearInterpolate — 3-axis linear interpolation over the POH cube
+    req:
+      - REQ-PF-002
+    files:
+      - frontend/src/core/logic/performance.poh-distance.ts
+
+  IMP-PF-CORE-004
+    title: pivotDataPointsToCube — sparse data-points → regular 3-D cube
+    req:
+      - REQ-AD-009
+      - REQ-PF-002
+    files:
+      - frontend/src/core/logic/performance.poh-distance.ts
+
+  IMP-PF-CORE-005
+    title: computePohDistances — Verified-only POH TOR/TOD/LR/LD facade
+    req:
+      - REQ-PF-001
+      - REQ-PF-002
+      - REQ-AC-005
+    files:
+      - frontend/src/core/logic/performance.poh-distance.ts
