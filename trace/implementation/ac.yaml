@@ -276,3 +276,13 @@ AC View — Model Catalogue and Components
       - REQ-AC-001
     files:
       - frontend/src/modules/aircraft/components/FleetList.vue
+
+AC (auto)
+  IMP-AC-VIEW-031
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/modules/aircraft/components/IdentitySection.vue
+    req:
+      - REQ-AD-020
+      - REQ-AD-022
+      - REQ-UI-023

@@ -148,3 +148,34 @@ AD Core (domain + mass-balance input schema)
       - REQ-SYS-003
     files:
       - frontend/src/core/adapters/aircraft.schema.ts
+
+AD (auto)
+  IMP-AD-CORE-018
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/core/adapters/aircraft.schema.ts
+    req:
+      - REQ-AD-020
+      - REQ-AD-021
+
+  IMP-AD-CORE-019
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/core/adapters/aircraft.schema.ts
+    req:
+      - REQ-AD-020
+      - REQ-AD-021
+
+  IMP-AD-CORE-020
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/core/domain/aircraft.types.ts
+    req:
+      - REQ-AD-020
+
+  IMP-AD-CORE-021
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/core/domain/aircraft.types.ts
+    req:
+      - REQ-AD-021

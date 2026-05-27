@@ -1,6 +1,6 @@
 MB Core Logic
   UT-MB-CORE-001
-    deleted
+    status: deleted
 
   UT-MB-CORE-002
     title: Verify CG calculation for empty aircraft
@@ -44,7 +44,7 @@ MB Core Logic
       - frontend/src/core/logic/mass-balance.logic.spec.ts
 
   UT-MB-CORE-007 - UT-MB-CORE-016
-    deleted
+    status: deleted
 
   UT-MB-CORE-017
     title: Verify fuel station index shadows payload station with same index
@@ -54,7 +54,7 @@ MB Core Logic
       - frontend/src/core/logic/mass-balance.logic.spec.ts
 
   UT-MB-CORE-018
-    deleted
+    status: deleted
 
   UT-MB-CORE-019
     title: Verify graph type moment uses moment for envelope check
@@ -63,15 +63,8 @@ MB Core Logic
     files:
       - frontend/src/core/logic/mass-balance.logic.spec.ts
 
-  UT-MB-CORE-020
-    title: Verify envelope with fewer than 3 vertices throws
-    impl:
-      - IMP-MB-CORE-011
-    files:
-      - frontend/src/core/logic/mass-balance.logic.spec.ts
-
   UT-MB-CORE-021 - UT-MB-CORE-025
-    deleted
+    status: deleted
 
   UT-MB-CORE-026
     title: Verify CG calculation for forward aircraft loading
@@ -207,13 +200,6 @@ MB Core Logic
     title: Verify empty stations array computes BEM-only CG
     impl:
       - IMP-MB-CORE-001
-    files:
-      - frontend/src/core/logic/mass-balance.logic.spec.ts
-
-  UT-MB-CORE-042
-    title: Verify triangular envelope with minimum 3 vertices is accepted
-    impl:
-      - IMP-MB-CORE-011
     files:
       - frontend/src/core/logic/mass-balance.logic.spec.ts
 
@@ -451,7 +437,7 @@ MB Core - Envelope (Unit)
       - frontend/src/core/logic/mb.envelope.spec.ts
 
   UT-MB-CORE-061 - UT-MB-CORE-067
-    deleted
+    status: deleted
 
 MB Core Logic - White Box
   UT-MB-CORE-068
@@ -1344,3 +1330,33 @@ MB UI — Station Input & View Recovery (Unit)
       - IMP-MB-UI-008
     files:
       - frontend/src/modules/mass-balance/views/__tests__/MassBalanceView.spec.ts
+
+MB (auto)
+  UT-MB-DATA-036
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/modules/mass-balance/data/__tests__/aircraft-context.schema.spec.ts
+    impl:
+      - IMP-MB-DATA-001
+
+  UT-MB-DATA-037
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/modules/mass-balance/data/__tests__/aircraft-context.schema.spec.ts
+    impl:
+      - IMP-MB-DATA-001
+
+  UT-MB-SVC-001
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/modules/mass-balance/services/fleet-profile.mapper.spec.ts
+    impl:
+      - IMP-MB-SVC-001
+
+  UT-MB-VIEW-020
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/modules/mass-balance/views/__tests__/MassBalanceView.fleet.spec.ts
+    impl:
+      - IMP-MB-SVC-001
+      - IMP-MB-UI-004

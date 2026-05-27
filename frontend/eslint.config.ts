@@ -15,6 +15,14 @@ import pluginVitest from '@vitest/eslint-plugin'
 import pluginOxlint from 'eslint-plugin-oxlint'
 import skipFormatting from 'eslint-config-prettier/flat'
 
+import noE2eTagInTs from './eslint-rules/no-e2e-tag-in-ts.js'
+
+const aerodashPlugin = {
+  rules: {
+    'no-e2e-tag-in-ts': noE2eTagInTs,
+  },
+}
+
 // To allow more languages other than `ts` in `.vue` files, uncomment the following lines:
 // import { configureVueProject } from '@vue/eslint-config-typescript'
 // configureVueProject({ scriptLangs: ['ts', 'tsx'] })
@@ -46,6 +54,11 @@ export default defineConfigWithVueTs(
     '**/node_modules/**',
     '**/stryker-tmp/**',
     '**/playwright-report/**',
+    // Fixtures that deliberately violate `aerodash/no-e2e-tag-in-ts` and
+    // are linted programmatically by the rule's own spec. Excluding them
+    // from the regular lint pass keeps `pnpm lint` green while the spec
+    // still proves the rule fires.
+    'eslint-rules/__fixtures__/**',
   ]),
 
   ...pluginVue.configs['flat/essential'],
@@ -128,6 +141,19 @@ export default defineConfigWithVueTs(
           ],
         },
       ],
+    },
+  },
+
+  // Traceability: `@E2E-…@` tags must live in `.feature` files, not in
+  // TypeScript sources. See issue #265 and `docs/stc.md` §3.
+  {
+    name: 'aerodash/no-e2e-tag-in-ts',
+    files: ['**/*.ts', '**/*.mts', '**/*.tsx'],
+    plugins: {
+      aerodash: aerodashPlugin,
+    },
+    rules: {
+      'aerodash/no-e2e-tag-in-ts': 'error',
     },
   },
 

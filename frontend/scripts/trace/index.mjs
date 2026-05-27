@@ -106,11 +106,12 @@ export async function run(argv, ctx = {}) {
           'trace — AeroDash traceability CLI',
           '',
           'Commands:',
-          '  parse                    Dump scanned tags as JSON',
-          '  check [--warn-only]      Validate invariants + registry drift',
-          '  tag <TYPE> --file <p>    Generate and insert the next tag id',
-          '  resolve <files...>       Replace @TYPE@ placeholders',
-          '  sync [--apply]           Regenerate trace/ registries',
+          '  parse                                            Dump scanned tags as JSON',
+          '  check [--warn-only] [--structural-only]          Validate invariants + registry drift',
+          '         [--baseline [<path>]]                     (structural-only ratchets against the baseline)',
+          '  tag <TYPE> --file <p>                            Generate and insert the next tag id',
+          '  resolve <files...>                               Replace @TYPE@ placeholders',
+          '  sync [--apply]                                   Regenerate trace/ registries',
           '',
           'trace tag segment precedence (highest → lowest):',
           '  1. positional segments (`trace tag IMP MB CORE --file …`)',
@@ -126,10 +127,21 @@ export async function run(argv, ctx = {}) {
       return exitCode
     }
     case 'check': {
+      const baselineFlag = flags['baseline']
+      const baselinePath =
+        baselineFlag === undefined || baselineFlag === false
+          ? undefined
+          : baselineFlag === true
+            ? path.join(repoRoot, 'frontend/scripts/trace/baseline-structural.json')
+            : path.isAbsolute(String(baselineFlag))
+              ? String(baselineFlag)
+              : path.join(repoRoot, String(baselineFlag))
       const { exitCode } = await runCheck({
         repoRoot,
         log,
         warnOnly: Boolean(flags['warn-only']),
+        structuralOnly: Boolean(flags['structural-only']),
+        baselinePath,
       })
       return exitCode
     }

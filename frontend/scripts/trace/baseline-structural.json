@@ -1,0 +1,138 @@
+{
+  "$comment": "Pre-existing structural traceability violations grandfathered while the trace graph is cleaned up. Regenerate with: node frontend/scripts/trace/scripts/regen-baseline.mjs. The structural gate fails on any violation beyond this snapshot. See issue #265.",
+  "duplicates": [
+    "@DES-ARCH-008@",
+    "@DES-ARCH-010@",
+    "@DES-UX-007@",
+    "@DES-UX-008@",
+    "@DES-UX-009@",
+    "@IMP-MB-UI-007@",
+    "@IMP-SYS-SHARED-003@",
+    "@REQ-AC-003@",
+    "@REQ-AD-020@",
+    "@REQ-AD-021@",
+    "@REQ-AD-022@",
+    "@UT-AC-STORE-025@",
+    "@UT-AC-STORE-026@",
+    "@UT-AC-STORE-027@",
+    "@UT-AC-STORE-028@",
+    "@UT-AC-STORE-029@",
+    "@UT-AC-STORE-080@",
+    "@UT-AC-STORE-081@",
+    "@UT-AC-STORE-082@",
+    "@UT-AC-STORE-083@",
+    "@UT-AC-VIEW-025@",
+    "@UT-SYS-CORE-001@",
+    "@UT-SYS-CORE-002@",
+    "@UT-SYS-CORE-003@",
+    "@UT-SYS-CORE-004@",
+    "@UT-SYS-CORE-005@",
+    "@UT-SYS-CORE-006@",
+    "@UT-SYS-CORE-007@",
+    "@UT-SYS-CORE-008@",
+    "@UT-SYS-CORE-009@",
+    "@UT-SYS-CORE-010@",
+    "@UT-SYS-CORE-011@",
+    "@UT-SYS-CORE-012@",
+    "@UT-SYS-CORE-013@",
+    "@UT-SYS-CORE-014@",
+    "@UT-SYS-CORE-015@",
+    "@UT-SYS-CORE-016@",
+    "@UT-SYS-STORE-017@",
+    "@UT-SYS-STORE-018@",
+    "@UT-SYS-STORE-028@",
+    "@UT-SYS-STORE-029@",
+    "@UT-SYS-STORE-030@"
+  ],
+  "danglingFromRefs": [
+    "@IMP-MB-STORE-004@",
+    "@IMP-MB-UI-FLEET-002@",
+    "@IMP-SYS-SHARED-006@"
+  ],
+  "registryDrift": {
+    "REQ": {
+      "onlyInSource": [],
+      "onlyInRegistry": [],
+      "fileMismatches": [
+        "REQ-AC-003",
+        "REQ-AD-020",
+        "REQ-AD-021",
+        "REQ-AD-022"
+      ]
+    },
+    "UJ": {
+      "onlyInSource": [],
+      "onlyInRegistry": [],
+      "fileMismatches": []
+    },
+    "DES": {
+      "onlyInSource": [],
+      "onlyInRegistry": [],
+      "fileMismatches": [
+        "DES-ARCH-008",
+        "DES-ARCH-010",
+        "DES-UX-007",
+        "DES-UX-008",
+        "DES-UX-009"
+      ]
+    },
+    "IMP": {
+      "onlyInSource": [],
+      "onlyInRegistry": [
+        "IMP-MB-UI-FLEET-002"
+      ],
+      "fileMismatches": [
+        "IMP-AC-VIEW-001",
+        "IMP-MB-UI-008",
+        "IMP-SYS-SHARED-003"
+      ]
+    },
+    "UT": {
+      "onlyInSource": [],
+      "onlyInRegistry": [],
+      "fileMismatches": [
+        "UT-AC-STORE-025",
+        "UT-AC-STORE-026",
+        "UT-AC-STORE-027",
+        "UT-AC-STORE-028",
+        "UT-AC-STORE-029",
+        "UT-AC-STORE-080",
+        "UT-AC-STORE-081",
+        "UT-AC-STORE-082",
+        "UT-AC-STORE-083",
+        "UT-AC-VIEW-025",
+        "UT-SYS-CORE-001",
+        "UT-SYS-CORE-002",
+        "UT-SYS-CORE-003",
+        "UT-SYS-CORE-004",
+        "UT-SYS-CORE-005",
+        "UT-SYS-CORE-006",
+        "UT-SYS-CORE-007",
+        "UT-SYS-CORE-008",
+        "UT-SYS-CORE-009",
+        "UT-SYS-CORE-010",
+        "UT-SYS-CORE-011",
+        "UT-SYS-CORE-012",
+        "UT-SYS-CORE-013",
+        "UT-SYS-CORE-014",
+        "UT-SYS-CORE-015",
+        "UT-SYS-CORE-016",
+        "UT-SYS-STORE-017",
+        "UT-SYS-STORE-018",
+        "UT-SYS-STORE-028",
+        "UT-SYS-STORE-029",
+        "UT-SYS-STORE-030"
+      ]
+    },
+    "IT": {
+      "onlyInSource": [],
+      "onlyInRegistry": [],
+      "fileMismatches": []
+    },
+    "E2E": {
+      "onlyInSource": [],
+      "onlyInRegistry": [],
+      "fileMismatches": []
+    }
+  }
+}

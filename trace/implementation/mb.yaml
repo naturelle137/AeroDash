@@ -58,7 +58,7 @@ MB Core Logic
       - frontend/src/core/logic/mass-balance.logic.ts
 
   IMP-MB-CORE-009
-    obsolete
+    status: obsolete
 
   IMP-MB-CORE-010
     title: Landing CG Migration Validation
@@ -135,15 +135,6 @@ MB Store - Getters
     title: activeCategoryDef Getter - Active Certification Category Definition
     req:
       - REQ-MB-001
-    files:
-      - frontend/src/modules/mass-balance/stores/mass-balance.store.ts
-
-  IMP-MB-STORE-004
-    title: availableStations Getter - Stations Filtered by Active Category
-    req:
-      - REQ-MB-001
-    des:
-      - DES-UX-007
     files:
       - frontend/src/modules/mass-balance/stores/mass-balance.store.ts
 
@@ -381,3 +372,34 @@ MB UI Components
       - REQ-UI-018
     files:
       - frontend/src/modules/mass-balance/views/MassBalanceView.vue
+
+MB (auto)
+  IMP-MB-DATA-002
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/modules/mass-balance/data/aircraft-context.schema.ts
+    req:
+      - REQ-AD-020
+      - REQ-AD-021
+
+  IMP-MB-SVC-001
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/modules/mass-balance/services/fleet-profile.mapper.ts
+    req:
+      - REQ-MB-002
+      - REQ-AC-005
+
+  IMP-MB-STORE-019
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/modules/mass-balance/stores/mass-balance.store.ts
+    req:
+      - REQ-SYS-013
+
+  IMP-MB-VIEW-010
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/modules/mass-balance/views/MassBalanceView.vue
+    req:
+      - REQ-AD-020

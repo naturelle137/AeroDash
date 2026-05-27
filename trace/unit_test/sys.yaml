@@ -132,13 +132,6 @@ SYS Core — Zod error to violation mapping (Unit)
     files:
       - frontend/src/core/adapters/mb.zod-violation-mapping.spec.ts
 
-  UT-SYS-CORE-020
-    title: Violation mapping no longer emits phantom severity field
-    impl:
-      - IMP-SYS-CORE-002
-    files:
-      - frontend/src/core/adapters/mb.zod-violation-mapping.spec.ts
-
 SYS Core — Notification Schema (Unit)
   UT-SYS-CORE-021
     title: Accepts a valid action with all fields
@@ -614,48 +607,6 @@ SYS Core — SI Unit Normalization (Unit)
     files:
       - frontend/src/core/logic/unit-normalization.spec.ts
 
-  UT-SYS-CORE-041
-    title: armMToUnit converts metres to feet correctly
-    impl:
-      - IMP-SYS-CORE-006
-    files:
-      - frontend/src/core/logic/unit-normalization.spec.ts
-
-  UT-SYS-CORE-042
-    title: normalizeVolumeToL returns value unchanged for L input
-    impl:
-      - IMP-SYS-CORE-006
-    files:
-      - frontend/src/core/logic/unit-normalization.spec.ts
-
-  UT-SYS-CORE-043
-    title: normalizeVolumeToL converts US gallons to litres correctly
-    impl:
-      - IMP-SYS-CORE-006
-    files:
-      - frontend/src/core/logic/unit-normalization.spec.ts
-
-  UT-SYS-CORE-044
-    title: normalizeVolumeToL is invertible with volumeLToUnit
-    impl:
-      - IMP-SYS-CORE-006
-    files:
-      - frontend/src/core/logic/unit-normalization.spec.ts
-
-  UT-SYS-CORE-045
-    title: volumeLToUnit returns value unchanged for L target
-    impl:
-      - IMP-SYS-CORE-006
-    files:
-      - frontend/src/core/logic/unit-normalization.spec.ts
-
-  UT-SYS-CORE-046
-    title: volumeLToUnit converts litres to US gallons correctly
-    impl:
-      - IMP-SYS-CORE-006
-    files:
-      - frontend/src/core/logic/unit-normalization.spec.ts
-
 SYS Core — Decimal Precision Policy (Unit)
   UT-UQ-CORE-001
     title: formatMassConservative rounds mass UP at 1 decimal place (ceil)
@@ -848,7 +799,6 @@ SYS App — Version-Blocked Screen (Unit)
     files:
       - frontend/src/stores/__tests__/app-version-blocked.spec.ts
 
-
 SYS App — bfcache Restoration Handler (Unit)
   UT-SYS-APP-031
     title: bfcache gate mounts the wrapped child exactly once on initial render (issue #232)
@@ -905,7 +855,6 @@ SYS App — bfcache Restoration Handler (Unit)
       - IMP-SYS-SHARED-007
     files:
       - frontend/src/__tests__/App.bfcache.spec.ts
-
 
 SYS Store — Session Persistence (Unit)
   UT-SYS-STORE-001
@@ -1194,3 +1143,60 @@ SYS Store — Session Drop Notification Tests (#259)
       - IMP-SYS-CORE-012
     files:
       - frontend/src/stores/__tests__/session-persistence.store.spec.ts
+
+SYS (auto)
+  UT-SYS-APP-029
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/stores/__tests__/app-version-blocked.spec.ts
+    impl:
+      - IMP-SYS-STORE-008
+
+  UT-SYS-APP-030
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/stores/__tests__/app-version-blocked.spec.ts
+    impl:
+      - IMP-SYS-SHARED-006
+
+  UT-SYS-STORE-031
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/stores/__tests__/pwa-update.store.spec.ts
+    impl:
+      - IMP-SYS-STORE-010
+
+  UT-SYS-STORE-032
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/stores/__tests__/pwa-update.store.spec.ts
+    impl:
+      - IMP-SYS-STORE-010
+
+  UT-SYS-STORE-035
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/stores/__tests__/pwa-update.store.spec.ts
+    impl:
+      - IMP-SYS-STORE-010
+
+  UT-SYS-STORE-036
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/stores/__tests__/pwa-update.store.spec.ts
+    impl:
+      - IMP-SYS-STORE-010
+
+  UT-SYS-STORE-033
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/stores/__tests__/pwa-update.store.spec.ts
+    impl:
+      - IMP-SYS-STORE-010
+
+  UT-SYS-STORE-034
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/stores/__tests__/pwa-update.store.spec.ts
+    impl:
+      - IMP-SYS-STORE-010

@@ -219,7 +219,6 @@ SYS Shared — Structured Logger Utility
     files:
       - frontend/src/App.vue
 
-
 SYS Shared — Theme Toggle
   IMP-SYS-SHARED-004
     title: useTheme composable — dark/light mode toggle with localStorage persistence
@@ -227,15 +226,6 @@ SYS Shared — Theme Toggle
       - REQ-UI-011
     files:
       - frontend/src/shared/composables/useTheme.ts
-
-
-SYS App Shell — Version Blocking
-  IMP-SYS-SHARED-006
-    title: App.vue version-blocked screen — blocks RouterView when versionBlocked is true (REQ-SYS-006)
-    req:
-      - REQ-SYS-006
-    files:
-      - frontend/src/App.vue
 
 SYS App Shell — bfcache restoration handler
   IMP-SYS-SHARED-007
@@ -267,3 +257,11 @@ SYS Core — Session Payload Migration Registry (#259)
       - REQ-SYS-013
     files:
       - frontend/src/core/logic/session-migrations.ts
+
+SYS (auto)
+  IMP-SYS-STORE-010
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/stores/pwa-update.store.ts
+    req:
+      - REQ-SYS-005

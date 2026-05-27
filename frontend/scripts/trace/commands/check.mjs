@@ -8,7 +8,17 @@
  *
  * Exit code is 0 on success, 1 when any violation is detected. The CLI
  * caller can downgrade to warn-only by wrapping the call.
+ *
+ * Structural-only mode (`--structural-only`, REQ-SYS-005) gates merges on
+ * the three checks that should hard-fail today — duplicate-tag,
+ * dangling-FROM, registry-drift — while ignoring orphan/coverage gaps
+ * (those remain warn-only). It is the surface wired into `pnpm lint` and
+ * the vitest structural-gate spec, and accepts an optional `--baseline`
+ * JSON snapshot so pre-existing violations can be ratcheted down rather
+ * than blocking every PR until the trace graph is fully clean.
  */
+
+import { readFile } from 'node:fs/promises'
 
 import { scanAll } from '../lib/parser.mjs'
 import { findDanglingFromRefs, findDuplicates } from '../lib/id-generator.mjs'
@@ -27,6 +37,13 @@ import { diffRegistry, loadIndexedRegistry } from '../lib/registry.mjs'
  * @property {import('../lib/presence.mjs').PresenceReport} presence
  *           Document-registry presence — REQ/UJ YAML files missing from
  *           trace/requirements/ and trace/journeys/ (issue #264 / STC §4.2).
+ */
+
+/**
+ * @typedef {Object} StructuralBaseline
+ * @property {string[]} duplicates             Pre-existing duplicate ids (with @ delimiters).
+ * @property {string[]} danglingFromRefs       Pre-existing undefined ids cited via FROM (with @ delimiters).
+ * @property {Record<string, { onlyInSource: string[], onlyInRegistry: string[], fileMismatches: string[] }>} registryDrift
  */
 
 /**
@@ -80,13 +97,176 @@ export async function buildCheckReport(repoRoot) {
 }
 
 /**
+ * Project the structural slice of a check report into the stable
+ * id-only shape used both by the baseline file on disk and by the
+ * baseline-diff logic. Keeps the gate independent of incidental
+ * details like file paths or line numbers.
+ *
+ * @param {CheckReport} report
+ * @returns {StructuralBaseline}
+ */
+export function projectStructuralBaseline(report) {
+  const duplicates = report.duplicates.map((d) => d.id).slice().sort()
+  const danglingFromRefs = Array.from(new Set(report.danglingFromRefs.map((d) => d.from))).sort()
+  /** @type {StructuralBaseline['registryDrift']} */
+  const registryDrift = {}
+  for (const [type, diff] of Object.entries(report.registryDrift)) {
+    registryDrift[type] = {
+      onlyInSource: diff.onlyInSource.slice().sort(),
+      onlyInRegistry: diff.onlyInRegistry.slice().sort(),
+      fileMismatches: diff.fileMismatches.map((m) => m.id).slice().sort(),
+    }
+  }
+  return { duplicates, danglingFromRefs, registryDrift }
+}
+
+/**
+ * Compute the structural violations present in `current` but **not** in
+ * `baseline`. Resolved-since-baseline entries do not surface — the gate
+ * only fires on regressions.
+ *
+ * @param {StructuralBaseline} current
+ * @param {StructuralBaseline} baseline
+ * @returns {StructuralBaseline}
+ */
+export function diffAgainstBaseline(current, baseline) {
+  /** @param {string[]} a @param {string[]|undefined} b */
+  const newOnly = (a, b) => {
+    const known = new Set(b ?? [])
+    return a.filter((id) => !known.has(id)).sort()
+  }
+  /** @type {StructuralBaseline['registryDrift']} */
+  const registryDrift = {}
+  const types = new Set([
+    ...Object.keys(current.registryDrift),
+    ...Object.keys(baseline.registryDrift ?? {}),
+  ])
+  for (const type of types) {
+    const curDiff = current.registryDrift[type] ?? { onlyInSource: [], onlyInRegistry: [], fileMismatches: [] }
+    const baseDiff = baseline.registryDrift?.[type] ?? { onlyInSource: [], onlyInRegistry: [], fileMismatches: [] }
+    const onlyInSource = newOnly(curDiff.onlyInSource, baseDiff.onlyInSource)
+    const onlyInRegistry = newOnly(curDiff.onlyInRegistry, baseDiff.onlyInRegistry)
+    const fileMismatches = newOnly(curDiff.fileMismatches, baseDiff.fileMismatches)
+    if (onlyInSource.length || onlyInRegistry.length || fileMismatches.length) {
+      registryDrift[type] = { onlyInSource, onlyInRegistry, fileMismatches }
+    }
+  }
+  return {
+    duplicates: newOnly(current.duplicates, baseline.duplicates),
+    danglingFromRefs: newOnly(current.danglingFromRefs, baseline.danglingFromRefs),
+    registryDrift,
+  }
+}
+
+/**
+ * Count the violations remaining in a baseline-shaped object.
+ *
+ * @param {StructuralBaseline} snapshot
+ * @returns {number}
+ */
+export function countStructural(snapshot) {
+  let n = snapshot.duplicates.length + snapshot.danglingFromRefs.length
+  for (const diff of Object.values(snapshot.registryDrift)) {
+    n += diff.onlyInSource.length + diff.onlyInRegistry.length + diff.fileMismatches.length
+  }
+  return n
+}
+
+/**
+ * Format the structural slice for stdout — matches the long-form
+ * report so reviewers see the same shape whether the gate is on or off.
+ *
+ * @param {StructuralBaseline} snapshot
+ * @returns {string[]}
+ */
+function formatStructuralLines(snapshot) {
+  const lines = []
+  if (snapshot.duplicates.length) {
+    lines.push('Duplicate tag declarations (INV-008):')
+    for (const id of snapshot.duplicates) lines.push(`  ${id}`)
+  }
+  if (snapshot.danglingFromRefs.length) {
+    lines.push('Dangling FROM references (INV-009):')
+    for (const id of snapshot.danglingFromRefs) lines.push(`  ${id}`)
+  }
+  for (const [type, diff] of Object.entries(snapshot.registryDrift)) {
+    if (!diff.onlyInSource.length && !diff.onlyInRegistry.length && !diff.fileMismatches.length) {
+      continue
+    }
+    lines.push(`Registry drift for ${type}:`)
+    if (diff.onlyInSource.length) {
+      lines.push('  In source but missing from registry:')
+      for (const id of diff.onlyInSource) lines.push(`    ${id}`)
+    }
+    if (diff.onlyInRegistry.length) {
+      lines.push('  In registry but missing from source:')
+      for (const id of diff.onlyInRegistry) lines.push(`    ${id}`)
+    }
+    if (diff.fileMismatches.length) {
+      lines.push('  File-list mismatch (source vs registry):')
+      for (const id of diff.fileMismatches) lines.push(`    ${id}`)
+    }
+  }
+  return lines
+}
+
+/**
+ * Read a structural baseline JSON file. Returns the empty baseline when
+ * `path` is null/undefined so callers can treat "no baseline" as
+ * "everything must be clean".
+ *
+ * @param {string|undefined|null} baselinePath
+ * @returns {Promise<StructuralBaseline>}
+ */
+export async function loadStructuralBaseline(baselinePath) {
+  if (!baselinePath) {
+    return { duplicates: [], danglingFromRefs: [], registryDrift: {} }
+  }
+  const text = await readFile(baselinePath, 'utf8')
+  /** @type {Partial<StructuralBaseline>} */
+  const parsed = JSON.parse(text)
+  return {
+    duplicates: parsed.duplicates ?? [],
+    danglingFromRefs: parsed.danglingFromRefs ?? [],
+    registryDrift: parsed.registryDrift ?? {},
+  }
+}
+
+/**
  * @param {Object} opts
  * @param {string} opts.repoRoot
  * @param {(message: string) => void} [opts.log]
- * @param {boolean} [opts.warnOnly]  Force exitCode 0 even when violations exist.
+ * @param {boolean} [opts.warnOnly]         Force exitCode 0 even when violations exist.
+ * @param {boolean} [opts.structuralOnly]   Gate only on duplicates / dangling-FROM / drift.
+ * @param {string} [opts.baselinePath]      JSON file listing pre-existing structural violations to ratchet.
  */
-export async function runCheck({ repoRoot, log = () => {}, warnOnly = false }) {
+export async function runCheck({ repoRoot, log = () => {}, warnOnly = false, structuralOnly = false, baselinePath }) {
   const report = await buildCheckReport(repoRoot)
+
+  if (structuralOnly) {
+    const current = projectStructuralBaseline(report)
+    const baseline = await loadStructuralBaseline(baselinePath)
+    const newViolations = diffAgainstBaseline(current, baseline)
+    const newCount = countStructural(newViolations)
+    const lines = formatStructuralLines(newViolations)
+
+    if (newCount === 0) {
+      log('Traceability structural check passed: no new violations.')
+      return { stdout: '', exitCode: 0, report, structural: { current, baseline, newViolations } }
+    }
+    for (const l of lines) log(l)
+    log(
+      `Traceability structural check found ${newCount} new violation(s) beyond the baseline. ` +
+        'Re-run with --update-baseline only after the underlying tag/registry conflict is fixed.',
+    )
+    return {
+      stdout: '',
+      exitCode: warnOnly ? 0 : 1,
+      report,
+      structural: { current, baseline, newViolations },
+    }
+  }
+
   let violations = 0
   const lines = []
 

@@ -157,10 +157,26 @@ Run any command from the repo root via `pnpm trace …`.
 | :------ | :------ |
 | `pnpm trace parse` | Dump the full scanned tag graph as JSON to stdout (useful for `jq` queries). |
 | `pnpm trace check` | Validate invariants (orphans, duplicates, dangling FROM, registry drift). Exits non-zero on violations; pass `--warn-only` to downgrade. |
+| `pnpm trace:check:structural` (or `pnpm lint`) | **Hard-fail gate** for the three structural checks — duplicate-tag, dangling-FROM, registry-drift. Diffs against `frontend/scripts/trace/baseline-structural.json` so pre-existing tech debt is grandfathered and only NEW regressions fail. Mirrored by the `repo structural traceability gate` vitest spec so CI enforces it via `pnpm test:unit`. See issue #265. |
 | `pnpm trace tag <TYPE> --file <path> [--from REQ-...,DES-...] [--line N]` | Compute the next sequential id, write the comment into the file. Module/layer/phase are inferred from `<path>` — pass explicit segments only when inference cannot decide. |
 | `pnpm trace resolve <files...>` | Walk a list of files, replace every `@TYPE@` placeholder with the next generated id. |
 | `pnpm trace sync` | Dry-run the registry regeneration (reports planned add/remove/file-mismatch diffs). |
 | `pnpm trace sync --apply` | Persist the regenerated `trace/*.yaml` files. The CLI preserves curated titles and `status: deleted` tombstones (STC §5.2). |
+
+> **Structural gate ratchet.** When you legitimately resolve a baselined
+> entry (or genuinely cannot avoid a NEW one that is part of a coordinated
+> migration), regenerate the baseline with
+> `node frontend/scripts/trace/scripts/regen-baseline.mjs` and commit the
+> updated `baseline-structural.json` in the same PR. Adding to the
+> baseline without a written explanation in the PR description is a
+> review red flag — the baseline only shrinks unless something
+> exceptional happens.
+>
+> **No `@E2E-…@` tags in TypeScript comments.** The trace scanner only
+> reads `@E2E-…@` from `*.feature` files; the same comment in a `.ts`
+> step-definition silently breaks the REQ → UJ → E2E chain. The
+> `aerodash/no-e2e-tag-in-ts` ESLint rule fails fast — keep E2E tags in
+> the Gherkin layer.
 
 #### Authoring workflows
 

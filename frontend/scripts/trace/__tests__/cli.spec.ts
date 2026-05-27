@@ -292,6 +292,57 @@ describe('runCheck', () => {
     expect(exitCode).toBe(0)
   })
 
+  it('treats same-file tag repetition as a single declaration (header manifest + inline tags)', async () => {
+    // Regression for issue #265: the manifest block at the top of a spec file
+    // PLUS inline tags above each `it(...)` is an accepted documentation
+    // convention, not a duplicate. Cross-file repeats remain real defects.
+    await writeFileEnsuring(
+      'frontend/src/__tests__/repeats.spec.ts',
+      [
+        '// @UT-SYS-APP-001@ (FROM: @IMP-SYS-SHARED-001@)',
+        '// @UT-SYS-APP-002@ (FROM: @IMP-SYS-SHARED-001@)',
+        '// @UT-SYS-APP-001@ (FROM: @IMP-SYS-SHARED-001@)',
+        'it(\'one\', () => {})',
+        '// @UT-SYS-APP-002@ (FROM: @IMP-SYS-SHARED-001@)',
+        'it(\'two\', () => {})',
+      ].join('\n'),
+    )
+    await writeFileEnsuring(
+      'frontend/src/shared/components/AppShell.vue',
+      '// @IMP-SYS-SHARED-001@ (FROM: @REQ-SYS-001@)\n',
+    )
+    await writeFileEnsuring(
+      'docs/requirements/system.md',
+      '<!-- @REQ-SYS-001@ -->\n### REQ-SYS-001 — App shell\n',
+    )
+
+    const { report } = await runCheck({ repoRoot: sandbox })
+    expect(report.duplicates.map((d) => d.id)).not.toContain('@UT-SYS-APP-001@')
+    expect(report.duplicates.map((d) => d.id)).not.toContain('@UT-SYS-APP-002@')
+  })
+
+  it('still flags cross-file duplicate declarations', async () => {
+    await writeFileEnsuring(
+      'frontend/src/modules/a/__tests__/a.spec.ts',
+      '// @UT-MB-CORE-001@ (FROM: @IMP-MB-CORE-001@)\nit(\'a\', () => {})\n',
+    )
+    await writeFileEnsuring(
+      'frontend/src/modules/b/__tests__/b.spec.ts',
+      '// @UT-MB-CORE-001@ (FROM: @IMP-MB-CORE-001@)\nit(\'b\', () => {})\n',
+    )
+    await writeFileEnsuring(
+      'frontend/src/core/calc.ts',
+      '// @IMP-MB-CORE-001@ (FROM: @REQ-MB-001@)\nexport const x = 1\n',
+    )
+    await writeFileEnsuring(
+      'docs/requirements/mb.md',
+      '<!-- @REQ-MB-001@ -->\n### REQ-MB-001 — Title\n',
+    )
+
+    const { report } = await runCheck({ repoRoot: sandbox })
+    expect(report.duplicates.map((d) => d.id)).toContain('@UT-MB-CORE-001@')
+  })
+
   // Issue #264 — `trace check` must reject a repo whose source declares
   // REQ/UJ tags but is missing the matching trace/requirements/{module}.yaml
   // or trace/journeys/{phase}.yaml registry file.
@@ -361,6 +412,78 @@ describe('runCheck', () => {
     expect(exitCode).toBe(0)
     expect(report.presence.missingRequirements).toEqual([])
     expect(report.presence.missingJourneys).toEqual([])
+  })
+})
+
+describe('runCheck --structural-only', () => {
+  it('passes when only orphan/coverage gaps exist (orphans are warn-only)', async () => {
+    await writeFileEnsuring(
+      'frontend/src/modules/performance/core/calc.ts',
+      '// @IMP-PF-CORE-001@\nexport const a = 1\n',
+    )
+    // Populate the IMP registry so the gate sees an orphan-without-drift state.
+    await runSync({ repoRoot: sandbox, apply: true })
+
+    const { exitCode } = await runCheck({ repoRoot: sandbox, structuralOnly: true })
+    expect(exitCode).toBe(0)
+  })
+
+  it('fails on a fresh dangling FROM reference with no baseline', async () => {
+    await writeFileEnsuring(
+      'frontend/src/modules/performance/core/calc.ts',
+      '// @IMP-PF-CORE-001@ (FROM: @REQ-PF-999@)\nexport const a = 1\n',
+    )
+    await runSync({ repoRoot: sandbox, apply: true })
+
+    const { exitCode, structural } = await runCheck({ repoRoot: sandbox, structuralOnly: true })
+    expect(exitCode).toBe(1)
+    expect(structural?.newViolations.danglingFromRefs).toContain('@REQ-PF-999@')
+  })
+
+  it('grandfathers pre-existing violations via the baseline file', async () => {
+    await writeFileEnsuring(
+      'frontend/src/modules/performance/core/calc.ts',
+      '// @IMP-PF-CORE-001@ (FROM: @REQ-PF-999@)\nexport const a = 1\n',
+    )
+    await runSync({ repoRoot: sandbox, apply: true })
+
+    const baselinePath = path.join(sandbox, 'baseline.json')
+    await writeFile(
+      baselinePath,
+      JSON.stringify({ duplicates: [], danglingFromRefs: ['@REQ-PF-999@'], registryDrift: {} }),
+    )
+    const { exitCode } = await runCheck({
+      repoRoot: sandbox,
+      structuralOnly: true,
+      baselinePath,
+    })
+    expect(exitCode).toBe(0)
+  })
+
+  it('fires when a NEW violation appears beyond the baseline', async () => {
+    await writeFileEnsuring(
+      'frontend/src/modules/performance/core/calc.ts',
+      '// @IMP-PF-CORE-001@ (FROM: @REQ-PF-999@)\nexport const a = 1\n',
+    )
+    await writeFileEnsuring(
+      'frontend/src/modules/performance/core/calc2.ts',
+      '// @IMP-PF-CORE-002@ (FROM: @REQ-PF-888@)\nexport const b = 1\n',
+    )
+    await runSync({ repoRoot: sandbox, apply: true })
+
+    const baselinePath = path.join(sandbox, 'baseline.json')
+    await writeFile(
+      baselinePath,
+      JSON.stringify({ duplicates: [], danglingFromRefs: ['@REQ-PF-999@'], registryDrift: {} }),
+    )
+    const { exitCode, structural } = await runCheck({
+      repoRoot: sandbox,
+      structuralOnly: true,
+      baselinePath,
+    })
+    expect(exitCode).toBe(1)
+    expect(structural?.newViolations.danglingFromRefs).toContain('@REQ-PF-888@')
+    expect(structural?.newViolations.danglingFromRefs).not.toContain('@REQ-PF-999@')
   })
 })
 

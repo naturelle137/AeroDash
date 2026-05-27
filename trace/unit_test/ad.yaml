@@ -451,3 +451,25 @@ AD Core — Finite + numeric range guards (Unit)
       - IMP-AD-CORE-022
     files:
       - frontend/src/core/adapters/aircraft.schema.spec.ts
+
+AD (auto)
+  UT-AD-CORE-047
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+    impl:
+      - IMP-AD-CORE-008
+
+  UT-AD-CORE-048
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+    impl:
+      - IMP-AD-CORE-008
+
+  UT-AD-CORE-049
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+    impl:
+      - IMP-AD-CORE-008
