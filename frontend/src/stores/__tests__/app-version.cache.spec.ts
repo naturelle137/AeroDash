@@ -5,8 +5,11 @@
  * Covers REQ-SYS-006 / H-019 — the offline-enforcement substrate from issue
  * #271 (CS-011 / TECH-023). The store relies on these primitives being
  * (a) total — they never throw, even when the storage backend is broken,
- * and (b) shape-strict — a corrupt record is treated as absent so a bad
- * write from an older bundle cannot demote the floor.
+ * (b) shape-strict — a corrupt record is treated as absent so a bad write
+ * from an older bundle cannot demote the floor, and (c) durable — a
+ * `readwrite` op resolves only after `tx.oncomplete`, not the inner
+ * `request.onsuccess`, so a tab kill between resolve and commit cannot
+ * silently lose the new floor (PR-review Major #3).
  */
 
 // @UT-SYS-STORE-046@ (FROM: @IMP-SYS-STORE-013@)
@@ -18,6 +21,10 @@
 // @UT-SYS-STORE-052@ (FROM: @IMP-SYS-STORE-015@)
 // @UT-SYS-STORE-053@ (FROM: @IMP-SYS-STORE-016@)
 // @UT-SYS-STORE-054@ (FROM: @IMP-SYS-STORE-014@)
+// @UT-SYS-STORE-078@ (FROM: @IMP-SYS-STORE-014@)
+// @UT-SYS-STORE-079@ (FROM: @IMP-SYS-STORE-014@)
+// @UT-SYS-STORE-080@ (FROM: @IMP-SYS-STORE-014@)
+// @UT-SYS-STORE-081@ (FROM: @IMP-SYS-STORE-015@)
 
 import { describe, it, expect, beforeEach } from 'vitest'
 import 'fake-indexeddb/auto'
@@ -25,6 +32,7 @@ import { IDBFactory } from 'fake-indexeddb'
 
 import {
   loadCachedMinSafeVersion,
+  inspectCachedMinSafeVersion,
   persistCachedMinSafeVersion,
   clearCachedMinSafeVersion,
   MIN_SAFE_VERSION_KEY,
@@ -64,6 +72,22 @@ describe('app-version.cache — load / persist round-trip', () => {
     const loaded = await loadCachedMinSafeVersion()
     expect(loaded?.value).toBe('0.5.0')
     expect(loaded?.fetchedAt).toBe(2_000)
+  })
+
+  // @UT-SYS-STORE-081@ (FROM: @IMP-SYS-STORE-015@)
+  // PR-review Major #3: persist must resolve on tx.oncomplete (post-commit),
+  // not request.onsuccess. fake-indexeddb fires both events; observing that a
+  // sequential read AFTER the persist resolves sees the written value
+  // exercises the same code path that production IDB depends on for
+  // durability. (A direct tx.oncomplete vs onsuccess discrimination would
+  // require a custom IDB mock — out of scope; the integration test
+  // app-version.offline.int.spec.ts covers the multi-run round-trip.)
+  it('persist resolves only after the transaction is durably committed', async () => {
+    await persistCachedMinSafeVersion('0.6.0', () => 3_000)
+    // A subsequent read must see the value — proves commit fired before resolve.
+    const loaded = await loadCachedMinSafeVersion()
+    expect(loaded?.value).toBe('0.6.0')
+    expect(loaded?.fetchedAt).toBe(3_000)
   })
 })
 
@@ -115,6 +139,35 @@ describe('app-version.cache — corrupt-record defence', () => {
     const loaded = await loadCachedMinSafeVersion()
     expect(loaded).toBeNull()
   })
+
+  // @UT-SYS-STORE-079@ (FROM: @IMP-SYS-STORE-014@)
+  // PR-review Minor #10: the discriminated outcome lets the store
+  // distinguish first-install (INFO) from a broken record (WARN).
+  it('inspect reports `corrupt` for a malformed record (distinct from `absent`)', async () => {
+    const req = indexedDB.open('aerodash-app-version', 1)
+    req.onupgradeneeded = () => {
+      req.result.createObjectStore('version_policy', { keyPath: 'id' })
+    }
+    await new Promise<void>((resolve, reject) => {
+      req.onsuccess = () => resolve()
+      req.onerror = () => reject(req.error)
+    })
+    const db = req.result
+    await new Promise<void>((resolve, reject) => {
+      const tx = db.transaction('version_policy', 'readwrite')
+      tx.objectStore('version_policy').put({
+        id: MIN_SAFE_VERSION_KEY,
+        value: 'not-a-semver',
+        fetchedAt: 0,
+      })
+      tx.oncomplete = () => resolve()
+      tx.onerror = () => reject(tx.error)
+    })
+    db.close()
+
+    const result = await inspectCachedMinSafeVersion()
+    expect(result.kind).toBe('corrupt')
+  })
 })
 
 describe('app-version.cache — IndexedDB unavailable', () => {
@@ -135,6 +188,34 @@ describe('app-version.cache — IndexedDB unavailable', () => {
     expect(loaded).toBeNull()
     const persisted = await persistCachedMinSafeVersion('0.4.0')
     expect(persisted).toBe(false)
+  })
+
+  // @UT-SYS-STORE-080@ (FROM: @IMP-SYS-STORE-014@)
+  // PR-review Minor #10: distinguish `unavailable` from `absent` so the
+  // store can emit a WARN (vs INFO for first-install) and an operator can
+  // separate Safari-private-mode reports from genuine fresh installs.
+  it('inspect reports `unavailable` when storage throws (distinct from `absent`)', async () => {
+    Object.defineProperty(globalThis, 'indexedDB', {
+      value: {
+        open() {
+          throw new Error('DOMException: storage disabled')
+        },
+      },
+      writable: true,
+      configurable: true,
+    })
+    const result = await inspectCachedMinSafeVersion()
+    expect(result.kind).toBe('unavailable')
+  })
+})
+
+describe('app-version.cache — inspect outcomes (PR-review Minor #10)', () => {
+  // @UT-SYS-STORE-078@ (FROM: @IMP-SYS-STORE-014@)
+  it('inspect reports `absent` on a virgin store and `hit` after a successful persist', async () => {
+    expect((await inspectCachedMinSafeVersion()).kind).toBe('absent')
+    await persistCachedMinSafeVersion('0.4.0', () => 1_234)
+    const result = await inspectCachedMinSafeVersion()
+    expect(result).toEqual({ kind: 'hit', value: '0.4.0', fetchedAt: 1_234 })
   })
 })
 

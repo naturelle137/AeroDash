@@ -12,9 +12,11 @@
  *
  * The resolution algorithm is now:
  *
- * 1. **Read the IndexedDB cache** (`appVersionCache.loadCachedMinSafeVersion`)
- *    — works fully offline. The cache stores the highest `minSafeVersion`
- *    observed during any previous online run.
+ * 1. **Read the IndexedDB cache** (`inspectCachedMinSafeVersion`) — works
+ *    fully offline. The cache stores the highest `minSafeVersion` observed
+ *    during any previous online run. The discriminated outcome lets us
+ *    differentiate first-install (INFO), corrupt record (WARN) and storage
+ *    unavailable (WARN) so a field-report triage can separate the cohorts.
  * 2. **Pick `effectiveMin = max(buildTimeConstant, cachedValue)`**. Using the
  *    cached value as the lower bound is what makes the offline enforcement
  *    work: an older bundle resurrected via Service Worker rollback can never
@@ -29,12 +31,10 @@
  *
  * ## First-install bypass — the only exempt path
  *
- * `loadCachedMinSafeVersion()` returns `null` when the IndexedDB record is
- * absent (truly first-time install) OR when IndexedDB itself is unavailable
- * (Safari private mode, sandboxed iframe). In that case the floor is the
- * build-time constant only — exactly the prior, pre-cache behaviour. The
- * caller logs an INFO so the operator can correlate a missing-cache event
- * with a fresh install or a known-degraded storage backend.
+ * `inspect → { kind: 'absent' }` denotes a truly fresh install — the floor
+ * is the build-time constant only, exactly the prior pre-cache behaviour.
+ * The store logs an INFO so the operator can correlate the event with a
+ * fresh installation in the field.
  *
  * ## Stale-cache warning
  *
@@ -49,7 +49,16 @@
  * - On `window.online` event via `attachConnectivityRefresh()` so a return
  *   to connectivity refreshes the floor without waiting for the next cold
  *   start. (REQ-SYS-009 is Deferred, so this is the only connectivity
- *   surface in the app today.)
+ *   surface in the app today.) The handler re-acquires the store via
+ *   `useAppVersionStore()` so the call goes through the Pinia action
+ *   wrapper (devtools timeline, `$onAction`, `vi.spyOn` all see it).
+ *
+ * ## Single-flight check
+ *
+ * `checkMinSafeVersion()` is serialised by a module-level promise latch: a
+ * second invocation arriving before the first resolves returns the same
+ * in-flight promise. This stops a fast `online` event from racing the
+ * onMounted call and overwriting a newer remote value with an older one.
  */
 
 // @IMP-SYS-STORE-006@ (FROM: @REQ-SYS-006@, @REQ-UI-013@)
@@ -59,16 +68,37 @@ import { ref } from 'vue'
 
 import { createLogger } from '@/shared/utils/logger'
 import {
-  loadCachedMinSafeVersion,
+  inspectCachedMinSafeVersion,
   persistCachedMinSafeVersion,
 } from '@/stores/app-version.cache'
 import { fetchRemoteMinSafeVersion } from '@/stores/app-version.remote'
+import {
+  isValidSemVer,
+  isVersionBelow as semverIsVersionBelow,
+  pickHigherVersion,
+} from '@/stores/app-version.semver'
 
 const logger = createLogger('AppVersion')
 
 /** Cache freshness threshold — 24 hours. Past this, an online check has not
  * succeeded in over a day; we still enforce but emit a WARN. */
 export const CACHE_TTL_MS = 24 * 60 * 60 * 1000
+
+/**
+ * Validate the build-time constant once on module load. The Vite define
+ * pipeline already substitutes `__MIN_SAFE_VERSION__` from a literal, so a
+ * shape failure here means something is structurally wrong with the build —
+ * surface it loudly. We do **not** swap in a sentinel that would weaken the
+ * floor; we keep the value as-is so callers can still see what was deployed,
+ * and `pickHigherVersion` is now defensive enough to prefer a valid
+ * cached/remote operand over an invalid build-time one.
+ */
+if (!isValidSemVer(__MIN_SAFE_VERSION__)) {
+  logger.error('Build-time MIN_SAFE_VERSION is not a valid SemVer', {
+    code: 'MIN_SAFE_VERSION_BUILD_INVALID',
+    version: String(__MIN_SAFE_VERSION__),
+  })
+}
 
 export const useAppVersionStore = defineStore('appVersion', () => {
   const currentVersion = ref(__APP_VERSION__)
@@ -87,28 +117,35 @@ export const useAppVersionStore = defineStore('appVersion', () => {
   const cacheFetchedAt = ref<number | null>(null)
 
   // @IMP-SYS-STORE-007@ (FROM: @REQ-SYS-006@)
+  /**
+   * `true` when `current < minimum` per SemVer §11 ordering. Defensive
+   * wrapper around the canonical comparator in `app-version.semver.ts`: on
+   * invalid input (which should never reach here given upstream shape
+   * guards) returns `false` after logging an ERROR — fail-quiet locally so
+   * one bad record cannot crash the boot path, but loud enough for an
+   * operator to notice.
+   */
   function isVersionBelow(current: string, minimum: string): boolean {
-    const parse = (v: string) =>
-      v.replace(/-.*$/, '').split('.').map(Number) as [number, number, number]
-    const [cMaj, cMin, cPat] = parse(current)
-    const [mMaj, mMin, mPat] = parse(minimum)
-    if (cMaj !== mMaj) return cMaj < mMaj
-    if (cMin !== mMin) return cMin < mMin
-    return cPat < mPat
+    try {
+      return semverIsVersionBelow(current, minimum)
+    } catch (err) {
+      logger.error('isVersionBelow rejected malformed SemVer', {
+        code: 'MIN_SAFE_VERSION_PARSE_FAILED',
+        current,
+        minimum,
+        error: err instanceof Error ? err.message : String(err),
+      })
+      return false
+    }
   }
 
   /**
-   * Return the higher of two SemVer strings using {@link isVersionBelow}.
-   * Treats invalid input by preferring the other operand — defensive, not
-   * authoritative (the cache and remote modules already filter non-SemVer).
+   * Single-flight latch for {@link checkMinSafeVersion}. A second
+   * invocation arriving before the first resolves returns the same
+   * in-flight promise, so a fast `online` event cannot race the onMounted
+   * call and overwrite a newer remote with an older one.
    */
-  function pickHigherVersion(a: string, b: string): string {
-    try {
-      return isVersionBelow(a, b) ? b : a
-    } catch {
-      return a
-    }
-  }
+  let inFlight: Promise<void> | null = null
 
   // @IMP-SYS-STORE-008@ (FROM: @REQ-SYS-006@, @H-019@)
   /**
@@ -119,30 +156,54 @@ export const useAppVersionStore = defineStore('appVersion', () => {
    * network failure is non-fatal: the cached floor stays in force.
    */
   async function checkMinSafeVersion(now: () => number = Date.now): Promise<void> {
+    if (inFlight !== null) return inFlight
+    inFlight = runCheck(now).finally(() => {
+      inFlight = null
+    })
+    return inFlight
+  }
+
+  async function runCheck(now: () => number): Promise<void> {
     const buildTimeMin = __MIN_SAFE_VERSION__
 
-    // ── Step 1 — load offline cache ────────────────────────────────────────
-    const cached = await loadCachedMinSafeVersion()
+    // ── Step 1 — inspect offline cache ─────────────────────────────────────
+    const inspected = await inspectCachedMinSafeVersion()
     let effectiveMin = buildTimeMin
 
-    if (cached) {
-      effectiveMin = pickHigherVersion(effectiveMin, cached.value)
-      cacheFetchedAt.value = cached.fetchedAt
-      const ageMs = now() - cached.fetchedAt
-      if (ageMs > CACHE_TTL_MS) {
-        logger.warn('minSafeVersion cache stale; enforcement still applies', {
-          code: 'MIN_SAFE_VERSION_CACHE_STALE',
-          durationMs: ageMs,
-        })
+    switch (inspected.kind) {
+      case 'hit': {
+        effectiveMin = pickHigherVersion(effectiveMin, inspected.value)
+        cacheFetchedAt.value = inspected.fetchedAt
+        const ageMs = now() - inspected.fetchedAt
+        if (ageMs > CACHE_TTL_MS) {
+          logger.warn('minSafeVersion cache stale; enforcement still applies', {
+            code: 'MIN_SAFE_VERSION_CACHE_STALE',
+            durationMs: ageMs,
+          })
+        }
+        break
       }
-    } else {
-      cacheFetchedAt.value = null
-      // First-time install OR IndexedDB unavailable. Log INFO so an operator
-      // investigating a missing-cache event can correlate it with either case.
-      logger.info('minSafeVersion cache absent; first-install bypass active', {
-        code: 'MIN_SAFE_VERSION_CACHE_ABSENT',
-        version: buildTimeMin,
-      })
+      case 'absent':
+        cacheFetchedAt.value = null
+        logger.info('minSafeVersion cache absent; first-install bypass active', {
+          code: 'MIN_SAFE_VERSION_CACHE_ABSENT',
+          version: buildTimeMin,
+        })
+        break
+      case 'corrupt':
+        cacheFetchedAt.value = null
+        logger.warn('minSafeVersion cache record corrupt; treating as absent', {
+          code: 'MIN_SAFE_VERSION_CACHE_CORRUPT',
+          version: buildTimeMin,
+        })
+        break
+      case 'unavailable':
+        cacheFetchedAt.value = null
+        logger.warn('minSafeVersion cache backend unavailable; build-time floor only', {
+          code: 'MIN_SAFE_VERSION_CACHE_UNAVAILABLE',
+          version: buildTimeMin,
+        })
+        break
     }
 
     // ── Step 2 — best-effort online refresh ────────────────────────────────
@@ -159,31 +220,25 @@ export const useAppVersionStore = defineStore('appVersion', () => {
       // Persist the (possibly new) highest floor so a later offline run sees
       // it. We persist even when the value did not move so the fetchedAt
       // timestamp gets refreshed, keeping the cache out of the stale path.
-      const persisted = await persistCachedMinSafeVersion(effectiveMin, now)
-      if (persisted) cacheFetchedAt.value = now()
+      // Capture `ts` once and pass it as a constant clock so the on-disk
+      // `fetchedAt` and the in-memory `cacheFetchedAt` cannot drift under an
+      // incrementing test clock.
+      const ts = now()
+      const persisted = await persistCachedMinSafeVersion(effectiveMin, () => ts)
+      if (persisted) {
+        cacheFetchedAt.value = ts
+      } else {
+        // Persist failed (best-effort writer swallowed the error). Clear the
+        // in-memory diagnostic so it does not falsely advertise a fresher
+        // disk state than the one the floor is actually being enforced from.
+        cacheFetchedAt.value = null
+      }
     }
 
     // ── Step 3 — apply ─────────────────────────────────────────────────────
     minSafeVersion.value = effectiveMin
     versionBlocked.value = isVersionBelow(currentVersion.value, effectiveMin)
     lastCheckCompleted.value = true
-  }
-
-  // @IMP-SYS-STORE-018@ (FROM: @REQ-SYS-006@, @H-019@)
-  /**
-   * Wire `window.online` to re-run {@link checkMinSafeVersion}. Returns an
-   * unbind function so callers (e.g. `App.vue`'s `onBeforeUnmount`) can
-   * detach the listener cleanly during teardown / tests.
-   *
-   * Safely no-ops in non-DOM test environments where `window` is undefined.
-   */
-  function attachConnectivityRefresh(): () => void {
-    if (typeof window === 'undefined') return () => undefined
-    const handler = (): void => {
-      void checkMinSafeVersion()
-    }
-    window.addEventListener('online', handler)
-    return () => window.removeEventListener('online', handler)
   }
 
   return {
@@ -195,6 +250,30 @@ export const useAppVersionStore = defineStore('appVersion', () => {
     cacheFetchedAt,
     checkMinSafeVersion,
     isVersionBelow,
-    attachConnectivityRefresh,
   }
 })
+
+// @IMP-SYS-STORE-018@ (FROM: @REQ-SYS-006@, @H-019@)
+/**
+ * Wire `window.online` to re-run `checkMinSafeVersion()` on the active
+ * store. Returns an unbind function so callers (e.g. `App.vue`'s
+ * `onBeforeUnmount`) can detach the listener cleanly during teardown / tests.
+ *
+ * The handler re-acquires the store via `useAppVersionStore()` so the call
+ * goes through the Pinia action wrapper — `$onAction` subscribers, the
+ * devtools timeline, and `vi.spyOn(store, 'checkMinSafeVersion')` all see
+ * the connectivity-triggered refresh. (The previous in-setup closure version
+ * bypassed the wrapper, which was a real correctness defect for observability
+ * — the existing test even worked around it by observing the cache load
+ * instead of the action.)
+ *
+ * Safely no-ops in non-DOM test environments where `window` is undefined.
+ */
+export function attachConnectivityRefresh(): () => void {
+  if (typeof window === 'undefined') return () => undefined
+  const handler = (): void => {
+    void useAppVersionStore().checkMinSafeVersion()
+  }
+  window.addEventListener('online', handler)
+  return () => window.removeEventListener('online', handler)
+}

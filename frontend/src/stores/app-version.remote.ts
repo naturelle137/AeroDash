@@ -23,6 +23,9 @@
  * | Body is not valid JSON | `null`. |
  * | JSON parses but does not contain a SemVer-shaped `minSafeVersion` | `null`. |
  * | Browser denies the fetch (CSP, COEP) | `null`. |
+ * | Response `Content-Length` exceeds the body cap | `null` — body never read. |
+ * | Read body exceeds the body cap (no `Content-Length`) | `null`. |
+ * | Timeout (default 4 s) | `null` — works with or without `AbortController`. |
  *
  * The contract is "best-effort": this module **never throws** and **never
  * raises a user-visible error**. A `null` return simply means "no fresh
@@ -39,14 +42,13 @@
 
 // @IMP-SYS-STORE-017@ (FROM: @REQ-SYS-006@, @H-019@)
 
+import { SEMVER_RE } from '@/stores/app-version.semver'
+
 /** Canonical relative path served from the PWA `public/` directory. */
 export const DEFAULT_VERSION_ENDPOINT = '/version.json'
 
 /** Maximum bytes to read from the response body — defence against an oversized response. */
 const MAX_BODY_BYTES = 4_096
-
-/** SemVer-ish guard mirrored from `app-version.cache.ts`. */
-const SEMVER_RE = /^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$/
 
 export interface FetchRemoteOptions {
   /** Override the endpoint — primarily for tests; production uses the default. */
@@ -55,6 +57,36 @@ export interface FetchRemoteOptions {
   readonly fetchImpl?: typeof fetch
   /** Request-timeout in milliseconds. Default 4000 ms (cold-start budget). */
   readonly timeoutMs?: number
+}
+
+/**
+ * Race `promise` against a setTimeout. Used as the timeout fallback when
+ * `AbortController` is unavailable (sandboxed WebView, very old runtime) so
+ * the documented 4 s cold-start budget cannot be silently waived.
+ */
+function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T | null> {
+  return new Promise((resolve) => {
+    let settled = false
+    const timer = setTimeout(() => {
+      if (settled) return
+      settled = true
+      resolve(null)
+    }, ms)
+    promise.then(
+      (value) => {
+        if (settled) return
+        settled = true
+        clearTimeout(timer)
+        resolve(value)
+      },
+      () => {
+        if (settled) return
+        settled = true
+        clearTimeout(timer)
+        resolve(null)
+      },
+    )
+  })
 }
 
 /**
@@ -74,7 +106,7 @@ export async function fetchRemoteMinSafeVersion(
   if (!fetchImpl) return null
 
   const controller =
-    typeof AbortController === 'function' ? new AbortController() : (null as AbortController | null)
+    typeof AbortController === 'function' ? new AbortController() : null
   const timer =
     controller !== null
       ? setTimeout(() => {
@@ -86,33 +118,60 @@ export async function fetchRemoteMinSafeVersion(
         }, timeoutMs)
       : null
 
-  try {
-    const response = await fetchImpl(endpoint, {
-      method: 'GET',
-      cache: 'no-store',
-      credentials: 'omit',
-      signal: controller?.signal,
-    })
-
-    if (!response.ok) return null
-
-    const text = await response.text()
-    if (typeof text !== 'string') return null
-    if (text.length > MAX_BODY_BYTES) return null
-
-    let parsed: unknown
+  const doFetch = async (): Promise<string | null> => {
     try {
-      parsed = JSON.parse(text)
+      const response = await fetchImpl(endpoint, {
+        method: 'GET',
+        cache: 'no-store',
+        credentials: 'omit',
+        signal: controller?.signal,
+      })
+
+      if (!response.ok) return null
+
+      // Pre-flight body cap: refuse to read a body the server is telling us is
+      // oversized. UTF-16-code-units != bytes, but Content-Length is bytes
+      // and is the authoritative pre-read signal. A hostile or misconfigured
+      // CDN serving an oversized `/version.json` cannot OOM/jank a low-RAM
+      // cockpit tablet because we never touch the body.
+      const lenHeader = response.headers?.get?.('content-length') ?? null
+      if (lenHeader !== null) {
+        const len = Number(lenHeader)
+        if (Number.isFinite(len) && len > MAX_BODY_BYTES) return null
+      }
+
+      const text = await response.text()
+      if (typeof text !== 'string') return null
+      // Post-read cap (servers may omit Content-Length on chunked / SW
+      // responses). This is the same guard as before — kept as a backstop
+      // in case the pre-flight header is missing.
+      if (text.length > MAX_BODY_BYTES) return null
+
+      let parsed: unknown
+      try {
+        parsed = JSON.parse(text)
+      } catch {
+        return null
+      }
+
+      if (parsed === null || typeof parsed !== 'object') return null
+      const value = (parsed as Record<string, unknown>).minSafeVersion
+      if (typeof value !== 'string' || !SEMVER_RE.test(value)) return null
+      return value
     } catch {
       return null
     }
+  }
 
-    if (parsed === null || typeof parsed !== 'object') return null
-    const value = (parsed as Record<string, unknown>).minSafeVersion
-    if (typeof value !== 'string' || !SEMVER_RE.test(value)) return null
-    return value
-  } catch {
-    return null
+  try {
+    // With AbortController: the abort drives cancellation; setTimeout above
+    // also clears the timer in the finally block. Without AbortController:
+    // race against a wall-clock setTimeout so a slow CDN cannot hang the
+    // boot path on a sandboxed WebView.
+    if (controller !== null) {
+      return await doFetch()
+    }
+    return await withTimeout(doFetch(), timeoutMs)
   } finally {
     if (timer !== null) clearTimeout(timer)
   }

@@ -9,7 +9,7 @@ import { useTheme } from '@/shared/composables/useTheme'
 import AppLogo from '@/shared/components/AppLogo.vue'
 import AppVersion from '@/shared/components/AppVersion.vue'
 import { usePwaUpdateStore } from '@/stores/pwa-update.store'
-import { useAppVersionStore } from '@/stores/app-version.store'
+import { useAppVersionStore, attachConnectivityRefresh } from '@/stores/app-version.store'
 
 const pwaStore = usePwaUpdateStore()
 const appVersionStore = useAppVersionStore()
@@ -24,7 +24,7 @@ const appVersionStore = useAppVersionStore()
 let detachVersionConnectivity: (() => void) | null = null
 onMounted(() => {
   void appVersionStore.checkMinSafeVersion()
-  detachVersionConnectivity = appVersionStore.attachConnectivityRefresh()
+  detachVersionConnectivity = attachConnectivityRefresh()
 })
 onBeforeUnmount(() => {
   detachVersionConnectivity?.()

@@ -325,9 +325,29 @@ SYS Store — App Version Remote (#271)
 
 SYS Store — App Version connectivity refresh (#271)
   IMP-SYS-STORE-018
-    title: attachConnectivityRefresh — binds window.online to re-run checkMinSafeVersion so a return to connectivity refreshes the cached floor without waiting for the next cold start (REQ-SYS-006 / H-019)
+    title: attachConnectivityRefresh — binds window.online to re-run checkMinSafeVersion via the Pinia action wrapper so observers (devtools, $onAction, vi.spyOn) see the connectivity-triggered refresh (REQ-SYS-006 / H-019; PR-review Minor #9 fix)
     files:
       - frontend/src/stores/app-version.store.ts
+    req:
+      - REQ-SYS-006
+    hazard:
+      - H-019
+
+SYS Store — App Version cache load (legacy convenience, #271)
+  IMP-SYS-STORE-019
+    title: loadCachedMinSafeVersion — legacy convenience wrapper that flattens the inspectCachedMinSafeVersion discriminated union to CachedMinSafeVersion | null for callers that do not need to distinguish absent / corrupt / unavailable (REQ-SYS-006 / H-019)
+    files:
+      - frontend/src/stores/app-version.cache.ts
+    req:
+      - REQ-SYS-006
+    hazard:
+      - H-019
+
+SYS Shared — App Version SemVer comparator (#271, PR-review Major #1/#2/#4 fix)
+  IMP-SYS-SHARED-010
+    title: app-version.semver — strict SemVer §11 comparator (parseSemVer, isVersionBelow, pickHigherVersion) that strips +build metadata, orders pre-release identifiers correctly, and throws on malformed input so the kill-switch comparator cannot silently NaN-collapse (REQ-SYS-006 / H-019)
+    files:
+      - frontend/src/stores/app-version.semver.ts
     req:
       - REQ-SYS-006
     hazard:

@@ -28,15 +28,24 @@
 // @UT-SYS-STORE-069@ (FROM: @IMP-SYS-STORE-008@)
 // @UT-SYS-STORE-070@ (FROM: @IMP-SYS-STORE-008@)
 // @UT-SYS-STORE-071@ (FROM: @IMP-SYS-STORE-018@)
+// @UT-SYS-STORE-072@ (FROM: @IMP-SYS-STORE-007@)
+// @UT-SYS-STORE-073@ (FROM: @IMP-SYS-STORE-007@)
+// @UT-SYS-STORE-074@ (FROM: @IMP-SYS-STORE-008@)
+// @UT-SYS-STORE-075@ (FROM: @IMP-SYS-STORE-008@)
+// @UT-SYS-STORE-076@ (FROM: @IMP-SYS-STORE-008@)
+// @UT-SYS-STORE-077@ (FROM: @IMP-SYS-STORE-008@)
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
+
+import type { CachedMinSafeVersionResult } from '@/stores/app-version.cache'
 
 // Mock the cache and remote modules so each test can stage IndexedDB / fetch
 // behaviour without standing up fake-indexeddb here. The dedicated cache spec
 // covers the IndexedDB code paths end-to-end.
 vi.mock('@/stores/app-version.cache', () => ({
   loadCachedMinSafeVersion: vi.fn<() => Promise<unknown>>(),
+  inspectCachedMinSafeVersion: vi.fn<() => Promise<CachedMinSafeVersionResult>>(),
   persistCachedMinSafeVersion: vi.fn<() => Promise<boolean>>(),
   clearCachedMinSafeVersion: vi.fn<() => Promise<void>>(),
 }))
@@ -45,23 +54,27 @@ vi.mock('@/stores/app-version.remote', () => ({
 }))
 
 import {
-  loadCachedMinSafeVersion,
+  inspectCachedMinSafeVersion,
   persistCachedMinSafeVersion,
 } from '@/stores/app-version.cache'
 import { fetchRemoteMinSafeVersion } from '@/stores/app-version.remote'
-import { useAppVersionStore, CACHE_TTL_MS } from '../app-version.store'
+import {
+  useAppVersionStore,
+  attachConnectivityRefresh,
+  CACHE_TTL_MS,
+} from '../app-version.store'
 
-const mockedLoad = vi.mocked(loadCachedMinSafeVersion)
+const mockedInspect = vi.mocked(inspectCachedMinSafeVersion)
 const mockedPersist = vi.mocked(persistCachedMinSafeVersion)
 const mockedRemote = vi.mocked(fetchRemoteMinSafeVersion)
 
 beforeEach(() => {
   setActivePinia(createPinia())
-  mockedLoad.mockReset()
+  mockedInspect.mockReset()
   mockedPersist.mockReset()
   mockedRemote.mockReset()
   // Default — no cache, no remote, online. Individual tests override.
-  mockedLoad.mockResolvedValue(null)
+  mockedInspect.mockResolvedValue({ kind: 'absent' })
   mockedPersist.mockResolvedValue(true)
   mockedRemote.mockResolvedValue(null)
   vi.stubGlobal('navigator', { onLine: true })
@@ -107,6 +120,32 @@ describe('useAppVersionStore — isVersionBelow', () => {
     const store = useAppVersionStore()
     expect(store.isVersionBelow('1.0.0', '0.3.0')).toBe(false)
   })
+
+  // @UT-SYS-STORE-072@ (FROM: @IMP-SYS-STORE-007@)
+  // PR-review Major #1: build metadata must not NaN-collapse the comparator.
+  // Without the fix `parse('0.5.0+build.7')` produced `[0, 5, NaN]` and
+  // `0 < NaN` resolved to `false`, silently failing to block.
+  it('correctly orders versions with +build metadata', () => {
+    const store = useAppVersionStore()
+    expect(store.isVersionBelow('0.5.0', '0.5.0+build.7')).toBe(false) // same
+    expect(store.isVersionBelow('0.4.0+build.1', '0.5.0+build.7')).toBe(true)
+    expect(store.isVersionBelow('0.5.0+build.7', '0.4.0')).toBe(false)
+  })
+
+  // @UT-SYS-STORE-073@ (FROM: @IMP-SYS-STORE-007@)
+  // PR-review Major #2: pre-release ordering per SemVer §11.
+  // `0.4.0-alpha < 0.4.0` must hold so an alpha bundle below its stable
+  // kill-switch floor is actually blocked.
+  it('orders pre-release suffixes per SemVer §11', () => {
+    const store = useAppVersionStore()
+    expect(store.isVersionBelow('0.4.0-alpha', '0.4.0')).toBe(true)
+    expect(store.isVersionBelow('0.4.0', '0.4.0-alpha')).toBe(false)
+    expect(store.isVersionBelow('0.4.0-alpha', '0.4.0-beta')).toBe(true)
+    expect(store.isVersionBelow('0.4.0-alpha.1', '0.4.0-alpha.2')).toBe(true)
+    expect(store.isVersionBelow('0.4.0-alpha', '0.4.0-alpha.1')).toBe(true) // longer wins
+    // Numeric < alphanumeric per SemVer §11.4.3
+    expect(store.isVersionBelow('0.4.0-1', '0.4.0-alpha')).toBe(true)
+  })
 })
 
 describe('useAppVersionStore.checkMinSafeVersion — online, cache empty (first install)', () => {
@@ -128,11 +167,11 @@ describe('useAppVersionStore.checkMinSafeVersion — online, cache empty (first 
   })
 
   // @UT-SYS-STORE-064@ (FROM: @IMP-SYS-STORE-008@)
-  it('records that the check completed and flags the cache as absent', async () => {
+  it('records that the check completed and refreshes cacheFetchedAt on a successful online persist', async () => {
     const store = useAppVersionStore()
-    await store.checkMinSafeVersion()
+    await store.checkMinSafeVersion(() => 5_000)
     expect(store.lastCheckCompleted).toBe(true)
-    expect(store.cacheFetchedAt).not.toBeNull() // we persisted to cache after the online run
+    expect(store.cacheFetchedAt).toBe(5_000) // online run persisted the floor
   })
 })
 
@@ -140,8 +179,8 @@ describe('useAppVersionStore.checkMinSafeVersion — OFFLINE enforcement (issue 
   // @UT-SYS-STORE-025@ (FROM: @IMP-SYS-STORE-008@)
   it('blocks a stale build OFFLINE when the cached minSafeVersion is higher than the running version', async () => {
     vi.stubGlobal('navigator', { onLine: false })
-    mockedLoad.mockResolvedValue({
-      id: 'minSafeVersion',
+    mockedInspect.mockResolvedValue({
+      kind: 'hit',
       value: '0.5.0',
       fetchedAt: Date.now() - 60_000, // 1 min ago — fresh cache
     })
@@ -154,7 +193,7 @@ describe('useAppVersionStore.checkMinSafeVersion — OFFLINE enforcement (issue 
     expect(store.versionBlocked).toBe(true)
     expect(store.minSafeVersion).toBe('0.5.0')
     // Confirms the pre-fix bug — we did NOT short-circuit on !onLine.
-    expect(mockedLoad).toHaveBeenCalledOnce()
+    expect(mockedInspect).toHaveBeenCalledOnce()
     // Offline path never attempts the remote fetch (no point) and never
     // writes the cache (avoids spurious touches on every cold start).
     expect(mockedRemote).not.toHaveBeenCalled()
@@ -164,7 +203,7 @@ describe('useAppVersionStore.checkMinSafeVersion — OFFLINE enforcement (issue 
   // @UT-SYS-STORE-065@ (FROM: @IMP-SYS-STORE-008@)
   it('first-install OFFLINE bypass — no cache, no remote → falls back to build-time only', async () => {
     vi.stubGlobal('navigator', { onLine: false })
-    mockedLoad.mockResolvedValue(null)
+    mockedInspect.mockResolvedValue({ kind: 'absent' })
 
     const store = useAppVersionStore()
     store.currentVersion = '0.3.0'
@@ -180,8 +219,8 @@ describe('useAppVersionStore.checkMinSafeVersion — OFFLINE enforcement (issue 
   it('warns when the cached record is older than the TTL but still enforces it', async () => {
     vi.stubGlobal('navigator', { onLine: false })
     const fixedNow = 10_000_000_000
-    mockedLoad.mockResolvedValue({
-      id: 'minSafeVersion',
+    mockedInspect.mockResolvedValue({
+      kind: 'hit',
       value: '0.6.0',
       fetchedAt: fixedNow - CACHE_TTL_MS - 1, // just past the TTL
     })
@@ -200,11 +239,49 @@ describe('useAppVersionStore.checkMinSafeVersion — OFFLINE enforcement (issue 
   })
 })
 
+describe('useAppVersionStore.checkMinSafeVersion — differentiated logging (review Minor #10)', () => {
+  // @UT-SYS-STORE-074@ (FROM: @IMP-SYS-STORE-008@)
+  it('logs INFO on absent cache (first install) and WARN on corrupt / unavailable', async () => {
+    const consoleInfo = vi.spyOn(console, 'info').mockImplementation(() => undefined)
+    const consoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+
+    // Absent → INFO
+    mockedInspect.mockResolvedValueOnce({ kind: 'absent' })
+    const s1 = useAppVersionStore()
+    await s1.checkMinSafeVersion()
+    expect(consoleInfo).toHaveBeenCalled()
+    const absentCalls = consoleInfo.mock.calls.flat().join(' ')
+    expect(absentCalls).toMatch(/MIN_SAFE_VERSION_CACHE_ABSENT/)
+
+    // Corrupt → WARN with distinct code
+    consoleInfo.mockClear()
+    consoleWarn.mockClear()
+    setActivePinia(createPinia())
+    mockedInspect.mockResolvedValueOnce({ kind: 'corrupt' })
+    const s2 = useAppVersionStore()
+    await s2.checkMinSafeVersion()
+    const corruptCalls = consoleWarn.mock.calls.flat().join(' ')
+    expect(corruptCalls).toMatch(/MIN_SAFE_VERSION_CACHE_CORRUPT/)
+
+    // Unavailable → WARN with distinct code
+    consoleWarn.mockClear()
+    setActivePinia(createPinia())
+    mockedInspect.mockResolvedValueOnce({ kind: 'unavailable' })
+    const s3 = useAppVersionStore()
+    await s3.checkMinSafeVersion()
+    const unavailableCalls = consoleWarn.mock.calls.flat().join(' ')
+    expect(unavailableCalls).toMatch(/MIN_SAFE_VERSION_CACHE_UNAVAILABLE/)
+
+    consoleInfo.mockRestore()
+    consoleWarn.mockRestore()
+  })
+})
+
 describe('useAppVersionStore.checkMinSafeVersion — online refresh', () => {
   // @UT-SYS-STORE-067@ (FROM: @IMP-SYS-STORE-008@)
   it('uses the higher of (build-time, cached, remote)', async () => {
-    mockedLoad.mockResolvedValue({
-      id: 'minSafeVersion',
+    mockedInspect.mockResolvedValue({
+      kind: 'hit',
       value: '0.4.0',
       fetchedAt: Date.now(),
     })
@@ -222,8 +299,8 @@ describe('useAppVersionStore.checkMinSafeVersion — online refresh', () => {
 
   // @UT-SYS-STORE-068@ (FROM: @IMP-SYS-STORE-008@)
   it('does not regress to a lower remote value', async () => {
-    mockedLoad.mockResolvedValue({
-      id: 'minSafeVersion',
+    mockedInspect.mockResolvedValue({
+      kind: 'hit',
       value: '0.6.0',
       fetchedAt: Date.now(),
     })
@@ -242,8 +319,8 @@ describe('useAppVersionStore.checkMinSafeVersion — online refresh', () => {
 
   // @UT-SYS-STORE-069@ (FROM: @IMP-SYS-STORE-008@)
   it('logs a warning when the remote refresh fails but keeps the existing floor', async () => {
-    mockedLoad.mockResolvedValue({
-      id: 'minSafeVersion',
+    mockedInspect.mockResolvedValue({
+      kind: 'hit',
       value: '0.5.0',
       fetchedAt: Date.now(),
     })
@@ -268,27 +345,89 @@ describe('useAppVersionStore.checkMinSafeVersion — online refresh', () => {
     await store.checkMinSafeVersion()
     expect(mockedPersist).toHaveBeenCalledOnce()
   })
+
+  // @UT-SYS-STORE-075@ (FROM: @IMP-SYS-STORE-008@)
+  // PR-review Minor #11/#12: timestamp parity + persist-failure consistency.
+  it('passes a frozen clock to persist so on-disk and in-memory timestamps match', async () => {
+    mockedRemote.mockResolvedValue(null)
+    const store = useAppVersionStore()
+    let ticks = 0
+    // Each call to `now` would otherwise return a fresh, incrementing value.
+    await store.checkMinSafeVersion(() => ++ticks)
+    expect(mockedPersist).toHaveBeenCalledOnce()
+    const firstCall = mockedPersist.mock.calls[0]
+    expect(firstCall).toBeDefined()
+    const clockArg = firstCall![1] as () => number
+    // The clock the persist call sees must be a stable constant — calling it
+    // multiple times yields the same value as the in-memory store ref.
+    const ts1 = clockArg()
+    const ts2 = clockArg()
+    expect(ts1).toBe(ts2)
+    expect(store.cacheFetchedAt).toBe(ts1)
+  })
+
+  // @UT-SYS-STORE-076@ (FROM: @IMP-SYS-STORE-008@)
+  it('clears cacheFetchedAt when a persist returns false (stays consistent with disk)', async () => {
+    mockedRemote.mockResolvedValue(null)
+    mockedPersist.mockResolvedValue(false) // simulate storage hiccup
+    mockedInspect.mockResolvedValue({
+      kind: 'hit',
+      value: '0.4.0',
+      fetchedAt: 1_000,
+    })
+    const store = useAppVersionStore()
+    await store.checkMinSafeVersion(() => 9_000)
+    // Persist failed — don't advertise a fresh timestamp the disk doesn't hold.
+    expect(store.cacheFetchedAt).toBeNull()
+  })
 })
 
-describe('useAppVersionStore.attachConnectivityRefresh', () => {
-  // @UT-SYS-STORE-071@ (FROM: @IMP-SYS-STORE-018@)
-  it('re-runs checkMinSafeVersion when the window fires `online`', async () => {
-    const store = useAppVersionStore()
-    const detach = store.attachConnectivityRefresh()
+describe('useAppVersionStore.checkMinSafeVersion — single-flight (review Minor #8)', () => {
+  // @UT-SYS-STORE-077@ (FROM: @IMP-SYS-STORE-008@)
+  it('coalesces concurrent invocations onto one in-flight promise', async () => {
+    // Hold the inspect call open so the second invocation arrives before
+    // the first resolves.
+    let releaseInspect!: (v: CachedMinSafeVersionResult) => void
+    mockedInspect.mockReturnValueOnce(
+      new Promise<CachedMinSafeVersionResult>((resolve) => {
+        releaseInspect = resolve
+      }),
+    )
 
-    // The handler calls the SETUP-scope `checkMinSafeVersion`, not the
-    // store-instance method — so observe a downstream side effect (the
-    // cache load) instead of trying to spy on the wrapped action.
-    expect(mockedLoad).not.toHaveBeenCalled()
+    const store = useAppVersionStore()
+    const p1 = store.checkMinSafeVersion()
+    const p2 = store.checkMinSafeVersion()
+
+    releaseInspect({ kind: 'absent' })
+    await Promise.all([p1, p2])
+
+    // Only one inspect call (and one persist) — the second invocation
+    // returned the first promise.
+    expect(mockedInspect).toHaveBeenCalledOnce()
+    expect(mockedPersist).toHaveBeenCalledOnce()
+  })
+})
+
+describe('attachConnectivityRefresh', () => {
+  // @UT-SYS-STORE-071@ (FROM: @IMP-SYS-STORE-018@)
+  // PR-review Minor #9: the handler must go through the Pinia action
+  // wrapper so spies, $onAction subscribers, and devtools see the call.
+  it('re-runs the wrapped store action when the window fires `online`', async () => {
+    const store = useAppVersionStore()
+    const spy = vi.spyOn(store, 'checkMinSafeVersion')
+    const detach = attachConnectivityRefresh()
+
+    expect(spy).not.toHaveBeenCalled()
 
     window.dispatchEvent(new Event('online'))
-    // Give the microtask a tick to resolve the awaited mocks.
     await new Promise((resolve) => setTimeout(resolve, 0))
-    expect(mockedLoad).toHaveBeenCalledOnce()
+    expect(spy).toHaveBeenCalledTimes(1)
 
     detach()
     window.dispatchEvent(new Event('online'))
     await new Promise((resolve) => setTimeout(resolve, 0))
-    expect(mockedLoad).toHaveBeenCalledOnce() // detached — no further calls
+    expect(spy).toHaveBeenCalledTimes(1) // detached — no further calls
+
+    spy.mockRestore()
   })
 })

@@ -1382,3 +1382,87 @@ SYS (auto)
       - frontend/src/stores/__tests__/app-version.store.spec.ts
     impl:
       - IMP-SYS-STORE-018
+
+  UT-SYS-STORE-072
+    title: isVersionBelow correctly orders versions carrying SemVer `+build` metadata (PR-review Major #1 fix)
+    files:
+      - frontend/src/stores/__tests__/app-version.store.spec.ts
+    impl:
+      - IMP-SYS-STORE-007
+
+  UT-SYS-STORE-073
+    title: isVersionBelow orders pre-release identifiers per SemVer §11 (PR-review Major #2 fix)
+    files:
+      - frontend/src/stores/__tests__/app-version.store.spec.ts
+    impl:
+      - IMP-SYS-STORE-007
+
+  UT-SYS-STORE-074
+    title: checkMinSafeVersion emits differentiated log levels for absent (INFO) / corrupt (WARN) / unavailable (WARN) cache outcomes (PR-review Minor #10 fix)
+    files:
+      - frontend/src/stores/__tests__/app-version.store.spec.ts
+    impl:
+      - IMP-SYS-STORE-008
+
+  UT-SYS-STORE-075
+    title: checkMinSafeVersion passes a frozen clock to persistCachedMinSafeVersion so on-disk and in-memory timestamps cannot drift (PR-review Minor #11 fix)
+    files:
+      - frontend/src/stores/__tests__/app-version.store.spec.ts
+    impl:
+      - IMP-SYS-STORE-008
+
+  UT-SYS-STORE-076
+    title: checkMinSafeVersion clears cacheFetchedAt when persist returns false so diagnostic state stays consistent with disk (PR-review Minor #12 fix)
+    files:
+      - frontend/src/stores/__tests__/app-version.store.spec.ts
+    impl:
+      - IMP-SYS-STORE-008
+
+  UT-SYS-STORE-077
+    title: checkMinSafeVersion single-flight latch — concurrent invocations coalesce onto one in-flight promise (PR-review Minor #8 fix)
+    files:
+      - frontend/src/stores/__tests__/app-version.store.spec.ts
+    impl:
+      - IMP-SYS-STORE-008
+
+  UT-SYS-STORE-078
+    title: inspectCachedMinSafeVersion reports `absent` on virgin store and `hit` after persist (PR-review Minor #10 surface)
+    files:
+      - frontend/src/stores/__tests__/app-version.cache.spec.ts
+    impl:
+      - IMP-SYS-STORE-014
+
+  UT-SYS-STORE-079
+    title: inspectCachedMinSafeVersion reports `corrupt` for a malformed record (PR-review Minor #10 fix)
+    files:
+      - frontend/src/stores/__tests__/app-version.cache.spec.ts
+    impl:
+      - IMP-SYS-STORE-014
+
+  UT-SYS-STORE-080
+    title: inspectCachedMinSafeVersion reports `unavailable` when storage throws (PR-review Minor #10 fix)
+    files:
+      - frontend/src/stores/__tests__/app-version.cache.spec.ts
+    impl:
+      - IMP-SYS-STORE-014
+
+  UT-SYS-STORE-081
+    title: persistCachedMinSafeVersion resolves only after tx.oncomplete so writes are durable across tab-kill (PR-review Major #3 fix)
+    files:
+      - frontend/src/stores/__tests__/app-version.cache.spec.ts
+    impl:
+      - IMP-SYS-STORE-015
+
+  UT-SYS-STORE-082
+    title: fetchRemoteMinSafeVersion enforces the body cap pre-flight via Content-Length before reading the body (PR-review Minor #5 fix)
+    files:
+      - frontend/src/stores/__tests__/app-version.remote.spec.ts
+    impl:
+      - IMP-SYS-STORE-017
+
+  UT-SYS-STORE-083
+    title: fetchRemoteMinSafeVersion times out via Promise.race when AbortController is unavailable (PR-review Minor #6 fix)
+    files:
+      - frontend/src/stores/__tests__/app-version.remote.spec.ts
+    impl:
+      - IMP-SYS-STORE-017

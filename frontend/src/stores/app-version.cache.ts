@@ -19,19 +19,49 @@
  *
  * ## Failure modes (documented)
  *
+ * The reader exposes two surfaces:
+ *
+ * - {@link inspectCachedMinSafeVersion} returns a discriminated union that
+ *   distinguishes (a) `absent` (first-time install), (b) `corrupt` (record
+ *   present but fails the shape guard), (c) `unavailable` (IndexedDB itself
+ *   threw — Safari private mode, sandboxed iframe), and (d) `hit` (valid).
+ *   The store uses this to emit the correct log level per case so an
+ *   operator can triage a missing-cache field report.
+ * - {@link loadCachedMinSafeVersion} is the legacy convenience that returns
+ *   the hit payload or `null` for any of `absent | corrupt | unavailable`.
+ *   Kept for callers that do not care about the distinction (integration
+ *   tests, future delete-all-data flow).
+ *
  * | Mode | Behaviour | Pilot impact |
  * | :--- | :-------- | :----------- |
- * | First-time install (no record) | Returns `null`; store falls back to the build-time constant only. | None on a fresh install; the worst case is the user has never run a newer bundle anyway. |
- * | IndexedDB unavailable (Safari private mode, sandboxed iframe, storage disabled) | All operations resolve to `null` / no-op; store logs a WARN and falls back to the build-time constant. | Identical to first-install bypass — operator should not deploy known-unsafe bundles. |
- * | Corrupted record (unexpected shape) | Treated as absent; store logs a WARN and falls back to the build-time constant. | Same as first-install. |
- * | Cache stale (older than TTL) | Returned with the `fetchedAt` timestamp; store still enforces but emits a WARN advising a connectivity check. | Pilot keeps flying with the last-known minimum — fail-safe. |
+ * | First-time install (no record) | `inspect → { kind: 'absent' }`. Store falls back to the build-time constant only. | None on a fresh install. |
+ * | IndexedDB unavailable (Safari private mode, sandboxed iframe, storage disabled) | `inspect → { kind: 'unavailable' }`. Store emits WARN and falls back to the build-time constant. | Identical to first-install bypass — operator should not deploy known-unsafe bundles. |
+ * | Corrupted record (unexpected shape) | `inspect → { kind: 'corrupt' }`. Store emits WARN and falls back to the build-time constant. | Same as first-install. |
+ * | Cache stale (older than TTL) | `inspect → { kind: 'hit', … }`; store still enforces but emits a separate WARN advising a connectivity check. | Pilot keeps flying with the last-known minimum — fail-safe. |
  *
  * Database: `aerodash-app-version`, version 1.
  * Object store: `version_policy`, keyPath: `id`.
  * Single record key: `'minSafeVersion'`.
+ *
+ * ## Write durability (Major review finding #3)
+ *
+ * `readwrite` operations resolve on `tx.oncomplete` (post-commit), not the
+ * inner `request.onsuccess` (post-queue). The latter fires when the request
+ * is acknowledged but before the transaction has committed, so a tab kill
+ * between resolve and commit would silently lose the new floor — exactly
+ * the offline-enforcement guarantee this module is supposed to provide.
+ *
+ * ## Handle hygiene (Minor review finding #7)
+ *
+ * The `IDBDatabase` is closed on every completion path — `tx.oncomplete`,
+ * `request.onerror`, and `tx.onerror` — so an iPad left running an
+ * AeroDash tab through a long flight cannot accumulate dangling handles
+ * that would later trip the `onblocked` path on a schema upgrade.
  */
 
 // @IMP-SYS-STORE-013@ (FROM: @REQ-SYS-006@, @H-019@)
+
+import { SEMVER_RE, isValidSemVer } from '@/stores/app-version.semver'
 
 const DB_NAME = 'aerodash-app-version'
 const DB_VERSION = 1
@@ -50,8 +80,17 @@ export interface CachedMinSafeVersion {
   readonly fetchedAt: number
 }
 
-/** Strict SemVer-ish guard — `MAJOR.MINOR.PATCH` with optional pre-release/build suffix. */
-const SEMVER_RE = /^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$/
+/**
+ * Discriminated outcome of {@link inspectCachedMinSafeVersion}. The store
+ * uses the `kind` to choose between INFO (first install) and WARN (corrupt
+ * / unavailable) so a field-report triage can separate genuinely-fresh
+ * installs from broken storage backends.
+ */
+export type CachedMinSafeVersionResult =
+  | { readonly kind: 'hit'; readonly value: string; readonly fetchedAt: number }
+  | { readonly kind: 'absent' }
+  | { readonly kind: 'corrupt' }
+  | { readonly kind: 'unavailable' }
 
 function isCachedMinSafeVersion(raw: unknown): raw is CachedMinSafeVersion {
   if (raw === null || typeof raw !== 'object') return false
@@ -92,12 +131,19 @@ function openDB(): Promise<IDBDatabase> {
       reject(new Error(`Failed to open ${DB_NAME}: ${message}`))
     }
 
+    // Reachable only on a future schema upgrade; harmless dead code at
+    // DB_VERSION=1 but kept for migration safety.
     request.onblocked = () => {
       reject(new Error(`${DB_NAME} open blocked by another tab`))
     }
   })
 }
 
+/**
+ * Run `fn` inside a transaction and resolve on **transaction commit**
+ * (`tx.oncomplete`) rather than the inner `request.onsuccess`. Closes the
+ * `IDBDatabase` on every completion / error path.
+ */
 function withStore<T>(
   mode: IDBTransactionMode,
   fn: (store: IDBObjectStore) => IDBRequest<T>,
@@ -105,26 +151,53 @@ function withStore<T>(
   return openDB().then(
     (db) =>
       new Promise<T>((resolve, reject) => {
-        const tx = db.transaction(STORE_NAME, mode)
-        const store = tx.objectStore(STORE_NAME)
-        const request = fn(store)
+        let result: T
+        let captured = false
+        let settled = false
+
+        const settle = (cb: () => void): void => {
+          if (settled) return
+          settled = true
+          try {
+            db.close()
+          } catch {
+            /* swallow — close is best-effort */
+          }
+          cb()
+        }
+
+        let tx: IDBTransaction
+        let request: IDBRequest<T>
+        try {
+          tx = db.transaction(STORE_NAME, mode)
+          const store = tx.objectStore(STORE_NAME)
+          request = fn(store)
+        } catch (err) {
+          settle(() => reject(err instanceof Error ? err : new Error('tx setup threw')))
+          return
+        }
 
         request.onsuccess = (event) => {
-          resolve((event.target as IDBRequest<T>).result)
+          result = (event.target as IDBRequest<T>).result
+          captured = true
         }
 
         request.onerror = (event) => {
           const message = (event.target as IDBRequest<T>).error?.message ?? 'unknown'
-          reject(new Error(`IndexedDB op failed: ${message}`))
+          settle(() => reject(new Error(`IndexedDB op failed: ${message}`))) // closes DB
         }
 
         tx.oncomplete = () => {
-          db.close()
+          settle(() =>
+            captured
+              ? resolve(result)
+              : reject(new Error('IndexedDB request did not produce a result')),
+          )
         }
 
         tx.onerror = (event) => {
           const message = (event.target as IDBTransaction).error?.message ?? 'unknown'
-          reject(new Error(`IndexedDB tx failed: ${message}`))
+          settle(() => reject(new Error(`IndexedDB tx failed: ${message}`)))
         }
       }),
   )
@@ -132,28 +205,49 @@ function withStore<T>(
 
 // @IMP-SYS-STORE-014@ (FROM: @REQ-SYS-006@, @H-019@)
 /**
- * Load the cached minimum safe version.
+ * Inspect the cached minimum safe version with a discriminated outcome.
  *
- * Returns `null` when:
- * - the record is absent (first-time install),
- * - the record fails the shape guard (corrupt — treated as absent),
- * - or IndexedDB itself is unavailable / errors out (Safari private mode,
- *   sandboxed iframe, storage disabled).
- *
- * The caller is expected to interpret `null` as "no enforcement floor from
- * cache — fall back to the build-time constant" and log accordingly. Never
- * throws.
+ * Never throws. Returns one of:
+ * - `{ kind: 'hit', value, fetchedAt }` — record present and shape-valid;
+ * - `{ kind: 'absent' }` — IndexedDB opened cleanly but the record is missing
+ *   (first-time install);
+ * - `{ kind: 'corrupt' }` — record present but fails the shape guard
+ *   (treated as absent for enforcement, but the store will emit a WARN);
+ * - `{ kind: 'unavailable' }` — IndexedDB itself threw or `withStore`
+ *   rejected (Safari private mode, sandboxed iframe, storage disabled).
  */
-export async function loadCachedMinSafeVersion(): Promise<CachedMinSafeVersion | null> {
+export async function inspectCachedMinSafeVersion(): Promise<CachedMinSafeVersionResult> {
+  let raw: unknown
   try {
-    const raw = await withStore<CachedMinSafeVersion | undefined>('readonly', (store) =>
+    raw = await withStore<CachedMinSafeVersion | undefined>('readonly', (store) =>
       store.get(MIN_SAFE_VERSION_KEY),
     )
-    if (raw === undefined || raw === null) return null
-    if (!isCachedMinSafeVersion(raw)) return null
-    return raw
   } catch {
-    return null
+    return { kind: 'unavailable' }
+  }
+  if (raw === undefined || raw === null) return { kind: 'absent' }
+  if (!isCachedMinSafeVersion(raw)) return { kind: 'corrupt' }
+  return { kind: 'hit', value: raw.value, fetchedAt: raw.fetchedAt }
+}
+
+// @IMP-SYS-STORE-019@ (FROM: @REQ-SYS-006@, @H-019@)
+/**
+ * Load the cached minimum safe version — legacy convenience that flattens
+ * the {@link inspectCachedMinSafeVersion} discriminated outcome to either
+ * the hit payload (typed as the persisted `CachedMinSafeVersion`) or `null`
+ * for any of `absent | corrupt | unavailable`. Never throws.
+ *
+ * Prefer {@link inspectCachedMinSafeVersion} when the caller needs to
+ * distinguish first-install from a broken storage backend (e.g. the store's
+ * log-level selection).
+ */
+export async function loadCachedMinSafeVersion(): Promise<CachedMinSafeVersion | null> {
+  const result = await inspectCachedMinSafeVersion()
+  if (result.kind !== 'hit') return null
+  return {
+    id: MIN_SAFE_VERSION_KEY,
+    value: result.value,
+    fetchedAt: result.fetchedAt,
   }
 }
 
@@ -162,19 +256,25 @@ export async function loadCachedMinSafeVersion(): Promise<CachedMinSafeVersion |
  * Persist a new highest-seen `minSafeVersion`. Best-effort: silently swallows
  * storage errors so a transient IndexedDB failure cannot crash the boot path.
  *
+ * Resolves only after the IndexedDB transaction has actually **committed**
+ * (`tx.oncomplete`), not when the inner `IDBRequest` was acknowledged. This
+ * is what makes the offline-enforcement guarantee real: a tab kill between
+ * "request queued" and "transaction committed" cannot silently drop the
+ * newly-learned floor.
+ *
  * @param value - SemVer string to persist. Caller is responsible for ensuring
  *                this is the maximum of `(buildTimeConstant, cachedValue, remoteValue)`
  *                — this function does not re-compare against the existing record.
  * @param now   - Injected clock for deterministic tests. Defaults to `Date.now()`.
  *
- * Returns `true` on a successful write, `false` when the input is invalid or
- * the underlying storage threw.
+ * Returns `true` on a successful write (post-commit), `false` when the input
+ * is invalid or the underlying storage threw / aborted before commit.
  */
 export async function persistCachedMinSafeVersion(
   value: string,
   now: () => number = Date.now,
 ): Promise<boolean> {
-  if (typeof value !== 'string' || !SEMVER_RE.test(value)) return false
+  if (!isValidSemVer(value)) return false
   const record: CachedMinSafeVersion = {
     id: MIN_SAFE_VERSION_KEY,
     value,
@@ -204,6 +304,7 @@ export async function clearCachedMinSafeVersion(): Promise<void> {
 
 export const appVersionCache = {
   loadCachedMinSafeVersion,
+  inspectCachedMinSafeVersion,
   persistCachedMinSafeVersion,
   clearCachedMinSafeVersion,
 }
