@@ -1,27 +1,22 @@
-UQ (auto)
+Usability & Quality Requirements
   REQ-UQ-001
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/usability_quality.md
+    title: Touch-Friendly Controls
+    file: docs/requirements/usability_quality.md
 
   REQ-UQ-002
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/usability_quality.md
+    title: Responsive Layout Adaptation
+    file: docs/requirements/usability_quality.md
 
   REQ-UQ-003
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/usability_quality.md
+    title: Decimal Precision Formatting
+    file: docs/requirements/usability_quality.md
 
   REQ-UQ-004
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/usability_quality.md
+    title: Conservative Rounding Strategy
+    file: docs/requirements/usability_quality.md
 
   REQ-UQ-005
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/usability_quality.md
+    title: Active Unit Display
+    file: docs/requirements/usability_quality.md
     hazard:
       - H-001

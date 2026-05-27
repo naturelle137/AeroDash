@@ -1,72 +1,59 @@
-SYS (auto)
+System Requirements
   REQ-SYS-001
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/system.md
+    title: Offline Functionality
+    file: docs/requirements/system.md
 
   REQ-SYS-002
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/system.md
+    title: Portable Storage Format
+    file: docs/requirements/system.md
 
   REQ-SYS-003
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/system.md
+    title: SI Unit Normalization
+    file: docs/requirements/system.md
     hazard:
       - H-001
       - H-002
 
   REQ-SYS-004
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/system.md
+    title: Supported Units
+    file: docs/requirements/system.md
 
   REQ-SYS-005
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/system.md
+    title: Update Available Notification
+    file: docs/requirements/system.md
     hazard:
       - H-019
 
   REQ-SYS-006
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/system.md
+    title: Safe Version Verification
+    file: docs/requirements/system.md
     hazard:
       - H-019
 
   REQ-SYS-007
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/system.md
+    title: Centralized Notification Service
+    file: docs/requirements/system.md
 
   REQ-SYS-008
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/system.md
+    title: Uniform Notification Model
+    file: docs/requirements/system.md
 
   REQ-SYS-009
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/system.md
+    title: Connectivity State Detection
+    file: docs/requirements/system.md
 
   REQ-SYS-010
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/system.md
+    title: Online Feature Availability
+    file: docs/requirements/system.md
 
   REQ-SYS-011
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/system.md
+    title: Input Validation Before Core Logic
+    file: docs/requirements/system.md
 
   REQ-SYS-012
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/system.md
+    title: Validation Failure Error Notification
+    file: docs/requirements/system.md
 
   REQ-SYS-013
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/system.md
+    title: Session Payload Persistence
+    file: docs/requirements/system.md

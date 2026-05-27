@@ -1,32 +1,26 @@
-AC (auto)
+Aircraft Management Requirements
   REQ-AC-001
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/aircraft_management.md
+    title: Profile CRUD Operations
+    file: docs/requirements/aircraft_management.md
 
   REQ-AC-002
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/aircraft_management.md
+    title: Registration Validation
+    file: docs/requirements/aircraft_management.md
 
   REQ-AC-003
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/aircraft_management.md
+    title: Duplicate Registration Warning
+    file: docs/requirements/aircraft_management.md
 
   REQ-AC-004
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/aircraft_management.md
+    title: Profile Import
+    file: docs/requirements/aircraft_management.md
 
   REQ-AC-005
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/aircraft_management.md
+    title: Profile Verification Status
+    file: docs/requirements/aircraft_management.md
     hazard:
       - H-011
 
   REQ-AC-006
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/aircraft_management.md
+    title: Passenger Profiles
+    file: docs/requirements/aircraft_management.md

@@ -1,116 +1,94 @@
-AD (auto)
+Detailed Aircraft Data Requirements
   REQ-AD-001
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/detailed_aircraft_data.md
+    title: Basic Aircraft Attributes
+    file: docs/requirements/detailed_aircraft_data.md
 
   REQ-AD-002
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/detailed_aircraft_data.md
+    title: Load Point Configuration
+    file: docs/requirements/detailed_aircraft_data.md
 
   REQ-AD-003
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/detailed_aircraft_data.md
+    title: Fuel Tank Configuration
+    file: docs/requirements/detailed_aircraft_data.md
     hazard:
       - H-003
 
   REQ-AD-004
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/detailed_aircraft_data.md
+    title: Weighing Report Data
+    file: docs/requirements/detailed_aircraft_data.md
 
   REQ-AD-005
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/detailed_aircraft_data.md
+    title: Flight Envelope Definition
+    file: docs/requirements/detailed_aircraft_data.md
 
   REQ-AD-006
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/detailed_aircraft_data.md
+    title: Operating Cost Tracking
+    file: docs/requirements/detailed_aircraft_data.md
 
   REQ-AD-007
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/detailed_aircraft_data.md
+    title: Reference Datum Storage
+    file: docs/requirements/detailed_aircraft_data.md
 
   REQ-AD-008
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/detailed_aircraft_data.md
+    title: Performance Profile Definition
+    file: docs/requirements/detailed_aircraft_data.md
 
   REQ-AD-009
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/detailed_aircraft_data.md
+    title: Performance Data Points
+    file: docs/requirements/detailed_aircraft_data.md
 
   REQ-AD-010
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/detailed_aircraft_data.md
+    title: Checklist Storage
+    file: docs/requirements/detailed_aircraft_data.md
 
   REQ-AD-011
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/detailed_aircraft_data.md
+    title: Certification Categories
+    file: docs/requirements/detailed_aircraft_data.md
 
   REQ-AD-012
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/detailed_aircraft_data.md
+    title: Variable Loading Stations
+    file: docs/requirements/detailed_aircraft_data.md
 
   REQ-AD-013
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/detailed_aircraft_data.md
+    title: Weighing Report Versioning
+    file: docs/requirements/detailed_aircraft_data.md
 
   REQ-AD-014
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/detailed_aircraft_data.md
+    title: Original Unit Preservation
+    file: docs/requirements/detailed_aircraft_data.md
     hazard:
       - H-001
 
   REQ-AD-015
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/detailed_aircraft_data.md
+    title: Surface Condition Factors
+    file: docs/requirements/detailed_aircraft_data.md
 
   REQ-AD-016
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/detailed_aircraft_data.md
+    title: Operational Safety Factors
+    file: docs/requirements/detailed_aircraft_data.md
 
   REQ-AD-017
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/detailed_aircraft_data.md
+    title: Wind Limit Storage
+    file: docs/requirements/detailed_aircraft_data.md
     hazard:
       - H-014
 
   REQ-AD-018
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/detailed_aircraft_data.md
+    title: Share-Code Storage
+    file: docs/requirements/detailed_aircraft_data.md
 
   REQ-AD-019
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/detailed_aircraft_data.md
+    title: Owner Identifier Storage
+    file: docs/requirements/detailed_aircraft_data.md
 
   REQ-AD-020
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/detailed_aircraft_data.md
+    title: Powertrain Discriminator
+    file: docs/requirements/detailed_aircraft_data.md
 
   REQ-AD-021
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/detailed_aircraft_data.md
+    title: Battery Pack Description
+    file: docs/requirements/detailed_aircraft_data.md
 
   REQ-AD-022
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/detailed_aircraft_data.md
+    title: Powertrain Field Exclusivity
+    file: docs/requirements/detailed_aircraft_data.md

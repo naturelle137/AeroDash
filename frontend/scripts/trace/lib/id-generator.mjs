@@ -169,6 +169,10 @@ export function findDuplicates(occurrences) {
   /** @type {Map<string, Map<string, number[]>>} */
   const idToFileLines = new Map()
   for (const occ of occurrences) {
+    // INV-008 is about single-source DEFINITION. A tag cited inside a
+    // downstream `(FROM: …)` clause is not a redefinition; counting it
+    // here would flag every well-formed REQ/UJ chain as a duplicate.
+    if (occ.declared === false) continue
     let perFile = idToFileLines.get(occ.id)
     if (!perFile) {
       perFile = new Map()

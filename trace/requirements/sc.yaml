@@ -1,40 +1,32 @@
-SC (auto)
+Cloud Sync & Collaboration Requirements
   REQ-SC-001
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/cloud_sync_collaboration.md
+    title: OIDC Authentication
+    file: docs/requirements/cloud_sync_collaboration.md
 
   REQ-SC-002
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/cloud_sync_collaboration.md
+    title: Cloud Synchronization
+    file: docs/requirements/cloud_sync_collaboration.md
 
   REQ-SC-003
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/cloud_sync_collaboration.md
+    title: Workspace Segregation
+    file: docs/requirements/cloud_sync_collaboration.md
 
   REQ-SC-004
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/cloud_sync_collaboration.md
+    title: Role-based Access Control
+    file: docs/requirements/cloud_sync_collaboration.md
 
   REQ-SC-005
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/cloud_sync_collaboration.md
+    title: Share-Code Generation
+    file: docs/requirements/cloud_sync_collaboration.md
 
   REQ-SC-006
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/cloud_sync_collaboration.md
+    title: Share-Code Import
+    file: docs/requirements/cloud_sync_collaboration.md
 
   REQ-SC-007
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/cloud_sync_collaboration.md
+    title: JSON Export
+    file: docs/requirements/cloud_sync_collaboration.md
 
   REQ-SC-008
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/cloud_sync_collaboration.md
+    title: JSON Import Validation
+    file: docs/requirements/cloud_sync_collaboration.md

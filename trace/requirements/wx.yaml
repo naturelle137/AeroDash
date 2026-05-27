@@ -1,51 +1,42 @@
-WX (auto)
+Weather & Meteorological Data Requirements
   REQ-WX-001
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/weather_meterological_data.md
+    title: METAR/TAF Retrieval
+    file: docs/requirements/weather_meterological_data.md
 
   REQ-WX-002
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/weather_meterological_data.md
+    title: Time-Specific Weather Forecast
+    file: docs/requirements/weather_meterological_data.md
 
   REQ-WX-003
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/weather_meterological_data.md
+    title: Weather Auto-population
+    file: docs/requirements/weather_meterological_data.md
 
   REQ-WX-004
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/weather_meterological_data.md
+    title: Precipitation Surface Default
+    file: docs/requirements/weather_meterological_data.md
     hazard:
       - H-009
 
   REQ-WX-005
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/weather_meterological_data.md
+    title: Heavy Precipitation Surface Default
+    file: docs/requirements/weather_meterological_data.md
     hazard:
       - H-009
 
   REQ-WX-006
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/weather_meterological_data.md
+    title: Manual Surface Override
+    file: docs/requirements/weather_meterological_data.md
 
   REQ-WX-007
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/weather_meterological_data.md
+    title: Wind Components Calculation
+    file: docs/requirements/weather_meterological_data.md
 
   REQ-WX-008
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/weather_meterological_data.md
+    title: Weather Metadata Display
+    file: docs/requirements/weather_meterological_data.md
 
   REQ-WX-009
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/weather_meterological_data.md
+    title: Wind Limit Exceedance Notification
+    file: docs/requirements/weather_meterological_data.md
     hazard:
       - H-014

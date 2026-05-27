@@ -300,4 +300,61 @@ describe('entryFromOccurrence', () => {
     })
     expect(entry.lists.impl).toEqual(['IMP-MB-CORE-001'])
   })
+
+  // Issue #264 — document-level registries (REQ/UJ/DES) must use a
+  // singular `file:` scalar (STC §4.3.1) and pick up the heading title
+  // harvested by the parser instead of falling back to the "TODO" stub.
+  it('builds a REQ entry with extracted title, file: scalar, and hazard list', () => {
+    const entry = entryFromOccurrence({
+      id: '@REQ-MB-001@',
+      type: 'REQ',
+      segments: ['MB'],
+      number: 1,
+      file: 'docs/requirements/mass_balance.md',
+      line: 10,
+      fromTags: ['@H-005@'],
+      technical: false,
+      title: 'Dynamic Envelope Updates',
+    })
+    expect(entry.id).toBe('REQ-MB-001')
+    expect(entry.group).toBe('Mass & Balance Requirements')
+    expect(entry.scalars.title).toBe('Dynamic Envelope Updates')
+    expect(entry.scalars.file).toBe('docs/requirements/mass_balance.md')
+    expect(entry.lists.files).toBeUndefined()
+    expect(entry.lists.hazard).toEqual(['H-005'])
+  })
+
+  it('builds a UJ entry with extracted title, file: scalar, and req list', () => {
+    const entry = entryFromOccurrence({
+      id: '@UJ-A-001@',
+      type: 'UJ',
+      segments: ['A'],
+      number: 1,
+      file: 'docs/journeys/01_fleet_management.md',
+      line: 7,
+      fromTags: ['@REQ-AC-001@', '@REQ-UQ-005@'],
+      technical: false,
+      title: 'The "Fleet Admin" Workflow (Complex Profile)',
+    })
+    expect(entry.id).toBe('UJ-A-001')
+    expect(entry.group).toBe('Phase A — Fleet Management & Setup')
+    expect(entry.scalars.title).toBe('The "Fleet Admin" Workflow (Complex Profile)')
+    expect(entry.scalars.file).toBe('docs/journeys/01_fleet_management.md')
+    expect(entry.lists.req).toEqual(['REQ-AC-001', 'REQ-UQ-005'])
+  })
+
+  it('falls back to a TODO title when no heading was harvested', () => {
+    const entry = entryFromOccurrence({
+      id: '@REQ-SYS-001@',
+      type: 'REQ',
+      segments: ['SYS'],
+      number: 1,
+      file: 'docs/requirements/system.md',
+      line: 8,
+      fromTags: [],
+      technical: false,
+    })
+    expect(entry.scalars.title).toBe('TODO: describe this artifact')
+    expect(entry.scalars.file).toBe('docs/requirements/system.md')
+  })
 })

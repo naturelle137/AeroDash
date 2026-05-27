@@ -1,16 +1,14 @@
-C (auto)
+Phase C — Performance & Safety
   UJ-C-001
-    title: TODO: describe this artifact
-    files:
-      - docs/journeys/03_performance_safety.md
+    title: Hot & High + Controlled Extrapolation
+    file: docs/journeys/03_performance_safety.md
     req:
       - REQ-PF-010
       - REQ-PF-012
 
   UJ-C-002
-    title: TODO: describe this artifact
-    files:
-      - docs/journeys/03_performance_safety.md
+    title: The "Unknown Airfield" (Manual Override)
+    file: docs/journeys/03_performance_safety.md
     req:
       - REQ-AP-003
       - REQ-AP-006
@@ -18,9 +16,8 @@ C (auto)
       - REQ-PF-009
 
   UJ-C-003
-    title: TODO: describe this artifact
-    files:
-      - docs/journeys/03_performance_safety.md
+    title: Estimation Transparency (Missing Distance Type)
+    file: docs/journeys/03_performance_safety.md
     req:
       - REQ-PF-005
       - REQ-PF-017

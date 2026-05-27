@@ -1,34 +1,28 @@
-AP (auto)
+Airport Database Requirements
   REQ-AP-001
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/airport_database.md
+    title: Airport Data Object Definition
+    file: docs/requirements/airport_database.md
 
   REQ-AP-002
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/airport_database.md
+    title: Database Auto-population
+    file: docs/requirements/airport_database.md
 
   REQ-AP-003
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/airport_database.md
+    title: Manual Entry Fallback
+    file: docs/requirements/airport_database.md
 
   REQ-AP-004
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/airport_database.md
+    title: Surface Condition Selection
+    file: docs/requirements/airport_database.md
     hazard:
       - H-009
 
   REQ-AP-005
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/airport_database.md
+    title: Unverified State for External Data
+    file: docs/requirements/airport_database.md
     hazard:
       - H-015
 
   REQ-AP-006
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/airport_database.md
+    title: Manual Override Fields
+    file: docs/requirements/airport_database.md

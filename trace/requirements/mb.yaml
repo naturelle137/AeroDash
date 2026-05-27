@@ -1,68 +1,56 @@
-MB (auto)
+Mass & Balance Requirements
   REQ-MB-001
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/mass_balance.md
+    title: Dynamic Envelope Updates
+    file: docs/requirements/mass_balance.md
     hazard:
       - H-005
 
   REQ-MB-002
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/mass_balance.md
+    title: Automatic CG Recalculation
+    file: docs/requirements/mass_balance.md
 
   REQ-MB-003
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/mass_balance.md
+    title: Synchronous Chart Updates
+    file: docs/requirements/mass_balance.md
 
   REQ-MB-004
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/mass_balance.md
+    title: Out of Envelope Notification
+    file: docs/requirements/mass_balance.md
     hazard:
       - H-006
 
   REQ-MB-005
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/mass_balance.md
+    title: MTOM Exceedance Notification
+    file: docs/requirements/mass_balance.md
 
   REQ-MB-006
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/mass_balance.md
+    title: Geometric Node Extraction
+    file: docs/requirements/mass_balance.md
 
   REQ-MB-007
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/mass_balance.md
+    title: Polygon Bounds Verification
+    file: docs/requirements/mass_balance.md
 
   REQ-MB-008
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/mass_balance.md
+    title: Take-off and Landing CG
+    file: docs/requirements/mass_balance.md
     hazard:
       - H-006
 
   REQ-MB-009
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/mass_balance.md
+    title: MZFM Validation
+    file: docs/requirements/mass_balance.md
 
   REQ-MB-010
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/mass_balance.md
+    title: Polygon Definition Output
+    file: docs/requirements/mass_balance.md
 
   REQ-MB-011
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/mass_balance.md
+    title: CG Migration Exceedance
+    file: docs/requirements/mass_balance.md
     hazard:
       - H-006
 
   REQ-MB-012
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/mass_balance.md
+    title: Variable Moment Calculation
+    file: docs/requirements/mass_balance.md

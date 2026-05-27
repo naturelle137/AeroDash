@@ -1,0 +1,8 @@
+SYS App — Session-Storage Advisory (Integration — #263 DP-004 / CS-012)
+  IT-SYS-APP-001
+    title: App.vue renders, displays and dismisses the sessionStorage advisory banner wired to pwaUpdateStore (#263)
+    impl:
+      - IMP-SYS-STORE-011
+      - IMP-SYS-STORE-012
+    files:
+      - frontend/src/__tests__/App.session-storage-advisory.int.spec.ts

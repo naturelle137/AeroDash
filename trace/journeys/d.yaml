@@ -1,8 +1,7 @@
-D (auto)
+Phase D — System & Usability
   UJ-D-001
-    title: TODO: describe this artifact
-    files:
-      - docs/journeys/04_system_usability.md
+    title: Cockpit Usability & Stress Test
+    file: docs/journeys/04_system_usability.md
     req:
       - REQ-UI-011
       - REQ-UI-008
@@ -14,9 +13,8 @@ D (auto)
       - REQ-DOC-005
 
   UJ-D-002
-    title: TODO: describe this artifact
-    files:
-      - docs/journeys/04_system_usability.md
+    title: Unverified Data Verification Flow
+    file: docs/journeys/04_system_usability.md
     req:
       - REQ-AP-005
       - REQ-UI-014

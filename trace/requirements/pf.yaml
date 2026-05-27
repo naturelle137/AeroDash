@@ -1,96 +1,80 @@
-PF (auto)
+Performance Requirements
   REQ-PF-001
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/performance.md
+    title: Distinct Performance Variables
+    file: docs/requirements/performance.md
 
   REQ-PF-002
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/performance.md
+    title: Bilinear Interpolation
+    file: docs/requirements/performance.md
     hazard:
       - H-004
 
   REQ-PF-003
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/performance.md
+    title: Hierarchical Fallback
+    file: docs/requirements/performance.md
 
   REQ-PF-004
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/performance.md
+    title: Correction Application Isolation
+    file: docs/requirements/performance.md
 
   REQ-PF-005
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/performance.md
+    title: Missing Data Estimation
+    file: docs/requirements/performance.md
 
   REQ-PF-006
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/performance.md
+    title: Operational Required Distance
+    file: docs/requirements/performance.md
 
   REQ-PF-007
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/performance.md
+    title: Safety Margin Calculation
+    file: docs/requirements/performance.md
 
   REQ-PF-008
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/performance.md
+    title: Custom Obstacle Constraints
+    file: docs/requirements/performance.md
 
   REQ-PF-009
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/performance.md
+    title: Unverified Obstacle Notification
+    file: docs/requirements/performance.md
     hazard:
       - H-017
 
   REQ-PF-010
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/performance.md
+    title: Extrapolation Limits and Penalties
+    file: docs/requirements/performance.md
     hazard:
       - H-007
       - H-012
 
   REQ-PF-011
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/performance.md
+    title: Performance Benefit Capping
+    file: docs/requirements/performance.md
     hazard:
       - H-013
 
   REQ-PF-012
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/performance.md
+    title: Extrapolation Acknowledgment
+    file: docs/requirements/performance.md
     hazard:
       - H-012
 
   REQ-PF-013
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/performance.md
+    title: Pressure Altitude Formula
+    file: docs/requirements/performance.md
 
   REQ-PF-015
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/performance.md
+    title: Runway Insufficient Notification
+    file: docs/requirements/performance.md
     hazard:
       - H-008
 
   REQ-PF-016
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/performance.md
+    title: Low Safety Factor Warning
+    file: docs/requirements/performance.md
     hazard:
       - H-008
       - H-016
 
   REQ-PF-017
-    title: TODO: describe this artifact
-    files:
-      - docs/requirements/performance.md
+    title: Estimated Value Marking
+    file: docs/requirements/performance.md

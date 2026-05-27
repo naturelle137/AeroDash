@@ -1,8 +1,7 @@
-A (auto)
+Phase A — Fleet Management & Setup
   UJ-A-001
-    title: TODO: describe this artifact
-    files:
-      - docs/journeys/01_fleet_management.md
+    title: The "Fleet Admin" Workflow (Complex Profile)
+    file: docs/journeys/01_fleet_management.md
     req:
       - REQ-AC-001
       - REQ-AC-005
@@ -12,27 +11,24 @@ A (auto)
       - REQ-UQ-005
 
   UJ-A-002
-    title: TODO: describe this artifact
-    files:
-      - docs/journeys/01_fleet_management.md
+    title: Unit-Safety Across a Mixed Fleet
+    file: docs/journeys/01_fleet_management.md
     req:
       - REQ-SYS-003
       - REQ-SYS-004
       - REQ-UQ-005
 
   UJ-A-003
-    title: TODO: describe this artifact
-    files:
-      - docs/journeys/01_fleet_management.md
+    title: Certification Category Switch
+    file: docs/journeys/01_fleet_management.md
     req:
       - REQ-AD-011
       - REQ-MB-001
       - REQ-UI-009
 
   UJ-A-004
-    title: TODO: describe this artifact
-    files:
-      - docs/journeys/01_fleet_management.md
+    title: Adding a Battery-Electric Aircraft (Pipistrel Velis Electro)
+    file: docs/journeys/01_fleet_management.md
     req:
       - REQ-AD-020
       - REQ-AD-021

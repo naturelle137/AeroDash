@@ -37,6 +37,7 @@ The rest of this document outlines the formal "Safety-First" rules we follow to 
 * **Production Build:** `pnpm --filter frontend build`
 * **Type-Check:** `pnpm --filter frontend type-check`
 * **IDE/Editor:** Visual Studio Code with the recommended workspace extensions (`.vscode/extensions.json`)
+* **Optional Vite flags:** copy `frontend/.env.example` to `frontend/.env.local` (Vite reads `.env*` files from `frontend/`, the directory holding `vite.config.ts` — a `.env.local` at the repo root is ignored). `VITE_LOG_DEBUG=true` surfaces `logger.debug(...)` output and `VITE_LOG_TELEMETRY=true` enables `logger.telemetryTrace(...)` — both are OFF by default *everywhere*, including local dev and the unit/integration test runners (issue #263 / DP-004 / CS-012). The dev-time silence is deliberate: `logger.debug()` is an opt-in triage channel, not a "you'll see this on `pnpm dev`" channel, so a `debug` call added during investigation does not silently bit-rot into a permanent unredacted-payload sink. Accepted truthy values: `true`, `1`, `yes`, `on`. **Never enable `VITE_LOG_TELEMETRY` for a production deployment** — it bypasses the PII redactor by design. `frontend/vite.config.ts` aborts `pnpm build` if `VITE_LOG_TELEMETRY` is truthy in any of the `.env*` files Vite will load for the build (it calls `loadEnv()` explicitly, not bare `process.env`), so an accidental production bundle with telemetry cannot ship.
 
 To ensure all quality gates (linting, commit standards) are active, please set up your local environment:
 
