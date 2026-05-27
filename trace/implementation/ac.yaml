@@ -286,3 +286,10 @@ AC (auto)
       - REQ-AD-020
       - REQ-AD-022
       - REQ-UI-023
+
+  IMP-AC-STORE-009
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/modules/aircraft/services/fleet.repository.ts
+    req:
+      - REQ-SYS-014

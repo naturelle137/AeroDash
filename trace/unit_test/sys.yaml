@@ -1200,3 +1200,10 @@ SYS (auto)
       - frontend/src/stores/__tests__/pwa-update.store.spec.ts
     impl:
       - IMP-SYS-STORE-010
+
+  UT-SYS-STORE-046
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/modules/aircraft/__tests__/data-rights.service.spec.ts
+    impl:
+      - IMP-SYS-STORE-013

@@ -135,6 +135,36 @@ This document defines the system behavior using the **EARS** (Easy Approach to R
 
 **Requirement:** When the pilot has entered preflight data, the system shall automatically serialise the active session payload to `localStorage` on each value change (debounced) and restore it on page reload, provided the restored payload passes Zod schema validation. An invalid or absent payload shall result in a clean session with no pre-population. The session payload shall be cleared when a different aircraft profile is selected.
 
+<!-- @REQ-SYS-014@ -->
+
+### REQ-SYS-014: Repository-Wide Wipe (Delete-All-Data)
+
+**Requirement:** The system shall provide an in-app "Delete All Data" action that, upon explicit pilot confirmation, clears all locally persisted application data in a single operation: the IndexedDB fleet store (`aerodash-fleet`), the `localStorage` session payload, the `sessionStorage` cold-start marker, and any other `aerodash`-prefixed storage keys.
+**Rationale:** GDPR Art. 17 right to erasure (DP-002, DP-003). Eliminates the prior dependency on browser-level "Clear site data" for full data removal.
+**Priority:** P2
+**Status:** Implemented
+**Design Reference:** n/a
+
+<!-- @REQ-SYS-015@ -->
+
+### REQ-SYS-015: Bulk JSON Export of All Profiles
+
+**Requirement:** The system shall provide an action that exports every locally persisted aircraft profile as a single, schema-versioned JSON document (UTF-8, RFC 8259) and offers it to the pilot as a file download.
+**Rationale:** GDPR Art. 15 (right of access) and Art. 20 (data portability) (DP-002). Lets the pilot relocate their fleet to another device, archive it, or hand it over before invoking REQ-SYS-014.
+**Priority:** P2
+**Status:** Implemented
+**Design Reference:** n/a
+
+<!-- @REQ-SYS-016@ -->
+
+### REQ-SYS-016: Age-Based Retention Purge
+
+**Requirement:** The system shall provide an action that lists and removes aircraft profiles whose most recent weighing-report `validFrom` date is older than a configurable retention window (default 12 months from the current date). The pilot shall be able to preview the candidates and confirm before any record is deleted.
+**Rationale:** GDPR Art. 5(1)(e) storage limitation (DP-003). Aligns the PRIVACY.md retention claim with concrete in-app behaviour without silently destroying long-lived but currently-active aircraft data.
+**Priority:** P2
+**Status:** Implemented
+**Design Reference:** n/a
+
 ---
 
 ## Design References

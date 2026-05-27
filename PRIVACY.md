@@ -1,7 +1,7 @@
 # Privacy & Data Protection
 
-- version: 1.1
-- date: 2026-05-24
+- version: 1.2
+- date: 2026-05-27
 - status: active
 
 ---
@@ -39,7 +39,7 @@ All data processed by AeroDash is used solely for the purpose of computing Mass 
 
 ## 5. Storage & Retention Policy (GDPR Art. 5(1)(e))
 
-### Current State (v0.3.0-alpha)
+### Current State (v0.4.0-alpha)
 
 This release **does** persist data on the device. All storage is **local to the browser, unencrypted, and never transmitted** — there is no backend, sync, or remote logging in this release. Three storage facilities are used:
 
@@ -48,58 +48,94 @@ This release **does** persist data on the device. All storage is **local to the 
    PII-adjacent data: the aircraft `registration` mark, an `ownerId`, one or more
    weighing reports (basic empty mass, empty CG, weighing dates), and an optional
    `costPerHour`, alongside the technical M&B/performance parameters. Persists
-   until the pilot deletes the profile or clears browser storage.
-2. **localStorage — key `aerodash:session:payload`.**
-   Holds the auto-saved current session so entered data survives a page refresh:
-   the active aircraft id, the active certification category, and per-station
-   weights with interaction flags. No personal data beyond the aircraft id
-   reference. Overwritten on change, cleared on aircraft switch, and removed if it
-   fails validation.
+   until the pilot deletes the profile, runs the in-app *Delete All Data* action,
+   or clears browser storage.
+2. **localStorage — keys prefixed with `aerodash`.**
+   - `aerodash:session:payload` — auto-saved Mass & Balance session (active
+     aircraft id, active certification category, per-station weights with
+     interaction flags). No personal data beyond the aircraft id reference.
+     Overwritten on change, cleared on aircraft switch, and removed if it
+     fails validation.
+   - `aerodash-theme` — pilot's light/dark UI preference. Not personal data.
+   - The *Delete All Data* action removes every `aerodash`-prefixed key
+     irrespective of suffix, so future keys cannot silently survive a wipe.
 3. **sessionStorage — key `aerodash.session.active`.**
    A single `'1'` marker used only to detect PWA cold starts versus in-session
    updates. Contains no personal data and is cleared automatically when the last
-   tab for the origin is closed.
+   tab for the origin is closed, and is also cleared by the in-app *Delete All
+   Data* action.
 
-**User control today:** There is **no in-app "Delete All Data" control in this
-release.** A pilot can remove all stored data by clearing the site's browser
-storage (browser settings → site data / "Clear site data" for the AeroDash
-origin), which deletes the `aerodash-fleet` database and both storage keys.
-Individual aircraft profiles can be deleted from within the fleet view.
+**User control today:** AeroDash ships a dedicated **Privacy view** at
+`/privacy` exposing three GDPR-aligned actions:
+
+1. **Bulk JSON Export (Art. 15 / Art. 20).** Downloads every persisted
+   aircraft profile as a single schema-versioned JSON file
+   (`aerodash-fleet-<timestamp>.json`).
+2. **Age-Based Retention Purge (Art. 5(1)(e)).** Lists every profile whose
+   most recent weighing report's `validFrom` date is older than the default
+   12-month retention window, then deletes them on explicit confirmation.
+   The purge is **pilot-initiated, not silent**: silently dropping a profile
+   whose long-lived BEM weighing remains valid would be a worse regression
+   than the storage it consumes, so the system surfaces a preview and
+   requires confirmation instead of auto-purging at startup.
+3. **Delete All Data (Art. 17).** After explicit confirmation (typed
+   confirmation phrase), clears the entire `aerodash-fleet` IndexedDB store
+   plus every `aerodash`-prefixed localStorage and sessionStorage key in one
+   transaction.
+
+Individual aircraft profiles can still be deleted from within the fleet
+view. A pilot can also remove all stored data outside the app by clearing
+the site's browser storage (browser settings → site data / "Clear site
+data" for the AeroDash origin).
 
 **Residual exposure:** Because storage is unencrypted and local, anyone with
 access to the device's browser profile can read the saved fleet (including
-registration marks and owner identifiers). This is acceptable for an offline,
+registration marks and owner identifiers) **until** the pilot exercises the
+*Delete All Data* control above. This is acceptable for an offline,
 single-user, on-device tool but is documented here for transparency.
-
-### Future Releases (planned — NOT shipped in v0.3.0-alpha)
-
-The following controls are **planned and not yet implemented**:
-
-1. **Retention period:** User-entered M&B/weighing reports will be retained for a maximum of **12 months** from creation, unless the user deletes them earlier.
-2. **Auto-purge:** On application startup, any records older than the retention period will be automatically deleted.
-3. **User-initiated deletion:** An in-app "Delete All Data" function will be provided, clearing all IndexedDB stores and storage keys in a single action (until then, use browser storage settings as described above).
-4. **No server sync without consent:** If cloud synchronisation is added (Milestone #7), data will only leave the device after explicit user opt-in and authentication.
-
-## 6. Data Subject Rights (GDPR Arts. 15–20)
-
-### Current State (v0.3.0-alpha)
-
-Personal data is now stored locally on the device (see §5), but it is never
-transmitted and no accounts exist. The data subject is the device's sole user,
-who has full physical control over the data:
-
-- **Right of access (Art. 15):** All stored data is on the user's own device; aircraft profiles are viewable in the fleet view.
-- **Right to rectification (Art. 16):** Aircraft profiles can be edited in the app.
-- **Right to erasure (Art. 17):** Individual profiles can be deleted in the fleet view; **all** stored data can be erased via browser storage settings (no in-app "Delete All Data" control ships in this release).
-- **Right to data portability (Art. 20):** A standard JSON import/export format is **planned, not yet shipped** — see "Future Releases" below.
 
 ### Future Releases
 
-The following mechanisms are **planned and not yet implemented**:
+The following controls remain **planned but not yet implemented**:
 
-- **Right of access (Art. 15):** Export all stored data in machine-readable format (JSON).
-- **Right to erasure (Art. 17):** An in-app "Delete All Data" action to clear all stores at once.
-- **Right to data portability (Art. 20):** Export/import data in a standard, interoperable format.
+1. **No server sync without consent:** If cloud synchronisation is added
+   (Milestone #7), data will only leave the device after explicit user opt-in
+   and authentication.
+
+## 6. Data Subject Rights (GDPR Arts. 15–20)
+
+### Current State (v0.4.0-alpha)
+
+Personal data is stored locally on the device (see §5), but it is never
+transmitted and no accounts exist. The data subject is the device's sole user,
+who has full physical control over the data:
+
+- **Right of access (Art. 15):** All stored data is on the user's own device.
+  Aircraft profiles are viewable in the fleet view, and the Privacy view's
+  *Bulk JSON Export* (`/privacy`) produces a machine-readable dump of the
+  full fleet.
+- **Right to rectification (Art. 16):** Aircraft profiles can be edited in
+  the app (Fleet → edit; the Draft/Verified FSM tracks who introduced each
+  revision).
+- **Right to erasure (Art. 17):** Individual profiles can be deleted in the
+  fleet view. The Privacy view's *Delete All Data* action erases the entire
+  fleet plus every `aerodash`-prefixed storage key in a single confirmed
+  operation. The age-based retention purge in the same view supports
+  partial, time-bounded erasure (records older than 12 months).
+- **Right to data portability (Art. 20):** The single-profile import/export
+  flow on each Fleet card continues to handle one profile at a time. The
+  Privacy view's *Bulk JSON Export* produces an envelope of every profile in
+  one schema-versioned file, suitable for archival or migration to another
+  device.
+
+### Future Releases
+
+The following mechanism remains **planned but not yet implemented**:
+
+- **Bulk JSON Import (Art. 20).** The bulk export envelope round-trips, but
+  the corresponding "import this whole file" UI is not yet wired (one-at-a-time
+  import works today via the existing Fleet import card). Tracked alongside
+  Milestone #7 cloud-sync onboarding.
 
 ## 7. Third-Party Dependencies
 

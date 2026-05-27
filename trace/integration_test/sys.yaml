@@ -6,3 +6,11 @@ SYS App — Session-Storage Advisory (Integration — #263 DP-004 / CS-012)
       - IMP-SYS-STORE-012
     files:
       - frontend/src/__tests__/App.session-storage-advisory.int.spec.ts
+
+SYS (auto)
+  IT-SYS-STORE-001
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/modules/aircraft/__tests__/data-rights.service.int.spec.ts
+    impl:
+      - IMP-SYS-STORE-013

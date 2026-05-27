@@ -81,6 +81,8 @@ const navItems: NavItem[] = [
   { id: 'weather',     label: 'Weather',     path: '/weather',     icon: 'wx',   soon: true },
   { id: 'fuel',        label: 'Fuel',        path: '/fuel',        icon: 'fuel', soon: true },
   { id: 'airport',     label: 'Airport DB',  path: '/airport',     icon: 'ap',   soon: true },
+  // @IMP-UI-SHARED-007@ (FROM: @REQ-SYS-014@, @REQ-SYS-015@, @REQ-SYS-016@)
+  { id: 'privacy',     label: 'Privacy',     path: '/privacy',     icon: 'privacy' },
 ]
 
 /** Bottom nav shows 4 primary items on mobile */
@@ -199,6 +201,11 @@ const themeLabel = computed(() =>
                 <circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.5" />
                 <path d="M10 3v14M3 10h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
                 <ellipse cx="10" cy="10" rx="4" ry="7" stroke="currentColor" stroke-width="1.5" />
+              </svg>
+              <!-- Privacy (shield) -->
+              <svg v-else-if="item.icon === 'privacy'" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <path d="M10 2l6 2.5v5c0 4-3 7-6 8-3-1-6-4-6-8v-5L10 2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+                <path d="M7.5 10l2 2 3-3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
               </svg>
             </span>
 

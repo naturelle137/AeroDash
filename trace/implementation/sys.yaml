@@ -265,3 +265,12 @@ SYS (auto)
       - frontend/src/stores/pwa-update.store.ts
     req:
       - REQ-SYS-005
+
+  IMP-SYS-STORE-013
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/modules/aircraft/services/data-rights.service.ts
+    req:
+      - REQ-SYS-014
+      - REQ-SYS-015
+      - REQ-SYS-016

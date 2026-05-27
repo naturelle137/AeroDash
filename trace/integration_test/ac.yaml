@@ -178,3 +178,18 @@ AC Migration — Downgrade + Corruption Recovery (#259)
       - IMP-AC-CORE-003
     files:
       - frontend/src/modules/aircraft/__tests__/fleet.repository.migration.int.spec.ts
+
+AC (auto)
+  IT-AC-STORE-014
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.repository.int.spec.ts
+    impl:
+      - IMP-AC-STORE-009
+
+  IT-AC-STORE-015
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.repository.int.spec.ts
+    impl:
+      - IMP-AC-STORE-009

@@ -22,3 +22,18 @@ UI Shared Components (Unit)
       - IMP-UI-SHARED-006
     files:
       - frontend/src/shared/components/__tests__/UndoToast.spec.ts
+
+UI (auto)
+  UT-UI-ROUTE-004
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/router/index.spec.ts
+    impl:
+      - IMP-UI-ROUTE-004
+
+  UT-UI-VIEW-002
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/views/__tests__/PrivacyView.spec.ts
+    impl:
+      - IMP-UI-VIEW-002
