@@ -69,6 +69,13 @@ AC Core — Aircraft Schema M3 fields (Unit)
     files:
       - frontend/src/core/adapters/aircraft.schema.spec.ts
 
+  UT-AC-CORE-103
+    title: M4 round-trip — performanceProfiles/surfaceConditions/safetyFactors/windLimits survive migration walker
+    impl:
+      - IMP-AC-CORE-003
+    files:
+      - frontend/src/core/logic/profile-migrations.spec.ts
+
 AC Store — ICAO Registration Validator (Unit)
   UT-AC-STORE-001
     title: validates D-EBPN as valid ICAO registration

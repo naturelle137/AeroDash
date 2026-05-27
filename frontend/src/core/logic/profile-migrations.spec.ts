@@ -318,3 +318,81 @@ describe('migrateProfileDocument — purity and determinism', () => {
     expect(p.registration).toBe('D-EBPN')
   })
 })
+
+// ─── M4 round-trip: performance + surface + OSF + wind limits ────────────────
+
+describe('migrateProfileDocument — M4 round-trip (REQ-AD-008/009/015/016/017)', () => {
+  // @UT-AC-CORE-103@ (FROM: @IMP-AC-CORE-003@)
+  // The performance-profile / surface-condition / OSF / wind-limit fields
+  // shipped together in the v0.4.0 (M4) schema bump. Each is optional on the
+  // Zod schema and therefore must survive the migration walker unchanged on
+  // both the "current pass-through" path and the "legacy v0 stamping" path —
+  // i.e. the walker treats them as opaque payload, never coerces them, never
+  // drops them.
+  const M4_FIELDS = {
+    performanceProfiles: [
+      {
+        flightPhase: 'TakeoffRoll' as const,
+        dataPoints: [
+          { distance: 210, mass: 850, pressureAltitude: 0, temperature: 15 },
+          { distance: 340, mass: 1157, pressureAltitude: 0, temperature: 15 },
+        ],
+      },
+      {
+        flightPhase: 'TakeoffDistance50ft' as const,
+        dataPoints: [
+          { distance: 340, mass: 850, pressureAltitude: 0, temperature: 15 },
+          { distance: 545, mass: 1157, pressureAltitude: 0, temperature: 15 },
+        ],
+      },
+    ],
+    surfaceConditions: [
+      { name: 'Dry Paved', takeoffFactor: 1.0, landingFactor: 1.0 },
+      { name: 'Wet Grass', takeoffFactor: 1.3, landingFactor: 1.4 },
+    ],
+    safetyFactors: { takeoff: 1.25, landing: 1.43 },
+    windLimits: [
+      { component: 'MaxCrosswind' as const, value: 15, classification: 'Demonstrated' as const },
+      { component: 'MaxTailwind' as const, value: 10, classification: 'Limit' as const },
+    ],
+  }
+
+  it('preserves performance/surface/OSF/wind-limit payloads on a current-version document', () => {
+    const result = migrateProfileDocument(buildV1Document(M4_FIELDS))
+    expect(result.kind).toBe('migrated')
+    if (result.kind !== 'migrated') return
+    const p: AircraftProfile = result.profile
+    expect(p.performanceProfiles).toEqual(M4_FIELDS.performanceProfiles)
+    expect(p.surfaceConditions).toEqual(M4_FIELDS.surfaceConditions)
+    expect(p.safetyFactors).toEqual(M4_FIELDS.safetyFactors)
+    expect(p.windLimits).toEqual(M4_FIELDS.windLimits)
+  })
+
+  it('preserves the same payloads when the document is stamped from v0 to v1', () => {
+    const doc = buildV1Document(M4_FIELDS)
+    delete (doc as { schemaVersion?: number }).schemaVersion
+    const result = migrateProfileDocument(doc)
+    expect(result.kind).toBe('migrated')
+    if (result.kind !== 'migrated') return
+    const p: AircraftProfile = result.profile
+    expect(p.schemaVersion).toBe(1)
+    expect(p.performanceProfiles).toEqual(M4_FIELDS.performanceProfiles)
+    expect(p.surfaceConditions).toEqual(M4_FIELDS.surfaceConditions)
+    expect(p.safetyFactors).toEqual(M4_FIELDS.safetyFactors)
+    expect(p.windLimits).toEqual(M4_FIELDS.windLimits)
+  })
+
+  it('rejects an M4 document that exceeds the 1000 data-point cap (REQ-AD-009)', () => {
+    const dataPoints = Array.from({ length: 1001 }, (_, i) => ({
+      distance: 100 + i,
+      mass: 850,
+      pressureAltitude: i,
+      temperature: 15,
+    }))
+    const doc = buildV1Document({
+      performanceProfiles: [{ flightPhase: 'TakeoffRoll', dataPoints }],
+    })
+    const result = migrateProfileDocument(doc)
+    expect(result.kind).toBe('corrupt')
+  })
+})
