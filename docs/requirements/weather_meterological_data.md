@@ -12,7 +12,7 @@ This document defines the weather & meteorological data behavior using the **EAR
 **Requirement:** When a user enters an ICAO airport code, the system shall fetch the current METAR and TAF from a public aviation weather API.
 **Rationale:** Fetches real-time environmental input for Performance (e.g., CheckWX, NOAA).
 **Priority:** P2
-**Status:** Approved
+**Status:** Deferred
 **Design Reference:** n/a
 
 <!-- @REQ-WX-002@ -->
@@ -21,7 +21,7 @@ This document defines the weather & meteorological data behavior using the **EAR
 **Requirement:** When a departure or arrival time is defined, the system shall retrieve forecast weather data (Temperature, QNH, Wind) for that specific time and location from a meteorological data service.
 **Rationale:** TAFs do not provide hourly Temp/QNH. Model data is required for accurate performance calculation.
 **Priority:** P2
-**Status:** Approved
+**Status:** Deferred
 **Design Reference:** n/a
 
 <!-- @REQ-WX-003@ -->
@@ -30,7 +30,7 @@ This document defines the weather & meteorological data behavior using the **EAR
 **Requirement:** While forecast weather data is unavailable, when METAR/TAF data is received, the system shall auto-populate Wind Direction/Speed, Temperature, and QNH fields based on the latest METAR/TAF.
 **Rationale:** Automation reduces human entry errors.
 **Priority:** P2
-**Status:** Approved
+**Status:** Deferred
 **Design Reference:** n/a
 
 <!-- @REQ-WX-004@ (FROM: @H-009@) -->
@@ -39,7 +39,7 @@ This document defines the weather & meteorological data behavior using the **EAR
 **Requirement:** While a METAR/TAF indicates any form of liquid precipitation (RA, DZ), the system shall default the Runway Surface to "Wet".
 **Rationale:** Safety-first default based on weather detection.
 **Priority:** P2
-**Status:** Approved
+**Status:** Deferred
 **Design Reference:** n/a
 
 <!-- @REQ-WX-005@ (FROM: @H-009@) -->
@@ -48,7 +48,7 @@ This document defines the weather & meteorological data behavior using the **EAR
 **Requirement:** While a METAR/TAF indicates heavy precipitation (+RA) or long-lasting precipitation (> 2h in TAF), the system shall default Grass runways to "Soft Ground".
 **Rationale:** Safety-first default based on weather detection.
 **Priority:** P2
-**Status:** Approved
+**Status:** Deferred
 **Design Reference:** n/a
 
 <!-- @REQ-WX-006@ -->
@@ -57,7 +57,7 @@ This document defines the weather & meteorological data behavior using the **EAR
 **Requirement:** The system shall allow the user to manually override any weather-inferred surface condition.
 **Rationale:** Pilot-in-command has final authority over runway state.
 **Priority:** P2
-**Status:** Approved
+**Status:** Deferred
 **Design Reference:** n/a
 
 <!-- @REQ-WX-007@ -->
@@ -66,7 +66,7 @@ This document defines the weather & meteorological data behavior using the **EAR
 **Requirement:** When a runway is selected, the system shall calculate the Wind Components (Headwind, Tailwind, Crosswind) based on the latest METAR wind data and the selected runway's heading.
 **Rationale:** Automation of wind correction for performance and safety.
 **Priority:** P2
-**Status:** Approved
+**Status:** Deferred
 **Design Reference:** n/a
 
 <!-- @REQ-WX-008@ -->
@@ -75,7 +75,7 @@ This document defines the weather & meteorological data behavior using the **EAR
 **Requirement:** When weather data is auto-populated, the system shall provide the metadata (Source, Timestamp) for all data points.
 **Rationale:** Safety awareness: Pilot must know if data is measured (METAR) or predicted (Model).
 **Priority:** P2
-**Status:** Approved
+**Status:** Deferred
 **Design Reference:** n/a
 
 <!-- @REQ-WX-009@ (FROM: @H-014@) -->
@@ -84,7 +84,7 @@ This document defines the weather & meteorological data behavior using the **EAR
 **Requirement:** While the active aircraft has defined wind limits, if any wind or gust component (total wind/gust, headwind, tailwind, crosswind) exceeds a stored limit of the aircraft, then the system shall emit a notification with severity determined by the limit classification (REQ-AD-017): <ul><li>`Demonstrated`: a WARNING notification (`WARN-WX-001`) indicating the demonstrated wind limit has been exceeded.</li><li>`Limit`: a CRITICAL notification (`CRIT-WX-001`) indicating a hard wind limit has been exceeded.</li></ul>
 **Rationale:** A demonstrated value is advisory (PIC may exceed at discretion), while a hard POH limit is a mandatory operational boundary. The notification severity must reflect this distinction to avoid both under- and over-alerting.
 **Priority:** P1
-**Status:** Approved
+**Status:** Deferred
 **Design Reference:** [Notification Schema](../architecture/notification_schema.md)
 
 ---

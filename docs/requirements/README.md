@@ -27,8 +27,40 @@ Each requirement is defined in a Markdown table with the following columns:
 | **Rationale / Context**  | _Why_ this requirement exists. Links to parent requirements or user needs.                                                    |
 | **Priority**             | **P1** (Critical/Safety), **P2** (Standard), **P3** (Nice to have / Polish).                                                  |
 | **Mitigation Hazard ID** | Link to the specific Hazard ID in `docs/risk_management/safety_hazards.md` if this requirement acts as a control measure.     |
-| **Status**               | `Draft`, `Review`, `Approved`, `Implemented`, `Deprecated`.                                                                   |
+| **Status**               | `Draft`, `Review`, `Approved`, `Deferred`, `Implemented`, `Deprecated`.                                                       |
 | **Design Reference**     | Keyword pointing to a specific design document or architectural component (defined at the bottom of the file).                |
+
+### Status Lifecycle
+
+A requirement progresses through a defined lifecycle. The status field is
+**not free-form**; it must be one of the values below. Release-readiness
+metrics, the hazard-mitigation gate, and the requirement coverage gate all
+read this field to decide whether a REQ counts toward the current release.
+
+| Status | Meaning | Counts toward release coverage? | Counts as an active hazard mitigator? |
+| :----- | :------ | :------------------------------ | :------------------------------------ |
+| `Draft` | Newly captured, wording not yet stable. | Yes (work in progress) | Yes |
+| `Review` | Wording stable; awaiting acceptance. | Yes | Yes |
+| `Approved` | Accepted; in scope for the current or imminent release cycle. | Yes — the gate expects an IMP chain to land before release. | Yes |
+| `Deferred` | Accepted; **explicitly out of scope** for the current release cycle. The REQ is real and traceable but is **not** expected to ship in this version. | **No** — excluded from the "pending REQ" / "unverified P1 REQ" coverage metrics so it does not bloat release-readiness reads. | Yes — a planned (but not-yet-implemented) mitigation still preserves the safety chain. |
+| `Implemented` | Implementation merged and verified; IMP chain is present in `trace/implementation/`. | Yes (already done) | Yes |
+| `Deprecated` | Withdrawn or absorbed into another REQ. | No (excluded) | **No** — a Deprecated REQ does not mitigate any hazard (this is the bug class issue #267 closed). |
+
+**`Deferred` is the truthful out-of-scope marker.** Marking an unimplemented
+REQ `Approved` when it is actually waiting for a future milestone signals
+release blockage where there is none — that is the audit gap closed by
+issue #269 (release-audit PR-017, v0.3.0-alpha). When the REQ's milestone
+becomes the active release cycle, flip the status back to `Approved`.
+
+**Allowed transitions** (any unlisted transition requires explicit
+justification in the PR description):
+
+```text
+Draft → Review → Approved → { Implemented | Deferred | Deprecated }
+Deferred → Approved (when scheduled into the active milestone)
+Approved → Deferred (when descoped from the active release cycle)
+Implemented → Deprecated (when the REQ is withdrawn or absorbed)
+```
 
 ## Module Identifiers
 

@@ -35,9 +35,33 @@ import { scanType } from './parser.mjs'
  * mitigated only when at least one REQ in `ACTIVE_STATUSES` cites it.
  * `Deprecated` is intentionally excluded — that is the bug class issue
  * #267 closes.
+ *
+ * `Deferred` (issue #269 / release-audit PR-017) is treated as **active**
+ * for hazard-mitigation purposes: the REQ is still a planned safety
+ * control, just not scheduled for the current release. Excluding it from
+ * the active set would silently regress the hazard chain the moment a
+ * mitigator is deferred. The status is excluded only from *coverage*
+ * metrics (pending-REQ / unverified-P1-REQ — see `loadReqStatuses`
+ * and `isCoverageExcludedStatus`).
  */
-export const ACTIVE_STATUSES = new Set(['Draft', 'Review', 'Approved', 'Implemented'])
+export const ACTIVE_STATUSES = new Set(['Draft', 'Review', 'Approved', 'Deferred', 'Implemented'])
 export const DEPRECATED_STATUS = 'Deprecated'
+export const DEFERRED_STATUS = 'Deferred'
+
+/**
+ * Statuses that release-readiness coverage metrics should **skip**. A
+ * Deferred REQ is intentionally out of scope for the current release; a
+ * Deprecated REQ has been withdrawn. Both should be excluded from the
+ * "pending REQ" / "unverified P1 REQ" tallies so the audit signal is
+ * not bloated by REQs that the project has truthfully labelled out
+ * of scope.
+ *
+ * @param {string|null|undefined} status
+ * @returns {boolean}
+ */
+export function isCoverageExcludedStatus(status) {
+  return status === DEFERRED_STATUS || status === DEPRECATED_STATUS
+}
 
 /**
  * Cap the lookahead when searching for a REQ's `**Status:**` line. A
@@ -126,6 +150,41 @@ export async function buildHazardInversion(repoRoot) {
   }
 
   return { hazardToActiveReqs, hazardToDeprecatedReqs, reqStatuses }
+}
+
+/**
+ * Walk every declared `@REQ-…@` tag in `docs/requirements/` and return a
+ * map of `bareReqId → trimmed Status string`. Intended for downstream
+ * coverage-metric tools (release-readiness counters, "pending REQ"
+ * reports) so they can call `isCoverageExcludedStatus` on each id and
+ * skip Deferred / Deprecated entries.
+ *
+ * The helper deliberately ignores REQ tags declared anywhere outside
+ * `docs/requirements/` — the trace markup is the only authoritative
+ * status source for a requirement.
+ *
+ * @param {string} repoRoot
+ * @returns {Promise<Map<string, string>>}
+ */
+export async function loadReqStatuses(repoRoot) {
+  const reqOccurrences = await scanType(repoRoot, 'REQ')
+  /** @type {Map<string, string>} */
+  const reqStatuses = new Map()
+  /** @type {Map<string, string[]>} */
+  const fileCache = new Map()
+  for (const occ of reqOccurrences) {
+    if (occ.declared === false) continue
+    if (!occ.file.startsWith('docs/requirements/')) continue
+    let lines = fileCache.get(occ.file)
+    if (!lines) {
+      const text = await readFile(path.join(repoRoot, occ.file), 'utf8')
+      lines = text.split(/\r?\n/)
+      fileCache.set(occ.file, lines)
+    }
+    const status = statusAfter(lines, occ.line - 1)
+    if (status) reqStatuses.set(occ.id.replaceAll('@', ''), status)
+  }
+  return reqStatuses
 }
 
 /**

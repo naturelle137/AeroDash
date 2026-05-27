@@ -93,7 +93,7 @@ This document defines the system behavior using the **EARS** (Easy Approach to R
 **Requirement:** The system shall monitor the device's network connectivity and maintain an application-wide connectivity state (`Online`, `Offline`).
 **Rationale:** Offline operation is a core design constraint, not an error condition. A centralized connectivity state replaces individual API failure notifications and prevents notification fatigue.
 **Priority:** P2
-**Status:** Approved
+**Status:** Deferred
 **Design Reference:** n/a
 
 <!-- @REQ-SYS-010@ -->
@@ -103,7 +103,7 @@ This document defines the system behavior using the **EARS** (Easy Approach to R
 **Requirement:** While the connectivity state is `Offline`, the system shall disable all features requiring an active internet connection (Cloud Sync, Share-Code generation and retrieval, Weather and Airport API queries) and shall re-enable them when the state returns to `Online`.
 **Rationale:** Prevents misleading error states for expected offline behavior. Online-only features are gated at the UI level rather than producing individual failure notifications.
 **Priority:** P2
-**Status:** Approved
+**Status:** Deferred
 **Design Reference:** n/a
 
 <!-- @REQ-SYS-011@ -->
