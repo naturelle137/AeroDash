@@ -137,7 +137,7 @@ describe('id-generator', () => {
   })
 
   describe('findDuplicates', () => {
-    it('reports tags declared in more than one location', () => {
+    it('reports tags declared in more than one file', () => {
       const dupes = findDuplicates([
         occ({ id: '@IMP-MB-CORE-001@', type: 'IMP', segments: ['MB', 'CORE'], number: 1, file: 'a.ts', line: 1 }),
         occ({ id: '@IMP-MB-CORE-001@', type: 'IMP', segments: ['MB', 'CORE'], number: 1, file: 'b.ts', line: 1 }),
@@ -148,16 +148,29 @@ describe('id-generator', () => {
       expect(dupes[0].files).toEqual(['a.ts:1', 'b.ts:1'])
     })
 
-    it('reports two identical tags on the same source line (n5 regression)', () => {
-      // The previous implementation keyed sites by `${file}:${line}` inside
-      // a Set, so a malformed source line carrying two copies of the same
-      // id collapsed to a single site and the duplicate escaped detection.
+    it('treats same-file repetition as a single declaration (issue #265)', () => {
+      // The registry tracks tag → files at file granularity, so two
+      // occurrences of an id within the same file are one declaration
+      // — typical when a spec file carries both a header manifest
+      // (`// @UT-XX-NNN@`) and inline tags above each `it(...)`. The
+      // previous line-level keying surfaced this convention as a
+      // duplicate, drowning out genuine cross-file collisions.
       const dupes = findDuplicates([
         occ({ id: '@IMP-MB-CORE-001@', type: 'IMP', segments: ['MB', 'CORE'], number: 1, file: 'a.ts', line: 1 }),
         occ({ id: '@IMP-MB-CORE-001@', type: 'IMP', segments: ['MB', 'CORE'], number: 1, file: 'a.ts', line: 1 }),
+        occ({ id: '@IMP-MB-CORE-001@', type: 'IMP', segments: ['MB', 'CORE'], number: 1, file: 'a.ts', line: 12 }),
+      ])
+      expect(dupes).toEqual([])
+    })
+
+    it('reports the lowest line of each file when collapsing multi-line occurrences', () => {
+      const dupes = findDuplicates([
+        occ({ id: '@IMP-MB-CORE-001@', type: 'IMP', segments: ['MB', 'CORE'], number: 1, file: 'a.ts', line: 17 }),
+        occ({ id: '@IMP-MB-CORE-001@', type: 'IMP', segments: ['MB', 'CORE'], number: 1, file: 'a.ts', line: 4 }),
+        occ({ id: '@IMP-MB-CORE-001@', type: 'IMP', segments: ['MB', 'CORE'], number: 1, file: 'b.ts', line: 9 }),
       ])
       expect(dupes).toHaveLength(1)
-      expect(dupes[0].id).toBe('@IMP-MB-CORE-001@')
+      expect(dupes[0].files).toEqual(['a.ts:4', 'b.ts:9'])
     })
   })
 

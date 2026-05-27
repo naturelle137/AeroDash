@@ -26,6 +26,7 @@
     "trace": "node scripts/trace/index.mjs",
     "trace:check": "node scripts/trace/index.mjs check",
     "trace:check:warn": "node scripts/trace/index.mjs check --warn-only",
+    "trace:check:structural": "node scripts/trace/index.mjs check --structural-only --baseline",
     "trace:sync": "node scripts/trace/index.mjs sync",
     "trace:sync:apply": "node scripts/trace/index.mjs sync --apply",
     "build-only": "vite build",
@@ -33,6 +34,7 @@
     "lint": "run-s lint:*",
     "lint:oxlint": "oxlint --fix",
     "lint:eslint": "eslint --fix --cache",
+    "lint:trace": "node scripts/trace/index.mjs check --structural-only --baseline",
     "lint:ci:oxlint": "oxlint",
     "lint:ci:eslint": "eslint",
     "format": "prettier --write --experimental-cli src/"

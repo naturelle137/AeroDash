@@ -151,34 +151,43 @@ export function resolvePlaceholders({ text, occurrences, segmentsFor }) {
 }
 
 /**
- * Detect duplicate ids across the scan. Reports every id that occurs in
- * more than one declaration site. Used by the `check` subcommand and unit
- * tests to enforce INV-007 / INV-008.
+ * Detect duplicate ids across the scan. Reports every id that is declared
+ * in more than one *file*. Used by the `check` subcommand and unit tests
+ * to enforce INV-007 / INV-008.
  *
- * Two occurrences with the same `(file, line)` key would previously collapse
- * into a single entry inside a `Set<string>`, so a malformed source line
- * carrying two copies of the same id was invisible. We track every
- * occurrence in an array and only de-duplicate the final `files:` report so
- * the count stays accurate.
+ * Cross-file duplication is the real defect — the registry tracks
+ * tag → files at file granularity, and two files declaring the same id
+ * collide there. Same-file repetition is treated as a single declaration:
+ * test files commonly carry both a header manifest and inline `@UT-XX-NNN@`
+ * comments above each `it(...)`, and that documentation convention should
+ * not surface as a duplicate.
  *
  * @param {TagOccurrence[]} occurrences
  * @returns {Array<{id: string, files: string[]}>}
  */
 export function findDuplicates(occurrences) {
-  /** @type {Map<string, string[]>} */
-  const map = new Map()
+  /** @type {Map<string, Map<string, number[]>>} */
+  const idToFileLines = new Map()
   for (const occ of occurrences) {
-    const key = `${occ.file}:${occ.line}`
-    const entry = map.get(occ.id)
-    if (entry) entry.push(key)
-    else map.set(occ.id, [key])
+    let perFile = idToFileLines.get(occ.id)
+    if (!perFile) {
+      perFile = new Map()
+      idToFileLines.set(occ.id, perFile)
+    }
+    const lines = perFile.get(occ.file) ?? []
+    lines.push(occ.line)
+    perFile.set(occ.file, lines)
   }
   const duplicates = []
-  for (const [id, sites] of map.entries()) {
-    if (sites.length > 1) {
-      const unique = Array.from(new Set(sites)).sort()
-      duplicates.push({ id, files: unique })
+  for (const [id, perFile] of idToFileLines.entries()) {
+    if (perFile.size <= 1) continue
+    /** @type {string[]} */
+    const sites = []
+    for (const [file, lines] of perFile.entries()) {
+      const firstLine = Math.min(...lines)
+      sites.push(`${file}:${firstLine}`)
     }
+    duplicates.push({ id, files: sites.sort() })
   }
   return duplicates
 }
