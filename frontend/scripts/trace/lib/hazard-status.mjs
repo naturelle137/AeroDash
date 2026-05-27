@@ -40,9 +40,12 @@ import { scanType } from './parser.mjs'
  * for hazard-mitigation purposes: the REQ is still a planned safety
  * control, just not scheduled for the current release. Excluding it from
  * the active set would silently regress the hazard chain the moment a
- * mitigator is deferred. The status is excluded only from *coverage*
- * metrics (pending-REQ / unverified-P1-REQ — see `loadReqStatuses`
- * and `isCoverageExcludedStatus`).
+ * mitigator is deferred. The status is excluded only from the
+ * pending-REQ coverage tally emitted by the local `pnpm trace check`
+ * CLI (`buildCheckReport.reqCoverage.excludedReqs`) — see
+ * `loadReqStatuses` and `isCoverageExcludedStatus`. The
+ * unverified-P1-REQ tally lives only in the CI workflow's `jq` query
+ * and is not currently status-aware.
  */
 export const ACTIVE_STATUSES = new Set(['Draft', 'Review', 'Approved', 'Deferred', 'Implemented'])
 export const DEPRECATED_STATUS = 'Deprecated'
@@ -51,10 +54,10 @@ export const DEFERRED_STATUS = 'Deferred'
 /**
  * Statuses that release-readiness coverage metrics should **skip**. A
  * Deferred REQ is intentionally out of scope for the current release; a
- * Deprecated REQ has been withdrawn. Both should be excluded from the
- * "pending REQ" / "unverified P1 REQ" tallies so the audit signal is
- * not bloated by REQs that the project has truthfully labelled out
- * of scope.
+ * Deprecated REQ has been withdrawn. Both are excluded from the
+ * "pending REQ" tally emitted by `pnpm trace check` so the audit
+ * signal is not bloated by REQs that the project has truthfully
+ * labelled out of scope.
  *
  * @param {string|null|undefined} status
  * @returns {boolean}

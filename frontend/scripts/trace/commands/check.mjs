@@ -47,9 +47,13 @@ import { diffRegistry, loadIndexedRegistry } from '../lib/registry.mjs'
  *           audit PR-009 / issue #267. A non-empty list hard-fails the gate.
  * @property {ReqCoverageReport} reqCoverage
  *           Release-readiness coverage tally for declared REQs. Deferred
- *           and Deprecated REQs are excluded from `pendingReqs` and
- *           `unverifiedP1Reqs` so the audit signal is not bloated by
- *           out-of-scope work (issue #269 / release-audit PR-017).
+ *           and Deprecated REQs are excluded from `pendingReqs` so the
+ *           audit signal is not bloated by out-of-scope work (issue
+ *           #269 / release-audit PR-017). The unverified-P1-REQ tally is
+ *           emitted only by the CI workflow's `jq` query
+ *           (`.github/workflows/traceability.yml`) and is not currently
+ *           mirrored on `ReqCoverageReport`; status-aware exclusion
+ *           there is therefore not implemented in this gate.
  */
 
 /**
@@ -438,6 +442,10 @@ export async function runCheck({ repoRoot, log = () => {}, warnOnly = false, str
     lines.push(
       `Coverage-excluded requirements (${report.reqCoverage.excludedReqs.length} Deferred/Deprecated — not counted toward release readiness):`,
     )
+    for (const id of report.reqCoverage.excludedReqs) {
+      const status = report.reqCoverage.statusByReq[id]
+      lines.push(`  ${id}${status ? ` [${status}]` : ''}`)
+    }
   }
 
   // Issue #267 (release audit PR-009): hazards without a non-deprecated
