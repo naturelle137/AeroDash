@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// @IMP-UI-VIEW-002@ (FROM: @REQ-SYS-014@, @REQ-SYS-015@)
+// @IMP-UI-VIEW-002@ (FROM: @REQ-SYS-014@, @REQ-SYS-015@, @DES-ARCH-011@, @DES-ARCH-012@)
 import { computed, onMounted, ref } from 'vue'
 import {
   exportAllProfiles,

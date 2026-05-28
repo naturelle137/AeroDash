@@ -293,3 +293,5 @@ AC (auto)
       - frontend/src/modules/aircraft/services/fleet.repository.ts
     req:
       - REQ-SYS-014
+    des:
+      - DES-ARCH-011

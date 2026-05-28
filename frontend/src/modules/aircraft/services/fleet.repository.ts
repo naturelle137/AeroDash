@@ -299,7 +299,7 @@ export function deleteById(id: string): Promise<void> {
  * present (only the row contents are cleared) so subsequent writes continue
  * to hit the same object store without a re-`onupgradeneeded`.
  */
-// @IMP-AC-STORE-009@ (FROM: @REQ-SYS-014@)
+// @IMP-AC-STORE-009@ (FROM: @REQ-SYS-014@, @DES-ARCH-011@)
 export function deleteAll(): Promise<void> {
   return withStore<undefined>('readwrite', (store) => store.clear()).then(() => undefined)
 }

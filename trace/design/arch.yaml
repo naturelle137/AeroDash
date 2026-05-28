@@ -80,9 +80,14 @@ Architecture Design
     file: docs/architecture/aircraft-fleet-module.md
 
   DES-ARCH-011
-    title: Local Data-Rights (Erasure & Bulk Export)
+    title: Data-Rights Erasure Contract
     req:
       - REQ-SYS-014
+    file: docs/architecture/data-rights.md
+
+  DES-ARCH-012
+    title: Data-Rights Bulk-Export Contract
+    req:
       - REQ-SYS-015
     file: docs/architecture/data-rights.md
 
