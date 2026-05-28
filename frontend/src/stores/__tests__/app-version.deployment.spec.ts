@@ -18,10 +18,6 @@
  * `vite.config.ts`.) The integration test mocks the remote and cannot catch this.
  */
 
-// @UT-SYS-STORE-084@ (FROM: @IMP-SYS-STORE-017@)
-// @UT-SYS-STORE-085@ (FROM: @IMP-SYS-STORE-017@)
-// @UT-SYS-STORE-095@ (FROM: @IMP-SYS-STORE-020@)
-
 import { readFileSync } from 'node:fs'
 import { fileURLToPath, URL } from 'node:url'
 

@@ -12,20 +12,6 @@
  * silently lose the new floor (PR-review Major #3).
  */
 
-// @UT-SYS-STORE-046@ (FROM: @IMP-SYS-STORE-013@)
-// @UT-SYS-STORE-047@ (FROM: @IMP-SYS-STORE-014@)
-// @UT-SYS-STORE-048@ (FROM: @IMP-SYS-STORE-014@)
-// @UT-SYS-STORE-049@ (FROM: @IMP-SYS-STORE-014@)
-// @UT-SYS-STORE-050@ (FROM: @IMP-SYS-STORE-015@)
-// @UT-SYS-STORE-051@ (FROM: @IMP-SYS-STORE-015@)
-// @UT-SYS-STORE-052@ (FROM: @IMP-SYS-STORE-015@)
-// @UT-SYS-STORE-053@ (FROM: @IMP-SYS-STORE-016@)
-// @UT-SYS-STORE-054@ (FROM: @IMP-SYS-STORE-014@)
-// @UT-SYS-STORE-078@ (FROM: @IMP-SYS-STORE-014@)
-// @UT-SYS-STORE-079@ (FROM: @IMP-SYS-STORE-014@)
-// @UT-SYS-STORE-080@ (FROM: @IMP-SYS-STORE-014@)
-// @UT-SYS-STORE-081@ (FROM: @IMP-SYS-STORE-015@)
-
 import { describe, it, expect, beforeEach } from 'vitest'
 import 'fake-indexeddb/auto'
 import { IDBFactory } from 'fake-indexeddb'

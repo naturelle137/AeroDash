@@ -6,23 +6,6 @@
  * parse, schema) must resolve to `null` so the store keeps the prior floor.
  */
 
-// @UT-SYS-STORE-055@ (FROM: @IMP-SYS-STORE-017@)
-// @UT-SYS-STORE-056@ (FROM: @IMP-SYS-STORE-017@)
-// @UT-SYS-STORE-057@ (FROM: @IMP-SYS-STORE-017@)
-// @UT-SYS-STORE-058@ (FROM: @IMP-SYS-STORE-017@)
-// @UT-SYS-STORE-059@ (FROM: @IMP-SYS-STORE-017@)
-// @UT-SYS-STORE-060@ (FROM: @IMP-SYS-STORE-017@)
-// @UT-SYS-STORE-061@ (FROM: @IMP-SYS-STORE-017@)
-// @UT-SYS-STORE-062@ (FROM: @IMP-SYS-STORE-017@)
-// @UT-SYS-STORE-063@ (FROM: @IMP-SYS-STORE-017@)
-// @UT-SYS-STORE-082@ (FROM: @IMP-SYS-STORE-017@)
-// @UT-SYS-STORE-083@ (FROM: @IMP-SYS-STORE-017@)
-// @UT-SYS-STORE-086@ (FROM: @IMP-SYS-STORE-017@)
-// @UT-SYS-STORE-087@ (FROM: @IMP-SYS-STORE-017@)
-// @UT-SYS-STORE-088@ (FROM: @IMP-SYS-STORE-017@)
-// @UT-SYS-STORE-092@ (FROM: @IMP-SYS-STORE-017@)
-// @UT-SYS-STORE-093@ (FROM: @IMP-SYS-STORE-017@)
-
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 
 import {
@@ -197,9 +180,12 @@ describe('fetchRemoteMinSafeVersion — failure modes resolve to null', () => {
   // code units, so a body of multi-byte codepoints under the code-unit count
   // but over the byte cap is still rejected.
   it('rejects a body whose UTF-8 byte length exceeds the cap even when its code-unit count would not', async () => {
-    // 2000 emoji: ~4000 UTF-16 code units (< 4096) but ~8000 UTF-8 bytes (> 4096).
-    const oversizedByBytes = '😀'.repeat(2_000)
-    expect(oversizedByBytes.length).toBeLessThan(4_096) // code-unit count slips under the old guard
+    // '中' (a CJK ideograph) is ONE UTF-16 code unit but THREE UTF-8 bytes,
+    // so a body of these has a code-unit count well under the cap while its
+    // transport byte length is over it — exactly the case the old `text.length`
+    // (UTF-16 code-unit) guard missed and the TextEncoder byte measurement catches.
+    const oversizedByBytes = '中'.repeat(2_000) // 2000 code units (< 4096) but ~6000 bytes (> 4096)
+    expect(oversizedByBytes.length).toBeLessThan(4_096)
     const fetchImpl = vi.fn<typeof fetch>().mockResolvedValue(mockJsonResponse(oversizedByBytes))
     expect(await fetchRemoteMinSafeVersion({ fetchImpl })).toBeNull()
   })
