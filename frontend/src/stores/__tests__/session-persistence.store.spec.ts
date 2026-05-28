@@ -285,7 +285,7 @@ describe('useSessionPersistenceStore — clearSession()', () => {
 })
 
 describe('useSessionPersistenceStore — cancelPendingSave()', () => {
-  // @UT-SYS-STORE-047@ (FROM: @IMP-SYS-STORE-001@)
+  // @UT-SYS-STORE-098@ (FROM: @IMP-SYS-STORE-001@)
   it('cancels a pending debounced save but leaves the persisted payload in place', async () => {
     loadProfile(MOCK_PROFILE_A)
     const store = useSessionPersistenceStore()
@@ -312,7 +312,7 @@ describe('useSessionPersistenceStore — cancelPendingSave()', () => {
     expect(localStorage.getItem('aerodash:session:payload')).not.toBeNull()
   })
 
-  // @UT-SYS-STORE-048@ (FROM: @IMP-SYS-STORE-001@)
+  // @UT-SYS-STORE-099@ (FROM: @IMP-SYS-STORE-001@)
   it('is a no-op when no save is pending', () => {
     const store = useSessionPersistenceStore()
     expect(() => store.cancelPendingSave()).not.toThrow()

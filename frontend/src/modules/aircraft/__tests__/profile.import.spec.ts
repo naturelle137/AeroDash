@@ -220,7 +220,7 @@ describe('exportProfileToJson', () => {
     expect((parsed.profile as Record<string, unknown>).registration).toBe('D-EBPN')
   })
 
-  // @UT-AC-STORE-124@ (FROM: @IMP-AC-STORE-010@)
+  // @UT-AC-STORE-128@ (FROM: @IMP-AC-STORE-010@)
   it('excludes operating-cost fields from the default export (DP-008/DP-009)', () => {
     const data = {
       ...createValidExportedProfile(),

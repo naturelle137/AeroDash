@@ -17,7 +17,7 @@
 import type { AircraftProfile } from '@/core/adapters/aircraft.schema'
 import { fleetRepository, DB_NAME, type MigrationDiagnostic } from './fleet.repository'
 
-// @IMP-SYS-STORE-013@ (FROM: @REQ-SYS-014@, @REQ-SYS-015@, @DES-ARCH-011@, @DES-ARCH-012@)
+// @IMP-SYS-STORE-021@ (FROM: @REQ-SYS-014@, @REQ-SYS-015@, @DES-ARCH-011@, @DES-ARCH-012@)
 
 // ─── Storage keys cleared by Delete-All-Data ──────────────────────────────
 // These three live keys cover all known AeroDash persistence at v0.4.0-alpha:
