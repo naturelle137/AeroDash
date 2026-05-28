@@ -8,7 +8,7 @@
 
 ## 1. Overview
 
-AeroDash is an offline-first, client-side single-page application (SPA) for flight preparation. It runs entirely in the user's browser. **No personal, aircraft, or session data is transmitted to any server, backend, or third-party service.** There is no telemetry, analytics, tracking, advertising, or remote logging. The application makes exactly **one** first-party network request — an online safety-version check (`GET /version.json`) described in [§7](#7-network-activity-version-safety-check) — which carries no personal data and exists only as a safety "kill switch" (REQ-SYS-006 / H-019).
+AeroDash is an offline-first, client-side single-page application (SPA) for flight preparation. It runs entirely in the user's browser. **No personal, aircraft, or session data is transmitted to any server, backend, or third-party service.** There is no telemetry, analytics, tracking, advertising, or remote logging. Beyond loading and updating the app itself (same-origin requests for the app shell and the service-worker update lifecycle), the application makes exactly **one** application-level network request — an online safety-version check (`GET /version.json`) described in [§7](#7-network-activity-version-safety-check) — which carries no personal data and exists only as a safety "kill switch" (REQ-SYS-006 / H-019).
 
 ## 2. Data Collected
 
@@ -199,8 +199,9 @@ The following mechanism remains **planned but not yet implemented**:
 
 AeroDash is offline-first and issues **no** network requests while offline.
 When the application starts — or regains connectivity — **while online**, it
-makes exactly **one** first-party request: an HTTP `GET` for `/version.json`
-served from the **same origin** as the app. This is the *minimum safe version*
+makes exactly **one** application-level request beyond loading and updating the
+app itself: an HTTP `GET` for `/version.json` served from the **same origin** as
+the app. This is the *minimum safe version*
 check that satisfies REQ-SYS-006 and mitigates hazard H-019: it lets a
 safety-critical defect discovered after release block an unsafe build (a remote
 "kill switch"). The full privacy analysis is recorded in
@@ -211,10 +212,12 @@ safety-critical defect discovered after release block an unsafe build (a remote
   headers, no query string, and no device, install, or user identifier. No
   aircraft, fleet, or session data is included.
 - **What is nonetheless observable:** as with any HTTPS request, the server can
-  see your **IP address** and the browser's default **User-Agent**, plus the
-  timing of the request (roughly, when you opened the app online). For a
-  self-hosted or single-origin deployment this is the same origin that already
-  served you the app, so the check introduces no third party.
+  see your **IP address**, the browser's default **User-Agent**, and — unless the
+  deployment sets `Referrer-Policy: no-referrer` at the network edge — a
+  same-origin **`Referer`** (the in-app page URL you were on), plus the timing of
+  the request (roughly, when you opened the app online). For a self-hosted or
+  single-origin deployment this is the same origin that already served you the
+  app, so the check introduces no third party.
 - **When it fires:** only when the device reports it is online — on app start
   and on reconnect. It is best-effort; any failure is ignored and the app keeps
   the last known safe-version floor.
@@ -228,8 +231,9 @@ safety-critical defect discovered after release block an unsafe build (a remote
 ## 8. Third-Party Dependencies
 
 - No third-party analytics, advertising, or tracking libraries are included.
-- The only network request the app makes is the first-party, same-origin
-  version-safety check described in §7; no third-party service is contacted.
+- Beyond loading and updating the app itself, the only network request the app
+  makes is the first-party, same-origin version-safety check described in §7; no
+  third-party service is contacted.
 - Runtime dependencies are limited to Vue.js, Pinia, Vue Router, and Zod.
 - Dependency security is monitored via Dependabot and `pnpm audit` in CI.
 
