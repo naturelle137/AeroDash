@@ -46,7 +46,7 @@ nonetheless observe is the unavoidable metadata of any HTTPS request:
 | Client IP address | IP/TLS layer | **Yes** | Inherent to any TCP/TLS connection; cannot be suppressed client-side. Coarse-grained location / ISP inference only. |
 | `User-Agent` header | Browser default | **Yes** | Browser/engine/OS family. Not set by AeroDash; the browser attaches it. |
 | TLS fingerprint, request timing & frequency | Transport / scheduling | **Yes** | Reveals *that* and *roughly when* the app was opened online (cold start / reconnect). |
-| `Referer` header (same-origin) | Browser default referrer policy | **Yes, by default** | `credentials: 'omit'` does **not** govern `Referer` — referrer policy does. The fetch sets no `referrerPolicy` and the app ships no `<meta name="referrer">`, so under the browser default (`strict-origin-when-cross-origin`) a **same-origin** `GET` sends a `Referer` carrying the document's full URL — including the in-app route, since the router runs in HTML5 history mode. It is suppressed only if the **deploy edge** sets `Referrer-Policy: no-referrer` (recommended in `frontend/index.html`, but unenforceable from a `<meta>` tag). Being same-origin, the route is disclosed only to the origin that already served the app. |
+| `Referer` header (same-origin) | Browser default referrer policy | **Yes, by default** | `credentials: 'omit'` does **not** govern `Referer` — referrer policy does. The fetch sets no `referrerPolicy` and the app ships no `<meta name="referrer">`, so under the browser default (`strict-origin-when-cross-origin`) a **same-origin** `GET` sends a `Referer` carrying the document's full URL — including the in-app route, since the router runs in HTML5 history mode. It can be suppressed by any of three levers AeroDash currently declines: a per-request `referrerPolicy: 'no-referrer'` on the fetch, a `<meta name="referrer" content="no-referrer">` in `frontend/index.html`, or a deploy-edge `Referrer-Policy: no-referrer` header (the HTTP-header form is the one that "cannot be set from a `<meta>` tag", per the `index.html` note). The two in-app levers are tracked in #377. Being same-origin, the route is disclosed only to the origin that already served the app. |
 | Cookies, credentials, `Authorization` | Browser / app | **No** | `credentials: 'omit'` sends no cookies/credentials; no `Authorization` header is set. |
 | Request body | App | **No** | The request carries no body. |
 | Custom / identifying headers | App | **No** | AeroDash adds none. No device id, install id, or query parameter is appended. |
@@ -55,12 +55,15 @@ nonetheless observe is the unavoidable metadata of any HTTPS request:
 The endpoint is **same-origin** (`/version.json` is shipped in the PWA
 `public/` directory and served by the same origin that already delivered the
 application bundle and every other asset). This is enforced at runtime, not by
-convention alone: the Content-Security-Policy `connect-src 'self'`
-(`frontend/index.html`) makes a cross-origin `/version.json` fetch unreachable by
-construction, so the request cannot be redirected to a third-party origin. For a
-self-hosted or single-origin deployment, the fetch therefore discloses metadata
-only to a server the user is *already* in contact with merely by loading the
-app — it introduces no **new** party and no **third-party** processor.
+convention alone: for the **shipped artifact**, the default endpoint is the
+same-origin relative path and the `<meta>` Content-Security-Policy `connect-src
+'self'` (`frontend/index.html`) blocks any cross-origin `connect-src`, so the
+fetch cannot reach a third-party origin. (Both the endpoint default and the
+`<meta>` CSP are overridable by a self-hosting operator, but the build ships
+closed.) For a self-hosted or single-origin deployment, the fetch therefore
+discloses metadata only to a server the user is *already* in contact with merely
+by loading the app — it introduces no **new** party and no **third-party**
+processor.
 
 ### When the fetch fires
 
@@ -131,6 +134,12 @@ which this ADR makes binding:
    genuinely never leaves the device) and to disclose the version-safety
    request explicitly. This ADR is recorded in the same change as that
    correction.
+5. **Maintenance guardrail.** The "exactly one application-level request" claim
+   in `PRIVACY.md` §1/§7 is only true for the current module set. Any **new**
+   outbound network request introduced by a future module (e.g. `weather`,
+   `sync`) **must**, in the same change, update `PRIVACY.md` §7 and re-verify the
+   §1 request count — so the notice cannot silently regress to the DP-018 state
+   this ADR fixes.
 
 ## Consequences
 
@@ -148,8 +157,9 @@ which this ADR makes binding:
 ### Negative
 
 - The app is no longer "zero network requests" when online; the IP, User-Agent,
-  and — unless the deploy edge sets `Referrer-Policy: no-referrer` — a same-origin
-  `Referer` (the in-app route) of an online cold start are observable by the
+  and — unless a `no-referrer` policy is applied (see the exposure table; the
+  two in-app levers are tracked in #377) — a same-origin `Referer` (the in-app
+  route) of an online cold start are observable by the
   origin server. This is accepted as the minimum metadata intrinsic to any HTTPS
   request and is bounded to the same origin that already served the app.
 - Privacy-maximalist users who want *no* outbound request must take an external
