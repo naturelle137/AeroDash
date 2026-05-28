@@ -265,3 +265,100 @@ SYS (auto)
       - frontend/src/stores/pwa-update.store.ts
     req:
       - REQ-SYS-005
+
+SYS Shared — Min-Safe-Version offline enforcement (#271)
+  IMP-SYS-SHARED-009
+    title: App.vue wires checkMinSafeVersion + attachConnectivityRefresh on mount so the offline-enforced gate (issue #271) runs every cold start and again when connectivity returns (REQ-SYS-006 / H-019)
+    files:
+      - frontend/src/App.vue
+    req:
+      - REQ-SYS-006
+    hazard:
+      - H-019
+
+SYS Store — App Version Cache (#271 — CS-011 / TECH-023)
+  IMP-SYS-STORE-013
+    title: app-version.cache module — IndexedDB-backed last-known minSafeVersion substrate that closes the CS-011 / TECH-023 offline-bypass gap so a kill-switched bundle stays blocked even with no network (REQ-SYS-006 / H-019)
+    files:
+      - frontend/src/stores/app-version.cache.ts
+    req:
+      - REQ-SYS-006
+    hazard:
+      - H-019
+
+  IMP-SYS-STORE-014
+    title: loadCachedMinSafeVersion — total reader that returns null on absent, corrupt, or storage-unavailable records so the store can safely fall back to the build-time constant (REQ-SYS-006 / H-019)
+    files:
+      - frontend/src/stores/app-version.cache.ts
+    req:
+      - REQ-SYS-006
+    hazard:
+      - H-019
+
+  IMP-SYS-STORE-015
+    title: persistCachedMinSafeVersion — best-effort writer that records the highest seen minSafeVersion + fetchedAt to IndexedDB; SemVer-shape-guarded so a corrupt input cannot demote the floor (REQ-SYS-006 / H-019)
+    files:
+      - frontend/src/stores/app-version.cache.ts
+    req:
+      - REQ-SYS-006
+    hazard:
+      - H-019
+
+  IMP-SYS-STORE-016
+    title: clearCachedMinSafeVersion — best-effort wipe for test fixtures and the future Delete-All-Data operation (#272); silently no-ops on storage error (REQ-SYS-006 / H-019)
+    files:
+      - frontend/src/stores/app-version.cache.ts
+    req:
+      - REQ-SYS-006
+    hazard:
+      - H-019
+
+SYS Store — App Version Remote (#271)
+  IMP-SYS-STORE-017
+    title: fetchRemoteMinSafeVersion — best-effort GET /version.json with timeout, SemVer guard, and total null-on-failure contract; soft override layered on top of the build-time + cache floors (REQ-SYS-006 / H-019)
+    files:
+      - frontend/src/stores/app-version.remote.ts
+    req:
+      - REQ-SYS-006
+    hazard:
+      - H-019
+
+SYS Store — App Version connectivity refresh (#271)
+  IMP-SYS-STORE-018
+    title: attachConnectivityRefresh — binds window.online to re-run checkMinSafeVersion via the Pinia action wrapper so observers (devtools, $onAction, vi.spyOn) see the connectivity-triggered refresh (REQ-SYS-006 / H-019; PR-review Minor #9 fix)
+    files:
+      - frontend/src/stores/app-version.store.ts
+    req:
+      - REQ-SYS-006
+    hazard:
+      - H-019
+
+SYS Store — App Version cache load (legacy convenience, #271)
+  IMP-SYS-STORE-019
+    title: loadCachedMinSafeVersion — legacy convenience wrapper that flattens the inspectCachedMinSafeVersion discriminated union to CachedMinSafeVersion | null for callers that do not need to distinguish absent / corrupt / unavailable (REQ-SYS-006 / H-019)
+    files:
+      - frontend/src/stores/app-version.cache.ts
+    req:
+      - REQ-SYS-006
+    hazard:
+      - H-019
+
+SYS Shared — App Version SemVer comparator (#271, PR-review Major #1/#2/#4 fix)
+  IMP-SYS-SHARED-010
+    title: app-version.semver — strict SemVer §11 comparator (parseSemVer, isVersionBelow, pickHigherVersion) that strips +build metadata, orders pre-release identifiers correctly, and throws on malformed input so the kill-switch comparator cannot silently NaN-collapse (REQ-SYS-006 / H-019)
+    files:
+      - frontend/src/stores/app-version.semver.ts
+    req:
+      - REQ-SYS-006
+    hazard:
+      - H-019
+
+SYS Store — App Version build-time floor resolution (#271, PR-review Major #2 fix)
+  IMP-SYS-STORE-020
+    title: resolveBuildTimeMinSafeVersion — fail-closed resolution of the build-time floor; substitutes a sentinel any real version is below when __MIN_SAFE_VERSION__ is not valid SemVer, so a structurally-misbuilt bundle BLOCKS instead of silently disabling the kill-switch (REQ-SYS-006 / H-019)
+    files:
+      - frontend/src/stores/app-version.store.ts
+    req:
+      - REQ-SYS-006
+    hazard:
+      - H-019

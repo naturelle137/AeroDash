@@ -6,3 +6,14 @@ SYS App — Session-Storage Advisory (Integration — #263 DP-004 / CS-012)
       - IMP-SYS-STORE-012
     files:
       - frontend/src/__tests__/App.session-storage-advisory.int.spec.ts
+
+SYS Store — App-version offline enforcement (Integration — #271 CS-011 / TECH-023)
+  IT-SYS-STORE-001
+    title: useAppVersionStore + real IndexedDB cache — stale bundle that previously ran online is BLOCKED on the next offline start; truly fresh install OFFLINE bypasses; cache TTL warning still enforces (#271)
+    files:
+      - frontend/src/stores/__tests__/app-version.offline.int.spec.ts
+    impl:
+      - IMP-SYS-STORE-008
+      - IMP-SYS-STORE-013
+      - IMP-SYS-STORE-014
+      - IMP-SYS-STORE-015

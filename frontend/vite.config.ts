@@ -78,7 +78,14 @@ export default defineConfig({
   define: {
     __APP_VERSION__: JSON.stringify(process.env.npm_package_version ?? '0.3.0'),
     __BUILD_DATE__: JSON.stringify(new Date().toISOString().split('T')[0]),
-    __MIN_SAFE_VERSION__: JSON.stringify('0.3.0'),
+    // Issue #271 / PR-review Major #2: this floor is evaluated per SemVer §11
+    // ordering (pre-release < release of the same MAJOR.MINOR.PATCH), so a
+    // `0.3.0` floor would now block the current `0.3.0-alpha` pre-release
+    // line. Align the floor with the actual minimum-acceptable build of
+    // this train — the alpha is the earliest currently-shippable cut.
+    // Operators raise this in `/version.json` to kill-switch newer defects;
+    // build-time bumps follow a real release.
+    __MIN_SAFE_VERSION__: JSON.stringify('0.3.0-alpha'),
   },
   build: {
     // Pinned to Vite 7's previous `baseline-widely-available` resolution so the
