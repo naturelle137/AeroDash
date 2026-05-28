@@ -24,8 +24,9 @@
  * | JSON parses but does not contain a SemVer-shaped `minSafeVersion` | `null`. |
  * | Browser denies the fetch (CSP, COEP) | `null`. |
  * | Response `Content-Length` exceeds the body cap | `null` — body never read. |
- * | Read body exceeds the body cap (no `Content-Length`) | `null`. |
- * | Timeout (default 4 s) | `null` — works with or without `AbortController`. |
+ * | Response `Content-Length` present but malformed (non-numeric / negative / fractional) | `null` — body never read. |
+ * | Read body exceeds the body-byte cap (no `Content-Length`) | `null` — measured as UTF-8 bytes. |
+ * | Timeout (default 4 s) | `null` — wall-clock race applies with or without `AbortController`. |
  *
  * The contract is "best-effort": this module **never throws** and **never
  * raises a user-visible error**. A `null` return simply means "no fresh
@@ -137,15 +138,24 @@ export async function fetchRemoteMinSafeVersion(
       const lenHeader = response.headers?.get?.('content-length') ?? null
       if (lenHeader !== null) {
         const len = Number(lenHeader)
-        if (Number.isFinite(len) && len > MAX_BODY_BYTES) return null
+        // A present-but-malformed Content-Length (non-numeric, negative, or
+        // fractional) means the pre-flight size signal cannot be trusted —
+        // reject rather than silently fall through to read an unbounded body.
+        // (PR-review Minor #4: `Number('abc')` is NaN, which the prior
+        // `Number.isFinite(len) && len > cap` test quietly skipped.)
+        if (!Number.isInteger(len) || len < 0) return null
+        if (len > MAX_BODY_BYTES) return null
       }
 
       const text = await response.text()
       if (typeof text !== 'string') return null
-      // Post-read cap (servers may omit Content-Length on chunked / SW
-      // responses). This is the same guard as before — kept as a backstop
-      // in case the pre-flight header is missing.
-      if (text.length > MAX_BODY_BYTES) return null
+      // Post-read cap for chunked / SW responses that omit Content-Length.
+      // Measure actual UTF-8 byte length (not UTF-16 code units) so a body of
+      // multi-byte codepoints cannot slip past a code-unit count that is 2–4×
+      // smaller than the transport size (PR-review Minor #3).
+      const byteLength =
+        typeof TextEncoder === 'function' ? new TextEncoder().encode(text).length : text.length
+      if (byteLength > MAX_BODY_BYTES) return null
 
       let parsed: unknown
       try {
@@ -164,13 +174,12 @@ export async function fetchRemoteMinSafeVersion(
   }
 
   try {
-    // With AbortController: the abort drives cancellation; setTimeout above
-    // also clears the timer in the finally block. Without AbortController:
-    // race against a wall-clock setTimeout so a slow CDN cannot hang the
-    // boot path on a sandboxed WebView.
-    if (controller !== null) {
-      return await doFetch()
-    }
+    // Defence-in-depth timeout (PR-review Minor #5). The AbortController (when
+    // present) drives cancellation of the underlying request, but a
+    // stubbed/sandboxed `fetchImpl` that ignores `AbortSignal` and never
+    // settles would still hang the boot path past the budget. Racing
+    // `doFetch()` against a wall-clock timer in BOTH branches guarantees we
+    // resolve within `timeoutMs` regardless of whether abort is honoured.
     return await withTimeout(doFetch(), timeoutMs)
   } finally {
     if (timer !== null) clearTimeout(timer)

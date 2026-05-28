@@ -27,14 +27,45 @@
 
 // @IMP-SYS-SHARED-010@ (FROM: @REQ-SYS-006@, @H-019@)
 
+import { createLogger } from '@/shared/utils/logger'
+
+const logger = createLogger('AppVersionSemVer')
+
 /**
- * Strict SemVer-ish guard — `MAJOR.MINOR.PATCH` with optional pre-release /
- * build suffix. Mirrors the shape accepted by the cache and remote modules.
+ * SemVer 2.0.0 grammar fragments, composed once into both the shape-guard
+ * ({@link SEMVER_RE}) and the parser ({@link SEMVER_PARSE_RE}).
  *
- * Anchored. No leading zero rules — pragmatic for an app whose own version
- * is always two digits max per component.
+ * Composing both regexes from the SAME fragments is deliberate: the previous
+ * code had a `[-+]`-only shape-guard that accepted only ONE of pre-release /
+ * build while the parser accepted both, so a legal `1.2.3-rc.1+sha` failed the
+ * guard and a build-time floor carrying both could be silently demoted
+ * (PR-review Major #1). Deriving both from one source makes that drift
+ * impossible.
+ *
+ * The pre-release grammar is the strict SemVer §9 form — numeric identifiers
+ * carry no leading zeros and identifiers are non-empty — so `0.1.2-01`
+ * (would compare as numeric `1`, conflating two distinct floors) and
+ * `0.1.2-foo..bar` (empty identifier sorts as alphanumeric-lowest) are
+ * rejected up front rather than mis-ordered (PR-review Nit #3).
+ *
+ * `MAJOR.MINOR.PATCH` is left as `\d+` (leading zeros tolerated) — pragmatic
+ * for an app whose own version components are always small.
  */
-export const SEMVER_RE = /^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$/
+const PRERELEASE_ID = '(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)'
+const PRERELEASE = `${PRERELEASE_ID}(?:\\.${PRERELEASE_ID})*`
+const BUILD = '[0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*'
+const CORE = '\\d+\\.\\d+\\.\\d+'
+
+/**
+ * Strict SemVer guard — `MAJOR.MINOR.PATCH` with an optional pre-release
+ * AND/OR build suffix. Anchored. Shared by the cache and remote shape-guards.
+ */
+export const SEMVER_RE = new RegExp(`^${CORE}(?:-${PRERELEASE})?(?:\\+${BUILD})?$`)
+
+/** Capturing variant of {@link SEMVER_RE} — `[, major, minor, patch, pre]`. */
+const SEMVER_PARSE_RE = new RegExp(
+  `^(\\d+)\\.(\\d+)\\.(\\d+)(?:-(${PRERELEASE}))?(?:\\+${BUILD})?$`,
+)
 
 /** True when `v` is a structurally-valid SemVer string per {@link SEMVER_RE}. */
 export function isValidSemVer(v: unknown): v is string {
@@ -61,7 +92,7 @@ export function parseSemVer(v: string): SemVerParts {
   if (typeof v !== 'string') {
     throw new RangeError(`SemVer parse: not a string`)
   }
-  const m = /^(\d+)\.(\d+)\.(\d+)(?:-([0-9A-Za-z.-]+))?(?:\+[0-9A-Za-z.-]+)?$/.exec(v)
+  const m = SEMVER_PARSE_RE.exec(v)
   if (!m) throw new RangeError(`SemVer parse: invalid input "${v}"`)
   const major = Number(m[1])
   const minor = Number(m[2])
@@ -138,7 +169,16 @@ export function isVersionBelow(current: string, minimum: string): boolean {
 export function pickHigherVersion(a: string, b: string): string {
   const aValid = isValidSemVer(a)
   const bValid = isValidSemVer(b)
-  if (!aValid && !bValid) return a
+  if (!aValid && !bValid) {
+    // Unreachable given upstream shape-guards (cache, remote) and the store's
+    // build-time validation, but surface it loudly if a future code path ever
+    // slips two invalid operands through (PR-review Nit #4) — silently
+    // returning `a` would otherwise hide the double-invalid state indefinitely.
+    logger.error('pickHigherVersion received two invalid SemVer operands; returning the first', {
+      code: 'MIN_SAFE_VERSION_PICK_BOTH_INVALID',
+    })
+    return a
+  }
   if (!aValid) return b
   if (!bValid) return a
   return isVersionBelow(a, b) ? b : a

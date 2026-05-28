@@ -352,3 +352,13 @@ SYS Shared — App Version SemVer comparator (#271, PR-review Major #1/#2/#4 fix
       - REQ-SYS-006
     hazard:
       - H-019
+
+SYS Store — App Version build-time floor resolution (#271, PR-review Major #2 fix)
+  IMP-SYS-STORE-020
+    title: resolveBuildTimeMinSafeVersion — fail-closed resolution of the build-time floor; substitutes a sentinel any real version is below when __MIN_SAFE_VERSION__ is not valid SemVer, so a structurally-misbuilt bundle BLOCKS instead of silently disabling the kill-switch (REQ-SYS-006 / H-019)
+    files:
+      - frontend/src/stores/app-version.store.ts
+    req:
+      - REQ-SYS-006
+    hazard:
+      - H-019

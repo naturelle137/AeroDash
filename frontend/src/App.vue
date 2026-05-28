@@ -24,6 +24,10 @@ const appVersionStore = useAppVersionStore()
 let detachVersionConnectivity: (() => void) | null = null
 onMounted(() => {
   void appVersionStore.checkMinSafeVersion()
+  // Detach any prior listener before re-binding. App.vue mounts once for the
+  // SPA lifetime today, so this is dead-code-safe, but it hardens against a
+  // future error-boundary / HMR re-mount leaking a duplicate listener (n1).
+  detachVersionConnectivity?.()
   detachVersionConnectivity = attachConnectivityRefresh()
 })
 onBeforeUnmount(() => {

@@ -34,6 +34,9 @@
 // @UT-SYS-STORE-075@ (FROM: @IMP-SYS-STORE-008@)
 // @UT-SYS-STORE-076@ (FROM: @IMP-SYS-STORE-008@)
 // @UT-SYS-STORE-077@ (FROM: @IMP-SYS-STORE-008@)
+// @UT-SYS-STORE-089@ (FROM: @IMP-SYS-SHARED-010@)
+// @UT-SYS-STORE-090@ (FROM: @IMP-SYS-STORE-020@)
+// @UT-SYS-STORE-091@ (FROM: @IMP-SYS-STORE-020@)
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
@@ -61,8 +64,11 @@ import { fetchRemoteMinSafeVersion } from '@/stores/app-version.remote'
 import {
   useAppVersionStore,
   attachConnectivityRefresh,
+  resolveBuildTimeMinSafeVersion,
+  FAIL_CLOSED_MIN_SAFE_VERSION,
   CACHE_TTL_MS,
 } from '../app-version.store'
+import { pickHigherVersion } from '@/stores/app-version.semver'
 
 const mockedInspect = vi.mocked(inspectCachedMinSafeVersion)
 const mockedPersist = vi.mocked(persistCachedMinSafeVersion)
@@ -367,18 +373,26 @@ describe('useAppVersionStore.checkMinSafeVersion — online refresh', () => {
   })
 
   // @UT-SYS-STORE-076@ (FROM: @IMP-SYS-STORE-008@)
-  it('clears cacheFetchedAt when a persist returns false (stays consistent with disk)', async () => {
+  // PR-review Minor #2: on persist-failure cacheFetchedAt must reflect the
+  // record ACTUALLY on disk — keep a prior hit's fetchedAt (the failed write
+  // left it untouched), null only when nothing is on disk.
+  it('on persist failure keeps the on-disk record fetchedAt for a hit, null otherwise', async () => {
     mockedRemote.mockResolvedValue(null)
     mockedPersist.mockResolvedValue(false) // simulate storage hiccup
-    mockedInspect.mockResolvedValue({
-      kind: 'hit',
-      value: '0.4.0',
-      fetchedAt: 1_000,
-    })
-    const store = useAppVersionStore()
-    await store.checkMinSafeVersion(() => 9_000)
-    // Persist failed — don't advertise a fresh timestamp the disk doesn't hold.
-    expect(store.cacheFetchedAt).toBeNull()
+
+    // Cache hit: the disk record is untouched by a failed write, so the
+    // diagnostic must keep reflecting it — NOT report a fresh-install null.
+    mockedInspect.mockResolvedValue({ kind: 'hit', value: '0.4.0', fetchedAt: 1_000 })
+    const hitStore = useAppVersionStore()
+    await hitStore.checkMinSafeVersion(() => 9_000)
+    expect(hitStore.cacheFetchedAt).toBe(1_000)
+
+    // No prior record (absent): nothing on disk, so null is correct.
+    setActivePinia(createPinia())
+    mockedInspect.mockResolvedValue({ kind: 'absent' })
+    const absentStore = useAppVersionStore()
+    await absentStore.checkMinSafeVersion(() => 9_000)
+    expect(absentStore.cacheFetchedAt).toBeNull()
   })
 })
 
@@ -405,6 +419,37 @@ describe('useAppVersionStore.checkMinSafeVersion — single-flight (review Minor
     // returned the first promise.
     expect(mockedInspect).toHaveBeenCalledOnce()
     expect(mockedPersist).toHaveBeenCalledOnce()
+  })
+})
+
+describe('resolveBuildTimeMinSafeVersion — fail-closed on a misbuilt bundle (review Major #2)', () => {
+  // @UT-SYS-STORE-090@ (FROM: @IMP-SYS-STORE-020@)
+  it('returns the value unchanged when the build-time constant is a valid SemVer', () => {
+    expect(resolveBuildTimeMinSafeVersion('0.3.0-alpha')).toBe('0.3.0-alpha')
+    expect(resolveBuildTimeMinSafeVersion('1.2.3')).toBe('1.2.3')
+  })
+
+  // @UT-SYS-STORE-091@ (FROM: @IMP-SYS-STORE-020@)
+  it('substitutes a fail-closed sentinel for an invalid build-time constant', () => {
+    expect(resolveBuildTimeMinSafeVersion('not-a-version')).toBe(FAIL_CLOSED_MIN_SAFE_VERSION)
+    expect(resolveBuildTimeMinSafeVersion('0.3')).toBe(FAIL_CLOSED_MIN_SAFE_VERSION)
+    expect(resolveBuildTimeMinSafeVersion(undefined)).toBe(FAIL_CLOSED_MIN_SAFE_VERSION)
+    // The sentinel blocks: any real build version is below it (fail closed,
+    // not fail open — a structurally-broken build shows the blocked screen).
+    const store = useAppVersionStore()
+    expect(store.isVersionBelow('99.0.0', FAIL_CLOSED_MIN_SAFE_VERSION)).toBe(true)
+  })
+})
+
+describe('pickHigherVersion — double-invalid defence (review Nit #4)', () => {
+  // @UT-SYS-STORE-089@ (FROM: @IMP-SYS-SHARED-010@)
+  it('returns the first operand and logs an ERROR when both operands are invalid', () => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+    expect(pickHigherVersion('garbage', 'also-bad')).toBe('garbage')
+    expect(consoleError).toHaveBeenCalled()
+    const logged = consoleError.mock.calls.flat().join(' ')
+    expect(logged).toMatch(/MIN_SAFE_VERSION_PICK_BOTH_INVALID/)
+    consoleError.mockRestore()
   })
 })
 

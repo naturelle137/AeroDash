@@ -85,16 +85,33 @@ const logger = createLogger('AppVersion')
 export const CACHE_TTL_MS = 24 * 60 * 60 * 1000
 
 /**
- * Validate the build-time constant once on module load. The Vite define
- * pipeline already substitutes `__MIN_SAFE_VERSION__` from a literal, so a
- * shape failure here means something is structurally wrong with the build —
- * surface it loudly. We do **not** swap in a sentinel that would weaken the
- * floor; we keep the value as-is so callers can still see what was deployed,
- * and `pickHigherVersion` is now defensive enough to prefer a valid
- * cached/remote operand over an invalid build-time one.
+ * Fail-closed sentinel — a version every real build is below. Substituted for
+ * the build-time floor when `__MIN_SAFE_VERSION__` is not a valid SemVer (a
+ * structurally-misbuilt bundle: Vite define glitch, CI substitution bug).
  */
+export const FAIL_CLOSED_MIN_SAFE_VERSION = '999.999.999'
+
+// @IMP-SYS-STORE-020@ (FROM: @REQ-SYS-006@, @H-019@)
+/**
+ * Resolve the build-time floor: the value itself when it is a structurally
+ * valid SemVer, else the {@link FAIL_CLOSED_MIN_SAFE_VERSION} sentinel.
+ *
+ * We **fail closed** (PR-review Major #2): a sentinel that any real version is
+ * below forces `versionBlocked = true`, so a structurally-broken build shows
+ * the update-required screen rather than silently running. The previous code
+ * logged ERROR but kept the invalid string; `isVersionBelow` then threw, was
+ * caught, and returned `false`, silently DISABLING the kill-switch on exactly
+ * the bundle that most needs it.
+ */
+export function resolveBuildTimeMinSafeVersion(raw: unknown): string {
+  return isValidSemVer(raw) ? raw : FAIL_CLOSED_MIN_SAFE_VERSION
+}
+
+/** Build-time floor resolved once on module load (fail-closed on invalid input). */
+const buildTimeMinSafeVersion = resolveBuildTimeMinSafeVersion(__MIN_SAFE_VERSION__)
+
 if (!isValidSemVer(__MIN_SAFE_VERSION__)) {
-  logger.error('Build-time MIN_SAFE_VERSION is not a valid SemVer', {
+  logger.error('Build-time MIN_SAFE_VERSION is not a valid SemVer; failing closed', {
     code: 'MIN_SAFE_VERSION_BUILD_INVALID',
     version: String(__MIN_SAFE_VERSION__),
   })
@@ -104,11 +121,11 @@ export const useAppVersionStore = defineStore('appVersion', () => {
   const currentVersion = ref(__APP_VERSION__)
   const buildDate = ref(__BUILD_DATE__)
   /**
-   * Effective minimum safe version. Initialised to the build-time constant
-   * and replaced by `max(buildTimeConstant, cachedValue, remoteValue)` on
+   * Effective minimum safe version. Initialised to the (validated) build-time
+   * floor and replaced by `max(buildTimeFloor, cachedValue, remoteValue)` on
    * each call to {@link checkMinSafeVersion}.
    */
-  const minSafeVersion = ref(__MIN_SAFE_VERSION__)
+  const minSafeVersion = ref(buildTimeMinSafeVersion)
   const versionBlocked = ref(false)
   /** `true` once `checkMinSafeVersion()` has been awaited at least once. */
   const lastCheckCompleted = ref(false)
@@ -154,6 +171,13 @@ export const useAppVersionStore = defineStore('appVersion', () => {
    * Always runs the cache read + enforcement step (works offline). Only the
    * remote refresh step is gated on `navigator.onLine` — and even there, a
    * network failure is non-fatal: the cached floor stays in force.
+   *
+   * Note: `now` is honoured only by the **leading** call that acquires the
+   * single-flight latch. A second invocation arriving before the first
+   * resolves coalesces onto the in-flight promise and its own `now` is
+   * intentionally ignored. The two production callers (`App.vue.onMounted`,
+   * `attachConnectivityRefresh`) pass no `now`, so this is inert today; a
+   * future racing caller that depends on its own clock must not rely on it.
    */
   async function checkMinSafeVersion(now: () => number = Date.now): Promise<void> {
     if (inFlight !== null) return inFlight
@@ -164,7 +188,7 @@ export const useAppVersionStore = defineStore('appVersion', () => {
   }
 
   async function runCheck(now: () => number): Promise<void> {
-    const buildTimeMin = __MIN_SAFE_VERSION__
+    const buildTimeMin = buildTimeMinSafeVersion
 
     // ── Step 1 — inspect offline cache ─────────────────────────────────────
     const inspected = await inspectCachedMinSafeVersion()
@@ -228,10 +252,13 @@ export const useAppVersionStore = defineStore('appVersion', () => {
       if (persisted) {
         cacheFetchedAt.value = ts
       } else {
-        // Persist failed (best-effort writer swallowed the error). Clear the
-        // in-memory diagnostic so it does not falsely advertise a fresher
-        // disk state than the one the floor is actually being enforced from.
-        cacheFetchedAt.value = null
+        // Persist failed (best-effort writer swallowed the error). Reflect the
+        // record ACTUALLY on disk: on a prior cache `hit` the original record
+        // is untouched, so keep its `fetchedAt`; otherwise there is no valid
+        // disk record, so `null`. (PR-review Minor #2: the earlier code cleared
+        // this to `null` even on a hit, mis-reporting an empty/first-install
+        // state when IndexedDB still held the record.)
+        cacheFetchedAt.value = inspected.kind === 'hit' ? inspected.fetchedAt : null
       }
     }
 
@@ -272,7 +299,18 @@ export const useAppVersionStore = defineStore('appVersion', () => {
 export function attachConnectivityRefresh(): () => void {
   if (typeof window === 'undefined') return () => undefined
   const handler = (): void => {
-    void useAppVersionStore().checkMinSafeVersion()
+    try {
+      void useAppVersionStore().checkMinSafeVersion()
+    } catch (err) {
+      // `useAppVersionStore()` throws if no Pinia is active at fire time — a
+      // test that forgot to detach, or a future delete-all-data flow that
+      // tears the root store down. Swallow + log rather than let an unhandled
+      // error escape the global `online` dispatch (PR-review Nit #2).
+      logger.warn('connectivity refresh skipped — no active store', {
+        code: 'MIN_SAFE_VERSION_CONNECTIVITY_NO_STORE',
+        errorName: err instanceof Error ? err.name : 'unknown',
+      })
+    }
   }
   window.addEventListener('online', handler)
   return () => window.removeEventListener('online', handler)
