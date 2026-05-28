@@ -1,0 +1,90 @@
+{
+  "schemaVersion": 1,
+  "description": "Source-cited registry of safety-relevant hardcoded data constants. Single source of truth for the value-provenance metadata of constants whose silent revision could distort a Go/No-Go advisory (fuel densities, occupant masses). The runtime values themselves live in code (see each entry's `code` block); this registry records WHERE each value came from and WHEN it must be re-verified. Enforced by the data-constants gate (frontend/scripts/data-constants) — see README.md.",
+  "reviewPolicy": {
+    "defaultIntervalMonths": 24,
+    "note": "`reviewBy` is the date by which the cited source MUST be re-checked against the live value. Once `reviewBy` is in the past the entry is STALE and the gate fails CI, forcing a human to re-verify the source and bump `effectiveDate`/`reviewBy`."
+  },
+  "constants": [
+    {
+      "id": "fuel-density-avgas-mogas",
+      "category": "fuel-density",
+      "description": "Density of AvGas (100LL, UL91) and MoGas used for fuel volume-to-mass conversion.",
+      "value": 0.72,
+      "unit": "kg/L",
+      "source": "ASTM D910 AvGas 100LL nominal density approx. 0.72 kg/L at 15 degrees C; adopted by AeroDash REQ-FE-001.",
+      "effectiveDate": "2026-05-28",
+      "reviewBy": "2028-05-28",
+      "requirement": "REQ-FE-001",
+      "hazard": "H-002",
+      "code": {
+        "file": "frontend/src/core/logic/fuel-density.ts",
+        "symbol": "FUEL_DENSITY_KG_PER_L['AvGas 100LL'] / ['AvGas UL91'] / ['MoGas']"
+      }
+    },
+    {
+      "id": "fuel-density-jet-diesel",
+      "category": "fuel-density",
+      "description": "Density of Jet A-1 and Diesel used for fuel volume-to-mass conversion.",
+      "value": 0.84,
+      "unit": "kg/L",
+      "source": "ASTM D1655 / DEF STAN 91-091 Jet A-1 density range 0.775-0.840 kg/L at 15 degrees C; conservative upper bound 0.84 adopted by AeroDash REQ-FE-001.",
+      "effectiveDate": "2026-05-28",
+      "reviewBy": "2028-05-28",
+      "requirement": "REQ-FE-001",
+      "hazard": "H-002",
+      "code": {
+        "file": "frontend/src/core/logic/fuel-density.ts",
+        "symbol": "FUEL_DENSITY_KG_PER_L['Jet A-1'] / ['Diesel']"
+      }
+    },
+    {
+      "id": "fuel-density-fallback",
+      "category": "fuel-density",
+      "description": "Conservative fallback density applied when a fuel type is unrecognised. Uses the heaviest catalogued density so an unknown type can never under-state fuel mass.",
+      "value": 0.84,
+      "unit": "kg/L",
+      "source": "Conservative engineering choice: heaviest catalogued density (Jet A-1, 0.84 kg/L). Fail-closed behaviour for H-002 fuel confusion; callers MUST gate on isKnownFuelType. AeroDash REQ-FE-001.",
+      "effectiveDate": "2026-05-28",
+      "reviewBy": "2028-05-28",
+      "requirement": "REQ-FE-001",
+      "hazard": "H-002",
+      "code": {
+        "file": "frontend/src/core/logic/fuel-density.ts",
+        "symbol": "FALLBACK_DENSITY_KG_PER_L (via getFuelDensityKgPerL on an unknown type)"
+      }
+    },
+    {
+      "id": "occupant-preset-masses-kg",
+      "category": "occupant-mass",
+      "description": "One-tap occupant-mass preset chips (light / medium / heavy adult) for metric (kg) mass-station entry. Convenience shortcuts only; the pilot enters the actual or applicable standard mass.",
+      "value": [55, 70, 85],
+      "unit": "kg",
+      "source": "Representative adult occupant masses for turbulence-tolerant one-tap entry (AeroDash REQ-UQ-001). NOT a regulatory standard mass. EASA standard-mass reference for context: AMC1 CAT.POL.MAB.105 / CS-23.",
+      "effectiveDate": "2026-05-28",
+      "reviewBy": "2028-05-28",
+      "requirement": "REQ-UQ-001",
+      "hazard": "H-011",
+      "code": {
+        "file": "frontend/src/modules/mass-balance/data/occupant-presets.ts",
+        "symbol": "OCCUPANT_PRESET_MASSES_KG"
+      }
+    },
+    {
+      "id": "occupant-preset-masses-lb",
+      "category": "occupant-mass",
+      "description": "One-tap occupant-mass preset chips (light / medium / heavy adult) for imperial (lb) mass-station entry. Convenience shortcuts only; the pilot enters the actual or applicable standard mass.",
+      "value": [120, 160, 200],
+      "unit": "lb",
+      "source": "Representative adult occupant masses for turbulence-tolerant one-tap entry (AeroDash REQ-UQ-001). NOT a regulatory standard mass. EASA standard-mass reference for context: AMC1 CAT.POL.MAB.105 / CS-23.",
+      "effectiveDate": "2026-05-28",
+      "reviewBy": "2028-05-28",
+      "requirement": "REQ-UQ-001",
+      "hazard": "H-011",
+      "code": {
+        "file": "frontend/src/modules/mass-balance/data/occupant-presets.ts",
+        "symbol": "OCCUPANT_PRESET_MASSES_LB"
+      }
+    }
+  ]
+}

@@ -31,6 +31,13 @@ export type CanonicalFuelType = (typeof CANONICAL_FUEL_TYPES)[number]
  * AvGas (100LL, UL91, MoGas) = 0.72 kg/L
  * Jet A-1 / Diesel = 0.84 kg/L
  *
+ * Provenance + revision tracking for these densities (and the conservative
+ * fallback below) live in the data-constants registry:
+ *   docs/data_constants/registry.json
+ *     #fuel-density-avgas-mogas, #fuel-density-jet-diesel, #fuel-density-fallback
+ * The data-constants gate (frontend/scripts/data-constants) fails CI if these
+ * values drift from the registry or a cited source goes past its review date.
+ *
  * Legacy uppercase aliases (`AVGAS`, `MOGAS`) are retained ONLY so historical
  * fixtures / ad-hoc callers still resolve a correct density; they are NOT
  * canonical and `isKnownFuelType` deliberately rejects them so the catalogue

@@ -3,6 +3,10 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useMassBalanceStore } from '@/modules/mass-balance/stores/mass-balance.store'
 import { AircraftContextSchema } from '@/modules/mass-balance/data/aircraft-context.schema'
+import {
+  OCCUPANT_PRESET_MASSES_KG,
+  OCCUPANT_PRESET_MASSES_LB,
+} from '@/modules/mass-balance/data/occupant-presets'
 import { mapFleetProfileToContext } from '@/modules/mass-balance/services/fleet-profile.mapper'
 import { useFleetStore } from '@/modules/aircraft/stores/fleet.store'
 import { useActiveAircraftStore } from '@/modules/aircraft/stores/active-aircraft.store'
@@ -330,12 +334,13 @@ const lastResult = computed(() => store.lastResult)
 
 // UX-002: one-tap preset weights for occupant (non-fuel) stations. Fuel tanks
 // are scrubbed via their slider, so they get no presets. Presets are unit-aware
-// so an imperial profile sees pound figures.
+// so an imperial profile sees pound figures. The preset values are source-cited
+// in docs/data_constants/registry.json (occupant-preset-masses-*).
 function presetsForStation(stationIndex: number): readonly number[] {
   const lp = store.aircraft?.loadPoints[stationIndex]
   if (!lp || lp.fuelTank) return []
   const isImperial = lp.unit?.toLowerCase() === 'lb'
-  return isImperial ? [120, 160, 200] : [55, 70, 85]
+  return isImperial ? OCCUPANT_PRESET_MASSES_LB : OCCUPANT_PRESET_MASSES_KG
 }
 
 const aircraftLabel = computed(() => {
