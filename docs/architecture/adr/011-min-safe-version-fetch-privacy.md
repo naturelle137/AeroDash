@@ -54,10 +54,13 @@ nonetheless observe is the unavoidable metadata of any HTTPS request:
 
 The endpoint is **same-origin** (`/version.json` is shipped in the PWA
 `public/` directory and served by the same origin that already delivered the
-application bundle and every other asset). For a self-hosted or single-origin
-deployment, the fetch therefore discloses metadata only to a server the user is
-*already* in contact with merely by loading the app — it introduces no **new**
-party and no **third-party** processor.
+application bundle and every other asset). This is enforced at runtime, not by
+convention alone: the Content-Security-Policy `connect-src 'self'`
+(`frontend/index.html`) makes a cross-origin `/version.json` fetch unreachable by
+construction, so the request cannot be redirected to a third-party origin. For a
+self-hosted or single-origin deployment, the fetch therefore discloses metadata
+only to a server the user is *already* in contact with merely by loading the
+app — it introduces no **new** party and no **third-party** processor.
 
 ### When the fetch fires
 
