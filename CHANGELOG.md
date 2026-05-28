@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Aircraft-profile verification provenance & expiry: verifying a profile now requires a sign-off (date, initials, POH revision) bound to the source weighing report and shown as "Verified by … on … against POH …"; the sign-off expires after 90 days or when its source weighing report changes, the fleet badge flips to **Expired**, and an expired profile can be re-verified in place (REQ-AC-007, H-011, closes #276)
-- Draft-aware Mass & Balance aircraft picker: Verified / Draft / Last-used `<optgroup>`s, a destructive `[Draft]` marker, and an inline `WARN-AC-002` acknowledgement before a draft envelope is loaded for computation (REQ-AC-005/REQ-AC-007, H-011, closes #276)
+- Draft-aware Mass & Balance aircraft picker: Verified / Draft / Last-used `<optgroup>`s, a destructive `[Draft]` marker, and an inline `WARN-AC-002` acknowledgement before a draft envelope is loaded for computation; an expired/source-changed Verified profile is treated as unverified at this Go/No-Go entry point — marked `[Expired]` and gated behind the same acknowledgement (including the on-mount auto-load / session-restore path) so it can never load silently (REQ-AC-005/REQ-AC-007, H-011, closes #276)
 
 ### Fixed
 

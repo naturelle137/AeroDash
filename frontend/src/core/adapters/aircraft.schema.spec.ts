@@ -1134,6 +1134,18 @@ describe('AircraftProfileSchema — verification provenance', () => {
     expect(result.success).toBe(false)
   })
 
+  // @UT-AC-CORE-120@ (FROM: @IMP-AC-CORE-004@)
+  it('rejects a verifiedOn that is well-formed but an impossible calendar date', () => {
+    for (const bad of ['2026-13-45', '2026-02-30', '2026-00-10', '2026-01-32']) {
+      const result = AircraftProfileSchema.safeParse(
+        cloneWith((p) => {
+          p.verification = { ...validVerification, verifiedOn: bad }
+        }),
+      )
+      expect(result.success, `expected ${bad} to be rejected`).toBe(false)
+    }
+  })
+
   // @UT-AC-CORE-119@ (FROM: @IMP-AC-CORE-004@)
   it('rejects empty verifiedBy / pohRevision and over-long values', () => {
     expect(

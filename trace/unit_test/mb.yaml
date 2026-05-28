@@ -1397,35 +1397,63 @@ MB (auto)
       - IMP-MB-STORE-023
 
   UT-MB-VIEW-022
-    title: TODO: describe this artifact
+    title: groups picker options into Verified and Draft optgroups
     files:
       - frontend/src/modules/mass-balance/views/__tests__/MassBalanceView.fleet.spec.ts
     impl:
       - IMP-MB-VIEW-011
 
   UT-MB-VIEW-023
-    title: TODO: describe this artifact
+    title: surfaces the active aircraft in a Last used optgroup at the top
     files:
       - frontend/src/modules/mass-balance/views/__tests__/MassBalanceView.fleet.spec.ts
     impl:
       - IMP-MB-VIEW-011
 
   UT-MB-VIEW-024
-    title: TODO: describe this artifact
+    title: does NOT load a Draft on selection — shows the inline WARN-AC-002 acknowledgement first
     files:
       - frontend/src/modules/mass-balance/views/__tests__/MassBalanceView.fleet.spec.ts
     impl:
       - IMP-MB-VIEW-011
 
   UT-MB-VIEW-025
-    title: TODO: describe this artifact
+    title: loads the Draft only after the acknowledgement is confirmed
     files:
       - frontend/src/modules/mass-balance/views/__tests__/MassBalanceView.fleet.spec.ts
     impl:
       - IMP-MB-VIEW-011
 
   UT-MB-VIEW-026
-    title: TODO: describe this artifact
+    title: cancelling the acknowledgement leaves the Draft unloaded
+    files:
+      - frontend/src/modules/mass-balance/views/__tests__/MassBalanceView.fleet.spec.ts
+    impl:
+      - IMP-MB-VIEW-011
+
+  UT-MB-VIEW-027
+    title: marks an expired Verified profile with an [Expired] suffix in the picker
+    files:
+      - frontend/src/modules/mass-balance/views/__tests__/MassBalanceView.fleet.spec.ts
+    impl:
+      - IMP-MB-VIEW-011
+
+  UT-MB-VIEW-028
+    title: does NOT load an expired Verified profile on selection — shows the inline acknowledgement first
+    files:
+      - frontend/src/modules/mass-balance/views/__tests__/MassBalanceView.fleet.spec.ts
+    impl:
+      - IMP-MB-VIEW-011
+
+  UT-MB-VIEW-029
+    title: loads the expired Verified profile only after the acknowledgement is confirmed
+    files:
+      - frontend/src/modules/mass-balance/views/__tests__/MassBalanceView.fleet.spec.ts
+    impl:
+      - IMP-MB-VIEW-011
+
+  UT-MB-VIEW-030
+    title: cancelling the acknowledgement leaves an expired Verified profile unloaded
     files:
       - frontend/src/modules/mass-balance/views/__tests__/MassBalanceView.fleet.spec.ts
     impl:

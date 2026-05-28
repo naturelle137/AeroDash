@@ -368,4 +368,96 @@ describe('MassBalanceView — fleet picker', () => {
     expect(loadSpy).not.toHaveBeenCalled()
     expect(wrapper.find('.draft-ack').exists()).toBe(false)
   })
+
+  // ── 7. Expired-verification gate at the Go/No-Go entry point (REQ-AC-007) ──
+  //
+  // An expired (aged-out or source-changed) Verified profile must be treated as
+  // unverified at the picker: marked destructively and gated behind the same
+  // inline acknowledgement, never loaded silently into the M&B store (H-011).
+
+  /** A Verified profile whose 2020 sign-off is long past the 90-day window. */
+  function buildExpiredVerified(overrides: Partial<AircraftProfile> = {}): AircraftProfile {
+    return buildFleetProfile({
+      id: 'dddddddd-0000-4000-d000-000000000004',
+      registration: 'D-EXPIRD',
+      status: 'verified',
+      verification: {
+        verifiedOn: '2020-01-01',
+        verifiedBy: 'JS',
+        pohRevision: 'Rev 1',
+        // Matches the default weighing report's validFrom so the only failure is age.
+        sourceWeighingDate: '2025-01-01',
+      },
+      ...overrides,
+    })
+  }
+
+  // @UT-MB-VIEW-027@ (FROM: @IMP-MB-VIEW-011@)
+  it('marks an expired Verified profile with an [Expired] suffix in the picker', () => {
+    const expired = buildExpiredVerified()
+    seedFleet([expired])
+    const wrapper = mountView()
+
+    const option = wrapper
+      .findAll('select#aircraft-select option')
+      .find((o) => o.attributes('value') === expired.id)
+    expect(option?.text()).toContain('[Expired]')
+    expect(option?.text()).not.toContain('[Draft]')
+  })
+
+  // @UT-MB-VIEW-028@ (FROM: @IMP-MB-VIEW-011@)
+  it('does NOT load an expired Verified profile on selection — shows the inline acknowledgement first', async () => {
+    const expired = buildExpiredVerified()
+    seedFleet([expired])
+
+    const mbStore = useMassBalanceStore()
+    const activeStore = useActiveAircraftStore()
+    const loadSpy = vi.spyOn(mbStore, 'loadProfile')
+    const setActiveSpy = vi.spyOn(activeStore, 'setActiveProfile')
+
+    const wrapper = mountView()
+    await wrapper.find('select#aircraft-select').setValue(expired.id)
+
+    expect(loadSpy).not.toHaveBeenCalled()
+    expect(setActiveSpy).not.toHaveBeenCalled()
+    const ack = wrapper.find('.draft-ack')
+    expect(ack.exists()).toBe(true)
+    expect(ack.text()).toContain('Verification expired')
+    expect(ack.text()).toContain('D-EXPIRD')
+  })
+
+  // @UT-MB-VIEW-029@ (FROM: @IMP-MB-VIEW-011@)
+  it('loads the expired Verified profile only after the acknowledgement is confirmed', async () => {
+    const expired = buildExpiredVerified()
+    seedFleet([expired])
+
+    const mbStore = useMassBalanceStore()
+    const activeStore = useActiveAircraftStore()
+    const loadSpy = vi.spyOn(mbStore, 'loadProfile')
+    const setActiveSpy = vi.spyOn(activeStore, 'setActiveProfile')
+
+    const wrapper = mountView()
+    await wrapper.find('select#aircraft-select').setValue(expired.id)
+    await wrapper.find('.draft-ack__btn--continue').trigger('click')
+
+    expect(setActiveSpy).toHaveBeenCalledWith(expired)
+    expect(loadSpy).toHaveBeenCalledTimes(1)
+    expect(wrapper.find('.draft-ack').exists()).toBe(false)
+  })
+
+  // @UT-MB-VIEW-030@ (FROM: @IMP-MB-VIEW-011@)
+  it('cancelling the acknowledgement leaves an expired Verified profile unloaded', async () => {
+    const expired = buildExpiredVerified()
+    seedFleet([expired])
+
+    const mbStore = useMassBalanceStore()
+    const loadSpy = vi.spyOn(mbStore, 'loadProfile')
+
+    const wrapper = mountView()
+    await wrapper.find('select#aircraft-select').setValue(expired.id)
+    await wrapper.find('.draft-ack__btn--cancel').trigger('click')
+
+    expect(loadSpy).not.toHaveBeenCalled()
+    expect(wrapper.find('.draft-ack').exists()).toBe(false)
+  })
 })

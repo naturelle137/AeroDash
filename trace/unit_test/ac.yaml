@@ -1859,168 +1859,175 @@ AC (auto)
       - frontend/src/modules/aircraft/__tests__/IdentitySection.spec.ts
 
   UT-AC-CORE-116
-    title: TODO: describe this artifact
+    title: accepts a Verified profile carrying a full verification block
     files:
       - frontend/src/core/adapters/aircraft.schema.spec.ts
     impl:
       - IMP-AC-CORE-004
 
   UT-AC-CORE-117
-    title: TODO: describe this artifact
+    title: leaves verification undefined when omitted (optional for legacy records)
     files:
       - frontend/src/core/adapters/aircraft.schema.spec.ts
     impl:
       - IMP-AC-CORE-004
 
   UT-AC-CORE-118
-    title: TODO: describe this artifact
+    title: rejects a verifiedOn that is not a YYYY-MM-DD calendar date
     files:
       - frontend/src/core/adapters/aircraft.schema.spec.ts
     impl:
       - IMP-AC-CORE-004
 
   UT-AC-CORE-119
-    title: TODO: describe this artifact
+    title: rejects empty verifiedBy / pohRevision and over-long values
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+    impl:
+      - IMP-AC-CORE-004
+
+  UT-AC-CORE-120
+    title: rejects a verifiedOn that is well-formed but an impossible calendar date
     files:
       - frontend/src/core/adapters/aircraft.schema.spec.ts
     impl:
       - IMP-AC-CORE-004
 
   UT-AC-CORE-104
-    title: TODO: describe this artifact
+    title: profile verification freshness — unit suite for evaluateVerificationFreshness (REQ-AC-007, H-011)
     files:
       - frontend/src/core/logic/profile-verification.spec.ts
     impl:
       - IMP-AC-CORE-005
 
   UT-AC-CORE-105
-    title: TODO: describe this artifact
+    title: reports draft for a non-verified profile and never requires re-verification
     files:
       - frontend/src/core/logic/profile-verification.spec.ts
     impl:
       - IMP-AC-CORE-005
 
   UT-AC-CORE-106
-    title: TODO: describe this artifact
+    title: reports verified-unattributed for a legacy Verified profile without provenance
     files:
       - frontend/src/core/logic/profile-verification.spec.ts
     impl:
       - IMP-AC-CORE-005
 
   UT-AC-CORE-107
-    title: TODO: describe this artifact
+    title: is fresh on the verification day with the full window remaining
     files:
       - frontend/src/core/logic/profile-verification.spec.ts
     impl:
       - IMP-AC-CORE-005
 
   UT-AC-CORE-108
-    title: TODO: describe this artifact
+    title: is fresh one day before expiry
     files:
       - frontend/src/core/logic/profile-verification.spec.ts
     impl:
       - IMP-AC-CORE-005
 
   UT-AC-CORE-109
-    title: TODO: describe this artifact
+    title: is expired exactly on the expiry day (boundary)
     files:
       - frontend/src/core/logic/profile-verification.spec.ts
     impl:
       - IMP-AC-CORE-005
 
   UT-AC-CORE-110
-    title: TODO: describe this artifact
+    title: is expired well past the window with a negative days-remaining
     files:
       - frontend/src/core/logic/profile-verification.spec.ts
     impl:
       - IMP-AC-CORE-005
 
   UT-AC-CORE-111
-    title: TODO: describe this artifact
+    title: fails closed (expired) when verifiedOn is structurally unparseable
     files:
       - frontend/src/core/logic/profile-verification.spec.ts
     impl:
       - IMP-AC-CORE-005
 
   UT-AC-CORE-112
-    title: TODO: describe this artifact
+    title: is expired-source-changed when the active weighing report no longer matches the sign-off
     files:
       - frontend/src/core/logic/profile-verification.spec.ts
     impl:
       - IMP-AC-CORE-005
 
   UT-AC-CORE-113
-    title: TODO: describe this artifact
+    title: source-change takes precedence over an otherwise-fresh window
     files:
       - frontend/src/core/logic/profile-verification.spec.ts
     impl:
       - IMP-AC-CORE-005
 
   UT-AC-CORE-114
-    title: TODO: describe this artifact
+    title: is expired-source-changed when the profile has no weighing report at all
     files:
       - frontend/src/core/logic/profile-verification.spec.ts
     impl:
       - IMP-AC-CORE-005
 
   UT-AC-CORE-115
-    title: TODO: describe this artifact
+    title: matches the LATEST weighing report by validFrom, regardless of array order
     files:
       - frontend/src/core/logic/profile-verification.spec.ts
     impl:
       - IMP-AC-CORE-005
 
   UT-AC-VIEW-172
-    title: TODO: describe this artifact
+    title: shows the verify dialog when the Verify button is tapped on a Draft
     files:
       - frontend/src/modules/aircraft/__tests__/FleetList.spec.ts
     impl:
       - IMP-AC-VIEW-022
 
   UT-AC-VIEW-173
-    title: TODO: describe this artifact
+    title: verifies a Draft with the captured sign-off provenance
     files:
       - frontend/src/modules/aircraft/__tests__/FleetList.spec.ts
     impl:
       - IMP-AC-VIEW-022
 
   UT-AC-VIEW-174
-    title: TODO: describe this artifact
+    title: renders the provenance line and no verify button for a fresh verified profile
     files:
       - frontend/src/modules/aircraft/__tests__/FleetList.spec.ts
     impl:
       - IMP-AC-VIEW-022
 
   UT-AC-VIEW-175
-    title: TODO: describe this artifact
+    title: flags an expired verification with the Expired badge and a re-verify affordance
     files:
       - frontend/src/modules/aircraft/__tests__/FleetList.spec.ts
     impl:
       - IMP-AC-VIEW-022
 
   UT-AC-VIEW-176
-    title: TODO: describe this artifact
+    title: re-attests an expired verified profile in place via reverifyProfile
     files:
       - frontend/src/modules/aircraft/__tests__/FleetList.spec.ts
     impl:
       - IMP-AC-VIEW-022
 
   UT-AC-VIEW-181
-    title: TODO: describe this artifact
+    title: renders an "Expired" badge with the critical class when a verified profile is expired
     files:
       - frontend/src/modules/aircraft/__tests__/ProfileStatusBadge.spec.ts
     impl:
       - IMP-AC-VIEW-004
 
   UT-AC-VIEW-182
-    title: TODO: describe this artifact
+    title: ignores the expired flag for a Draft (only verified can expire)
     files:
       - frontend/src/modules/aircraft/__tests__/ProfileStatusBadge.spec.ts
     impl:
       - IMP-AC-VIEW-004
 
   UT-AC-VIEW-177
-    title: TODO: describe this artifact
+    title: renders the sign-off fields and the aircraft registration when open
     files:
       - frontend/src/modules/aircraft/__tests__/VerifyProfileDialog.spec.ts
     impl:
@@ -2028,70 +2035,70 @@ AC (auto)
       - IMP-AC-VIEW-021
 
   UT-AC-VIEW-178
-    title: TODO: describe this artifact
+    title: keeps the Verify button disabled until initials and POH revision are entered
     files:
       - frontend/src/modules/aircraft/__tests__/VerifyProfileDialog.spec.ts
     impl:
       - IMP-AC-VIEW-021
 
   UT-AC-VIEW-179
-    title: TODO: describe this artifact
+    title: emits confirm with a trimmed sign-off payload
     files:
       - frontend/src/modules/aircraft/__tests__/VerifyProfileDialog.spec.ts
     impl:
       - IMP-AC-VIEW-021
 
   UT-AC-VIEW-180
-    title: TODO: describe this artifact
+    title: emits cancel when the Cancel button is tapped
     files:
       - frontend/src/modules/aircraft/__tests__/VerifyProfileDialog.spec.ts
     impl:
       - IMP-AC-VIEW-021
 
   UT-AC-STORE-129
-    title: TODO: describe this artifact
+    title: verifyProfile records the full sign-off provenance bound to the active weighing report
     files:
       - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
     impl:
       - IMP-AC-STORE-011
 
   UT-AC-STORE-130
-    title: TODO: describe this artifact
+    title: verifyProfile defaults verifiedOn to today when the sign-off omits a date
     files:
       - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
     impl:
       - IMP-AC-STORE-011
 
   UT-AC-STORE-131
-    title: TODO: describe this artifact
+    title: verifyProfile rejects a sign-off with blank initials or POH revision
     files:
       - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
     impl:
       - IMP-AC-STORE-011
 
   UT-AC-STORE-132
-    title: TODO: describe this artifact
+    title: editVerifiedProfile strips the verification provenance when reverting to Draft
     files:
       - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
     impl:
       - IMP-AC-STORE-011
 
   UT-AC-STORE-133
-    title: TODO: describe this artifact
+    title: updateProfile never leaves verification provenance on a Draft
     files:
       - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
     impl:
       - IMP-AC-STORE-011
 
   UT-AC-STORE-134
-    title: TODO: describe this artifact
+    title: reverifyProfile re-stamps provenance in place on an already-verified profile
     files:
       - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
     impl:
       - IMP-AC-STORE-011
 
   UT-AC-STORE-135
-    title: TODO: describe this artifact
+    title: reverifyProfile throws on a Draft profile and on a missing id
     files:
       - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
     impl:

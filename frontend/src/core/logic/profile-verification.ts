@@ -10,11 +10,14 @@
  *    verification is treated as expired and the profile must be re-verified.
  *  - It is **invalidated when its source changes.** If the profile's active
  *    weighing report no longer matches the one the sign-off was bound to, the
- *    attestation is about data that no longer exists. This is a defence-in-depth
- *    check against an imported/tampered exchange file that claims `verified`
- *    while carrying a mismatched weighing report — the in-app edit flow already
- *    drops a Verified profile back to Draft, but an external document can pair
- *    any status with any data.
+ *    attestation is about data that no longer exists. The in-app edit flow
+ *    already drops a Verified profile back to Draft on any change, and
+ *    `profile.import` forces every imported document to Draft — so this check
+ *    is *defence in depth*: it catches the residual paths those guards do not,
+ *    namely direct IndexedDB corruption or a weighing report that was re-dated
+ *    or swapped under a sign-off that legitimately reached `verified`. Note it
+ *    keys on the report's `validFrom` date only; value tampering (bem/emptyCg)
+ *    under an unchanged `validFrom` is out of scope for this check.
  *
  * An expired or source-changed verification is a Garbage-In gate failure
  * (H-011): the profile must not be trusted as a verified source for a Go/No-Go

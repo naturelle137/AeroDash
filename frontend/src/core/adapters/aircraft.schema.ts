@@ -182,9 +182,23 @@ const PerformanceProfileSchema = z.object({
 // `core/logic/profile-verification.ts`. Dates are calendar dates ('YYYY-MM-DD'),
 // not timestamps: provenance is a human attestation, not a machine event.
 const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/
+/**
+ * True only for a real calendar date. The regex above admits structurally-valid
+ * but impossible dates (e.g. `2026-13-45`, `2026-02-30`); round-tripping the
+ * components through `Date.UTC` and comparing back rejects those at parse so a
+ * sign-off cannot persist a nonsensical date. Pure: no `Date.now()`.
+ */
+function isRealCalendarDate(iso: string): boolean {
+  const [y, m, d] = iso.split('-').map(Number)
+  const dt = new Date(Date.UTC(y!, m! - 1, d!))
+  return dt.getUTCFullYear() === y && dt.getUTCMonth() === m! - 1 && dt.getUTCDate() === d
+}
 const VerificationProvenanceSchema = z.object({
   /** Calendar date the pilot signed off the verification ('YYYY-MM-DD'). */
-  verifiedOn: z.string().regex(ISO_DATE_RE),
+  verifiedOn: z
+    .string()
+    .regex(ISO_DATE_RE)
+    .refine(isRealCalendarDate, { message: 'IMPOSSIBLE_CALENDAR_DATE' }),
   /** Verifier initials / short identifier (free text, e.g. "JS"). */
   verifiedBy: z.string().min(1).max(10),
   /** POH/AFM revision label the data was checked against (e.g. "Rev 7"). */

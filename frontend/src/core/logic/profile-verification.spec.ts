@@ -160,14 +160,25 @@ describe('evaluateVerificationFreshness — source change', () => {
   })
 
   // @UT-AC-CORE-115@ (FROM: @IMP-AC-CORE-005@)
-  it('matches the LATEST weighing report by validFrom, not insertion order', () => {
-    // Sign-off bound to the newest report; an older sibling must not "win".
-    const result = evaluateVerificationFreshness(
+  it('matches the LATEST weighing report by validFrom, regardless of array order', () => {
+    // Sign-off (SOURCE_DATE) is bound to the newest report; an older sibling
+    // must not "win". Both orderings must resolve to the newest report — if the
+    // evaluator naively took the first element, the [older, newer] case below
+    // would pick 2020-01-01 ≠ SOURCE_DATE and report expired-source-changed.
+    const latestFirst = evaluateVerificationFreshness(
       profile({
-        weighingReports: [{ validFrom: '2026-01-10' }, { validFrom: '2020-01-01' }],
+        weighingReports: [{ validFrom: SOURCE_DATE }, { validFrom: '2020-01-01' }],
       }),
       daysAfterVerified(0),
     )
-    expect(result.state).toBe('fresh')
+    expect(latestFirst.state).toBe('fresh')
+
+    const olderFirst = evaluateVerificationFreshness(
+      profile({
+        weighingReports: [{ validFrom: '2020-01-01' }, { validFrom: SOURCE_DATE }],
+      }),
+      daysAfterVerified(0),
+    )
+    expect(olderFirst.state).toBe('fresh')
   })
 })

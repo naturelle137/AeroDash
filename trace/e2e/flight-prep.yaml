@@ -51,7 +51,7 @@ Phase B End-to-End Tests
 
 B (auto)
   E2E-B-011
-    title: TODO: describe this artifact
+    title: Selecting a draft aircraft requires acknowledging the unverified-data warning
     files:
       - frontend/tests/e2e/features/phase-b-flight-preparation/fleet-based-aircraft-selection.feature
     uj:
