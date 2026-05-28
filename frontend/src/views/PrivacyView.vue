@@ -41,6 +41,7 @@ async function refreshFleet(): Promise<void> {
 // ─── Bulk export ─────────────────────────────────────────────────────────
 async function onExportAll(): Promise<void> {
   clearError()
+  lastWipe.value = null
   lastExportAt.value = null
   lastExportOmitted.value = 0
   busy.value = true
@@ -86,6 +87,8 @@ function onRequestWipe(): void {
 async function onConfirmWipe(): Promise<void> {
   clearError()
   if (!wipeConfirmReady.value) return
+  lastExportAt.value = null
+  lastExportOmitted.value = 0
   busy.value = true
   try {
     const report = await wipeAllLocalData()
@@ -366,12 +369,6 @@ function onCancelWipe(): void {
   background: var(--color-primary, #3b82f6);
   border-color: var(--color-primary, #3b82f6);
   color: #ffffff;
-}
-
-.btn-secondary {
-  background: var(--color-surface, #ffffff);
-  color: var(--color-primary, #2563eb);
-  border-color: var(--color-primary, #2563eb);
 }
 
 .btn-danger {

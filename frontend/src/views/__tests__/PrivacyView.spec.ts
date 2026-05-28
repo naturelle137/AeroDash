@@ -247,6 +247,28 @@ describe('PrivacyView — delete-all (REQ-SYS-014)', () => {
     expect(err.text()).toContain('Erasure incomplete')
   })
 
+  it('clears a stale export notice when a wipe succeeds (NIT-1)', async () => {
+    fleetProfiles.value = [{ id: 'p1' }]
+    const wrapper = mountView()
+    await flushPromises()
+
+    // First export — shows the export-success notice.
+    await wrapper.find('[data-testid="export-all-btn"]').trigger('click')
+    await flushPromises()
+    expect(wrapper.find('[data-testid="privacy-export-notice"]').exists()).toBe(true)
+
+    // Then wipe — the now-deleted data must not keep advertising an export.
+    await wrapper.find('[data-testid="wipe-request-btn"]').trigger('click')
+    await nextTick()
+    await wrapper.find('[data-testid="wipe-confirm-input"]').setValue('DELETE ALL DATA')
+    await nextTick()
+    await wrapper.find('[data-testid="wipe-confirm-btn"]').trigger('click')
+    await flushPromises()
+
+    expect(wrapper.find('[data-testid="privacy-export-notice"]').exists()).toBe(false)
+    expect(wrapper.find('[data-testid="privacy-wipe-notice"]').exists()).toBe(true)
+  })
+
   it('surfaces an error banner when wipeAllLocalData rejects (m3)', async () => {
     wipeMock.mockRejectedValueOnce(new Error('wipe blew up'))
 

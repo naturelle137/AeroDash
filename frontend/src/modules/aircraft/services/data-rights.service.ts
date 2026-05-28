@@ -15,7 +15,7 @@
  */
 
 import type { AircraftProfile } from '@/core/adapters/aircraft.schema'
-import { fleetRepository, type MigrationDiagnostic } from './fleet.repository'
+import { fleetRepository, DB_NAME, type MigrationDiagnostic } from './fleet.repository'
 
 // @IMP-SYS-STORE-013@ (FROM: @REQ-SYS-014@, @REQ-SYS-015@)
 
@@ -29,8 +29,12 @@ import { fleetRepository, type MigrationDiagnostic } from './fleet.repository'
 // begins with `aerodash` (e.g. `aerodash-theme`) so a future component that
 // adds a new key cannot silently survive a Delete-All-Data action.
 
-/** Identifier of the IndexedDB database holding the fleet. */
-export const INDEXED_DB_FLEET_NAME = 'aerodash-fleet'
+/**
+ * Identifier of the IndexedDB database holding the fleet. Re-exported from
+ * {@link fleetRepository}'s {@link DB_NAME} so there is a single source of
+ * truth — the wipe always targets whatever the repository actually opens.
+ */
+export const INDEXED_DB_FLEET_NAME = DB_NAME
 
 /** A storage location that could not be cleared during a Delete-All-Data run. */
 export interface WipeFailure {

@@ -26,7 +26,8 @@ import { AircraftProfileSchema } from '@/core/adapters/aircraft.schema'
 
 // @IMP-AC-STORE-001@ (FROM: @REQ-AC-001@, @DES-ARCH-007@)
 
-const DB_NAME = 'aerodash-fleet'
+/** Canonical IndexedDB database name — the single source of truth for the fleet store. */
+export const DB_NAME = 'aerodash-fleet'
 /** Bumped to 2: normalize legacy `Draft`/`Verified` status strings to lowercase (REQ-AC-005). */
 const DB_VERSION = 2
 const STORE_NAME = 'aircraft_profiles'
