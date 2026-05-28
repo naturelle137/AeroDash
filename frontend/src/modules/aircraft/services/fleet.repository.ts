@@ -294,10 +294,12 @@ export function deleteById(id: string): Promise<void> {
 /**
  * Delete every AircraftProfile document in the store in a single transaction.
  *
- * Underpins REQ-SYS-014 (Repository-Wide Wipe / Delete-All-Data). Returns
- * after the IndexedDB transaction has committed. The store itself is left
- * present (only the row contents are cleared) so subsequent writes continue
- * to hit the same object store without a re-`onupgradeneeded`.
+ * Underpins REQ-SYS-014 (Repository-Wide Wipe / Delete-All-Data). Resolves
+ * once the `clear()` request succeeds (matching `create`/`update`/`deleteById`);
+ * a subsequent read opens a fresh transaction that IndexedDB serialises after
+ * the clear commits. The store itself is left present (only the row contents
+ * are cleared) so subsequent writes continue to hit the same object store
+ * without a re-`onupgradeneeded`.
  */
 // @IMP-AC-STORE-009@ (FROM: @REQ-SYS-014@, @DES-ARCH-011@)
 export function deleteAll(): Promise<void> {

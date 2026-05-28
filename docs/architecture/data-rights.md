@@ -96,6 +96,23 @@ when non-empty.
   omitted from `envelope.profiles` and returned in `BulkExportResult.omitted`;
   the `/privacy` view surfaces that count.
 
+### 4.2 Scope — what a bulk export includes (Art. 20)
+
+The export deliberately covers only the IndexedDB aircraft fleet
+(`aerodash-fleet`). The auto-saved Mass & Balance session
+(`aerodash:session:payload`: station weights + an aircraft-id reference) and
+the `aerodash-theme` preference are **out of portability scope by decision**
+(§2, `Exported: No`):
+
+- The session payload is transient preflight working state — a debounced
+  autosave aid, cleared on aircraft switch and re-derived from the fleet plus
+  live pilot input — not a retained record. Station weights may include
+  passenger weights; should that data ever become a retained record (e.g. a
+  saved load sheet), this decision must be revisited and the export extended.
+- `aerodash-theme` is a non-personal UI preference.
+
+Erasure still clears both (§3); only *portability* excludes them.
+
 ## 5. Interaction
 
 - Both actions are pilot-initiated from the `/privacy` view.
@@ -106,6 +123,12 @@ when non-empty.
   the view shows a standing `role="alert"` warning of the count — independent of
   any export — and repeats it in the wipe confirmation dialog. The count is read
   from `fleetStore.unreadableProfileCount`.
+- A confirmed erasure first cancels any pending debounced session autosave
+  (`sessionPersistenceStore.clearSession()`) so a timer scheduled just before the
+  wipe cannot re-write the `aerodash:session:payload` key afterwards. In-memory
+  Mass & Balance / session state held by the running tab is not mutated by the
+  wipe; it re-initialises clean on the next app load (the persisted key is gone,
+  so `restoreSession()` finds nothing to restore).
 
 ## 6. Future Scope
 

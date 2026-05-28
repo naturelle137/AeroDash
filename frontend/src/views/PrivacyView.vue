@@ -8,10 +8,12 @@ import {
   type WipeReport,
 } from '@/modules/aircraft/services/data-rights.service'
 import { useFleetStore } from '@/modules/aircraft/stores/fleet.store'
+import { useSessionPersistenceStore } from '@/stores/session-persistence.store'
 
 type Dialog = 'none' | 'wipe'
 
 const fleetStore = useFleetStore()
+const sessionStore = useSessionPersistenceStore()
 
 const dialog = ref<Dialog>('none')
 const busy = ref(false)
@@ -105,6 +107,10 @@ async function onConfirmWipe(): Promise<void> {
   lastExportOmitted.value = 0
   busy.value = true
   try {
+    // Cancel any pending debounced session autosave first, so a timer scheduled
+    // just before this wipe cannot re-write the erased `aerodash:session:payload`
+    // key after the fact (REQ-SYS-014 — erasure must be irrecoverable).
+    sessionStore.clearSession()
     const report = await wipeAllLocalData()
     dialog.value = 'none'
     wipeConfirmText.value = ''

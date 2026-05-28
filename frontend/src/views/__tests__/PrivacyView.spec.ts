@@ -49,6 +49,14 @@ vi.mock('@/modules/aircraft/services/data-rights.service', () => {
   }
 })
 
+const clearSessionMock = vi.fn<() => void>()
+
+vi.mock('@/stores/session-persistence.store', () => {
+  return {
+    useSessionPersistenceStore: () => ({ clearSession: clearSessionMock }),
+  }
+})
+
 function defaultWipeReport(): WipeReport {
   return {
     profilesDeleted: 0,
@@ -78,6 +86,7 @@ beforeEach(() => {
   exportMock.mockReset()
   serializeMock.mockReset()
   wipeMock.mockReset()
+  clearSessionMock.mockClear()
   loadAllMock.mockClear()
   exportMock.mockResolvedValue(defaultExportResult())
   serializeMock.mockReturnValue('{"exportSchemaVersion":1}')
@@ -294,6 +303,31 @@ describe('PrivacyView — delete-all (REQ-SYS-014)', () => {
     await wrapper.find('[data-testid="wipe-request-btn"]').trigger('click')
     await nextTick()
     expect(wrapper.find('[data-testid="wipe-unreadable-warning"]').exists()).toBe(true)
+  })
+
+  it('cancels the pending session autosave before erasing so it cannot resurrect the payload', async () => {
+    // The debounce must be cancelled BEFORE the wipe runs, else a pending timer
+    // could re-write the session key after erasure. Capture the ordering by
+    // recording whether clearSession had run by the time the wipe executes.
+    let clearedBeforeWipe = false
+    wipeMock.mockImplementationOnce(async () => {
+      clearedBeforeWipe = clearSessionMock.mock.calls.length > 0
+      return defaultWipeReport()
+    })
+
+    const wrapper = mountView()
+    await flushPromises()
+
+    await wrapper.find('[data-testid="wipe-request-btn"]').trigger('click')
+    await nextTick()
+    await wrapper.find('[data-testid="wipe-confirm-input"]').setValue('DELETE ALL DATA')
+    await nextTick()
+    await wrapper.find('[data-testid="wipe-confirm-btn"]').trigger('click')
+    await flushPromises()
+
+    expect(clearSessionMock).toHaveBeenCalledTimes(1)
+    expect(wipeMock).toHaveBeenCalledTimes(1)
+    expect(clearedBeforeWipe).toBe(true)
   })
 
   it('reports an unknown profile count without claiming a false 0 (m1)', async () => {
