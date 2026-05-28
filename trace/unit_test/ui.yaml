@@ -22,3 +22,25 @@ UI Shared Components (Unit)
       - IMP-UI-SHARED-006
     files:
       - frontend/src/shared/components/__tests__/UndoToast.spec.ts
+
+  UT-UI-SHARED-003
+    title: App shell — Privacy nav link reachable in sidebar and mobile bottom nav (REQ-SYS-014/015)
+    impl:
+      - IMP-UI-SHARED-007
+    files:
+      - frontend/src/__tests__/App.nav.spec.ts
+
+UI (auto)
+  UT-UI-ROUTE-004
+    title: Router unit test — /privacy route resolves to PrivacyView
+    files:
+      - frontend/src/router/index.spec.ts
+    impl:
+      - IMP-UI-ROUTE-004
+
+  UT-UI-VIEW-002
+    title: Privacy view unit tests — export / delete-all controls + failure surfaces
+    files:
+      - frontend/src/views/__tests__/PrivacyView.spec.ts
+    impl:
+      - IMP-UI-VIEW-002

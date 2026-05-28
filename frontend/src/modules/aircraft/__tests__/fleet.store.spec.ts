@@ -250,6 +250,36 @@ describe('useFleetStore', () => {
     expect(store.isLoading).toBe(false)
   })
 
+  // @UT-AC-STORE-124@ (FROM: @IMP-AC-STORE-005@)
+  it('loadAll clears a stale unreadableProfileCount when a later load throws (LOADING→ERROR)', async () => {
+    const store = useFleetStore()
+    const { fleetRepository } = await import('../services/fleet.repository')
+
+    // First load succeeds with unreadable rows present.
+    vi.mocked(fleetRepository.findAllWithDiagnostics).mockResolvedValueOnce({
+      profiles: [],
+      diagnostics: [
+        {
+          id: 'p-future',
+          reason: 'unsupported-future-version',
+          storedVersion: 7,
+          detail: 'newer build',
+        },
+      ],
+    })
+    await store.loadAll()
+    expect(store.unreadableProfileCount).toBe(1)
+
+    // A subsequent load (e.g. a post-wipe reload) fails — the prior count is now
+    // unknowable and must not linger as a stale "1 unreadable profile" warning.
+    vi.mocked(fleetRepository.findAllWithDiagnostics).mockRejectedValueOnce(
+      new Error('IndexedDB unavailable'),
+    )
+    await store.loadAll()
+    expect(store.fleetLoadState).toBe('ERROR')
+    expect(store.unreadableProfileCount).toBe(0)
+  })
+
   // @UT-AC-STORE-050@ (FROM: @IMP-AC-STORE-005@)
   it('loadAll populates profiles from IndexedDB (READY state)', async () => {
     const store = useFleetStore()
@@ -355,6 +385,9 @@ describe('useFleetStore', () => {
     const infos = store.notifications.filter((n) => n.code === 'INFO-AC-001')
     expect(infos).toHaveLength(2)
     expect(infos.every((n) => n.type === 'INFO')).toBe(true)
+    // The dropped-row count is retained so the data-rights view can warn that
+    // these rows are excluded from an export yet erased by a wipe (DES-ARCH-011).
+    expect(store.unreadableProfileCount).toBe(2)
   })
 
   // @UT-AC-STORE-115@ (FROM: @IMP-AC-STORE-005@, @IMP-AC-CORE-003@)

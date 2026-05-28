@@ -59,6 +59,13 @@ export const useFleetStore = defineStore('fleet', () => {
   // ─── State ────────────────────────────────────────────────────────────────
 
   const profiles = ref<AircraftProfile[]>([])
+  /**
+   * Count of stored rows the last `loadAll()` could **not** read (future
+   * `schemaVersion` / corrupt). These rows still occupy IndexedDB and are
+   * destroyed by a Delete-All-Data wipe, so the data-rights view must surface
+   * them — they are excluded from a bulk export (DES-ARCH-011 §4.1).
+   */
+  const unreadableProfileCount = ref(0)
   /** Start LOADING so fleet UI never shows an empty list before the first `loadAll()` (#158 hydration). */
   const fleetLoadState = ref<FleetLoadState>('LOADING')
   const fleetLoadError = ref<string | null>(null)
@@ -118,10 +125,15 @@ export const useFleetStore = defineStore('fleet', () => {
     try {
       const { profiles: loaded, diagnostics } = await fleetRepository.findAllWithDiagnostics()
       profiles.value = loaded
+      unreadableProfileCount.value = diagnostics.length
       emitMigrationDiagnostics(diagnostics)
       fleetLoadState.value = 'READY'
     } catch (err) {
       fleetLoadState.value = 'ERROR'
+      // The read failed, so the prior count is unknowable — clear it rather than
+      // leave a stale "N unreadable profiles" warning rendering next to the
+      // load-error banner (e.g. a failing reload after a wipe).
+      unreadableProfileCount.value = 0
       fleetLoadError.value =
         err instanceof Error ? err.message : 'Failed to load aircraft fleet from storage.'
     }
@@ -304,6 +316,7 @@ export const useFleetStore = defineStore('fleet', () => {
   return {
     // State
     profiles,
+    unreadableProfileCount,
     fleetLoadState,
     fleetLoadError,
     isLoading,

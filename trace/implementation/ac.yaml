@@ -294,3 +294,12 @@ AC (auto)
       - REQ-AD-020
       - REQ-AD-022
       - REQ-UI-023
+
+  IMP-AC-STORE-009
+    title: Fleet repository deleteAll — clear the entire profile store (REQ-SYS-014)
+    files:
+      - frontend/src/modules/aircraft/services/fleet.repository.ts
+    req:
+      - REQ-SYS-014
+    des:
+      - DES-ARCH-011

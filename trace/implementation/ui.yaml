@@ -111,3 +111,30 @@ UI (auto)
     req:
       - REQ-AC-001
       - REQ-AC-005
+
+  IMP-UI-SHARED-007
+    title: App shell — Privacy nav link (sidebar + mobile bottom nav)
+    files:
+      - frontend/src/App.vue
+    req:
+      - REQ-SYS-014
+      - REQ-SYS-015
+
+  IMP-UI-ROUTE-004
+    title: Router — /privacy route registration
+    files:
+      - frontend/src/router/index.ts
+    req:
+      - REQ-SYS-014
+      - REQ-SYS-015
+
+  IMP-UI-VIEW-002
+    title: Privacy view — data-rights controls (bulk export / delete-all)
+    files:
+      - frontend/src/views/PrivacyView.vue
+    req:
+      - REQ-SYS-014
+      - REQ-SYS-015
+    des:
+      - DES-ARCH-011
+      - DES-ARCH-012

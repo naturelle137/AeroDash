@@ -120,6 +120,22 @@ export const useSessionPersistenceStore = defineStore('sessionPersistence', () =
   }
 
   /**
+   * Cancel any pending debounced save **without** removing the persisted
+   * payload. Unlike {@link clearSession}, the stored key is left in place.
+   *
+   * Used ahead of a Delete-All-Data wipe (REQ-SYS-014): the wipe's own storage
+   * sweep removes and *reports* the session key, so the only coordination
+   * needed here is to stop a queued autosave from re-writing the key after the
+   * wipe — leaving the key present means the sweep still counts it.
+   */
+  function cancelPendingSave(): void {
+    if (_debounceTimer !== null) {
+      clearTimeout(_debounceTimer)
+      _debounceTimer = null
+    }
+  }
+
+  /**
    * Remove any persisted payload from `localStorage`.
    * Called on aircraft switch or explicit session reset.
    */
@@ -247,6 +263,7 @@ export const useSessionPersistenceStore = defineStore('sessionPersistence', () =
 
   return {
     saveSession,
+    cancelPendingSave,
     clearSession,
     restoreSession,
     consumeDropNotification,

@@ -79,6 +79,18 @@ Architecture Design
       - REQ-AC-005
     file: docs/architecture/aircraft-fleet-module.md
 
+  DES-ARCH-011
+    title: Data-Rights Erasure Contract
+    req:
+      - REQ-SYS-014
+    file: docs/architecture/data-rights.md
+
+  DES-ARCH-012
+    title: Data-Rights Bulk-Export Contract
+    req:
+      - REQ-SYS-015
+    file: docs/architecture/data-rights.md
+
 ARCH (auto)
   DES-ARCH-010
     title: TODO: describe this artifact

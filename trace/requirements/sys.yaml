@@ -57,3 +57,11 @@ System Requirements
   REQ-SYS-013
     title: Session Payload Persistence
     file: docs/requirements/system.md
+
+  REQ-SYS-014
+    title: Erasure of All Personal Data
+    file: docs/requirements/system.md
+
+  REQ-SYS-015
+    title: Export of All Personal Data
+    file: docs/requirements/system.md

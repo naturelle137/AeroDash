@@ -10,7 +10,14 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import 'fake-indexeddb/auto'
 import { IDBFactory } from 'fake-indexeddb'
-import { create, findById, findAll, update, deleteById } from '../services/fleet.repository'
+import {
+  create,
+  deleteAll,
+  deleteById,
+  findAll,
+  findById,
+  update,
+} from '../services/fleet.repository'
 import type { AircraftProfile } from '@/core/adapters/aircraft.schema'
 
 /** Reset IndexedDB between tests by replacing the global with a fresh instance. */
@@ -127,6 +134,28 @@ describe('fleetRepository — CRUD lifecycle', () => {
   it('findAll returns empty array when store is empty', async () => {
     const all = await findAll()
     expect(all).toEqual([])
+  })
+
+  // @IT-AC-STORE-014@ (FROM: @IMP-AC-STORE-009@, @REQ-SYS-014@)
+  it('deleteAll clears every profile in the store', async () => {
+    await create(
+      buildProfile({ id: '00000000-0000-4000-a000-0000000000a1', registration: 'D-WIP1' }),
+    )
+    await create(
+      buildProfile({ id: '00000000-0000-4000-a000-0000000000a2', registration: 'D-WIP2' }),
+    )
+
+    expect((await findAll()).length).toBe(2)
+
+    await deleteAll()
+
+    expect(await findAll()).toEqual([])
+  })
+
+  // @IT-AC-STORE-015@ (FROM: @IMP-AC-STORE-009@, @REQ-SYS-014@)
+  it('deleteAll on an empty store completes without throwing', async () => {
+    await expect(deleteAll()).resolves.toBeUndefined()
+    expect(await findAll()).toEqual([])
   })
 
   // @IT-AC-STORE-013@ (FROM: @IMP-AC-STORE-001@, @REQ-AC-005@)
