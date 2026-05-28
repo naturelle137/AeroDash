@@ -19,6 +19,7 @@ import type {
 
 const fleetProfiles = ref<Array<{ id: string }>>([])
 const fleetUnreadable = ref(0)
+const fleetLoadState = ref<'LOADING' | 'READY' | 'ERROR'>('READY')
 const loadAllMock = vi.fn<() => Promise<void>>().mockResolvedValue(undefined)
 
 vi.mock('@/modules/aircraft/stores/fleet.store', () => {
@@ -29,6 +30,9 @@ vi.mock('@/modules/aircraft/stores/fleet.store', () => {
       },
       get unreadableProfileCount() {
         return fleetUnreadable.value
+      },
+      get fleetLoadState() {
+        return fleetLoadState.value
       },
       loadAll: loadAllMock,
     }),
@@ -93,6 +97,7 @@ beforeEach(() => {
   wipeMock.mockResolvedValue(defaultWipeReport())
   fleetProfiles.value = []
   fleetUnreadable.value = 0
+  fleetLoadState.value = 'READY'
 
   const createObjectURL = vi.fn<() => string>(() => 'blob:test')
   const revokeObjectURL = vi.fn<(url: string) => void>()
@@ -190,6 +195,20 @@ describe('PrivacyView — bulk export (REQ-SYS-015)', () => {
     await flushPromises()
     const btn = wrapper.find('[data-testid="export-all-btn"]')
     expect((btn.element as HTMLButtonElement).disabled).toBe(true)
+  })
+
+  it('surfaces a fleet-load failure so an empty count is not misread as no data', async () => {
+    fleetProfiles.value = []
+    fleetLoadState.value = 'ERROR'
+
+    const wrapper = mountView()
+    await flushPromises()
+
+    const banner = wrapper.find('[data-testid="privacy-fleet-load-error"]')
+    expect(banner.exists()).toBe(true)
+    expect(banner.text()).toContain('could not be read')
+    // The misleading "0" is replaced by an explicit "unavailable".
+    expect(wrapper.find('[data-testid="profile-count"]').text()).toContain('unavailable')
   })
 })
 

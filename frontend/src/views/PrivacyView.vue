@@ -23,6 +23,11 @@ const lastExportAt = ref<string | null>(null)
 const lastExportOmitted = ref(0)
 
 const profileCount = computed(() => fleetStore.profiles.length)
+// A failed fleet load leaves `profiles` empty, which would otherwise read as
+// "0 profiles" — dangerously misleading on the screen that controls erasure
+// and export. Surface the failure so the pilot does not mistake a storage
+// error for "no data to protect".
+const fleetLoadFailed = computed(() => fleetStore.fleetLoadState === 'ERROR')
 // Rows this build cannot read (future schemaVersion / corrupt). They are
 // excluded from a bulk export but still destroyed by a wipe, so they must be
 // surfaced independently of whether the pilot has exported (DES-ARCH-011 §4.1).
@@ -103,6 +108,7 @@ function onRequestWipe(): void {
 async function onConfirmWipe(): Promise<void> {
   clearError()
   if (!wipeConfirmReady.value) return
+  lastWipe.value = null
   lastExportAt.value = null
   lastExportOmitted.value = 0
   busy.value = true
@@ -167,6 +173,17 @@ function onCancelWipe(): void {
     </p>
 
     <p
+      v-if="fleetLoadFailed"
+      class="privacy-view__error"
+      role="alert"
+      data-testid="privacy-fleet-load-error"
+    >
+      Your saved fleet could not be read from this device's storage, so the
+      profile count below is unavailable — it does not mean your data is gone.
+      Reload AeroDash and try again before exporting or deleting.
+    </p>
+
+    <p
       v-if="unreadableCount > 0"
       class="privacy-view__notice privacy-view__notice--warn"
       role="alert"
@@ -219,7 +236,7 @@ function onCancelWipe(): void {
         the envelope's schema version so re-imports can validate it safely.
       </p>
       <p class="card__meta" data-testid="profile-count">
-        Profiles available: {{ profileCount }}
+        Profiles available: {{ fleetLoadFailed ? 'unavailable' : profileCount }}
       </p>
       <button
         type="button"
