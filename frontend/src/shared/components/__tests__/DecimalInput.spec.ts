@@ -106,6 +106,64 @@ describe('DecimalInput — min enforcement', () => {
   })
 })
 
+describe('DecimalInput — forbidden characters & out-of-range rejection', () => {
+  function rejections(wrapper: ReturnType<typeof mount>): { reason: string }[] {
+    return (wrapper.emitted('reject') ?? []).map((e) => e[0] as { reason: string })
+  }
+
+  function values(wrapper: ReturnType<typeof mount>): unknown[] {
+    return (wrapper.emitted('update:modelValue') ?? []).map((e) => e[0])
+  }
+
+  // @UT-UI-COMP-DECIMAL-010@
+  it('strips "e" and emits reject(invalid) instead of expanding "1e2" to 100', async () => {
+    const wrapper = mount(DecimalInput, { props: { modelValue: null, allowNull: true } })
+    await typeValue(wrapper, '1e2')
+
+    expect(values(wrapper)).not.toContain(100)
+    expect(rejections(wrapper).some((r) => r.reason === 'invalid')).toBe(true)
+    expect((wrapper.find('input').element as HTMLInputElement).value).toBe('12')
+  })
+
+  // @UT-UI-COMP-DECIMAL-010@
+  it('strips a leading "+" and flags it invalid', async () => {
+    const wrapper = mount(DecimalInput, { props: { modelValue: null, allowNull: true } })
+    await typeValue(wrapper, '+5')
+
+    expect(rejections(wrapper).some((r) => r.reason === 'invalid')).toBe(true)
+    expect((wrapper.find('input').element as HTMLInputElement).value).toBe('5')
+  })
+
+  // @UT-UI-COMP-DECIMAL-010@
+  it('emits reject(min) and no value when the typed number is below min', async () => {
+    const wrapper = mount(DecimalInput, { props: { modelValue: 10, min: 5 } })
+    await typeValue(wrapper, '2')
+
+    expect(values(wrapper)).not.toContain(2)
+    expect(rejections(wrapper).some((r) => r.reason === 'min')).toBe(true)
+  })
+
+  // @UT-UI-COMP-DECIMAL-010@
+  it('emits reject(max) and no value when the typed number is above max', async () => {
+    const wrapper = mount(DecimalInput, { props: { modelValue: 10, max: 100 } })
+    await typeValue(wrapper, '150')
+
+    expect(values(wrapper)).not.toContain(150)
+    expect(rejections(wrapper).some((r) => r.reason === 'max')).toBe(true)
+  })
+
+  // @UT-UI-COMP-DECIMAL-010@
+  it('does not emit reject for a clean in-range value', async () => {
+    const wrapper = mount(DecimalInput, {
+      props: { modelValue: null, allowNull: true, min: 0, max: 100 },
+    })
+    await typeValue(wrapper, '42')
+
+    expect(wrapper.emitted('reject')).toBeFalsy()
+    expect(values(wrapper)).toContain(42)
+  })
+})
+
 describe('DecimalInput — external modelValue sync', () => {
   // @UT-UI-COMP-DECIMAL-008@
   it('syncs rawString when parent resets modelValue to null', async () => {
