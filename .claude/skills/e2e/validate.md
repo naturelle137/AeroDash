@@ -64,4 +64,4 @@ Footer: `Total: {n}  (CRITICAL: {c}  WARNING: {w}  INFO: {i})` + `Status: PASS |
 
 Clean output: `✓ No violations found. The test slice is compliant.` + `Status: PASS`
 
-`output.style`: no preamble; collect all findings before report
+`output.style`: collect all findings before report; verbosity per `CLAUDE.md § Concision`

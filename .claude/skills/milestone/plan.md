@@ -77,7 +77,7 @@ ordered milestones `start_version -> target_version`; per item:
   - `<capability 2>`
   - `<capability 3>`
 
-Rules: concise | testable language; externally meaningful capabilities; not component-only work; newly introduced prerequisite milestone -> say so in `Purpose`.
+Rules: testable language; externally meaningful capabilities; not component-only work; newly introduced prerequisite milestone -> say so in `Purpose`.
 
 ### 2. Coverage Mapping
 

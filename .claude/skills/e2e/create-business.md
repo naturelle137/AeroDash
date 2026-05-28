@@ -47,7 +47,7 @@
 - path: `trace/e2e/{phase-slug}.yaml`
 - entry: `E2E-{PHASE}-{NNN}` + `title` + feature file path
 
-## Output (no preamble; no commentary)
+## Output
 
 1. feature path + full content
 2. steps path + full content

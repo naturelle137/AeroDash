@@ -5,7 +5,7 @@ description: Use when authoring or editing Gherkin .feature files (Playwright BD
 
 # Gherkin authoring rules
 
-- authority: safety-critical BDD; clarity > DRY; explicitness > cleverness; no explanation unless asked
+- authority: safety-critical BDD; clarity > DRY; explicitness > cleverness; verbosity per `CLAUDE.md § Concision`
 - scope-: unimplemented features; future behavior
 - scope+: incomplete feature | scenario => `@wip`
 - trace: defer to `e2e/traceability-rules.md` if writing/refactoring trace-bearing files

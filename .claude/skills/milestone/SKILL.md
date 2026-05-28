@@ -38,7 +38,7 @@ If user intent is ambiguous (e.g. "look at milestone 0.7.0"), ask which of the f
 
 ## Shared output style
 
-- bullet points | compressed wording | no full sentences | no repetition | no explanation | no justification | no extra text
+- per `CLAUDE.md § Concision`; milestone reports use telegraphic bullets (no full sentences)
 - each sub-file declares its exact section structure — follow it precisely
 
 ## Procedure

@@ -25,7 +25,7 @@ This skill bundles four E2E operations + two embedded rule sets. Load only the o
 
 - criticality: safety-critical aviation
 - mode: strict correctness
-- verbosity: no explanation unless asked
+- verbosity: per `CLAUDE.md § Concision`
 - clarity > DRY; explicitness > cleverness
 - forbid: invented behavior; gherkin-only output; mocking in business E2E; live external API hits
 

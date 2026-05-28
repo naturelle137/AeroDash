@@ -41,10 +41,10 @@
   - if name|focus absent -> derive from Purpose + Key Capabilities; no scope change
   - no new capabilities
   - every deliverable | exit criterion -> observable | testable | reviewable
-  - concise | operational wording
+  - operational wording
   - audience: engineers | validators | product owners
 
-## Output (filled template below; no preamble | notes | explanations | extra sections)
+## Output (filled template below; no extra sections)
 
 ### Title
 
@@ -52,7 +52,7 @@
 
 ### Objective
 
-`2-4` concise sentences; usable value | safety-critical behavior/workflow advanced | roadmap significance.
+`2-4` sentences; usable value | safety-critical behavior/workflow advanced | roadmap significance.
 
 ### Scope
 
