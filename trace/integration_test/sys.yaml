@@ -9,7 +9,7 @@ SYS App — Session-Storage Advisory (Integration — #263 DP-004 / CS-012)
 
 SYS (auto)
   IT-SYS-STORE-001
-    title: TODO: describe this artifact
+    title: Data-rights service integration tests — wipe + bulk export (fake-indexeddb)
     files:
       - frontend/src/modules/aircraft/__tests__/data-rights.service.int.spec.ts
     impl:

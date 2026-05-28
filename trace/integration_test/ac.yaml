@@ -181,14 +181,14 @@ AC Migration — Downgrade + Corruption Recovery (#259)
 
 AC (auto)
   IT-AC-STORE-014
-    title: TODO: describe this artifact
+    title: Fleet repository deleteAll — clears every profile in the store
     files:
       - frontend/src/modules/aircraft/__tests__/fleet.repository.int.spec.ts
     impl:
       - IMP-AC-STORE-009
 
   IT-AC-STORE-015
-    title: TODO: describe this artifact
+    title: Fleet repository deleteAll — empty-store no-op completes without throwing
     files:
       - frontend/src/modules/aircraft/__tests__/fleet.repository.int.spec.ts
     impl:

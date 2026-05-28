@@ -267,7 +267,7 @@ SYS (auto)
       - REQ-SYS-005
 
   IMP-SYS-STORE-013
-    title: TODO: describe this artifact
+    title: Data-rights service — erase / export of all personal data (REQ-SYS-014/015)
     files:
       - frontend/src/modules/aircraft/services/data-rights.service.ts
     req:

@@ -68,13 +68,21 @@ This release **does** persist data on the device. All storage is **local to the 
 **User control today:** AeroDash ships a dedicated **Privacy view** at
 `/privacy` exposing two GDPR-aligned actions:
 
-1. **Bulk JSON Export (Art. 15 / Art. 20).** Downloads every persisted
+1. **Bulk JSON Export (Art. 15 / Art. 20).** Downloads every *readable*
    aircraft profile as a single schema-versioned JSON file
-   (`aerodash-fleet-<timestamp>.json`).
+   (`aerodash-fleet-<timestamp>.json`). If any stored profile cannot be read
+   by the running build (e.g. it was written by a newer app version after a
+   PWA cache rollback), it is excluded from the file **and the export view
+   warns you how many profiles were left out**, so the copy is never silently
+   incomplete — update AeroDash to recover those profiles before deleting.
 2. **Delete All Data (Art. 17).** After explicit confirmation (typed
    confirmation phrase), clears the entire `aerodash-fleet` IndexedDB store
-   plus every `aerodash`-prefixed localStorage and sessionStorage key in one
-   transaction.
+   plus every `aerodash`-prefixed localStorage and sessionStorage key. The
+   action is best-effort across all three stores — a failure in one never
+   stops the others, so as much data as possible is removed. If **any** part
+   cannot be deleted, the app reports the failure as a critical notice and
+   does **not** indicate the erasure as complete; retry, then use the
+   browser's "Clear site data" for the AeroDash origin if it still fails.
 
 **On retention (Art. 5(1)(e)):** AeroDash does not auto-expire stored data.
 A retention period bounds how long personal data is kept relative to the

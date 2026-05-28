@@ -288,7 +288,7 @@ AC (auto)
       - REQ-UI-023
 
   IMP-AC-STORE-009
-    title: TODO: describe this artifact
+    title: Fleet repository deleteAll — clear the entire profile store (REQ-SYS-014)
     files:
       - frontend/src/modules/aircraft/services/fleet.repository.ts
     req:

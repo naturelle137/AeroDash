@@ -18,6 +18,7 @@ const busy = ref(false)
 const lastError = ref<string | null>(null)
 const lastWipe = ref<WipeReport | null>(null)
 const lastExportAt = ref<string | null>(null)
+const lastExportOmitted = ref(0)
 
 const profileCount = computed(() => fleetStore.profiles.length)
 
@@ -40,12 +41,16 @@ async function refreshFleet(): Promise<void> {
 // ─── Bulk export ─────────────────────────────────────────────────────────
 async function onExportAll(): Promise<void> {
   clearError()
+  lastExportAt.value = null
+  lastExportOmitted.value = 0
   busy.value = true
   try {
-    const envelope = await exportAllProfiles()
+    const { envelope, omitted } = await exportAllProfiles()
     const json = serializeBulkExport(envelope)
-    triggerJsonDownload(json, envelope.exportedAt)
+    const downloaded = triggerJsonDownload(json, envelope.exportedAt)
+    if (!downloaded) return
     lastExportAt.value = envelope.exportedAt
+    lastExportOmitted.value = omitted.length
   } catch (err) {
     lastError.value = err instanceof Error ? err.message : 'Export failed: unknown error'
   } finally {
@@ -53,8 +58,9 @@ async function onExportAll(): Promise<void> {
   }
 }
 
-function triggerJsonDownload(json: string, exportedAt: string): void {
-  if (typeof document === 'undefined') return
+/** Returns `true` once the download has been kicked off, `false` outside a DOM. */
+function triggerJsonDownload(json: string, exportedAt: string): boolean {
+  if (typeof document === 'undefined') return false
   const safeStamp = exportedAt.replace(/[:.]/g, '-')
   const blob = new Blob([json], { type: 'application/json' })
   const url = URL.createObjectURL(blob)
@@ -64,7 +70,10 @@ function triggerJsonDownload(json: string, exportedAt: string): void {
   document.body.appendChild(a)
   a.click()
   a.remove()
-  URL.revokeObjectURL(url)
+  // Defer revocation: some browsers drop the download if the object URL is
+  // revoked synchronously in the same tick as click().
+  setTimeout(() => URL.revokeObjectURL(url), 0)
+  return true
 }
 
 // ─── Delete-All-Data (REQ-SYS-014) ────────────────────────────────────────
@@ -80,15 +89,31 @@ async function onConfirmWipe(): Promise<void> {
   busy.value = true
   try {
     const report = await wipeAllLocalData()
-    lastWipe.value = report
     dialog.value = 'none'
     wipeConfirmText.value = ''
     await refreshFleet()
+    if (report.complete) {
+      lastWipe.value = report
+    } else {
+      // REQ-SYS-014: report the failure; never signal a complete erasure while
+      // any data remains. Show the CRITICAL banner, not the success notice.
+      lastWipe.value = null
+      lastError.value = formatIncompleteWipe(report)
+    }
   } catch (err) {
     lastError.value = err instanceof Error ? err.message : 'Delete-All-Data failed: unknown error'
   } finally {
     busy.value = false
   }
+}
+
+function formatIncompleteWipe(report: WipeReport): string {
+  const n = report.failures.length
+  return (
+    `Erasure incomplete — ${n} item${n === 1 ? '' : 's'} could not be deleted and ` +
+    `may remain on this device. Retry the deletion, then use your browser's ` +
+    `“Clear site data” for this site if it still fails.`
+  )
 }
 
 function onCancelWipe(): void {
@@ -103,8 +128,8 @@ function onCancelWipe(): void {
       <h1 id="privacy-heading">Privacy &amp; Local Data</h1>
       <p class="privacy-view__intro">
         AeroDash stores your aircraft fleet and saved session entirely on this device.
-        Use the actions below to exercise your data-subject rights — export, retention
-        purge, or full deletion — without leaving the app.
+        Use the actions below to exercise your data-subject rights — export or full
+        deletion — without leaving the app.
       </p>
     </header>
 
@@ -136,6 +161,18 @@ function onCancelWipe(): void {
       data-testid="privacy-export-notice"
     >
       Bulk JSON export generated at {{ lastExportAt }}.
+    </p>
+
+    <p
+      v-if="lastExportAt && lastExportOmitted > 0"
+      class="privacy-view__notice privacy-view__notice--warn"
+      role="alert"
+      data-testid="privacy-export-omitted"
+    >
+      Warning: {{ lastExportOmitted }} profile{{ lastExportOmitted === 1 ? '' : 's' }} could
+      not be included in this export (saved by a newer app version or unreadable). The export
+      is therefore not a complete copy — update AeroDash to recover them before deleting all
+      data.
     </p>
 
     <!-- ─── Export-all card ─────────────────────────────────────────── -->
@@ -275,6 +312,12 @@ function onCancelWipe(): void {
   color: var(--color-success, #166534);
   background: var(--color-success-bg, #dcfce7);
   border: 1px solid var(--color-success, #166534);
+}
+
+.privacy-view__notice--warn {
+  color: var(--color-warning, #92400e);
+  background: var(--color-warning-bg, #fef3c7);
+  border: 1px solid var(--color-warning, #92400e);
 }
 
 .card {

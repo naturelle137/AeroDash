@@ -113,7 +113,7 @@ UI (auto)
       - REQ-AC-005
 
   IMP-UI-SHARED-007
-    title: TODO: describe this artifact
+    title: App shell — Privacy sidebar nav link
     files:
       - frontend/src/App.vue
     req:
@@ -121,7 +121,7 @@ UI (auto)
       - REQ-SYS-015
 
   IMP-UI-ROUTE-004
-    title: TODO: describe this artifact
+    title: Router — /privacy route registration
     files:
       - frontend/src/router/index.ts
     req:
@@ -129,7 +129,7 @@ UI (auto)
       - REQ-SYS-015
 
   IMP-UI-VIEW-002
-    title: TODO: describe this artifact
+    title: Privacy view — data-rights controls (bulk export / delete-all)
     files:
       - frontend/src/views/PrivacyView.vue
     req:

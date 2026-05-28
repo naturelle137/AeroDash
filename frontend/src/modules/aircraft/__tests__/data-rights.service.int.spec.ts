@@ -7,16 +7,16 @@
 
 // @IT-SYS-STORE-001@ (FROM: @IMP-SYS-STORE-013@, @REQ-SYS-014@, @REQ-SYS-015@)
 
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import 'fake-indexeddb/auto'
 import { IDBFactory } from 'fake-indexeddb'
 import {
   exportAllProfiles,
   serializeBulkExport,
   wipeAllLocalData,
-  type BulkExportEnvelope,
 } from '../services/data-rights.service'
-import { create, findAll } from '../services/fleet.repository'
+import { create, findAll, fleetRepository } from '../services/fleet.repository'
+import { CURRENT_PROFILE_SCHEMA_VERSION } from '@/core/logic/profile-migrations'
 import type { AircraftProfile } from '@/core/adapters/aircraft.schema'
 
 beforeEach(() => {
@@ -38,6 +38,40 @@ beforeEach(() => {
     /* not available — handled inside the service */
   }
 })
+
+afterEach(() => {
+  vi.restoreAllMocks()
+})
+
+/**
+ * Write a raw document directly into the fleet store, bypassing the
+ * repository's `create()` Zod gate — the only way to seed a future-version /
+ * corrupt row that the production write path forbids.
+ */
+async function seedRaw(doc: Record<string, unknown>): Promise<void> {
+  await new Promise<void>((resolve, reject) => {
+    const req = indexedDB.open('aerodash-fleet', 2)
+    req.onupgradeneeded = () => {
+      const db = req.result
+      if (!db.objectStoreNames.contains('aircraft_profiles')) {
+        const store = db.createObjectStore('aircraft_profiles', { keyPath: 'id' })
+        store.createIndex('ownerId', 'ownerId', { unique: false })
+        store.createIndex('registration', 'registration', { unique: false })
+      }
+    }
+    req.onsuccess = () => {
+      const db = req.result
+      const tx = db.transaction('aircraft_profiles', 'readwrite')
+      tx.objectStore('aircraft_profiles').put(doc)
+      tx.oncomplete = () => {
+        db.close()
+        resolve()
+      }
+      tx.onerror = () => reject(tx.error)
+    }
+    req.onerror = () => reject(req.error)
+  })
+}
 
 function buildProfile(overrides: Partial<AircraftProfile> = {}): AircraftProfile {
   return {
@@ -100,10 +134,65 @@ describe('wipeAllLocalData — Repository-Wide Wipe (REQ-SYS-014)', () => {
 
     expect(report.profilesDeleted).toBe(2)
     expect(report.indexedDbCleared).toBe(true)
+    expect(report.complete).toBe(true)
+    expect(report.failures).toEqual([])
     expect(await findAll()).toEqual([])
     expect(typeof report.clearedAt).toBe('string')
     // ISO-8601 with Z suffix
     expect(report.clearedAt).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/)
+  })
+
+  it('counts dropped/corrupt rows in profilesDeleted (clear() removes them too)', async () => {
+    await create(buildProfile({ id: '00000000-0000-4000-a000-000000000001' }))
+    // A future-version row is unreadable but still occupies the store, and
+    // store.clear() erases it — so it must be counted as deleted.
+    await seedRaw({
+      ...buildProfile({ id: '00000000-0000-4000-a000-0000000000f0', registration: 'D-FUTR' }),
+      schemaVersion: CURRENT_PROFILE_SCHEMA_VERSION + 1,
+    } as unknown as Record<string, unknown>)
+
+    const report = await wipeAllLocalData()
+
+    expect(report.profilesDeleted).toBe(2)
+    expect(report.indexedDbCleared).toBe(true)
+    expect(report.complete).toBe(true)
+  })
+
+  it('reports failure (not complete) when the IndexedDB clear rejects', async () => {
+    await create(buildProfile())
+    vi.spyOn(fleetRepository, 'deleteAll').mockRejectedValueOnce(new Error('IDB unavailable'))
+
+    const report = await wipeAllLocalData()
+
+    expect(report.indexedDbCleared).toBe(false)
+    expect(report.complete).toBe(false)
+    expect(report.failures).toHaveLength(1)
+    expect(report.failures[0]!.store).toBe('indexeddb')
+    expect(report.failures[0]!.key).toBeNull()
+    expect(report.failures[0]!.detail).toContain('IDB unavailable')
+  })
+
+  it('reports failure (not complete) when a Web Storage key cannot be removed', async () => {
+    localStorage.setItem('aerodash:session:payload', '{"version":1}')
+    localStorage.setItem('aerodash-theme', 'dark')
+    // Make removeItem throw for one specific key only.
+    const realRemove = Storage.prototype.removeItem
+    vi.spyOn(Storage.prototype, 'removeItem').mockImplementation(function (
+      this: Storage,
+      key: string,
+    ) {
+      if (key === 'aerodash-theme') throw new Error('quota / access error')
+      realRemove.call(this, key)
+    })
+
+    const report = await wipeAllLocalData()
+
+    expect(report.indexedDbCleared).toBe(true)
+    expect(report.complete).toBe(false)
+    expect(report.localStorageKeysCleared).toEqual(['aerodash:session:payload'])
+    const localFailure = report.failures.find((f) => f.store === 'localStorage')
+    expect(localFailure).toBeDefined()
+    expect(localFailure!.key).toBe('aerodash-theme')
   })
 
   it('removes every aerodash-prefixed key from localStorage and sessionStorage', async () => {
@@ -135,6 +224,8 @@ describe('wipeAllLocalData — Repository-Wide Wipe (REQ-SYS-014)', () => {
     expect(sessionStorage.getItem('aerodash.session.active')).toBeNull()
     expect(sessionStorage.getItem('aerodash:diagnostic')).toBeNull()
     expect(sessionStorage.getItem('untouched-key')).toBe('keep me too')
+    expect(report.complete).toBe(true)
+    expect(report.failures).toEqual([])
   })
 
   it('completes cleanly when the fleet is already empty and no storage keys are present', async () => {
@@ -143,6 +234,8 @@ describe('wipeAllLocalData — Repository-Wide Wipe (REQ-SYS-014)', () => {
     expect(report.localStorageKeysCleared).toEqual([])
     expect(report.sessionStorageKeysCleared).toEqual([])
     expect(report.indexedDbCleared).toBe(true)
+    expect(report.complete).toBe(true)
+    expect(report.failures).toEqual([])
   })
 })
 
@@ -153,26 +246,43 @@ describe('exportAllProfiles — Bulk JSON Export (REQ-SYS-015)', () => {
     await create(buildProfile({ id: '00000000-0000-4000-a000-0000000000b2', registration: 'D-A' }))
     await create(buildProfile({ id: '00000000-0000-4000-a000-0000000000b3', registration: 'D-M' }))
 
-    const envelope: BulkExportEnvelope = await exportAllProfiles(new Date('2026-05-27T12:00:00Z'))
+    const { envelope, omitted } = await exportAllProfiles(new Date('2026-05-27T12:00:00Z'))
 
     expect(envelope.exportSchemaVersion).toBe(1)
     expect(envelope.exportedAt).toBe('2026-05-27T12:00:00.000Z')
     expect(envelope.profileCount).toBe(3)
     expect(envelope.profiles.map((p) => p.registration)).toEqual(['D-A', 'D-M', 'D-Z'])
+    expect(omitted).toEqual([])
   })
 
   it('serializes to a parseable JSON string', async () => {
     await create(buildProfile())
-    const envelope = await exportAllProfiles()
+    const { envelope } = await exportAllProfiles()
     const text = serializeBulkExport(envelope)
-    const round = JSON.parse(text) as BulkExportEnvelope
+    const round = JSON.parse(text) as typeof envelope
     expect(round.profileCount).toBe(1)
     expect(round.profiles[0]!.registration).toBe('D-EBPN')
   })
 
   it('returns an empty envelope when no profiles exist', async () => {
-    const envelope = await exportAllProfiles(new Date('2026-05-27T00:00:00Z'))
+    const { envelope, omitted } = await exportAllProfiles(new Date('2026-05-27T00:00:00Z'))
     expect(envelope.profileCount).toBe(0)
     expect(envelope.profiles).toEqual([])
+    expect(omitted).toEqual([])
+  })
+
+  it('omits unreadable profiles from the envelope but reports them so the copy is not silently incomplete', async () => {
+    await create(buildProfile({ id: '00000000-0000-4000-a000-0000000000c1', registration: 'D-OK01' }))
+    await seedRaw({
+      ...buildProfile({ id: '00000000-0000-4000-a000-0000000000c2', registration: 'D-FUTR' }),
+      schemaVersion: CURRENT_PROFILE_SCHEMA_VERSION + 1,
+    } as unknown as Record<string, unknown>)
+
+    const { envelope, omitted } = await exportAllProfiles()
+
+    expect(envelope.profileCount).toBe(1)
+    expect(envelope.profiles.map((p) => p.registration)).toEqual(['D-OK01'])
+    expect(omitted).toHaveLength(1)
+    expect(omitted[0]!.reason).toBe('unsupported-future-version')
   })
 })

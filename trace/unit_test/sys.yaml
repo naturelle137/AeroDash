@@ -1202,7 +1202,7 @@ SYS (auto)
       - IMP-SYS-STORE-010
 
   UT-SYS-STORE-046
-    title: TODO: describe this artifact
+    title: Data-rights service unit tests — export serialization + constants
     files:
       - frontend/src/modules/aircraft/__tests__/data-rights.service.spec.ts
     impl:

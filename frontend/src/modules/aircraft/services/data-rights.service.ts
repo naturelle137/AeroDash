@@ -15,7 +15,7 @@
  */
 
 import type { AircraftProfile } from '@/core/adapters/aircraft.schema'
-import { fleetRepository } from './fleet.repository'
+import { fleetRepository, type MigrationDiagnostic } from './fleet.repository'
 
 // @IMP-SYS-STORE-013@ (FROM: @REQ-SYS-014@, @REQ-SYS-015@)
 
@@ -32,9 +32,22 @@ import { fleetRepository } from './fleet.repository'
 /** Identifier of the IndexedDB database holding the fleet. */
 export const INDEXED_DB_FLEET_NAME = 'aerodash-fleet'
 
+/** A storage location that could not be cleared during a Delete-All-Data run. */
+export interface WipeFailure {
+  /** Which storage facility the failure occurred in. */
+  readonly store: 'indexeddb' | 'localStorage' | 'sessionStorage'
+  /**
+   * The specific key that could not be removed, or `null` for a whole-store
+   * failure (e.g. the IndexedDB `clear()` transaction rejecting).
+   */
+  readonly key: string | null
+  /** Human-readable reason, for surfacing to the pilot. */
+  readonly detail: string
+}
+
 /** Outcome of a single Delete-All-Data run. */
 export interface WipeReport {
-  /** Number of aircraft profiles removed from IndexedDB. */
+  /** Number of stored aircraft records removed (readable + dropped/corrupt). */
   readonly profilesDeleted: number
   /** localStorage keys removed (sorted, including the session payload). */
   readonly localStorageKeysCleared: readonly string[]
@@ -42,8 +55,33 @@ export interface WipeReport {
   readonly sessionStorageKeysCleared: readonly string[]
   /** `true` once the IndexedDB object store has been emptied. */
   readonly indexedDbCleared: boolean
+  /**
+   * Storage locations that could **not** be cleared. Empty on a complete wipe.
+   * REQ-SYS-014 forbids signalling success while any of these remain, so the
+   * UI must surface a CRITICAL notice (not the success notice) when non-empty.
+   */
+  readonly failures: readonly WipeFailure[]
+  /** `true` only when every store was cleared with no residual data. */
+  readonly complete: boolean
   /** ISO timestamp of the wipe (for surfacing to the pilot). */
   readonly clearedAt: string
+}
+
+/**
+ * Result of {@link exportAllProfiles}: the portable envelope plus any records
+ * that could **not** be included so the caller can warn the user.
+ */
+export interface BulkExportResult {
+  /** The serialisable envelope (only records this build can rehydrate). */
+  readonly envelope: BulkExportEnvelope
+  /**
+   * Stored records omitted from the envelope because they could not be read
+   * (future schema version / corrupt). Empty when the export is complete.
+   * REQ-SYS-015 requires a *complete* copy, so a non-empty list must be
+   * surfaced to the user rather than silently dropped — these same records
+   * are also destroyed by a subsequent Delete-All-Data wipe.
+   */
+  readonly omitted: readonly MigrationDiagnostic[]
 }
 
 /** Top-level envelope for a bulk export-all JSON file. */
@@ -66,51 +104,87 @@ export interface BulkExportEnvelope {
 /**
  * Clear every locally persisted AeroDash record.
  *
- * Steps, in order:
+ * Steps:
  *   1. Empty the IndexedDB fleet store via {@link fleetRepository.deleteAll}.
  *   2. Remove every `aerodash`-prefixed key from `localStorage`.
  *   3. Remove every `aerodash`-prefixed key from `sessionStorage`.
  *
- * The function never throws on missing storage backends (private mode,
- * sandboxed iframe): if a storage facility raises, that step's cleared-key
- * list is empty in the returned {@link WipeReport} and the other steps
- * still run. The IndexedDB step **does** propagate errors so the calling
- * UI can surface a CRITICAL notification if the wipe could not be
- * completed — partial wipes that leave the fleet data behind silently
- * are the worst possible outcome for a privacy action.
+ * All three steps are **best-effort and run unconditionally** — a failure in
+ * one store never short-circuits the others, because deleting as much data as
+ * possible is the right outcome for an erasure request. Every failure (a
+ * rejected IndexedDB `clear()`, or a per-key `removeItem` that throws) is
+ * recorded in {@link WipeReport.failures}, and {@link WipeReport.complete} is
+ * `false` whenever any failure occurred.
+ *
+ * This honours REQ-SYS-014 verbatim: "If any part of that data cannot be
+ * deleted, then the system shall report the failure and shall not indicate the
+ * erasure as complete." The function therefore never throws — the caller
+ * inspects `complete` / `failures` and must surface a CRITICAL notice (rather
+ * than a success notice) when the wipe was incomplete.
  */
 export async function wipeAllLocalData(): Promise<WipeReport> {
-  // 1. Count profiles before clearing so the UI can report "Deleted N profiles".
+  const failures: WipeFailure[] = []
+
+  // Count records before clearing so the UI can report "Deleted N profiles".
+  // Includes dropped/corrupt rows (`diagnostics`) because `deleteAll()` clears
+  // every row in the store, not just the readable subset — counting only the
+  // readable profiles would understate what was actually erased.
   let profilesDeleted = 0
   try {
     const existing = await fleetRepository.findAllWithDiagnostics()
-    profilesDeleted = existing.profiles.length
+    profilesDeleted = existing.profiles.length + existing.diagnostics.length
   } catch {
     profilesDeleted = 0
   }
 
-  await fleetRepository.deleteAll()
+  let indexedDbCleared = false
+  try {
+    await fleetRepository.deleteAll()
+    indexedDbCleared = true
+  } catch (err) {
+    failures.push({
+      store: 'indexeddb',
+      key: null,
+      detail: err instanceof Error ? err.message : 'IndexedDB clear failed',
+    })
+  }
 
-  const localCleared = clearPrefixedKeys('local')
-  const sessionCleared = clearPrefixedKeys('session')
+  const local = clearPrefixedKeys('local')
+  const session = clearPrefixedKeys('session')
+  for (const key of local.failedKeys) {
+    failures.push({ store: 'localStorage', key, detail: 'removeItem failed' })
+  }
+  for (const key of session.failedKeys) {
+    failures.push({ store: 'sessionStorage', key, detail: 'removeItem failed' })
+  }
 
   return {
     profilesDeleted,
-    indexedDbCleared: true,
-    localStorageKeysCleared: localCleared,
-    sessionStorageKeysCleared: sessionCleared,
+    indexedDbCleared,
+    localStorageKeysCleared: local.cleared,
+    sessionStorageKeysCleared: session.cleared,
+    failures,
+    complete: failures.length === 0,
     clearedAt: new Date().toISOString(),
   }
 }
 
 /**
  * Remove every `aerodash`-prefixed key from the chosen Web Storage backend.
- * Returns the sorted list of cleared keys; on storage failure returns `[]`.
+ *
+ * Returns the sorted list of keys actually removed plus any keys whose
+ * `removeItem` threw. A missing backend (private mode, sandboxed iframe)
+ * yields empty lists and is **not** treated as a failure — there is nothing
+ * to erase in that case.
  */
-function clearPrefixedKeys(kind: 'local' | 'session'): string[] {
+function clearPrefixedKeys(kind: 'local' | 'session'): {
+  cleared: string[]
+  failedKeys: string[]
+} {
   const storage = kind === 'local' ? safeLocalStorage() : safeSessionStorage()
-  if (storage === null) return []
+  if (storage === null) return { cleared: [], failedKeys: [] }
   const cleared: string[] = []
+  const failedKeys: string[] = []
   // Iterate by index, but read keys into an array first because removeItem
   // shifts the indices of remaining entries (mutation during iteration).
   const keys: string[] = []
@@ -123,11 +197,13 @@ function clearPrefixedKeys(kind: 'local' | 'session'): string[] {
       storage.removeItem(k)
       cleared.push(k)
     } catch {
-      // best-effort — surface a degraded clear, never throw
+      // Record the residue so the caller can report an incomplete erasure.
+      failedKeys.push(k)
     }
   }
   cleared.sort()
-  return cleared
+  failedKeys.sort()
+  return { cleared, failedKeys }
 }
 
 function isAerodashKey(key: string): boolean {
@@ -156,21 +232,26 @@ function safeSessionStorage(): Storage | null {
 /**
  * Collect every persisted aircraft profile into a portable {@link BulkExportEnvelope}.
  *
- * Profiles dropped by the schemaVersion migration registry (future version
- * / corrupt) are **omitted** from the export. The envelope is therefore an
- * accurate snapshot of the data the current build can actually rehydrate,
- * not a wishful list. Callers wanting the diagnostics for those drops can
- * use {@link fleetRepository.findAllWithDiagnostics} directly.
+ * Profiles dropped by the schemaVersion migration registry (future version /
+ * corrupt) cannot be serialised into the typed envelope, so they are omitted
+ * from `envelope.profiles` — but their diagnostics are returned in
+ * {@link BulkExportResult.omitted} so the caller can warn the user that the
+ * copy is not complete (REQ-SYS-015). Silently dropping them would be
+ * doubly unsafe: the export would understate the data held, and a follow-up
+ * Delete-All-Data wipe (`store.clear()`) would then destroy those same rows.
  */
-export async function exportAllProfiles(now: Date = new Date()): Promise<BulkExportEnvelope> {
-  const { profiles } = await fleetRepository.findAllWithDiagnostics()
+export async function exportAllProfiles(now: Date = new Date()): Promise<BulkExportResult> {
+  const { profiles, diagnostics } = await fleetRepository.findAllWithDiagnostics()
   // Sort by registration so the file is diff-friendly across re-exports.
   const sorted = [...profiles].sort((a, b) => a.registration.localeCompare(b.registration))
   return {
-    exportSchemaVersion: 1,
-    exportedAt: now.toISOString(),
-    profileCount: sorted.length,
-    profiles: sorted,
+    envelope: {
+      exportSchemaVersion: 1,
+      exportedAt: now.toISOString(),
+      profileCount: sorted.length,
+      profiles: sorted,
+    },
+    omitted: diagnostics,
   }
 }
 

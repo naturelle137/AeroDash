@@ -25,14 +25,14 @@ UI Shared Components (Unit)
 
 UI (auto)
   UT-UI-ROUTE-004
-    title: TODO: describe this artifact
+    title: Router unit test — /privacy route resolves to PrivacyView
     files:
       - frontend/src/router/index.spec.ts
     impl:
       - IMP-UI-ROUTE-004
 
   UT-UI-VIEW-002
-    title: TODO: describe this artifact
+    title: Privacy view unit tests — export / delete-all controls + failure surfaces
     files:
       - frontend/src/views/__tests__/PrivacyView.spec.ts
     impl:

@@ -13,7 +13,7 @@ import { createPinia, setActivePinia } from 'pinia'
 import { nextTick, ref } from 'vue'
 import PrivacyView from '../PrivacyView.vue'
 import type {
-  BulkExportEnvelope,
+  BulkExportResult,
   WipeReport,
 } from '@/modules/aircraft/services/data-rights.service'
 
@@ -31,14 +31,16 @@ vi.mock('@/modules/aircraft/stores/fleet.store', () => {
   }
 })
 
-const exportMock = vi.fn<(now?: Date) => Promise<BulkExportEnvelope>>()
-const serializeMock = vi.fn<(envelope: BulkExportEnvelope) => string>()
+type Envelope = BulkExportResult['envelope']
+
+const exportMock = vi.fn<(now?: Date) => Promise<BulkExportResult>>()
+const serializeMock = vi.fn<(envelope: Envelope) => string>()
 const wipeMock = vi.fn<() => Promise<WipeReport>>()
 
 vi.mock('@/modules/aircraft/services/data-rights.service', () => {
   return {
     exportAllProfiles: (now?: Date) => exportMock(now),
-    serializeBulkExport: (envelope: BulkExportEnvelope) => serializeMock(envelope),
+    serializeBulkExport: (envelope: Envelope) => serializeMock(envelope),
     wipeAllLocalData: () => wipeMock(),
   }
 })
@@ -49,16 +51,21 @@ function defaultWipeReport(): WipeReport {
     indexedDbCleared: true,
     localStorageKeysCleared: [],
     sessionStorageKeysCleared: [],
+    failures: [],
+    complete: true,
     clearedAt: '2026-05-27T12:00:00.000Z',
   }
 }
 
-function defaultEnvelope(): BulkExportEnvelope {
+function defaultExportResult(): BulkExportResult {
   return {
-    exportSchemaVersion: 1,
-    exportedAt: '2026-05-27T12:00:00.000Z',
-    profileCount: 0,
-    profiles: [],
+    envelope: {
+      exportSchemaVersion: 1,
+      exportedAt: '2026-05-27T12:00:00.000Z',
+      profileCount: 0,
+      profiles: [],
+    },
+    omitted: [],
   }
 }
 
@@ -68,7 +75,7 @@ beforeEach(() => {
   serializeMock.mockReset()
   wipeMock.mockReset()
   loadAllMock.mockClear()
-  exportMock.mockResolvedValue(defaultEnvelope())
+  exportMock.mockResolvedValue(defaultExportResult())
   serializeMock.mockReturnValue('{"exportSchemaVersion":1}')
   wipeMock.mockResolvedValue(defaultWipeReport())
   fleetProfiles.value = []
@@ -92,10 +99,13 @@ describe('PrivacyView — bulk export (REQ-SYS-015)', () => {
   it('triggers exportAllProfiles + serializeBulkExport and surfaces the timestamp', async () => {
     fleetProfiles.value = [{ id: 'p1' }, { id: 'p2' }]
     exportMock.mockResolvedValueOnce({
-      exportSchemaVersion: 1,
-      exportedAt: '2026-05-27T12:00:00.000Z',
-      profileCount: 2,
-      profiles: [],
+      envelope: {
+        exportSchemaVersion: 1,
+        exportedAt: '2026-05-27T12:00:00.000Z',
+        profileCount: 2,
+        profiles: [],
+      },
+      omitted: [],
     })
 
     const wrapper = mountView()
@@ -112,6 +122,52 @@ describe('PrivacyView — bulk export (REQ-SYS-015)', () => {
     const notice = wrapper.find('[data-testid="privacy-export-notice"]')
     expect(notice.exists()).toBe(true)
     expect(notice.text()).toContain('Bulk JSON export generated')
+    // No unreadable profiles → no incomplete-export warning.
+    expect(wrapper.find('[data-testid="privacy-export-omitted"]').exists()).toBe(false)
+  })
+
+  it('warns that the export is incomplete when profiles could not be included (M1)', async () => {
+    fleetProfiles.value = [{ id: 'p1' }]
+    exportMock.mockResolvedValueOnce({
+      envelope: {
+        exportSchemaVersion: 1,
+        exportedAt: '2026-05-27T12:00:00.000Z',
+        profileCount: 1,
+        profiles: [],
+      },
+      omitted: [
+        {
+          id: 'p-future',
+          reason: 'unsupported-future-version',
+          storedVersion: 99,
+          detail: 'newer build',
+        },
+      ],
+    })
+
+    const wrapper = mountView()
+    await flushPromises()
+    await wrapper.find('[data-testid="export-all-btn"]').trigger('click')
+    await flushPromises()
+
+    const warn = wrapper.find('[data-testid="privacy-export-omitted"]')
+    expect(warn.exists()).toBe(true)
+    expect(warn.text()).toContain('not a complete copy')
+  })
+
+  it('surfaces an error banner when the export fails (m3)', async () => {
+    fleetProfiles.value = [{ id: 'p1' }]
+    exportMock.mockRejectedValueOnce(new Error('export blew up'))
+
+    const wrapper = mountView()
+    await flushPromises()
+    await wrapper.find('[data-testid="export-all-btn"]').trigger('click')
+    await flushPromises()
+
+    const err = wrapper.find('[data-testid="privacy-error"]')
+    expect(err.exists()).toBe(true)
+    expect(err.text()).toContain('export blew up')
+    expect(wrapper.find('[data-testid="privacy-export-notice"]').exists()).toBe(false)
   })
 
   it('disables the export button when the fleet is empty', async () => {
@@ -163,5 +219,49 @@ describe('PrivacyView — delete-all (REQ-SYS-014)', () => {
     await nextTick()
     expect(wrapper.find('[data-testid="wipe-dialog"]').exists()).toBe(false)
     expect(wipeMock).not.toHaveBeenCalled()
+  })
+
+  it('reports an incomplete erasure as CRITICAL and never shows the success notice (M2)', async () => {
+    wipeMock.mockResolvedValueOnce({
+      profilesDeleted: 1,
+      indexedDbCleared: true,
+      localStorageKeysCleared: ['aerodash:session:payload'],
+      sessionStorageKeysCleared: [],
+      failures: [{ store: 'localStorage', key: 'aerodash-theme', detail: 'removeItem failed' }],
+      complete: false,
+      clearedAt: '2026-05-27T12:00:00.000Z',
+    })
+
+    const wrapper = mountView()
+    await flushPromises()
+    await wrapper.find('[data-testid="wipe-request-btn"]').trigger('click')
+    await nextTick()
+    await wrapper.find('[data-testid="wipe-confirm-input"]').setValue('DELETE ALL DATA')
+    await nextTick()
+    await wrapper.find('[data-testid="wipe-confirm-btn"]').trigger('click')
+    await flushPromises()
+
+    expect(wrapper.find('[data-testid="privacy-wipe-notice"]').exists()).toBe(false)
+    const err = wrapper.find('[data-testid="privacy-error"]')
+    expect(err.exists()).toBe(true)
+    expect(err.text()).toContain('Erasure incomplete')
+  })
+
+  it('surfaces an error banner when wipeAllLocalData rejects (m3)', async () => {
+    wipeMock.mockRejectedValueOnce(new Error('wipe blew up'))
+
+    const wrapper = mountView()
+    await flushPromises()
+    await wrapper.find('[data-testid="wipe-request-btn"]').trigger('click')
+    await nextTick()
+    await wrapper.find('[data-testid="wipe-confirm-input"]').setValue('DELETE ALL DATA')
+    await nextTick()
+    await wrapper.find('[data-testid="wipe-confirm-btn"]').trigger('click')
+    await flushPromises()
+
+    const err = wrapper.find('[data-testid="privacy-error"]')
+    expect(err.exists()).toBe(true)
+    expect(err.text()).toContain('wipe blew up')
+    expect(wrapper.find('[data-testid="privacy-wipe-notice"]').exists()).toBe(false)
   })
 })
