@@ -5,7 +5,7 @@
  * @see frontend/src/modules/aircraft/services/data-rights.service.ts
  */
 
-// @IT-SYS-STORE-001@ (FROM: @IMP-SYS-STORE-013@, @REQ-SYS-014@, @REQ-SYS-015@)
+// @IT-SYS-STORE-002@ (FROM: @IMP-SYS-STORE-021@, @REQ-SYS-014@, @REQ-SYS-015@)
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import 'fake-indexeddb/auto'

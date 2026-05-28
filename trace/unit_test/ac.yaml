@@ -1784,7 +1784,7 @@ AC Store — ICAO Registration Validator (Hyphen-Abuse Rejection) (Unit)
       - frontend/src/modules/aircraft/__tests__/profile.validator.spec.ts
 
 AC Store — Export Data Minimisation (#273)
-  UT-AC-STORE-124
+  UT-AC-STORE-128
     title: excludes operating-cost fields from the default export (DP-008/DP-009)
     impl:
       - IMP-AC-STORE-010
