@@ -1,21 +1,37 @@
 <script setup lang="ts">
 // @IMP-UI-SHARED-002@ (FROM: @REQ-UI-011@, @REQ-SYS-001@)
-// @IMP-SYS-SHARED-003@ (FROM: @REQ-SYS-005@)
 // @IMP-SYS-SHARED-005@ (FROM: @REQ-SYS-006@)
+// @IMP-SYS-SHARED-009@ (FROM: @REQ-SYS-006@, @H-019@)
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { RouterView, RouterLink, useRoute } from 'vue-router'
 import { useTheme } from '@/shared/composables/useTheme'
 import AppLogo from '@/shared/components/AppLogo.vue'
 import AppVersion from '@/shared/components/AppVersion.vue'
 import { usePwaUpdateStore } from '@/stores/pwa-update.store'
-import { useAppVersionStore } from '@/stores/app-version.store'
+import { useAppVersionStore, attachConnectivityRefresh } from '@/stores/app-version.store'
 
 const pwaStore = usePwaUpdateStore()
 const appVersionStore = useAppVersionStore()
 
-// REQ-SYS-006: check minimum safe version on startup (online-only)
+// REQ-SYS-006 / H-019 (issue #271): check minimum safe version on every
+// mount. The check itself works offline — it reads the last-known
+// minSafeVersion from IndexedDB and enforces it even when navigator.onLine
+// is false — so resurrecting an old, kill-switched bundle via Service Worker
+// rollback cannot bypass the gate by going offline. When connectivity is
+// available we also opportunistically refresh from /version.json and bind
+// `window.online` so a return to network re-checks without a cold start.
+let detachVersionConnectivity: (() => void) | null = null
 onMounted(() => {
   void appVersionStore.checkMinSafeVersion()
+  // Detach any prior listener before re-binding. App.vue mounts once for the
+  // SPA lifetime today, so this is dead-code-safe, but it hardens against a
+  // future error-boundary / HMR re-mount leaking a duplicate listener (n1).
+  detachVersionConnectivity?.()
+  detachVersionConnectivity = attachConnectivityRefresh()
+})
+onBeforeUnmount(() => {
+  detachVersionConnectivity?.()
+  detachVersionConnectivity = null
 })
 
 const { theme, toggleTheme } = useTheme()

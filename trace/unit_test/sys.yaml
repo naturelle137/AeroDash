@@ -1205,6 +1205,9 @@ SYS (auto)
     title: Data-rights service unit tests — export serialization + constants
     files:
       - frontend/src/modules/aircraft/__tests__/data-rights.service.spec.ts
+    title: app-version.cache load returns null on first install (no record present)
+    files:
+      - frontend/src/stores/__tests__/app-version.cache.spec.ts
     impl:
       - IMP-SYS-STORE-013
 
@@ -1221,3 +1224,351 @@ SYS (auto)
       - IMP-SYS-STORE-001
     files:
       - frontend/src/stores/__tests__/session-persistence.store.spec.ts
+    title: app-version.cache persist + load round-trip writes and reads SemVer + fetchedAt
+    files:
+      - frontend/src/stores/__tests__/app-version.cache.spec.ts
+    impl:
+      - IMP-SYS-STORE-014
+
+  UT-SYS-STORE-048
+    title: app-version.cache overwrites prior record on second persist (highest-floor selection lives in caller)
+    files:
+      - frontend/src/stores/__tests__/app-version.cache.spec.ts
+    impl:
+      - IMP-SYS-STORE-014
+
+  UT-SYS-STORE-049
+    title: app-version.cache rejects non-SemVer input (defence against corrupt callers)
+    files:
+      - frontend/src/stores/__tests__/app-version.cache.spec.ts
+    impl:
+      - IMP-SYS-STORE-014
+
+  UT-SYS-STORE-050
+    title: app-version.cache accepts pre-release SemVer suffix (0.4.0-alpha)
+    files:
+      - frontend/src/stores/__tests__/app-version.cache.spec.ts
+    impl:
+      - IMP-SYS-STORE-015
+
+  UT-SYS-STORE-051
+    title: app-version.cache treats a corrupt stored record as absent (shape guard)
+    files:
+      - frontend/src/stores/__tests__/app-version.cache.spec.ts
+    impl:
+      - IMP-SYS-STORE-015
+
+  UT-SYS-STORE-052
+    title: app-version.cache falls back to null/false when IndexedDB is unreachable (Safari private mode)
+    files:
+      - frontend/src/stores/__tests__/app-version.cache.spec.ts
+    impl:
+      - IMP-SYS-STORE-015
+
+  UT-SYS-STORE-053
+    title: app-version.cache clear removes the cached record
+    files:
+      - frontend/src/stores/__tests__/app-version.cache.spec.ts
+    impl:
+      - IMP-SYS-STORE-016
+
+  UT-SYS-STORE-054
+    title: app-version.cache clear is idempotent on an empty store
+    files:
+      - frontend/src/stores/__tests__/app-version.cache.spec.ts
+    impl:
+      - IMP-SYS-STORE-014
+
+  UT-SYS-STORE-055
+    title: fetchRemoteMinSafeVersion returns the SemVer string on a 200 JSON response (happy path)
+    files:
+      - frontend/src/stores/__tests__/app-version.remote.spec.ts
+    impl:
+      - IMP-SYS-STORE-017
+
+  UT-SYS-STORE-056
+    title: fetchRemoteMinSafeVersion honours an explicit endpoint override (test injection)
+    files:
+      - frontend/src/stores/__tests__/app-version.remote.spec.ts
+    impl:
+      - IMP-SYS-STORE-017
+
+  UT-SYS-STORE-057
+    title: fetchRemoteMinSafeVersion returns null on HTTP non-2xx (404 / 500)
+    files:
+      - frontend/src/stores/__tests__/app-version.remote.spec.ts
+    impl:
+      - IMP-SYS-STORE-017
+
+  UT-SYS-STORE-058
+    title: fetchRemoteMinSafeVersion returns null when fetch rejects (network error)
+    files:
+      - frontend/src/stores/__tests__/app-version.remote.spec.ts
+    impl:
+      - IMP-SYS-STORE-017
+
+  UT-SYS-STORE-059
+    title: fetchRemoteMinSafeVersion returns null when the body is not valid JSON
+    files:
+      - frontend/src/stores/__tests__/app-version.remote.spec.ts
+    impl:
+      - IMP-SYS-STORE-017
+
+  UT-SYS-STORE-060
+    title: fetchRemoteMinSafeVersion returns null when JSON is missing a minSafeVersion field
+    files:
+      - frontend/src/stores/__tests__/app-version.remote.spec.ts
+    impl:
+      - IMP-SYS-STORE-017
+
+  UT-SYS-STORE-061
+    title: fetchRemoteMinSafeVersion returns null when minSafeVersion is not a SemVer
+    files:
+      - frontend/src/stores/__tests__/app-version.remote.spec.ts
+    impl:
+      - IMP-SYS-STORE-017
+
+  UT-SYS-STORE-062
+    title: fetchRemoteMinSafeVersion returns null when no fetch implementation is available
+    files:
+      - frontend/src/stores/__tests__/app-version.remote.spec.ts
+    impl:
+      - IMP-SYS-STORE-017
+
+  UT-SYS-STORE-063
+    title: fetchRemoteMinSafeVersion returns null when the response body exceeds the MAX_BODY_BYTES guard
+    files:
+      - frontend/src/stores/__tests__/app-version.remote.spec.ts
+    impl:
+      - IMP-SYS-STORE-017
+
+  UT-SYS-STORE-064
+    title: useAppVersionStore.checkMinSafeVersion online no-cache run completes and persists the build-time floor
+    files:
+      - frontend/src/stores/__tests__/app-version.store.spec.ts
+    impl:
+      - IMP-SYS-STORE-008
+
+  UT-SYS-STORE-065
+    title: useAppVersionStore.checkMinSafeVersion first-install OFFLINE bypass — no cache, build-time only
+    files:
+      - frontend/src/stores/__tests__/app-version.store.spec.ts
+    impl:
+      - IMP-SYS-STORE-008
+
+  UT-SYS-STORE-066
+    title: useAppVersionStore.checkMinSafeVersion warns when cached record is older than TTL but still enforces it
+    files:
+      - frontend/src/stores/__tests__/app-version.store.spec.ts
+    impl:
+      - IMP-SYS-STORE-008
+
+  UT-SYS-STORE-067
+    title: useAppVersionStore.checkMinSafeVersion uses the higher of build-time, cached, and remote
+    files:
+      - frontend/src/stores/__tests__/app-version.store.spec.ts
+    impl:
+      - IMP-SYS-STORE-008
+
+  UT-SYS-STORE-068
+    title: useAppVersionStore.checkMinSafeVersion does not regress to a lower remote value
+    files:
+      - frontend/src/stores/__tests__/app-version.store.spec.ts
+    impl:
+      - IMP-SYS-STORE-008
+
+  UT-SYS-STORE-069
+    title: useAppVersionStore.checkMinSafeVersion logs WARN when remote refresh fails but keeps the existing floor
+    files:
+      - frontend/src/stores/__tests__/app-version.store.spec.ts
+    impl:
+      - IMP-SYS-STORE-008
+
+  UT-SYS-STORE-070
+    title: useAppVersionStore.checkMinSafeVersion persists cached/build-time floor on every successful online check
+    files:
+      - frontend/src/stores/__tests__/app-version.store.spec.ts
+    impl:
+      - IMP-SYS-STORE-008
+
+  UT-SYS-STORE-071
+    title: useAppVersionStore.attachConnectivityRefresh re-runs checkMinSafeVersion on window `online` and is detachable
+    files:
+      - frontend/src/stores/__tests__/app-version.store.spec.ts
+    impl:
+      - IMP-SYS-STORE-018
+
+  UT-SYS-STORE-072
+    title: isVersionBelow correctly orders versions carrying SemVer `+build` metadata (PR-review Major #1 fix)
+    files:
+      - frontend/src/stores/__tests__/app-version.store.spec.ts
+    impl:
+      - IMP-SYS-STORE-007
+
+  UT-SYS-STORE-073
+    title: isVersionBelow orders pre-release identifiers per SemVer §11 (PR-review Major #2 fix)
+    files:
+      - frontend/src/stores/__tests__/app-version.store.spec.ts
+    impl:
+      - IMP-SYS-STORE-007
+
+  UT-SYS-STORE-074
+    title: checkMinSafeVersion emits differentiated log levels for absent (INFO) / corrupt (WARN) / unavailable (WARN) cache outcomes (PR-review Minor #10 fix)
+    files:
+      - frontend/src/stores/__tests__/app-version.store.spec.ts
+    impl:
+      - IMP-SYS-STORE-008
+
+  UT-SYS-STORE-075
+    title: checkMinSafeVersion passes a frozen clock to persistCachedMinSafeVersion so on-disk and in-memory timestamps cannot drift (PR-review Minor #11 fix)
+    files:
+      - frontend/src/stores/__tests__/app-version.store.spec.ts
+    impl:
+      - IMP-SYS-STORE-008
+
+  UT-SYS-STORE-076
+    title: checkMinSafeVersion clears cacheFetchedAt when persist returns false so diagnostic state stays consistent with disk (PR-review Minor #12 fix)
+    files:
+      - frontend/src/stores/__tests__/app-version.store.spec.ts
+    impl:
+      - IMP-SYS-STORE-008
+
+  UT-SYS-STORE-077
+    title: checkMinSafeVersion single-flight latch — concurrent invocations coalesce onto one in-flight promise (PR-review Minor #8 fix)
+    files:
+      - frontend/src/stores/__tests__/app-version.store.spec.ts
+    impl:
+      - IMP-SYS-STORE-008
+
+  UT-SYS-STORE-078
+    title: inspectCachedMinSafeVersion reports `absent` on virgin store and `hit` after persist (PR-review Minor #10 surface)
+    files:
+      - frontend/src/stores/__tests__/app-version.cache.spec.ts
+    impl:
+      - IMP-SYS-STORE-014
+
+  UT-SYS-STORE-079
+    title: inspectCachedMinSafeVersion reports `corrupt` for a malformed record (PR-review Minor #10 fix)
+    files:
+      - frontend/src/stores/__tests__/app-version.cache.spec.ts
+    impl:
+      - IMP-SYS-STORE-014
+
+  UT-SYS-STORE-080
+    title: inspectCachedMinSafeVersion reports `unavailable` when storage throws (PR-review Minor #10 fix)
+    files:
+      - frontend/src/stores/__tests__/app-version.cache.spec.ts
+    impl:
+      - IMP-SYS-STORE-014
+
+  UT-SYS-STORE-081
+    title: persistCachedMinSafeVersion resolves only after tx.oncomplete so writes are durable across tab-kill (PR-review Major #3 fix)
+    files:
+      - frontend/src/stores/__tests__/app-version.cache.spec.ts
+    impl:
+      - IMP-SYS-STORE-015
+
+  UT-SYS-STORE-082
+    title: fetchRemoteMinSafeVersion enforces the body cap pre-flight via Content-Length before reading the body (PR-review Minor #5 fix)
+    files:
+      - frontend/src/stores/__tests__/app-version.remote.spec.ts
+    impl:
+      - IMP-SYS-STORE-017
+
+  UT-SYS-STORE-083
+    title: fetchRemoteMinSafeVersion times out via Promise.race when AbortController is unavailable (PR-review Minor #6 fix)
+    files:
+      - frontend/src/stores/__tests__/app-version.remote.spec.ts
+    impl:
+      - IMP-SYS-STORE-017
+
+  UT-SYS-STORE-084
+    title: deployment guard — shipped /version.json declares a structurally valid minSafeVersion (PR-review Blocker B1)
+    files:
+      - frontend/src/stores/__tests__/app-version.deployment.spec.ts
+    impl:
+      - IMP-SYS-STORE-017
+
+  UT-SYS-STORE-085
+    title: deployment guard — shipped /version.json minSafeVersion is not above the deployed app version, so the bundle cannot self-brick (PR-review Blocker B1)
+    files:
+      - frontend/src/stores/__tests__/app-version.deployment.spec.ts
+    impl:
+      - IMP-SYS-STORE-017
+
+  UT-SYS-STORE-086
+    title: fetchRemoteMinSafeVersion accepts a minSafeVersion carrying both pre-release and build metadata (PR-review Major #1 fix — SEMVER_RE no longer rejects 1.2.3-rc.1+sha)
+    files:
+      - frontend/src/stores/__tests__/app-version.remote.spec.ts
+    impl:
+      - IMP-SYS-STORE-017
+
+  UT-SYS-STORE-087
+    title: fetchRemoteMinSafeVersion rejects a minSafeVersion with a leading-zero or empty pre-release identifier (PR-review Nit #3 — SemVer §9 strictness)
+    files:
+      - frontend/src/stores/__tests__/app-version.remote.spec.ts
+    impl:
+      - IMP-SYS-STORE-017
+
+  UT-SYS-STORE-088
+    title: fetchRemoteMinSafeVersion times out via the wall-clock race even when AbortController is present but the fetch ignores the signal (PR-review Minor #5 fix)
+    files:
+      - frontend/src/stores/__tests__/app-version.remote.spec.ts
+    impl:
+      - IMP-SYS-STORE-017
+
+  UT-SYS-STORE-089
+    title: pickHigherVersion returns the first operand and logs an ERROR when both operands are invalid (PR-review Nit #4 fix)
+    files:
+      - frontend/src/stores/__tests__/app-version.store.spec.ts
+    impl:
+      - IMP-SYS-SHARED-010
+
+  UT-SYS-STORE-090
+    title: resolveBuildTimeMinSafeVersion returns the value unchanged when the build-time constant is valid SemVer (PR-review Major #2 fix)
+    files:
+      - frontend/src/stores/__tests__/app-version.store.spec.ts
+    impl:
+      - IMP-SYS-STORE-020
+
+  UT-SYS-STORE-091
+    title: resolveBuildTimeMinSafeVersion substitutes a fail-closed sentinel for an invalid build-time constant so a misbuilt bundle BLOCKS (PR-review Major #2 fix)
+    files:
+      - frontend/src/stores/__tests__/app-version.store.spec.ts
+    impl:
+      - IMP-SYS-STORE-020
+
+  UT-SYS-STORE-092
+    title: fetchRemoteMinSafeVersion returns null on a present-but-malformed Content-Length without reading the body (PR-review Minor #4 fix)
+    files:
+      - frontend/src/stores/__tests__/app-version.remote.spec.ts
+    impl:
+      - IMP-SYS-STORE-017
+
+  UT-SYS-STORE-093
+    title: fetchRemoteMinSafeVersion rejects a body whose UTF-8 byte length exceeds the cap even when the UTF-16 code-unit count would not (PR-review Minor #3 fix)
+    files:
+      - frontend/src/stores/__tests__/app-version.remote.spec.ts
+    impl:
+      - IMP-SYS-STORE-017
+
+  UT-SYS-STORE-094
+    title: checkMinSafeVersion never persists the fail-closed sentinel to the cache, so a misbuilt bundle cannot launder it into a durable floor that bricks later good builds (review-iteration fix)
+    files:
+      - frontend/src/stores/__tests__/app-version.store.spec.ts
+    impl:
+      - IMP-SYS-STORE-008
+
+  UT-SYS-STORE-095
+    title: deployment guard — the build-time __MIN_SAFE_VERSION__ floor is not above the deployed __APP_VERSION__, closing the self-brick path the package.json-only check missed (review-iteration B1 hardening)
+    files:
+      - frontend/src/stores/__tests__/app-version.deployment.spec.ts
+    impl:
+      - IMP-SYS-STORE-020
+
+  UT-SYS-STORE-096
+    title: isVersionBelow orders very long numeric pre-release identifiers (beyond 2^53) by value via length-then-lexical comparison instead of collapsing to the same double through Number() (review-iteration fix)
+    files:
+      - frontend/src/stores/__tests__/app-version.store.spec.ts
+    impl:
+      - IMP-SYS-STORE-007
