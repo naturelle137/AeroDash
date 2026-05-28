@@ -25,9 +25,13 @@ import { fleetRepository, DB_NAME, type MigrationDiagnostic } from './fleet.repo
 //   • localStorage `aerodash:session:payload`   — auto-saved M&B session
 //   • sessionStorage `aerodash.session.active`  — PWA cold-start marker
 //
-// The localStorage iteration below also removes any other key whose name
-// begins with `aerodash` (e.g. `aerodash-theme`) so a future component that
-// adds a new key cannot silently survive a Delete-All-Data action.
+// The localStorage iteration below also removes any other AeroDash-namespaced
+// key — one that is exactly `aerodash` or `aerodash` followed by a separator
+// (`-`, `:`, `.`), e.g. `aerodash-theme` — so a future component that adds a
+// namespaced key cannot silently survive a Delete-All-Data action. A
+// separator-less key such as `aerodashboard` is a *different* namespace and is
+// deliberately out of scope (see the `isAerodashKey` invariant below); a new
+// key meant to be erased must therefore use the `aerodash<sep>` prefix.
 
 /**
  * Identifier of the IndexedDB database holding the fleet. Re-exported from

@@ -215,6 +215,10 @@ describe('wipeAllLocalData — Repository-Wide Wipe (REQ-SYS-014)', () => {
     localStorage.setItem('aerodash.last-airport', 'EDDF')
     // Unrelated keys must survive — only aerodash-prefixed keys are cleared.
     localStorage.setItem('other-app-key', 'keep me')
+    // A separator-less key is a different namespace and is intentionally out of
+    // scope: the matcher requires `aerodash` to be bare or followed by a
+    // separator, so `aerodashboard` must NOT be swept.
+    localStorage.setItem('aerodashboard', 'keep me too')
     sessionStorage.setItem('aerodash.session.active', '1')
     sessionStorage.setItem('aerodash:diagnostic', 'ok')
     sessionStorage.setItem('untouched-key', 'keep me too')
@@ -235,6 +239,7 @@ describe('wipeAllLocalData — Repository-Wide Wipe (REQ-SYS-014)', () => {
     expect(localStorage.getItem('aerodash-theme')).toBeNull()
     expect(localStorage.getItem('aerodash.last-airport')).toBeNull()
     expect(localStorage.getItem('other-app-key')).toBe('keep me')
+    expect(localStorage.getItem('aerodashboard')).toBe('keep me too')
     expect(sessionStorage.getItem('aerodash.session.active')).toBeNull()
     expect(sessionStorage.getItem('aerodash:diagnostic')).toBeNull()
     expect(sessionStorage.getItem('untouched-key')).toBe('keep me too')
