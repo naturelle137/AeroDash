@@ -410,3 +410,10 @@ MB (auto)
       - frontend/src/modules/mass-balance/stores/mass-balance.store.ts
     req:
       - REQ-UQ-006
+
+  IMP-MB-DATA-004
+    title: Occupant-Mass Preset Constants (source-cited via data-constants registry)
+    files:
+      - frontend/src/modules/mass-balance/data/occupant-presets.ts
+    req:
+      - REQ-UQ-001

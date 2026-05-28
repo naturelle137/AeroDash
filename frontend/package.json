@@ -29,6 +29,7 @@
     "trace:check:structural": "node scripts/trace/index.mjs check --structural-only --baseline",
     "trace:sync": "node scripts/trace/index.mjs sync",
     "trace:sync:apply": "node scripts/trace/index.mjs sync --apply",
+    "check:data-constants": "node scripts/data-constants/index.mjs",
     "build-only": "vite build",
     "type-check": "vue-tsc --build",
     "lint": "run-s lint:*",
