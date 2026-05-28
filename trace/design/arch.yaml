@@ -79,6 +79,13 @@ Architecture Design
       - REQ-AC-005
     file: docs/architecture/aircraft-fleet-module.md
 
+  DES-ARCH-011
+    title: Local Data-Rights (Erasure & Bulk Export)
+    req:
+      - REQ-SYS-014
+      - REQ-SYS-015
+    file: docs/architecture/data-rights.md
+
 ARCH (auto)
   DES-ARCH-010
     title: TODO: describe this artifact

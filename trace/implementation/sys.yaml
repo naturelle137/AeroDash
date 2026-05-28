@@ -273,3 +273,5 @@ SYS (auto)
     req:
       - REQ-SYS-014
       - REQ-SYS-015
+    des:
+      - DES-ARCH-011

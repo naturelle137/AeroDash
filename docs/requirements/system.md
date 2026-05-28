@@ -143,7 +143,7 @@ This document defines the system behavior using the **EARS** (Easy Approach to R
 **Rationale:** GDPR Art. 17 right to erasure (DP-002, DP-003). The control must encompass every category of personal data the application retains — not one storage mechanism — so the right is honoured in full regardless of where or how that data is held, including any account, profile, or synchronised data added in future. Which stores exist and how deletion is performed are design concerns; when a new personal-data store is introduced, this requirement's verification must be revisited.
 **Priority:** P2
 **Status:** Implemented
-**Design Reference:** n/a
+**Design Reference:** [Data-Rights Design](../architecture/data-rights.md)
 
 <!-- @REQ-SYS-015@ -->
 
@@ -153,12 +153,13 @@ This document defines the system behavior using the **EARS** (Easy Approach to R
 **Rationale:** GDPR Art. 15 (right of access) and Art. 20 (data portability) (DP-002). A complete, portable copy lets the user inspect, archive, or migrate their data — including before exercising erasure (REQ-SYS-014). The concrete serialisation format and delivery mechanism are design concerns, and the export must extend to any account, profile, or synchronised data added in future.
 **Priority:** P2
 **Status:** Implemented
-**Design Reference:** n/a
+**Design Reference:** [Data-Rights Design](../architecture/data-rights.md)
 
 ---
 
 ## Design References
 
 - **<a name="notificationScheme"></a>Notification Scheme:** [`docs/architecture/notification_schema.md`](../architecture/notification_schema.md)
+- **<a name="dataRights"></a>Data-Rights (Erasure & Bulk Export):** [`docs/architecture/data-rights.md`](../architecture/data-rights.md)
 
 ---
