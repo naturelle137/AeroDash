@@ -85,8 +85,14 @@ const navItems: NavItem[] = [
   { id: 'privacy',     label: 'Privacy',     path: '/privacy',     icon: 'privacy' },
 ]
 
-/** Bottom nav shows 4 primary items on mobile */
-const bottomNavItems = navItems.slice(0, 4)
+// Mobile bottom nav (phone-width < 768px, where the sidebar is hidden): the
+// primary task destinations plus Privacy, so the GDPR data-rights surface
+// (REQ-SYS-014/015) stays reachable on phones. The icon-rail sidebar already
+// exposes every destination, including Privacy, at >= 768px.
+const BOTTOM_NAV_IDS = ['home', 'flight-prep', 'fleet', 'weather', 'privacy'] as const
+const bottomNavItems = BOTTOM_NAV_IDS.map((id) => navItems.find((item) => item.id === id)).filter(
+  (item): item is NavItem => item !== undefined,
+)
 
 function isActive(item: NavItem): boolean {
   if (item.path === '/') return route.path === '/'
@@ -318,6 +324,10 @@ const themeLabel = computed(() =>
               </svg>
               <svg v-else-if="item.icon === 'wx'" width="22" height="22" viewBox="0 0 20 20" fill="none">
                 <path d="M15 13a4 4 0 10-7.938-.5A3 3 0 106 18h9a3 3 0 000-6h-.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+              <svg v-else-if="item.icon === 'privacy'" width="22" height="22" viewBox="0 0 20 20" fill="none">
+                <path d="M10 2l6 2.5v5c0 4-3 7-6 8-3-1-6-4-6-8v-5L10 2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+                <path d="M7.5 10l2 2 3-3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
               </svg>
             </span>
             <span class="bottom-nav__label">{{ item.label }}</span>

@@ -113,7 +113,7 @@ UI (auto)
       - REQ-AC-005
 
   IMP-UI-SHARED-007
-    title: App shell — Privacy sidebar nav link
+    title: App shell — Privacy nav link (sidebar + mobile bottom nav)
     files:
       - frontend/src/App.vue
     req:
