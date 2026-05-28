@@ -63,6 +63,7 @@ Color must never be the sole indicator of application state or physical safety.
 
 - **Form Fields:** Warning or Error input fields must feature an explicit, bold icon (e.g., `!` or `X`) integrated into the input box or helper text, redundantly reinforcing the colored border.
 - **Visualizations (Charts/Graphs):** Data elements conveying an unsafe state must alter their physical characteristics. For example, a boundary-violating chart point must change from a standard circle to an explicit `X` or Triangle. Erroneous bounding areas (polygons) must use a crosshatched pattern-fill, ensuring the breach is definitively readable by color-blind users or in monochrome environments.
+  - **CG envelope chart mapping (`IMP-MB-UI-009`):** mass points render SAFE → circle, WARNING → triangle (▲), CRITICAL → cross (×); the CRITICAL envelope fill uses a dense crosshatch. Severity is never colour-only. Each severity's marker colour clears WCAG AAA (≥ 7:1) against the dark chart backdrop (`--color-surface-card`, `#252525`).
 
 ---
 
