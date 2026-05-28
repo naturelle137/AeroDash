@@ -284,6 +284,41 @@ describe('useSessionPersistenceStore — clearSession()', () => {
   })
 })
 
+describe('useSessionPersistenceStore — cancelPendingSave()', () => {
+  // @UT-SYS-STORE-047@ (FROM: @IMP-SYS-STORE-001@)
+  it('cancels a pending debounced save but leaves the persisted payload in place', async () => {
+    loadProfile(MOCK_PROFILE_A)
+    const store = useSessionPersistenceStore()
+    store.startWatching()
+
+    const mbStore = useMassBalanceStore()
+    // First edit → persist a baseline (weight 90) via the debounced save.
+    mbStore.updateStationWeight(0, 90)
+    await nextTick()
+    vi.runAllTimers()
+    expect(store.restoreSession()!.stations[0]!.weight).toBe(90)
+
+    // Second edit schedules another save; cancel it before the timer fires.
+    mbStore.updateStationWeight(0, 55)
+    await nextTick()
+    store.cancelPendingSave()
+    vi.runAllTimers()
+
+    // The cancelled save did not run (weight 55 not persisted) ...
+    const restored = store.restoreSession()
+    expect(restored).not.toBeNull()
+    expect(restored!.stations[0]!.weight).toBe(90)
+    // ... and the key is still present for a Delete-All-Data sweep to clear.
+    expect(localStorage.getItem('aerodash:session:payload')).not.toBeNull()
+  })
+
+  // @UT-SYS-STORE-048@ (FROM: @IMP-SYS-STORE-001@)
+  it('is a no-op when no save is pending', () => {
+    const store = useSessionPersistenceStore()
+    expect(() => store.cancelPendingSave()).not.toThrow()
+  })
+})
+
 describe('useSessionPersistenceStore — startWatching() debounced auto-save', () => {
   // @UT-SYS-STORE-013@ (FROM: @IMP-SYS-STORE-001@)
   it('does not save immediately on startWatching — waits for debounce', () => {

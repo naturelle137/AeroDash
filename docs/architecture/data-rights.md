@@ -124,11 +124,12 @@ Erasure still clears both (§3); only *portability* excludes them.
   any export — and repeats it in the wipe confirmation dialog. The count is read
   from `fleetStore.unreadableProfileCount`.
 - A confirmed erasure first cancels any pending debounced session autosave
-  (`sessionPersistenceStore.clearSession()`) so a timer scheduled just before the
-  wipe cannot re-write the `aerodash:session:payload` key afterwards. In-memory
-  Mass & Balance / session state held by the running tab is not mutated by the
-  wipe; it re-initialises clean on the next app load (the persisted key is gone,
-  so `restoreSession()` finds nothing to restore).
+  (`sessionPersistenceStore.cancelPendingSave()`) so a timer scheduled just
+  before the wipe cannot re-write the `aerodash:session:payload` key afterwards.
+  The cancel leaves the key in place; `wipeAllLocalData()`'s sweep then removes
+  and counts it. In-memory Mass & Balance / session state held by the running
+  tab is not mutated by the wipe; it re-initialises clean on the next app load
+  (the persisted key is gone, so `restoreSession()` finds nothing to restore).
 
 ## 6. Future Scope
 

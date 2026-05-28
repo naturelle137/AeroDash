@@ -108,9 +108,10 @@ async function onConfirmWipe(): Promise<void> {
   busy.value = true
   try {
     // Cancel any pending debounced session autosave first, so a timer scheduled
-    // just before this wipe cannot re-write the erased `aerodash:session:payload`
-    // key after the fact (REQ-SYS-014 — erasure must be irrecoverable).
-    sessionStore.clearSession()
+    // just before this wipe cannot re-write the `aerodash:session:payload` key
+    // after the fact (REQ-SYS-014 — erasure must be irrecoverable). The key
+    // itself is left for wipeAllLocalData()'s sweep to remove and count.
+    sessionStore.cancelPendingSave()
     const report = await wipeAllLocalData()
     dialog.value = 'none'
     wipeConfirmText.value = ''
