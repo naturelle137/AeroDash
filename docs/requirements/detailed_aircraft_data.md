@@ -226,6 +226,16 @@ This document defines the detailed aircraft data behavior using the **EARS** (Ea
 **Status:** Approved
 **Design Reference:** [ADR-009: Powertrain Discriminator](../architecture/adr/009-powertrain-discriminator.md)
 
+<!-- @REQ-AD-023@ -->
+
+### REQ-AD-023: Operating-Cost Export Minimisation
+
+**Requirement:** When the user exports an aircraft profile, the system shall exclude the operating-cost fields (`costPerHour`, `fuelCostIncluded`) from the exported exchange file, unless the user explicitly opts in to include operating-cost data.
+**Rationale:** Data minimisation (GDPR Art. 5(1)(c)). `costPerHour` is private financial data that is not required to share or back up an aircraft configuration, and a profile is frequently exchanged between pilots or clubs; `fuelCostIncluded` is solely a qualifier of `costPerHour`. Default-excluding them prevents inadvertent disclosure of cost data. Closes deferred v0.3.0-alpha release-audit findings DP-008 / DP-009 (refs #273). `costPerHour` remains optional at the schema layer (REQ-AD-006).
+**Priority:** P3
+**Status:** Implemented
+**Design Reference:** [Aircraft Profile Exchange File Format](../architecture/aircraft-exchange-file-format.md)
+
 ---
 
 ## Design References

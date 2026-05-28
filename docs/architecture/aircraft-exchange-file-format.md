@@ -112,8 +112,8 @@ The file is a single JSON object mapping directly to an `AircraftProfile` docume
 | `windLimits` | `array` | Wind component limits |
 | `surfaceConditions` | `array` | Runway surface correction factors |
 | `safetyFactors` | `object` | Takeoff and landing safety multipliers |
-| `costPerHour` | `number` | Estimated operating cost per flight hour (non-negative) |
-| `fuelCostIncluded` | `boolean` | Whether fuel cost is bundled into `costPerHour` (REQ-AD-006) |
+| `costPerHour` | `number` | Estimated operating cost per flight hour (non-negative). **Excluded from the default export** — see [Export](#export) (REQ-AD-023). |
+| `fuelCostIncluded` | `boolean` | Whether fuel cost is bundled into `costPerHour` (REQ-AD-006). **Excluded from the default export** alongside `costPerHour` (REQ-AD-023). |
 | `checklistScaffold` | `array` | Checklist section scaffold — structure only, no functional UI in M3 |
 | `performanceProfiles` | `array` | One entry per flight phase (`TakeoffRoll`, `TakeoffDistance50ft`, `LandingRoll`, `LandingDistance50ft`); each carries up to 1000 interpolation data points (REQ-AD-008, REQ-AD-009) |
 
@@ -127,8 +127,18 @@ The file is a single JSON object mapping directly to an `AircraftProfile` docume
 
 ## Export
 
-`exportProfileToJson(profile)` outputs `JSON.stringify(profile, null, 2)`.
-Round-trip fidelity: all fields except `id` and `status` are preserved (verified by `UT-AC-STORE-023`).
+`exportProfileToJson(profile)` wraps the profile in the
+`{ format: 'aerodash-aircraft', version, profile }` envelope (since #259) and
+serialises it with `JSON.stringify(..., null, 2)`.
+
+**Default data minimisation (REQ-AD-023, audit DP-008/DP-009):** the operating-cost
+fields (`costPerHour`, `fuelCostIncluded`) are **excluded** from the exported
+`profile` by default — they are private financial data not required to share or
+back up an aircraft configuration. Pass `exportProfileToJson(profile, { includeOperatingCost: true })`
+(and likewise `downloadProfileAsJson`) to retain them.
+
+Round-trip fidelity: all fields except `id`, `status`, and the default-excluded
+operating-cost fields are preserved (verified by `UT-AC-STORE-023` / `UT-AC-STORE-124`).
 
 ## Schema Versioning
 

@@ -92,3 +92,7 @@ Detailed Aircraft Data Requirements
   REQ-AD-022
     title: Powertrain Field Exclusivity
     file: docs/requirements/detailed_aircraft_data.md
+
+  REQ-AD-023
+    title: Operating-Cost Export Minimisation
+    file: docs/requirements/detailed_aircraft_data.md
