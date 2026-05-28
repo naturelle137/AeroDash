@@ -1395,3 +1395,38 @@ MB (auto)
       - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
     impl:
       - IMP-MB-STORE-023
+
+  UT-MB-VIEW-022
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/modules/mass-balance/views/__tests__/MassBalanceView.fleet.spec.ts
+    impl:
+      - IMP-MB-VIEW-011
+
+  UT-MB-VIEW-023
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/modules/mass-balance/views/__tests__/MassBalanceView.fleet.spec.ts
+    impl:
+      - IMP-MB-VIEW-011
+
+  UT-MB-VIEW-024
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/modules/mass-balance/views/__tests__/MassBalanceView.fleet.spec.ts
+    impl:
+      - IMP-MB-VIEW-011
+
+  UT-MB-VIEW-025
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/modules/mass-balance/views/__tests__/MassBalanceView.fleet.spec.ts
+    impl:
+      - IMP-MB-VIEW-011
+
+  UT-MB-VIEW-026
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/modules/mass-balance/views/__tests__/MassBalanceView.fleet.spec.ts
+    impl:
+      - IMP-MB-VIEW-011

@@ -1857,3 +1857,242 @@ AC (auto)
     title: TODO: describe this artifact
     files:
       - frontend/src/modules/aircraft/__tests__/IdentitySection.spec.ts
+
+  UT-AC-CORE-116
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+    impl:
+      - IMP-AC-CORE-004
+
+  UT-AC-CORE-117
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+    impl:
+      - IMP-AC-CORE-004
+
+  UT-AC-CORE-118
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+    impl:
+      - IMP-AC-CORE-004
+
+  UT-AC-CORE-119
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+    impl:
+      - IMP-AC-CORE-004
+
+  UT-AC-CORE-104
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/core/logic/profile-verification.spec.ts
+    impl:
+      - IMP-AC-CORE-005
+
+  UT-AC-CORE-105
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/core/logic/profile-verification.spec.ts
+    impl:
+      - IMP-AC-CORE-005
+
+  UT-AC-CORE-106
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/core/logic/profile-verification.spec.ts
+    impl:
+      - IMP-AC-CORE-005
+
+  UT-AC-CORE-107
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/core/logic/profile-verification.spec.ts
+    impl:
+      - IMP-AC-CORE-005
+
+  UT-AC-CORE-108
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/core/logic/profile-verification.spec.ts
+    impl:
+      - IMP-AC-CORE-005
+
+  UT-AC-CORE-109
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/core/logic/profile-verification.spec.ts
+    impl:
+      - IMP-AC-CORE-005
+
+  UT-AC-CORE-110
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/core/logic/profile-verification.spec.ts
+    impl:
+      - IMP-AC-CORE-005
+
+  UT-AC-CORE-111
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/core/logic/profile-verification.spec.ts
+    impl:
+      - IMP-AC-CORE-005
+
+  UT-AC-CORE-112
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/core/logic/profile-verification.spec.ts
+    impl:
+      - IMP-AC-CORE-005
+
+  UT-AC-CORE-113
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/core/logic/profile-verification.spec.ts
+    impl:
+      - IMP-AC-CORE-005
+
+  UT-AC-CORE-114
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/core/logic/profile-verification.spec.ts
+    impl:
+      - IMP-AC-CORE-005
+
+  UT-AC-CORE-115
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/core/logic/profile-verification.spec.ts
+    impl:
+      - IMP-AC-CORE-005
+
+  UT-AC-VIEW-172
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/modules/aircraft/__tests__/FleetList.spec.ts
+    impl:
+      - IMP-AC-VIEW-022
+
+  UT-AC-VIEW-173
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/modules/aircraft/__tests__/FleetList.spec.ts
+    impl:
+      - IMP-AC-VIEW-022
+
+  UT-AC-VIEW-174
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/modules/aircraft/__tests__/FleetList.spec.ts
+    impl:
+      - IMP-AC-VIEW-022
+
+  UT-AC-VIEW-175
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/modules/aircraft/__tests__/FleetList.spec.ts
+    impl:
+      - IMP-AC-VIEW-022
+
+  UT-AC-VIEW-176
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/modules/aircraft/__tests__/FleetList.spec.ts
+    impl:
+      - IMP-AC-VIEW-022
+
+  UT-AC-VIEW-181
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/modules/aircraft/__tests__/ProfileStatusBadge.spec.ts
+    impl:
+      - IMP-AC-VIEW-004
+
+  UT-AC-VIEW-182
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/modules/aircraft/__tests__/ProfileStatusBadge.spec.ts
+    impl:
+      - IMP-AC-VIEW-004
+
+  UT-AC-VIEW-177
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/modules/aircraft/__tests__/VerifyProfileDialog.spec.ts
+    impl:
+      - IMP-AC-VIEW-020
+      - IMP-AC-VIEW-021
+
+  UT-AC-VIEW-178
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/modules/aircraft/__tests__/VerifyProfileDialog.spec.ts
+    impl:
+      - IMP-AC-VIEW-021
+
+  UT-AC-VIEW-179
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/modules/aircraft/__tests__/VerifyProfileDialog.spec.ts
+    impl:
+      - IMP-AC-VIEW-021
+
+  UT-AC-VIEW-180
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/modules/aircraft/__tests__/VerifyProfileDialog.spec.ts
+    impl:
+      - IMP-AC-VIEW-021
+
+  UT-AC-STORE-129
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+    impl:
+      - IMP-AC-STORE-011
+
+  UT-AC-STORE-130
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+    impl:
+      - IMP-AC-STORE-011
+
+  UT-AC-STORE-131
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+    impl:
+      - IMP-AC-STORE-011
+
+  UT-AC-STORE-132
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+    impl:
+      - IMP-AC-STORE-011
+
+  UT-AC-STORE-133
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+    impl:
+      - IMP-AC-STORE-011
+
+  UT-AC-STORE-134
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+    impl:
+      - IMP-AC-STORE-011
+
+  UT-AC-STORE-135
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+    impl:
+      - IMP-AC-STORE-011

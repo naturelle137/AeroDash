@@ -17,20 +17,34 @@ import type { AircraftProfileStatus } from '@/core/adapters/aircraft.schema'
 
 interface Props {
   status: AircraftProfileStatus
+  /**
+   * When the profile is `verified` but its sign-off has expired (aged out or
+   * source-changed), the badge surfaces an "Expired" state in the critical
+   * colour so a stale verification is not mistaken for a live one (REQ-AC-007).
+   * Omitted / false ⇒ the badge behaves exactly as the plain Draft/Verified badge.
+   */
+  expired?: boolean
 }
 
 const props = defineProps<Props>()
 
+const isExpired = computed(() => props.status === 'verified' && props.expired === true)
+
 const statusLabel = computed(() => {
+  if (isExpired.value) return 'Expired'
   return props.status === 'verified' ? 'Verified' : 'Draft'
 })
 
 const statusClass = computed(() => ({
-  'status-verified': props.status === 'verified',
+  'status-verified': props.status === 'verified' && !isExpired.value,
   'status-draft': props.status === 'draft',
+  'status-expired': isExpired.value,
 }))
 
 const statusTitle = computed(() => {
+  if (isExpired.value) {
+    return 'Verification has expired — re-verify against the current POH before safety-critical use.'
+  }
   if (props.status === 'verified') {
     return 'Profile has been verified and is safe for calculations.'
   }
@@ -61,5 +75,11 @@ const ariaLabel = computed(() => `Profile status: ${statusLabel.value}`)
   background-color: var(--color-warning-bg, #fef3c7);
   color: var(--color-warning, #92400e);
   border: 1px solid var(--color-warning, #fcd34d);
+}
+
+.status-expired {
+  background-color: var(--color-critical-bg, #fef2f2);
+  color: var(--color-critical, #991b1b);
+  border: 1px solid var(--color-critical, #fecaca);
 }
 </style>

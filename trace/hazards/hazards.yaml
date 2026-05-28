@@ -99,6 +99,7 @@ Safety Hazards
     status: Mitigated
     mitigated_by:
       - REQ-AC-005
+      - REQ-AC-007
       - REQ-UI-023
       - REQ-UQ-006
 

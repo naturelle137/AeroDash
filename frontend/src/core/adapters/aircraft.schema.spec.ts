@@ -1095,3 +1095,60 @@ describe('AircraftProfileSchema — finite + numeric range guards', () => {
     expect(result.success).toBe(true)
   })
 })
+
+// ─── Verification provenance (REQ-AC-007) ──────────────────────────────────────
+
+describe('AircraftProfileSchema — verification provenance', () => {
+  const validVerification = {
+    verifiedOn: '2026-01-10',
+    verifiedBy: 'JS',
+    pohRevision: 'Rev 7',
+    sourceWeighingDate: '2025-01-15',
+  }
+
+  // @UT-AC-CORE-116@ (FROM: @IMP-AC-CORE-004@)
+  it('accepts a Verified profile carrying a full verification block', () => {
+    const parsed = AircraftProfileSchema.parse(
+      cloneWith((p) => {
+        p.status = 'verified'
+        p.verification = { ...validVerification }
+      }),
+    )
+    expect(parsed.verification?.pohRevision).toBe('Rev 7')
+    expect(parsed.verification?.sourceWeighingDate).toBe('2025-01-15')
+  })
+
+  // @UT-AC-CORE-117@ (FROM: @IMP-AC-CORE-004@)
+  it('leaves verification undefined when omitted (optional for legacy records)', () => {
+    const parsed = AircraftProfileSchema.parse(createValidProfile())
+    expect(parsed.verification).toBeUndefined()
+  })
+
+  // @UT-AC-CORE-118@ (FROM: @IMP-AC-CORE-004@)
+  it('rejects a verifiedOn that is not a YYYY-MM-DD calendar date', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        p.verification = { ...validVerification, verifiedOn: '10/01/2026' }
+      }),
+    )
+    expect(result.success).toBe(false)
+  })
+
+  // @UT-AC-CORE-119@ (FROM: @IMP-AC-CORE-004@)
+  it('rejects empty verifiedBy / pohRevision and over-long values', () => {
+    expect(
+      AircraftProfileSchema.safeParse(
+        cloneWith((p) => {
+          p.verification = { ...validVerification, verifiedBy: '' }
+        }),
+      ).success,
+    ).toBe(false)
+    expect(
+      AircraftProfileSchema.safeParse(
+        cloneWith((p) => {
+          p.verification = { ...validVerification, pohRevision: 'x'.repeat(41) }
+        }),
+      ).success,
+    ).toBe(false)
+  })
+})

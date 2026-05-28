@@ -284,4 +284,88 @@ describe('MassBalanceView — fleet picker', () => {
 
     expect(loadAllSpy).toHaveBeenCalledTimes(1)
   })
+
+  // ── 6. Draft-aware grouping + inline acknowledgement (REQ-AC-005/007) ──────
+
+  // @UT-MB-VIEW-022@ (FROM: @IMP-MB-VIEW-011@)
+  it('groups picker options into Verified and Draft optgroups', () => {
+    const draft = buildFleetProfile({ id: 'bbbbbbbb-0000-4000-b000-000000000002', registration: 'D-DRAFT', status: 'draft' })
+    const verified = buildFleetProfile({ id: 'aaaaaaaa-0000-4000-a000-000000000001', registration: 'D-VERIF', status: 'verified' })
+    seedFleet([draft, verified])
+    const wrapper = mountView()
+
+    const labels = wrapper.findAll('select#aircraft-select optgroup').map((g) => g.attributes('label'))
+    expect(labels).toContain('Verified')
+    expect(labels).toContain('Draft')
+  })
+
+  // @UT-MB-VIEW-023@ (FROM: @IMP-MB-VIEW-011@)
+  it('surfaces the active aircraft in a Last used optgroup at the top', () => {
+    const profile = buildFleetProfile()
+    seedFleet([profile])
+    const activeStore = useActiveAircraftStore()
+    activeStore.activeProfile = profile
+    const wrapper = mountView()
+
+    const groups = wrapper.findAll('select#aircraft-select optgroup')
+    expect(groups[0]!.attributes('label')).toBe('Last used')
+    expect(groups[0]!.find('option').attributes('value')).toBe(profile.id)
+  })
+
+  // @UT-MB-VIEW-024@ (FROM: @IMP-MB-VIEW-011@)
+  it('does NOT load a Draft on selection — shows the inline WARN-AC-002 acknowledgement first', async () => {
+    const draft = buildFleetProfile({ id: 'bbbbbbbb-0000-4000-b000-000000000002', registration: 'D-DRAFT', status: 'draft' })
+    seedFleet([draft])
+
+    const mbStore = useMassBalanceStore()
+    const activeStore = useActiveAircraftStore()
+    const loadSpy = vi.spyOn(mbStore, 'loadProfile')
+    const setActiveSpy = vi.spyOn(activeStore, 'setActiveProfile')
+
+    const wrapper = mountView()
+    await wrapper.find('select#aircraft-select').setValue(draft.id)
+
+    // Draft is NOT loaded until acknowledged.
+    expect(loadSpy).not.toHaveBeenCalled()
+    expect(setActiveSpy).not.toHaveBeenCalled()
+    const ack = wrapper.find('.draft-ack')
+    expect(ack.exists()).toBe(true)
+    expect(ack.text()).toContain('WARN-AC-002')
+    expect(ack.text()).toContain('D-DRAFT')
+  })
+
+  // @UT-MB-VIEW-025@ (FROM: @IMP-MB-VIEW-011@)
+  it('loads the Draft only after the acknowledgement is confirmed', async () => {
+    const draft = buildFleetProfile({ id: 'bbbbbbbb-0000-4000-b000-000000000002', registration: 'D-DRAFT', status: 'draft' })
+    seedFleet([draft])
+
+    const mbStore = useMassBalanceStore()
+    const activeStore = useActiveAircraftStore()
+    const loadSpy = vi.spyOn(mbStore, 'loadProfile')
+    const setActiveSpy = vi.spyOn(activeStore, 'setActiveProfile')
+
+    const wrapper = mountView()
+    await wrapper.find('select#aircraft-select').setValue(draft.id)
+    await wrapper.find('.draft-ack__btn--continue').trigger('click')
+
+    expect(setActiveSpy).toHaveBeenCalledWith(draft)
+    expect(loadSpy).toHaveBeenCalledTimes(1)
+    expect(wrapper.find('.draft-ack').exists()).toBe(false)
+  })
+
+  // @UT-MB-VIEW-026@ (FROM: @IMP-MB-VIEW-011@)
+  it('cancelling the acknowledgement leaves the Draft unloaded', async () => {
+    const draft = buildFleetProfile({ id: 'bbbbbbbb-0000-4000-b000-000000000002', registration: 'D-DRAFT', status: 'draft' })
+    seedFleet([draft])
+
+    const mbStore = useMassBalanceStore()
+    const loadSpy = vi.spyOn(mbStore, 'loadProfile')
+
+    const wrapper = mountView()
+    await wrapper.find('select#aircraft-select').setValue(draft.id)
+    await wrapper.find('.draft-ack__btn--cancel').trigger('click')
+
+    expect(loadSpy).not.toHaveBeenCalled()
+    expect(wrapper.find('.draft-ack').exists()).toBe(false)
+  })
 })

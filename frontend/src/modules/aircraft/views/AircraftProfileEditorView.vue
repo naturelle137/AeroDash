@@ -9,7 +9,7 @@
       <div v-if="source" class="editor-subtitle">
         <strong>{{ source.registration }}</strong>
         — {{ source.manufacturer }} {{ source.model }}
-        <ProfileStatusBadge :status="source.status" />
+        <ProfileStatusBadge :status="source.status" :expired="sourceVerificationExpired" />
       </div>
     </header>
 
@@ -130,6 +130,7 @@ import type {
   AircraftProfileWeighingReport,
 } from '@/core/adapters/aircraft.schema'
 import { sortEnvelopeCcw } from '@/core/logic/envelope-sort'
+import { evaluateVerificationFreshness } from '@/core/logic/profile-verification'
 import { useFleetStore } from '../stores/fleet.store'
 import { validateIcaoRegistration } from '../services/profile.validator'
 import AccordionSection from '../components/AccordionSection.vue'
@@ -230,6 +231,13 @@ const loadPoints = computed<AircraftProfileLoadPoint[]>({
 })
 
 const isElectric = computed(() => draft.value?.powertrain === 'electric')
+
+// @IMP-AC-VIEW-023@ (FROM: @REQ-AC-007@)
+// Reflect an expired/source-changed sign-off in the header badge so the pilot
+// sees that the loaded Verified profile is no longer a live verification.
+const sourceVerificationExpired = computed(
+  () => source.value !== null && evaluateVerificationFreshness(source.value, new Date()).requiresReverification,
+)
 
 // Fallback seed mirrors the wizard's BatteryPackSection default — only used in
 // the unlikely case that a legacy electric profile slipped through without a

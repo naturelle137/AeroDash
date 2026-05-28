@@ -9,10 +9,18 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
-import { useFleetStore, VerifiedMutationError, InvalidRegistrationError } from '../stores/fleet.store'
+import {
+  useFleetStore,
+  VerifiedMutationError,
+  InvalidRegistrationError,
+  IncompleteSignoffError,
+} from '../stores/fleet.store'
 import { useActiveAircraftStore } from '../stores/active-aircraft.store'
 import type { AircraftProfile } from '@/core/adapters/aircraft.schema'
 import { fleetRepository } from '../services/fleet.repository'
+
+/** A complete verification sign-off for tests that just need to reach Verified. */
+const SIGNOFF = { verifiedBy: 'JS', pohRevision: 'Rev 7', verifiedOn: '2026-01-10' } as const
 
 // Mock the fleet repository so we don't need real IndexedDB in unit tests
 vi.mock('../services/fleet.repository', () => ({
@@ -104,7 +112,7 @@ describe('useFleetStore', () => {
     const draft = await store.createProfile(minimalProfileData())
     const draftId = draft.id
 
-    const verified = await store.verifyProfile(draftId)
+    const verified = await store.verifyProfile(draftId, SIGNOFF)
 
     expect(verified.status).toBe('verified')
     // New UUID must have been assigned
@@ -119,7 +127,7 @@ describe('useFleetStore', () => {
   it('editVerifiedProfile replaces the Verified record in place with a Draft', async () => {
     const store = useFleetStore()
     const draft = await store.createProfile(minimalProfileData())
-    const verified = await store.verifyProfile(draft.id)
+    const verified = await store.verifyProfile(draft.id, SIGNOFF)
     const verifiedId = verified.id
 
     const edited = await store.editVerifiedProfile(verifiedId, { registration: 'D-ECSM' })
@@ -138,7 +146,7 @@ describe('useFleetStore', () => {
   it('editVerifiedProfile converts status Verified → Draft and applies changes', async () => {
     const store = useFleetStore()
     const draft = await store.createProfile(minimalProfileData())
-    const verified = await store.verifyProfile(draft.id)
+    const verified = await store.verifyProfile(draft.id, SIGNOFF)
 
     const edited = await store.editVerifiedProfile(verified.id, { model: 'P2010' })
 
@@ -157,7 +165,7 @@ describe('useFleetStore', () => {
   it('blocks direct in-place mutation of Verified profile via updateProfile', async () => {
     const store = useFleetStore()
     const draft = await store.createProfile(minimalProfileData())
-    const verified = await store.verifyProfile(draft.id)
+    const verified = await store.verifyProfile(draft.id, SIGNOFF)
 
     await expect(
       store.updateProfile(verified.id, { registration: 'D-MUTATED' }),
@@ -190,7 +198,7 @@ describe('useFleetStore', () => {
   it('does not emit draft warning when profile is Verified', async () => {
     const store = useFleetStore()
     const draft = await store.createProfile(minimalProfileData())
-    const verified = await store.verifyProfile(draft.id)
+    const verified = await store.verifyProfile(draft.id, SIGNOFF)
     store.clearNotifications()
     store.checkDraftWarning(verified)
     expect(store.notifications.some((n) => n.code === 'WARN-AC-002')).toBe(false)
@@ -463,7 +471,7 @@ describe('useFleetStore', () => {
   it('editVerifiedProfile preserves untouched fields when converting Verified to Draft', async () => {
     const store = useFleetStore()
     const draft = await store.createProfile(minimalProfileData())
-    const verified = await store.verifyProfile(draft.id)
+    const verified = await store.verifyProfile(draft.id, SIGNOFF)
 
     const edited = await store.editVerifiedProfile(verified.id, {
       registration: 'D-ECSM',
@@ -484,8 +492,8 @@ describe('useFleetStore', () => {
   it('verifyProfile throws if profile is already Verified', async () => {
     const store = useFleetStore()
     const draft = await store.createProfile(minimalProfileData())
-    const verified = await store.verifyProfile(draft.id)
-    await expect(store.verifyProfile(verified.id)).rejects.toThrow(
+    const verified = await store.verifyProfile(draft.id, SIGNOFF)
+    await expect(store.verifyProfile(verified.id, SIGNOFF)).rejects.toThrow(
       `Profile "${verified.id}" is already verified.`,
     )
   })
@@ -493,7 +501,9 @@ describe('useFleetStore', () => {
   // @UT-AC-STORE-058@ (FROM: @IMP-AC-STORE-005@)
   it('verifyProfile throws if profile not found', async () => {
     const store = useFleetStore()
-    await expect(store.verifyProfile('no-such-id')).rejects.toThrow('Profile not found: no-such-id')
+    await expect(store.verifyProfile('no-such-id', SIGNOFF)).rejects.toThrow(
+      'Profile not found: no-such-id',
+    )
   })
 
   // @UT-AC-STORE-059@ (FROM: @IMP-AC-STORE-005@)
@@ -522,7 +532,7 @@ describe('useFleetStore', () => {
     const draft = await store.createProfile(minimalProfileData())
     activeStore.setActiveProfile(draft)
 
-    const verified = await store.verifyProfile(draft.id)
+    const verified = await store.verifyProfile(draft.id, SIGNOFF)
 
     expect(activeStore.activeProfile?.id).toBe(verified.id)
     expect(activeStore.activeProfile?.status).toBe('verified')
@@ -536,7 +546,7 @@ describe('useFleetStore', () => {
     const other = await store.createProfile({ ...minimalProfileData(), registration: 'D-OTHR' })
     activeStore.setActiveProfile(other)
 
-    await store.verifyProfile(draft.id)
+    await store.verifyProfile(draft.id, SIGNOFF)
 
     expect(activeStore.activeProfile?.id).toBe(other.id)
   })
@@ -570,7 +580,7 @@ describe('useFleetStore', () => {
       { name: 'Standard Adult', standardWeight: 86, unit: 'kg' as const },
     ]
     const draft = await store.createProfile({ ...minimalProfileData(), passengerProfiles })
-    const verified = await store.verifyProfile(draft.id)
+    const verified = await store.verifyProfile(draft.id, SIGNOFF)
 
     expect(verified.passengerProfiles).toEqual(passengerProfiles)
 
@@ -670,5 +680,121 @@ describe('useFleetStore', () => {
     expect(activeStore.activeProfile?.id).toBe(draft2.id)
 
     void draft1
+  })
+
+  // ── REQ-AC-007: verification provenance + expiry-on-source-edit ──
+
+  // @UT-AC-STORE-129@ (FROM: @IMP-AC-STORE-011@)
+  it('verifyProfile records the full sign-off provenance bound to the active weighing report', async () => {
+    const store = useFleetStore()
+    const draft = await store.createProfile({
+      ...minimalProfileData(),
+      weighingReports: [
+        { bem: 432, emptyCg: 1.882, weighingDate: '2024-06-01', validFrom: '2024-06-01' },
+        { bem: 430, emptyCg: 1.88, weighingDate: '2025-03-01', validFrom: '2025-03-01' },
+      ],
+    })
+
+    const verified = await store.verifyProfile(draft.id, {
+      verifiedBy: 'AB',
+      pohRevision: 'Rev 3',
+      verifiedOn: '2026-02-15',
+    })
+
+    expect(verified.verification).toEqual({
+      verifiedOn: '2026-02-15',
+      verifiedBy: 'AB',
+      pohRevision: 'Rev 3',
+      // Bound to the LATEST weighing report, not insertion order.
+      sourceWeighingDate: '2025-03-01',
+    })
+  })
+
+  // @UT-AC-STORE-130@ (FROM: @IMP-AC-STORE-011@)
+  it('verifyProfile defaults verifiedOn to today when the sign-off omits a date', async () => {
+    const store = useFleetStore()
+    const draft = await store.createProfile(minimalProfileData())
+    const today = new Date().toISOString().slice(0, 10)
+
+    const verified = await store.verifyProfile(draft.id, { verifiedBy: 'JS', pohRevision: 'Rev 1' })
+
+    expect(verified.verification?.verifiedOn).toBe(today)
+  })
+
+  // @UT-AC-STORE-131@ (FROM: @IMP-AC-STORE-011@)
+  it('verifyProfile rejects a sign-off with blank initials or POH revision', async () => {
+    const store = useFleetStore()
+    const draft = await store.createProfile(minimalProfileData())
+
+    await expect(
+      store.verifyProfile(draft.id, { verifiedBy: '   ', pohRevision: 'Rev 1' }),
+    ).rejects.toThrow(IncompleteSignoffError)
+
+    const draft2 = await store.createProfile({ ...minimalProfileData(), registration: 'D-ECSM' })
+    await expect(
+      store.verifyProfile(draft2.id, { verifiedBy: 'JS', pohRevision: '' }),
+    ).rejects.toThrow(IncompleteSignoffError)
+  })
+
+  // @UT-AC-STORE-132@ (FROM: @IMP-AC-STORE-011@)
+  it('editVerifiedProfile strips the verification provenance when reverting to Draft', async () => {
+    const store = useFleetStore()
+    const draft = await store.createProfile(minimalProfileData())
+    const verified = await store.verifyProfile(draft.id, SIGNOFF)
+    expect(verified.verification).toBeDefined()
+
+    const edited = await store.editVerifiedProfile(verified.id, { model: 'P2010' })
+
+    expect(edited.status).toBe('draft')
+    expect(edited.verification).toBeUndefined()
+  })
+
+  // @UT-AC-STORE-133@ (FROM: @IMP-AC-STORE-011@)
+  it('updateProfile never leaves verification provenance on a Draft', async () => {
+    const store = useFleetStore()
+    const draft = await store.createProfile(minimalProfileData())
+
+    const updated = await store.updateProfile(draft.id, { model: 'P2010' })
+
+    expect(updated.status).toBe('draft')
+    expect(updated.verification).toBeUndefined()
+  })
+
+  // @UT-AC-STORE-134@ (FROM: @IMP-AC-STORE-011@)
+  it('reverifyProfile re-stamps provenance in place on an already-verified profile', async () => {
+    const store = useFleetStore()
+    const draft = await store.createProfile(minimalProfileData())
+    const verified = await store.verifyProfile(draft.id, {
+      verifiedBy: 'AA',
+      pohRevision: 'Rev 1',
+      verifiedOn: '2025-01-01',
+    })
+
+    const reattested = await store.reverifyProfile(verified.id, {
+      verifiedBy: 'BB',
+      pohRevision: 'Rev 2',
+      verifiedOn: '2026-05-01',
+    })
+
+    expect(reattested.id).toBe(verified.id)
+    expect(reattested.status).toBe('verified')
+    expect(reattested.verification).toEqual({
+      verifiedOn: '2026-05-01',
+      verifiedBy: 'BB',
+      pohRevision: 'Rev 2',
+      sourceWeighingDate: '2025-01-01',
+    })
+    expect(store.profiles.filter((p) => p.id === verified.id)).toHaveLength(1)
+  })
+
+  // @UT-AC-STORE-135@ (FROM: @IMP-AC-STORE-011@)
+  it('reverifyProfile throws on a Draft profile and on a missing id', async () => {
+    const store = useFleetStore()
+    const draft = await store.createProfile(minimalProfileData())
+
+    await expect(store.reverifyProfile(draft.id, SIGNOFF)).rejects.toThrow('is not verified')
+    await expect(store.reverifyProfile('no-such-id', SIGNOFF)).rejects.toThrow(
+      'Profile not found: no-such-id',
+    )
   })
 })

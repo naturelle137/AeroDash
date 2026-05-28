@@ -56,10 +56,44 @@ const isFleetEmpty = computed(
   () => fleetStore.fleetLoadState === 'READY' && fleetStore.profiles.length === 0,
 )
 
-/** Fleet profiles sorted alphabetically by registration for the picker. */
-const sortedProfiles = computed(() =>
-  [...fleetStore.profiles].sort((a, b) => a.registration.localeCompare(b.registration)),
+// @IMP-MB-VIEW-011@ (FROM: @REQ-AC-005@, @REQ-AC-007@)
+// Draft-aware aircraft picker (UX-005 / UX-007). The legacy alphabetical-only
+// list let a pilot pick an unverified Draft envelope with no grouping or guard.
+// The picker now: groups options into Verified / Draft <optgroup>s, surfaces the
+// last-used airframe in its own group at the top for quick re-selection, marks
+// Drafts with a destructive `[Draft]` tag, and routes a Draft selection through
+// an inline WARN-AC-002 acknowledgement before the profile is loaded for
+// computation (H-011 mitigation).
+
+function byRegistration(a: AircraftProfile, b: AircraftProfile): number {
+  return a.registration.localeCompare(b.registration)
+}
+
+/** The last-used airframe (the active aircraft), pinned at the top of the picker. */
+const lastUsedProfile = computed<AircraftProfile | null>(() => {
+  const id = activeAircraftStore.activeProfile?.id
+  if (!id) return null
+  return fleetStore.profiles.find((p) => p.id === id) ?? null
+})
+
+/** Verified fleet profiles, alphabetical by registration. */
+const verifiedProfiles = computed(() =>
+  fleetStore.profiles.filter((p) => p.status === 'verified').sort(byRegistration),
 )
+
+/** Draft fleet profiles, alphabetical by registration. */
+const draftProfiles = computed(() =>
+  fleetStore.profiles.filter((p) => p.status === 'draft').sort(byRegistration),
+)
+
+/** Option label — keeps the `[Draft]` suffix the E2E suite asserts on. */
+function optionLabel(aircraft: AircraftProfile): string {
+  const base = `${aircraft.registration} — ${aircraft.manufacturer} ${aircraft.model}`
+  return aircraft.status === 'draft' ? `${base} [Draft]` : base
+}
+
+/** A Draft awaiting the pilot's inline WARN-AC-002 acknowledgement before load. */
+const pendingDraft = ref<AircraftProfile | null>(null)
 
 // ---------------------------------------------------------------------------
 // Stacking sticky strips (REQ-UI-SCROLL)
@@ -491,15 +525,41 @@ function onAircraftSelected(event: Event): void {
   const fleetProfile = fleetStore.profiles.find((a) => a.id === id)
   if (!fleetProfile) return
 
+  // A Draft envelope must not be loaded for computation until the pilot
+  // explicitly acknowledges WARN-AC-002 inline (REQ-AC-005, H-011). The
+  // controlled `:value` binding reverts the <select> to the current aircraft
+  // until the acknowledgement resolves.
+  if (fleetProfile.status === 'draft') {
+    pendingDraft.value = fleetProfile
+    return
+  }
+
+  loadSelectedProfile(fleetProfile)
+}
+
+/** Map → validate → load a selected fleet profile into the M&B store. */
+function loadSelectedProfile(fleetProfile: AircraftProfile): void {
   const mapped = mapFleetProfileToContext(fleetProfile)
   const validation = AircraftContextSchema.safeParse(mapped)
   if (!validation.success) {
-    catalogueError.value = `Aircraft profile "${id}" failed validation — data may be corrupted.`
+    catalogueError.value = `Aircraft profile "${fleetProfile.id}" failed validation — data may be corrupted.`
     return
   }
 
   activeAircraftStore.setActiveProfile(fleetProfile)
   store.loadProfile(validation.data)
+}
+
+/** Pilot confirmed the WARN-AC-002 acknowledgement — load the Draft profile. */
+function onConfirmDraftSelection(): void {
+  const draft = pendingDraft.value
+  pendingDraft.value = null
+  if (draft) loadSelectedProfile(draft)
+}
+
+/** Pilot declined — leave the current aircraft loaded, drop the pending Draft. */
+function onCancelDraftSelection(): void {
+  pendingDraft.value = null
 }
 </script>
 
@@ -663,15 +723,52 @@ function onAircraftSelected(event: Event): void {
             @change="onAircraftSelected"
           >
             <option value="">— choose aircraft —</option>
-            <option
-              v-for="aircraft in sortedProfiles"
-              :key="aircraft.id"
-              :value="aircraft.id"
-            >
-              {{ aircraft.registration }} — {{ aircraft.manufacturer }} {{ aircraft.model
-              }}{{ aircraft.status === 'draft' ? ' [Draft]' : '' }}
-            </option>
+            <optgroup v-if="lastUsedProfile" label="Last used">
+              <option
+                :value="lastUsedProfile.id"
+                :class="{ 'opt-draft': lastUsedProfile.status === 'draft' }"
+              >
+                {{ optionLabel(lastUsedProfile) }}
+              </option>
+            </optgroup>
+            <optgroup v-if="verifiedProfiles.length > 0" label="Verified">
+              <option v-for="aircraft in verifiedProfiles" :key="aircraft.id" :value="aircraft.id">
+                {{ optionLabel(aircraft) }}
+              </option>
+            </optgroup>
+            <optgroup v-if="draftProfiles.length > 0" label="Draft">
+              <option
+                v-for="aircraft in draftProfiles"
+                :key="aircraft.id"
+                :value="aircraft.id"
+                class="opt-draft"
+              >
+                {{ optionLabel(aircraft) }}
+              </option>
+            </optgroup>
           </select>
+
+          <!-- Inline WARN-AC-002 acknowledgement before a Draft envelope loads -->
+          <div
+            v-if="pendingDraft"
+            class="draft-ack"
+            role="alertdialog"
+            aria-label="Draft profile acknowledgement"
+          >
+            <p class="draft-ack__message">
+              <strong>WARN-AC-002 — Draft Profile.</strong>
+              “{{ pendingDraft.registration }}” is unverified. Verify its data against the POH/AFM
+              before using it for a Go/No-Go decision.
+            </p>
+            <div class="draft-ack__actions">
+              <button type="button" class="draft-ack__btn draft-ack__btn--cancel" @click="onCancelDraftSelection">
+                Cancel
+              </button>
+              <button type="button" class="draft-ack__btn draft-ack__btn--continue" @click="onConfirmDraftSelection">
+                Continue with draft
+              </button>
+            </div>
+          </div>
         </div>
 
         <div v-if="categories.length > 1" class="aircraft-selector-field">
@@ -1349,6 +1446,67 @@ function onAircraftSelected(event: Event): void {
 
 .aircraft-select:hover {
   border-color: var(--color-primary);
+}
+
+/* Draft options carry the destructive colour where the browser honours
+ * <option> styling (Firefox; most Chromium/WebKit ignore it — the `[Draft]`
+ * suffix and the dedicated "Draft" optgroup remain the reliable signal). */
+.aircraft-select .opt-draft {
+  color: var(--color-critical, #dc2626);
+}
+
+/* ─── Inline draft acknowledgement (WARN-AC-002) ─────────────────────────── */
+
+.draft-ack {
+  margin-top: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-warning, #fcd34d);
+  border-left: 4px solid var(--color-warning, #f59e0b);
+  border-radius: var(--radius-md);
+  background: var(--color-warning-bg, #fef3c7);
+  color: var(--color-text-primary);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.draft-ack__message {
+  margin: 0;
+  font-size: var(--text-sm);
+  line-height: 1.5;
+}
+
+.draft-ack__actions {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.draft-ack__btn {
+  min-height: 44px;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-md);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.draft-ack__btn:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.draft-ack__btn--cancel {
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  border-color: var(--color-border);
+}
+
+.draft-ack__btn--continue {
+  background: var(--color-warning, #d97706);
+  color: var(--neutral-0, #fff);
 }
 
 .aircraft-select:focus-visible {

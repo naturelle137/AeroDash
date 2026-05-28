@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Aircraft-profile verification provenance & expiry: verifying a profile now requires a sign-off (date, initials, POH revision) bound to the source weighing report and shown as "Verified by … on … against POH …"; the sign-off expires after 90 days or when its source weighing report changes, the fleet badge flips to **Expired**, and an expired profile can be re-verified in place (REQ-AC-007, H-011, closes #276)
+- Draft-aware Mass & Balance aircraft picker: Verified / Draft / Last-used `<optgroup>`s, a destructive `[Draft]` marker, and an inline `WARN-AC-002` acknowledgement before a draft envelope is loaded for computation (REQ-AC-005/REQ-AC-007, H-011, closes #276)
+
 ### Fixed
 
 - Minimum-safe-version kill-switch now enforces **offline** (REQ-SYS-006 / H-019; fixes audit gap CS-011 / TECH-023). The gate previously returned early when offline, letting an explicitly kill-switched bundle keep running on an unreliable cockpit network. The store now caches the highest-seen `minSafeVersion` in IndexedDB and enforces `effectiveMin = max(build-time, cached, online /version.json)` even offline, refreshing on reconnect. SemVer comparison follows §11 (pre-release ordering, `+build` ignored); a structurally-invalid build-time floor fails closed without polluting the cache; and the shipped `/version.json` is validated against the app version so a deploy cannot self-brick. Privacy of the cold-start `/version.json` fetch is tracked in #274. (closes #271)

@@ -404,6 +404,14 @@ MB (auto)
     req:
       - REQ-AD-020
 
+  IMP-MB-VIEW-011
+    title: Draft-aware aircraft picker — Verified/Draft/Last-used optgroups, destructive [Draft] marker, inline WARN-AC-002 acknowledgement before loading a Draft
+    files:
+      - frontend/src/modules/mass-balance/views/MassBalanceView.vue
+    req:
+      - REQ-AC-005
+      - REQ-AC-007
+
   IMP-MB-STORE-023
     title: Zero-Value Plausibility Warning (WARN-UQ-001) for mandatory non-fuel stations
     files:

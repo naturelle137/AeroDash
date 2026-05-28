@@ -95,6 +95,7 @@ function makeFleetStore(overrides: {
     const notifications = ref<unknown[]>([])
     const checkDraftWarning = vi.fn<(p: AircraftProfile) => void>()
     const verifyProfile = vi.fn<() => Promise<void>>().mockResolvedValue(undefined)
+    const reverifyProfile = vi.fn<() => Promise<void>>().mockResolvedValue(undefined)
     const editVerifiedProfile = vi.fn<() => Promise<void>>().mockResolvedValue(undefined)
     const deleteProfile = vi.fn<() => Promise<void>>().mockResolvedValue(undefined)
     const loadAll = vi.fn<() => Promise<void>>().mockResolvedValue(undefined)
@@ -106,6 +107,7 @@ function makeFleetStore(overrides: {
       notifications,
       checkDraftWarning,
       verifyProfile,
+      reverifyProfile,
       editVerifiedProfile,
       deleteProfile,
       loadAll,
@@ -431,5 +433,132 @@ describe('FleetList — delete confirmation + undo (UX-001)', () => {
     await wrapper.vm.$nextTick()
 
     expect(document.querySelector('.confirm-dialog')).toBeNull()
+  })
+})
+
+// ─── REQ-AC-007: verification provenance + expiry display ───────────────────
+
+describe('FleetList — verification provenance + expiry (REQ-AC-007)', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    vi.clearAllMocks()
+  })
+
+  afterEach(() => {
+    document.body.innerHTML = ''
+  })
+
+  /** Mount FleetList, returning both the wrapper and the (stub) fleet store. */
+  function mountWithStore(profiles: AircraftProfile[]) {
+    const pinia = createPinia()
+    setActivePinia(pinia)
+    const fleet = makeFleetStore({ profiles })()
+    makeActiveStore(null)()
+    const router = makeRouter()
+    router.push('/fleet')
+    const wrapper = mount(FleetList, { global: { plugins: [pinia, router] } })
+    return { wrapper, fleet }
+  }
+
+  const today = new Date().toISOString().slice(0, 10)
+
+  // @UT-AC-VIEW-172@ (FROM: @IMP-AC-VIEW-022@)
+  it('shows the verify dialog when the Verify button is tapped on a Draft', async () => {
+    const { wrapper } = mountWithStore([makeProfile({ status: 'draft' })])
+    expect(document.querySelector('.verify-dialog')).toBeNull()
+
+    await wrapper.find('.btn-verify').trigger('click')
+
+    expect(document.querySelector('.verify-dialog')).not.toBeNull()
+  })
+
+  // @UT-AC-VIEW-173@ (FROM: @IMP-AC-VIEW-022@)
+  it('verifies a Draft with the captured sign-off provenance', async () => {
+    const { wrapper, fleet } = mountWithStore([makeProfile({ id: 'd1', status: 'draft' })])
+    const verifySpy = vi.spyOn(fleet, 'verifyProfile')
+    await wrapper.find('.btn-verify').trigger('click')
+
+    ;(
+      wrapper.vm as unknown as {
+        onConfirmVerify(s: { verifiedBy: string; pohRevision: string; verifiedOn: string }): void
+      }
+    ).onConfirmVerify({ verifiedBy: 'JS', pohRevision: 'Rev 7', verifiedOn: '2026-05-01' })
+    await flushPromises()
+
+    expect(verifySpy).toHaveBeenCalledWith('d1', {
+      verifiedBy: 'JS',
+      pohRevision: 'Rev 7',
+      verifiedOn: '2026-05-01',
+    })
+  })
+
+  // @UT-AC-VIEW-174@ (FROM: @IMP-AC-VIEW-022@)
+  it('renders the provenance line and no verify button for a fresh verified profile', () => {
+    const profile = makeProfile({
+      status: 'verified',
+      verification: {
+        verifiedOn: today,
+        verifiedBy: 'AB',
+        pohRevision: 'Rev 4',
+        sourceWeighingDate: '2025-01-01',
+      },
+    })
+    const { wrapper } = mountWithStore([profile])
+
+    expect(wrapper.text()).toContain('Verified by AB on')
+    expect(wrapper.text()).toContain('POH Rev 4')
+    expect(wrapper.find('.btn-verify').exists()).toBe(false)
+  })
+
+  // @UT-AC-VIEW-175@ (FROM: @IMP-AC-VIEW-022@)
+  it('flags an expired verification with the Expired badge and a re-verify affordance', () => {
+    const profile = makeProfile({
+      status: 'verified',
+      verification: {
+        verifiedOn: '2000-01-01',
+        verifiedBy: 'AB',
+        pohRevision: 'Rev 4',
+        sourceWeighingDate: '2025-01-01',
+      },
+    })
+    const { wrapper } = mountWithStore([profile])
+
+    expect(wrapper.find('.profile-status-badge').text()).toBe('Expired')
+    const verifyBtn = wrapper.find('.btn-verify')
+    expect(verifyBtn.exists()).toBe(true)
+    expect(verifyBtn.attributes('aria-label')).toContain('Re-verify')
+    expect(wrapper.text()).toContain('Verification expired')
+  })
+
+  // @UT-AC-VIEW-176@ (FROM: @IMP-AC-VIEW-022@)
+  it('re-attests an expired verified profile in place via reverifyProfile', async () => {
+    const profile = makeProfile({
+      id: 'v1',
+      status: 'verified',
+      verification: {
+        verifiedOn: '2000-01-01',
+        verifiedBy: 'AB',
+        pohRevision: 'Rev 4',
+        sourceWeighingDate: '2025-01-01',
+      },
+    })
+    const { wrapper, fleet } = mountWithStore([profile])
+    const reverifySpy = vi.spyOn(fleet, 'reverifyProfile')
+    const verifySpy = vi.spyOn(fleet, 'verifyProfile')
+
+    await wrapper.find('.btn-verify').trigger('click')
+    ;(
+      wrapper.vm as unknown as {
+        onConfirmVerify(s: { verifiedBy: string; pohRevision: string; verifiedOn: string }): void
+      }
+    ).onConfirmVerify({ verifiedBy: 'CD', pohRevision: 'Rev 5', verifiedOn: today })
+    await flushPromises()
+
+    expect(reverifySpy).toHaveBeenCalledWith('v1', {
+      verifiedBy: 'CD',
+      pohRevision: 'Rev 5',
+      verifiedOn: today,
+    })
+    expect(verifySpy).not.toHaveBeenCalled()
   })
 })

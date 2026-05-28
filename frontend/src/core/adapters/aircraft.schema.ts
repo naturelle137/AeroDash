@@ -171,6 +171,28 @@ const PerformanceProfileSchema = z.object({
   dataPoints: z.array(PerformanceDataPointSchema).max(1000),
 })
 
+// @IMP-AC-CORE-004@ (FROM: @REQ-AC-007@)
+// Verification provenance — the human sign-off recorded when a Draft profile is
+// promoted to Verified (REQ-AC-007, H-011). It binds the "Verified" status to
+// *who* attested the data, *which POH revision* they checked it against, and
+// *which weighing report* was the source of truth at sign-off. `sourceWeighingDate`
+// is the `validFrom` of the active (latest) weighing report at verification time;
+// if the profile's active weighing report later no longer matches it, the
+// verification is stale (the source was edited) — see
+// `core/logic/profile-verification.ts`. Dates are calendar dates ('YYYY-MM-DD'),
+// not timestamps: provenance is a human attestation, not a machine event.
+const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/
+const VerificationProvenanceSchema = z.object({
+  /** Calendar date the pilot signed off the verification ('YYYY-MM-DD'). */
+  verifiedOn: z.string().regex(ISO_DATE_RE),
+  /** Verifier initials / short identifier (free text, e.g. "JS"). */
+  verifiedBy: z.string().min(1).max(10),
+  /** POH/AFM revision label the data was checked against (e.g. "Rev 7"). */
+  pohRevision: z.string().min(1).max(40),
+  /** `validFrom` of the weighing report that was the source of truth at sign-off. */
+  sourceWeighingDate: z.string().min(1),
+})
+
 // @IMP-AD-CORE-004@ (FROM: @REQ-AD-001@, @REQ-AD-002@, @REQ-AD-003@, @REQ-AD-005@, @REQ-AD-011@, @REQ-AD-012@, @REQ-AD-014@, @DES-ARCH-002@)
 // @IMP-AC-CORE-002@ (FROM: @REQ-AC-001@, @REQ-AC-005@, @REQ-AC-006@, @REQ-AD-006@, @REQ-AD-007@, @REQ-AD-010@)
 export const AircraftProfileSchema = z
@@ -198,6 +220,13 @@ export const AircraftProfileSchema = z
       .default('draft'),
     // M3: Schema version for structured migration safety (refs #154)
     schemaVersion: z.number().int().positive().finite().default(1),
+    // v0.4: Verification provenance (REQ-AC-007, H-011). Present only on a
+    // Verified snapshot recorded via the sign-off flow; legacy/imported Verified
+    // profiles and all Drafts omit it. Optional so pre-provenance Verified
+    // records remain valid at rest (treated as "verified, provenance unknown" by
+    // the freshness evaluator). The store strips it on any Verified → Draft
+    // transition so a Draft never carries a stale sign-off.
+    verification: VerificationProvenanceSchema.optional(),
     // M3: Passenger profiles with standard weights (REQ-AC-006)
     passengerProfiles: z.array(PassengerProfileSchema).default([]),
     weighingReports: z.array(WeighingReportSchema).min(1),
@@ -316,3 +345,5 @@ export type AircraftProfilePerformanceDataPoint = z.infer<typeof PerformanceData
 // M3.5 types — powertrain discriminator + battery pack
 export type AircraftProfilePowertrain = z.infer<typeof AircraftProfileSchema>['powertrain']
 export type AircraftProfileBatteryPack = z.infer<typeof BatteryPackSchema>
+// v0.4 type — verification provenance (REQ-AC-007)
+export type AircraftProfileVerification = z.infer<typeof VerificationProvenanceSchema>

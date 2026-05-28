@@ -48,3 +48,11 @@ Phase B End-to-End Tests
     title: Hardcoded catalogue aircraft are not in the dropdown when the fleet is empty
     files:
       - frontend/tests/e2e/features/phase-b-flight-preparation/fleet-based-aircraft-selection.feature
+
+B (auto)
+  E2E-B-011
+    title: TODO: describe this artifact
+    files:
+      - frontend/tests/e2e/features/phase-b-flight-preparation/fleet-based-aircraft-selection.feature
+    uj:
+      - UJ-B-005
