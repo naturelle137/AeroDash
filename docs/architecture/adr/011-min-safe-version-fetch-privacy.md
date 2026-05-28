@@ -2,7 +2,7 @@
 
 <!-- @DES-ARCH-013@ (FROM: @REQ-SYS-006@) -->
 
-- **Status:** Accepted
+- **Status:** Proposed
 - **Date:** 2026-05-28
 
 ## Context
