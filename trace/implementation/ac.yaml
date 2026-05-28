@@ -91,6 +91,14 @@ AC Store — Exchange Envelope (#259)
     files:
       - frontend/src/modules/aircraft/services/profile.import.ts
 
+AC Store — Export Data Minimisation (#273)
+  IMP-AC-STORE-010
+    title: stripOperatingCost — exclude costPerHour & fuelCostIncluded from the default profile export (DP-008/DP-009)
+    req:
+      - REQ-AD-023
+    files:
+      - frontend/src/modules/aircraft/services/profile.import.ts
+
 AC View — Model Catalogue and Components
   IMP-AC-VIEW-001
     title: AIRCRAFT_MODEL_CATALOGUE — JSON source + helper functions (manufacturer→model→ICAO)

@@ -219,6 +219,46 @@ describe('exportProfileToJson', () => {
     expect(parsed.profile).toBeDefined()
     expect((parsed.profile as Record<string, unknown>).registration).toBe('D-EBPN')
   })
+
+  // @UT-AC-STORE-124@ (FROM: @IMP-AC-STORE-010@)
+  it('excludes operating-cost fields from the default export (DP-008/DP-009)', () => {
+    const data = {
+      ...createValidExportedProfile(),
+      costPerHour: 185.5,
+      fuelCostIncluded: false,
+    } as unknown as AircraftProfile
+    const json = exportProfileToJson(data)
+    const profile = (JSON.parse(json) as { profile: Record<string, unknown> }).profile
+    expect(profile).not.toHaveProperty('costPerHour')
+    expect(profile).not.toHaveProperty('fuelCostIncluded')
+    // Non-cost data is retained.
+    expect(profile.registration).toBe('D-EBPN')
+  })
+
+  // @UT-AC-STORE-125@ (FROM: @IMP-AC-STORE-010@)
+  it('retains operating-cost fields when includeOperatingCost is set', () => {
+    const data = {
+      ...createValidExportedProfile(),
+      costPerHour: 185.5,
+      fuelCostIncluded: false,
+    } as unknown as AircraftProfile
+    const json = exportProfileToJson(data, { includeOperatingCost: true })
+    const profile = (JSON.parse(json) as { profile: Record<string, unknown> }).profile
+    expect(profile.costPerHour).toBe(185.5)
+    expect(profile.fuelCostIncluded).toBe(false)
+  })
+
+  // @UT-AC-STORE-126@ (FROM: @IMP-AC-STORE-010@)
+  it('does not mutate the source profile when minimising the export', () => {
+    const data = {
+      ...createValidExportedProfile(),
+      costPerHour: 185.5,
+      fuelCostIncluded: true,
+    } as unknown as AircraftProfile
+    exportProfileToJson(data)
+    expect(data.costPerHour).toBe(185.5)
+    expect(data.fuelCostIncluded).toBe(true)
+  })
 })
 
 // ─── Envelope detection + back-compat (refs #259) ─────────────────────────────
@@ -392,6 +432,31 @@ describe('downloadProfileAsJson', () => {
     const reimported = importProfileFromJson(text)
     expect(reimported.registration).toBe(profile.registration)
     expect(reimported.status).toBe('draft')
+
+    clickSpy.mockRestore()
+  })
+
+  // @UT-AC-STORE-127@ (FROM: @IMP-AC-STORE-010@)
+  it('downloaded blob omits operating-cost data by default (DP-008/DP-009)', async () => {
+    const profile = {
+      ...createValidExportedProfile(),
+      costPerHour: 185.5,
+      fuelCostIncluded: false,
+    } as unknown as AircraftProfile
+    let capturedBlob: Blob | null = null
+    createObjectURL.mockImplementation((arg: Blob) => {
+      capturedBlob = arg
+      return 'blob:capture'
+    })
+    const clickSpy = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {})
+
+    downloadProfileAsJson(profile)
+
+    expect(capturedBlob).not.toBeNull()
+    const text = await (capturedBlob as unknown as Blob).text()
+    const exportedProfile = (JSON.parse(text) as { profile: Record<string, unknown> }).profile
+    expect(exportedProfile).not.toHaveProperty('costPerHour')
+    expect(exportedProfile).not.toHaveProperty('fuelCostIncluded')
 
     clickSpy.mockRestore()
   })

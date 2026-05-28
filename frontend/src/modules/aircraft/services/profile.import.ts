@@ -202,6 +202,39 @@ export function importProfileFromJson(jsonText: string): AircraftProfile {
 }
 
 /**
+ * Options controlling what optional data an exported profile carries.
+ */
+export interface ExportProfileOptions {
+  /**
+   * Include the operating-cost fields (`costPerHour`, `fuelCostIncluded`) in
+   * the exported file. Defaults to `false` so the default export carries no
+   * operating-cost data (data minimisation — see {@link stripOperatingCost}).
+   */
+  readonly includeOperatingCost?: boolean
+}
+
+// @IMP-AC-STORE-010@ (FROM: @REQ-AD-023@)
+/**
+ * Return a copy of the profile with the operating-cost fields removed.
+ *
+ * `costPerHour` is private financial data that is not needed to share or back
+ * up an aircraft configuration, and a profile is frequently exchanged between
+ * pilots or clubs. `fuelCostIncluded` is solely a qualifier of `costPerHour`
+ * and is meaningless without it, so the two are stripped as a pair. This is
+ * the data-minimisation control for the deferred v0.3.0-alpha audit findings
+ * DP-008 / DP-009 (REQ-AD-023, GDPR Art. 5(1)(c)).
+ *
+ * Both fields are optional in {@link AircraftProfile}, so the result remains a
+ * valid profile that round-trips through {@link importProfileFromJson}.
+ */
+function stripOperatingCost(profile: AircraftProfile): AircraftProfile {
+  const minimised: AircraftProfile = { ...profile }
+  delete minimised.costPerHour
+  delete minimised.fuelCostIncluded
+  return minimised
+}
+
+/**
  * Export an AircraftProfile to a JSON string suitable for exchange.
  *
  * Emits the {@link ExchangeEnvelope} wrapper (since #259). The output is
@@ -211,13 +244,21 @@ export function importProfileFromJson(jsonText: string): AircraftProfile {
  *     this and refuse the import rather than silently dropping new fields.
  *   - `profile`: the {@link AircraftProfile} aggregate.
  *
+ * By default the operating-cost fields (`costPerHour`, `fuelCostIncluded`) are
+ * excluded from the exported profile (data minimisation — REQ-AD-023). Pass
+ * `{ includeOperatingCost: true }` to retain them.
+ *
  * The exported string can be re-imported with {@link importProfileFromJson}.
  */
-export function exportProfileToJson(profile: AircraftProfile): string {
+export function exportProfileToJson(
+  profile: AircraftProfile,
+  options: ExportProfileOptions = {},
+): string {
+  const profileForExport = options.includeOperatingCost ? profile : stripOperatingCost(profile)
   const envelope: ExchangeEnvelope = {
     format: EXCHANGE_FORMAT,
     version: EXCHANGE_VERSION,
-    profile,
+    profile: profileForExport,
   }
   return JSON.stringify(envelope, null, 2)
 }
@@ -241,11 +282,17 @@ export function buildExchangeFilename(registration: string): string {
  * exchange file. The emitted file is byte-for-byte compatible with
  * `importProfileFromJson` (round-trip safe).
  *
+ * Operating-cost data is excluded by default (data minimisation — REQ-AD-023);
+ * pass `{ includeOperatingCost: true }` to retain it.
+ *
  * The download is performed via a transient `<a>` element with an object URL.
  * The object URL is revoked after the click to avoid memory leaks.
  */
-export function downloadProfileAsJson(profile: AircraftProfile): void {
-  const json = exportProfileToJson(profile)
+export function downloadProfileAsJson(
+  profile: AircraftProfile,
+  options: ExportProfileOptions = {},
+): void {
+  const json = exportProfileToJson(profile, options)
   const blob = new Blob([json], { type: 'application/json' })
   const url = URL.createObjectURL(blob)
   const anchor = document.createElement('a')

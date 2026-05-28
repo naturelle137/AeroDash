@@ -33,6 +33,55 @@ The application processes only the minimum data required for Mass & Balance calc
 
 No data beyond what is necessary for the M&B computation is collected or processed.
 
+### 3.1 Purpose-to-Field Mapping
+
+Each persisted field is mapped below to the specific purpose it serves, its
+lawful basis, and any minimisation control applied. A field is only persisted
+where a concrete purpose requires it; fields that would otherwise leak when a
+profile is shared are minimised on export (see the `costPerHour` row).
+
+| Field | Storage | Purpose | Lawful basis | Minimisation control |
+| ----- | ------- | ------- | ------------ | -------------------- |
+| `id` (profile UUID) | IndexedDB `aerodash-fleet` | Stable per-profile key for fleet CRUD, active-aircraft selection, and collision-free import. | Art. 6(1)(b) — necessary to deliver the fleet feature the user requested. | Random UUID v4; not derived from PII; regenerated on import. |
+| `registration` | IndexedDB `aerodash-fleet` | Identifies the aircraft to the pilot and enforces per-owner registration uniqueness (REQ-AC-003). PII-adjacent — a tail mark can identify a real aircraft and, indirectly, its owner. | See [§3.2 Lawful basis for `registration`](#32-lawful-basis-for-registration). | Entered by the pilot for their own aircraft; never transmitted; erasable via fleet delete / browser storage clear. |
+| `ownerId` | IndexedDB `aerodash-fleet` | Scopes registration-uniqueness checks to one owner so different users may hold the same registration (REQ-AD-019). | Art. 6(1)(b) — necessary for the uniqueness rule above. | Local opaque identifier; no account system; never transmitted. |
+| `weighingReports` | IndexedDB `aerodash-fleet` | Basic empty mass / empty CG / weighing dates — the legal weight basis for all Mass & Balance computation (REQ-AD-004, REQ-AD-013). | Art. 6(1)(b) — core safety-computation input. | Only the fields needed for M&B math are stored; no inspector or facility identity is collected. |
+| `costPerHour`, `fuelCostIncluded` | IndexedDB `aerodash-fleet` | Optional operating-cost tracking for flight-cost estimation (REQ-AD-006). Not used in any safety computation. | Art. 6(1)(a) — voluntary, optional convenience data the pilot chooses to enter. | **Optional** at the schema layer; **excluded from the default profile export** so cost data is not disclosed when a profile is shared (REQ-AD-023; closes audit DP-008/DP-009). |
+| Saved session payload | localStorage `aerodash:session:payload` | Restores the in-progress M&B session (active aircraft id, certification category, per-station weights) across a page refresh (REQ-SYS-013). | Art. 6(1)(b) — necessary to preserve unsaved work in an offline tool. | No personal data beyond the aircraft-id reference; overwritten on change; cleared on aircraft switch; removed if it fails validation. |
+| Session-active flag | sessionStorage `aerodash.session.active` | Single `'1'` marker to detect PWA cold starts vs in-session updates. | Art. 6(1)(f) — legitimate interest in correct cold-start behaviour. | Contains no personal data; cleared automatically when the last tab closes. |
+| Other aircraft technical parameters | IndexedDB `aerodash-fleet` | Load points, envelope, certification categories, performance/wind/surface data — the technical inputs to M&B and performance math. | Art. 6(1)(b) — core computation inputs. | Non-personal technical data about the airframe, not the pilot. |
+
+> **GDPR applicability note.** AeroDash is an offline, single-user, on-device
+> tool with no accounts and no transmission. For a private pilot processing
+> their own aircraft data, the **household-activity exemption (Art. 2(2)(c))**
+> may place this processing outside the GDPR's material scope entirely. The
+> lawful bases above are documented for transparency and to apply by analogy
+> where a user operates in a non-private (e.g. commercial club) context.
+
+### 3.2 Lawful basis for `registration`
+
+The aircraft `registration` (tail mark, e.g. `D-EBPN`) is the one persisted
+field that is meaningfully **PII-adjacent**: a registration can be cross-referenced
+to a public aircraft register to identify a specific airframe and, indirectly,
+its keeper. AeroDash processes it on the following basis:
+
+- **Primary basis — Art. 6(1)(b) (performance of the requested service):** the
+  pilot enters the registration of their *own* aircraft so the app can identify
+  the profile, label results, and enforce per-owner registration uniqueness
+  (REQ-AC-003). The mark is intrinsic to the Mass & Balance task the user asked
+  the tool to perform.
+- **Supporting basis — Art. 6(1)(f) (legitimate interest):** distinguishing
+  aircraft by their real registration is the least surprising, lowest-friction
+  way for a pilot to recognise their own profiles; no less-identifying
+  alternative would serve that purpose.
+- **Scope & safeguards:** the registration is stored **locally and unencrypted**
+  on the user's own device and is **never transmitted** (there is no backend in
+  this release). It is retained in profile exports because it is intrinsic to a
+  usable aircraft profile, but it carries no additional contact or identity data,
+  and it is **erasable** at any time by deleting the profile or clearing site
+  storage (§5–§6). Where the household-activity exemption (Art. 2(2)(c)) applies,
+  the registration falls outside GDPR's scope.
+
 ## 4. Purpose Limitation (GDPR Art. 5(1)(b))
 
 All data processed by AeroDash is used solely for the purpose of computing Mass & Balance results. Data is not repurposed, shared, or aggregated.

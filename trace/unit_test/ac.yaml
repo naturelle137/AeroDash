@@ -1783,6 +1783,35 @@ AC Store — ICAO Registration Validator (Hyphen-Abuse Rejection) (Unit)
     files:
       - frontend/src/modules/aircraft/__tests__/profile.validator.spec.ts
 
+AC Store — Export Data Minimisation (#273)
+  UT-AC-STORE-124
+    title: excludes operating-cost fields from the default export (DP-008/DP-009)
+    impl:
+      - IMP-AC-STORE-010
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.import.spec.ts
+
+  UT-AC-STORE-125
+    title: retains operating-cost fields when includeOperatingCost is set
+    impl:
+      - IMP-AC-STORE-010
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.import.spec.ts
+
+  UT-AC-STORE-126
+    title: does not mutate the source profile when minimising the export
+    impl:
+      - IMP-AC-STORE-010
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.import.spec.ts
+
+  UT-AC-STORE-127
+    title: downloaded blob omits operating-cost data by default (DP-008/DP-009)
+    impl:
+      - IMP-AC-STORE-010
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.import.spec.ts
+
 AC (auto)
   UT-AC-VIEW-138
     title: TODO: describe this artifact
