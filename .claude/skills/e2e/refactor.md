@@ -70,4 +70,4 @@ Items:
 
 If clean: `No improvements were necessary. The test slice is already compliant.` + `Run /e2e.validate to confirm.`
 
-`output.style`: no preamble; no commentary
+`output.style`: per `CLAUDE.md § Concision`

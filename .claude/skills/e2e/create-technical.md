@@ -56,7 +56,7 @@
 - path: `trace/e2e/smoke.yaml` | `trace/e2e/technical.yaml`
 - entry: `E2E-{DOMAIN}-{NNN}` + `title` + feature file path
 
-## Output (no preamble; no commentary)
+## Output
 
 1. classification
 2. feature path + full content

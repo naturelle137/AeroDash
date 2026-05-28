@@ -4,7 +4,7 @@ Source-of-truth rules for `frontend/tests/e2e/steps/**/*.ts` step definitions. I
 
 - criticality: safety-critical aviation
 - mode: strict correctness
-- verbosity: no explanation unless asked
+- verbosity: per `CLAUDE.md § Concision`
 
 ## Paths
 

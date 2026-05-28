@@ -92,4 +92,4 @@ Rules: classes only: `implementation` | `validation` | `docs` | `traceability` |
 
 - `- P<1|2|3> | <short action> | <issue/artifact refs>`
 
-Rules: blocker-removal actions only; smallest closure step first; no explanations.
+Rules: blocker-removal actions only; smallest closure step first.
