@@ -171,3 +171,21 @@ For full invariants, edge cases, and registry schemas, the `traceability` skill 
 ## Specialized workflows
 
 GitHub issue handling, P1 PR review, milestone planning, E2E authoring, audits, and releases are handled by dedicated subagents/skills/commands under `.claude/`. Invoke directly (`/issue`, `/pr.create`, `/audit.full`, `/release-audit`, `/release`) or describe what you want — relevant skills auto-load.
+
+---
+
+## Concision
+
+> **This section is the single source of truth for the project-wide concision directive.** Reference it as `CLAUDE.md § Concision` from any skill, command, agent, template, or doc instead of restating the rule. Do not duplicate the directive elsewhere — point at this anchor so there is exactly one definition to maintain.
+
+**Principle.** Default to the fewest words that convey intent. Every artifact you produce in this repository — code, comments, commit messages, PR descriptions, code reviews, issue bodies, changelog and requirement entries, and ADRs — is word-efficient by default. Prefer bullets over prose; omit justification, restatement, and design padding unless explicitly asked; say what is needed, then stop. This is a standing default, not a per-artifact opt-in: it governs **all current *and future* skills and document types** automatically, so a new skill or document type inherits it without restating it.
+
+**Concrete defaults** (illustrative applications of the principle, not an exhaustive list — apply the principle to artifact types not named here):
+
+- **Changelogs:** one bullet per change; no narrative paragraphs.
+- **Document, requirement, and issue entries:** a single declarative sentence where one suffices.
+- **PR reviews:** terse and finding-focused; flag what matters, skip ceremony and long narratives.
+- **Definition-of-Done and checklists:** checklist items, not prose.
+- **Code comments:** minimal — explain the non-obvious *why*, never restate the *what*.
+
+**Safety carve-out (non-negotiable).** Concision must **never** drop required safety or traceability content for brevity. Hazard references (`H-xxx`), the trace chain and its IDs (`REQ-`, `IMP-`, `UT-`, `IT-`, `E2E-`), Go/No-Go rationale, safety warnings and disclaimers, and mandatory template, DoD, or attestation fields are always retained in full — even when keeping them makes an artifact longer. When brevity and a required safety/traceability fact conflict, the fact always wins.
