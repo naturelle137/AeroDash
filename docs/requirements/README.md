@@ -5,6 +5,8 @@ The requirements are structured by functional area (modules) to allow modular de
 
 AeroDash follows a strict requirements engineering process to ensure safety and certification readiness (Project Level: Experimental / EAB, but following DO-178C principles where applicable).
 
+> **Authoring concision:** Write each requirement as a single declarative EARS sentence and keep the Rationale terse — follow [`CLAUDE.md § Concision`](../../CLAUDE.md#concision). Per its safety carve-out, never drop a `Mitigation Hazard ID` or trace link for brevity.
+
 ## Requirement Syntax (EARS)
 
 All requirements must be written using the **EARS** (Easy Approach to Requirements Syntax) patterns:

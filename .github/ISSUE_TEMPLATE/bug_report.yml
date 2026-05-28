@@ -8,6 +8,8 @@ body:
       value: |
         **Important:** As this is a safety-critical application for aviation, please provide precise details regarding reproduction and potential hazards.
 
+        Keep entries word-efficient per `CLAUDE.md § Concision` — bullets over prose. Per its safety carve-out, never omit a required safety or traceability detail for brevity.
+
   - type: textarea
     id: description
     attributes:

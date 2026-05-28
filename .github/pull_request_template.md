@@ -1,4 +1,5 @@
 <!-- markdownlint-disable-file MD041 -->
+<!-- Authoring: keep this description word-efficient per CLAUDE.md § Concision (bullets over prose, no padding). Per its safety carve-out, never drop a required safety or traceability field below for brevity. -->
 ### Summary
 <!-- Briefly describe the code and documentation changes made in this PR. -->
 
