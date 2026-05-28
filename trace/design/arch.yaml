@@ -91,6 +91,12 @@ Architecture Design
       - REQ-SYS-015
     file: docs/architecture/data-rights.md
 
+  DES-ARCH-013
+    title: Remote minSafeVersion Fetch — Privacy Posture
+    req:
+      - REQ-SYS-006
+    file: docs/architecture/adr/011-min-safe-version-fetch-privacy.md
+
 ARCH (auto)
   DES-ARCH-010
     title: TODO: describe this artifact

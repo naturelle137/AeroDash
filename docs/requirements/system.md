@@ -64,7 +64,7 @@ This document defines the system behavior using the **EARS** (Easy Approach to R
 **Rationale:** "Kill Switch" for critical bugs (e.g., calculation errors discovered post-release).
 **Priority:** P1
 **Status:** Implemented
-**Design Reference:** n/a
+**Design Reference:** [ADR-011: Privacy Posture of the Remote `minSafeVersion` Fetch](../architecture/adr/011-min-safe-version-fetch-privacy.md)
 
 <!-- @REQ-SYS-007@ -->
 
