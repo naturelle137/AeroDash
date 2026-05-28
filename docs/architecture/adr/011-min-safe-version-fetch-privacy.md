@@ -1,6 +1,6 @@
 # ADR-011: Privacy Posture of the Remote `minSafeVersion` Fetch
 
-<!-- @DES-ARCH-013@ (FROM: @REQ-SYS-006@, @H-019@) -->
+<!-- @DES-ARCH-013@ (FROM: @REQ-SYS-006@) -->
 
 - **Status:** Accepted
 - **Date:** 2026-05-28
@@ -162,6 +162,8 @@ which this ADR makes binding:
   applies to a private pilot, this processing falls outside GDPR scope, as noted
   in `PRIVACY.md` §3.1.
 - **Transparency (GDPR Art. 13/5(1)(a)).** Satisfied by the `PRIVACY.md`
-  correction mandated in the Decision (§ Third-Party Dependencies / Security
-  Measures and the storage overview).
+  correction mandated in the Decision — primarily the new **§7 Network
+  Activity**, which discloses the request directly, supported by the scoped §1
+  overview and the §8 (Third-Party Dependencies) / §9 (Security Measures)
+  cross-references.
 - Closes data-privacy audit finding **DP-018** (v0.3.0-alpha, 2026-05-08).
