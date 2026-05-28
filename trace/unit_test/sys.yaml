@@ -1536,3 +1536,24 @@ SYS (auto)
       - frontend/src/stores/__tests__/app-version.remote.spec.ts
     impl:
       - IMP-SYS-STORE-017
+
+  UT-SYS-STORE-094
+    title: checkMinSafeVersion never persists the fail-closed sentinel to the cache, so a misbuilt bundle cannot launder it into a durable floor that bricks later good builds (review-iteration fix)
+    files:
+      - frontend/src/stores/__tests__/app-version.store.spec.ts
+    impl:
+      - IMP-SYS-STORE-008
+
+  UT-SYS-STORE-095
+    title: deployment guard — the build-time __MIN_SAFE_VERSION__ floor is not above the deployed __APP_VERSION__, closing the self-brick path the package.json-only check missed (review-iteration B1 hardening)
+    files:
+      - frontend/src/stores/__tests__/app-version.deployment.spec.ts
+    impl:
+      - IMP-SYS-STORE-020
+
+  UT-SYS-STORE-096
+    title: isVersionBelow orders very long numeric pre-release identifiers (beyond 2^53) by value via length-then-lexical comparison instead of collapsing to the same double through Number() (review-iteration fix)
+    files:
+      - frontend/src/stores/__tests__/app-version.store.spec.ts
+    impl:
+      - IMP-SYS-STORE-007

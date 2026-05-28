@@ -118,10 +118,13 @@ function comparePreRelease(a: readonly string[], b: readonly string[]): number {
     const aIsNum = /^\d+$/.test(ai)
     const bIsNum = /^\d+$/.test(bi)
     if (aIsNum && bIsNum) {
-      // §11.4.1 — numeric identifiers compared numerically.
-      const an = Number(ai)
-      const bn = Number(bi)
-      if (an !== bn) return an < bn ? -1 : 1
+      // §11.4.1 — numeric identifiers compared numerically. Compare by string
+      // length then lexically rather than via `Number()` so identifiers beyond
+      // 2^53 (a hostile/odd `/version.json`) cannot round to the same double and
+      // mis-order as equal. Valid here because the grammar forbids leading
+      // zeros, so for two bare decimals the longer string is the larger number.
+      if (ai.length !== bi.length) return ai.length < bi.length ? -1 : 1
+      if (ai !== bi) return ai < bi ? -1 : 1
     } else if (aIsNum && !bIsNum) {
       // §11.4.3 — numeric identifiers always have lower precedence than alphanumeric.
       return -1

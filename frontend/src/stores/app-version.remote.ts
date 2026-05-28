@@ -61,16 +61,26 @@ export interface FetchRemoteOptions {
 }
 
 /**
- * Race `promise` against a setTimeout. Used as the timeout fallback when
- * `AbortController` is unavailable (sandboxed WebView, very old runtime) so
- * the documented 4 s cold-start budget cannot be silently waived.
+ * Race `promise` against a single wall-clock `setTimeout`. On timeout the
+ * optional `onTimeout` hook fires (used to `abort()` the in-flight fetch) and
+ * the result resolves to `null`. This guarantees the documented cold-start
+ * budget holds even when `AbortController` is absent OR present-but-ignored by
+ * a stubbed/sandboxed `fetchImpl` — and, because `onTimeout` still aborts, a
+ * fetch that DOES honour the signal is cancelled rather than left running
+ * detached. A single timer (no separate abort timer) means there is no race in
+ * which the wall clock wins and silently cancels the abort.
  */
-function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T | null> {
+function withTimeout<T>(promise: Promise<T>, ms: number, onTimeout?: () => void): Promise<T | null> {
   return new Promise((resolve) => {
     let settled = false
     const timer = setTimeout(() => {
       if (settled) return
       settled = true
+      try {
+        onTimeout?.()
+      } catch {
+        /* swallow — abort is best-effort */
+      }
       resolve(null)
     }, ms)
     promise.then(
@@ -108,16 +118,6 @@ export async function fetchRemoteMinSafeVersion(
 
   const controller =
     typeof AbortController === 'function' ? new AbortController() : null
-  const timer =
-    controller !== null
-      ? setTimeout(() => {
-          try {
-            controller.abort()
-          } catch {
-            /* swallow */
-          }
-        }, timeoutMs)
-      : null
 
   const doFetch = async (): Promise<string | null> => {
     try {
@@ -137,14 +137,16 @@ export async function fetchRemoteMinSafeVersion(
       // cockpit tablet because we never touch the body.
       const lenHeader = response.headers?.get?.('content-length') ?? null
       if (lenHeader !== null) {
-        const len = Number(lenHeader)
-        // A present-but-malformed Content-Length (non-numeric, negative, or
-        // fractional) means the pre-flight size signal cannot be trusted —
-        // reject rather than silently fall through to read an unbounded body.
-        // (PR-review Minor #4: `Number('abc')` is NaN, which the prior
-        // `Number.isFinite(len) && len > cap` test quietly skipped.)
-        if (!Number.isInteger(len) || len < 0) return null
-        if (len > MAX_BODY_BYTES) return null
+        // Content-Length per RFC 9110 §8.6 is `1*DIGIT` — a bare decimal. Parse
+        // strictly: anything else (non-numeric `abc`, hex `0x10`, padded/empty,
+        // comma-joined duplicate `42, 42`) is malformed, so we cannot trust the
+        // pre-flight size signal and reject rather than fall through to read an
+        // unbounded body. (PR-review Minor #4 — `Number('abc')` is NaN, which
+        // the prior `Number.isFinite(len) && len > cap` test quietly skipped;
+        // `Number('0x10')`/`Number(' 4000 ')`/`Number('')` would also have
+        // sneaked through a looser numeric coercion.)
+        if (!/^\d+$/.test(lenHeader.trim())) return null
+        if (Number(lenHeader.trim()) > MAX_BODY_BYTES) return null
       }
 
       const text = await response.text()
@@ -173,17 +175,20 @@ export async function fetchRemoteMinSafeVersion(
     }
   }
 
-  try {
-    // Defence-in-depth timeout (PR-review Minor #5). The AbortController (when
-    // present) drives cancellation of the underlying request, but a
-    // stubbed/sandboxed `fetchImpl` that ignores `AbortSignal` and never
-    // settles would still hang the boot path past the budget. Racing
-    // `doFetch()` against a wall-clock timer in BOTH branches guarantees we
-    // resolve within `timeoutMs` regardless of whether abort is honoured.
-    return await withTimeout(doFetch(), timeoutMs)
-  } finally {
-    if (timer !== null) clearTimeout(timer)
-  }
+  // Single wall-clock timeout (PR-review Minor #5 + iteration). On timeout we
+  // both abort the in-flight request (cancellation when the signal is honoured)
+  // AND resolve `null` (the budget guarantee when it is not — sandboxed WebView
+  // with no AbortController, or a `fetchImpl` that ignores the signal). Driving
+  // the abort from the same timer removes the earlier dual-timer race where the
+  // wall clock could win and `clearTimeout` the pending abort, leaving a
+  // signal-honouring fetch running detached.
+  return await withTimeout(doFetch(), timeoutMs, () => {
+    try {
+      controller?.abort()
+    } catch {
+      /* swallow — abort is best-effort */
+    }
+  })
 }
 
 export const appVersionRemote = {

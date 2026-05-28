@@ -37,6 +37,8 @@
 // @UT-SYS-STORE-089@ (FROM: @IMP-SYS-SHARED-010@)
 // @UT-SYS-STORE-090@ (FROM: @IMP-SYS-STORE-020@)
 // @UT-SYS-STORE-091@ (FROM: @IMP-SYS-STORE-020@)
+// @UT-SYS-STORE-094@ (FROM: @IMP-SYS-STORE-008@)
+// @UT-SYS-STORE-096@ (FROM: @IMP-SYS-STORE-007@)
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
@@ -151,6 +153,17 @@ describe('useAppVersionStore — isVersionBelow', () => {
     expect(store.isVersionBelow('0.4.0-alpha', '0.4.0-alpha.1')).toBe(true) // longer wins
     // Numeric < alphanumeric per SemVer §11.4.3
     expect(store.isVersionBelow('0.4.0-1', '0.4.0-alpha')).toBe(true)
+  })
+
+  // @UT-SYS-STORE-096@ (FROM: @IMP-SYS-STORE-007@)
+  // Review-iteration: numeric pre-release identifiers beyond 2^53 must order by
+  // value, not collapse to the same double via Number().
+  it('orders very long numeric pre-release identifiers without float precision loss', () => {
+    const store = useAppVersionStore()
+    expect(store.isVersionBelow('0.0.0-99999999999999999998', '0.0.0-99999999999999999999')).toBe(true)
+    expect(store.isVersionBelow('0.0.0-99999999999999999999', '0.0.0-99999999999999999998')).toBe(false)
+    expect(store.isVersionBelow('0.0.0-9', '0.0.0-10')).toBe(true) // 9 < 10 (longer decimal wins)
+    expect(store.isVersionBelow('0.0.0-10', '0.0.0-9')).toBe(false)
   })
 })
 
@@ -438,6 +451,32 @@ describe('resolveBuildTimeMinSafeVersion — fail-closed on a misbuilt bundle (r
     // not fail open — a structurally-broken build shows the blocked screen).
     const store = useAppVersionStore()
     expect(store.isVersionBelow('99.0.0', FAIL_CLOSED_MIN_SAFE_VERSION)).toBe(true)
+  })
+})
+
+describe('checkMinSafeVersion — never persists the fail-closed sentinel (review iteration)', () => {
+  // @UT-SYS-STORE-094@ (FROM: @IMP-SYS-STORE-008@)
+  it('does not write the fail-closed sentinel to the cache', async () => {
+    // If the effective floor resolves to the sentinel, persisting it would
+    // launder the ephemeral fail-closed marker into a durable cache entry that
+    // even a later correctly-built bundle reads back and stays blocked on.
+    // Stage a (hypothetical) cached sentinel so effectiveMin === sentinel.
+    mockedInspect.mockResolvedValue({
+      kind: 'hit',
+      value: FAIL_CLOSED_MIN_SAFE_VERSION,
+      fetchedAt: 1_000,
+    })
+    mockedRemote.mockResolvedValue(null)
+
+    const store = useAppVersionStore()
+    store.currentVersion = '0.5.0'
+    await store.checkMinSafeVersion(() => 9_000)
+
+    // Still fail closed in memory…
+    expect(store.versionBlocked).toBe(true)
+    expect(store.minSafeVersion).toBe(FAIL_CLOSED_MIN_SAFE_VERSION)
+    // …but the sentinel must never reach disk (no new write).
+    expect(mockedPersist).not.toHaveBeenCalled()
   })
 })
 

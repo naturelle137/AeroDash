@@ -1,21 +1,26 @@
 /**
  * Deployment-consistency guard — REQ-SYS-006 / H-019 (issue #271).
  *
- * PR-review Blocker B1: the shipped `/version.json` must never declare a
- * `minSafeVersion` ABOVE the deployed application version. If it did, the
- * first online cold start of the freshly-deployed bundle would compute
- * `effectiveMin = remoteValue > currentVersion`, block the user, and — because
- * the offline cache then locks that floor in — every subsequent OFFLINE start
- * would block too: a self-perpetuating brick of exactly the gate this feature
- * adds.
+ * PR-review Blocker B1 (+ review-iteration hardening): a freshly-deployed
+ * bundle must never block itself. TWO floors feed the gate at runtime — the
+ * build-time constant `__MIN_SAFE_VERSION__` and the operator-overridable
+ * `/version.json` remote floor — and both are compared against the running app
+ * version `__APP_VERSION__`. If either floor sits above the app version, the
+ * first online cold start computes `effectiveMin > currentVersion`, blocks, and
+ * the offline cache then locks that floor in: a self-perpetuating brick of
+ * exactly the gate this feature adds.
  *
- * This guard is fixture-driven (reads the committed deploy artifacts) so a
- * future floor bump that outruns the app version fails CI instead of bricking
- * the cockpit. The integration test mocks the remote and cannot catch this.
+ * This guard reads what the runtime actually compares — the Vite build-time
+ * defines as the bundle sees them, plus the committed `/version.json` fixture —
+ * so a future floor bump that outruns the app version fails CI instead of
+ * bricking the cockpit. (Checking only `package.json` would miss a
+ * `__MIN_SAFE_VERSION__` bump, since that define is set independently in
+ * `vite.config.ts`.) The integration test mocks the remote and cannot catch this.
  */
 
 // @UT-SYS-STORE-084@ (FROM: @IMP-SYS-STORE-017@)
 // @UT-SYS-STORE-085@ (FROM: @IMP-SYS-STORE-017@)
+// @UT-SYS-STORE-095@ (FROM: @IMP-SYS-STORE-020@)
 
 import { readFileSync } from 'node:fs'
 import { fileURLToPath, URL } from 'node:url'
@@ -30,22 +35,23 @@ function readJson(relativeToThisFile: string): Record<string, unknown> {
 }
 
 const versionManifest = readJson('../../../public/version.json')
-const pkg = readJson('../../../package.json')
-
 const shippedMinSafeVersion = String(versionManifest.minSafeVersion)
-const appVersion = String(pkg.version)
 
-describe('deployment guard — shipped /version.json vs app version (PR-review Blocker B1)', () => {
+describe('deployment guard — runtime floors vs app version (PR-review Blocker B1)', () => {
   // @UT-SYS-STORE-084@ (FROM: @IMP-SYS-STORE-017@)
-  it('ships a structurally valid minSafeVersion in /version.json', () => {
-    expect(isValidSemVer(shippedMinSafeVersion)).toBe(true)
+  it('ships structurally valid floors and app version', () => {
+    expect(isValidSemVer(shippedMinSafeVersion)).toBe(true) // /version.json remote floor
+    expect(isValidSemVer(__MIN_SAFE_VERSION__)).toBe(true) // build-time floor
+    expect(isValidSemVer(__APP_VERSION__)).toBe(true) // running version
   })
 
   // @UT-SYS-STORE-085@ (FROM: @IMP-SYS-STORE-017@)
-  it('does not declare a floor above the deployed app version (no self-brick)', () => {
-    // The running build must NOT be below the floor its own deployment ships,
-    // or every online user is kill-switched on day one.
-    expect(isValidSemVer(appVersion)).toBe(true)
-    expect(isVersionBelow(appVersion, shippedMinSafeVersion)).toBe(false)
+  it('the shipped /version.json floor is not above the deployed app version (no remote self-brick)', () => {
+    expect(isVersionBelow(__APP_VERSION__, shippedMinSafeVersion)).toBe(false)
+  })
+
+  // @UT-SYS-STORE-095@ (FROM: @IMP-SYS-STORE-020@)
+  it('the build-time __MIN_SAFE_VERSION__ floor is not above the deployed app version (no build-time self-brick)', () => {
+    expect(isVersionBelow(__APP_VERSION__, __MIN_SAFE_VERSION__)).toBe(false)
   })
 })

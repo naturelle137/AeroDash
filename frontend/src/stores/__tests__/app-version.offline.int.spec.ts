@@ -88,7 +88,9 @@ describe('REQ-SYS-006 / H-019 — offline enforcement (issue #271, CS-011/TECH-0
     vi.stubGlobal('navigator', { onLine: false })
 
     const store = useAppVersionStore()
-    store.currentVersion = '0.3.0' // matches the build-time constant of 0.3.0
+    // Release 0.3.0 is at/above the build-time floor 0.3.0-alpha (SemVer §11.3:
+    // a release outranks the matching pre-release), so a fresh install is not blocked.
+    store.currentVersion = '0.3.0'
     await store.checkMinSafeVersion()
 
     expect(store.cacheFetchedAt).toBeNull()

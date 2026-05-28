@@ -232,7 +232,14 @@ export const useAppVersionStore = defineStore('appVersion', () => {
 
     // ── Step 2 — best-effort online refresh ────────────────────────────────
     const online = typeof navigator !== 'undefined' && navigator.onLine === true
-    if (online) {
+    // The fail-closed sentinel is an ephemeral marker for a structurally-broken
+    // build — it must NEVER be persisted. `isValidSemVer('999.999.999')` is
+    // true, so persistCachedMinSafeVersion would happily write it; once on
+    // disk, `pickHigherVersion` keeps it above every real version, so even a
+    // later correctly-built bundle would read the cached sentinel and stay
+    // blocked forever. Skipping the write keeps the block ephemeral (cleared
+    // by the next good build) and leaves any legitimate cached floor intact.
+    if (online && effectiveMin !== FAIL_CLOSED_MIN_SAFE_VERSION) {
       const remoteValue = await fetchRemoteMinSafeVersion()
       if (remoteValue) {
         effectiveMin = pickHigherVersion(effectiveMin, remoteValue)

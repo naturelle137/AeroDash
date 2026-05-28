@@ -172,20 +172,25 @@ describe('fetchRemoteMinSafeVersion — failure modes resolve to null', () => {
   // PR-review Minor #4: a present-but-malformed Content-Length must REJECT,
   // not silently fall through to read an unbounded body. `Number('abc')` is
   // NaN, which the prior `Number.isFinite(len) && len > cap` test skipped.
-  it('returns null when Content-Length is present but non-numeric (does not read the body)', async () => {
-    const textSpy = vi.fn<() => Promise<string>>(async () => JSON.stringify({ minSafeVersion: '0.5.0' }))
-    const fetchImpl = vi.fn<typeof fetch>().mockResolvedValue({
-      ok: true,
-      status: 200,
-      headers: {
-        get: (name: string) => (name.toLowerCase() === 'content-length' ? 'not-a-number' : null),
-      },
-      text: textSpy,
-    } as unknown as Response)
+  // Content-Length per RFC 9110 is a bare decimal; anything else is malformed
+  // and must reject before the body is read (so a hostile size can't OOM).
+  it.each(['not-a-number', '0x10', '', '42, 42'])(
+    'returns null on a non-decimal Content-Length %j without reading the body',
+    async (contentLength) => {
+      const textSpy = vi.fn<() => Promise<string>>(async () => JSON.stringify({ minSafeVersion: '0.5.0' }))
+      const fetchImpl = vi.fn<typeof fetch>().mockResolvedValue({
+        ok: true,
+        status: 200,
+        headers: {
+          get: (name: string) => (name.toLowerCase() === 'content-length' ? contentLength : null),
+        },
+        text: textSpy,
+      } as unknown as Response)
 
-    expect(await fetchRemoteMinSafeVersion({ fetchImpl })).toBeNull()
-    expect(textSpy).not.toHaveBeenCalled()
-  })
+      expect(await fetchRemoteMinSafeVersion({ fetchImpl })).toBeNull()
+      expect(textSpy).not.toHaveBeenCalled()
+    },
+  )
 
   // @UT-SYS-STORE-093@ (FROM: @IMP-SYS-STORE-017@)
   // PR-review Minor #3: the post-read cap measures UTF-8 BYTES, not UTF-16
@@ -240,9 +245,11 @@ describe('fetchRemoteMinSafeVersion — AbortController fallback (PR-review Mino
   it('times out via the wall-clock race when AbortController is present but the fetch ignores the signal', async () => {
     expect(typeof AbortController).toBe('function') // default jsdom — not dropped here
 
-    const fetchImpl = vi
-      .fn<typeof fetch>()
-      .mockImplementation(() => new Promise<Response>(() => undefined as unknown as void))
+    let capturedSignal: AbortSignal | undefined
+    const fetchImpl = vi.fn<typeof fetch>().mockImplementation((_url, init) => {
+      capturedSignal = (init as RequestInit | undefined)?.signal ?? undefined
+      return new Promise<Response>(() => undefined as unknown as void) // never settles, ignores signal
+    })
 
     const start = Date.now()
     const out = await fetchRemoteMinSafeVersion({ fetchImpl, timeoutMs: 30 })
@@ -250,5 +257,8 @@ describe('fetchRemoteMinSafeVersion — AbortController fallback (PR-review Mino
 
     expect(out).toBeNull()
     expect(elapsed).toBeLessThan(500)
+    // Review-iteration: the timeout must also ABORT the in-flight request, so a
+    // signal-honouring fetch is cancelled rather than left running detached.
+    expect(capturedSignal?.aborted).toBe(true)
   })
 })
