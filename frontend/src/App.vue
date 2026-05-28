@@ -81,7 +81,7 @@ const navItems: NavItem[] = [
   { id: 'weather',     label: 'Weather',     path: '/weather',     icon: 'wx',   soon: true },
   { id: 'fuel',        label: 'Fuel',        path: '/fuel',        icon: 'fuel', soon: true },
   { id: 'airport',     label: 'Airport DB',  path: '/airport',     icon: 'ap',   soon: true },
-  // @IMP-UI-SHARED-007@ (FROM: @REQ-SYS-014@, @REQ-SYS-015@, @REQ-SYS-016@)
+  // @IMP-UI-SHARED-007@ (FROM: @REQ-SYS-014@, @REQ-SYS-015@)
   { id: 'privacy',     label: 'Privacy',     path: '/privacy',     icon: 'privacy' },
 ]
 

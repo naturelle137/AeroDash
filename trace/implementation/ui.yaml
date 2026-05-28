@@ -119,7 +119,6 @@ UI (auto)
     req:
       - REQ-SYS-014
       - REQ-SYS-015
-      - REQ-SYS-016
 
   IMP-UI-ROUTE-004
     title: TODO: describe this artifact
@@ -128,7 +127,6 @@ UI (auto)
     req:
       - REQ-SYS-014
       - REQ-SYS-015
-      - REQ-SYS-016
 
   IMP-UI-VIEW-002
     title: TODO: describe this artifact
@@ -137,4 +135,3 @@ UI (auto)
     req:
       - REQ-SYS-014
       - REQ-SYS-015
-      - REQ-SYS-016

@@ -59,13 +59,9 @@ System Requirements
     file: docs/requirements/system.md
 
   REQ-SYS-014
-    title: Repository-Wide Wipe (Delete-All-Data)
+    title: Erasure of All Personal Data
     file: docs/requirements/system.md
 
   REQ-SYS-015
-    title: Bulk JSON Export of All Profiles
-    file: docs/requirements/system.md
-
-  REQ-SYS-016
-    title: Age-Based Retention Purge
+    title: Export of All Personal Data
     file: docs/requirements/system.md

@@ -1,6 +1,6 @@
 /**
  * Unit tests for PrivacyView.vue.
- * Covers REQ-SYS-014 (delete-all), REQ-SYS-015 (export-all), REQ-SYS-016 (purge).
+ * Covers REQ-SYS-014 (delete-all) and REQ-SYS-015 (export-all).
  *
  * @see frontend/src/views/PrivacyView.vue
  */
@@ -14,7 +14,6 @@ import { nextTick, ref } from 'vue'
 import PrivacyView from '../PrivacyView.vue'
 import type {
   BulkExportEnvelope,
-  PurgeCandidate,
   WipeReport,
 } from '@/modules/aircraft/services/data-rights.service'
 
@@ -34,17 +33,12 @@ vi.mock('@/modules/aircraft/stores/fleet.store', () => {
 
 const exportMock = vi.fn<(now?: Date) => Promise<BulkExportEnvelope>>()
 const serializeMock = vi.fn<(envelope: BulkExportEnvelope) => string>()
-const listMock = vi.fn<(retentionDays?: number, now?: Date) => Promise<PurgeCandidate[]>>()
-const purgeMock = vi.fn<(retentionDays?: number, now?: Date) => Promise<PurgeCandidate[]>>()
 const wipeMock = vi.fn<() => Promise<WipeReport>>()
 
 vi.mock('@/modules/aircraft/services/data-rights.service', () => {
   return {
-    DEFAULT_RETENTION_DAYS: 365,
     exportAllProfiles: (now?: Date) => exportMock(now),
     serializeBulkExport: (envelope: BulkExportEnvelope) => serializeMock(envelope),
-    listPurgeCandidates: (retentionDays?: number, now?: Date) => listMock(retentionDays, now),
-    purgeProfilesOlderThan: (retentionDays?: number, now?: Date) => purgeMock(retentionDays, now),
     wipeAllLocalData: () => wipeMock(),
   }
 })
@@ -72,14 +66,10 @@ beforeEach(() => {
   setActivePinia(createPinia())
   exportMock.mockReset()
   serializeMock.mockReset()
-  listMock.mockReset()
-  purgeMock.mockReset()
   wipeMock.mockReset()
   loadAllMock.mockClear()
   exportMock.mockResolvedValue(defaultEnvelope())
   serializeMock.mockReturnValue('{"exportSchemaVersion":1}')
-  listMock.mockResolvedValue([])
-  purgeMock.mockResolvedValue([])
   wipeMock.mockResolvedValue(defaultWipeReport())
   fleetProfiles.value = []
 
@@ -173,61 +163,5 @@ describe('PrivacyView — delete-all (REQ-SYS-014)', () => {
     await nextTick()
     expect(wrapper.find('[data-testid="wipe-dialog"]').exists()).toBe(false)
     expect(wipeMock).not.toHaveBeenCalled()
-  })
-})
-
-// ─── REQ-SYS-016 ───────────────────────────────────────────────────────────
-describe('PrivacyView — retention purge (REQ-SYS-016)', () => {
-  it('previews candidates and only confirms via an explicit click', async () => {
-    fleetProfiles.value = [{ id: 'aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaaa' }]
-    const candidate: PurgeCandidate = {
-      id: 'aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaaa',
-      registration: 'D-OLD',
-      status: 'draft',
-      mostRecentValidFromIso: '2020-01-01',
-      ageDays: 2000,
-    }
-    listMock.mockResolvedValueOnce([candidate])
-    purgeMock.mockResolvedValueOnce([candidate])
-
-    const wrapper = mountView()
-    await flushPromises()
-
-    await wrapper.find('[data-testid="purge-preview-btn"]').trigger('click')
-    await flushPromises()
-
-    const dialog = wrapper.find('[data-testid="purge-dialog"]')
-    expect(dialog.exists()).toBe(true)
-    expect(dialog.find('[data-testid="purge-list"]').text()).toContain('D-OLD')
-
-    await wrapper.find('[data-testid="purge-confirm-btn"]').trigger('click')
-    await flushPromises()
-
-    expect(purgeMock).toHaveBeenCalledWith(365, undefined)
-    expect(wrapper.find('[data-testid="privacy-purge-notice"]').exists()).toBe(true)
-  })
-
-  it('cancel closes the preview without calling purgeProfilesOlderThan', async () => {
-    fleetProfiles.value = [{ id: 'x' }]
-    listMock.mockResolvedValueOnce([])
-    const wrapper = mountView()
-    await flushPromises()
-
-    await wrapper.find('[data-testid="purge-preview-btn"]').trigger('click')
-    await flushPromises()
-    expect(wrapper.find('[data-testid="purge-dialog"]').exists()).toBe(true)
-
-    await wrapper.find('[data-testid="purge-cancel-btn"]').trigger('click')
-    await nextTick()
-    expect(wrapper.find('[data-testid="purge-dialog"]').exists()).toBe(false)
-    expect(purgeMock).not.toHaveBeenCalled()
-  })
-
-  it('disables the preview button when the fleet is empty', async () => {
-    fleetProfiles.value = []
-    const wrapper = mountView()
-    await flushPromises()
-    const btn = wrapper.find('[data-testid="purge-preview-btn"]')
-    expect((btn.element as HTMLButtonElement).disabled).toBe(true)
   })
 })

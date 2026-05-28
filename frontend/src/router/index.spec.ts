@@ -33,7 +33,7 @@ it('resolves /mass-balance path to mass-balance route record', () => {
 })
 
 // @UT-UI-ROUTE-004@ (FROM: @IMP-UI-ROUTE-004@)
-it('registers /privacy as the privacy view (REQ-SYS-014, REQ-SYS-015, REQ-SYS-016)', () => {
+it('registers /privacy as the privacy view (REQ-SYS-014, REQ-SYS-015)', () => {
   expect(router.hasRoute('privacy')).toBe(true)
   const resolved = router.resolve({ name: 'privacy' })
   expect(resolved.path).toBe('/privacy')

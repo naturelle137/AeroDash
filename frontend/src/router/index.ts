@@ -34,7 +34,7 @@ const router = createRouter({
       name: 'fleet-edit',
       component: () => import('@/modules/aircraft/views/AircraftProfileEditorView.vue'),
     },
-    // @IMP-UI-ROUTE-004@ (FROM: @REQ-SYS-014@, @REQ-SYS-015@, @REQ-SYS-016@)
+    // @IMP-UI-ROUTE-004@ (FROM: @REQ-SYS-014@, @REQ-SYS-015@)
     {
       path: '/privacy',
       name: 'privacy',

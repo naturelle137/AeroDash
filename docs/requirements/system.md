@@ -137,30 +137,20 @@ This document defines the system behavior using the **EARS** (Easy Approach to R
 
 <!-- @REQ-SYS-014@ -->
 
-### REQ-SYS-014: Repository-Wide Wipe (Delete-All-Data)
+### REQ-SYS-014: Erasure of All Personal Data
 
-**Requirement:** The system shall provide an in-app "Delete All Data" action that, upon explicit pilot confirmation, clears all locally persisted application data in a single operation: the IndexedDB fleet store (`aerodash-fleet`), the `localStorage` session payload, the `sessionStorage` cold-start marker, and any other `aerodash`-prefixed storage keys.
-**Rationale:** GDPR Art. 17 right to erasure (DP-002, DP-003). Eliminates the prior dependency on browser-level "Clear site data" for full data removal.
+**Requirement:** When the user requests erasure of their data, the system shall, upon explicit confirmation, permanently and irrecoverably delete all personal data the application holds about the user, across every storage location under the application's control, in a single user action. If any part of that data cannot be deleted, then the system shall report the failure and shall not indicate the erasure as complete.
+**Rationale:** GDPR Art. 17 right to erasure (DP-002, DP-003). The control must encompass every category of personal data the application retains — not one storage mechanism — so the right is honoured in full regardless of where or how that data is held, including any account, profile, or synchronised data added in future. Which stores exist and how deletion is performed are design concerns; when a new personal-data store is introduced, this requirement's verification must be revisited.
 **Priority:** P2
 **Status:** Implemented
 **Design Reference:** n/a
 
 <!-- @REQ-SYS-015@ -->
 
-### REQ-SYS-015: Bulk JSON Export of All Profiles
+### REQ-SYS-015: Export of All Personal Data
 
-**Requirement:** The system shall provide an action that exports every locally persisted aircraft profile as a single, schema-versioned JSON document (UTF-8, RFC 8259) and offers it to the pilot as a file download.
-**Rationale:** GDPR Art. 15 (right of access) and Art. 20 (data portability) (DP-002). Lets the pilot relocate their fleet to another device, archive it, or hand it over before invoking REQ-SYS-014.
-**Priority:** P2
-**Status:** Implemented
-**Design Reference:** n/a
-
-<!-- @REQ-SYS-016@ -->
-
-### REQ-SYS-016: Age-Based Retention Purge
-
-**Requirement:** The system shall provide an action that lists and removes aircraft profiles whose most recent weighing-report `validFrom` date is older than a configurable retention window (default 12 months from the current date). The pilot shall be able to preview the candidates and confirm before any record is deleted.
-**Rationale:** GDPR Art. 5(1)(e) storage limitation (DP-003). Aligns the PRIVACY.md retention claim with concrete in-app behaviour without silently destroying long-lived but currently-active aircraft data.
+**Requirement:** When the user requests a copy of their data, the system shall produce an export containing all personal data the application holds about the user in a structured, commonly-used, machine-readable format, and shall make that export available to the user to retain.
+**Rationale:** GDPR Art. 15 (right of access) and Art. 20 (data portability) (DP-002). A complete, portable copy lets the user inspect, archive, or migrate their data — including before exercising erasure (REQ-SYS-014). The concrete serialisation format and delivery mechanism are design concerns, and the export must extend to any account, profile, or synchronised data added in future.
 **Priority:** P2
 **Status:** Implemented
 **Design Reference:** n/a

@@ -10,7 +10,6 @@
 
 import { describe, it, expect } from 'vitest'
 import {
-  DEFAULT_RETENTION_DAYS,
   INDEXED_DB_FLEET_NAME,
   serializeBulkExport,
   type BulkExportEnvelope,
@@ -19,10 +18,6 @@ import {
 describe('data-rights.service constants', () => {
   it('exposes the IndexedDB fleet database name as a stable constant', () => {
     expect(INDEXED_DB_FLEET_NAME).toBe('aerodash-fleet')
-  })
-
-  it('defaults the retention window to 365 days (≈12 months)', () => {
-    expect(DEFAULT_RETENTION_DAYS).toBe(365)
   })
 })
 

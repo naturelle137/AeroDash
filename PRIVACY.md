@@ -1,7 +1,7 @@
 # Privacy & Data Protection
 
-- version: 1.2
-- date: 2026-05-27
+- version: 1.3
+- date: 2026-05-28
 - status: active
 
 ---
@@ -66,22 +66,24 @@ This release **does** persist data on the device. All storage is **local to the 
    Data* action.
 
 **User control today:** AeroDash ships a dedicated **Privacy view** at
-`/privacy` exposing three GDPR-aligned actions:
+`/privacy` exposing two GDPR-aligned actions:
 
 1. **Bulk JSON Export (Art. 15 / Art. 20).** Downloads every persisted
    aircraft profile as a single schema-versioned JSON file
    (`aerodash-fleet-<timestamp>.json`).
-2. **Age-Based Retention Purge (Art. 5(1)(e)).** Lists every profile whose
-   most recent weighing report's `validFrom` date is older than the default
-   12-month retention window, then deletes them on explicit confirmation.
-   The purge is **pilot-initiated, not silent**: silently dropping a profile
-   whose long-lived BEM weighing remains valid would be a worse regression
-   than the storage it consumes, so the system surfaces a preview and
-   requires confirmation instead of auto-purging at startup.
-3. **Delete All Data (Art. 17).** After explicit confirmation (typed
+2. **Delete All Data (Art. 17).** After explicit confirmation (typed
    confirmation phrase), clears the entire `aerodash-fleet` IndexedDB store
    plus every `aerodash`-prefixed localStorage and sessionStorage key in one
    transaction.
+
+**On retention (Art. 5(1)(e)):** AeroDash does not auto-expire stored data.
+A retention period bounds how long personal data is kept relative to the
+purpose it was collected for — it is *not* a function of how old an
+aircraft's weighing report is (a basic empty mass can remain valid and in
+active use for years). With no inactivity signal recorded today, automatic
+age-based deletion would risk destroying data the pilot still relies on, so
+retention is exercised by the pilot through the per-profile delete and the
+*Delete All Data* control above rather than by a time-based purge.
 
 Individual aircraft profiles can still be deleted from within the fleet
 view. A pilot can also remove all stored data outside the app by clearing
@@ -120,8 +122,7 @@ who has full physical control over the data:
 - **Right to erasure (Art. 17):** Individual profiles can be deleted in the
   fleet view. The Privacy view's *Delete All Data* action erases the entire
   fleet plus every `aerodash`-prefixed storage key in a single confirmed
-  operation. The age-based retention purge in the same view supports
-  partial, time-bounded erasure (records older than 12 months).
+  operation.
 - **Right to data portability (Art. 20):** The single-profile import/export
   flow on each Fleet card continues to handle one profile at a time. The
   Privacy view's *Bulk JSON Export* produces an envelope of every profile in
