@@ -7,6 +7,13 @@ SYS App — Session-Storage Advisory (Integration — #263 DP-004 / CS-012)
     files:
       - frontend/src/__tests__/App.session-storage-advisory.int.spec.ts
 
+SYS (auto)
+  IT-SYS-STORE-001
+    title: Data-rights service integration tests — wipe + bulk export (fake-indexeddb)
+    files:
+      - frontend/src/modules/aircraft/__tests__/data-rights.service.int.spec.ts
+    impl:
+      - IMP-SYS-STORE-013
 SYS Store — App-version offline enforcement (Integration — #271 CS-011 / TECH-023)
   IT-SYS-STORE-001
     title: useAppVersionStore + real IndexedDB cache — stale bundle that previously ran online is BLOCKED on the next offline start; truly fresh install OFFLINE bypasses; cache TTL warning still enforces (#271)

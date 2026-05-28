@@ -475,6 +475,13 @@ AC Store — Fleet Store Extended (Unit)
     files:
       - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
 
+  UT-AC-STORE-124
+    title: fleet.store — loadAll clears a stale unreadableProfileCount when a later load throws (LOADING→ERROR)
+    impl:
+      - IMP-AC-STORE-005
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+
   UT-AC-STORE-051
     title: fleet.store — createProfile rejects invalid ICAO registration format
     impl:

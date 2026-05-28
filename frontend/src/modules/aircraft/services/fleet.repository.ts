@@ -26,7 +26,8 @@ import { AircraftProfileSchema } from '@/core/adapters/aircraft.schema'
 
 // @IMP-AC-STORE-001@ (FROM: @REQ-AC-001@, @DES-ARCH-007@)
 
-const DB_NAME = 'aerodash-fleet'
+/** Canonical IndexedDB database name — the single source of truth for the fleet store. */
+export const DB_NAME = 'aerodash-fleet'
 /** Bumped to 2: normalize legacy `Draft`/`Verified` status strings to lowercase (REQ-AC-005). */
 const DB_VERSION = 2
 const STORE_NAME = 'aircraft_profiles'
@@ -290,6 +291,21 @@ export function deleteById(id: string): Promise<void> {
   return withStore<undefined>('readwrite', (store) => store.delete(id)).then(() => undefined)
 }
 
+/**
+ * Delete every AircraftProfile document in the store in a single transaction.
+ *
+ * Underpins REQ-SYS-014 (Repository-Wide Wipe / Delete-All-Data). Resolves
+ * once the `clear()` request succeeds (matching `create`/`update`/`deleteById`);
+ * a subsequent read opens a fresh transaction that IndexedDB serialises after
+ * the clear commits. The store itself is left present (only the row contents
+ * are cleared) so subsequent writes continue to hit the same object store
+ * without a re-`onupgradeneeded`.
+ */
+// @IMP-AC-STORE-009@ (FROM: @REQ-SYS-014@, @DES-ARCH-011@)
+export function deleteAll(): Promise<void> {
+  return withStore<undefined>('readwrite', (store) => store.clear()).then(() => undefined)
+}
+
 export const fleetRepository = {
   openDB,
   create,
@@ -299,4 +315,5 @@ export const fleetRepository = {
   findAllWithDiagnostics,
   update,
   deleteById,
+  deleteAll,
 }

@@ -1202,6 +1202,9 @@ SYS (auto)
       - IMP-SYS-STORE-010
 
   UT-SYS-STORE-046
+    title: Data-rights service unit tests — export serialization + constants
+    files:
+      - frontend/src/modules/aircraft/__tests__/data-rights.service.spec.ts
     title: app-version.cache load returns null on first install (no record present)
     files:
       - frontend/src/stores/__tests__/app-version.cache.spec.ts
@@ -1209,6 +1212,18 @@ SYS (auto)
       - IMP-SYS-STORE-013
 
   UT-SYS-STORE-047
+    title: cancelPendingSave — cancels a queued debounced save but leaves the persisted payload for the wipe sweep
+    impl:
+      - IMP-SYS-STORE-001
+    files:
+      - frontend/src/stores/__tests__/session-persistence.store.spec.ts
+
+  UT-SYS-STORE-048
+    title: cancelPendingSave — no-op when no save is pending
+    impl:
+      - IMP-SYS-STORE-001
+    files:
+      - frontend/src/stores/__tests__/session-persistence.store.spec.ts
     title: app-version.cache persist + load round-trip writes and reads SemVer + fetchedAt
     files:
       - frontend/src/stores/__tests__/app-version.cache.spec.ts

@@ -135,10 +135,31 @@ This document defines the system behavior using the **EARS** (Easy Approach to R
 
 **Requirement:** When the pilot has entered preflight data, the system shall automatically serialise the active session payload to `localStorage` on each value change (debounced) and restore it on page reload, provided the restored payload passes Zod schema validation. An invalid or absent payload shall result in a clean session with no pre-population. The session payload shall be cleared when a different aircraft profile is selected.
 
+<!-- @REQ-SYS-014@ -->
+
+### REQ-SYS-014: Erasure of All Personal Data
+
+**Requirement:** When the user requests erasure of their data, the system shall, upon explicit confirmation, permanently and irrecoverably delete all personal data the application holds about the user, across every storage location under the application's control, in a single user action. If any part of that data cannot be deleted, then the system shall report the failure and shall not indicate the erasure as complete.
+**Rationale:** GDPR Art. 17 right to erasure (DP-002, DP-003). The control must encompass every category of personal data the application retains — not one storage mechanism — so the right is honoured in full regardless of where or how that data is held, including any account, profile, or synchronised data added in future. Which stores exist and how deletion is performed are design concerns; when a new personal-data store is introduced, this requirement's verification must be revisited.
+**Priority:** P2
+**Status:** Implemented
+**Design Reference:** [Data-Rights Design](../architecture/data-rights.md)
+
+<!-- @REQ-SYS-015@ -->
+
+### REQ-SYS-015: Export of All Personal Data
+
+**Requirement:** When the user requests a copy of their data, the system shall produce an export containing all personal data the application holds about the user in a structured, commonly-used, machine-readable format, and shall make that export available to the user to retain.
+**Rationale:** GDPR Art. 15 (right of access) and Art. 20 (data portability) (DP-002). A complete, portable copy lets the user inspect, archive, or migrate their data — including before exercising erasure (REQ-SYS-014). The concrete serialisation format and delivery mechanism are design concerns, and the export must extend to any account, profile, or synchronised data added in future.
+**Priority:** P2
+**Status:** Implemented
+**Design Reference:** [Data-Rights Design](../architecture/data-rights.md)
+
 ---
 
 ## Design References
 
 - **<a name="notificationScheme"></a>Notification Scheme:** [`docs/architecture/notification_schema.md`](../architecture/notification_schema.md)
+- **<a name="dataRights"></a>Data-Rights (Erasure & Bulk Export):** [`docs/architecture/data-rights.md`](../architecture/data-rights.md)
 
 ---

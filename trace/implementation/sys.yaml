@@ -266,6 +266,16 @@ SYS (auto)
     req:
       - REQ-SYS-005
 
+  IMP-SYS-STORE-013
+    title: Data-rights service — erase / export of all personal data (REQ-SYS-014/015)
+    files:
+      - frontend/src/modules/aircraft/services/data-rights.service.ts
+    req:
+      - REQ-SYS-014
+      - REQ-SYS-015
+    des:
+      - DES-ARCH-011
+      - DES-ARCH-012
 SYS Shared — Min-Safe-Version offline enforcement (#271)
   IMP-SYS-SHARED-009
     title: App.vue wires checkMinSafeVersion + attachConnectivityRefresh on mount so the offline-enforced gate (issue #271) runs every cold start and again when connectivity returns (REQ-SYS-006 / H-019)
