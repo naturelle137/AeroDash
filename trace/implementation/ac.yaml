@@ -19,6 +19,20 @@ AC Core — Aircraft Profile Schema
     files:
       - frontend/src/core/adapters/aircraft.schema.ts
 
+  IMP-AC-CORE-004
+    title: VerificationProvenanceSchema — verifiedOn/verifiedBy/pohRevision/sourceWeighingDate sign-off block (REQ-AC-007)
+    req:
+      - REQ-AC-007
+    files:
+      - frontend/src/core/adapters/aircraft.schema.ts
+
+  IMP-AC-CORE-005
+    title: evaluateVerificationFreshness — pure draft/fresh/expired-aged/expired-source-changed verification freshness evaluation (REQ-AC-007, H-011)
+    req:
+      - REQ-AC-007
+    files:
+      - frontend/src/core/logic/profile-verification.ts
+
 AC Store — Fleet Repository
   IMP-AC-STORE-001
     title: Fleet Repository — IndexedDB CRUD persistence layer for AircraftProfile documents
@@ -73,6 +87,14 @@ AC Store — Fleet Repository
       - REQ-AC-005
     files:
       - frontend/src/modules/aircraft/stores/active-aircraft.store.ts
+
+  IMP-AC-STORE-011
+    title: verifyProfile / reverifyProfile sign-off — records verification provenance (date/initials/POH rev) bound to the active weighing report, re-attests in place, and strips it on Verified→Draft
+    req:
+      - REQ-AC-005
+      - REQ-AC-007
+    files:
+      - frontend/src/modules/aircraft/stores/fleet.store.ts
 
 AC Core — schemaVersion Migration Registry (#259)
   IMP-AC-CORE-003
@@ -284,6 +306,35 @@ AC View — Model Catalogue and Components
       - REQ-AC-001
     files:
       - frontend/src/modules/aircraft/components/FleetList.vue
+
+AC View — Verification Provenance (REQ-AC-007)
+  IMP-AC-VIEW-020
+    title: VerifyProfileDialog template — sign-off capture modal (initials, POH revision, date)
+    req:
+      - REQ-AC-007
+    files:
+      - frontend/src/modules/aircraft/components/VerifyProfileDialog.vue
+
+  IMP-AC-VIEW-021
+    title: VerifyProfileDialog script — sign-off form state, validation, and confirm/cancel emit
+    req:
+      - REQ-AC-007
+    files:
+      - frontend/src/modules/aircraft/components/VerifyProfileDialog.vue
+
+  IMP-AC-VIEW-022
+    title: FleetList verification provenance — per-profile freshness line, Expired badge, and verify/re-verify wiring
+    req:
+      - REQ-AC-007
+    files:
+      - frontend/src/modules/aircraft/components/FleetList.vue
+
+  IMP-AC-VIEW-023
+    title: AircraftProfileEditorView — header badge reflects expired/source-changed verification
+    req:
+      - REQ-AC-007
+    files:
+      - frontend/src/modules/aircraft/views/AircraftProfileEditorView.vue
 
 AC (auto)
   IMP-AC-VIEW-031

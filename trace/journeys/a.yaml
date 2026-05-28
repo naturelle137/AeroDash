@@ -5,6 +5,7 @@ Phase A — Fleet Management & Setup
     req:
       - REQ-AC-001
       - REQ-AC-005
+      - REQ-AC-007
       - REQ-AD-005
       - REQ-AD-012
       - REQ-AD-014

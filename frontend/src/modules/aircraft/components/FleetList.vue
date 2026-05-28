@@ -27,9 +27,24 @@
         role="listitem"
       >
         <div class="profile-item__info">
-          <span class="profile-item__registration">{{ profile.registration }}</span>
-          <span class="profile-item__model">{{ profile.manufacturer }} {{ profile.model }}</span>
-          <ProfileStatusBadge :status="profile.status" />
+          <div class="profile-item__identity">
+            <span class="profile-item__registration">{{ profile.registration }}</span>
+            <span class="profile-item__model">{{ profile.manufacturer }} {{ profile.model }}</span>
+            <ProfileStatusBadge
+              :status="profile.status"
+              :expired="freshnessFor(profile).requiresReverification"
+            />
+          </div>
+          <!-- @IMP-AC-VIEW-022@ (FROM: @REQ-AC-007@) -->
+          <p
+            v-if="provenanceLine(profile)"
+            class="profile-item__provenance"
+            :class="{
+              'profile-item__provenance--expired': freshnessFor(profile).requiresReverification,
+            }"
+          >
+            {{ provenanceLine(profile) }}
+          </p>
         </div>
 
         <div class="profile-item__actions">
@@ -85,14 +100,14 @@
             </span>
           </button>
 
-          <!-- Verify draft profile -->
+          <!-- Verify draft profile, or re-verify a verified profile whose sign-off expired -->
           <button
-            v-if="profile.status === 'draft'"
+            v-if="needsVerification(profile)"
             type="button"
             class="icon-btn icon-btn--verify btn-success btn-verify"
-            :aria-label="`Verify ${profile.registration}`"
-            :title="`Verify ${profile.registration}`"
-            @click="onVerify(profile.id)"
+            :aria-label="`${profile.status === 'verified' ? 'Re-verify' : 'Verify'} ${profile.registration}`"
+            :title="`${profile.status === 'verified' ? 'Re-verify' : 'Verify'} ${profile.registration}`"
+            @click="onVerify(profile)"
           >
             <svg
               class="icon-btn__icon"
@@ -228,6 +243,14 @@
       @undo="onUndoDelete"
       @dismiss="onDismissUndo"
     />
+
+    <!-- REQ-AC-007: verification sign-off capture (date + initials + POH revision) -->
+    <VerifyProfileDialog
+      :open="pendingVerify !== null"
+      :registration="pendingVerify?.registration ?? ''"
+      @confirm="onConfirmVerify"
+      @cancel="onCancelVerify"
+    />
   </div>
 </template>
 
@@ -235,11 +258,16 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import type { AircraftProfile } from '@/core/adapters/aircraft.schema'
-import { useFleetStore } from '../stores/fleet.store'
+import {
+  evaluateVerificationFreshness,
+  type VerificationFreshness,
+} from '@/core/logic/profile-verification'
+import { useFleetStore, type VerificationSignoff } from '../stores/fleet.store'
 import { useActiveAircraftStore } from '../stores/active-aircraft.store'
 import { fleetRepository } from '../services/fleet.repository'
 import { downloadProfileAsJson } from '../services/profile.import'
 import ProfileStatusBadge from './ProfileStatusBadge.vue'
+import VerifyProfileDialog from './VerifyProfileDialog.vue'
 import ConfirmDialog from '@/shared/components/ConfirmDialog.vue'
 import UndoToast from '@/shared/components/UndoToast.vue'
 
@@ -248,6 +276,60 @@ import UndoToast from '@/shared/components/UndoToast.vue'
 const router = useRouter()
 const fleetStore = useFleetStore()
 const activeStore = useActiveAircraftStore()
+
+// ─── REQ-AC-007: verification provenance + expiry display ──────────────────
+// @IMP-AC-VIEW-022@ (FROM: @REQ-AC-007@)
+
+/** Freshness of a profile's verification, evaluated against the current date. */
+function freshnessFor(profile: AircraftProfile): VerificationFreshness {
+  return evaluateVerificationFreshness(profile, new Date())
+}
+
+/** Human one-line provenance summary, or null when there is nothing to show. */
+function provenanceLine(profile: AircraftProfile): string | null {
+  const f = freshnessFor(profile)
+  if (f.state === 'expired-source-changed') {
+    return 'Verification expired — the source weighing report changed. Re-verify before use.'
+  }
+  if (f.state === 'expired-aged' && f.provenance) {
+    return `Verification expired (signed off ${f.provenance.verifiedOn} by ${f.provenance.verifiedBy}). Re-verify before use.`
+  }
+  if (f.state === 'fresh' && f.provenance) {
+    return `Verified by ${f.provenance.verifiedBy} on ${f.provenance.verifiedOn} against POH ${f.provenance.pohRevision}.`
+  }
+  if (f.state === 'verified-unattributed') {
+    return 'Verified (no recorded sign-off — re-verify to add provenance).'
+  }
+  return null
+}
+
+/** A draft, or a verified profile whose sign-off has expired, needs (re-)verification. */
+function needsVerification(profile: AircraftProfile): boolean {
+  return profile.status === 'draft' || freshnessFor(profile).requiresReverification
+}
+
+const pendingVerify = ref<AircraftProfile | null>(null)
+
+function onVerify(profile: AircraftProfile): void {
+  pendingVerify.value = profile
+}
+
+async function onConfirmVerify(signoff: VerificationSignoff): Promise<void> {
+  const profile = pendingVerify.value
+  pendingVerify.value = null
+  if (!profile) return
+  // A Draft is promoted to a new Verified snapshot; an expired Verified profile
+  // is re-attested in place. Both record the same sign-off provenance.
+  if (profile.status === 'verified') {
+    await fleetStore.reverifyProfile(profile.id, signoff)
+  } else {
+    await fleetStore.verifyProfile(profile.id, signoff)
+  }
+}
+
+function onCancelVerify(): void {
+  pendingVerify.value = null
+}
 
 // ─── UX-001: confirm-then-undo destructive delete ──────────────────────────
 // @IMP-AC-VIEW-019@ (FROM: @REQ-AC-001@)
@@ -264,10 +346,6 @@ function onSelectActive(profile: AircraftProfile): void {
   // Emit draft warning if profile is a Draft (REQ-AC-005)
   fleetStore.checkDraftWarning(profile)
   activeStore.setActiveProfile(profile)
-}
-
-async function onVerify(id: string): Promise<void> {
-  await fleetStore.verifyProfile(id)
 }
 
 function onEdit(id: string): void {
@@ -387,10 +465,29 @@ function onDismissUndo(): void {
 
 .profile-item__info {
   display: flex;
-  align-items: center;
-  gap: 0.75rem;
+  flex-direction: column;
+  gap: 0.25rem;
   flex: 1;
   min-width: 0;
+}
+
+.profile-item__identity {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.profile-item__provenance {
+  margin: 0;
+  font-size: 0.75rem;
+  line-height: 1.35;
+  color: var(--color-text-secondary, #6b7280);
+}
+
+.profile-item__provenance--expired {
+  color: var(--color-critical, #991b1b);
+  font-weight: 600;
 }
 
 .profile-item__registration {

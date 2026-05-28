@@ -57,7 +57,7 @@ gap that issue #267 closed.
 | H-008 | S2 | Mitigated | REQ-PF-015, REQ-PF-016 |
 | H-009 | S2 | Mitigated | REQ-AP-004, REQ-WX-004, REQ-WX-005 |
 | H-010 | S1 | Mitigated | REQ-FE-002, REQ-UQ-006 |
-| H-011 | S1 | Mitigated | REQ-AC-005, REQ-UI-023, REQ-UQ-006 |
+| H-011 | S1 | Mitigated | REQ-AC-005, REQ-AC-007, REQ-UI-023, REQ-UQ-006 |
 | H-012 | S1 | Mitigated | REQ-PF-010, REQ-PF-012 |
 | H-013 | S1 | Mitigated | REQ-PF-011 |
 | H-014 | S1 | Mitigated | REQ-WX-009, REQ-AD-017 |
@@ -166,7 +166,7 @@ gap that issue #267 closed.
 **Severity:** S1
 **Cause:** Garbage In, Garbage Out (e.g., wrong MTOM entered).
 **Status:** Mitigated
-**Mitigated By:** REQ-AC-005, REQ-UI-023, REQ-UQ-006
+**Mitigated By:** REQ-AC-005, REQ-AC-007, REQ-UI-023, REQ-UQ-006
 
 <!-- @H-012@ -->
 ### H-012: Performance data extrapolation errors

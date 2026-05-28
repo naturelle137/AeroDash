@@ -92,6 +92,22 @@ Then('the M&B section becomes unlocked', async ({ page }) => {
   await expect(page.getByRole('region', { name: /Mass and Balance/i })).toBeVisible()
 })
 
+// ─── Draft acknowledgement (REQ-AC-005 / REQ-AC-007, WARN-AC-002) ──────────
+
+Then('an inline draft acknowledgement warning is shown', async ({ page }) => {
+  const ack = page.locator('.draft-ack')
+  await expect(ack).toBeVisible()
+  await expect(ack).toContainText('WARN-AC-002')
+})
+
+Then('the Mass & Balance section remains locked', async ({ page }) => {
+  await expect(page.locator('.locked-placeholder')).toBeVisible()
+})
+
+When('the pilot acknowledges the draft warning to continue', async ({ page }) => {
+  await page.locator('.draft-ack__btn--continue').click()
+})
+
 // ─── Catalogue leak regression assertions ─────────────────────────────────
 
 Then(

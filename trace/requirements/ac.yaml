@@ -24,3 +24,9 @@ Aircraft Management Requirements
   REQ-AC-006
     title: Passenger Profiles
     file: docs/requirements/aircraft_management.md
+
+  REQ-AC-007
+    title: Verification Provenance & Expiry
+    file: docs/requirements/aircraft_management.md
+    hazard:
+      - H-011

@@ -52,6 +52,36 @@ export type FleetNotification = {
   message: string
 }
 
+/** Thrown when a verification sign-off is missing its mandatory provenance. */
+export class IncompleteSignoffError extends Error {
+  constructor() {
+    super('Verification requires verifier initials and the POH revision verified against.')
+    this.name = 'IncompleteSignoffError'
+  }
+}
+
+/**
+ * Sign-off provenance the pilot must supply to verify a profile (REQ-AC-007).
+ * `verifiedOn` defaults to today's calendar date when omitted; `sourceWeighingDate`
+ * is derived by the store from the profile's active weighing report.
+ */
+export interface VerificationSignoff {
+  verifiedBy: string
+  pohRevision: string
+  verifiedOn?: string
+}
+
+/** Today's calendar date as 'YYYY-MM-DD' (UTC). */
+function todayIso(): string {
+  return new Date().toISOString().slice(0, 10)
+}
+
+/** The active (latest by `validFrom`) weighing report date for an aircraft profile. */
+function activeWeighingDate(profile: AircraftProfile): string {
+  return [...profile.weighingReports].sort((a, b) => b.validFrom.localeCompare(a.validFrom))[0]!
+    .validFrom
+}
+
 /** IndexedDB fleet hydration lifecycle for UI feedback (refs #158). */
 export type FleetLoadState = 'LOADING' | 'READY' | 'ERROR'
 
@@ -198,6 +228,8 @@ export const useFleetStore = defineStore('fleet', () => {
       ...changes,
       id,
       status: 'draft',
+      // A Draft is by definition unverified — never carry a stale sign-off (REQ-AC-007).
+      verification: undefined,
     })
 
     await fleetRepository.update(updated)
@@ -221,10 +253,17 @@ export const useFleetStore = defineStore('fleet', () => {
    * Creates a new immutable verified snapshot (new UUID, same data, status='verified').
    * Deletes the original Draft.
    *
+   * A verification sign-off (REQ-AC-007) is mandatory: the pilot must supply
+   * their initials and the POH revision checked against. The store stamps the
+   * provenance with the sign-off date (defaulting to today) and binds it to the
+   * profile's active weighing report, so a later source edit or an aged sign-off
+   * is detectable by {@link evaluateVerificationFreshness}.
+   *
    * SAFETY: The new Verified snapshot is written to IndexedDB before the Draft is removed.
    * If any step fails the fleet remains consistent.
    */
-  async function verifyProfile(id: string): Promise<AircraftProfile> {
+  // @IMP-AC-STORE-011@ (FROM: @REQ-AC-005@, @REQ-AC-007@)
+  async function verifyProfile(id: string, signoff: VerificationSignoff): Promise<AircraftProfile> {
     const draft = profiles.value.find((p) => p.id === id)
     if (!draft) {
       throw new Error(`Profile not found: ${id}`)
@@ -233,10 +272,22 @@ export const useFleetStore = defineStore('fleet', () => {
       throw new Error(`Profile "${id}" is already verified.`)
     }
 
+    const verifiedBy = signoff.verifiedBy.trim()
+    const pohRevision = signoff.pohRevision.trim()
+    if (verifiedBy === '' || pohRevision === '') {
+      throw new IncompleteSignoffError()
+    }
+
     const snapshot: AircraftProfile = AircraftProfileSchema.parse({
       ...draft,
       id: uuidv4(),
       status: 'verified',
+      verification: {
+        verifiedOn: signoff.verifiedOn?.trim() || todayIso(),
+        verifiedBy,
+        pohRevision,
+        sourceWeighingDate: activeWeighingDate(draft),
+      },
     })
 
     // Write the Verified snapshot first, then delete the Draft
@@ -253,6 +304,61 @@ export const useFleetStore = defineStore('fleet', () => {
     }
 
     return snapshot
+  }
+
+  /**
+   * Re-attest an already-Verified profile (REQ-AC-007).
+   *
+   * Used to refresh an *expired* or *source-changed* verification without
+   * touching the safety data: it re-stamps the provenance (new sign-off date,
+   * initials, POH revision) and re-binds it to the profile's current active
+   * weighing report, keeping the same id and `verified` status. This is a
+   * re-attestation, not a data mutation — the envelope/MTOM/weighing values are
+   * untouched, so it does not breach the Verified-data immutability contract.
+   */
+  // @IMP-AC-STORE-011@ (FROM: @REQ-AC-005@, @REQ-AC-007@)
+  async function reverifyProfile(
+    id: string,
+    signoff: VerificationSignoff,
+  ): Promise<AircraftProfile> {
+    const existing = profiles.value.find((p) => p.id === id)
+    if (!existing) {
+      throw new Error(`Profile not found: ${id}`)
+    }
+    if (existing.status !== 'verified') {
+      throw new Error(`Profile "${id}" is not verified — use verifyProfile() for draft profiles.`)
+    }
+
+    const verifiedBy = signoff.verifiedBy.trim()
+    const pohRevision = signoff.pohRevision.trim()
+    if (verifiedBy === '' || pohRevision === '') {
+      throw new IncompleteSignoffError()
+    }
+
+    const reattested: AircraftProfile = AircraftProfileSchema.parse({
+      ...existing,
+      id,
+      status: 'verified',
+      verification: {
+        verifiedOn: signoff.verifiedOn?.trim() || todayIso(),
+        verifiedBy,
+        pohRevision,
+        sourceWeighingDate: activeWeighingDate(existing),
+      },
+    })
+
+    await fleetRepository.update(reattested)
+    const idx = profiles.value.findIndex((p) => p.id === id)
+    if (idx !== -1) {
+      profiles.value[idx] = reattested
+    }
+
+    const activeStore = useActiveAircraftStore()
+    if (activeStore.activeProfile?.id === id) {
+      activeStore.setActiveProfile(reattested)
+    }
+
+    return reattested
   }
 
   /**
@@ -285,6 +391,9 @@ export const useFleetStore = defineStore('fleet', () => {
       ...changes,
       id,
       status: 'draft',
+      // Editing a Verified record invalidates its sign-off — drop the provenance
+      // so the new Draft cannot misrepresent stale verification (REQ-AC-007).
+      verification: undefined,
     })
 
     await fleetRepository.update(draftCopy)
@@ -327,6 +436,7 @@ export const useFleetStore = defineStore('fleet', () => {
     updateProfile,
     deleteProfile,
     verifyProfile,
+    reverifyProfile,
     editVerifiedProfile,
     checkDraftWarning,
     clearNotifications,

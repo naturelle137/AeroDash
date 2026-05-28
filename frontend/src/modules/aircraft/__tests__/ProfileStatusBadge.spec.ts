@@ -79,3 +79,23 @@ describe('ProfileStatusBadge — Draft status', () => {
     expect(title).toContain('safety-critical')
   })
 })
+
+describe('ProfileStatusBadge — expired verification (REQ-AC-007)', () => {
+  // @UT-AC-VIEW-181@ (FROM: @IMP-AC-VIEW-004@)
+  it('renders an "Expired" badge with the critical class when a verified profile is expired', () => {
+    const wrapper = mount(ProfileStatusBadge, { props: { status: 'verified', expired: true } })
+    const badge = wrapper.find('[role="status"]')
+    expect(wrapper.text()).toBe('Expired')
+    expect(badge.classes()).toContain('status-expired')
+    expect(badge.classes()).not.toContain('status-verified')
+    expect(badge.attributes('aria-label')).toBe('Profile status: Expired')
+    expect(badge.attributes('title')).toContain('expired')
+  })
+
+  // @UT-AC-VIEW-182@ (FROM: @IMP-AC-VIEW-004@)
+  it('ignores the expired flag for a Draft (only verified can expire)', () => {
+    const wrapper = mount(ProfileStatusBadge, { props: { status: 'draft', expired: true } })
+    expect(wrapper.text()).toBe('Draft')
+    expect(wrapper.find('[role="status"]').classes()).toContain('status-draft')
+  })
+})

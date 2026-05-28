@@ -66,6 +66,16 @@ This document defines the aircraft management behavior using the **EARS** (Easy 
 **Status:** Implemented
 **Design Reference:** n/a
 
+<!-- @REQ-AC-007@ (FROM: @H-011@) -->
+
+### REQ-AC-007: Verification Provenance & Expiry
+
+**Requirement:** When the user verifies an aircraft profile, the system shall require and record a sign-off provenance (verification date, verifier initials, and the POH revision verified against) bound to the source weighing report, and shall treat the verification as expired — surfacing it as unverified for safety-critical use — once it is older than a fixed validity period or its source weighing report no longer matches the recorded provenance.
+**Rationale:** A single un-attributed "Verified" tap (REQ-AC-005) cannot evidence *who* checked the data, *against which POH revision*, or *whether the underlying weighing report has since changed*; provenance and expiry close the H-011 "Garbage-In" gap for stale or unattributable profile data.
+**Priority:** P1
+**Status:** Implemented
+**Design Reference:** [Notification Schema](../architecture/notification_schema.md)
+
 ---
 
 ## Design References

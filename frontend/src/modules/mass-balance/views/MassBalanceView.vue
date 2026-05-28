@@ -13,6 +13,11 @@ import { useActiveAircraftStore } from '@/modules/aircraft/stores/active-aircraf
 import { useSessionPersistenceStore } from '@/stores/session-persistence.store'
 import type { AircraftProfile } from '@/core/adapters/aircraft.schema'
 import type { SessionDropNotification } from '@/stores/session-persistence.store'
+import {
+  VERIFICATION_VALIDITY_DAYS,
+  evaluateVerificationFreshness,
+  type VerificationFreshness,
+} from '@/core/logic/profile-verification'
 import InputGroupCard from '@/modules/mass-balance/components/InputGroupCard.vue'
 import MassStationInput from '@/modules/mass-balance/components/MassStationInput.vue'
 import CGEnvelopeChart from '@/modules/mass-balance/components/CGEnvelopeChart.vue'
@@ -60,10 +65,114 @@ const isFleetEmpty = computed(
   () => fleetStore.fleetLoadState === 'READY' && fleetStore.profiles.length === 0,
 )
 
-/** Fleet profiles sorted alphabetically by registration for the picker. */
-const sortedProfiles = computed(() =>
-  [...fleetStore.profiles].sort((a, b) => a.registration.localeCompare(b.registration)),
+// @IMP-MB-VIEW-011@ (FROM: @REQ-AC-005@, @REQ-AC-007@)
+// Draft-aware aircraft picker (UX-005 / UX-007). The legacy alphabetical-only
+// list let a pilot pick an unverified Draft envelope with no grouping or guard.
+// The picker now: groups options into Verified / Draft <optgroup>s, surfaces the
+// last-used airframe in its own group at the top for quick re-selection, marks
+// Drafts with a destructive `[Draft]` tag, and routes a Draft selection through
+// an inline WARN-AC-002 acknowledgement before the profile is loaded for
+// computation (H-011 mitigation).
+//
+// A Verified profile whose sign-off has *expired* — aged past the validity
+// window or bound to a weighing report that has since changed — is treated as
+// unverified at this Go/No-Go entry point (REQ-AC-007): it is marked `[Expired]`
+// destructively and routed through the same inline acknowledgement before load,
+// so an expired envelope can never reach the M&B store silently. The same gate
+// guards the on-mount auto-load / session-restore path below.
+
+function byRegistration(a: AircraftProfile, b: AircraftProfile): number {
+  return a.registration.localeCompare(b.registration)
+}
+
+/** Freshness of a profile's verification, evaluated against the current date. */
+function freshnessFor(profile: AircraftProfile): VerificationFreshness {
+  return evaluateVerificationFreshness(profile, new Date())
+}
+
+/** A Verified profile whose sign-off is expired/stale and must be re-verified before use. */
+function isExpiredVerified(profile: AircraftProfile): boolean {
+  return profile.status === 'verified' && freshnessFor(profile).requiresReverification
+}
+
+/** The last-used airframe (the active aircraft), pinned at the top of the picker. */
+const lastUsedProfile = computed<AircraftProfile | null>(() => {
+  const id = activeAircraftStore.activeProfile?.id
+  if (!id) return null
+  return fleetStore.profiles.find((p) => p.id === id) ?? null
+})
+
+/** Verified fleet profiles, alphabetical by registration. */
+const verifiedProfiles = computed(() =>
+  fleetStore.profiles.filter((p) => p.status === 'verified').sort(byRegistration),
 )
+
+/** Draft fleet profiles, alphabetical by registration. */
+const draftProfiles = computed(() =>
+  fleetStore.profiles.filter((p) => p.status === 'draft').sort(byRegistration),
+)
+
+/** Option label — keeps the `[Draft]` suffix the E2E suite asserts on; an expired Verified profile is marked `[Expired]`. */
+function optionLabel(aircraft: AircraftProfile): string {
+  const base = `${aircraft.registration} — ${aircraft.manufacturer} ${aircraft.model}`
+  if (aircraft.status === 'draft') return `${base} [Draft]`
+  if (isExpiredVerified(aircraft)) return `${base} [Expired]`
+  return base
+}
+
+/**
+ * Why a selection must be acknowledged before it loads into the M&B store:
+ * `draft` (unverified) or an expired Verified sign-off (aged / source-changed),
+ * which REQ-AC-007 requires be surfaced as unverified for safety-critical use.
+ */
+type PendingReason = 'draft' | 'expired-aged' | 'expired-source-changed'
+
+interface PendingSelection {
+  readonly profile: AircraftProfile
+  readonly reason: PendingReason
+}
+
+/** A selection awaiting the pilot's inline acknowledgement before load (H-011, REQ-AC-005/007). */
+const pendingSelection = ref<PendingSelection | null>(null)
+
+/**
+ * A restored session payload held back until its (expired/draft) profile is
+ * acknowledged. Applied on confirm; discarded — with the stale session — on cancel.
+ */
+const pendingRestoredPayload = ref<ReturnType<
+  typeof sessionPersistenceStore.restoreSession
+> | null>(null)
+
+/** Reason a profile must be gated before load, or null when it may load directly. */
+function guardReasonFor(profile: AircraftProfile): PendingReason | null {
+  if (profile.status === 'draft') return 'draft'
+  const f = freshnessFor(profile)
+  if (f.state === 'expired-aged' || f.state === 'expired-source-changed') return f.state
+  return null
+}
+
+/** Heading + body for the inline acknowledgement, derived from the pending reason. */
+const pendingAck = computed(() => {
+  const p = pendingSelection.value
+  if (!p) return null
+  const reg = p.profile.registration
+  if (p.reason === 'draft') {
+    return {
+      heading: 'WARN-AC-002 — Draft Profile.',
+      body: `“${reg}” is unverified. Verify its data against the POH/AFM before using it for a Go/No-Go decision.`,
+    }
+  }
+  if (p.reason === 'expired-source-changed') {
+    return {
+      heading: 'Verification expired.',
+      body: `“${reg}” was verified, but its source weighing report has since changed. Re-verify it against the POH/AFM before using it for a Go/No-Go decision.`,
+    }
+  }
+  return {
+    heading: 'Verification expired.',
+    body: `“${reg}” was verified more than ${VERIFICATION_VALIDITY_DAYS} days ago. Re-verify it against the POH/AFM before using it for a Go/No-Go decision.`,
+  }
+})
 
 // ---------------------------------------------------------------------------
 // Stacking sticky strips (REQ-UI-SCROLL)
@@ -275,7 +384,14 @@ onMounted(async () => {
     // In-memory active aircraft survives SPA navigation but not a full reload.
     const active = activeAircraftStore.activeProfile
     if (active) {
-      loadProfileIntoStore(active)
+      // An expired/draft active aircraft must be re-acknowledged as unverified
+      // before it silently reloads into the Go/No-Go view (REQ-AC-007, H-011).
+      const reason = guardReasonFor(active)
+      if (reason) {
+        pendingSelection.value = { profile: active, reason }
+      } else {
+        loadProfileIntoStore(active)
+      }
     } else {
       // Full-reload path: attempt to restore the pilot's last session from
       // localStorage. An invalid/stale payload has already been cleared by
@@ -283,13 +399,23 @@ onMounted(async () => {
       const payload = sessionPersistenceStore.restoreSession()
       if (payload) {
         const fleetProfile = fleetStore.profiles.find((p) => p.id === payload.aircraftId)
-        if (fleetProfile && loadProfileIntoStore(fleetProfile)) {
-          activeAircraftStore.setActiveProfile(fleetProfile)
-          store.applyRestoredSession(payload)
-        } else {
+        if (!fleetProfile) {
           // Aircraft no longer in the fleet (deleted between sessions) —
           // discard the payload so it doesn't haunt future reloads.
           sessionPersistenceStore.clearSession()
+        } else {
+          const reason = guardReasonFor(fleetProfile)
+          if (reason) {
+            // Defer the restore behind the acknowledgement: an expired/draft
+            // profile must not silently reload into the Go/No-Go view.
+            pendingSelection.value = { profile: fleetProfile, reason }
+            pendingRestoredPayload.value = payload
+          } else if (loadProfileIntoStore(fleetProfile)) {
+            activeAircraftStore.setActiveProfile(fleetProfile)
+            store.applyRestoredSession(payload)
+          } else {
+            sessionPersistenceStore.clearSession()
+          }
         }
       }
       // Drain any drop notification produced by `restoreSession()` and surface
@@ -496,15 +622,58 @@ function onAircraftSelected(event: Event): void {
   const fleetProfile = fleetStore.profiles.find((a) => a.id === id)
   if (!fleetProfile) return
 
+  // A Draft, or a Verified profile whose sign-off has expired, must not be
+  // loaded for computation until the pilot explicitly acknowledges it inline
+  // (REQ-AC-005/007, H-011). The controlled `:value` binding reverts the
+  // <select> to the current aircraft until the acknowledgement resolves.
+  const reason = guardReasonFor(fleetProfile)
+  if (reason) {
+    pendingSelection.value = { profile: fleetProfile, reason }
+    return
+  }
+
+  loadSelectedProfile(fleetProfile)
+}
+
+/** Map → validate → load a selected fleet profile into the M&B store. */
+function loadSelectedProfile(fleetProfile: AircraftProfile): void {
+  // Loading a profile resolves any pending acknowledgement — clearing it here
+  // also dismisses a stale banner if the pilot picks a clean profile while one
+  // is still showing.
+  pendingSelection.value = null
+
   const mapped = mapFleetProfileToContext(fleetProfile)
   const validation = AircraftContextSchema.safeParse(mapped)
   if (!validation.success) {
-    catalogueError.value = `Aircraft profile "${id}" failed validation — data may be corrupted.`
+    catalogueError.value = `Aircraft profile "${fleetProfile.id}" failed validation — data may be corrupted.`
     return
   }
 
   activeAircraftStore.setActiveProfile(fleetProfile)
   store.loadProfile(validation.data)
+}
+
+/** Pilot confirmed the acknowledgement — load the gated (draft/expired) profile. */
+function onConfirmSelection(): void {
+  const pending = pendingSelection.value
+  const payload = pendingRestoredPayload.value
+  pendingSelection.value = null
+  pendingRestoredPayload.value = null
+  if (!pending) return
+  loadSelectedProfile(pending.profile)
+  // Restored station weights are re-applied only once the profile loads cleanly.
+  if (payload && store.aircraft) store.applyRestoredSession(payload)
+}
+
+/** Pilot declined — leave the current aircraft loaded, drop the pending selection. */
+function onCancelSelection(): void {
+  pendingSelection.value = null
+  // Declining a deferred restore discards the stale session so it doesn't
+  // reload on the next mount.
+  if (pendingRestoredPayload.value) {
+    pendingRestoredPayload.value = null
+    sessionPersistenceStore.clearSession()
+  }
 }
 </script>
 
@@ -668,15 +837,60 @@ function onAircraftSelected(event: Event): void {
             @change="onAircraftSelected"
           >
             <option value="">— choose aircraft —</option>
-            <option
-              v-for="aircraft in sortedProfiles"
-              :key="aircraft.id"
-              :value="aircraft.id"
-            >
-              {{ aircraft.registration }} — {{ aircraft.manufacturer }} {{ aircraft.model
-              }}{{ aircraft.status === 'draft' ? ' [Draft]' : '' }}
-            </option>
+            <optgroup v-if="lastUsedProfile" label="Last used">
+              <option
+                :value="lastUsedProfile.id"
+                :class="{
+                  'opt-draft': lastUsedProfile.status === 'draft' || isExpiredVerified(lastUsedProfile),
+                }"
+              >
+                {{ optionLabel(lastUsedProfile) }}
+              </option>
+            </optgroup>
+            <optgroup v-if="verifiedProfiles.length > 0" label="Verified">
+              <option
+                v-for="aircraft in verifiedProfiles"
+                :key="aircraft.id"
+                :value="aircraft.id"
+                :class="{ 'opt-draft': isExpiredVerified(aircraft) }"
+              >
+                {{ optionLabel(aircraft) }}
+              </option>
+            </optgroup>
+            <optgroup v-if="draftProfiles.length > 0" label="Draft">
+              <option
+                v-for="aircraft in draftProfiles"
+                :key="aircraft.id"
+                :value="aircraft.id"
+                class="opt-draft"
+              >
+                {{ optionLabel(aircraft) }}
+              </option>
+            </optgroup>
           </select>
+
+          <!-- Inline acknowledgement before an unverified (draft) or expired
+               Verified envelope loads — both are gated at this Go/No-Go entry
+               point (REQ-AC-005/007, H-011). -->
+          <div
+            v-if="pendingAck"
+            class="draft-ack"
+            role="alertdialog"
+            aria-label="Unverified profile acknowledgement"
+          >
+            <p class="draft-ack__message">
+              <strong>{{ pendingAck.heading }}</strong>
+              {{ pendingAck.body }}
+            </p>
+            <div class="draft-ack__actions">
+              <button type="button" class="draft-ack__btn draft-ack__btn--cancel" @click="onCancelSelection">
+                Cancel
+              </button>
+              <button type="button" class="draft-ack__btn draft-ack__btn--continue" @click="onConfirmSelection">
+                Continue anyway
+              </button>
+            </div>
+          </div>
         </div>
 
         <div v-if="categories.length > 1" class="aircraft-selector-field">
@@ -1354,6 +1568,67 @@ function onAircraftSelected(event: Event): void {
 
 .aircraft-select:hover {
   border-color: var(--color-primary);
+}
+
+/* Draft options carry the destructive colour where the browser honours
+ * <option> styling (Firefox; most Chromium/WebKit ignore it — the `[Draft]`
+ * suffix and the dedicated "Draft" optgroup remain the reliable signal). */
+.aircraft-select .opt-draft {
+  color: var(--color-critical, #dc2626);
+}
+
+/* ─── Inline draft acknowledgement (WARN-AC-002) ─────────────────────────── */
+
+.draft-ack {
+  margin-top: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-warning, #fcd34d);
+  border-left: 4px solid var(--color-warning, #f59e0b);
+  border-radius: var(--radius-md);
+  background: var(--color-warning-bg, #fef3c7);
+  color: var(--color-text-primary);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.draft-ack__message {
+  margin: 0;
+  font-size: var(--text-sm);
+  line-height: 1.5;
+}
+
+.draft-ack__actions {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.draft-ack__btn {
+  min-height: 44px;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-md);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.draft-ack__btn:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.draft-ack__btn--cancel {
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  border-color: var(--color-border);
+}
+
+.draft-ack__btn--continue {
+  background: var(--color-warning, #d97706);
+  color: var(--neutral-0, #fff);
 }
 
 .aircraft-select:focus-visible {
