@@ -18,6 +18,7 @@ import type {
 } from '@/modules/aircraft/services/data-rights.service'
 
 const fleetProfiles = ref<Array<{ id: string }>>([])
+const fleetUnreadable = ref(0)
 const loadAllMock = vi.fn<() => Promise<void>>().mockResolvedValue(undefined)
 
 vi.mock('@/modules/aircraft/stores/fleet.store', () => {
@@ -25,6 +26,9 @@ vi.mock('@/modules/aircraft/stores/fleet.store', () => {
     useFleetStore: () => ({
       get profiles() {
         return fleetProfiles.value
+      },
+      get unreadableProfileCount() {
+        return fleetUnreadable.value
       },
       loadAll: loadAllMock,
     }),
@@ -79,6 +83,7 @@ beforeEach(() => {
   serializeMock.mockReturnValue('{"exportSchemaVersion":1}')
   wipeMock.mockResolvedValue(defaultWipeReport())
   fleetProfiles.value = []
+  fleetUnreadable.value = 0
 
   const createObjectURL = vi.fn<() => string>(() => 'blob:test')
   const revokeObjectURL = vi.fn<(url: string) => void>()
@@ -267,6 +272,53 @@ describe('PrivacyView — delete-all (REQ-SYS-014)', () => {
 
     expect(wrapper.find('[data-testid="privacy-export-notice"]').exists()).toBe(false)
     expect(wrapper.find('[data-testid="privacy-wipe-notice"]').exists()).toBe(true)
+  })
+
+  it('warns about unreadable rows even when the fleet has zero readable profiles (M1)', async () => {
+    fleetProfiles.value = []
+    fleetUnreadable.value = 2
+
+    const wrapper = mountView()
+    await flushPromises()
+
+    // Export is disabled (nothing readable to serialise) ...
+    expect((wrapper.find('[data-testid="export-all-btn"]').element as HTMLButtonElement).disabled).toBe(
+      true,
+    )
+    // ... but the at-risk rows are still surfaced, independent of any export.
+    const standing = wrapper.find('[data-testid="privacy-unreadable-warning"]')
+    expect(standing.exists()).toBe(true)
+    expect(standing.text()).toContain('2 profiles')
+
+    // The wipe dialog repeats the warning before the destructive confirm.
+    await wrapper.find('[data-testid="wipe-request-btn"]').trigger('click')
+    await nextTick()
+    expect(wrapper.find('[data-testid="wipe-unreadable-warning"]').exists()).toBe(true)
+  })
+
+  it('reports an unknown profile count without claiming a false 0 (m1)', async () => {
+    wipeMock.mockResolvedValueOnce({
+      profilesDeleted: null,
+      indexedDbCleared: true,
+      localStorageKeysCleared: [],
+      sessionStorageKeysCleared: [],
+      failures: [],
+      complete: true,
+      clearedAt: '2026-05-27T12:00:00.000Z',
+    })
+
+    const wrapper = mountView()
+    await flushPromises()
+    await wrapper.find('[data-testid="wipe-request-btn"]').trigger('click')
+    await nextTick()
+    await wrapper.find('[data-testid="wipe-confirm-input"]').setValue('DELETE ALL DATA')
+    await nextTick()
+    await wrapper.find('[data-testid="wipe-confirm-btn"]').trigger('click')
+    await flushPromises()
+
+    const notice = wrapper.find('[data-testid="privacy-wipe-notice"]')
+    expect(notice.exists()).toBe(true)
+    expect(notice.text()).toContain('count unavailable')
   })
 
   it('surfaces an error banner when wipeAllLocalData rejects (m3)', async () => {

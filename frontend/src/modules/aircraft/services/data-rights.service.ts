@@ -51,8 +51,12 @@ export interface WipeFailure {
 
 /** Outcome of a single Delete-All-Data run. */
 export interface WipeReport {
-  /** Number of stored aircraft records removed (readable + dropped/corrupt). */
-  readonly profilesDeleted: number
+  /**
+   * Number of stored aircraft records removed (readable + dropped/corrupt), or
+   * `null` when the pre-deletion count could not be read — reporting a false
+   * `0` would be a misleading erasure receipt.
+   */
+  readonly profilesDeleted: number | null
   /** localStorage keys removed (sorted, including the session payload). */
   readonly localStorageKeysCleared: readonly string[]
   /** sessionStorage keys removed (sorted, including the cold-start marker). */
@@ -132,13 +136,15 @@ export async function wipeAllLocalData(): Promise<WipeReport> {
   // Count records before clearing so the UI can report "Deleted N profiles".
   // Includes dropped/corrupt rows (`diagnostics`) because `deleteAll()` clears
   // every row in the store, not just the readable subset — counting only the
-  // readable profiles would understate what was actually erased.
-  let profilesDeleted = 0
+  // readable profiles would understate what was actually erased. If the count
+  // read fails we report `null` (unknown), never a false `0`, since the wipe
+  // below may still succeed and erase rows.
+  let profilesDeleted: number | null
   try {
     const existing = await fleetRepository.findAllWithDiagnostics()
     profilesDeleted = existing.profiles.length + existing.diagnostics.length
   } catch {
-    profilesDeleted = 0
+    profilesDeleted = null
   }
 
   let indexedDbCleared = false
@@ -215,6 +221,11 @@ function isAerodashKey(key: string): boolean {
   return /^aerodash([-:.]|$)/i.test(key)
 }
 
+// A `null` backend (private mode / sandboxed iframe / throwing accessor) is
+// treated as "nothing to erase", not a failure: a storage facility that cannot
+// be opened now could never have persisted an `aerodash` key in the first
+// place. This invariant must be revisited if a future store can hold personal
+// data while being intermittently inaccessible.
 function safeLocalStorage(): Storage | null {
   try {
     return typeof localStorage !== 'undefined' ? localStorage : null
@@ -246,8 +257,9 @@ function safeSessionStorage(): Storage | null {
  */
 export async function exportAllProfiles(now: Date = new Date()): Promise<BulkExportResult> {
   const { profiles, diagnostics } = await fleetRepository.findAllWithDiagnostics()
-  // Sort by registration so the file is diff-friendly across re-exports.
-  const sorted = [...profiles].sort((a, b) => a.registration.localeCompare(b.registration))
+  // Sort by registration so the file is diff-friendly across re-exports. Pin
+  // the locale so the order is stable regardless of the host machine's locale.
+  const sorted = [...profiles].sort((a, b) => a.registration.localeCompare(b.registration, 'en'))
   return {
     envelope: {
       exportSchemaVersion: 1,

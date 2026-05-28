@@ -21,6 +21,20 @@ const lastExportAt = ref<string | null>(null)
 const lastExportOmitted = ref(0)
 
 const profileCount = computed(() => fleetStore.profiles.length)
+// Rows this build cannot read (future schemaVersion / corrupt). They are
+// excluded from a bulk export but still destroyed by a wipe, so they must be
+// surfaced independently of whether the pilot has exported (DES-ARCH-011 §4.1).
+const unreadableCount = computed(() => fleetStore.unreadableProfileCount)
+
+const wipeNotice = computed(() => {
+  const r = lastWipe.value
+  if (r === null) return ''
+  if (r.profilesDeleted === null) {
+    return `Local data cleared at ${r.clearedAt} (profiles removed: count unavailable).`
+  }
+  const n = r.profilesDeleted
+  return `Local data cleared at ${r.clearedAt} — ${n} aircraft profile${n === 1 ? '' : 's'} removed.`
+})
 
 const wipeConfirmText = ref('')
 const WIPE_CONFIRM_PHRASE = 'DELETE ALL DATA'
@@ -146,14 +160,25 @@ function onCancelWipe(): void {
     </p>
 
     <p
+      v-if="unreadableCount > 0"
+      class="privacy-view__notice privacy-view__notice--warn"
+      role="alert"
+      data-testid="privacy-unreadable-warning"
+    >
+      Warning: {{ unreadableCount }} profile{{ unreadableCount === 1 ? '' : 's' }} saved on this
+      device cannot be read by this version of AeroDash and will NOT be included in an export.
+      Update AeroDash to recover {{ unreadableCount === 1 ? 'it' : 'them' }} before deleting all
+      data — a wipe erases {{ unreadableCount === 1 ? 'it' : 'them' }} permanently.
+    </p>
+
+    <p
       v-if="lastWipe"
       class="privacy-view__notice privacy-view__notice--ok"
       role="status"
       aria-live="polite"
       data-testid="privacy-wipe-notice"
     >
-      Local data cleared at {{ lastWipe.clearedAt }} — {{ lastWipe.profilesDeleted }} aircraft
-      profile{{ lastWipe.profilesDeleted === 1 ? '' : 's' }} removed.
+      {{ wipeNotice }}
     </p>
 
     <p
@@ -234,6 +259,18 @@ function onCancelWipe(): void {
         <p>
           You are about to delete every aircraft profile and clear all AeroDash
           storage on this device. This action cannot be undone.
+        </p>
+        <p
+          v-if="unreadableCount > 0"
+          class="dialog__warn"
+          role="alert"
+          data-testid="wipe-unreadable-warning"
+        >
+          {{ unreadableCount }} profile{{ unreadableCount === 1 ? '' : 's' }} on this device
+          cannot be read by this version and {{ unreadableCount === 1 ? 'is' : 'are' }} not
+          included in any export. Deleting now destroys
+          {{ unreadableCount === 1 ? 'it' : 'them' }} permanently — update AeroDash first to
+          recover {{ unreadableCount === 1 ? 'it' : 'them' }}.
         </p>
         <p>
           To confirm, type
@@ -404,6 +441,16 @@ function onCancelWipe(): void {
 .dialog h2 {
   margin: 0;
   font-size: 1.125rem;
+}
+
+.dialog__warn {
+  margin: 0;
+  padding: 0.625rem 0.875rem;
+  border-radius: 6px;
+  color: var(--color-warning, #92400e);
+  background: var(--color-warning-bg, #fef3c7);
+  border: 1px solid var(--color-warning, #92400e);
+  font-size: 0.9rem;
 }
 
 .dialog__field {

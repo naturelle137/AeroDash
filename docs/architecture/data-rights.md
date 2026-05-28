@@ -141,6 +141,13 @@ not mandate JSON — a future format change would not change `REQ-SYS-015`.
   typed phrase `DELETE ALL DATA` before the destructive button enables.
 - Each action surfaces a status notice (success) or an alert (`role="alert"`) on
   failure; there is no Go/No-Go advisory in this flow.
+- **Unreadable-row warning.** When the fleet load drops any row (future
+  `schemaVersion` / corrupt), the view shows a standing `role="alert"` warning of
+  the count — **independent of whether an export was taken** — and repeats it in
+  the wipe confirmation dialog. This closes the all-unreadable gap: a fleet with
+  zero readable profiles disables the export button, so the per-export
+  `omitted` notice alone would never fire, yet the wipe would still erase those
+  rows (§4.1). The count is read from `fleetStore.unreadableProfileCount`.
 - The `/privacy` route is reachable from the desktop sidebar. (Mobile bottom-nav
   exposure is tracked separately and is not part of this contract.)
 

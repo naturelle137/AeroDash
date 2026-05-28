@@ -172,6 +172,20 @@ describe('wipeAllLocalData — Repository-Wide Wipe (REQ-SYS-014)', () => {
     expect(report.failures[0]!.detail).toContain('IDB unavailable')
   })
 
+  it('reports profilesDeleted=null (not a false 0) when the pre-count read fails but the clear succeeds', async () => {
+    await create(buildProfile())
+    vi.spyOn(fleetRepository, 'findAllWithDiagnostics').mockRejectedValueOnce(
+      new Error('transient read failure'),
+    )
+
+    const report = await wipeAllLocalData()
+
+    expect(report.profilesDeleted).toBeNull()
+    expect(report.indexedDbCleared).toBe(true)
+    expect(report.complete).toBe(true)
+    expect(await findAll()).toEqual([])
+  })
+
   it('reports failure (not complete) when a Web Storage key cannot be removed', async () => {
     localStorage.setItem('aerodash:session:payload', '{"version":1}')
     localStorage.setItem('aerodash-theme', 'dark')
@@ -284,5 +298,25 @@ describe('exportAllProfiles — Bulk JSON Export (REQ-SYS-015)', () => {
     expect(envelope.profiles.map((p) => p.registration)).toEqual(['D-OK01'])
     expect(omitted).toHaveLength(1)
     expect(omitted[0]!.reason).toBe('unsupported-future-version')
+  })
+
+  it('reports omitted profiles even when NO profile is readable (all-unreadable fleet)', async () => {
+    // PWA cache rollback: every row was written by a newer build. The export
+    // is empty, but the omitted list must still report the at-risk rows so the
+    // caller never silently presents a "complete" copy (DES-ARCH-011 §4.1).
+    await seedRaw({
+      ...buildProfile({ id: '00000000-0000-4000-a000-0000000000d1', registration: 'D-FT01' }),
+      schemaVersion: CURRENT_PROFILE_SCHEMA_VERSION + 1,
+    } as unknown as Record<string, unknown>)
+    await seedRaw({
+      ...buildProfile({ id: '00000000-0000-4000-a000-0000000000d2', registration: 'D-FT02' }),
+      schemaVersion: CURRENT_PROFILE_SCHEMA_VERSION + 2,
+    } as unknown as Record<string, unknown>)
+
+    const { envelope, omitted } = await exportAllProfiles()
+
+    expect(envelope.profileCount).toBe(0)
+    expect(envelope.profiles).toEqual([])
+    expect(omitted).toHaveLength(2)
   })
 })

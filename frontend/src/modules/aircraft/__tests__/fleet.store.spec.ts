@@ -355,6 +355,9 @@ describe('useFleetStore', () => {
     const infos = store.notifications.filter((n) => n.code === 'INFO-AC-001')
     expect(infos).toHaveLength(2)
     expect(infos.every((n) => n.type === 'INFO')).toBe(true)
+    // The dropped-row count is retained so the data-rights view can warn that
+    // these rows are excluded from an export yet erased by a wipe (DES-ARCH-011).
+    expect(store.unreadableProfileCount).toBe(2)
   })
 
   // @UT-AC-STORE-115@ (FROM: @IMP-AC-STORE-005@, @IMP-AC-CORE-003@)
