@@ -250,6 +250,36 @@ describe('useFleetStore', () => {
     expect(store.isLoading).toBe(false)
   })
 
+  // @UT-AC-STORE-124@ (FROM: @IMP-AC-STORE-005@)
+  it('loadAll clears a stale unreadableProfileCount when a later load throws (LOADING→ERROR)', async () => {
+    const store = useFleetStore()
+    const { fleetRepository } = await import('../services/fleet.repository')
+
+    // First load succeeds with unreadable rows present.
+    vi.mocked(fleetRepository.findAllWithDiagnostics).mockResolvedValueOnce({
+      profiles: [],
+      diagnostics: [
+        {
+          id: 'p-future',
+          reason: 'unsupported-future-version',
+          storedVersion: 7,
+          detail: 'newer build',
+        },
+      ],
+    })
+    await store.loadAll()
+    expect(store.unreadableProfileCount).toBe(1)
+
+    // A subsequent load (e.g. a post-wipe reload) fails — the prior count is now
+    // unknowable and must not linger as a stale "1 unreadable profile" warning.
+    vi.mocked(fleetRepository.findAllWithDiagnostics).mockRejectedValueOnce(
+      new Error('IndexedDB unavailable'),
+    )
+    await store.loadAll()
+    expect(store.fleetLoadState).toBe('ERROR')
+    expect(store.unreadableProfileCount).toBe(0)
+  })
+
   // @UT-AC-STORE-050@ (FROM: @IMP-AC-STORE-005@)
   it('loadAll populates profiles from IndexedDB (READY state)', async () => {
     const store = useFleetStore()

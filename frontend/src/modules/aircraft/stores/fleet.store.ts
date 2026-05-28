@@ -130,6 +130,10 @@ export const useFleetStore = defineStore('fleet', () => {
       fleetLoadState.value = 'READY'
     } catch (err) {
       fleetLoadState.value = 'ERROR'
+      // The read failed, so the prior count is unknowable — clear it rather than
+      // leave a stale "N unreadable profiles" warning rendering next to the
+      // load-error banner (e.g. a failing reload after a wipe).
+      unreadableProfileCount.value = 0
       fleetLoadError.value =
         err instanceof Error ? err.message : 'Failed to load aircraft fleet from storage.'
     }

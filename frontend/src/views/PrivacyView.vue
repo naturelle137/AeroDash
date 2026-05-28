@@ -242,7 +242,7 @@ function onCancelWipe(): void {
         type="button"
         class="btn btn-primary"
         data-testid="export-all-btn"
-        :disabled="busy || profileCount === 0"
+        :disabled="busy || fleetLoadFailed || profileCount === 0"
         @click="onExportAll"
       >
         Export all profiles as JSON
@@ -283,6 +283,17 @@ function onCancelWipe(): void {
         <p>
           You are about to delete every aircraft profile and clear all AeroDash
           storage on this device. This action cannot be undone.
+        </p>
+        <p
+          v-if="fleetLoadFailed"
+          class="dialog__warn"
+          role="alert"
+          data-testid="wipe-load-error-warning"
+        >
+          Your saved fleet could not be read from this device's storage, so it could not be
+          exported and its contents are unknown here. Deleting now still erases whatever
+          remains — permanently and with no backup. Reload AeroDash and export first if you
+          may still need the data.
         </p>
         <p
           v-if="unreadableCount > 0"

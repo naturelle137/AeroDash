@@ -123,6 +123,13 @@ Erasure still clears both (§3); only *portability* excludes them.
   the view shows a standing `role="alert"` warning of the count — independent of
   any export — and repeats it in the wipe confirmation dialog. The count is read
   from `fleetStore.unreadableProfileCount`.
+- When the fleet load itself *fails* (`fleetStore.fleetLoadState === 'ERROR'`),
+  the profile count reads as "unavailable", **export is disabled** (the safe
+  recovery path is unusable when storage cannot be read), and a standing
+  `role="alert"` banner explains the failure. Because erasure is still a right
+  even over data the app cannot currently read, the wipe stays enabled but its
+  confirmation dialog repeats the load-failure caveat so the irrecoverable
+  action is never taken uninformed.
 - A confirmed erasure first cancels any pending debounced session autosave
   (`sessionPersistenceStore.cancelPendingSave()`) so a timer scheduled just
   before the wipe cannot re-write the `aerodash:session:payload` key afterwards.

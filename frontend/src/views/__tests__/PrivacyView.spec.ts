@@ -324,6 +324,46 @@ describe('PrivacyView — delete-all (REQ-SYS-014)', () => {
     expect(wrapper.find('[data-testid="wipe-unreadable-warning"]').exists()).toBe(true)
   })
 
+  it('warns inside the wipe dialog and disables export when the fleet load failed (M1)', async () => {
+    // A failed read blocks the in-app recovery path (export is disabled), so the
+    // irrecoverable wipe must spell out the load-failure caveat in its final
+    // dialog rather than letting a pilot destroy data they could neither see nor
+    // export without being warned.
+    fleetProfiles.value = []
+    fleetLoadState.value = 'ERROR'
+
+    const wrapper = mountView()
+    await flushPromises()
+
+    // Export (the safe alternative) is disabled while the load is failing.
+    expect(
+      (wrapper.find('[data-testid="export-all-btn"]').element as HTMLButtonElement).disabled,
+    ).toBe(true)
+    // But the wipe remains available (erasure is a right, even of corrupt data) ...
+    expect(
+      (wrapper.find('[data-testid="wipe-request-btn"]').element as HTMLButtonElement).disabled,
+    ).toBe(false)
+
+    // ... so the confirmation dialog must repeat the load-failure caveat.
+    await wrapper.find('[data-testid="wipe-request-btn"]').trigger('click')
+    await nextTick()
+    const caveat = wrapper.find('[data-testid="wipe-load-error-warning"]')
+    expect(caveat.exists()).toBe(true)
+    expect(caveat.text()).toContain('could not be read')
+  })
+
+  it('does not show the load-failure caveat in the dialog on a healthy load (M1)', async () => {
+    fleetProfiles.value = [{ id: 'p1' }]
+    fleetLoadState.value = 'READY'
+
+    const wrapper = mountView()
+    await flushPromises()
+    await wrapper.find('[data-testid="wipe-request-btn"]').trigger('click')
+    await nextTick()
+
+    expect(wrapper.find('[data-testid="wipe-load-error-warning"]').exists()).toBe(false)
+  })
+
   it('cancels the pending session autosave before erasing so it cannot resurrect the payload', async () => {
     // The autosave must be cancelled BEFORE the wipe runs, else a pending timer
     // could re-write the session key after erasure. Capture the ordering by
