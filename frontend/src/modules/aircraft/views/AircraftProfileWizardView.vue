@@ -199,6 +199,30 @@
         </button>
       </div>
     </footer>
+
+    <!-- UX-015: in-app exit modal — replaces the iOS-dismissable native confirm() -->
+    <ActionChoiceDialog
+      :open="showExitDialog"
+      title="Leave the aircraft wizard?"
+      message="You have unsaved changes. Save this aircraft as a draft, discard it, or keep editing."
+      :actions="exitActions"
+      @choose="onExitChoice"
+      @dismiss="onExitDismiss"
+    />
+
+    <!-- UX-012: post-save action chooser — skip the detour back through the fleet list -->
+    <ActionChoiceDialog
+      :open="savedProfile !== null"
+      title="Aircraft saved as draft"
+      :message="
+        savedProfile
+          ? `‘${savedProfile.registration}’ is saved. Start flight prep with it now, verify it first, or return to your fleet.`
+          : ''
+      "
+      :actions="postSaveActions"
+      @choose="onPostSaveChoice"
+      @dismiss="onPostSaveDismiss"
+    />
   </main>
 </template>
 
@@ -208,6 +232,7 @@ import { ref, computed, watch } from 'vue'
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
 import { v4 as uuidv4 } from 'uuid'
 import type {
+  AircraftProfile,
   AircraftProfileBatteryPack,
   AircraftProfileCertificationCategory,
   AircraftProfileLoadPoint,
@@ -215,15 +240,18 @@ import type {
 } from '@/core/adapters/aircraft.schema'
 import { sortEnvelopeCcw } from '@/core/logic/envelope-sort'
 import { useFleetStore } from '../stores/fleet.store'
+import { useActiveAircraftStore } from '../stores/active-aircraft.store'
 import { validateIcaoRegistration } from '../services/profile.validator'
 import IdentitySection, { type IdentityFields } from '../components/IdentitySection.vue'
 import EnvelopeSection from '../components/EnvelopeSection.vue'
 import WeighingReportsSection from '../components/WeighingReportsSection.vue'
 import LoadPointsSection from '../components/LoadPointsSection.vue'
 import BatteryPackSection from '../components/BatteryPackSection.vue'
+import ActionChoiceDialog, { type DialogAction } from '@/shared/components/ActionChoiceDialog.vue'
 
 const router = useRouter()
 const fleetStore = useFleetStore()
+const activeStore = useActiveAircraftStore()
 
 // ─── Step definitions ───────────────────────────────────────────────────────
 //
@@ -439,21 +467,135 @@ watch(STEPS, (next) => {
   }
 })
 
+// ─── In-app wizard exit modal (UX-015) ───────────────────────────────────────
+// @IMP-AC-VIEW-032@ (FROM: @REQ-AC-001@, @REQ-UI-011@)
+//
+// Replaces the native `window.confirm()` exit prompt, which the iOS Safari
+// back-gesture can dismiss out from under the pilot — silently discarding an
+// in-progress aircraft build. The in-app modal offers three explicit choices
+// (Save draft / Discard / Keep editing) and is driven through `onBeforeRouteLeave`
+// so both the "← Back to Fleet" button AND a hardware/gesture back are gated by
+// the same flow. `allowLeave` is the escape hatch: it is set once the pilot
+// chooses Discard, or once a save succeeds, so the guard never re-prompts for a
+// navigation the pilot has already authorised.
+
+const showExitDialog = ref(false)
+const allowLeave = ref(false)
+let leaveResolver: ((allow: boolean) => void) | null = null
+
+const exitActions = computed<DialogAction[]>(() => {
+  const actions: DialogAction[] = []
+  // "Save draft" is only meaningful once the entered data is valid enough to
+  // persist — otherwise the schema would reject it. Hide it rather than offer a
+  // dead button.
+  if (canSave.value) {
+    actions.push({ id: 'save', label: 'Save draft', variant: 'primary' })
+  }
+  actions.push({ id: 'discard', label: 'Discard changes', variant: 'danger' })
+  // Keep editing is the safe default — focus lands here so a stray tap under
+  // turbulence cannot discard the build.
+  actions.push({ id: 'keep', label: 'Keep editing', variant: 'secondary', default: true })
+  return actions
+})
+
+function resolveLeave(allow: boolean): void {
+  const resolve = leaveResolver
+  leaveResolver = null
+  resolve?.(allow)
+}
+
 function onNavigateBack(): void {
-  if (isDirty.value && !confirm('Discard unsaved changes and leave the wizard?')) return
+  // The route-leave guard owns the dirty-check + exit modal.
   router.push({ name: 'fleet' })
 }
 
 onBeforeRouteLeave(() => {
-  if (isDirty.value && !isSaving.value) {
-    return confirm('Discard unsaved changes and leave the wizard?')
-  }
+  if (allowLeave.value || !isDirty.value || isSaving.value) return true
+  showExitDialog.value = true
+  return new Promise<boolean>((resolve) => {
+    leaveResolver = resolve
+  })
 })
+
+async function onExitChoice(id: string): Promise<void> {
+  if (id === 'keep') {
+    showExitDialog.value = false
+    resolveLeave(false)
+    return
+  }
+  if (id === 'discard') {
+    showExitDialog.value = false
+    allowLeave.value = true
+    resolveLeave(true)
+    return
+  }
+  // id === 'save'
+  const created = await persistProfile()
+  showExitDialog.value = false
+  if (created) {
+    allowLeave.value = true
+    resolveLeave(true)
+  } else {
+    // Save failed — stay on the wizard so the pilot sees the error.
+    resolveLeave(false)
+  }
+}
+
+function onExitDismiss(): void {
+  // Escape / backdrop tap is treated as "Keep editing" — never destructive.
+  showExitDialog.value = false
+  resolveLeave(false)
+}
+
+// ─── Post-save action chooser (UX-012) ───────────────────────────────────────
+// @IMP-AC-VIEW-033@ (FROM: @REQ-AC-001@, @REQ-AC-005@)
+//
+// Saving previously dumped the pilot back to the fleet list — four extra taps
+// before they could start planning with the aircraft they just entered. The
+// chooser short-circuits that: it offers to verify the fresh draft, or to make
+// it the active aircraft and jump straight into flight prep, while still leaving
+// a plain "Back to Fleet" path. The newly-created draft is captured so
+// "Start flight prep" can set it active (emitting the WARN-AC-002 draft notice).
+
+const savedProfile = ref<AircraftProfile | null>(null)
+
+const postSaveActions: readonly DialogAction[] = [
+  { id: 'fly', label: 'Start flight prep', variant: 'primary', default: true },
+  { id: 'verify', label: 'Verify now', variant: 'secondary' },
+  { id: 'fleet', label: 'Back to Fleet', variant: 'secondary' },
+]
+
+function onPostSaveChoice(id: string): void {
+  const profile = savedProfile.value
+  savedProfile.value = null
+  if (id === 'fly' && profile) {
+    // Hot-swap the active aircraft and route into Mass & Balance. The draft
+    // warning surfaces in the M&B view so the pilot is reminded it is unverified.
+    activeStore.setActiveProfile(profile)
+    fleetStore.checkDraftWarning(profile)
+    router.push({ name: 'mass-balance' })
+    return
+  }
+  // 'verify' and 'fleet' both land on the fleet list, where the new draft shows
+  // a Verify control.
+  router.push({ name: 'fleet' })
+}
+
+function onPostSaveDismiss(): void {
+  savedProfile.value = null
+  router.push({ name: 'fleet' })
+}
 
 // ─── Save ────────────────────────────────────────────────────────────────────
 
-async function onSave(): Promise<void> {
-  if (!canSave.value) return
+/**
+ * Persist the wizard's draft to the fleet store. Returns the created profile on
+ * success, or null on validation/persistence failure (with `saveError` set).
+ * Routing is the caller's responsibility — both the footer Save action and the
+ * exit modal's "Save draft" reuse this.
+ */
+async function persistProfile(): Promise<AircraftProfile | null> {
+  if (!canSave.value) return null
   saveError.value = null
   isSaving.value = true
 
@@ -488,7 +630,7 @@ async function onSave(): Promise<void> {
         : lp
     })
 
-    await fleetStore.createProfile({
+    const created = await fleetStore.createProfile({
       ownerId: uuidv4(),
       registration: identityFields.value.registration.toUpperCase(),
       manufacturer: identityFields.value.manufacturer || 'Unknown',
@@ -507,11 +649,25 @@ async function onSave(): Promise<void> {
       ...(isElectric.value ? { batteryPack: { ...batteryPack.value } } : {}),
     })
 
-    router.push({ name: 'fleet' })
+    return created
   } catch (err) {
     saveError.value = err instanceof Error ? err.message : 'Failed to save aircraft profile.'
+    return null
   } finally {
     isSaving.value = false
+  }
+}
+
+/**
+ * Footer "Save as Draft" action. Persists the draft, then — instead of dropping
+ * the pilot back on the fleet list — opens the post-save chooser. `allowLeave`
+ * is raised so the post-save navigation is not re-gated by the exit modal.
+ */
+async function onSave(): Promise<void> {
+  const created = await persistProfile()
+  if (created) {
+    allowLeave.value = true
+    savedProfile.value = created
   }
 }
 </script>
