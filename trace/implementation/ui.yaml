@@ -138,3 +138,17 @@ UI (auto)
     des:
       - DES-ARCH-011
       - DES-ARCH-012
+
+  IMP-UI-SHARED-008
+    title: ActionChoiceDialog template — accessible multi-action modal (wizard exit + post-save chooser)
+    files:
+      - frontend/src/shared/components/ActionChoiceDialog.vue
+    req:
+      - REQ-UI-011
+
+  IMP-UI-SHARED-009
+    title: ActionChoiceDialog logic — focus management, dismiss on Escape/backdrop
+    files:
+      - frontend/src/shared/components/ActionChoiceDialog.vue
+    req:
+      - REQ-UI-011

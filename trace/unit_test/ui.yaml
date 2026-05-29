@@ -44,3 +44,10 @@ UI (auto)
       - frontend/src/views/__tests__/PrivacyView.spec.ts
     impl:
       - IMP-UI-VIEW-002
+
+  UT-UI-SHARED-004
+    title: ActionChoiceDialog unit tests — rendering, accessibility, choose/dismiss, focus
+    files:
+      - frontend/src/shared/components/__tests__/ActionChoiceDialog.spec.ts
+    impl:
+      - IMP-UI-SHARED-008
