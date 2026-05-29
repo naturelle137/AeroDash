@@ -425,3 +425,19 @@ MB (auto)
       - frontend/src/modules/mass-balance/data/occupant-presets.ts
     req:
       - REQ-UQ-001
+
+  IMP-MB-UI-009
+    title: ResultSummary limit-proximity highlighting for Takeoff & Zero-Fuel mass
+    files:
+      - frontend/src/modules/mass-balance/components/ResultSummary.vue
+    req:
+      - REQ-UQ-003
+      - REQ-UI-018
+
+  IMP-MB-VIEW-012
+    title: Fleet-load timeout watchdog — escalates the spinner to Retry / Go-to-Fleet
+    files:
+      - frontend/src/modules/mass-balance/views/MassBalanceView.vue
+    req:
+      - REQ-AC-001
+      - REQ-MB-002

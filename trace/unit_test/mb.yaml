@@ -1458,3 +1458,32 @@ MB (auto)
       - frontend/src/modules/mass-balance/views/__tests__/MassBalanceView.fleet.spec.ts
     impl:
       - IMP-MB-VIEW-011
+
+  UT-MB-UI-003
+    title: ResultSummary limit-proximity highlighting tests
+    files:
+      - frontend/src/modules/mass-balance/components/__tests__/ResultSummary.spec.ts
+    impl:
+      - IMP-MB-UI-005
+      - IMP-MB-UI-009
+
+  UT-MB-VIEW-031
+    title: Fleet-load timeout escalates spinner to Retry/Go-to-Fleet error
+    files:
+      - frontend/src/modules/mass-balance/views/__tests__/MassBalanceView.fleet.spec.ts
+    impl:
+      - IMP-MB-VIEW-012
+
+  UT-MB-VIEW-032
+    title: Retry after fleet-load timeout clears the timeout state and re-loads
+    files:
+      - frontend/src/modules/mass-balance/views/__tests__/MassBalanceView.fleet.spec.ts
+    impl:
+      - IMP-MB-VIEW-012
+
+  UT-MB-VIEW-033
+    title: Go to Fleet after fleet-load timeout routes to the fleet page
+    files:
+      - frontend/src/modules/mass-balance/views/__tests__/MassBalanceView.fleet.spec.ts
+    impl:
+      - IMP-MB-VIEW-012

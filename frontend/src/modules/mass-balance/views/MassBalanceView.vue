@@ -368,16 +368,49 @@ function loadProfileIntoStore(profile: AircraftProfile): boolean {
   return true
 }
 
+// ─── Fleet-load timeout escalation (UX-014) ──────────────────────────────────
+// @IMP-MB-VIEW-012@ (FROM: @REQ-AC-001@, @REQ-MB-002@)
+//
+// `fleetStore.loadAll()` reads IndexedDB, which can stall indefinitely (storage
+// blocked by another tab, a quota prompt, a wedged transaction). Without a
+// watchdog the pilot is left staring at a spinner with no recovery. After
+// FLEET_LOAD_TIMEOUT_MS still in LOADING we flip `loadTimedOut`, which swaps the
+// spinner for an actionable inline error offering Retry or a jump to the Fleet
+// page. The flag is reset whenever a (re)load is kicked off or completes.
+
+const FLEET_LOAD_TIMEOUT_MS = 10_000
+const loadTimedOut = ref(false)
+let loadWatchdog: ReturnType<typeof setTimeout> | null = null
+
+function clearLoadWatchdog(): void {
+  if (loadWatchdog !== null) {
+    clearTimeout(loadWatchdog)
+    loadWatchdog = null
+  }
+}
+
+async function runFleetLoad(): Promise<void> {
+  loadTimedOut.value = false
+  clearLoadWatchdog()
+  loadWatchdog = setTimeout(() => {
+    if (fleetStore.fleetLoadState === 'LOADING') loadTimedOut.value = true
+  }, FLEET_LOAD_TIMEOUT_MS)
+  try {
+    await fleetStore.loadAll()
+  } catch {
+    /* fleetLoadState surfaces the error */
+  } finally {
+    clearLoadWatchdog()
+    loadTimedOut.value = false
+  }
+}
+
 // @IMP-MB-UI-SESSION-001@ (FROM: @REQ-SYS-013@)
 onMounted(async () => {
   // Only auto-load on the first mount (initial LOADING state). If a previous
   // attempt errored, let the pilot retry explicitly via the Retry button.
   if (fleetStore.fleetLoadState === 'LOADING' && fleetStore.profiles.length === 0) {
-    try {
-      await fleetStore.loadAll()
-    } catch {
-      /* fleetLoadState handles the error surface */
-    }
+    await runFleetLoad()
   }
 
   if (!store.aircraft) {
@@ -436,6 +469,7 @@ onMounted(async () => {
 onBeforeUnmount(() => {
   stickyCleanup?.()
   stickyCleanup = null
+  clearLoadWatchdog()
 })
 
 function onAddAircraft(): void {
@@ -447,7 +481,12 @@ function onAddAircraft(): void {
 }
 
 function onRetry(): void {
-  void fleetStore.loadAll()
+  void runFleetLoad()
+}
+
+/** Escape hatch from a stalled fleet load — go manage/select aircraft directly. */
+function onGoToFleet(): void {
+  void router.push({ name: 'fleet' })
 }
 
 // ---------------------------------------------------------------------------
@@ -791,8 +830,23 @@ function onCancelSelection(): void {
         {{ catalogueError }}
       </div>
 
+      <!-- Fleet load timed out (UX-014): escalate the spinner to an actionable error -->
+      <div
+        v-if="isFleetLoading && loadTimedOut"
+        class="inline-alert inline-alert--critical fleet-error"
+        role="alert"
+      >
+        <span>Loading your fleet is taking longer than expected. Your device storage may be busy.</span>
+        <div class="fleet-error__actions">
+          <button type="button" class="retry-btn" @click="onRetry">Retry</button>
+          <button type="button" class="retry-btn retry-btn--ghost" @click="onGoToFleet">
+            Go to Fleet
+          </button>
+        </div>
+      </div>
+
       <!-- Fleet hydrating -->
-      <div v-if="isFleetLoading" class="loading" aria-busy="true" aria-live="polite">
+      <div v-else-if="isFleetLoading" class="loading" aria-busy="true" aria-live="polite">
         <span class="loading-spinner" aria-hidden="true" />
         <span>Loading your fleet…</span>
       </div>
@@ -1476,6 +1530,22 @@ function onCancelSelection(): void {
 .retry-btn:hover {
   background: var(--color-critical);
   color: #fff;
+}
+
+.fleet-error__actions {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.retry-btn--ghost {
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+.retry-btn--ghost:hover {
+  background: var(--color-surface-hover, var(--color-surface-card));
+  color: var(--color-text-primary);
 }
 
 /* ─── Empty fleet CTA ────────────────────────────────────────────────────── */
