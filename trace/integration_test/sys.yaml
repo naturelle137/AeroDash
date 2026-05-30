@@ -25,3 +25,14 @@ SYS Store — App-version offline enforcement (Integration — #271 CS-011 / TEC
       - IMP-SYS-STORE-013
       - IMP-SYS-STORE-014
       - IMP-SYS-STORE-015
+
+SYS App — Disclaimer Acknowledgement Gate (Integration — #280, PR-016)
+  IT-SYS-APP-002
+    title: App.vue renders the blocking disclaimer gate on first launch, hides it when an acceptance for the current baseline is stored, persists acceptance on Accept click, and re-prompts on baseline drift (#280)
+    impl:
+      - IMP-SYS-STORE-022
+      - IMP-UI-SHARED-008
+      - IMP-UI-SHARED-009
+      - IMP-SYS-SHARED-011
+    files:
+      - frontend/src/__tests__/App.disclaimer-gate.int.spec.ts

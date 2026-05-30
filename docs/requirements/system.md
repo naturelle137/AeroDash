@@ -155,6 +155,16 @@ This document defines the system behavior using the **EARS** (Easy Approach to R
 **Status:** Implemented
 **Design Reference:** [Data-Rights Design](../architecture/data-rights.md)
 
+<!-- @REQ-SYS-016@ -->
+
+### REQ-SYS-016: In-App Disclaimer Acknowledgement Gate
+
+**Requirement:** When the application is launched on a fresh install, or on the first launch after a major-version change of the disclaimer baseline, the system shall present a blocking acknowledgement gate stating that AeroDash is an advisory tool whose outputs must be verified against the official POH/AFM and that the Pilot in Command bears sole responsibility; the system shall prevent interaction with the safety-critical modules (Mass & Balance, Performance, Fuel & Endurance) until the pilot explicitly accepts, shall persist the acceptance and the accepted disclaimer baseline locally, and shall re-present the gate only when the accepted baseline differs from the current one.
+**Rationale:** Closes process audit finding PR-016 (resubmission, v0.4.0-alpha). The DISCLAIMER.md / README liability statement is presently outside the runtime path — a pilot can install, open, and operate the safety-critical surfaces without ever seeing it. An in-app gate makes Pilot-in-Command responsibility a precondition for use, brings the liability boundary inside the application, and re-asserts it whenever the disclaimer's scope materially changes (signalled by a major-version baseline bump). Re-prompting on every patch/minor would create alarm fatigue; re-prompting on baseline change keeps the pattern aligned with the existing acknowledgement baseline used by `WARN-AC-002` (draft-profile acknowledgement).
+**Priority:** P1
+**Status:** Draft
+**Design Reference:** n/a
+
 ---
 
 ## Design References

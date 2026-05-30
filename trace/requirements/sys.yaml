@@ -65,3 +65,7 @@ System Requirements
   REQ-SYS-015
     title: Export of All Personal Data
     file: docs/requirements/system.md
+
+  REQ-SYS-016
+    title: In-App Disclaimer Acknowledgement Gate
+    file: docs/requirements/system.md

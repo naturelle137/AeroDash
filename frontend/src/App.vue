@@ -2,16 +2,30 @@
 // @IMP-UI-SHARED-002@ (FROM: @REQ-UI-011@, @REQ-SYS-001@)
 // @IMP-SYS-SHARED-005@ (FROM: @REQ-SYS-006@)
 // @IMP-SYS-SHARED-009@ (FROM: @REQ-SYS-006@, @H-019@)
+// @IMP-SYS-SHARED-011@ (FROM: @REQ-SYS-016@)
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { RouterView, RouterLink, useRoute } from 'vue-router'
 import { useTheme } from '@/shared/composables/useTheme'
 import AppLogo from '@/shared/components/AppLogo.vue'
 import AppVersion from '@/shared/components/AppVersion.vue'
+import DisclaimerAcknowledgementModal from '@/shared/components/DisclaimerAcknowledgementModal.vue'
 import { usePwaUpdateStore } from '@/stores/pwa-update.store'
 import { useAppVersionStore, attachConnectivityRefresh } from '@/stores/app-version.store'
+import { useDisclaimerAcknowledgementStore } from '@/stores/disclaimer-acknowledgement.store'
 
 const pwaStore = usePwaUpdateStore()
 const appVersionStore = useAppVersionStore()
+// REQ-SYS-016 — in-app disclaimer acknowledgement gate (PR-016 audit).
+// The store reads localStorage on mount and exposes `gateOpen`; the safety-
+// critical surfaces (rendered under <RouterView>) are hidden while the gate
+// is open. The pilot must explicitly accept; there is no cancel path.
+const disclaimerStore = useDisclaimerAcknowledgementStore()
+onMounted(() => {
+  disclaimerStore.loadFromStorage()
+})
+function onDisclaimerAccept(): void {
+  disclaimerStore.acknowledge()
+}
 
 // REQ-SYS-006 / H-019 (issue #271): check minimum safe version on every
 // mount. The check itself works offline — it reads the last-known
@@ -307,6 +321,16 @@ const themeLabel = computed(() =>
       </div>
       <RouterView v-else :key="bfcacheNonce" />
     </main>
+
+    <!-- ═══ Disclaimer acknowledgement gate (REQ-SYS-016 / PR-016) ═══════════
+         Blocking modal: pilot must explicitly accept Pilot-in-Command
+         responsibility before any safety-critical surface is reachable. The
+         store flips `gateOpen` to false only after `acknowledge()` succeeds. -->
+    <DisclaimerAcknowledgementModal
+      :open="disclaimerStore.gateOpen"
+      :storage-unavailable="disclaimerStore.storageUnavailable"
+      @accept="onDisclaimerAccept"
+    />
 
     <!-- ═══ Bottom navigation (mobile only) ════════════════════════════════ -->
     <nav class="app-bottom-nav" aria-label="Main navigation (mobile)">

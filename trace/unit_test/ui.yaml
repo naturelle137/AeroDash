@@ -30,6 +30,14 @@ UI Shared Components (Unit)
     files:
       - frontend/src/__tests__/App.nav.spec.ts
 
+  UT-UI-SHARED-004
+    title: DisclaimerAcknowledgementModal — alertdialog ARIA, single Accept action, no Cancel/Escape/backdrop dismiss, focus trap, storage-unavailable advisory (REQ-SYS-016 / PR-016)
+    impl:
+      - IMP-UI-SHARED-008
+      - IMP-UI-SHARED-009
+    files:
+      - frontend/src/shared/components/__tests__/DisclaimerAcknowledgementModal.spec.ts
+
 UI (auto)
   UT-UI-ROUTE-004
     title: Router unit test — /privacy route resolves to PrivacyView
