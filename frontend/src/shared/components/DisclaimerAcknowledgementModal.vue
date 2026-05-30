@@ -1,4 +1,3 @@
-<!-- @IMP-UI-SHARED-008@ (FROM: @REQ-SYS-016@) -->
 <template>
   <Teleport to="body">
     <!--
@@ -66,8 +65,10 @@
           </ul>
 
           <p class="disclaimer-gate__legal">
-            Full text: <a href="DISCLAIMER.md" target="_blank" rel="noopener">DISCLAIMER.md</a>
-            · <a href="LICENSE" target="_blank" rel="noopener">EUPL-1.2 (Articles 7–8)</a>
+            Full text:
+            <a href="/DISCLAIMER.md" target="_blank" rel="noopener">DISCLAIMER.md</a>
+            ·
+            <a href="/LICENSE.txt" target="_blank" rel="noopener">EUPL-1.2 (Articles 7–8)</a>
           </p>
         </div>
 
@@ -88,23 +89,46 @@
           cannot be remembered between launches and you will be re-prompted
           each time.
         </p>
+
+        <!--
+          PR review m1 — when `acknowledge()` returned `false` (quota,
+          Safari private mode, sandboxed iframe) the modal stays open and
+          the pilot may re-click. Without an explicit "could not save"
+          line the failure is silent. Distinct from `storageUnavailable`,
+          which fires on the load-time check.
+        -->
+        <p
+          v-if="writeFailed && !storageUnavailable"
+          class="disclaimer-gate__storage-advisory"
+          role="alert"
+          data-testid="disclaimer-gate-write-failed"
+        >
+          Could not save your acknowledgement. Your browser refused the
+          write — you will be re-prompted on the next launch.
+        </p>
       </div>
     </div>
   </Teleport>
 </template>
 
 <script setup lang="ts">
+// @IMP-UI-SHARED-008@ (FROM: @REQ-SYS-016@)
 // @IMP-UI-SHARED-009@ (FROM: @REQ-SYS-016@)
-import { nextTick, ref, watch } from 'vue'
+import { nextTick, onBeforeUnmount, ref, useId, watch } from 'vue'
 
-let uid = 0
-const localId = `disclaimer-gate-${++uid}`
+// PR review m3 — `let uid = 0; const localId = `disclaimer-gate-${++uid}``
+// inside `<script setup>` reinitialises `uid` per component instance, so
+// every coexisting modal would collide on `disclaimer-gate-1`. Vue 3.5's
+// `useId()` returns a SSR-safe, instance-unique identifier.
+const localId = useId() ?? 'disclaimer-gate'
 const titleId = `${localId}-title`
 const bodyId = `${localId}-body`
 
-defineProps<{
+const props = defineProps<{
   open: boolean
   storageUnavailable?: boolean
+  /** `true` when the most recent `acknowledge()` call failed to persist. */
+  writeFailed?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -141,6 +165,42 @@ function onAccept(): void {
 function trapFocusOnAcceptBtn(): void {
   acceptBtn.value?.focus()
 }
+
+/**
+ * PR review m2 — the dialog-scoped `@keydown.tab.prevent` only fires when
+ * focus is already inside the dialog. If anything ever moves focus out
+ * (e.g. a programmatic refocus, a browser AT virtual cursor jumping out),
+ * Tab from a background element would not be re-trapped. Combined with the
+ * App-shell `inert` guard (M2 fix) this is belt-and-braces, but a global
+ * `keydown` capture-phase listener ensures the trap holds even if a future
+ * regression weakens `inert`.
+ */
+function trapTabGlobally(event: KeyboardEvent): void {
+  if (!props.open) return
+  if (event.key !== 'Tab') return
+  // Only intervene when focus has escaped the dialog subtree; otherwise
+  // let the dialog-scoped `@keydown.tab.prevent` handler run.
+  const active = document.activeElement
+  if (dialogEl.value && active && dialogEl.value.contains(active)) return
+  event.preventDefault()
+  acceptBtn.value?.focus()
+}
+
+watch(
+  () => props.open,
+  (open) => {
+    if (open) {
+      document.addEventListener('keydown', trapTabGlobally, true)
+    } else {
+      document.removeEventListener('keydown', trapTabGlobally, true)
+    }
+  },
+  { immediate: true },
+)
+
+onBeforeUnmount(() => {
+  document.removeEventListener('keydown', trapTabGlobally, true)
+})
 </script>
 
 <style scoped>

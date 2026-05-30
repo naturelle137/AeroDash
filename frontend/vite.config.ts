@@ -6,6 +6,7 @@ import vueDevTools from 'vite-plugin-vue-devtools'
 import { VitePWA } from 'vite-plugin-pwa'
 
 import { assertNoTelemetryInProductionBuild } from './scripts/build/telemetry-guard'
+import { copyLegalDocs } from './scripts/build/copy-legal-docs'
 
 // Production gate for dev-only tooling (DP-016 vue-devtools). Kept as a plain
 // boolean rather than a `defineConfig(({ command }) => …)` callback so the
@@ -54,6 +55,10 @@ export default defineConfig({
     // DP-016 — vue-devtools must never ship in a production bundle (it exposes
     // component internals and store state). Enabled for dev only.
     ...(isProd ? [] : [vueDevTools()]),
+    // REQ-SYS-016 — expose DISCLAIMER.md / LICENSE so the in-app
+    // acknowledgement gate's "full text" link resolves both in dev and in the
+    // production bundle. Without this the modal's hrefs 404 (review M1).
+    copyLegalDocs(),
     VitePWA({
       registerType: 'prompt',
       injectRegister: 'auto',
@@ -70,7 +75,9 @@ export default defineConfig({
         ],
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        // REQ-SYS-016 — include DISCLAIMER.md / LICENSE.txt so the in-app
+        // acknowledgement gate's "full text" link is reachable offline.
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2,md,txt}'],
       },
       devOptions: { enabled: false },
     }),

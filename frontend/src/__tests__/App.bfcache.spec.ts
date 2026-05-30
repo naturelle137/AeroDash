@@ -47,6 +47,32 @@ import {
 } from 'vue'
 
 import App from '../App.vue'
+import {
+  STORAGE_KEY as DISCLAIMER_STORAGE_KEY,
+  computeDisclaimerBaseline,
+} from '../stores/disclaimer-acknowledgement.store'
+
+/**
+ * Pre-seed the REQ-SYS-016 disclaimer acknowledgement record so the modal
+ * does not block <RouterView /> from mounting inside the App shell. The
+ * baseline must match what the store computes from `__APP_VERSION__`;
+ * otherwise the store treats the seed as a stale baseline and re-opens the
+ * gate.
+ */
+function seedDisclaimerAccepted(): void {
+  const version = __APP_VERSION__
+  const baseline = computeDisclaimerBaseline(version)
+  if (baseline === null) return
+  localStorage.setItem(
+    DISCLAIMER_STORAGE_KEY,
+    JSON.stringify({
+      schemaVersion: 1,
+      acceptedVersion: version,
+      acceptedBaseline: baseline,
+      acceptedAt: 1_780_000_000_000,
+    }),
+  )
+}
 
 interface MountTracker {
   /** Total number of times the wrapped child has executed `onMounted`. */
@@ -246,6 +272,13 @@ describe('App.vue — bfcache restoration against real component (issue #232)', 
   }
 
   async function mountApp(rvMountCount: Ref<number>, initialPath = '/fleet') {
+    // PR review M3 — App.vue now hides <RouterView> behind
+    // `v-if="!disclaimerStore.gateOpen"` so the safety-critical surface does
+    // not mount until the pilot has acknowledged the disclaimer. Pre-seed
+    // the acceptance so this bfcache suite continues to exercise its actual
+    // subject (the pageshow → :key remount wiring).
+    localStorage.clear()
+    seedDisclaimerAccepted()
     const pinia = createPinia()
     setActivePinia(pinia)
     const router = buildRouter()

@@ -88,6 +88,26 @@ describe('DisclaimerAcknowledgementModal', () => {
     expect(document.querySelector('.disclaimer-gate__storage-advisory')).toBeNull()
   })
 
+  it('shows the write-failed advisory after a refused acknowledge() write', () => {
+    // PR-review m1 — when the parent's `acknowledge()` returned false the
+    // modal must surface a visible alert; a silent failure makes the pilot
+    // re-click an unresponsive Accept button.
+    mountModal({ writeFailed: true })
+    const alert = document.querySelector('[data-testid="disclaimer-gate-write-failed"]')
+    expect(alert).not.toBeNull()
+    expect(alert?.getAttribute('role')).toBe('alert')
+  })
+
+  it('does not double-report when both storageUnavailable and writeFailed are set', () => {
+    // The storage-unavailable advisory already covers the load-time
+    // unreachable case; the write-failed alert is suppressed when both
+    // signals are true to avoid a duplicate message.
+    mountModal({ storageUnavailable: true, writeFailed: true })
+    expect(
+      document.querySelector('[data-testid="disclaimer-gate-write-failed"]'),
+    ).toBeNull()
+  })
+
   it('keeps focus inside the modal on Tab (no focusable controls outside the accept button)', async () => {
     mountModal()
     const acceptBtn = document.querySelector<HTMLButtonElement>(
