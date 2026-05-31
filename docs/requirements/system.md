@@ -157,10 +157,10 @@ This document defines the system behavior using the **EARS** (Easy Approach to R
 
 <!-- @REQ-SYS-016@ -->
 
-### REQ-SYS-016: In-App Disclaimer Acknowledgement Gate
+### REQ-SYS-016: Disclaimer Acknowledgement
 
-**Requirement:** On first launch, and after any change to the disclaimer baseline, the system shall present a blocking acknowledgement that AeroDash is advisory only, that its outputs must be verified against the official POH/AFM, and that the Pilot in Command bears sole responsibility. The system shall prevent use of the safety-critical modules until the pilot accepts, shall persist the acceptance, and shall re-present the acknowledgement only when the disclaimer baseline changes.
-**Rationale:** The liability statement in DISCLAIMER.md sits outside the runtime path, so a pilot can operate the safety-critical surfaces without ever seeing it. An in-app gate makes Pilot-in-Command responsibility a precondition for use and re-asserts it when the disclaimer's scope materially changes.
+**Requirement:** If the user has not acknowledged the disclaimer, then the system shall prevent use of the safety-critical functions.
+**Rationale:** The disclaimer establishes that AeroDash is advisory only and that the Pilot in Command bears sole responsibility for verifying its outputs against the official POH/AFM. Requiring acknowledgement brings that liability boundary into the runtime path rather than leaving it in documentation the pilot may never open.
 **Priority:** P1
 **Status:** Draft
 **Design Reference:** n/a
