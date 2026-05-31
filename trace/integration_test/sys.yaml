@@ -32,7 +32,7 @@ SYS App — Disclaimer Acknowledgement Gate (Integration — #280)
     impl:
       - IMP-SYS-STORE-022
       - IMP-UI-SHARED-008
-      - IMP-SYS-SHARED-011
+      - IMP-UI-SHARED-002
     files:
       - frontend/src/__tests__/App.disclaimer-gate.int.spec.ts
 
@@ -40,7 +40,7 @@ SYS App — Disclaimer Acknowledgement Gate (Integration — #280)
     title: App.vue hides the gate when a record for the current baseline is already stored
     impl:
       - IMP-SYS-STORE-022
-      - IMP-SYS-SHARED-011
+      - IMP-UI-SHARED-002
     files:
       - frontend/src/__tests__/App.disclaimer-gate.int.spec.ts
 
@@ -48,8 +48,8 @@ SYS App — Disclaimer Acknowledgement Gate (Integration — #280)
     title: App.vue hides the gate after the pilot clicks Accept and persists the acceptance
     impl:
       - IMP-SYS-STORE-022
-      - IMP-UI-SHARED-009
-      - IMP-SYS-SHARED-011
+      - IMP-UI-SHARED-008
+      - IMP-UI-SHARED-002
     files:
       - frontend/src/__tests__/App.disclaimer-gate.int.spec.ts
 
@@ -57,6 +57,6 @@ SYS App — Disclaimer Acknowledgement Gate (Integration — #280)
     title: App.vue re-presents the gate when only a different-baseline record is stored
     impl:
       - IMP-SYS-STORE-022
-      - IMP-SYS-SHARED-011
+      - IMP-UI-SHARED-002
     files:
       - frontend/src/__tests__/App.disclaimer-gate.int.spec.ts

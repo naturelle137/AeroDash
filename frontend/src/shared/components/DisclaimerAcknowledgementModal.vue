@@ -95,7 +95,6 @@
 
 <script setup lang="ts">
 // @IMP-UI-SHARED-008@ (FROM: @REQ-SYS-016@)
-// @IMP-UI-SHARED-009@ (FROM: @REQ-SYS-016@)
 import { nextTick, onBeforeUnmount, ref, useId, watch } from 'vue'
 
 const localId = useId() ?? 'disclaimer-gate'

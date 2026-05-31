@@ -1,8 +1,5 @@
 <script setup lang="ts">
-// @IMP-UI-SHARED-002@ (FROM: @REQ-UI-011@, @REQ-SYS-001@)
-// @IMP-SYS-SHARED-005@ (FROM: @REQ-SYS-006@)
-// @IMP-SYS-SHARED-009@ (FROM: @REQ-SYS-006@, @H-019@)
-// @IMP-SYS-SHARED-011@ (FROM: @REQ-SYS-016@)
+// @IMP-UI-SHARED-002@ (FROM: @REQ-UI-011@, @REQ-SYS-001@, @REQ-SYS-006@, @H-019@, @REQ-SYS-016@)
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { RouterView, RouterLink, useRoute } from 'vue-router'
 import { useTheme } from '@/shared/composables/useTheme'

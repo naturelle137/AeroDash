@@ -57,14 +57,14 @@ describe('App.vue ↔ disclaimer-acknowledgement gate (REQ-SYS-016)', () => {
     document.body.innerHTML = ''
   })
 
-  // @IT-SYS-APP-002@ (FROM: @IMP-SYS-STORE-022@, @IMP-UI-SHARED-008@, @IMP-SYS-SHARED-011@)
+  // @IT-SYS-APP-002@ (FROM: @IMP-SYS-STORE-022@, @IMP-UI-SHARED-008@, @IMP-UI-SHARED-002@)
   it('renders the blocking gate on first launch (no record stored)', async () => {
     await mountApp()
     const gate = document.querySelector('[data-testid="disclaimer-gate"]')
     expect(gate).not.toBeNull()
   })
 
-  // @IT-SYS-APP-003@ (FROM: @IMP-SYS-STORE-022@, @IMP-SYS-SHARED-011@)
+  // @IT-SYS-APP-003@ (FROM: @IMP-SYS-STORE-022@, @IMP-UI-SHARED-002@)
   it('hides the gate when a record for the current baseline is already stored', async () => {
     // Pre-stage the persisted acceptance BEFORE the store/App mount.
     // We do not know the running build's baseline at compile time; assemble
@@ -85,7 +85,7 @@ describe('App.vue ↔ disclaimer-acknowledgement gate (REQ-SYS-016)', () => {
     expect(document.querySelector('[data-testid="disclaimer-gate"]')).toBeNull()
   })
 
-  // @IT-SYS-APP-004@ (FROM: @IMP-SYS-STORE-022@, @IMP-UI-SHARED-009@, @IMP-SYS-SHARED-011@)
+  // @IT-SYS-APP-004@ (FROM: @IMP-SYS-STORE-022@, @IMP-UI-SHARED-008@, @IMP-UI-SHARED-002@)
   it('hides the gate after the pilot clicks "Accept" and persists the acceptance', async () => {
     await mountApp()
 
@@ -108,7 +108,7 @@ describe('App.vue ↔ disclaimer-acknowledgement gate (REQ-SYS-016)', () => {
     expect(typeof parsed.acceptedBaseline).toBe('string')
   })
 
-  // @IT-SYS-APP-005@ (FROM: @IMP-SYS-STORE-022@, @IMP-SYS-SHARED-011@)
+  // @IT-SYS-APP-005@ (FROM: @IMP-SYS-STORE-022@, @IMP-UI-SHARED-002@)
   it('shows the gate when only a different-baseline record is stored (milestone bump simulation)', async () => {
     // A clearly-stale baseline that no current build can equal.
     const previous: AcknowledgementRecord = {

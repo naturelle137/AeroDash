@@ -17,7 +17,7 @@ function mountModal(props: Record<string, unknown> = {}) {
 }
 
 describe('DisclaimerAcknowledgementModal', () => {
-  // @UT-UI-SHARED-004@ (FROM: @IMP-UI-SHARED-008@, @IMP-UI-SHARED-009@)
+  // @UT-UI-SHARED-004@ (FROM: @IMP-UI-SHARED-008@)
   it('does not render anything when closed', () => {
     mountModal({ open: false })
     expect(document.querySelector('[data-testid="disclaimer-gate"]')).toBeNull()
@@ -56,7 +56,7 @@ describe('DisclaimerAcknowledgementModal', () => {
     expect(body).toMatch(/advisory|verify/i)
   })
 
-  // @UT-UI-SHARED-008@ (FROM: @IMP-UI-SHARED-009@)
+  // @UT-UI-SHARED-008@ (FROM: @IMP-UI-SHARED-008@)
   it('emits "accept" when the accept button is clicked', async () => {
     const wrapper = mountModal()
     const acceptBtn = document.querySelector<HTMLButtonElement>(
@@ -75,19 +75,19 @@ describe('DisclaimerAcknowledgementModal', () => {
     expect(buttons[0]?.getAttribute('data-testid')).toBe('disclaimer-gate-accept')
   })
 
-  // @UT-UI-SHARED-010@ (FROM: @IMP-UI-SHARED-009@)
+  // @UT-UI-SHARED-010@ (FROM: @IMP-UI-SHARED-008@)
   it('shows the storage-unavailable advisory when the prop is set', () => {
     mountModal({ storageUnavailable: true })
     expect(document.querySelector('.disclaimer-gate__storage-advisory')).not.toBeNull()
   })
 
-  // @UT-UI-SHARED-011@ (FROM: @IMP-UI-SHARED-009@)
+  // @UT-UI-SHARED-011@ (FROM: @IMP-UI-SHARED-008@)
   it('hides the storage-unavailable advisory by default', () => {
     mountModal()
     expect(document.querySelector('.disclaimer-gate__storage-advisory')).toBeNull()
   })
 
-  // @UT-UI-SHARED-012@ (FROM: @IMP-UI-SHARED-009@)
+  // @UT-UI-SHARED-012@ (FROM: @IMP-UI-SHARED-008@)
   it('shows the write-failed advisory after a refused acknowledge() write', () => {
     mountModal({ writeFailed: true })
     const alert = document.querySelector('[data-testid="disclaimer-gate-write-failed"]')
@@ -95,7 +95,7 @@ describe('DisclaimerAcknowledgementModal', () => {
     expect(alert?.getAttribute('role')).toBe('alert')
   })
 
-  // @UT-UI-SHARED-013@ (FROM: @IMP-UI-SHARED-009@)
+  // @UT-UI-SHARED-013@ (FROM: @IMP-UI-SHARED-008@)
   it('does not double-report when both storageUnavailable and writeFailed are set', () => {
     mountModal({ storageUnavailable: true, writeFailed: true })
     expect(
@@ -103,7 +103,7 @@ describe('DisclaimerAcknowledgementModal', () => {
     ).toBeNull()
   })
 
-  // @UT-UI-SHARED-014@ (FROM: @IMP-UI-SHARED-009@)
+  // @UT-UI-SHARED-014@ (FROM: @IMP-UI-SHARED-008@)
   it('keeps focus inside the modal on Tab (no focusable controls outside the accept button)', async () => {
     mountModal()
     const acceptBtn = document.querySelector<HTMLButtonElement>(
