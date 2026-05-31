@@ -1579,72 +1579,100 @@ SYS (auto)
     impl:
       - IMP-SYS-STORE-001
 
-SYS Store — Disclaimer acknowledgement gate (#280, PR-016)
+SYS Store — Disclaimer acknowledgement gate (#280)
   UT-SYS-STORE-100
-    title: computeDisclaimerBaseline returns MAJOR.MINOR for valid SemVer (release, pre-release, build-metadata) and null for malformed input
+    title: computeDisclaimerBaseline returns MAJOR.MINOR for a release SemVer
     files:
       - frontend/src/stores/__tests__/disclaimer-acknowledgement.store.spec.ts
     impl:
       - IMP-SYS-STORE-022
 
   UT-SYS-STORE-101
-    title: Disclaimer store — gate opens on first launch when no record is stored
+    title: computeDisclaimerBaseline returns MAJOR.MINOR for a pre-release SemVer
     files:
       - frontend/src/stores/__tests__/disclaimer-acknowledgement.store.spec.ts
     impl:
       - IMP-SYS-STORE-022
 
   UT-SYS-STORE-102
-    title: Disclaimer store — gate closes when a record for the current baseline is already persisted
+    title: computeDisclaimerBaseline returns MAJOR.MINOR for a build-metadata SemVer
     files:
       - frontend/src/stores/__tests__/disclaimer-acknowledgement.store.spec.ts
     impl:
       - IMP-SYS-STORE-022
 
   UT-SYS-STORE-103
-    title: Disclaimer store — gate reopens when the stored baseline differs from the running build's
+    title: computeDisclaimerBaseline returns null for malformed SemVer
     files:
       - frontend/src/stores/__tests__/disclaimer-acknowledgement.store.spec.ts
     impl:
       - IMP-SYS-STORE-022
 
   UT-SYS-STORE-104
-    title: Disclaimer store — gate reopens when the stored record is structurally corrupt or not valid JSON
+    title: gate opens on first launch when no record is stored
     files:
       - frontend/src/stores/__tests__/disclaimer-acknowledgement.store.spec.ts
     impl:
       - IMP-SYS-STORE-022
 
   UT-SYS-STORE-105
-    title: Disclaimer store — fails safe when localStorage.getItem throws (sets storageUnavailable, keeps gate open)
+    title: gate closes when a record for the current baseline is stored
     files:
       - frontend/src/stores/__tests__/disclaimer-acknowledgement.store.spec.ts
     impl:
       - IMP-SYS-STORE-022
 
   UT-SYS-STORE-106
-    title: Disclaimer store — acknowledge() persists the envelope and closes the gate
+    title: gate opens when the stored baseline differs from the current one
     files:
       - frontend/src/stores/__tests__/disclaimer-acknowledgement.store.spec.ts
     impl:
       - IMP-SYS-STORE-022
 
   UT-SYS-STORE-107
-    title: Disclaimer store — acknowledge() returns false and leaves the gate open when localStorage.setItem throws
+    title: gate opens when the stored record is structurally corrupt
     files:
       - frontend/src/stores/__tests__/disclaimer-acknowledgement.store.spec.ts
     impl:
       - IMP-SYS-STORE-022
 
   UT-SYS-STORE-108
-    title: Disclaimer store — milestone-bump simulation (prior baseline 0.3 record) re-prompts iff the running build is on a different baseline
+    title: gate opens when the stored payload is not valid JSON
     files:
       - frontend/src/stores/__tests__/disclaimer-acknowledgement.store.spec.ts
     impl:
       - IMP-SYS-STORE-022
 
   UT-SYS-STORE-109
-    title: Disclaimer store — resetForTesting() clears in-memory state and re-opens the gate
+    title: fails safe when localStorage.getItem throws
+    files:
+      - frontend/src/stores/__tests__/disclaimer-acknowledgement.store.spec.ts
+    impl:
+      - IMP-SYS-STORE-022
+
+  UT-SYS-STORE-110
+    title: acknowledge() persists the record and closes the gate
+    files:
+      - frontend/src/stores/__tests__/disclaimer-acknowledgement.store.spec.ts
+    impl:
+      - IMP-SYS-STORE-022
+
+  UT-SYS-STORE-111
+    title: acknowledge() returns false and leaves the gate open when setItem throws
+    files:
+      - frontend/src/stores/__tests__/disclaimer-acknowledgement.store.spec.ts
+    impl:
+      - IMP-SYS-STORE-022
+
+  UT-SYS-STORE-112
+    title: re-prompts after a stored acceptance for an older baseline (milestone bump)
+    files:
+      - frontend/src/stores/__tests__/disclaimer-acknowledgement.store.spec.ts
+    impl:
+      - IMP-SYS-STORE-022
+
+  UT-SYS-STORE-113
+    title: resetForTesting() clears in-memory state and re-opens the gate
     files:
       - frontend/src/stores/__tests__/disclaimer-acknowledgement.store.spec.ts
     impl:

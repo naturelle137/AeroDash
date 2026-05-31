@@ -15,27 +15,12 @@ import { useDisclaimerAcknowledgementStore } from '@/stores/disclaimer-acknowled
 
 const pwaStore = usePwaUpdateStore()
 const appVersionStore = useAppVersionStore()
-// REQ-SYS-016 — in-app disclaimer acknowledgement gate (PR-016 audit).
-//
-// The store reads localStorage on mount and exposes `gateOpen`. While the
-// gate is open we MUST keep the safety-critical surfaces unreachable:
-//   - The app shell wrapper is `inert` + `aria-hidden`, so background
-//     focus, pointer events, and the AT virtual cursor cannot reach the
-//     header / sidebar / RouterLinks. The modal itself is teleported to
-//     `<body>` and lives outside this wrapper, so it stays interactive.
-//   - The RouterView is hidden behind `v-if`, so the safety-critical view
-//     does not mount and its Pinia setup does not run until the pilot has
-//     explicitly accepted. A comment-only "hidden" guard (PR review M3)
-//     would still execute M&B / Performance reactivity behind the modal.
 const disclaimerStore = useDisclaimerAcknowledgementStore()
 const disclaimerStorageWriteFailed = ref(false)
 onMounted(() => {
   disclaimerStore.loadFromStorage()
 })
 function onDisclaimerAccept(): void {
-  // PR review m1: surface a visible advisory when localStorage refused the
-  // write. Without it the modal silently fails to close and the pilot
-  // re-clicks an unresponsive button.
   const ok = disclaimerStore.acknowledge()
   disclaimerStorageWriteFailed.value = !ok
 }
@@ -340,12 +325,7 @@ const themeLabel = computed(() =>
       <RouterView v-else-if="!disclaimerStore.gateOpen" :key="bfcacheNonce" />
     </main>
 
-    <!-- ═══ Disclaimer acknowledgement gate (REQ-SYS-016 / PR-016) ═══════════
-         Blocking modal: pilot must explicitly accept Pilot-in-Command
-         responsibility before any safety-critical surface is reachable. The
-         store flips `gateOpen` to false only after `acknowledge()` succeeds.
-         Teleports to `<body>`, so it sits outside the `.app-shell` wrapper
-         (which is `inert`d while the gate is open) and stays interactive. -->
+    <!-- Teleports to <body>, outside the inert .app-shell, so it stays interactive while the gate is open. -->
     <DisclaimerAcknowledgementModal
       :open="disclaimerStore.gateOpen"
       :storage-unavailable="disclaimerStore.storageUnavailable"

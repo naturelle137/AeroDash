@@ -374,17 +374,17 @@ SYS Store — App Version build-time floor resolution (#271, PR-review Major #2 
     hazard:
       - H-019
 
-SYS Store — In-app disclaimer acknowledgement gate (#280, PR-016)
+SYS Store — In-app disclaimer acknowledgement gate (#280)
   IMP-SYS-STORE-022
-    title: useDisclaimerAcknowledgementStore — Pinia store backing the first-launch disclaimer gate; reads localStorage on mount, derives the MAJOR.MINOR disclaimer baseline from the running build, re-prompts when the stored baseline differs, and fails closed when SemVer or storage is unreachable (REQ-SYS-016, closes audit PR-016)
+    title: useDisclaimerAcknowledgementStore — Pinia store backing the first-launch disclaimer gate; reads localStorage on mount, derives the MAJOR.MINOR disclaimer baseline from the running build, re-prompts when the stored baseline differs, and fails closed when SemVer or storage is unreachable
     files:
       - frontend/src/stores/disclaimer-acknowledgement.store.ts
     req:
       - REQ-SYS-016
 
-SYS Shared — In-app disclaimer acknowledgement gate (#280, PR-016)
+SYS Shared — In-app disclaimer acknowledgement gate (#280)
   IMP-SYS-SHARED-011
-    title: App.vue wires the disclaimer acknowledgement gate — loads the store on mount, renders the blocking DisclaimerAcknowledgementModal until the pilot accepts (REQ-SYS-016, closes audit PR-016)
+    title: App.vue wires the disclaimer acknowledgement gate — loads the store on mount, renders the blocking DisclaimerAcknowledgementModal until the pilot accepts
     files:
       - frontend/src/App.vue
     req:

@@ -1,16 +1,5 @@
 <template>
   <Teleport to="body">
-    <!--
-      First-launch / baseline-change disclaimer acknowledgement gate
-      (REQ-SYS-016, closes audit finding PR-016).
-
-      This is a deliberately one-way modal: there is NO cancel, NO Escape,
-      NO backdrop-tap dismissal. The pilot must explicitly acknowledge
-      Pilot-in-Command responsibility before the safety-critical surfaces
-      (Mass & Balance, Performance, Fuel & Endurance) become reachable.
-      The store keeps `gateOpen` true until `acknowledge()` succeeds; the
-      App shell renders the rest of the UI only when `gateOpen` is false.
-    -->
     <div
       v-if="open"
       class="disclaimer-gate__backdrop"
@@ -90,13 +79,6 @@
           each time.
         </p>
 
-        <!--
-          PR review m1 — when `acknowledge()` returned `false` (quota,
-          Safari private mode, sandboxed iframe) the modal stays open and
-          the pilot may re-click. Without an explicit "could not save"
-          line the failure is silent. Distinct from `storageUnavailable`,
-          which fires on the load-time check.
-        -->
         <p
           v-if="writeFailed && !storageUnavailable"
           class="disclaimer-gate__storage-advisory"
@@ -116,10 +98,6 @@
 // @IMP-UI-SHARED-009@ (FROM: @REQ-SYS-016@)
 import { nextTick, onBeforeUnmount, ref, useId, watch } from 'vue'
 
-// PR review m3 — `let uid = 0; const localId = `disclaimer-gate-${++uid}``
-// inside `<script setup>` reinitialises `uid` per component instance, so
-// every coexisting modal would collide on `disclaimer-gate-1`. Vue 3.5's
-// `useId()` returns a SSR-safe, instance-unique identifier.
 const localId = useId() ?? 'disclaimer-gate'
 const titleId = `${localId}-title`
 const bodyId = `${localId}-body`
@@ -127,7 +105,6 @@ const bodyId = `${localId}-body`
 const props = defineProps<{
   open: boolean
   storageUnavailable?: boolean
-  /** `true` when the most recent `acknowledge()` call failed to persist. */
   writeFailed?: boolean
 }>()
 
@@ -157,29 +134,15 @@ function onAccept(): void {
   emit('accept')
 }
 
-/**
- * Trap Tab inside the dialog. Only one focusable control exists (the Accept
- * button), so any Tab press must keep focus on it — pilots cannot escape the
- * modal via the keyboard.
- */
 function trapFocusOnAcceptBtn(): void {
   acceptBtn.value?.focus()
 }
 
-/**
- * PR review m2 — the dialog-scoped `@keydown.tab.prevent` only fires when
- * focus is already inside the dialog. If anything ever moves focus out
- * (e.g. a programmatic refocus, a browser AT virtual cursor jumping out),
- * Tab from a background element would not be re-trapped. Combined with the
- * App-shell `inert` guard (M2 fix) this is belt-and-braces, but a global
- * `keydown` capture-phase listener ensures the trap holds even if a future
- * regression weakens `inert`.
- */
+// Global capture-phase backstop: re-trap Tab if focus ever escapes the dialog
+// subtree, even should the App-shell `inert` guard regress.
 function trapTabGlobally(event: KeyboardEvent): void {
   if (!props.open) return
   if (event.key !== 'Tab') return
-  // Only intervene when focus has escaped the dialog subtree; otherwise
-  // let the dialog-scoped `@keydown.tab.prevent` handler run.
   const active = document.activeElement
   if (dialogEl.value && active && dialogEl.value.contains(active)) return
   event.preventDefault()

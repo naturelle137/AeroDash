@@ -1,16 +1,3 @@
-/**
- * Integration test — App.vue ↔ disclaimer-acknowledgement store (REQ-SYS-016,
- * audit PR-016).
- *
- * Mounts the real App shell against a memory-history router so the
- * acknowledgement gate's wiring (store ↔ DisclaimerAcknowledgementModal ↔
- * pilot click) is exercised exactly as production runs. The modal is rendered
- * to `document.body` via Teleport, so assertions go through `document.*`
- * rather than the wrapper's local DOM tree.
- */
-
-// @IT-SYS-APP-002@ (FROM: @IMP-SYS-STORE-022@, @IMP-UI-SHARED-008@, @IMP-UI-SHARED-009@, @IMP-SYS-SHARED-011@)
-
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
@@ -57,7 +44,7 @@ async function mountApp(): Promise<{ wrapper: ReturnType<typeof mount>; router: 
   return { wrapper, router }
 }
 
-describe('App.vue ↔ disclaimer-acknowledgement gate (REQ-SYS-016 / PR-016)', () => {
+describe('App.vue ↔ disclaimer-acknowledgement gate (REQ-SYS-016)', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
     localStorage.clear()
@@ -70,12 +57,14 @@ describe('App.vue ↔ disclaimer-acknowledgement gate (REQ-SYS-016 / PR-016)', (
     document.body.innerHTML = ''
   })
 
+  // @IT-SYS-APP-002@ (FROM: @IMP-SYS-STORE-022@, @IMP-UI-SHARED-008@, @IMP-SYS-SHARED-011@)
   it('renders the blocking gate on first launch (no record stored)', async () => {
     await mountApp()
     const gate = document.querySelector('[data-testid="disclaimer-gate"]')
     expect(gate).not.toBeNull()
   })
 
+  // @IT-SYS-APP-003@ (FROM: @IMP-SYS-STORE-022@, @IMP-SYS-SHARED-011@)
   it('hides the gate when a record for the current baseline is already stored', async () => {
     // Pre-stage the persisted acceptance BEFORE the store/App mount.
     // We do not know the running build's baseline at compile time; assemble
@@ -96,6 +85,7 @@ describe('App.vue ↔ disclaimer-acknowledgement gate (REQ-SYS-016 / PR-016)', (
     expect(document.querySelector('[data-testid="disclaimer-gate"]')).toBeNull()
   })
 
+  // @IT-SYS-APP-004@ (FROM: @IMP-SYS-STORE-022@, @IMP-UI-SHARED-009@, @IMP-SYS-SHARED-011@)
   it('hides the gate after the pilot clicks "Accept" and persists the acceptance', async () => {
     await mountApp()
 
@@ -118,6 +108,7 @@ describe('App.vue ↔ disclaimer-acknowledgement gate (REQ-SYS-016 / PR-016)', (
     expect(typeof parsed.acceptedBaseline).toBe('string')
   })
 
+  // @IT-SYS-APP-005@ (FROM: @IMP-SYS-STORE-022@, @IMP-SYS-SHARED-011@)
   it('shows the gate when only a different-baseline record is stored (milestone bump simulation)', async () => {
     // A clearly-stale baseline that no current build can equal.
     const previous: AcknowledgementRecord = {

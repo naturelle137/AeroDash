@@ -1,28 +1,3 @@
-/**
- * Unit tests for the disclaimer-acknowledgement store (REQ-SYS-016).
- *
- * Covers:
- *  - First-launch path (no storage record → gate open)
- *  - Persisted acceptance for current baseline → gate closed
- *  - Baseline drift (MAJOR.MINOR change) → re-prompt
- *  - Invalid / corrupt persisted record → re-prompt
- *  - localStorage unavailable (throws) → fail safe
- *  - Build-time SemVer broken → fail closed
- *  - `acknowledge()` writes the record + closes the gate + returns true
- *  - `computeDisclaimerBaseline()` helper
- */
-
-// @UT-SYS-STORE-100@ (FROM: @IMP-SYS-STORE-022@)
-// @UT-SYS-STORE-101@ (FROM: @IMP-SYS-STORE-022@)
-// @UT-SYS-STORE-102@ (FROM: @IMP-SYS-STORE-022@)
-// @UT-SYS-STORE-103@ (FROM: @IMP-SYS-STORE-022@)
-// @UT-SYS-STORE-104@ (FROM: @IMP-SYS-STORE-022@)
-// @UT-SYS-STORE-105@ (FROM: @IMP-SYS-STORE-022@)
-// @UT-SYS-STORE-106@ (FROM: @IMP-SYS-STORE-022@)
-// @UT-SYS-STORE-107@ (FROM: @IMP-SYS-STORE-022@)
-// @UT-SYS-STORE-108@ (FROM: @IMP-SYS-STORE-022@)
-// @UT-SYS-STORE-109@ (FROM: @IMP-SYS-STORE-022@)
-
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 
@@ -51,14 +26,17 @@ describe('computeDisclaimerBaseline', () => {
     expect(computeDisclaimerBaseline('1.2.3')).toBe('1.2')
   })
 
+  // @UT-SYS-STORE-101@ (FROM: @IMP-SYS-STORE-022@)
   it('returns MAJOR.MINOR for a pre-release SemVer', () => {
     expect(computeDisclaimerBaseline('0.3.0-alpha')).toBe('0.3')
   })
 
+  // @UT-SYS-STORE-102@ (FROM: @IMP-SYS-STORE-022@)
   it('returns MAJOR.MINOR for a build-metadata SemVer', () => {
     expect(computeDisclaimerBaseline('0.4.1-rc.1+sha.abc')).toBe('0.4')
   })
 
+  // @UT-SYS-STORE-103@ (FROM: @IMP-SYS-STORE-022@)
   it('returns null for malformed SemVer', () => {
     expect(computeDisclaimerBaseline('not-a-version')).toBeNull()
     expect(computeDisclaimerBaseline('1.2')).toBeNull()
@@ -68,7 +46,7 @@ describe('computeDisclaimerBaseline', () => {
 })
 
 describe('useDisclaimerAcknowledgementStore', () => {
-  // @UT-SYS-STORE-101@ (FROM: @IMP-SYS-STORE-022@)
+  // @UT-SYS-STORE-104@ (FROM: @IMP-SYS-STORE-022@)
   it('opens the gate on first launch when no record is stored', () => {
     const store = useDisclaimerAcknowledgementStore()
     store.loadFromStorage()
@@ -78,7 +56,7 @@ describe('useDisclaimerAcknowledgementStore', () => {
     expect(store.storageUnavailable).toBe(false)
   })
 
-  // @UT-SYS-STORE-102@ (FROM: @IMP-SYS-STORE-022@)
+  // @UT-SYS-STORE-105@ (FROM: @IMP-SYS-STORE-022@)
   it('closes the gate when a record for the current baseline is stored', () => {
     const store = useDisclaimerAcknowledgementStore()
     const baseline = store.currentBaseline as string
@@ -95,7 +73,7 @@ describe('useDisclaimerAcknowledgementStore', () => {
     expect(store.storedRecord).toEqual(record)
   })
 
-  // @UT-SYS-STORE-103@ (FROM: @IMP-SYS-STORE-022@)
+  // @UT-SYS-STORE-106@ (FROM: @IMP-SYS-STORE-022@)
   it('opens the gate when the stored baseline differs from the current one', () => {
     const store = useDisclaimerAcknowledgementStore()
     // Use a baseline guaranteed to differ from the running build's
@@ -113,7 +91,7 @@ describe('useDisclaimerAcknowledgementStore', () => {
     expect(store.storedRecord).toEqual(staleRecord)
   })
 
-  // @UT-SYS-STORE-104@ (FROM: @IMP-SYS-STORE-022@)
+  // @UT-SYS-STORE-107@ (FROM: @IMP-SYS-STORE-022@)
   it('opens the gate when the stored record is structurally corrupt', () => {
     const store = useDisclaimerAcknowledgementStore()
     localStorage.setItem(STORAGE_KEY, '{"schemaVersion":1,"acceptedBaseline":42}')
@@ -123,6 +101,7 @@ describe('useDisclaimerAcknowledgementStore', () => {
     expect(store.storedRecord).toBeNull()
   })
 
+  // @UT-SYS-STORE-108@ (FROM: @IMP-SYS-STORE-022@)
   it('opens the gate when the stored payload is not valid JSON', () => {
     const store = useDisclaimerAcknowledgementStore()
     localStorage.setItem(STORAGE_KEY, '{not-json')
@@ -132,7 +111,7 @@ describe('useDisclaimerAcknowledgementStore', () => {
     expect(store.storedRecord).toBeNull()
   })
 
-  // @UT-SYS-STORE-105@ (FROM: @IMP-SYS-STORE-022@)
+  // @UT-SYS-STORE-109@ (FROM: @IMP-SYS-STORE-022@)
   it('fails safe when localStorage.getItem throws', () => {
     const store = useDisclaimerAcknowledgementStore()
     vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
@@ -144,7 +123,7 @@ describe('useDisclaimerAcknowledgementStore', () => {
     expect(store.storageUnavailable).toBe(true)
   })
 
-  // @UT-SYS-STORE-106@ (FROM: @IMP-SYS-STORE-022@)
+  // @UT-SYS-STORE-110@ (FROM: @IMP-SYS-STORE-022@)
   it('acknowledge() persists the record and closes the gate', () => {
     const store = useDisclaimerAcknowledgementStore()
     store.loadFromStorage()
@@ -166,7 +145,7 @@ describe('useDisclaimerAcknowledgementStore', () => {
     expect(store.storedRecord).toMatchObject({ acceptedAt: FAKE_NOW })
   })
 
-  // @UT-SYS-STORE-107@ (FROM: @IMP-SYS-STORE-022@)
+  // @UT-SYS-STORE-111@ (FROM: @IMP-SYS-STORE-022@)
   it('acknowledge() returns false and leaves the gate open when setItem throws', () => {
     const store = useDisclaimerAcknowledgementStore()
     store.loadFromStorage()
@@ -180,7 +159,7 @@ describe('useDisclaimerAcknowledgementStore', () => {
     expect(store.storageUnavailable).toBe(true)
   })
 
-  // @UT-SYS-STORE-108@ (FROM: @IMP-SYS-STORE-022@)
+  // @UT-SYS-STORE-112@ (FROM: @IMP-SYS-STORE-022@)
   it('re-prompts after a stored acceptance for an older baseline (simulated milestone bump)', () => {
     // Stage a prior acceptance against a baseline that cannot collide with
     // any plausible running 0.x / 1.x build — so the drift path is always
@@ -201,7 +180,7 @@ describe('useDisclaimerAcknowledgementStore', () => {
     expect(store.storedRecord).toEqual(previous)
   })
 
-  // @UT-SYS-STORE-109@ (FROM: @IMP-SYS-STORE-022@)
+  // @UT-SYS-STORE-113@ (FROM: @IMP-SYS-STORE-022@)
   it('resetForTesting() clears in-memory state and re-opens the gate', () => {
     const store = useDisclaimerAcknowledgementStore()
     store.loadFromStorage()

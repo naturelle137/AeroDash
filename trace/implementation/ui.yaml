@@ -43,14 +43,14 @@ UI Shared Components
       - frontend/src/shared/components/UndoToast.vue
 
   IMP-UI-SHARED-008
-    title: DisclaimerAcknowledgementModal template — blocking first-launch / baseline-change disclaimer gate (no Cancel / no Escape; sole action is "I understand"); rendered via Teleport so it occludes the App shell (REQ-SYS-016, closes audit PR-016)
+    title: DisclaimerAcknowledgementModal template — blocking first-launch / baseline-change disclaimer gate (no Cancel / no Escape; sole action is "I understand"); rendered via Teleport so it occludes the App shell
     req:
       - REQ-SYS-016
     files:
       - frontend/src/shared/components/DisclaimerAcknowledgementModal.vue
 
   IMP-UI-SHARED-009
-    title: DisclaimerAcknowledgementModal script — focus traps onto the accept button, emits "accept" once the pilot accepts, surfaces a storage-unavailable advisory line when the prop is set (REQ-SYS-016)
+    title: DisclaimerAcknowledgementModal script — focus traps onto the accept button, emits "accept" once the pilot accepts, surfaces a storage-unavailable advisory line when the prop is set
     req:
       - REQ-SYS-016
     files:

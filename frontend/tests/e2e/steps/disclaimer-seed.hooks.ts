@@ -1,16 +1,6 @@
-/**
- * E2E global Before hook — seeds the disclaimer-acknowledgement record so
- * the first-launch / baseline-change gate (REQ-SYS-016, audit PR-016) does
- * not block every other E2E suite by intercepting pointer events.
- *
- * The seeded record is keyed against the running build's `MAJOR.MINOR`
- * baseline, derived from `frontend/package.json` at test-runner startup. If
- * the build version drifts, the test baseline drifts with it — no manual
- * sync.
- *
- * Suites that specifically validate the gate (first-launch / drift) should
- * clear `aerodash.disclaimer.ack.v1` themselves before navigating.
- */
+// E2E global Before hook — seeds the disclaimer acknowledgement record so the
+// gate does not block every other suite. Suites that validate the gate itself
+// must clear the storage key before navigating.
 
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
@@ -38,8 +28,7 @@ function readPackageVersion(): string {
 }
 
 function computeBaseline(version: string): string {
-  // Matches `parseSemVer` / `computeDisclaimerBaseline` in the store: take
-  // the leading `MAJOR.MINOR` of a valid SemVer (release or pre-release).
+  // Mirrors computeDisclaimerBaseline in the store: leading MAJOR.MINOR.
   const match = version.match(/^(\d+)\.(\d+)\./)
   if (!match) {
     throw new Error(`disclaimer-seed.hooks: cannot compute baseline from version "${version}"`)

@@ -1,12 +1,3 @@
-/**
- * Unit tests for DisclaimerAcknowledgementModal.vue — the blocking
- * first-launch / baseline-change disclaimer gate (REQ-SYS-016, audit PR-016).
- *
- * @see frontend/src/shared/components/DisclaimerAcknowledgementModal.vue
- */
-
-// @UT-UI-SHARED-004@ (FROM: @IMP-UI-SHARED-008@, @IMP-UI-SHARED-009@)
-
 import { describe, it, expect, afterEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import DisclaimerAcknowledgementModal from '../DisclaimerAcknowledgementModal.vue'
@@ -26,11 +17,13 @@ function mountModal(props: Record<string, unknown> = {}) {
 }
 
 describe('DisclaimerAcknowledgementModal', () => {
+  // @UT-UI-SHARED-004@ (FROM: @IMP-UI-SHARED-008@, @IMP-UI-SHARED-009@)
   it('does not render anything when closed', () => {
     mountModal({ open: false })
     expect(document.querySelector('[data-testid="disclaimer-gate"]')).toBeNull()
   })
 
+  // @UT-UI-SHARED-005@ (FROM: @IMP-UI-SHARED-008@)
   it('renders the gate with role="alertdialog" and aria-modal="true"', () => {
     mountModal()
     const dialog = document.querySelector('.disclaimer-gate')
@@ -39,6 +32,7 @@ describe('DisclaimerAcknowledgementModal', () => {
     expect(dialog?.getAttribute('aria-modal')).toBe('true')
   })
 
+  // @UT-UI-SHARED-006@ (FROM: @IMP-UI-SHARED-008@)
   it('labels the dialog via aria-labelledby and aria-describedby', () => {
     mountModal()
     const dialog = document.querySelector('.disclaimer-gate')!
@@ -52,6 +46,7 @@ describe('DisclaimerAcknowledgementModal', () => {
     )
   })
 
+  // @UT-UI-SHARED-007@ (FROM: @IMP-UI-SHARED-008@)
   it('renders the Pilot in Command obligations and POH precedence statement', () => {
     mountModal()
     const body = document.querySelector('.disclaimer-gate__body')!.textContent ?? ''
@@ -61,6 +56,7 @@ describe('DisclaimerAcknowledgementModal', () => {
     expect(body).toMatch(/advisory|verify/i)
   })
 
+  // @UT-UI-SHARED-008@ (FROM: @IMP-UI-SHARED-009@)
   it('emits "accept" when the accept button is clicked', async () => {
     const wrapper = mountModal()
     const acceptBtn = document.querySelector<HTMLButtonElement>(
@@ -71,6 +67,7 @@ describe('DisclaimerAcknowledgementModal', () => {
     expect(wrapper.emitted('accept')).toHaveLength(1)
   })
 
+  // @UT-UI-SHARED-009@ (FROM: @IMP-UI-SHARED-008@)
   it('renders no cancel / dismiss action — the only control is "Accept"', () => {
     mountModal()
     const buttons = document.querySelectorAll('.disclaimer-gate button')
@@ -78,36 +75,35 @@ describe('DisclaimerAcknowledgementModal', () => {
     expect(buttons[0]?.getAttribute('data-testid')).toBe('disclaimer-gate-accept')
   })
 
+  // @UT-UI-SHARED-010@ (FROM: @IMP-UI-SHARED-009@)
   it('shows the storage-unavailable advisory when the prop is set', () => {
     mountModal({ storageUnavailable: true })
     expect(document.querySelector('.disclaimer-gate__storage-advisory')).not.toBeNull()
   })
 
+  // @UT-UI-SHARED-011@ (FROM: @IMP-UI-SHARED-009@)
   it('hides the storage-unavailable advisory by default', () => {
     mountModal()
     expect(document.querySelector('.disclaimer-gate__storage-advisory')).toBeNull()
   })
 
+  // @UT-UI-SHARED-012@ (FROM: @IMP-UI-SHARED-009@)
   it('shows the write-failed advisory after a refused acknowledge() write', () => {
-    // PR-review m1 — when the parent's `acknowledge()` returned false the
-    // modal must surface a visible alert; a silent failure makes the pilot
-    // re-click an unresponsive Accept button.
     mountModal({ writeFailed: true })
     const alert = document.querySelector('[data-testid="disclaimer-gate-write-failed"]')
     expect(alert).not.toBeNull()
     expect(alert?.getAttribute('role')).toBe('alert')
   })
 
+  // @UT-UI-SHARED-013@ (FROM: @IMP-UI-SHARED-009@)
   it('does not double-report when both storageUnavailable and writeFailed are set', () => {
-    // The storage-unavailable advisory already covers the load-time
-    // unreachable case; the write-failed alert is suppressed when both
-    // signals are true to avoid a duplicate message.
     mountModal({ storageUnavailable: true, writeFailed: true })
     expect(
       document.querySelector('[data-testid="disclaimer-gate-write-failed"]'),
     ).toBeNull()
   })
 
+  // @UT-UI-SHARED-014@ (FROM: @IMP-UI-SHARED-009@)
   it('keeps focus inside the modal on Tab (no focusable controls outside the accept button)', async () => {
     mountModal()
     const acceptBtn = document.querySelector<HTMLButtonElement>(
@@ -115,7 +111,6 @@ describe('DisclaimerAcknowledgementModal', () => {
     )!
     acceptBtn.focus()
     const dialog = document.querySelector('.disclaimer-gate') as HTMLElement
-    // Simulate Tab — handler should re-focus the accept button.
     dialog.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', bubbles: true }))
     expect(document.activeElement).toBe(acceptBtn)
   })

@@ -55,9 +55,7 @@ export default defineConfig({
     // DP-016 — vue-devtools must never ship in a production bundle (it exposes
     // component internals and store state). Enabled for dev only.
     ...(isProd ? [] : [vueDevTools()]),
-    // REQ-SYS-016 — expose DISCLAIMER.md / LICENSE so the in-app
-    // acknowledgement gate's "full text" link resolves both in dev and in the
-    // production bundle. Without this the modal's hrefs 404 (review M1).
+    // Expose DISCLAIMER.md / LICENSE so the disclaimer gate's full-text link resolves in dev and prod.
     copyLegalDocs(),
     VitePWA({
       registerType: 'prompt',
@@ -75,8 +73,7 @@ export default defineConfig({
         ],
       },
       workbox: {
-        // REQ-SYS-016 — include DISCLAIMER.md / LICENSE.txt so the in-app
-        // acknowledgement gate's "full text" link is reachable offline.
+        // Include md/txt so the disclaimer gate's full-text link works offline.
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2,md,txt}'],
       },
       devOptions: { enabled: false },
