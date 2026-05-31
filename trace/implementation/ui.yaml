@@ -7,10 +7,17 @@ UI Shared Components
       - frontend/src/shared/components/AppLogo.vue
 
   IMP-UI-SHARED-002
-    title: App Shell — Navigation layout with theme toggle and sidebar
+    title: App shell — navigation layout, theme toggle and sidebar; wires checkMinSafeVersion + attachConnectivityRefresh and the disclaimer acknowledgement gate on mount
     req:
       - REQ-UI-011
       - REQ-SYS-001
+      - REQ-SYS-006
+      - REQ-SYS-016
+    des:
+      - DES-ARCH-014
+      - DES-ARCH-015
+    hazard:
+      - H-019
     files:
       - frontend/src/App.vue
 
@@ -41,6 +48,16 @@ UI Shared Components
       - REQ-UI-011
     files:
       - frontend/src/shared/components/UndoToast.vue
+
+  IMP-UI-SHARED-008
+    title: DisclaimerAcknowledgementModal — blocking first-launch / baseline-change disclaimer gate (no Cancel / no Escape; sole action is "I understand"); rendered via Teleport so it occludes the App shell, focus-trapped onto the accept button, emits "accept" on acceptance, surfaces a storage-unavailable advisory
+    req:
+      - REQ-SYS-016
+    des:
+      - DES-ARCH-015
+      - DES-ARCH-016
+    files:
+      - frontend/src/shared/components/DisclaimerAcknowledgementModal.vue
 
 UI Views
   IMP-UI-VIEW-001

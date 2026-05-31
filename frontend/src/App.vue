@@ -1,17 +1,40 @@
 <script setup lang="ts">
-// @IMP-UI-SHARED-002@ (FROM: @REQ-UI-011@, @REQ-SYS-001@)
-// @IMP-SYS-SHARED-005@ (FROM: @REQ-SYS-006@)
-// @IMP-SYS-SHARED-009@ (FROM: @REQ-SYS-006@, @H-019@)
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+// @IMP-UI-SHARED-002@ (FROM: @REQ-UI-011@, @REQ-SYS-001@, @REQ-SYS-006@, @H-019@, @REQ-SYS-016@, @DES-ARCH-014@, @DES-ARCH-015@)
+import { ref, computed, nextTick, onMounted, onBeforeUnmount } from 'vue'
 import { RouterView, RouterLink, useRoute } from 'vue-router'
 import { useTheme } from '@/shared/composables/useTheme'
 import AppLogo from '@/shared/components/AppLogo.vue'
 import AppVersion from '@/shared/components/AppVersion.vue'
+import DisclaimerAcknowledgementModal from '@/shared/components/DisclaimerAcknowledgementModal.vue'
 import { usePwaUpdateStore } from '@/stores/pwa-update.store'
 import { useAppVersionStore, attachConnectivityRefresh } from '@/stores/app-version.store'
+import { useDisclaimerAcknowledgementStore } from '@/stores/disclaimer-acknowledgement.store'
 
 const pwaStore = usePwaUpdateStore()
 const appVersionStore = useAppVersionStore()
+const disclaimerStore = useDisclaimerAcknowledgementStore()
+const disclaimerStorageWriteFailed = ref(false)
+onMounted(() => {
+  disclaimerStore.loadFromStorage()
+})
+async function onDisclaimerAccept(): Promise<void> {
+  const ok = disclaimerStore.acknowledge()
+  disclaimerStorageWriteFailed.value = !ok
+  if (ok) {
+    // Move focus into the now-revealed content so keyboard / AT users are not
+    // stranded after the modal closes.
+    await nextTick()
+    document.getElementById('main-content')?.focus()
+  }
+}
+
+// REQ-SYS-006 / H-019 must pre-empt REQ-SYS-016 (M2): a kill-switched cold
+// start replaces the whole app with the version-blocked screen, so the
+// disclaimer overlay (and its inert guard on .app-shell) must stand down to
+// keep that screen reachable to assistive technologies.
+const disclaimerGateActive = computed(
+  () => disclaimerStore.gateOpen && !appVersionStore.versionBlocked,
+)
 
 // REQ-SYS-006 / H-019 (issue #271): check minimum safe version on every
 // mount. The check itself works offline — it reads the last-known
@@ -121,7 +144,12 @@ const themeLabel = computed(() =>
 </script>
 
 <template>
-  <div class="app-shell" :class="{ 'sidebar--collapsed': sidebarCollapsed }">
+  <div
+    class="app-shell"
+    :class="{ 'sidebar--collapsed': sidebarCollapsed }"
+    :inert="disclaimerGateActive || undefined"
+    :aria-hidden="disclaimerGateActive ? 'true' : undefined"
+  >
 
     <!-- ═══ Top header ══════════════════════════════════════════════════════ -->
     <header class="app-header" role="banner">
@@ -279,7 +307,7 @@ const themeLabel = computed(() =>
 
     <!-- ═══ Main content ════════════════════════════════════════════════════ -->
     <!-- REQ-SYS-006: Block all safety-critical features when version is below minimum -->
-    <main class="app-main" id="main-content">
+    <main class="app-main" id="main-content" tabindex="-1">
       <div
         v-if="appVersionStore.versionBlocked"
         class="version-blocked-screen"
@@ -305,8 +333,19 @@ const themeLabel = computed(() =>
           </p>
         </div>
       </div>
-      <RouterView v-else :key="bfcacheNonce" />
+      <RouterView v-else-if="!disclaimerGateActive" :key="bfcacheNonce" />
+      <p v-else class="app-main__gate-placeholder">
+        Acknowledge the disclaimer to continue.
+      </p>
     </main>
+
+    <!-- Teleports to <body>, outside the inert .app-shell, so it stays interactive while the gate is open. -->
+    <DisclaimerAcknowledgementModal
+      :open="disclaimerGateActive"
+      :storage-unavailable="disclaimerStore.storageUnavailable"
+      :write-failed="disclaimerStorageWriteFailed"
+      @accept="onDisclaimerAccept"
+    />
 
     <!-- ═══ Bottom navigation (mobile only) ════════════════════════════════ -->
     <nav class="app-bottom-nav" aria-label="Main navigation (mobile)">

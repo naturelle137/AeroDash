@@ -212,13 +212,6 @@ SYS Shared — Structured Logger Utility
     files:
       - frontend/src/shared/components/AppVersion.vue
 
-  IMP-SYS-SHARED-005
-    title: checkMinSafeVersion called on App mount — blocks operation below minimum safe version (REQ-SYS-006)
-    req:
-      - REQ-SYS-006
-    files:
-      - frontend/src/App.vue
-
 SYS Shared — Theme Toggle
   IMP-SYS-SHARED-004
     title: useTheme composable — dark/light mode toggle with localStorage persistence
@@ -276,16 +269,6 @@ SYS (auto)
     des:
       - DES-ARCH-011
       - DES-ARCH-012
-
-SYS Shared — Min-Safe-Version offline enforcement (#271)
-  IMP-SYS-SHARED-009
-    title: App.vue wires checkMinSafeVersion + attachConnectivityRefresh on mount so the offline-enforced gate (issue #271) runs every cold start and again when connectivity returns (REQ-SYS-006 / H-019)
-    files:
-      - frontend/src/App.vue
-    req:
-      - REQ-SYS-006
-    hazard:
-      - H-019
 
 SYS Store — App Version Cache (#271 — CS-011 / TECH-023)
   IMP-SYS-STORE-013
@@ -373,3 +356,14 @@ SYS Store — App Version build-time floor resolution (#271, PR-review Major #2 
       - REQ-SYS-006
     hazard:
       - H-019
+
+SYS Store — In-app disclaimer acknowledgement gate (#280)
+  IMP-SYS-STORE-022
+    title: useDisclaimerAcknowledgementStore — Pinia store backing the first-launch disclaimer gate; reads localStorage on mount, derives the MAJOR.MINOR disclaimer baseline from the running build, re-prompts when the stored baseline differs, and fails closed when SemVer or storage is unreachable
+    files:
+      - frontend/src/stores/disclaimer-acknowledgement.store.ts
+    req:
+      - REQ-SYS-016
+    des:
+      - DES-ARCH-014
+      - DES-ARCH-017

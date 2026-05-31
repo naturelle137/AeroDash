@@ -47,6 +47,27 @@ import {
 } from 'vue'
 
 import App from '../App.vue'
+import {
+  STORAGE_KEY as DISCLAIMER_STORAGE_KEY,
+  computeDisclaimerBaseline,
+} from '../stores/disclaimer-acknowledgement.store'
+
+// Seeds an acceptance record matching the running build's baseline so the
+// disclaimer gate does not block <RouterView /> from mounting.
+function seedDisclaimerAccepted(): void {
+  const version = __APP_VERSION__
+  const baseline = computeDisclaimerBaseline(version)
+  if (baseline === null) return
+  localStorage.setItem(
+    DISCLAIMER_STORAGE_KEY,
+    JSON.stringify({
+      schemaVersion: 1,
+      acceptedVersion: version,
+      acceptedBaseline: baseline,
+      acceptedAt: 1_780_000_000_000,
+    }),
+  )
+}
 
 interface MountTracker {
   /** Total number of times the wrapped child has executed `onMounted`. */
@@ -246,6 +267,10 @@ describe('App.vue — bfcache restoration against real component (issue #232)', 
   }
 
   async function mountApp(rvMountCount: Ref<number>, initialPath = '/fleet') {
+    // App.vue hides <RouterView> behind the disclaimer gate; seed acceptance
+    // so this suite still exercises the pageshow → :key remount wiring.
+    localStorage.clear()
+    seedDisclaimerAccepted()
     const pinia = createPinia()
     setActivePinia(pinia)
     const router = buildRouter()
