@@ -156,7 +156,9 @@ describe('useDisclaimerAcknowledgementStore', () => {
     const ok = store.acknowledge(() => FAKE_NOW)
     expect(ok).toBe(false)
     expect(store.gateOpen).toBe(true)
-    expect(store.storageUnavailable).toBe(true)
+    // M3: write-time failure must NOT flip the read-time storageUnavailable
+    // flag — the App surfaces a distinct write-failed advisory instead.
+    expect(store.storageUnavailable).toBe(false)
   })
 
   // @UT-SYS-STORE-112@ (FROM: @IMP-SYS-STORE-022@)

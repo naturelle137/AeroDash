@@ -94,14 +94,21 @@ UI Shared Components (Unit)
       - frontend/src/shared/components/__tests__/DisclaimerAcknowledgementModal.spec.ts
 
   UT-UI-SHARED-013
-    title: DisclaimerAcknowledgementModal — does not double-report when both storageUnavailable and writeFailed are set
+    title: DisclaimerAcknowledgementModal — prefers the specific write-failed advisory when both flags are set (M3 precedence)
     impl:
       - IMP-UI-SHARED-008
     files:
       - frontend/src/shared/components/__tests__/DisclaimerAcknowledgementModal.spec.ts
 
   UT-UI-SHARED-014
-    title: DisclaimerAcknowledgementModal — keeps focus inside the modal on Tab
+    title: DisclaimerAcknowledgementModal — re-traps Tab to the accept button only when focus escapes the dialog (M1)
+    impl:
+      - IMP-UI-SHARED-008
+    files:
+      - frontend/src/shared/components/__tests__/DisclaimerAcknowledgementModal.spec.ts
+
+  UT-UI-SHARED-015
+    title: DisclaimerAcknowledgementModal — does NOT re-trap Tab when focus is on a link inside the dialog (M1 — keyboard reachability of DISCLAIMER / LICENSE)
     impl:
       - IMP-UI-SHARED-008
     files:

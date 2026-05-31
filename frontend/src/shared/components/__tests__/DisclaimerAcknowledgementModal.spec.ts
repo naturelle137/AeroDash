@@ -96,22 +96,48 @@ describe('DisclaimerAcknowledgementModal', () => {
   })
 
   // @UT-UI-SHARED-013@ (FROM: @IMP-UI-SHARED-008@)
-  it('does not double-report when both storageUnavailable and writeFailed are set', () => {
+  it('prefers the specific write-failed advisory when both flags are set', () => {
+    // M3 precedence: write-failed is the more actionable diagnosis ("clear
+    // quota" / "refused write") and must win over the generic
+    // storage-unavailable advisory ("switch browser") so the pilot is pointed
+    // at the right remediation.
     mountModal({ storageUnavailable: true, writeFailed: true })
     expect(
       document.querySelector('[data-testid="disclaimer-gate-write-failed"]'),
-    ).toBeNull()
+    ).not.toBeNull()
+    const advisories = document.querySelectorAll('.disclaimer-gate__storage-advisory')
+    expect(advisories.length).toBe(1)
   })
 
   // @UT-UI-SHARED-014@ (FROM: @IMP-UI-SHARED-008@)
-  it('keeps focus inside the modal on Tab (no focusable controls outside the accept button)', async () => {
+  it('re-traps Tab to the accept button only when focus escapes the dialog (M1)', () => {
     mountModal()
     const acceptBtn = document.querySelector<HTMLButtonElement>(
       '[data-testid="disclaimer-gate-accept"]',
     )!
-    acceptBtn.focus()
-    const dialog = document.querySelector('.disclaimer-gate') as HTMLElement
-    dialog.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', bubbles: true }))
+    // Focus a background element to simulate focus escaping the dialog.
+    const outside = document.createElement('button')
+    outside.textContent = 'outside'
+    document.body.appendChild(outside)
+    outside.focus()
+    expect(document.activeElement).toBe(outside)
+
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab' }))
     expect(document.activeElement).toBe(acceptBtn)
+  })
+
+  // @UT-UI-SHARED-015@ (FROM: @IMP-UI-SHARED-008@)
+  it('does NOT re-trap Tab when focus is on a link inside the dialog (M1)', () => {
+    mountModal()
+    const link = document.querySelector<HTMLAnchorElement>(
+      '.disclaimer-gate__legal a',
+    )!
+    link.focus()
+    expect(document.activeElement).toBe(link)
+
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab' }))
+    // Focus stays on the link — Tab is allowed inside the dialog so the
+    // DISCLAIMER / LICENSE links remain keyboard-reachable (WCAG 2.1.1).
+    expect(document.activeElement).toBe(link)
   })
 })

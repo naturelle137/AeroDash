@@ -133,7 +133,11 @@ export const useDisclaimerAcknowledgementStore = defineStore('disclaimerAcknowle
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(record))
     } catch {
-      storageUnavailable.value = true
+      // Scoped to write-time failure only (M3): do not flip the read-time
+      // `storageUnavailable` flag, otherwise the generic "storage unavailable"
+      // advisory would shadow the more specific "browser refused the write"
+      // message in the modal — pointing the pilot at the wrong remediation
+      // (switch browser vs. clear quota).
       logger.warn('localStorage write failed for disclaimer ack; gate stays open', {
         code: 'DISCLAIMER_STORAGE_WRITE_FAILED',
       })

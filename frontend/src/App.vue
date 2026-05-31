@@ -22,6 +22,14 @@ function onDisclaimerAccept(): void {
   disclaimerStorageWriteFailed.value = !ok
 }
 
+// REQ-SYS-006 / H-019 must pre-empt REQ-SYS-016 (M2): a kill-switched cold
+// start replaces the whole app with the version-blocked screen, so the
+// disclaimer overlay (and its inert guard on .app-shell) must stand down to
+// keep that screen reachable to assistive technologies.
+const disclaimerGateActive = computed(
+  () => disclaimerStore.gateOpen && !appVersionStore.versionBlocked,
+)
+
 // REQ-SYS-006 / H-019 (issue #271): check minimum safe version on every
 // mount. The check itself works offline — it reads the last-known
 // minSafeVersion from IndexedDB and enforces it even when navigator.onLine
@@ -133,8 +141,8 @@ const themeLabel = computed(() =>
   <div
     class="app-shell"
     :class="{ 'sidebar--collapsed': sidebarCollapsed }"
-    :inert="disclaimerStore.gateOpen || undefined"
-    :aria-hidden="disclaimerStore.gateOpen ? 'true' : undefined"
+    :inert="disclaimerGateActive || undefined"
+    :aria-hidden="disclaimerGateActive ? 'true' : undefined"
   >
 
     <!-- ═══ Top header ══════════════════════════════════════════════════════ -->
@@ -319,12 +327,12 @@ const themeLabel = computed(() =>
           </p>
         </div>
       </div>
-      <RouterView v-else-if="!disclaimerStore.gateOpen" :key="bfcacheNonce" />
+      <RouterView v-else-if="!disclaimerGateActive" :key="bfcacheNonce" />
     </main>
 
     <!-- Teleports to <body>, outside the inert .app-shell, so it stays interactive while the gate is open. -->
     <DisclaimerAcknowledgementModal
-      :open="disclaimerStore.gateOpen"
+      :open="disclaimerGateActive"
       :storage-unavailable="disclaimerStore.storageUnavailable"
       :write-failed="disclaimerStorageWriteFailed"
       @accept="onDisclaimerAccept"

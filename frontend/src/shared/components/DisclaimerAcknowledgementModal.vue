@@ -13,7 +13,6 @@
         :aria-labelledby="titleId"
         :aria-describedby="bodyId"
         tabindex="-1"
-        @keydown.tab.prevent="trapFocusOnAcceptBtn"
       >
         <h2 :id="titleId" class="disclaimer-gate__title">
           AeroDash is Advisory Only
@@ -73,20 +72,25 @@
           </button>
         </div>
 
-        <p v-if="storageUnavailable" class="disclaimer-gate__storage-advisory" role="status">
-          Local storage is unavailable in this browser. The acknowledgement
-          cannot be remembered between launches and you will be re-prompted
-          each time.
-        </p>
-
+        <!-- Precedence (M3): write-failed is the more specific cause and
+             wins over the generic storage-unavailable advisory if both flags
+             are ever set together, so the pilot sees the actionable
+             remediation ("quota / refused write") rather than a misleading
+             "switch browser" message. -->
         <p
-          v-if="writeFailed && !storageUnavailable"
+          v-if="writeFailed"
           class="disclaimer-gate__storage-advisory"
           role="alert"
           data-testid="disclaimer-gate-write-failed"
         >
           Could not save your acknowledgement. Your browser refused the
           write — you will be re-prompted on the next launch.
+        </p>
+
+        <p v-else-if="storageUnavailable" class="disclaimer-gate__storage-advisory" role="status">
+          Local storage is unavailable in this browser. The acknowledgement
+          cannot be remembered between launches and you will be re-prompted
+          each time.
         </p>
       </div>
     </div>
@@ -133,12 +137,9 @@ function onAccept(): void {
   emit('accept')
 }
 
-function trapFocusOnAcceptBtn(): void {
-  acceptBtn.value?.focus()
-}
-
-// Global capture-phase backstop: re-trap Tab if focus ever escapes the dialog
-// subtree, even should the App-shell `inert` guard regress.
+// Global capture-phase trap: re-trap Tab only when focus escapes the dialog
+// subtree. Inside the dialog Tab is allowed so the DISCLAIMER / LICENSE links
+// remain keyboard-reachable (M1).
 function trapTabGlobally(event: KeyboardEvent): void {
   if (!props.open) return
   if (event.key !== 'Tab') return
