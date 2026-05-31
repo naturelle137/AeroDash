@@ -163,7 +163,7 @@ This document defines the system behavior using the **EARS** (Easy Approach to R
 **Rationale:** The disclaimer establishes that AeroDash is advisory only and that the Pilot in Command bears sole responsibility for verifying its outputs against the official POH/AFM. Requiring acknowledgement brings that liability boundary into the runtime path rather than leaving it in documentation the pilot may never open.
 **Priority:** P1
 **Status:** Draft
-**Design Reference:** n/a
+**Design Reference:** [Disclaimer Acknowledgement](../architecture/disclaimer-acknowledgement.md)
 
 ---
 
@@ -171,5 +171,6 @@ This document defines the system behavior using the **EARS** (Easy Approach to R
 
 - **<a name="notificationScheme"></a>Notification Scheme:** [`docs/architecture/notification_schema.md`](../architecture/notification_schema.md)
 - **<a name="dataRights"></a>Data-Rights (Erasure & Bulk Export):** [`docs/architecture/data-rights.md`](../architecture/data-rights.md)
+- **<a name="disclaimerAck"></a>Disclaimer Acknowledgement:** [`docs/architecture/disclaimer-acknowledgement.md`](../architecture/disclaimer-acknowledgement.md)
 
 ---

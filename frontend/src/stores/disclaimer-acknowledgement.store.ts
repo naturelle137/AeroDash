@@ -1,4 +1,4 @@
-// @IMP-SYS-STORE-022@ (FROM: @REQ-SYS-016@)
+// @IMP-SYS-STORE-022@ (FROM: @REQ-SYS-016@, @DES-ARCH-014@, @DES-ARCH-017@)
 
 import { defineStore } from 'pinia'
 import { ref } from 'vue'

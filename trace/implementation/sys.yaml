@@ -364,3 +364,6 @@ SYS Store — In-app disclaimer acknowledgement gate (#280)
       - frontend/src/stores/disclaimer-acknowledgement.store.ts
     req:
       - REQ-SYS-016
+    des:
+      - DES-ARCH-014
+      - DES-ARCH-017

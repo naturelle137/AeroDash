@@ -13,6 +13,9 @@ UI Shared Components
       - REQ-SYS-001
       - REQ-SYS-006
       - REQ-SYS-016
+    des:
+      - DES-ARCH-014
+      - DES-ARCH-015
     hazard:
       - H-019
     files:
@@ -50,6 +53,9 @@ UI Shared Components
     title: DisclaimerAcknowledgementModal — blocking first-launch / baseline-change disclaimer gate (no Cancel / no Escape; sole action is "I understand"); rendered via Teleport so it occludes the App shell, focus-trapped onto the accept button, emits "accept" on acceptance, surfaces a storage-unavailable advisory
     req:
       - REQ-SYS-016
+    des:
+      - DES-ARCH-015
+      - DES-ARCH-016
     files:
       - frontend/src/shared/components/DisclaimerAcknowledgementModal.vue
 
