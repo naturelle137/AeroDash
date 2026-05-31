@@ -155,6 +155,11 @@ export const useDisclaimerAcknowledgementStore = defineStore('disclaimerAcknowle
     storageUnavailable.value = false
   }
 
+  // Resolve the stored acceptance synchronously at first use so the first
+  // render already reflects it — a returning, already-acknowledged pilot never
+  // sees a flash of the gate while a deferred onMounted read settles.
+  loadFromStorage()
+
   return {
     currentVersion,
     currentBaseline,

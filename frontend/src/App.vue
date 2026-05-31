@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // @IMP-UI-SHARED-002@ (FROM: @REQ-UI-011@, @REQ-SYS-001@, @REQ-SYS-006@, @H-019@, @REQ-SYS-016@, @DES-ARCH-014@, @DES-ARCH-015@)
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, nextTick, onMounted, onBeforeUnmount } from 'vue'
 import { RouterView, RouterLink, useRoute } from 'vue-router'
 import { useTheme } from '@/shared/composables/useTheme'
 import AppLogo from '@/shared/components/AppLogo.vue'
@@ -17,9 +17,15 @@ const disclaimerStorageWriteFailed = ref(false)
 onMounted(() => {
   disclaimerStore.loadFromStorage()
 })
-function onDisclaimerAccept(): void {
+async function onDisclaimerAccept(): Promise<void> {
   const ok = disclaimerStore.acknowledge()
   disclaimerStorageWriteFailed.value = !ok
+  if (ok) {
+    // Move focus into the now-revealed content so keyboard / AT users are not
+    // stranded after the modal closes.
+    await nextTick()
+    document.getElementById('main-content')?.focus()
+  }
 }
 
 // REQ-SYS-006 / H-019 must pre-empt REQ-SYS-016 (M2): a kill-switched cold
@@ -301,7 +307,7 @@ const themeLabel = computed(() =>
 
     <!-- ═══ Main content ════════════════════════════════════════════════════ -->
     <!-- REQ-SYS-006: Block all safety-critical features when version is below minimum -->
-    <main class="app-main" id="main-content">
+    <main class="app-main" id="main-content" tabindex="-1">
       <div
         v-if="appVersionStore.versionBlocked"
         class="version-blocked-screen"
@@ -328,6 +334,9 @@ const themeLabel = computed(() =>
         </div>
       </div>
       <RouterView v-else-if="!disclaimerGateActive" :key="bfcacheNonce" />
+      <p v-else class="app-main__gate-placeholder">
+        Acknowledge the disclaimer to continue.
+      </p>
     </main>
 
     <!-- Teleports to <body>, outside the inert .app-shell, so it stays interactive while the gate is open. -->

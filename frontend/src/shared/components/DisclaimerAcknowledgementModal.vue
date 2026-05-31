@@ -123,12 +123,8 @@ watch(
   () => dialogEl.value,
   async (el) => {
     if (el) {
-      lastFocused = document.activeElement as HTMLElement | null
       await nextTick()
       acceptBtn.value?.focus()
-    } else if (lastFocused) {
-      lastFocused.focus?.()
-      lastFocused = null
     }
   },
 )
@@ -137,32 +133,66 @@ function onAccept(): void {
   emit('accept')
 }
 
-// Global capture-phase trap: re-trap Tab only when focus escapes the dialog
-// subtree. Inside the dialog Tab is allowed so the DISCLAIMER / LICENSE links
-// remain keyboard-reachable (M1).
-function trapTabGlobally(event: KeyboardEvent): void {
+function focusableInDialog(): HTMLElement[] {
+  const root = dialogEl.value
+  if (!root) return []
+  return Array.from(
+    root.querySelectorAll<HTMLElement>(
+      'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
+    ),
+  )
+}
+
+// Self-contained keyboard guard (capture phase): does not rely on the
+// app-shell `inert` attribute, which is unsupported on older Safari. Tab and
+// Shift+Tab cycle within the dialog (so the DISCLAIMER / LICENSE links stay
+// reachable) and wrap at the boundaries; if focus has escaped the dialog it is
+// pulled back. Escape is swallowed so it cannot reach background handlers.
+function onKeydown(event: KeyboardEvent): void {
   if (!props.open) return
+  if (event.key === 'Escape') {
+    event.preventDefault()
+    event.stopPropagation()
+    return
+  }
   if (event.key !== 'Tab') return
-  const active = document.activeElement
-  if (dialogEl.value && active && dialogEl.value.contains(active)) return
-  event.preventDefault()
-  acceptBtn.value?.focus()
+  const focusable = focusableInDialog()
+  const first = focusable[0]
+  const last = focusable[focusable.length - 1]
+  if (!first || !last) return
+  const active = document.activeElement as HTMLElement | null
+  if (!dialogEl.value || !active || !dialogEl.value.contains(active)) {
+    event.preventDefault()
+    first.focus()
+    return
+  }
+  if (event.shiftKey && active === first) {
+    event.preventDefault()
+    last.focus()
+  } else if (!event.shiftKey && active === last) {
+    event.preventDefault()
+    first.focus()
+  }
 }
 
 watch(
   () => props.open,
   (open) => {
     if (open) {
-      document.addEventListener('keydown', trapTabGlobally, true)
+      const active = document.activeElement as HTMLElement | null
+      lastFocused = active && active !== document.body ? active : null
+      document.addEventListener('keydown', onKeydown, true)
     } else {
-      document.removeEventListener('keydown', trapTabGlobally, true)
+      document.removeEventListener('keydown', onKeydown, true)
+      if (lastFocused?.isConnected) lastFocused.focus?.()
+      lastFocused = null
     }
   },
   { immediate: true },
 )
 
 onBeforeUnmount(() => {
-  document.removeEventListener('keydown', trapTabGlobally, true)
+  document.removeEventListener('keydown', onKeydown, true)
 })
 </script>
 

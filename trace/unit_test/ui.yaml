@@ -101,14 +101,21 @@ UI Shared Components (Unit)
       - frontend/src/shared/components/__tests__/DisclaimerAcknowledgementModal.spec.ts
 
   UT-UI-SHARED-014
-    title: DisclaimerAcknowledgementModal — re-traps Tab to the accept button only when focus escapes the dialog (M1)
+    title: DisclaimerAcknowledgementModal — confines Tab focus to the dialog (pulls escaped focus back, wraps at boundaries)
     impl:
       - IMP-UI-SHARED-008
     files:
       - frontend/src/shared/components/__tests__/DisclaimerAcknowledgementModal.spec.ts
 
   UT-UI-SHARED-015
-    title: DisclaimerAcknowledgementModal — does NOT re-trap Tab when focus is on a link inside the dialog (M1 — keyboard reachability of DISCLAIMER / LICENSE)
+    title: DisclaimerAcknowledgementModal — allows Tab between controls inside the dialog so DISCLAIMER / LICENSE links stay reachable
+    impl:
+      - IMP-UI-SHARED-008
+    files:
+      - frontend/src/shared/components/__tests__/DisclaimerAcknowledgementModal.spec.ts
+
+  UT-UI-SHARED-016
+    title: DisclaimerAcknowledgementModal — does not emit accept or dismiss on Escape
     impl:
       - IMP-UI-SHARED-008
     files:

@@ -2,18 +2,25 @@ import { describe, it, expect, afterEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import DisclaimerAcknowledgementModal from '../DisclaimerAcknowledgementModal.vue'
 
+const wrappers: Array<ReturnType<typeof mount>> = []
+
 afterEach(() => {
+  // Unmount so onBeforeUnmount runs and the document-level keydown listener is
+  // detached; otherwise a leaked trap from one test fires in the next.
+  while (wrappers.length > 0) wrappers.pop()?.unmount()
   document.body.innerHTML = ''
 })
 
 function mountModal(props: Record<string, unknown> = {}) {
-  return mount(DisclaimerAcknowledgementModal, {
+  const wrapper = mount(DisclaimerAcknowledgementModal, {
     attachTo: document.body,
     props: {
       open: true,
       ...props,
     },
   })
+  wrappers.push(wrapper)
+  return wrapper
 }
 
 describe('DisclaimerAcknowledgementModal', () => {
@@ -110,34 +117,54 @@ describe('DisclaimerAcknowledgementModal', () => {
   })
 
   // @UT-UI-SHARED-014@ (FROM: @IMP-UI-SHARED-008@)
-  it('re-traps Tab to the accept button only when focus escapes the dialog (M1)', () => {
+  it('confines Tab focus to the dialog: pulls escaped focus back and wraps at the boundaries', () => {
     mountModal()
-    const acceptBtn = document.querySelector<HTMLButtonElement>(
-      '[data-testid="disclaimer-gate-accept"]',
-    )!
-    // Focus a background element to simulate focus escaping the dialog.
+    const focusables = Array.from(
+      document.querySelectorAll<HTMLElement>(
+        '.disclaimer-gate a[href], .disclaimer-gate button',
+      ),
+    )
+    expect(focusables.length).toBeGreaterThanOrEqual(2)
+    const first = focusables[0]!
+    const last = focusables[focusables.length - 1]!
+
+    // Focus escaped the dialog (e.g. `inert` unsupported) → next Tab pulls it
+    // back to the first control.
     const outside = document.createElement('button')
-    outside.textContent = 'outside'
     document.body.appendChild(outside)
     outside.focus()
-    expect(document.activeElement).toBe(outside)
-
     document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab' }))
-    expect(document.activeElement).toBe(acceptBtn)
+    expect(document.activeElement).toBe(first)
+
+    // Tab on the last control wraps to the first.
+    last.focus()
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab' }))
+    expect(document.activeElement).toBe(first)
+
+    // Shift+Tab on the first control wraps to the last.
+    first.focus()
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', shiftKey: true }))
+    expect(document.activeElement).toBe(last)
   })
 
   // @UT-UI-SHARED-015@ (FROM: @IMP-UI-SHARED-008@)
-  it('does NOT re-trap Tab when focus is on a link inside the dialog (M1)', () => {
+  it('allows Tab between controls inside the dialog so the links stay reachable', () => {
     mountModal()
-    const link = document.querySelector<HTMLAnchorElement>(
-      '.disclaimer-gate__legal a',
-    )!
+    const link = document.querySelector<HTMLAnchorElement>('.disclaimer-gate__legal a')!
     link.focus()
     expect(document.activeElement).toBe(link)
 
+    // A non-boundary Tab is not intercepted; the DISCLAIMER / LICENSE links
+    // remain keyboard-reachable (WCAG 2.1.1) rather than being pinned to Accept.
     document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab' }))
-    // Focus stays on the link — Tab is allowed inside the dialog so the
-    // DISCLAIMER / LICENSE links remain keyboard-reachable (WCAG 2.1.1).
     expect(document.activeElement).toBe(link)
+  })
+
+  // @UT-UI-SHARED-016@ (FROM: @IMP-UI-SHARED-008@)
+  it('does not emit accept or dismiss on Escape', () => {
+    const wrapper = mountModal()
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))
+    expect(wrapper.emitted('accept')).toBeUndefined()
+    expect(document.querySelector('[data-testid="disclaimer-gate"]')).not.toBeNull()
   })
 })

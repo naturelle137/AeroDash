@@ -32,7 +32,6 @@ export function copyLegalDocs(repoRoot?: string): Plugin {
 
   return {
     name: 'aerodash:copy-legal-docs',
-    apply: () => true,
 
     configureServer(server) {
       server.middlewares.use((req, res, next) => {
@@ -59,6 +58,7 @@ export function copyLegalDocs(repoRoot?: string): Plugin {
         const body = readFileSync(match.source)
         res.statusCode = 200
         res.setHeader('Content-Type', match.contentType)
+        res.setHeader('Cache-Control', 'no-cache')
         res.end(body)
       })
     },
@@ -66,8 +66,9 @@ export function copyLegalDocs(repoRoot?: string): Plugin {
     generateBundle() {
       for (const d of docs) {
         if (!existsSync(d.source)) {
-          this.warn(`Legal doc missing on disk: ${d.source}`)
-          continue
+          // Fail the build: the disclaimer gate's full-text link would 404 in
+          // production, breaking the acknowledgement → full-text path.
+          this.error(`Legal doc missing on disk: ${d.source}`)
         }
         this.emitFile({
           type: 'asset',
