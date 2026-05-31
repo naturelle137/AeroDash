@@ -97,6 +97,12 @@ Architecture Design
       - REQ-SYS-006
     file: docs/architecture/adr/011-min-safe-version-fetch-privacy.md
 
+  DES-ARCH-014
+    title: P1 GitHub Issue URL Builder & Handoff Contract
+    file: docs/ux/contribution.md
+    req:
+      - REQ-SYS-017
+
 ARCH (auto)
   DES-ARCH-010
     title: TODO: describe this artifact

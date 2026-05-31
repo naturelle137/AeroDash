@@ -25,3 +25,12 @@ SYS Store — App-version offline enforcement (Integration — #271 CS-011 / TEC
       - IMP-SYS-STORE-013
       - IMP-SYS-STORE-014
       - IMP-SYS-STORE-015
+
+SYS — In-app contribution intake (Integration — #395)
+  IT-SYS-VIEW-001
+    title: ContributeView end-to-end — defect + feature flows compose prefilled URLs; security path routes to GitHub's advisory form
+    files:
+      - frontend/src/views/__tests__/ContributeView.int.spec.ts
+    impl:
+      - IMP-UI-VIEW-003
+      - IMP-SYS-CORE-013

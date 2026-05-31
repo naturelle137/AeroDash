@@ -110,7 +110,15 @@ afterEach(() => {
 })
 
 function mountView() {
-  return mount(PrivacyView, { attachTo: document.body })
+  return mount(PrivacyView, {
+    attachTo: document.body,
+    global: {
+      // PrivacyView includes a RouterLink to /contribute (REQ-SYS-016). The
+      // unit tests focus on REQ-SYS-014 / 015, so we stub the router link out
+      // rather than installing a router just for one anchor.
+      stubs: { RouterLink: { template: '<a><slot /></a>' } },
+    },
+  })
 }
 
 // ─── REQ-SYS-015 ───────────────────────────────────────────────────────────

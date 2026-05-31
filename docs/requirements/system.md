@@ -155,6 +155,36 @@ This document defines the system behavior using the **EARS** (Easy Approach to R
 **Status:** Implemented
 **Design Reference:** [Data-Rights Design](../architecture/data-rights.md)
 
+<!-- @REQ-SYS-016@ -->
+
+### REQ-SYS-016: In-App Contribution Intake — Three-Channel Entry
+
+**Requirement:** The system shall expose an in-app contribution surface that lets the user pick one of exactly three intake channels — *defect report*, *feature request*, or *security vulnerability report* — and shall present each channel with a one-sentence plain-language description plus an info tooltip explaining when to use that channel.
+**Rationale:** AeroDash's target user is a non-developer pilot. Without an in-app intake, defects and improvement ideas observed in real flight prep do not reach the regression suite. Funnelling the user through one of three first-class channels (mirroring the existing GitHub intake structure) keeps reports correctly classified at the source.
+**Priority:** P3
+**Status:** Implemented
+**Design Reference:** [Contribution Hub Design](../ux/contribution.md), [ADR-012](../architecture/adr/012-in-app-contribution-intake.md)
+
+<!-- @REQ-SYS-017@ -->
+
+### REQ-SYS-017: Prefilled GitHub Issue Handoff for Defects and Feature Requests
+
+**Requirement:** When the user submits the in-app defect or feature form, the system shall open the corresponding GitHub "new issue" page in a new browser tab with the matching GitHub issue template preselected and every entered field prefilled into the GitHub form's title and body. The system shall not store or persist the entered values after the GitHub tab is opened, and shall not transmit the values anywhere other than the GitHub URL the user has explicitly chosen to open.
+**Rationale:** Reuses the existing `bug_report.yml` and `feature_request.yml` templates as the single source of truth for what an issue needs to contain. The user still confirms the submission on GitHub, preserving their authority over the final report; the app does not act as a submission relay.
+**Priority:** P3
+**Status:** Implemented
+**Design Reference:** [Contribution Hub Design](../ux/contribution.md), [ADR-012](../architecture/adr/012-in-app-contribution-intake.md)
+
+<!-- @REQ-SYS-018@ -->
+
+### REQ-SYS-018: Security Advisory Link-Only Handoff
+
+**Requirement:** When the user selects the security vulnerability channel, the system shall display a short explanation that security reports are handled privately on GitHub and shall provide a button that opens the repository's private security advisory creation form in a new browser tab. The system shall not collect security-report content in any in-app field.
+**Rationale:** GitHub's security-advisory creation form does not accept URL pre-fill; any in-app field collection would discard the user's input on handoff. Routing the user directly to GitHub's private workflow also keeps sensitive vulnerability detail off the public issue tracker and out of any AeroDash storage.
+**Priority:** P3
+**Status:** Implemented
+**Design Reference:** [Contribution Hub Design](../ux/contribution.md), [ADR-012](../architecture/adr/012-in-app-contribution-intake.md)
+
 ---
 
 ## Design References

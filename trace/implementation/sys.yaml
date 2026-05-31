@@ -373,3 +373,14 @@ SYS Store — App Version build-time floor resolution (#271, PR-review Major #2 
       - REQ-SYS-006
     hazard:
       - H-019
+
+SYS Core — In-app contribution intake (#395)
+  IMP-SYS-CORE-013
+    title: github-issue-url — P1 builder for prefilled GitHub issue URLs (bug_report.yml, feature_request.yml) and the security-advisory link constant
+    files:
+      - frontend/src/core/logic/github-issue-url.ts
+    req:
+      - REQ-SYS-017
+      - REQ-SYS-018
+    des:
+      - DES-ARCH-014

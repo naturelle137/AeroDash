@@ -48,3 +48,27 @@ Focus: UI resilience and environmental factors.
 | **Export Attempt**     | Generates a PDF briefing pack.                                                                          | "Now let me print this for real."                                                             | The system generates the export without any `[UNVERIFIED]` markers on the destination airport. No unverified data warning or export block appears.        |
 
 **Outcome:** The pilot actively takes responsibility for the accuracy of externally-sourced data. The verification workflow ensures that auto-downloaded values are never silently trusted — the pilot must either verify individually or batch-accept the data before the system treats it as reliable.
+
+<!-- @UJ-D-003@ (FROM: @REQ-SYS-016@, @REQ-SYS-017@, @REQ-SYS-018@) -->
+
+## <a name="UJ-D-003"></a>UJ-D-003: Reporting a Defect, Suggesting a Feature, or Raising a Security Concern
+
+**Persona:** Pilot (non-developer)
+
+**Context:** During flight prep, the pilot notices that the Mass & Balance view displays an unexpected CG value after switching aircraft profiles. Later, on a different session, the pilot has an idea for a feature: showing wind correction directly on the runway diagram. On a third session, the pilot suspects an input field accepts a value that could be used to bypass a safety warning.
+
+**Goal:** Wants to share each finding with the AeroDash team without leaving the app cold-handed, without learning a structured bug-report format from scratch, and without putting potentially-sensitive vulnerability detail into a public issue.
+
+**Journey:**
+
+| Phase | User Action | Thoughts / Feelings | Observable System Reaction |
+| :--- | :--- | :--- | :--- |
+| **Enter hub** | Opens the contribution hub from the sidebar footer link "Help / contribute". | "Where do I send this? I've never used GitHub." | The `/contribute` view loads with three labelled buttons — *Report a defect*, *Request a feature*, *Report a security vulnerability* — each with a one-sentence description and an info tooltip. |
+| **Pick category — defect** | Hovers the `(i)` tooltip on "Report a defect" to confirm it fits, then clicks the button. | "Yes — a wrong number shown by the app. That matches 'defect'." | The view replaces the three-button grid with the guided defect form. The first field, "Title", has the cursor. |
+| **Fill the defect form** | Types a short title, fills in the description, reproduction steps, picks "Major" severity, leaves the safety hazard reference blank, and accepts the auto-detected environment string. | "It's basically asking me what happened and how to reproduce it. The environment is already filled in — nice." | Each required field reveals its inline help text above the input. The "Open GitHub to submit" button stays disabled until all required fields are filled. The "Advanced (optional)" disclosure conceals the rarely-needed hazard reference field. |
+| **Hand off to GitHub** | Clicks "Open GitHub to submit ↗". | "Let's see what happens." | A new browser tab opens at GitHub's "new issue" page. The bug template is preselected. Title and all body fields are prefilled with what the pilot entered, under per-field headings. The pilot ticks the two GitHub confirmation checkboxes ("checked the backlog", "this is not a security report") and clicks **Submit**. |
+| **Return to category — feature (later session)** | Returns to `/contribute`, hovers the tooltip on "Request a feature", clicks the button. | "Wind correction on the runway diagram would be useful." | The guided feature form replaces the category buttons. The DoD field pre-fills with "- [ ] " so the pilot just continues typing. |
+| **Pick category — security (third session)** | Clicks "Report a security vulnerability". Reads the explanation. | "This shouldn't be public — good that the app says so." | The view replaces the category grid with a single card explaining that security reports are private, with a primary button "Open the private security form on GitHub ↗". No in-app input fields are shown. The pilot clicks the button and a new tab opens at GitHub's private advisory form. |
+| **See contribution promotion** | Notices the "How else can you help?" panel below the buttons. | "Oh — I can also just report what worked badly, or fix a typo in the docs. That sounds doable." | The panel lists four ways to contribute and links to the public issue list and the GitHub repository, each opening in a new tab. |
+
+**Outcome:** The pilot reports the defect with the existing GitHub bug template, prefilled and ready to submit. The feature suggestion lands in the correct GitHub template too. The suspected vulnerability goes through GitHub's private advisory workflow and never touches the public issue tracker. None of the three reports required learning a new format — the app translated plain-language prompts into the structured GitHub fields on handoff.

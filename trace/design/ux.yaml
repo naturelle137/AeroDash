@@ -75,3 +75,51 @@ UX (auto)
       - docs/ux/mass_balance.md
     req:
       - REQ-UI-019
+
+  DES-UX-013
+    title: Contribution Hub — Entry Points
+    file: docs/ux/contribution.md
+    req:
+      - REQ-SYS-016
+
+  DES-UX-014
+    title: Contribution Hub — Category Intake (Three-Button Entry)
+    file: docs/ux/contribution.md
+    req:
+      - REQ-SYS-016
+
+  DES-UX-015
+    title: Contribution Hub — Defect Guided Form
+    file: docs/ux/contribution.md
+    req:
+      - REQ-SYS-017
+
+  DES-UX-016
+    title: Contribution Hub — Feature Guided Form
+    file: docs/ux/contribution.md
+    req:
+      - REQ-SYS-017
+
+  DES-UX-017
+    title: Contribution Hub — Security Advisory Card
+    file: docs/ux/contribution.md
+    req:
+      - REQ-SYS-018
+
+  DES-UX-018
+    title: Contribution Hub — Promotion Section
+    file: docs/ux/contribution.md
+    req:
+      - REQ-SYS-016
+
+  DES-UX-019
+    title: Contribution Hub — State, Accessibility & Layout
+    file: docs/ux/contribution.md
+    req:
+      - REQ-SYS-016
+
+  DES-UX-020
+    title: Contribution Hub — Out of Scope Boundaries
+    file: docs/ux/contribution.md
+    req:
+      - REQ-SYS-016

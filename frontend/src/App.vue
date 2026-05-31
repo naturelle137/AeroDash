@@ -238,8 +238,28 @@ const themeLabel = computed(() =>
         </li>
       </ul>
 
-      <!-- Sidebar footer: advisory + version -->
+      <!-- Sidebar footer: contribute link + advisory + version -->
       <div class="sidebar-footer">
+        <!-- @IMP-UI-SHARED-015@ (FROM: @REQ-SYS-016@, @DES-UX-013@) -->
+        <RouterLink
+          to="/contribute"
+          class="sidebar-contribute"
+          title="Help / contribute"
+          aria-label="Open the contribution hub"
+          data-testid="sidebar-contribute-link"
+        >
+          <span class="sidebar-contribute__icon" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+              <path
+                d="M4 5h12a2 2 0 012 2v6a2 2 0 01-2 2h-6l-4 3v-3H4a2 2 0 01-2-2V7a2 2 0 012-2z"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </span>
+          <span class="sidebar-contribute__label">Help / contribute</span>
+        </RouterLink>
         <p class="sidebar-footer__text">Advisory only. Verify against POH/AFM.</p>
         <AppVersion />
       </div>
@@ -622,7 +642,8 @@ const themeLabel = computed(() =>
 /* Collapsed sidebar: hide labels + badges */
 .sidebar--collapsed .sidebar-nav__label,
 .sidebar--collapsed .soon-badge,
-.sidebar--collapsed .sidebar-footer__text {
+.sidebar--collapsed .sidebar-footer__text,
+.sidebar--collapsed .sidebar-contribute__label {
   display: none;
 }
 
@@ -631,6 +652,9 @@ const themeLabel = computed(() =>
 .sidebar-footer {
   padding: var(--space-4) var(--space-3);
   border-top: 1px solid var(--color-divider);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
 }
 
 .sidebar-footer__text {
@@ -638,6 +662,45 @@ const themeLabel = computed(() =>
   color: var(--color-text-secondary);
   margin: 0;
   line-height: 1.4;
+}
+
+.sidebar-contribute {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  font-size: var(--text-xs);
+  font-weight: 600;
+  min-height: 36px;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.sidebar-contribute:hover,
+.sidebar-contribute:focus-visible {
+  background: var(--color-surface-hover);
+  color: var(--color-primary);
+  outline: none;
+}
+
+.sidebar-contribute:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.sidebar-contribute__icon {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+}
+
+.sidebar-contribute__label {
+  flex: 1;
 }
 
 /* ─── Main content ────────────────────────────────────────────────────────── */

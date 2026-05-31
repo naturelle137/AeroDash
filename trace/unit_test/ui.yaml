@@ -44,3 +44,38 @@ UI (auto)
       - frontend/src/views/__tests__/PrivacyView.spec.ts
     impl:
       - IMP-UI-VIEW-002
+
+  UT-UI-SHARED-010
+    title: ContributeCategoryGrid — three labelled buttons, tooltips reachable via aria-describedby, picks emit category id
+    files:
+      - frontend/src/shared/components/__tests__/ContributeCategoryGrid.spec.ts
+    impl:
+      - IMP-UI-SHARED-010
+
+  UT-UI-SHARED-011
+    title: ContributeBugForm — required-field gating, offline blocking, auto-environment, hazard_ref optional
+    files:
+      - frontend/src/shared/components/__tests__/ContributeBugForm.spec.ts
+    impl:
+      - IMP-UI-SHARED-011
+
+  UT-UI-SHARED-012
+    title: ContributeFeatureForm — required-field gating, DoD seed rejection, optional fields
+    files:
+      - frontend/src/shared/components/__tests__/ContributeFeatureForm.spec.ts
+    impl:
+      - IMP-UI-SHARED-012
+
+  UT-UI-SHARED-013
+    title: ContributeSecurityCard — link target, privacy copy, back emission
+    files:
+      - frontend/src/shared/components/__tests__/ContributeSecurityCard.spec.ts
+    impl:
+      - IMP-UI-SHARED-013
+
+  UT-UI-VIEW-003
+    title: ContributeView — screen switching, heading updates, promotion panel always visible
+    files:
+      - frontend/src/views/__tests__/ContributeView.spec.ts
+    impl:
+      - IMP-UI-VIEW-003

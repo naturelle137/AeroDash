@@ -1,6 +1,7 @@
 <script setup lang="ts">
-// @IMP-UI-VIEW-002@ (FROM: @REQ-SYS-014@, @REQ-SYS-015@, @DES-ARCH-011@, @DES-ARCH-012@)
+// @IMP-UI-VIEW-002@ (FROM: @REQ-SYS-014@, @REQ-SYS-015@, @REQ-SYS-016@, @DES-ARCH-011@, @DES-ARCH-012@)
 import { computed, onMounted, ref } from 'vue'
+import { RouterLink } from 'vue-router'
 import {
   exportAllProfiles,
   serializeBulkExport,
@@ -269,6 +270,14 @@ function onCancelWipe(): void {
       </button>
     </section>
 
+    <!-- ─── Contribution link (REQ-SYS-016) ────────────────────────── -->
+    <!-- @IMP-UI-SHARED-017@ (FROM: @REQ-SYS-016@, @DES-UX-013@) -->
+    <p class="privacy-view__contribute" data-testid="privacy-contribute-link">
+      <RouterLink to="/contribute">
+        Report a problem or suggest an improvement →
+      </RouterLink>
+    </p>
+
     <!-- ─── Confirmation dialog: wipe ───────────────────────────────── -->
     <div
       v-if="dialog === 'wipe'"
@@ -393,6 +402,22 @@ function onCancelWipe(): void {
   color: var(--color-warning, #92400e);
   background: var(--color-warning-bg, #fef3c7);
   border: 1px solid var(--color-warning, #92400e);
+}
+
+.privacy-view__contribute {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.privacy-view__contribute a {
+  color: var(--color-primary, #1d4ed8);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.privacy-view__contribute a:hover,
+.privacy-view__contribute a:focus-visible {
+  text-decoration: underline;
 }
 
 .card {

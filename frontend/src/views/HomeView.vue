@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// @IMP-UI-VIEW-001@ (FROM: @REQ-UI-011@, @REQ-SYS-001@)
+// @IMP-UI-VIEW-001@ (FROM: @REQ-UI-011@, @REQ-SYS-001@, @REQ-SYS-016@)
 import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
 import AppLogo from '@/shared/components/AppLogo.vue'
@@ -148,6 +148,27 @@ const soonModules = modules.filter((m) => m.soon)
           </div>
         </RouterLink>
       </div>
+    </section>
+
+    <!-- ─── Contribution entry point (REQ-SYS-016) ────────────────────────── -->
+    <section
+      class="contribution-entry"
+      aria-labelledby="contribute-entry-heading"
+      data-testid="home-contribute-entry"
+    >
+      <!-- @IMP-UI-SHARED-016@ (FROM: @REQ-SYS-016@, @DES-UX-013@) -->
+      <div class="contribution-entry__body">
+        <h2 id="contribute-entry-heading" class="contribution-entry__title">
+          Help improve AeroDash
+        </h2>
+        <p class="contribution-entry__sub">
+          Defect, idea, or security concern? The contribution hub guides you
+          through reporting — no GitHub knowledge required.
+        </p>
+      </div>
+      <RouterLink to="/contribute" class="contribution-entry__cta">
+        Open contribution hub →
+      </RouterLink>
     </section>
 
     <!-- ─── Coming soon modules ────────────────────────────────────────────── -->
@@ -461,6 +482,65 @@ const soonModules = modules.filter((m) => m.soon)
 
 /* ─── Responsive ─────────────────────────────────────────────────────────── */
 
+/* ─── Contribution entry ────────────────────────────────────────────────── */
+
+.contribution-entry {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  justify-content: space-between;
+  padding: var(--space-5) var(--space-6);
+  background: var(--color-surface-card);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-xl);
+}
+
+.contribution-entry__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.contribution-entry__title {
+  margin: 0 0 var(--space-1);
+  font-size: var(--text-base);
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.contribution-entry__sub {
+  margin: 0;
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+  line-height: 1.4;
+}
+
+.contribution-entry__cta {
+  flex-shrink: 0;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  border: 1px solid var(--color-primary);
+  color: var(--color-primary);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  text-decoration: none;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.contribution-entry__cta:hover,
+.contribution-entry__cta:focus-visible {
+  background: var(--color-primary);
+  color: var(--color-primary-text);
+  outline: none;
+}
+
+.contribution-entry__cta:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
 @media (max-width: 767.98px) {
   .home-view {
     padding: var(--space-4);
@@ -478,6 +558,12 @@ const soonModules = modules.filter((m) => m.soon)
 
   .modules-grid {
     grid-template-columns: 1fr;
+  }
+
+  .contribution-entry {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: var(--space-4);
   }
 }
 </style>
