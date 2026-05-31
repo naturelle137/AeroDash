@@ -155,11 +155,42 @@ This document defines the system behavior using the **EARS** (Easy Approach to R
 **Status:** Implemented
 **Design Reference:** [Data-Rights Design](../architecture/data-rights.md)
 
+<!-- @REQ-SYS-016@ -->
+
+### REQ-SYS-016: Offline-Queued Incident Capture
+
+**Requirement:** When the pilot submits an incident report through the in-app "Report a problem" surface, the system shall persist a redacted, schema-validated report to local browser storage, and shall not transmit the report to any external endpoint without an explicit subsequent pilot action.
+**Rationale:** Pilot-trial users need a reliable feedback path even when offline at remote airfields; storing first and submitting on explicit action keeps the GDPR data perimeter intact (DP audit, PR-006).
+**Priority:** P2
+**Status:** Implemented
+**Design Reference:** [Incident → Regression Workflow](../development/incident-to-regression.md)
+
+<!-- @REQ-SYS-017@ -->
+
+### REQ-SYS-017: Incident-Report Privacy Redaction
+
+**Requirement:** Before an incident report is persisted or surfaced for submission, the system shall redact email addresses, phone numbers, geographic coordinates, aircraft registrations, and URLs from the pilot-supplied free-text description, and shall present the redacted text to the pilot for review before any external action.
+**Rationale:** The destination of a submitted report (GitHub) is outside the GDPR data perimeter the rest of AeroDash maintains; deterministic, reviewable redaction is the only acceptable handoff (PR-006, DP-004 / CS-012 spirit).
+**Priority:** P2
+**Status:** Implemented
+**Design Reference:** [Incident → Regression Workflow](../development/incident-to-regression.md)
+
+<!-- @REQ-SYS-018@ -->
+
+### REQ-SYS-018: Incident-to-Regression Handoff
+
+**Requirement:** The system shall offer the pilot a deep link that opens a pre-filled GitHub issue, using the repository's incident-report template, populated with the report's kind, summary, redacted description, and operational context (app version, route, online state, user agent).
+**Rationale:** The audit (PR-006) closed the loop with "pilot-trial incidents must reach the regression suite"; the GitHub issue is the canonical triage surface, and a pre-filled deep link is the lowest-friction handoff.
+**Priority:** P2
+**Status:** Implemented
+**Design Reference:** [Incident → Regression Workflow](../development/incident-to-regression.md)
+
 ---
 
 ## Design References
 
 - **<a name="notificationScheme"></a>Notification Scheme:** [`docs/architecture/notification_schema.md`](../architecture/notification_schema.md)
 - **<a name="dataRights"></a>Data-Rights (Erasure & Bulk Export):** [`docs/architecture/data-rights.md`](../architecture/data-rights.md)
+- **<a name="incidentReporting"></a>Incident → Regression Workflow:** [`docs/development/incident-to-regression.md`](../development/incident-to-regression.md)
 
 ---

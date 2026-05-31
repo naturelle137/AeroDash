@@ -65,3 +65,15 @@ System Requirements
   REQ-SYS-015
     title: Export of All Personal Data
     file: docs/requirements/system.md
+
+  REQ-SYS-016
+    title: Offline-Queued Incident Capture
+    file: docs/requirements/system.md
+
+  REQ-SYS-017
+    title: Incident-Report Privacy Redaction
+    file: docs/requirements/system.md
+
+  REQ-SYS-018
+    title: Incident-to-Regression Handoff
+    file: docs/requirements/system.md

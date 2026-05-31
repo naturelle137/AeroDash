@@ -1578,3 +1578,60 @@ SYS (auto)
       - frontend/src/stores/__tests__/session-persistence.store.spec.ts
     impl:
       - IMP-SYS-STORE-001
+
+SYS Incident reporting MVP (#281, PR-006)
+  UT-SYS-CORE-110
+    title: redactIncidentText — email/phone/coord/registration/URL classes, aviation-numeric pass-through, determinism (REQ-SYS-017)
+    files:
+      - frontend/src/core/logic/incident-redaction.spec.ts
+    impl:
+      - IMP-SYS-CORE-014
+
+  UT-SYS-CORE-111
+    title: buildGithubIssueUrl — title/kind/body/context prefill, trailing-slash tolerance, URL-length truncation, determinism (REQ-SYS-018)
+    files:
+      - frontend/src/core/logic/github-issue-url.spec.ts
+    impl:
+      - IMP-SYS-CORE-015
+
+  UT-SYS-CORE-112
+    title: IncidentDraftSchema / IncidentReportSchema boundary validation — length caps, UUID id, ISO timestamp, schemaVersion lock (REQ-SYS-016)
+    files:
+      - frontend/src/core/domain/incident-report.schema.spec.ts
+    impl:
+      - IMP-SYS-CORE-013
+
+  UT-SYS-STORE-200
+    title: previewRedaction wires the P1 redactor and reports per-class counts (REQ-SYS-017)
+    files:
+      - frontend/src/stores/__tests__/incident-report.store.spec.ts
+    impl:
+      - IMP-SYS-STORE-022
+
+  UT-SYS-STORE-201
+    title: previewRedaction returns zero redactions for safe text (REQ-SYS-017)
+    files:
+      - frontend/src/stores/__tests__/incident-report.store.spec.ts
+    impl:
+      - IMP-SYS-STORE-022
+
+  UT-SYS-STORE-202
+    title: buildReport applies redaction, snapshots route + context, and round-trips through the schema (REQ-SYS-016/017)
+    files:
+      - frontend/src/stores/__tests__/incident-report.store.spec.ts
+    impl:
+      - IMP-SYS-STORE-022
+
+  UT-SYS-STORE-203
+    title: buildReport rejects an invalid draft at the Zod boundary (REQ-SYS-011, REQ-SYS-016)
+    files:
+      - frontend/src/stores/__tests__/incident-report.store.spec.ts
+    impl:
+      - IMP-SYS-STORE-022
+
+  UT-SYS-STORE-204
+    title: buildGithubUrl wraps the pure builder with the canonical repo URL and reaches the prefilled title/kind (REQ-SYS-018)
+    files:
+      - frontend/src/stores/__tests__/incident-report.store.spec.ts
+    impl:
+      - IMP-SYS-STORE-022

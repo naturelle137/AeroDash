@@ -44,3 +44,53 @@ UI (auto)
       - frontend/src/views/__tests__/PrivacyView.spec.ts
     impl:
       - IMP-UI-VIEW-002
+
+UI Incident reporting MVP (#281, PR-006)
+  UT-UI-SHARED-040
+    title: ReportProblemDialog renders when open and stays hidden when closed (REQ-SYS-016)
+    files:
+      - frontend/src/shared/components/__tests__/ReportProblemDialog.spec.ts
+    impl:
+      - IMP-UI-SHARED-008
+
+  UT-UI-SHARED-041
+    title: ReportProblemDialog redaction preview updates with description text (REQ-SYS-017)
+    files:
+      - frontend/src/shared/components/__tests__/ReportProblemDialog.spec.ts
+    impl:
+      - IMP-UI-SHARED-008
+
+  UT-UI-SHARED-042
+    title: ReportProblemDialog disables Save until summary + description meet length minimums (REQ-SYS-011, REQ-SYS-016)
+    files:
+      - frontend/src/shared/components/__tests__/ReportProblemDialog.spec.ts
+    impl:
+      - IMP-UI-SHARED-008
+
+  UT-UI-SHARED-043
+    title: ReportProblemDialog persists the report on submit via the incident store (REQ-SYS-016)
+    files:
+      - frontend/src/shared/components/__tests__/ReportProblemDialog.spec.ts
+    impl:
+      - IMP-UI-SHARED-008
+
+  UT-UI-VIEW-010
+    title: IncidentReportsView shows empty-state copy when the queue is empty (REQ-SYS-016)
+    files:
+      - frontend/src/views/__tests__/IncidentReportsView.spec.ts
+    impl:
+      - IMP-UI-VIEW-005
+
+  UT-UI-VIEW-011
+    title: IncidentReportsView lists queued reports newest-first (REQ-SYS-016)
+    files:
+      - frontend/src/views/__tests__/IncidentReportsView.spec.ts
+    impl:
+      - IMP-UI-VIEW-005
+
+  UT-UI-VIEW-012
+    title: IncidentReportsView "Open on GitHub" link targets the prefilled issues/new endpoint (REQ-SYS-018)
+    files:
+      - frontend/src/views/__tests__/IncidentReportsView.spec.ts
+    impl:
+      - IMP-UI-VIEW-005

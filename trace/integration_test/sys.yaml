@@ -25,3 +25,19 @@ SYS Store — App-version offline enforcement (Integration — #271 CS-011 / TEC
       - IMP-SYS-STORE-013
       - IMP-SYS-STORE-014
       - IMP-SYS-STORE-015
+
+SYS Incident reporting MVP (Integration — #281, PR-006)
+  IT-SYS-SHARED-001
+    title: incident-queue — IndexedDB CRUD lifecycle (enqueue/list/remove/clear) with Zod boundary validation (REQ-SYS-016)
+    files:
+      - frontend/src/shared/utils/__tests__/incident-queue.int.spec.ts
+    impl:
+      - IMP-SYS-SHARED-011
+
+  IT-SYS-STORE-003
+    title: useIncidentReportStore — capture → list → remove → clear lifecycle through fake-indexeddb + real Pinia; reload survives via IndexedDB (REQ-SYS-016/017)
+    files:
+      - frontend/src/stores/__tests__/incident-report.store.int.spec.ts
+    impl:
+      - IMP-SYS-STORE-022
+      - IMP-SYS-SHARED-011

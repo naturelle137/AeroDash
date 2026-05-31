@@ -7,6 +7,8 @@ import { RouterView, RouterLink, useRoute } from 'vue-router'
 import { useTheme } from '@/shared/composables/useTheme'
 import AppLogo from '@/shared/components/AppLogo.vue'
 import AppVersion from '@/shared/components/AppVersion.vue'
+import ReportProblemDialog from '@/shared/components/ReportProblemDialog.vue'
+import { useRouter } from 'vue-router'
 import { usePwaUpdateStore } from '@/stores/pwa-update.store'
 import { useAppVersionStore, attachConnectivityRefresh } from '@/stores/app-version.store'
 
@@ -38,6 +40,13 @@ const { theme, toggleTheme } = useTheme()
 const route = useRoute()
 
 const sidebarCollapsed = ref(false)
+const reportDialogOpen = ref(false)
+const appRouter = useRouter()
+
+function onReportSaved(): void {
+  reportDialogOpen.value = false
+  void appRouter.push({ name: 'incidents' })
+}
 
 // @IMP-SYS-SHARED-007@ (FROM: @REQ-SYS-001@)
 // iOS Safari aggressively restores SPA pages from the back/forward cache
@@ -238,12 +247,30 @@ const themeLabel = computed(() =>
         </li>
       </ul>
 
-      <!-- Sidebar footer: advisory + version -->
+      <!-- Sidebar footer: report-a-problem + advisory + version -->
       <div class="sidebar-footer">
+        <!-- @IMP-UI-SHARED-009@ (FROM: @REQ-SYS-016@, @REQ-SYS-018@) -->
+        <button
+          type="button"
+          class="sidebar-footer__report-btn"
+          data-testid="sidebar-report-problem"
+          aria-label="Report a problem with AeroDash"
+          @click="reportDialogOpen = true"
+        >
+          <span aria-hidden="true" class="sidebar-footer__report-icon">!</span>
+          <span class="sidebar-footer__report-label">Report a problem</span>
+        </button>
         <p class="sidebar-footer__text">Advisory only. Verify against POH/AFM.</p>
         <AppVersion />
       </div>
     </nav>
+
+    <!-- ═══ Report-a-problem dialog (REQ-SYS-016/017/018) ═════════════════ -->
+    <ReportProblemDialog
+      :open="reportDialogOpen"
+      @close="reportDialogOpen = false"
+      @saved="onReportSaved"
+    />
 
     <!-- ═══ PWA update banner (INFO-SYS-001) ════════════════════════════════ -->
     <div v-if="pwaStore.needsUpdate" class="pwa-update-banner" role="status" aria-live="polite">
@@ -638,6 +665,50 @@ const themeLabel = computed(() =>
   color: var(--color-text-secondary);
   margin: 0;
   line-height: 1.4;
+}
+
+.sidebar-footer__report-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  margin-bottom: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-text-primary);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  min-height: 44px;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.sidebar-footer__report-btn:hover,
+.sidebar-footer__report-btn:focus-visible {
+  background: var(--color-surface-hover);
+  color: var(--color-primary);
+  outline: none;
+}
+
+.sidebar-footer__report-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: var(--radius-full);
+  background: var(--color-warning, #b45309);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.85em;
+  flex-shrink: 0;
+}
+
+.sidebar--collapsed .sidebar-footer__report-label {
+  display: none;
 }
 
 /* ─── Main content ────────────────────────────────────────────────────────── */

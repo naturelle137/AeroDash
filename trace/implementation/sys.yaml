@@ -373,3 +373,79 @@ SYS Store — App Version build-time floor resolution (#271, PR-review Major #2 
       - REQ-SYS-006
     hazard:
       - H-019
+
+SYS Incident reporting MVP (#281, PR-006)
+  IMP-SYS-CORE-013
+    title: IncidentReport / IncidentDraft Zod schemas — pure-TS data contract for the in-app incident-reporting MVP (REQ-SYS-016/017)
+    files:
+      - frontend/src/core/domain/incident-report.schema.ts
+    req:
+      - REQ-SYS-016
+      - REQ-SYS-017
+
+  IMP-SYS-CORE-014
+    title: redactIncidentText — deterministic P1 redactor for email / phone / coords / aircraft registration / URLs in pilot free-text incident descriptions (REQ-SYS-017)
+    files:
+      - frontend/src/core/logic/incident-redaction.ts
+    req:
+      - REQ-SYS-016
+      - REQ-SYS-017
+
+  IMP-SYS-CORE-015
+    title: buildGithubIssueUrl — pure builder for the prefilled GitHub issue deep link (template, title, kind, redacted body, operational context) with hard length cap and truncation marker (REQ-SYS-017/018)
+    files:
+      - frontend/src/core/logic/github-issue-url.ts
+    req:
+      - REQ-SYS-017
+      - REQ-SYS-018
+
+  IMP-SYS-SHARED-011
+    title: incident-queue — offline-queued IndexedDB persistence (aerodash-incidents/reports) with Zod boundary-validation on read+write (REQ-SYS-016)
+    files:
+      - frontend/src/shared/utils/incident-queue.ts
+    req:
+      - REQ-SYS-016
+      - REQ-SYS-017
+
+  IMP-SYS-STORE-022
+    title: useIncidentReportStore — Pinia store wiring the P1 redactor + URL builder + IndexedDB queue; never auto-submits, always pilot-driven (REQ-SYS-016/017/018)
+    files:
+      - frontend/src/stores/incident-report.store.ts
+    req:
+      - REQ-SYS-016
+      - REQ-SYS-017
+      - REQ-SYS-018
+
+  IMP-UI-SHARED-008
+    title: ReportProblemDialog.vue — in-app Report-a-problem dialog with redaction preview and offline save (REQ-SYS-016/017)
+    files:
+      - frontend/src/shared/components/ReportProblemDialog.vue
+    req:
+      - REQ-SYS-016
+      - REQ-SYS-017
+
+  IMP-UI-SHARED-009
+    title: Sidebar footer Report-a-problem button — entry point that opens the in-app incident report dialog (REQ-SYS-016/018)
+    files:
+      - frontend/src/App.vue
+    req:
+      - REQ-SYS-016
+      - REQ-SYS-018
+
+  IMP-UI-ROUTE-005
+    title: /incidents route — exposes IncidentReportsView for queue review and GitHub handoff (REQ-SYS-016/017/018)
+    files:
+      - frontend/src/router/index.ts
+    req:
+      - REQ-SYS-016
+      - REQ-SYS-017
+      - REQ-SYS-018
+
+  IMP-UI-VIEW-005
+    title: IncidentReportsView.vue — lists queued reports, exposes per-report GitHub deep link and local delete (REQ-SYS-016/017/018)
+    files:
+      - frontend/src/views/IncidentReportsView.vue
+    req:
+      - REQ-SYS-016
+      - REQ-SYS-017
+      - REQ-SYS-018

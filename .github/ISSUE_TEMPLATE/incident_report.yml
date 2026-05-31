@@ -1,0 +1,62 @@
+name: 🛩️ In-app Incident Report
+description: Filed automatically by the AeroDash in-app "Report a problem" surface (REQ-SYS-016/017/018). Use this only if the in-app deep link directed you here.
+title: "[Incident]: "
+labels: ["Bug", "open", "incident-report"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This issue was opened from AeroDash's in-app **Report a problem** dialog.
+        The free-text description has already been redacted on-device for email,
+        phone, GPS, and aircraft-registration matches. Review the prefilled
+        fields, then submit.
+
+        Keep entries word-efficient per `CLAUDE.md § Concision`. Per its safety
+        carve-out, never omit a required safety or traceability detail.
+
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Incident kind
+      description: Self-classified by the pilot in the app.
+      options:
+        - "Calculation result looked wrong"
+        - "Aircraft or airport data looked wrong"
+        - "UI / display defect"
+        - "App froze or failed to load"
+        - "Other"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Pilot description (redacted)
+      description: |
+        Auto-filled from the in-app dialog. The text was passed through the
+        on-device redactor before it left your device. Anything still
+        identifying you that you do NOT want public must be edited out
+        manually before submission.
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Captured context
+      description: |
+        Auto-filled from the in-app dialog. Operational metadata only —
+        app version, route, online state, user agent, incident id.
+      render: markdown
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Submission confirmation
+      options:
+        - label: I have reviewed the pre-filled description and removed any remaining personal data I do not want public.
+          required: true
+        - label: I confirm this is NOT a security vulnerability report. (Please use the Security Policy for that.)
+          required: true
