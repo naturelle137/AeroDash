@@ -51,10 +51,13 @@ The disclaimer wording's source of record is
 - The acknowledgement modal is rendered via a body-level `Teleport` outside the
   inert shell. It is one-way: it carries no cancel control, does not respond to
   `Escape`, and is not dismissed by a backdrop interaction. Keyboard focus is
-  trapped on the single accept control, with a global capture-phase listener
-  that re-traps focus if focus ever leaves the dialog subtree.
+  confined to the dialog — `Tab` cycles among the dialog's own controls (the
+  disclaimer / licence links and the accept control), and a global capture-phase
+  listener returns focus to the dialog whenever focus leaves its subtree.
 - The sole transition out of the blocked state is the pilot activating the
   accept control.
+- While the build is below the minimum safe version (REQ-SYS-006 / H-019), the
+  version-blocked screen is shown and the acknowledgement gate stands down.
 
 ## 4. Consent Content
 
