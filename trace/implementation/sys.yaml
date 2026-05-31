@@ -267,12 +267,13 @@ SYS (auto)
       - REQ-SYS-005
 
   IMP-SYS-STORE-021
-    title: Data-rights service — erase / export of all personal data (REQ-SYS-014/015)
+    title: Data-rights service — erase / export of all personal data (REQ-SYS-014/015) including the aerodash-incidents queue (REQ-SYS-016)
     files:
       - frontend/src/modules/aircraft/services/data-rights.service.ts
     req:
       - REQ-SYS-014
       - REQ-SYS-015
+      - REQ-SYS-016
     des:
       - DES-ARCH-011
       - DES-ARCH-012
@@ -411,40 +412,6 @@ SYS Incident reporting MVP (#281, PR-006)
     title: useIncidentReportStore — Pinia store wiring the P1 redactor + URL builder + IndexedDB queue; never auto-submits, always pilot-driven (REQ-SYS-016/017/018)
     files:
       - frontend/src/stores/incident-report.store.ts
-    req:
-      - REQ-SYS-016
-      - REQ-SYS-017
-      - REQ-SYS-018
-
-  IMP-UI-SHARED-008
-    title: ReportProblemDialog.vue — in-app Report-a-problem dialog with redaction preview and offline save (REQ-SYS-016/017)
-    files:
-      - frontend/src/shared/components/ReportProblemDialog.vue
-    req:
-      - REQ-SYS-016
-      - REQ-SYS-017
-
-  IMP-UI-SHARED-009
-    title: Sidebar footer Report-a-problem button — entry point that opens the in-app incident report dialog (REQ-SYS-016/018)
-    files:
-      - frontend/src/App.vue
-    req:
-      - REQ-SYS-016
-      - REQ-SYS-018
-
-  IMP-UI-ROUTE-005
-    title: /incidents route — exposes IncidentReportsView for queue review and GitHub handoff (REQ-SYS-016/017/018)
-    files:
-      - frontend/src/router/index.ts
-    req:
-      - REQ-SYS-016
-      - REQ-SYS-017
-      - REQ-SYS-018
-
-  IMP-UI-VIEW-005
-    title: IncidentReportsView.vue — lists queued reports, exposes per-report GitHub deep link and local delete (REQ-SYS-016/017/018)
-    files:
-      - frontend/src/views/IncidentReportsView.vue
     req:
       - REQ-SYS-016
       - REQ-SYS-017

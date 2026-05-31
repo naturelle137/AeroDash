@@ -12,7 +12,7 @@ the regression suite so the defect cannot recur.
 
 | Step | Surface | Storage |
 | :--- | :------ | :------ |
-| Pilot taps **Report a problem** in the sidebar footer | `ReportProblemDialog.vue` | – |
+| Pilot taps **Report a problem** in the sidebar footer (desktop) or the **Incidents** entry in the mobile bottom-nav | `ReportProblemDialog.vue` | – |
 | Pilot picks a kind, writes a short summary, types a description | – | – |
 | Pilot reviews the redacted preview | `redactIncidentText` (P1) | – |
 | Pilot taps **Save report** | `useIncidentReportStore.capture` | IndexedDB `aerodash-incidents` |
@@ -28,7 +28,7 @@ containing:
 - `id` (UUID v4)
 - `createdAt` (ISO-8601)
 - `kind` (CALCULATION / DATA / UI / CRASH / OTHER)
-- `summary` (≤ 120 chars)
+- `summary` (≤ 120 chars — pilot free text, post-redaction)
 - `redactedDescription` (≤ 4 000 chars — pilot free text, post-redaction)
 - `context` (app version, route name, path tail, user-agent slice, online flag)
 
@@ -121,9 +121,14 @@ protocol applies:
 Captured reports live alongside the rest of the local data. They are:
 
 - wiped when the pilot uses the **Delete all data** control on the
-  Privacy view (REQ-SYS-014),
+  Privacy view (REQ-SYS-014). `data-rights.service.wipeAllLocalData`
+  explicitly clears `aerodash-incidents` and reports the deleted count
+  separately from the fleet count, so a partial failure surfaces a
+  CRITICAL banner rather than a false success notice,
 - excluded from the GDPR bulk export (REQ-SYS-015) — they are
-  privacy-redacted operational diagnostics, not personal data,
+  privacy-redacted operational diagnostics, not personal data. The
+  Privacy view shows the queued-incident count after every export so the
+  pilot knows they remain on the device,
 - droppable one-by-one from the `/incidents` view.
 
 ## 7. Hazard linkage

@@ -18,6 +18,29 @@ import {
 import { create, findAll, fleetRepository } from '../services/fleet.repository'
 import { CURRENT_PROFILE_SCHEMA_VERSION } from '@/core/logic/profile-migrations'
 import type { AircraftProfile } from '@/core/adapters/aircraft.schema'
+import {
+  enqueueReport as enqueueIncident,
+  listReports as listIncidents,
+} from '@/shared/utils/incident-queue'
+import type { IncidentReport } from '@/core/domain/incident-report.schema'
+
+function buildIncident(overrides: Partial<IncidentReport> = {}): IncidentReport {
+  return {
+    id: overrides.id ?? '00000000-0000-4000-a000-0000000000e1',
+    createdAt: overrides.createdAt ?? '2026-05-31T08:15:00.000Z',
+    kind: overrides.kind ?? 'OTHER',
+    summary: overrides.summary ?? 'queued report',
+    redactedDescription: overrides.redactedDescription ?? 'A redacted body.',
+    context: overrides.context ?? {
+      appVersion: '0.4.0-alpha',
+      routeName: null,
+      pathTail: null,
+      userAgent: null,
+      online: null,
+    },
+    schemaVersion: 1,
+  }
+}
 
 beforeEach(() => {
   Object.defineProperty(globalThis, 'indexedDB', {
@@ -253,8 +276,63 @@ describe('wipeAllLocalData — Repository-Wide Wipe (REQ-SYS-014)', () => {
     expect(report.localStorageKeysCleared).toEqual([])
     expect(report.sessionStorageKeysCleared).toEqual([])
     expect(report.indexedDbCleared).toBe(true)
+    expect(report.incidentDbCleared).toBe(true)
     expect(report.complete).toBe(true)
     expect(report.failures).toEqual([])
+  })
+
+  // B2 — REQ-SYS-014: the wipe MUST also clear the aerodash-incidents IDB
+  // database; previously the prefix-sweep only touched aerodash-fleet + Web
+  // Storage, leaving redacted pilot prose on disk after a "complete erasure".
+  it('clears the aerodash-incidents IndexedDB and reports the deleted incident count', async () => {
+    await enqueueIncident(
+      buildIncident({ id: '00000000-0000-4000-a000-0000000000e1', summary: 'first' }),
+    )
+    await enqueueIncident(
+      buildIncident({ id: '00000000-0000-4000-a000-0000000000e2', summary: 'second' }),
+    )
+
+    const report = await wipeAllLocalData()
+
+    expect(report.incidentDbCleared).toBe(true)
+    expect(report.incidentReportsDeleted).toBe(2)
+    expect(report.complete).toBe(true)
+    expect(await listIncidents()).toEqual([])
+  })
+
+  it('reports an incidents-clear failure as its own failure entry (not masked by fleet success)', async () => {
+    await enqueueIncident(buildIncident())
+    // Force the next openDB() call for `aerodash-incidents` to fail. We
+    // build a minimal IDBOpenDBRequest stand-in whose `onerror` callback,
+    // when fired, exposes `error.message` through the same `event.target`
+    // shape the production code reads.
+    const origOpen = indexedDB.open.bind(indexedDB)
+    vi.spyOn(indexedDB, 'open').mockImplementation((name: string, version?: number) => {
+      if (name !== 'aerodash-incidents') return origOpen(name, version)
+      // Minimal IDBOpenDBRequest stand-in: we only need the production code
+      // to be able to read `event.target.error?.message` from the onerror
+      // callback. The cast through `unknown` keeps strict TS happy without
+      // pulling in the full DOMException implementation.
+      const req = {
+        result: null,
+        error: { message: 'forced-incident-open-failure' },
+        onsuccess: null,
+        onerror: null,
+        onupgradeneeded: null,
+      } as unknown as IDBOpenDBRequest
+      queueMicrotask(() => {
+        req.onerror?.({ target: req } as unknown as Event)
+      })
+      return req
+    })
+
+    const report = await wipeAllLocalData()
+
+    expect(report.incidentDbCleared).toBe(false)
+    expect(report.complete).toBe(false)
+    const incidentFailure = report.failures.find((f) => f.store === 'incidents')
+    expect(incidentFailure).toBeDefined()
+    expect(incidentFailure?.detail).toContain('forced-incident-open-failure')
   })
 })
 
@@ -284,10 +362,33 @@ describe('exportAllProfiles — Bulk JSON Export (REQ-SYS-015)', () => {
   })
 
   it('returns an empty envelope when no profiles exist', async () => {
-    const { envelope, omitted } = await exportAllProfiles(new Date('2026-05-27T00:00:00Z'))
+    const { envelope, omitted, incidentReportsOmitted } = await exportAllProfiles(
+      new Date('2026-05-27T00:00:00Z'),
+    )
     expect(envelope.profileCount).toBe(0)
     expect(envelope.profiles).toEqual([])
     expect(omitted).toEqual([])
+    expect(incidentReportsOmitted).toBe(0)
+  })
+
+  // B2: queued incidents are deliberately NOT included in the bulk export
+  // (separate privacy perimeter, already redacted, opt-in submission). The
+  // count must still be surfaced so the pilot sees they exist on the device.
+  it('surfaces the count of queued incident reports as `incidentReportsOmitted` without including them', async () => {
+    await create(buildProfile())
+    await enqueueIncident(
+      buildIncident({ id: '00000000-0000-4000-a000-0000000000e3', summary: 'first queued' }),
+    )
+    await enqueueIncident(
+      buildIncident({ id: '00000000-0000-4000-a000-0000000000e4', summary: 'second queued' }),
+    )
+
+    const { envelope, incidentReportsOmitted } = await exportAllProfiles()
+
+    expect(incidentReportsOmitted).toBe(2)
+    // envelope shape has no incident fields — keep the two perimeters separate
+    expect(envelope).not.toHaveProperty('incidents')
+    expect(envelope.profileCount).toBe(1)
   })
 
   it('omits unreadable profiles from the envelope but reports them so the copy is not silently incomplete', async () => {

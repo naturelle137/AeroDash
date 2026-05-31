@@ -41,7 +41,12 @@ import {
 
 // @IMP-SYS-STORE-022@ (FROM: @REQ-SYS-016@, @REQ-SYS-017@, @REQ-SYS-018@)
 
-const APP_REPO_URL = 'https://github.com/naturelle137/AeroDash'
+// Allow a fork or release-channel build to retarget the GitHub deep link via
+// `VITE_INCIDENT_REPO_URL` (m6) — a fork that shipped without this override
+// would otherwise file pilot incidents against this upstream repo.
+const APP_REPO_URL =
+  (import.meta.env.VITE_INCIDENT_REPO_URL as string | undefined) ??
+  'https://github.com/naturelle137/AeroDash'
 
 export type IncidentLoadState = 'IDLE' | 'LOADING' | 'READY' | 'ERROR'
 
@@ -96,17 +101,37 @@ export const useIncidentReportStore = defineStore('incidentReport', () => {
   }
 
   /**
+   * Combined preview of the redactor's output for both the summary and the
+   * description (B1). The summary leaks into the public GitHub issue title
+   * + body, so it must go through the same redaction filter as the
+   * description; the pilot needs to see both before submission.
+   */
+  function previewDraft(draft: { summary: string; description: string }): {
+    summary: { redacted: string; counts: RedactionCounts; total: number }
+    description: { redacted: string; counts: RedactionCounts; total: number }
+    total: number
+  } {
+    const summary = previewRedaction(draft.summary)
+    const description = previewRedaction(draft.description)
+    return { summary, description, total: summary.total + description.total }
+  }
+
+  /**
    * Build (without persisting) the canonical report shape that would be
    * stored for the given draft, given current build/route metadata. The
    * caller may pass an explicit `routeName` (from `useRoute().name`) so the
    * store stays decoupled from `vue-router`.
+   *
+   * The pilot-supplied `summary` is redacted alongside `description` so the
+   * public GitHub issue title cannot leak PII (B1, REQ-SYS-017).
    */
   function buildReport(
     draft: IncidentDraft,
     overrides: { routeName?: string | null; now?: Date; id?: string } = {},
   ): IncidentReport {
     const parsedDraft = IncidentDraftSchema.parse(draft)
-    const { redacted } = redactIncidentText(parsedDraft.description)
+    const { redacted: redactedSummary } = redactIncidentText(parsedDraft.summary)
+    const { redacted: redactedDescription } = redactIncidentText(parsedDraft.description)
     const context: IncidentContext = {
       ...snapshotContext(),
       routeName: overrides.routeName ?? null,
@@ -115,8 +140,8 @@ export const useIncidentReportStore = defineStore('incidentReport', () => {
       id: overrides.id ?? uuidv4(),
       createdAt: (overrides.now ?? new Date()).toISOString(),
       kind: parsedDraft.kind,
-      summary: parsedDraft.summary,
-      redactedDescription: redacted,
+      summary: redactedSummary,
+      redactedDescription,
       context,
       schemaVersion: 1,
     }
@@ -129,20 +154,42 @@ export const useIncidentReportStore = defineStore('incidentReport', () => {
     overrides: { routeName?: string | null } = {},
   ): Promise<IncidentReport> {
     const report = buildReport(draft, overrides)
-    await enqueueReport(report)
+    try {
+      await enqueueReport(report)
+      lastError.value = null
+    } catch (err) {
+      lastError.value = err instanceof Error ? err.message : 'Failed to queue incident report.'
+      throw err
+    }
     await loadAll()
     return report
   }
 
+  /** Delete one report. Surfaces an IDB failure via {@link lastError} (M8). */
   async function remove(id: string): Promise<void> {
-    await removeReport(id)
+    try {
+      await removeReport(id)
+      lastError.value = null
+    } catch (err) {
+      lastError.value =
+        err instanceof Error ? err.message : 'Failed to delete the incident report.'
+      throw err
+    }
     await loadAll()
   }
 
+  /** Wipe every queued report. Surfaces an IDB failure via {@link lastError} (M8). */
   async function clearAll(): Promise<number> {
-    const removed = await clearAllReports()
-    await loadAll()
-    return removed
+    try {
+      const removed = await clearAllReports()
+      lastError.value = null
+      await loadAll()
+      return removed
+    } catch (err) {
+      lastError.value =
+        err instanceof Error ? err.message : 'Failed to clear incident reports.'
+      throw err
+    }
   }
 
   function buildGithubUrl(report: IncidentReport): string {
@@ -157,6 +204,7 @@ export const useIncidentReportStore = defineStore('incidentReport', () => {
     isEmpty,
     loadAll,
     previewRedaction,
+    previewDraft,
     buildReport,
     capture,
     remove,

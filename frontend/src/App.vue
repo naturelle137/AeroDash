@@ -3,12 +3,11 @@
 // @IMP-SYS-SHARED-005@ (FROM: @REQ-SYS-006@)
 // @IMP-SYS-SHARED-009@ (FROM: @REQ-SYS-006@, @H-019@)
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
-import { RouterView, RouterLink, useRoute } from 'vue-router'
+import { RouterView, RouterLink, useRoute, useRouter } from 'vue-router'
 import { useTheme } from '@/shared/composables/useTheme'
 import AppLogo from '@/shared/components/AppLogo.vue'
 import AppVersion from '@/shared/components/AppVersion.vue'
 import ReportProblemDialog from '@/shared/components/ReportProblemDialog.vue'
-import { useRouter } from 'vue-router'
 import { usePwaUpdateStore } from '@/stores/pwa-update.store'
 import { useAppVersionStore, attachConnectivityRefresh } from '@/stores/app-version.store'
 
@@ -108,13 +107,18 @@ const navItems: NavItem[] = [
   { id: 'airport',     label: 'Airport DB',  path: '/airport',     icon: 'ap',   soon: true },
   // @IMP-UI-SHARED-007@ (FROM: @REQ-SYS-014@, @REQ-SYS-015@)
   { id: 'privacy',     label: 'Privacy',     path: '/privacy',     icon: 'privacy' },
+  // @IMP-UI-SHARED-009@ (FROM: @REQ-SYS-016@, @REQ-SYS-018@) — surfaces the
+  // queued-incident review screen so a phone/iPad pilot can reach it without
+  // the desktop sidebar (which is `display:none` on < 768px viewports).
+  { id: 'incidents',   label: 'Incidents',   path: '/incidents',   icon: 'incidents' },
 ]
 
 // Mobile bottom nav (phone-width < 768px, where the sidebar is hidden): the
-// primary task destinations plus Privacy, so the GDPR data-rights surface
-// (REQ-SYS-014/015) stays reachable on phones. The icon-rail sidebar already
-// exposes every destination, including Privacy, at >= 768px.
-const BOTTOM_NAV_IDS = ['home', 'flight-prep', 'fleet', 'weather', 'privacy'] as const
+// primary task destinations plus Privacy + Incidents, so the GDPR data-rights
+// surface (REQ-SYS-014/015) AND the report-a-problem follow-up
+// (REQ-SYS-016/018) both stay reachable on phones. The icon-rail sidebar
+// already exposes every destination at >= 768px.
+const BOTTOM_NAV_IDS = ['home', 'flight-prep', 'fleet', 'incidents', 'privacy'] as const
 const bottomNavItems = BOTTOM_NAV_IDS.map((id) => navItems.find((item) => item.id === id)).filter(
   (item): item is NavItem => item !== undefined,
 )
@@ -237,6 +241,12 @@ const themeLabel = computed(() =>
               <svg v-else-if="item.icon === 'privacy'" width="20" height="20" viewBox="0 0 20 20" fill="none">
                 <path d="M10 2l6 2.5v5c0 4-3 7-6 8-3-1-6-4-6-8v-5L10 2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
                 <path d="M7.5 10l2 2 3-3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+              <!-- Incidents (caution triangle) -->
+              <svg v-else-if="item.icon === 'incidents'" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <path d="M10 3l7.5 13H2.5L10 3z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+                <path d="M10 8v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                <circle cx="10" cy="14" r="0.9" fill="currentColor" />
               </svg>
             </span>
 
@@ -371,6 +381,11 @@ const themeLabel = computed(() =>
               <svg v-else-if="item.icon === 'privacy'" width="22" height="22" viewBox="0 0 20 20" fill="none">
                 <path d="M10 2l6 2.5v5c0 4-3 7-6 8-3-1-6-4-6-8v-5L10 2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
                 <path d="M7.5 10l2 2 3-3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+              <svg v-else-if="item.icon === 'incidents'" width="22" height="22" viewBox="0 0 20 20" fill="none">
+                <path d="M10 3l7.5 13H2.5L10 3z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+                <path d="M10 8v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                <circle cx="10" cy="14" r="0.9" fill="currentColor" />
               </svg>
             </span>
             <span class="bottom-nav__label">{{ item.label }}</span>

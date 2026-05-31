@@ -124,8 +124,18 @@ function onlineLabel(value: boolean | null): string {
   return value ? 'yes' : 'no'
 }
 
+// onRemove / onClearAll catch IDB failures (quota, private-mode, locked DB)
+// so the pilot gets visible feedback rather than a silent unhandled-rejection
+// (M8). The store already updates `lastError` on the write paths — re-
+// throwing here would surface as an unhandled rejection in tests/devtools.
 async function onRemove(id: string): Promise<void> {
-  await store.remove(id)
+  try {
+    await store.remove(id)
+  } catch {
+    // store.lastError carries the message; the template's error banner
+    // surfaces it. Nothing else to do — the row stays visible until the
+    // next successful loadAll().
+  }
 }
 
 async function onClearAll(): Promise<void> {
@@ -135,7 +145,11 @@ async function onClearAll(): Promise<void> {
     )
     if (!confirmed) return
   }
-  await store.clearAll()
+  try {
+    await store.clearAll()
+  } catch {
+    // Same as onRemove — lastError is already populated; the banner shows it.
+  }
 }
 
 function onSaved(): void {

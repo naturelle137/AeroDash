@@ -109,33 +109,55 @@ export function buildGithubIssueUrl(input: GithubIssueUrlInput): string {
   const title = `${TITLE_PREFIX} ${input.report.summary}`
   const body = renderIncidentBody(input.report)
   const context = renderIncidentContext(input.report)
+  const overflowMarker =
+    '\n\n…[truncated; open the saved report on the device for the full text]'
 
-  let query = buildQuery([
-    ['template', TEMPLATE_FILE],
-    ['title', title],
-    [TEMPLATE_FIELD_KIND, INCIDENT_KIND_LABELS[input.report.kind]],
-    [TEMPLATE_FIELD_DESCRIPTION, body],
-    [TEMPLATE_FIELD_CONTEXT, context],
-  ])
-
-  let url = `${base}?${query}`
-
-  if (url.length > GITHUB_URL_MAX_LEN) {
-    const overflowMarker = '\n\n…[truncated; open the saved report on the device for the full text]'
-    // Trim the description body by exactly the overflow + marker length.
-    const overflow = url.length - GITHUB_URL_MAX_LEN
-    // Encoded length grows roughly 3× with URL-encoding, so trim more
-    // aggressively to stay under the cap in one pass.
-    const trimChars = Math.min(body.length, overflow * 3 + overflowMarker.length + 16)
-    const trimmedBody = body.slice(0, Math.max(0, body.length - trimChars)) + overflowMarker
-    query = buildQuery([
+  const build = (b: string, c: string): string => {
+    const query = buildQuery([
       ['template', TEMPLATE_FILE],
       ['title', title],
       [TEMPLATE_FIELD_KIND, INCIDENT_KIND_LABELS[input.report.kind]],
-      [TEMPLATE_FIELD_DESCRIPTION, trimmedBody],
-      [TEMPLATE_FIELD_CONTEXT, context],
+      [TEMPLATE_FIELD_DESCRIPTION, b],
+      [TEMPLATE_FIELD_CONTEXT, c],
     ])
-    url = `${base}?${query}`
+    return `${base}?${query}`
   }
-  return url
+
+  // First pass: full body + full context. Returns immediately when fitted.
+  let url = build(body, context)
+  if (url.length <= GITHUB_URL_MAX_LEN) return url
+
+  // Trim the description body first. Loop because percent-encoding inflates
+  // the byte count non-linearly — a single-pass trim cannot guarantee the
+  // cap (M2). Cap iterations defensively so a pathological input cannot
+  // spin forever.
+  let trimmedBody = body
+  for (let i = 0; i < 20 && url.length > GITHUB_URL_MAX_LEN && trimmedBody.length > 0; i += 1) {
+    const overflow = url.length - GITHUB_URL_MAX_LEN
+    // Grow the trim chunk so each pass cuts roughly one URL-encoded unit per
+    // raw char (3× for ASCII percent-encoded, plus a small fixed margin).
+    const trimChars = Math.max(64, overflow * 3 + overflowMarker.length + 16)
+    const sliceLen = Math.max(0, trimmedBody.replace(overflowMarker, '').length - trimChars)
+    trimmedBody =
+      sliceLen === 0
+        ? overflowMarker.trimStart()
+        : body.slice(0, sliceLen) + overflowMarker
+    url = build(trimmedBody, context)
+  }
+  if (url.length <= GITHUB_URL_MAX_LEN) return url
+
+  // Body is fully gone (or replaced by the marker) and we still overflow —
+  // the context itself is oversize. Drop everything except a one-line stub
+  // pointing the triage reader back to the on-device report.
+  const stubContext = `- **Incident ID:** ${input.report.id}`
+  url = build(overflowMarker.trimStart(), stubContext)
+  if (url.length <= GITHUB_URL_MAX_LEN) return url
+
+  // Last-resort fallback: bare title-only URL so the deep link still opens
+  // a pre-filled issue rather than truncating mid-percent-escape.
+  const titleOnly = buildQuery([
+    ['template', TEMPLATE_FILE],
+    ['title', title],
+  ])
+  return `${base}?${titleOnly}`
 }

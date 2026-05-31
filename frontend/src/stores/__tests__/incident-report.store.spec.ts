@@ -90,3 +90,35 @@ describe('useIncidentReportStore.buildGithubUrl', () => {
     expect(decodeURIComponent(url)).toContain('App froze or failed to load')
   })
 })
+
+// B1 — REQ-SYS-017: the pilot-supplied summary becomes the public GitHub
+// issue title, so it must pass through the same redactor as the description.
+// Storing the raw summary would leak PII verbatim into the public title.
+describe('useIncidentReportStore — summary redaction (B1)', () => {
+  it('redacts the summary before persistence and before URL handoff', () => {
+    const store = useIncidentReportStore()
+    const report = store.buildReport({
+      kind: 'OTHER',
+      summary: 'Call +49 151 1234 5678 re D-EBPN',
+      description: 'A longer description, definitely above the minimum length.',
+    })
+    expect(report.summary).not.toContain('+49 151 1234 5678')
+    expect(report.summary).not.toContain('D-EBPN')
+    expect(report.summary).toContain('[REDACTED')
+    const url = store.buildGithubUrl(report)
+    expect(decodeURIComponent(url)).not.toContain('+49 151 1234 5678')
+    expect(decodeURIComponent(url)).not.toContain('D-EBPN')
+  })
+
+  it('previewDraft surfaces redactions for BOTH summary and description', () => {
+    const store = useIncidentReportStore()
+    const preview = store.previewDraft({
+      summary: 'Call pilot@example.com',
+      description: 'See https://example.com for context.',
+    })
+    expect(preview.summary.redacted).toContain('[REDACTED-EMAIL]')
+    expect(preview.description.redacted).toContain('[REDACTED-URL]')
+    expect(preview.total).toBe(preview.summary.total + preview.description.total)
+    expect(preview.total).toBeGreaterThanOrEqual(2)
+  })
+})

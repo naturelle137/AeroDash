@@ -138,3 +138,37 @@ UI (auto)
     des:
       - DES-ARCH-011
       - DES-ARCH-012
+
+  IMP-UI-SHARED-008
+    title: ReportProblemDialog.vue — in-app Report-a-problem dialog with redaction preview and offline save (REQ-SYS-016/017)
+    files:
+      - frontend/src/shared/components/ReportProblemDialog.vue
+    req:
+      - REQ-SYS-016
+      - REQ-SYS-017
+
+  IMP-UI-SHARED-009
+    title: Sidebar footer Report-a-problem button + mobile bottom-nav Incidents entry — pilot-facing entry points for the in-app incident report dialog and review queue (REQ-SYS-016/018)
+    files:
+      - frontend/src/App.vue
+    req:
+      - REQ-SYS-016
+      - REQ-SYS-018
+
+  IMP-UI-ROUTE-005
+    title: /incidents route — exposes IncidentReportsView for queue review and GitHub handoff (REQ-SYS-016/017/018)
+    files:
+      - frontend/src/router/index.ts
+    req:
+      - REQ-SYS-016
+      - REQ-SYS-017
+      - REQ-SYS-018
+
+  IMP-UI-VIEW-005
+    title: IncidentReportsView.vue — lists queued reports, exposes per-report GitHub deep link and local delete (REQ-SYS-016/017/018)
+    files:
+      - frontend/src/views/IncidentReportsView.vue
+    req:
+      - REQ-SYS-016
+      - REQ-SYS-017
+      - REQ-SYS-018

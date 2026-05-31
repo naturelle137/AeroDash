@@ -169,7 +169,7 @@ This document defines the system behavior using the **EARS** (Easy Approach to R
 
 ### REQ-SYS-017: Incident-Report Privacy Redaction
 
-**Requirement:** Before an incident report is persisted or surfaced for submission, the system shall redact email addresses, phone numbers, geographic coordinates, aircraft registrations, and URLs from the pilot-supplied free-text description, and shall present the redacted text to the pilot for review before any external action.
+**Requirement:** Before an incident report is persisted or surfaced for submission, the system shall redact email addresses, phone numbers, geographic coordinates, aircraft registrations, and URLs from every pilot-supplied free-text field (summary and description), and shall present the redacted text to the pilot for review before any external action.
 **Rationale:** The destination of a submitted report (GitHub) is outside the GDPR data perimeter the rest of AeroDash maintains; deterministic, reviewable redaction is the only acceptable handoff (PR-006, DP-004 / CS-012 spirit).
 **Priority:** P2
 **Status:** Implemented

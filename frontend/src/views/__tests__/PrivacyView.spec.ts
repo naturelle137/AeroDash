@@ -64,7 +64,9 @@ vi.mock('@/stores/session-persistence.store', () => {
 function defaultWipeReport(): WipeReport {
   return {
     profilesDeleted: 0,
+    incidentReportsDeleted: 0,
     indexedDbCleared: true,
+    incidentDbCleared: true,
     localStorageKeysCleared: [],
     sessionStorageKeysCleared: [],
     failures: [],
@@ -82,6 +84,7 @@ function defaultExportResult(): BulkExportResult {
       profiles: [],
     },
     omitted: [],
+    incidentReportsOmitted: 0,
   }
 }
 
@@ -125,6 +128,7 @@ describe('PrivacyView — bulk export (REQ-SYS-015)', () => {
         profiles: [],
       },
       omitted: [],
+      incidentReportsOmitted: 0,
     })
 
     const wrapper = mountView()
@@ -162,6 +166,7 @@ describe('PrivacyView — bulk export (REQ-SYS-015)', () => {
           detail: 'newer build',
         },
       ],
+      incidentReportsOmitted: 0,
     })
 
     const wrapper = mountView()
@@ -257,7 +262,9 @@ describe('PrivacyView — delete-all (REQ-SYS-014)', () => {
   it('reports an incomplete erasure as CRITICAL and never shows the success notice (M2)', async () => {
     wipeMock.mockResolvedValueOnce({
       profilesDeleted: 1,
+      incidentReportsDeleted: 0,
       indexedDbCleared: true,
+      incidentDbCleared: true,
       localStorageKeysCleared: ['aerodash:session:payload'],
       sessionStorageKeysCleared: [],
       failures: [{ store: 'localStorage', key: 'aerodash-theme', detail: 'removeItem failed' }],
@@ -392,7 +399,9 @@ describe('PrivacyView — delete-all (REQ-SYS-014)', () => {
   it('reports an unknown profile count without claiming a false 0 (m1)', async () => {
     wipeMock.mockResolvedValueOnce({
       profilesDeleted: null,
+      incidentReportsDeleted: null,
       indexedDbCleared: true,
+      incidentDbCleared: true,
       localStorageKeysCleared: [],
       sessionStorageKeysCleared: [],
       failures: [],

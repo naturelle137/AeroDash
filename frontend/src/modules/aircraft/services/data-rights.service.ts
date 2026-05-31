@@ -15,9 +15,13 @@
  */
 
 import type { AircraftProfile } from '@/core/adapters/aircraft.schema'
+import {
+  clearAllReports as clearAllIncidentReports,
+  listReports as listIncidentReports,
+} from '@/shared/utils/incident-queue'
 import { fleetRepository, DB_NAME, type MigrationDiagnostic } from './fleet.repository'
 
-// @IMP-SYS-STORE-021@ (FROM: @REQ-SYS-014@, @REQ-SYS-015@, @DES-ARCH-011@, @DES-ARCH-012@)
+// @IMP-SYS-STORE-021@ (FROM: @REQ-SYS-014@, @REQ-SYS-015@, @REQ-SYS-016@, @DES-ARCH-011@, @DES-ARCH-012@)
 
 // ─── Storage keys cleared by Delete-All-Data ──────────────────────────────
 // These three live keys cover all known AeroDash persistence at v0.4.0-alpha:
@@ -42,8 +46,12 @@ export const INDEXED_DB_FLEET_NAME = DB_NAME
 
 /** A storage location that could not be cleared during a Delete-All-Data run. */
 export interface WipeFailure {
-  /** Which storage facility the failure occurred in. */
-  readonly store: 'indexeddb' | 'localStorage' | 'sessionStorage'
+  /**
+   * Which storage facility the failure occurred in. `incidents` covers the
+   * separate `aerodash-incidents` IndexedDB database that holds redacted
+   * pilot incident reports (REQ-SYS-016).
+   */
+  readonly store: 'indexeddb' | 'incidents' | 'localStorage' | 'sessionStorage'
   /**
    * The specific key that could not be removed, or `null` for a whole-store
    * failure (e.g. the IndexedDB `clear()` transaction rejecting).
@@ -61,12 +69,21 @@ export interface WipeReport {
    * `0` would be a misleading erasure receipt.
    */
   readonly profilesDeleted: number | null
+  /**
+   * Number of queued incident reports removed (`aerodash-incidents`,
+   * REQ-SYS-016), or `null` when the wipe failed before the count could be
+   * established. Reported separately so the pilot sees an explicit receipt
+   * even when the fleet store is empty.
+   */
+  readonly incidentReportsDeleted: number | null
   /** localStorage keys removed (sorted, including the session payload). */
   readonly localStorageKeysCleared: readonly string[]
   /** sessionStorage keys removed (sorted, including the cold-start marker). */
   readonly sessionStorageKeysCleared: readonly string[]
   /** `true` once the IndexedDB object store has been emptied. */
   readonly indexedDbCleared: boolean
+  /** `true` once the `aerodash-incidents` IndexedDB store has been emptied. */
+  readonly incidentDbCleared: boolean
   /**
    * Storage locations that could **not** be cleared. Empty on a complete wipe.
    * REQ-SYS-014 forbids signalling success while any of these remain, so the
@@ -94,6 +111,15 @@ export interface BulkExportResult {
    * are also destroyed by a subsequent Delete-All-Data wipe.
    */
   readonly omitted: readonly MigrationDiagnostic[]
+  /**
+   * Count of queued incident reports deliberately NOT included in this
+   * envelope (B2 / REQ-SYS-015). Incident reports are scoped to local-
+   * device triage and have a separate, already-redacted handoff path
+   * (open-on-GitHub). The Privacy UI surfaces this count so the pilot
+   * knows they exist on the device and would be erased by a subsequent
+   * Delete-All-Data.
+   */
+  readonly incidentReportsOmitted: number
 }
 
 /** Top-level envelope for a bulk export-all JSON file. */
@@ -163,6 +189,24 @@ export async function wipeAllLocalData(): Promise<WipeReport> {
     })
   }
 
+  // Wipe the `aerodash-incidents` IndexedDB database (B2). Separate from the
+  // fleet DB so a failure here is reported as its own line in `failures` and
+  // its own `incidentDbCleared` flag — never masked by a successful fleet
+  // wipe. REQ-SYS-014 requires erasure of ALL local data; queued incident
+  // reports are local data even though their submission target is github.com.
+  let incidentDbCleared = false
+  let incidentReportsDeleted: number | null = null
+  try {
+    incidentReportsDeleted = await clearAllIncidentReports()
+    incidentDbCleared = true
+  } catch (err) {
+    failures.push({
+      store: 'incidents',
+      key: null,
+      detail: err instanceof Error ? err.message : 'Incident IndexedDB clear failed',
+    })
+  }
+
   const local = clearPrefixedKeys('local')
   const session = clearPrefixedKeys('session')
   for (const key of local.failedKeys) {
@@ -174,7 +218,9 @@ export async function wipeAllLocalData(): Promise<WipeReport> {
 
   return {
     profilesDeleted,
+    incidentReportsDeleted,
     indexedDbCleared,
+    incidentDbCleared,
     localStorageKeysCleared: local.cleared,
     sessionStorageKeysCleared: session.cleared,
     failures,
@@ -264,6 +310,18 @@ export async function exportAllProfiles(now: Date = new Date()): Promise<BulkExp
   // Sort by registration so the file is diff-friendly across re-exports. Pin
   // the locale so the order is stable regardless of the host machine's locale.
   const sorted = [...profiles].sort((a, b) => a.registration.localeCompare(b.registration, 'en'))
+  // Surface (but do NOT include) queued incident reports. They live in a
+  // separate database, are already redacted, and are submitted on demand
+  // via the open-on-GitHub deep link — round-tripping them through this
+  // envelope would mix two privacy perimeters. Reporting the count lets
+  // the Privacy UI tell the pilot they exist on the device (B2 / m note).
+  let incidentReportsOmitted = 0
+  try {
+    incidentReportsOmitted = (await listIncidentReports()).length
+  } catch {
+    // Best-effort: a missing/locked incidents DB must never block the
+    // fleet export. The pilot can still see queued reports in /incidents.
+  }
   return {
     envelope: {
       exportSchemaVersion: 1,
@@ -272,6 +330,7 @@ export async function exportAllProfiles(now: Date = new Date()): Promise<BulkExp
       profiles: sorted,
     },
     omitted: diagnostics,
+    incidentReportsOmitted,
   }
 }
 

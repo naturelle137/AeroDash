@@ -8,18 +8,20 @@
       @click.self="onCancel"
     >
       <div
+        ref="dialogEl"
         class="report-dialog"
         role="dialog"
         aria-modal="true"
+        tabindex="-1"
         :aria-labelledby="titleId"
         @keydown.esc.prevent="onCancel"
       >
         <h2 :id="titleId" class="report-dialog__title">Report a problem</h2>
         <p class="report-dialog__intro">
           Your report is stored on this device. Nothing leaves AeroDash unless
-          you press <strong>Open on GitHub</strong> below — the description is
-          automatically redacted first, and you can review the redacted text
-          before submitting.
+          you press <strong>Open on GitHub</strong> below — both the summary
+          and the description are automatically redacted first, and you can
+          review the redacted text before submitting.
         </p>
 
         <form class="report-dialog__form" @submit.prevent="onSubmit">
@@ -40,6 +42,7 @@
               <span class="report-dialog__hint">({{ form.summary.length }}/{{ SUMMARY_MAX_LEN }})</span>
             </span>
             <input
+              ref="summaryEl"
               v-model="form.summary"
               class="report-dialog__input"
               type="text"
@@ -66,14 +69,35 @@
             ></textarea>
           </label>
 
-          <details v-if="form.description.length > 0" class="report-dialog__preview" open>
+          <details
+            v-if="form.summary.length > 0 || form.description.length > 0"
+            class="report-dialog__preview"
+            open
+          >
             <summary>
               Preview of redacted text
               <span v-if="preview.total > 0" class="report-dialog__badge">
                 {{ preview.total }} item{{ preview.total === 1 ? '' : 's' }} redacted
               </span>
             </summary>
-            <pre class="report-dialog__preview-text" data-testid="redaction-preview">{{ preview.redacted }}</pre>
+            <p
+              v-if="form.summary.length > 0"
+              class="report-dialog__preview-label"
+            >Summary (sent as the issue title)</p>
+            <pre
+              v-if="form.summary.length > 0"
+              class="report-dialog__preview-text"
+              data-testid="redaction-preview-summary"
+            >{{ preview.summary.redacted }}</pre>
+            <p
+              v-if="form.description.length > 0"
+              class="report-dialog__preview-label"
+            >Description</p>
+            <pre
+              v-if="form.description.length > 0"
+              class="report-dialog__preview-text"
+              data-testid="redaction-preview"
+            >{{ preview.description.redacted }}</pre>
           </details>
 
           <p v-if="formError" class="report-dialog__error" role="alert">{{ formError }}</p>
@@ -102,7 +126,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref, useId, watch } from 'vue'
+import { computed, nextTick, reactive, ref, useId, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import {
   DESCRIPTION_MAX_LEN,
@@ -121,14 +145,27 @@ const titleId = useId()
 const store = useIncidentReportStore()
 const route = useRoute()
 
+// Default `kind` matches the first visible <select> option (M6) so a pilot
+// who never touches the dropdown files the report under the highlighted
+// option ("Calculation result looked wrong") rather than the silent
+// fall-through to OTHER.
 const blankForm = (): IncidentDraft => ({
-  kind: 'OTHER',
+  kind: 'CALCULATION',
   summary: '',
   description: '',
 })
 const form = reactive<IncidentDraft>(blankForm())
 const busy = ref(false)
 const formError = ref<string | null>(null)
+
+// Focus management (M7 / WCAG 2.4.3 + 2.1.2): when the dialog opens, move
+// focus to the first input so keyboard / screen-reader users can interact
+// without first tab-walking the page. On close, restore focus to whatever
+// element triggered the open so a tab pilot is not dropped back at the top
+// of the document.
+const dialogEl = ref<HTMLDivElement | null>(null)
+const summaryEl = ref<HTMLInputElement | null>(null)
+let triggerEl: HTMLElement | null = null
 
 watch(
   () => props.open,
@@ -137,11 +174,26 @@ watch(
       Object.assign(form, blankForm())
       formError.value = null
       busy.value = false
+      if (typeof document !== 'undefined') {
+        const active = document.activeElement
+        triggerEl = active instanceof HTMLElement ? active : null
+      }
+      void nextTick(() => {
+        summaryEl.value?.focus()
+      })
+    } else if (triggerEl !== null) {
+      // Restore focus on the next microtask so the Teleport-mounted DOM has
+      // fully detached before the trigger button receives focus.
+      const toRestore = triggerEl
+      triggerEl = null
+      void nextTick(() => {
+        toRestore.focus()
+      })
     }
   },
 )
 
-const preview = computed(() => store.previewRedaction(form.description))
+const preview = computed(() => store.previewDraft(form))
 
 const canSubmit = computed(
   () =>
@@ -282,11 +334,18 @@ async function onSubmit(): Promise<void> {
   padding: 0.1rem 0.5rem;
 }
 
+.report-dialog__preview-label {
+  margin: var(--space-2) 0 0;
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
 .report-dialog__preview-text {
   white-space: pre-wrap;
   font-family: var(--font-mono, monospace);
   font-size: var(--text-xs);
-  margin: var(--space-2) 0 0;
+  margin: var(--space-1) 0 0;
   max-height: 12rem;
   overflow-y: auto;
 }

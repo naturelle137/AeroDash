@@ -34,11 +34,24 @@ function openDB(): Promise<IDBDatabase> {
     const request = indexedDB.open(DB_NAME, DB_VERSION)
 
     request.onupgradeneeded = (event) => {
-      const db = (event.target as IDBOpenDBRequest).result
-      if (!db.objectStoreNames.contains(STORE_NAME)) {
-        const store = db.createObjectStore(STORE_NAME, { keyPath: 'id' })
-        store.createIndex('createdAt', 'createdAt', { unique: false })
+      // Versioned upgrade switch (m4) — mirrors fleet.repository so a future
+      // v2 build (e.g. new index, renamed field) can add a migration branch
+      // here without `NotFoundError` on the new index. Each `case` falls
+      // through intentionally so a pilot upgrading from v1 → vN applies
+      // every intermediate migration in order. Update `DB_VERSION` whenever
+      // a new branch is added.
+      const target = event.target as IDBOpenDBRequest
+      const db = target.result
+      const oldVersion = event.oldVersion
+       
+      switch (oldVersion) {
+        case 0: {
+          const store = db.createObjectStore(STORE_NAME, { keyPath: 'id' })
+          store.createIndex('createdAt', 'createdAt', { unique: false })
+        }
+        // case 1: // future migration to v2 lands here
       }
+       
     }
 
     request.onsuccess = (event) => {
@@ -124,14 +137,26 @@ export async function removeReport(id: string): Promise<void> {
   }
 }
 
-/** Wipe every queued report. Invoked by Privacy "Delete all data". */
+/**
+ * Wipe every queued report. Invoked by Privacy "Delete all data"
+ * (REQ-SYS-014, called via `data-rights.service.wipeAllLocalData`).
+ *
+ * The pre-deletion count and the clear request are issued back-to-back
+ * inside the same readwrite transaction (no `await` between them). The
+ * IDB spec deactivates a transaction the moment control returns to the
+ * event loop with no pending requests, so a `await` between `count()`
+ * and `clear()` would cause an `InvalidStateError` on real browsers
+ * (Chrome/Safari/Firefox) — `fake-indexeddb` is permissive enough to
+ * mask it in tests (M4).
+ */
 export async function clearAllReports(): Promise<number> {
   const db = await openDB()
   try {
     const tx = db.transaction(STORE_NAME, 'readwrite')
     const store = tx.objectStore(STORE_NAME)
-    const count = await runRequest(store.count())
-    await runRequest(store.clear())
+    const countReq = store.count()
+    const clearReq = store.clear()
+    const [count] = await Promise.all([runRequest(countReq), runRequest(clearReq)])
     await new Promise<void>((resolve, reject) => {
       tx.oncomplete = () => resolve()
       tx.onerror = () => reject(tx.error ?? new Error('IndexedDB tx failed'))

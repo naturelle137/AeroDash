@@ -100,4 +100,71 @@ describe('redactIncidentText', () => {
     )
     expect(totalRedactions(counts)).toBeGreaterThanOrEqual(4)
   })
+
+  // B3: registration pattern must NOT eat aviation diagnostics that look
+  // superficially like an ICAO reg. The reviewer found these false positives
+  // were destroying the very data needed to triage a calculation defect.
+  it.each([
+    'Climbed to FL-100 and held',
+    'Operated an A-320 today',
+    'Compared to B-737 numbers',
+    'Took off, called T-O at V-1',
+  ])('preserves aviation diagnostic phrase: %s', (phrase) => {
+    const { redacted, counts } = redactIncidentText(phrase)
+    expect(counts.registration).toBe(0)
+    expect(redacted).toBe(phrase)
+  })
+
+  it('preserves single-digit N-number engine readings (N1, N2)', () => {
+    const text = 'Read N1 95% and N2 88% on takeoff'
+    const { redacted, counts } = redactIncidentText(text)
+    expect(counts.registration).toBe(0)
+    expect(redacted).toBe(text)
+  })
+
+  // M1: lookbehind would throw SyntaxError on Safari 16.0–16.3 at module-load
+  // time. Reaching this assertion proves the module compiled — we still
+  // exercise a phone redaction to make sure the pattern is wired up.
+  it('does not use regex lookbehind syntax (Safari 16.0 floor)', () => {
+    const { redacted } = redactIncidentText('Call +49 151 1234 5678 for dispatch.')
+    expect(typeof redactIncidentText).toBe('function')
+    expect(redacted).toContain(REDACTION_MARKERS.PHONE)
+  })
+
+  // M3: phone redaction must remove BOTH the parens and the digits so no
+  // dangling `(` survives in the output.
+  it('strips the leading parenthesis when redacting "(415) 555-2671"', () => {
+    const { redacted } = redactIncidentText('Phone (415) 555-2671 for ops.')
+    expect(redacted).not.toContain('(415)')
+    expect(redacted).not.toContain('(415')
+    expect(redacted).toContain(REDACTION_MARKERS.PHONE)
+  })
+
+  // m1: plain numeric ranges must NOT be redacted as phones — pilots lose
+  // timeline detail like "between 1700-1815".
+  it.each(['Window between 1700-1815 UTC', 'Score sequence 100-200-300'])(
+    'does not redact narrative numeric run: %s',
+    (phrase) => {
+      const { redacted, counts } = redactIncidentText(phrase)
+      expect(counts.phone).toBe(0)
+      expect(redacted).toBe(phrase)
+    },
+  )
+
+  // m2: integer hemisphere-tagged coordinate pairs should still be redacted.
+  it('redacts integer coordinate pairs that carry N/S/E/W markers', () => {
+    const { redacted, counts } = redactIncidentText('Departed 50N 8E in the morning.')
+    expect(counts.coord).toBe(1)
+    expect(redacted).toContain(REDACTION_MARKERS.COORD)
+    expect(redacted).not.toContain('50N 8E')
+  })
+
+  // Sanity: numeric pilot input ("50,8 kg, 12,3 L") must NOT trip the
+  // integer-coord branch (no hemisphere marker).
+  it('does not over-match plain numeric pairs without hemisphere markers', () => {
+    const text = 'Loaded 50,8 kg cargo and 12,3 L oil.'
+    const { redacted, counts } = redactIncidentText(text)
+    expect(counts.coord).toBe(0)
+    expect(redacted).toBe(text)
+  })
 })

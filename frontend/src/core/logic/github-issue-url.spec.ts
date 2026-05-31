@@ -87,6 +87,42 @@ describe('buildGithubIssueUrl', () => {
     expect(decodeURIComponent(url)).toContain('…[truncated; open the saved report on the device for the full text]')
   })
 
+  // M2: boundary case. A single-pass trim could leave the URL over-cap when
+  // the overflow is small but percent-encoding inflates the marker. Sweep a
+  // range of just-over-cap raw-body sizes and assert the loop converges.
+  it('stays under the GitHub URL length cap across the boundary band', () => {
+    for (let bodyLen = 6_900; bodyLen <= 7_200; bodyLen += 17) {
+      const url = buildGithubIssueUrl({
+        repoUrl: 'https://github.com/owner/repo',
+        report: buildReport({ redactedDescription: 'X'.repeat(bodyLen) }),
+      })
+      expect(url.length, `bodyLen=${bodyLen}`).toBeLessThanOrEqual(GITHUB_URL_MAX_LEN)
+    }
+  })
+
+  // M2: even when the context block alone overflows the cap, the function
+  // must still return a usable URL — fall back to title-only rather than a
+  // mid-percent-escape truncation that GitHub would silently drop.
+  it('falls back to a bare title-only URL when the context is oversized', () => {
+    const url = buildGithubIssueUrl({
+      repoUrl: 'https://github.com/owner/repo',
+      report: buildReport({
+        redactedDescription: 'tiny',
+        context: {
+          appVersion: '0.4.0-alpha',
+          routeName: 'mass-balance',
+          pathTail: 'mass-balance',
+          userAgent: 'X'.repeat(256),
+          online: true,
+        },
+        // pad summary minimally so the title-only fallback still encodes safely
+        summary: 'CG envelope amber after correct fuel entry',
+      }),
+    })
+    expect(url.length).toBeLessThanOrEqual(GITHUB_URL_MAX_LEN)
+    expect(url).toContain(`template=${TEMPLATE_FILE}`)
+  })
+
   it('is deterministic — same input yields identical output', () => {
     const a = buildGithubIssueUrl({
       repoUrl: 'https://github.com/owner/repo',

@@ -21,6 +21,7 @@ const lastError = ref<string | null>(null)
 const lastWipe = ref<WipeReport | null>(null)
 const lastExportAt = ref<string | null>(null)
 const lastExportOmitted = ref(0)
+const lastExportIncidentsOmitted = ref(0)
 
 const profileCount = computed(() => fleetStore.profiles.length)
 // A failed fleet load leaves `profiles` empty, which would otherwise read as
@@ -36,11 +37,18 @@ const unreadableCount = computed(() => fleetStore.unreadableProfileCount)
 const wipeNotice = computed(() => {
   const r = lastWipe.value
   if (r === null) return ''
-  if (r.profilesDeleted === null) {
-    return `Local data cleared at ${r.clearedAt} (profiles removed: count unavailable).`
-  }
-  const n = r.profilesDeleted
-  return `Local data cleared at ${r.clearedAt} — ${n} aircraft profile${n === 1 ? '' : 's'} removed.`
+  const profilesPart =
+    r.profilesDeleted === null
+      ? 'profiles removed: count unavailable'
+      : `${r.profilesDeleted} aircraft profile${r.profilesDeleted === 1 ? '' : 's'} removed`
+  const incidentsPart =
+    r.incidentReportsDeleted === null
+      ? null
+      : `${r.incidentReportsDeleted} incident report${
+          r.incidentReportsDeleted === 1 ? '' : 's'
+        } removed`
+  const tail = incidentsPart ? ` ${profilesPart}, ${incidentsPart}.` : ` ${profilesPart}.`
+  return `Local data cleared at ${r.clearedAt} —${tail}`
 })
 
 const wipeConfirmText = ref('')
@@ -65,14 +73,16 @@ async function onExportAll(): Promise<void> {
   lastWipe.value = null
   lastExportAt.value = null
   lastExportOmitted.value = 0
+  lastExportIncidentsOmitted.value = 0
   busy.value = true
   try {
-    const { envelope, omitted } = await exportAllProfiles()
+    const { envelope, omitted, incidentReportsOmitted } = await exportAllProfiles()
     const json = serializeBulkExport(envelope)
     const downloaded = triggerJsonDownload(json, envelope.exportedAt)
     if (!downloaded) return
     lastExportAt.value = envelope.exportedAt
     lastExportOmitted.value = omitted.length
+    lastExportIncidentsOmitted.value = incidentReportsOmitted
   } catch (err) {
     lastError.value = err instanceof Error ? err.message : 'Export failed: unknown error'
   } finally {
@@ -111,6 +121,7 @@ async function onConfirmWipe(): Promise<void> {
   lastWipe.value = null
   lastExportAt.value = null
   lastExportOmitted.value = 0
+  lastExportIncidentsOmitted.value = 0
   busy.value = true
   try {
     // Cancel any pending debounced session autosave first, so a timer scheduled
@@ -225,6 +236,21 @@ function onCancelWipe(): void {
       not be included in this export (saved by a newer app version or unreadable). The export
       is therefore not a complete copy — update AeroDash to recover them before deleting all
       data.
+    </p>
+
+    <p
+      v-if="lastExportAt && lastExportIncidentsOmitted > 0"
+      class="privacy-view__notice privacy-view__notice--warn"
+      role="status"
+      aria-live="polite"
+      data-testid="privacy-export-incidents-omitted"
+    >
+      Note: {{ lastExportIncidentsOmitted }} queued incident report{{
+        lastExportIncidentsOmitted === 1 ? '' : 's'
+      }} {{ lastExportIncidentsOmitted === 1 ? 'is' : 'are' }} stored on this device but
+      <strong>not</strong> included in this export — they are redacted and submitted on demand
+      via <strong>Open on GitHub</strong> from the Incidents page. A Delete all data action
+      will erase them.
     </p>
 
     <!-- ─── Export-all card ─────────────────────────────────────────── -->
