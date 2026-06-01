@@ -1677,3 +1677,18 @@ SYS Store — Disclaimer acknowledgement gate (#280)
       - frontend/src/stores/__tests__/disclaimer-acknowledgement.store.spec.ts
     impl:
       - IMP-SYS-STORE-022
+
+SYS — In-app contribution intake (#395)
+  UT-SYS-CORE-102
+    title: github-issue-url builder — prefilled URL composition, severity labels, trimming/fallback paths
+    files:
+      - frontend/src/core/logic/github-issue-url.spec.ts
+    impl:
+      - IMP-SYS-CORE-013
+
+  UT-SYS-SHARED-049
+    title: buildContributionEnvironment — joins detected sources, omits missing pieces
+    files:
+      - frontend/src/shared/utils/__tests__/contribution-environment.spec.ts
+    impl:
+      - IMP-UI-SHARED-009

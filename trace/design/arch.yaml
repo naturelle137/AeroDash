@@ -121,6 +121,12 @@ Architecture Design
       - REQ-SYS-016
     file: docs/architecture/disclaimer-acknowledgement.md
 
+  DES-ARCH-018
+    title: P1 GitHub Issue URL Builder & Handoff Contract
+    file: docs/ux/contribution.md
+    req:
+      - REQ-SYS-018
+
 ARCH (auto)
   DES-ARCH-010
     title: TODO: describe this artifact

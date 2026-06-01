@@ -60,3 +60,12 @@ SYS App — Disclaimer Acknowledgement Gate (Integration — #280)
       - IMP-UI-SHARED-002
     files:
       - frontend/src/__tests__/App.disclaimer-gate.int.spec.ts
+
+SYS — In-app contribution intake (Integration — #395)
+  IT-SYS-VIEW-001
+    title: ContributeView end-to-end — defect + feature flows compose prefilled URLs; security path routes to GitHub's advisory form
+    files:
+      - frontend/src/views/__tests__/ContributeView.int.spec.ts
+    impl:
+      - IMP-UI-VIEW-003
+      - IMP-SYS-CORE-013

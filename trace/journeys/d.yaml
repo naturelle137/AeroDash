@@ -20,3 +20,11 @@ Phase D — System & Usability
       - REQ-UI-014
       - REQ-UI-015
       - REQ-UI-016
+
+  UJ-D-003
+    title: Reporting a Defect, Suggesting a Feature, or Raising a Security Concern
+    file: docs/journeys/04_system_usability.md
+    req:
+      - REQ-SYS-017
+      - REQ-SYS-018
+      - REQ-SYS-019

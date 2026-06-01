@@ -155,3 +155,107 @@ UI (auto)
     des:
       - DES-ARCH-011
       - DES-ARCH-012
+
+UI — Contribution hub (#395)
+  IMP-UI-SHARED-009
+    title: Contribution environment helper — auto-detected environment string for the defect form
+    files:
+      - frontend/src/shared/utils/contribution-environment.ts
+    req:
+      - REQ-SYS-018
+    des:
+      - DES-UX-015
+
+  IMP-UI-SHARED-010
+    title: ContributeCategoryGrid — three-button entry with plain-language tooltips
+    files:
+      - frontend/src/shared/components/ContributeCategoryGrid.vue
+    req:
+      - REQ-SYS-017
+    des:
+      - DES-UX-014
+
+  IMP-UI-SHARED-011
+    title: ContributeBugForm — guided defect form mapped to bug_report.yml
+    files:
+      - frontend/src/shared/components/ContributeBugForm.vue
+    req:
+      - REQ-SYS-018
+    des:
+      - DES-UX-015
+
+  IMP-UI-SHARED-012
+    title: ContributeFeatureForm — guided feature form mapped to feature_request.yml
+    files:
+      - frontend/src/shared/components/ContributeFeatureForm.vue
+    req:
+      - REQ-SYS-018
+    des:
+      - DES-UX-016
+
+  IMP-UI-SHARED-013
+    title: ContributeSecurityCard — link-only handoff to GitHub's private advisory form
+    files:
+      - frontend/src/shared/components/ContributeSecurityCard.vue
+    req:
+      - REQ-SYS-019
+    des:
+      - DES-UX-017
+
+  IMP-UI-SHARED-014
+    title: ContributePromotionPanel — contribution-promotion card with GitHub links
+    files:
+      - frontend/src/shared/components/ContributePromotionPanel.vue
+    req:
+      - REQ-SYS-017
+    des:
+      - DES-UX-018
+
+  IMP-UI-SHARED-015
+    title: App shell — sidebar footer "Help / contribute" link
+    files:
+      - frontend/src/App.vue
+    req:
+      - REQ-SYS-017
+    des:
+      - DES-UX-013
+
+  IMP-UI-SHARED-016
+    title: HomeView — contribution entry panel
+    files:
+      - frontend/src/views/HomeView.vue
+    req:
+      - REQ-SYS-017
+    des:
+      - DES-UX-013
+
+  IMP-UI-SHARED-017
+    title: PrivacyView — contribution link
+    files:
+      - frontend/src/views/PrivacyView.vue
+    req:
+      - REQ-SYS-017
+    des:
+      - DES-UX-013
+
+  IMP-UI-VIEW-003
+    title: ContributeView — top-level view orchestrating the three intake categories + promotion panel
+    files:
+      - frontend/src/views/ContributeView.vue
+    req:
+      - REQ-SYS-017
+      - REQ-SYS-018
+      - REQ-SYS-019
+    des:
+      - DES-UX-013
+      - DES-UX-014
+      - DES-UX-019
+
+  IMP-UI-ROUTE-005
+    title: Router — /contribute route registration
+    files:
+      - frontend/src/router/index.ts
+    req:
+      - REQ-SYS-017
+      - REQ-SYS-018
+      - REQ-SYS-019

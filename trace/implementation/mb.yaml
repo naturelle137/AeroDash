@@ -433,7 +433,7 @@ MB (auto)
     req:
       - REQ-UQ-001
 
-  IMP-MB-UI-009
+  IMP-MB-UI-010
     title: Sanitised decimal station input (DecimalInput pattern) with transient inline rejection feedback (UX-010/UX-011)
     files:
       - frontend/src/modules/mass-balance/components/MassStationInput.vue
