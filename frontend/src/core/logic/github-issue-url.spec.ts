@@ -92,7 +92,7 @@ describe('buildBugReportUrl', () => {
     const q = parseQuery(url)
     expect(q.get('template')).toBe(BUG_REPORT_TEMPLATE)
     expect(q.get('title')).toBe(validBug.title)
-    expect(q.get('description') ?? '').toMatch(/… \(truncated\)$/)
+    expect(q.get('description') ?? '').toMatch(/\.\.\. \(truncated\)$/)
   })
 
   it('falls back to title-only when no body field can fit alongside an oversize title', () => {

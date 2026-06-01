@@ -16,6 +16,7 @@ import {
 type Screen = 'category' | 'defect' | 'feature' | 'security'
 
 const screen = ref<Screen>('category')
+const blockedUrl = ref<string | null>(null)
 const heading = computed(() => {
   switch (screen.value) {
     case 'defect':
@@ -30,16 +31,22 @@ const heading = computed(() => {
 })
 
 function pickCategory(next: Screen): void {
+  blockedUrl.value = null
   screen.value = next
 }
 
 function backToCategory(): void {
+  blockedUrl.value = null
   screen.value = 'category'
 }
 
 function openInNewTab(url: string): void {
   if (typeof window === 'undefined') return
-  window.open(url, '_blank', 'noopener,noreferrer')
+  // window.open returns null when an iOS Safari / mobile popup-blocker
+  // suppresses the new tab; surface a fallback so the pilot can still reach
+  // GitHub instead of seeing a silent no-op.
+  const opened = window.open(url, '_blank', 'noopener,noreferrer')
+  blockedUrl.value = opened === null ? url : null
 }
 
 function onSubmitBug(input: BugReportInput): void {
@@ -88,6 +95,26 @@ function onSubmitFeature(input: FeatureRequestInput): void {
       @back="backToCategory"
     />
 
+    <div
+      v-if="blockedUrl !== null"
+      class="contribute-view__popup-blocked"
+      role="alert"
+      data-testid="contribute-popup-blocked"
+    >
+      <p>
+        Your browser blocked the new tab. Open this link in a new tab to finish
+        submitting on GitHub:
+      </p>
+      <a
+        :href="blockedUrl"
+        target="_blank"
+        rel="noopener noreferrer"
+        data-testid="contribute-popup-blocked-link"
+      >
+        Open GitHub submission ↗
+      </a>
+    </div>
+
     <ContributePromotionPanel data-testid="contribute-promotion" />
   </main>
 </template>
@@ -113,5 +140,28 @@ function onSubmitFeature(input: FeatureRequestInput): void {
   margin: 0;
   color: var(--color-text-secondary, #4b5563);
   line-height: 1.5;
+}
+
+.contribute-view__popup-blocked {
+  padding: 0.85rem 1rem;
+  border-radius: 8px;
+  background: var(--color-warning-bg, #fef3c7);
+  color: var(--color-warning, #92400e);
+  border: 1px solid var(--color-warning, #f59e0b);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.contribute-view__popup-blocked p {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.contribute-view__popup-blocked a {
+  font-weight: 600;
+  color: inherit;
+  text-decoration: underline;
+  word-break: break-all;
 }
 </style>

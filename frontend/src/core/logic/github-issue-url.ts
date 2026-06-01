@@ -45,7 +45,9 @@ export interface FeatureRequestInput {
 }
 
 const GITHUB_URL_MAX_LEN = 7500
-const TRUNCATION_MARKER = '… (truncated)'
+// ASCII marker so `.length` matches the percent-encoded URL cost — a non-ASCII
+// ellipsis (`…` → `%E2%80%A6`) would make the trim loop over-budget.
+const TRUNCATION_MARKER = '... (truncated)'
 
 interface TextField {
   key: string

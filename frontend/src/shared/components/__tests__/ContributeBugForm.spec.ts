@@ -100,4 +100,37 @@ describe('ContributeBugForm', () => {
     await w.find('[data-testid="bug-title"]').setValue(tooLong)
     expect((w.find('[data-testid="bug-submit"]').element as HTMLButtonElement).disabled).toBe(true)
   })
+
+  it('guards against double-submit — a second click does not re-emit', async () => {
+    const w = mount(ContributeBugForm)
+    await flushPromises()
+    await fillRequired(w)
+    await w.find('[data-testid="bug-submit"]').trigger('submit')
+    await w.find('[data-testid="bug-submit"]').trigger('submit')
+    expect(w.emitted('submit')).toHaveLength(1)
+    expect((w.find('[data-testid="bug-submit"]').element as HTMLButtonElement).disabled).toBe(true)
+  })
+
+  it('removes online/offline listeners on unmount', async () => {
+    const removed: string[] = []
+    const originalRemove = window.removeEventListener.bind(window)
+    const spy = (
+      type: string,
+      listener: EventListenerOrEventListenerObject,
+      options?: boolean | EventListenerOptions,
+    ): void => {
+      removed.push(type)
+      originalRemove(type, listener, options)
+    }
+    window.removeEventListener = spy as typeof window.removeEventListener
+    try {
+      const w = mount(ContributeBugForm)
+      await flushPromises()
+      w.unmount()
+      expect(removed).toContain('online')
+      expect(removed).toContain('offline')
+    } finally {
+      window.removeEventListener = originalRemove
+    }
+  })
 })

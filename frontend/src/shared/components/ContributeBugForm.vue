@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // @IMP-UI-SHARED-011@ (FROM: @REQ-SYS-018@, @DES-UX-015@)
-import { computed, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import {
   BUG_SEVERITY_VALUES,
   type BugReportInput,
@@ -26,6 +26,11 @@ const hazardRef = ref('')
 const environment = ref('')
 const showAdvanced = ref(false)
 const isOnline = ref(typeof navigator === 'undefined' ? true : navigator.onLine)
+const submitting = ref(false)
+
+function updateOnline(): void {
+  isOnline.value = navigator.onLine
+}
 
 onMounted(() => {
   environment.value = buildContributionEnvironment(detectEnvironmentSources())
@@ -35,14 +40,18 @@ onMounted(() => {
   }
 })
 
-function updateOnline(): void {
-  isOnline.value = navigator.onLine
-}
+onBeforeUnmount(() => {
+  if (typeof window !== 'undefined') {
+    window.removeEventListener('online', updateOnline)
+    window.removeEventListener('offline', updateOnline)
+  }
+})
 
 const titleTooLong = computed(() => title.value.trim().length > TITLE_MAX)
 
 const canSubmit = computed(() => {
   return (
+    !submitting.value &&
     title.value.trim() !== '' &&
     !titleTooLong.value &&
     description.value.trim() !== '' &&
@@ -55,6 +64,8 @@ const canSubmit = computed(() => {
 
 function onSubmit(): void {
   if (!canSubmit.value || severity.value === '') return
+  // Double-submit guard: prevents a double-tap from opening two GitHub tabs.
+  submitting.value = true
   emit('submit', {
     title: title.value.trim(),
     description: description.value.trim(),

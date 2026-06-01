@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // @IMP-UI-SHARED-012@ (FROM: @REQ-SYS-018@, @DES-UX-016@)
-import { computed, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import type { FeatureRequestInput } from '@/core/logic/github-issue-url'
 
 const TITLE_MAX = 200
@@ -19,6 +19,11 @@ const safetyImpact = ref('')
 const dod = ref('')
 const showAdvanced = ref(false)
 const isOnline = ref(typeof navigator === 'undefined' ? true : navigator.onLine)
+const submitting = ref(false)
+
+function updateOnline(): void {
+  isOnline.value = navigator.onLine
+}
 
 onMounted(() => {
   if (dod.value === '') dod.value = DOD_SEED
@@ -28,14 +33,18 @@ onMounted(() => {
   }
 })
 
-function updateOnline(): void {
-  isOnline.value = navigator.onLine
-}
+onBeforeUnmount(() => {
+  if (typeof window !== 'undefined') {
+    window.removeEventListener('online', updateOnline)
+    window.removeEventListener('offline', updateOnline)
+  }
+})
 
 const titleTooLong = computed(() => title.value.trim().length > TITLE_MAX)
 
 const canSubmit = computed(() => {
   return (
+    !submitting.value &&
     title.value.trim() !== '' &&
     !titleTooLong.value &&
     problem.value.trim() !== '' &&
@@ -48,6 +57,8 @@ const canSubmit = computed(() => {
 
 function onSubmit(): void {
   if (!canSubmit.value) return
+  // Double-submit guard: prevents a double-tap from opening two GitHub tabs.
+  submitting.value = true
   emit('submit', {
     title: title.value.trim(),
     problem: problem.value.trim(),

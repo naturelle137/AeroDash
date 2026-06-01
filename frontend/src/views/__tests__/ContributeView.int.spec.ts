@@ -120,3 +120,56 @@ describe('ContributeView integration — back navigation', () => {
     expect(newTitle.value).toBe('')
   })
 })
+
+describe('ContributeView integration — popup-blocker fallback', () => {
+  it('surfaces a visible link to GitHub when window.open is blocked (returns null)', async () => {
+    openSpy.mockImplementation(() => null)
+    const w = mount(ContributeView, { attachTo: document.body })
+    await w.find('[data-testid="category-defect"]').trigger('click')
+    await flushPromises()
+
+    await w.find('[data-testid="bug-title"]').setValue('CG marker drifts')
+    await w.find('[data-testid="bug-description"]').setValue('CG marker drifts.')
+    await w.find('[data-testid="bug-reproduction"]').setValue('1. Open M&B.')
+    await w
+      .find('[data-testid="bug-severity"]')
+      .setValue('Major: Core functionality impaired, no workaround')
+    await w.find('[data-testid="bug-environment"]').setValue('iPad Safari')
+    await flushPromises()
+
+    await w.find('[data-testid="bug-submit"]').trigger('submit')
+    await flushPromises()
+
+    const fallback = w.find('[data-testid="contribute-popup-blocked"]')
+    expect(fallback.exists()).toBe(true)
+    const link = w.find('[data-testid="contribute-popup-blocked-link"]')
+    expect(link.exists()).toBe(true)
+    expect(link.attributes('href') ?? '').toContain(GITHUB_NEW_ISSUE_URL)
+    expect(link.attributes('rel')).toContain('noopener')
+    expect(link.attributes('rel')).toContain('noreferrer')
+    expect(link.attributes('target')).toBe('_blank')
+  })
+
+  it('does not show the fallback when window.open succeeds', async () => {
+    openSpy.mockImplementation(
+      () => ({ focus: () => {}, close: () => {} }) as unknown as Window,
+    )
+    const w = mount(ContributeView, { attachTo: document.body })
+    await w.find('[data-testid="category-defect"]').trigger('click')
+    await flushPromises()
+
+    await w.find('[data-testid="bug-title"]').setValue('CG marker drifts')
+    await w.find('[data-testid="bug-description"]').setValue('CG marker drifts.')
+    await w.find('[data-testid="bug-reproduction"]').setValue('1. Open M&B.')
+    await w
+      .find('[data-testid="bug-severity"]')
+      .setValue('Major: Core functionality impaired, no workaround')
+    await w.find('[data-testid="bug-environment"]').setValue('iPad Safari')
+    await flushPromises()
+
+    await w.find('[data-testid="bug-submit"]').trigger('submit')
+    await flushPromises()
+
+    expect(w.find('[data-testid="contribute-popup-blocked"]').exists()).toBe(false)
+  })
+})
