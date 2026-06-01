@@ -439,3 +439,27 @@ MB (auto)
       - frontend/src/modules/mass-balance/components/MassStationInput.vue
     req:
       - REQ-UQ-001
+
+  IMP-MB-UI-011
+    title: ResultSummary limit-proximity highlighting for Takeoff & Zero-Fuel mass
+    files:
+      - frontend/src/modules/mass-balance/components/ResultSummary.vue
+    req:
+      - REQ-UQ-003
+      - REQ-UI-018
+
+  IMP-MB-VIEW-012
+    title: Fleet-load timeout watchdog — escalates the spinner to Retry / Go-to-Fleet
+    files:
+      - frontend/src/modules/mass-balance/views/MassBalanceView.vue
+    req:
+      - REQ-AC-001
+      - REQ-MB-002
+
+  IMP-MB-VIEW-013
+    title: Aircraft picker mirrors pending profile while WARN-AC-002 ack is awaiting
+    files:
+      - frontend/src/modules/mass-balance/views/MassBalanceView.vue
+    req:
+      - REQ-AC-001
+      - REQ-AC-005

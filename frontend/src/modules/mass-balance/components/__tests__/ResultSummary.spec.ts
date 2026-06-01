@@ -1,3 +1,5 @@
+// @UT-MB-UI-004@ (FROM: @IMP-MB-UI-005@, @IMP-MB-UI-011@)
+
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
 import ResultSummary from '../ResultSummary.vue'
@@ -132,6 +134,81 @@ describe('ResultSummary', () => {
     })
 
     expect(wrapper.find('.result-summary__export-btn').exists()).toBe(false)
+  })
+
+  // ─── Limit-proximity highlighting (UX-013) ─────────────────────────────────
+
+  it('flags the takeoff mass as over-limit (colour + screen-reader text) when it exceeds MTOM', () => {
+    const wrapper = mount(ResultSummary, {
+      props: {
+        result: buildResult({
+          takeoffCenterOfGravityPoint: { arm: 1.91, mass: 650, moment: 1241.5 },
+        }),
+        limits: defaultLimits,
+        canExport: false,
+      },
+    })
+
+    const takeoffValue = wrapper.findAll('.result-summary__value')[0]!
+    expect(takeoffValue.classes()).toContain('result-summary__value--over')
+    expect(wrapper.find('.result-summary__sr-only').text()).toContain('at or above limit')
+  })
+
+  it('flags the takeoff mass as near-limit when within 2% of MTOM', () => {
+    const wrapper = mount(ResultSummary, {
+      props: {
+        result: buildResult({
+          takeoffCenterOfGravityPoint: { arm: 1.91, mass: 625, moment: 1193.75 },
+        }),
+        limits: defaultLimits,
+        canExport: false,
+      },
+    })
+
+    const takeoffValue = wrapper.findAll('.result-summary__value')[0]!
+    expect(takeoffValue.classes()).toContain('result-summary__value--near')
+  })
+
+  it('does not flag masses comfortably below their limits', () => {
+    const wrapper = mount(ResultSummary, {
+      props: { result: buildResult(), limits: defaultLimits, canExport: false },
+    })
+
+    const takeoffValue = wrapper.findAll('.result-summary__value')[0]!
+    expect(takeoffValue.classes()).not.toContain('result-summary__value--over')
+    expect(takeoffValue.classes()).not.toContain('result-summary__value--near')
+    expect(wrapper.find('.result-summary__sr-only').exists()).toBe(false)
+  })
+
+  it('flags the zero-fuel mass as over-limit when it exceeds MZFM', () => {
+    const wrapper = mount(ResultSummary, {
+      props: {
+        result: buildResult({
+          zeroFuelCenterOfGravityPoint: { arm: 1.9, mass: 620, moment: 1178 },
+        }),
+        limits: defaultLimits,
+        canExport: false,
+      },
+    })
+
+    const zeroFuelValue = wrapper.findAll('.result-summary__value')[1]!
+    expect(zeroFuelValue.classes()).toContain('result-summary__value--over')
+  })
+
+  it('applies no proximity highlight when limits are absent', () => {
+    const wrapper = mount(ResultSummary, {
+      props: {
+        result: buildResult({
+          takeoffCenterOfGravityPoint: { arm: 1.91, mass: 9999, moment: 1 },
+        }),
+        limits: null,
+        canExport: false,
+      },
+    })
+
+    const takeoffValue = wrapper.findAll('.result-summary__value')[0]!
+    expect(takeoffValue.classes()).not.toContain('result-summary__value--over')
+    expect(takeoffValue.classes()).not.toContain('result-summary__value--near')
   })
 
   it('shows error message instead of NaN values when result.success is false', () => {

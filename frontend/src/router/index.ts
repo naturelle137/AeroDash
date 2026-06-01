@@ -5,6 +5,14 @@ import FleetManagementView from '@/modules/aircraft/views/FleetManagementView.vu
 // @IMP-SYS-APP-001@ (FROM: @REQ-SYS-001@)
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
+  // Vue Router preserves the previous page's scroll offset by default — landing
+  // on Mass & Balance from a scrolled wizard would silently drop the pilot
+  // mid-page, hiding the freshly-selected aircraft. Reset to the top on every
+  // route push, respecting browser back/forward navigation history.
+  scrollBehavior(_to, _from, savedPosition) {
+    if (savedPosition) return savedPosition
+    return { top: 0, left: 0 }
+  },
   routes: [
     // @IMP-UI-ROUTE-001@ (FROM: @REQ-SYS-001@)
     {

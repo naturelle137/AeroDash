@@ -460,4 +460,116 @@ describe('MassBalanceView — fleet picker', () => {
     expect(loadSpy).not.toHaveBeenCalled()
     expect(wrapper.find('.draft-ack').exists()).toBe(false)
   })
+
+  // ── 8. Fleet-load timeout escalation (UX-014) ─────────────────────────────
+  //
+  // A hung IndexedDB read keeps the store in LOADING forever. The view arms a
+  // watchdog on the load; when it expires the spinner is replaced by an
+  // actionable error offering Retry or a jump to the Fleet page.
+
+  // @UT-MB-VIEW-031@ (FROM: @IMP-MB-VIEW-012@)
+  it('escalates the fleet spinner to a Retry/Go-to-Fleet error after the load times out', async () => {
+    vi.useFakeTimers()
+    try {
+      const fleet = useFleetStore()
+      fleet.fleetLoadState = 'LOADING'
+      fleet.profiles = []
+      // A load that never settles — simulates a wedged IndexedDB transaction.
+      vi.spyOn(fleet, 'loadAll').mockReturnValue(new Promise<void>(() => {}))
+
+      const wrapper = mountView()
+      await wrapper.vm.$nextTick()
+
+      // Before the watchdog fires: spinner only, no escalation.
+      expect(wrapper.find('.loading[aria-busy="true"]').exists()).toBe(true)
+      expect(wrapper.text()).not.toContain('taking longer than expected')
+
+      await vi.advanceTimersByTimeAsync(10_000)
+      await wrapper.vm.$nextTick()
+
+      // After the watchdog: spinner replaced by an actionable error.
+      expect(wrapper.find('.loading[aria-busy="true"]').exists()).toBe(false)
+      expect(wrapper.text()).toContain('taking longer than expected')
+      const buttonLabels = wrapper.findAll('button').map((b) => b.text())
+      expect(buttonLabels).toContain('Retry')
+      expect(buttonLabels).toContain('Go to Fleet')
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  // @UT-MB-VIEW-032@ (FROM: @IMP-MB-VIEW-012@)
+  it('clears the timeout state and re-attempts the load when Retry is clicked', async () => {
+    vi.useFakeTimers()
+    try {
+      const fleet = useFleetStore()
+      fleet.fleetLoadState = 'LOADING'
+      fleet.profiles = []
+      const loadSpy = vi.spyOn(fleet, 'loadAll').mockReturnValue(new Promise<void>(() => {}))
+
+      const wrapper = mountView()
+      await vi.advanceTimersByTimeAsync(10_000)
+      await wrapper.vm.$nextTick()
+      expect(wrapper.text()).toContain('taking longer than expected')
+
+      loadSpy.mockClear()
+      const retryBtn = wrapper.findAll('button').find((b) => b.text() === 'Retry')!
+      await retryBtn.trigger('click')
+      await wrapper.vm.$nextTick()
+
+      // Retry re-runs the load and drops the timeout escalation immediately.
+      expect(loadSpy).toHaveBeenCalledTimes(1)
+      expect(wrapper.text()).not.toContain('taking longer than expected')
+      expect(wrapper.find('.loading[aria-busy="true"]').exists()).toBe(true)
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  // @UT-MB-VIEW-033@ (FROM: @IMP-MB-VIEW-012@)
+  it('routes to the Fleet page when Go to Fleet is clicked after a timeout', async () => {
+    vi.useFakeTimers()
+    try {
+      const fleet = useFleetStore()
+      fleet.fleetLoadState = 'LOADING'
+      fleet.profiles = []
+      vi.spyOn(fleet, 'loadAll').mockReturnValue(new Promise<void>(() => {}))
+
+      const router = makeRouter()
+      const pushSpy = vi.spyOn(router, 'push')
+      const wrapper = mountView(router)
+      await vi.advanceTimersByTimeAsync(10_000)
+      await wrapper.vm.$nextTick()
+
+      const goBtn = wrapper.findAll('button').find((b) => b.text() === 'Go to Fleet')!
+      await goBtn.trigger('click')
+
+      expect(pushSpy).toHaveBeenCalledWith({ name: 'fleet' })
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  // @UT-MB-VIEW-034@ (FROM: @IMP-MB-VIEW-013@)
+  // Arriving from the wizard's "Start flight prep": the active aircraft is set
+  // but the M&B store has not loaded the profile yet (gated by the draft ack).
+  // The dropdown must mirror the pending profile so the pilot sees the
+  // registration they just saved, not a blank "— choose aircraft —".
+  it('shows the pending draft profile in the dropdown while the WARN-AC-002 ack is awaiting', async () => {
+    const draft = buildFleetProfile({
+      id: 'eeeeeeee-0000-4000-e000-000000000005',
+      registration: 'D-NEWEST',
+      status: 'draft',
+    })
+    seedFleet([draft])
+    const activeStore = useActiveAircraftStore()
+    activeStore.activeProfile = draft
+
+    const wrapper = mountView()
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.find('.draft-ack').exists()).toBe(true)
+    const select = wrapper.find<HTMLSelectElement>('select#aircraft-select')
+    expect(select.element.value).toBe(draft.id)
+  })
 })

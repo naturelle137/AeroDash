@@ -259,3 +259,18 @@ UI — Contribution hub (#395)
       - REQ-SYS-017
       - REQ-SYS-018
       - REQ-SYS-019
+
+UI — Aircraft wizard exit & post-save flow (#390)
+  IMP-UI-SHARED-018
+    title: ActionChoiceDialog template — accessible multi-action modal (wizard exit + post-save chooser)
+    files:
+      - frontend/src/shared/components/ActionChoiceDialog.vue
+    req:
+      - REQ-UI-011
+
+  IMP-UI-SHARED-019
+    title: ActionChoiceDialog logic — focus management, dismiss on Escape/backdrop
+    files:
+      - frontend/src/shared/components/ActionChoiceDialog.vue
+    req:
+      - REQ-UI-011

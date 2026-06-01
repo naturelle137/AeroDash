@@ -255,8 +255,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import type { AircraftProfile } from '@/core/adapters/aircraft.schema'
 import {
   evaluateVerificationFreshness,
@@ -274,6 +274,7 @@ import UndoToast from '@/shared/components/UndoToast.vue'
 // @IMP-AC-VIEW-006@ (FROM: @REQ-AC-001@, @REQ-AC-004@, @REQ-AC-005@)
 
 const router = useRouter()
+const route = useRoute()
 const fleetStore = useFleetStore()
 const activeStore = useActiveAircraftStore()
 
@@ -313,6 +314,22 @@ const pendingVerify = ref<AircraftProfile | null>(null)
 function onVerify(profile: AircraftProfile): void {
   pendingVerify.value = profile
 }
+
+// @IMP-AC-VIEW-034@ (FROM: @REQ-AC-001@, @REQ-AC-007@)
+// Deep-link hand-off from the wizard's "Verify now" post-save action: arriving
+// with ?verify=<id> opens the sign-off dialog for that profile as soon as it is
+// present in the fleet, then strips the query so a reload doesn't re-trigger.
+watch(
+  () => [route.query.verify, fleetStore.profiles.length] as const,
+  ([verifyId]) => {
+    if (typeof verifyId !== 'string' || !verifyId) return
+    const profile = fleetStore.profiles.find((p) => p.id === verifyId)
+    if (!profile) return
+    pendingVerify.value = profile
+    void router.replace({ name: 'fleet', query: {} })
+  },
+  { immediate: true },
+)
 
 async function onConfirmVerify(signoff: VerificationSignoff): Promise<void> {
   const profile = pendingVerify.value

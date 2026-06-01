@@ -354,3 +354,27 @@ AC (auto)
       - REQ-SYS-014
     des:
       - DES-ARCH-011
+
+  IMP-AC-VIEW-032
+    title: Aircraft wizard in-app exit modal — replaces native confirm() (Save draft / Discard / Keep editing)
+    files:
+      - frontend/src/modules/aircraft/views/AircraftProfileWizardView.vue
+    req:
+      - REQ-AC-001
+      - REQ-UI-011
+
+  IMP-AC-VIEW-033
+    title: Aircraft wizard post-save action chooser — verify / start flight prep / back to fleet
+    files:
+      - frontend/src/modules/aircraft/views/AircraftProfileWizardView.vue
+    req:
+      - REQ-AC-001
+      - REQ-AC-005
+
+  IMP-AC-VIEW-034
+    title: Fleet list deep-link — open Verify dialog on arrival with ?verify=<id>
+    files:
+      - frontend/src/modules/aircraft/components/FleetList.vue
+    req:
+      - REQ-AC-001
+      - REQ-AC-007

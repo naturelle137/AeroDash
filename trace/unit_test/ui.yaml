@@ -164,6 +164,13 @@ UI (auto)
     impl:
       - IMP-UI-SHARED-013
 
+  UT-UI-SHARED-021
+    title: ActionChoiceDialog unit tests — rendering, accessibility, choose/dismiss, focus
+    files:
+      - frontend/src/shared/components/__tests__/ActionChoiceDialog.spec.ts
+    impl:
+      - IMP-UI-SHARED-018
+
   UT-UI-VIEW-003
     title: ContributeView — screen switching, heading updates, promotion panel always visible
     files:
