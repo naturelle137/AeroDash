@@ -7,10 +7,17 @@ UI Shared Components
       - frontend/src/shared/components/AppLogo.vue
 
   IMP-UI-SHARED-002
-    title: App Shell — Navigation layout with theme toggle and sidebar
+    title: App shell — navigation layout, theme toggle and sidebar; wires checkMinSafeVersion + attachConnectivityRefresh and the disclaimer acknowledgement gate on mount
     req:
       - REQ-UI-011
       - REQ-SYS-001
+      - REQ-SYS-006
+      - REQ-SYS-016
+    des:
+      - DES-ARCH-014
+      - DES-ARCH-015
+    hazard:
+      - H-019
     files:
       - frontend/src/App.vue
 
@@ -41,6 +48,16 @@ UI Shared Components
       - REQ-UI-011
     files:
       - frontend/src/shared/components/UndoToast.vue
+
+  IMP-UI-SHARED-008
+    title: DisclaimerAcknowledgementModal — blocking first-launch / baseline-change disclaimer gate (no Cancel / no Escape; sole action is "I understand"); rendered via Teleport so it occludes the App shell, focus-trapped onto the accept button, emits "accept" on acceptance, surfaces a storage-unavailable advisory
+    req:
+      - REQ-SYS-016
+    des:
+      - DES-ARCH-015
+      - DES-ARCH-016
+    files:
+      - frontend/src/shared/components/DisclaimerAcknowledgementModal.vue
 
 UI Views
   IMP-UI-VIEW-001
@@ -139,14 +156,119 @@ UI (auto)
       - DES-ARCH-011
       - DES-ARCH-012
 
-  IMP-UI-SHARED-008
+UI — Contribution hub (#395)
+  IMP-UI-SHARED-009
+    title: Contribution environment helper — auto-detected environment string for the defect form
+    files:
+      - frontend/src/shared/utils/contribution-environment.ts
+    req:
+      - REQ-SYS-018
+    des:
+      - DES-UX-015
+
+  IMP-UI-SHARED-010
+    title: ContributeCategoryGrid — three-button entry with plain-language tooltips
+    files:
+      - frontend/src/shared/components/ContributeCategoryGrid.vue
+    req:
+      - REQ-SYS-017
+    des:
+      - DES-UX-014
+
+  IMP-UI-SHARED-011
+    title: ContributeBugForm — guided defect form mapped to bug_report.yml
+    files:
+      - frontend/src/shared/components/ContributeBugForm.vue
+    req:
+      - REQ-SYS-018
+    des:
+      - DES-UX-015
+
+  IMP-UI-SHARED-012
+    title: ContributeFeatureForm — guided feature form mapped to feature_request.yml
+    files:
+      - frontend/src/shared/components/ContributeFeatureForm.vue
+    req:
+      - REQ-SYS-018
+    des:
+      - DES-UX-016
+
+  IMP-UI-SHARED-013
+    title: ContributeSecurityCard — link-only handoff to GitHub's private advisory form
+    files:
+      - frontend/src/shared/components/ContributeSecurityCard.vue
+    req:
+      - REQ-SYS-019
+    des:
+      - DES-UX-017
+
+  IMP-UI-SHARED-014
+    title: ContributePromotionPanel — contribution-promotion card with GitHub links
+    files:
+      - frontend/src/shared/components/ContributePromotionPanel.vue
+    req:
+      - REQ-SYS-017
+    des:
+      - DES-UX-018
+
+  IMP-UI-SHARED-015
+    title: App shell — sidebar footer "Help / contribute" link
+    files:
+      - frontend/src/App.vue
+    req:
+      - REQ-SYS-017
+    des:
+      - DES-UX-013
+
+  IMP-UI-SHARED-016
+    title: HomeView — contribution entry panel
+    files:
+      - frontend/src/views/HomeView.vue
+    req:
+      - REQ-SYS-017
+    des:
+      - DES-UX-013
+
+  IMP-UI-SHARED-017
+    title: PrivacyView — contribution link
+    files:
+      - frontend/src/views/PrivacyView.vue
+    req:
+      - REQ-SYS-017
+    des:
+      - DES-UX-013
+
+  IMP-UI-VIEW-003
+    title: ContributeView — top-level view orchestrating the three intake categories + promotion panel
+    files:
+      - frontend/src/views/ContributeView.vue
+    req:
+      - REQ-SYS-017
+      - REQ-SYS-018
+      - REQ-SYS-019
+    des:
+      - DES-UX-013
+      - DES-UX-014
+      - DES-UX-019
+
+  IMP-UI-ROUTE-005
+    title: Router — /contribute route registration
+    files:
+      - frontend/src/router/index.ts
+    req:
+      - REQ-SYS-017
+      - REQ-SYS-018
+      - REQ-SYS-019
+
+UI — Aircraft wizard exit & post-save flow (#390)
+  IMP-UI-SHARED-018
     title: ActionChoiceDialog template — accessible multi-action modal (wizard exit + post-save chooser)
     files:
       - frontend/src/shared/components/ActionChoiceDialog.vue
     req:
       - REQ-UI-011
 
-  IMP-UI-SHARED-009
+  IMP-UI-SHARED-019
     title: ActionChoiceDialog logic — focus management, dismiss on Escape/backdrop
     files:
       - frontend/src/shared/components/ActionChoiceDialog.vue

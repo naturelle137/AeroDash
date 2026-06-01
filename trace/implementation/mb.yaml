@@ -366,6 +366,13 @@ MB UI Components
       - frontend/src/modules/mass-balance/components/MassStationInput.vue
       - frontend/src/modules/mass-balance/views/MassBalanceView.vue
 
+  IMP-MB-UI-009
+    title: Colour-independent CG severity signalling — distinct marker shape per severity (circle/triangle/cross) plus dense crosshatch breach fill (UX-006)
+    req:
+      - REQ-UI-019
+    files:
+      - frontend/src/modules/mass-balance/components/CGEnvelopeChart.vue
+
   IMP-MB-UI-FLEET-002
     title: Reset Payload confirm-then-undo — in-app confirmation with discard count plus a short undo window restoring pre-reset weights (UX-004)
     req:
@@ -426,7 +433,14 @@ MB (auto)
     req:
       - REQ-UQ-001
 
-  IMP-MB-UI-009
+  IMP-MB-UI-010
+    title: Sanitised decimal station input (DecimalInput pattern) with transient inline rejection feedback (UX-010/UX-011)
+    files:
+      - frontend/src/modules/mass-balance/components/MassStationInput.vue
+    req:
+      - REQ-UQ-001
+
+  IMP-MB-UI-011
     title: ResultSummary limit-proximity highlighting for Takeoff & Zero-Fuel mass
     files:
       - frontend/src/modules/mass-balance/components/ResultSummary.vue

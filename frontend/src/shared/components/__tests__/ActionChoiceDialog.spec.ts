@@ -5,7 +5,7 @@
  * @see frontend/src/shared/components/ActionChoiceDialog.vue
  */
 
-// @UT-UI-SHARED-004@ (FROM: @IMP-UI-SHARED-008@)
+// @UT-UI-SHARED-021@ (FROM: @IMP-UI-SHARED-018@)
 
 import { describe, it, expect, afterEach } from 'vitest'
 import { mount } from '@vue/test-utils'

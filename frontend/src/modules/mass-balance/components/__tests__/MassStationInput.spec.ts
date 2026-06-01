@@ -1,9 +1,19 @@
 // @UT-MB-UI-001@ (FROM: @IMP-MB-UI-006@, @IMP-MB-UI-008@)
 
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import MassStationInput from '../MassStationInput.vue'
 import type { StationInput } from '@/modules/mass-balance/stores/mass-balance.types'
+
+/** The sanitised decimal field rendered by the embedded DecimalInput. */
+function field(wrapper: ReturnType<typeof mount>) {
+  return wrapper.find('input[type="text"]')
+}
+
+/** Numeric values carried by every emitted `update:weight`. */
+function weightEmissions(wrapper: ReturnType<typeof mount>): unknown[] {
+  return (wrapper.emitted('update:weight') ?? []).map((e) => e[0])
+}
 
 function makeStation(overrides: Partial<StationInput> = {}): StationInput {
   return {
@@ -184,39 +194,47 @@ describe('MassStationInput', () => {
     expect(wrapper.emitted('update:weight')).toEqual([[1]])
   })
 
-  // ─── onInput() — Number.isNaN branch ────────────────────────────────────
+  // ─── Decimal field entry (via the embedded DecimalInput) ─────────────────
 
-  it('emits update:weight with the parsed float when a valid number is typed', () => {
+  it('emits update:weight with the parsed float when a valid number is typed', async () => {
     const wrapper = mount(MassStationInput, {
       props: { station: makeStation({ weight: 0 }) },
     })
 
-    const onInput = (wrapper.vm as unknown as { onInput(e: Event): void }).onInput
-    onInput.call(wrapper.vm, { target: { value: '75.5' } } as unknown as Event)
+    await field(wrapper).setValue('75.5')
 
-    expect(wrapper.emitted('update:weight')).toEqual([[75.5]])
+    expect(weightEmissions(wrapper)).toContain(75.5)
   })
 
-  it('does not emit update:weight when the input value is not a number', () => {
+  it('does not emit a weight when only non-numeric characters are typed', async () => {
     const wrapper = mount(MassStationInput, {
       props: { station: makeStation({ weight: 0 }) },
     })
 
-    const onInput = (wrapper.vm as unknown as { onInput(e: Event): void }).onInput
-    onInput.call(wrapper.vm, { target: { value: 'abc' } } as unknown as Event)
+    await field(wrapper).setValue('abc')
 
     expect(wrapper.emitted('update:weight')).toBeUndefined()
   })
 
-  it('does not emit update:weight when the input value is an empty string', () => {
+  it('emits the floor weight when the field is cleared', async () => {
     const wrapper = mount(MassStationInput, {
-      props: { station: makeStation({ weight: 0 }) },
+      props: { station: makeStation({ weight: 50 }) },
     })
 
-    const onInput = (wrapper.vm as unknown as { onInput(e: Event): void }).onInput
-    onInput.call(wrapper.vm, { target: { value: '' } } as unknown as Event)
+    await field(wrapper).setValue('')
 
-    expect(wrapper.emitted('update:weight')).toBeUndefined()
+    expect(weightEmissions(wrapper)).toEqual([0])
+  })
+
+  it('exposes the field as a sanitised decimal input, never type=number', () => {
+    const wrapper = mount(MassStationInput, {
+      props: { station: makeStation() },
+    })
+
+    const input = field(wrapper)
+    expect(input.exists()).toBe(true)
+    expect(input.attributes('type')).toBe('text')
+    expect(input.attributes('inputmode')).toBe('decimal')
   })
 
   // ─── UX-002: coarse step + presets + wider field ────────────────────────
@@ -343,5 +361,95 @@ describe('MassStationInput', () => {
     expect(
       (wrapper.find('.mass-station-input__preset-chip').element as HTMLButtonElement).disabled,
     ).toBe(true)
+  })
+})
+
+// ─── UX-010 / UX-011: sanitised decimal entry + inline rejection feedback ───
+// @UT-MB-UI-003@ (FROM: @IMP-MB-UI-010@)
+describe('MassStationInput — "e"/out-of-range rejection feedback', () => {
+  it('never expands "1e2" to 100 — the "e" is rejected, so no such weight is emitted', async () => {
+    const wrapper = mount(MassStationInput, {
+      props: { station: makeStation({ weight: 0 }) },
+    })
+
+    await field(wrapper).setValue('1e2')
+
+    // The native type=number defect silently parsed "1e2" as 100; it must not recur.
+    expect(weightEmissions(wrapper)).not.toContain(100)
+  })
+
+  it('shows a transient inline hint and error border when a forbidden character is blocked', async () => {
+    const wrapper = mount(MassStationInput, {
+      props: { station: makeStation({ weight: 0 }) },
+    })
+
+    await field(wrapper).setValue('1e2')
+
+    const hint = wrapper.find('.mass-station-input__reject-hint')
+    expect(hint.exists()).toBe(true)
+    expect(hint.text().toLowerCase()).toContain('digits')
+    expect(wrapper.find('.mass-station-input--rejected').exists()).toBe(true)
+  })
+
+  it('rejects a value above the station capacity with a "Maximum is …" hint and no emit', async () => {
+    const wrapper = mount(MassStationInput, {
+      props: { station: makeStation({ weight: 50 }), unit: 'kg', maxCapacity: 100 },
+    })
+
+    await field(wrapper).setValue('150')
+
+    const hint = wrapper.find('.mass-station-input__reject-hint')
+    expect(hint.exists()).toBe(true)
+    expect(hint.text()).toContain('Maximum is 100 kg')
+    expect(weightEmissions(wrapper)).not.toContain(150)
+  })
+
+  it('rejects a value below the unusable-fuel floor with a "Minimum is …" hint and no emit', async () => {
+    const wrapper = mount(MassStationInput, {
+      props: {
+        station: makeStation({ weight: 50 }),
+        unit: 'L',
+        unusableFuel: 5,
+        maxCapacity: 100,
+      },
+    })
+
+    await field(wrapper).setValue('2')
+
+    const hint = wrapper.find('.mass-station-input__reject-hint')
+    expect(hint.exists()).toBe(true)
+    expect(hint.text()).toContain('Minimum is 5 L')
+    expect(weightEmissions(wrapper)).not.toContain(2)
+  })
+
+  it('clears the rejection hint as soon as a valid value is entered', async () => {
+    const wrapper = mount(MassStationInput, {
+      props: { station: makeStation({ weight: 0 }) },
+    })
+
+    await field(wrapper).setValue('1e2')
+    expect(wrapper.find('.mass-station-input__reject-hint').exists()).toBe(true)
+
+    await field(wrapper).setValue('42')
+    expect(wrapper.find('.mass-station-input__reject-hint').exists()).toBe(false)
+    expect(weightEmissions(wrapper)).toContain(42)
+  })
+
+  it('auto-dismisses the transient hint after the timeout', async () => {
+    vi.useFakeTimers()
+    try {
+      const wrapper = mount(MassStationInput, {
+        props: { station: makeStation({ weight: 0 }) },
+      })
+
+      await field(wrapper).setValue('1e2')
+      expect(wrapper.find('.mass-station-input__reject-hint').exists()).toBe(true)
+
+      vi.advanceTimersByTime(3000)
+      await wrapper.vm.$nextTick()
+      expect(wrapper.find('.mass-station-input__reject-hint').exists()).toBe(false)
+    } finally {
+      vi.useRealTimers()
+    }
   })
 })

@@ -236,6 +236,28 @@ const palette = computed(() => {
 const pathDash = computed(() => (isCritical.value ? '6,4' : isNeutral.value ? '4,3' : 'none'))
 const pathStroke = computed(() => (isCritical.value ? 3 : 2))
 
+// ─── Colour-independent severity signalling ─────────────────────────────────
+// @IMP-MB-UI-009@ (FROM: @REQ-UI-019@)
+// DES-UX §3.3: colour must never be the sole differentiator of a safety
+// state. Each severity maps to a distinct marker SHAPE so SAFE, WARNING, and
+// CRITICAL stay tellable apart under cockpit glare and for colour-blind
+// pilots — not just by hue:
+//   success / neutral → circle ·  warning → triangle (▲) ·  critical → cross (×)
+const TRI_R = 7
+
+const markerShape = computed<'cross' | 'triangle' | 'circle'>(() =>
+  props.severity === 'critical' ? 'cross'
+  : props.severity === 'warning' ? 'triangle'
+  : 'circle',
+)
+
+/** Equilateral upward "caution" triangle (circumradius TRI_R) centred on (cx, cy). */
+function trianglePoints(cx: number, cy: number): string {
+  const dx = TRI_R * 0.866
+  const dy = TRI_R * 0.5
+  return `${cx},${cy - TRI_R} ${cx + dx},${cy + dy} ${cx - dx},${cy + dy}`
+}
+
 const xAxisLabel = computed(() => (props.graphType === 'moment' ? 'CG Moment' : 'CG Arm'))
 
 // ─── Accessibility ─────────────────────────────────────────────────────────
@@ -274,14 +296,19 @@ const ariaLabel = computed(() => {
     >
       <!-- ─── Defs ──────────────────────────────────────────────────────── -->
       <defs>
+        <!-- CRITICAL fill: a dense, true crosshatch (two perpendicular line
+             sets, 5px tile, raised opacity). Pattern-fills the breach so it
+             reads as unsafe in monochrome / colour-blind / glare conditions,
+             independent of the red hue (DES-UX §3.3). -->
         <pattern
           id="cg-crosshatch"
           patternUnits="userSpaceOnUse"
-          width="8"
-          height="8"
+          width="5"
+          height="5"
           patternTransform="rotate(45)"
         >
-          <line x1="0" y1="0" x2="0" y2="8" :stroke="palette.envStroke" stroke-width="1.5" opacity="0.25" />
+          <line x1="0" y1="0" x2="0" y2="5" :stroke="palette.envStroke" stroke-width="1.2" opacity="0.4" />
+          <line x1="0" y1="0" x2="5" y2="0" :stroke="palette.envStroke" stroke-width="1.2" opacity="0.4" />
         </pattern>
         <marker id="cg-arrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
           <polygon points="0,0 8,3 0,6" :fill="palette.line" />
@@ -396,8 +423,12 @@ const ariaLabel = computed(() => {
       <!-- ─── CG point markers ────────────────────────────────────────── -->
       <template v-if="cgMarkers">
         <template v-for="m in cgMarkers" :key="m.key">
-          <!-- Critical → cross (×) mark — shape change independent of colour -->
-          <g v-if="isCritical" :transform="`translate(${m.cx},${m.cy})`">
+          <!-- Critical → cross (×): boundary breach — shape independent of colour -->
+          <g
+            v-if="markerShape === 'cross'"
+            class="cg-point-marker cg-point-marker--cross"
+            :transform="`translate(${m.cx},${m.cy})`"
+          >
             <line
               :x1="-CROSS_R"
               :y1="-CROSS_R"
@@ -416,9 +447,19 @@ const ariaLabel = computed(() => {
             />
           </g>
 
-          <!-- Non-critical → filled circle -->
+          <!-- Warning → triangle (▲): out-of-standard-range caution, distinct
+               from the SAFE circle by shape, not just colour (DES-UX §3.3) -->
+          <polygon
+            v-else-if="markerShape === 'triangle'"
+            class="cg-point-marker cg-point-marker--triangle"
+            :points="trianglePoints(m.cx, m.cy)"
+            :fill="palette.pt"
+          />
+
+          <!-- Safe / neutral → filled circle -->
           <circle
             v-else
+            class="cg-point-marker cg-point-marker--circle"
             :cx="m.cx"
             :cy="m.cy"
             :r="POINT_R"

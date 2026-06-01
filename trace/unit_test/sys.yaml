@@ -1585,3 +1585,117 @@ SYS (auto)
       - frontend/src/stores/__tests__/session-persistence.store.spec.ts
     impl:
       - IMP-SYS-STORE-001
+
+SYS Store — Disclaimer acknowledgement gate (#280)
+  UT-SYS-STORE-100
+    title: computeDisclaimerBaseline returns MAJOR.MINOR for a release SemVer
+    files:
+      - frontend/src/stores/__tests__/disclaimer-acknowledgement.store.spec.ts
+    impl:
+      - IMP-SYS-STORE-022
+
+  UT-SYS-STORE-101
+    title: computeDisclaimerBaseline returns MAJOR.MINOR for a pre-release SemVer
+    files:
+      - frontend/src/stores/__tests__/disclaimer-acknowledgement.store.spec.ts
+    impl:
+      - IMP-SYS-STORE-022
+
+  UT-SYS-STORE-102
+    title: computeDisclaimerBaseline returns MAJOR.MINOR for a build-metadata SemVer
+    files:
+      - frontend/src/stores/__tests__/disclaimer-acknowledgement.store.spec.ts
+    impl:
+      - IMP-SYS-STORE-022
+
+  UT-SYS-STORE-103
+    title: computeDisclaimerBaseline returns null for malformed SemVer
+    files:
+      - frontend/src/stores/__tests__/disclaimer-acknowledgement.store.spec.ts
+    impl:
+      - IMP-SYS-STORE-022
+
+  UT-SYS-STORE-104
+    title: gate opens on first launch when no record is stored
+    files:
+      - frontend/src/stores/__tests__/disclaimer-acknowledgement.store.spec.ts
+    impl:
+      - IMP-SYS-STORE-022
+
+  UT-SYS-STORE-105
+    title: gate closes when a record for the current baseline is stored
+    files:
+      - frontend/src/stores/__tests__/disclaimer-acknowledgement.store.spec.ts
+    impl:
+      - IMP-SYS-STORE-022
+
+  UT-SYS-STORE-106
+    title: gate opens when the stored baseline differs from the current one
+    files:
+      - frontend/src/stores/__tests__/disclaimer-acknowledgement.store.spec.ts
+    impl:
+      - IMP-SYS-STORE-022
+
+  UT-SYS-STORE-107
+    title: gate opens when the stored record is structurally corrupt
+    files:
+      - frontend/src/stores/__tests__/disclaimer-acknowledgement.store.spec.ts
+    impl:
+      - IMP-SYS-STORE-022
+
+  UT-SYS-STORE-108
+    title: gate opens when the stored payload is not valid JSON
+    files:
+      - frontend/src/stores/__tests__/disclaimer-acknowledgement.store.spec.ts
+    impl:
+      - IMP-SYS-STORE-022
+
+  UT-SYS-STORE-109
+    title: fails safe when localStorage.getItem throws
+    files:
+      - frontend/src/stores/__tests__/disclaimer-acknowledgement.store.spec.ts
+    impl:
+      - IMP-SYS-STORE-022
+
+  UT-SYS-STORE-110
+    title: acknowledge() persists the record and closes the gate
+    files:
+      - frontend/src/stores/__tests__/disclaimer-acknowledgement.store.spec.ts
+    impl:
+      - IMP-SYS-STORE-022
+
+  UT-SYS-STORE-111
+    title: acknowledge() returns false and leaves the gate open when setItem throws
+    files:
+      - frontend/src/stores/__tests__/disclaimer-acknowledgement.store.spec.ts
+    impl:
+      - IMP-SYS-STORE-022
+
+  UT-SYS-STORE-112
+    title: re-prompts after a stored acceptance for an older baseline (milestone bump)
+    files:
+      - frontend/src/stores/__tests__/disclaimer-acknowledgement.store.spec.ts
+    impl:
+      - IMP-SYS-STORE-022
+
+  UT-SYS-STORE-113
+    title: resetForTesting() clears in-memory state and re-opens the gate
+    files:
+      - frontend/src/stores/__tests__/disclaimer-acknowledgement.store.spec.ts
+    impl:
+      - IMP-SYS-STORE-022
+
+SYS — In-app contribution intake (#395)
+  UT-SYS-CORE-102
+    title: github-issue-url builder — prefilled URL composition, severity labels, trimming/fallback paths
+    files:
+      - frontend/src/core/logic/github-issue-url.spec.ts
+    impl:
+      - IMP-SYS-CORE-013
+
+  UT-SYS-SHARED-049
+    title: buildContributionEnvironment — joins detected sources, omits missing pieces
+    files:
+      - frontend/src/shared/utils/__tests__/contribution-environment.spec.ts
+    impl:
+      - IMP-UI-SHARED-009

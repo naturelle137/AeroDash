@@ -1,4 +1,4 @@
-<!-- @IMP-UI-SHARED-008@ (FROM: @REQ-UI-011@) -->
+<!-- @IMP-UI-SHARED-018@ (FROM: @REQ-UI-011@) -->
 <template>
   <!--
     Accessible, dark-mode-safe modal that offers a *set* of mutually-exclusive
@@ -51,7 +51,7 @@
 </template>
 
 <script lang="ts">
-// @IMP-UI-SHARED-009@ (FROM: @REQ-UI-011@)
+// @IMP-UI-SHARED-019@ (FROM: @REQ-UI-011@)
 /** A single selectable action rendered as a button. */
 export interface DialogAction {
   /** Stable identifier emitted via `choose`. */

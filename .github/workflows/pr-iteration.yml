@@ -1,5 +1,14 @@
 name: Bounded PR Iteration & Ready Gate
 
+# DEACTIVATED — manual-dispatch only.
+#
+# Reason: the orchestrator's correction round is slower than the human reviewer
+# bot's cadence. By the time a correction lands, the reviewer has already posted
+# 2-3 more rounds of feedback, so the orchestrator's work ships against stale
+# review state. Re-enable by restoring the `pull_request_review` and
+# `workflow_run` triggers below.
+#
+# --- Original behaviour (preserved for re-enablement) ---
 # Drives BOT-authored Draft PRs (feature/issue-*) toward "Ready for review" while
 # ingesting BOTH reviewer feedback and CI/pipeline results. Governed by ADR-317-DEV.
 #
@@ -14,29 +23,11 @@ name: Bounded PR Iteration & Ready Gate
 # refs #320, #316
 
 on:
-  pull_request_review:
-    types: [submitted]
-  workflow_run:
-    # React to EVERY PR-gating workflow, not just CI. A red DoD/Security/E2E/
-    # Traceability/branching gate must also drive a correction — otherwise a PR
-    # whose CI is green but another gate is red sits red forever with no action.
-    # `Autonomous PR Reviewer` is listed defensively: a `pull_request_review`
-    # event fires while the reviewer workflow's own check is still in_progress
-    # (the review is submitted a few seconds before the workflow run reports
-    # `completed`), and the orchestrator's pending-gate (below) used to count
-    # that check as pending and refuse to act. The race is fixed at the source
-    # by excluding the reviewer's check from the pending-set, but listing the
-    # workflow here also makes the loop self-healing for any other transient
-    # race that ever leaves the orchestrator with a `wait` verdict.
-    workflows:
-      - CI
-      - DoD Attestation Gate
-      - Security Scanning
-      - Traceability Gate
-      - E2E Tests (Playwright)
-      - Enforce Branching Model
-      - Autonomous PR Reviewer
-    types: [completed]
+  # Deactivated. Kept as `workflow_dispatch` only (Actions requires at least one
+  # trigger) and guarded by `if: false` on the job below so manual runs are a
+  # clean no-op too. To re-enable, restore the `pull_request_review` +
+  # `workflow_run` triggers and drop the `if: false` (see git history).
+  workflow_dispatch:
 
 # Serialise per branch across BOTH trigger types so the correction budget is honoured.
 concurrency:
@@ -64,6 +55,8 @@ env:
 jobs:
   orchestrate:
     name: Iterate / ready-gate
+    # Deactivated — see header. Drop this guard to re-enable.
+    if: false
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:

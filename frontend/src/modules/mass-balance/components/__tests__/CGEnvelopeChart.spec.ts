@@ -1,7 +1,46 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import CGEnvelopeChart from '../CGEnvelopeChart.vue'
 import type { MathCoreResult, EnvelopePoint } from '@/modules/mass-balance/stores/mass-balance.types'
+
+// useTheme is a module-level singleton; mock it so a test can pin the active
+// theme deterministically. The chart palette differs between light and dark,
+// and the dark palette is what the glare/contrast checks below assert against.
+const themeMock = vi.hoisted(() => ({ value: 'light' as 'light' | 'dark' }))
+vi.mock('@/shared/composables/useTheme', () => ({
+  useTheme: () => ({ theme: themeMock, toggleTheme: () => {} }),
+}))
+
+// Default every test back to light so a dark-mode block cannot leak.
+afterEach(() => {
+  themeMock.value = 'light'
+})
+
+// ─── WCAG relative-luminance / contrast helpers ─────────────────────────────
+// Used to verify the chart's severity colours stay legible against the dark
+// chart backdrop (DES-UX §3.2 night ops, §3.3 colour independence).
+function srgbToLinear(channel: number): number {
+  const c = channel / 255
+  return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4
+}
+
+function relativeLuminance(hex: string): number {
+  const h = hex.replace('#', '')
+  const r = parseInt(h.slice(0, 2), 16)
+  const g = parseInt(h.slice(2, 4), 16)
+  const b = parseInt(h.slice(4, 6), 16)
+  return 0.2126 * srgbToLinear(r) + 0.7152 * srgbToLinear(g) + 0.0722 * srgbToLinear(b)
+}
+
+function contrastRatio(a: string, b: string): number {
+  const la = relativeLuminance(a)
+  const lb = relativeLuminance(b)
+  const [hi, lo] = la >= lb ? [la, lb] : [lb, la]
+  return (hi + 0.05) / (lo + 0.05)
+}
+
+/** Dark chart backdrop: the chart renders inside `.prep-card` → `--color-surface-card` (#252525 dark). */
+const DARK_CHART_BACKDROP = '#252525'
 
 // ─── Test fixtures ───────────────────────────────────────────────────────────
 
@@ -511,5 +550,105 @@ describe('CGEnvelopeChart — envelope polygon opacity', () => {
     const wrapper = mountChart({ result: buildResult(), severity: 'success' })
 
     expect(envelopePolygon(wrapper).attributes('opacity')).toBe('1')
+  })
+})
+
+// ─── Colour-independent severity shape (DES-UX §3.3) ─────────────────────────
+// Each severity must be tellable apart by SHAPE, not colour alone, so the
+// state survives cockpit glare and colour-blind vision:
+//   success / neutral → circle ·  warning → triangle ·  critical → cross (×)
+describe('CGEnvelopeChart — colour-independent severity shape', () => {
+  function shapeCounts(wrapper: ReturnType<typeof mountChart>) {
+    return {
+      circles: wrapper.findAll('circle.cg-point-marker--circle').length,
+      triangles: wrapper.findAll('polygon.cg-point-marker--triangle').length,
+      crosses: wrapper.findAll('g.cg-point-marker--cross').length,
+    }
+  }
+
+  it('renders SAFE points as circles only (no triangle, no cross)', () => {
+    const counts = shapeCounts(mountChart({ result: buildResult(), severity: 'success' }))
+
+    expect(counts).toEqual({ circles: 3, triangles: 0, crosses: 0 })
+  })
+
+  it('renders WARNING points as triangles only — a distinct shape from SAFE', () => {
+    const counts = shapeCounts(mountChart({ result: buildResult(), severity: 'warning' }))
+
+    expect(counts).toEqual({ circles: 0, triangles: 3, crosses: 0 })
+  })
+
+  it('renders CRITICAL points as crosses only (no circle, no triangle)', () => {
+    const counts = shapeCounts(mountChart({ result: buildResult(), severity: 'critical' }))
+
+    expect(counts).toEqual({ circles: 0, triangles: 0, crosses: 3 })
+  })
+
+  it('renders neutral (null severity) points as circles', () => {
+    const counts = shapeCounts(mountChart({ result: buildResult(), severity: null }))
+
+    expect(counts).toEqual({ circles: 3, triangles: 0, crosses: 0 })
+  })
+
+  it('gives the WARNING triangle three vertices and still applies the warning colour', () => {
+    const wrapper = mountChart({ result: buildResult(), severity: 'warning' })
+
+    const triangle = wrapper.find('polygon.cg-point-marker--triangle')
+    const vertices = triangle.attributes('points')!.trim().split(/\s+/)
+    expect(vertices).toHaveLength(3) // a triangle, not a circle
+    // Colour is retained alongside the shape — redundant, not replaced.
+    expect(triangle.attributes('fill')).toBe('#ef6c00') // light-mode warning
+  })
+})
+
+// ─── Dark-mode contrast (DES-UX §3.2 night ops / glare legibility) ───────────
+describe('CGEnvelopeChart — dark-mode AAA contrast', () => {
+  beforeEach(() => {
+    themeMock.value = 'dark'
+  })
+
+  it('SAFE marker colour clears WCAG AAA (≥ 7:1) against the dark backdrop', () => {
+    const wrapper = mountChart({ result: buildResult(), severity: 'success' })
+
+    const fill = wrapper.find('circle.cg-point-marker--circle').attributes('fill')!
+    expect(contrastRatio(fill, DARK_CHART_BACKDROP)).toBeGreaterThanOrEqual(7)
+  })
+
+  it('WARNING marker colour clears WCAG AAA (≥ 7:1) against the dark backdrop', () => {
+    const wrapper = mountChart({ result: buildResult(), severity: 'warning' })
+
+    const fill = wrapper.find('polygon.cg-point-marker--triangle').attributes('fill')!
+    expect(contrastRatio(fill, DARK_CHART_BACKDROP)).toBeGreaterThanOrEqual(7)
+  })
+
+  it('CRITICAL marker colour clears WCAG AAA (≥ 7:1) against the dark backdrop', () => {
+    const wrapper = mountChart({ result: buildResult(), severity: 'critical' })
+
+    const stroke = wrapper.find('g.cg-point-marker--cross line').attributes('stroke')!
+    expect(contrastRatio(stroke, DARK_CHART_BACKDROP)).toBeGreaterThanOrEqual(7)
+  })
+
+  it('SAFE and CRITICAL marker colours are distinguishable, not near-identical hues', () => {
+    const safe = mountChart({ result: buildResult(), severity: 'success' })
+      .find('circle.cg-point-marker--circle')
+      .attributes('fill')!
+    const critical = mountChart({ result: buildResult(), severity: 'critical' })
+      .find('g.cg-point-marker--cross line')
+      .attributes('stroke')!
+
+    expect(safe).not.toBe(critical)
+  })
+
+  it('every severity envelope stroke stays legible (≥ 4.5:1) for glare', () => {
+    for (const severity of ['success', 'warning', 'critical'] as const) {
+      const wrapper = mountChart({ result: buildResult(), severity })
+      // Envelope polygon is the second <polygon> (arrowhead marker is first).
+      const stroke = wrapper.findAll('polygon')[1]!.attributes('stroke')!
+      expect(contrastRatio(stroke, DARK_CHART_BACKDROP)).toBeGreaterThanOrEqual(4.5)
+    }
+  })
+
+  it('contrast helper is sound (white on black resolves to 21:1)', () => {
+    expect(contrastRatio('#ffffff', '#000000')).toBeCloseTo(21, 0)
   })
 })

@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Larger Mass & Balance result numerics: the primary Takeoff/Zero-Fuel/CG values are enlarged to ≥1.5rem with tabular figures, and Takeoff & Zero-Fuel mass gain a limit-proximity highlight (amber within 2% of the limit, red at/over) backed by colour-independent screen-reader status text; the authoritative limit check remains the math-core notifications (UX-013, REQ-UQ-003/REQ-UI-018, closes #279)
 - Fleet-load timeout escalation on the Flight Preparation aircraft card: a fleet load that stalls past 10s now swaps its spinner for an actionable error offering **Retry** or **Go to Fleet**, instead of an indefinite spinner (UX-014, REQ-AC-001/REQ-MB-002, closes #279)
 - In-app aircraft-wizard exit modal (Save draft / Discard / Keep editing) replacing the native `confirm()` that the iOS back-gesture could dismiss out from under an in-progress build; focus defaults to the non-destructive Keep editing action (UX-015, REQ-AC-001/REQ-UI-011, closes #279)
+- In-app first-launch disclaimer acknowledgement gate: a blocking modal asserts Pilot-in-Command responsibility and POH precedence before any safety-critical surface is reachable; acceptance is persisted to `localStorage` keyed against the disclaimer baseline (`MAJOR.MINOR` of the running build), and the gate is re-shown only after a milestone-level baseline change (REQ-SYS-016, closes #280)
 
 ### Fixed
 

@@ -65,3 +65,19 @@ System Requirements
   REQ-SYS-015
     title: Export of All Personal Data
     file: docs/requirements/system.md
+
+  REQ-SYS-016
+    title: Disclaimer Acknowledgement
+    file: docs/requirements/system.md
+
+  REQ-SYS-017
+    title: In-App Contribution Intake — Three-Channel Entry
+    file: docs/requirements/system.md
+
+  REQ-SYS-018
+    title: Prefilled GitHub Issue Handoff for Defects and Feature Requests
+    file: docs/requirements/system.md
+
+  REQ-SYS-019
+    title: Security Advisory Link-Only Handoff
+    file: docs/requirements/system.md

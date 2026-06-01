@@ -97,6 +97,36 @@ Architecture Design
       - REQ-SYS-006
     file: docs/architecture/adr/011-min-safe-version-fetch-privacy.md
 
+  DES-ARCH-014
+    title: Disclaimer Acknowledgement — Trigger & Frequency
+    req:
+      - REQ-SYS-016
+    file: docs/architecture/disclaimer-acknowledgement.md
+
+  DES-ARCH-015
+    title: Disclaimer Acknowledgement — Blocking Enforcement
+    req:
+      - REQ-SYS-016
+    file: docs/architecture/disclaimer-acknowledgement.md
+
+  DES-ARCH-016
+    title: Disclaimer Acknowledgement — Consent Content
+    req:
+      - REQ-SYS-016
+    file: docs/architecture/disclaimer-acknowledgement.md
+
+  DES-ARCH-017
+    title: Disclaimer Acknowledgement — Acceptance Persistence
+    req:
+      - REQ-SYS-016
+    file: docs/architecture/disclaimer-acknowledgement.md
+
+  DES-ARCH-018
+    title: P1 GitHub Issue URL Builder & Handoff Contract
+    file: docs/ux/contribution.md
+    req:
+      - REQ-SYS-018
+
 ARCH (auto)
   DES-ARCH-010
     title: TODO: describe this artifact

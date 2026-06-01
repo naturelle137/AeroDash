@@ -1,6 +1,10 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onBeforeUnmount, ref } from 'vue'
+import DecimalInput, { type DecimalRejection } from '@/shared/components/DecimalInput.vue'
 import type { StationInput } from '@/modules/mass-balance/stores/mass-balance.types'
+
+/** How long the transient inline rejection hint stays visible (ms). */
+const REJECTION_HINT_MS = 2500
 
 const props = defineProps<{
   station: StationInput
@@ -55,15 +59,67 @@ const coarseStepValue = computed(() => {
 
 const presetList = computed(() => props.presets ?? [])
 
+/** Finite upper bound for the field — the operational limit when a slider is shown. */
+const fieldMax = computed(() =>
+  showSlider.value && props.maxCapacity != null ? props.maxCapacity : undefined,
+)
+
 function clamp(value: number): number {
   if (!Number.isFinite(value)) return minWeight.value
   const ceiling = showSlider.value && props.maxCapacity != null ? props.maxCapacity : Infinity
   return Math.min(ceiling, Math.max(minWeight.value, value))
 }
 
-function onInput(event: Event): void {
-  const raw = (event.target as HTMLInputElement).value
-  const parsed = parseFloat(raw)
+// ─── Sanitised decimal entry + inline rejection feedback (UX-010 / UX-011) ──
+// @IMP-MB-UI-010@ (FROM: @REQ-UQ-001@)
+//
+// The field is a DecimalInput (type=text + inputmode=decimal + regex sanitiser)
+// instead of type=number, so "e"/"+" can no longer slip through and be parsed
+// as a magnitude shift ("1e2" → 100). DecimalInput blocks the bad input and
+// emits `reject`; we surface a transient inline hint and an immediate error
+// border so the pilot sees the value was refused rather than silently swallowed.
+
+/** Transient message shown when the last keystroke was refused; null when clear. */
+const rejectionHint = ref<string | null>(null)
+const isRejected = computed(() => rejectionHint.value !== null)
+let rejectionTimer: ReturnType<typeof setTimeout> | null = null
+
+function clearRejectionTimer(): void {
+  if (rejectionTimer !== null) {
+    clearTimeout(rejectionTimer)
+    rejectionTimer = null
+  }
+}
+
+const unitSuffix = computed(() => (props.unit ? ` ${props.unit}` : ''))
+
+function onFieldInput(value: number | null): void {
+  // An accepted value clears any stale rejection hint immediately.
+  rejectionHint.value = null
+  clearRejectionTimer()
+  emit('update:weight', clamp(value ?? minWeight.value))
+}
+
+function onReject(detail: DecimalRejection): void {
+  if (detail.reason === 'min') {
+    rejectionHint.value = `Minimum is ${minWeight.value}${unitSuffix.value}.`
+  } else if (detail.reason === 'max') {
+    rejectionHint.value =
+      fieldMax.value != null ? `Maximum is ${fieldMax.value}${unitSuffix.value}.` : 'Value too high.'
+  } else {
+    rejectionHint.value = 'Enter digits only — letters and symbols (e, +) are not allowed.'
+  }
+  clearRejectionTimer()
+  rejectionTimer = setTimeout(() => {
+    rejectionHint.value = null
+    rejectionTimer = null
+  }, REJECTION_HINT_MS)
+}
+
+onBeforeUnmount(clearRejectionTimer)
+
+function onSliderInput(event: Event): void {
+  const parsed = parseFloat((event.target as HTMLInputElement).value)
   if (!Number.isNaN(parsed)) {
     emit('update:weight', clamp(parsed))
   }
@@ -101,6 +157,7 @@ function applyPreset(value: number): void {
     :class="{
       'mass-station-input--disabled': disabled,
       'mass-station-input--error': station.hasError,
+      'mass-station-input--rejected': isRejected,
     }"
   >
     <div class="mass-station-input__header">
@@ -135,17 +192,16 @@ function applyPreset(value: number): void {
         −
       </button>
 
-      <input
+      <DecimalInput
         :id="`station-${station.index}`"
-        type="number"
         class="mass-station-input__field"
-        :value="station.weight"
-        :disabled="disabled"
-        :aria-invalid="station.hasError || undefined"
-        inputmode="decimal"
+        :model-value="station.weight"
         :min="minWeight"
-        step="1"
-        @input="onInput"
+        :max="fieldMax"
+        :disabled="disabled"
+        :aria-invalid="station.hasError || isRejected || undefined"
+        @update:model-value="onFieldInput"
+        @reject="onReject"
       />
 
       <button
@@ -168,6 +224,17 @@ function applyPreset(value: number): void {
         +{{ coarseStepValue }}
       </button>
     </div>
+
+    <!-- Transient inline rejection feedback (UX-010 / UX-011): shown when the
+         last keystroke was refused (non-decimal char or out of range). -->
+    <p
+      v-if="rejectionHint"
+      class="mass-station-input__reject-hint"
+      role="alert"
+      aria-live="assertive"
+    >
+      {{ rejectionHint }}
+    </p>
 
     <!-- UX-002: one-tap preset chips (e.g. standard passenger weights). -->
     <div
@@ -208,7 +275,7 @@ function applyPreset(value: number): void {
         :max="maxCapacity ?? undefined"
         :disabled="disabled"
         step="1"
-        @input="onInput"
+        @input="onSliderInput"
       />
       <span class="mass-station-input__slider-bound">{{ maxCapacity }}</span>
     </div>
@@ -246,6 +313,20 @@ function applyPreset(value: number): void {
 }
 
 .mass-station-input--error .mass-station-input__label {
+  color: var(--color-critical, #c62828);
+}
+
+/* Transient input-rejection state (UX-010 / UX-011) — distinct from the
+   computation `--error` state; signals the last keystroke was refused. */
+.mass-station-input--rejected .mass-station-input__control {
+  border-color: var(--color-critical, #f44336);
+  box-shadow: 0 0 0 2px var(--color-critical-bg, #ffebee);
+}
+
+.mass-station-input__reject-hint {
+  margin: 0;
+  font-size: 0.6875rem;
+  font-weight: 600;
   color: var(--color-critical, #c62828);
 }
 

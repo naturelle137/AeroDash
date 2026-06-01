@@ -24,7 +24,7 @@ defineEmits<{
 }>()
 
 // ─── Limit-proximity highlighting (UX-013) ───────────────────────────────────
-// @IMP-MB-UI-009@ (FROM: @REQ-UQ-003@, @REQ-UI-018@)
+// @IMP-MB-UI-011@ (FROM: @REQ-UQ-003@, @REQ-UI-018@)
 //
 // A presentational at-a-glance cue, NOT a Go/No-Go determination — the
 // authoritative limit checks remain the math-core notifications (CRIT-MB-002 /

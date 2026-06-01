@@ -1,17 +1,40 @@
 <script setup lang="ts">
-// @IMP-UI-SHARED-002@ (FROM: @REQ-UI-011@, @REQ-SYS-001@)
-// @IMP-SYS-SHARED-005@ (FROM: @REQ-SYS-006@)
-// @IMP-SYS-SHARED-009@ (FROM: @REQ-SYS-006@, @H-019@)
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+// @IMP-UI-SHARED-002@ (FROM: @REQ-UI-011@, @REQ-SYS-001@, @REQ-SYS-006@, @H-019@, @REQ-SYS-016@, @DES-ARCH-014@, @DES-ARCH-015@)
+import { ref, computed, nextTick, onMounted, onBeforeUnmount } from 'vue'
 import { RouterView, RouterLink, useRoute } from 'vue-router'
 import { useTheme } from '@/shared/composables/useTheme'
 import AppLogo from '@/shared/components/AppLogo.vue'
 import AppVersion from '@/shared/components/AppVersion.vue'
+import DisclaimerAcknowledgementModal from '@/shared/components/DisclaimerAcknowledgementModal.vue'
 import { usePwaUpdateStore } from '@/stores/pwa-update.store'
 import { useAppVersionStore, attachConnectivityRefresh } from '@/stores/app-version.store'
+import { useDisclaimerAcknowledgementStore } from '@/stores/disclaimer-acknowledgement.store'
 
 const pwaStore = usePwaUpdateStore()
 const appVersionStore = useAppVersionStore()
+const disclaimerStore = useDisclaimerAcknowledgementStore()
+const disclaimerStorageWriteFailed = ref(false)
+onMounted(() => {
+  disclaimerStore.loadFromStorage()
+})
+async function onDisclaimerAccept(): Promise<void> {
+  const ok = disclaimerStore.acknowledge()
+  disclaimerStorageWriteFailed.value = !ok
+  if (ok) {
+    // Move focus into the now-revealed content so keyboard / AT users are not
+    // stranded after the modal closes.
+    await nextTick()
+    document.getElementById('main-content')?.focus()
+  }
+}
+
+// REQ-SYS-006 / H-019 must pre-empt REQ-SYS-016 (M2): a kill-switched cold
+// start replaces the whole app with the version-blocked screen, so the
+// disclaimer overlay (and its inert guard on .app-shell) must stand down to
+// keep that screen reachable to assistive technologies.
+const disclaimerGateActive = computed(
+  () => disclaimerStore.gateOpen && !appVersionStore.versionBlocked,
+)
 
 // REQ-SYS-006 / H-019 (issue #271): check minimum safe version on every
 // mount. The check itself works offline — it reads the last-known
@@ -121,7 +144,12 @@ const themeLabel = computed(() =>
 </script>
 
 <template>
-  <div class="app-shell" :class="{ 'sidebar--collapsed': sidebarCollapsed }">
+  <div
+    class="app-shell"
+    :class="{ 'sidebar--collapsed': sidebarCollapsed }"
+    :inert="disclaimerGateActive || undefined"
+    :aria-hidden="disclaimerGateActive ? 'true' : undefined"
+  >
 
     <!-- ═══ Top header ══════════════════════════════════════════════════════ -->
     <header class="app-header" role="banner">
@@ -238,8 +266,28 @@ const themeLabel = computed(() =>
         </li>
       </ul>
 
-      <!-- Sidebar footer: advisory + version -->
+      <!-- Sidebar footer: contribute link + advisory + version -->
       <div class="sidebar-footer">
+        <!-- @IMP-UI-SHARED-015@ (FROM: @REQ-SYS-017@, @DES-UX-013@) -->
+        <RouterLink
+          to="/contribute"
+          class="sidebar-contribute"
+          title="Help / contribute"
+          aria-label="Open the contribution hub"
+          data-testid="sidebar-contribute-link"
+        >
+          <span class="sidebar-contribute__icon" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+              <path
+                d="M4 5h12a2 2 0 012 2v6a2 2 0 01-2 2h-6l-4 3v-3H4a2 2 0 01-2-2V7a2 2 0 012-2z"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </span>
+          <span class="sidebar-contribute__label">Help / contribute</span>
+        </RouterLink>
         <p class="sidebar-footer__text">Advisory only. Verify against POH/AFM.</p>
         <AppVersion />
       </div>
@@ -279,7 +327,7 @@ const themeLabel = computed(() =>
 
     <!-- ═══ Main content ════════════════════════════════════════════════════ -->
     <!-- REQ-SYS-006: Block all safety-critical features when version is below minimum -->
-    <main class="app-main" id="main-content">
+    <main class="app-main" id="main-content" tabindex="-1">
       <div
         v-if="appVersionStore.versionBlocked"
         class="version-blocked-screen"
@@ -305,8 +353,19 @@ const themeLabel = computed(() =>
           </p>
         </div>
       </div>
-      <RouterView v-else :key="bfcacheNonce" />
+      <RouterView v-else-if="!disclaimerGateActive" :key="bfcacheNonce" />
+      <p v-else class="app-main__gate-placeholder">
+        Acknowledge the disclaimer to continue.
+      </p>
     </main>
+
+    <!-- Teleports to <body>, outside the inert .app-shell, so it stays interactive while the gate is open. -->
+    <DisclaimerAcknowledgementModal
+      :open="disclaimerGateActive"
+      :storage-unavailable="disclaimerStore.storageUnavailable"
+      :write-failed="disclaimerStorageWriteFailed"
+      @accept="onDisclaimerAccept"
+    />
 
     <!-- ═══ Bottom navigation (mobile only) ════════════════════════════════ -->
     <nav class="app-bottom-nav" aria-label="Main navigation (mobile)">
@@ -622,7 +681,8 @@ const themeLabel = computed(() =>
 /* Collapsed sidebar: hide labels + badges */
 .sidebar--collapsed .sidebar-nav__label,
 .sidebar--collapsed .soon-badge,
-.sidebar--collapsed .sidebar-footer__text {
+.sidebar--collapsed .sidebar-footer__text,
+.sidebar--collapsed .sidebar-contribute__label {
   display: none;
 }
 
@@ -631,6 +691,9 @@ const themeLabel = computed(() =>
 .sidebar-footer {
   padding: var(--space-4) var(--space-3);
   border-top: 1px solid var(--color-divider);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
 }
 
 .sidebar-footer__text {
@@ -638,6 +701,45 @@ const themeLabel = computed(() =>
   color: var(--color-text-secondary);
   margin: 0;
   line-height: 1.4;
+}
+
+.sidebar-contribute {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  font-size: var(--text-xs);
+  font-weight: 600;
+  min-height: 36px;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.sidebar-contribute:hover,
+.sidebar-contribute:focus-visible {
+  background: var(--color-surface-hover);
+  color: var(--color-primary);
+  outline: none;
+}
+
+.sidebar-contribute:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.sidebar-contribute__icon {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+}
+
+.sidebar-contribute__label {
+  flex: 1;
 }
 
 /* ─── Main content ────────────────────────────────────────────────────────── */

@@ -1460,12 +1460,19 @@ MB (auto)
       - IMP-MB-VIEW-011
 
   UT-MB-UI-003
+    title: '"e"/out-of-range station-input rejection + transient inline feedback'
+    files:
+      - frontend/src/modules/mass-balance/components/__tests__/MassStationInput.spec.ts
+    impl:
+      - IMP-MB-UI-010
+
+  UT-MB-UI-004
     title: ResultSummary limit-proximity highlighting tests
     files:
       - frontend/src/modules/mass-balance/components/__tests__/ResultSummary.spec.ts
     impl:
       - IMP-MB-UI-005
-      - IMP-MB-UI-009
+      - IMP-MB-UI-011
 
   UT-MB-VIEW-031
     title: Fleet-load timeout escalates spinner to Retry/Go-to-Fleet error
