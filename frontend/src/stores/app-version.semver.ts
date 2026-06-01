@@ -1,6 +1,6 @@
 /**
  * App Version SemVer helper — shared between the store, cache, and remote
- * legs of the REQ-SYS-006 / H-019 enforcement gate (issue #271).
+ * legs of the REQ-SYS-006 / H-019 enforcement gate.
  *
  * Implements a strict-enough subset of SemVer 2.0.0 ordering rules so the
  * kill-switch comparator cannot silently NaN-collapse on `+build` metadata
@@ -38,15 +38,14 @@ const logger = createLogger('AppVersionSemVer')
  * Composing both regexes from the SAME fragments is deliberate: the previous
  * code had a `[-+]`-only shape-guard that accepted only ONE of pre-release /
  * build while the parser accepted both, so a legal `1.2.3-rc.1+sha` failed the
- * guard and a build-time floor carrying both could be silently demoted
- * (PR-review Major #1). Deriving both from one source makes that drift
- * impossible.
+ * guard and a build-time floor carrying both could be silently demoted.
+ * Deriving both from one source makes that drift impossible.
  *
  * The pre-release grammar is the strict SemVer §9 form — numeric identifiers
  * carry no leading zeros and identifiers are non-empty — so `0.1.2-01`
  * (would compare as numeric `1`, conflating two distinct floors) and
  * `0.1.2-foo..bar` (empty identifier sorts as alphanumeric-lowest) are
- * rejected up front rather than mis-ordered (PR-review Nit #3).
+ * rejected up front rather than mis-ordered.
  *
  * `MAJOR.MINOR.PATCH` is left as `\d+` (leading zeros tolerated) — pragmatic
  * for an app whose own version components are always small.
@@ -175,7 +174,7 @@ export function pickHigherVersion(a: string, b: string): string {
   if (!aValid && !bValid) {
     // Unreachable given upstream shape-guards (cache, remote) and the store's
     // build-time validation, but surface it loudly if a future code path ever
-    // slips two invalid operands through (PR-review Nit #4) — silently
+    // slips two invalid operands through — silently
     // returning `a` would otherwise hide the double-invalid state indefinitely.
     logger.error('pickHigherVersion received two invalid SemVer operands; returning the first', {
       code: 'MIN_SAFE_VERSION_PICK_BOTH_INVALID',

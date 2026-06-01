@@ -13,7 +13,7 @@ import { z } from 'zod'
  * forwards older serialised payloads to {@link SessionPayloadSchema}.
  * A payload whose `version` is newer than the running build can read
  * (PWA-cache rollback) is *dropped* with an INFO notification — never
- * silently truncated (refs #259).
+ * silently truncated.
  *
  * @see docs/architecture/frontend_state_machine.md
  */

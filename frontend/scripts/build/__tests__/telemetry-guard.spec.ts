@@ -59,8 +59,8 @@ describe('assertNoTelemetryInProductionBuild', () => {
 /**
  * Integration with `loadEnv()` — pins the contract that the guard, when
  * fed by `loadEnv()` (as `vite.config.ts` does), DOES see values placed in
- * `.env*` files. This is the regression test for PR #361's MAJOR review
- * finding: a previous version of the guard read `process.env` directly
+ * `.env*` files. This is a regression test verifying the guard sees values
+ * in `.env*` files: a previous version of the guard read `process.env` directly
  * and silently no-op'd when `VITE_LOG_TELEMETRY=true` was placed in
  * `.env.production` / `.env.local`, because Vite does not load `.env*`
  * into `process.env` at config-eval time.

@@ -312,7 +312,7 @@ describe('MassBalanceView integration', () => {
     await wrapper.find('input#station-0').setValue('80')
     expect(store.uiState).toBe('VERIFIED_SAFE')
 
-    // UX-004: the tap now opens a confirm dialog; reset only fires on confirm.
+    // the tap now opens a confirm dialog; reset only fires on confirm.
     await wrapper
       .findAll('button')
       .find((b) => b.text() === 'Reset Payload')!
@@ -383,9 +383,9 @@ describe('MassBalanceView integration', () => {
   })
 })
 
-// ─── UX-004: confirm-then-undo Reset Payload ───────────────────────────────
+// ─── confirm-then-undo Reset Payload ──────────────────────────────────────
 
-describe('MassBalanceView — Reset Payload confirm + undo (UX-004)', () => {
+describe('MassBalanceView — Reset Payload confirm + undo', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
     vi.clearAllMocks()

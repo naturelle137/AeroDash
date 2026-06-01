@@ -444,7 +444,7 @@ describe('AircraftContextSchema', () => {
     })
 
     // @UT-MB-DATA-038@ (FROM: @IMP-MB-DATA-003@, @REQ-FE-001@, H-002)
-    it('rejects a genuinely unknown fuel-type string (CS-009 fail-closed)', () => {
+    it('rejects a genuinely unknown fuel-type string (fail-closed)', () => {
       const result = AircraftContextSchema.safeParse(
         buildValidContext({
           loadPoints: [

@@ -15,7 +15,7 @@
  *  - `presence.spec.ts` — keeps the CI unit-test gate honest even when
  *    `trace check` isn't part of a particular workflow.
  *
- * Issue #264: deferred from the v0.3.0-alpha release audit (PR-002).
+ * Deferred from the v0.3.0-alpha release audit.
  */
 
 import { stat } from 'node:fs/promises'

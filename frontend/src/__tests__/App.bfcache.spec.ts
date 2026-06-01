@@ -1,5 +1,5 @@
 /**
- * Regression tests for issue #232 — Delete button unresponsive on /fleet after
+ * Regression tests — Delete button unresponsive on /fleet after
  * the pilot returns from /fleet/:id/edit via the browser back button (or the
  * iOS Safari swipe-back edge gesture).
  *
@@ -118,7 +118,7 @@ function firePageshow(persisted: boolean): void {
   window.dispatchEvent(new PageTransitionEvent('pageshow', { persisted }))
 }
 
-describe('App.vue — bfcache restoration (issue #232)', () => {
+describe('App.vue — bfcache restoration', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
   })
@@ -226,7 +226,7 @@ describe('App.vue — bfcache restoration (issue #232)', () => {
  * remount-route scope past the documented allowlist would fail one of
  * these assertions instead of silently regressing the production bug.
  */
-describe('App.vue — bfcache restoration against real component (issue #232)', () => {
+describe('App.vue — bfcache restoration against real component', () => {
   // A stub RouterView whose `onMounted` hook runs on every (re)mount; the
   // spec hands the counter ref to the stub before mounting so each test
   // gets a clean mount-count baseline. We increment in `onMounted` rather

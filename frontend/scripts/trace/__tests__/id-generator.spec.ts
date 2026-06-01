@@ -148,7 +148,7 @@ describe('id-generator', () => {
       expect(dupes[0].files).toEqual(['a.ts:1', 'b.ts:1'])
     })
 
-    it('treats same-file repetition as a single declaration (issue #265)', () => {
+    it('treats same-file repetition as a single declaration', () => {
       // The registry tracks tag → files at file granularity, so two
       // occurrences of an id within the same file are one declaration
       // — typical when a spec file carries both a header manifest

@@ -3,7 +3,7 @@
  *
  * Exercises the on-read migration path documented in
  * `frontend/src/core/logic/profile-migrations.ts` against a real (faked) IndexedDB,
- * specifically the two scenarios called out by the v0.3.0-alpha audit (refs #259):
+ * specifically the two scenarios called out by the v0.3.0-alpha audit:
  *
  *   1. Downgrade after PWA cache rollback — IDB holds a document whose
  *      `schemaVersion` is greater than the running build can read.
@@ -123,7 +123,7 @@ async function seedRaw(doc: Record<string, unknown>, dbVersion = 2): Promise<voi
 
 // ─── Downgrade scenarios (PWA cache rollback) ─────────────────────────────────
 
-describe('fleetRepository — downgrade after PWA cache rollback (refs #259)', () => {
+describe('fleetRepository — downgrade after PWA cache rollback', () => {
   // @IT-AC-STORE-102@ (FROM: @IMP-AC-STORE-001@, @IMP-AC-CORE-003@)
   it('drops a single document whose schemaVersion is from a future build', async () => {
     const futureId = '00000000-0000-4000-a000-0000000000f0'
@@ -187,7 +187,7 @@ describe('fleetRepository — downgrade after PWA cache rollback (refs #259)', (
 
 // ─── Corruption / partial-migration recovery ─────────────────────────────────
 
-describe('fleetRepository — corruption + partial-migration crash recovery (refs #259)', () => {
+describe('fleetRepository — corruption + partial-migration crash recovery', () => {
   // @IT-AC-STORE-105@ (FROM: @IMP-AC-STORE-001@, @IMP-AC-CORE-003@)
   it('drops a structurally invalid document and emits a corrupt diagnostic', async () => {
     const badId = '00000000-0000-4000-a000-0000000000b0'
@@ -267,7 +267,7 @@ describe('fleetRepository — corruption + partial-migration crash recovery (ref
 
   // @IT-AC-STORE-108@ (FROM: @IMP-AC-STORE-001@, @IMP-AC-CORE-003@)
   it('diagnostics are per-call — interleaved findAll / findById do not cross-contaminate', async () => {
-    // Before the per-call refactor (#353 review feedback), a single module
+    // Before the per-call refactor, a single module
     // buffer could mix diagnostics from two concurrent loads. With the tuple
     // API each call's diagnostics are returned in its own promise resolution.
     const futureId = '00000000-0000-4000-a000-0000000000e0'
@@ -309,7 +309,7 @@ describe('fleetRepository — corruption + partial-migration crash recovery (ref
   })
 })
 
-// ─── Envelope round-trip with migration (refs #259) ─────────────────────────
+// ─── Envelope round-trip with migration ──────────────────────────────────────
 
 describe('fleetRepository — exchange envelope import back-compat', () => {
   // @IT-AC-STORE-109@ (FROM: @IMP-AC-STORE-008@, @IMP-AC-CORE-003@)

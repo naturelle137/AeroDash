@@ -1,5 +1,5 @@
 /**
- * Integration test — issue #263 (DP-004 / CS-012).
+ * Integration test.
  *
  * Validates the end-to-end behaviour of the sessionStorage-failure pilot
  * advisory: the `pwaUpdateStore.sessionStorageAdvisory` ref drives a banner
@@ -52,7 +52,7 @@ async function mountApp(): Promise<{ wrapper: ReturnType<typeof mount>; router: 
   return { wrapper, router }
 }
 
-describe('App.vue ↔ pwaUpdateStore session-storage advisory (issue #263)', () => {
+describe('App.vue ↔ pwaUpdateStore session-storage advisory', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
   })

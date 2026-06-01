@@ -41,15 +41,15 @@ import { diffRegistry, loadIndexedRegistry } from '../lib/registry.mjs'
  * @property {Record<string, ReturnType<typeof diffRegistry>>} registryDrift
  * @property {import('../lib/presence.mjs').PresenceReport} presence
  *           Document-registry presence — REQ/UJ YAML files missing from
- *           trace/requirements/ and trace/journeys/ (issue #264 / STC §4.2).
+ *           trace/requirements/ and trace/journeys/ (STC §4.2).
  * @property {import('../lib/hazard-status.mjs').UnmitigatedHazard[]} unmitigatedHazards
  *           Hazards with no mitigating REQ in an active status — release
- *           audit PR-009 / issue #267. A non-empty list hard-fails the gate.
+ *           audit. A non-empty list hard-fails the gate.
  * @property {ReqCoverageReport} reqCoverage
  *           Release-readiness coverage tally for declared REQs. Deferred
  *           and Deprecated REQs are excluded from `pendingReqs` and
  *           `unverifiedP1Reqs` so the audit signal is not bloated by
- *           out-of-scope work (issue #269 / release-audit PR-017).
+ *           out-of-scope work.
  */
 
 /**
@@ -69,8 +69,8 @@ import { diffRegistry, loadIndexedRegistry } from '../lib/registry.mjs'
 /**
  * Compute the REQ-coverage tally — which Approved (or otherwise in-scope)
  * REQs lack a downstream IMP/DES chain. Status-aware so Deferred /
- * Deprecated REQs are not counted as "pending" (issue #269 /
- * release-audit PR-017): a Deferred REQ is truthfully out of scope for
+ * Deprecated REQs are not counted as "pending": a Deferred REQ is
+ * truthfully out of scope for
  * the current release cycle, and a Deprecated REQ has been withdrawn —
  * neither should bloat the "release blockers" list.
  *
@@ -404,7 +404,7 @@ export async function runCheck({ repoRoot, log = () => {}, warnOnly = false, str
     }
   }
 
-  // STC §4.2 / issue #264: every module with REQ tags and every phase
+  // STC §4.2: every module with REQ tags and every phase
   // with UJ tags MUST own a YAML registry file. Surface gaps so the
   // shtracer registry never silently regresses to an empty index.
   if (report.presence.missingRequirements.length) {
@@ -422,7 +422,7 @@ export async function runCheck({ repoRoot, log = () => {}, warnOnly = false, str
     }
   }
 
-  // Issue #269 / release-audit PR-017: report REQs in an active, in-scope
+  // report REQs in an active, in-scope
   // status that still have no IMP/DES chain. Pre-v1.0.0 this is warn-only
   // (the coverage gate as a whole is warn-only — see TESTING.md §6) so
   // the violation count is left untouched; the log line keeps the gap
@@ -440,7 +440,7 @@ export async function runCheck({ repoRoot, log = () => {}, warnOnly = false, str
     )
   }
 
-  // Issue #267 (release audit PR-009): hazards without a non-deprecated
+  // hazards without a non-deprecated
   // mitigating REQ are a hard-fail. A `Deprecated` REQ does NOT count —
   // that is the bug class this gate closes.
   if (report.unmitigatedHazards.length) {

@@ -159,7 +159,7 @@ describe('validateImportFile', () => {
   }
 
   // @UT-AC-STORE-084@ (FROM: @IMP-AC-STORE-007@)
-  it('rejects an oversized file before reading it (CS-003)', () => {
+  it('rejects an oversized file before reading it', () => {
     const tooBig = makeFile(MAX_IMPORT_FILE_BYTES + 1, 'application/json', 'evil.json')
     expect(() => validateImportFile(tooBig)).toThrow(ImportError)
     expect(() => validateImportFile(tooBig)).toThrow('too large')
@@ -210,7 +210,7 @@ describe('exportProfileToJson', () => {
   })
 
   // @UT-AC-STORE-101@ (FROM: @IMP-AC-STORE-008@)
-  it('wraps the profile in an aerodash-aircraft envelope (refs #259)', () => {
+  it('wraps the profile in an aerodash-aircraft envelope', () => {
     const data = createValidExportedProfile() as AircraftProfile
     const json = exportProfileToJson(data)
     const parsed = JSON.parse(json) as Record<string, unknown>
@@ -221,7 +221,7 @@ describe('exportProfileToJson', () => {
   })
 
   // @UT-AC-STORE-128@ (FROM: @IMP-AC-STORE-010@)
-  it('excludes operating-cost fields from the default export (DP-008/DP-009)', () => {
+  it('excludes operating-cost fields from the default export', () => {
     const data = {
       ...createValidExportedProfile(),
       costPerHour: 185.5,
@@ -261,7 +261,7 @@ describe('exportProfileToJson', () => {
   })
 })
 
-// ─── Envelope detection + back-compat (refs #259) ─────────────────────────────
+// ─── Envelope detection + back-compat ────────────────────────────────────────
 
 describe('isExchangeEnvelope', () => {
   // @UT-AC-STORE-102@ (FROM: @IMP-AC-STORE-008@)
@@ -304,7 +304,7 @@ describe('isExchangeEnvelope', () => {
   })
 })
 
-describe('importProfileFromJson — exchange envelope and back-compat (refs #259)', () => {
+describe('importProfileFromJson — exchange envelope and back-compat', () => {
   // @UT-AC-STORE-108@ (FROM: @IMP-AC-STORE-008@)
   it('imports a profile wrapped in the current-version envelope', () => {
     const envelope = {
@@ -318,7 +318,7 @@ describe('importProfileFromJson — exchange envelope and back-compat (refs #259
   })
 
   // @UT-AC-STORE-109@ (FROM: @IMP-AC-STORE-008@)
-  it('imports a legacy bare-profile JSON (back-compat with pre-#259 exports)', () => {
+  it('imports a legacy bare-profile JSON (back-compat with older exports)', () => {
     // No envelope: the entire tree IS the profile (the v0.3.0-alpha export shape).
     const bare = createValidExportedProfile()
     const profile = importProfileFromJson(JSON.stringify(bare))
@@ -437,7 +437,7 @@ describe('downloadProfileAsJson', () => {
   })
 
   // @UT-AC-STORE-127@ (FROM: @IMP-AC-STORE-010@)
-  it('downloaded blob omits operating-cost data by default (DP-008/DP-009)', async () => {
+  it('downloaded blob omits operating-cost data by default', async () => {
     const profile = {
       ...createValidExportedProfile(),
       costPerHour: 185.5,

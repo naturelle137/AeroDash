@@ -1,5 +1,5 @@
 /**
- * DP-004 / CS-012 (issue #263, PR #361) — production-build telemetry guard.
+ * Production-build telemetry guard.
  *
  * `logger.telemetryTrace()` emits raw computation inputs/outputs
  * (pilot-entered Mass & Balance / Performance / Fuel data) and BYPASSES the
@@ -19,7 +19,7 @@
  * dropping `VITE_LOG_TELEMETRY=true` into `.env.production` / `.env.local`
  * would escape the guard while still shipping a telemetry-enabled bundle
  * (because Vite *does* populate `import.meta.env` from those files when
- * producing the bundle). See PR #361 review (MAJOR).
+ * producing the bundle).
  */
 
 /**

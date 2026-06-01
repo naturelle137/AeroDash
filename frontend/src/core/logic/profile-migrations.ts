@@ -4,7 +4,7 @@
  *
  * Resilience model for stored `AircraftProfile` documents.
  *
- * Background (refs #259, audit findings TECH-005 / TECH-022 / TECH-025):
+ * Background:
  *  - The `aerodash-fleet` IndexedDB store writes a `schemaVersion: 1` field on
  *    every document but, until this module shipped, never *read* it back on
  *    load. Documents were rehydrated through `AircraftProfileSchema.parse`

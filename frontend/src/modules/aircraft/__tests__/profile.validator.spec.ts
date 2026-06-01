@@ -61,7 +61,7 @@ describe('validateIcaoRegistration', () => {
     expect(validateIcaoRegistration('D-ABCDE')).toBe(true)
   })
 
-  // ─── Tightened regex — hyphen abuse rejection (refs #270, CS-007) ──────────
+  // ─── Tightened regex — hyphen abuse rejection ──────────────────────────────
 
   // @UT-AC-STORE-116@ (FROM: @IMP-AC-STORE-002@)
   it('rejects a registration of letter + only hyphens ("A------")', () => {

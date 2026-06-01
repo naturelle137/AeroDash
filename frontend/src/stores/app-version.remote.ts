@@ -5,7 +5,7 @@
  * P3 App Shell — uses browser APIs (`fetch`) only; no Vue/Pinia framework
  * imports.
  *
- * ## REQ-SYS-006 — Scheduled-fetch lobby (issue #271)
+ * ## REQ-SYS-006 — Scheduled-fetch lobby
  *
  * The build-time constant `__MIN_SAFE_VERSION__` is baked into each released
  * bundle and cannot be raised without a re-deploy. To make the kill-switch
@@ -36,7 +36,7 @@
  * store still applies `max(buildTimeConstant, cachedValue, remoteValue)`.
  *
  * The privacy implications of issuing the fetch on every cold start are
- * tracked separately in issue #274 (ADR pending). For now the fetch carries
+ * tracked separately (ADR pending). For now the fetch carries
  * no body, no identifying headers, and is cache-busted only via the
  * standard browser cache (no query param).
  */
@@ -141,8 +141,8 @@ export async function fetchRemoteMinSafeVersion(
         // strictly: anything else (non-numeric `abc`, hex `0x10`, padded/empty,
         // comma-joined duplicate `42, 42`) is malformed, so we cannot trust the
         // pre-flight size signal and reject rather than fall through to read an
-        // unbounded body. (PR-review Minor #4 — `Number('abc')` is NaN, which
-        // the prior `Number.isFinite(len) && len > cap` test quietly skipped;
+        // unbounded body. (`Number('abc')` is NaN, which the prior
+        // `Number.isFinite(len) && len > cap` test quietly skipped;
         // `Number('0x10')`/`Number(' 4000 ')`/`Number('')` would also have
         // sneaked through a looser numeric coercion.)
         if (!/^\d+$/.test(lenHeader.trim())) return null
@@ -154,7 +154,7 @@ export async function fetchRemoteMinSafeVersion(
       // Post-read cap for chunked / SW responses that omit Content-Length.
       // Measure actual UTF-8 byte length (not UTF-16 code units) so a body of
       // multi-byte codepoints cannot slip past a code-unit count that is 2–4×
-      // smaller than the transport size (PR-review Minor #3).
+      // smaller than the transport size.
       const byteLength =
         typeof TextEncoder === 'function' ? new TextEncoder().encode(text).length : text.length
       if (byteLength > MAX_BODY_BYTES) return null
@@ -175,7 +175,7 @@ export async function fetchRemoteMinSafeVersion(
     }
   }
 
-  // Single wall-clock timeout (PR-review Minor #5 + iteration). On timeout we
+  // Single wall-clock timeout. On timeout we
   // both abort the in-flight request (cancellation when the signal is honoured)
   // AND resolve `null` (the budget guarantee when it is not — sandboxed WebView
   // with no AbortController, or a `fetchImpl` that ignores the signal). Driving

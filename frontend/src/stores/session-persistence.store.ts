@@ -13,7 +13,7 @@
  *  - Saves are debounced to avoid writing on every keystroke.
  *  - Restored payloads are routed through the P1 migration registry. Payloads
  *    from a *future* build (PWA-cache rollback) are dropped with an INFO
- *    notification rather than silently truncated (refs #259). Outright
+ *    notification rather than silently truncated. Outright
  *    corruption clears storage and starts a clean session.
  *
  * @see docs/architecture/frontend_state_machine.md
@@ -187,7 +187,7 @@ export const useSessionPersistenceStore = defineStore('sessionPersistence', () =
     } catch {
       // Storage held a string that was not valid JSON — treat the same as a
       // corrupt migration outcome (clear + notify) so the pilot sees one
-      // unified INFO message rather than the silent-clear pre-#259 behaviour.
+      // unified INFO message rather than the silent-clear behaviour.
       clearSession()
       lastDropNotification.value = buildDropNotification('corrupt', 0)
       return null

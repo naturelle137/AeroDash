@@ -1,7 +1,7 @@
 /**
  * Step definitions for fleet-delete-after-browser-back.feature
  *
- * Issue #232 regression. The delete control on the Fleet list page must keep
+ * The delete control on the Fleet list page must keep
  * firing its confirmation dialog after the pilot returns from the editor via
  * the browser back button or after the page is restored from the browser's
  * bfcache (iOS Safari swipe-back gesture). E2E trace tags live in the

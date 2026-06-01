@@ -2,14 +2,14 @@
  * Unit tests for app-version.cache.ts
  * Uses fake-indexeddb to exercise the IndexedDB code paths without a browser.
  *
- * Covers REQ-SYS-006 / H-019 — the offline-enforcement substrate from issue
- * #271 (CS-011 / TECH-023). The store relies on these primitives being
+ * Covers REQ-SYS-006 / H-019 — the offline-enforcement substrate. The store
+ * relies on these primitives being
  * (a) total — they never throw, even when the storage backend is broken,
  * (b) shape-strict — a corrupt record is treated as absent so a bad write
  * from an older bundle cannot demote the floor, and (c) durable — a
  * `readwrite` op resolves only after `tx.oncomplete`, not the inner
  * `request.onsuccess`, so a tab kill between resolve and commit cannot
- * silently lose the new floor (PR-review Major #3).
+ * silently lose the new floor.
  */
 
 import { describe, it, expect, beforeEach } from 'vitest'
@@ -61,8 +61,8 @@ describe('app-version.cache — load / persist round-trip', () => {
   })
 
   // @UT-SYS-STORE-081@ (FROM: @IMP-SYS-STORE-015@)
-  // PR-review Major #3: persist must resolve on tx.oncomplete (post-commit),
-  // not request.onsuccess. fake-indexeddb fires both events; observing that a
+  // persist must resolve on tx.oncomplete (post-commit), not
+  // request.onsuccess. fake-indexeddb fires both events; observing that a
   // sequential read AFTER the persist resolves sees the written value
   // exercises the same code path that production IDB depends on for
   // durability. (A direct tx.oncomplete vs onsuccess discrimination would
@@ -127,8 +127,8 @@ describe('app-version.cache — corrupt-record defence', () => {
   })
 
   // @UT-SYS-STORE-079@ (FROM: @IMP-SYS-STORE-014@)
-  // PR-review Minor #10: the discriminated outcome lets the store
-  // distinguish first-install (INFO) from a broken record (WARN).
+  // the discriminated outcome lets the store distinguish first-install (INFO)
+  // from a broken record (WARN).
   it('inspect reports `corrupt` for a malformed record (distinct from `absent`)', async () => {
     const req = indexedDB.open('aerodash-app-version', 1)
     req.onupgradeneeded = () => {
@@ -177,9 +177,9 @@ describe('app-version.cache — IndexedDB unavailable', () => {
   })
 
   // @UT-SYS-STORE-080@ (FROM: @IMP-SYS-STORE-014@)
-  // PR-review Minor #10: distinguish `unavailable` from `absent` so the
-  // store can emit a WARN (vs INFO for first-install) and an operator can
-  // separate Safari-private-mode reports from genuine fresh installs.
+  // distinguish `unavailable` from `absent` so the store can emit a WARN
+  // (vs INFO for first-install) and an operator can separate
+  // Safari-private-mode reports from genuine fresh installs.
   it('inspect reports `unavailable` when storage throws (distinct from `absent`)', async () => {
     Object.defineProperty(globalThis, 'indexedDB', {
       value: {
@@ -195,7 +195,7 @@ describe('app-version.cache — IndexedDB unavailable', () => {
   })
 })
 
-describe('app-version.cache — inspect outcomes (PR-review Minor #10)', () => {
+describe('app-version.cache — inspect outcomes', () => {
   // @UT-SYS-STORE-078@ (FROM: @IMP-SYS-STORE-014@)
   it('inspect reports `absent` on a virgin store and `hit` after a successful persist', async () => {
     expect((await inspectCachedMinSafeVersion()).kind).toBe('absent')

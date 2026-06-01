@@ -11,7 +11,7 @@ import {
 
 import { loadRegistry, validateRegistry } from '../lib/registry.mjs'
 
-// This spec is the CI surface for the data-constants gate (issue #275). It runs
+// This spec is the CI surface for the data-constants gate. It runs
 // in `pnpm test:unit` (vitest.config.ts includes `scripts/**/*.spec.ts`), so the
 // gate is enforced WITHOUT any GitHub Actions workflow change. It asserts:
 //   - the registry is schema-complete, source-cited, and not stale, AND
@@ -44,7 +44,7 @@ const entry = (id: string): RegistryEntry => {
   return found
 }
 
-describe('data-constants registry gate (#275 / PR-014)', () => {
+describe('data-constants registry gate', () => {
   it('is schema-complete, source-cited, and current (no stale entries)', () => {
     const report = validateRegistry(registry, new Date())
     expect(report.schemaErrors, 'schema errors').toEqual([])

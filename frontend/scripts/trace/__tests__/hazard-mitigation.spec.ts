@@ -1,10 +1,10 @@
 /**
- * Hazard mitigation gate — issue #267, deferred from v0.3.0-alpha release
- * audit PR-009. Fails the unit-test suite the moment any hazard in
+ * Hazard mitigation gate — deferred from v0.3.0-alpha release audit. Fails
+ * the unit-test suite the moment any hazard in
  * `docs/risk_management/safety_hazards.md` loses its last non-deprecated
  * mitigating REQ.
  *
- * Pre-issue-#267 the safety-traceability chain looked complete on paper —
+ * Previously, the safety-traceability chain looked complete on paper —
  * every REQ that mitigates a hazard carried a `FROM: @H-…@` reference and
  * shtracer's coverage gate was happy with the link count. But shtracer
  * didn't read REQ status. If the only REQ mitigating H-007 was later
@@ -15,7 +15,7 @@
  * status from the markdown body, and asserts that every declared H-tag
  * has at least one mitigating REQ in `Draft`/`Review`/`Approved`/
  * `Implemented` status. A `Deprecated` mitigator does not count — that is
- * the bug class issue #267 closes.
+ * the bug class this gate closes.
  */
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
@@ -35,7 +35,7 @@ import { loadRegistryDir } from '../lib/registry.mjs'
 const HERE = path.dirname(fileURLToPath(import.meta.url))
 const REPO_ROOT = path.resolve(HERE, '..', '..', '..', '..')
 
-describe('hazard mitigation status (issue #267)', () => {
+describe('hazard mitigation status', () => {
   it('every declared hazard has at least one non-deprecated mitigating requirement', async () => {
     const { unmitigated, hazardIds } = await findUnmitigatedHazards(REPO_ROOT)
     if (unmitigated.length > 0) {
