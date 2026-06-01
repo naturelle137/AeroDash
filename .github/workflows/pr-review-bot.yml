@@ -1,31 +1,52 @@
 name: Autonomous PR Reviewer
 
-# Posts a structured automated review on every new PR targeting `develop`
-# (bot- or human-authored). An AID to human review, never a substitute — and
-# never an approval. Governed by ADR-317-DEV.
+# Posts a structured automated review on PRs targeting `develop`, but ONLY
+# after every gating workflow (CI, DoD, Security, Traceability, E2E,
+# Branching, Mutation) has finished on the same commit. Reviewing before the
+# pipeline reports is wasted work: a red CI/DoD result means the PR will get
+# corrected, and the review would just be re-run against a new commit. The
+# review is an AID to human review, never a substitute — and never an approval.
+# Governed by ADR-317-DEV.
 #
-# Fork safety: triggers on `pull_request` (NOT pull_request_target) and only runs
-# the secret-bearing review for SAME-REPO PRs, so secrets never reach untrusted
-# fork code.
+# Fork safety: `workflow_run` runs in the context of the default branch with
+# default-branch secrets, but we still gate on `head_repository == this repo`
+# before checking out PR code, so untrusted fork code never sees secrets.
 # refs #319, #316
 
 on:
-  pull_request:
-    types: [opened, synchronize, ready_for_review]
-    branches: [develop]
+  workflow_run:
+    # Trigger on completion of every workflow that gates a PR to `develop`.
+    # The job below then verifies ALL of these have completed on the same head
+    # SHA before posting a review — a single workflow_run firing alone is not
+    # enough. Only includes workflows whose `on:` actually fires for PRs to
+    # develop; main-only gates (Traceability, Governance) and post-merge gates
+    # (Playwright push) are deliberately excluded — they never report a
+    # workflow run on a develop PR's head SHA, so gating on them would
+    # deadlock the reviewer forever.
+    workflows:
+      - CI
+      - DoD Attestation Gate
+      - Security Scanning
+      - Mutation Score (P1 Safety Core)
+    types: [completed]
 
+# Serialise per PR head ref so concurrent gate completions don't double-review.
 concurrency:
-  group: pr-review-${{ github.event.pull_request.number }}
-  cancel-in-progress: true
+  group: pr-review-${{ github.event.workflow_run.head_branch }}
+  cancel-in-progress: false
 
 permissions:
   contents: read
   pull-requests: write
   issues: read
+  actions: read # list workflow runs to verify all gates have completed
   id-token: write # required by anthropics/claude-code-action (OIDC)
 
 env:
-  REVIEW_MODEL: claude-opus-4-7
+  # Latest Sonnet — fast enough to keep reviews responsive once the pipeline
+  # turns green, with `high` reasoning effort for thorough finding coverage.
+  REVIEW_MODEL: 'claude-sonnet-4-6'
+  REVIEW_EFFORT: 'high'
   # A full structured review (read diff, walk affected files, cross-check P1
   # isolation + traceability + safety, write findings, submit via `gh pr
   # review`) needs comparable headroom to the implementer and iteration bots.
@@ -34,19 +55,106 @@ env:
   # ready-gate stuck. Aligned with overnight-implementation.yml and
   # pr-iteration.yml at 150 so all three bots share one budget knob.
   MAX_TURNS: '150'
+  # Names of every workflow that must report `completed` on the head SHA
+  # before the review runs. MUST match `on.workflow_run.workflows` above —
+  # the resolve step gates on this list, not on which workflow fired.
+  GATING_WORKFLOWS: |
+    CI
+    DoD Attestation Gate
+    Security Scanning
+    Mutation Score (P1 Safety Core)
 
 jobs:
   review:
     name: Automated review
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    # Same-repo only: fork PRs do not receive secrets, so skip rather than fail.
-    if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
+    # Only consider PR-triggered runs from THIS repository (skip fork PRs and
+    # branch/tag-triggered runs of the gating workflows). Job-level `if` runs
+    # before any step, so this short-circuits the whole job cleanly.
+    if: >-
+      ${{
+        github.event.workflow_run.event == 'pull_request' &&
+        github.event.workflow_run.head_repository.full_name == github.repository
+      }}
     steps:
+      # ── Decide whether to actually run the review on this commit ────────────
+      # workflow_run fires once per gating workflow completion, so most firings
+      # are "another gate is still pending — wait." Resolve the PR, verify ALL
+      # gates have completed on this head SHA, and skip if claude[bot] has
+      # already reviewed this exact commit (idempotency across firings).
+      - name: Resolve PR & gate readiness
+        id: gate
+        uses: actions/github-script@v9
+        env:
+          GATING_WORKFLOWS: ${{ env.GATING_WORKFLOWS }}
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const wr = context.payload.workflow_run;
+            const headSha = wr.head_sha;
+            const headBranch = wr.head_branch;
+            const out = (o) => { for (const [k, v] of Object.entries(o)) core.setOutput(k, String(v)); };
+            const skip = (why) => { core.info(`Skipping review: ${why}`); out({ proceed: 'false' }); };
+
+            // 1) Find the open PR for this head SHA, targeting develop.
+            const prs = await github.rest.pulls.list({
+              owner, repo, state: 'open', head: `${owner}:${headBranch}`, base: 'develop',
+            });
+            const pr = prs.data.find((p) => p.head.sha === headSha) || prs.data[0];
+            if (!pr) return skip(`no open PR for branch ${headBranch}`);
+
+            // 2) Same-repo guard (belt-and-braces — job-level `if` already gates).
+            if (pr.head.repo.full_name !== `${owner}/${repo}`) return skip('fork PR');
+
+            // 3) Verify EVERY gating workflow has a `completed` workflow run on
+            //    this head SHA. A `workflow_run` firing for one gate doesn't
+            //    mean the others are done — review only when the whole pipeline
+            //    has reported. Workflow-run names (not check-run/job names) are
+            //    what `on.workflow_run.workflows` matches on, so the lookup uses
+            //    `actions.listWorkflowRunsForRepo` rather than `checks.listForRef`
+            //    (a multi-job workflow like CI has no single "CI" check run).
+            const required = process.env.GATING_WORKFLOWS
+              .split('\n').map((s) => s.trim()).filter(Boolean);
+            const runs = await github.paginate(github.rest.actions.listWorkflowRunsForRepo, {
+              owner, repo, head_sha: headSha, event: 'pull_request', per_page: 100,
+            });
+            const byName = new Map();
+            for (const r of runs) {
+              // Take the LATEST attempt per workflow name (re-runs replace prior).
+              const prev = byName.get(r.name);
+              if (!prev || new Date(r.run_started_at) > new Date(prev.run_started_at)) {
+                byName.set(r.name, r);
+              }
+            }
+            const missing = required.filter((name) => !byName.has(name));
+            const pending = required.filter((name) => {
+              const r = byName.get(name);
+              return r && r.status !== 'completed';
+            });
+            if (missing.length || pending.length) {
+              return skip(`gates not ready — missing=[${missing.join(', ')}] pending=[${pending.join(', ')}]`);
+            }
+
+            // 4) Idempotency: if claude[bot] has already reviewed this exact
+            //    head SHA, do not post a duplicate. The iteration bot consumes
+            //    the existing review's verdict directly.
+            const reviews = await github.paginate(github.rest.pulls.listReviews, {
+              owner, repo, pull_number: pr.number, per_page: 100,
+            });
+            const already = reviews.some(
+              (r) => r.commit_id === headSha && r.user?.login === 'claude[bot]',
+            );
+            if (already) return skip('claude[bot] already reviewed this head SHA');
+
+            core.info(`Ready: PR #${pr.number} @ ${headSha.slice(0, 7)}, all ${required.length} gates completed`);
+            out({ proceed: 'true', pr: pr.number, head_sha: headSha, head_ref: headBranch });
+
       # `secrets` cannot be used in a job-level `if`, so gate on a guard step:
       # when auth is not configured (e.g. before operator setup), skip cleanly
       # instead of hard-failing the check on every PR.
       - name: Check auth configured
+        if: ${{ steps.gate.outputs.proceed == 'true' }}
         id: guard
         env:
           OAUTH: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
@@ -58,36 +166,35 @@ jobs:
             echo "configured=true" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Checkout PR
-        if: ${{ steps.guard.outputs.configured == 'true' }}
+      - name: Checkout PR head
+        if: ${{ steps.gate.outputs.proceed == 'true' && steps.guard.outputs.configured == 'true' }}
         uses: actions/checkout@v5
         with:
+          # workflow_run does not auto-checkout the PR ref — pin to the exact
+          # head SHA we verified above (not the branch, which can advance).
+          ref: ${{ steps.gate.outputs.head_sha }}
           fetch-depth: 0
 
       - name: Review with Claude Code
-        if: ${{ steps.guard.outputs.configured == 'true' }}
+        if: ${{ steps.gate.outputs.proceed == 'true' && steps.guard.outputs.configured == 'true' }}
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           # API-key alternative: anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          # This workflow triggers on `pull_request: synchronize` (and `opened`/
-          # `reopened`). When the iteration / overnight-implementation bot pushes
-          # a correction commit on a Draft PR, the synchronize event's initiator
-          # is `claude[bot]` — and the action's bot-actor safety gate refuses
-          # non-human initiators by default (prevents bot↔bot loops; see the
-          # action's docs/security.md). That leaves the ready-gate stuck on the
-          # previous, stale `CHANGES_REQUESTED` review.
-          #
-          # Allow ONLY `claude` — never `*`, which is documented as unsafe on
-          # public repos because external Apps could invoke the action with
-          # attacker-controlled prompts. Dependabot / github-actions / other
-          # bots commenting or pushing on a bot branch still cannot initiate a
-          # review round under this allow-list. Mirrors the same fix landed for
-          # `pr-iteration.yml` in #348; addresses #350.
+          # workflow_run runs in the default-branch context; the initiating
+          # actor is the upstream workflow's actor (often `claude[bot]` for
+          # bot-authored PR corrections). The action's bot-actor safety gate
+          # refuses non-human initiators by default — whitelist ONLY `claude`
+          # (never `*`, documented as unsafe on public repos) so reviews fire
+          # both for human PRs and for bot-authored Draft PRs.
           allowed_bots: 'claude'
           prompt: |
-            Review pull request #${{ github.event.pull_request.number }} in this
-            repository and post a single structured PR review.
+            Review pull request #${{ steps.gate.outputs.pr }} in this repository
+            and post a single structured PR review. Every gating workflow (CI,
+            DoD, Security, Traceability, E2E, Branching, Mutation) has already
+            completed on this commit — read their conclusions via
+            `gh pr checks ${{ steps.gate.outputs.pr }}` and factor any failures
+            into your review (do not re-run the pipeline).
 
             Use the repository's `code-review` skill if available; otherwise apply
             its standards. For P1 safety-core changes, also apply the project's P1
@@ -107,9 +214,9 @@ jobs:
               GitHub CLI — the ready-gate depends on this review existing, so do not
               finish without it:
                 * no Blocker/Major findings →
-                  `gh pr review ${{ github.event.pull_request.number }} --comment --body "<review>"`
+                  `gh pr review ${{ steps.gate.outputs.pr }} --comment --body "<review>"`
                 * any Blocker/Major finding →
-                  `gh pr review ${{ github.event.pull_request.number }} --request-changes --body "<review>"`
+                  `gh pr review ${{ steps.gate.outputs.pr }} --request-changes --body "<review>"`
               (For a long review, write it to `$RUNNER_TEMP/review.md` and pass
               `--body-file "$RUNNER_TEMP/review.md"`.)
             - NEVER approve. You are an aid, not an approver — a clean review is a
@@ -121,5 +228,6 @@ jobs:
               only state change you make is submitting the single review above.
           claude_args: |
             --model ${{ env.REVIEW_MODEL }}
+            --effort ${{ env.REVIEW_EFFORT }}
             --max-turns ${{ env.MAX_TURNS }}
             --allowedTools "Bash,Read,Grep,Glob,Write,Task,TodoWrite,WebFetch"

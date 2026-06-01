@@ -43,7 +43,13 @@ permissions:
   id-token: write # required by anthropics/claude-code-action (OIDC)
 
 env:
-  MODEL: claude-opus-4-7
+  # Latest Opus, 1M-context variant + `xhigh` reasoning effort — aligned with
+  # the implementation bot so corrections get the same headroom as the original
+  # write. Wrapped in single quotes so YAML does not parse `[1m]` as a flow
+  # sequence. NOTE: this workflow is currently deactivated (`if: false` on the
+  # job below); these values take effect when it is re-enabled.
+  MODEL: 'claude-opus-4-7[1m]'
+  EFFORT: 'xhigh'
   MAX_CORRECTIONS: '2'
   # A correction round runs the full pipeline + fixes; 40 turns proved too small
   # for the implementer (see overnight-implementation.yml), so give corrections
@@ -253,6 +259,7 @@ jobs:
             - If you cannot safely converge, stop and summarise what remains.
           claude_args: |
             --model ${{ env.MODEL }}
+            --effort ${{ env.EFFORT }}
             --max-turns ${{ env.MAX_TURNS }}
             --allowedTools "Bash,Edit,Write,Read,Glob,Grep,Task,TodoWrite,WebFetch,WebSearch,Skill"
 

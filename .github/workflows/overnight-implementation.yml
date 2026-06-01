@@ -26,7 +26,12 @@ on:
         type: string
         default: ''
       model:
-        description: 'Model override (e.g. claude-opus-4-7, claude-sonnet-4-6).'
+        description: 'Model override (e.g. claude-opus-4-7[1m], claude-sonnet-4-6).'
+        required: false
+        type: string
+        default: ''
+      effort:
+        description: 'Reasoning effort override (low | medium | high | xhigh | max).'
         required: false
         type: string
         default: ''
@@ -54,7 +59,13 @@ permissions:
   id-token: write # required by anthropics/claude-code-action (OIDC)
 
 env:
-  MODEL_DEFAULT: claude-opus-4-7
+  # Latest Opus, 1M-context variant — the `[1m]` suffix unlocks the 1M window
+  # in the Claude Code CLI (see code.claude.com/docs/en/model-config). Wrapped
+  # in single quotes so YAML does not parse `[1m]` as a flow sequence.
+  MODEL_DEFAULT: 'claude-opus-4-7[1m]'
+  # `xhigh` is Opus 4.7's default reasoning level — pinned explicitly so a
+  # future CLI/default change does not silently downgrade implementation runs.
+  EFFORT_DEFAULT: 'xhigh'
   BATCH_SIZE_DEFAULT: '1'
   # Per-issue budgets (ADR-317-DEV operational defaults). 40 turns proved far
   # too small: run #4 hit `error_max_turns` mid-implementation (the agent was
@@ -250,66 +261,40 @@ jobs:
             You are running unattended in CI on branch feature/issue-${{ matrix.issue }}.
             ${{ env.ACT == 'true' && 'LOCAL ACT TEST RUN — make NO remote/GitHub changes: no project-board claim or move, no issue assignment, no label edits, no issue comments, no PR or sub-issue creation, and do NOT git push to any remote. Only read from GitHub, edit files, run the pipeline, and commit locally. (This line is empty on real CI.)' || '' }}
 
-            Task: FULLY implement GitHub issue #${{ matrix.issue }} by following the
-            repository's `/implement-issue ${{ matrix.issue }}` workflow exactly,
-            end to end. "Done" means EVERY acceptance criterion and EVERY Definition
-            of Done (DoD) item is genuinely satisfied — code, tests, traceability and
-            docs — not a partial slice that merely looks finished. A half-done ticket
-            dressed up as complete is a defect, not progress.
+            FIRST ACTION — invoke the repository's `/implement-issue` skill via the
+            Skill tool. This is mandatory and non-negotiable: do NOT paraphrase the
+            workflow, do NOT re-derive it from prose, do NOT skip the tool call.
+            The skill IS the authoritative procedure — call it deterministically:
 
-            Before committing, run the local pipeline and make it pass so CI is green
-            on the first push: `pnpm install --frozen-lockfile`, `pnpm lint`,
-            `pnpm --filter frontend type-check`, `pnpm test:unit`,
-            `pnpm test:integration`, `pnpm build`. Fix any failures you introduced.
+                Skill(skill="implement-issue", args="${{ matrix.issue }}")
 
-            Completion & attestation (per the implement-issue skill — NOT optional):
-            - Finish the whole ticket and attest its DoD so EVERY checkbox in the issue
-              ends ticked `[x]`: tick items genuinely verified done; for an item that
-              does not apply, tick it and mark `N/A — <reason>`; never tick a skipped,
-              unverified, or human-only item (e.g. manual flight testing) — those keep
-              the issue open. The DoD gate rejects a `Closes` PR whose issue still has
-              any unticked box.
-            - Author the PR description by FILLING OUT the repository PR template at
-              `.github/pull_request_template.md` and writing the result to the file
-              `$RUNNER_TEMP/pr-body.md` — the workflow uses that file verbatim as the
-              PR body. Templates are mandatory. Complete every section; for each
-              checklist row write `[x]` once satisfied, using `N/A (Reason: …)` where
-              it truly does not apply — every row must END ticked `[x]` (an unticked
-              box reads as an open obligation).
-            - In the template's "Related Issues" section use `Closes #${{ matrix.issue }}`
-              ONLY when the issue is 100% complete and every DoD item is genuinely
-              ticked; otherwise use `Refs #${{ matrix.issue }}` and state plainly what
-              remains. Do NOT claim `Closes` for incomplete work. (Merging to `develop`
-              auto-closes via `Closes` — every issue is closed by its PR to develop.)
-            - Parent/child closing: a feature is finished only when EVERY child is. If
-              this issue is a sub-task and NO sibling remains open after your work, also
-              add `Closes #<parent-feature>` and attest the parent's DoD; if it is a
-              feature, only `Closes` it when all its children are already closed. Never
-              close a feature that still has unfinished children.
-            - EXCEPTION — discovery/scoping tickets: if this issue's body says it is a
-              discovery/scoping ticket ("not an implementation ticket", "produce a
-              recommendation", "file follow-up issues"), its deliverable is the written
-              recommendation + the filed follow-ups. Produce those, then `Closes
-              #${{ matrix.issue }}`. File each follow-up as an INDEPENDENT issue that
-              references this one in its body (e.g. "Spawned by #${{ matrix.issue }}") —
-              do NOT attach them as native sub-issues and do NOT keep this ticket open
-              as an umbrella.
+            Then follow the skill end-to-end. "Done" means every acceptance criterion
+            and every Definition of Done item is genuinely satisfied (code, tests,
+            traceability, docs) — a half-done ticket dressed up as complete is a defect.
 
-            Hard rules (ADR-317-DEV — do not violate):
-            - Honour every quality gate. NEVER use --no-verify or bypass Husky/ESLint/tests.
-            - Do NOT edit files under .github/workflows/**, repository secrets, or
-              security configuration. Stay within product, docs, trace, and test paths.
-            - Commit your work on the CURRENT branch with Conventional Commits, committing
-              incrementally as you complete coherent steps. Aim to finish the ENTIRE
-              issue — the turn/time budget is generous; do not stop early or hand off a
-              half-done ticket.
-            - Do NOT open the pull request yourself and do NOT mark anything ready for
-              review — the workflow opens the Draft PR from `$RUNNER_TEMP/pr-body.md`
-              and the ready-gate marks it Ready once CI is green and the review is clean.
-            - Only if a step is genuinely blocked or unsafe: finish every part you safely
-              can, leave the unfinished DoD items unticked, use `Refs` (not `Closes`),
-              and write a clear "what remains" summary in the PR body — never force an
-              unsafe or fake-complete change.
+            CI-specific overrides on top of the skill (these adapt the skill's output
+            for unattended GitHub Actions execution — the skill itself is unchanged):
+
+            - PR opening: do NOT open the PR yourself. Write the PR body (filled out
+              from `.github/pull_request_template.md`, with the skill's Closes/Refs
+              and DoD logic) to the file `$RUNNER_TEMP/pr-body.md`. The push step
+              below opens the Draft PR using that file verbatim.
+            - Pipeline gate before commit: run `pnpm install --frozen-lockfile`,
+              `pnpm lint`, `pnpm --filter frontend type-check`, `pnpm test:unit`,
+              `pnpm test:integration`, `pnpm build` and fix any failures you introduced
+              so CI is green on the first push.
+            - Hard rules (ADR-317-DEV — do not violate):
+              * Honour every quality gate. NEVER use --no-verify or bypass Husky/ESLint/tests.
+              * Do NOT edit `.github/workflows/**`, repository secrets, or security
+                configuration. Stay within product, docs, trace, and test paths.
+              * Commit on the CURRENT branch using Conventional Commits, incrementally
+                per coherent step. Finish the ENTIRE issue — the turn/time budget is
+                generous; do not stop early or hand off a half-done ticket.
+              * Do NOT mark the PR ready-for-review — the ready-gate flips it once CI
+                is green and the automated review is clean.
+              * Only if a step is genuinely blocked or unsafe: finish every part you
+                safely can, leave unfinished DoD items unticked, use `Refs` (not
+                `Closes`), and write a clear "what remains" summary in the PR body.
           # claude-code-action does NOT grant Bash by default, and CI has no
           # human to approve tool prompts — so without an explicit allow-list the
           # agent's pnpm/git/gh commands are all auto-denied and it produces zero
@@ -322,6 +307,7 @@ jobs:
           # every gate and is never auto-merged.
           claude_args: |
             --model ${{ github.event.inputs.model || env.MODEL_DEFAULT }}
+            --effort ${{ github.event.inputs.effort || env.EFFORT_DEFAULT }}
             --max-turns ${{ env.MAX_TURNS }}
             --allowedTools "Bash,Edit,Write,Read,Glob,Grep,Task,TodoWrite,WebFetch,WebSearch,Skill"
 
