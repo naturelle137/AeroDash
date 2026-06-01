@@ -441,3 +441,11 @@ MB (auto)
     req:
       - REQ-AC-001
       - REQ-MB-002
+
+  IMP-MB-VIEW-013
+    title: Aircraft picker mirrors pending profile while WARN-AC-002 ack is awaiting
+    files:
+      - frontend/src/modules/mass-balance/views/MassBalanceView.vue
+    req:
+      - REQ-AC-001
+      - REQ-AC-005

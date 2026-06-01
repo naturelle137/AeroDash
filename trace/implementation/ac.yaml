@@ -370,3 +370,11 @@ AC (auto)
     req:
       - REQ-AC-001
       - REQ-AC-005
+
+  IMP-AC-VIEW-034
+    title: Fleet list deep-link — open Verify dialog on arrival with ?verify=<id>
+    files:
+      - frontend/src/modules/aircraft/components/FleetList.vue
+    req:
+      - REQ-AC-001
+      - REQ-AC-007

@@ -777,6 +777,13 @@ SYS App — Vue Router (Unit)
     files:
       - frontend/src/router/index.spec.ts
 
+  UT-SYS-APP-004
+    title: scrollBehavior resets to top on push and restores savedPosition on back/forward
+    impl:
+      - IMP-SYS-APP-001
+    files:
+      - frontend/src/router/index.spec.ts
+
 SYS App — Version-Blocked Screen (Unit)
   UT-SYS-APP-026
     title: renders RouterView when versionBlocked is false

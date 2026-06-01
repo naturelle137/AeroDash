@@ -1487,3 +1487,10 @@ MB (auto)
       - frontend/src/modules/mass-balance/views/__tests__/MassBalanceView.fleet.spec.ts
     impl:
       - IMP-MB-VIEW-012
+
+  UT-MB-VIEW-034
+    title: Aircraft picker reflects the pending draft profile while ack is awaiting
+    files:
+      - frontend/src/modules/mass-balance/views/__tests__/MassBalanceView.fleet.spec.ts
+    impl:
+      - IMP-MB-VIEW-013

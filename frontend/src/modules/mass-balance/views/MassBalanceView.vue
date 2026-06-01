@@ -135,6 +135,18 @@ interface PendingSelection {
 /** A selection awaiting the pilot's inline acknowledgement before load (H-011, REQ-AC-005/007). */
 const pendingSelection = ref<PendingSelection | null>(null)
 
+// @IMP-MB-VIEW-013@ (FROM: @REQ-AC-001@, @REQ-AC-005@)
+// The <select> normally mirrors the loaded aircraft and snaps back to it while
+// a draft/expired pick is awaiting acknowledgement (so a stray tap can't appear
+// to silently switch the airframe). But when arriving from the wizard's
+// "Start flight prep" with no aircraft yet loaded, falling back to the pending
+// profile keeps the dropdown in lockstep with the ack banner — the pilot sees
+// the registration they just saved, instead of a blank "— choose aircraft —".
+const selectedAircraftId = computed<string>(() => {
+  if (store.aircraft?.id) return store.aircraft.id
+  return pendingSelection.value?.profile.id ?? ''
+})
+
 /**
  * A restored session payload held back until its (expired/draft) profile is
  * acknowledged. Applied on confirm; discarded — with the stale session — on cancel.
@@ -885,7 +897,7 @@ function onCancelSelection(): void {
           </label>
           <select
             id="aircraft-select"
-            :value="store.aircraft?.id ?? ''"
+            :value="selectedAircraftId"
             aria-label="Select aircraft"
             class="aircraft-select"
             @change="onAircraftSelected"

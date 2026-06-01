@@ -2111,3 +2111,10 @@ AC (auto)
     impl:
       - IMP-AC-VIEW-032
       - IMP-AC-VIEW-033
+
+  UT-AC-VIEW-184
+    title: Fleet list verify-on-arrival deep link tests
+    files:
+      - frontend/src/modules/aircraft/__tests__/FleetList.spec.ts
+    impl:
+      - IMP-AC-VIEW-034

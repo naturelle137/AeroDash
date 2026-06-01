@@ -576,8 +576,13 @@ function onPostSaveChoice(id: string): void {
     router.push({ name: 'mass-balance' })
     return
   }
-  // 'verify' and 'fleet' both land on the fleet list, where the new draft shows
-  // a Verify control.
+  if (id === 'verify' && profile) {
+    // Route to the fleet list and hand off the profile id via a query param so
+    // the verify sign-off dialog opens immediately on arrival — saves the
+    // pilot from hunting for the shield icon next to the row they just saved.
+    router.push({ name: 'fleet', query: { verify: profile.id } })
+    return
+  }
   router.push({ name: 'fleet' })
 }
 

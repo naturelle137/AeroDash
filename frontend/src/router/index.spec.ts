@@ -38,3 +38,24 @@ it('registers /privacy as the privacy view (REQ-SYS-014, REQ-SYS-015)', () => {
   const resolved = router.resolve({ name: 'privacy' })
   expect(resolved.path).toBe('/privacy')
 })
+
+// @UT-SYS-APP-004@ (FROM: @IMP-SYS-APP-001@)
+it('scrollBehavior resets to the top on plain pushes and restores savedPosition on back/forward', () => {
+  const sb = router.options.scrollBehavior
+  expect(typeof sb).toBe('function')
+  // Vue Router's scrollBehavior may return a Promise or void; this app's
+  // implementation is synchronous so we can assert the return value directly.
+  const route = router.resolve({ name: 'mass-balance' })
+  const fresh = (sb as (to: unknown, from: unknown, saved: unknown) => unknown)(
+    route,
+    route,
+    null,
+  )
+  expect(fresh).toEqual({ top: 0, left: 0 })
+  const restored = (sb as (to: unknown, from: unknown, saved: unknown) => unknown)(
+    route,
+    route,
+    { top: 240, left: 0 },
+  )
+  expect(restored).toEqual({ top: 240, left: 0 })
+})

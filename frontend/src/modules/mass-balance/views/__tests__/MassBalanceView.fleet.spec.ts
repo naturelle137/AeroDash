@@ -549,4 +549,27 @@ describe('MassBalanceView — fleet picker', () => {
       vi.useRealTimers()
     }
   })
+
+  // @UT-MB-VIEW-034@ (FROM: @IMP-MB-VIEW-013@)
+  // Arriving from the wizard's "Start flight prep": the active aircraft is set
+  // but the M&B store has not loaded the profile yet (gated by the draft ack).
+  // The dropdown must mirror the pending profile so the pilot sees the
+  // registration they just saved, not a blank "— choose aircraft —".
+  it('shows the pending draft profile in the dropdown while the WARN-AC-002 ack is awaiting', async () => {
+    const draft = buildFleetProfile({
+      id: 'eeeeeeee-0000-4000-e000-000000000005',
+      registration: 'D-NEWEST',
+      status: 'draft',
+    })
+    seedFleet([draft])
+    const activeStore = useActiveAircraftStore()
+    activeStore.activeProfile = draft
+
+    const wrapper = mountView()
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.find('.draft-ack').exists()).toBe(true)
+    const select = wrapper.find<HTMLSelectElement>('select#aircraft-select')
+    expect(select.element.value).toBe(draft.id)
+  })
 })

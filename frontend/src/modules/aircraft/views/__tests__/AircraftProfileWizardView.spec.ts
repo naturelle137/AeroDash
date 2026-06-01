@@ -193,6 +193,26 @@ describe('AircraftProfileWizardView — post-save chooser & exit modal', () => {
     expect(router.currentRoute.value.name).toBe('mass-balance')
   })
 
+  it('Verify now hands off to the fleet list with ?verify=<id> for the new draft', async () => {
+    const fleet = useFleetStore()
+    const draft = newDraft()
+    vi.spyOn(fleet, 'createProfile').mockResolvedValue(draft)
+
+    const { wrapper, router } = await mountWizard()
+    await advanceToReview(wrapper)
+    await wrapper
+      .findAll('button')
+      .find((b) => b.text().includes('Save as Draft'))!
+      .trigger('click')
+    await flushPromises()
+
+    clickAction('Verify now')
+    await flushPromises()
+
+    expect(router.currentRoute.value.name).toBe('fleet')
+    expect(router.currentRoute.value.query.verify).toBe(draft.id)
+  })
+
   it('Back to Fleet routes to the fleet list without setting an active aircraft', async () => {
     const fleet = useFleetStore()
     const active = useActiveAircraftStore()

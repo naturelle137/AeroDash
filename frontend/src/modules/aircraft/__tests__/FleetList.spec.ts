@@ -562,3 +562,49 @@ describe('FleetList — verification provenance + expiry (REQ-AC-007)', () => {
     expect(verifySpy).not.toHaveBeenCalled()
   })
 })
+
+// @UT-AC-VIEW-184@ (FROM: @IMP-AC-VIEW-034@)
+describe('FleetList — verify-on-arrival deep link (?verify=<id>)', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    vi.clearAllMocks()
+  })
+
+  afterEach(() => {
+    document.body.innerHTML = ''
+  })
+
+  it('opens the verify dialog for the matching profile when the route carries ?verify', async () => {
+    const profile = makeProfile({ id: 'new-draft', status: 'draft' })
+    const pinia = createPinia()
+    setActivePinia(pinia)
+    makeFleetStore({ profiles: [profile] })()
+    makeActiveStore(null)()
+    const router = makeRouter()
+    router.push({ path: '/fleet', query: { verify: 'new-draft' } })
+    await router.isReady()
+
+    mount(FleetList, { global: { plugins: [pinia, router] } })
+    await flushPromises()
+
+    expect(document.querySelector('.verify-dialog')).not.toBeNull()
+    expect(document.body.textContent).toContain(profile.registration)
+    // The query is stripped so a reload doesn't re-trigger the dialog.
+    expect(router.currentRoute.value.query.verify).toBeUndefined()
+  })
+
+  it('does not open the dialog when the ?verify id does not match any profile', async () => {
+    const pinia = createPinia()
+    setActivePinia(pinia)
+    makeFleetStore({ profiles: [makeProfile({ id: 'other' })] })()
+    makeActiveStore(null)()
+    const router = makeRouter()
+    router.push({ path: '/fleet', query: { verify: 'no-match' } })
+    await router.isReady()
+
+    mount(FleetList, { global: { plugins: [pinia, router] } })
+    await flushPromises()
+
+    expect(document.querySelector('.verify-dialog')).toBeNull()
+  })
+})
