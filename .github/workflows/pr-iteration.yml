@@ -43,7 +43,13 @@ permissions:
   id-token: write # required by anthropics/claude-code-action (OIDC)
 
 env:
-  MODEL: claude-opus-4-7
+  # Alias form (auto-tracks latest Opus + 1M context) + `xhigh` effort —
+  # aligned with the implementation bot so corrections get the same headroom
+  # as the original write. Wrapped in single quotes so YAML does not parse
+  # `[1m]` as a flow sequence. NOTE: this workflow is currently deactivated
+  # (`if: false` on the job below); these values take effect when re-enabled.
+  MODEL: 'opus[1m]'
+  EFFORT: 'xhigh'
   MAX_CORRECTIONS: '2'
   # A correction round runs the full pipeline + fixes; 40 turns proved too small
   # for the implementer (see overnight-implementation.yml), so give corrections
@@ -225,34 +231,41 @@ jobs:
           prompt: |
             You are correcting Draft PR #${{ steps.ctx.outputs.pr }}
             (correction ${{ steps.ctx.outputs.next }} of ${{ steps.ctx.outputs.max }}).
+            CLAUDE.md, CONTRIBUTING.md, and ADR-317-DEV govern code rules,
+            commits, and quality gates — do not paraphrase them.
 
-            Address ALL outstanding automated feedback on the CURRENT branch:
-            1. The latest PR review's requested changes (read it and its line comments).
-            2. Any failing check — inspect with `gh pr checks ${{ steps.ctx.outputs.pr }}`
-               and `gh run view --log-failed` and fix the ROOT CAUSE (this includes
-               non-CI gates: DoD, Security, Traceability, E2E).
-            3. If the **DoD Attestation Gate** is red, the PR body closes an issue
-               (`Closes`/`Fixes`) that still has unticked DoD items. Either genuinely
-               COMPLETE and tick those items, or — if they cannot be honestly completed
-               here (e.g. human-only) — `gh pr edit` the body to use `Refs #<n>` instead
-               of `Closes`, leave the items unticked, and note what remains. NEVER tick a
-               box you cannot verify, and keep the PR body on the repository template.
+            Address every outstanding piece of automated feedback on the CURRENT
+            branch and fix root causes:
 
-            Before committing, run the local pipeline and make it pass:
-            `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm --filter frontend type-check`,
-            `pnpm test:unit`, `pnpm test:integration`, `pnpm build`. Commit on the CURRENT branch.
+            1. Latest PR review's requested changes (read the review and its line
+               comments).
+            2. Failing checks — `gh pr checks ${{ steps.ctx.outputs.pr }}` then
+               `gh run view --log-failed` on each red run. Includes non-CI gates:
+               DoD, Security, Traceability, E2E.
+            3. DoD Attestation Gate red ⇒ the PR's `Closes`/`Fixes` target has
+               unticked DoD boxes. Either complete and tick them (only when
+               GENUINELY done — never tick a box you cannot verify), or
+               `gh pr edit` the body to `Refs #<n>` and state what remains.
+               Keep the PR body on `.github/pull_request_template.md`.
+            4. Pre-existing failure outside this PR's scope ⇒ do not hack around
+               it. Use `/issue` (or comment on the existing one) to file a
+               deduplicated `Bug`, then note it in the PR.
 
-            Hard rules (ADR-317-DEV — do not violate):
-            - NEVER use --no-verify or bypass any gate.
-            - Do NOT edit .github/workflows/**, secrets, or security configuration.
-            - Do NOT merge, do NOT mark the PR ready-for-review — leave it Draft;
-              the ready-gate flips it automatically once CI is green and review is clean.
-            - For a pre-existing/unrelated CI failure (out of scope), do NOT hack around
-              it — file a deduplicated `Bug` (a new one only if none open tracks it;
-              otherwise comment on the existing one) and note it in the PR.
-            - If you cannot safely converge, stop and summarise what remains.
+            CI-only adaptations:
+
+            - Verify the full pipeline locally before committing (Husky only runs
+              lint-staged): `pnpm lint`, `pnpm --filter frontend type-check`,
+              `pnpm test:unit`, `pnpm test:integration`, `pnpm build`.
+            - ADR-317-DEV scope guard: do NOT edit `.github/workflows/**`,
+              secrets, or security configuration.
+            - Do NOT merge and do NOT mark the PR ready-for-review — leave it
+              Draft. The ready-gate flips it once CI is green and the review is
+              clean.
+            - If you cannot safely converge, stop and summarise what remains in a
+              PR comment.
           claude_args: |
             --model ${{ env.MODEL }}
+            --effort ${{ env.EFFORT }}
             --max-turns ${{ env.MAX_TURNS }}
             --allowedTools "Bash,Edit,Write,Read,Glob,Grep,Task,TodoWrite,WebFetch,WebSearch,Skill"
 
