@@ -35,6 +35,11 @@ on:
         required: false
         type: string
         default: ''
+      max_turns:
+        description: 'One-off --max-turns override for this run (integer). Leave blank to use MAX_TURNS default.'
+        required: false
+        type: string
+        default: ''
       scope:
         description: 'Narrow selection to one scope. "any" = all accepted issues (product + engineering).'
         required: false
@@ -306,7 +311,7 @@ jobs:
           claude_args: |
             --model ${{ github.event.inputs.model || env.MODEL_DEFAULT }}
             --effort ${{ github.event.inputs.effort || env.EFFORT_DEFAULT }}
-            --max-turns ${{ env.MAX_TURNS }}
+            --max-turns ${{ github.event.inputs.max_turns || env.MAX_TURNS }}
             --allowedTools "Bash,Edit,Write,Read,Glob,Grep,Task,TodoWrite,WebFetch,WebSearch,Skill"
 
       - name: Push branch & open Draft PR
