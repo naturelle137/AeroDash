@@ -168,6 +168,57 @@ For full invariants, edge cases, and registry schemas, the `traceability` skill 
 
 ---
 
+## Code comments
+
+> **This section is the single source of truth for the project-wide comment-discipline rule.** Mirrored in `CONTRIBUTING.md §4.x Code Comments` for human contributors. Enforced by the `comment-discipline` check (see `frontend/scripts/comment-discipline/`). The check is baseline-ratcheted: pre-existing matches are grandfathered, only new regressions fail.
+
+**Default: write no comment.** Self-documenting code (clear names, small functions, explicit types) is the contract. Reach for a comment only when the *why* genuinely cannot be expressed in the code.
+
+### Hard rules
+
+1. **Why-only.** Comments explain *why* — a hidden constraint, an invariant, a workaround for a known defect, behaviour that would surprise a reader. They must **never** restate *what* the code does or *how* it does it.
+2. **Trace tag beats prose.** Before placing a `//` or `<!-- -->` comment in implementation code, check whether an upstream `@REQ-…@` or `@DES-…@` already captures the context. If yes, place an `@IMP-XX-NNN@ (FROM: @REQ-XX-NNN@)` (or `(FROM: @DES-XX-NNN@)`) tag — the trace chain provides the context and a separate prose comment is then typically redundant. Use the local trace CLI (`pnpm trace tag …` / `pnpm trace resolve …`) to author tags; never hand-write the numeric suffix.
+3. **Design rationale lives in design docs.** Detailed explanations of *how* a function/schema/algorithm satisfies (or breaks down) a requirement belong in `docs/architecture/**` or `docs/ux/**` (the `@DES-` layer registered under `trace/design/`), not in code comments. A comment may reference the design doc by tag (`// see @DES-ARCH-006@`) instead of paraphrasing it.
+4. **No forbidden identifiers in source comments.** Comments must **never** reference GitHub issue numbers (`#123`, `refs #123`, `issue-123`), PR numbers, or audit-finding IDs (`CS-###`, `DP-###`, `TECH-###`, `PR-###`, `UX-###`). Those tracking artefacts live outside the repository — in commit messages, PR bodies, and `.logs/audit.*` reports — and embedding them in source rots into dead pointers. The **only** identifier references permitted in source comments are **shtracer tags** (`@H-…@`, `@REQ-…@`, `@UJ-…@`, `@DES-…@`, `@IMP-…@`, `@UT-…@`, `@IT-…@`, `@E2E-…@`) per `docs/stc.md`.
+5. **Test files need fewer comments than implementation.** Gherkin `.feature` files are already plain-language living documentation. `describe` / `it` / `test` block names already describe unit and integration tests in plain English. Additional commentary in step definitions (`frontend/tests/e2e/steps/**/*.ts`), `*.spec.ts`, and `*.int.spec.ts` is almost never necessary and should be the rare exception, not the default. The same why-only and no-forbidden-identifier rules still apply.
+
+### Where the tracking IDs *do* belong
+
+- **Commit messages:** `fix(mb): clamp lateral CG bounds (refs #42, REQ-MB-005)` — Conventional Commits explicitly carry the issue and requirement IDs.
+- **PR bodies:** `Closes #42`, `Ref #123`, and audit-finding IDs in remediation summaries.
+- **Audit reports under `.logs/`:** the source of `CS-###` / `DP-###` / `TECH-###` / `PR-###` / `UX-###` IDs.
+
+### Examples
+
+**Bad — restates the code, embeds a forbidden identifier:**
+
+```ts
+// Increment the counter (issue #271)
+counter += 1
+// CS-007 — validate the input
+if (!schema.parse(input).success) throw new Error('bad input')
+```
+
+**Good — why-only, no forbidden identifier:**
+
+```ts
+counter += 1
+// Schema validation must run before adapter conversion: the adapter assumes
+// unit-normalised SI values and silently misreads non-finite inputs.
+const parsed = schema.parse(input)
+```
+
+**Best — trace tag instead of prose where an upstream exists:**
+
+```ts
+// @IMP-MB-CORE-014@ (FROM: @REQ-MB-005@)
+export function clampLateralCgBounds(loadout: Loadout): Result {
+  /* … */
+}
+```
+
+---
+
 ## Specialized workflows
 
 GitHub issue handling, P1 PR review, milestone planning, E2E authoring, audits, and releases are handled by dedicated subagents/skills/commands under `.claude/`. Invoke directly (`/issue`, `/pr.create`, `/audit.full`, `/release-audit`, `/release`) or describe what you want — relevant skills auto-load.

@@ -1,0 +1,850 @@
+{
+  "$comment": "Grandfathered forbidden-identifier comments — see CLAUDE.md § Code comments. Regenerate via: node frontend/scripts/comment-discipline/scripts/regen-baseline.mjs. The gate fails on any NEW reference beyond this snapshot; the snapshot only shrinks unless a coordinated cleanup PR documents why it grows.",
+  "findings": [
+    {
+      "file": "frontend/scripts/build/telemetry-guard.ts",
+      "match": "CS-012",
+      "count": 1
+    },
+    {
+      "file": "frontend/scripts/build/telemetry-guard.ts",
+      "match": "DP-004",
+      "count": 1
+    },
+    {
+      "file": "frontend/scripts/build/telemetry-guard.ts",
+      "match": "issue #263",
+      "count": 1
+    },
+    {
+      "file": "frontend/scripts/data-constants/__tests__/registry-gate.spec.ts",
+      "match": "issue #275",
+      "count": 1
+    },
+    {
+      "file": "frontend/scripts/trace/__tests__/cli.spec.ts",
+      "match": "Issue #264",
+      "count": 1
+    },
+    {
+      "file": "frontend/scripts/trace/__tests__/cli.spec.ts",
+      "match": "issue #265",
+      "count": 1
+    },
+    {
+      "file": "frontend/scripts/trace/__tests__/deferred-status.spec.ts",
+      "match": "issue #267",
+      "count": 1
+    },
+    {
+      "file": "frontend/scripts/trace/__tests__/deferred-status.spec.ts",
+      "match": "issue #269",
+      "count": 2
+    },
+    {
+      "file": "frontend/scripts/trace/__tests__/deferred-status.spec.ts",
+      "match": "PR-017",
+      "count": 1
+    },
+    {
+      "file": "frontend/scripts/trace/__tests__/hazard-mitigation.spec.ts",
+      "match": "issue #267",
+      "count": 2
+    },
+    {
+      "file": "frontend/scripts/trace/__tests__/hazard-mitigation.spec.ts",
+      "match": "issue-#267",
+      "count": 2
+    },
+    {
+      "file": "frontend/scripts/trace/__tests__/hazard-mitigation.spec.ts",
+      "match": "PR-009",
+      "count": 1
+    },
+    {
+      "file": "frontend/scripts/trace/__tests__/parser.spec.ts",
+      "match": "Issue #264",
+      "count": 2
+    },
+    {
+      "file": "frontend/scripts/trace/__tests__/presence-unit.spec.ts",
+      "match": "Issue #264",
+      "count": 1
+    },
+    {
+      "file": "frontend/scripts/trace/__tests__/registry.spec.ts",
+      "match": "Issue #264",
+      "count": 1
+    },
+    {
+      "file": "frontend/scripts/trace/__tests__/repo-structural-gate.spec.ts",
+      "match": "PR-005",
+      "count": 1
+    },
+    {
+      "file": "frontend/scripts/trace/commands/check.mjs",
+      "match": "issue #264",
+      "count": 2
+    },
+    {
+      "file": "frontend/scripts/trace/commands/check.mjs",
+      "match": "issue #267",
+      "count": 1
+    },
+    {
+      "file": "frontend/scripts/trace/commands/check.mjs",
+      "match": "Issue #267",
+      "count": 1
+    },
+    {
+      "file": "frontend/scripts/trace/commands/check.mjs",
+      "match": "issue #269",
+      "count": 2
+    },
+    {
+      "file": "frontend/scripts/trace/commands/check.mjs",
+      "match": "Issue #269",
+      "count": 1
+    },
+    {
+      "file": "frontend/scripts/trace/commands/check.mjs",
+      "match": "PR-009",
+      "count": 2
+    },
+    {
+      "file": "frontend/scripts/trace/commands/check.mjs",
+      "match": "PR-017",
+      "count": 3
+    },
+    {
+      "file": "frontend/scripts/trace/lib/hazard-status.mjs",
+      "match": "issue #267",
+      "count": 1
+    },
+    {
+      "file": "frontend/scripts/trace/lib/hazard-status.mjs",
+      "match": "issue #269",
+      "count": 1
+    },
+    {
+      "file": "frontend/scripts/trace/lib/hazard-status.mjs",
+      "match": "issue-#267",
+      "count": 2
+    },
+    {
+      "file": "frontend/scripts/trace/lib/hazard-status.mjs",
+      "match": "PR-009",
+      "count": 1
+    },
+    {
+      "file": "frontend/scripts/trace/lib/hazard-status.mjs",
+      "match": "PR-017",
+      "count": 1
+    },
+    {
+      "file": "frontend/scripts/trace/lib/presence.mjs",
+      "match": "Issue #264",
+      "count": 1
+    },
+    {
+      "file": "frontend/scripts/trace/lib/presence.mjs",
+      "match": "PR-002",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/__tests__/App.bfcache.spec.ts",
+      "match": "issue #232",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/__tests__/App.session-storage-advisory.int.spec.ts",
+      "match": "CS-012",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/__tests__/App.session-storage-advisory.int.spec.ts",
+      "match": "DP-004",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/__tests__/App.session-storage-advisory.int.spec.ts",
+      "match": "issue #263",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/App.vue",
+      "match": "CS-012",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/App.vue",
+      "match": "DP-004",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/App.vue",
+      "match": "issue #232",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/App.vue",
+      "match": "issue #263",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/App.vue",
+      "match": "issue #271",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/core/adapters/aircraft.schema.spec.ts",
+      "match": "CS-002",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/core/adapters/aircraft.schema.spec.ts",
+      "match": "TECH-003",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/core/adapters/aircraft.schema.ts",
+      "match": "CS-002",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/core/adapters/aircraft.schema.ts",
+      "match": "refs #154",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/core/adapters/aircraft.schema.ts",
+      "match": "TECH-003",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/core/adapters/mass-balance.adapter.spec.ts",
+      "match": "CS-002",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/core/adapters/mass-balance.adapter.spec.ts",
+      "match": "TECH-003",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/core/adapters/mass-balance.adapter.ts",
+      "match": "CS-002",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/core/adapters/mass-balance.adapter.ts",
+      "match": "TECH-003",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/core/domain/session.schema.ts",
+      "match": "refs #259",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/core/logic/fuel-density.ts",
+      "match": "CS-008",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/core/logic/fuel-density.ts",
+      "match": "CS-009",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/core/logic/fuel-density.ts",
+      "match": "CS-010",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/core/logic/fuel-density.ts",
+      "match": "TECH-013",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/core/logic/mass-balance.logic.spec.ts",
+      "match": "issue #120",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/core/logic/profile-migrations.ts",
+      "match": "refs #259",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/core/logic/profile-migrations.ts",
+      "match": "TECH-005",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/core/logic/profile-migrations.ts",
+      "match": "TECH-022",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/core/logic/profile-migrations.ts",
+      "match": "TECH-025",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/core/logic/session-migrations.ts",
+      "match": "refs #259",
+      "count": 2
+    },
+    {
+      "file": "frontend/src/core/logic/unit-normalization.ts",
+      "match": "TECH-001",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/core/logic/unit-normalization.ts",
+      "match": "TECH-002",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/main.ts",
+      "match": "CS-012",
+      "count": 3
+    },
+    {
+      "file": "frontend/src/main.ts",
+      "match": "DP-004",
+      "count": 3
+    },
+    {
+      "file": "frontend/src/main.ts",
+      "match": "issue #263",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/main.ts",
+      "match": "Issue #263",
+      "count": 3
+    },
+    {
+      "file": "frontend/src/modules/aircraft/__tests__/active-aircraft.store.spec.ts",
+      "match": "Issue #165",
+      "count": 2
+    },
+    {
+      "file": "frontend/src/modules/aircraft/__tests__/active-aircraft.store.spec.ts",
+      "match": "refs #153",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/modules/aircraft/__tests__/fleet.repository.int.spec.ts",
+      "match": "refs #166",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/modules/aircraft/__tests__/fleet.repository.migration.int.spec.ts",
+      "match": "refs #259",
+      "count": 2
+    },
+    {
+      "file": "frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts",
+      "match": "Issue #157",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts",
+      "match": "Issue #159",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts",
+      "match": "Issue #165",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts",
+      "match": "refs #259",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/modules/aircraft/__tests__/FleetList.spec.ts",
+      "match": "UX-001",
+      "count": 2
+    },
+    {
+      "file": "frontend/src/modules/aircraft/__tests__/profile.import.spec.ts",
+      "match": "refs #259",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/modules/aircraft/__tests__/profile.validator.spec.ts",
+      "match": "CS-007",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/modules/aircraft/__tests__/profile.validator.spec.ts",
+      "match": "refs #270",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/modules/aircraft/components/FleetList.vue",
+      "match": "refs #153",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/modules/aircraft/components/FleetList.vue",
+      "match": "UX-001",
+      "count": 4
+    },
+    {
+      "file": "frontend/src/modules/aircraft/services/fleet.repository.ts",
+      "match": "refs #259",
+      "count": 2
+    },
+    {
+      "file": "frontend/src/modules/aircraft/services/profile.import.ts",
+      "match": "CS-003",
+      "count": 2
+    },
+    {
+      "file": "frontend/src/modules/aircraft/services/profile.import.ts",
+      "match": "DP-008",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/modules/aircraft/services/profile.import.ts",
+      "match": "DP-009",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/modules/aircraft/services/profile.import.ts",
+      "match": "refs #259",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/modules/aircraft/services/profile.import.ts",
+      "match": "TECH-008",
+      "count": 2
+    },
+    {
+      "file": "frontend/src/modules/aircraft/services/profile.import.ts",
+      "match": "TECH-022",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/modules/aircraft/services/profile.validator.ts",
+      "match": "CS-007",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/modules/aircraft/services/profile.validator.ts",
+      "match": "refs #270",
+      "count": 2
+    },
+    {
+      "file": "frontend/src/modules/aircraft/stores/active-aircraft.store.ts",
+      "match": "refs #153",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/modules/aircraft/stores/fleet.store.ts",
+      "match": "refs #158",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/modules/aircraft/stores/fleet.store.ts",
+      "match": "refs #259",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/modules/aircraft/views/__tests__/AircraftProfileWizardView.spec.ts",
+      "match": "UX-012",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/modules/aircraft/views/__tests__/AircraftProfileWizardView.spec.ts",
+      "match": "UX-015",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/modules/aircraft/views/AircraftProfileWizardView.vue",
+      "match": "UX-012",
+      "count": 2
+    },
+    {
+      "file": "frontend/src/modules/aircraft/views/AircraftProfileWizardView.vue",
+      "match": "UX-015",
+      "count": 2
+    },
+    {
+      "file": "frontend/src/modules/aircraft/views/FleetManagementView.vue",
+      "match": "CS-003",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/modules/aircraft/views/FleetManagementView.vue",
+      "match": "TECH-008",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/modules/mass-balance/components/__tests__/MassStationInput.spec.ts",
+      "match": "UX-002",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/modules/mass-balance/components/__tests__/MassStationInput.spec.ts",
+      "match": "UX-010",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/modules/mass-balance/components/__tests__/MassStationInput.spec.ts",
+      "match": "UX-011",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/modules/mass-balance/components/__tests__/ResultSummary.spec.ts",
+      "match": "UX-013",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/modules/mass-balance/components/MassStationInput.vue",
+      "match": "UX-002",
+      "count": 3
+    },
+    {
+      "file": "frontend/src/modules/mass-balance/components/MassStationInput.vue",
+      "match": "UX-010",
+      "count": 2
+    },
+    {
+      "file": "frontend/src/modules/mass-balance/components/MassStationInput.vue",
+      "match": "UX-011",
+      "count": 2
+    },
+    {
+      "file": "frontend/src/modules/mass-balance/components/ResultSummary.vue",
+      "match": "UX-013",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/modules/mass-balance/data/aircraft-context.schema.ts",
+      "match": "CS-009",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/modules/mass-balance/data/aircraft-context.schema.ts",
+      "match": "TECH-011",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/modules/mass-balance/data/occupant-presets.ts",
+      "match": "UX-002",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.int.spec.ts",
+      "match": "CS-008",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.int.spec.ts",
+      "match": "TECH-001",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.int.spec.ts",
+      "match": "TECH-004",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.int.spec.ts",
+      "match": "TECH-013",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts",
+      "match": "refs #165",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/modules/mass-balance/stores/mass-balance.store.ts",
+      "match": "CS-008",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/modules/mass-balance/stores/mass-balance.store.ts",
+      "match": "refs #165",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/modules/mass-balance/stores/mass-balance.store.ts",
+      "match": "TECH-001",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/modules/mass-balance/stores/mass-balance.store.ts",
+      "match": "TECH-002",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/modules/mass-balance/stores/mass-balance.store.ts",
+      "match": "TECH-004",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/modules/mass-balance/stores/mass-balance.store.ts",
+      "match": "TECH-013",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/modules/mass-balance/views/__tests__/MassBalanceView.fleet.spec.ts",
+      "match": "UX-014",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/modules/mass-balance/views/__tests__/MassBalanceView.spec.ts",
+      "match": "UX-004",
+      "count": 2
+    },
+    {
+      "file": "frontend/src/modules/mass-balance/views/MassBalanceView.vue",
+      "match": "refs #259",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/modules/mass-balance/views/MassBalanceView.vue",
+      "match": "Refs #259",
+      "count": 2
+    },
+    {
+      "file": "frontend/src/modules/mass-balance/views/MassBalanceView.vue",
+      "match": "UX-002",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/modules/mass-balance/views/MassBalanceView.vue",
+      "match": "UX-004",
+      "count": 2
+    },
+    {
+      "file": "frontend/src/modules/mass-balance/views/MassBalanceView.vue",
+      "match": "UX-005",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/modules/mass-balance/views/MassBalanceView.vue",
+      "match": "UX-007",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/modules/mass-balance/views/MassBalanceView.vue",
+      "match": "UX-014",
+      "count": 2
+    },
+    {
+      "file": "frontend/src/shared/components/__tests__/ActionChoiceDialog.spec.ts",
+      "match": "UX-012",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/shared/components/__tests__/ActionChoiceDialog.spec.ts",
+      "match": "UX-015",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/shared/components/__tests__/ConfirmDialog.spec.ts",
+      "match": "UX-001",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/shared/components/__tests__/ConfirmDialog.spec.ts",
+      "match": "UX-004",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/shared/components/__tests__/UndoToast.spec.ts",
+      "match": "UX-001",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/shared/components/__tests__/UndoToast.spec.ts",
+      "match": "UX-004",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/shared/components/DecimalInput.vue",
+      "match": "UX-010",
+      "count": 2
+    },
+    {
+      "file": "frontend/src/shared/components/DecimalInput.vue",
+      "match": "UX-011",
+      "count": 3
+    },
+    {
+      "file": "frontend/src/shared/components/UndoToast.vue",
+      "match": "UX-001",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/shared/utils/__tests__/logger.spec.ts",
+      "match": "CS-012",
+      "count": 2
+    },
+    {
+      "file": "frontend/src/shared/utils/__tests__/logger.spec.ts",
+      "match": "DP-004",
+      "count": 2
+    },
+    {
+      "file": "frontend/src/shared/utils/__tests__/logger.spec.ts",
+      "match": "DP-011",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/shared/utils/__tests__/logger.spec.ts",
+      "match": "issue #263",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/shared/utils/__tests__/logger.spec.ts",
+      "match": "Issue #263",
+      "count": 2
+    },
+    {
+      "file": "frontend/src/shared/utils/logger.ts",
+      "match": "CS-012",
+      "count": 4
+    },
+    {
+      "file": "frontend/src/shared/utils/logger.ts",
+      "match": "DP-004",
+      "count": 4
+    },
+    {
+      "file": "frontend/src/shared/utils/logger.ts",
+      "match": "DP-011",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/shared/utils/logger.ts",
+      "match": "issue #263",
+      "count": 5
+    },
+    {
+      "file": "frontend/src/stores/__tests__/app-version.cache.spec.ts",
+      "match": "CS-011",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/stores/__tests__/app-version.cache.spec.ts",
+      "match": "TECH-023",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/stores/__tests__/app-version.deployment.spec.ts",
+      "match": "issue #271",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/stores/__tests__/app-version.offline.int.spec.ts",
+      "match": "CS-011",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/stores/__tests__/app-version.offline.int.spec.ts",
+      "match": "issue #271",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/stores/__tests__/app-version.offline.int.spec.ts",
+      "match": "TECH-023",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/stores/__tests__/app-version.remote.spec.ts",
+      "match": "issue #271",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/stores/__tests__/app-version.store.spec.ts",
+      "match": "issue-#271",
+      "count": 2
+    },
+    {
+      "file": "frontend/src/stores/__tests__/pwa-update.store.spec.ts",
+      "match": "CS-012",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/stores/__tests__/pwa-update.store.spec.ts",
+      "match": "DP-004",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/stores/__tests__/pwa-update.store.spec.ts",
+      "match": "issue #263",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/stores/app-version.cache.ts",
+      "match": "issue #271",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/stores/app-version.remote.ts",
+      "match": "issue #271",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/stores/app-version.remote.ts",
+      "match": "issue #274",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/stores/app-version.semver.ts",
+      "match": "issue #271",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/stores/app-version.store.ts",
+      "match": "CS-011",
+      "count": 2
+    },
+    {
+      "file": "frontend/src/stores/app-version.store.ts",
+      "match": "issue #271",
+      "count": 1
+    },
+    {
+      "file": "frontend/src/stores/app-version.store.ts",
+      "match": "TECH-023",
+      "count": 2
+    },
+    {
+      "file": "frontend/src/stores/pwa-update.store.ts",
+      "match": "CS-012",
+      "count": 2
+    },
+    {
+      "file": "frontend/src/stores/pwa-update.store.ts",
+      "match": "DP-004",
+      "count": 2
+    },
+    {
+      "file": "frontend/src/stores/pwa-update.store.ts",
+      "match": "Issue #263",
+      "count": 2
+    },
+    {
+      "file": "frontend/src/stores/session-persistence.store.ts",
+      "match": "refs #259",
+      "count": 1
+    },
+    {
+      "file": "frontend/tests/e2e/steps/fleet-delete-after-back.steps.ts",
+      "match": "Issue #232",
+      "count": 1
+    }
+  ]
+}
