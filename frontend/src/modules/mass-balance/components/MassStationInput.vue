@@ -71,7 +71,7 @@ function clamp(value: number): number {
 }
 
 // ─── Sanitised decimal entry + inline rejection feedback (UX-010 / UX-011) ──
-// @IMP-MB-UI-009@ (FROM: @REQ-UQ-001@)
+// @IMP-MB-UI-010@ (FROM: @REQ-UQ-001@)
 //
 // The field is a DecimalInput (type=text + inputmode=decimal + regex sanitiser)
 // instead of type=number, so "e"/"+" can no longer slip through and be parsed

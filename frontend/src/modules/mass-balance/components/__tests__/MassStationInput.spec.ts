@@ -365,7 +365,7 @@ describe('MassStationInput', () => {
 })
 
 // ─── UX-010 / UX-011: sanitised decimal entry + inline rejection feedback ───
-// @UT-MB-UI-003@ (FROM: @IMP-MB-UI-009@)
+// @UT-MB-UI-003@ (FROM: @IMP-MB-UI-010@)
 describe('MassStationInput — "e"/out-of-range rejection feedback', () => {
   it('never expands "1e2" to 100 — the "e" is rejected, so no such weight is emitted', async () => {
     const wrapper = mount(MassStationInput, {
