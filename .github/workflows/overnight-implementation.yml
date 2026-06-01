@@ -26,7 +26,7 @@ on:
         type: string
         default: ''
       model:
-        description: 'Model override (e.g. claude-opus-4-7[1m], claude-sonnet-4-6).'
+        description: 'Model override (alias e.g. opus[1m], sonnet, or pinned ID).'
         required: false
         type: string
         default: ''
@@ -59,12 +59,17 @@ permissions:
   id-token: write # required by anthropics/claude-code-action (OIDC)
 
 env:
-  # Latest Opus, 1M-context variant — the `[1m]` suffix unlocks the 1M window
-  # in the Claude Code CLI (see code.claude.com/docs/en/model-config). Wrapped
-  # in single quotes so YAML does not parse `[1m]` as a flow sequence.
-  MODEL_DEFAULT: 'claude-opus-4-7[1m]'
-  # `xhigh` is Opus 4.7's default reasoning level — pinned explicitly so a
-  # future CLI/default change does not silently downgrade implementation runs.
+  # Alias form so the bot tracks the LATEST Opus + 1M-context variant
+  # automatically (per code.claude.com/docs/en/model-config: "Aliases point to
+  # the recommended version for your provider and update over time"). Pinning
+  # to a specific version like `claude-opus-4-7[1m]` would silently go stale
+  # whenever Anthropic ships a newer Opus. Wrapped in single quotes so YAML
+  # does not parse `[1m]` as a flow sequence. Override via workflow_dispatch
+  # `model` input if a specific version is ever needed.
+  MODEL_DEFAULT: 'opus[1m]'
+  # `xhigh` is the documented default reasoning level for Opus 4.7/4.8 —
+  # pinned explicitly so a future CLI/default change does not silently
+  # downgrade implementation runs.
   EFFORT_DEFAULT: 'xhigh'
   BATCH_SIZE_DEFAULT: '1'
   # Per-issue budgets (ADR-317-DEV operational defaults). 40 turns proved far
@@ -258,43 +263,36 @@ jobs:
           # never `*`, which is documented as unsafe on public repos.
           allowed_bots: 'claude'
           prompt: |
+            /implement-issue ${{ matrix.issue }}
+
+            ↑ Execute the slash command above as your FIRST action. It IS the
+            authoritative procedure (the `implement-issue` skill, CLAUDE.md,
+            CONTRIBUTING.md, and ADR-317-DEV govern everything: DoD attestation,
+            Closes/Refs, Conventional Commits, Husky/quality gates, P1 isolation,
+            traceability, project board, stop conditions). Do not paraphrase or
+            re-derive them — invoke the skill and follow what it tells you.
+
             You are running unattended in CI on branch feature/issue-${{ matrix.issue }}.
             ${{ env.ACT == 'true' && 'LOCAL ACT TEST RUN — make NO remote/GitHub changes: no project-board claim or move, no issue assignment, no label edits, no issue comments, no PR or sub-issue creation, and do NOT git push to any remote. Only read from GitHub, edit files, run the pipeline, and commit locally. (This line is empty on real CI.)' || '' }}
 
-            FIRST ACTION — invoke the repository's `/implement-issue` skill via the
-            Skill tool. This is mandatory and non-negotiable: do NOT paraphrase the
-            workflow, do NOT re-derive it from prose, do NOT skip the tool call.
-            The skill IS the authoritative procedure — call it deterministically:
+            CI-only adaptations (the skill assumes an interactive developer; CI has
+            none, so these four points override / extend the skill's defaults):
 
-                Skill(skill="implement-issue", args="${{ matrix.issue }}")
-
-            Then follow the skill end-to-end. "Done" means every acceptance criterion
-            and every Definition of Done item is genuinely satisfied (code, tests,
-            traceability, docs) — a half-done ticket dressed up as complete is a defect.
-
-            CI-specific overrides on top of the skill (these adapt the skill's output
-            for unattended GitHub Actions execution — the skill itself is unchanged):
-
-            - PR opening: do NOT open the PR yourself. Write the PR body (filled out
-              from `.github/pull_request_template.md`, with the skill's Closes/Refs
-              and DoD logic) to the file `$RUNNER_TEMP/pr-body.md`. The push step
-              below opens the Draft PR using that file verbatim.
-            - Pipeline gate before commit: run `pnpm install --frozen-lockfile`,
-              `pnpm lint`, `pnpm --filter frontend type-check`, `pnpm test:unit`,
-              `pnpm test:integration`, `pnpm build` and fix any failures you introduced
-              so CI is green on the first push.
-            - Hard rules (ADR-317-DEV — do not violate):
-              * Honour every quality gate. NEVER use --no-verify or bypass Husky/ESLint/tests.
-              * Do NOT edit `.github/workflows/**`, repository secrets, or security
-                configuration. Stay within product, docs, trace, and test paths.
-              * Commit on the CURRENT branch using Conventional Commits, incrementally
-                per coherent step. Finish the ENTIRE issue — the turn/time budget is
-                generous; do not stop early or hand off a half-done ticket.
-              * Do NOT mark the PR ready-for-review — the ready-gate flips it once CI
-                is green and the automated review is clean.
-              * Only if a step is genuinely blocked or unsafe: finish every part you
-                safely can, leave unfinished DoD items unticked, use `Refs` (not
-                `Closes`), and write a clear "what remains" summary in the PR body.
+            1. The workflow opens the PR, not you. Write the filled-out body
+               (per `.github/pull_request_template.md`, applying the skill's
+               Closes/Refs + DoD-attestation logic) to `$RUNNER_TEMP/pr-body.md`.
+               Do not run `gh pr create`. Do not mark anything ready-for-review —
+               the ready-gate flips it once CI + the automated review are clean.
+            2. Husky only runs lint-staged on commit, so verify the rest of the
+               pipeline locally before the workflow pushes: `pnpm lint`,
+               `pnpm --filter frontend type-check`, `pnpm test:unit`,
+               `pnpm test:integration`, `pnpm build`. Fix anything you introduced.
+            3. ADR-317-DEV scope guard: do NOT edit `.github/workflows/**`,
+               repository secrets, or security configuration in this run.
+            4. The turn/time budget is generous — finish the ENTIRE issue. If a
+               step is genuinely blocked, complete the rest, follow the skill's
+               stop-condition + Refs-vs-Closes guidance, and explain "what remains"
+               in the PR body file.
           # claude-code-action does NOT grant Bash by default, and CI has no
           # human to approve tool prompts — so without an explicit allow-list the
           # agent's pnpm/git/gh commands are all auto-denied and it produces zero

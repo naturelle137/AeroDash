@@ -43,9 +43,11 @@ permissions:
   id-token: write # required by anthropics/claude-code-action (OIDC)
 
 env:
-  # Latest Sonnet — fast enough to keep reviews responsive once the pipeline
-  # turns green, with `high` reasoning effort for thorough finding coverage.
-  REVIEW_MODEL: 'claude-sonnet-4-6'
+  # Alias form so the bot tracks the LATEST Sonnet automatically (per
+  # code.claude.com/docs/en/model-config: aliases "update over time"). Sonnet
+  # is fast enough to keep reviews responsive once the pipeline turns green;
+  # `high` effort gives thorough finding coverage without the cost of `max`.
+  REVIEW_MODEL: 'sonnet'
   REVIEW_EFFORT: 'high'
   # A full structured review (read diff, walk affected files, cross-check P1
   # isolation + traceability + safety, write findings, submit via `gh pr
@@ -189,43 +191,35 @@ jobs:
           # both for human PRs and for bot-authored Draft PRs.
           allowed_bots: 'claude'
           prompt: |
-            Review pull request #${{ steps.gate.outputs.pr }} in this repository
-            and post a single structured PR review. Every gating workflow (CI,
-            DoD, Security, Traceability, E2E, Branching, Mutation) has already
-            completed on this commit — read their conclusions via
-            `gh pr checks ${{ steps.gate.outputs.pr }}` and factor any failures
-            into your review (do not re-run the pipeline).
+            Review pull request #${{ steps.gate.outputs.pr }} and post ONE
+            structured PR review. Every PR-gating workflow has already completed
+            on this commit — read their conclusions via
+            `gh pr checks ${{ steps.gate.outputs.pr }}` and factor failures into
+            the review. Do not re-run the pipeline.
 
-            Use the repository's `code-review` skill if available; otherwise apply
-            its standards. For P1 safety-core changes, also apply the project's P1
-            PR-review checklist (CONTRIBUTING §8).
+            Apply the `code-review` skill's standards (correctness focus, severity
+            classification) with these safety-critical AeroDash priorities on top
+            (CLAUDE.md + CONTRIBUTING.md §8 are authoritative — do not paraphrase):
 
-            Focus, in priority order:
-            1. Correctness — especially any math feeding a Go/No-Go advisory.
-            2. P1 isolation — no vue/pinia/vue-router import under frontend/src/core/;
-               no [P1-ISOLATION] violations; pure, deterministic, Zod-validated.
+            1. Correctness, especially math feeding a Go/No-Go advisory.
+            2. P1 isolation under `frontend/src/core/` (CLAUDE.md P1/P2/P3 rules).
             3. Safety gates — tests, coverage tiers, traceability tags/registries.
-            4. Architecture (P1/P2/P3 boundaries), then style/nits.
+            4. Architecture, then style/nits.
 
-            Classify each finding by severity: Blocker / Major / Minor / Nit.
+            CI-only hard rules (ADR-317-DEV invariants for the autonomous reviewer):
 
-            Hard rules (ADR-317-DEV — do not violate):
-            - ALWAYS submit exactly ONE formal PR review as your final action via the
-              GitHub CLI — the ready-gate depends on this review existing, so do not
-              finish without it:
+            - Submit EXACTLY ONE formal PR review as your final action — the
+              ready-gate depends on it existing:
                 * no Blocker/Major findings →
-                  `gh pr review ${{ steps.gate.outputs.pr }} --comment --body "<review>"`
+                  `gh pr review ${{ steps.gate.outputs.pr }} --comment --body-file "$RUNNER_TEMP/review.md"`
                 * any Blocker/Major finding →
-                  `gh pr review ${{ steps.gate.outputs.pr }} --request-changes --body "<review>"`
-              (For a long review, write it to `$RUNNER_TEMP/review.md` and pass
-              `--body-file "$RUNNER_TEMP/review.md"`.)
-            - NEVER approve. You are an aid, not an approver — a clean review is a
-              COMMENT, never an approval.
-            - If the PR touches frontend/src/core/ OR carries the `safety-critical`
-              label, begin the review with a bold notice that **human Lead Developer
-              review is mandatory** and that this automated review does not satisfy it.
-            - Do not modify repository code, push commits, or change merge state — the
-              only state change you make is submitting the single review above.
+                  `gh pr review ${{ steps.gate.outputs.pr }} --request-changes --body-file "$RUNNER_TEMP/review.md"`
+            - NEVER approve. A clean review is always `--comment`, never an approval.
+            - If the PR touches `frontend/src/core/` OR carries the `safety-critical`
+              label, open the review body with a bold notice that **human Lead Developer
+              review is mandatory** and this automated pass does not satisfy it.
+            - Read-only on the repo: do not edit files, push commits, or change merge
+              state. The only state change is the single `gh pr review` call above.
           claude_args: |
             --model ${{ env.REVIEW_MODEL }}
             --effort ${{ env.REVIEW_EFFORT }}
