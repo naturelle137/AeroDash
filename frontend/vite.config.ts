@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs'
 import { fileURLToPath, URL } from 'node:url'
 
 import { defineConfig, loadEnv } from 'vite'
@@ -6,6 +7,7 @@ import vueDevTools from 'vite-plugin-vue-devtools'
 import { VitePWA } from 'vite-plugin-pwa'
 
 import { assertNoTelemetryInProductionBuild } from './scripts/build/telemetry-guard'
+import { copyLegalDocs } from './scripts/build/copy-legal-docs'
 
 // Production gate for dev-only tooling (DP-016 vue-devtools). Kept as a plain
 // boolean rather than a `defineConfig(({ command }) => …)` callback so the
@@ -19,6 +21,19 @@ import { assertNoTelemetryInProductionBuild } from './scripts/build/telemetry-gu
 // ignores esbuild's `pure`/`drop` options, so a build-time strip here would be
 // silently dropped.
 const isProd = process.env.NODE_ENV === 'production'
+
+// Source the app version from package.json directly. The disclaimer baseline
+// (REQ-SYS-016) is derived from this value, so a stale literal fallback could
+// silently defeat the milestone-bump re-prompt; reading the manifest keeps it
+// authoritative regardless of how the build was invoked.
+const appVersion = (
+  JSON.parse(
+    readFileSync(fileURLToPath(new URL('./package.json', import.meta.url)), 'utf-8'),
+  ) as { version?: string }
+).version
+if (!appVersion) {
+  throw new Error('vite.config: package.json has no "version" field for __APP_VERSION__')
+}
 
 // DP-004 / CS-012 (issue #263, PR #361 MAJOR review fix) — telemetry must
 // never ship in a production bundle. The guard logic + its truthy parser
@@ -54,6 +69,8 @@ export default defineConfig({
     // DP-016 — vue-devtools must never ship in a production bundle (it exposes
     // component internals and store state). Enabled for dev only.
     ...(isProd ? [] : [vueDevTools()]),
+    // Expose DISCLAIMER.md / LICENSE so the disclaimer gate's full-text link resolves in dev and prod.
+    copyLegalDocs(),
     VitePWA({
       registerType: 'prompt',
       injectRegister: 'auto',
@@ -70,13 +87,16 @@ export default defineConfig({
         ],
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        // Explicit legal-doc entries rather than a broad md/txt glob, so the
+        // disclaimer gate's full-text link is cached offline without precaching
+        // every stray .md/.txt that may land in dist.
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}', 'DISCLAIMER.md', 'LICENSE.txt'],
       },
       devOptions: { enabled: false },
     }),
   ],
   define: {
-    __APP_VERSION__: JSON.stringify(process.env.npm_package_version ?? '0.3.0'),
+    __APP_VERSION__: JSON.stringify(appVersion),
     __BUILD_DATE__: JSON.stringify(new Date().toISOString().split('T')[0]),
     // Issue #271 / PR-review Major #2: this floor is evaluated per SemVer §11
     // ordering (pre-release < release of the same MAJOR.MINOR.PATCH), so a

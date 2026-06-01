@@ -40,7 +40,7 @@ const router = createRouter({
       name: 'privacy',
       component: () => import('@/views/PrivacyView.vue'),
     },
-    // @IMP-UI-ROUTE-005@ (FROM: @REQ-SYS-016@, @REQ-SYS-017@, @REQ-SYS-018@)
+    // @IMP-UI-ROUTE-005@ (FROM: @REQ-SYS-017@, @REQ-SYS-018@, @REQ-SYS-019@)
     {
       path: '/contribute',
       name: 'contribute',

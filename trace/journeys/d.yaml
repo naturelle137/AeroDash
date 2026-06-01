@@ -25,6 +25,6 @@ Phase D — System & Usability
     title: Reporting a Defect, Suggesting a Feature, or Raising a Security Concern
     file: docs/journeys/04_system_usability.md
     req:
-      - REQ-SYS-016
       - REQ-SYS-017
       - REQ-SYS-018
+      - REQ-SYS-019

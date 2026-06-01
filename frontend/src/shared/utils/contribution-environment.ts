@@ -1,4 +1,4 @@
-// @IMP-UI-SHARED-009@ (FROM: @REQ-SYS-017@, @DES-UX-015@)
+// @IMP-UI-SHARED-009@ (FROM: @REQ-SYS-018@, @DES-UX-015@)
 //
 // Builds the auto-detected "Environment" string prefilled in the in-app
 // defect form before handoff to the GitHub bug_report template. The user

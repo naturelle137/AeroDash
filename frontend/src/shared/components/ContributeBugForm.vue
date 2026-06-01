@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// @IMP-UI-SHARED-011@ (FROM: @REQ-SYS-017@, @DES-UX-015@)
+// @IMP-UI-SHARED-011@ (FROM: @REQ-SYS-018@, @DES-UX-015@)
 import { computed, onMounted, ref } from 'vue'
 import {
   BUG_SEVERITY_VALUES,

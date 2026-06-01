@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// @IMP-UI-SHARED-013@ (FROM: @REQ-SYS-018@, @DES-UX-017@)
+// @IMP-UI-SHARED-013@ (FROM: @REQ-SYS-019@, @DES-UX-017@)
 import { GITHUB_SECURITY_ADVISORY_URL } from '@/core/logic/github-issue-url'
 
 const emit = defineEmits<{

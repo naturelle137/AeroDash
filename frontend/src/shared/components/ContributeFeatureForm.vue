@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// @IMP-UI-SHARED-012@ (FROM: @REQ-SYS-017@, @DES-UX-016@)
+// @IMP-UI-SHARED-012@ (FROM: @REQ-SYS-018@, @DES-UX-016@)
 import { computed, onMounted, ref } from 'vue'
 import type { FeatureRequestInput } from '@/core/logic/github-issue-url'
 

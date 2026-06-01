@@ -49,7 +49,7 @@ Focus: UI resilience and environmental factors.
 
 **Outcome:** The pilot actively takes responsibility for the accuracy of externally-sourced data. The verification workflow ensures that auto-downloaded values are never silently trusted — the pilot must either verify individually or batch-accept the data before the system treats it as reliable.
 
-<!-- @UJ-D-003@ (FROM: @REQ-SYS-016@, @REQ-SYS-017@, @REQ-SYS-018@) -->
+<!-- @UJ-D-003@ (FROM: @REQ-SYS-017@, @REQ-SYS-018@, @REQ-SYS-019@) -->
 
 ## <a name="UJ-D-003"></a>UJ-D-003: Reporting a Defect, Suggesting a Feature, or Raising a Security Concern
 

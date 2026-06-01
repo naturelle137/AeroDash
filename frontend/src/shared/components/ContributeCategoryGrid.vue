@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// @IMP-UI-SHARED-010@ (FROM: @REQ-SYS-016@, @DES-UX-014@)
+// @IMP-UI-SHARED-010@ (FROM: @REQ-SYS-017@, @DES-UX-014@)
 type Category = 'defect' | 'feature' | 'security'
 
 interface CategoryDef {

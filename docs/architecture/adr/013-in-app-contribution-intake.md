@@ -1,4 +1,4 @@
-# ADR-012: In-App Contribution Intake — Prefill-and-Confirm for Issues, Link-Only for Security Advisories
+# ADR-013: In-App Contribution Intake — Prefill-and-Confirm for Issues, Link-Only for Security Advisories
 
 * **Status:** Accepted
 * **Date:** 2026-05-31
@@ -90,8 +90,8 @@ buttons, stating that contribution is not only code — issue reporting,
 feature ideas, improvement suggestions, and documentation are all
 valued — and linking to the public GitHub repository. The design and
 copy are specified in `docs/ux/contribution.md` and recorded as
-`DES-UX-013` / `DES-ARCH-014`. Three new system requirements (`REQ-SYS-016`
-through `REQ-SYS-018`) capture the binding behaviour.
+`DES-UX-013` / `DES-ARCH-018`. Three new system requirements (`REQ-SYS-017`
+through `REQ-SYS-019`) capture the binding behaviour.
 
 ## Consequences
 
@@ -142,7 +142,7 @@ through `REQ-SYS-018`) capture the binding behaviour.
 This decision does not introduce new safety hazards. The contribution
 hub is a pilot-initiated, non-flight-critical workflow and does not
 feed any Go/No-Go advisory. The three new requirements
-(`REQ-SYS-016`, `REQ-SYS-017`, `REQ-SYS-018`) carry no `FROM: @H-…@`
+(`REQ-SYS-017`, `REQ-SYS-018`, `REQ-SYS-019`) carry no `FROM: @H-…@`
 link by design.
 
 The link-only path for security advisories preserves GitHub's

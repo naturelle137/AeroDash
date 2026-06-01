@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// @IMP-UI-VIEW-002@ (FROM: @REQ-SYS-014@, @REQ-SYS-015@, @REQ-SYS-016@, @DES-ARCH-011@, @DES-ARCH-012@)
+// @IMP-UI-VIEW-002@ (FROM: @REQ-SYS-014@, @REQ-SYS-015@, @REQ-SYS-017@, @DES-ARCH-011@, @DES-ARCH-012@)
 import { computed, onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import {
@@ -270,8 +270,8 @@ function onCancelWipe(): void {
       </button>
     </section>
 
-    <!-- ─── Contribution link (REQ-SYS-016) ────────────────────────── -->
-    <!-- @IMP-UI-SHARED-017@ (FROM: @REQ-SYS-016@, @DES-UX-013@) -->
+    <!-- ─── Contribution link (REQ-SYS-017) ────────────────────────── -->
+    <!-- @IMP-UI-SHARED-017@ (FROM: @REQ-SYS-017@, @DES-UX-013@) -->
     <p class="privacy-view__contribute" data-testid="privacy-contribute-link">
       <RouterLink to="/contribute">
         Report a problem or suggest an improvement →

@@ -30,6 +30,97 @@ UI Shared Components (Unit)
     files:
       - frontend/src/__tests__/App.nav.spec.ts
 
+  UT-UI-SHARED-004
+    title: DisclaimerAcknowledgementModal — does not render anything when closed
+    impl:
+      - IMP-UI-SHARED-008
+    files:
+      - frontend/src/shared/components/__tests__/DisclaimerAcknowledgementModal.spec.ts
+
+  UT-UI-SHARED-005
+    title: DisclaimerAcknowledgementModal — renders the gate with role=alertdialog and aria-modal=true
+    impl:
+      - IMP-UI-SHARED-008
+    files:
+      - frontend/src/shared/components/__tests__/DisclaimerAcknowledgementModal.spec.ts
+
+  UT-UI-SHARED-006
+    title: DisclaimerAcknowledgementModal — labels the dialog via aria-labelledby and aria-describedby
+    impl:
+      - IMP-UI-SHARED-008
+    files:
+      - frontend/src/shared/components/__tests__/DisclaimerAcknowledgementModal.spec.ts
+
+  UT-UI-SHARED-007
+    title: DisclaimerAcknowledgementModal — renders the Pilot in Command obligations and POH precedence statement
+    impl:
+      - IMP-UI-SHARED-008
+    files:
+      - frontend/src/shared/components/__tests__/DisclaimerAcknowledgementModal.spec.ts
+
+  UT-UI-SHARED-008
+    title: DisclaimerAcknowledgementModal — emits accept when the accept button is clicked
+    impl:
+      - IMP-UI-SHARED-008
+    files:
+      - frontend/src/shared/components/__tests__/DisclaimerAcknowledgementModal.spec.ts
+
+  UT-UI-SHARED-009
+    title: DisclaimerAcknowledgementModal — renders no cancel / dismiss action; the only control is Accept
+    impl:
+      - IMP-UI-SHARED-008
+    files:
+      - frontend/src/shared/components/__tests__/DisclaimerAcknowledgementModal.spec.ts
+
+  UT-UI-SHARED-010
+    title: DisclaimerAcknowledgementModal — shows the storage-unavailable advisory when the prop is set
+    impl:
+      - IMP-UI-SHARED-008
+    files:
+      - frontend/src/shared/components/__tests__/DisclaimerAcknowledgementModal.spec.ts
+
+  UT-UI-SHARED-011
+    title: DisclaimerAcknowledgementModal — hides the storage-unavailable advisory by default
+    impl:
+      - IMP-UI-SHARED-008
+    files:
+      - frontend/src/shared/components/__tests__/DisclaimerAcknowledgementModal.spec.ts
+
+  UT-UI-SHARED-012
+    title: DisclaimerAcknowledgementModal — shows the write-failed advisory after a refused acknowledge() write
+    impl:
+      - IMP-UI-SHARED-008
+    files:
+      - frontend/src/shared/components/__tests__/DisclaimerAcknowledgementModal.spec.ts
+
+  UT-UI-SHARED-013
+    title: DisclaimerAcknowledgementModal — prefers the specific write-failed advisory when both flags are set (M3 precedence)
+    impl:
+      - IMP-UI-SHARED-008
+    files:
+      - frontend/src/shared/components/__tests__/DisclaimerAcknowledgementModal.spec.ts
+
+  UT-UI-SHARED-014
+    title: DisclaimerAcknowledgementModal — confines Tab focus to the dialog (pulls escaped focus back, wraps at boundaries)
+    impl:
+      - IMP-UI-SHARED-008
+    files:
+      - frontend/src/shared/components/__tests__/DisclaimerAcknowledgementModal.spec.ts
+
+  UT-UI-SHARED-015
+    title: DisclaimerAcknowledgementModal — allows Tab between controls inside the dialog so DISCLAIMER / LICENSE links stay reachable
+    impl:
+      - IMP-UI-SHARED-008
+    files:
+      - frontend/src/shared/components/__tests__/DisclaimerAcknowledgementModal.spec.ts
+
+  UT-UI-SHARED-016
+    title: DisclaimerAcknowledgementModal — does not emit accept or dismiss on Escape
+    impl:
+      - IMP-UI-SHARED-008
+    files:
+      - frontend/src/shared/components/__tests__/DisclaimerAcknowledgementModal.spec.ts
+
 UI (auto)
   UT-UI-ROUTE-004
     title: Router unit test — /privacy route resolves to PrivacyView

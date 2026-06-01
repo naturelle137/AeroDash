@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// @IMP-UI-VIEW-001@ (FROM: @REQ-UI-011@, @REQ-SYS-001@, @REQ-SYS-016@)
+// @IMP-UI-VIEW-001@ (FROM: @REQ-UI-011@, @REQ-SYS-001@, @REQ-SYS-017@)
 import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
 import AppLogo from '@/shared/components/AppLogo.vue'
@@ -150,13 +150,13 @@ const soonModules = modules.filter((m) => m.soon)
       </div>
     </section>
 
-    <!-- ─── Contribution entry point (REQ-SYS-016) ────────────────────────── -->
+    <!-- ─── Contribution entry point (REQ-SYS-017) ────────────────────────── -->
     <section
       class="contribution-entry"
       aria-labelledby="contribute-entry-heading"
       data-testid="home-contribute-entry"
     >
-      <!-- @IMP-UI-SHARED-016@ (FROM: @REQ-SYS-016@, @DES-UX-013@) -->
+      <!-- @IMP-UI-SHARED-016@ (FROM: @REQ-SYS-017@, @DES-UX-013@) -->
       <div class="contribution-entry__body">
         <h2 id="contribute-entry-heading" class="contribution-entry__title">
           Help improve AeroDash

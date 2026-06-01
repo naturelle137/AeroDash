@@ -3,10 +3,10 @@
 This document specifies the in-app contribution hub: how a pilot reaches the
 intake surface, what they see at each step, what fields they fill in, and
 how the app hands the result off to GitHub. The decision for the chosen
-handoff style is recorded in [`ADR-012`](../architecture/adr/012-in-app-contribution-intake.md).
+handoff style is recorded in [`ADR-013`](../architecture/adr/013-in-app-contribution-intake.md).
 
 See also: [`docs/requirements/system.md`](../requirements/system.md) for
-`REQ-SYS-016 / 017 / 018`, and
+`REQ-SYS-017 / 018 / 019`, and
 [`docs/journeys/04_system_usability.md`](../journeys/04_system_usability.md)
 for `UJ-D-NNN` journeys covered.
 
@@ -14,7 +14,7 @@ for `UJ-D-NNN` journeys covered.
 
 ## 1. Entry Points
 
-<!-- @DES-UX-013@ (FROM: @REQ-SYS-016@) -->
+<!-- @DES-UX-013@ (FROM: @REQ-SYS-017@) -->
 
 The contribution hub is reachable from three locations:
 
@@ -32,7 +32,7 @@ lives in component state.
 
 ## 2. Category Intake (Three-Button Entry)
 
-<!-- @DES-UX-014@ (FROM: @REQ-SYS-016@) -->
+<!-- @DES-UX-014@ (FROM: @REQ-SYS-017@) -->
 
 On first paint the hub shows a heading, one explanatory paragraph, and
 three large buttons stacked vertically (mobile) or in a 3-column grid
@@ -57,7 +57,7 @@ user can step back to the category screen from any sub-screen via a
 
 ## 3. Defect Guided Form
 
-<!-- @DES-UX-015@ (FROM: @REQ-SYS-017@) -->
+<!-- @DES-UX-015@ (FROM: @REQ-SYS-018@) -->
 
 The form is a single scrollable column with four field groups followed
 by the submit row. It maps 1:1 to the existing
@@ -92,7 +92,7 @@ again when online.").
 
 ## 4. Feature Guided Form
 
-<!-- @DES-UX-016@ (FROM: @REQ-SYS-017@) -->
+<!-- @DES-UX-016@ (FROM: @REQ-SYS-018@) -->
 
 Same layout pattern as §3. Maps 1:1 to
 [`feature_request.yml`](../../.github/ISSUE_TEMPLATE/feature_request.yml):
@@ -113,7 +113,7 @@ reason as §3.
 
 ## 5. Security Advisory Card
 
-<!-- @DES-UX-017@ (FROM: @REQ-SYS-018@) -->
+<!-- @DES-UX-017@ (FROM: @REQ-SYS-019@) -->
 
 Selecting `security` (§2) reveals a single card with no form fields. The
 card contains:
@@ -129,7 +129,7 @@ card contains:
    `https://github.com/naturelle137/AeroDash/security/advisories/new`.
 4. A "Back" button returning to §2.
 
-There is no in-app field collection — see ADR-012 for the rationale. The
+There is no in-app field collection — see ADR-013 for the rationale. The
 button is enabled regardless of connectivity (the new tab will fail to
 load offline, but blocking would hide the link entirely from a pilot
 who needs the URL for later).
@@ -138,7 +138,7 @@ who needs the URL for later).
 
 ## 6. Contribution Promotion Section
 
-<!-- @DES-UX-018@ (FROM: @REQ-SYS-016@) -->
+<!-- @DES-UX-018@ (FROM: @REQ-SYS-017@) -->
 
 Below the category buttons (§2), permanently visible, sits a
 non-modal panel titled "How else can you help?" containing:
@@ -165,7 +165,7 @@ an alert.
 
 ## 7. P1 URL Builder — Public Contract
 
-<!-- @DES-ARCH-014@ (FROM: @REQ-SYS-017@) -->
+<!-- @DES-ARCH-018@ (FROM: @REQ-SYS-018@) -->
 
 The mapping from in-app form state to a prefilled GitHub URL lives in a
 single pure-TypeScript module:
@@ -224,7 +224,7 @@ under `src/modules/ src/shared/ src/stores/`.
 
 ## 8. State, Accessibility, and Layout Behaviour
 
-<!-- @DES-UX-019@ (FROM: @REQ-SYS-016@) -->
+<!-- @DES-UX-019@ (FROM: @REQ-SYS-017@) -->
 
 - The `/contribute` view uses the standard
   [Interaction State Taxonomy](design_system.md#2-interaction-state-taxonomy)
@@ -255,7 +255,7 @@ under `src/modules/ src/shared/ src/stores/`.
 
 ## 9. Out of Scope
 
-<!-- @DES-UX-020@ (FROM: @REQ-SYS-016@) -->
+<!-- @DES-UX-020@ (FROM: @REQ-SYS-017@) -->
 
 - Offline drafting and persistence of contribution drafts (no IndexedDB
   store, no Pinia persistence). A draft is component-local state only
@@ -267,7 +267,7 @@ under `src/modules/ src/shared/ src/stores/`.
   introduced.
 - In-app authentication, token storage, or background issue submission.
   The flow is "prefill and confirm on GitHub" for bug / feature, and
-  "link-only" for security — see [`ADR-012`](../architecture/adr/012-in-app-contribution-intake.md).
+  "link-only" for security — see [`ADR-013`](../architecture/adr/013-in-app-contribution-intake.md).
 - Live status of submitted issues. The app does not poll GitHub for
   responses; the pilot tracks responses in GitHub itself or via the
   notification settings on their GitHub account.
