@@ -27,9 +27,20 @@ const environment = ref('')
 const showAdvanced = ref(false)
 const isOnline = ref(typeof navigator === 'undefined' ? true : navigator.onLine)
 const submitting = ref(false)
+// Short grace period so a deliberate retry (e.g. after a blocked popup) is
+// possible while still swallowing the classic tablet double-tap.
+const SUBMIT_GUARD_MS = 1500
+let submitGuardTimer: ReturnType<typeof setTimeout> | null = null
 
 function updateOnline(): void {
   isOnline.value = navigator.onLine
+}
+
+function clearSubmitGuardTimer(): void {
+  if (submitGuardTimer !== null) {
+    clearTimeout(submitGuardTimer)
+    submitGuardTimer = null
+  }
 }
 
 onMounted(() => {
@@ -45,6 +56,7 @@ onBeforeUnmount(() => {
     window.removeEventListener('online', updateOnline)
     window.removeEventListener('offline', updateOnline)
   }
+  clearSubmitGuardTimer()
 })
 
 const titleTooLong = computed(() => title.value.trim().length > TITLE_MAX)
@@ -65,7 +77,15 @@ const canSubmit = computed(() => {
 function onSubmit(): void {
   if (!canSubmit.value || severity.value === '') return
   // Double-submit guard: prevents a double-tap from opening two GitHub tabs.
+  // Auto-resets after SUBMIT_GUARD_MS so a deliberate retry (e.g. popup
+  // blocked, pilot wants to amend and resend) is possible without forcing
+  // a destructive Back-and-restart cycle.
   submitting.value = true
+  clearSubmitGuardTimer()
+  submitGuardTimer = setTimeout(() => {
+    submitting.value = false
+    submitGuardTimer = null
+  }, SUBMIT_GUARD_MS)
   emit('submit', {
     title: title.value.trim(),
     description: description.value.trim(),

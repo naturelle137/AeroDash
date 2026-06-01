@@ -1,5 +1,5 @@
 // @UT-UI-SHARED-018@ (FROM: @IMP-UI-SHARED-011@)
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import ContributeBugForm from '../ContributeBugForm.vue'
 
@@ -109,6 +109,29 @@ describe('ContributeBugForm', () => {
     await w.find('[data-testid="bug-submit"]').trigger('submit')
     expect(w.emitted('submit')).toHaveLength(1)
     expect((w.find('[data-testid="bug-submit"]').element as HTMLButtonElement).disabled).toBe(true)
+  })
+
+  it('re-enables submit after the guard window expires so retry is possible', async () => {
+    vi.useFakeTimers()
+    try {
+      const w = mount(ContributeBugForm)
+      await flushPromises()
+      await fillRequired(w)
+      await w.find('[data-testid="bug-submit"]').trigger('submit')
+      expect((w.find('[data-testid="bug-submit"]').element as HTMLButtonElement).disabled).toBe(
+        true,
+      )
+      // After the guard window the button must re-enable so the pilot can retry.
+      await vi.advanceTimersByTimeAsync(2000)
+      await flushPromises()
+      expect((w.find('[data-testid="bug-submit"]').element as HTMLButtonElement).disabled).toBe(
+        false,
+      )
+      await w.find('[data-testid="bug-submit"]').trigger('submit')
+      expect(w.emitted('submit')).toHaveLength(2)
+    } finally {
+      vi.useRealTimers()
+    }
   })
 
   it('removes online/offline listeners on unmount', async () => {

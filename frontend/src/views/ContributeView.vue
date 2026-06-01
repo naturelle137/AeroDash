@@ -42,10 +42,15 @@ function backToCategory(): void {
 
 function openInNewTab(url: string): void {
   if (typeof window === 'undefined') return
-  // window.open returns null when an iOS Safari / mobile popup-blocker
-  // suppresses the new tab; surface a fallback so the pilot can still reach
-  // GitHub instead of seeing a silent no-op.
-  const opened = window.open(url, '_blank', 'noopener,noreferrer')
+  // The features string is intentionally omitted: per the HTML spec any
+  // `noopener`/`noreferrer` token forces `window.open` to return `null`,
+  // which would defeat the popup-blocker check below. Modern browsers add
+  // an implicit `noopener` to cross-origin `target=_blank` opens, so the
+  // tabnabbing posture against github.com remains intact; the explicit
+  // `rel="noopener noreferrer"` on the fallback anchor covers the second
+  // hand-off path. `opened === null` therefore now means "the popup was
+  // actually blocked" and we surface the in-page fallback link.
+  const opened = window.open(url, '_blank')
   blockedUrl.value = opened === null ? url : null
 }
 

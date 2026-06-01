@@ -1,5 +1,5 @@
 // @UT-UI-SHARED-019@ (FROM: @IMP-UI-SHARED-012@)
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import ContributeFeatureForm from '../ContributeFeatureForm.vue'
 
@@ -99,6 +99,28 @@ describe('ContributeFeatureForm', () => {
     expect((w.find('[data-testid="feature-submit"]').element as HTMLButtonElement).disabled).toBe(
       true,
     )
+  })
+
+  it('re-enables submit after the guard window expires so retry is possible', async () => {
+    vi.useFakeTimers()
+    try {
+      const w = mount(ContributeFeatureForm)
+      await flushPromises()
+      await fillRequired(w)
+      await w.find('[data-testid="feature-submit"]').trigger('submit')
+      expect((w.find('[data-testid="feature-submit"]').element as HTMLButtonElement).disabled).toBe(
+        true,
+      )
+      await vi.advanceTimersByTimeAsync(2000)
+      await flushPromises()
+      expect((w.find('[data-testid="feature-submit"]').element as HTMLButtonElement).disabled).toBe(
+        false,
+      )
+      await w.find('[data-testid="feature-submit"]').trigger('submit')
+      expect(w.emitted('submit')).toHaveLength(2)
+    } finally {
+      vi.useRealTimers()
+    }
   })
 
   it('removes online/offline listeners on unmount', async () => {
