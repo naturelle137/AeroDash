@@ -607,6 +607,27 @@ SYS Core — SI Unit Normalization (Unit)
     files:
       - frontend/src/core/logic/unit-normalization.spec.ts
 
+  UT-SYS-CORE-041
+    title: unit-conversion-constants — single source of truth (TECH-014)
+    impl:
+      - IMP-SYS-CORE-014
+    files:
+      - frontend/src/core/logic/unit-conversion-constants.spec.ts
+
+  UT-SYS-CORE-042
+    title: mapZodErrorToViolations exposes structured `path` alongside `field` (TECH-015)
+    impl:
+      - IMP-SYS-CORE-002
+    files:
+      - frontend/src/core/adapters/mb.zod-violation-mapping.spec.ts
+
+  UT-SYS-CORE-043
+    title: mapZodErrorToViolations preserves empty `path` for top-level issues (TECH-015)
+    impl:
+      - IMP-SYS-CORE-002
+    files:
+      - frontend/src/core/adapters/mb.zod-violation-mapping.spec.ts
+
 SYS Core — Decimal Precision Policy (Unit)
   UT-UQ-CORE-001
     title: formatMassConservative rounds mass UP at 1 decimal place (ceil)

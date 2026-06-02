@@ -378,3 +378,11 @@ SYS Core — In-app contribution intake (#395)
       - REQ-SYS-019
     des:
       - DES-ARCH-018
+
+SYS Core — Unit conversion constants (#282 / TECH-014)
+  IMP-SYS-CORE-014
+    title: unit-conversion-constants — single source of truth for unit conversion factors (US gal → L, lb → kg, in/ft → m)
+    files:
+      - frontend/src/core/logic/unit-conversion-constants.ts
+    req:
+      - REQ-SYS-003

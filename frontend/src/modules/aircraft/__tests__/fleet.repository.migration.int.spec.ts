@@ -20,6 +20,7 @@ import { describe, it, expect, beforeEach } from 'vitest'
 import 'fake-indexeddb/auto'
 import { IDBFactory } from 'fake-indexeddb'
 import {
+  _resetFleetDbHandleForTest,
   create,
   findById,
   findAll,
@@ -35,6 +36,7 @@ beforeEach(() => {
     writable: true,
     configurable: true,
   })
+  _resetFleetDbHandleForTest()
 })
 
 /** Minimal valid AircraftProfile fixture. */
@@ -88,12 +90,21 @@ function buildProfile(overrides: Partial<AircraftProfile> = {}): AircraftProfile
 }
 
 /**
+ * A "raw" document seeded into the fleet store before the production write
+ * path's Zod gate runs — used to recreate the partial-corruption and future-
+ * version scenarios the repository must recover from. Typed as `object` so
+ * callers can pass real `AircraftProfile`s plus arbitrary extra fields without
+ * a `as unknown as Record<string, unknown>` ladder (TECH-020).
+ */
+type RawFleetDoc = object
+
+/**
  * Write a raw document directly into the canonical fleet store, bypassing the
  * repository's `create()` Zod gate. This is the only way to seed test
  * scenarios that the production write path explicitly forbids — namely a
  * `schemaVersion` from the future and a structurally broken record.
  */
-async function seedRaw(doc: Record<string, unknown>, dbVersion = 2): Promise<void> {
+async function seedRaw(doc: RawFleetDoc, dbVersion = 2): Promise<void> {
   await new Promise<void>((resolve, reject) => {
     const req = indexedDB.open('aerodash-fleet', dbVersion)
     req.onupgradeneeded = () => {
@@ -136,7 +147,7 @@ describe('fleetRepository — downgrade after PWA cache rollback (refs #259)', (
       futureField: { nested: 'data' },
     }
 
-    await seedRaw(futureDoc as unknown as Record<string, unknown>)
+    await seedRaw(futureDoc)
 
     const { profiles, diagnostics } = await findAllWithDiagnostics()
     expect(profiles).toHaveLength(0)
@@ -153,7 +164,7 @@ describe('fleetRepository — downgrade after PWA cache rollback (refs #259)', (
     await seedRaw({
       ...buildProfile({ id: futureId, registration: 'D-F1ND' }),
       schemaVersion: 42,
-    } as unknown as Record<string, unknown>)
+    })
 
     const { profile, diagnostics } = await findByIdWithDiagnostics(futureId)
     expect(profile).toBeUndefined()
@@ -173,7 +184,7 @@ describe('fleetRepository — downgrade after PWA cache rollback (refs #259)', (
     await seedRaw({
       ...buildProfile({ id: futureId, registration: 'D-FU02' }),
       schemaVersion: 99,
-    } as unknown as Record<string, unknown>)
+    })
 
     const { profiles, diagnostics } = await findAllWithDiagnostics()
     expect(profiles).toHaveLength(1)
@@ -196,7 +207,7 @@ describe('fleetRepository — corruption + partial-migration crash recovery (ref
       schemaVersion: 1,
       // Almost all required fields missing — simulates partial write before crash.
       registration: 'D-CRPT',
-    } as unknown as Record<string, unknown>)
+    })
 
     const { profiles, diagnostics } = await findAllWithDiagnostics()
     expect(profiles).toHaveLength(0)
@@ -219,11 +230,12 @@ describe('fleetRepository — corruption + partial-migration crash recovery (ref
     await create(buildProfile({ id: v1Id, registration: 'D-V101' }))
 
     // Legacy v0 doc seeded raw — schemaVersion field is *missing*
-    const legacyDoc = buildProfile({ id: legacyId, registration: 'D-LEG0' }) as Partial<AircraftProfile> & {
-      schemaVersion?: number
-    }
+    const legacyDoc: Partial<AircraftProfile> & { schemaVersion?: number } = buildProfile({
+      id: legacyId,
+      registration: 'D-LEG0',
+    })
     delete legacyDoc.schemaVersion
-    await seedRaw(legacyDoc as Record<string, unknown>)
+    await seedRaw(legacyDoc)
 
     const { profiles, diagnostics } = await findAllWithDiagnostics()
     expect(profiles).toHaveLength(2)
@@ -249,12 +261,12 @@ describe('fleetRepository — corruption + partial-migration crash recovery (ref
       schemaVersion: 1,
       registration: 'D-CR99',
       // missing required structure → Zod fails
-    } as unknown as Record<string, unknown>)
+    })
 
     await seedRaw({
       ...buildProfile({ id: futureId, registration: 'D-FU99' }),
       schemaVersion: 7,
-    } as unknown as Record<string, unknown>)
+    })
 
     const { profiles, diagnostics } = await findAllWithDiagnostics()
     expect(profiles).toHaveLength(1)
@@ -276,12 +288,12 @@ describe('fleetRepository — corruption + partial-migration crash recovery (ref
     await seedRaw({
       ...buildProfile({ id: futureId, registration: 'D-FU99' }),
       schemaVersion: 50,
-    } as unknown as Record<string, unknown>)
+    })
     await seedRaw({
       id: corruptId,
       schemaVersion: 1,
       registration: 'D-CR99',
-    } as unknown as Record<string, unknown>)
+    })
 
     const [allResult, byIdResult] = await Promise.all([
       findAllWithDiagnostics(),
@@ -300,7 +312,7 @@ describe('fleetRepository — corruption + partial-migration crash recovery (ref
     await seedRaw({
       ...buildProfile({ id: '00000000-0000-4000-a000-0000000000ea', registration: 'D-DR01' }),
       schemaVersion: 50,
-    } as unknown as Record<string, unknown>)
+    })
 
     const all = await findAll()
     expect(all).toHaveLength(0)

@@ -41,7 +41,24 @@ function normalizeLegacyProfileStatus(raw: unknown): unknown {
   return doc
 }
 
-function openDB(): Promise<IDBDatabase> {
+// ─── Singleton handle (TECH-017) ───────────────────────────────────────────────
+// Each fleet operation previously opened a fresh `IDBDatabase` and closed it
+// on `tx.oncomplete`. Under typical preflight workload (load fleet + open
+// profile + save) that meant 3+ open/close roundtrips before the first weight
+// could be entered. We now cache the handle in a module-level promise so a
+// burst of concurrent calls share one open request, and the handle stays
+// resident until `onversionchange` (another tab needs an upgrade), `onclose`
+// (browser eviction), or an explicit teardown.
+//
+// `onversionchange` is the safety net: if a sibling tab on a newer build
+// triggers a schema upgrade we MUST close our handle, otherwise their
+// `open(DB_NAME, newer)` blocks indefinitely and the other tab silently
+// breaks. The cached promise is cleared so the next call here reopens at
+// the (possibly migrated) current version.
+
+let dbHandlePromise: Promise<IDBDatabase> | null = null
+
+function openDBOnce(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open(DB_NAME, DB_VERSION)
 
@@ -79,7 +96,19 @@ function openDB(): Promise<IDBDatabase> {
     }
 
     request.onsuccess = (event) => {
-      resolve((event.target as IDBOpenDBRequest).result)
+      const db = (event.target as IDBOpenDBRequest).result
+      // Another tab on a newer build triggers an upgrade → release the handle
+      // so they aren't blocked, and force a re-open on the next call.
+      db.onversionchange = (): void => {
+        db.close()
+        dbHandlePromise = null
+      }
+      // The browser can evict the connection (Safari heuristic eviction,
+      // sandbox tear-down). Invalidate the cache so the next call opens fresh.
+      db.onclose = (): void => {
+        dbHandlePromise = null
+      }
+      resolve(db)
     }
 
     request.onerror = (event) => {
@@ -90,6 +119,23 @@ function openDB(): Promise<IDBDatabase> {
       )
     }
   })
+}
+
+function openDB(): Promise<IDBDatabase> {
+  if (dbHandlePromise === null) {
+    const opening = openDBOnce().catch((err: unknown) => {
+      // Failure must NOT poison the cache — clear it so the next caller can retry.
+      dbHandlePromise = null
+      throw err
+    })
+    dbHandlePromise = opening
+  }
+  return dbHandlePromise
+}
+
+/** Test/teardown hook: drop the cached handle so the next `openDB()` reopens. */
+export function _resetFleetDbHandleForTest(): void {
+  dbHandlePromise = null
 }
 
 function withStore<T>(
@@ -113,10 +159,6 @@ function withStore<T>(
               `IndexedDB operation failed: ${(event.target as IDBRequest<T>).error?.message ?? 'unknown'}`,
             ),
           )
-        }
-
-        tx.oncomplete = () => {
-          db.close()
         }
 
         tx.onerror = (event) => {

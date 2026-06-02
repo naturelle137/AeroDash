@@ -10,6 +10,7 @@
  */
 import { MASS_UNITS, ARM_UNITS } from '../domain/units'
 import type { MassUnit, ArmUnit, VolumeUnit } from '../domain/units'
+import { FT_TO_M, IN_TO_M, LB_TO_KG, US_GAL_TO_L } from './unit-conversion-constants'
 
 // @IMP-SYS-CORE-006@ (FROM: @REQ-SYS-003@)
 
@@ -50,8 +51,6 @@ export function parseSourceUnit(sourceUnit: string): { massUnit: MassUnit; armUn
 
 // ─── Mass normalization (→ kg) ────────────────────────────────────────────────
 
-const LB_TO_KG = 0.45359237 as const
-
 /**
  * Normalize a mass value from its source unit to kg.
  */
@@ -69,9 +68,6 @@ export function massKgToUnit(kg: number, targetUnit: MassUnit): number {
 }
 
 // ─── Arm normalization (→ m) ──────────────────────────────────────────────────
-
-const IN_TO_M = 0.0254 as const
-const FT_TO_M = 0.3048 as const
 
 /**
  * Normalize an arm value from its source unit to metres.
@@ -116,13 +112,11 @@ export function normalizeMomentToSI(value: number, armUnit: ArmUnit): number {
 
 // ─── Volume normalization (→ L) ───────────────────────────────────────────────
 
-const GAL_US_TO_L = 3.785411784 as const
-
 /**
  * Normalize a volume value from its source unit to litres.
  */
 export function normalizeVolumeToL(value: number, sourceUnit: VolumeUnit): number {
-  if (sourceUnit === 'gal') return value * GAL_US_TO_L
+  if (sourceUnit === 'gal') return value * US_GAL_TO_L
   return value // already L
 }
 
@@ -130,6 +124,6 @@ export function normalizeVolumeToL(value: number, sourceUnit: VolumeUnit): numbe
  * Convert litres to the target display unit.
  */
 export function volumeLToUnit(l: number, targetUnit: VolumeUnit): number {
-  if (targetUnit === 'gal') return l / GAL_US_TO_L
+  if (targetUnit === 'gal') return l / US_GAL_TO_L
   return l
 }

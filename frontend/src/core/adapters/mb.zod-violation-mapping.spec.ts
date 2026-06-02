@@ -226,6 +226,40 @@ describe('mapZodErrorToViolations', () => {
     ])
   })
 
+  // @UT-SYS-CORE-042@ (FROM: @IMP-SYS-CORE-002@)
+  // TECH-015 — the structured `path` accompanies the legacy stringified
+  // `field` so consumers can dispatch on path segments without regex-parsing.
+  it('emits a structured `path` array alongside the stringified `field`', () => {
+    const issues: ZodIssue[] = [
+      {
+        code: 'custom',
+        message: 'REQUIRED',
+        path: ['stations', 2, 'mass'],
+      },
+    ]
+    const error = new z.ZodError(issues)
+    const violations = mapZodErrorToViolations(error)
+
+    expect(violations).toHaveLength(1)
+    expect(violations[0]!.field).toBe('STATIONS[2].MASS')
+    expect(violations[0]!.path).toEqual(['stations', 2, 'mass'])
+  })
+
+  // @UT-SYS-CORE-043@ (FROM: @IMP-SYS-CORE-002@)
+  it('preserves an empty `path` array when the Zod issue path is empty', () => {
+    const issues: ZodIssue[] = [
+      {
+        code: 'custom',
+        message: 'REQUIRED',
+        path: [],
+      },
+    ]
+    const error = new z.ZodError(issues)
+    const violations = mapZodErrorToViolations(error)
+
+    expect(violations[0]!.path).toEqual([])
+  })
+
   // @UT-SYS-CORE-019@ (FROM: @IMP-SYS-CORE-002@)
   it('outputs REQUIRED when code and message are unknown', () => {
     const issues: ZodIssue[] = [

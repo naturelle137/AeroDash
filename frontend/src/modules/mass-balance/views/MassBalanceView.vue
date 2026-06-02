@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useMassBalanceStore } from '@/modules/mass-balance/stores/mass-balance.store'
 import { AircraftContextSchema } from '@/modules/mass-balance/data/aircraft-context.schema'
@@ -202,14 +202,22 @@ const pendingAck = computed(() => {
 // The fix: render ONE fixed stack at the top of the viewport that mirrors the
 // title + badge of every card the pilot has scrolled past. Each card keeps
 // its own in-flow (non-sticky) header for the full-height rendering when
-// it's in view. A scroll listener computes which cards are past, in DOM
-// order, and rebuilds the stack reactively. Tapping a strip smooth-scrolls
-// the page back to that card with a custom eased animation so it feels
-// natural — not the snap-fast `scrollIntoView({behavior: 'smooth'})` that
-// Safari produces.
+// it's in view. Tapping a strip smooth-scrolls the page back to that card
+// with a custom eased animation so it feels natural — not the snap-fast
+// `scrollIntoView({behavior: 'smooth'})` that Safari produces.
+//
+// Why IntersectionObserver instead of a scroll/RAF listener? (TECH-016 / UX-009)
+// - The scroll handler fired ~30–60×/s on iOS Momentum-scroll, and the
+//   short-circuit comparison ran on every tick. On low-end iPads that drove
+//   visible strip flicker as the boundary jittered around the threshold.
+// - IntersectionObserver fires only on threshold crossings, so each strip
+//   appears/disappears exactly once per cross. No more per-frame work, no
+//   more jitter at the threshold.
 //
 // Each strip is `--prep-sticky-h` tall. The stack pins below the app header
-// (`--nav-header-height`).
+// (`--nav-header-height`). Card N (0-indexed) docks at the strip line
+// `navHeader + (N+1) × STRIP_HEIGHT_PX` — that's where its strip's *bottom*
+// would land once N strips above it are already docked.
 
 interface CardMeta {
   id: string
@@ -232,77 +240,89 @@ const CARD_ORDER = computed<readonly CardMeta[]>(() => [
 /** Strip height in px — kept in sync with --prep-sticky-h (2.75rem @16px). */
 const STRIP_HEIGHT_PX = 44
 
-/** Cards the pilot has scrolled past, currently shown as compressed strips. */
-const stuckCards = ref<CardMeta[]>([])
+/** Per-card sticky flag, keyed by `CardMeta.id`. */
+const stuckMap = ref<Record<string, boolean>>({})
+
+/**
+ * Cards the pilot has scrolled past, derived from `stuckMap` and presented
+ * in CARD_ORDER. Computed so a single map update on any card re-renders
+ * the strip stack deterministically.
+ */
+const stuckCards = computed<readonly CardMeta[]>(() =>
+  CARD_ORDER.value.filter((c) => stuckMap.value[c.id] === true),
+)
 
 function getNavHeaderHeightPx(): number {
   if (typeof document === 'undefined') return 56
   const raw = getComputedStyle(document.documentElement).getPropertyValue('--nav-header-height')
-  const n = parseFloat(raw)
+  const n = Number.parseFloat(raw)
   return Number.isFinite(n) ? n : 56
 }
 
-/**
- * Walk the cards top-to-bottom: a card joins the stack when its in-flow
- * header has scrolled above the bottom of the next strip slot. The cumulative
- * offset grows by STRIP_HEIGHT_PX for each stuck card so deeper cards have
- * a higher entry threshold — that's how we stack symmetrically on the way
- * down AND release symmetrically on the way back up.
- */
-function recomputeStuck(): void {
-  if (typeof document === 'undefined') return
-  const navHeader = getNavHeaderHeightPx()
-  const next: CardMeta[] = []
-  let cumOffset = navHeader
-
-  for (const meta of CARD_ORDER.value) {
-    const el = document.getElementById(`prep-card-${meta.id}`)
-    if (!el) continue
-
-    const rect = el.getBoundingClientRect()
-    const stripBottom = cumOffset + STRIP_HEIGHT_PX
-
-    // The card's natural top has scrolled above the bottom of where its
-    // strip would sit → the card is "past" → keep its strip pinned.
-    if (rect.top < stripBottom) {
-      next.push(meta)
-      cumOffset = stripBottom
-    }
-  }
-
-  // Cheap reference-equality short-circuit so Vue doesn't re-render every
-  // scroll frame when the stack hasn't changed.
-  if (
-    next.length === stuckCards.value.length &&
-    next.every((c, i) => c.id === stuckCards.value[i]?.id)
-  ) {
-    return
-  }
-  stuckCards.value = next
-}
-
-let scrollRafPending = false
+let stickyObservers: IntersectionObserver[] = []
+let stickyResizeListener: (() => void) | null = null
 let stickyCleanup: (() => void) | null = null
+
+/**
+ * Rebuild one IntersectionObserver per card. Each observer's `rootMargin`
+ * shrinks the viewport so its "intersection" zone begins at the strip
+ * docking line for that card (`navHeader + (idx+1) × STRIP_HEIGHT_PX`).
+ * When the card's top crosses above that line the entry's
+ * `boundingClientRect.top` becomes less than `rootBounds.top` — that is the
+ * authoritative "stuck" signal.
+ */
+function rebuildStickyObservers(): void {
+  if (typeof IntersectionObserver === 'undefined') return
+  for (const o of stickyObservers) o.disconnect()
+  stickyObservers = []
+  const navHeader = getNavHeaderHeightPx()
+
+  CARD_ORDER.value.forEach((meta, idx) => {
+    const el = document.getElementById(`prep-card-${meta.id}`)
+    if (!el) return
+    const stripDockBottom = navHeader + (idx + 1) * STRIP_HEIGHT_PX
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          const rootTop = entry.rootBounds?.top ?? 0
+          const isStuck = entry.boundingClientRect.top < rootTop
+          if (stuckMap.value[meta.id] !== isStuck) {
+            stuckMap.value = { ...stuckMap.value, [meta.id]: isStuck }
+          }
+        }
+      },
+      { rootMargin: `-${stripDockBottom}px 0px 0px 0px`, threshold: [0, 1] },
+    )
+    observer.observe(el)
+    stickyObservers.push(observer)
+  })
+}
 
 function setupStickyStackObserver(): void {
   if (typeof window === 'undefined') return
+  // Defer to next tick so all `prep-card-*` elements are guaranteed in the DOM.
+  void nextTick(() => {
+    rebuildStickyObservers()
+  })
 
-  const onScroll = (): void => {
-    if (scrollRafPending) return
-    scrollRafPending = true
-    window.requestAnimationFrame(() => {
-      recomputeStuck()
-      scrollRafPending = false
-    })
+  if (!stickyResizeListener) {
+    stickyResizeListener = (): void => {
+      // navHeader can change on rotation / viewport resize; rebuild observers
+      // with refreshed rootMargin values.
+      rebuildStickyObservers()
+    }
+    window.addEventListener('resize', stickyResizeListener, { passive: true })
   }
 
-  window.addEventListener('scroll', onScroll, { passive: true })
-  window.addEventListener('resize', onScroll)
-  stickyCleanup = () => {
-    window.removeEventListener('scroll', onScroll)
-    window.removeEventListener('resize', onScroll)
+  stickyCleanup = (): void => {
+    for (const o of stickyObservers) o.disconnect()
+    stickyObservers = []
+    if (stickyResizeListener) {
+      window.removeEventListener('resize', stickyResizeListener)
+      stickyResizeListener = null
+    }
+    stuckMap.value = {}
   }
-  recomputeStuck()
 }
 
 /**
@@ -1065,13 +1085,25 @@ function onCancelSelection(): void {
             </InputGroupCard>
 
             <div class="input-actions">
+              <!--
+                TECH-026: surface Reset-Payload semantics so the affordance is
+                clear before the pilot taps. The button itself remains the
+                primary control; the native `title` is the tooltip surface on
+                pointer devices, and a sibling caption restates the intent for
+                touch / screen-reader use where `title` is unreliable.
+              -->
               <button
                 class="reset-btn"
                 :disabled="viewModel.inputsDisabled"
+                aria-describedby="reset-payload-hint"
+                title="Clears every station weight back to its POH default. Aircraft profile, fuel sequences and Verified status are kept."
                 @click="onResetPayload"
               >
                 Reset Payload
               </button>
+              <p id="reset-payload-hint" class="reset-hint">
+                Clears station weights only — the aircraft profile, fuel sequences and Verified status are preserved.
+              </p>
             </div>
           </section>
 
@@ -1867,8 +1899,19 @@ function onCancelSelection(): void {
 
 .input-actions {
   display: flex;
-  gap: var(--space-2);
+  align-items: center;
+  gap: var(--space-3);
   padding: var(--space-3) 0 0;
+  flex-wrap: wrap;
+}
+
+.reset-hint {
+  margin: 0;
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+  line-height: 1.4;
+  flex: 1 1 220px;
+  min-width: 0;
 }
 
 .reset-btn {

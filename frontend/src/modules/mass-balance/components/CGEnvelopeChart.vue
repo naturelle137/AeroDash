@@ -33,8 +33,8 @@ function xValOf(pt: { arm: number; moment: number }): number {
 
 /**
  * Collects all renderable data points for auto-scaling.
- * MigrationPoint only carries `arm`, so migration path is excluded from
- * moment-graph bounds to avoid scale mismatch.
+ * MigrationPoint now carries both `arm` and `moment` (TECH-012) so the path
+ * contributes to bounds in either graph mode.
  */
 const dataPoints = computed((): { x: number; y: number }[] => {
   const pts: { x: number; y: number }[] = props.envelope.map((ep) => ({
@@ -50,10 +50,8 @@ const dataPoints = computed((): { x: number; y: number }[] => {
     ]
     for (const cp of cgs) pts.push({ x: xValOf(cp), y: cp.mass })
 
-    if (props.graphType === 'arm') {
-      for (const mp of props.result.migrationPath) {
-        pts.push({ x: mp.arm, y: mp.mass })
-      }
+    for (const mp of props.result.migrationPath) {
+      pts.push({ x: xValOf(mp), y: mp.mass })
     }
   }
 
@@ -169,13 +167,13 @@ const ARROW_LENGTH_PX = 8
 const ARROW_MIN_PX = ARROW_LENGTH_PX * 3
 
 const migrationLengthPx = computed(() => {
-  if (props.graphType !== 'arm' || !props.result || props.result.migrationPath.length < 2) {
+  if (!props.result || props.result.migrationPath.length < 2) {
     return 0
   }
   let total = 0
   const path = props.result.migrationPath
   for (let i = 1; i < path.length; i++) {
-    const dx = sx(path[i]!.arm) - sx(path[i - 1]!.arm)
+    const dx = sx(xValOf(path[i]!)) - sx(xValOf(path[i - 1]!))
     const dy = sy(path[i]!.mass) - sy(path[i - 1]!.mass)
     total += Math.hypot(dx, dy)
   }
@@ -183,11 +181,11 @@ const migrationLengthPx = computed(() => {
 })
 
 const migrationD = computed(() => {
-  if (props.graphType !== 'arm' || !props.result || props.result.migrationPath.length < 2) {
+  if (!props.result || props.result.migrationPath.length < 2) {
     return null
   }
   return props.result.migrationPath
-    .map((mp, i) => `${i === 0 ? 'M' : 'L'}${sx(mp.arm)},${sy(mp.mass)}`)
+    .map((mp, i) => `${i === 0 ? 'M' : 'L'}${sx(xValOf(mp))},${sy(mp.mass)}`)
     .join(' ')
 })
 
