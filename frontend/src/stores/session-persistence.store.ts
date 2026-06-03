@@ -259,10 +259,16 @@ export const useSessionPersistenceStore = defineStore('sessionPersistence', () =
     // projection plus the default reference comparison covers every change
     // path the previous deep watch did.
     //
-    // A small serialised key (`stations: registration+weight, category`) would
-    // shrink the work further, but the projection already runs in micro-seconds
-    // on the slowest target devices, so we hold here. Re-profile if the
-    // station count grows (>20) or fields are added to the payload.
+    // INVARIANT: the getter body MUST remain an inline `.map()` call — do NOT
+    // replace it with a `computed()` or any other memoised form. The correctness
+    // of omitting `deep: true` depends on a *new* object reference being
+    // produced on every reactive tick. A memoised getter returns the same
+    // reference when its inputs are unchanged, so Vue's default equality check
+    // would suppress the watcher callback and autosave would silently stop
+    // firing on station mutations. There is no type error or test failure that
+    // catches this — only the inline form is safe here.
+    //
+    // Re-profile if the station count grows (>20) or fields are added to the payload.
     watch(
       () => ({
         stations: mbStore.stations.map((s) => ({ index: s.index, weight: s.weight, touched: s.touched, verified: s.verified })),

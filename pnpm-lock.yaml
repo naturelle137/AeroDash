@@ -120,7 +120,7 @@ importers:
         specifier: ^10.1.8
         version: 10.1.8(eslint@10.4.0(jiti@2.6.1))
       eslint-plugin-oxlint:
-        specifier: ~1.66.0
+        specifier: 1.66.0
         version: 1.66.0(oxlint@1.66.0)
       eslint-plugin-playwright:
         specifier: ^2.10.4
@@ -138,7 +138,7 @@ importers:
         specifier: ^8.0.4
         version: 8.0.4
       oxlint:
-        specifier: ~1.66.0
+        specifier: 1.66.0
         version: 1.66.0
       playwright-bdd:
         specifier: ^8.5.1
