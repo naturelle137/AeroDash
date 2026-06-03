@@ -6,7 +6,7 @@ import { mapZodErrorToViolations } from './mb.zod-violation-mapping'
 // Every numeric field feeding the math core is `.finite()`: Zod's
 // `z.number()` (and `.positive()`/`.nonnegative()`) accept ±Infinity, which
 // would propagate to `zeroFuelMoment = Infinity` → CG = NaN with
-// `success: true` (TECH-003 / CS-002). `.finite()` rejects ±Infinity as
+// `success: true`. `.finite()` rejects ±Infinity as
 // NOT_A_NUMBER, and explicit SI domain bounds reject absurd magnitudes
 // (1e30 / 1e308) as OUT_OF_RANGE before they can corrupt a Go/No-Go advisory.
 //

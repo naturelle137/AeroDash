@@ -1,7 +1,7 @@
 /**
  * Unit tests for app-version.remote.ts
  *
- * Covers REQ-SYS-006 / H-019 — the remote-refresh leg from issue #271. The
+ * Covers REQ-SYS-006 / H-019 — the remote-refresh leg. The
  * remote endpoint is a *soft* override: every failure mode (network, HTTP,
  * parse, schema) must resolve to `null` so the store keeps the prior floor.
  */
@@ -55,10 +55,9 @@ describe('fetchRemoteMinSafeVersion — happy path', () => {
   })
 
   // @UT-SYS-STORE-086@ (FROM: @IMP-SYS-STORE-017@)
-  // PR-review Major #1: the SemVer shape-guard must accept a value carrying
-  // BOTH a pre-release and a build-metadata suffix (legal SemVer 2.0.0). The
-  // prior `[-+]`-only guard rejected it, silently demoting such an
-  // operator-pushed floor to null.
+  // the SemVer shape-guard must accept a value carrying BOTH a pre-release
+  // and a build-metadata suffix (legal SemVer 2.0.0). The prior `[-+]`-only
+  // guard rejected it, silently demoting such an operator-pushed floor to null.
   it('accepts a minSafeVersion carrying both pre-release and build metadata', async () => {
     const fetchImpl = vi
       .fn<typeof fetch>()
@@ -67,9 +66,9 @@ describe('fetchRemoteMinSafeVersion — happy path', () => {
   })
 
   // @UT-SYS-STORE-087@ (FROM: @IMP-SYS-STORE-017@)
-  // PR-review Nit #3: leading-zero numeric pre-release identifiers (`01`) and
-  // empty identifiers (`foo..bar`) are SemVer §9-invalid — reject so the
-  // comparator can never conflate `01`↔`1` or mis-order an empty segment.
+  // leading-zero numeric pre-release identifiers (`01`) and empty identifiers
+  // (`foo..bar`) are SemVer §9-invalid — reject so the comparator can never
+  // conflate `01`↔`1` or mis-order an empty segment.
   it('rejects a minSafeVersion with a leading-zero or empty pre-release identifier', async () => {
     const leadingZero = vi
       .fn<typeof fetch>()
@@ -132,8 +131,8 @@ describe('fetchRemoteMinSafeVersion — failure modes resolve to null', () => {
   })
 
   // @UT-SYS-STORE-082@ (FROM: @IMP-SYS-STORE-017@)
-  // PR-review Minor #5: pre-flight Content-Length check — refuse to read
-  // a body the server already advertised as oversized.
+  // pre-flight Content-Length check — refuse to read a body the server already
+  // advertised as oversized.
   it('returns null on a Content-Length header that exceeds the cap, before reading the body', async () => {
     const textSpy = vi.fn<() => Promise<string>>(async () => '')
     const fetchImpl = vi.fn<typeof fetch>().mockResolvedValue({
@@ -152,11 +151,11 @@ describe('fetchRemoteMinSafeVersion — failure modes resolve to null', () => {
   })
 
   // @UT-SYS-STORE-092@ (FROM: @IMP-SYS-STORE-017@)
-  // PR-review Minor #4: a present-but-malformed Content-Length must REJECT,
-  // not silently fall through to read an unbounded body. `Number('abc')` is
-  // NaN, which the prior `Number.isFinite(len) && len > cap` test skipped.
-  // Content-Length per RFC 9110 is a bare decimal; anything else is malformed
-  // and must reject before the body is read (so a hostile size can't OOM).
+  // a present-but-malformed Content-Length must REJECT, not silently fall
+  // through to read an unbounded body. `Number('abc')` is NaN, which the prior
+  // `Number.isFinite(len) && len > cap` test skipped. Content-Length per
+  // RFC 9110 is a bare decimal; anything else is malformed and must reject
+  // before the body is read (so a hostile size can't OOM).
   it.each(['not-a-number', '0x10', '', '42, 42'])(
     'returns null on a non-decimal Content-Length %j without reading the body',
     async (contentLength) => {
@@ -176,9 +175,9 @@ describe('fetchRemoteMinSafeVersion — failure modes resolve to null', () => {
   )
 
   // @UT-SYS-STORE-093@ (FROM: @IMP-SYS-STORE-017@)
-  // PR-review Minor #3: the post-read cap measures UTF-8 BYTES, not UTF-16
-  // code units, so a body of multi-byte codepoints under the code-unit count
-  // but over the byte cap is still rejected.
+  // the post-read cap measures UTF-8 BYTES, not UTF-16 code units, so a body
+  // of multi-byte codepoints under the code-unit count but over the byte cap
+  // is still rejected.
   it('rejects a body whose UTF-8 byte length exceeds the cap even when its code-unit count would not', async () => {
     // '中' (a CJK ideograph) is ONE UTF-16 code unit but THREE UTF-8 bytes,
     // so a body of these has a code-unit count well under the cap while its
@@ -191,7 +190,7 @@ describe('fetchRemoteMinSafeVersion — failure modes resolve to null', () => {
   })
 })
 
-describe('fetchRemoteMinSafeVersion — AbortController fallback (PR-review Minor #6)', () => {
+describe('fetchRemoteMinSafeVersion — AbortController fallback', () => {
   let originalAbort: typeof AbortController | undefined
 
   beforeEach(() => {
@@ -225,9 +224,9 @@ describe('fetchRemoteMinSafeVersion — AbortController fallback (PR-review Mino
   })
 
   // @UT-SYS-STORE-088@ (FROM: @IMP-SYS-STORE-017@)
-  // PR-review Minor #5: even WITH AbortController present, a fetch impl that
-  // ignores the AbortSignal and never settles must still time out via the
-  // wall-clock race — the abort alone cannot rescue it.
+  // even WITH AbortController present, a fetch impl that ignores the
+  // AbortSignal and never settles must still time out via the wall-clock race
+  // — the abort alone cannot rescue it.
   it('times out via the wall-clock race when AbortController is present but the fetch ignores the signal', async () => {
     expect(typeof AbortController).toBe('function') // default jsdom — not dropped here
 

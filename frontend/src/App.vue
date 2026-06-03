@@ -36,7 +36,7 @@ const disclaimerGateActive = computed(
   () => disclaimerStore.gateOpen && !appVersionStore.versionBlocked,
 )
 
-// REQ-SYS-006 / H-019 (issue #271): check minimum safe version on every
+// REQ-SYS-006 / H-019: check minimum safe version on every
 // mount. The check itself works offline — it reads the last-known
 // minSafeVersion from IndexedDB and enforces it even when navigator.onLine
 // is false — so resurrecting an old, kill-switched bundle via Service Worker
@@ -70,7 +70,7 @@ const sidebarCollapsed = ref(false)
 // previous DOM and JS state intact, but Vue's reactive bindings and any
 // pending microtasks are not re-initialised, so template @click handlers
 // silently no-op even though the button itself is still focusable and
-// visually enabled (issue #232: the Fleet list Delete control). Listening
+// visually enabled (the Fleet list Delete control). Listening
 // for `pageshow` with `event.persisted === true` lets us spot the bfcache
 // restore and force the active route component to remount cleanly via a
 // route key, which re-runs `onMounted` and re-binds every reactive handler.
@@ -299,7 +299,7 @@ const themeLabel = computed(() =>
       <button class="pwa-update-btn" @click="pwaStore.applyUpdate()">Reload to update</button>
     </div>
 
-    <!-- ═══ Session-storage advisory (issue #263 — DP-004 / CS-012) ═══════
+    <!-- ═══ Session-storage advisory ════════════════════════════════════════
          Surfaced once per tab when sessionStorage is unreachable so the
          pilot knows cold-start silent updates have been downgraded to the
          consent-required banner path for the rest of the tab lifetime.
@@ -450,7 +450,7 @@ const themeLabel = computed(() =>
   background: rgba(255, 255, 255, 0.25);
 }
 
-/* ─── Session-storage advisory (issue #263) ─────────────────────────────── */
+/* ─── Session-storage advisory ──────────────────────────────────────────── */
 
 .session-storage-advisory {
   position: fixed;

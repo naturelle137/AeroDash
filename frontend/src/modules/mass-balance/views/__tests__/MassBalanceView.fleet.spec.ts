@@ -461,7 +461,7 @@ describe('MassBalanceView — fleet picker', () => {
     expect(wrapper.find('.draft-ack').exists()).toBe(false)
   })
 
-  // ── 8. Fleet-load timeout escalation (UX-014) ─────────────────────────────
+  // ── 8. Fleet-load timeout escalation ──────────────────────────────────────
   //
   // A hung IndexedDB read keeps the store in LOADING forever. The view arms a
   // watchdog on the load; when it expires the spinner is replaced by an

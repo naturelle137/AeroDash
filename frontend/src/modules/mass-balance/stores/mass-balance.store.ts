@@ -304,7 +304,7 @@ export const useMassBalanceStore = defineStore('massBalance', {
     },
 
     /**
-     * Clear the entire M&B context on aircraft hot-swap (refs #165).
+     * Clear the entire M&B context on aircraft hot-swap.
      *
      * Unlike `resetPayload()` (which only zeroes weights for the current
      * aircraft), this fully detaches the aircraft profile and returns the
@@ -404,15 +404,15 @@ export const useMassBalanceStore = defineStore('massBalance', {
       // Normalize EVERY geometric quantity to SI (kg, m, kg·m) at the adapter
       // boundary before passing to the math core — not just mass. The arm unit
       // is derived from the profile's `sourceUnit` (e.g. `lb-in`) rather than
-      // hardcoded to metres (TECH-001 / TECH-002): an imperial profile with
+      // hardcoded to metres: an imperial profile with
       // arms in inches would otherwise yield a wrong CG and a false in-envelope
       // verdict (H-005 / H-006 class defect).
       const { massUnit: profileMassUnit, armUnit } = parseSourceUnit(this.aircraft!.sourceUnit)
 
       // @IMP-MB-STORE-021@ (FROM: @REQ-FE-001@, @REQ-SYS-003@, H-002)
       // Fail-closed on an unrecognized fuel type: surface a WARNING instead of
-      // silently substituting the conservative fallback density (TECH-013 /
-      // CS-008). Collected here and merged into the notification set below.
+      // silently substituting the conservative fallback density. Collected here
+      // and merged into the notification set below.
       const fuelFallbackNotes: Notification[] = []
 
       // Normalize an armLookup table (mass/volume axis → kg, moment → kg·m).
@@ -525,7 +525,7 @@ export const useMassBalanceStore = defineStore('massBalance', {
       }
 
       // @IMP-MB-STORE-022@ (FROM: @REQ-SYS-012@, @REQ-UI-008@)
-      // Fail-closed on adapter validation failure (TECH-004). The adapter
+      // Fail-closed on adapter validation failure. The adapter
       // returns `success: false` with NaN-filled CgPoints; if we assigned that
       // to `lastResult` the UI would render "NaN kg" to the pilot, masking the
       // failure. Take the notifications path and NEVER set `lastResult` from a

@@ -10,7 +10,7 @@
  *    {@link CURRENT_SESSION_PAYLOAD_VERSION} — a PWA-cache rollback after
  *    a forward bump — the payload is reported as
  *    `unsupported-future-version`. Callers MUST drop it and surface an
- *    INFO notification to the pilot (refs #259).
+ *    INFO notification to the pilot.
  *  - Parse failure, malformed JSON-tree shapes, and Zod validation failure
  *    surface as `corrupt`. Callers clear storage and start a clean session.
  *
@@ -146,7 +146,7 @@ export function runSessionMigrationWalker(
  * `raw` is treated defensively — null, undefined, non-objects, and arrays
  * report `corrupt`. Each up-function is wrapped in a try/catch so a single
  * throwing transform cannot escape the boundary (matches the
- * fleet-store partial-migration crash-recovery guarantee, refs #259).
+ * fleet-store partial-migration crash-recovery guarantee).
  */
 export function migrateSessionPayload(raw: unknown): SessionMigrationOutcome {
   return runSessionMigrationWalker(raw, migrations, CURRENT_SESSION_PAYLOAD_VERSION)

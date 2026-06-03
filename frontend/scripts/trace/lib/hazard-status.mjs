@@ -2,9 +2,9 @@
  * Hazard → mitigating-requirement inversion + deprecation gate.
  *
  * The trace parser knows that requirements may cite a hazard via
- * `(FROM: @H-xxx@)`, but it has no notion of REQ *status*. Pre-issue-#267
- * the safety-traceability chain therefore could not catch the failure mode
- * called out in the v0.3.0-alpha release audit (PR-009): if the only
+ * `(FROM: @H-xxx@)`, but it has no notion of REQ *status*. Previously, the
+ * safety-traceability chain could not catch the failure mode called out in the
+ * v0.3.0-alpha release audit: if the only
  * requirement mitigating a hazard was later moved to `Status: Deprecated`,
  * the hazard would silently regress to *un-mitigated* with nothing flagging
  * it. This module supplies the missing inversion:
@@ -18,9 +18,8 @@
  *      any hazard whose set of non-deprecated mitigators is empty.
  *
  * The result feeds both `pnpm trace check` and the dedicated
- * `hazard-mitigation.spec.ts` unit-test gate (issue #267 / hazard CI
- * assertion), so a un-mitigated hazard fails the unit-test suite the
- * same way a duplicate tag or registry drift does.
+ * `hazard-mitigation.spec.ts` unit-test gate, so an un-mitigated hazard fails
+ * the unit-test suite the same way a duplicate tag or registry drift does.
  */
 
 import { readFile } from 'node:fs/promises'
@@ -33,10 +32,9 @@ import { scanType } from './parser.mjs'
 /**
  * Markdown status keywords (per docs/requirements/README.md). A hazard is
  * mitigated only when at least one REQ in `ACTIVE_STATUSES` cites it.
- * `Deprecated` is intentionally excluded — that is the bug class issue
- * #267 closes.
+ * `Deprecated` is intentionally excluded.
  *
- * `Deferred` (issue #269 / release-audit PR-017) is treated as **active**
+ * `Deferred` is treated as **active**
  * for hazard-mitigation purposes: the REQ is still a planned safety
  * control, just not scheduled for the current release. Excluding it from
  * the active set would silently regress the hazard chain the moment a

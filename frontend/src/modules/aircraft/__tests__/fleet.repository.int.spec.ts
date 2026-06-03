@@ -1,6 +1,6 @@
 /**
  * Integration tests for fleet.repository.ts using fake-indexeddb.
- * Covers CRUD lifecycle and schemaVersion field persistence (refs #166).
+ * Covers CRUD lifecycle and schemaVersion field persistence.
  *
  * @see frontend/src/modules/aircraft/services/fleet.repository.ts
  */
@@ -285,7 +285,7 @@ describe('fleetRepository — CRUD lifecycle', () => {
   })
 })
 
-describe('fleetRepository — schemaVersion persistence (refs #166)', () => {
+describe('fleetRepository — schemaVersion persistence', () => {
   // @IT-AC-STORE-010@ (FROM: @IMP-AC-CORE-002@)
   it('schemaVersion field is persisted and retrieved correctly on create', async () => {
     const profile = buildProfile({
@@ -301,7 +301,7 @@ describe('fleetRepository — schemaVersion persistence (refs #166)', () => {
 
   // @IT-AC-STORE-011@ (FROM: @IMP-AC-CORE-002@, @IMP-AC-CORE-003@)
   it('schemaVersion is preserved across update operations at the current version', async () => {
-    // After the migration registry shipped (#259), `schemaVersion` is a
+    // After the migration registry shipped, `schemaVersion` is a
     // strictly-monotone marker rather than a free-form counter: writing a
     // value > CURRENT_PROFILE_SCHEMA_VERSION is rejected on read as
     // "future version" and the document is dropped from the in-memory fleet.

@@ -136,7 +136,7 @@ describe('ResultSummary', () => {
     expect(wrapper.find('.result-summary__export-btn').exists()).toBe(false)
   })
 
-  // ─── Limit-proximity highlighting (UX-013) ─────────────────────────────────
+  // ─── Limit-proximity highlighting ──────────────────────────────────────────
 
   it('flags the takeoff mass as over-limit (colour + screen-reader text) when it exceeds MTOM', () => {
     const wrapper = mount(ResultSummary, {

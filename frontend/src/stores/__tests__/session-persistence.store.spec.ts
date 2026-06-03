@@ -110,7 +110,7 @@ describe('useSessionPersistenceStore — restoreSession()', () => {
   })
 
   // @UT-SYS-STORE-003@ (FROM: @IMP-SYS-STORE-001@, @IMP-SYS-CORE-012@)
-  it('drops payload, clears storage, and emits INFO notification when version is from a future build (refs #259)', () => {
+  it('drops payload, clears storage, and emits INFO notification when version is from a future build', () => {
     localStorage.setItem(
       'aerodash:session:payload',
       JSON.stringify({ version: 99, aircraftId: 'x', activeCategory: 'Normal', stations: [], savedAt: new Date().toISOString() }),

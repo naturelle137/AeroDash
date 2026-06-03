@@ -8,15 +8,15 @@
  * Unlike mass-balance.store.spec.ts (which mocks the adapter), this suite wires
  * the store to the REAL `calculateMassBalance` adapter so the full
  * unit-normalization → Zod validation → math-core chain is exercised end to
- * end. It covers the v0.3.0-alpha release-audit blockers:
+ * end. Key scenarios:
  *
- *   - BUNDLE 1 (TECH-001/002): imperial profile (arms in inches, mass in lb)
- *     produces a CORRECT SI center of gravity and envelope verdict.
- *   - BUNDLE 3 (TECH-004): an adapter validation failure (success:false with
- *     NaN-filled CgPoints) must NOT reach `lastResult`; the store takes the
- *     notifications path so the UI never renders "NaN kg".
- *   - BUNDLE 4 (TECH-013/CS-008): an unknown fuel type fails closed with a
- *     WARNING instead of silently substituting the fallback density.
+ *   - imperial profile (arms in inches, mass in lb) produces a CORRECT SI
+ *     center of gravity and envelope verdict.
+ *   - an adapter validation failure (success:false with NaN-filled CgPoints)
+ *     must NOT reach `lastResult`; the store takes the notifications path so
+ *     the UI never renders "NaN kg".
+ *   - an unknown fuel type fails closed with a WARNING instead of silently
+ *     substituting the fallback density.
  */
 
 import { describe, it, expect, beforeEach } from 'vitest'

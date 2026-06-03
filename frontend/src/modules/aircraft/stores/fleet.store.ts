@@ -82,7 +82,7 @@ function activeWeighingDate(profile: AircraftProfile): string {
     .validFrom
 }
 
-/** IndexedDB fleet hydration lifecycle for UI feedback (refs #158). */
+/** IndexedDB fleet hydration lifecycle for UI feedback. */
 export type FleetLoadState = 'LOADING' | 'READY' | 'ERROR'
 
 export const useFleetStore = defineStore('fleet', () => {
@@ -96,7 +96,7 @@ export const useFleetStore = defineStore('fleet', () => {
    * them — they are excluded from a bulk export (DES-ARCH-011 §4.1).
    */
   const unreadableProfileCount = ref(0)
-  /** Start LOADING so fleet UI never shows an empty list before the first `loadAll()` (#158 hydration). */
+  /** Start LOADING so fleet UI never shows an empty list before the first `loadAll()`. */
   const fleetLoadState = ref<FleetLoadState>('LOADING')
   const fleetLoadError = ref<string | null>(null)
   const notifications = ref<FleetNotification[]>([])
@@ -124,7 +124,7 @@ export const useFleetStore = defineStore('fleet', () => {
 
   /**
    * Surface one INFO notification per profile dropped by the schemaVersion
-   * migration registry on load (refs #259). Each diagnostic corresponds to a
+   * migration registry on load. Each diagnostic corresponds to a
    * profile that was either (a) stamped with a `schemaVersion` newer than this
    * build can read (PWA-cache rollback) or (b) structurally corrupt at the
    * storage layer. Without this, dropped profiles would silently disappear

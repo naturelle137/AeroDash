@@ -6,7 +6,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
 import { buildPresenceReport } from '../lib/presence.mjs'
 
-// Issue #264 / STC §4.2 — registry presence is a hard requirement, not
+// STC §4.2 — registry presence is a hard requirement, not
 // best-effort. These tests pin the contract on a sandbox so regressions
 // surface independently of the real repo state covered by
 // `presence.spec.ts`.

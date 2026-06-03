@@ -1,6 +1,6 @@
 /**
  * Component tests for AircraftProfileWizardView — the post-save action chooser
- * (UX-012) and the in-app exit modal that replaces native confirm() (UX-015).
+ * and the in-app exit modal that replaces native confirm().
  *
  * The heavy data-entry section components are mocked with stubs that emit valid
  * model values on mount, so the wizard reaches a saveable state without driving

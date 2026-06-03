@@ -30,7 +30,7 @@ import { FT_TO_M, IN_TO_M, LB_TO_KG, US_GAL_TO_L } from './unit-conversion-const
  * armUnit: 'm' }`, preserving today's behaviour EXACTLY — no migration needed.
  * Imperial profiles whose POH arms are in inches declare e.g. `'lb-in'` so the
  * arm and moment are normalized to SI instead of being passed through as if
- * already metric (TECH-001 / TECH-002 — silent wrong-CG defect).
+ * already metric — silent wrong-CG defect.
  *
  * Unknown / malformed components fall back to the SI default for that
  * dimension (`kg` / `m`), which is the fail-safe choice: it never silently

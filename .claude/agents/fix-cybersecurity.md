@@ -33,6 +33,7 @@ You are the AeroDash security remediator — the write-capable counterpart to `a
 
 - Tag new artifacts (`@IMP-/@UT-`) + same-commit `trace/` entry.
 - Conventional Commits: `fix(<scope>): <desc> (refs #<issue>, <CS-ID>)`. No `CHANGELOG.md` edits. No `--no-verify`.
+- **Never embed `<CS-ID>` (or `#<issue>` / PR numbers) in a source-file comment.** Those IDs belong only in the commit message and PR body — embedded in source they rot into dead pointers and are blocked by the `comment-discipline` gate (`CLAUDE.md § Code comments`). The only identifier references permitted in source comments are shtracer tags (`@H-/@REQ-/@UJ-/@DES-/@IMP-/@UT-/@IT-/@E2E-`).
 
 ## Report back
 

@@ -393,7 +393,7 @@ describe('MassBalance Store', () => {
     expect(store.stations[1]!.verified).toBe(false)
   })
 
-  // ─── clearProfile (aircraft hot-swap, refs #165) ──────────────────────
+  // ─── clearProfile (aircraft hot-swap) ──────────────────────────────────
 
   // @UT-MB-STORE-034@ (FROM: @IMP-MB-STORE-018@)
   it('clearProfile fully detaches aircraft, stations, results, notifications and returns to INITIAL', () => {

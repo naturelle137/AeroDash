@@ -293,7 +293,7 @@ describe('runCheck', () => {
   })
 
   it('treats same-file tag repetition as a single declaration (header manifest + inline tags)', async () => {
-    // Regression for issue #265: the manifest block at the top of a spec file
+    // the manifest block at the top of a spec file
     // PLUS inline tags above each `it(...)` is an accepted documentation
     // convention, not a duplicate. Cross-file repeats remain real defects.
     await writeFileEnsuring(
@@ -343,7 +343,7 @@ describe('runCheck', () => {
     expect(report.duplicates.map((d) => d.id)).toContain('@UT-MB-CORE-001@')
   })
 
-  // Issue #264 — `trace check` must reject a repo whose source declares
+  // `trace check` must reject a repo whose source declares
   // REQ/UJ tags but is missing the matching trace/requirements/{module}.yaml
   // or trace/journeys/{phase}.yaml registry file.
   it('fails when a REQ module has no registry YAML and surfaces the missing path', async () => {

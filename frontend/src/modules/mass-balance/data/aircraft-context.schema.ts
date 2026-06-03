@@ -16,7 +16,7 @@ const BurnSequenceEntrySchema = z.object({
 })
 
 // @IMP-MB-DATA-003@ (FROM: @REQ-FE-001@, @REQ-SYS-003@, H-002)
-// Converge the runtime context onto the fuel-type enum (CS-009 / TECH-011): a
+// Converge the runtime context onto the fuel-type enum: a
 // loose `z.array(z.string())` let arbitrary strings reach fuel-density, where a
 // typo / attacker value silently resolved to the 0.84 fallback and miscomputed
 // AvGas vs Jet-A mass. We accept the canonical keys PLUS the two deprecated

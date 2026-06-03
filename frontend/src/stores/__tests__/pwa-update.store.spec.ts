@@ -4,7 +4,7 @@
  * silent-update-absent guarantee (REQ-SYS-005), cold-start silent update
  * (ADR-007 §Cold-start silent update exception), the sessionStorage
  * classifier (H-019 fail-safe), and the sessionStorage-advisory state
- * raised on storage failure (issue #263 — DP-004 / CS-012).
+ * raised on storage failure.
  */
 
 // @UT-SYS-STORE-017@ (FROM: @IMP-SYS-STORE-002@)
@@ -118,20 +118,20 @@ describe('usePwaUpdateStore', () => {
   })
 
   // @UT-SYS-STORE-039@ (FROM: @IMP-SYS-STORE-011@)
-  it('sessionStorageAdvisory is false initially (issue #263)', () => {
+  it('sessionStorageAdvisory is false initially', () => {
     const store = usePwaUpdateStore()
     expect(store.sessionStorageAdvisory).toBe(false)
   })
 
   // @UT-SYS-STORE-040@ (FROM: @IMP-SYS-STORE-011@)
-  it('raiseSessionStorageAdvisory sets the advisory flag (issue #263)', () => {
+  it('raiseSessionStorageAdvisory sets the advisory flag', () => {
     const store = usePwaUpdateStore()
     store.raiseSessionStorageAdvisory()
     expect(store.sessionStorageAdvisory).toBe(true)
   })
 
   // @UT-SYS-STORE-041@ (FROM: @IMP-SYS-STORE-011@)
-  it('raiseSessionStorageAdvisory is idempotent — repeated calls leave the flag true (issue #263)', () => {
+  it('raiseSessionStorageAdvisory is idempotent — repeated calls leave the flag true', () => {
     const store = usePwaUpdateStore()
     store.raiseSessionStorageAdvisory()
     store.raiseSessionStorageAdvisory()
@@ -140,7 +140,7 @@ describe('usePwaUpdateStore', () => {
   })
 
   // @UT-SYS-STORE-042@ (FROM: @IMP-SYS-STORE-012@)
-  it('dismissSessionStorageAdvisory clears the flag (issue #263)', () => {
+  it('dismissSessionStorageAdvisory clears the flag', () => {
     const store = usePwaUpdateStore()
     store.raiseSessionStorageAdvisory()
     store.dismissSessionStorageAdvisory()
@@ -148,7 +148,7 @@ describe('usePwaUpdateStore', () => {
   })
 
   // @UT-SYS-STORE-045@ (FROM: @IMP-SYS-STORE-011@)
-  it('once dismissed, raiseSessionStorageAdvisory is a no-op (one-time-per-tab invariant, NIT-11 PR #361)', () => {
+  it('once dismissed, raiseSessionStorageAdvisory is a no-op (one-time-per-tab invariant)', () => {
     const store = usePwaUpdateStore()
     store.raiseSessionStorageAdvisory()
     store.dismissSessionStorageAdvisory()
@@ -186,7 +186,7 @@ describe('captureAndMarkSession', () => {
   })
 
   // @UT-SYS-STORE-032@ (FROM: @IMP-SYS-STORE-010@)
-  it('fails-safe (wasActiveSession=true) and reports sessionStorageAvailable=false when sessionStorage throws (issue #263)', () => {
+  it('fails-safe (wasActiveSession=true) and reports sessionStorageAvailable=false when sessionStorage throws', () => {
     const originalStorage = Object.getOwnPropertyDescriptor(window, 'sessionStorage')
     Object.defineProperty(window, 'sessionStorage', {
       get() {
@@ -199,7 +199,7 @@ describe('captureAndMarkSession', () => {
       expect(result.wasActiveSession).toBe(true)
       expect(result.sessionStorageAvailable).toBe(false)
     } finally {
-      // NIT-12 (PR #361). Restore even if the assertions above throw so a
+      // Restore even if the assertions above throw so a
       // regression in this test cannot cascade into UT-SYS-STORE-035 (which
       // calls `sessionStorage.setItem(...)` directly) and mask the real
       // failure with a "storage disabled" stack trace.

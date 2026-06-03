@@ -23,7 +23,7 @@ defineEmits<{
   (e: 'export'): void
 }>()
 
-// ─── Limit-proximity highlighting (UX-013) ───────────────────────────────────
+// ─── Limit-proximity highlighting ────────────────────────────────────────────
 // @IMP-MB-UI-011@ (FROM: @REQ-UQ-003@, @REQ-UI-018@)
 //
 // A presentational at-a-glance cue, NOT a Go/No-Go determination — the
@@ -174,8 +174,8 @@ function proximityLabel(proximity: LimitProximity): string {
 }
 
 .result-summary__value {
-  /* UX-013: safety-critical numerics enlarged from 1.125rem so they read at a
-     glance from arm's length in a vibrating cockpit. */
+  /* safety-critical numerics enlarged from 1.125rem so they read at a glance
+     from arm's length in a vibrating cockpit. */
   font-size: 1.5rem;
   font-weight: 600;
   font-variant-numeric: tabular-nums;

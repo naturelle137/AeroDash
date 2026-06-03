@@ -3,10 +3,10 @@
  * Exposes the running build's version, build date, and the
  * minimum-safe-version enforcement gate (REQ-SYS-006, H-019).
  *
- * ## Effective `minSafeVersion` resolution (issue #271)
+ * ## Effective `minSafeVersion` resolution
  *
  * The gate must hold even when the cockpit tablet is offline — the audit
- * (CS-011 / TECH-023) found that a prior `if (!navigator.onLine) return`
+ * The audit found that a prior `if (!navigator.onLine) return`
  * short-circuit let an explicitly kill-switched bundle keep running in
  * exactly the unreliable-network case `REQ-SYS-006` exists to mitigate.
  *
@@ -41,7 +41,7 @@
  * If the cached record is older than {@link CACHE_TTL_MS} (24 h by default)
  * the store still enforces the cached value but logs a WARN. We never *bypass*
  * an expired cache — bypassing it would let a flaky CDN re-create the
- * original CS-011 / TECH-023 hazard via attrition.
+ * original hazard via attrition.
  *
  * ## Refresh triggers
  *
@@ -96,7 +96,7 @@ export const FAIL_CLOSED_MIN_SAFE_VERSION = '999.999.999'
  * Resolve the build-time floor: the value itself when it is a structurally
  * valid SemVer, else the {@link FAIL_CLOSED_MIN_SAFE_VERSION} sentinel.
  *
- * We **fail closed** (PR-review Major #2): a sentinel that any real version is
+ * We **fail closed**: a sentinel that any real version is
  * below forces `versionBlocked = true`, so a structurally-broken build shows
  * the update-required screen rather than silently running. The previous code
  * logged ERROR but kept the invalid string; `isVersionBelow` then threw, was
@@ -262,9 +262,9 @@ export const useAppVersionStore = defineStore('appVersion', () => {
         // Persist failed (best-effort writer swallowed the error). Reflect the
         // record ACTUALLY on disk: on a prior cache `hit` the original record
         // is untouched, so keep its `fetchedAt`; otherwise there is no valid
-        // disk record, so `null`. (PR-review Minor #2: the earlier code cleared
-        // this to `null` even on a hit, mis-reporting an empty/first-install
-        // state when IndexedDB still held the record.)
+        // disk record, so `null`. (The earlier code cleared this to `null` even
+        // on a hit, mis-reporting an empty/first-install state when IndexedDB
+        // still held the record.)
         cacheFetchedAt.value = inspected.kind === 'hit' ? inspected.fetchedAt : null
       }
     }
@@ -312,7 +312,7 @@ export function attachConnectivityRefresh(): () => void {
       // `useAppVersionStore()` throws if no Pinia is active at fire time — a
       // test that forgot to detach, or a future delete-all-data flow that
       // tears the root store down. Swallow + log rather than let an unhandled
-      // error escape the global `online` dispatch (PR-review Nit #2).
+      // error escape the global `online` dispatch.
       logger.warn('connectivity refresh skipped — no active store', {
         code: 'MIN_SAFE_VERSION_CONNECTIVITY_NO_STORE',
         errorName: err instanceof Error ? err.name : 'unknown',

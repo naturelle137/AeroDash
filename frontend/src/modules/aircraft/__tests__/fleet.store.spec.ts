@@ -347,7 +347,7 @@ describe('useFleetStore', () => {
     expect(store.isLoading).toBe(false)
   })
 
-  // ── Migration diagnostics surfaced as INFO notifications (refs #259, #353) ──
+  // ── Migration diagnostics surfaced as INFO notifications ──────────────────
 
   // @UT-AC-STORE-113@ (FROM: @IMP-AC-STORE-005@, @IMP-AC-CORE-003@, @REQ-SYS-013@)
   it('loadAll emits one INFO-AC-001 notification per dropped profile (future version)', async () => {
@@ -449,7 +449,7 @@ describe('useFleetStore', () => {
     ).rejects.toThrow('Profile not found: non-existent-id')
   })
 
-  // ── Draft → computation → WARNING notification (Issue #157 DoD) ──
+  // ── Draft → computation → WARNING notification ──────────────────────────
 
   // @UT-AC-STORE-055@ (FROM: @IMP-AC-STORE-005@)
   it('WARNING WARN-AC-002 is visible after checkDraftWarning on Draft profile used for computation', async () => {
@@ -523,7 +523,7 @@ describe('useFleetStore', () => {
     )
   })
 
-  // ── verifyProfile updates active aircraft context (Issue #165) ──
+  // ── verifyProfile updates active aircraft context ───────────────────────
 
   // @UT-AC-STORE-061@ (FROM: @IMP-AC-STORE-005@, @IMP-AC-STORE-006@)
   it('verifyProfile updates activeAircraftStore when the Draft was the active profile', async () => {
@@ -551,7 +551,7 @@ describe('useFleetStore', () => {
     expect(activeStore.activeProfile?.id).toBe(other.id)
   })
 
-  // ── passengerProfiles round-trip persistence (Issue #159 DoD) ──
+  // ── passengerProfiles round-trip persistence ─────────────────────────
 
   // @UT-AC-STORE-063@ (FROM: @IMP-AC-STORE-005@, @IMP-AC-CORE-001@)
   it('passengerProfiles are persisted in store state after createProfile', async () => {
@@ -656,11 +656,11 @@ describe('useFleetStore', () => {
     expect(store.notifications).toHaveLength(0)
   })
 
-  // ── #165 DoD: notifications cleared on aircraft context switch ──
+  // ── notifications cleared on aircraft context switch ────────────────────
 
   // @UT-AC-STORE-082@ (FROM: @IMP-AC-STORE-005@, @IMP-AC-STORE-006@)
   it('notifications are cleared after calling clearNotifications on aircraft switch', async () => {
-    // DoD #165: "Prior aircraft load data, results, and notifications cleared on switch."
+    // "Prior aircraft load data, results, and notifications cleared on switch."
     // The fleet store provides clearNotifications() for callers (e.g. the aircraft management
     // view or a watcher on activeAircraftStore) to reset notification state when switching aircraft.
     const store = useFleetStore()

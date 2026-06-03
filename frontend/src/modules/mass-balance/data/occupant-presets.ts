@@ -1,5 +1,5 @@
 /**
- * Occupant-mass preset chips for one-tap mass-station entry (UX-002).
+ * Occupant-mass preset chips for one-tap mass-station entry.
  *
  * Provenance + revision tracking lives in the data-constants registry:
  *   docs/data_constants/registry.json

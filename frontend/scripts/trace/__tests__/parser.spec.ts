@@ -145,7 +145,7 @@ describe('parser', () => {
     expect(fromTagsByid.get('@IMP-AC-VIEW-002@')).toEqual(['@REQ-AC-001@'])
   })
 
-  // Issue #264 — REQ and UJ registries depend on a human-readable title
+  // REQ and UJ registries depend on a human-readable title
   // harvested from the markdown heading that follows each tag comment.
   it('harvests the heading title for a REQ tag', async () => {
     await writeFileEnsuring(
@@ -195,7 +195,7 @@ describe('parser', () => {
     expect(occurrences[0].title).toBeUndefined()
   })
 
-  // Issue #264 — a REQ tag that appears inside a downstream
+  // A REQ tag that appears inside a downstream
   // `(FROM: @REQ-XX@)` clause must be classified as a citation, not as
   // a competing declaration. Without this distinction the new
   // trace/requirements/ registry would churn on file-list mismatches

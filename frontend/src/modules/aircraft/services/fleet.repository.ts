@@ -12,7 +12,7 @@
  * drop reason is returned to the caller alongside the data via the
  * {@link findAllWithDiagnostics} / {@link findByIdWithDiagnostics} variants
  * so the UI / store layer can surface an INFO notification per dropped
- * record (refs #259).
+ * record.
  *
  * @see docs/architecture/adr/006-indexeddb-fleet-persistence.md
  */
@@ -172,11 +172,11 @@ function withStore<T>(
   )
 }
 
-// ─── Migration diagnostics (refs #259) ─────────────────────────────────────────
+// ─── Migration diagnostics ──────────────────────────────────────────────────────
 // Each load call carries its own diagnostics list back to the caller. We do not
 // keep a module-level buffer: callers that interleave `findAll` and `findById`
 // across `await` boundaries would otherwise see each other's diagnostics. The
-// per-call return value is the only authoritative drain (#353 review feedback).
+// per-call return value is the only authoritative drain.
 
 /** Why a stored document was excluded from the in-memory fleet. */
 export type MigrationDropReason = 'unsupported-future-version' | 'corrupt'

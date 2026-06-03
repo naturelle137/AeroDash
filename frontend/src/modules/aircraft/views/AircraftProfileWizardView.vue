@@ -200,7 +200,7 @@
       </div>
     </footer>
 
-    <!-- UX-015: in-app exit modal — replaces the iOS-dismissable native confirm() -->
+    <!-- in-app exit modal — replaces the iOS-dismissable native confirm() -->
     <ActionChoiceDialog
       :open="showExitDialog"
       title="Leave the aircraft wizard?"
@@ -210,7 +210,7 @@
       @dismiss="onExitDismiss"
     />
 
-    <!-- UX-012: post-save action chooser — skip the detour back through the fleet list -->
+    <!-- post-save action chooser — skip the detour back through the fleet list -->
     <ActionChoiceDialog
       :open="savedProfile !== null"
       title="Aircraft saved as draft"
@@ -467,7 +467,7 @@ watch(STEPS, (next) => {
   }
 })
 
-// ─── In-app wizard exit modal (UX-015) ───────────────────────────────────────
+// ─── In-app wizard exit modal ────────────────────────────────────────────────
 // @IMP-AC-VIEW-032@ (FROM: @REQ-AC-001@, @REQ-UI-011@)
 //
 // Replaces the native `window.confirm()` exit prompt, which the iOS Safari
@@ -547,7 +547,7 @@ function onExitDismiss(): void {
   resolveLeave(false)
 }
 
-// ─── Post-save action chooser (UX-012) ───────────────────────────────────────
+// ─── Post-save action chooser ────────────────────────────────────────────────
 // @IMP-AC-VIEW-033@ (FROM: @REQ-AC-001@, @REQ-AC-005@)
 //
 // Saving previously dumped the pilot back to the fleet list — four extra taps

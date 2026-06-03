@@ -12,7 +12,7 @@ import { buildPresenceReport } from '../lib/presence.mjs'
 // repo root is four parent directories up.
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..', '..')
 
-describe('registry presence (issue #264 / STC §4.2)', () => {
+describe('registry presence (STC §4.2)', () => {
   it('exposes a YAML file for every module that declares a REQ tag', async () => {
     const report = await buildPresenceReport(REPO_ROOT)
     expect(report.missingRequirements, 'every REQ module must own a trace/requirements/{module}.yaml').toEqual([])

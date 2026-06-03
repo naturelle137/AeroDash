@@ -66,7 +66,7 @@ const isFleetEmpty = computed(
 )
 
 // @IMP-MB-VIEW-011@ (FROM: @REQ-AC-005@, @REQ-AC-007@)
-// Draft-aware aircraft picker (UX-005 / UX-007). The legacy alphabetical-only
+// Draft-aware aircraft picker. The legacy alphabetical-only
 // list let a pilot pick an unverified Draft envelope with no grouping or guard.
 // The picker now: groups options into Verified / Draft <optgroup>s, surfaces the
 // last-used airframe in its own group at the top for quick re-selection, marks
@@ -400,7 +400,7 @@ function loadProfileIntoStore(profile: AircraftProfile): boolean {
   return true
 }
 
-// ─── Fleet-load timeout escalation (UX-014) ──────────────────────────────────
+// ─── Fleet-load timeout escalation ───────────────────────────────────────────
 // @IMP-MB-VIEW-012@ (FROM: @REQ-AC-001@, @REQ-MB-002@)
 //
 // `fleetStore.loadAll()` reads IndexedDB, which can stall indefinitely (storage
@@ -485,7 +485,7 @@ onMounted(async () => {
       }
       // Drain any drop notification produced by `restoreSession()` and surface
       // it as a dismissible INFO banner. Without this, a dropped session would
-      // silently disappear with no recovery hint for the pilot (refs #259, #353).
+      // silently disappear with no recovery hint for the pilot.
       sessionDropBanner.value = sessionPersistenceStore.consumeDropNotification()
     }
   }
@@ -529,7 +529,7 @@ const stations = computed(() => store.availableStations)
 const notifications = computed(() => store.notifications)
 const lastResult = computed(() => store.lastResult)
 
-// UX-002: one-tap preset weights for occupant (non-fuel) stations. Fuel tanks
+// one-tap preset weights for occupant (non-fuel) stations. Fuel tanks
 // are scrubbed via their slider, so they get no presets. Presets are unit-aware
 // so an imperial profile sees pound figures. The preset values are source-cited
 // in docs/data_constants/registry.json (occupant-preset-masses-*).
@@ -641,7 +641,7 @@ function onCategoryChange(category: string): void {
   store.changeCertificationCategory(category)
 }
 
-// ─── UX-004: confirm-then-undo Reset Payload ──────────────────────────────
+// ─── confirm-then-undo Reset Payload ──────────────────────────────────────
 // @IMP-MB-UI-FLEET-002@ (FROM: @REQ-UI-018@)
 //
 // A single tap on Reset Payload wipes every station weight — catastrophic
@@ -862,7 +862,7 @@ function onCancelSelection(): void {
         {{ catalogueError }}
       </div>
 
-      <!-- Fleet load timed out (UX-014): escalate the spinner to an actionable error -->
+      <!-- Fleet load timed out: escalate the spinner to an actionable error -->
       <div
         v-if="isFleetLoading && loadTimedOut"
         class="inline-alert inline-alert--critical fleet-error"
@@ -1183,7 +1183,7 @@ function onCancelSelection(): void {
       flight. This tool is not a certified aviation device.
     </div>
 
-    <!-- UX-004: Reset Payload confirmation + undo -->
+    <!-- Reset Payload confirmation + undo -->
     <ConfirmDialog
       :open="showResetConfirm"
       title="Reset payload?"

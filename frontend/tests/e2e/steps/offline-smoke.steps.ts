@@ -1,7 +1,7 @@
 import { expect } from '@playwright/test'
 import { createBdd } from 'playwright-bdd'
 
-// Step definitions for offline-smoke.feature (REQ-SYS-001, REQ-SYS-002, #162 DoD)
+// Step definitions for offline-smoke.feature (REQ-SYS-001, REQ-SYS-002)
 
 const { Given, When, Then } = createBdd()
 

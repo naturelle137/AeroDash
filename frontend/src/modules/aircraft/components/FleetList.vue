@@ -48,7 +48,7 @@
         </div>
 
         <div class="profile-item__actions">
-          <!-- Select as active aircraft (refs #153) -->
+          <!-- Select as active aircraft -->
           <button
             type="button"
             class="icon-btn icon-btn--select btn-primary btn-select"
@@ -177,7 +177,7 @@
 
           <!-- Delete profile — disabled while this profile is the active
                aircraft so a stray tap can't destroy the airframe currently
-               feeding the M&B Go/No-Go computation (UX-001). -->
+               feeding the M&B Go/No-Go computation. -->
           <button
             type="button"
             class="icon-btn icon-btn--danger btn-danger"
@@ -216,7 +216,7 @@
       </li>
     </ul>
 
-    <!-- UX-001: in-app delete confirmation (replaces native confirm) -->
+    <!-- in-app delete confirmation (replaces native confirm) -->
     <ConfirmDialog
       :open="pendingDelete !== null"
       title="Delete aircraft profile?"
@@ -232,7 +232,7 @@
       @cancel="onCancelDelete"
     />
 
-    <!-- UX-001: post-delete undo toast (restores the profile if tapped) -->
+    <!-- post-delete undo toast (restores the profile if tapped) -->
     <UndoToast
       :open="recentlyDeleted !== null"
       :message="
@@ -348,7 +348,7 @@ function onCancelVerify(): void {
   pendingVerify.value = null
 }
 
-// ─── UX-001: confirm-then-undo destructive delete ──────────────────────────
+// ─── confirm-then-undo destructive delete ─────────────────────────────────
 // @IMP-AC-VIEW-019@ (FROM: @REQ-AC-001@)
 //
 // `pendingDelete` drives the confirmation modal; once confirmed the profile is

@@ -101,7 +101,7 @@ async function onImportFile(event: Event): Promise<void> {
 
   try {
     // Fail-closed guard: reject oversized / non-JSON files BEFORE reading them
-    // into memory (CS-003 / TECH-008).
+    // into memory.
     validateImportFile(file)
     const text = await file.text()
     const profile = importProfileFromJson(text)

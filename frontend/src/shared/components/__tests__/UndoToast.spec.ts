@@ -1,6 +1,6 @@
 /**
  * Unit tests for UndoToast.vue — the transient undo affordance for recoverable
- * destructive actions (UX-001 delete, UX-004 reset payload).
+ * destructive actions (delete aircraft, reset payload).
  *
  * @see frontend/src/shared/components/UndoToast.vue
  */

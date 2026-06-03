@@ -10,7 +10,7 @@ import type { AircraftProfile } from '@/core/adapters/aircraft.schema'
 // @IMP-AC-STORE-002@ (FROM: @REQ-AC-002@)
 
 /**
- * ICAO aircraft registration format (tightened — refs #270, CS-007):
+ * ICAO aircraft registration format (tightened):
  * - Must start with a 1- or 2-letter country prefix
  * - Optionally followed by a single hyphen separating the prefix from the suffix
  * - Suffix is one or more alphanumeric characters (no hyphens)
@@ -26,7 +26,7 @@ const ICAO_REGISTRATION_REGEX = /^[A-Z][A-Z0-9]*(-[A-Z0-9]+)?$/i
  * Accepts a letter prefix followed by an optional single hyphen + alphanumeric
  * suffix, 2–7 characters total. Rejects leading, trailing, or consecutive
  * hyphens — registrations that could otherwise bypass normalised duplicate
- * detection (refs #270).
+ * detection.
  */
 export function validateIcaoRegistration(registration: string): boolean {
   if (!registration || registration.length < 2 || registration.length > 7) {

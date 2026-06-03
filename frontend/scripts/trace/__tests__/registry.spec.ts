@@ -301,7 +301,7 @@ describe('entryFromOccurrence', () => {
     expect(entry.lists.impl).toEqual(['IMP-MB-CORE-001'])
   })
 
-  // Issue #264 — document-level registries (REQ/UJ/DES) must use a
+  // Document-level registries (REQ/UJ/DES) must use a
   // singular `file:` scalar (STC §4.3.1) and pick up the heading title
   // harvested by the parser instead of falling back to the "TODO" stub.
   it('builds a REQ entry with extracted title, file: scalar, and hazard list', () => {
