@@ -1,7 +1,7 @@
 /**
  * Active Aircraft Store — Pinia store for in-session aircraft context.
  * P2/P3 Feature Module — manages the currently selected aircraft profile
- * without requiring a full page reload (refs #153).
+ * without requiring a full page reload.
  *
  * @see docs/requirements/aircraft_management.md REQ-AC-005
  */

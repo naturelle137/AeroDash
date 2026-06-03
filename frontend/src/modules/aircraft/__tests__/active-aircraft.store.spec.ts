@@ -1,8 +1,8 @@
 /**
  * Unit tests for active-aircraft.store.ts
- * Covers hot-swap context switching without page reload (refs #153, #165).
+ * Covers hot-swap context switching without page reload.
  *
- * DoD items (Issue #165):
+ * DoD items:
  * - Aircraft selection replaces context reactively; no page reload
  * - Prior aircraft load data, results, and notifications cleared on switch
  * - Session payload reset on aircraft switch
@@ -242,7 +242,7 @@ describe('useActiveAircraftStore', () => {
     expect(store.isDraft).toBe(false)
   })
 
-  // ─── Hot-swap dependent-state reset (Issue #165 DoD) ───────────────────────
+  // ─── Hot-swap dependent-state reset ─────────────────────────────────────────
 
   /**
    * Stage a "previous aircraft" MB session to prove that switching airframes

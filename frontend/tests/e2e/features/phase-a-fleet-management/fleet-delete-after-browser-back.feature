@@ -1,4 +1,4 @@
-@phase-A @fleet @regression @issue-232
+@phase-A @fleet @regression
 Feature: Fleet Delete control survives a bfcache restore of the Fleet page
   As a pilot
   I want the Delete control on the Fleet list to keep working after the

@@ -1,6 +1,6 @@
 /**
  * Unit tests for ConfirmDialog.vue — the in-app replacement for native
- * window.confirm() on destructive cockpit actions (UX-001 / UX-004).
+ * window.confirm() on destructive cockpit actions.
  *
  * @see frontend/src/shared/components/ConfirmDialog.vue
  */

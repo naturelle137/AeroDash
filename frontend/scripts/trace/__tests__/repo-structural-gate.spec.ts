@@ -6,8 +6,8 @@
  * registry-drift violation slips past the `baseline-structural.json`
  * snapshot.
  *
- * This is the surface that the v0.3.0-alpha release audit (PR-005, issue
- * #265) called for: pre-v1.0.0 the `Traceability Gate` workflow remains
+ * This is the surface that the v0.3.0-alpha release audit called for:
+ * pre-v1.0.0 the `Traceability Gate` workflow remains
  * warn-only, but the structural slice is wired into `pnpm test:unit` so
  * CI fails the moment someone reintroduces a structural defect.
  *

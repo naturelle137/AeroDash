@@ -1,7 +1,7 @@
 /**
- * Deployment-consistency guard — REQ-SYS-006 / H-019 (issue #271).
+ * Deployment-consistency guard — REQ-SYS-006 / H-019.
  *
- * PR-review Blocker B1 (+ review-iteration hardening): a freshly-deployed
+ * A freshly-deployed
  * bundle must never block itself. TWO floors feed the gate at runtime — the
  * build-time constant `__MIN_SAFE_VERSION__` and the operator-overridable
  * `/version.json` remote floor — and both are compared against the running app
@@ -33,7 +33,7 @@ function readJson(relativeToThisFile: string): Record<string, unknown> {
 const versionManifest = readJson('../../../public/version.json')
 const shippedMinSafeVersion = String(versionManifest.minSafeVersion)
 
-describe('deployment guard — runtime floors vs app version (PR-review Blocker B1)', () => {
+describe('deployment guard — runtime floors vs app version', () => {
   // @UT-SYS-STORE-084@ (FROM: @IMP-SYS-STORE-017@)
   it('ships structurally valid floors and app version', () => {
     expect(isValidSemVer(shippedMinSafeVersion)).toBe(true) // /version.json remote floor

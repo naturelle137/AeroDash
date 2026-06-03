@@ -288,7 +288,7 @@ describe('PrivacyView — delete-all (REQ-SYS-014)', () => {
     expect(err.text()).toContain('Erasure incomplete')
   })
 
-  it('clears a stale export notice when a wipe succeeds (NIT-1)', async () => {
+  it('clears a stale export notice when a wipe succeeds', async () => {
     fleetProfiles.value = [{ id: 'p1' }]
     const wrapper = mountView()
     await flushPromises()

@@ -64,10 +64,10 @@ const FALLBACK_DENSITY_KG_PER_L = 0.84
  *
  * The adapter boundary uses this to fail-closed: a type that is NOT known would
  * otherwise hit the 0.84 fallback in getFuelDensityKgPerL and miscompute mass
- * with no signal (CS-008 / TECH-013). Legacy uppercase aliases (`AVGAS`,
+ * with no signal. Legacy uppercase aliases (`AVGAS`,
  * `MOGAS`) still resolve a CORRECT density so they are treated as known here;
  * convergence onto canonical keys is enforced separately at the schema layer
- * (CS-009 / CS-010) where the catalogue and contexts are tightened to the enum.
+ * where the catalogue and contexts are tightened to the enum.
  */
 export function isKnownFuelType(fuelType: string): boolean {
   return Object.prototype.hasOwnProperty.call(FUEL_DENSITY_KG_PER_L, fuelType)

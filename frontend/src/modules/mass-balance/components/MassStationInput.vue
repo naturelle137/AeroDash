@@ -25,7 +25,7 @@ const props = defineProps<{
    */
   maxCapacity?: number | null
   /**
-   * Coarse increment for the secondary ± buttons (UX-002). Reaching a 75 kg
+   * Coarse increment for the secondary ± buttons. Reaching a 75 kg
    * passenger via the fine ±1 control is 75 taps under turbulence; the coarse
    * control gets there in a handful of taps. Defaults to a unit-aware value
    * (10 for lb, 5 otherwise) when omitted.
@@ -70,7 +70,7 @@ function clamp(value: number): number {
   return Math.min(ceiling, Math.max(minWeight.value, value))
 }
 
-// ─── Sanitised decimal entry + inline rejection feedback (UX-010 / UX-011) ──
+// ─── Sanitised decimal entry + inline rejection feedback ──────────────────
 // @IMP-MB-UI-010@ (FROM: @REQ-UQ-001@)
 //
 // The field is a DecimalInput (type=text + inputmode=decimal + regex sanitiser)
@@ -169,7 +169,7 @@ function applyPreset(value: number): void {
     </div>
 
     <!-- @IMP-MB-UI-008@ (FROM: @REQ-UQ-004@) -->
-    <!-- UX-002: coarse (±N) controls flank the fine (±1) control so a 75 kg
+    <!-- coarse (±N) controls flank the fine (±1) control so a 75 kg
          passenger is a handful of taps, not 75. The fine control is retained. -->
     <div class="mass-station-input__control">
       <button
@@ -225,8 +225,8 @@ function applyPreset(value: number): void {
       </button>
     </div>
 
-    <!-- Transient inline rejection feedback (UX-010 / UX-011): shown when the
-         last keystroke was refused (non-decimal char or out of range). -->
+    <!-- Transient inline rejection feedback: shown when the last keystroke was
+         refused (non-decimal char or out of range). -->
     <p
       v-if="rejectionHint"
       class="mass-station-input__reject-hint"
@@ -236,7 +236,7 @@ function applyPreset(value: number): void {
       {{ rejectionHint }}
     </p>
 
-    <!-- UX-002: one-tap preset chips (e.g. standard passenger weights). -->
+    <!-- one-tap preset chips (e.g. standard passenger weights). -->
     <div
       v-if="presetList.length > 0"
       class="mass-station-input__presets"
@@ -316,8 +316,8 @@ function applyPreset(value: number): void {
   color: var(--color-critical, #c62828);
 }
 
-/* Transient input-rejection state (UX-010 / UX-011) — distinct from the
-   computation `--error` state; signals the last keystroke was refused. */
+/* Transient input-rejection state — distinct from the computation `--error`
+   state; signals the last keystroke was refused. */
 .mass-station-input--rejected .mass-station-input__control {
   border-color: var(--color-critical, #f44336);
   box-shadow: 0 0 0 2px var(--color-critical-bg, #ffebee);
@@ -428,7 +428,7 @@ function applyPreset(value: number): void {
   color: var(--color-primary, #1976d2);
 }
 
-/* UX-002: one-tap preset chips ─────────────────────────────────────────── */
+/* one-tap preset chips ──────────────────────────────────────────────────── */
 .mass-station-input__presets {
   display: flex;
   flex-wrap: wrap;
@@ -467,7 +467,7 @@ function applyPreset(value: number): void {
 }
 
 .mass-station-input__field {
-  /* UX-002: widened from 5rem so 4+ digit loads (e.g. avgas in lb) read with
+  /* widened from 5rem so 4+ digit loads (e.g. avgas in lb) read with
      tabular-nums without cramped precision typing under turbulence. */
   width: 7rem;
   min-height: 2.75rem;

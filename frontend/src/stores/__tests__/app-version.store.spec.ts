@@ -102,9 +102,9 @@ describe('useAppVersionStore — isVersionBelow', () => {
   })
 
   // @UT-SYS-STORE-072@ (FROM: @IMP-SYS-STORE-007@)
-  // PR-review Major #1: build metadata must not NaN-collapse the comparator.
-  // Without the fix `parse('0.5.0+build.7')` produced `[0, 5, NaN]` and
-  // `0 < NaN` resolved to `false`, silently failing to block.
+  // build metadata must not NaN-collapse the comparator. Without the fix
+  // `parse('0.5.0+build.7')` produced `[0, 5, NaN]` and `0 < NaN` resolved
+  // to `false`, silently failing to block.
   it('correctly orders versions with +build metadata', () => {
     const store = useAppVersionStore()
     expect(store.isVersionBelow('0.5.0', '0.5.0+build.7')).toBe(false) // same
@@ -113,9 +113,8 @@ describe('useAppVersionStore — isVersionBelow', () => {
   })
 
   // @UT-SYS-STORE-073@ (FROM: @IMP-SYS-STORE-007@)
-  // PR-review Major #2: pre-release ordering per SemVer §11.
-  // `0.4.0-alpha < 0.4.0` must hold so an alpha bundle below its stable
-  // kill-switch floor is actually blocked.
+  // pre-release ordering per SemVer §11: `0.4.0-alpha < 0.4.0` must hold so
+  // an alpha bundle below its stable kill-switch floor is actually blocked.
   it('orders pre-release suffixes per SemVer §11', () => {
     const store = useAppVersionStore()
     expect(store.isVersionBelow('0.4.0-alpha', '0.4.0')).toBe(true)
@@ -166,7 +165,7 @@ describe('useAppVersionStore.checkMinSafeVersion — online, cache empty (first 
   })
 })
 
-describe('useAppVersionStore.checkMinSafeVersion — OFFLINE enforcement (issue #271 / CS-011)', () => {
+describe('useAppVersionStore.checkMinSafeVersion — OFFLINE enforcement', () => {
   // @UT-SYS-STORE-025@ (FROM: @IMP-SYS-STORE-008@)
   it('blocks a stale build OFFLINE when the cached minSafeVersion is higher than the running version', async () => {
     vi.stubGlobal('navigator', { onLine: false })
@@ -338,7 +337,7 @@ describe('useAppVersionStore.checkMinSafeVersion — online refresh', () => {
   })
 
   // @UT-SYS-STORE-075@ (FROM: @IMP-SYS-STORE-008@)
-  // PR-review Minor #11/#12: timestamp parity + persist-failure consistency.
+  // timestamp parity + persist-failure consistency.
   it('passes a frozen clock to persist so on-disk and in-memory timestamps match', async () => {
     mockedRemote.mockResolvedValue(null)
     const store = useAppVersionStore()
@@ -358,9 +357,9 @@ describe('useAppVersionStore.checkMinSafeVersion — online refresh', () => {
   })
 
   // @UT-SYS-STORE-076@ (FROM: @IMP-SYS-STORE-008@)
-  // PR-review Minor #2: on persist-failure cacheFetchedAt must reflect the
-  // record ACTUALLY on disk — keep a prior hit's fetchedAt (the failed write
-  // left it untouched), null only when nothing is on disk.
+  // on persist-failure cacheFetchedAt must reflect the record ACTUALLY on
+  // disk — keep a prior hit's fetchedAt (the failed write left it untouched),
+  // null only when nothing is on disk.
   it('on persist failure keeps the on-disk record fetchedAt for a hit, null otherwise', async () => {
     mockedRemote.mockResolvedValue(null)
     mockedPersist.mockResolvedValue(false) // simulate storage hiccup
@@ -466,8 +465,8 @@ describe('pickHigherVersion — double-invalid defence (review Nit #4)', () => {
 
 describe('attachConnectivityRefresh', () => {
   // @UT-SYS-STORE-071@ (FROM: @IMP-SYS-STORE-018@)
-  // PR-review Minor #9: the handler must go through the Pinia action
-  // wrapper so spies, $onAction subscribers, and devtools see the call.
+  // the handler must go through the Pinia action wrapper so spies,
+  // $onAction subscribers, and devtools see the call.
   it('re-runs the wrapped store action when the window fires `online`', async () => {
     const store = useAppVersionStore()
     const spy = vi.spyOn(store, 'checkMinSafeVersion')

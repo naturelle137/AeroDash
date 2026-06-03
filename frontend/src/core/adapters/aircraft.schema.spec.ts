@@ -1012,7 +1012,7 @@ describe('AircraftProfileSchema — powertrain discriminator', () => {
   })
 })
 
-// ─── Finite + numeric domain ranges (TECH-003 / CS-002) ──────────────────────
+// ─── Finite + numeric domain ranges ──────────────────────────────────────────
 
 describe('AircraftProfileSchema — finite + numeric range guards', () => {
   // @UT-AD-CORE-061@ (FROM: @IMP-AD-CORE-022@)

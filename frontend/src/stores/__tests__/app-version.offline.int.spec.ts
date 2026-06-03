@@ -1,5 +1,5 @@
 /**
- * Integration tests — REQ-SYS-006 / H-019 offline-enforcement (issue #271).
+ * Integration tests — REQ-SYS-006 / H-019 offline-enforcement.
  *
  * Wires the real `app-version.cache.ts` (against fake-indexeddb) and a stub
  * `fetchRemoteMinSafeVersion` to assert the multi-run behaviour that the
@@ -7,8 +7,8 @@
  *
  * 1. Online run with a newer remote minSafeVersion writes IndexedDB.
  * 2. Subsequent OFFLINE start of the same bundle (cache present, no fetch)
- *    keeps the higher floor and blocks the user — proving the CS-011 /
- *    TECH-023 short-circuit no longer exists.
+ *    keeps the higher floor and blocks the user — proving the
+ *    short-circuit no longer exists.
  * 3. A truly fresh install OFFLINE (cache absent) bypasses with only the
  *    build-time constant — preserving the documented first-install
  *    bypass.
@@ -50,7 +50,7 @@ afterEach(() => {
   vi.unstubAllGlobals()
 })
 
-describe('REQ-SYS-006 / H-019 — offline enforcement (issue #271, CS-011/TECH-023)', () => {
+describe('REQ-SYS-006 / H-019 — offline enforcement', () => {
   // @IT-SYS-STORE-001@ (FROM: @IMP-SYS-STORE-008@, @IMP-SYS-STORE-013@)
   it('a stale bundle that previously ran online is BLOCKED on the next offline start', async () => {
     // --- Online run #1 — newer remote floor learned and persisted -----------

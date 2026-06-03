@@ -51,7 +51,7 @@ const emit = defineEmits<{
 // Characters that are NOT part of a plain decimal number. The critical ones are
 // "e"/"E"/"+", which a native `type=number` field accepted and `Number()` would
 // expand ("1e2" → 100), silently corrupting a safety-critical value with no
-// feedback (UX-010 / UX-011). They are stripped on input and surfaced via the
+// feedback. They are stripped on input and surfaced via the
 // `reject` event so a consumer can warn the pilot instead of failing silently.
 const NON_DECIMAL = /[^0-9.,-]/g
 
@@ -89,7 +89,7 @@ function onInput(event: Event): void {
   // letters, …). Forcing the DOM value back is required because Vue's `:value`
   // binding won't re-render an unchanged model, leaving the rejected glyph on
   // screen otherwise. A stripped character is surfaced via `reject` so the
-  // value can never be silently corrupted ("1e2" → 100) (UX-010 / UX-011).
+  // value can never be silently corrupted ("1e2" → 100).
   const sanitised = input.value.replace(NON_DECIMAL, '')
   if (sanitised !== input.value) {
     // Forbidden glyph entered: strip it from the field, flag the rejection, and
@@ -121,7 +121,7 @@ function onInput(event: Event): void {
   // Reject below min (if min >= 0, negative values are rejected)
   if (props.min !== undefined && parsed < props.min) {
     // Do not emit the out-of-range value, but no longer fail silently — tell
-    // the consumer so it can show inline feedback (UX-011).
+    // the consumer so it can show inline feedback.
     emit('reject', { reason: 'min' })
     return
   }

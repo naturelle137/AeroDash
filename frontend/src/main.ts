@@ -53,9 +53,7 @@ export interface SessionCaptureResult {
    * `false` on a cold start. */
   wasActiveSession: boolean
   /** `false` when `sessionStorage` threw (Safari private mode, sandboxed
-   * iframe, storage disabled). Issue #263 — surfaces a one-time pilot
-   * advisory so cold-start silent updates are not silently downgraded to
-   * the in-session banner path without explanation. */
+   * iframe, storage disabled). */
   sessionStorageAvailable: boolean
 }
 
@@ -63,7 +61,7 @@ export interface SessionCaptureResult {
  * Reads the sessionStorage flag and immediately sets it for this tab lifetime.
  * Returns the classifier result plus a `sessionStorageAvailable` signal so
  * the caller can surface a WARN telemetry entry + one-time pilot advisory
- * when the storage backend is unreachable (DP-004 / CS-012, issue #263).
+ * when the storage backend is unreachable.
  *
  * A browser refresh preserves sessionStorage but is still effectively a fresh
  * page load — the pilot explicitly asked for a reload. We therefore also treat
@@ -137,9 +135,9 @@ app.use(createPinia())
 app.use(router)
 
 app.config.errorHandler = (err) => {
-  // Issue #263 (DP-004 / CS-012) — Vue runtime error messages can interpolate
-  // template-bound pilot input (e.g. an M&B form crash echoes the entered tail
-  // number). We surface only the error constructor name (`TypeError`,
+  // Vue runtime error messages can interpolate template-bound pilot input
+  // (e.g. an M&B form crash echoes the entered tail number). We surface only
+  // the error constructor name (`TypeError`,
   // `RangeError`, …), which is allow-listed and safe; the message itself is
   // omitted so the redactor cannot leak interpolated PII through `[REDACTED]`
   // gaps.
@@ -154,8 +152,8 @@ app.mount('#app')
 // registerType: 'prompt' is enforced in vite.config.ts (REQ-SYS-005).
 const pwaStore = usePwaUpdateStore()
 
-// Issue #263 (DP-004 / CS-012) — when sessionStorage is unreachable, log a
-// WARN telemetry entry and raise a one-time pilot advisory. The classifier
+// when sessionStorage is unreachable, log a WARN telemetry entry and raise a
+// one-time pilot advisory. The classifier
 // already fails-safe to the in-session banner path; without this signal the
 // pilot has no way to learn that cold-start silent updates have been
 // downgraded for the remainder of the tab lifetime.

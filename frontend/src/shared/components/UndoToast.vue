@@ -49,7 +49,7 @@ const props = withDefaults(
     message: string
     actionLabel?: string
     dismissLabel?: string
-    /** Auto-dismiss window in ms. Audit UX-001 specifies 5–10s. */
+    /** Auto-dismiss window in ms (5–10 s). */
     duration?: number
   }>(),
   {

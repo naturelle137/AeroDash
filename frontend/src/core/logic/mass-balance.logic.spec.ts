@@ -642,7 +642,7 @@ describe('Mass & Balance Math-Core Logic', () => {
 
     // @UT-MB-CORE-094@ (FROM: @IMP-MB-CORE-010@, @IMP-MB-CORE-011@, @IMP-MB-CORE-015@)
     it('detects CG migration violation when burn-down path exits and re-enters a concave envelope between waypoints', () => {
-      // Reproduces issue #120: the burn-down LINE SEGMENT crosses the envelope
+      // the burn-down LINE SEGMENT crosses the envelope
       // boundary between Takeoff and Landing waypoints, but both discrete
       // endpoints are inside the envelope. The pre-fix implementation missed
       // this because it only tested point containment at the waypoints.

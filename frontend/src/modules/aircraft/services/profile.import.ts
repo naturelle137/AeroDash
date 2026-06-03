@@ -7,7 +7,7 @@
  * - On any error the fleet is NOT modified — ImportError is thrown instead.
  * - Round-trip fidelity: export JSON → parse → re-validate must produce identical data.
  *
- * Exchange-file envelope (refs #259, audit finding TECH-022):
+ * Exchange-file envelope:
  * - New exports wrap the profile in
  *   `{ format: 'aerodash-aircraft', version: 1, profile: {...} }` so the file
  *   identifies its schema family up-front and a future schema bump can be
@@ -33,7 +33,7 @@ import type { AircraftProfile } from '@/core/adapters/aircraft.schema'
  * points at 20 and envelope points at 20, so even a maximal valid profile is
  * well under this bound. 256 KB leaves generous headroom for whitespace-pretty
  * JSON while preventing an attacker-supplied multi-megabyte file from being read
- * wholesale into memory via `File.text()` (CS-003 / TECH-008).
+ * wholesale into memory via `File.text()`.
  */
 export const MAX_IMPORT_FILE_BYTES = 256 * 1024 // 256 KB
 
@@ -54,7 +54,7 @@ export const EXCHANGE_FORMAT = 'aerodash-aircraft' as const
  */
 export const EXCHANGE_VERSION = 1 as const
 
-/** Envelope shape that wraps an exported aircraft profile (since #259). */
+/** Envelope shape that wraps an exported aircraft profile. */
 export interface ExchangeEnvelope {
   readonly format: typeof EXCHANGE_FORMAT
   readonly version: number
@@ -84,7 +84,7 @@ export class ImportError extends Error {
 }
 
 /**
- * Fail-closed pre-flight guard for an imported exchange file (CS-003 / TECH-008).
+ * Fail-closed pre-flight guard for an imported exchange file.
  *
  * Validates the file's size and content-type BEFORE any byte is read into memory
  * (`File.text()`), so a hostile oversized or spoofed payload is rejected early.
@@ -154,7 +154,7 @@ export function isExchangeEnvelope(value: unknown): value is ExchangeEnvelope {
  *   is rejected — the user must update the app). The inner `profile` is
  *   then validated.
  * - Otherwise the entire tree is treated as a legacy bare-profile document
- *   (back-compat with builds that shipped before #259).
+ *   (back-compat with older exports).
  * - Validates against AircraftProfileSchema.
  * - Forces status = 'draft' on the imported profile.
  * - Assigns a new UUID to prevent ID collisions with existing fleet entries.
@@ -180,7 +180,7 @@ export function importProfileFromJson(jsonText: string): AircraftProfile {
     }
     profileDoc = parsed.profile
   } else {
-    // Legacy bare-profile JSON — accept for back-compat with pre-#259 exports.
+    // Legacy bare-profile JSON — accept for back-compat with older exports.
     profileDoc = parsed
   }
 
@@ -220,9 +220,8 @@ export interface ExportProfileOptions {
  * `costPerHour` is private financial data that is not needed to share or back
  * up an aircraft configuration, and a profile is frequently exchanged between
  * pilots or clubs. `fuelCostIncluded` is solely a qualifier of `costPerHour`
- * and is meaningless without it, so the two are stripped as a pair. This is
- * the data-minimisation control for the deferred v0.3.0-alpha audit findings
- * DP-008 / DP-009 (REQ-AD-023, GDPR Art. 5(1)(c)).
+ * and is meaningless without it, so the two are stripped as a pair — the
+ * data-minimisation control (REQ-AD-023, GDPR Art. 5(1)(c)).
  *
  * Both fields are optional in {@link AircraftProfile}, so the result remains a
  * valid profile that round-trips through {@link importProfileFromJson}.
@@ -237,7 +236,7 @@ function stripOperatingCost(profile: AircraftProfile): AircraftProfile {
 /**
  * Export an AircraftProfile to a JSON string suitable for exchange.
  *
- * Emits the {@link ExchangeEnvelope} wrapper (since #259). The output is
+ * Emits the {@link ExchangeEnvelope} wrapper. The output is
  * a JSON object with three keys:
  *   - `format`: always `"aerodash-aircraft"` so the file self-identifies.
  *   - `version`: the {@link EXCHANGE_VERSION} number — older builds detect

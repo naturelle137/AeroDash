@@ -1,6 +1,6 @@
 /**
- * Deferred-status coverage gate — issue #269, deferred from v0.3.0-alpha
- * release audit PR-017. Asserts the two safety contracts the `Deferred`
+ * Deferred-status coverage gate — deferred from v0.3.0-alpha release audit.
+ * Asserts the two safety contracts the `Deferred`
  * lifecycle relies on:
  *
  *   1. **Coverage exclusion.** A REQ marked `Status: Deferred` is
@@ -13,7 +13,7 @@
  *      mitigator so the hazard chain does not silently regress to
  *      un-mitigated the moment a mitigating REQ is descoped from the
  *      current release. Only `Deprecated` REQs forfeit hazard-mitigation
- *      credit (issue #267).
+ *      credit.
  *
  * The spec exercises a sandboxed mini-repo through `buildCheckReport`
  * and `findUnmitigatedHazards` so the assertions trace the same code
@@ -42,7 +42,7 @@ const HERE = path.dirname(fileURLToPath(import.meta.url))
 const REPO_ROOT = path.resolve(HERE, '..', '..', '..', '..')
 
 describe('isCoverageExcludedStatus', () => {
-  it('excludes Deferred (issue #269) and Deprecated (issue #267) from coverage tallies', () => {
+  it('excludes Deferred and Deprecated from coverage tallies', () => {
     expect(isCoverageExcludedStatus(DEFERRED_STATUS)).toBe(true)
     expect(isCoverageExcludedStatus(DEPRECATED_STATUS)).toBe(true)
   })
@@ -67,12 +67,12 @@ describe('isCoverageExcludedStatus', () => {
     // A Deferred REQ is a planned (but not-yet-scheduled) safety
     // control. Excluding it from the active set would silently
     // regress the hazard chain the moment a mitigator is descoped —
-    // the failure mode that issue #269 explicitly does NOT introduce.
+    // the failure mode this test explicitly does NOT introduce.
     expect(ACTIVE_STATUSES.has(DEFERRED_STATUS)).toBe(true)
   })
 })
 
-describe('Deferred coverage gate (sandbox regression for issue #269)', () => {
+describe('Deferred coverage gate (sandbox regression)', () => {
   let sandbox: string
 
   beforeEach(async () => {
@@ -201,7 +201,7 @@ describe('Deferred coverage gate (sandbox regression for issue #269)', () => {
   })
 })
 
-describe('Deferred coverage gate (live repo regression for issue #269)', () => {
+describe('Deferred coverage gate (live repo regression)', () => {
   it('marks every Deferred REQ found in docs/requirements/ as coverage-excluded', async () => {
     // The live audit signal: every REQ this PR pushed to Deferred must
     // appear in the excluded list, and none of them may bleed back into

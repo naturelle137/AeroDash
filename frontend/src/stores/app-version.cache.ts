@@ -2,7 +2,7 @@
  * App Version Cache — IndexedDB persistence for the last-known `minSafeVersion`.
  * P3 App Shell — uses browser APIs (IndexedDB) only; no Vue/Pinia framework imports.
  *
- * ## REQ-SYS-006 — Offline enforcement (issue #271)
+ * ## REQ-SYS-006 — Offline enforcement
  *
  * Originally `useAppVersionStore.checkMinSafeVersion()` returned early when
  * `!navigator.onLine`, which means an explicitly-blocked old bundle kept
@@ -241,7 +241,7 @@ export async function inspectCachedMinSafeVersion(): Promise<CachedMinSafeVersio
  * distinguish first-install from a broken storage backend (e.g. the store's
  * log-level selection).
  *
- * Maintenance note (PR-review Nit #5): this reconstructs the record from the
+ * Maintenance note: this reconstructs the record from the
  * `hit` payload rather than forwarding a raw row, so if {@link CachedMinSafeVersion}
  * ever grows a field, extend both the `hit` variant of
  * {@link CachedMinSafeVersionResult} and this reconstruction or the new field

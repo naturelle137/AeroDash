@@ -440,7 +440,7 @@ describe('M&B Zod Adapter', () => {
     expect(() => calculateMassBalance(input)).toThrow('Fatal Core Failure')
   })
 
-  // ─── .finite() + domain ranges (TECH-003 / CS-002) ──────────────────────────
+  // ─── .finite() + domain ranges ────────────────────────────────────────────────
 
   // @UT-MB-CORE-098@ (FROM: @IMP-MB-CORE-016@)
   it('rejects Infinity for basicEmptyMass as INVALID_INPUT (does not produce success:true with NaN CG)', () => {

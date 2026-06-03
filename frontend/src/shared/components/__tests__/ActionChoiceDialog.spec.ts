@@ -1,6 +1,6 @@
 /**
  * Unit tests for ActionChoiceDialog.vue — the accessible multi-action modal
- * used for the wizard exit prompt and post-save chooser (UX-012 / UX-015).
+ * used for the wizard exit prompt and post-save chooser.
  *
  * @see frontend/src/shared/components/ActionChoiceDialog.vue
  */

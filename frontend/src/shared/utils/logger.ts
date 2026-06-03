@@ -27,7 +27,7 @@ const MAX_STRING_LENGTH = 10_000
 const MAX_ARRAY_LENGTH = 100
 
 /**
- * DP-004 / CS-012 — PII redaction allow-list (issue #263).
+ * PII redaction allow-list.
  *
  * Field names safe to log in raw form when they appear as keys inside a
  * caller-supplied `data` payload. Any object key NOT present in this set
@@ -40,7 +40,7 @@ const MAX_ARRAY_LENGTH = 100
  * {@link redactPayload}; those names are therefore deliberately ABSENT from
  * this set so that a caller passing `{ message: err.message }` as data
  * (where `err.message` may echo pilot input) cannot smuggle PII into the
- * log envelope by re-using the envelope key name (MAJOR-1 fix, PR #361).
+ * log envelope by re-using the envelope key name.
  *
  * **Naming discipline:** every entry below is namespaced (`errorName` not
  * `name`, `httpStatus` not `status`) so that ad-hoc domain objects can't
@@ -63,7 +63,7 @@ export const DEFAULT_SAFE_FIELDS: ReadonlySet<string> = new Set([
   'swUrl',
   'scope',
   // Errors / status codes — namespaced to avoid collision with generic
-  // domain-object property names (MAJOR-2 fix, PR #361).
+  // domain-object property names.
   'code',
   'errorName',
   'errorType',
@@ -75,8 +75,8 @@ export const DEFAULT_SAFE_FIELDS: ReadonlySet<string> = new Set([
   // Retry / attempt counters.
   'attempt',
   'retry',
-  // sessionStorage / advisory diagnostic payloads (issue #263). Both keys
-  // carry app-controlled enum-like strings — never pilot input.
+  // sessionStorage / advisory diagnostic payloads. Both keys carry
+  // app-controlled enum-like strings — never pilot input.
   'fallbackPath',
   'advisoryReason',
 ])
@@ -118,7 +118,7 @@ export function safeSerialize(value: unknown, depth = 0): unknown {
 }
 
 /**
- * DP-004 / CS-012 — field-allow-list redaction (issue #263).
+ * Field-allow-list redaction.
  *
  * Walks the structure produced by {@link safeSerialize} and replaces values
  * for any object key not in `allowList` with {@link PII_REDACTED_MARKER}.
@@ -129,8 +129,7 @@ export function safeSerialize(value: unknown, depth = 0): unknown {
  * Defence-in-depth: this runs after {@link safeSerialize}, so it can rely on
  * the input being plain JSON-shaped (Record, Array, primitive, sentinel).
  * Carries its own `MAX_DEPTH` guard so a caller bypassing `safeSerialize`
- * and handing in a cyclic structure cannot stack-overflow the redactor
- * (NIT-9 fix, PR #361).
+ * and handing in a cyclic structure cannot stack-overflow the redactor.
  */
 // @IMP-SYS-SHARED-008@ (FROM: @DES-ARCH-001@)
 export function redactPayload(
@@ -176,7 +175,7 @@ function formatEntry(entry: LogEntry, opts: FormatOptions = {}): LogEntry {
 }
 
 /**
- * DP-011 — production console gating.
+ * Production console gating.
  *
  * Rules (`isLevelEnabled`):
  * - `WARN` / `ERROR`: always emitted (operational and safety-relevant
@@ -185,15 +184,14 @@ function formatEntry(entry: LogEntry, opts: FormatOptions = {}): LogEntry {
  *   production builds — INFO carries verbose telemetry that may echo
  *   pilot-entered M&B inputs and aircraft data.
  * - `DEBUG`: env-gated by `VITE_LOG_DEBUG === 'true'`. Off everywhere by
- *   default (issue #263 — DP-004 / CS-012 deferral from v0.3.0-alpha audit);
- *   enable explicitly when debugging.
+ *   default; enable explicitly when debugging.
  *
  * `telemetryTrace()` is independently env-gated by
  * `VITE_LOG_TELEMETRY === 'true'` (see {@link createLogger}). Telemetry
  * payloads carry raw computation inputs/outputs (i.e. pilot-entered data
  * by design); they MUST stay off unless an operator explicitly opts in.
  * As defense-in-depth `frontend/vite.config.ts` ALSO fails any production
- * build that sets `VITE_LOG_TELEMETRY` to a truthy value (PR #361 MINOR-7),
+ * build that sets `VITE_LOG_TELEMETRY` to a truthy value,
  * so the runtime bypass below cannot reach pilots even by accident.
  *
  * Gating lives in the logger rather than the bundler because Vite 8's
@@ -204,7 +202,7 @@ function formatEntry(entry: LogEntry, opts: FormatOptions = {}): LogEntry {
  * Truthy-string parser for Vite env flags. Accepts the common conventions a
  * developer is likely to drop into `.env.local` — `'true'` / `'1'` /
  * `'TRUE'` / `'yes'` / `'on'` (case-insensitive) — so a `VITE_LOG_DEBUG=1`
- * doesn't silently no-op (MINOR-3 fix, PR #361). The canonical form remains
+ * doesn't silently no-op. The canonical form remains
  * `'true'` in documentation.
  */
 function isEnvFlagTrue(value: unknown): boolean {
@@ -268,7 +266,7 @@ export function createLogger(context: string): Logger {
     warn: (message, data) => log('WARN', message, data),
     error: (message, data) => log('ERROR', message, data),
     telemetryTrace: (payload) => {
-      // Telemetry is opt-in (DP-004 / CS-012 — issue #263). When the
+      // Telemetry is opt-in. When the
       // env flag is unset the entire payload is dropped before serialization,
       // so raw inputs/outputs never reach the formatter or console. When
       // opt-in is set the operator has explicitly accepted that raw

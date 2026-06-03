@@ -16,7 +16,7 @@ import { createRouter, createMemoryHistory, type Router } from 'vue-router'
 import FleetList from '../components/FleetList.vue'
 import type { AircraftProfile } from '@/core/adapters/aircraft.schema'
 
-// UX-001: the undo path re-creates the deleted record via the repository, then
+// the undo path re-creates the deleted record via the repository, then
 // rehydrates the store. Mock the repository so no test touches IndexedDB.
 vi.mock('../services/fleet.repository', () => ({
   fleetRepository: {
@@ -333,9 +333,9 @@ describe('FleetList — download action', () => {
   })
 })
 
-// ─── UX-001: confirm-then-undo destructive delete ──────────────────────────
+// ─── confirm-then-undo destructive delete ─────────────────────────────────
 
-describe('FleetList — delete confirmation + undo (UX-001)', () => {
+describe('FleetList — delete confirmation + undo', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
     vi.clearAllMocks()

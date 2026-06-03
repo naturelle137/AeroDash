@@ -23,8 +23,8 @@ import { CANONICAL_FUEL_TYPES } from '../logic/fuel-density'
 // @IMP-AD-CORE-022@ (FROM: @REQ-AD-002@, @REQ-AD-014@, @REQ-SYS-003@)
 // All numeric profile fields are `.finite()`: Zod's `z.number()` (incl.
 // `.positive()`/`.nonnegative()`) accepts ±Infinity, which would propagate to
-// the M&B math core as Infinity → CG = NaN with `success: true` (TECH-003 /
-// CS-002). Profile documents are stored at rest in their SOURCE unit
+// the M&B math core as Infinity → CG = NaN with `success: true`. Profile
+// documents are stored at rest in their SOURCE unit
 // (REQ-AD-014: mass kg|lb, arm m|in|ft, moment kg·m|in-lb), so the bounds here
 // are intentionally generous — wide enough for the largest supported unit
 // (lb ≈ 2.2× kg, in ≈ 39× m) while still rejecting absurd magnitudes
@@ -232,7 +232,7 @@ export const AircraftProfileSchema = z
         z.literal('Verified').transform((): 'verified' => 'verified'),
       ])
       .default('draft'),
-    // M3: Schema version for structured migration safety (refs #154)
+    // M3: Schema version for structured migration safety
     schemaVersion: z.number().int().positive().finite().default(1),
     // v0.4: Verification provenance (REQ-AC-007, H-011). Present only on a
     // Verified snapshot recorded via the sign-off flow; legacy/imported Verified
@@ -318,7 +318,7 @@ export const AircraftProfileSchema = z
           path: ['batteryPack', 'reserveFloorKwh'],
         })
       }
-      // Electric aircraft must not carry fuel tanks — Carsten (#225): "do
+      // Electric aircraft must not carry fuel tanks — "do
       // not try to fit an electric plane in the classical fuel schema".
       // We surface this as a hard validation so import/export files with
       // mismatched topologies cannot be persisted in a broken state.

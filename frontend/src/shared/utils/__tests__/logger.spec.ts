@@ -64,7 +64,6 @@ describe('safeSerialize', () => {
   })
 })
 
-// Issue #263 (DP-004 / CS-012) — field-allow-list redaction.
 describe('redactPayload', () => {
   // @UT-SYS-SHARED-021@ (FROM: @IMP-SYS-SHARED-008@)
   it('replaces values for keys outside the allow-list with [REDACTED]', () => {
@@ -164,13 +163,13 @@ describe('redactPayload', () => {
     expect(DEFAULT_SAFE_FIELDS.has('fallbackPath')).toBe(true)
     expect(DEFAULT_SAFE_FIELDS.has('advisoryReason')).toBe(true)
     // Envelope keys (added by the logger itself) must NOT be present —
-    // otherwise a caller could smuggle PII into `data.message` (MAJOR-1, PR #361).
+    // otherwise a caller could smuggle PII into `data.message`.
     expect(DEFAULT_SAFE_FIELDS.has('message')).toBe(false)
     expect(DEFAULT_SAFE_FIELDS.has('timestamp')).toBe(false)
     expect(DEFAULT_SAFE_FIELDS.has('level')).toBe(false)
     expect(DEFAULT_SAFE_FIELDS.has('context')).toBe(false)
     // Generic names that previously collided with domain-object fields
-    // (MAJOR-2, PR #361) must NOT be members.
+    // must NOT be members.
     expect(DEFAULT_SAFE_FIELDS.has('name')).toBe(false)
     expect(DEFAULT_SAFE_FIELDS.has('type')).toBe(false)
     expect(DEFAULT_SAFE_FIELDS.has('status')).toBe(false)
@@ -184,7 +183,7 @@ describe('redactPayload', () => {
   })
 
   // @UT-SYS-SHARED-045@ (FROM: @IMP-SYS-SHARED-008@)
-  it('redacts a caller-supplied data.message even though the envelope uses that key (MAJOR-1)', () => {
+  it('redacts a caller-supplied data.message even though the envelope uses that key', () => {
     // err.message can echo template-interpolated pilot input; passing it as a
     // data key must not bypass redaction merely because the log envelope also
     // happens to use a top-level `message` field.
@@ -193,7 +192,7 @@ describe('redactPayload', () => {
   })
 
   // @UT-SYS-SHARED-046@ (FROM: @IMP-SYS-SHARED-008@)
-  it('redacts allow-listed-parent + non-allow-listed-child paths (MAJOR-2)', () => {
+  it('redacts allow-listed-parent + non-allow-listed-child paths', () => {
     // A future maintainer writing `{ code: { pilotName: 'Anna' } }` must not
     // silently leak `pilotName` just because `code` is allow-listed.
     const result = redactPayload({
@@ -206,7 +205,7 @@ describe('redactPayload', () => {
   })
 
   // @UT-SYS-SHARED-047@ (FROM: @IMP-SYS-SHARED-008@)
-  it('guards against unbounded recursion when called outside the safeSerialize pipeline (NIT-9)', () => {
+  it('guards against unbounded recursion when called outside the safeSerialize pipeline', () => {
     // Build a circular structure where each link uses an allow-listed key
     // (`code`) — without that, the recursion is short-circuited by redaction
     // at the first hop. A `code → code → code → …` cycle is the only path
@@ -323,7 +322,7 @@ describe('createLogger', () => {
 
   // @UT-SYS-SHARED-048@ (FROM: @IMP-SYS-SHARED-002@)
   it('redacts non-allow-listed data fields on ERROR', () => {
-    // Split from UT-SYS-SHARED-011 (NIT-10, PR #361) so a future refactor
+    // Split from UT-SYS-SHARED-011 so a future refactor
     // that diverges the ERROR path from the shared `emit()` is caught.
     const logger = createLogger('Adapter')
     logger.error('input rejected', {
@@ -404,8 +403,7 @@ describe('createLogger', () => {
   })
 })
 
-// Issue #263 (DP-004 / CS-012) — env-gating defaults and production behaviour.
-describe('createLogger — env-gating defaults (issue #263)', () => {
+describe('createLogger — env-gating defaults', () => {
   let consoleSpy: {
     info: ReturnType<typeof vi.spyOn>
     warn: ReturnType<typeof vi.spyOn>
@@ -459,9 +457,9 @@ describe('createLogger — env-gating defaults (issue #263)', () => {
   })
 })
 
-// DP-011 / issue #263 — production console gating. DEBUG/INFO must be
-// suppressed in production builds; WARN/ERROR must always reach the console.
-describe('createLogger — production gating (DP-011 + issue #263)', () => {
+// production console gating: DEBUG/INFO suppressed in production builds;
+// WARN/ERROR always reach the console.
+describe('createLogger — production gating', () => {
   let consoleSpy: {
     info: ReturnType<typeof vi.spyOn>
     warn: ReturnType<typeof vi.spyOn>
