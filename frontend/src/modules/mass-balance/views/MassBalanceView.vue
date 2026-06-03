@@ -206,7 +206,7 @@ const pendingAck = computed(() => {
 // with a custom eased animation so it feels natural — not the snap-fast
 // `scrollIntoView({behavior: 'smooth'})` that Safari produces.
 //
-// Why IntersectionObserver instead of a scroll/RAF listener? (TECH-016 / UX-009)
+// Why IntersectionObserver instead of a scroll/RAF listener?
 // - The scroll handler fired ~30–60×/s on iOS Momentum-scroll, and the
 //   short-circuit comparison ran on every tick. On low-end iPads that drove
 //   visible strip flicker as the boundary jittered around the threshold.
@@ -1086,11 +1086,11 @@ function onCancelSelection(): void {
 
             <div class="input-actions">
               <!--
-                TECH-026: surface Reset-Payload semantics so the affordance is
-                clear before the pilot taps. The button itself remains the
-                primary control; the native `title` is the tooltip surface on
-                pointer devices, and a sibling caption restates the intent for
-                touch / screen-reader use where `title` is unreliable.
+                Surface Reset-Payload semantics so the affordance is clear
+                before the pilot taps. The button itself remains the primary
+                control; the native `title` is the tooltip surface on pointer
+                devices, and a sibling caption restates the intent for touch /
+                screen-reader use where `title` is unreliable.
               -->
               <button
                 class="reset-btn"

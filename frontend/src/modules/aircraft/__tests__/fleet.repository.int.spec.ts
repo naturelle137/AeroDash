@@ -29,8 +29,8 @@ beforeEach(() => {
     writable: true,
     configurable: true,
   })
-  // Cached DB handle (TECH-017 singleton) points at the prior factory's DB.
-  // Drop it so the next call opens against the fresh one.
+  // The module-scoped cached DB handle still points at the prior factory's
+  // DB. Drop it so the next call opens against the fresh one.
   _resetFleetDbHandleForTest()
 })
 

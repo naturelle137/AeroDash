@@ -18,9 +18,9 @@ export interface Violation {
   /** Backwards-compatible stringified path (`STATIONS[0].MASS`). Prefer `path`. */
   field?: string
   /**
-   * Structured Zod issue path (TECH-015). Each entry is a property key
-   * (`'stations'`) or an array index (`0`). Populated alongside `field` so
-   * consumers can dispatch on the path tail without regex-parsing the string.
+   * Structured Zod issue path. Each entry is a property key (`'stations'`)
+   * or an array index (`0`). Populated alongside `field` so consumers can
+   * dispatch on the path tail without regex-parsing the string.
    */
   path?: readonly (string | number)[]
   code?:
@@ -71,7 +71,7 @@ export interface MigrationPoint {
    * Moment in kg·m, i.e. `arm × mass`. Carried alongside `arm` so the
    * CG-envelope chart (and any moment-graph consumer) can render the
    * migration path on a moment x-axis without recomputing `arm × mass`
-   * downstream (TECH-012).
+   * downstream.
    */
   moment: number
   label?: string

@@ -42,9 +42,9 @@ export const mapZodErrorToViolations = (error: z.ZodError): Violation[] => {
     return {
       type: 'INVALID_INPUT',
       field: fieldPath,
-      // TECH-015: surface the structured Zod path so consumers can dispatch
-      // on path segments without regex-parsing `field`. Kept alongside the
-      // legacy stringified `field` for backwards compatibility.
+      // Surface the structured Zod path so consumers can dispatch on path
+      // segments without regex-parsing `field`. Kept alongside the legacy
+      // stringified `field` for backwards compatibility.
       //
       // Zod issue paths are `PropertyKey[]` (string | number | symbol); the
       // Violation contract narrows symbols out because they are never used

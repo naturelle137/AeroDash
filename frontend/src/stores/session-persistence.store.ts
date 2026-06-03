@@ -248,16 +248,16 @@ export const useSessionPersistenceStore = defineStore('sessionPersistence', () =
 
     // Watch station weights and category → debounced save.
     //
-    // TECH-027: the getter projects only the four station fields the payload
-    // needs (`index`, `weight`, `touched`, `verified`) plus `activeCategory`.
+    // The getter projects only the four station fields the payload needs
+    // (`index`, `weight`, `touched`, `verified`) plus `activeCategory`.
     // Because `.map(...)` returns a fresh array reference on every reactive
-    // tick, Vue compares old vs new by reference and fires whenever any tracked
-    // property changes — `deep: true` adds a redundant per-tick traversal of
-    // that already-shallow projection. On low-end iPads we measured the deep
-    // traversal accounting for ~30% of the watcher's per-keystroke cost in a
-    // 6-station setup, with no observable correctness improvement. The flat
-    // projection plus the default reference comparison covers every change
-    // path the previous deep watch did.
+    // tick, Vue compares old vs new by reference and fires whenever any
+    // tracked property changes — `deep: true` adds a redundant per-tick
+    // traversal of that already-shallow projection. On low-end iPads we
+    // measured the deep traversal accounting for ~30% of the watcher's
+    // per-keystroke cost in a 6-station setup, with no observable correctness
+    // improvement. The flat projection plus the default reference comparison
+    // covers every change path the previous deep watch did.
     //
     // INVARIANT: the getter body MUST remain an inline `.map()` call — do NOT
     // replace it with a `computed()` or any other memoised form. The correctness

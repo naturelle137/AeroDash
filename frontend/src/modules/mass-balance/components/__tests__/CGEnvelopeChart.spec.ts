@@ -240,9 +240,9 @@ describe('CGEnvelopeChart — migration path rendering', () => {
     expect(wrapper.find('path').exists()).toBe(true)
   })
 
-  // TECH-012: MigrationPoint now carries `moment`, so the burn-down path
-  // renders in moment-graph mode using the per-point `moment` value rather
-  // than being omitted.
+  // MigrationPoint carries `moment`, so the burn-down path renders in
+  // moment-graph mode using the per-point `moment` value rather than
+  // being omitted.
   it('renders a migration path when graphType is moment and MigrationPoints carry `moment`', () => {
     const wrapper = mountChart({ result: buildResult(), graphType: 'moment', severity: 'success' })
 
@@ -523,9 +523,9 @@ describe('CGEnvelopeChart — tick label formatting', () => {
       zeroFuelCenterOfGravityPoint: { arm: 1.0, mass: 480, moment: 1.0 },
       takeoffCenterOfGravityPoint: { arm: 1.1, mass: 520, moment: 1.1 },
       landingCenterOfGravityPoint: { arm: 1.05, mass: 490, moment: 1.05 },
-      // TECH-012: the migration path now contributes to moment-axis bounds,
-      // so override the default fixture's large moments (1012, 950) which
-      // would otherwise inflate the tick step beyond the 0.1 range the test
+      // The migration path contributes to moment-axis bounds, so override
+      // the default fixture's large moments (1012, 950) which would
+      // otherwise inflate the tick step beyond the 0.1 range the test
       // is checking.
       migrationPath: [
         { arm: 1.1, mass: 520, moment: 1.1, label: 'Takeoff' },

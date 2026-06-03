@@ -743,10 +743,10 @@ export const useMassBalanceStore = defineStore('massBalance', {
       for (const v of violations) {
         if (v.type !== 'INVALID_INPUT') continue
 
-        // TECH-015: prefer the structured Zod path (`path[0] === 'stations'`,
-        // `path[1] === arrayIdx`). Fall back to regex on the legacy stringified
-        // `field` so older callers — and any non-Zod producer of violations —
-        // still resolve to the correct station.
+        // Prefer the structured Zod path (`path[0] === 'stations'`,
+        // `path[1] === arrayIdx`). Fall back to regex on the legacy
+        // stringified `field` so older callers — and any non-Zod producer
+        // of violations — still resolve to the correct station.
         let stationIndex: number | null = null
         const path = v.path
         if (path && path.length >= 2 && typeof path[1] === 'number') {

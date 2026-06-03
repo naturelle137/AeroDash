@@ -33,8 +33,8 @@ function xValOf(pt: { arm: number; moment: number }): number {
 
 /**
  * Collects all renderable data points for auto-scaling.
- * MigrationPoint now carries both `arm` and `moment` (TECH-012) so the path
- * contributes to bounds in either graph mode.
+ * MigrationPoint carries both `arm` and `moment` so the path contributes
+ * to bounds in either graph mode.
  */
 const dataPoints = computed((): { x: number; y: number }[] => {
   const pts: { x: number; y: number }[] = props.envelope.map((ep) => ({

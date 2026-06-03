@@ -2,10 +2,9 @@
  * Unit conversion constants — single source of truth for inter-unit factors
  * used by the P1 Safety Core.
  *
- * Centralising these here prevents the slow drift that produced TECH-014:
- * two independent constants for US gallons → litres (one in
- * `fuel-mass.ts`, one in `unit-normalization.ts`) that could silently
- * diverge under a future precision update.
+ * Centralising these here prevents slow drift between independent
+ * constants (e.g. two definitions of US gallons → litres in `fuel-mass.ts`
+ * and `unit-normalization.ts`) under future precision updates.
  *
  * Pure literal exports — no framework dependencies. P1 Safety Core.
  */

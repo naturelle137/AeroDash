@@ -41,7 +41,7 @@ function normalizeLegacyProfileStatus(raw: unknown): unknown {
   return doc
 }
 
-// ─── Singleton handle (TECH-017) ───────────────────────────────────────────────
+// ─── Singleton handle ──────────────────────────────────────────────────────────
 // Each fleet operation previously opened a fresh `IDBDatabase` and closed it
 // on `tx.oncomplete`. Under typical preflight workload (load fleet + open
 // profile + save) that meant 3+ open/close roundtrips before the first weight

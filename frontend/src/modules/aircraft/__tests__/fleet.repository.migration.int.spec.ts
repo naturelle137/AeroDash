@@ -94,7 +94,7 @@ function buildProfile(overrides: Partial<AircraftProfile> = {}): AircraftProfile
  * path's Zod gate runs — used to recreate the partial-corruption and future-
  * version scenarios the repository must recover from. Typed as `object` so
  * callers can pass real `AircraftProfile`s plus arbitrary extra fields without
- * a `as unknown as Record<string, unknown>` ladder (TECH-020).
+ * a `as unknown as Record<string, unknown>` ladder.
  */
 type RawFleetDoc = object
 

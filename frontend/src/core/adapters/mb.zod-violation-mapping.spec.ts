@@ -227,8 +227,8 @@ describe('mapZodErrorToViolations', () => {
   })
 
   // @UT-SYS-CORE-042@ (FROM: @IMP-SYS-CORE-002@)
-  // TECH-015 — the structured `path` accompanies the legacy stringified
-  // `field` so consumers can dispatch on path segments without regex-parsing.
+  // The structured `path` accompanies the legacy stringified `field` so
+  // consumers can dispatch on path segments without regex-parsing.
   it('emits a structured `path` array alongside the stringified `field`', () => {
     const issues: ZodIssue[] = [
       {

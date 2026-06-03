@@ -54,8 +54,8 @@ afterEach(() => {
  * repository's `create()` Zod gate — the only way to seed a future-version /
  * corrupt row that the production write path forbids.
  */
-// TECH-020: `object` lets callers pass a real `AircraftProfile` plus extra
-// fields without an `as unknown as Record<string, unknown>` ladder.
+// `object` lets callers pass a real `AircraftProfile` plus extra fields
+// without an `as unknown as Record<string, unknown>` ladder.
 async function seedRaw(doc: object): Promise<void> {
   await new Promise<void>((resolve, reject) => {
     const req = indexedDB.open('aerodash-fleet', 2)
