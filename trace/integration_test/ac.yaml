@@ -193,3 +193,11 @@ AC (auto)
       - frontend/src/modules/aircraft/__tests__/fleet.repository.int.spec.ts
     impl:
       - IMP-AC-STORE-009
+
+  IT-AC-STORE-111
+    title: Wind limits round-trip through fleet repository persistence (Demonstrated + Limit)
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.repository.int.spec.ts
+    impl:
+      - IMP-AD-CORE-009
+      - IMP-AC-VIEW-035

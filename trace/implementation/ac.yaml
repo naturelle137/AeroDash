@@ -378,3 +378,38 @@ AC (auto)
     req:
       - REQ-AC-001
       - REQ-AC-007
+
+  IMP-AC-VIEW-035
+    title: Wind-limits editor section template — component/value/classification rows with add/remove
+    files:
+      - frontend/src/modules/aircraft/components/WindLimitsSection.vue
+    req:
+      - REQ-AD-017
+
+  IMP-AC-VIEW-036
+    title: Wind-limits editor section logic — patch/add/remove rows and duplicate-component guard
+    files:
+      - frontend/src/modules/aircraft/components/WindLimitsSection.vue
+    req:
+      - REQ-AD-017
+
+  IMP-AC-VIEW-037
+    title: Wind-limits read-only summary template — crosswind-first list for manual checking
+    files:
+      - frontend/src/modules/aircraft/components/WindLimitsSummary.vue
+    req:
+      - REQ-AD-017
+
+  IMP-AC-VIEW-038
+    title: Wind-limits read-only summary logic — component ordering and classification labels
+    files:
+      - frontend/src/modules/aircraft/components/WindLimitsSummary.vue
+    req:
+      - REQ-AD-017
+
+  IMP-AC-VIEW-039
+    title: Aircraft editor wind-limits binding — windLimits draft model + accordion section
+    files:
+      - frontend/src/modules/aircraft/views/AircraftProfileEditorView.vue
+    req:
+      - REQ-AD-017
