@@ -741,17 +741,31 @@ export const useMassBalanceStore = defineStore('massBalance', {
       })
 
       for (const v of violations) {
-        if (v.type !== 'INVALID_INPUT' || !v.field) continue
-        const stationMatch = v.field.match(/^STATIONS\[(\d+)\]/)
-        const fuelMatch = v.field.match(/^FUEL_STATIONS\[(\d+)\]/)
+        if (v.type !== 'INVALID_INPUT') continue
 
+        // Prefer the structured Zod path (`path[0] === 'stations'`,
+        // `path[1] === arrayIdx`). Fall back to regex on the legacy
+        // stringified `field` so older callers — and any non-Zod producer
+        // of violations — still resolve to the correct station.
         let stationIndex: number | null = null
-        if (stationMatch) {
-          const arrayIdx = parseInt(stationMatch[1]!, 10)
-          stationIndex = nonFuelInputStations[arrayIdx]?.index ?? null
-        } else if (fuelMatch) {
-          const arrayIdx = parseInt(fuelMatch[1]!, 10)
-          stationIndex = fuelInputStations[arrayIdx]?.index ?? null
+        const path = v.path
+        if (path && path.length >= 2 && typeof path[1] === 'number') {
+          const arrayIdx = path[1] as number
+          if (path[0] === 'stations') {
+            stationIndex = nonFuelInputStations[arrayIdx]?.index ?? null
+          } else if (path[0] === 'fuelStations') {
+            stationIndex = fuelInputStations[arrayIdx]?.index ?? null
+          }
+        } else if (v.field) {
+          const stationMatch = v.field.match(/^STATIONS\[(\d+)\]/)
+          const fuelMatch = v.field.match(/^FUEL_STATIONS\[(\d+)\]/)
+          if (stationMatch) {
+            const arrayIdx = Number.parseInt(stationMatch[1]!, 10)
+            stationIndex = nonFuelInputStations[arrayIdx]?.index ?? null
+          } else if (fuelMatch) {
+            const arrayIdx = Number.parseInt(fuelMatch[1]!, 10)
+            stationIndex = fuelInputStations[arrayIdx]?.index ?? null
+          }
         }
 
         if (stationIndex !== null) {

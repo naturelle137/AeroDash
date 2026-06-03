@@ -138,6 +138,7 @@ export function computeMassBalanceCore(input: MathCoreInput): MathCoreResult {
         burnSequenceWaypoints.push({
           arm: curMoment / curMass,
           mass: curMass,
+          moment: curMoment,
           label: `${seqName} #${i + 1}`,
         })
       }

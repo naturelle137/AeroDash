@@ -26,9 +26,9 @@ function srgbToLinear(channel: number): number {
 
 function relativeLuminance(hex: string): number {
   const h = hex.replace('#', '')
-  const r = parseInt(h.slice(0, 2), 16)
-  const g = parseInt(h.slice(2, 4), 16)
-  const b = parseInt(h.slice(4, 6), 16)
+  const r = Number.parseInt(h.slice(0, 2), 16)
+  const g = Number.parseInt(h.slice(2, 4), 16)
+  const b = Number.parseInt(h.slice(4, 6), 16)
   return 0.2126 * srgbToLinear(r) + 0.7152 * srgbToLinear(g) + 0.0722 * srgbToLinear(b)
 }
 
@@ -60,8 +60,8 @@ function buildResult(overrides: Partial<MathCoreResult> = {}): MathCoreResult {
     takeoffCenterOfGravityPoint: { arm: 1.91, mass: 520, moment: 993.2 },
     landingCenterOfGravityPoint: { arm: 1.89, mass: 490, moment: 925.8 },
     migrationPath: [
-      { arm: 1.91, mass: 520, label: 'Takeoff' },
-      { arm: 1.89, mass: 490, label: 'Landing' },
+      { arm: 1.91, mass: 520, moment: 993.2, label: 'Takeoff' },
+      { arm: 1.89, mass: 490, moment: 925.8, label: 'Landing' },
     ],
     ...overrides,
   }
@@ -240,10 +240,13 @@ describe('CGEnvelopeChart — migration path rendering', () => {
     expect(wrapper.find('path').exists()).toBe(true)
   })
 
-  it('does not render a migration path when graphType is moment', () => {
+  // MigrationPoint carries `moment`, so the burn-down path renders in
+  // moment-graph mode using the per-point `moment` value rather than
+  // being omitted.
+  it('renders a migration path when graphType is moment and MigrationPoints carry `moment`', () => {
     const wrapper = mountChart({ result: buildResult(), graphType: 'moment', severity: 'success' })
 
-    expect(wrapper.find('path').exists()).toBe(false)
+    expect(wrapper.find('path').exists()).toBe(true)
   })
 
   it('does not render a migration path when result is null', () => {
@@ -253,7 +256,7 @@ describe('CGEnvelopeChart — migration path rendering', () => {
   })
 
   it('does not render a migration path when migrationPath has fewer than 2 points', () => {
-    const result = buildResult({ migrationPath: [{ arm: 1.91, mass: 520 }] })
+    const result = buildResult({ migrationPath: [{ arm: 1.91, mass: 520, moment: 993.2 }] })
     const wrapper = mountChart({ result, graphType: 'arm' })
 
     expect(wrapper.find('path').exists()).toBe(false)
@@ -275,8 +278,8 @@ describe('CGEnvelopeChart — migration path rendering', () => {
       takeoffCenterOfGravityPoint: { arm: 1.9, mass: 500, moment: 950 },
       landingCenterOfGravityPoint: { arm: 1.9, mass: 500, moment: 950 },
       migrationPath: [
-        { arm: 1.9, mass: 500, label: 'Takeoff' },
-        { arm: 1.9, mass: 500, label: 'Landing' },
+        { arm: 1.9, mass: 500, moment: 950, label: 'Takeoff' },
+        { arm: 1.9, mass: 500, moment: 950, label: 'Landing' },
       ],
     })
     const wrapper = mountChart({ result, graphType: 'arm', severity: 'success' })
@@ -294,8 +297,8 @@ describe('CGEnvelopeChart — migration path rendering', () => {
       takeoffCenterOfGravityPoint: { arm: 1.901, mass: 500, moment: 950.5 },
       landingCenterOfGravityPoint: { arm: 1.902, mass: 500, moment: 951 },
       migrationPath: [
-        { arm: 1.901, mass: 500, label: 'Takeoff' },
-        { arm: 1.902, mass: 500, label: 'Landing' },
+        { arm: 1.901, mass: 500, moment: 950.5, label: 'Takeoff' },
+        { arm: 1.902, mass: 500, moment: 951, label: 'Landing' },
       ],
     })
     const wrapper = mountChart({ result, graphType: 'arm', severity: 'success' })
@@ -308,8 +311,8 @@ describe('CGEnvelopeChart — migration path rendering', () => {
   it('renders both the migration path line and the arrowhead when on-screen length exceeds 3× the arrow length', () => {
     const result = buildResult({
       migrationPath: [
-        { arm: 1.85, mass: 520, label: 'Takeoff' },
-        { arm: 1.95, mass: 440, label: 'Landing' },
+        { arm: 1.85, mass: 520, moment: 962, label: 'Takeoff' },
+        { arm: 1.95, mass: 440, moment: 858, label: 'Landing' },
       ],
     })
     const wrapper = mountChart({ result, graphType: 'arm', severity: 'success' })
@@ -448,8 +451,8 @@ describe('CGEnvelopeChart — dataPoints coordinate mode', () => {
   it('includes migration path points in scale calculation when graphType is arm', () => {
     const result = buildResult({
       migrationPath: [
-        { arm: 1.70, mass: 400 },
-        { arm: 2.10, mass: 550 },
+        { arm: 1.70, mass: 400, moment: 680 },
+        { arm: 2.10, mass: 550, moment: 1155 },
       ],
     })
     const wrapper = mountChart({ result, graphType: 'arm', severity: 'success' })
@@ -520,6 +523,14 @@ describe('CGEnvelopeChart — tick label formatting', () => {
       zeroFuelCenterOfGravityPoint: { arm: 1.0, mass: 480, moment: 1.0 },
       takeoffCenterOfGravityPoint: { arm: 1.1, mass: 520, moment: 1.1 },
       landingCenterOfGravityPoint: { arm: 1.05, mass: 490, moment: 1.05 },
+      // The migration path contributes to moment-axis bounds, so override
+      // the default fixture's large moments (1012, 950) which would
+      // otherwise inflate the tick step beyond the 0.1 range the test
+      // is checking.
+      migrationPath: [
+        { arm: 1.1, mass: 520, moment: 1.1, label: 'Takeoff' },
+        { arm: 1.05, mass: 490, moment: 1.05, label: 'Landing' },
+      ],
     })
     const wrapper = mount(CGEnvelopeChart, {
       props: { envelope, result, graphType: 'moment', severity: 'success' },

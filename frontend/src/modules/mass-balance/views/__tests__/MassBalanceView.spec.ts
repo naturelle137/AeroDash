@@ -96,8 +96,8 @@ function buildSuccessResult(overrides: Partial<MathCoreResult> = {}): MathCoreRe
     takeoffCenterOfGravityPoint: { arm: 1.91, mass: 530, moment: 1012.3 },
     landingCenterOfGravityPoint: { arm: 1.9, mass: 500, moment: 950 },
     migrationPath: [
-      { arm: 1.91, mass: 530, label: 'Takeoff' },
-      { arm: 1.9, mass: 500, label: 'Landing' },
+      { arm: 1.91, mass: 530, moment: 1012.3, label: 'Takeoff' },
+      { arm: 1.9, mass: 500, moment: 950, label: 'Landing' },
     ],
     ...overrides,
   }

@@ -11,7 +11,10 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import 'fake-indexeddb/auto'
 import { IDBFactory } from 'fake-indexeddb'
-import { fleetRepository } from '../services/fleet.repository'
+import {
+  _resetFleetDbHandleForTest,
+  fleetRepository,
+} from '../services/fleet.repository'
 import type { AircraftProfile } from '@/core/adapters/aircraft.schema'
 
 /** Reset IndexedDB between tests to guarantee isolation. */
@@ -21,6 +24,7 @@ beforeEach(() => {
     writable: true,
     configurable: true,
   })
+  _resetFleetDbHandleForTest()
 })
 
 /** Build a minimal valid AircraftProfile for test use. */

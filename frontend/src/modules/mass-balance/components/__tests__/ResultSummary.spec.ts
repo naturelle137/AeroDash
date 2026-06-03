@@ -18,8 +18,8 @@ function buildResult(overrides: Partial<MathCoreResult> = {}): MathCoreResult {
     takeoffCenterOfGravityPoint: { arm: 1.91, mass: 530, moment: 1012.3 },
     landingCenterOfGravityPoint: { arm: 1.9, mass: 500, moment: 950 },
     migrationPath: [
-      { arm: 1.91, mass: 530, label: 'Takeoff' },
-      { arm: 1.9, mass: 500, label: 'Landing' },
+      { arm: 1.91, mass: 530, moment: 1012.3, label: 'Takeoff' },
+      { arm: 1.9, mass: 500, moment: 950, label: 'Landing' },
     ],
     ...overrides,
   }
@@ -215,9 +215,9 @@ describe('ResultSummary', () => {
     const failedResult = buildResult({
       success: false,
       violations: [{ type: 'INVALID_INPUT', field: 'stations.0.arm', code: 'REQUIRED' }],
-      zeroFuelCenterOfGravityPoint: { arm: NaN, mass: NaN, moment: NaN },
-      takeoffCenterOfGravityPoint: { arm: NaN, mass: NaN, moment: NaN },
-      landingCenterOfGravityPoint: { arm: NaN, mass: NaN, moment: NaN },
+      zeroFuelCenterOfGravityPoint: { arm: Number.NaN, mass: Number.NaN, moment: Number.NaN },
+      takeoffCenterOfGravityPoint: { arm: Number.NaN, mass: Number.NaN, moment: Number.NaN },
+      landingCenterOfGravityPoint: { arm: Number.NaN, mass: Number.NaN, moment: Number.NaN },
     })
 
     const wrapper = mount(ResultSummary, {

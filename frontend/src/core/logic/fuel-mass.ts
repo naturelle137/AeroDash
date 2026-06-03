@@ -19,9 +19,7 @@
 
 import { getFuelDensityKgPerL } from './fuel-density'
 import { normalizeMassToKg } from './unit-normalization'
-
-const US_GAL_TO_L = 3.785411784 as const
-const IMP_GAL_TO_L = 4.54609 as const
+import { IMP_GAL_TO_L, US_GAL_TO_L } from './unit-conversion-constants'
 
 /** Unit strings accepted for a fuel-tank station. Superset of VolumeUnit + MassUnit. */
 export type FuelQuantityUnit = 'kg' | 'lb' | 'L' | 'USG' | 'IMPgal' | 'gal'

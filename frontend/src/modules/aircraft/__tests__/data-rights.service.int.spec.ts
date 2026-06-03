@@ -15,7 +15,12 @@ import {
   serializeBulkExport,
   wipeAllLocalData,
 } from '../services/data-rights.service'
-import { create, findAll, fleetRepository } from '../services/fleet.repository'
+import {
+  _resetFleetDbHandleForTest,
+  create,
+  findAll,
+  fleetRepository,
+} from '../services/fleet.repository'
 import { CURRENT_PROFILE_SCHEMA_VERSION } from '@/core/logic/profile-migrations'
 import type { AircraftProfile } from '@/core/adapters/aircraft.schema'
 
@@ -25,6 +30,7 @@ beforeEach(() => {
     writable: true,
     configurable: true,
   })
+  _resetFleetDbHandleForTest()
   // Reset Web Storage between tests so leftover keys do not contaminate
   // a Delete-All-Data assertion in the next case.
   try {
@@ -48,7 +54,9 @@ afterEach(() => {
  * repository's `create()` Zod gate — the only way to seed a future-version /
  * corrupt row that the production write path forbids.
  */
-async function seedRaw(doc: Record<string, unknown>): Promise<void> {
+// `object` lets callers pass a real `AircraftProfile` plus extra fields
+// without an `as unknown as Record<string, unknown>` ladder.
+async function seedRaw(doc: object): Promise<void> {
   await new Promise<void>((resolve, reject) => {
     const req = indexedDB.open('aerodash-fleet', 2)
     req.onupgradeneeded = () => {
@@ -149,7 +157,7 @@ describe('wipeAllLocalData — Repository-Wide Wipe (REQ-SYS-014)', () => {
     await seedRaw({
       ...buildProfile({ id: '00000000-0000-4000-a000-0000000000f0', registration: 'D-FUTR' }),
       schemaVersion: CURRENT_PROFILE_SCHEMA_VERSION + 1,
-    } as unknown as Record<string, unknown>)
+    })
 
     const report = await wipeAllLocalData()
 
@@ -295,7 +303,7 @@ describe('exportAllProfiles — Bulk JSON Export (REQ-SYS-015)', () => {
     await seedRaw({
       ...buildProfile({ id: '00000000-0000-4000-a000-0000000000c2', registration: 'D-FUTR' }),
       schemaVersion: CURRENT_PROFILE_SCHEMA_VERSION + 1,
-    } as unknown as Record<string, unknown>)
+    })
 
     const { envelope, omitted } = await exportAllProfiles()
 
@@ -312,11 +320,11 @@ describe('exportAllProfiles — Bulk JSON Export (REQ-SYS-015)', () => {
     await seedRaw({
       ...buildProfile({ id: '00000000-0000-4000-a000-0000000000d1', registration: 'D-FT01' }),
       schemaVersion: CURRENT_PROFILE_SCHEMA_VERSION + 1,
-    } as unknown as Record<string, unknown>)
+    })
     await seedRaw({
       ...buildProfile({ id: '00000000-0000-4000-a000-0000000000d2', registration: 'D-FT02' }),
       schemaVersion: CURRENT_PROFILE_SCHEMA_VERSION + 2,
-    } as unknown as Record<string, unknown>)
+    })
 
     const { envelope, omitted } = await exportAllProfiles()
 

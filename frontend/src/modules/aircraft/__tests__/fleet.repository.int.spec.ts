@@ -11,6 +11,7 @@ import { describe, it, expect, beforeEach } from 'vitest'
 import 'fake-indexeddb/auto'
 import { IDBFactory } from 'fake-indexeddb'
 import {
+  _resetFleetDbHandleForTest,
   create,
   deleteAll,
   deleteById,
@@ -28,6 +29,9 @@ beforeEach(() => {
     writable: true,
     configurable: true,
   })
+  // The module-scoped cached DB handle still points at the prior factory's
+  // DB. Drop it so the next call opens against the fresh one.
+  _resetFleetDbHandleForTest()
 })
 
 /** Build a minimal valid AircraftProfile for test use. */
