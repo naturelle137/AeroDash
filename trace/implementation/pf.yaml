@@ -41,3 +41,52 @@ PF Core — POH Distance (3-D Trilinear) Facade
       - REQ-AC-005
     files:
       - frontend/src/core/logic/performance.poh-distance.ts
+
+PF Core — Conservative Extrapolation Control
+  IMP-PF-CORE-006
+    title: Immutable extrapolation cap (10%) and penalty (20%) constants
+    files:
+      - frontend/src/core/logic/performance.extrapolation.ts
+    req:
+      - REQ-PF-010
+
+  IMP-PF-CORE-007
+    title: classifyAxisExcursion — per-axis envelope excursion + 10% cap classification
+    files:
+      - frontend/src/core/logic/performance.extrapolation.ts
+    req:
+      - REQ-PF-010
+      - REQ-PF-011
+
+  IMP-PF-CORE-008
+    title: assessExtrapolation — combined extrapolation state + acknowledgment gate
+    files:
+      - frontend/src/core/logic/performance.extrapolation.ts
+    req:
+      - REQ-PF-010
+      - REQ-PF-011
+      - REQ-PF-012
+
+  IMP-PF-CORE-009
+    title: applyExtrapolationPenalty — +20% penalty with Minimum Distance floor
+    files:
+      - frontend/src/core/logic/performance.extrapolation.ts
+    req:
+      - REQ-PF-010
+      - REQ-PF-011
+
+  IMP-PF-CORE-010
+    title: cubeEnvelopeRanges — derive axis ranges from a performance cube
+    files:
+      - frontend/src/core/logic/performance.extrapolation.ts
+    req:
+      - REQ-PF-010
+
+  IMP-PF-CORE-011
+    title: resolveExtrapolatedDistance — fail-safe extrapolation facade (block/penalise/floor)
+    files:
+      - frontend/src/core/logic/performance.extrapolation.ts
+    req:
+      - REQ-PF-010
+      - REQ-PF-011
+      - REQ-PF-012
