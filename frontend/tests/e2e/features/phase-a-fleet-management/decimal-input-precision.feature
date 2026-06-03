@@ -1,3 +1,8 @@
+# @wip: blocked by separate DecimalInput defects in the wizard (comma→period BEM
+# normalisation, and the Arm field on a newly-added load station) — out of scope
+# for #294 (fleet seeding + duplicate-<main> + wizard nav). The duplicate-<main>
+# + wizard-nav fixes do unblock the Background here; un-wip once the DecimalInput
+# precision behaviour is fixed.
 @wip @phase-A @fleet @wizard @decimal
 Feature: Decimal input precision in the aircraft wizard
   As a pilot

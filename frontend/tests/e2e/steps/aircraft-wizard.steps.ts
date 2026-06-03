@@ -197,6 +197,27 @@ Then('the wizard is on Step 5 — Review and Save', async ({ page }) => {
   await expect(page.getByRole('heading', { name: /Step 5.*Review/i })).toBeVisible()
 })
 
+// ─── Post-save action chooser (UX-012) ─────────────────────────────────────
+// Saving a draft no longer drops the pilot straight back on the fleet list —
+// it opens an in-app chooser ("Start flight prep" / "Verify now" / "Back to
+// Fleet"). Drive the "Back to Fleet" path so the journey returns to /fleet.
+
+/** Click "Back to Fleet" in the post-save chooser dialog and wait for /fleet. */
+export async function returnToFleetFromPostSave(
+  page: import('@playwright/test').Page,
+): Promise<void> {
+  // Scope to the modal so we don't collide with the wizard header's
+  // "← Back to Fleet" button, which is still in the DOM behind the dialog.
+  const dialog = page.getByRole('dialog')
+  await expect(dialog).toBeVisible()
+  await dialog.getByRole('button', { name: 'Back to Fleet' }).click()
+  await expect(page).toHaveURL(/\/fleet$/)
+}
+
+When('the pilot returns to the fleet from the saved-aircraft options', async ({ page }) => {
+  await returnToFleetFromPostSave(page)
+})
+
 // ─── Post-save assertions ──────────────────────────────────────────────────
 
 Then('the pilot is back on the Fleet page', async ({ page }) => {
@@ -353,6 +374,6 @@ export async function completeWizardFlow(
   await expect(page.getByRole('heading', { name: /Step 5/i })).toBeVisible()
   await page.getByRole('button', { name: 'Save as Draft' }).click()
 
-  // Back on fleet page
-  await expect(page).toHaveURL(/\/fleet$/)
+  // Post-save chooser (UX-012) → return to the fleet list.
+  await returnToFleetFromPostSave(page)
 }

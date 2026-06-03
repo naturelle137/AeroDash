@@ -15,8 +15,11 @@ Feature: Fleet-based aircraft selection on the Flight Prep page
     Then the pilot is taken to the aircraft creation wizard
 
   # @E2E-B-009@ (FROM: @UJ-B-005@)
-  # @wip: depends on the wizard-creation flow (completeWizardFlow helper), which is
-  # not yet stable end-to-end — un-wip together with aircraft-wizard-creation.feature.
+  # @wip: superseded by the H-011 draft-acknowledgement gate — selecting a Draft
+  # now routes through the inline ack (M&B stays locked until acknowledged), so
+  # "the M&B section becomes unlocked" on a bare select no longer holds. The
+  # correct behaviour is covered by E2E-B-011 below (which passes). Out of scope
+  # for #294; remove or rewrite B-009 to reflect the ack gate.
   @wip @UJ-B-005 @phase-B @e2e @E2E-B-009
   Scenario: Aircraft added via wizard appears in the Flight Prep dropdown with a [Draft] label
     Given the pilot has added an aircraft with registration "D-EBPN" via the wizard
@@ -28,9 +31,7 @@ Feature: Fleet-based aircraft selection on the Flight Prep page
     Then the M&B section becomes unlocked
 
   # @E2E-B-011@ (FROM: @UJ-B-005@)
-  # @wip: depends on the wizard-creation flow (completeWizardFlow helper), which is
-  # not yet stable end-to-end — un-wip together with aircraft-wizard-creation.feature.
-  @wip @UJ-B-005 @phase-B @e2e @E2E-B-011
+  @UJ-B-005 @phase-B @e2e @E2E-B-011
   Scenario: Selecting a draft aircraft requires acknowledging the unverified-data warning
     Given the pilot has added an aircraft with registration "D-EBPN" via the wizard
     When the pilot navigates to the Flight Prep page

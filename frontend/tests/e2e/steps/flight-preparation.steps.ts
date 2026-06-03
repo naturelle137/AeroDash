@@ -6,10 +6,11 @@ const { When, Then } = createBdd()
 // ─── Helpers ───────────────────────────────────────────────────────────────
 
 async function fillStation(page: import('@playwright/test').Page, label: string, value: string) {
-  // .mass-station-input: compound component has no single ARIA role; label-scoped CSS is the narrowest viable locator
-  const input = page
-    .locator('.mass-station-input', { has: page.locator('label', { hasText: label }) })
-    .locator('input[type="number"]')
+  // The station field is a DecimalInput: a sanitised decimal text input
+  // (type="text", inputmode="decimal"), NOT input[type="number"]. Its <label for>
+  // gives it role=textbox with the station name as accessible name, so target it
+  // by role+name — exact so "Baggage" never matches "Baggage Area 1/2" (refs #294).
+  const input = page.getByRole('textbox', { name: label, exact: true })
   await input.fill(value)
   await input.dispatchEvent('input')
 }
@@ -77,8 +78,15 @@ When('fills both fuel tanks to capacity', async ({ page }) => {
 })
 
 When('the pilot moves the passenger forward and reduces aft baggage', async ({ page }) => {
-  await fillStation(page, 'Front Seats', '160')
-  await fillStation(page, 'Rear Seats', '0')
+  // Move most of the rear-passenger mass forward and trim aft baggage. The rear
+  // occupant is kept at a small but non-zero mass on purpose: zeroing a required
+  // (non-fuel) station trips WARN-UQ-001 "Implausible mass on required station"
+  // (REQ-UQ-006), which post-dates this journey and would hold the result at
+  // WARNING. With a plausible rear mass the burn-sequence CG migration is
+  // resolved and the result reaches VERIFIED SAFE — the behaviour this journey
+  // asserts (refs #294).
+  await fillStation(page, 'Front Seats', '140')
+  await fillStation(page, 'Rear Seats', '20')
   await fillStation(page, 'Baggage', '10')
 })
 

@@ -1,4 +1,3 @@
-@wip
 Feature: Switch certification category and enforce utility constraints
   As a pilot
   I want category-specific limits and stations to update when I change certification category

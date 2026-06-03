@@ -1,4 +1,3 @@
-@wip
 Feature: Reveal CG migration risk across burn sequences
   As a pilot
   I want to see CG behavior under all fuel burn sequences

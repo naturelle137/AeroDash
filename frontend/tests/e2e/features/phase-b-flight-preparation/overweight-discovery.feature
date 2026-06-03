@@ -1,4 +1,3 @@
-@wip
 Feature: Discover structural mass limit violations
   As a pilot
   I want to be warned about all structural mass limits

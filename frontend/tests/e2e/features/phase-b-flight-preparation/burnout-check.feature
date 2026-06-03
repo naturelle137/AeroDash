@@ -1,4 +1,3 @@
-@wip
 Feature: Detect CG migration during fuel burn-off
   As a pilot
   I want to discover unsafe CG migration before flight

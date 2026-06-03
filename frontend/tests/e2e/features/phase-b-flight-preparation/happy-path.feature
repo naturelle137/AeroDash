@@ -1,4 +1,3 @@
-@wip
 Feature: Complete a textbook flight preparation without warnings
   As a pilot
   I want to prepare a flight without warnings or inconsistencies

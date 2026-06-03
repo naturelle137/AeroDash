@@ -1,6 +1,9 @@
 <template>
   <!-- @IMP-AC-VIEW-007@ (FROM: @REQ-AC-001@, @REQ-AC-004@, @REQ-AC-005@, @REQ-AC-006@) -->
-  <main class="fleet-management-view">
+  <!-- Routed views render inside the App shell's single <main> landmark, so this
+       root is a plain <div> — a nested second <main> breaks getByRole('main')
+       (strict-mode) and is an a11y landmark defect (refs #294). -->
+  <div class="fleet-management-view">
     <h1>Aircraft Fleet Management</h1>
 
     <!-- Notifications banner -->
@@ -60,7 +63,7 @@
         </div>
       </div>
     </section>
-  </main>
+  </div>
 </template>
 
 <script setup lang="ts">

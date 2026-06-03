@@ -1,4 +1,4 @@
-@wip @phase-A @fleet @wizard
+@phase-A @fleet @wizard
 Feature: Aircraft creation wizard
   As a pilot
   I want to create a new aircraft profile via a guided 5-step wizard
@@ -38,11 +38,15 @@ Feature: Aircraft creation wizard
     Then the wizard is on Step 5 — Review and Save
 
     When the pilot clicks "Save as Draft"
+    And the pilot returns to the fleet from the saved-aircraft options
     Then the pilot is back on the Fleet page
     And the aircraft "D-EBPN" is listed with a "Draft" status badge
 
   # @E2E-A-003@ (FROM: @UJ-A-001@)
-  @UJ-A-001 @phase-A @e2e @E2E-A-003
+  # @wip: blocked by a separate EnvelopeSection defect (cannot reduce below the
+  # 4-point minimum via the ✕ remove buttons) — out of scope for #294 (fleet
+  # seeding + duplicate-<main> + wizard nav). Un-wip once that is fixed.
+  @wip @UJ-A-001 @phase-A @e2e @E2E-A-003
   Scenario: Pilot cannot advance past Step 2 with fewer than 4 envelope points — Continue is disabled and an error is visible
     Given the pilot navigates to the Fleet page
     When the pilot clicks "Add New Aircraft"

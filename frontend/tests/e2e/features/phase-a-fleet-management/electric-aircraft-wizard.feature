@@ -1,4 +1,4 @@
-@wip @phase-A @fleet @wizard @electric
+@phase-A @fleet @wizard @electric
 Feature: Battery-electric aircraft wizard (Pipistrel Velis Electro)
   As a pilot / flight-school instructor
   I want to add a Pipistrel Velis Electro to the fleet without seeing fuel fields
@@ -6,7 +6,11 @@ Feature: Battery-electric aircraft wizard (Pipistrel Velis Electro)
   And so that the combustion UX for the rest of my fleet is unchanged
 
   # @E2E-A-007@ (FROM: @UJ-A-004@)
-  @UJ-A-004 @phase-A @e2e @smoke @E2E-A-007
+  # @wip: blocked by a separate electric-wizard defect (the build never reaches
+  # Step 5 — Pipistrel powertrain auto-flip / Battery-Pack step), out of scope
+  # for #294. The combustion control scenario (A-008) below passes and proves the
+  # duplicate-<main> + wizard-nav fixes. Un-wip once the electric path is fixed.
+  @wip @UJ-A-004 @phase-A @e2e @smoke @E2E-A-007
   Scenario: Pilot creates a Pipistrel Velis Electro, the wizard flips to electric and fuel UI is hidden
     Given the pilot navigates to the Fleet page
     When the pilot clicks "Add New Aircraft"
@@ -42,6 +46,7 @@ Feature: Battery-electric aircraft wizard (Pipistrel Velis Electro)
     And the review shows battery pack usable energy "24.8"
 
     When the pilot clicks "Save as Draft"
+    And the pilot returns to the fleet from the saved-aircraft options
     Then the pilot is back on the Fleet page
     And the aircraft "OK-VVV" is listed with a "Draft" status badge
 

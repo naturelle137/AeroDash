@@ -1,6 +1,9 @@
 <!-- @IMP-AC-VIEW-WIZARD-001@ (FROM: @REQ-AC-001@, @REQ-UQ-003@) -->
 <template>
-  <main class="wizard-view">
+  <!-- Plain <div>, not <main>: routed views live inside the App shell's single
+       <main> landmark. A nested <main> breaks getByRole('main') and is an a11y
+       landmark defect (refs #294). -->
+  <div class="wizard-view">
     <header class="wizard-header">
       <button type="button" class="btn-back" @click="onNavigateBack">← Back to Fleet</button>
       <h1>Add New Aircraft</h1>
@@ -223,7 +226,7 @@
       @choose="onPostSaveChoice"
       @dismiss="onPostSaveDismiss"
     />
-  </main>
+  </div>
 </template>
 
 <script setup lang="ts">
