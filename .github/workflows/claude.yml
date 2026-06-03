@@ -83,6 +83,13 @@ jobs:
           # repo — only whitelist this one bot, same convention as
           # pr-review-bot.yml.
           allowed_bots: 'claude'
+          # claude-code-action denies writes by default. Whitelist
+          # `.claude/**` (skills/agents/commands) and `.github/workflows/**`
+          # so an @claude sweep can land bot-config tweaks without a manual
+          # branch. NOTE: pushing workflow-file changes additionally requires
+          # the underlying GitHub App to hold the `workflows` permission —
+          # the tool allow-list alone won't bypass that.
+          allowed_tools: 'Edit(.claude/**),Write(.claude/**),Edit(.github/workflows/**),Write(.github/workflows/**)'
           claude_args: |
             --model ${{ env.CLAUDE_MODEL }}
             --effort ${{ env.CLAUDE_EFFORT }}
