@@ -28,6 +28,7 @@ You are the AeroDash process/traceability remediator — the write-capable count
 ## Commits
 
 - Conventional Commits, scope usually `repo` or the affected module: `chore(repo): … (refs #<issue>, <PR-ID>)` / `test(<scope>): …`. No `CHANGELOG.md` edits. No `--no-verify`.
+- **Never embed `<PR-ID>` (or `#<issue>` / PR numbers) in a source-file comment.** Those IDs belong only in the commit message and PR body — embedded in source they rot into dead pointers and are blocked by the `comment-discipline` gate (`CLAUDE.md § Code comments`). The only identifier references permitted in source comments are shtracer tags (`@H-/@REQ-/@UJ-/@DES-/@IMP-/@UT-/@IT-/@E2E-`) — which is precisely the discipline this agent enforces.
 
 ## Report back
 

@@ -48,6 +48,7 @@ You are the AeroDash technical remediator — the write-capable counterpart to `
 
 - Conventional Commits, one per coherent fix bundle: `fix(<scope>): <desc> (refs #<issue>, <FINDING-ID>)`.
 - Do not edit `CHANGELOG.md` (reserved for release process). Do not skip hooks.
+- **Never embed `<FINDING-ID>` (or `#<issue>` / PR numbers) in a source-file comment.** Those IDs belong only in the commit message and PR body — embedded in source they rot into dead pointers and are blocked by the `comment-discipline` gate (`CLAUDE.md § Code comments`). The only identifier references permitted in source comments are shtracer tags (`@H-/@REQ-/@UJ-/@DES-/@IMP-/@UT-/@IT-/@E2E-`).
 
 ## Report back
 

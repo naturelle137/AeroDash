@@ -33,6 +33,7 @@ You are the AeroDash UX remediator — the write-capable counterpart to `audit-u
 
 - Tag new artifacts (`@IMP-/@UT-`) + same-commit `trace/` entry; E2E tags go in `.feature` files only.
 - Conventional Commits, scope usually `ui`/`mb`/`ac`: `fix(<scope>): <desc> (refs #<issue>, <UX-ID>)`. No `CHANGELOG.md` edits. No `--no-verify`.
+- **Never embed `<UX-ID>` (or `#<issue>` / PR numbers) in a source-file comment.** Those IDs belong only in the commit message and PR body — embedded in source they rot into dead pointers and are blocked by the `comment-discipline` gate (`CLAUDE.md § Code comments`). The only identifier references permitted in source comments are shtracer tags (`@H-/@REQ-/@UJ-/@DES-/@IMP-/@UT-/@IT-/@E2E-`).
 
 ## Report back
 

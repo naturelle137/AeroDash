@@ -119,6 +119,17 @@ If a child is genuinely blocked: skip it, record the reason, leave the parent op
 - Composition API, Pinia stores
 - math delegation to `core/`
 
+## Code comments (project rule — `CLAUDE.md § Code comments`)
+
+Hardened: enforced by the `comment-discipline` scanner (`frontend/scripts/comment-discipline/`) wrapped in a vitest gate. New regressions hard-fail.
+
+1. **Default: write no comment.** Self-documenting code (clear names, small functions, explicit types) is the contract. Reach for a comment only when the *why* genuinely cannot be expressed in the code.
+2. **Why-only.** Comments explain *why* — a hidden constraint, an invariant, a known-defect workaround. Never restate *what* or *how*.
+3. **Trace tag beats prose.** Before placing a `//` or `<!-- -->` comment in implementation code, check whether an upstream `@REQ-…@` or `@DES-…@` already captures the context. If yes, emit an `@IMP-XX-NNN@ (FROM: @REQ-XX-NNN@)` (or `(FROM: @DES-XX-NNN@)`) tag via the trace CLI (`pnpm trace tag …` / `pnpm trace resolve …`) — never hand-write the numeric suffix.
+4. **Design rationale lives in design docs** (`docs/architecture/**`, `docs/ux/**` — the `@DES-` layer registered under `trace/design/`), not in code comments. A comment may reference a design tag (`// see @DES-ARCH-006@`) instead of paraphrasing it.
+5. **No forbidden identifiers in source comments.** **Never** put GitHub issue numbers (`#123`, `refs #123`, `issue-123`), PR numbers, or audit-finding IDs (`CS-/DP-/TECH-/PR-/UX-NNN`) into `*.ts` / `*.vue` / `*.spec.ts` / `*.int.spec.ts` / `*.feature` comments. Those IDs belong in the commit message and PR body, **not** in source. The only identifier references permitted in source comments are **shtracer tags** (`@H-/@REQ-/@UJ-/@DES-/@IMP-/@UT-/@IT-/@E2E-`).
+6. **Test files need fewer comments than implementation.** `describe` / `it` / `test` block names and Gherkin `.feature` files are already plain-language documentation; additional commentary in step definitions, `*.spec.ts`, and `*.int.spec.ts` is rare-exception, not default.
+
 ## Trace discovery and updates
 
 - inspect issue body, `docs/requirements/`, `trace/`, relevant registries
@@ -152,6 +163,7 @@ Verify after each logical unit. Coverage cmd: `pnpm --filter frontend vitest run
 - one commit per implemented child; standalone issue → one commit
 - child id first; parent id optional extra ref
 - changelog policy: do **not** update `CHANGELOG.md` here (reserved for release process)
+- `(refs #{ISSUE_ID})` lives in the **commit message only** — never copy this fragment, or the bare `#{ISSUE_ID}` / `issue-{ISSUE_ID}` form, into a source-file `//` / `<!-- -->` comment. The `comment-discipline` gate hard-fails on a new occurrence.
 
 ## Issue updates
 
