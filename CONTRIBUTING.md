@@ -127,6 +127,22 @@ Merging code to the production `main` branch is highly restricted.
 * **No Failing Tests:** Zero tolerance for failing tests or bypassed checks.
 * **Mandatory Peer Review:** All code must be reviewed and approved by at least one other developer. Code modifying P1 logic requires approval from a Lead Developer. *Note: Branch protection rules are currently configured to allow administrative overrides to facilitate progress until a secondary reviewer is onboarded.*
 
+### 4.x Code Comments (Comment Discipline)
+
+> **Source of truth:** [`CLAUDE.md § Code comments`](CLAUDE.md#code-comments). This section mirrors the rule for human contributors and names the enforcement check.
+
+Default to **no comment**. Reach for one only when the *why* genuinely cannot be expressed in the code itself.
+
+Hard rules (full text in `CLAUDE.md § Code comments`):
+
+1. **Why-only.** Comments explain *why*; they never restate *what* or *how*.
+2. **Prefer a trace tag over a prose comment** whenever an upstream `@REQ-…@` or `@DES-…@` exists. Use the trace CLI (`pnpm trace tag …` / `pnpm trace resolve …`) — never hand-write the numeric suffix.
+3. **Detailed design rationale lives in design documents** (`docs/architecture/**`, `docs/ux/**` — the `@DES-` layer registered under `trace/design/`), not in code comments.
+4. **No forbidden identifiers in source comments.** Never reference GitHub issue numbers (`#123`, `refs #123`, `issue-123`), PR numbers, or audit-finding IDs (`CS-###`, `DP-###`, `TECH-###`, `PR-###`, `UX-###`). Put those in commit messages and PR bodies, not source. The **only** identifier references permitted in source comments are **shtracer tags** (`@H-/@REQ-/@UJ-/@DES-/@IMP-/@UT-/@IT-/@E2E-`) per `docs/stc.md`.
+5. **Test files need fewer comments than implementation.** Gherkin `.feature` files and `describe`/`it`/`test` block names are already plain-language documentation; extra commentary in `frontend/tests/e2e/steps/**/*.ts`, `*.spec.ts`, and `*.int.spec.ts` is almost never necessary.
+
+Enforcement: `pnpm --filter frontend run comment:check` (also wrapped in a vitest spec that runs as part of `pnpm test:unit`). The check is baseline-ratcheted (`frontend/scripts/comment-discipline/baseline.json`) — pre-existing matches are grandfathered, only **new** regressions fail. When you legitimately resolve a baselined entry, regenerate the baseline (`pnpm --filter frontend run comment:baseline`) and commit the updated file in the same PR; the baseline only shrinks unless an exceptional, written-up reason is in the PR description.
+
 #### Markdown Linting
 
 We enforce strict formatting for our documentation to ensure readability and traceability. Before committing Markdown files (`docs/**/*.md`, `README.md`, etc.), you should run the local linter to catch formatting errors.
