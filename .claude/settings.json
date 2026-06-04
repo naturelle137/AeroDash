@@ -28,6 +28,7 @@
       "Bash(gh pr view:*)",
       "Bash(gh issue list:*)",
       "Bash(gh issue view:*)",
+      "Bash(gh issue create:*)",
       "Bash(gh project list:*)",
       "Bash(gh project item-list:*)",
       "Bash(gh project field-list:*)"
