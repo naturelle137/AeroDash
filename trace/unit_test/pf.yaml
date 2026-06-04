@@ -289,3 +289,16 @@ PF Core — POH Distance (Trilinear / Pivot / Verified Gate) (Unit)
       - IMP-PF-CORE-005
     files:
       - frontend/src/core/logic/performance.poh-distance.spec.ts
+
+PF Core — Conservative Extrapolation Control (Unit)
+  UT-PF-CORE-042
+    title: Extrapolation control — 10% cap, +20% penalty, Minimum Distance floor, acknowledgment state, immutable constants
+    files:
+      - frontend/src/core/logic/performance.extrapolation.spec.ts
+    impl:
+      - IMP-PF-CORE-006
+      - IMP-PF-CORE-007
+      - IMP-PF-CORE-008
+      - IMP-PF-CORE-009
+      - IMP-PF-CORE-010
+      - IMP-PF-CORE-011
