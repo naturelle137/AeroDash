@@ -127,6 +127,16 @@ Architecture Design
     req:
       - REQ-SYS-018
 
+  DES-ARCH-019
+    title: Performance Safety-Factor Pipeline Contract
+    file: docs/architecture/performance-safety-factor-pipeline.md
+    req:
+      - REQ-PF-004
+      - REQ-PF-006
+      - REQ-PF-007
+      - REQ-PF-015
+      - REQ-PF-016
+
 ARCH (auto)
   DES-ARCH-010
     title: TODO: describe this artifact

@@ -289,3 +289,25 @@ PF Core — POH Distance (Trilinear / Pivot / Verified Gate) (Unit)
       - IMP-PF-CORE-005
     files:
       - frontend/src/core/logic/performance.poh-distance.spec.ts
+
+PF Core — Safety-Factor Pipeline (Unit)
+  UT-PF-CORE-042
+    title: Safety-factor pipeline — correction isolation, OSF presets, margin, CRIT/WARN emission
+    files:
+      - frontend/src/core/logic/performance.safety-factor.spec.ts
+    impl:
+      - IMP-PF-CORE-006
+      - IMP-PF-CORE-007
+      - IMP-PF-CORE-008
+      - IMP-PF-CORE-009
+      - IMP-PF-CORE-010
+      - IMP-PF-CORE-011
+      - IMP-PF-CORE-012
+
+  UT-PF-CORE-043
+    title: Safety-factor Zod boundary — non-finite/out-of-domain rejection to INVALID_INPUT
+    files:
+      - frontend/src/core/adapters/performance.safety-factor.adapter.spec.ts
+    impl:
+      - IMP-PF-CORE-013
+      - IMP-PF-CORE-014
