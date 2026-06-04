@@ -67,6 +67,9 @@ vi.mock('../../components/LoadPointsSection.vue', () => ({ default: h.makeStub([
 vi.mock('../../components/BatteryPackSection.vue', () => ({
   default: { props: ['modelValue'], template: '<div />' },
 }))
+vi.mock('../../components/WindLimitsSection.vue', () => ({
+  default: { props: ['modelValue'], template: '<div />' },
+}))
 
 import AircraftProfileWizardView from '../AircraftProfileWizardView.vue'
 import { useFleetStore } from '../../stores/fleet.store'
@@ -142,8 +145,8 @@ describe('AircraftProfileWizardView — post-save chooser & exit modal', () => {
   })
 
   async function advanceToReview(wrapper: Awaited<ReturnType<typeof mountWizard>>['wrapper']) {
-    // identity → envelope → weighing → load-stations → review
-    for (let i = 0; i < 4; i++) {
+    // identity → envelope → weighing → load-stations → wind-limits → review
+    for (let i = 0; i < 5; i++) {
       const cont = wrapper.findAll('button').find((b) => b.text().includes('Continue'))
       expect(cont, `Continue button missing at step ${i}`).toBeDefined()
       await cont!.trigger('click')

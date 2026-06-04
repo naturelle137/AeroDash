@@ -97,6 +97,16 @@
         <BatteryPackSection v-model="batteryPack" section-id="wizard-battery" />
       </section>
 
+      <!-- Step: Wind Limits -->
+      <section v-else-if="stepId === 'wind-limits'" class="wizard-step">
+        <h2>Step {{ stepNumber }}: Wind Limits</h2>
+        <p class="step-intro">
+          Enter the wind limits from your POH/AFM for manual crosswind checking during flight
+          preparation. This step is optional — you can add or edit limits later.
+        </p>
+        <WindLimitsSection v-model="windLimits" section-id="wizard-windlimits" />
+      </section>
+
       <!-- Step: Review & Save -->
       <section v-else-if="stepId === 'review'" class="wizard-step">
         <h2>Step {{ stepNumber }}: Review &amp; Save</h2>
@@ -140,6 +150,14 @@
             <div v-for="(lp, i) in loadPoints" :key="i" class="review-item">
               {{ lp.name }} — arm {{ lp.arm ?? 'table' }}, unit {{ lp.unit }}
               <span v-if="lp.fuelTank"> (fuel tank)</span>
+            </div>
+          </div>
+
+          <div class="review-section">
+            <h3>Wind Limits</h3>
+            <div v-if="windLimits.length === 0" class="review-empty">None entered.</div>
+            <div v-for="(wl, i) in windLimits" :key="i" class="review-item">
+              {{ wl.component }} — {{ wl.value }} kt ({{ wl.classification }})
             </div>
           </div>
 
@@ -237,6 +255,7 @@ import type {
   AircraftProfileCertificationCategory,
   AircraftProfileLoadPoint,
   AircraftProfileWeighingReport,
+  AircraftProfileWindLimit,
 } from '@/core/adapters/aircraft.schema'
 import { sortEnvelopeCcw } from '@/core/logic/envelope-sort'
 import { useFleetStore } from '../stores/fleet.store'
@@ -247,6 +266,7 @@ import EnvelopeSection from '../components/EnvelopeSection.vue'
 import WeighingReportsSection from '../components/WeighingReportsSection.vue'
 import LoadPointsSection from '../components/LoadPointsSection.vue'
 import BatteryPackSection from '../components/BatteryPackSection.vue'
+import WindLimitsSection from '../components/WindLimitsSection.vue'
 import ActionChoiceDialog, { type DialogAction } from '@/shared/components/ActionChoiceDialog.vue'
 
 const router = useRouter()
@@ -267,6 +287,7 @@ const BASE_STEPS = [
   { id: 'envelope', label: 'Envelope' },
   { id: 'weighing', label: 'Weighing' },
   { id: 'load-stations', label: 'Load Stations' },
+  { id: 'wind-limits', label: 'Wind Limits' },
   { id: 'review', label: 'Review' },
 ] as const
 
@@ -335,6 +356,8 @@ const weighingReports = ref<AircraftProfileWeighingReport[]>([
 ])
 
 const loadPoints = ref<AircraftProfileLoadPoint[]>([])
+
+const windLimits = ref<AircraftProfileWindLimit[]>([])
 
 // Distinct certification category names (Normal / Utility / Aerobatic) feeding
 // the per-station category-restriction UI. Deduplicated in case the pilot adds
@@ -423,6 +446,8 @@ function isStepValid(id: StepId): boolean {
       return weighingValid.value
     case 'load-stations':
       return loadStationsValid.value
+    case 'wind-limits':
+      return true
     case 'battery-pack':
       return batteryPackValid.value
     case 'review':
@@ -649,6 +674,7 @@ async function persistProfile(): Promise<AircraftProfile | null> {
       certificationCategories: sortedCategories,
       weighingReports: weighingReports.value,
       loadPoints: normalizedLoadPoints,
+      windLimits: windLimits.value,
       passengerProfiles: [],
       powertrain: identityFields.value.powertrain,
       ...(isElectric.value ? { batteryPack: { ...batteryPack.value } } : {}),

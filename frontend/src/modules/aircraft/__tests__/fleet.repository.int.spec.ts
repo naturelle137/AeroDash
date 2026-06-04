@@ -112,6 +112,28 @@ describe('fleetRepository — CRUD lifecycle', () => {
     expect(afterDelete).toBeUndefined()
   })
 
+  // @IT-AC-STORE-111@ (FROM: @IMP-AD-CORE-009@, @IMP-AC-VIEW-035@)
+  it('round-trips stored wind limits (Demonstrated + Limit) through persistence', async () => {
+    const profile = buildProfile({
+      windLimits: [
+        { component: 'MaxCrosswind', value: 15, classification: 'Demonstrated' },
+        { component: 'MaxCrosswind', value: 20, classification: 'Limit' },
+        { component: 'MaxGust', value: 35, classification: 'Limit' },
+      ],
+    })
+
+    await create(profile)
+    const found = await findById(profile.id)
+
+    expect(found).toBeDefined()
+    expect(found!.windLimits).toEqual(profile.windLimits)
+
+    const demonstratedXwind = found!.windLimits!.find(
+      (w) => w.component === 'MaxCrosswind' && w.classification === 'Demonstrated',
+    )
+    expect(demonstratedXwind?.value).toBe(15)
+  })
+
   // @IT-AC-STORE-002@ (FROM: @IMP-AC-STORE-001@)
   it('findAll returns all profiles', async () => {
     const p1 = buildProfile({ id: '00000000-0000-4000-a000-000000000001', registration: 'D-EBPN' })

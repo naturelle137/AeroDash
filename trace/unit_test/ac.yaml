@@ -2118,3 +2118,26 @@ AC (auto)
       - frontend/src/modules/aircraft/__tests__/FleetList.spec.ts
     impl:
       - IMP-AC-VIEW-034
+
+  UT-AC-VIEW-187
+    title: Aircraft editor wind-limits wiring — section render + added limit persists in save payload
+    files:
+      - frontend/src/modules/aircraft/__tests__/AircraftProfileEditorView.spec.ts
+    impl:
+      - IMP-AC-VIEW-039
+
+  UT-AC-VIEW-185
+    title: Wind-limits editor section — render, add/remove, patch, duplicate-component warning
+    files:
+      - frontend/src/modules/aircraft/components/__tests__/WindLimitsSection.spec.ts
+    impl:
+      - IMP-AC-VIEW-035
+      - IMP-AC-VIEW-036
+
+  UT-AC-VIEW-186
+    title: Wind-limits read-only summary — empty hint, crosswind-first ordering, classification labels
+    files:
+      - frontend/src/modules/aircraft/components/__tests__/WindLimitsSummary.spec.ts
+    impl:
+      - IMP-AC-VIEW-037
+      - IMP-AC-VIEW-038

@@ -22,6 +22,7 @@ import InputGroupCard from '@/modules/mass-balance/components/InputGroupCard.vue
 import MassStationInput from '@/modules/mass-balance/components/MassStationInput.vue'
 import CGEnvelopeChart from '@/modules/mass-balance/components/CGEnvelopeChart.vue'
 import ResultSummary from '@/modules/mass-balance/components/ResultSummary.vue'
+import WindLimitsSummary from '@/modules/aircraft/components/WindLimitsSummary.vue'
 import ConfirmDialog from '@/shared/components/ConfirmDialog.vue'
 import UndoToast from '@/shared/components/UndoToast.vue'
 
@@ -545,6 +546,12 @@ const aircraftLabel = computed(() => {
   return `${store.aircraft.registration} — ${store.aircraft.manufacturer} ${store.aircraft.model}`
 })
 
+// @IMP-MB-VIEW-014@ (FROM: @REQ-AD-017@)
+// Wind limits ride on the full active profile, not the reduced M&B
+// AircraftContext — the context deliberately omits them, so read straight from
+// the active-aircraft store, which is set in lockstep with the loaded profile.
+const activeWindLimits = computed(() => activeAircraftStore.activeProfile?.windLimits ?? [])
+
 // @IMP-MB-VIEW-010@ (FROM: @REQ-AD-020@)
 // Battery-electric airframes surface an "Energy & Endurance" placeholder
 // rather than the combustion "Fuel & Endurance" card. The page-header subtitle
@@ -996,6 +1003,13 @@ function onCancelSelection(): void {
         </div>
       </div>
 
+      <!-- @IMP-MB-VIEW-015@ (FROM: @REQ-AD-017@) -->
+      <WindLimitsSummary
+        v-if="store.aircraft"
+        class="aircraft-wind-limits"
+        :wind-limits="activeWindLimits"
+      />
+
       <!-- Mass-balance profile-loading spinner (distinct from fleet hydration) -->
       <div v-if="viewModel.isLoading" class="loading" aria-busy="true" aria-live="polite">
         <span class="loading-spinner" aria-hidden="true" />
@@ -1441,6 +1455,10 @@ function onCancelSelection(): void {
 
 .prep-card--aircraft {
   border-left: 3px solid var(--color-primary);
+}
+
+.aircraft-wind-limits {
+  margin-top: var(--space-4);
 }
 
 .prep-card--mb:not(.prep-card--locked) {

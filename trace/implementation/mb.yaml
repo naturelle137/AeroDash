@@ -463,3 +463,17 @@ MB (auto)
     req:
       - REQ-AC-001
       - REQ-AC-005
+
+  IMP-MB-VIEW-014
+    title: Prep-dashboard active wind-limits accessor — reads windLimits off the active profile
+    files:
+      - frontend/src/modules/mass-balance/views/MassBalanceView.vue
+    req:
+      - REQ-AD-017
+
+  IMP-MB-VIEW-015
+    title: Prep-dashboard wind-limits surfacing — read-only summary in the aircraft card
+    files:
+      - frontend/src/modules/mass-balance/views/MassBalanceView.vue
+    req:
+      - REQ-AD-017
