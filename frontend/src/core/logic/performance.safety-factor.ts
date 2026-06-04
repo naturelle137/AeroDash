@@ -53,8 +53,11 @@ export function resolveOsf(
     case 'short-field':
       return operation === 'landing' ? SHORT_FIELD_LANDING_FACTOR : EASA_TAKEOFF_FACTOR
     case 'easa-standard':
-    default:
       return regulatoryBaseline(operation)
+    default: {
+      const _: never = osf.preset
+      return regulatoryBaseline(operation)
+    }
   }
 }
 

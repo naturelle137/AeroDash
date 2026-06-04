@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import type { SafetyFactorInput, SafetyFactorResult } from '../domain/performance.math-types'
+import type { SafetyFactorResult } from '../domain/performance.math-types'
 import {
   computeSafetyFactorPipeline,
   invalidInputViolation,
@@ -17,6 +17,8 @@ const MAX_DISTANCE_M = 100_000
 const MAX_FACTOR = 100
 
 const distance = () => z.number().finite().min(0).max(MAX_DISTANCE_M)
+/** Base POH distances must be strictly positive — a zero POH distance has no physical meaning. */
+const baseDistance = () => z.number().finite().gt(0).max(MAX_DISTANCE_M)
 /** Correction multipliers must be strictly positive — a 0/negative factor is optimistic-unsafe. */
 const factor = () => z.number().finite().gt(0).max(MAX_FACTOR)
 
@@ -26,8 +28,8 @@ const OsfInputSchema = z
     customMultiplier: z.number().finite().min(OSF_MIN).max(OSF_MAX).optional(),
     pohMandatedFactor: z
       .object({
-        takeoff: factor().optional(),
-        landing: factor().optional(),
+        takeoff: z.number().finite().min(OSF_MIN).max(MAX_FACTOR).optional(),
+        landing: z.number().finite().min(OSF_MIN).max(MAX_FACTOR).optional(),
       })
       .optional(),
   })
@@ -39,10 +41,10 @@ const OsfInputSchema = z
 
 export const SafetyFactorInputSchema = z.object({
   base: z.object({
-    takeoffRoll: distance(),
-    takeoffDistance50ft: distance(),
-    landingRoll: distance(),
-    landingDistance50ft: distance(),
+    takeoffRoll: baseDistance(),
+    takeoffDistance50ft: baseDistance(),
+    landingRoll: baseDistance(),
+    landingDistance50ft: baseDistance(),
   }),
   factors: z.object({
     friction: factor(),
@@ -68,5 +70,5 @@ export function applySafetyFactors(input: unknown): SafetyFactorResult {
   if (!parsed.success) {
     return { status: 'failure', violations: [invalidInputViolation()] }
   }
-  return computeSafetyFactorPipeline(parsed.data as SafetyFactorInput)
+  return computeSafetyFactorPipeline(parsed.data)
 }

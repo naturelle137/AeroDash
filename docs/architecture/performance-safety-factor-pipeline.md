@@ -30,17 +30,17 @@ bilinear engine).
 
 | Field | Type | Constraint |
 | :---- | :--- | :--------- |
-| `base.takeoffRoll` (TOR₀) | `number` | finite, ≥ 0 (m) |
-| `base.takeoffDistance50ft` (TOD₀) | `number` | finite, ≥ 0 (m) |
-| `base.landingRoll` (LR₀) | `number` | finite, ≥ 0 (m) |
-| `base.landingDistance50ft` (LD₀) | `number` | finite, ≥ 0 (m) |
+| `base.takeoffRoll` (TOR₀) | `number` | finite, > 0 (m) |
+| `base.takeoffDistance50ft` (TOD₀) | `number` | finite, > 0 (m) |
+| `base.landingRoll` (LR₀) | `number` | finite, > 0 (m) |
+| `base.landingDistance50ft` (LD₀) | `number` | finite, > 0 (m) |
 | `factors.friction` (f) | `number` | finite, > 0 — ground roll only |
 | `factors.slope` (s) | `number` | finite, > 0 — ground roll only |
 | `factors.densityAltitude` (d) | `number` | finite, > 0 — full distance |
 | `factors.wind` (w) | `number` | finite, > 0 — full distance |
 | `osf.preset` | `'easa-standard' \| 'poh-afm' \| 'short-field' \| 'custom'` | — |
 | `osf.customMultiplier` | `number?` | required when `preset === 'custom'`; `1.00 ≤ m ≤ 3.00` (REQ-PF-006) |
-| `osf.pohMandatedFactor` | `{ takeoff?: number; landing?: number }?` | finite, > 0 when present |
+| `osf.pohMandatedFactor` | `{ takeoff?: number; landing?: number }?` | finite, ≥ 1.0 when present (same floor as `customMultiplier`) |
 | `available.takeoff` (Aₜₒ) | `number` | finite, ≥ 0 (m) — TORA |
 | `available.landing` (A_ld) | `number` | finite, ≥ 0 (m) — LDA |
 
@@ -178,16 +178,17 @@ distance to divide by). A negative margin mirrors `insufficient = true`.
 ## 8. Validation & failure surface
 
 External inputs are validated with Zod **before** any math runs
-(`performance.safety-factor.schema.ts`). A parse failure returns a typed
+(`performance.safety-factor.adapter.ts`). A parse failure returns a typed
 `failure` carrying an `INVALID_INPUT` violation (notification id
 `ERR-SYS-001`) — the function never throws on a call site.
 
 | Rejected | Reason |
 | :------- | :----- |
 | any non-finite `base` / `factors` / `available` value | not a usable number |
+| `base` distance ≤ 0 | zero POH distance has no physical meaning |
 | `factor ≤ 0` | a zero/negative correction is optimistic-unsafe |
 | `custom` preset without `customMultiplier`, or outside `[1.00, 3.00]` | REQ-PF-006 bound |
-| `pohMandatedFactor` ≤ 0 when present | invalid POH factor |
+| `pohMandatedFactor` < 1.0 when present | sub-unity POH factor would produce a false Go |
 
 ---
 

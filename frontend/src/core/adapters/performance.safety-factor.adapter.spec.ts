@@ -46,6 +46,12 @@ describe('applySafetyFactors — valid input', () => {
     ).toBe('success')
   })
 
+  it('accepts a poh-afm POH-mandated factor at the inclusive floor (1.0)', () => {
+    expect(
+      applySafetyFactors({ ...VALID, osf: { preset: 'poh-afm', pohMandatedFactor: { takeoff: 1.0, landing: 1.0 } } }).status,
+    ).toBe('success')
+  })
+
   it('accepts every named OSF preset through the boundary', () => {
     for (const preset of ['easa-standard', 'short-field', 'poh-afm'] as const) {
       expect(applySafetyFactors({ ...VALID, osf: { preset } }).status).toBe('success')
@@ -90,6 +96,16 @@ describe('applySafetyFactors — rejects out-of-domain values', () => {
 
   it('rejects a non-positive POH-mandated factor', () => {
     expectInvalid({ ...VALID, osf: { preset: 'poh-afm', pohMandatedFactor: { takeoff: 0 } } })
+  })
+
+  it('rejects a sub-unity POH-mandated factor (false-Go risk)', () => {
+    expectInvalid({ ...VALID, osf: { preset: 'poh-afm', pohMandatedFactor: { takeoff: 0.5 } } })
+    expectInvalid({ ...VALID, osf: { preset: 'poh-afm', pohMandatedFactor: { landing: 0.9 } } })
+  })
+
+  it('rejects a zero base distance', () => {
+    expectInvalid({ ...VALID, base: { ...VALID.base, takeoffRoll: 0 } })
+    expectInvalid({ ...VALID, base: { ...VALID.base, landingDistance50ft: 0 } })
   })
 })
 
