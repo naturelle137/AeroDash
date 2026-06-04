@@ -302,3 +302,25 @@ PF Core — Conservative Extrapolation Control (Unit)
       - IMP-PF-CORE-009
       - IMP-PF-CORE-010
       - IMP-PF-CORE-011
+
+PF Core — Safety-Factor Pipeline (Unit)
+  UT-PF-CORE-043
+    title: Safety-factor pipeline — correction isolation, OSF presets, margin, CRIT/WARN emission
+    files:
+      - frontend/src/core/logic/performance.safety-factor.spec.ts
+    impl:
+      - IMP-PF-CORE-012
+      - IMP-PF-CORE-013
+      - IMP-PF-CORE-014
+      - IMP-PF-CORE-015
+      - IMP-PF-CORE-016
+      - IMP-PF-CORE-017
+      - IMP-PF-CORE-018
+
+  UT-PF-CORE-044
+    title: Safety-factor Zod boundary — non-finite/out-of-domain rejection to INVALID_INPUT
+    files:
+      - frontend/src/core/adapters/performance.safety-factor.adapter.spec.ts
+    impl:
+      - IMP-PF-CORE-019
+      - IMP-PF-CORE-020

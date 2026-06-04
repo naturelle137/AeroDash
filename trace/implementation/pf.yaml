@@ -90,3 +90,85 @@ PF Core — Conservative Extrapolation Control
       - REQ-PF-010
       - REQ-PF-011
       - REQ-PF-012
+
+PF Core — Safety-Factor Pipeline
+  IMP-PF-CORE-012
+    title: Performance violation + operational-distance result model
+    files:
+      - frontend/src/core/domain/performance.math-types.ts
+    req:
+      - REQ-PF-007
+      - REQ-PF-015
+      - REQ-PF-016
+    des:
+      - DES-ARCH-019
+
+  IMP-PF-CORE-013
+    title: resolveOsf — OSF preset to applied multiplier
+    files:
+      - frontend/src/core/logic/performance.safety-factor.ts
+    req:
+      - REQ-PF-006
+
+  IMP-PF-CORE-014
+    title: osfThreshold / isOsfBelowMinimum — WARN-PF-002 low-factor detection
+    files:
+      - frontend/src/core/logic/performance.safety-factor.ts
+    req:
+      - REQ-PF-016
+
+  IMP-PF-CORE-015
+    title: Correction isolation — friction/slope on ground roll, DA/wind on full distance
+    files:
+      - frontend/src/core/logic/performance.safety-factor.ts
+    req:
+      - REQ-PF-004
+    des:
+      - DES-ARCH-019
+
+  IMP-PF-CORE-016
+    title: safetyMargin — absolute distance and percentage
+    files:
+      - frontend/src/core/logic/performance.safety-factor.ts
+    req:
+      - REQ-PF-007
+
+  IMP-PF-CORE-017
+    title: Performance violation builders — CRIT-PF-002 / WARN-PF-002 / ERR-SYS-001
+    files:
+      - frontend/src/core/logic/performance.safety-factor.ts
+    req:
+      - REQ-PF-015
+      - REQ-PF-016
+
+  IMP-PF-CORE-018
+    title: computeSafetyFactorPipeline — operational required distances + Go/No-Go gate
+    files:
+      - frontend/src/core/logic/performance.safety-factor.ts
+    req:
+      - REQ-PF-004
+      - REQ-PF-006
+      - REQ-PF-007
+      - REQ-PF-015
+      - REQ-PF-016
+
+  IMP-PF-CORE-019
+    title: SafetyFactorInputSchema — Zod boundary validation for the pipeline
+    files:
+      - frontend/src/core/adapters/performance.safety-factor.adapter.ts
+    req:
+      - REQ-SYS-011
+      - REQ-SYS-012
+      - REQ-PF-006
+
+  IMP-PF-CORE-020
+    title: applySafetyFactors — validated entry point, INVALID_INPUT on parse failure
+    files:
+      - frontend/src/core/adapters/performance.safety-factor.adapter.ts
+    req:
+      - REQ-PF-004
+      - REQ-PF-006
+      - REQ-PF-007
+      - REQ-PF-015
+      - REQ-PF-016
+      - REQ-SYS-011

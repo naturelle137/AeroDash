@@ -6,3 +6,12 @@ PF Core — POH Distance Facade (Integration)
       - IMP-AC-CORE-003
     files:
       - frontend/src/core/logic/__tests__/performance.poh-distance.int.spec.ts
+
+PF Core — Safety-Factor Pipeline (Integration)
+  IT-PF-CORE-002
+    title: computePohDistances → applySafetyFactors — POH distances to Go/No-Go advisory
+    files:
+      - frontend/src/core/logic/__tests__/performance.safety-factor.int.spec.ts
+    impl:
+      - IMP-PF-CORE-020
+      - IMP-PF-CORE-005
