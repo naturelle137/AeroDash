@@ -60,9 +60,8 @@
       </button>
     </div>
 
-    <span v-if="hasDuplicateComponent" class="field-error" role="alert">
-      Each wind component should appear at most once — remove the duplicate so the limit is
-      unambiguous.
+    <span v-if="hasDuplicatePair" class="field-error" role="alert">
+      The same component + classification combination appears more than once — remove the duplicate.
     </span>
 
     <button type="button" class="btn-add-row" @click="addRow">+ Add Wind Limit</button>
@@ -95,11 +94,12 @@ const emit = defineEmits<{
   (e: 'update:modelValue', value: AircraftProfileWindLimit[]): void
 }>()
 
-const hasDuplicateComponent = computed<boolean>(() => {
-  const seen = new Set<Component>()
+const hasDuplicatePair = computed<boolean>(() => {
+  const seen = new Set<string>()
   for (const wl of props.modelValue) {
-    if (seen.has(wl.component)) return true
-    seen.add(wl.component)
+    const key = `${wl.component}:${wl.classification}`
+    if (seen.has(key)) return true
+    seen.add(key)
   }
   return false
 })

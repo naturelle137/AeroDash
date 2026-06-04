@@ -37,14 +37,24 @@ describe('WindLimitsSection — rendering', () => {
     expect(wrapper.find('#test-classification-0').exists()).toBe(true)
   })
 
-  it('warns when the same component appears more than once', () => {
+  it('warns when the same (component, classification) pair appears more than once', () => {
+    const wrapper = mount(WindLimitsSection, {
+      props: {
+        modelValue: [makeLimit(), makeLimit()],
+        sectionId: 'test',
+      },
+    })
+    expect(wrapper.find('.field-error').exists()).toBe(true)
+  })
+
+  it('does not warn for same component with different classifications (valid POH data)', () => {
     const wrapper = mount(WindLimitsSection, {
       props: {
         modelValue: [makeLimit(), makeLimit({ classification: 'Limit' })],
         sectionId: 'test',
       },
     })
-    expect(wrapper.find('.field-error').exists()).toBe(true)
+    expect(wrapper.find('.field-error').exists()).toBe(false)
   })
 
   it('does not warn for distinct components', () => {
