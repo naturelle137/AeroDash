@@ -39,7 +39,7 @@ export function regulatoryBaseline(operation: PerformanceOperation): number {
   return operation === 'takeoff' ? EASA_TAKEOFF_FACTOR : EASA_LANDING_FACTOR
 }
 
-// @IMP-PF-CORE-007@ (FROM: @REQ-PF-006@)
+// @IMP-PF-CORE-013@ (FROM: @REQ-PF-006@)
 /** Resolve the selected OSF preset to the concrete multiplier for the operation. */
 export function resolveOsf(
   osf: OperationalSafetyFactorInput,
@@ -61,7 +61,7 @@ export function resolveOsf(
   }
 }
 
-// @IMP-PF-CORE-008@ (FROM: @REQ-PF-016@)
+// @IMP-PF-CORE-014@ (FROM: @REQ-PF-016@)
 /**
  * WARN-PF-002 threshold: the greater of the POH-mandated factor and the
  * regulatory baseline for the operation.
@@ -83,7 +83,7 @@ export function isOsfBelowMinimum(
   return resolveOsf(osf, operation) < osfThreshold(osf, operation)
 }
 
-// @IMP-PF-CORE-009@ (FROM: @REQ-PF-004@, @DES-ARCH-019@)
+// @IMP-PF-CORE-015@ (FROM: @REQ-PF-004@, @DES-ARCH-019@)
 /** Combined ground-roll correction (friction × slope) — REQ-PF-004. */
 export function groundRollFactor(factors: PerformanceCorrectionFactors): number {
   return factors.friction * factors.slope
@@ -120,7 +120,7 @@ export function correctedFullDistance(
   return (correctedGroundRollPortion + airborne) * environmentalFactor(factors) * appliedOsf
 }
 
-// @IMP-PF-CORE-010@ (FROM: @REQ-PF-007@)
+// @IMP-PF-CORE-016@ (FROM: @REQ-PF-007@)
 /** Safety margin: absolute (m) and as a percentage of the required distance. */
 export function safetyMargin(
   available: number,
@@ -131,7 +131,7 @@ export function safetyMargin(
   return { absolute, percent }
 }
 
-// @IMP-PF-CORE-011@ (FROM: @REQ-PF-015@, @REQ-PF-016@)
+// @IMP-PF-CORE-017@ (FROM: @REQ-PF-015@, @REQ-PF-016@)
 /** RUNWAY_INSUFFICIENT violation → CRIT-PF-002 (blocking). */
 export function runwayInsufficientViolation(operation: PerformanceOperation): PerformanceViolation {
   return {
@@ -188,7 +188,7 @@ function computeOperation(
   }
 }
 
-// @IMP-PF-CORE-012@ (FROM: @REQ-PF-004@, @REQ-PF-006@, @REQ-PF-007@, @REQ-PF-015@, @REQ-PF-016@)
+// @IMP-PF-CORE-018@ (FROM: @REQ-PF-004@, @REQ-PF-006@, @REQ-PF-007@, @REQ-PF-015@, @REQ-PF-016@)
 /**
  * Apply the full safety-factor pipeline to validated input. Pure and
  * deterministic — no I/O, no exceptions for valid call sites. Emits CRIT-PF-002

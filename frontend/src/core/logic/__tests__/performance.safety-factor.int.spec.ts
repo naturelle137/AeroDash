@@ -8,7 +8,7 @@
  * @see ../performance.poh-distance.ts
  */
 
-// @IT-PF-CORE-002@ (FROM: @IMP-PF-CORE-014@, @IMP-PF-CORE-005@)
+// @IT-PF-CORE-002@ (FROM: @IMP-PF-CORE-020@, @IMP-PF-CORE-005@)
 
 import { describe, it, expect } from 'vitest'
 import { AircraftProfileSchema, type AircraftProfile } from '../../adapters/aircraft.schema'

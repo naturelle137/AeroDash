@@ -7,7 +7,7 @@ import {
   OSF_MIN,
 } from '../logic/performance.safety-factor'
 
-// @IMP-PF-CORE-013@ (FROM: @REQ-SYS-011@, @REQ-SYS-012@, @REQ-PF-006@)
+// @IMP-PF-CORE-019@ (FROM: @REQ-SYS-011@, @REQ-SYS-012@, @REQ-PF-006@)
 // Every numeric field is `.finite()`: bare `z.number()` accepts ±Infinity,
 // which would propagate (e.g. `fullRequired = Infinity`) and silently corrupt
 // the Go/No-Go advisory. `.finite()` rejects ±Infinity and NaN; the explicit
@@ -59,7 +59,7 @@ export const SafetyFactorInputSchema = z.object({
   }),
 })
 
-// @IMP-PF-CORE-014@ (FROM: @REQ-PF-004@, @REQ-PF-006@, @REQ-PF-007@, @REQ-PF-015@, @REQ-PF-016@, @REQ-SYS-011@)
+// @IMP-PF-CORE-020@ (FROM: @REQ-PF-004@, @REQ-PF-006@, @REQ-PF-007@, @REQ-PF-015@, @REQ-PF-016@, @REQ-SYS-011@)
 /**
  * Validate raw input with Zod, then run the safety-factor pipeline. On a
  * validation failure it returns a typed `failure` carrying a single

@@ -6,7 +6,7 @@
  * @see performance.safety-factor.adapter.ts
  */
 
-// @UT-PF-CORE-043@ (FROM: @IMP-PF-CORE-013@, @IMP-PF-CORE-014@)
+// @UT-PF-CORE-044@ (FROM: @IMP-PF-CORE-019@, @IMP-PF-CORE-020@)
 
 import { describe, it, expect } from 'vitest'
 import { applySafetyFactors } from './performance.safety-factor.adapter'

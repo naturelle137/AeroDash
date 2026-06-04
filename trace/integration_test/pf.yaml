@@ -13,5 +13,5 @@ PF Core — Safety-Factor Pipeline (Integration)
     files:
       - frontend/src/core/logic/__tests__/performance.safety-factor.int.spec.ts
     impl:
-      - IMP-PF-CORE-014
+      - IMP-PF-CORE-020
       - IMP-PF-CORE-005

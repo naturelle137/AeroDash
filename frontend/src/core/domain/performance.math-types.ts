@@ -69,7 +69,7 @@ export type PerformanceViolationType =
   | 'OSF_BELOW_MINIMUM'
   | 'INVALID_INPUT'
 
-// @IMP-PF-CORE-006@ (FROM: @REQ-PF-007@, @REQ-PF-015@, @REQ-PF-016@, @DES-ARCH-019@)
+// @IMP-PF-CORE-012@ (FROM: @REQ-PF-007@, @REQ-PF-015@, @REQ-PF-016@, @DES-ARCH-019@)
 /**
  * Raw safety violation emitted by the math core, kept independent of the
  * notification bus (P2 maps `notificationId` to the centralised contract).

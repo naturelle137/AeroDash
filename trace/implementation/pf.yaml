@@ -42,8 +42,57 @@ PF Core — POH Distance (3-D Trilinear) Facade
     files:
       - frontend/src/core/logic/performance.poh-distance.ts
 
-PF Core — Safety-Factor Pipeline
+PF Core — Conservative Extrapolation Control
   IMP-PF-CORE-006
+    title: Immutable extrapolation cap (10%) and penalty (20%) constants
+    files:
+      - frontend/src/core/logic/performance.extrapolation.ts
+    req:
+      - REQ-PF-010
+
+  IMP-PF-CORE-007
+    title: classifyAxisExcursion — per-axis envelope excursion + 10% cap classification
+    files:
+      - frontend/src/core/logic/performance.extrapolation.ts
+    req:
+      - REQ-PF-010
+      - REQ-PF-011
+
+  IMP-PF-CORE-008
+    title: assessExtrapolation — combined extrapolation state + acknowledgment gate
+    files:
+      - frontend/src/core/logic/performance.extrapolation.ts
+    req:
+      - REQ-PF-010
+      - REQ-PF-011
+      - REQ-PF-012
+
+  IMP-PF-CORE-009
+    title: applyExtrapolationPenalty — +20% penalty with Minimum Distance floor
+    files:
+      - frontend/src/core/logic/performance.extrapolation.ts
+    req:
+      - REQ-PF-010
+      - REQ-PF-011
+
+  IMP-PF-CORE-010
+    title: cubeEnvelopeRanges — derive axis ranges from a performance cube
+    files:
+      - frontend/src/core/logic/performance.extrapolation.ts
+    req:
+      - REQ-PF-010
+
+  IMP-PF-CORE-011
+    title: resolveExtrapolatedDistance — fail-safe extrapolation facade (block/penalise/floor)
+    files:
+      - frontend/src/core/logic/performance.extrapolation.ts
+    req:
+      - REQ-PF-010
+      - REQ-PF-011
+      - REQ-PF-012
+
+PF Core — Safety-Factor Pipeline
+  IMP-PF-CORE-012
     title: Performance violation + operational-distance result model
     files:
       - frontend/src/core/domain/performance.math-types.ts
@@ -54,21 +103,21 @@ PF Core — Safety-Factor Pipeline
     des:
       - DES-ARCH-019
 
-  IMP-PF-CORE-007
+  IMP-PF-CORE-013
     title: resolveOsf — OSF preset to applied multiplier
     files:
       - frontend/src/core/logic/performance.safety-factor.ts
     req:
       - REQ-PF-006
 
-  IMP-PF-CORE-008
+  IMP-PF-CORE-014
     title: osfThreshold / isOsfBelowMinimum — WARN-PF-002 low-factor detection
     files:
       - frontend/src/core/logic/performance.safety-factor.ts
     req:
       - REQ-PF-016
 
-  IMP-PF-CORE-009
+  IMP-PF-CORE-015
     title: Correction isolation — friction/slope on ground roll, DA/wind on full distance
     files:
       - frontend/src/core/logic/performance.safety-factor.ts
@@ -77,14 +126,14 @@ PF Core — Safety-Factor Pipeline
     des:
       - DES-ARCH-019
 
-  IMP-PF-CORE-010
+  IMP-PF-CORE-016
     title: safetyMargin — absolute distance and percentage
     files:
       - frontend/src/core/logic/performance.safety-factor.ts
     req:
       - REQ-PF-007
 
-  IMP-PF-CORE-011
+  IMP-PF-CORE-017
     title: Performance violation builders — CRIT-PF-002 / WARN-PF-002 / ERR-SYS-001
     files:
       - frontend/src/core/logic/performance.safety-factor.ts
@@ -92,7 +141,7 @@ PF Core — Safety-Factor Pipeline
       - REQ-PF-015
       - REQ-PF-016
 
-  IMP-PF-CORE-012
+  IMP-PF-CORE-018
     title: computeSafetyFactorPipeline — operational required distances + Go/No-Go gate
     files:
       - frontend/src/core/logic/performance.safety-factor.ts
@@ -103,7 +152,7 @@ PF Core — Safety-Factor Pipeline
       - REQ-PF-015
       - REQ-PF-016
 
-  IMP-PF-CORE-013
+  IMP-PF-CORE-019
     title: SafetyFactorInputSchema — Zod boundary validation for the pipeline
     files:
       - frontend/src/core/adapters/performance.safety-factor.adapter.ts
@@ -112,7 +161,7 @@ PF Core — Safety-Factor Pipeline
       - REQ-SYS-012
       - REQ-PF-006
 
-  IMP-PF-CORE-014
+  IMP-PF-CORE-020
     title: applySafetyFactors — validated entry point, INVALID_INPUT on parse failure
     files:
       - frontend/src/core/adapters/performance.safety-factor.adapter.ts

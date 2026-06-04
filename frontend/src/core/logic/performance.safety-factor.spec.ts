@@ -7,7 +7,7 @@
  * @see docs/architecture/performance-safety-factor-pipeline.md
  */
 
-// @UT-PF-CORE-042@ (FROM: @IMP-PF-CORE-006@, @IMP-PF-CORE-007@, @IMP-PF-CORE-008@, @IMP-PF-CORE-009@, @IMP-PF-CORE-010@, @IMP-PF-CORE-011@, @IMP-PF-CORE-012@)
+// @UT-PF-CORE-043@ (FROM: @IMP-PF-CORE-012@, @IMP-PF-CORE-013@, @IMP-PF-CORE-014@, @IMP-PF-CORE-015@, @IMP-PF-CORE-016@, @IMP-PF-CORE-017@, @IMP-PF-CORE-018@)
 
 import { describe, it, expect } from 'vitest'
 import {
