@@ -290,3 +290,49 @@ describe('AircraftProfileEditorView — powertrain immutability & battery pack',
     expect(save.attributes('disabled')).toBeDefined()
   })
 })
+
+// @UT-AC-VIEW-187@ (FROM: @IMP-AC-VIEW-039@)
+describe('AircraftProfileEditorView — wind limits', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+  })
+
+  it('renders the Wind Limits section with a "Not set" summary for a profile without limits', async () => {
+    const draft = makeProfile({ status: 'draft' })
+    const { wrapper } = await mountEditor({ profile: draft })
+    expect(wrapper.text()).toContain('Wind Limits')
+    expect(wrapper.text()).toContain('Not set')
+  })
+
+  it('persists an added crosswind limit through the save payload', async () => {
+    const draft = makeProfile({ status: 'draft' })
+    const updateProfile = vi
+      .fn<(id: string, changes: Partial<AircraftProfile>) => Promise<AircraftProfile>>()
+      .mockResolvedValue(draft)
+    const { wrapper } = await mountEditor({
+      profile: draft,
+      fleetOverrides: { updateProfile },
+    })
+
+    // AccordionSection uses v-show, so the section controls are in the DOM even
+    // while the accordion is collapsed by default. `.btn-add-row` is shared with
+    // the Load Stations section, so disambiguate by the button label.
+    const addWindLimit = wrapper
+      .findAll('.btn-add-row')
+      .find((b) => b.text().includes('Add Wind Limit'))
+    expect(addWindLimit).toBeDefined()
+    await addWindLimit!.trigger('click')
+    await nextTick()
+    await wrapper.find(`input[id="${draft.id}-windlimits-value-0"]`).setValue('15')
+    await nextTick()
+
+    await wrapper.find('.btn-primary').trigger('click')
+    await flushPromises()
+
+    expect(updateProfile).toHaveBeenCalledTimes(1)
+    const changes = updateProfile.mock.calls[0]![1]
+    expect(changes.windLimits).toEqual([
+      { component: 'MaxCrosswind', value: 15, classification: 'Demonstrated' },
+    ])
+  })
+})

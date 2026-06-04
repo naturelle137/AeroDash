@@ -573,3 +573,49 @@ describe('MassBalanceView — fleet picker', () => {
     expect(select.element.value).toBe(draft.id)
   })
 })
+
+// @UT-MB-VIEW-035@ (FROM: @IMP-MB-VIEW-014@, @IMP-MB-VIEW-015@)
+describe('MassBalanceView — wind limits surfacing', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    vi.clearAllMocks()
+  })
+
+  async function mountWithActive(profile: AircraftProfile) {
+    seedFleet([profile])
+    useActiveAircraftStore().activeProfile = profile
+    const wrapper = mountView()
+    await wrapper.vm.$nextTick()
+    await new Promise((r) => setTimeout(r, 0))
+    await wrapper.vm.$nextTick()
+    return wrapper
+  }
+
+  it("surfaces the active aircraft's stored crosswind limit for manual checking", async () => {
+    const profile = buildFleetProfile({
+      windLimits: [{ component: 'MaxCrosswind', value: 15, classification: 'Demonstrated' }],
+    })
+    const wrapper = await mountWithActive(profile)
+
+    const summary = wrapper.find('[aria-label="Aircraft wind limits"]')
+    expect(summary.exists()).toBe(true)
+    expect(summary.text()).toContain('Crosswind')
+    expect(summary.text()).toContain('15 kt')
+    expect(summary.text()).toContain('Demonstrated')
+  })
+
+  it('shows the empty hint when the active aircraft has no stored wind limits', async () => {
+    const profile = buildFleetProfile({ windLimits: undefined })
+    const wrapper = await mountWithActive(profile)
+
+    const summary = wrapper.find('[aria-label="Aircraft wind limits"]')
+    expect(summary.exists()).toBe(true)
+    expect(summary.text()).toContain('No wind limits stored')
+  })
+
+  it('does not surface the wind-limits panel before an aircraft is loaded', () => {
+    seedFleet([])
+    const wrapper = mountView()
+    expect(wrapper.find('[aria-label="Aircraft wind limits"]').exists()).toBe(false)
+  })
+})

@@ -94,6 +94,19 @@
         />
       </AccordionSection>
 
+      <AccordionSection
+        title="Wind Limits"
+        :summary="windLimitsSummary"
+        :section-id="`${profileId}-windlimits`"
+        :model-value="openSections.windLimits"
+        @update:model-value="openSections.windLimits = $event"
+      >
+        <WindLimitsSection
+          v-model="windLimits"
+          :section-id="`${profileId}-windlimits`"
+        />
+      </AccordionSection>
+
       <p v-if="saveError" class="field-error" role="alert">{{ saveError }}</p>
     </div>
 
@@ -128,6 +141,7 @@ import type {
   AircraftProfileCertificationCategory,
   AircraftProfileLoadPoint,
   AircraftProfileWeighingReport,
+  AircraftProfileWindLimit,
 } from '@/core/adapters/aircraft.schema'
 import { sortEnvelopeCcw } from '@/core/logic/envelope-sort'
 import { evaluateVerificationFreshness } from '@/core/logic/profile-verification'
@@ -139,6 +153,7 @@ import EnvelopeSection from '../components/EnvelopeSection.vue'
 import LoadPointsSection from '../components/LoadPointsSection.vue'
 import WeighingReportsSection from '../components/WeighingReportsSection.vue'
 import BatteryPackSection from '../components/BatteryPackSection.vue'
+import WindLimitsSection from '../components/WindLimitsSection.vue'
 import ProfileStatusBadge from '../components/ProfileStatusBadge.vue'
 
 // @IMP-AC-VIEW-016@ (FROM: @REQ-AC-001@, @REQ-AC-005@, @REQ-AD-001@, @REQ-AD-002@, @REQ-AD-003@, @REQ-AD-004@, @REQ-AD-005@, @REQ-AD-007@, @REQ-AD-011@, @REQ-AD-012@, @REQ-AD-013@, @REQ-AD-014@, @REQ-AD-018@, @REQ-AD-019@)
@@ -163,6 +178,7 @@ const openSections = reactive({
   loadPoints: true,
   weighing: true,
   battery: true,
+  windLimits: false,
 })
 
 const identityFields = computed<IdentityFields>({
@@ -253,6 +269,17 @@ const batteryPack = computed<AircraftProfileBatteryPack>({
   },
 })
 
+// @IMP-AC-VIEW-039@ (FROM: @REQ-AD-017@)
+const windLimits = computed<AircraftProfileWindLimit[]>({
+  get(): AircraftProfileWindLimit[] {
+    return draft.value?.windLimits ?? []
+  },
+  set(next: AircraftProfileWindLimit[]): void {
+    if (!draft.value) return
+    draft.value = { ...draft.value, windLimits: next }
+  },
+})
+
 // Distinct certification category names — feed the per-station
 // category-restriction UI in LoadPointsSection.
 const availableCategoryNames = computed<AircraftProfileCertificationCategory['category'][]>(
@@ -286,6 +313,12 @@ const batteryPackSummary = computed(() => {
   const bp = draft.value?.batteryPack
   if (!bp || bp.usableEnergyKwh <= 0) return 'Not configured'
   return `${bp.usableEnergyKwh} kWh usable · ${bp.reserveFloorKwh} kWh reserve`
+})
+
+const windLimitsSummary = computed(() => {
+  const n = windLimits.value.length
+  if (n === 0) return 'Not set'
+  return n === 1 ? '1 limit' : `${n} limits`
 })
 
 const isDirty = computed(() => {
