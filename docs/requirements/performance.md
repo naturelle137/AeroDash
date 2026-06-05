@@ -94,7 +94,7 @@ This document defines the performance behavior using the **EARS** (Easy Approach
 **Rationale:** Prevents optimistic data outside the certified envelope.
 **Priority:** P1
 **Status:** Approved
-**Design Reference:** n/a
+**Design Reference:** [Conservative Extrapolation Control Contract](../architecture/performance-extrapolation-control.md)
 
 <!-- @REQ-PF-011@ (FROM: @H-013@) -->
 ### REQ-PF-011: Performance Benefit Capping
@@ -103,7 +103,7 @@ This document defines the performance behavior using the **EARS** (Easy Approach
 **Rationale:** Prevents dangerous underestimations in extreme cold or low density altitudes.
 **Priority:** P1
 **Status:** Approved
-**Design Reference:** n/a
+**Design Reference:** [Conservative Extrapolation Control Contract](../architecture/performance-extrapolation-control.md)
 
 <!-- @REQ-PF-012@ (FROM: @H-012@) -->
 ### REQ-PF-012: Extrapolation Acknowledgment
@@ -112,7 +112,7 @@ This document defines the performance behavior using the **EARS** (Easy Approach
 **Rationale:** Legal safety barrier.
 **Priority:** P1
 **Status:** Approved
-**Design Reference:** n/a
+**Design Reference:** [Conservative Extrapolation Control Contract](../architecture/performance-extrapolation-control.md)
 
 <!-- @REQ-PF-013@ -->
 ### REQ-PF-013: Pressure Altitude Formula

@@ -137,6 +137,14 @@ Architecture Design
       - REQ-PF-015
       - REQ-PF-016
 
+  DES-ARCH-020
+    title: Conservative Extrapolation Control Contract
+    file: docs/architecture/performance-extrapolation-control.md
+    req:
+      - REQ-PF-010
+      - REQ-PF-011
+      - REQ-PF-012
+
 ARCH (auto)
   DES-ARCH-010
     title: TODO: describe this artifact
