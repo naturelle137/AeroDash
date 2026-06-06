@@ -15,3 +15,12 @@ PF Core — Safety-Factor Pipeline (Integration)
     impl:
       - IMP-PF-CORE-020
       - IMP-PF-CORE-005
+
+PF Core — Conservative Extrapolation Control (Integration)
+  IT-PF-CORE-003
+    title: trilinear clamp → resolveExtrapolatedDistance — UJ-C-001 / UJ-E-003 journey numerics (block beyond cap / +20% penalty / Minimum-Distance floor / acknowledgment state)
+    files:
+      - frontend/src/core/logic/__tests__/performance.extrapolation.int.spec.ts
+    impl:
+      - IMP-PF-CORE-003
+      - IMP-PF-CORE-011
