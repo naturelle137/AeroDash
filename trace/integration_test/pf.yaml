@@ -24,3 +24,13 @@ PF Core — Conservative Extrapolation Control (Integration)
     impl:
       - IMP-PF-CORE-003
       - IMP-PF-CORE-011
+
+PF Core — CAA SSL 07 Missing-Distance Estimation (Integration)
+  IT-PF-CORE-004
+    title: applyEstimation → structured-clone/JSON round-trip → applySafetyFactors — estimated flag survives persistence/transmission and is never treated as authoritative POH data
+    files:
+      - frontend/src/core/logic/__tests__/performance.estimation.int.spec.ts
+    impl:
+      - IMP-PF-CORE-022
+      - IMP-PF-CORE-025
+      - IMP-PF-CORE-020
