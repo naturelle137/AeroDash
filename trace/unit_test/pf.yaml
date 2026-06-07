@@ -324,3 +324,22 @@ PF Core — Safety-Factor Pipeline (Unit)
     impl:
       - IMP-PF-CORE-019
       - IMP-PF-CORE-020
+
+PF Core — CAA SSL 07 Missing-Distance Estimation (Unit)
+  UT-PF-CORE-046
+    title: applyEstimation Zod boundary — estimate, POH passthrough, invalid_input rejection
+    files:
+      - frontend/src/core/adapters/performance.estimation.adapter.spec.ts
+    impl:
+      - IMP-PF-CORE-025
+      - IMP-PF-CORE-026
+
+  UT-PF-CORE-045
+    title: CAA SSL 07 estimation — ratios, roll→distance vectors, POH precedence, typed failures
+    files:
+      - frontend/src/core/logic/performance.estimation.spec.ts
+    impl:
+      - IMP-PF-CORE-021
+      - IMP-PF-CORE-022
+      - IMP-PF-CORE-023
+      - IMP-PF-CORE-024

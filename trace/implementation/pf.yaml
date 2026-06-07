@@ -172,3 +172,51 @@ PF Core — Safety-Factor Pipeline
       - REQ-PF-015
       - REQ-PF-016
       - REQ-SYS-011
+
+PF Core — CAA SSL 07 Missing-Distance Estimation
+  IMP-PF-CORE-026
+    title: EstimationInputSchema — Zod boundary for optional POH base distances
+    files:
+      - frontend/src/core/adapters/performance.estimation.adapter.ts
+    req:
+      - REQ-SYS-011
+      - REQ-SYS-012
+      - REQ-PF-005
+
+  IMP-PF-CORE-025
+    title: applyEstimation — validated estimation entry point, invalid_input on parse failure
+    files:
+      - frontend/src/core/adapters/performance.estimation.adapter.ts
+    req:
+      - REQ-PF-005
+      - REQ-PF-017
+      - REQ-SYS-011
+
+  IMP-PF-CORE-024
+    title: CAA SSL 07 conversion ratios (frozen) and provenance model
+    files:
+      - frontend/src/core/logic/performance.estimation.ts
+    req:
+      - REQ-PF-005
+
+  IMP-PF-CORE-023
+    title: estimateObstacleDistance — CAA SSL 07 ground-roll → 50 ft distance estimator
+    files:
+      - frontend/src/core/logic/performance.estimation.ts
+    req:
+      - REQ-PF-005
+
+  IMP-PF-CORE-022
+    title: estimateBaseDistances — provenance-tagged estimation facade (POH precedence)
+    files:
+      - frontend/src/core/logic/performance.estimation.ts
+    req:
+      - REQ-PF-005
+      - REQ-PF-017
+
+  IMP-PF-CORE-021
+    title: toBaseDistances — flatten provenanced distances to plain SI base distances
+    files:
+      - frontend/src/core/logic/performance.estimation.ts
+    req:
+      - REQ-PF-005
