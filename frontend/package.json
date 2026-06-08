@@ -86,7 +86,7 @@
     "jsdom": "^29.1.1",
     "npm-run-all2": "^9.0.1",
     "oxlint": "1.66.0",
-    "playwright-bdd": "^8.5.1",
+    "playwright-bdd": "^9.0.0",
     "prettier": "3.8.3",
     "serve": "^14.2.6",
     "typescript": "~6.0.3",
