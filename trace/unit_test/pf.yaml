@@ -324,3 +324,53 @@ PF Core — Safety-Factor Pipeline (Unit)
     impl:
       - IMP-PF-CORE-019
       - IMP-PF-CORE-020
+
+PF (auto)
+  UT-PF-VIEW-001
+    title: EstimatedMarker renders the [ESTIMATED] (CAA SSL 07) text marker
+    files:
+      - frontend/src/modules/performance/components/__tests__/EstimatedMarker.spec.ts
+    impl:
+      - IMP-PF-VIEW-001
+
+  UT-PF-VIEW-002
+    title: ExtrapolationAcknowledgment emits acknowledge on Pilot-in-Command confirm
+    files:
+      - frontend/src/modules/performance/components/__tests__/ExtrapolationAcknowledgment.spec.ts
+    impl:
+      - IMP-PF-VIEW-002
+
+  UT-PF-VIEW-003
+    title: PerformanceResultsTable — distances, absolute+% margin, estimated marker, insufficient flag
+    files:
+      - frontend/src/modules/performance/components/__tests__/PerformanceResultsTable.spec.ts
+    impl:
+      - IMP-PF-VIEW-003
+
+  UT-PF-STORE-001
+    title: osfInput getter — OSF preset / POH-mandated factor resolution
+    files:
+      - frontend/src/modules/performance/stores/__tests__/performance.store.spec.ts
+    impl:
+      - IMP-PF-STORE-002
+
+  UT-PF-STORE-002
+    title: store orchestration — POH/extrapolation/safety-factor → view-model & notifications
+    files:
+      - frontend/src/modules/performance/stores/__tests__/performance.store.spec.ts
+    impl:
+      - IMP-PF-STORE-005
+
+  UT-PF-STORE-003
+    title: performance UI state-machine transitions (GO / NO_GO / WARNING / PENDING_ACK / BLOCKED)
+    files:
+      - frontend/src/modules/performance/stores/__tests__/performance.store.spec.ts
+    impl:
+      - IMP-PF-STORE-006
+
+  UT-PF-VIEW-004
+    title: PerformanceView — selection, compute, GO/NO-GO advisory, ack-gate rendering
+    files:
+      - frontend/src/modules/performance/views/__tests__/PerformanceView.spec.ts
+    impl:
+      - IMP-PF-VIEW-004

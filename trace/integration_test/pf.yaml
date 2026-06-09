@@ -24,3 +24,11 @@ PF Core — Conservative Extrapolation Control (Integration)
     impl:
       - IMP-PF-CORE-003
       - IMP-PF-CORE-011
+
+PF (auto)
+  IT-PF-STORE-001
+    title: performance store ↔ real P1 core — GO/No-Go, CRIT-PF-002, extrapolation ack, block
+    files:
+      - frontend/src/modules/performance/stores/__tests__/performance.store.int.spec.ts
+    impl:
+      - IMP-PF-STORE-005

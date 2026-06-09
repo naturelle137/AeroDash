@@ -172,3 +172,93 @@ PF Core — Safety-Factor Pipeline
       - REQ-PF-015
       - REQ-PF-016
       - REQ-SYS-011
+
+PF (auto)
+  IMP-PF-VIEW-001
+    title: EstimatedMarker — visible [ESTIMATED] (CAA SSL 07) provenance badge
+    files:
+      - frontend/src/modules/performance/components/EstimatedMarker.vue
+    req:
+      - REQ-PF-017
+
+  IMP-PF-VIEW-002
+    title: ExtrapolationAcknowledgment — Pilot-in-Command acknowledgment prompt
+    files:
+      - frontend/src/modules/performance/components/ExtrapolationAcknowledgment.vue
+    req:
+      - REQ-PF-012
+
+  IMP-PF-VIEW-003
+    title: PerformanceResultsTable — TOR/TOD/LR/LD, operational required & safety margin
+    files:
+      - frontend/src/modules/performance/components/PerformanceResultsTable.vue
+    req:
+      - REQ-PF-001
+      - REQ-PF-007
+      - REQ-PF-017
+
+  IMP-PF-STORE-002
+    title: osfInput getter — OSF preset → P1 OperationalSafetyFactorInput
+    files:
+      - frontend/src/modules/performance/stores/performance.store.ts
+    req:
+      - REQ-PF-006
+      - REQ-PF-016
+
+  IMP-PF-STORE-003
+    title: loadProfile — load a Verified aircraft and recompute
+    files:
+      - frontend/src/modules/performance/stores/performance.store.ts
+    req:
+      - REQ-PF-001
+      - REQ-AC-005
+
+  IMP-PF-STORE-004
+    title: acknowledgeExtrapolation — lift the extrapolation finalization gate
+    files:
+      - frontend/src/modules/performance/stores/performance.store.ts
+    req:
+      - REQ-PF-012
+
+  IMP-PF-STORE-005
+    title: _runCalculation — orchestrate POH → extrapolation → safety-factor facades
+    files:
+      - frontend/src/modules/performance/stores/performance.store.ts
+    req:
+      - REQ-PF-004
+      - REQ-PF-006
+      - REQ-PF-007
+      - REQ-PF-010
+      - REQ-PF-011
+      - REQ-PF-012
+      - REQ-PF-015
+      - REQ-PF-016
+      - REQ-PF-017
+
+  IMP-PF-STORE-006
+    title: evaluateState — performance UI state-machine resolution
+    files:
+      - frontend/src/modules/performance/stores/performance.store.ts
+    des:
+      - DES-ARCH-003
+      - DES-ARCH-005
+
+  IMP-PF-STORE-001
+    title: Performance UI state-machine & result view-model types
+    files:
+      - frontend/src/modules/performance/stores/performance.types.ts
+    req:
+      - REQ-PF-007
+      - REQ-PF-017
+
+  IMP-PF-VIEW-004
+    title: PerformanceView — aircraft/conditions form, results, notifications, ack gate
+    files:
+      - frontend/src/modules/performance/views/PerformanceView.vue
+    req:
+      - REQ-PF-006
+      - REQ-PF-007
+      - REQ-PF-012
+      - REQ-PF-013
+      - REQ-PF-015
+      - REQ-PF-016

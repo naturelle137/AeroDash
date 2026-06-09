@@ -76,6 +76,9 @@ This register lists all defined notifications in the system to ensure uniqueness
 | `CRIT-WX-001`  | Wind Limit Exceeded                | `CRITICAL` | [REQ-WX-009](../requirements/weather_meterological_data.md#REQ-WX-009) | If any wind or gust component exceeds a hard `Limit` of the aircraft.                                                                                                                    |
 | `CRIT-PF-002`  | Runway Insufficient                | `CRITICAL` | [REQ-PF-015](../requirements/performance.md#REQ-PF-015)                | If the Operational Required Distance exceeds the published Available Distance (TORA/LDA).                                                                                                |
 | `WARN-PF-002`  | Safety Factor Low                  | `WARNING`  | [REQ-PF-016](../requirements/performance.md#REQ-PF-016)                | If the user-selected Operational Safety Factor is lower than the greater of the POH-mandated factor and the regulatory baseline (Takeoff: 1.25, Landing: 1.43).                          |
+| `WARN-PF-003`  | Extrapolated Performance Data      | `WARNING`  | [REQ-PF-012](../requirements/performance.md#REQ-PF-012)                | When an operating point is extrapolated within the 10% band (REQ-PF-010): a +20% penalty is applied and Pilot-in-Command acknowledgment is required before the result may be used.       |
+| `ERR-PF-001`   | Extrapolation Beyond Limit         |  `ERROR`   | [REQ-PF-010](../requirements/performance.md#REQ-PF-010)                | When an operating point exceeds the 10% extrapolation cap; the computation is blocked and no distance is produced.                                                                       |
+| `ERR-PF-002`   | Performance Data Unavailable       |  `ERROR`   | [REQ-PF-001](../requirements/performance.md#REQ-PF-001)                | When the selected profile is not Verified, is missing a required POH phase, or has a malformed performance grid, so no distance can be computed.                                         |
 | `INFO-SYS-001` | Update Available                   |   `INFO`   | [REQ-SYS-005](../requirements/system.md#REQ-SYS-005)                   | When a new software version is detected.                                                                                                                                                 |
 | `ERR-SYS-001`  | Invalid Input: {field} ({code})    |  `ERROR`   | [REQ-SYS-012](../requirements/system.md#REQ-SYS-012)                   | When module input validation (Zod schema) fails before core logic (REQ-SYS-011). Dynamic: field = field path, code = validation code.                                                    |
 | `WARN-UI-001`  | Input Out of Range                 | `WARNING`  | [REQ-UI-008](../requirements/user_interface.md#REQ-UI-008)             | When numeric inputs are outside standard operational ranges.                                                                                                                             |
@@ -206,6 +209,41 @@ This section defines the complete JSON payload for each notification. These payl
   "severity": "WARNING",
   "message": "Safety Factor Low",
   "context": "Performance.SafetyFactor"
+}
+```
+
+#### WARN-PF-003 — Extrapolated Performance Data
+
+```json
+{
+  "id": "WARN-PF-003",
+  "severity": "WARNING",
+  "message": "Extrapolated Performance Data",
+  "context": "Performance",
+  "persistent": true
+}
+```
+
+#### ERR-PF-001 — Extrapolation Beyond Limit
+
+```json
+{
+  "id": "ERR-PF-001",
+  "severity": "ERROR",
+  "message": "Extrapolation Beyond Limit",
+  "context": "Performance",
+  "persistent": true
+}
+```
+
+#### ERR-PF-002 — Performance Data Unavailable
+
+```json
+{
+  "id": "ERR-PF-002",
+  "severity": "ERROR",
+  "message": "Performance Data Unavailable",
+  "context": "Performance"
 }
 ```
 

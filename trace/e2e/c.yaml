@@ -1,0 +1,21 @@
+C (auto)
+  E2E-C-001
+    title: Hot conditions inside the 10% band are penalised and require acknowledgment
+    files:
+      - frontend/tests/e2e/features/phase-c-performance-safety/extrapolation-acknowledgment.feature
+    uj:
+      - UJ-C-001
+
+  E2E-C-002
+    title: Temperature beyond the extrapolation cap blocks the calculation
+    files:
+      - frontend/tests/e2e/features/phase-c-performance-safety/extrapolation-acknowledgment.feature
+    uj:
+      - UJ-C-001
+
+  E2E-C-003
+    title: Pressure altitude beyond the extrapolation cap blocks the calculation
+    files:
+      - frontend/tests/e2e/features/phase-c-performance-safety/extrapolation-acknowledgment.feature
+    uj:
+      - UJ-C-001
