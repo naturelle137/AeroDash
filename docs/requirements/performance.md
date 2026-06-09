@@ -66,7 +66,7 @@ This document defines the performance behavior using the **EARS** (Easy Approach
 **Requirement:** The system shall calculate the Safety Margin as an absolute value (Available Runway minus Operational Required Distance) and as a percentage.
 **Rationale:** Intuitive Go/No-Go decision making.
 **Priority:** P2
-**Status:** Approved
+**Status:** Implemented
 **Design Reference:** n/a
 
 <!-- @REQ-PF-008@ -->

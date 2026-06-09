@@ -117,6 +117,7 @@ const navItems: NavItem[] = [
   { id: 'home',        label: 'Home',        path: '/',            icon: 'home' },
   { id: 'flight-prep', label: 'Flight Prep', path: '/mass-balance', icon: 'prep' },
   { id: 'fleet',       label: 'Fleet',       path: '/fleet',       icon: 'fleet' },
+  { id: 'performance', label: 'Performance', path: '/performance', icon: 'perf' },
   { id: 'weather',     label: 'Weather',     path: '/weather',     icon: 'wx',   soon: true },
   { id: 'fuel',        label: 'Fuel',        path: '/fuel',        icon: 'fuel', soon: true },
   { id: 'airport',     label: 'Airport DB',  path: '/airport',     icon: 'ap',   soon: true },
@@ -251,6 +252,12 @@ const themeLabel = computed(() =>
                 <circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.5" />
                 <path d="M10 3v14M3 10h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
                 <ellipse cx="10" cy="10" rx="4" ry="7" stroke="currentColor" stroke-width="1.5" />
+              </svg>
+              <!-- Performance (gauge) -->
+              <svg v-else-if="item.icon === 'perf'" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <path d="M3.5 15a7 7 0 1113 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                <path d="M10 12l3.5-3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                <circle cx="10" cy="12" r="1.2" fill="currentColor" />
               </svg>
               <!-- Privacy (shield) -->
               <svg v-else-if="item.icon === 'privacy'" width="20" height="20" viewBox="0 0 20 20" fill="none">

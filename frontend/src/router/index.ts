@@ -30,6 +30,12 @@ const router = createRouter({
       name: 'fleet',
       component: FleetManagementView,
     },
+    // @IMP-UI-ROUTE-006@ (FROM: @REQ-PF-001@, @REQ-PF-007@)
+    {
+      path: '/performance',
+      name: 'performance',
+      component: () => import('@/modules/performance/views/PerformanceView.vue'),
+    },
     // @IMP-UI-ROUTE-003@ (FROM: @REQ-AC-001@, @REQ-UQ-003@)
     {
       path: '/fleet/new',

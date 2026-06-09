@@ -156,6 +156,14 @@ UI (auto)
       - DES-ARCH-011
       - DES-ARCH-012
 
+  IMP-UI-ROUTE-006
+    title: Performance module route (/performance)
+    files:
+      - frontend/src/router/index.ts
+    req:
+      - REQ-PF-001
+      - REQ-PF-007
+
 UI — Contribution hub (#395)
   IMP-UI-SHARED-009
     title: Contribution environment helper — auto-detected environment string for the defect form
