@@ -1,0 +1,35 @@
+AP (auto)
+  UT-AP-VIEW-001
+    title: SurfaceConditionSelect — renders context-aware lists and emits selection
+    files:
+      - frontend/src/modules/airport/components/__tests__/SurfaceConditionSelect.spec.ts
+    impl:
+      - IMP-AP-VIEW-001
+
+  UT-AP-STORE-002
+    title: evaluateComputeGate — surface-condition and runway-length blockers
+    files:
+      - frontend/src/modules/airport/domain/__tests__/compute-gate.spec.ts
+    impl:
+      - IMP-AP-STORE-002
+
+  UT-AP-STORE-001
+    title: Surface-condition catalogue — list, validity, and label resolution
+    files:
+      - frontend/src/modules/airport/domain/__tests__/surface-conditions.spec.ts
+    impl:
+      - IMP-AP-STORE-001
+
+  UT-AP-STORE-003
+    title: Manual Airport Store — mode, overrides, gate, persistence lifecycle
+    files:
+      - frontend/src/modules/airport/stores/__tests__/manual-airport.store.spec.ts
+    impl:
+      - IMP-AP-STORE-004
+
+  UT-AP-VIEW-002
+    title: ManualAirportEntryView — search, gate rejection, override binding, save
+    files:
+      - frontend/src/modules/airport/views/__tests__/ManualAirportEntryView.spec.ts
+    impl:
+      - IMP-AP-VIEW-002

@@ -1,0 +1,14 @@
+AP (auto)
+  IT-AP-STORE-001
+    title: Airport Repository — IndexedDB CRUD round-trip with fake-indexeddb
+    files:
+      - frontend/src/modules/airport/services/__tests__/airport.repository.int.spec.ts
+    impl:
+      - IMP-AP-STORE-003
+
+  IT-AP-STORE-002
+    title: Manual Airport Store ↔ repository — overrides persist and rehydrate
+    files:
+      - frontend/src/modules/airport/stores/__tests__/manual-airport.store.int.spec.ts
+    impl:
+      - IMP-AP-STORE-004

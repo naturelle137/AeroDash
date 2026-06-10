@@ -1,0 +1,28 @@
+C (auto)
+  E2E-C-001
+    title: Unknown ICAO offers manual airport entry
+    files:
+      - frontend/tests/e2e/features/phase-c-performance-safety/manual-airport-entry.feature
+    uj:
+      - UJ-C-002
+
+  E2E-C-002
+    title: Performance refused until the surface condition is chosen
+    files:
+      - frontend/tests/e2e/features/phase-c-performance-safety/manual-airport-entry.feature
+    uj:
+      - UJ-C-002
+
+  E2E-C-003
+    title: Choosing the surface condition unlocks the computation
+    files:
+      - frontend/tests/e2e/features/phase-c-performance-safety/manual-airport-entry.feature
+    uj:
+      - UJ-C-002
+
+  E2E-C-004
+    title: Manual runway overrides are saved
+    files:
+      - frontend/tests/e2e/features/phase-c-performance-safety/manual-airport-entry.feature
+    uj:
+      - UJ-C-002

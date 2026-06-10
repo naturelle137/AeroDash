@@ -30,7 +30,7 @@ This document defines the airport database behavior using the **EARS** (Easy App
 **Requirement:** If an ICAO code is not found in the database, then the system shall set the Airport Mode to `ManualEntry`.
 **Rationale:** PIC authority to operate from unlisted or private strips.
 **Priority:** P1
-**Status:** Approved
+**Status:** Implemented
 **Design Reference:** n/a
 
 <!-- @REQ-AP-004@ (FROM: @H-009@) -->
@@ -39,7 +39,7 @@ This document defines the airport database behavior using the **EARS** (Easy App
 **Requirement:** When a runway is selected, the system shall require the user to select the current surface condition from a predefined list specific to the base surface type: <ol><li>Paved (e.g. Asphalt/Concrete): Dry, Wet, Standing Water, Slush, Snow, Ice</li> <li>Grass/Unpaved: Dry (Short grass ≤ 3cm), Long Grass (> 3cm to 8cm), Wet/Soft Ground, Damaged Turf, Snow/Ice</li></ol>
 **Rationale:** Conditions impact friction heavily. Grass runways require highly specific length/quality factors per standard POHs. Context-aware lists prevent impossible combinations (e.g. "Long Grass" on Asphalt).
 **Priority:** P1
-**Status:** Approved
+**Status:** Implemented
 **Design Reference:** n/a
 
 <!-- @REQ-AP-005@ (FROM: @H-015@) -->
@@ -57,7 +57,7 @@ This document defines the airport database behavior using the **EARS** (Easy App
 **Requirement:** The system shall provide editable input fields for all auto-populated airport and runway parameters to enable manual pilot overrides.
 **Rationale:** Accommodates temporary changes like displaced thresholds published via NOTAM.
 **Priority:** P1
-**Status:** Approved
+**Status:** Implemented
 **Design Reference:** n/a
 
 ---

@@ -156,6 +156,13 @@ UI (auto)
       - DES-ARCH-011
       - DES-ARCH-012
 
+  IMP-UI-ROUTE-006
+    title: Airport route — /airport manual airport-entry view
+    files:
+      - frontend/src/router/index.ts
+    req:
+      - REQ-AP-003
+
 UI — Contribution hub (#395)
   IMP-UI-SHARED-009
     title: Contribution environment helper — auto-detected environment string for the defect form
