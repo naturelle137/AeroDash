@@ -25,7 +25,7 @@ Focus: Behaviour at the limits of the performance envelope — extrapolation, ov
 
 **Outcome:** The pilot avoids taking an uncalculated risk in extreme conditions. Within the 10% extrapolation band, the system provides a highly conservative estimate with a penalty and requires acknowledgment. Beyond that, it refuses to calculate entirely.
 
-<!-- @UJ-C-002@ (FROM: @REQ-AP-003@, @REQ-AP-006@, @REQ-PF-008@, @REQ-PF-009@) -->
+<!-- @UJ-C-002@ (FROM: @REQ-AP-003@, @REQ-AP-004@, @REQ-AP-006@, @REQ-PF-008@, @REQ-PF-009@) -->
 
 ## <a name="UJ-C-002"></a>UJ-C-002: The "Unknown Airfield" (Manual Override)
 

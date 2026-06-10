@@ -1,0 +1,46 @@
+AP (auto)
+  IMP-AP-VIEW-001
+    title: SurfaceConditionSelect — context-aware surface-condition selector
+    files:
+      - frontend/src/modules/airport/components/SurfaceConditionSelect.vue
+    req:
+      - REQ-AP-004
+
+  IMP-AP-STORE-002
+    title: evaluateComputeGate — blocks performance until a surface condition is selected
+    files:
+      - frontend/src/modules/airport/domain/compute-gate.ts
+    req:
+      - REQ-AP-004
+
+  IMP-AP-STORE-001
+    title: Surface-condition catalogue — predefined lists per base surface type
+    files:
+      - frontend/src/modules/airport/domain/surface-conditions.ts
+    req:
+      - REQ-AP-004
+
+  IMP-AP-STORE-003
+    title: Airport Repository — IndexedDB persistence for manual airport entries
+    files:
+      - frontend/src/modules/airport/services/airport.repository.ts
+    req:
+      - REQ-AP-006
+
+  IMP-AP-STORE-004
+    title: Manual Airport Store — manual-entry mode, overrides, compute gate, persistence
+    files:
+      - frontend/src/modules/airport/stores/manual-airport.store.ts
+    req:
+      - REQ-AP-003
+      - REQ-AP-004
+      - REQ-AP-006
+
+  IMP-AP-VIEW-002
+    title: ManualAirportEntryView — ICAO search, editable overrides, surface gate, save
+    files:
+      - frontend/src/modules/airport/views/ManualAirportEntryView.vue
+    req:
+      - REQ-AP-003
+      - REQ-AP-004
+      - REQ-AP-006
