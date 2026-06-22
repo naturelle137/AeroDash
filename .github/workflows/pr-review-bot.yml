@@ -170,7 +170,7 @@ jobs:
 
       - name: Checkout PR head
         if: ${{ steps.gate.outputs.proceed == 'true' && steps.guard.outputs.configured == 'true' }}
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
         with:
           # workflow_run does not auto-checkout the PR ref — pin to the exact
           # head SHA we verified above (not the branch, which can advance).
