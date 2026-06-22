@@ -177,7 +177,7 @@ jobs:
       # ── Correct: address review feedback AND/OR CI failures ─────────────────────
       - name: Checkout PR branch
         if: ${{ steps.ctx.outputs.action == 'correct' }}
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
         with:
           ref: ${{ steps.ctx.outputs.head_ref }}
           fetch-depth: 0
