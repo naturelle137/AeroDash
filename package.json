@@ -29,13 +29,13 @@
     "lint-staged": "lint-staged"
   },
   "devDependencies": {
-    "@commitlint/cli": "^21.0.2",
-    "@commitlint/config-conventional": "^21.0.2",
+    "@commitlint/cli": "^21.2.1",
+    "@commitlint/config-conventional": "^21.2.0",
     "@release-it/conventional-changelog": "^11.0.1",
     "husky": "^9.1.7",
-    "lint-staged": "^17.0.7",
-    "markdownlint-cli2": "^0.22.1",
-    "release-it": "^20.2.0"
+    "lint-staged": "^17.1.0",
+    "markdownlint-cli2": "^0.23.1",
+    "release-it": "^20.2.1"
   },
   "pnpm": {
     "overrides": {
