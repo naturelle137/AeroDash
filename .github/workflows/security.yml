@@ -119,7 +119,7 @@ jobs:
         # osv-scanner-action does not publish a floating `@v2` tag, only
         # patched releases — pinned by exact tag and tracked by Dependabot.
         continue-on-error: ${{ github.event_name == 'pull_request' }}
-        uses: google/osv-scanner-action/osv-scanner-action@v2.3.8
+        uses: google/osv-scanner-action/osv-scanner-action@v2.5.0
         with:
           scan-args: |-
             --lockfile=pnpm-lock.yaml
