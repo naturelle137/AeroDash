@@ -84,8 +84,8 @@ jobs:
     name: P1 Mutation Score
     runs-on: ubuntu-latest
     timeout-minutes: 2
-    needs: [changes]
-    if: ${{ false }}
+    needs: [changes, forced-skip]
+    if: ${{ needs.changes.outputs.mutation_required == 'true' }}
     steps:
       - run: echo "Evidence-only fixture; no application validation"
 
@@ -95,6 +95,13 @@ jobs:
     timeout-minutes: 2
     steps:
       - run: echo "Evidence-only fixture; no application validation"
+
+  forced-skip:
+    name: Evidence skipped dependency
+    runs-on: ubuntu-latest
+    if: ${{ false }}
+    steps:
+      - run: exit 0
 
   ci-required:
     name: CI Required
