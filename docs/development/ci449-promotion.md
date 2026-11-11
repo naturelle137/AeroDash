@@ -21,6 +21,8 @@ Source of reviewed CI foundations: develop
   Its literal false condition prevents publication regardless of version/tags.
   E3 owns any independently reviewed restoration under existing confirmations;
   this hotfix grants no publication authority and creates no version or tag.
+  Also suppress automatic main-push container publication and Pages deployment;
+  their existing explicit manual triggers remain unchanged.
 - Do not import develop's product, aircraft/reference data, autonomous workers,
   trace tooling or unrelated safety repairs.
 

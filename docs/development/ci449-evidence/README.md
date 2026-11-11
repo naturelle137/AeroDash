@@ -14,7 +14,7 @@ PR453's evidence comment and HQ213 result, avoiding self-referential commit SHAs
 - Dependency audit: no known vulnerabilities after reviewed dependency closure.
 - Chromium: 3/3 main-baseline journeys pass; desktop 1440px and mobile 390px
   screenshots captured and inspected (linked below).
-- 61 CI contract tests pass: production aggregate, publication guard and real
+- 62 CI contract tests pass: production aggregate, publication guard and real
   mutation-scope regression. Mutation floor remains 70%; final-head CI mutation is authoritative.
   An interrupted local exploratory mutation run is not acceptance evidence.
 - Product sources/tests/reference data are byte-identical to main. No domain
