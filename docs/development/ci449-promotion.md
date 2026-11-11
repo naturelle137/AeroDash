@@ -11,15 +11,16 @@ Source of reviewed CI foundations: develop
 - Preserve all mandatory names, main `lint-markdown`, 90% P1 coverage,
   70% mutation floor, high-severity audit blocking and PR-only OSV advisory policy.
 - Remove duplicate post-push Playwright workflow; CI runs on both protected pushes.
-- Backport dependency security overrides and their Rollup patch; keep main's
-  direct dependency versions and product source. Regenerate lockfile with pnpm.
+- Backport dependency security overrides and their Rollup patch; use develop's reviewed dependency manifests/lockfile while keeping main's
+  product source and scripts. Main's older direct versions failed the high audit.
+  Re-test these versions against main's product baseline.
 - Backport mutation runner isolation/configuration needed by reusable mutation CI.
 - Explicitly disable the release publishing job for this technical promotion.
   Its literal false condition prevents publication regardless of version/tags.
   E3 owns any independently reviewed restoration under existing confirmations;
   this hotfix grants no publication authority and creates no version or tag.
 - Do not import develop's product, aircraft/reference data, autonomous workers,
-  dependency major upgrades, trace tooling or unrelated safety repairs.
+  trace tooling or unrelated safety repairs.
 
 ## Ancestry and authority
 
