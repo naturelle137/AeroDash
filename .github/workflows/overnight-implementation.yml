@@ -2,7 +2,7 @@ name: Overnight Autonomous Implementation
 
 # Autonomously implements triaged `accepted` + `engineering` issues from the
 # current milestone and opens reviewable **Draft** PRs to `develop`.
-# Governed by ADR-317-DEV. Safety invariants enforced here:
+# Governed by ADR-319; legacy automation is not HQ approval. Safety invariants enforced here:
 #   * Draft-only output, never auto-merge, never mark ready-for-review.
 #   * Selection is deterministic + dependency-aware (.github/scripts/select-issues.mjs).
 #   * Bounded effort per issue (timeout + --max-turns).
@@ -245,7 +245,7 @@ jobs:
         # Budget exhaustion (error_max_turns) and other agent errors must NOT
         # discard partial work: keep the job alive so the push step below can
         # still open a Draft PR from whatever was committed (ADR-317-DEV §5 —
-        # "the Draft PR is handed to humans with a summary"). The agent outcome
+        # "the Draft PR is handed to HQ with a summary"). The agent outcome
         # is surfaced via steps.claude.outcome in that step.
         continue-on-error: true
         uses: anthropics/claude-code-action@v1
@@ -305,7 +305,7 @@ jobs:
           # "No commits produced"). --allowedTools MERGES with the action's
           # baseline (file ops + GitHub tools); we add Bash plus search/task
           # tools needed by the /implement-issue flow. Safety is unchanged: it
-          # rests on the Draft-only + human-Lead-review + CI-gate regime
+          # rests on the Draft-only + independent-review + CI-gate regime
           # (ADR-317-DEV), not on local permission gating — the Draft PR re-runs
           # every gate and is never auto-merged.
           claude_args: |
@@ -334,7 +334,7 @@ jobs:
               NOTE="could not complete (agent outcome: \`${AGENT_OUTCOME}\` — e.g. ran out of turn/time budget) and produced no commits"
             fi
             gh issue comment "${{ matrix.issue }}" --body \
-              "🤖 Overnight automation ${NOTE}; left for human attention."
+              "🤖 Overnight automation ${NOTE}; left for HQ follow-up."
             exit 0
           fi
           # Partial-work banner when the agent did not report success.
@@ -342,7 +342,7 @@ jobs:
           if [ "$AGENT_OUTCOME" != "success" ]; then
             PARTIAL_NOTE="
 
-          > ⚠️ **Partial draft** — the agent did not report success (outcome: \`${AGENT_OUTCOME}\`, likely the turn/time budget). This is work-in-progress that a human must finish; review the diff for completeness before relying on it."
+          > ⚠️ **Partial draft** — the agent did not report success (outcome: \`${AGENT_OUTCOME}\`, likely the turn/time budget). This is work-in-progress that an assigned agent must finish; review the diff for completeness before relying on it."
           fi
           # claude-code-action strips the PAT auth that actions/checkout set up
           # and repoints origin at its own claude[bot] token, which cannot push
@@ -368,8 +368,8 @@ jobs:
             PR_URL=$(gh pr create --draft --base develop \
               --head "feature/issue-${{ matrix.issue }}" \
               --title "feat: ${TITLE} (#${{ matrix.issue }})" \
-              --body "🤖 Autonomous draft for #${{ matrix.issue }} (refs #${{ matrix.issue }}). Agent outcome: \`${AGENT_OUTCOME}\`. The agent did not produce a PR description from the template — treat as work-in-progress that a human must complete before merge.${PARTIAL_NOTE}")
+              --body "🤖 Autonomous draft for #${{ matrix.issue }} (refs #${{ matrix.issue }}). Agent outcome: \`${AGENT_OUTCOME}\`. The agent did not produce a PR description from the template — treat as work-in-progress that an assigned agent must complete before merge.${PARTIAL_NOTE}")
           fi
           # Per-issue summary comment (run report links from the job summary).
           gh issue comment "${{ matrix.issue }}" --body \
-            "🤖 Overnight automation opened a Draft PR for this issue: ${PR_URL} (agent outcome: ${AGENT_OUTCOME}). It is a Draft pending human review (Lead review required for P1/safety-critical)."
+            "🤖 Overnight automation opened a Draft PR for this issue: ${PR_URL} (agent outcome: ${AGENT_OUTCOME}). It is a Draft pending independent review and safety evidence (ADR-319)."

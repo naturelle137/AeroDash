@@ -10,7 +10,7 @@ name: Bounded PR Iteration & Ready Gate
 #
 # --- Original behaviour (preserved for re-enablement) ---
 # Drives BOT-authored Draft PRs (feature/issue-*) toward "Ready for review" while
-# ingesting BOTH reviewer feedback and CI/pipeline results. Governed by ADR-317-DEV.
+# ingesting BOTH reviewer feedback and CI/pipeline results. Governed by ADR-319; legacy automation is not HQ approval.
 #
 # State machine (same-repo bot Draft PRs only):
 #   * review requested changes  OR  CI failed  -> correction (ingests review + CI
@@ -19,7 +19,7 @@ name: Bounded PR Iteration & Ready Gate
 #   * any uncertainty (checks pending, no review yet, red CI) -> stay Draft (fail-safe).
 #
 # Safety: never merges; only marks Ready when CI is green; P1/safety-critical still
-# requires human Lead review (branch protection) and is never auto-merged.
+# requires independent review (ADR-319) and is never auto-merged.
 # refs #320, #316
 
 on:
@@ -162,10 +162,10 @@ jobs:
           set -euo pipefail
           gh pr ready "${{ steps.ctx.outputs.pr }}"
           gh pr comment "${{ steps.ctx.outputs.pr }}" --body \
-            "🤖 CI is green and the automated review is clean — **marked Ready for your review**. Nothing is auto-merged; P1/safety-critical still requires human Lead approval (ADR-317-DEV)."
+            "🤖 CI is green and the automated review is clean — **marked Ready for your review**. Nothing is auto-merged; independent review and final-head CI is still required (ADR-319)."
 
       # ── Hand off: correction budget exhausted ───────────────────────────────────
-      - name: Hand off to humans
+      - name: Hand off to HQ
         if: ${{ steps.ctx.outputs.action == 'handoff' }}
         env:
           GH_TOKEN: ${{ secrets.AUTOMATION_PAT || secrets.GITHUB_TOKEN }}
@@ -290,4 +290,4 @@ jobs:
           gh auth setup-git
           git push origin "HEAD:${{ steps.ctx.outputs.head_ref }}"
           gh pr comment "$PR" --body \
-            "<!-- auto-correction:${N} --> 🤖 Correction ${N}/${MAX}: pushed a revision addressing review feedback and/or CI failures. CI + re-review will run automatically; the PR is marked Ready once green and clean. Still a Draft — human Lead review required for P1/safety-critical."
+            "<!-- auto-correction:${N} --> 🤖 Correction ${N}/${MAX}: pushed a revision addressing review feedback and/or CI failures. CI + re-review will run automatically; the PR is marked Ready once green and clean. Still a Draft — independent review and P1 safety evidence required (ADR-319)."

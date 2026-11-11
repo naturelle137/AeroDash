@@ -1,8 +1,8 @@
 ###############################################################################
 # AeroDash Governance Policy
 # 
-# This file defines strict ownership to maintain "Production-ready" status
-# for the main and develop branches as per the branching model.
+# Ownership routing only; not access control or evidence of flight readiness.
+# Independent review and integration follow ADR-319.
 ###############################################################################
 
 # --- GLOBAL ENGINEERING LEAD ---
@@ -16,8 +16,8 @@
 
 # --- AVIATION PERFORMANCE & SAFETY LOGIC (P1) ---
 # These files contain the core algorithms for the software
-# and the safety-critical logic. Any change here requires
-# Aviation Domain Expert approval.
+# and safety-critical logic. Independent technical review and sourced domain
+# evidence are mandatory under ADR-319; no aviation certification is implied.
 /frontend/src/core/                     @naturelle137
 
 # --- DOCUMENTATION ---

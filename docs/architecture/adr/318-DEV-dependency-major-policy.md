@@ -163,7 +163,7 @@ work in `.github/workflows/security.yml` alongside the policy above, with
 explicit human authorisation overriding the autonomous-contribution
 workflow-fence laid down (in `Status: Proposed` form) by ADR-317-DEV
 §*Guardrails*. The fence is *operational policy*, not a safety invariant,
-and the human Lead Developer review still gates the merge.
+and independent review now gates integration under [ADR-319](319-DEV-agent-review-governance.md).
 
 The as-implemented scan triple (see `.github/workflows/security.yml`):
 

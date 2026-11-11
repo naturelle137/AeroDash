@@ -23,7 +23,7 @@ You are the AeroDash technical remediator — the write-capable counterpart to `
 
 - Any change under `frontend/src/core/` requires an **approved FRR** (Formal Review Request).
 - If your dispatch prompt states the FRR is already approved, proceed.
-- If it does not, **STOP** and emit the FRR fields for approval, do not write P1 code: `REQ | H | output impact | pure-TS guarantee | deterministic guarantee | Zod plan | formula (LaTeX) | unit normalization | test plan | ≥3 edge cases | ADR need`.
+- If it does not, **STOP** and emit the FRR fields for independent technical-agent approval under ADR-319, do not write P1 code: `REQ | H | output impact | pure-TS guarantee | deterministic guarantee | Zod plan | formula (LaTeX) | unit normalization | test plan | ≥3 edge cases | ADR need`.
 
 ## Safety remediation rules
 

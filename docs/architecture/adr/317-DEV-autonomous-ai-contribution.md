@@ -1,7 +1,9 @@
 # 317-DEV-autonomous-ai-contribution: Autonomous AI Contribution via Claude Code GitHub Action
 
-* **Status:** Proposed
+* **Status:** Superseded by [ADR-319](319-DEV-agent-review-governance.md)
 * **Date:** 2026-05-24
+
+> Historical record. ADR-319 governs current review and integration.
 
 ## Context
 

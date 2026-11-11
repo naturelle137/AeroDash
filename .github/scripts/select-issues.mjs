@@ -13,7 +13,7 @@
 //   * every decision carries an explainable reason (run report)
 //
 // Product issues can touch the P1 Safety Core, so the safety net is the workflow
-// (Draft-only output, no auto-merge, mandatory human Lead review on P1), NOT this
+// (Draft-only output, no auto-merge, independent review and P1 safety evidence), NOT this
 // filter — see ADR-317-DEV.
 //
 // refs #318 (parent #316)

@@ -149,31 +149,13 @@ vMAJOR.MINOR.PATCH
 
 ## Protected Branch Rules (GitHub Settings)
 
-Configure the following rules in **Settings → Branches → Branch protection rules**:
+Integration follows [ADR-319](../architecture/adr/319-DEV-agent-review-governance.md):
+PRs, verified signatures, green gates and independent review and final-head CI. No direct protected-branch push, queued auto-merge or
+administrative/Dependabot bypass. Read live GitHub protection before merging;
+the ADR records a dated snapshot, not a settings payload to replay.
 
-### `main`
-
-* ✅ Require pull request reviews (1 approval minimum)
-* ✅ Require status checks to pass (CI/Tests)
-* ✅ Require branches to be up to date
-* ✅ Require signed commits *(recommended)*
-* ✅ Do not allow force pushes
-* ✅ Do not allow deletions
-
-### `develop`
-
-* ✅ Require pull request reviews
-* ✅ Require status checks to pass
-* ❌ Allow force pushes (for rebasing feature branches)
-
-#### Allow Dependabot to merge into `develop`
-
-In GitHub **branch protection** / **rulesets**, ensure PRs from `dependabot/*` are permitted to merge into `develop`:
-
-* **Base branch pattern**: `develop`
-* **Allowed source branches** (for PRs): include `feature/*`, `release/*`, `hotfix/*`, and **`dependabot/*`**
-* **Required checks**: keep the same checks as other PRs into `develop`
-* **Bypass / exceptions**: optional, but if used, apply only to Dependabot and only for `develop` (never for `main`)
+Dependabot PRs must meet the same technical and safety gates. An independent
+agent reviews dependency changes and their provenance before CTO integration.
 
 ### `release/*`
 

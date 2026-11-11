@@ -1,5 +1,14 @@
 # AGENTS.md
 
+## Review and integration authority
+
+[ADR-319](docs/architecture/adr/319-DEV-agent-review-governance.md) governs agent
+work: independent review, full final head/base evidence, verified
+signatures and immediate expected-head integration. No self-approval, bypass or
+queued auto-merge. P1 design review and every technical/safety gate remain;
+routine operational decisions belong to agents, not the CEO. HQ schedules work;
+do not enable overlapping GitHub workers or paid services.
+
 ## Cursor Cloud specific instructions
 
 ### Overview
@@ -17,7 +26,7 @@ AeroDash is a frontend-only Vue 3 PWA for General Aviation flight preparation (M
 All commands can be run from the repo root. See `package.json` and `frontend/package.json` for the full list.
 
 - **Lint:** `pnpm run lint` (runs oxlint + eslint + markdownlint)
-- **Unit tests:** `pnpm run test:unit` (Vitest, 376 tests)
+- **Unit tests:** `pnpm run test:unit` (Vitest; test count varies with the checkout)
 - **Integration tests:** `pnpm run test:integration`
 - **E2E tests:** `pnpm run test:e2e --project=chromium` (Playwright BDD; use `--project=chromium` in cloud VMs since Microsoft Edge is not available)
 - **Build:** `pnpm run build` (type-check + vite build)

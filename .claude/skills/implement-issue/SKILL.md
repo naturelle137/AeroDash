@@ -78,7 +78,7 @@ P1 constraints:
 - deterministic; side-effect free
 - Zod validation at boundary
 
-P1 gate: **no code before user approval of FRR (Formal Review Request)**.
+P1 gate: **no code before independent technical-agent approval of FRR (Formal Review Request)** under `docs/architecture/adr/319-DEV-agent-review-governance.md`; the CEO is not the operational reviewer.
 
 FRR fields (present once for all P1 work in this issue):
 - `REQ` | `H` | output impact | pure-TS guarantee | deterministic guarantee | Zod plan | formula LaTeX | unit normalization | test plan | `>=3` edge cases | ADR need

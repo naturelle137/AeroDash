@@ -40,4 +40,4 @@ The guidelines mandate the following developer workflows:
 
 ## Compliance
 
-These guidelines form the primary "human quality gate" necessary to maintain the software integrity required by general aviation safety standards.
+Review ownership is superseded by [ADR-319](319-DEV-agent-review-governance.md). Technical and safety requirements remain; agent review does not certify aviation use.

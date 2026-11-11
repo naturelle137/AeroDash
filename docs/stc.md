@@ -616,7 +616,7 @@ The CI pipeline MUST execute the following validations in order:
 ## Appendix A: Non-Enforceable Rules
 
 The following aspects of this specification are documentation-only and cannot be
-automatically enforced by CI tooling. They require human review.
+automatically enforced by CI tooling. They require independent technical review under [ADR-319](architecture/adr/319-DEV-agent-review-governance.md); unresolved domain evidence remains blocking.
 
 | Rule                                                                              | Reason                                   |
 | :-------------------------------------------------------------------------------- | :--------------------------------------- |
@@ -624,7 +624,7 @@ automatically enforced by CI tooling. They require human review.
 | Journey design principles (realistic aircraft, extend vs. create)                 | Architectural judgment                   |
 | Hazard severity classification accuracy                                           | Requires domain expert assessment        |
 | P1 / P2 / P3 priority assignment correctness                                      | Requires safety analysis                 |
-| Design document completeness and correctness                                      | Requires human review                    |
+| Design document completeness and correctness                                      | Requires independent technical review    |
 | Semantic correctness of `FROM` references (right upstream, not just valid format) | Requires domain understanding            |
 
 ---
