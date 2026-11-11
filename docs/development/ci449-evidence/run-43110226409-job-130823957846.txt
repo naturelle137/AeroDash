@@ -1,0 +1,37 @@
+﻿2026-11-11T22:17:24.2941328Z Current runner version: '2.338.2'
+2026-11-11T22:17:24.2971132Z ##[group]Runner Image Provisioner
+2026-11-11T22:17:24.2972070Z Hosted Compute Agent
+2026-11-11T22:17:24.2973025Z Version: 20261028.624
+2026-11-11T22:17:24.2973877Z Commit: 54898b74c23fde5556c9b3c3a2290865feef0dfe
+2026-11-11T22:17:24.2974816Z Build Date: 2026-10-28T21:51:42Z
+2026-11-11T22:17:24.2975776Z Worker ID: {0d589269-0c93-43ed-9686-20dbcce3e5dc}
+2026-11-11T22:17:24.2976577Z Region: eastus2
+2026-11-11T22:17:24.2977244Z Cloud: Azure
+2026-11-11T22:17:24.2977936Z ##[endgroup]
+2026-11-11T22:17:24.2979495Z ##[group]Operating System
+2026-11-11T22:17:24.2980256Z Ubuntu
+2026-11-11T22:17:24.2980823Z 26.04.1
+2026-11-11T22:17:24.2981363Z LTS
+2026-11-11T22:17:24.2982013Z ##[endgroup]
+2026-11-11T22:17:24.2982920Z ##[group]Runner Image
+2026-11-11T22:17:24.2983764Z Image: ubuntu-26.04
+2026-11-11T22:17:24.2984453Z Version: 20261101.186.1
+2026-11-11T22:17:24.2986079Z Included Software: https://github.com/actions/runner-images/blob/ubuntu26/20261101.186/images/ubuntu/Ubuntu2604-Readme.md
+2026-11-11T22:17:24.2988135Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu26%2F20261101.186
+2026-11-11T22:17:24.2989333Z ##[endgroup]
+2026-11-11T22:17:24.2990692Z ##[group]GITHUB_TOKEN Permissions
+2026-11-11T22:17:24.2993256Z Contents: read
+2026-11-11T22:17:24.2994056Z Metadata: read
+2026-11-11T22:17:24.2994822Z ##[endgroup]
+2026-11-11T22:17:24.2997633Z Secret source: Actions
+2026-11-11T22:17:24.2998736Z Cache mode: write
+2026-11-11T22:17:24.2999844Z Prepare workflow directory
+2026-11-11T22:17:24.3380614Z Prepare all required actions
+2026-11-11T22:17:24.3503494Z Complete job name: Detect applicable gates
+2026-11-11T22:17:24.4521810Z ##[group]Run echo "intentionally omit mutation_required"
+2026-11-11T22:17:24.4522717Z echo "intentionally omit mutation_required"
+2026-11-11T22:17:24.5207059Z shell: /usr/bin/bash -e {0}
+2026-11-11T22:17:24.5207753Z ##[endgroup]
+2026-11-11T22:17:24.5383030Z intentionally omit mutation_required
+2026-11-11T22:17:24.5559562Z Evaluate and set job outputs
+2026-11-11T22:17:24.5587624Z Cleaning up orphan processes

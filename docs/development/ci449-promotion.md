@@ -15,6 +15,8 @@ Source of reviewed CI foundations: develop
   product source and scripts. Main's older direct versions failed the high audit.
   Re-test these versions against main's product baseline.
 - Backport mutation runner isolation/configuration needed by reusable mutation CI.
+  Exclude its generated `.stryker-tmp` sandbox from linters, matching the actual
+  configured directory; product source remains fully linted.
 - Explicitly disable the release publishing job for this technical promotion.
   Its literal false condition prevents publication regardless of version/tags.
   E3 owns any independently reviewed restoration under existing confirmations;

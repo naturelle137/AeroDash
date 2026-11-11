@@ -1,0 +1,37 @@
+﻿2026-11-11T22:16:41.5547343Z Current runner version: '2.338.2'
+2026-11-11T22:16:41.5574158Z ##[group]Runner Image Provisioner
+2026-11-11T22:16:41.5575011Z Hosted Compute Agent
+2026-11-11T22:16:41.5575726Z Version: 20261028.624
+2026-11-11T22:16:41.5576377Z Commit: 54898b74c23fde5556c9b3c3a2290865feef0dfe
+2026-11-11T22:16:41.5577194Z Build Date: 2026-10-28T21:51:42Z
+2026-11-11T22:16:41.5577932Z Worker ID: {ae4f3ac5-a7bb-4f30-bf7f-f1a5c8cd40bc}
+2026-11-11T22:16:41.5578668Z Region: northcentralus
+2026-11-11T22:16:41.5579601Z Cloud: Azure
+2026-11-11T22:16:41.5580182Z ##[endgroup]
+2026-11-11T22:16:41.5582098Z ##[group]Operating System
+2026-11-11T22:16:41.5582787Z Ubuntu
+2026-11-11T22:16:41.5583312Z 26.04.1
+2026-11-11T22:16:41.5583886Z LTS
+2026-11-11T22:16:41.5584406Z ##[endgroup]
+2026-11-11T22:16:41.5584980Z ##[group]Runner Image
+2026-11-11T22:16:41.5585655Z Image: ubuntu-26.04
+2026-11-11T22:16:41.5586229Z Version: 20261101.186.1
+2026-11-11T22:16:41.5587650Z Included Software: https://github.com/actions/runner-images/blob/ubuntu26/20261101.186/images/ubuntu/Ubuntu2604-Readme.md
+2026-11-11T22:16:41.5589208Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu26%2F20261101.186
+2026-11-11T22:16:41.5590460Z ##[endgroup]
+2026-11-11T22:16:41.5591580Z ##[group]GITHUB_TOKEN Permissions
+2026-11-11T22:16:41.5593596Z Contents: read
+2026-11-11T22:16:41.5594259Z Metadata: read
+2026-11-11T22:16:41.5594906Z ##[endgroup]
+2026-11-11T22:16:41.5597066Z Secret source: Actions
+2026-11-11T22:16:41.5598086Z Cache mode: write
+2026-11-11T22:16:41.5598911Z Prepare workflow directory
+2026-11-11T22:16:41.5944640Z Prepare all required actions
+2026-11-11T22:16:41.6054443Z Complete job name: Detect applicable gates
+2026-11-11T22:16:41.7238441Z ##[group]Run echo "mutation_required=false" >> "$GITHUB_OUTPUT"
+2026-11-11T22:16:41.7239743Z echo "mutation_required=false" >> "$GITHUB_OUTPUT"
+2026-11-11T22:16:41.7735697Z shell: /usr/bin/bash -e {0}
+2026-11-11T22:16:41.7736579Z ##[endgroup]
+2026-11-11T22:16:41.8095308Z Evaluate and set job outputs
+2026-11-11T22:16:41.8128527Z Set output 'mutation_required'
+2026-11-11T22:16:41.8131470Z Cleaning up orphan processes

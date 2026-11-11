@@ -1,0 +1,576 @@
+{
+  "total_count": 11,
+  "jobs": [
+    {
+      "id": 130823927250,
+      "run_id": 43110217067,
+      "workflow_name": "CI",
+      "head_branch": "hotfix/ci449-probe213-develop-negative-detector-failure",
+      "run_url": "https://api.github.com/repos/naturelle137/AeroDash/actions/runs/43110217067",
+      "run_attempt": 1,
+      "node_id": "CR_kwDORIOsPs8AAAAedba10g",
+      "head_sha": "72b76e6307422d3b6d66263bb9d9b51062e7ba08",
+      "url": "https://api.github.com/repos/naturelle137/AeroDash/actions/jobs/130823927250",
+      "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110217067/job/130823927250",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-11T22:15:28Z",
+      "started_at": "2026-11-11T22:16:36Z",
+      "completed_at": "2026-11-11T22:16:39Z",
+      "name": "Security Scanning",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-11T22:16:37Z",
+          "completed_at": "2026-11-11T22:16:37Z"
+        },
+        {
+          "name": "Run echo \"Evidence-only fixture; no application validation\"",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-11T22:16:37Z",
+          "completed_at": "2026-11-11T22:16:37Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-11T22:16:37Z",
+          "completed_at": "2026-11-11T22:16:37Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/naturelle137/AeroDash/check-runs/130823927250",
+      "labels": [
+        "ubuntu-latest"
+      ],
+      "runner_id": 1000007916,
+      "runner_name": "GitHub Actions 1000007916",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 130823927694,
+      "run_id": 43110217067,
+      "workflow_name": "CI",
+      "head_branch": "hotfix/ci449-probe213-develop-negative-detector-failure",
+      "run_url": "https://api.github.com/repos/naturelle137/AeroDash/actions/runs/43110217067",
+      "run_attempt": 1,
+      "node_id": "CR_kwDORIOsPs8AAAAedba3jg",
+      "head_sha": "72b76e6307422d3b6d66263bb9d9b51062e7ba08",
+      "url": "https://api.github.com/repos/naturelle137/AeroDash/actions/jobs/130823927694",
+      "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110217067/job/130823927694",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-11T22:15:28Z",
+      "started_at": "2026-11-11T22:16:45Z",
+      "completed_at": "2026-11-11T22:16:48Z",
+      "name": "Lint",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-11T22:16:46Z",
+          "completed_at": "2026-11-11T22:16:46Z"
+        },
+        {
+          "name": "Run echo \"Evidence-only fixture; no application validation\"",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-11T22:16:46Z",
+          "completed_at": "2026-11-11T22:16:46Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-11T22:16:46Z",
+          "completed_at": "2026-11-11T22:16:46Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/naturelle137/AeroDash/check-runs/130823927694",
+      "labels": [
+        "ubuntu-latest"
+      ],
+      "runner_id": 1000007922,
+      "runner_name": "GitHub Actions 1000007922",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 130823927958,
+      "run_id": 43110217067,
+      "workflow_name": "CI",
+      "head_branch": "hotfix/ci449-probe213-develop-negative-detector-failure",
+      "run_url": "https://api.github.com/repos/naturelle137/AeroDash/actions/runs/43110217067",
+      "run_attempt": 1,
+      "node_id": "CR_kwDORIOsPs8AAAAedba4lg",
+      "head_sha": "72b76e6307422d3b6d66263bb9d9b51062e7ba08",
+      "url": "https://api.github.com/repos/naturelle137/AeroDash/actions/jobs/130823927958",
+      "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110217067/job/130823927958",
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-11-11T22:15:28Z",
+      "started_at": "2026-11-11T22:16:56Z",
+      "completed_at": "2026-11-11T22:17:10Z",
+      "name": "Detect applicable gates",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-11T22:16:57Z",
+          "completed_at": "2026-11-11T22:16:57Z"
+        },
+        {
+          "name": "Run echo \"mutation_required=false\" >> \"$GITHUB_OUTPUT\"; exit 1",
+          "status": "completed",
+          "conclusion": "failure",
+          "number": 2,
+          "started_at": "2026-11-11T22:16:57Z",
+          "completed_at": "2026-11-11T22:16:57Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-11T22:16:57Z",
+          "completed_at": "2026-11-11T22:16:58Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/naturelle137/AeroDash/check-runs/130823927958",
+      "labels": [
+        "ubuntu-latest"
+      ],
+      "runner_id": 1000007936,
+      "runner_name": "GitHub Actions 1000007936",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 130823928128,
+      "run_id": 43110217067,
+      "workflow_name": "CI",
+      "head_branch": "hotfix/ci449-probe213-develop-negative-detector-failure",
+      "run_url": "https://api.github.com/repos/naturelle137/AeroDash/actions/runs/43110217067",
+      "run_attempt": 1,
+      "node_id": "CR_kwDORIOsPs8AAAAedba5QA",
+      "head_sha": "72b76e6307422d3b6d66263bb9d9b51062e7ba08",
+      "url": "https://api.github.com/repos/naturelle137/AeroDash/actions/jobs/130823928128",
+      "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110217067/job/130823928128",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-11T22:15:28Z",
+      "started_at": "2026-11-11T22:16:58Z",
+      "completed_at": "2026-11-11T22:17:01Z",
+      "name": "lint-markdown",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-11T22:16:58Z",
+          "completed_at": "2026-11-11T22:16:58Z"
+        },
+        {
+          "name": "Run echo \"Evidence-only fixture; no application validation\"",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-11T22:16:58Z",
+          "completed_at": "2026-11-11T22:16:59Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-11T22:16:59Z",
+          "completed_at": "2026-11-11T22:16:59Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/naturelle137/AeroDash/check-runs/130823928128",
+      "labels": [
+        "ubuntu-latest"
+      ],
+      "runner_id": 1000007938,
+      "runner_name": "GitHub Actions 1000007938",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 130824602618,
+      "run_id": 43110217067,
+      "workflow_name": "CI",
+      "head_branch": "hotfix/ci449-probe213-develop-negative-detector-failure",
+      "run_url": "https://api.github.com/repos/naturelle137/AeroDash/actions/runs/43110217067",
+      "run_attempt": 1,
+      "node_id": "CR_kwDORIOsPs8AAAAedcED-g",
+      "head_sha": "72b76e6307422d3b6d66263bb9d9b51062e7ba08",
+      "url": "https://api.github.com/repos/naturelle137/AeroDash/actions/jobs/130824602618",
+      "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110217067/job/130824602618",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-11T22:16:48Z",
+      "started_at": "2026-11-11T22:17:12Z",
+      "completed_at": "2026-11-11T22:17:15Z",
+      "name": "Integration Tests",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-11T22:17:13Z",
+          "completed_at": "2026-11-11T22:17:13Z"
+        },
+        {
+          "name": "Run echo \"Evidence-only fixture; no application validation\"",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-11T22:17:13Z",
+          "completed_at": "2026-11-11T22:17:13Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-11T22:17:13Z",
+          "completed_at": "2026-11-11T22:17:13Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/naturelle137/AeroDash/check-runs/130824602618",
+      "labels": [
+        "ubuntu-latest"
+      ],
+      "runner_id": 1000007952,
+      "runner_name": "GitHub Actions 1000007952",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 130824602779,
+      "run_id": 43110217067,
+      "workflow_name": "CI",
+      "head_branch": "hotfix/ci449-probe213-develop-negative-detector-failure",
+      "run_url": "https://api.github.com/repos/naturelle137/AeroDash/actions/runs/43110217067",
+      "run_attempt": 1,
+      "node_id": "CR_kwDORIOsPs8AAAAedcEEmw",
+      "head_sha": "72b76e6307422d3b6d66263bb9d9b51062e7ba08",
+      "url": "https://api.github.com/repos/naturelle137/AeroDash/actions/jobs/130824602779",
+      "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110217067/job/130824602779",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-11T22:16:48Z",
+      "started_at": "2026-11-11T22:17:25Z",
+      "completed_at": "2026-11-11T22:17:29Z",
+      "name": "Type Check",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-11T22:17:26Z",
+          "completed_at": "2026-11-11T22:17:26Z"
+        },
+        {
+          "name": "Run echo \"Evidence-only fixture; no application validation\"",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-11T22:17:26Z",
+          "completed_at": "2026-11-11T22:17:27Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-11T22:17:27Z",
+          "completed_at": "2026-11-11T22:17:27Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/naturelle137/AeroDash/check-runs/130824602779",
+      "labels": [
+        "ubuntu-latest"
+      ],
+      "runner_id": 1000007968,
+      "runner_name": "GitHub Actions 1000007968",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 130824603614,
+      "run_id": 43110217067,
+      "workflow_name": "CI",
+      "head_branch": "hotfix/ci449-probe213-develop-negative-detector-failure",
+      "run_url": "https://api.github.com/repos/naturelle137/AeroDash/actions/runs/43110217067",
+      "run_attempt": 1,
+      "node_id": "CR_kwDORIOsPs8AAAAedcEH3g",
+      "head_sha": "72b76e6307422d3b6d66263bb9d9b51062e7ba08",
+      "url": "https://api.github.com/repos/naturelle137/AeroDash/actions/jobs/130824603614",
+      "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110217067/job/130824603614",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-11T22:16:48Z",
+      "started_at": "2026-11-11T22:17:30Z",
+      "completed_at": "2026-11-11T22:17:33Z",
+      "name": "Unit Tests",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-11T22:17:31Z",
+          "completed_at": "2026-11-11T22:17:31Z"
+        },
+        {
+          "name": "Run echo \"Evidence-only fixture; no application validation\"",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-11T22:17:31Z",
+          "completed_at": "2026-11-11T22:17:31Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-11T22:17:31Z",
+          "completed_at": "2026-11-11T22:17:31Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/naturelle137/AeroDash/check-runs/130824603614",
+      "labels": [
+        "ubuntu-latest"
+      ],
+      "runner_id": 1000007974,
+      "runner_name": "GitHub Actions 1000007974",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 130824797443,
+      "run_id": 43110217067,
+      "workflow_name": "CI",
+      "head_branch": "hotfix/ci449-probe213-develop-negative-detector-failure",
+      "run_url": "https://api.github.com/repos/naturelle137/AeroDash/actions/runs/43110217067",
+      "run_attempt": 1,
+      "node_id": "CR_kwDORIOsPs8AAAAedcP9Aw",
+      "head_sha": "72b76e6307422d3b6d66263bb9d9b51062e7ba08",
+      "url": "https://api.github.com/repos/naturelle137/AeroDash/actions/jobs/130824797443",
+      "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110217067/job/130824797443",
+      "status": "completed",
+      "conclusion": "skipped",
+      "created_at": "2026-11-11T22:17:10Z",
+      "started_at": "2026-11-11T22:17:10Z",
+      "completed_at": "2026-11-11T22:17:10Z",
+      "name": "P1 Mutation Score",
+      "steps": [],
+      "check_run_url": "https://api.github.com/repos/naturelle137/AeroDash/check-runs/130824797443",
+      "labels": [
+        "ubuntu-latest"
+      ],
+      "runner_id": null,
+      "runner_name": null,
+      "runner_group_id": null,
+      "runner_group_name": null
+    },
+    {
+      "id": 130824985741,
+      "run_id": 43110217067,
+      "workflow_name": "CI",
+      "head_branch": "hotfix/ci449-probe213-develop-negative-detector-failure",
+      "run_url": "https://api.github.com/repos/naturelle137/AeroDash/actions/runs/43110217067",
+      "run_attempt": 1,
+      "node_id": "CR_kwDORIOsPs8AAAAedcbcjQ",
+      "head_sha": "72b76e6307422d3b6d66263bb9d9b51062e7ba08",
+      "url": "https://api.github.com/repos/naturelle137/AeroDash/actions/jobs/130824985741",
+      "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110217067/job/130824985741",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-11T22:17:33Z",
+      "started_at": "2026-11-11T22:17:45Z",
+      "completed_at": "2026-11-11T22:17:47Z",
+      "name": "Build",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-11T22:17:45Z",
+          "completed_at": "2026-11-11T22:17:45Z"
+        },
+        {
+          "name": "Run echo \"Evidence-only fixture; no application validation\"",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-11T22:17:45Z",
+          "completed_at": "2026-11-11T22:17:45Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-11T22:17:45Z",
+          "completed_at": "2026-11-11T22:17:45Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/naturelle137/AeroDash/check-runs/130824985741",
+      "labels": [
+        "ubuntu-latest"
+      ],
+      "runner_id": 1000007995,
+      "runner_name": "GitHub Actions 1000007995",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 130825104591,
+      "run_id": 43110217067,
+      "workflow_name": "CI",
+      "head_branch": "hotfix/ci449-probe213-develop-negative-detector-failure",
+      "run_url": "https://api.github.com/repos/naturelle137/AeroDash/actions/runs/43110217067",
+      "run_attempt": 1,
+      "node_id": "CR_kwDORIOsPs8AAAAedciszw",
+      "head_sha": "72b76e6307422d3b6d66263bb9d9b51062e7ba08",
+      "url": "https://api.github.com/repos/naturelle137/AeroDash/actions/jobs/130825104591",
+      "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110217067/job/130825104591",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-11T22:17:48Z",
+      "started_at": "2026-11-11T22:17:52Z",
+      "completed_at": "2026-11-11T22:17:56Z",
+      "name": "E2E Tests",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-11T22:17:53Z",
+          "completed_at": "2026-11-11T22:17:53Z"
+        },
+        {
+          "name": "Run echo \"Evidence-only fixture; no application validation\"",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-11T22:17:53Z",
+          "completed_at": "2026-11-11T22:17:54Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-11T22:17:54Z",
+          "completed_at": "2026-11-11T22:17:54Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/naturelle137/AeroDash/check-runs/130825104591",
+      "labels": [
+        "ubuntu-latest"
+      ],
+      "runner_id": 1000008003,
+      "runner_name": "GitHub Actions 1000008003",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 130825172009,
+      "run_id": 43110217067,
+      "workflow_name": "CI",
+      "head_branch": "hotfix/ci449-probe213-develop-negative-detector-failure",
+      "run_url": "https://api.github.com/repos/naturelle137/AeroDash/actions/runs/43110217067",
+      "run_attempt": 1,
+      "node_id": "CR_kwDORIOsPs8AAAAedcm0KQ",
+      "head_sha": "72b76e6307422d3b6d66263bb9d9b51062e7ba08",
+      "url": "https://api.github.com/repos/naturelle137/AeroDash/actions/jobs/130825172009",
+      "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110217067/job/130825172009",
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-11-11T22:17:56Z",
+      "started_at": "2026-11-11T22:18:20Z",
+      "completed_at": "2026-11-11T22:18:37Z",
+      "name": "CI Required",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-11T22:18:21Z",
+          "completed_at": "2026-11-11T22:18:21Z"
+        },
+        {
+          "name": "Checkout",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-11T22:18:21Z",
+          "completed_at": "2026-11-11T22:18:23Z"
+        },
+        {
+          "name": "Evaluator behavioural tests",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-11T22:18:23Z",
+          "completed_at": "2026-11-11T22:18:25Z"
+        },
+        {
+          "name": "Evaluate required results",
+          "status": "completed",
+          "conclusion": "failure",
+          "number": 4,
+          "started_at": "2026-11-11T22:18:25Z",
+          "completed_at": "2026-11-11T22:18:25Z"
+        },
+        {
+          "name": "Post Checkout",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8,
+          "started_at": "2026-11-11T22:18:25Z",
+          "completed_at": "2026-11-11T22:18:25Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-11-11T22:18:25Z",
+          "completed_at": "2026-11-11T22:18:25Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/naturelle137/AeroDash/check-runs/130825172009",
+      "labels": [
+        "ubuntu-latest"
+      ],
+      "runner_id": 1000008024,
+      "runner_name": "GitHub Actions 1000008024",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    }
+  ]
+}

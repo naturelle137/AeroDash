@@ -1,0 +1,37 @@
+﻿2026-11-11T22:17:35.4787662Z Current runner version: '2.338.2'
+2026-11-11T22:17:35.4812092Z ##[group]Runner Image Provisioner
+2026-11-11T22:17:35.4813114Z Hosted Compute Agent
+2026-11-11T22:17:35.4813730Z Version: 20261028.624
+2026-11-11T22:17:35.4814428Z Commit: 54898b74c23fde5556c9b3c3a2290865feef0dfe
+2026-11-11T22:17:35.4815143Z Build Date: 2026-10-28T21:51:42Z
+2026-11-11T22:17:35.4815885Z Worker ID: {7633acf9-f6ec-4b49-8a2b-45f64e53d900}
+2026-11-11T22:17:35.4816605Z Region: westus
+2026-11-11T22:17:35.4817169Z Cloud: Azure
+2026-11-11T22:17:35.4817737Z ##[endgroup]
+2026-11-11T22:17:35.4819592Z ##[group]Operating System
+2026-11-11T22:17:35.4820217Z Ubuntu
+2026-11-11T22:17:35.4820825Z 26.04.1
+2026-11-11T22:17:35.4821356Z LTS
+2026-11-11T22:17:35.4822165Z ##[endgroup]
+2026-11-11T22:17:35.4822853Z ##[group]Runner Image
+2026-11-11T22:17:35.4823470Z Image: ubuntu-26.04
+2026-11-11T22:17:35.4824110Z Version: 20261101.186.1
+2026-11-11T22:17:35.4825345Z Included Software: https://github.com/actions/runner-images/blob/ubuntu26/20261101.186/images/ubuntu/Ubuntu2604-Readme.md
+2026-11-11T22:17:35.4826973Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu26%2F20261101.186
+2026-11-11T22:17:35.4827925Z ##[endgroup]
+2026-11-11T22:17:35.4829111Z ##[group]GITHUB_TOKEN Permissions
+2026-11-11T22:17:35.4831198Z Contents: read
+2026-11-11T22:17:35.4832136Z Metadata: read
+2026-11-11T22:17:35.4832750Z ##[endgroup]
+2026-11-11T22:17:35.4834871Z Secret source: Actions
+2026-11-11T22:17:35.4835865Z Cache mode: write
+2026-11-11T22:17:35.4836582Z Prepare workflow directory
+2026-11-11T22:17:35.5170096Z Prepare all required actions
+2026-11-11T22:17:35.5277491Z Complete job name: Integration Tests
+2026-11-11T22:17:35.6346517Z ##[group]Run sleep 240
+2026-11-11T22:17:35.6347202Z sleep 240
+2026-11-11T22:17:35.7066587Z shell: /usr/bin/bash -e {0}
+2026-11-11T22:17:35.7067719Z ##[endgroup]
+2026-11-11T22:19:47.1579831Z ##[error]The operation was canceled.
+2026-11-11T22:19:47.1678034Z Cleaning up orphan processes
+2026-11-11T22:19:47.1904230Z Terminate orphan process: pid (2308) (sleep)
