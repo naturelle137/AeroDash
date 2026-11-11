@@ -41,14 +41,14 @@ Observed 2026-11-11 via Actions workflow/variable APIs and workflow source:
 | :----- | :----------------------- | :---------- |
 | `overnight-implementation.yml` | Schedule/dispatch; manually disabled; `AUTOMATION_ENABLED=true` | Leave disabled; HQ owns implementation |
 | `pr-review-bot.yml` | `workflow_run` after CI, DoD, Security and Mutation; active | Auxiliary Claude review, not independent HQ acceptance |
-| `pr-iteration.yml` | Review submission / CI completion; active | May correct `feature/issue-*` drafts; do not assign overlapping HQ work |
+| `pr-iteration.yml` | API state active, but dispatch-only and job guarded by `if: false` | Inert; keep disabled and do not restore legacy triggers |
 | `claude.yml` | Mention-triggered; active | Do not invoke alongside an HQ job |
 | `security.yml` | PR/push/schedule; disabled by inactivity | Restore-green/CI owners must establish current security evidence |
 
 The reviewer uses model alias `sonnet`, not a fixed Opus model. It posts COMMENT
 or REQUEST_CHANGES; it does not establish provider separation or the ADR-319
 head/base verdict contract. Its gating waits for workflow completion; this is
-not proof of success. The correction loop's Ready state is also not acceptance.
+not proof of success. The disabled correction loop's Ready state would also not be acceptance.
 The source contains guards for configured authentication and same-repository
 review runs; an active workflow flag alone does not prove a model was invoked.
 
