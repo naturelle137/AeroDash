@@ -40,7 +40,7 @@ argument-hint: <rough description of the issue>
   - ask: `comment` | `field update`
   - read: target issue before body/label/status edits
   - draft: comment or patch
-  - review: user approval required
+  - review: technical-agent approval required; board-level decisions follow ADR-319
   - exec.comment: `add_issue_comment`
   - exec.update: `issue_write` `method:update`
   - subissue.link: forbidden (parent/child sub-issues discontinued)

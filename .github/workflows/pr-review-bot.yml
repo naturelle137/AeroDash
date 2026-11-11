@@ -5,8 +5,8 @@ name: Autonomous PR Reviewer
 # Branching, Mutation) has finished on the same commit. Reviewing before the
 # pipeline reports is wasted work: a red CI/DoD result means the PR will get
 # corrected, and the review would just be re-run against a new commit. The
-# review is an AID to human review, never a substitute — and never an approval.
-# Governed by ADR-317-DEV.
+# review is auxiliary evidence, never the independent HQ approval (ADR-319).
+# Governed by ADR-319; legacy automation is not HQ approval.
 #
 # Fork safety: `workflow_run` runs in the context of the default branch with
 # default-branch secrets, but we still gate on `head_repository == this repo`
@@ -206,7 +206,7 @@ jobs:
             3. Safety gates — tests, coverage tiers, traceability tags/registries.
             4. Architecture, then style/nits.
 
-            CI-only hard rules (ADR-317-DEV invariants for the autonomous reviewer):
+            CI-only hard rules (ADR-319 auxiliary-review rules):
 
             - Submit EXACTLY ONE formal PR review as your final action — the
               ready-gate depends on it existing:
@@ -216,8 +216,9 @@ jobs:
                   `gh pr review ${{ steps.gate.outputs.pr }} --request-changes --body-file "$RUNNER_TEMP/review.md"`
             - NEVER approve. A clean review is always `--comment`, never an approval.
             - If the PR touches `frontend/src/core/` OR carries the `safety-critical`
-              label, open the review body with a bold notice that **human Lead Developer
-              review is mandatory** and this automated pass does not satisfy it.
+              label, open the review body with a bold notice that **independent other-provider
+              review and P1 safety evidence are mandatory** under ADR-319. This
+              auxiliary pass does not satisfy the HQ final-head/base verdict gate.
             - Read-only on the repo: do not edit files, push commits, or change merge
               state. The only state change is the single `gh pr review` call above.
           claude_args: |

@@ -125,7 +125,7 @@ When you open a PR, GitHub Actions will run comprehensive checks.
 Merging code to the production `main` branch is highly restricted.
 
 * **No Failing Tests:** Zero tolerance for failing tests or bypassed checks.
-* **Mandatory Peer Review:** All code must be reviewed and approved by at least one other developer. Code modifying P1 logic requires approval from a Lead Developer. *Note: Branch protection rules are currently configured to allow administrative overrides to facilitate progress until a secondary reviewer is onboarded.*
+* **Mandatory Peer Review:** Every agent-authored change requires independent other-provider review under [ADR-319](docs/architecture/adr/319-DEV-agent-review-governance.md), tied to the final head and reviewed base. P1 design review and safety evidence remain mandatory. Administrative bypass is forbidden.
 
 ### 4.x Code Comments (Comment Discipline)
 
@@ -275,18 +275,17 @@ The components residing in the Safety Core (P1) are governed by stricter rules:
 
 ### Autonomous AI Contributions
 
-An optional overnight automation can implement triaged `accepted` + `engineering`
-issues and open **Draft** PRs (see
-[ADR-317-DEV](docs/architecture/adr/317-DEV-autonomous-ai-contribution.md) and the
-[operator guide](docs/development/autonomous-implementation.md)). It is an aid to,
-**never a replacement for**, human review:
+HQ schedules agent work and independent review by the other provider under
+[ADR-319](docs/architecture/adr/319-DEV-agent-review-governance.md). Open a Draft
+PR, finish local/CI gates and verified signatures, then record the review verdict
+with full head/base SHAs and evidence. P1 and `safety-critical` work retains design
+review, hazard traceability, isolation, coverage and domain-reference checks.
+The CTO integrates only after live final-head verification; never queue auto-merge
+or bypass protection. The CEO is not the routine operational reviewer.
 
-* Every machine-authored PR is a **Draft** and is **never auto-merged**.
-* Any P1 (`frontend/src/core/`) or `safety-critical` change still requires human
-  **Lead Developer** approval — the automated reviewer cannot satisfy that gate.
-* All quality gates run unchanged; the automation never uses `--no-verify`.
-* **Opt an issue out** of automation by adding the **`automation:opt-out`** label;
-  the nightly kill switch is the repo variable `AUTOMATION_ENABLED`.
+Legacy GitHub workers are documented in the [operator guide](docs/development/autonomous-implementation.md).
+Do not enable duplicate workers or paid services. A bot COMMENT or Ready state
+does not satisfy independent review. All quality gates and hook checks remain.
 
 ## 8. 🏷️ P1/P2/P3 Dependency Classification Guide
 

@@ -1,5 +1,14 @@
 # CLAUDE.md — AeroDash
 
+## Review and integration authority
+
+[ADR-319](docs/architecture/adr/319-DEV-agent-review-governance.md) governs agent
+work: independent other-provider review, full final head/base evidence, verified
+signatures and immediate expected-head integration. No self-approval, bypass or
+queued auto-merge. P1 design review and every technical/safety gate remain;
+routine operational decisions belong to agents, not the CEO. HQ schedules work;
+do not enable overlapping GitHub workers or paid services.
+
 ## Project Overview
 
 AeroDash is a **Safety-Critical, Offline-First PWA** for General Aviation flight preparation (Mass & Balance, Performance, Fuel/Endurance). It is a `pnpm` monorepo with a single `frontend/` workspace package. All data persists in the browser via IndexedDB — no backend is required locally.

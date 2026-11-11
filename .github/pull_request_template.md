@@ -43,3 +43,12 @@
 - [ ] **DoD:** All Definition of Done items from the linked Feature/Bug are met.
 - [ ] **Review:** I have performed a self-review of my own code and documentation.
 - [ ] **ADR:** Does this change require an Architectural Decision Record (ADR) update/creation? If yes, it is included.
+
+### Independent Review (integration worker completes)
+
+- [ ] Other-provider verdict recorded with PR URL, full final head/base SHAs,
+  author/reviewer providers, HQ job and evidence links per ADR-319.
+- [ ] Every introduced commit has a verified signature; blocking findings and
+  conversations resolved; local gates and final-head CI green.
+- [ ] Live head/base rechecked before immediate expected-head merge; any change
+  requires new gates/review. No queued auto-merge or administrative bypass.

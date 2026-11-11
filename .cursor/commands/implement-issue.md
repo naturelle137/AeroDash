@@ -26,7 +26,7 @@ argument-hint: <ISSUE_ID>
 - `claim.project.edit`: `gh project item-edit --project-id <PROJECT_ID> --id <ITEM_ID> --field-id <STATUS_FIELD_ID> --single-select-option-id <IN_PROGRESS_OPTION_ID>`
 - `p1.detect`: any touched `frontend/src/core/`; any P1 child issue
 - `p1.constraints`: pure TypeScript; no `vue`/`pinia`/UI imports; deterministic; side-effect free; Zod validation
-- `p1.gate`: no code before approval
+- `p1.gate`: no code before independent technical-agent FRR approval; see `docs/architecture/adr/319-DEV-agent-review-governance.md`
 - `p1.frr`: present once; all P1 work
 - `p1.frr.fields`: `REQ` | `H` | output impact | pure-TS guarantee | deterministic guarantee | Zod plan | formula LaTeX | unit normalization | test plan | `>=3` edge cases | ADR need
 - `cycle.mode`: a `Feature` is finished only when ALL children are finished — discovery/scoping ticket ("not an implementation ticket" / "produce a recommendation" / "file follow-ups") -> deliverable is the recommendation + filed follow-ups; PR `Closes #{ISSUE_ID}`; file follow-ups as INDEPENDENT issues that reference it (not native sub-issues), never an umbrella; standalone -> PR `Closes #{ISSUE_ID}`; feature all-in-one -> implement feature + every open child on ONE branch, PR `Closes` feature + each child; sub-task incremental -> PR `Closes #{TASK_ID}`, and ALSO `Closes #{PARENT_ID}` when no sibling remains open

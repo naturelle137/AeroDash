@@ -23,33 +23,17 @@ skill prepares the inputs that workflow consumes, triggers the merge, then verif
 
 ## Merging into protected branches (`main` and `develop`) — read before Steps 4 & 6
 
-Both `main` and `develop` are protected identically, and it breaks every release if you forget it:
+Follow `docs/architecture/adr/319-DEV-agent-review-governance.md` on each target.
+Re-read live protection; historical lock/approval settings are not authority.
+Verify every introduced commit signature, local gates, current CI/security,
+resolved findings and independent other-provider APPROVE naming full head/base.
+Any head/base change requires repeat gates and review. Never bypass protection,
+queue auto-merge, or assume a signed merge repairs unsigned history.
 
-- **Locked + un-self-approvable review.** Each branch has `lock_branch: true` (read-only) and
-  requires **1 code-owner review**; the sole code owner is `@naturelle137`, who cannot approve their
-  own PR. A normal merge is therefore **always rejected** for a solo maintainer — this is what failed
-  before.
-- **Admin override is the merge mechanism.** `enforce_admins` is **false**, so the working path is
-  `gh pr merge <pr> --merge --admin` (bypasses the lock + the missing review). This is exactly how the
-  v0.2.0 back-merge (PR #138) actually merged — by admin, with `reviewDecision: REVIEW_REQUIRED` and
-  zero reviews. **Name the override every time**; it is legitimate only because the maintainer is the
-  sole code owner and authored the release. If the operator is not a repo admin, stop and hand the
-  merge to the user.
-- **Signatures are handled for you.** GitHub signs the merge commit it creates (PR #138's was
-  `verified: true`), satisfying `required_signatures` — *provided* you merge through GitHub
-  (`gh pr merge`), not a local push. Only locally-authored commits (e.g. conflict resolution) risk an
-  unsigned commit; `--admin` bypasses that too, but sign them if you can.
-- **Required checks must be green first.** `main` → `lint-markdown`. `develop` → `Lint`, `Type Check`,
-  `Unit Tests`, `Build`, `E2E Tests` (these run via `ci.yml` on PRs into `develop`). Non-required
-  checks (`pnpm audit`, `verify-dod-attestation`) may show red without blocking — note, don't gate.
-- **The DoD Attestation Gate (`dod-gate.yml`) fails any PR body containing `Closes`/`Fixes`/`Resolves #N`.**
-  Release and back-merge PRs close nothing (issues already closed on their `develop` feature merges) —
-  use `Ref #` only, never a closing keyword, or the gate goes red.
-- **`deleteBranchOnMerge: true`.** The `release/*` branch is auto-deleted the instant it merges to
-  `main`. So back-merge the release branch into **`develop` first** (Step 4, while it still exists),
-  then merge it into **`main` last** (Step 5), which both publishes the release and disposes of the
-  branch. Do **not** route the back-merge through `main` — that was only a workaround for the branch
-  being gone.
+Use immediate `gh pr merge <pr> --squash --match-head-commit <full-head-sha>` only
+after final live checks and the publication confirmations below. Verify resulting
+signature and integration CI. Preserve the release branch until both target PRs
+are complete; inspect branch-deletion settings before merging.
 
 ## Always-fresh refs (read every run)
 
@@ -92,8 +76,8 @@ pnpm test:unit && pnpm --filter frontend test:p1
 pnpm build
 ```
 
-E2E and full integration already gate `develop`; re-run them only if the release branch changed
-behavior since. If anything fails, stop and report — do not publish a broken build.
+Run integration and applicable Chromium/release browser journeys on the final candidate;
+do not assume the existing required-check list covers every mandatory test. If anything fails, stop and report — do not publish a broken build.
 
 ## Step 3 — Author the pilot-facing release notes
 
@@ -127,13 +111,13 @@ right, not the `main → develop` workaround forced by the branch being gone.
    - `CONFLICTING` → resolve on an integration branch, never in `develop`:
      `git switch -c chore/back-merge-v<version> origin/develop` → `git merge origin/<branch>` →
      resolve (CHANGELOG = union: develop's `[Unreleased]` **plus** the released `[<version>]` section;
-     `package.json` = the released version) → commit (sign it if you can) →
+     `package.json` = the released version) → commit with verified signing →
      `git push -u origin chore/back-merge-v<version>` → re-open the PR with `--head chore/back-merge-v<version>`.
 3. Wait for the required `develop` checks (`gh pr checks <pr> --watch`):
    `Lint`, `Type Check`, `Unit Tests`, `Build`, `E2E Tests`.
-4. Merge via admin override (`develop` is locked + the review can't be self-approved):
-   `gh pr merge <pr> --merge --admin`. GitHub signs the merge commit. Delete any integration branch
-   after. **Do not delete the release branch — Step 5 needs it.**
+4. After the confirmation above, complete the live ADR-319 preflight and merge
+   with the expected full head SHA. Verify resulting signature and CI.
+   Preserve the release branch for Step 5.
 
 ## Step 5 — Publish to `main` (LAST — this releases and disposes of the branch)
 
@@ -141,11 +125,11 @@ right, not the `main → develop` workaround forced by the branch being gone.
    Related Issues use `Ref #` only, never a closing keyword):
    `gh pr create --base main --head <branch> --title "Release v<version>" --body-file <filled-template>`
    Reuse an existing open `head:<branch> base:main` PR instead of duplicating.
-2. Wait for the required check (`lint-markdown`): `gh pr checks <pr> --watch`.
-3. Merge via admin override — see "Merging into protected branches":
-   `gh pr merge <pr> --merge --admin`. GitHub signs the merge commit, the push to `main` triggers
-   `publish-release.yml`, and the `release/*` branch auto-deletes (`deleteBranchOnMerge`) — all expected.
-   If the operator is not an admin, hand the merge to the user.
+2. Wait for all live required checks and applicable release/security gates.
+3. After the publication confirmation, obtain target-specific independent review
+   and complete the ADR-319 live preflight. Merge immediately with the expected
+   full head SHA; verify signature and resulting CI. Inspect the actual
+   `publish-release.yml` result.
 
 ## Step 6 — Verify the GitHub Release
 
@@ -179,8 +163,7 @@ The push to `main` triggers `publish-release.yml`. Watch and verify:
   (Step 4, `develop` → then `main`) without gate #2.
 - Never fabricate changelog/notes entries — everything traces to the dated CHANGELOG section.
 - Keep the release notes pilot-facing — defer all wording decisions to `release-notes.md`.
-- `--admin` merges are the documented bypass **only** because the maintainer is the sole code owner;
-  name it each time you use it. If the operator is not an admin, hand the merge to the user.
+- Administrative bypass and direct protected-branch pushes are forbidden.
 - Treat the release as irreversible once published: a wrong tag/body needs `gh release delete` +
   `git push origin --delete v<version>` and a re-run — avoid it by verifying before the merge sequence.
 - Temp files (filled PR template, etc.) go in `.tmp/` only.
