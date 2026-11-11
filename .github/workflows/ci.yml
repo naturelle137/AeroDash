@@ -136,7 +136,9 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Install Playwright browsers (Chromium only)
-        run: pnpm --filter frontend exec playwright install chromium --with-deps
+        run: |
+          sudo apt-get update
+          pnpm --filter frontend exec playwright install chromium --with-deps
 
       - name: Build frontend
         run: pnpm --filter frontend run build
