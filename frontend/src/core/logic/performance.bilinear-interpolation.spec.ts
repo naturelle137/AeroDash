@@ -500,3 +500,4 @@ describe('bilinearInterpolate — edge cases and validation', () => {
     expect(result.altitudeClamped).toBe(false)
   })
 })
+
