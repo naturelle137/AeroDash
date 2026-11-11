@@ -136,10 +136,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Install Playwright browsers (Chromium only)
-        run: |
-          sudo sed -i "s|azure.archive.ubuntu.com|archive.ubuntu.com|g" /etc/apt/sources.list /etc/apt/sources.list.d/* || true
-          sudo apt-get update
-          pnpm --filter frontend exec playwright install chromium --with-deps
+        run: pnpm --filter frontend exec playwright install chromium
 
       - name: Build frontend
         run: pnpm --filter frontend run build
