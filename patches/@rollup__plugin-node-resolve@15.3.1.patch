@@ -1,0 +1,41 @@
+diff --git a/dist/cjs/index.js b/dist/cjs/index.js
+index 75587404403068943c5e068f334d59d9aacbf63b..f2685a5cc5457a0861a6d5fb7bd75ab7de6c5fab 100644
+--- a/dist/cjs/index.js
++++ b/dist/cjs/index.js
+@@ -4,7 +4,6 @@ Object.defineProperty(exports, '__esModule', { value: true });
+ 
+ var path = require('path');
+ var module$1 = require('module');
+-var deepMerge = require('deepmerge');
+ var isModule = require('is-module');
+ var fs = require('fs');
+ var util = require('util');
+@@ -1060,7 +1059,7 @@ const defaults = {
+ };
+ const nodeImportPrefix = /^node:/;
+ 
+-const DEFAULTS = deepFreeze(deepMerge({}, defaults));
++const DEFAULTS = deepFreeze(structuredClone(defaults));
+ 
+ function nodeResolve(opts = {}) {
+   const { warnings } = handleDeprecatedOptions(opts);
+diff --git a/dist/es/index.js b/dist/es/index.js
+index 0fede6edb5ef36647e856bc2ed2dd90f7b3e45c4..226aae8f0b6b7285925dc83fc4c18a7233e26810 100644
+--- a/dist/es/index.js
++++ b/dist/es/index.js
+@@ -1,6 +1,5 @@
+ import path, { dirname, resolve, extname, normalize, sep } from 'path';
+ import { builtinModules } from 'module';
+-import deepMerge from 'deepmerge';
+ import isModule from 'is-module';
+ import fs, { realpathSync } from 'fs';
+ import { promisify } from 'util';
+@@ -1056,7 +1055,7 @@ const defaults = {
+ };
+ const nodeImportPrefix = /^node:/;
+ 
+-const DEFAULTS = deepFreeze(deepMerge({}, defaults));
++const DEFAULTS = deepFreeze(structuredClone(defaults));
+ 
+ function nodeResolve(opts = {}) {
+   const { warnings } = handleDeprecatedOptions(opts);
