@@ -16,14 +16,7 @@ name: Security Scanning
 # `@cyclonedx/cyclonedx-npm`) lives in ADR-318-DEV §"Supply-chain scan in CI".
 
 on:
-  push:
-    branches:
-      - main
-      - develop
-  pull_request:
-    branches:
-      - main
-      - develop
+  workflow_call:
   schedule:
     # Weekly full scan every Monday at 07:00 UTC
     - cron: '0 7 * * 1'

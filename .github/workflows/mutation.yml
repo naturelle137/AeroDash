@@ -16,16 +16,10 @@ name: Mutation Score (P1 Safety Core)
 # job is allowed to be slow: it runs as its own check and does not block
 # faster gates.
 #
-# Run-policy (see the `mutation-score` job's `if:` below):
-#   • PR to `main`     → ALWAYS run. Releases ship from `main`, so the
-#     mutation score must be re-verified regardless of whether the
-#     diff itself touches P1 (a release PR is the last quality gate
-#     before production).
-#   • PR to `develop`  → run ONLY when the diff touches the files that
-#     can actually change the mutation score (the P1 source itself, the
-#     Stryker / Vitest-P1 configs, the lockfile, or this workflow).
-#     Other diffs (docs, P2/P3 UI, unrelated workflow polish) cannot
-#     move the score, so re-running on them only burns CI minutes.
+# Run-policy: called from `ci.yml`, whose `changes` job decides applicability
+# (always for `main`; on `develop` only when P1-affecting paths changed). The
+# `CI Required` aggregate treats a skipped run as valid only when that
+# decision was an explicit, successful `false`.
 #
 # Refs: issue #260 (TECH-007/PR-015 from the v0.3.0-alpha release audit),
 #       docs/testing/TESTING.md §7,
@@ -33,52 +27,15 @@ name: Mutation Score (P1 Safety Core)
 #       reused via vitest.config.p1.ts).
 
 on:
-  pull_request:
-    branches: [develop, main]
-
-concurrency:
-  group: mutation-${{ github.ref }}
-  cancel-in-progress: true
+  workflow_call:
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  # Tiny detector job — runs on every triggering PR (~10 s) and reports
-  # whether the diff touches any path that can affect the mutation score.
-  # The expensive `mutation-score` job consults its output to decide
-  # whether to actually spin up Stryker on a `develop`-bound PR.
-  changes:
-    name: Detect P1-touching changes
-    runs-on: ubuntu-latest
-    outputs:
-      core: ${{ steps.filter.outputs.core }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v5
-
-      - name: Filter changed paths
-        uses: dorny/paths-filter@v4
-        id: filter
-        with:
-          filters: |
-            core:
-              - 'frontend/src/core/**'
-              - 'frontend/stryker.config.mjs'
-              - 'frontend/vitest.config.p1.ts'
-              - 'frontend/tsconfig.stryker.json'
-              - 'frontend/package.json'
-              - 'pnpm-lock.yaml'
-              - '.github/workflows/mutation.yml'
-
   mutation-score:
     name: P1 Mutation Score
-    needs: [changes]
-    # Always on `main`; conditional on `develop`. See the workflow header
-    # block for the rationale. When the condition is false the job is
-    # *skipped*, which GitHub reports as a neutral conclusion — fine
-    # because this check is not (currently) required by branch protection.
-    if: ${{ github.base_ref == 'main' || needs.changes.outputs.core == 'true' }}
     runs-on: ubuntu-latest
     # Generous wall-clock budget — Stryker re-runs the P1 vitest suite for
     # every generated mutant. The current P1 scope is small enough that
