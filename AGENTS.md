@@ -3,7 +3,7 @@
 ## Review and integration authority
 
 [ADR-319](docs/architecture/adr/319-DEV-agent-review-governance.md) governs agent
-work: independent other-provider review, full final head/base evidence, verified
+work: independent review, full final head/base evidence, verified
 signatures and immediate expected-head integration. No self-approval, bypass or
 queued auto-merge. P1 design review and every technical/safety gate remain;
 routine operational decisions belong to agents, not the CEO. HQ schedules work;

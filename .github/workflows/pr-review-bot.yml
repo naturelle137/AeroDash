@@ -216,9 +216,9 @@ jobs:
                   `gh pr review ${{ steps.gate.outputs.pr }} --request-changes --body-file "$RUNNER_TEMP/review.md"`
             - NEVER approve. A clean review is always `--comment`, never an approval.
             - If the PR touches `frontend/src/core/` OR carries the `safety-critical`
-              label, open the review body with a bold notice that **independent other-provider
+              label, open the review body with a bold notice that **independent
               review and P1 safety evidence are mandatory** under ADR-319. This
-              auxiliary pass does not satisfy the HQ final-head/base verdict gate.
+              auxiliary pass does not satisfy the HQ independent review requirement.
             - Read-only on the repo: do not edit files, push commits, or change merge
               state. The only state change is the single `gh pr review` call above.
           claude_args: |

@@ -125,7 +125,7 @@ When you open a PR, GitHub Actions will run comprehensive checks.
 Merging code to the production `main` branch is highly restricted.
 
 * **No Failing Tests:** Zero tolerance for failing tests or bypassed checks.
-* **Mandatory Peer Review:** Every agent-authored change requires independent other-provider review under [ADR-319](docs/architecture/adr/319-DEV-agent-review-governance.md), tied to the final head and reviewed base. P1 design review and safety evidence remain mandatory. Administrative bypass is forbidden.
+* **Mandatory Peer Review:** Every agent-authored change requires independent review under [ADR-319](docs/architecture/adr/319-DEV-agent-review-governance.md), with the reviewed head and base recorded. P1 design review and safety evidence remain mandatory. Administrative bypass is forbidden.
 
 ### 4.x Code Comments (Comment Discipline)
 
@@ -275,7 +275,7 @@ The components residing in the Safety Core (P1) are governed by stricter rules:
 
 ### Autonomous AI Contributions
 
-HQ schedules agent work and independent review by the other provider under
+HQ schedules agent work and independent review by a fresh session under
 [ADR-319](docs/architecture/adr/319-DEV-agent-review-governance.md). Open a Draft
 PR, finish local/CI gates and verified signatures, then record the review verdict
 with full head/base SHAs and evidence. P1 and `safety-critical` work retains design

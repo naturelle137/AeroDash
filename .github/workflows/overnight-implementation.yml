@@ -305,7 +305,7 @@ jobs:
           # "No commits produced"). --allowedTools MERGES with the action's
           # baseline (file ops + GitHub tools); we add Bash plus search/task
           # tools needed by the /implement-issue flow. Safety is unchanged: it
-          # rests on the Draft-only + independent-provider-review + CI-gate regime
+          # rests on the Draft-only + independent-review + CI-gate regime
           # (ADR-317-DEV), not on local permission gating — the Draft PR re-runs
           # every gate and is never auto-merged.
           claude_args: |
@@ -372,4 +372,4 @@ jobs:
           fi
           # Per-issue summary comment (run report links from the job summary).
           gh issue comment "${{ matrix.issue }}" --body \
-            "🤖 Overnight automation opened a Draft PR for this issue: ${PR_URL} (agent outcome: ${AGENT_OUTCOME}). It is a Draft pending independent other-provider review and safety evidence (ADR-319)."
+            "🤖 Overnight automation opened a Draft PR for this issue: ${PR_URL} (agent outcome: ${AGENT_OUTCOME}). It is a Draft pending independent review and safety evidence (ADR-319)."

@@ -1,8 +1,8 @@
 # Agent implementation and review operations
 
-HQ schedules work and cross-provider review under
+HQ schedules work and independent review under
 [ADR-319](../architecture/adr/319-DEV-agent-review-governance.md). The author opens
-a Draft PR and enqueues the other provider with `--avoid <author-provider>`.
+a Draft PR and enqueues a fresh review session.
 Include the PR, full head/base SHAs and evidence links. A bot COMMENT or Ready
 state is not approval. P1 design review, sourced reference cases, hazard links,
 isolation, coverage and all technical/security gates remain mandatory.
@@ -31,7 +31,7 @@ HQ #20 proved the existing-auth API path on assessment PR #448: signed commit
 [`f9750ecac311f2c04974a8f558972463db450893`](https://github.com/naturelle137/AeroDash/commit/f9750ecac311f2c04974a8f558972463db450893)
 has GitHub verification `valid` and the identical tree to original unsigned
 `41a6e91ba6a23cd891c423bcffd03b0a6dcfaa99`. Subsequent factual updates require
-fresh validation and review. This proves commit signing, not a protected merge.
+current CI and verification of named findings. This proves commit signing, not a protected merge.
 
 ## Legacy GitHub automation audit
 
@@ -43,10 +43,10 @@ Observed 2026-11-11 via Actions workflow/variable APIs and workflow source:
 | `pr-review-bot.yml` | `workflow_run` after CI, DoD, Security and Mutation; active | Auxiliary Claude review, not independent HQ acceptance |
 | `pr-iteration.yml` | API state active, but dispatch-only and job guarded by `if: false` | Inert; keep disabled and do not restore legacy triggers |
 | `claude.yml` | Mention-triggered; active | Do not invoke alongside an HQ job |
-| `security.yml` | PR/push/schedule; disabled by inactivity | Restore-green/CI owners must establish current security evidence |
+| `security.yml` | Active; reusable security workflow and dispatch | Verify blocking scans on the PR candidate |
 
 The reviewer uses model alias `sonnet`, not a fixed Opus model. It posts COMMENT
-or REQUEST_CHANGES; it does not establish provider separation or the ADR-319
+or REQUEST_CHANGES; it does not establish independent review or the ADR-319
 head/base verdict contract. Its gating waits for workflow completion; this is
 not proof of success. The disabled correction loop's Ready state would also not be acceptance.
 The source contains guards for configured authentication and same-repository
@@ -67,6 +67,7 @@ to #446/#449. Do not run duplicate model workers or introduce paid API fallback.
 
 The CTO checks live protection, final head/base, all signatures, current CI,
 resolved findings/conversations and the independent verdict immediately before
-an expected-head squash merge. No admin bypass and no queued auto-merge. Any
-head/base change requires repeat gates and review. Verify the resulting commit
+merging. Feature/fix PRs use `--squash --match-head-commit <sha>`. Release/hotfix
+PRs to main/develop use `--merge --match-head-commit <sha>` to preserve ancestry. No admin bypass and no queued auto-merge. Any
+head/base change requires current gates and signature verification. Verify the resulting commit
 signature and integration CI; record evidence in the PR and HQ journal.

@@ -150,8 +150,7 @@ vMAJOR.MINOR.PATCH
 ## Protected Branch Rules (GitHub Settings)
 
 Integration follows [ADR-319](../architecture/adr/319-DEV-agent-review-governance.md):
-PRs, verified signatures, green gates and independent other-provider review tied
-to the final head/base. No direct protected-branch push, queued auto-merge or
+PRs, verified signatures, green gates and independent review and final-head CI. No direct protected-branch push, queued auto-merge or
 administrative/Dependabot bypass. Read live GitHub protection before merging;
 the ADR records a dated snapshot, not a settings payload to replay.
 

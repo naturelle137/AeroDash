@@ -28,7 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Engineering
 
-- Align agent governance with independent other-provider review and verified, exact-head integration (ADR-319, #447).
+- Align agent governance with independent review and verified, exact-head integration (ADR-319, #447).
 - Flight Preparation sticky-strip stack uses `IntersectionObserver` per card; eliminates low-end-iPad flicker at strip boundary (TECH-016 / UX-009, refs #282)
 - `fleet.repository.ts` caches the `IDBDatabase` handle module-scoped; preflight no longer reopens IndexedDB 3× before the first weight (TECH-017, refs #282)
 - `MigrationPoint` carries `moment` alongside `arm`; moment-mode envelope chart plots the burn-down path without recomputing `arm × mass` downstream (TECH-012, refs #282)

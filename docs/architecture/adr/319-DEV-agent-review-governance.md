@@ -2,7 +2,7 @@
 
 * **Status:** Accepted
 * **Date:** 2026-11-11
-* **Decision:** HQ charter / O-08; issue #447.
+* **Decision:** HQ charter / directive 16; issue #447.
 * **Supersedes:** ADR-317 operational ownership and human-review requirements;
   ADR-302 human quality-gate wording. Technical and safety gates remain binding.
 
@@ -15,9 +15,8 @@ cannot establish independent review. A clean automated COMMENT is insufficient.
 
 ## Decision
 
-1. The author works on a branch and opens a Draft PR. HQ assigns review to the
-   **other provider**: Codex authors → Claude reviews, Claude authors → Codex
-   reviews (`hq enqueue ... review ... --avoid <author-provider>`).
+1. The author works on a branch and opens a Draft PR. HQ assigns review to a
+   fresh session that did not author the change. One independent review per PR.
 2. P1 and `safety-critical` changes retain their formal design review before
    implementation, now owned by an independent technical agent. Preserve FRR
    fields, hazard/requirement links, P1 isolation, deterministic reference cases,
@@ -37,22 +36,22 @@ cannot establish independent review. A clean automated COMMENT is insufficient.
    ```text
    VERDICT: APPROVE | CHANGES
    PR: <URL>
-   Head: <full final head SHA>
+   Head: <full reviewed head SHA>
    Base: <full reviewed base SHA>
    Author provider: <provider>
-   Reviewer provider / HQ job: <other provider> / <job ID>
+   Reviewer provider / HQ job: <provider> / <job ID>
    Evidence: <links to CI, local results, findings and applicable safety evidence>
    ```
 
-6. Any head change (including signing, rebase or conflict repair) invalidates
-   approval. If the base moves, update the branch. Repeat local gates, CI and
-   independent review for the new head/base. Draft/Ready status is not approval.
-7. The CTO verifies live head/base, protection, signatures, CI, resolved threads
-   and independent review immediately before an **immediate** expected-head
-   squash merge (`--match-head-commit` or REST `sha`). Never queue auto-merge:
-   GitHub would not revalidate a review comment after another push. A race or
-   mismatch requires revalidation. Never use admin bypass or push directly to
-   protected branches. Verify the resulting signature and integration CI.
+6. CHANGES gets one repair round. The CTO verifies each named blocker and the
+   final candidate's CI. A branch refresh requires current CI and signature
+   checks. The independent review remains valid across a base refresh.
+7. Verify protected targets, signatures, CI, findings and applicable domain
+   evidence before merging. For feature/fix PRs use `gh pr merge <pr> --squash
+   --match-head-commit <sha>`. For release/hotfix PRs targeting main or develop
+   use `gh pr merge <pr> --merge --match-head-commit <sha>` to retain both
+   parents. Verify the resulting signature and integration CI. Preserve branch
+   protection and the release publication confirmations.
 8. The CEO decides product vision, expenditure, access and legal/safety claims;
    agents own routine engineering and release operations. Existing publication
    confirmations in the release instructions remain outside this review change. No new credentials,
@@ -85,7 +84,6 @@ ownership are in the [operator guide](../../development/autonomous-implementatio
 
 ## Consequences
 
-Routine review no longer waits for the CEO. Provider separation, exact-head
-review and merge-time checks must be evidenced by the integration worker until
+Routine review no longer waits for the CEO. Independent review, final-head CI and merge-time checks must be evidenced by the integration worker until
 a separately reviewed technical gate exists. Green software tests do not validate
 POH data or certify flight use; [DISCLAIMER](../../../DISCLAIMER.md) still applies.

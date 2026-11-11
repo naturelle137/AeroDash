@@ -26,11 +26,11 @@ skill prepares the inputs that workflow consumes, triggers the merge, then verif
 Follow `docs/architecture/adr/319-DEV-agent-review-governance.md` on each target.
 Re-read live protection; historical lock/approval settings are not authority.
 Verify every introduced commit signature, local gates, current CI/security,
-resolved findings and independent other-provider APPROVE naming full head/base.
-Any head/base change requires repeat gates and review. Never bypass protection,
+resolved findings and independent APPROVE naming full head/base.
+A head/base refresh requires current CI and signature verification. Never bypass protection,
 queue auto-merge, or assume a signed merge repairs unsigned history.
 
-Use immediate `gh pr merge <pr> --squash --match-head-commit <full-head-sha>` only
+Release and hotfix PRs to either target preserve ancestry. Use `gh pr merge <pr> --merge --match-head-commit <full-head-sha>` only
 after final live checks and the publication confirmations below. Verify resulting
 signature and integration CI. Preserve the release branch until both target PRs
 are complete; inspect branch-deletion settings before merging.
@@ -108,15 +108,15 @@ right, not the `main → develop` workaround forced by the branch being gone.
    and a closing keyword trips the DoD gate.
 2. Mergeability: `gh pr view <pr> --json mergeable,mergeStateStatus`.
    - `MERGEABLE` → go to 3.
-   - `CONFLICTING` → resolve on an integration branch, never in `develop`:
-     `git switch -c chore/back-merge-v<version> origin/develop` → `git merge origin/<branch>` →
-     resolve (CHANGELOG = union: develop's `[Unreleased]` **plus** the released `[<version>]` section;
-     `package.json` = the released version) → commit with verified signing →
-     `git push -u origin chore/back-merge-v<version>` → re-open the PR with `--head chore/back-merge-v<version>`.
+   - If the branch is behind and merges cleanly, use the GitHub PR update-branch
+     API with `expected_head_sha`. Verify the new commit signature and repeat CI.
+   - If conflicts prevent a signed merge, retain both branches and stop release
+     integration until a verified merge-signing path is available. GitHub's
+     createCommitOnBranch API creates single-parent commits.
 3. Wait for the required `develop` checks (`gh pr checks <pr> --watch`):
    `Lint`, `Type Check`, `Unit Tests`, `Build`, `E2E Tests`.
 4. After the confirmation above, complete the live ADR-319 preflight and merge
-   with the expected full head SHA. Verify resulting signature and CI.
+   with `gh pr merge <pr> --merge --match-head-commit <sha>`. Verify resulting signature and CI.
    Preserve the release branch for Step 5.
 
 ## Step 5 — Publish to `main` (LAST — this releases and disposes of the branch)
@@ -127,8 +127,7 @@ right, not the `main → develop` workaround forced by the branch being gone.
    Reuse an existing open `head:<branch> base:main` PR instead of duplicating.
 2. Wait for all live required checks and applicable release/security gates.
 3. After the publication confirmation, obtain target-specific independent review
-   and complete the ADR-319 live preflight. Merge immediately with the expected
-   full head SHA; verify signature and resulting CI. Inspect the actual
+   and complete the ADR-319 live preflight. Run `gh pr merge <pr> --merge --match-head-commit <sha>`; verify signature and resulting CI. Inspect the actual
    `publish-release.yml` result.
 
 ## Step 6 — Verify the GitHub Release

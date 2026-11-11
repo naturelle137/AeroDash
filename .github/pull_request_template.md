@@ -46,9 +46,8 @@
 
 ### Independent Review (integration worker completes)
 
-- [ ] Other-provider verdict recorded with PR URL, full final head/base SHAs,
+- [ ] Independent verdict recorded with PR URL, reviewed head/base SHAs,
   author/reviewer providers, HQ job and evidence links per ADR-319.
 - [ ] Every introduced commit has a verified signature; blocking findings and
   conversations resolved; local gates and final-head CI green.
-- [ ] Live head/base rechecked before immediate expected-head merge; any change
-  requires new gates/review. No queued auto-merge or administrative bypass.
+- [ ] Live head/base rechecked before immediate expected-head merge; refresh CI after a change. No queued auto-merge or administrative bypass.
