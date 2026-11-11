@@ -40,14 +40,28 @@
       "micromatch>picomatch": "^2.3.2",
       "picomatch@>=4.0.0 <4.0.4": "^4.0.4",
       "defu": ">=6.1.5",
-      "brace-expansion@>=2.0.0 <2.0.3": "~2.0.3",
-      "brace-expansion@>=4.0.0 <5.0.5": "^5.0.5",
+      "brace-expansion@>=2.0.0 <2.1.7": "^2.1.7",
+      "brace-expansion@>=4.0.0 <5.0.12": "^5.0.12",
       "yaml": ">=2.8.3",
       "smol-toml": ">=1.6.1",
       "basic-ftp": ">=5.3.1",
       "serialize-javascript": ">=7.0.3",
       "ip-address": ">=10.1.1",
-      "uuid": ">=11.1.1"
+      "uuid": ">=11.1.1",
+      "fast-uri": ">=3.1.2",
+      "@babel/plugin-transform-modules-systemjs": ">=7.29.4",
+      "js-cookie": ">=3.0.7",
+      "qs": ">=6.15.2",
+      "compression": ">=1.8.2",
+      "markdown-it": ">=15.0.3 <16.0.0",
+      "esbuild@>=0.27.3 <0.28.1": "^0.28.1",
+      "@rollup/plugin-node-resolve>deepmerge": "-",
+      "glob@>=9.0.0 <14.0.2": "^14.0.2",
+      "minimatch@>=7.0.0 <11.0.1": "^11.0.1",
+      "katex@>=0.11.0 <0.18.2": "^0.18.2"
+    },
+    "patchedDependencies": {
+      "@rollup/plugin-node-resolve@15.3.1": "patches/@rollup__plugin-node-resolve@15.3.1.patch"
     }
   },
   "lint-staged": {
