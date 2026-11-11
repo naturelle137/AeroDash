@@ -29,13 +29,13 @@
     "lint-staged": "lint-staged"
   },
   "devDependencies": {
-    "@commitlint/cli": "^21.2.2",
-    "@commitlint/config-conventional": "^21.2.2",
+    "@commitlint/cli": "^21.2.4",
+    "@commitlint/config-conventional": "^21.2.4",
     "@release-it/conventional-changelog": "^11.0.1",
     "husky": "^9.1.7",
-    "lint-staged": "^17.3.0",
-    "markdownlint-cli2": "^0.23.2",
-    "release-it": "^20.2.0"
+    "lint-staged": "^17.6.0",
+    "markdownlint-cli2": "^0.23.3",
+    "release-it": "^20.2.1"
   },
   "pnpm": {
     "overrides": {
@@ -45,7 +45,7 @@
       "micromatch>picomatch": "^2.3.2",
       "picomatch@>=4.0.0 <4.0.4": "^4.0.4",
       "defu": ">=6.1.5",
-      "brace-expansion@>=2.0.0 <2.0.3": "~2.0.3",
+      "brace-expansion@>=2.0.0 <2.0.3": "~2.1.6",
       "brace-expansion@>=4.0.0 <5.0.5": "^5.0.5",
       "yaml": ">=2.8.3",
       "smol-toml": ">=1.6.1",
@@ -56,7 +56,9 @@
       "fast-uri": ">=3.1.2",
       "@babel/plugin-transform-modules-systemjs": ">=7.29.4",
       "js-cookie": ">=3.0.7",
-      "qs": ">=6.15.2"
+      "qs": ">=6.15.2",
+      "compression": ">=1.8.2",
+      "markdown-it": ">=15.0.3 <16.0.0"
     }
   },
   "lint-staged": {
