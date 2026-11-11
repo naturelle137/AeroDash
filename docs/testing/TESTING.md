@@ -331,3 +331,12 @@ survivors even when the gate has just failed.
 The `deploy-reports.yml` workflow continues to publish the latest Stryker
 HTML report from `main` for visibility — see the
 [CI Reports page](https://naturelle137.github.io/AeroDash/stryker/).
+
+## 8. CI Required Aggregate
+
+`.github/workflows/ci.yml` runs on PRs to `develop`/`main` and on push to both (resulting SHA). `CI Required` runs after all jobs (`always()`) and passes only if every mandatory job reports `success`:
+
+- `lint`, `lint-markdown`, `type-check`, `unit-tests` (incl. P1 90% coverage), `integration`, `build`, `e2e` (Chromium), `security` (CodeQL, `pnpm audit`, OSV, SBOM; OSV stays advisory on PRs).
+- `mutation` (threshold 70): required on `main` and when the `changes` detector reports P1-affecting paths; skipped only on an explicit successful `mutation_required=false`.
+- Failure, cancellation, timeout, missing or unexpected skipped/neutral results block. Evaluator: `.github/scripts/ci-required.mjs`; behavioural tests: `.github/scripts/ci-required.test.mjs` (run inside the aggregate job).
+- Not aggregated (separate workflows): `governance` (main source branch), `dod-gate`, warn-only `traceability`.

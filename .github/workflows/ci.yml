@@ -3,18 +3,70 @@ name: CI
 on:
   pull_request:
     branches: [develop, main]
+  push:
+    branches: [develop, main]
 
-# Cancel any in-progress run for the same PR/branch so stale runs never
-# pile up as permanently-pending checks.
+# Only PR runs are cancelled when superseded; every push run is keyed by its
+# own SHA so each resulting commit keeps its own evidence.
 concurrency:
-  group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  group: ci-${{ github.event_name }}-${{ github.event_name == 'pull_request' && github.ref || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
 
 jobs:
+  # ── Applicability decision for optional heavy gates ─────────────────────────
+  changes:
+    name: Detect applicable gates
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      mutation_required: ${{ steps.decide.outputs.mutation_required }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Filter changed paths
+        uses: dorny/paths-filter@v4
+        id: filter
+        with:
+          filters: |
+            core:
+              - 'frontend/src/core/**'
+              - 'frontend/stryker.config.mjs'
+              - 'frontend/vitest.config.p1.ts'
+              - 'frontend/tsconfig.stryker.json'
+              - 'frontend/package.json'
+              - 'pnpm-lock.yaml'
+              - '.github/workflows/mutation.yml'
+              - '.github/workflows/ci.yml'
+
+      - name: Decide mutation applicability
+        id: decide
+        env:
+          TARGET: ${{ github.base_ref || github.ref_name }}
+          CORE_CHANGED: ${{ steps.filter.outputs.core }}
+        run: |
+          if [ "$TARGET" = "main" ]; then
+            echo "mutation_required=true" >> "$GITHUB_OUTPUT"
+          elif [ "$CORE_CHANGED" = "true" ]; then
+            echo "mutation_required=true" >> "$GITHUB_OUTPUT"
+          elif [ "$CORE_CHANGED" = "false" ]; then
+            echo "mutation_required=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "Detector produced no usable output: $CORE_CHANGED" >&2
+            exit 1
+          fi
+
   # ── Stage 1: fast feedback ──────────────────────────────────────────────────
   lint:
     name: Lint
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -44,6 +96,7 @@ jobs:
   type-check:
     name: Type Check
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     needs: [lint]
     steps:
       - name: Checkout
@@ -67,6 +120,7 @@ jobs:
   unit-tests:
     name: Unit Tests
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     needs: [lint]
     steps:
       - name: Checkout
@@ -94,6 +148,7 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     needs: [type-check, unit-tests]
     steps:
       - name: Checkout
@@ -118,6 +173,7 @@ jobs:
   e2e:
     name: E2E Tests
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: [build]
     steps:
       - name: Checkout
@@ -159,3 +215,92 @@ jobs:
           name: playwright-test-results
           path: frontend/test-results/
           retention-days: 14
+
+  lint-markdown:
+    name: lint-markdown
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint Markdown
+        run: pnpm run lint:md
+
+  integration:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: [lint]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run integration tests
+        run: pnpm --filter frontend run test:integration
+
+  mutation:
+    name: P1 Mutation Score
+    needs: [changes]
+    if: ${{ needs.changes.outputs.mutation_required == 'true' }}
+    uses: ./.github/workflows/mutation.yml
+
+  security:
+    name: Security Scanning
+    permissions:
+      actions: read
+      contents: write
+      security-events: write
+    uses: ./.github/workflows/security.yml
+
+  ci-required:
+    name: CI Required
+    if: ${{ always() }}
+    needs:
+      - changes
+      - lint
+      - lint-markdown
+      - type-check
+      - unit-tests
+      - integration
+      - build
+      - e2e
+      - mutation
+      - security
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Evaluator behavioural tests
+        run: node --test .github/scripts/ci-required.test.mjs
+
+      - name: Evaluate required results
+        env:
+          NEEDS_JSON: ${{ toJSON(needs) }}
+        run: node .github/scripts/ci-required.mjs
