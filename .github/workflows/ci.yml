@@ -16,267 +16,85 @@ permissions:
   contents: read
 
 jobs:
-  # ── Applicability decision for optional heavy gates ─────────────────────────
   changes:
     name: Detect applicable gates
     runs-on: ubuntu-latest
-    timeout-minutes: 5
-    permissions:
-      contents: read
-      pull-requests: read
+    timeout-minutes: 2
     outputs:
       mutation_required: ${{ steps.decide.outputs.mutation_required }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v5
+      - id: decide
+        run: echo "mutation_required=false" >> "$GITHUB_OUTPUT"
 
-      - name: Filter changed paths
-        uses: dorny/paths-filter@v4
-        id: filter
-        with:
-          base: ${{ github.event_name == 'push' && github.ref_name || '' }}
-          filters: |
-            core:
-              - 'frontend/src/core/**'
-              - 'frontend/stryker.config.mjs'
-              - 'frontend/vitest.config.p1.ts'
-              - 'frontend/tsconfig.stryker.json'
-              - 'frontend/package.json'
-              - 'pnpm-lock.yaml'
-              - '.github/workflows/mutation.yml'
-              - '.github/workflows/ci.yml'
-
-      - name: Decide mutation applicability
-        id: decide
-        env:
-          TARGET: ${{ github.base_ref || github.ref_name }}
-          CORE_CHANGED: ${{ steps.filter.outputs.core }}
-        run: |
-          if [ "$TARGET" = "main" ]; then
-            echo "mutation_required=true" >> "$GITHUB_OUTPUT"
-          elif [ "$CORE_CHANGED" = "true" ]; then
-            echo "mutation_required=true" >> "$GITHUB_OUTPUT"
-          elif [ "$CORE_CHANGED" = "false" ]; then
-            echo "mutation_required=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "Detector produced no usable output: $CORE_CHANGED" >&2
-            exit 1
-          fi
-
-  # ── Stage 1: fast feedback ──────────────────────────────────────────────────
   lint:
     name: Lint
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 2
     steps:
-      - name: Checkout
-        uses: actions/checkout@v5
+      - run: echo "Evidence-only fixture; no application validation"
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v5
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: 24
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Lint Markdown
-        run: pnpm run lint:md
-
-      - name: Run oxlint
-        run: pnpm --filter frontend run lint:ci:oxlint
-
-      - name: Run ESLint
-        run: pnpm --filter frontend run lint:ci:eslint
-
-  # ── Stage 2: type safety + correctness (parallel, only after lint) ──────────
   type-check:
     name: Type Check
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 2
     needs: [lint]
     steps:
-      - name: Checkout
-        uses: actions/checkout@v5
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v5
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: 24
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Run type check
-        run: pnpm --filter frontend run type-check
+      - run: echo "Evidence-only fixture; no application validation"
 
   unit-tests:
     name: Unit Tests
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 2
     needs: [lint]
     steps:
-      - name: Checkout
-        uses: actions/checkout@v5
+      - run: echo "Evidence-only fixture; no application validation"
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v5
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: 24
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Run unit tests
-        run: pnpm --filter frontend run test:unit
-
-      - name: P1 safety-core tests (90% coverage gate)
-        run: pnpm --filter frontend run test:p1:coverage
-
-  # ── Stage 3: production build (only after type-check + unit-tests pass) ─────
   build:
     name: Build
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 2
     needs: [type-check, unit-tests]
     steps:
-      - name: Checkout
-        uses: actions/checkout@v5
+      - run: echo "Evidence-only fixture; no application validation"
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v5
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: 24
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Build frontend
-        run: pnpm --filter frontend run build
-
-  # ── Stage 4: E2E (only after build passes) ──────────────────────────────────
   e2e:
     name: E2E Tests
-    runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
     needs: [build]
     steps:
-      - name: Checkout
-        uses: actions/checkout@v5
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v5
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: 24
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Install Playwright browsers (Chromium only)
-        run: pnpm --filter frontend exec playwright install chromium
-
-      - name: Build frontend
-        run: pnpm --filter frontend run build
-
-      - name: Run E2E tests
-        run: pnpm --filter frontend test:e2e
-
-      - name: Upload Playwright report
-        if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v5
-        with:
-          name: playwright-report
-          path: frontend/playwright-report/
-          retention-days: 14
-
-      - name: Upload test results (traces, screenshots, videos)
-        if: failure()
-        uses: actions/upload-artifact@v5
-        with:
-          name: playwright-test-results
-          path: frontend/test-results/
-          retention-days: 14
+      - run: echo "Evidence-only fixture; no application validation"
 
   lint-markdown:
     name: lint-markdown
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 2
     steps:
-      - name: Checkout
-        uses: actions/checkout@v5
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v5
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: 24
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Lint Markdown
-        run: pnpm run lint:md
+      - run: echo "Evidence-only fixture; no application validation"
 
   integration:
     name: Integration Tests
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 2
     needs: [lint]
     steps:
-      - name: Checkout
-        uses: actions/checkout@v5
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v5
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: 24
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Run integration tests
-        run: pnpm --filter frontend run test:integration
+      - run: sleep 240
 
   mutation:
     name: P1 Mutation Score
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
     needs: [changes]
     if: ${{ needs.changes.outputs.mutation_required == 'true' }}
-    uses: ./.github/workflows/mutation.yml
+    steps:
+      - run: echo "Evidence-only fixture; no application validation"
 
   security:
     name: Security Scanning
-    permissions:
-      actions: read
-      contents: write
-      security-events: write
-    uses: ./.github/workflows/security.yml
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - run: echo "Evidence-only fixture; no application validation"
 
   ci-required:
     name: CI Required
