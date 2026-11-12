@@ -8,28 +8,18 @@
  * `.feature` file only (STC §B.3 / §3.4).
  */
 
-import type { Page } from '@playwright/test'
 import { expect } from '@playwright/test'
 import { createBdd } from 'playwright-bdd'
+import { flushFleetSeed, stageFleetSeed } from '../fixtures/fleet-seed'
 
 const { Given, When, Then } = createBdd()
 
 // ─── Seed: write a Draft profile into IndexedDB after the app has opened it ──
 //
-// Driving the full 5-step wizard for every scenario would shave minutes off
+// Driving the full six-step wizard for every scenario would shave minutes off
 // the regression suite, so we write the profile directly into IndexedDB. The
 // schema mirrors the canonical "Tecnam P2008 JC" fixture and validates
 // against AircraftProfileSchema.
-//
-// We seed AFTER the first navigation so the app has already opened and
-// migrated the database at whatever version `fleet.repository.ts` currently
-// uses. Opening here with no `version` argument piggybacks on that existing
-// schema — there is no hardcoded `DB_VERSION` to keep in lockstep with the
-// production code, so a future schema bump cannot silently break this test
-// with an IndexedDB `VersionError`.
-
-const FLEET_DB_NAME = 'aerodash-fleet'
-const FLEET_STORE_NAME = 'aircraft_profiles'
 
 interface SeededProfile {
   id: string
@@ -97,53 +87,10 @@ const SEED_PROFILE: SeededProfile = {
   ],
 }
 
-// Profiles staged by `Given … already exists` for the next page-visit step to
-// flush into IndexedDB. Keyed by the live Playwright `Page` so parallel
-// scenarios cannot leak into each other.
-const pendingSeeds = new WeakMap<Page, SeededProfile[]>()
-
-function stageSeed(page: Page, profile: SeededProfile): void {
-  const queue = pendingSeeds.get(page) ?? []
-  queue.push(profile)
-  pendingSeeds.set(page, queue)
-}
-
-async function flushSeeds(page: Page): Promise<void> {
-  const queue = pendingSeeds.get(page) ?? []
-  if (queue.length === 0) return
-  pendingSeeds.delete(page)
-  await page.evaluate(
-    ({ dbName, storeName, profiles }) =>
-      new Promise<void>((resolve, reject) => {
-        const req = indexedDB.open(dbName)
-        req.onerror = () => reject(req.error ?? new Error('open failed'))
-        req.onsuccess = () => {
-          const db = req.result
-          if (!db.objectStoreNames.contains(storeName)) {
-            db.close()
-            reject(new Error(`Object store '${storeName}' not created yet`))
-            return
-          }
-          const tx = db.transaction(storeName, 'readwrite')
-          for (const p of profiles) tx.objectStore(storeName).put(p)
-          tx.oncomplete = () => {
-            db.close()
-            resolve()
-          }
-          tx.onerror = () => {
-            db.close()
-            reject(tx.error ?? new Error('tx failed'))
-          }
-        }
-      }),
-    { dbName: FLEET_DB_NAME, storeName: FLEET_STORE_NAME, profiles: queue },
-  )
-}
-
 Given(
   'a single Draft profile {string} already exists in the fleet',
   async ({ page }, registration: string) => {
-    stageSeed(page, { ...SEED_PROFILE, registration })
+    stageFleetSeed(page, { ...SEED_PROFILE, registration })
   },
 )
 
@@ -156,7 +103,7 @@ Given('the pilot is on the Fleet page', async ({ page }) => {
 
   // Now flush any pending seed and reload so the FleetView re-renders with the
   // freshly-written rows.
-  await flushSeeds(page)
+  await flushFleetSeed(page)
   await page.reload()
   await expect(page.locator('.profile-item').first()).toBeVisible()
 })

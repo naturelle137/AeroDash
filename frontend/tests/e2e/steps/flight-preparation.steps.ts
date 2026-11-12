@@ -6,12 +6,12 @@ const { When, Then } = createBdd()
 // ─── Helpers ───────────────────────────────────────────────────────────────
 
 async function fillStation(page: import('@playwright/test').Page, label: string, value: string) {
-  // .mass-station-input: compound component has no single ARIA role; label-scoped CSS is the narrowest viable locator
-  const input = page
-    .locator('.mass-station-input', { has: page.locator('label', { hasText: label }) })
-    .locator('input[type="number"]')
+  // Exact label match: "Baggage" must not resolve to "Baggage Area 1", and the
+  // fuel slider's aria-label must not compete with the decimal field.
+  const input = page.locator('.mass-station-input').getByLabel(label, { exact: true })
   await input.fill(value)
-  await input.dispatchEvent('input')
+  await input.blur()
+  await expect(input).toHaveValue(value)
 }
 
 // ─── When steps — Happy path (UJ-B-005) ────────────────────────────────────
@@ -89,15 +89,18 @@ Then('the aircraft masses are within limits', async ({ page }) => {
 })
 
 Then('the center of gravity remains within the envelope during the flight', async ({ page }) => {
-  await expect(page.getByRole('img', { name: /SAFE/ })).toBeVisible()
+  // Draft seeds cap the overall state at WARNING (WARN-AC-002), so SAFE is
+  // unreachable by design; a CG breach would raise the chart to CRITICAL.
+  await expect(page.getByRole('img', { name: /CG Envelope Chart — (SAFE|WARNING), TOM/ })).toBeVisible()
+  // .notification--critical: semantic severity class; no ARIA role distinguishes critical-level alerts
+  await expect(page.locator('.notification--critical')).toHaveCount(0)
 })
 
-Then('no warnings are displayed', async ({ page }) => {
-  await expect(page.locator('.notification.notification--success')).toContainText(
-    'Mass & Balance verified',
-  )
+Then('the only warning is the unverified draft-profile notice', async ({ page }) => {
   // .notification--warning: semantic severity class; no ARIA role distinguishes warning-level alerts
-  await expect(page.locator('.notification--warning')).toHaveCount(0)
+  const warnings = page.locator('.notification--warning')
+  await expect(warnings).toHaveCount(1)
+  await expect(warnings).toHaveText('Draft Profile Active')
   // .notification--critical: semantic severity class; no ARIA role distinguishes critical-level alerts
   await expect(page.locator('.notification--critical')).toHaveCount(0)
 })
