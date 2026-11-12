@@ -48,10 +48,10 @@ To eliminate "guesstimation" from General Aviation flight preparation by providi
 * If the POH says it's tight, we tell you it's tight. We prefer a cancelled flight over a calculated risk.
 * Calculations are based on verified physics and accepted aviation standards, not UI convenience.
 
-#### Traceability
+#### Evidence
 
-* Trust is earned through transparency. There is no "hidden magic" – every output in AeroDash is traceable to a specific requirement and a verified data source.
-* All hazards arising from the use of AeroDash are understood and mitigated.
+* Calculations need explicit inputs, limits and independently checked reference cases.
+* Synthetic tests check software behavior; aircraft-specific data still requires verification against the actual POH/AFM and weighing report.
 
 <a name="intendedUse"></a>
 
@@ -63,10 +63,10 @@ AeroDash is a specialized **Flight Preparation and Decision Support Tool** desig
 
 #### Core Capabilities
 
-* **Go/No-Go Decision Support:** Provides mathematical proof that the aircraft is within certified limits for Mass, Center of Gravity (CG), and Performance under expected environmental conditions.
+* **Go/No-Go Decision Support:** Aims to compare calculated mass, CG and performance against entered aircraft limits; see the current delivery limits below.
 * **Aircraft-Specific Data:** Operates on the exact data of a specific airframe (based on its individual Weighing Report and POH), not generic type data.
-* **Hybrid Performance Calculation:** Combines POH table interpolation with standardized safety factors (e.g., FSM 3/75) to provide conservative distance estimates for unpaved or contaminated runways.
-* **Simple Endurance Check:** Calculates "Time to Empty" based on user-entered fuel quantities to validate if the planned flight time including reserves is within the endurance.
+* **Performance goal:** Combine aircraft POH interpolation with applicable documented correction factors; the Performance view currently inspects four uncorrected POH distances within complete tables’ bounds.
+* **Endurance goal:** Compare planned flight time, including reserves, with usable fuel and planned flow. Integrated endurance planning remains future work.
 
 #### Target Operational Context
 
@@ -116,3 +116,13 @@ AeroDash uses **dual licensing**:
 
 See the full development roadmap here:
 👉 [docs/development/roadmap.md](docs/development/roadmap.md)
+
+## Current delivery limits
+
+The current frontend provides local aircraft management, M&B preparation and raw POH table inspection. Import your own sourced tables in Fleet, review the points, explicitly verify the Draft, then select the snapshot in Performance and enter kg/ft/°C. Invalid or out-of-envelope lookups are blocked. No default performance tables, operational factors or runway assessment are supplied. Weather and endurance remain placeholders; cloud, airport integration and briefing export are future capabilities. See the [roadmap](docs/development/roadmap.md). Requirements describe the intended product, not a list of certified or fully shipped features.
+
+## Development and documentation
+
+Use Node >=22.12 and Corepack/pnpm. Run `pnpm install --frozen-lockfile`, then `pnpm dev` (port 5173). Validate with `pnpm lint && pnpm test:unit`; use `pnpm test:e2e --project=chromium` for browser checks.
+
+Start with [AGENTS.md](AGENTS.md), [Contributing](CONTRIBUTING.md), [Architecture](ARCHITECTURE.md), [Requirements](docs/requirements/README.md), [Testing](docs/testing/TESTING.md) and [user flows](docs/journeys/README.md). Developer docs and requirements are English; this README has a maintained [German version](README-DE.md).

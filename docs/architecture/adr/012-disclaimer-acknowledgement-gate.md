@@ -18,25 +18,6 @@ until the pilot has acknowledged the disclaimer. This ADR records how that
 acknowledgement is obtained and enforced, and why a route-level block keyed to a
 disclaimer baseline was chosen over the lighter alternatives.
 
-## Considered Options
-
-- **Option A — Documentation only (status quo):** rely on `DISCLAIMER.md` and
-  the README. The pilot may never open either; the liability statement stays out
-  of the runtime path. Does not satisfy REQ-SYS-016.
-- **Option B — Non-blocking notice (banner/toast on first launch):** a dismissible
-  advisory shown over the app. The pilot can ignore it and proceed to the
-  safety-critical functions without acknowledging, so it does not *prevent use*.
-- **Option C — Blocking modal as a visual overlay only:** a modal covering the UI
-  while the destination route still mounts behind it. The route component, its
-  stores, and its computation run regardless, and the surface remains reachable
-  by typing a route URL (e.g. `/mass-balance`) directly, by deep link, or by
-  reload. The block is bypassable.
-- **Option D — Route-level block with persisted, baseline-keyed acknowledgement
-  (chosen):** the router outlet does not mount the destination route while the
-  acknowledgement is outstanding, the surrounding shell is made inert, and the
-  one-way modal is the only exit; acceptance is persisted and re-requested only
-  when the disclaimer baseline changes.
-
 ## Decision
 
 We adopt **Option D**, with the following binding constraints:
@@ -78,15 +59,3 @@ We adopt **Option D**, with the following binding constraints:
   switching device/browser re-prompts.
 - A pilot in a browser without writable `localStorage` is re-prompted on every
   launch.
-
-## Compliance
-
-- **REQ-SYS-016 (Disclaimer Acknowledgement)** — this ADR is the decision record
-  for that requirement; the mechanism is specified in
-  [Disclaimer Acknowledgement](../disclaimer-acknowledgement.md).
-- **Safety.** Not tied to a numbered hazard; the gate reinforces the H-class
-  chain by making POH precedence and Pilot-in-Command responsibility a
-  precondition for use. No `H-xxx` register entry is added.
-- **GDPR.** The acceptance record holds no personal data — a schema version, the
-  build version/baseline, and a timestamp — and is never transmitted; it is
-  covered by the data-rights erasure control. n/a otherwise.

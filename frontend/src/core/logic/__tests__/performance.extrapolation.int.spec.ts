@@ -17,7 +17,6 @@
  * @see docs/architecture/performance-extrapolation-control.md
  */
 
-// @IT-PF-CORE-003@ (FROM: @IMP-PF-CORE-003@, @IMP-PF-CORE-011@)
 
 import { describe, it, expect } from 'vitest'
 import {

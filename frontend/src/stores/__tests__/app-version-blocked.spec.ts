@@ -10,7 +10,6 @@
  * interference when running alongside other test files in the full unit suite.
  */
 
-// @UT-SYS-APP-026@ (FROM: @IMP-SYS-SHARED-006@, @REQ-SYS-006@)
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
@@ -48,7 +47,6 @@ describe('REQ-SYS-006 version-blocked gate (store state + rendering)', () => {
     return mount(VersionGate, { global: { plugins: [pinia] } })
   }
 
-  // @UT-SYS-APP-026@ (FROM: @IMP-SYS-SHARED-006@, @REQ-SYS-006@)
   it('renders content when versionBlocked is false', async () => {
     const store = useAppVersionStore()
     store.versionBlocked = false
@@ -60,7 +58,6 @@ describe('REQ-SYS-006 version-blocked gate (store state + rendering)', () => {
     expect(wrapper.find('[data-testid="router-view"]').exists()).toBe(true)
   })
 
-  // @UT-SYS-APP-027@ (FROM: @IMP-SYS-SHARED-006@, @REQ-SYS-006@)
   it('renders version-blocked-screen and hides content when versionBlocked is true', async () => {
     const store = useAppVersionStore()
     store.versionBlocked = true
@@ -72,7 +69,6 @@ describe('REQ-SYS-006 version-blocked gate (store state + rendering)', () => {
     expect(wrapper.find('[data-testid="router-view"]').exists()).toBe(false)
   })
 
-  // @UT-SYS-APP-028@ (FROM: @IMP-SYS-SHARED-006@, @REQ-SYS-006@)
   it('blocked screen exposes currentVersion and minSafeVersion from store', async () => {
     const store = useAppVersionStore()
     store.versionBlocked = true
@@ -88,7 +84,6 @@ describe('REQ-SYS-006 version-blocked gate (store state + rendering)', () => {
     expect(wrapper.find('[data-testid="min-version"]').text()).toBe('0.3.0')
   })
 
-  // @UT-SYS-APP-029@ (FROM: @IMP-SYS-STORE-008@, @REQ-SYS-006@)
   it('checkMinSafeVersion sets versionBlocked=true when current < minimum', async () => {
     vi.stubGlobal('navigator', { onLine: true })
     const store = useAppVersionStore()
@@ -102,7 +97,6 @@ describe('REQ-SYS-006 version-blocked gate (store state + rendering)', () => {
     vi.unstubAllGlobals()
   })
 
-  // @UT-SYS-APP-030@ (FROM: @IMP-SYS-SHARED-006@, @REQ-SYS-006@)
   it('versionBlocked gate is reactive: component re-renders when store state changes', async () => {
     const store = useAppVersionStore()
     store.versionBlocked = false

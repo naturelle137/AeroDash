@@ -72,7 +72,6 @@ function clamp(value: number): number {
 }
 
 // ─── Sanitised decimal entry + inline rejection feedback ──────────────────
-// @IMP-MB-UI-010@ (FROM: @REQ-UQ-001@)
 //
 // The field is a DecimalInput (type=text + inputmode=decimal + regex sanitiser)
 // instead of type=number, so "e"/"+" can no longer slip through and be parsed
@@ -152,7 +151,6 @@ function applyPreset(value: number): void {
 </script>
 
 <template>
-  <!-- @IMP-MB-UI-006@ (FROM: @REQ-UQ-004@) -->
   <div
     class="mass-station-input"
     :class="{
@@ -165,13 +163,11 @@ function applyPreset(value: number): void {
       <label :for="`station-${station.index}`" class="mass-station-input__label">
         {{ station.name }}
       </label>
-      <!-- @IMP-MB-UI-007@ (FROM: @REQ-UQ-005@) -->
       <span v-if="unit" class="mass-station-input__unit" aria-label="unit">{{ unit }}</span>
     </div>
 
     <p v-if="optionalOccupant" class="mass-station-input__unusable">Optional passenger — enter 0 when empty</p>
 
-    <!-- @IMP-MB-UI-008@ (FROM: @REQ-UQ-004@) -->
     <!-- coarse (±N) controls flank the fine (±1) control so a 75 kg
          passenger is a handful of taps, not 75. The fine control is retained. -->
     <div class="mass-station-input__control">

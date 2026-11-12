@@ -1,4 +1,3 @@
-// @UT-UI-SHARED-017@ (FROM: @IMP-UI-SHARED-010@)
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
 import ContributeCategoryGrid from '../ContributeCategoryGrid.vue'

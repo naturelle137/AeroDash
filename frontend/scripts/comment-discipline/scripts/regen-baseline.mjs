@@ -27,7 +27,7 @@ async function main() {
   const projected = projectFindings(findings)
   const payload = {
     $comment:
-      'Grandfathered forbidden-identifier comments — see CLAUDE.md § Code comments. ' +
+      'Grandfathered forbidden-identifier comments — see AGENTS.md § Architecture and code comments. ' +
       'Regenerate via: node frontend/scripts/comment-discipline/scripts/regen-baseline.mjs. ' +
       'The gate fails on any NEW reference beyond this snapshot; the snapshot only shrinks ' +
       'unless a coordinated cleanup PR documents why it grows.',

@@ -33,7 +33,6 @@ import type { PohDistanceConditions, PerformanceCube3D } from './performance.poh
 
 // ── Immutable safety constants ───────────────────────────────────────────────
 
-// @IMP-PF-CORE-006@ (FROM: @REQ-PF-010@)
 /**
  * Maximum permitted extrapolation past a POH axis boundary, as a fraction of
  * that boundary value (10%). Beyond this, computation is blocked.
@@ -131,7 +130,6 @@ export type ExtrapolationResolved = ExtrapolationResolvedOk | ExtrapolationResol
 
 // ── Axis classification ──────────────────────────────────────────────────────
 
-// @IMP-PF-CORE-007@ (FROM: @REQ-PF-010@, @REQ-PF-011@)
 /**
  * Classify where `value` sits relative to one POH axis.
  *
@@ -165,7 +163,6 @@ export function classifyAxisExcursion(value: number, range: AxisRange): AxisExcu
 
 // ── Aggregate assessment ─────────────────────────────────────────────────────
 
-// @IMP-PF-CORE-008@ (FROM: @REQ-PF-010@, @REQ-PF-011@, @REQ-PF-012@)
 /**
  * Assess the combined extrapolation state across all three axes.
  *
@@ -207,7 +204,6 @@ export function assessExtrapolation(
 
 // ── Penalty application ──────────────────────────────────────────────────────
 
-// @IMP-PF-CORE-009@ (FROM: @REQ-PF-010@, @REQ-PF-011@)
 /**
  * Apply an assessment's penalty to a base (clamped) POH distance.
  *
@@ -227,7 +223,6 @@ export function applyExtrapolationPenalty(
 
 // ── Cube → ranges helper ─────────────────────────────────────────────────────
 
-// @IMP-PF-CORE-010@ (FROM: @REQ-PF-010@)
 /**
  * Derive {@link EnvelopeRanges} from a {@link PerformanceCube3D} so the
  * extrapolation layer can compose directly with the trilinear engine's cubes.
@@ -242,7 +237,6 @@ export function cubeEnvelopeRanges(cube: PerformanceCube3D): EnvelopeRanges {
 
 // ── Fail-safe facade ─────────────────────────────────────────────────────────
 
-// @IMP-PF-CORE-011@ (FROM: @REQ-PF-010@, @REQ-PF-011@, @REQ-PF-012@)
 /**
  * Resolve a base (clamped) POH distance into either a usable penalised distance
  * or a typed `blocked` result — never throws, never returns a distance for a

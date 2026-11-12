@@ -17,7 +17,6 @@
  * @see frontend/src/core/domain/session.schema.ts
  */
 
-// @IMP-SYS-CORE-012@ (FROM: @REQ-SYS-013@)
 
 import {
   CURRENT_SESSION_PAYLOAD_VERSION,

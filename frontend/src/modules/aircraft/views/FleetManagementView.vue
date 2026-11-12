@@ -1,5 +1,4 @@
 <template>
-  <!-- @IMP-AC-VIEW-007@ (FROM: @REQ-AC-001@, @REQ-AC-004@, @REQ-AC-005@, @REQ-AC-006@) -->
   <div class="fleet-management-view">
     <h1>Aircraft Fleet Management</h1>
 
@@ -27,6 +26,27 @@
     <section class="fleet-section">
       <h2>Your Fleet</h2>
       <FleetList />
+    </section>
+
+    <section class="fleet-section" aria-labelledby="performance-import-help">
+      <h2 id="performance-import-help">Supply POH performance tables</h2>
+      <p>Use a Fleet row's Download button to download an aircraft exchange JSON. Keep its
+        aircraft fields and add or review <code>profile.performanceProfiles</code> in a text editor.
+        Import the file below; it becomes a new Draft. Expand “Review imported performance tables”
+        on its Fleet row, compare all points against your aircraft's POH/AFM, then use Verify to
+        record your initials and the applicable manual revision. <RouterLink to="/performance">Open Performance</RouterLink>
+        and explicitly select the reviewed snapshot.</p>
+      <p>Supply exactly one table for each <code>flightPhase</code>:
+        <code>TakeoffRoll</code>, <code>TakeoffDistance50ft</code>, <code>LandingRoll</code>,
+        <code>LandingDistance50ft</code>. Each table has a <code>dataPoints</code> array; each point
+        has numeric <code>mass</code> (kg), <code>pressureAltitude</code> (ft),
+        <code>temperature</code> (°C), and positive <code>distance</code> (m).
+        Include every mass × altitude × temperature combination once per table.</p>
+      <p>No performance values are supplied by AeroDash. Preserve the applicable POH/AFM citation
+        in your review's revision entry (include section/page where possible). Check source units,
+        configuration and table conditions yourself; do not combine tables for different configurations.
+        Missing tables and points outside any table's bounds block calculation. Imported status never
+        substitutes for explicit review. Existing profiles without tables remain usable for M&amp;B.</p>
     </section>
 
     <!-- Add new aircraft -->
@@ -71,7 +91,6 @@ import { useFleetStore } from '../stores/fleet.store'
 import { importProfileFromJson, validateImportFile, ImportError } from '../services/profile.import'
 import FleetList from '../components/FleetList.vue'
 
-// @IMP-AC-VIEW-008@ (FROM: @REQ-AC-001@, @REQ-AC-004@, @REQ-AC-006@)
 
 const fleetStore = useFleetStore()
 const router = useRouter()

@@ -5,7 +5,6 @@
  * @see frontend/src/views/PrivacyView.vue
  */
 
-// @UT-UI-VIEW-002@ (FROM: @IMP-UI-VIEW-002@)
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises, mount } from '@vue/test-utils'

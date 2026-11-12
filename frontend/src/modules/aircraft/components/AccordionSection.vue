@@ -1,5 +1,4 @@
 <template>
-  <!-- @IMP-AC-VIEW-009@ (FROM: @REQ-AC-001@, @REQ-AC-005@) -->
   <section class="accordion-section" :class="{ 'accordion-section--open': open }">
     <button
       type="button"
@@ -21,7 +20,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-// @IMP-AC-VIEW-010@ (FROM: @REQ-AC-001@, @REQ-AC-005@)
 const props = defineProps<{
   title: string
   summary?: string

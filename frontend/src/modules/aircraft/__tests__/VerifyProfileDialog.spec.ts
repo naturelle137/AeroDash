@@ -5,7 +5,6 @@
  * @see frontend/src/modules/aircraft/components/VerifyProfileDialog.vue
  */
 
-// @UT-AC-VIEW-177@ (FROM: @IMP-AC-VIEW-020@, @IMP-AC-VIEW-021@)
 
 import { describe, it, expect, afterEach, beforeEach, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
@@ -28,7 +27,6 @@ describe('VerifyProfileDialog', () => {
     document.body.innerHTML = ''
   })
 
-  // @UT-AC-VIEW-177@ (FROM: @IMP-AC-VIEW-020@)
   it('renders the sign-off fields and the aircraft registration when open', () => {
     const wrapper = mount(VerifyProfileDialog, {
       props: { open: true, registration: 'D-EBPN' },
@@ -41,7 +39,6 @@ describe('VerifyProfileDialog', () => {
     wrapper.unmount()
   })
 
-  // @UT-AC-VIEW-178@ (FROM: @IMP-AC-VIEW-021@)
   it('keeps the Verify button disabled until initials and POH revision are entered', async () => {
     const wrapper = mount(VerifyProfileDialog, {
       props: { open: true, registration: 'D-EBPN' },
@@ -59,7 +56,6 @@ describe('VerifyProfileDialog', () => {
     wrapper.unmount()
   })
 
-  // @UT-AC-VIEW-179@ (FROM: @IMP-AC-VIEW-021@)
   it('emits confirm with a trimmed sign-off payload', async () => {
     const wrapper = mount(VerifyProfileDialog, {
       props: { open: true, registration: 'D-EBPN' },
@@ -80,7 +76,6 @@ describe('VerifyProfileDialog', () => {
     wrapper.unmount()
   })
 
-  // @UT-AC-VIEW-180@ (FROM: @IMP-AC-VIEW-021@)
   it('emits cancel when the Cancel button is tapped', async () => {
     const wrapper = mount(VerifyProfileDialog, {
       props: { open: true, registration: 'D-EBPN' },
@@ -89,7 +84,6 @@ describe('VerifyProfileDialog', () => {
     expect(wrapper.emitted('cancel')).toBeTruthy()
     wrapper.unmount()
   })
-  // @UT-AC-VIEW-188@ (FROM: @IMP-AC-VIEW-021@)
   it('rejects future and invalid dates and accepts today with a UTC max', async () => {
     const wrapper = mount(VerifyProfileDialog, { props: { open: true, registration: 'D-EBPN' } })
     expect(document.querySelector('input[type="date"]')?.getAttribute('max')).toBe('2026-05-01')
@@ -113,7 +107,6 @@ describe('VerifyProfileDialog', () => {
     wrapper.unmount()
   })
 
-  // @UT-AC-VIEW-189@ (FROM: @IMP-AC-VIEW-021@)
   it('rechecks the current clock on confirm and refreshes max when reopened', async () => {
     const wrapper = mount(VerifyProfileDialog, { props: { open: true, registration: 'D-EBPN' } })
     setInput('input[aria-label="Verifier initials"]', 'JS')

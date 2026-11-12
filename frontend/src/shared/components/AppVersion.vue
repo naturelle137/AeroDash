@@ -1,5 +1,4 @@
 <script setup lang="ts">
-// @IMP-SYS-SHARED-003@ (FROM: @REQ-UI-013@)
 import { useAppVersionStore } from '@/stores/app-version.store'
 
 const { currentVersion, buildDate } = useAppVersionStore()

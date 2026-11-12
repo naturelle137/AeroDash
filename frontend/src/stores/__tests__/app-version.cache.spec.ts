@@ -33,13 +33,11 @@ beforeEach(() => {
 })
 
 describe('app-version.cache — load / persist round-trip', () => {
-  // @UT-SYS-STORE-046@ (FROM: @IMP-SYS-STORE-013@)
   it('returns null when the store has never been written', async () => {
     const out = await loadCachedMinSafeVersion()
     expect(out).toBeNull()
   })
 
-  // @UT-SYS-STORE-047@ (FROM: @IMP-SYS-STORE-014@)
   it('persists and loads a SemVer value', async () => {
     const ok = await persistCachedMinSafeVersion('0.4.0', () => 1_700_000_000_000)
     expect(ok).toBe(true)
@@ -51,7 +49,6 @@ describe('app-version.cache — load / persist round-trip', () => {
     expect(loaded?.fetchedAt).toBe(1_700_000_000_000)
   })
 
-  // @UT-SYS-STORE-048@ (FROM: @IMP-SYS-STORE-014@)
   it('overwrites a prior record on second persist (highest floor wins via caller)', async () => {
     await persistCachedMinSafeVersion('0.4.0', () => 1_000)
     await persistCachedMinSafeVersion('0.5.0', () => 2_000)
@@ -60,7 +57,6 @@ describe('app-version.cache — load / persist round-trip', () => {
     expect(loaded?.fetchedAt).toBe(2_000)
   })
 
-  // @UT-SYS-STORE-081@ (FROM: @IMP-SYS-STORE-015@)
   // persist must resolve on tx.oncomplete (post-commit), not
   // request.onsuccess. fake-indexeddb fires both events; observing that a
   // sequential read AFTER the persist resolves sees the written value
@@ -78,7 +74,6 @@ describe('app-version.cache — load / persist round-trip', () => {
 })
 
 describe('app-version.cache — input validation', () => {
-  // @UT-SYS-STORE-049@ (FROM: @IMP-SYS-STORE-015@)
   it('rejects non-SemVer input', async () => {
     expect(await persistCachedMinSafeVersion('not-a-version')).toBe(false)
     expect(await persistCachedMinSafeVersion('0.1')).toBe(false)
@@ -89,7 +84,6 @@ describe('app-version.cache — input validation', () => {
     expect(loaded).toBeNull()
   })
 
-  // @UT-SYS-STORE-050@ (FROM: @IMP-SYS-STORE-015@)
   it('accepts a pre-release SemVer suffix (0.4.0-alpha)', async () => {
     expect(await persistCachedMinSafeVersion('0.4.0-alpha')).toBe(true)
     const loaded = await loadCachedMinSafeVersion()
@@ -98,7 +92,6 @@ describe('app-version.cache — input validation', () => {
 })
 
 describe('app-version.cache — corrupt-record defence', () => {
-  // @UT-SYS-STORE-051@ (FROM: @IMP-SYS-STORE-014@)
   it('returns null when the stored record fails the shape guard', async () => {
     // Write a structurally invalid record directly (bypassing persist).
     const req = indexedDB.open('aerodash-app-version', 1)
@@ -126,7 +119,6 @@ describe('app-version.cache — corrupt-record defence', () => {
     expect(loaded).toBeNull()
   })
 
-  // @UT-SYS-STORE-079@ (FROM: @IMP-SYS-STORE-014@)
   // the discriminated outcome lets the store distinguish first-install (INFO)
   // from a broken record (WARN).
   it('inspect reports `corrupt` for a malformed record (distinct from `absent`)', async () => {
@@ -157,7 +149,6 @@ describe('app-version.cache — corrupt-record defence', () => {
 })
 
 describe('app-version.cache — IndexedDB unavailable', () => {
-  // @UT-SYS-STORE-052@ (FROM: @IMP-SYS-STORE-014@, @IMP-SYS-STORE-015@)
   it('falls back to null / false instead of throwing when storage is unreachable', async () => {
     // Replace indexedDB with an object whose `open()` throws synchronously
     // — simulates Safari private mode or a locked-down sandboxed iframe.
@@ -176,7 +167,6 @@ describe('app-version.cache — IndexedDB unavailable', () => {
     expect(persisted).toBe(false)
   })
 
-  // @UT-SYS-STORE-080@ (FROM: @IMP-SYS-STORE-014@)
   // distinguish `unavailable` from `absent` so the store can emit a WARN
   // (vs INFO for first-install) and an operator can separate
   // Safari-private-mode reports from genuine fresh installs.
@@ -196,7 +186,6 @@ describe('app-version.cache — IndexedDB unavailable', () => {
 })
 
 describe('app-version.cache — inspect outcomes', () => {
-  // @UT-SYS-STORE-078@ (FROM: @IMP-SYS-STORE-014@)
   it('inspect reports `absent` on a virgin store and `hit` after a successful persist', async () => {
     expect((await inspectCachedMinSafeVersion()).kind).toBe('absent')
     await persistCachedMinSafeVersion('0.4.0', () => 1_234)
@@ -206,7 +195,6 @@ describe('app-version.cache — inspect outcomes', () => {
 })
 
 describe('app-version.cache — clear', () => {
-  // @UT-SYS-STORE-053@ (FROM: @IMP-SYS-STORE-016@)
   it('clears the cached record', async () => {
     await persistCachedMinSafeVersion('0.4.0')
     expect(await loadCachedMinSafeVersion()).not.toBeNull()
@@ -214,7 +202,6 @@ describe('app-version.cache — clear', () => {
     expect(await loadCachedMinSafeVersion()).toBeNull()
   })
 
-  // @UT-SYS-STORE-054@ (FROM: @IMP-SYS-STORE-014@)
   it('clear is idempotent on an empty store', async () => {
     await clearCachedMinSafeVersion()
     await clearCachedMinSafeVersion()

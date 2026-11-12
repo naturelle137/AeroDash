@@ -12,7 +12,6 @@ import { MASS_UNITS, ARM_UNITS } from '../domain/units'
 import type { MassUnit, ArmUnit, VolumeUnit } from '../domain/units'
 import { FT_TO_M, IN_TO_M, LB_TO_KG, US_GAL_TO_L } from './unit-conversion-constants'
 
-// @IMP-SYS-CORE-006@ (FROM: @REQ-SYS-003@)
 
 // ─── sourceUnit parsing (mass + arm/length) ───────────────────────────────────
 
@@ -36,7 +35,6 @@ import { FT_TO_M, IN_TO_M, LB_TO_KG, US_GAL_TO_L } from './unit-conversion-const
  * dimension (`kg` / `m`), which is the fail-safe choice: it never silently
  * scales a value by a wrong factor.
  */
-// @IMP-SYS-CORE-011@ (FROM: @REQ-SYS-003@, @REQ-AD-014@)
 export function parseSourceUnit(sourceUnit: string): { massUnit: MassUnit; armUnit: ArmUnit } {
   const [rawMass, rawArm] = sourceUnit.trim().toLowerCase().split('-')
   const massUnit: MassUnit = (MASS_UNITS as readonly string[]).includes(rawMass ?? '')
@@ -103,7 +101,6 @@ export function armMToUnit(m: number, targetUnit: ArmUnit): number {
  * @param armUnit - the arm/length unit of the moment's length component
  * @returns moment in kg·m
  */
-// @IMP-SYS-CORE-010@ (FROM: @REQ-SYS-003@)
 export function normalizeMomentToSI(value: number, armUnit: ArmUnit): number {
   if (armUnit === 'in') return value * IN_TO_M
   if (armUnit === 'ft') return value * FT_TO_M

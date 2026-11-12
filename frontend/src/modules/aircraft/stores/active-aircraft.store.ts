@@ -11,7 +11,6 @@ import { ref, computed } from 'vue'
 import type { AircraftProfile } from '@/core/adapters/aircraft.schema'
 import { useMassBalanceStore } from '@/modules/mass-balance/stores/mass-balance.store'
 
-// @IMP-AC-STORE-006@ (FROM: @REQ-AC-005@)
 
 export const useActiveAircraftStore = defineStore('activeAircraft', () => {
   // ─── State ────────────────────────────────────────────────────────────────

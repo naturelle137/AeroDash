@@ -65,7 +65,6 @@ afterEach(() => {
 })
 
 describe('useAppVersionStore — exposes state', () => {
-  // @UT-SYS-STORE-021@ (FROM: @IMP-SYS-STORE-006@)
   it('exposes currentVersion and buildDate', () => {
     const store = useAppVersionStore()
     expect(typeof store.currentVersion).toBe('string')
@@ -74,7 +73,6 @@ describe('useAppVersionStore — exposes state', () => {
     expect(store.buildDate.length).toBeGreaterThan(0)
   })
 
-  // @UT-SYS-STORE-030@ (FROM: @IMP-SYS-STORE-006@)
   it('exposes minSafeVersion as a non-empty string', () => {
     const store = useAppVersionStore()
     expect(typeof store.minSafeVersion).toBe('string')
@@ -83,25 +81,21 @@ describe('useAppVersionStore — exposes state', () => {
 })
 
 describe('useAppVersionStore — isVersionBelow', () => {
-  // @UT-SYS-STORE-022@ (FROM: @IMP-SYS-STORE-007@)
   it('returns true when 0.2.0 < 0.3.0', () => {
     const store = useAppVersionStore()
     expect(store.isVersionBelow('0.2.0', '0.3.0')).toBe(true)
   })
 
-  // @UT-SYS-STORE-023@ (FROM: @IMP-SYS-STORE-007@)
   it('returns false when 0.3.0 >= 0.3.0', () => {
     const store = useAppVersionStore()
     expect(store.isVersionBelow('0.3.0', '0.3.0')).toBe(false)
   })
 
-  // @UT-SYS-STORE-028@ (FROM: @IMP-SYS-STORE-007@)
   it('returns false when version is above minimum (major bump)', () => {
     const store = useAppVersionStore()
     expect(store.isVersionBelow('1.0.0', '0.3.0')).toBe(false)
   })
 
-  // @UT-SYS-STORE-072@ (FROM: @IMP-SYS-STORE-007@)
   // build metadata must not NaN-collapse the comparator. Without the fix
   // `parse('0.5.0+build.7')` produced `[0, 5, NaN]` and `0 < NaN` resolved
   // to `false`, silently failing to block.
@@ -112,7 +106,6 @@ describe('useAppVersionStore — isVersionBelow', () => {
     expect(store.isVersionBelow('0.5.0+build.7', '0.4.0')).toBe(false)
   })
 
-  // @UT-SYS-STORE-073@ (FROM: @IMP-SYS-STORE-007@)
   // pre-release ordering per SemVer §11: `0.4.0-alpha < 0.4.0` must hold so
   // an alpha bundle below its stable kill-switch floor is actually blocked.
   it('orders pre-release suffixes per SemVer §11', () => {
@@ -126,7 +119,6 @@ describe('useAppVersionStore — isVersionBelow', () => {
     expect(store.isVersionBelow('0.4.0-1', '0.4.0-alpha')).toBe(true)
   })
 
-  // @UT-SYS-STORE-096@ (FROM: @IMP-SYS-STORE-007@)
   // Review-iteration: numeric pre-release identifiers beyond 2^53 must order by
   // value, not collapse to the same double via Number().
   it('orders very long numeric pre-release identifiers without float precision loss', () => {
@@ -139,7 +131,6 @@ describe('useAppVersionStore — isVersionBelow', () => {
 })
 
 describe('useAppVersionStore.checkMinSafeVersion — online, cache empty (first install)', () => {
-  // @UT-SYS-STORE-024@ (FROM: @IMP-SYS-STORE-008@)
   it('blocks when current < build-time constant', async () => {
     const store = useAppVersionStore()
     store.currentVersion = '0.1.0'
@@ -148,7 +139,6 @@ describe('useAppVersionStore.checkMinSafeVersion — online, cache empty (first 
     expect(store.versionBlocked).toBe(true)
   })
 
-  // @UT-SYS-STORE-029@ (FROM: @IMP-SYS-STORE-008@)
   it('does not block when current meets the build-time constant', async () => {
     const store = useAppVersionStore()
     store.currentVersion = '0.3.0'
@@ -156,7 +146,6 @@ describe('useAppVersionStore.checkMinSafeVersion — online, cache empty (first 
     expect(store.versionBlocked).toBe(false)
   })
 
-  // @UT-SYS-STORE-064@ (FROM: @IMP-SYS-STORE-008@)
   it('records that the check completed and refreshes cacheFetchedAt on a successful online persist', async () => {
     const store = useAppVersionStore()
     await store.checkMinSafeVersion(() => 5_000)
@@ -166,7 +155,6 @@ describe('useAppVersionStore.checkMinSafeVersion — online, cache empty (first 
 })
 
 describe('useAppVersionStore.checkMinSafeVersion — OFFLINE enforcement', () => {
-  // @UT-SYS-STORE-025@ (FROM: @IMP-SYS-STORE-008@)
   it('blocks a stale build OFFLINE when the cached minSafeVersion is higher than the running version', async () => {
     vi.stubGlobal('navigator', { onLine: false })
     mockedInspect.mockResolvedValue({
@@ -190,7 +178,6 @@ describe('useAppVersionStore.checkMinSafeVersion — OFFLINE enforcement', () =>
     expect(mockedPersist).not.toHaveBeenCalled()
   })
 
-  // @UT-SYS-STORE-065@ (FROM: @IMP-SYS-STORE-008@)
   it('first-install OFFLINE bypass — no cache, no remote → falls back to build-time only', async () => {
     vi.stubGlobal('navigator', { onLine: false })
     mockedInspect.mockResolvedValue({ kind: 'absent' })
@@ -205,7 +192,6 @@ describe('useAppVersionStore.checkMinSafeVersion — OFFLINE enforcement', () =>
     expect(store.cacheFetchedAt).toBeNull()
   })
 
-  // @UT-SYS-STORE-066@ (FROM: @IMP-SYS-STORE-008@)
   it('warns when the cached record is older than the TTL but still enforces it', async () => {
     vi.stubGlobal('navigator', { onLine: false })
     const fixedNow = 10_000_000_000
@@ -230,7 +216,6 @@ describe('useAppVersionStore.checkMinSafeVersion — OFFLINE enforcement', () =>
 })
 
 describe('useAppVersionStore.checkMinSafeVersion — differentiated logging (review Minor #10)', () => {
-  // @UT-SYS-STORE-074@ (FROM: @IMP-SYS-STORE-008@)
   it('logs INFO on absent cache (first install) and WARN on corrupt / unavailable', async () => {
     const consoleInfo = vi.spyOn(console, 'info').mockImplementation(() => undefined)
     const consoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
@@ -268,7 +253,6 @@ describe('useAppVersionStore.checkMinSafeVersion — differentiated logging (rev
 })
 
 describe('useAppVersionStore.checkMinSafeVersion — online refresh', () => {
-  // @UT-SYS-STORE-067@ (FROM: @IMP-SYS-STORE-008@)
   it('uses the higher of (build-time, cached, remote)', async () => {
     mockedInspect.mockResolvedValue({
       kind: 'hit',
@@ -287,7 +271,6 @@ describe('useAppVersionStore.checkMinSafeVersion — online refresh', () => {
     expect(mockedPersist).toHaveBeenCalledWith('0.5.0', expect.any(Function))
   })
 
-  // @UT-SYS-STORE-068@ (FROM: @IMP-SYS-STORE-008@)
   it('does not regress to a lower remote value', async () => {
     mockedInspect.mockResolvedValue({
       kind: 'hit',
@@ -307,7 +290,6 @@ describe('useAppVersionStore.checkMinSafeVersion — online refresh', () => {
     expect(mockedPersist).toHaveBeenCalledWith('0.6.0', expect.any(Function))
   })
 
-  // @UT-SYS-STORE-069@ (FROM: @IMP-SYS-STORE-008@)
   it('logs a warning when the remote refresh fails but keeps the existing floor', async () => {
     mockedInspect.mockResolvedValue({
       kind: 'hit',
@@ -328,7 +310,6 @@ describe('useAppVersionStore.checkMinSafeVersion — online refresh', () => {
     consoleWarn.mockRestore()
   })
 
-  // @UT-SYS-STORE-070@ (FROM: @IMP-SYS-STORE-008@)
   it('persists the cached / build-time floor on every successful online check (refreshes fetchedAt)', async () => {
     mockedRemote.mockResolvedValue(null)
     const store = useAppVersionStore()
@@ -336,7 +317,6 @@ describe('useAppVersionStore.checkMinSafeVersion — online refresh', () => {
     expect(mockedPersist).toHaveBeenCalledOnce()
   })
 
-  // @UT-SYS-STORE-075@ (FROM: @IMP-SYS-STORE-008@)
   // timestamp parity + persist-failure consistency.
   it('passes a frozen clock to persist so on-disk and in-memory timestamps match', async () => {
     mockedRemote.mockResolvedValue(null)
@@ -356,7 +336,6 @@ describe('useAppVersionStore.checkMinSafeVersion — online refresh', () => {
     expect(store.cacheFetchedAt).toBe(ts1)
   })
 
-  // @UT-SYS-STORE-076@ (FROM: @IMP-SYS-STORE-008@)
   // on persist-failure cacheFetchedAt must reflect the record ACTUALLY on
   // disk — keep a prior hit's fetchedAt (the failed write left it untouched),
   // null only when nothing is on disk.
@@ -381,7 +360,6 @@ describe('useAppVersionStore.checkMinSafeVersion — online refresh', () => {
 })
 
 describe('useAppVersionStore.checkMinSafeVersion — single-flight (review Minor #8)', () => {
-  // @UT-SYS-STORE-077@ (FROM: @IMP-SYS-STORE-008@)
   it('coalesces concurrent invocations onto one in-flight promise', async () => {
     // Hold the inspect call open so the second invocation arrives before
     // the first resolves.
@@ -407,13 +385,11 @@ describe('useAppVersionStore.checkMinSafeVersion — single-flight (review Minor
 })
 
 describe('resolveBuildTimeMinSafeVersion — fail-closed on a misbuilt bundle (review Major #2)', () => {
-  // @UT-SYS-STORE-090@ (FROM: @IMP-SYS-STORE-020@)
   it('returns the value unchanged when the build-time constant is a valid SemVer', () => {
     expect(resolveBuildTimeMinSafeVersion('0.3.0-alpha')).toBe('0.3.0-alpha')
     expect(resolveBuildTimeMinSafeVersion('1.2.3')).toBe('1.2.3')
   })
 
-  // @UT-SYS-STORE-091@ (FROM: @IMP-SYS-STORE-020@)
   it('substitutes a fail-closed sentinel for an invalid build-time constant', () => {
     expect(resolveBuildTimeMinSafeVersion('not-a-version')).toBe(FAIL_CLOSED_MIN_SAFE_VERSION)
     expect(resolveBuildTimeMinSafeVersion('0.3')).toBe(FAIL_CLOSED_MIN_SAFE_VERSION)
@@ -426,7 +402,6 @@ describe('resolveBuildTimeMinSafeVersion — fail-closed on a misbuilt bundle (r
 })
 
 describe('checkMinSafeVersion — never persists the fail-closed sentinel (review iteration)', () => {
-  // @UT-SYS-STORE-094@ (FROM: @IMP-SYS-STORE-008@)
   it('does not write the fail-closed sentinel to the cache', async () => {
     // If the effective floor resolves to the sentinel, persisting it would
     // launder the ephemeral fail-closed marker into a durable cache entry that
@@ -452,7 +427,6 @@ describe('checkMinSafeVersion — never persists the fail-closed sentinel (revie
 })
 
 describe('pickHigherVersion — double-invalid defence (review Nit #4)', () => {
-  // @UT-SYS-STORE-089@ (FROM: @IMP-SYS-SHARED-010@)
   it('returns the first operand and logs an ERROR when both operands are invalid', () => {
     const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined)
     expect(pickHigherVersion('garbage', 'also-bad')).toBe('garbage')
@@ -464,7 +438,6 @@ describe('pickHigherVersion — double-invalid defence (review Nit #4)', () => {
 })
 
 describe('attachConnectivityRefresh', () => {
-  // @UT-SYS-STORE-071@ (FROM: @IMP-SYS-STORE-018@)
   // the handler must go through the Pinia action wrapper so spies,
   // $onAction subscribers, and devtools see the call.
   it('re-runs the wrapped store action when the window fires `online`', async () => {

@@ -1,4 +1,3 @@
-// @IT-AC-STORE-113@ (FROM: @IMP-AC-STORE-001@)
 /**
  * Integration tests for fleet.repository.ts using fake-indexeddb.
  * Covers CRUD lifecycle and schemaVersion field persistence.
@@ -6,7 +5,6 @@
  * @see frontend/src/modules/aircraft/services/fleet.repository.ts
  */
 
-// @IT-AC-STORE-005@ (FROM: @IMP-AC-CORE-002@)
 
 import { evaluateVerificationFreshness } from '@/core/logic/profile-verification'
 import { importProfileFromJson } from '../services/profile.import'
@@ -88,7 +86,6 @@ function buildProfile(overrides: Partial<AircraftProfile> = {}): AircraftProfile
 }
 
 describe('fleetRepository — CRUD lifecycle', () => {
-  // @IT-AC-STORE-001@ (FROM: @IMP-AC-STORE-001@)
   it('CRUD lifecycle: create, findById, update, delete', async () => {
     const profile = buildProfile()
 
@@ -115,7 +112,6 @@ describe('fleetRepository — CRUD lifecycle', () => {
     expect(afterDelete).toBeUndefined()
   })
 
-  // @IT-AC-STORE-111@ (FROM: @IMP-AD-CORE-009@, @IMP-AC-VIEW-035@)
   it('round-trips stored wind limits (Demonstrated + Limit) through persistence', async () => {
     const profile = buildProfile({
       windLimits: [
@@ -137,7 +133,6 @@ describe('fleetRepository — CRUD lifecycle', () => {
     expect(demonstratedXwind?.value).toBe(15)
   })
 
-  // @IT-AC-STORE-002@ (FROM: @IMP-AC-STORE-001@)
   it('findAll returns all profiles', async () => {
     const p1 = buildProfile({ id: '00000000-0000-4000-a000-000000000001', registration: 'D-EBPN' })
     const p2 = buildProfile({ id: '00000000-0000-4000-a000-000000000002', registration: 'D-ECSM' })
@@ -153,19 +148,16 @@ describe('fleetRepository — CRUD lifecycle', () => {
     expect(regs).toEqual(['D-EBPN', 'D-ECSM', 'G-ABCD'])
   })
 
-  // @IT-AC-STORE-003@ (FROM: @IMP-AC-STORE-001@)
   it('findById returns undefined for a non-existent id', async () => {
     const result = await findById('00000000-0000-4000-a000-000000000099')
     expect(result).toBeUndefined()
   })
 
-  // @IT-AC-STORE-004@ (FROM: @IMP-AC-STORE-001@)
   it('findAll returns empty array when store is empty', async () => {
     const all = await findAll()
     expect(all).toEqual([])
   })
 
-  // @IT-AC-STORE-014@ (FROM: @IMP-AC-STORE-009@, @REQ-SYS-014@)
   it('deleteAll clears every profile in the store', async () => {
     await create(
       buildProfile({ id: '00000000-0000-4000-a000-0000000000a1', registration: 'D-WIP1' }),
@@ -181,13 +173,11 @@ describe('fleetRepository — CRUD lifecycle', () => {
     expect(await findAll()).toEqual([])
   })
 
-  // @IT-AC-STORE-015@ (FROM: @IMP-AC-STORE-009@, @REQ-SYS-014@)
   it('deleteAll on an empty store completes without throwing', async () => {
     await expect(deleteAll()).resolves.toBeUndefined()
     expect(await findAll()).toEqual([])
   })
 
-  // @IT-AC-STORE-013@ (FROM: @IMP-AC-STORE-001@, @REQ-AC-005@)
   it('DB v1→v2 migration normalizes legacy Draft/Verified status to lowercase', async () => {
     const legacyId = '00000000-0000-4000-a000-0000000000aa'
     const legacyDoc = {
@@ -226,7 +216,6 @@ describe('fleetRepository — CRUD lifecycle', () => {
     expect(migrated?.status).toBe('draft')
   })
 
-  // @IT-AC-STORE-005@ (FROM: @IMP-AC-STORE-001@, @IMP-AC-CORE-002@)
   it('round-trip: costPerHour persists and retrieves with full fidelity', async () => {
     const profile = buildProfile({
       id: '00000000-0000-4000-a000-000000000010',
@@ -238,7 +227,6 @@ describe('fleetRepository — CRUD lifecycle', () => {
     expect(found!.costPerHour).toBe(185.5)
   })
 
-  // @IT-AC-STORE-006@ (FROM: @IMP-AC-STORE-001@, @IMP-AC-CORE-002@)
   it('round-trip: referenceDatumDescription persists and retrieves with full fidelity', async () => {
     const profile = buildProfile({
       id: '00000000-0000-4000-a000-000000000011',
@@ -250,7 +238,6 @@ describe('fleetRepository — CRUD lifecycle', () => {
     expect(found!.referenceDatumDescription).toBe('Firewall forward face')
   })
 
-  // @IT-AC-STORE-007@ (FROM: @IMP-AC-STORE-001@, @IMP-AC-CORE-002@)
   it('round-trip: checklistScaffold persists and retrieves with full fidelity', async () => {
     const profile = buildProfile({
       id: '00000000-0000-4000-a000-000000000012',
@@ -272,7 +259,6 @@ describe('fleetRepository — CRUD lifecycle', () => {
     expect(found!.checklistScaffold![1]!.title).toBe('Engine start')
   })
 
-  // @IT-AC-STORE-008@ (FROM: @IMP-AC-STORE-001@, @IMP-AC-CORE-002@)
   it('round-trip: all three supplementary fields persist together with full fidelity', async () => {
     const profile = buildProfile({
       id: '00000000-0000-4000-a000-000000000013',
@@ -289,7 +275,6 @@ describe('fleetRepository — CRUD lifecycle', () => {
     expect(found!.checklistScaffold![0]!.title).toBe('Normal procedures')
   })
 
-  // @IT-AC-STORE-009@ (FROM: @IMP-AC-STORE-001@, @IMP-AC-CORE-002@)
   it('round-trip: supplementary fields survive an update() cycle', async () => {
     const profile = buildProfile({
       id: '00000000-0000-4000-a000-000000000014',
@@ -309,7 +294,6 @@ describe('fleetRepository — CRUD lifecycle', () => {
 })
 
 describe('fleetRepository — schemaVersion persistence', () => {
-  // @IT-AC-STORE-010@ (FROM: @IMP-AC-CORE-002@)
   it('schemaVersion field is persisted and retrieved correctly on create', async () => {
     const profile = buildProfile({
       id: '00000000-0000-4000-a000-000000000020',
@@ -322,7 +306,6 @@ describe('fleetRepository — schemaVersion persistence', () => {
     expect(found!.schemaVersion).toBe(1)
   })
 
-  // @IT-AC-STORE-011@ (FROM: @IMP-AC-CORE-002@, @IMP-AC-CORE-003@)
   it('schemaVersion is preserved across update operations at the current version', async () => {
     // After the migration registry shipped, `schemaVersion` is a
     // strictly-monotone marker rather than a free-form counter: writing a
@@ -344,7 +327,6 @@ describe('fleetRepository — schemaVersion persistence', () => {
     expect(found!.registration).toBe('G-UPDT')
   })
 
-  // @IT-AC-STORE-012@ (FROM: @IMP-AC-CORE-002@)
   it('all profiles returned by findAll carry a positive integer schemaVersion field', async () => {
     const p1 = buildProfile({
       id: '00000000-0000-4000-a000-000000000022',
@@ -370,7 +352,6 @@ describe('fleetRepository — schemaVersion persistence', () => {
 })
 
 // ─── Battery-electric profiles (REQ-AD-020, REQ-AD-021) ─────────────────────
-// @IT-AC-STORE-013@ (FROM: @IMP-AD-CORE-018@, @IMP-AD-CORE-019@)
 describe('fleetRepository — electric aircraft persistence', () => {
   it('persists and rehydrates an electric Pipistrel Velis Electro profile with its battery pack', async () => {
     const electric = buildProfile({
@@ -434,7 +415,6 @@ describe('fleetRepository — electric aircraft persistence', () => {
   })
 })
 
-// @IT-AC-STORE-112@ (FROM: @IMP-AC-CORE-005@, @IMP-AC-CORE-006@, @IMP-AC-STORE-004@)
 it('does not trust future provenance from persisted or imported profiles', async () => {
   const future = buildProfile({
     status: 'verified',

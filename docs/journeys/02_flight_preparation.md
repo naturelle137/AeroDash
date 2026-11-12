@@ -4,8 +4,6 @@ Focus: Standard operational workflows for Mass & Balance and Hybrid Performance.
 
 ---
 
-<!-- @UJ-B-001@ (FROM: @REQ-MB-002@, @REQ-MB-008@, @REQ-MB-011@, @REQ-MB-004@, @REQ-UI-010@) -->
-
 ## <a name="UJ-B-001"></a>UJ-B-001: M&B with CG Migration (The "Burn-Out" Check)
 
 **Persona:** Pilot
@@ -25,8 +23,6 @@ Focus: Standard operational workflows for Mass & Balance and Hybrid Performance.
 | **Confidence**     | Saves the final configuration.                                                                     | "Now I know exactly where everything needs to go. No stress at the hangar."                                             | The system saves the configuration and displays the final summary showing both Takeoff and Landing CG within limits.                                                                                                             |
 
 **Outcome:** The pilot avoids a dangerous aft-CG situation during the landing phase by discovering a mid-flight CG migration during the planning stage, and resolves it by redistributing the load before leaving home.
-
-<!-- @UJ-B-002@ (FROM: @REQ-PF-003@, @REQ-PF-004@, @REQ-PF-006@, @REQ-PF-015@, @REQ-PF-016@, @REQ-UI-017@, @REQ-DOC-005@) -->
 
 ## <a name="UJ-B-002"></a>UJ-B-002: The "Hybrid Engine" Performance Calculation
 
@@ -50,8 +46,6 @@ Focus: Standard operational workflows for Mass & Balance and Hybrid Performance.
 
 **Outcome:** The pilot avoids guesswork for non-POH conditions. The system provides mathematically backed safety margins by combining POH data with standardized correction factors. The export gate and the warning rendered in the PDF reinforce that lowering the safety factor is a deliberate, documented act — not a silent shortcut.
 
-<!-- @UJ-B-003@ (FROM: @REQ-MB-005@, @REQ-MB-009@) -->
-
 ## <a name="UJ-B-003"></a>UJ-B-003: The "Overweight" Discovery
 
 **Persona:** Pilot
@@ -72,8 +66,6 @@ Focus: Standard operational workflows for Mass & Balance and Hybrid Performance.
 
 **Outcome:** The pilot learns that MTOM compliance alone is insufficient. The MZFM protects wing structural integrity (bending relief) and is often overlooked. The system surfaces both limits independently, preventing a dangerous configuration that would pass a simple "total weight" check.
 
-<!-- @UJ-B-004@ (FROM: @REQ-FE-004@, @REQ-MB-008@, @REQ-MB-011@, @REQ-UI-010@, @REQ-UI-019@) -->
-
 ## <a name="UJ-B-004"></a>UJ-B-004: The "Burn-Down Polygon" (Multi-Tank CG Migration)
 
 **Persona:** Pilot
@@ -93,8 +85,6 @@ Focus: Standard operational workflows for Mass & Balance and Hybrid Performance.
 | **Confidence**        | Reviews the final polygon. Both sequences are within limits.                                             | "Now even the worst-case failure scenario stays inside the envelope. Safe to fly."                                                                                        | The CG Envelope Chart shows the burn-down polygon fully enclosed within the limits. All CG waypoints for both sequences are within bounds.                                                                                                                                   |
 
 **Outcome:** The pilot discovers that a simple single-line CG trend (Standard sequence only) would have shown a safe forward migration — hiding the danger of the Alternative path. When the forward tank drains first, the remaining aft fuel and heavy rear loading push the CG beyond the aft limit. The shaded polygon reveals the full range of risk, and the pilot mitigates it before engine start.
-
-<!-- @UJ-B-005@ (FROM: @REQ-AP-002@, @REQ-FE-002@, @REQ-MB-003@, @REQ-UQ-006@, @REQ-UI-005@, @REQ-UI-013@, @REQ-WX-002@, @REQ-WX-003@, @REQ-WX-008@) -->
 
 ## <a name="UJ-B-005"></a>UJ-B-005: The "Textbook" Flight Prep (Happy Path)
 

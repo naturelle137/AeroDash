@@ -9,7 +9,6 @@
 // All runtime validation of stored profiles must use AircraftProfileSchema.
 export type { AircraftProfile } from '../adapters/aircraft.schema'
 
-// @IMP-AD-CORE-001@ (FROM: @DES-ARCH-002@)
 export interface EnvelopePoint {
   armOrMoment: number
   mass: number
@@ -31,7 +30,6 @@ export interface FuelTankDefinition {
   burnSequences: BurnSequenceEntry[]
 }
 
-// @IMP-AD-CORE-020@ (FROM: @REQ-AD-020@)
 /**
  * Powertrain discriminator. Drives a large chunk of the downstream UX —
  * combustion profiles show fuel tanks, burn sequences and fuel-mass based
@@ -40,7 +38,6 @@ export interface FuelTankDefinition {
  */
 export type PowertrainType = 'combustion' | 'electric'
 
-// @IMP-AD-CORE-021@ (FROM: @REQ-AD-021@)
 export interface BatteryPackDefinition {
   usableEnergyKwh: number
   reserveFloorKwh: number
@@ -48,7 +45,6 @@ export interface BatteryPackDefinition {
   chemistry?: string
 }
 
-// @IMP-AD-CORE-023@ (FROM: @REQ-UQ-006@)
 export const STATION_KINDS = ['occupant', 'baggage', 'fuel'] as const
 export const OCCUPANCY_REQUIREMENTS = ['required', 'optional'] as const
 export type OccupancyRequirement = (typeof OCCUPANCY_REQUIREMENTS)[number]
@@ -68,7 +64,6 @@ export interface LoadPointDefinition {
   fuelTank: FuelTankDefinition | null
 }
 
-// @IMP-AD-CORE-006@ (FROM: @REQ-MB-010@)
 export interface CategoryDefinition {
   category: 'Normal' | 'Utility' | 'Aerobatic'
   maxTakeoffMass: number
@@ -77,7 +72,6 @@ export interface CategoryDefinition {
   envelope: EnvelopePoint[]
 }
 
-// @IMP-AD-CORE-007@ (FROM: @REQ-AD-004@)
 export interface WeighingReport {
   basicEmptyMass: number
   emptyCg: number
@@ -85,7 +79,6 @@ export interface WeighingReport {
   validFrom: string
 }
 
-// @IMP-AD-CORE-017@ (FROM: @REQ-AD-008@, @REQ-AD-009@)
 export type FlightPhase =
   | 'TakeoffRoll'
   | 'TakeoffDistance50ft'

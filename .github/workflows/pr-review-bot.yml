@@ -1,7 +1,7 @@
 name: Autonomous PR Reviewer
 
 # Posts a structured automated review on PRs targeting `develop`, but ONLY
-# after every gating workflow (CI, DoD, Security, Traceability, E2E,
+# after every gating workflow (CI, DoD, Security, E2E,
 # Branching, Mutation) has finished on the same commit. Reviewing before the
 # pipeline reports is wasted work: a red CI/DoD result means the PR will get
 # corrected, and the review would just be re-run against a new commit. The
@@ -19,7 +19,7 @@ on:
     # The job below then verifies ALL of these have completed on the same head
     # SHA before posting a review — a single workflow_run firing alone is not
     # enough. Only includes workflows whose `on:` actually fires for PRs to
-    # develop; main-only gates (Traceability, Governance) and post-merge gates
+    # develop; main-only gates (Governance) and post-merge gates
     # (Playwright push) are deliberately excluded — they never report a
     # workflow run on a develop PR's head SHA, so gating on them would
     # deadlock the reviewer forever.
@@ -50,7 +50,7 @@ env:
   REVIEW_MODEL: 'sonnet'
   REVIEW_EFFORT: 'high'
   # A full structured review (read diff, walk affected files, cross-check P1
-  # isolation + traceability + safety, write findings, submit via `gh pr
+  # isolation + safety, write findings, submit via `gh pr
   # review`) needs comparable headroom to the implementer and iteration bots.
   # 30 proved too small: the reviewer on PR #346 (25 files / +2916 lines) hit
   # `error_max_turns` mid-review and posted no review at all, which leaves the
@@ -203,7 +203,7 @@ jobs:
 
             1. Correctness, especially math feeding a Go/No-Go advisory.
             2. P1 isolation under `frontend/src/core/` (CLAUDE.md P1/P2/P3 rules).
-            3. Safety gates — tests, coverage tiers, traceability tags/registries.
+            3. Safety gates — tests, coverage tiers, source/reference evidence.
             4. Architecture, then style/nits.
 
             CI-only hard rules (ADR-319 auxiliary-review rules):

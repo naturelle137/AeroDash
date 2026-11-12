@@ -1,5 +1,3 @@
-// @UT-AC-VIEW-185@ (FROM: @IMP-AC-VIEW-035@, @IMP-AC-VIEW-036@)
-
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
 import WindLimitsSection from '../WindLimitsSection.vue'

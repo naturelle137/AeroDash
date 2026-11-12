@@ -1,5 +1,4 @@
 <template>
-  <!-- @IMP-AC-VIEW-002@ (FROM: @REQ-UI-001@, @REQ-UI-002@, @REQ-UI-003@, @REQ-UI-004@) -->
   <div class="aircraft-model-selector">
     <!-- Manufacturer selection -->
     <div class="field-group">
@@ -86,7 +85,6 @@ import {
   type CataloguePowertrainHint,
 } from '../data/aircraft-model-catalogue'
 
-// @IMP-AC-VIEW-003@ (FROM: @REQ-UI-001@, @REQ-UI-002@, @REQ-UI-003@, @REQ-UI-004@)
 
 interface Props {
   manufacturer?: string

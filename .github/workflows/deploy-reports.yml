@@ -31,8 +31,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
-        with:
-          submodules: true
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v5
@@ -47,19 +45,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Create report directory structure
-        run: mkdir -p reports/traceability reports/vitest reports/coverage reports/stryker reports/playwright
-
-      # ── Traceability Matrix ──────────────────────────────────────────────
-      - name: Make shtracer executable
-        run: chmod +x .tools/shtracer/shtracer
-
-      - name: Generate traceability matrix
-        run: bash scripts/generate_matrix.sh
-
-      - name: Move traceability output to sub-directory
-        run: |
-          mv reports/traceability_matrix.html reports/traceability/index.html
-          mv reports/traceability_matrix.json reports/traceability/traceability_matrix.json
+        run: mkdir -p reports/vitest reports/coverage reports/stryker reports/playwright
 
       # ── Vitest: Unit Test HTML Report + Coverage ─────────────────────────
       # NOTE: must use `exec` — `pnpm --filter frontend vitest ...` would be
@@ -208,11 +194,6 @@ jobs:
                 Some reports may be unavailable if their CI step was skipped.
               </p>
               <div class="cards">
-                <a href="traceability/" class="card">
-                  <div class="card-title">Traceability Matrix</div>
-                  <div class="card-desc">Requirements-to-code safety chain mapping.</div>
-                  <span class="badge">shtracer</span>
-                </a>
                 <a href="vitest/" class="card">
                   <div class="card-title">Unit Test Results</div>
                   <div class="card-desc">Vitest unit and integration test results with pass/fail breakdown.</div>

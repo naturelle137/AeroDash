@@ -15,7 +15,6 @@
  * Pure function — no framework dependencies.
  */
 
-// @IMP-MB-CORE-FUEL-MASS-001@ (FROM: @REQ-SYS-003@, @REQ-FE-001@, @REQ-MB-008@, H-002)
 
 import { getFuelDensityKgPerL } from './fuel-density'
 import { normalizeMassToKg } from './unit-normalization'

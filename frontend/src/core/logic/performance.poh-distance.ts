@@ -34,7 +34,6 @@ import type { AircraftProfile } from '../adapters/aircraft.schema'
 
 // ── Public types ─────────────────────────────────────────────────────────────
 
-// @IMP-PF-CORE-002@ (FROM: @REQ-PF-002@, @REQ-AD-008@, @REQ-AD-009@)
 /**
  * A 3-D performance cube spanning (mass × pressure altitude × temperature).
  *
@@ -181,7 +180,6 @@ function findBounds(axis: number[], value: number): { lo: number; hi: number; t:
 
 // ── Trilinear interpolation ──────────────────────────────────────────────────
 
-// @IMP-PF-CORE-003@ (FROM: @REQ-PF-002@)
 /**
  * Trilinear interpolation over a 3-D performance cube — composes the existing
  * 2-D {@link bilinearInterpolate} engine across the temperature axis.
@@ -284,7 +282,6 @@ export function trilinearInterpolate(input: TrilinearLookupInput): TrilinearLook
 
 // ── Data-point → cube pivot ──────────────────────────────────────────────────
 
-// @IMP-PF-CORE-004@ (FROM: @REQ-AD-009@, @REQ-PF-002@)
 /**
  * Pivot a sparse list of {@link PerformanceDataPoint}s (the storage shape on
  * `AircraftProfile`) into a dense {@link PerformanceCube3D} suitable for
@@ -380,7 +377,6 @@ export function pivotDataPointsToCube(dataPoints: readonly PerformanceDataPoint[
 
 // ── High-level facade (Verified-only) ────────────────────────────────────────
 
-// @IMP-PF-CORE-005@ (FROM: @REQ-PF-001@, @REQ-PF-002@, @REQ-AC-005@)
 /**
  * Compute the four certified POH distances (TOR, TOD, LR, LD) for the
  * requested operating point.

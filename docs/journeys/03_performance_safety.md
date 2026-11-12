@@ -4,8 +4,6 @@ Focus: Behaviour at the limits of the performance envelope — extrapolation, ov
 
 ---
 
-<!-- @UJ-C-001@ (FROM: @REQ-PF-010@, @REQ-PF-012@) -->
-
 ## <a name="UJ-C-001"></a>UJ-C-001: Hot & High + Controlled Extrapolation
 
 **Persona:** Pilot
@@ -25,8 +23,6 @@ Focus: Behaviour at the limits of the performance envelope — extrapolation, ov
 
 **Outcome:** The pilot avoids taking an uncalculated risk in extreme conditions. Within the 10% extrapolation band, the system provides a highly conservative estimate with a penalty and requires acknowledgment. Beyond that, it refuses to calculate entirely.
 
-<!-- @UJ-C-002@ (FROM: @REQ-AP-003@, @REQ-AP-006@, @REQ-PF-008@, @REQ-PF-009@) -->
-
 ## <a name="UJ-C-002"></a>UJ-C-002: The "Unknown Airfield" (Manual Override)
 
 **Persona:** Pilot
@@ -45,8 +41,6 @@ Focus: Behaviour at the limits of the performance envelope — extrapolation, ov
 | **Awareness**           | Notices the "Unverified" flag on the results.                       | "Makes sense. It's relying entirely on my own inputs. I bear the responsibility." | The calculation produces results but the system overlays a warning indicating the data is pilot-provided and unverified.                   |
 
 **Outcome:** The pilot maintains full PIC authority to calculate performance for unlisted airfields, while the system clearly communicates that the results depend on unverified, pilot-provided data.
-
-<!-- @UJ-C-003@ (FROM: @REQ-PF-005@, @REQ-PF-017@) -->
 
 ## <a name="UJ-C-003"></a>UJ-C-003: Estimation Transparency (Missing Distance Type)
 

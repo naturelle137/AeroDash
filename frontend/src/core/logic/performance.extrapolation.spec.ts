@@ -4,7 +4,6 @@
  * @see performance.extrapolation.ts
  */
 
-// @UT-PF-CORE-042@ (FROM: @IMP-PF-CORE-006@, @IMP-PF-CORE-007@, @IMP-PF-CORE-008@, @IMP-PF-CORE-009@, @IMP-PF-CORE-010@, @IMP-PF-CORE-011@)
 import { describe, it, expect } from 'vitest'
 import type { PohDistanceConditions } from './performance.poh-distance'
 import type { PerformanceCube3D } from './performance.poh-distance'

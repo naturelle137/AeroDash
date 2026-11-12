@@ -1,5 +1,4 @@
 <template>
-  <!-- @IMP-AC-VIEW-011@ (FROM: @REQ-AD-001@, @REQ-AD-007@, @REQ-AD-014@, @REQ-AD-018@, @REQ-AD-019@, @REQ-AD-020@) -->
   <div class="identity-section">
     <AircraftModelSelector
       :manufacturer="local.manufacturer"
@@ -11,7 +10,7 @@
       @powertrain-hint="onPowertrainHint"
     />
 
-    <!-- @IMP-AC-VIEW-031@ (FROM: @REQ-AD-020@, @REQ-AD-022@, @REQ-UI-023@)
+    <!--
          Powertrain choice. Visible at the very top of the wizard so the rest
          of the flow can branch — combustion-only profiles see fuel tanks and
          burn sequences in the Load Stations step, electric profiles see a
@@ -145,7 +144,6 @@ import AircraftModelSelector from './AircraftModelSelector.vue'
 import type { PowertrainType } from '@/core/domain/aircraft.types'
 import type { CataloguePowertrainHint } from '../data/aircraft-model-catalogue'
 
-// @IMP-AC-VIEW-012@ (FROM: @REQ-AD-001@, @REQ-AD-007@, @REQ-AD-014@, @REQ-AD-018@, @REQ-AD-019@, @REQ-AD-020@)
 
 export interface IdentityFields {
   registration: string
@@ -157,7 +155,7 @@ export interface IdentityFields {
   referenceDatumLocation: string
   /**
    * Powertrain discriminator. Defaults to `'combustion'` on wizard seed and on
-   * legacy profiles (see @REQ-AD-020@ and ADR-009). Pilots may override the
+   * legacy profiles (see REQ-AD-020 and ADR-009). Pilots may override the
    * catalogue hint — the hint only pre-selects, it never locks.
    */
   powertrain: PowertrainType
@@ -173,7 +171,7 @@ const props = withDefaults(
     /**
      * When true the powertrain radio group is replaced with a read-only
      * badge and catalogue-driven powertrain hints are ignored. Used by the
-     * edit-existing-aircraft flow (see @REQ-AD-022@).
+     * edit-existing-aircraft flow (see REQ-AD-022).
      */
     lockPowertrain?: boolean
   }>(),

@@ -16,7 +16,6 @@ const BurnSequenceEntrySchema = z.object({
   ordinalPosition: z.number(),
 })
 
-// @IMP-MB-DATA-003@ (FROM: @REQ-FE-001@, @REQ-SYS-003@, H-002)
 // Converge the runtime context onto the fuel-type enum: a
 // loose `z.array(z.string())` let arbitrary strings reach fuel-density, where a
 // typo / attacker value silently resolved to the 0.84 fallback and miscomputed
@@ -73,7 +72,6 @@ const WeighingReportSchema = z.object({
   validFrom: z.string().min(1),
 })
 
-// @IMP-MB-DATA-002@ (FROM: @REQ-AD-020@, @REQ-AD-021@)
 const BatteryPackSchema = z.object({
   usableEnergyKwh: z.number().positive(),
   reserveFloorKwh: z.number().nonnegative(),
@@ -81,7 +79,6 @@ const BatteryPackSchema = z.object({
   chemistry: z.string().min(1).optional(),
 })
 
-// @IMP-MB-DATA-001@ (FROM: @REQ-MB-002@, @DES-ARCH-005@, @REQ-AC-005@, @REQ-UQ-006@)
 export const AircraftContextSchema = z.object({
   id: z.string().min(1),
   registration: z.string().min(1),

@@ -4,7 +4,6 @@
  */
 import type { EnvelopePoint } from '../domain/aircraft.types'
 
-// @IMP-MB-CORE-011@ (FROM: @REQ-MB-007@)
 /**
  * Ray-casting point-in-polygon test against the CG envelope.
  * Returns true when the CG point lies within the certified envelope boundary.
@@ -29,7 +28,6 @@ export function isCgWithinEnvelope(
   return inside
 }
 
-// @IMP-MB-CORE-015@ (FROM: @REQ-MB-011@)
 /**
  * Tests whether a line segment from (x1,y1) to (x2,y2) intersects any edge of
  * the envelope polygon. Used to detect CG migration paths that cross the

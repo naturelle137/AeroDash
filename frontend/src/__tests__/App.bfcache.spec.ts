@@ -18,20 +18,12 @@
  *    store, theme composable, AppLogo / AppVersion components).
  *
  * 2. The real `App.vue` mounted against a memory-history router — pins
- *    IMP-SYS-SHARED-007 to the actual production wiring, so a future edit
+ *    the regression to the actual production wiring, so a future edit
  *    that moved the listener off App.vue, swapped the route-scoped check
  *    for an unconditional bump, or unbound `:key` from `<RouterView>` would
  *    break this suite rather than silently regress the production bug.
  */
 
-// @UT-SYS-APP-031@ (FROM: @IMP-SYS-SHARED-007@)
-// @UT-SYS-APP-032@ (FROM: @IMP-SYS-SHARED-007@)
-// @UT-SYS-APP-033@ (FROM: @IMP-SYS-SHARED-007@)
-// @UT-SYS-APP-034@ (FROM: @IMP-SYS-SHARED-007@)
-// @UT-SYS-APP-035@ (FROM: @IMP-SYS-SHARED-007@)
-// @UT-SYS-APP-036@ (FROM: @IMP-SYS-SHARED-007@)
-// @UT-SYS-APP-037@ (FROM: @IMP-SYS-SHARED-007@)
-// @UT-SYS-APP-038@ (FROM: @IMP-SYS-SHARED-007@)
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
@@ -129,7 +121,6 @@ describe('App.vue — bfcache restoration', () => {
     document.body.innerHTML = ''
   })
 
-  // @UT-SYS-APP-031@ (FROM: @IMP-SYS-SHARED-007@)
   it('mounts the child exactly once on initial render', async () => {
     const tracker: MountTracker = { mountCount: ref(0) }
     const Gate = makeBfcacheGate(tracker)
@@ -138,7 +129,6 @@ describe('App.vue — bfcache restoration', () => {
     expect(tracker.mountCount.value).toBe(1)
   })
 
-  // @UT-SYS-APP-032@ (FROM: @IMP-SYS-SHARED-007@)
   it('does not remount the child when pageshow fires with persisted=false (normal load)', async () => {
     const tracker: MountTracker = { mountCount: ref(0) }
     const Gate = makeBfcacheGate(tracker)
@@ -153,7 +143,6 @@ describe('App.vue — bfcache restoration', () => {
     expect(tracker.mountCount.value).toBe(1)
   })
 
-  // @UT-SYS-APP-033@ (FROM: @IMP-SYS-SHARED-007@)
   it('remounts the child when pageshow fires with persisted=true (bfcache restore)', async () => {
     const tracker: MountTracker = { mountCount: ref(0) }
     const Gate = makeBfcacheGate(tracker)
@@ -168,7 +157,6 @@ describe('App.vue — bfcache restoration', () => {
     expect(tracker.mountCount.value).toBe(2)
   })
 
-  // @UT-SYS-APP-034@ (FROM: @IMP-SYS-SHARED-007@)
   it('remounts on every subsequent bfcache restoration', async () => {
     const tracker: MountTracker = { mountCount: ref(0) }
     const Gate = makeBfcacheGate(tracker)
@@ -189,7 +177,6 @@ describe('App.vue — bfcache restoration', () => {
     expect(tracker.mountCount.value).toBe(4)
   })
 
-  // @UT-SYS-APP-035@ (FROM: @IMP-SYS-SHARED-007@)
   it('detaches the pageshow listener on unmount (no leak across components)', async () => {
     const tracker: MountTracker = { mountCount: ref(0) }
     const Gate = makeBfcacheGate(tracker)
@@ -219,9 +206,7 @@ describe('App.vue — bfcache restoration', () => {
 
 /**
  * Integration-level unit suite that exercises the real `App.vue` against a
- * memory-history router. These tests are what makes the traceability link
- * `UT-SYS-APP-036..038 → IMP-SYS-SHARED-007` load-bearing: a future edit
- * that decoupled the pageshow listener from App.vue, dropped the
+ * memory-history router. A future edit that decoupled the pageshow listener from App.vue, dropped the
  * `:key="bfcacheNonce"` binding on `<RouterView>`, or widened the
  * remount-route scope past the documented allowlist would fail one of
  * these assertions instead of silently regressing the production bug.
@@ -314,7 +299,6 @@ describe('App.vue — bfcache restoration against real component', () => {
     document.body.innerHTML = ''
   })
 
-  // @UT-SYS-APP-036@ (FROM: @IMP-SYS-SHARED-007@)
   it('remounts <RouterView> on /fleet when pageshow fires with persisted=true', async () => {
     const rvMounts = ref(0)
     const { wrapper } = await mountApp(rvMounts, '/fleet')
@@ -329,7 +313,6 @@ describe('App.vue — bfcache restoration against real component', () => {
     expect(rvMounts.value).toBe(2)
   })
 
-  // @UT-SYS-APP-037@ (FROM: @IMP-SYS-SHARED-007@)
   it('does NOT remount <RouterView> when the active route is outside the allowlist (state-preserving scope)', async () => {
     const rvMounts = ref(0)
     const { wrapper } = await mountApp(rvMounts, '/mass-balance')
@@ -345,7 +328,6 @@ describe('App.vue — bfcache restoration against real component', () => {
     expect(rvMounts.value).toBe(1)
   })
 
-  // @UT-SYS-APP-038@ (FROM: @IMP-SYS-SHARED-007@)
   it('does not remount <RouterView> when pageshow fires with persisted=false on /fleet', async () => {
     const rvMounts = ref(0)
     const { wrapper } = await mountApp(rvMounts, '/fleet')

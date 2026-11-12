@@ -4,8 +4,6 @@ Focus: Cloud synchronization, collaboration, and offline resilience.
 
 ---
 
-<!-- @UJ-G-001@ (FROM: @REQ-SC-001@, @REQ-SC-002@, @REQ-SC-003@, @REQ-SC-004@) -->
-
 ## <a name="UJ-G-001"></a>UJ-G-001: New Club Member Onboarding (Organization Sync)
 
 **Persona:** Student Pilot (New User)
@@ -26,8 +24,6 @@ Focus: Cloud synchronization, collaboration, and offline resilience.
 
 **Outcome:** The student seamlessly inherits access to calibrated, read-only aircraft profiles simply by being added to the club's organization. No manual profile setup, no risk of accidental data corruption.
 
-<!-- @UJ-G-002@ (FROM: @REQ-SC-005@, @REQ-SC-006@) -->
-
 ## <a name="UJ-G-002"></a>UJ-G-002: Ad-Hoc Aircraft Sharing (Share-Code)
 
 **Persona:** Independent Aircraft Owner
@@ -46,8 +42,6 @@ Focus: Cloud synchronization, collaboration, and offline resilience.
 | **Independence**    | The friend edits the empty weight in their imported copy. | "I'll update the weight based on the latest W&B sheet." | The system saves the change locally. Because it is a cloned copy, the original owner's profile remains unaffected. |
 
 **Outcome:** Two independent pilots efficiently share complex aircraft data using a simple alphanumeric code, without needing a formal organization. Each pilot maintains full independence over their own copy.
-
-<!-- @UJ-G-003@ (FROM: @REQ-SYS-001@) -->
 
 ## <a name="UJ-G-003"></a>UJ-G-003: The "Offline" Fallback
 

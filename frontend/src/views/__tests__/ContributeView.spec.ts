@@ -1,4 +1,3 @@
-// @UT-UI-VIEW-003@ (FROM: @IMP-UI-VIEW-003@)
 import { describe, it, expect, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import ContributeView from '../ContributeView.vue'

@@ -14,8 +14,6 @@ for `UJ-D-NNN` journeys covered.
 
 ## 1. Entry Points
 
-<!-- @DES-UX-013@ (FROM: @REQ-SYS-017@) -->
-
 The contribution hub is reachable from three locations:
 
 | Location | Element | Label | Visibility |
@@ -31,8 +29,6 @@ lives in component state.
 ---
 
 ## 2. Category Intake (Three-Button Entry)
-
-<!-- @DES-UX-014@ (FROM: @REQ-SYS-017@) -->
 
 On first paint the hub shows a heading, one explanatory paragraph, and
 three large buttons stacked vertically (mobile) or in a 3-column grid
@@ -56,8 +52,6 @@ user can step back to the category screen from any sub-screen via a
 ---
 
 ## 3. Defect Guided Form
-
-<!-- @DES-UX-015@ (FROM: @REQ-SYS-018@) -->
 
 The form is a single scrollable column with four field groups followed
 by the submit row. It maps 1:1 to the existing
@@ -92,8 +86,6 @@ again when online.").
 
 ## 4. Feature Guided Form
 
-<!-- @DES-UX-016@ (FROM: @REQ-SYS-018@) -->
-
 Same layout pattern as §3. Maps 1:1 to
 [`feature_request.yml`](../../.github/ISSUE_TEMPLATE/feature_request.yml):
 
@@ -112,8 +104,6 @@ reason as §3.
 ---
 
 ## 5. Security Advisory Card
-
-<!-- @DES-UX-017@ (FROM: @REQ-SYS-019@) -->
 
 Selecting `security` (§2) reveals a single card with no form fields. The
 card contains:
@@ -137,8 +127,6 @@ who needs the URL for later).
 ---
 
 ## 6. Contribution Promotion Section
-
-<!-- @DES-UX-018@ (FROM: @REQ-SYS-017@) -->
 
 Below the category buttons (§2), permanently visible, sits a
 non-modal panel titled "How else can you help?" containing:
@@ -164,8 +152,6 @@ an alert.
 ---
 
 ## 7. P1 URL Builder — Public Contract
-
-<!-- @DES-ARCH-018@ (FROM: @REQ-SYS-018@) -->
 
 The mapping from in-app form state to a prefilled GitHub URL lives in a
 single pure-TypeScript module:
@@ -224,8 +210,6 @@ under `src/modules/ src/shared/ src/stores/`.
 
 ## 8. State, Accessibility, and Layout Behaviour
 
-<!-- @DES-UX-019@ (FROM: @REQ-SYS-017@) -->
-
 - The `/contribute` view uses the standard
   [Interaction State Taxonomy](design_system.md#2-interaction-state-taxonomy)
   states `INITIAL` (no category chosen) and `UNCONFIGURED` (required
@@ -254,8 +238,6 @@ under `src/modules/ src/shared/ src/stores/`.
 ---
 
 ## 9. Out of Scope
-
-<!-- @DES-UX-020@ (FROM: @REQ-SYS-017@) -->
 
 - Offline drafting and persistence of contribution drafts (no IndexedDB
   store, no Pinia persistence). A draft is component-local state only

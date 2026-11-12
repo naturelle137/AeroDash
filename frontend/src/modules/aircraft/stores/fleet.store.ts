@@ -23,7 +23,6 @@ import { fleetRepository, type MigrationDiagnostic } from '../services/fleet.rep
 import { validateIcaoRegistration, hasDuplicateRegistration } from '../services/profile.validator'
 import { useActiveAircraftStore } from './active-aircraft.store'
 
-// @IMP-AC-STORE-005@ (FROM: @REQ-AC-001@, @REQ-AC-003@, @REQ-AC-005@, @REQ-AC-006@)
 
 /** Thrown when attempting to mutate a Verified profile in-place. */
 export class VerifiedMutationError extends Error {
@@ -79,7 +78,6 @@ export class InvalidVerificationDateError extends Error {
   }
 }
 
-// @IMP-AC-STORE-012@ (FROM: @REQ-AC-007@)
 function resolveVerificationDate(date: string | undefined): string {
   const now = new Date()
   const verifiedOn = date?.trim() || now.toISOString().slice(0, 10)
@@ -276,7 +274,6 @@ export const useFleetStore = defineStore('fleet', () => {
    * SAFETY: The new Verified snapshot is written to IndexedDB before the Draft is removed.
    * If any step fails the fleet remains consistent.
    */
-  // @IMP-AC-STORE-011@ (FROM: @REQ-AC-005@, @REQ-AC-007@)
   async function verifyProfile(id: string, signoff: VerificationSignoff): Promise<AircraftProfile> {
     const draft = profiles.value.find((p) => p.id === id)
     if (!draft) {
@@ -331,7 +328,6 @@ export const useFleetStore = defineStore('fleet', () => {
    * re-attestation, not a data mutation — the envelope/MTOM/weighing values are
    * untouched, so it does not breach the Verified-data immutability contract.
    */
-  // @IMP-AC-STORE-011@ (FROM: @REQ-AC-005@, @REQ-AC-007@)
   async function reverifyProfile(
     id: string,
     signoff: VerificationSignoff,

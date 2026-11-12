@@ -241,7 +241,7 @@ jobs:
                comments).
             2. Failing checks — `gh pr checks ${{ steps.ctx.outputs.pr }}` then
                `gh run view --log-failed` on each red run. Includes non-CI gates:
-               DoD, Security, Traceability, E2E.
+               DoD, Security, E2E.
             3. DoD Attestation Gate red ⇒ the PR's `Closes`/`Fixes` target has
                unticked DoD boxes. Either complete and tick them (only when
                GENUINELY done — never tick a box you cannot verify), or

@@ -5,7 +5,6 @@
  * @see frontend/src/shared/components/ConfirmDialog.vue
  */
 
-// @UT-UI-SHARED-001@ (FROM: @IMP-UI-SHARED-003@, @IMP-UI-SHARED-004@)
 
 import { describe, it, expect, afterEach } from 'vitest'
 import { mount } from '@vue/test-utils'

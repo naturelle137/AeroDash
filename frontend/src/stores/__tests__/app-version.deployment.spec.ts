@@ -34,19 +34,16 @@ const versionManifest = readJson('../../../public/version.json')
 const shippedMinSafeVersion = String(versionManifest.minSafeVersion)
 
 describe('deployment guard — runtime floors vs app version', () => {
-  // @UT-SYS-STORE-084@ (FROM: @IMP-SYS-STORE-017@)
   it('ships structurally valid floors and app version', () => {
     expect(isValidSemVer(shippedMinSafeVersion)).toBe(true) // /version.json remote floor
     expect(isValidSemVer(__MIN_SAFE_VERSION__)).toBe(true) // build-time floor
     expect(isValidSemVer(__APP_VERSION__)).toBe(true) // running version
   })
 
-  // @UT-SYS-STORE-085@ (FROM: @IMP-SYS-STORE-017@)
   it('the shipped /version.json floor is not above the deployed app version (no remote self-brick)', () => {
     expect(isVersionBelow(__APP_VERSION__, shippedMinSafeVersion)).toBe(false)
   })
 
-  // @UT-SYS-STORE-095@ (FROM: @IMP-SYS-STORE-020@)
   it('the build-time __MIN_SAFE_VERSION__ floor is not above the deployed app version (no build-time self-brick)', () => {
     expect(isVersionBelow(__APP_VERSION__, __MIN_SAFE_VERSION__)).toBe(false)
   })

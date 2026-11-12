@@ -36,7 +36,6 @@ function mockJsonResponse(body: unknown, init: MockResponseInit = {}): Response 
 }
 
 describe('fetchRemoteMinSafeVersion — happy path', () => {
-  // @UT-SYS-STORE-055@ (FROM: @IMP-SYS-STORE-017@)
   it('returns the SemVer string from a 200 JSON response', async () => {
     const fetchImpl = vi.fn<typeof fetch>().mockResolvedValue(mockJsonResponse({ minSafeVersion: '0.5.0' }))
     const out = await fetchRemoteMinSafeVersion({ fetchImpl })
@@ -47,14 +46,12 @@ describe('fetchRemoteMinSafeVersion — happy path', () => {
     )
   })
 
-  // @UT-SYS-STORE-056@ (FROM: @IMP-SYS-STORE-017@)
   it('honours an explicit endpoint override', async () => {
     const fetchImpl = vi.fn<typeof fetch>().mockResolvedValue(mockJsonResponse({ minSafeVersion: '1.0.0' }))
     await fetchRemoteMinSafeVersion({ fetchImpl, endpoint: '/custom/v.json' })
     expect(fetchImpl).toHaveBeenCalledWith('/custom/v.json', expect.any(Object))
   })
 
-  // @UT-SYS-STORE-086@ (FROM: @IMP-SYS-STORE-017@)
   // the SemVer shape-guard must accept a value carrying BOTH a pre-release
   // and a build-metadata suffix (legal SemVer 2.0.0). The prior `[-+]`-only
   // guard rejected it, silently demoting such an operator-pushed floor to null.
@@ -65,7 +62,6 @@ describe('fetchRemoteMinSafeVersion — happy path', () => {
     expect(await fetchRemoteMinSafeVersion({ fetchImpl })).toBe('0.4.0-rc.1+sha.abc')
   })
 
-  // @UT-SYS-STORE-087@ (FROM: @IMP-SYS-STORE-017@)
   // leading-zero numeric pre-release identifiers (`01`) and empty identifiers
   // (`foo..bar`) are SemVer §9-invalid — reject so the comparator can never
   // conflate `01`↔`1` or mis-order an empty segment.
@@ -82,37 +78,31 @@ describe('fetchRemoteMinSafeVersion — happy path', () => {
 })
 
 describe('fetchRemoteMinSafeVersion — failure modes resolve to null', () => {
-  // @UT-SYS-STORE-057@ (FROM: @IMP-SYS-STORE-017@)
   it('returns null for HTTP non-2xx', async () => {
     const fetchImpl = vi.fn<typeof fetch>().mockResolvedValue(mockJsonResponse('', { ok: false, status: 404 }))
     expect(await fetchRemoteMinSafeVersion({ fetchImpl })).toBeNull()
   })
 
-  // @UT-SYS-STORE-058@ (FROM: @IMP-SYS-STORE-017@)
   it('returns null when fetch rejects', async () => {
     const fetchImpl = vi.fn<typeof fetch>().mockRejectedValue(new TypeError('NetworkError'))
     expect(await fetchRemoteMinSafeVersion({ fetchImpl })).toBeNull()
   })
 
-  // @UT-SYS-STORE-059@ (FROM: @IMP-SYS-STORE-017@)
   it('returns null when the body is not valid JSON', async () => {
     const fetchImpl = vi.fn<typeof fetch>().mockResolvedValue(mockJsonResponse('<<not-json>>'))
     expect(await fetchRemoteMinSafeVersion({ fetchImpl })).toBeNull()
   })
 
-  // @UT-SYS-STORE-060@ (FROM: @IMP-SYS-STORE-017@)
   it('returns null when the JSON is missing a minSafeVersion field', async () => {
     const fetchImpl = vi.fn<typeof fetch>().mockResolvedValue(mockJsonResponse({ other: 'x' }))
     expect(await fetchRemoteMinSafeVersion({ fetchImpl })).toBeNull()
   })
 
-  // @UT-SYS-STORE-061@ (FROM: @IMP-SYS-STORE-017@)
   it('returns null when minSafeVersion is not a SemVer', async () => {
     const fetchImpl = vi.fn<typeof fetch>().mockResolvedValue(mockJsonResponse({ minSafeVersion: 'banana' }))
     expect(await fetchRemoteMinSafeVersion({ fetchImpl })).toBeNull()
   })
 
-  // @UT-SYS-STORE-062@ (FROM: @IMP-SYS-STORE-017@)
   it('returns null when no fetch implementation is available', async () => {
     // Override the optional `fetchImpl` and clear the global fetch.
     const originalFetch = (globalThis as { fetch?: typeof fetch }).fetch
@@ -124,13 +114,11 @@ describe('fetchRemoteMinSafeVersion — failure modes resolve to null', () => {
     }
   })
 
-  // @UT-SYS-STORE-063@ (FROM: @IMP-SYS-STORE-017@)
   it('returns null when the response body is suspiciously large (post-read cap)', async () => {
     const fetchImpl = vi.fn<typeof fetch>().mockResolvedValue(mockJsonResponse('x'.repeat(5_000)))
     expect(await fetchRemoteMinSafeVersion({ fetchImpl })).toBeNull()
   })
 
-  // @UT-SYS-STORE-082@ (FROM: @IMP-SYS-STORE-017@)
   // pre-flight Content-Length check — refuse to read a body the server already
   // advertised as oversized.
   it('returns null on a Content-Length header that exceeds the cap, before reading the body', async () => {
@@ -150,7 +138,6 @@ describe('fetchRemoteMinSafeVersion — failure modes resolve to null', () => {
     expect(textSpy).not.toHaveBeenCalled()
   })
 
-  // @UT-SYS-STORE-092@ (FROM: @IMP-SYS-STORE-017@)
   // a present-but-malformed Content-Length must REJECT, not silently fall
   // through to read an unbounded body. `Number('abc')` is NaN, which the prior
   // `Number.isFinite(len) && len > cap` test skipped. Content-Length per
@@ -174,7 +161,6 @@ describe('fetchRemoteMinSafeVersion — failure modes resolve to null', () => {
     },
   )
 
-  // @UT-SYS-STORE-093@ (FROM: @IMP-SYS-STORE-017@)
   // the post-read cap measures UTF-8 BYTES, not UTF-16 code units, so a body
   // of multi-byte codepoints under the code-unit count but over the byte cap
   // is still rejected.
@@ -202,7 +188,6 @@ describe('fetchRemoteMinSafeVersion — AbortController fallback', () => {
     }
   })
 
-  // @UT-SYS-STORE-083@ (FROM: @IMP-SYS-STORE-017@)
   it('times out via Promise.race when AbortController is unavailable', async () => {
     // Drop AbortController to simulate a sandboxed WebView / locked-down runtime.
     ;(globalThis as { AbortController?: typeof AbortController }).AbortController =
@@ -223,7 +208,6 @@ describe('fetchRemoteMinSafeVersion — AbortController fallback', () => {
     expect(elapsed).toBeLessThan(500)
   })
 
-  // @UT-SYS-STORE-088@ (FROM: @IMP-SYS-STORE-017@)
   // even WITH AbortController present, a fetch impl that ignores the
   // AbortSignal and never settles must still time out via the wall-clock race
   // — the abort alone cannot rescue it.

@@ -1,4 +1,3 @@
-// @UT-AC-STORE-138@ (FROM: @IMP-AC-STORE-004@)
 /**
  * Unit tests for profile.import.ts
  *
@@ -69,7 +68,6 @@ function createValidExportedProfile(): Record<string, unknown> {
 }
 
 describe('importProfileFromJson', () => {
-  // @UT-AC-STORE-017@ (FROM: @IMP-AC-STORE-004@)
   it('creates Draft profile from valid exchange file', () => {
     const json = JSON.stringify(createValidExportedProfile())
     const profile = importProfileFromJson(json)
@@ -78,7 +76,6 @@ describe('importProfileFromJson', () => {
     expect(profile.manufacturer).toBe('Tecnam')
   })
 
-  // @UT-AC-STORE-018@ (FROM: @IMP-AC-STORE-004@)
   it('assigns a new UUID on import (does not reuse the original id)', () => {
     const original = createValidExportedProfile()
     const json = JSON.stringify(original)
@@ -90,7 +87,6 @@ describe('importProfileFromJson', () => {
     )
   })
 
-  // @UT-AC-STORE-019@ (FROM: @IMP-AC-STORE-004@)
   it('forces status = Draft even when exchange file has status = Verified', () => {
     const data = createValidExportedProfile()
     data.status = 'Verified'
@@ -99,7 +95,6 @@ describe('importProfileFromJson', () => {
     expect(profile.status).toBe('draft')
   })
 
-  // @UT-AC-STORE-020@ (FROM: @IMP-AC-STORE-004@)
   it('throws ImportError on malformed JSON, fleet unmodified', () => {
     expect(() => importProfileFromJson('{not valid json')).toThrow(ImportError)
     expect(() => importProfileFromJson('{not valid json')).toThrow(
@@ -107,7 +102,6 @@ describe('importProfileFromJson', () => {
     )
   })
 
-  // @UT-AC-STORE-021@ (FROM: @IMP-AC-STORE-004@)
   it('throws ImportError on Zod validation failure (missing required field)', () => {
     const data = createValidExportedProfile()
     delete data.registration
@@ -116,7 +110,6 @@ describe('importProfileFromJson', () => {
     expect(() => importProfileFromJson(json)).toThrow('Profile validation failed')
   })
 
-  // @UT-AC-STORE-022@ (FROM: @IMP-AC-STORE-004@)
   it('throws ImportError when certificationCategories is empty array', () => {
     const data = createValidExportedProfile()
     data.certificationCategories = []
@@ -124,7 +117,6 @@ describe('importProfileFromJson', () => {
     expect(() => importProfileFromJson(json)).toThrow(ImportError)
   })
 
-  // @UT-AC-STORE-023@ (FROM: @IMP-AC-STORE-004@)
   it('round-trip: export → import → equality (excluding id and status)', () => {
     const original = createValidExportedProfile()
     // Create an AircraftProfile-like object for export
@@ -159,41 +151,35 @@ describe('validateImportFile', () => {
     return file
   }
 
-  // @UT-AC-STORE-084@ (FROM: @IMP-AC-STORE-007@)
   it('rejects an oversized file before reading it', () => {
     const tooBig = makeFile(MAX_IMPORT_FILE_BYTES + 1, 'application/json', 'evil.json')
     expect(() => validateImportFile(tooBig)).toThrow(ImportError)
     expect(() => validateImportFile(tooBig)).toThrow('too large')
   })
 
-  // @UT-AC-STORE-085@ (FROM: @IMP-AC-STORE-007@)
   it('rejects an empty (0-byte) file', () => {
     const empty = makeFile(0, 'application/json', 'empty.json')
     expect(() => validateImportFile(empty)).toThrow(ImportError)
     expect(() => validateImportFile(empty)).toThrow('empty')
   })
 
-  // @UT-AC-STORE-086@ (FROM: @IMP-AC-STORE-007@)
   it('rejects a non-JSON MIME type even with a .json name', () => {
     const spoofed = makeFile(100, 'application/x-msdownload', 'malware.json')
     expect(() => validateImportFile(spoofed)).toThrow(ImportError)
     expect(() => validateImportFile(spoofed)).toThrow('only .json')
   })
 
-  // @UT-AC-STORE-087@ (FROM: @IMP-AC-STORE-007@)
   it('rejects a non-.json extension even with a JSON MIME type', () => {
     const wrongExt = makeFile(100, 'application/json', 'profile.txt')
     expect(() => validateImportFile(wrongExt)).toThrow(ImportError)
     expect(() => validateImportFile(wrongExt)).toThrow('only .json')
   })
 
-  // @UT-AC-STORE-088@ (FROM: @IMP-AC-STORE-007@)
   it('accepts a well-formed .json file at the size limit', () => {
     const ok = makeFile(MAX_IMPORT_FILE_BYTES, 'application/json', 'D-EBPN.aerodash.json')
     expect(() => validateImportFile(ok)).not.toThrow()
   })
 
-  // @UT-AC-STORE-089@ (FROM: @IMP-AC-STORE-007@)
   it('tolerates an empty MIME type when the extension is .json', () => {
     const noMime = makeFile(100, '', 'D-EBPN.aerodash.json')
     expect(() => validateImportFile(noMime)).not.toThrow()
@@ -201,7 +187,6 @@ describe('validateImportFile', () => {
 })
 
 describe('exportProfileToJson', () => {
-  // @UT-AC-STORE-024@ (FROM: @IMP-AC-STORE-004@)
   it('produces valid JSON that round-trips through importProfileFromJson', () => {
     const data = createValidExportedProfile() as AircraftProfile
     const json = exportProfileToJson(data)
@@ -210,7 +195,6 @@ describe('exportProfileToJson', () => {
     expect(reimported.registration).toBe(data.registration)
   })
 
-  // @UT-AC-STORE-101@ (FROM: @IMP-AC-STORE-008@)
   it('wraps the profile in an aerodash-aircraft envelope', () => {
     const data = createValidExportedProfile() as AircraftProfile
     const json = exportProfileToJson(data)
@@ -221,7 +205,6 @@ describe('exportProfileToJson', () => {
     expect((parsed.profile as Record<string, unknown>).registration).toBe('D-EBPN')
   })
 
-  // @UT-AC-STORE-128@ (FROM: @IMP-AC-STORE-010@)
   it('excludes operating-cost fields from the default export', () => {
     const data = {
       ...createValidExportedProfile(),
@@ -236,7 +219,6 @@ describe('exportProfileToJson', () => {
     expect(profile.registration).toBe('D-EBPN')
   })
 
-  // @UT-AC-STORE-125@ (FROM: @IMP-AC-STORE-010@)
   it('retains operating-cost fields when includeOperatingCost is set', () => {
     const data = {
       ...createValidExportedProfile(),
@@ -249,7 +231,6 @@ describe('exportProfileToJson', () => {
     expect(profile.fuelCostIncluded).toBe(false)
   })
 
-  // @UT-AC-STORE-126@ (FROM: @IMP-AC-STORE-010@)
   it('does not mutate the source profile when minimising the export', () => {
     const data = {
       ...createValidExportedProfile(),
@@ -265,38 +246,32 @@ describe('exportProfileToJson', () => {
 // ─── Envelope detection + back-compat ────────────────────────────────────────
 
 describe('isExchangeEnvelope', () => {
-  // @UT-AC-STORE-102@ (FROM: @IMP-AC-STORE-008@)
   it('accepts a well-formed envelope', () => {
     expect(
       isExchangeEnvelope({ format: 'aerodash-aircraft', version: 1, profile: {} }),
     ).toBe(true)
   })
 
-  // @UT-AC-STORE-103@ (FROM: @IMP-AC-STORE-008@)
   it('rejects a bare-profile JSON tree (no envelope keys)', () => {
     expect(isExchangeEnvelope(createValidExportedProfile())).toBe(false)
   })
 
-  // @UT-AC-STORE-104@ (FROM: @IMP-AC-STORE-008@)
   it('rejects a tree with wrong `format` marker', () => {
     expect(
       isExchangeEnvelope({ format: 'something-else', version: 1, profile: {} }),
     ).toBe(false)
   })
 
-  // @UT-AC-STORE-105@ (FROM: @IMP-AC-STORE-008@)
   it('rejects a tree with non-numeric or non-positive `version`', () => {
     expect(isExchangeEnvelope({ format: EXCHANGE_FORMAT, version: '1', profile: {} })).toBe(false)
     expect(isExchangeEnvelope({ format: EXCHANGE_FORMAT, version: 0, profile: {} })).toBe(false)
     expect(isExchangeEnvelope({ format: EXCHANGE_FORMAT, version: 1.5, profile: {} })).toBe(false)
   })
 
-  // @UT-AC-STORE-106@ (FROM: @IMP-AC-STORE-008@)
   it('rejects a tree without a `profile` key', () => {
     expect(isExchangeEnvelope({ format: EXCHANGE_FORMAT, version: 1 })).toBe(false)
   })
 
-  // @UT-AC-STORE-107@ (FROM: @IMP-AC-STORE-008@)
   it('rejects null, arrays, and primitives', () => {
     expect(isExchangeEnvelope(null)).toBe(false)
     expect(isExchangeEnvelope(undefined)).toBe(false)
@@ -306,7 +281,6 @@ describe('isExchangeEnvelope', () => {
 })
 
 describe('importProfileFromJson — exchange envelope and back-compat', () => {
-  // @UT-AC-STORE-108@ (FROM: @IMP-AC-STORE-008@)
   it('imports a profile wrapped in the current-version envelope', () => {
     const envelope = {
       format: EXCHANGE_FORMAT,
@@ -318,7 +292,6 @@ describe('importProfileFromJson — exchange envelope and back-compat', () => {
     expect(profile.status).toBe('draft')
   })
 
-  // @UT-AC-STORE-109@ (FROM: @IMP-AC-STORE-008@)
   it('imports a legacy bare-profile JSON (back-compat with older exports)', () => {
     // No envelope: the entire tree IS the profile (the v0.3.0-alpha export shape).
     const bare = createValidExportedProfile()
@@ -327,7 +300,6 @@ describe('importProfileFromJson — exchange envelope and back-compat', () => {
     expect(profile.status).toBe('draft')
   })
 
-  // @UT-AC-STORE-110@ (FROM: @IMP-AC-STORE-008@)
   it('rejects an envelope with version > EXCHANGE_VERSION (future build)', () => {
     const envelope = {
       format: EXCHANGE_FORMAT,
@@ -338,7 +310,6 @@ describe('importProfileFromJson — exchange envelope and back-compat', () => {
     expect(() => importProfileFromJson(JSON.stringify(envelope))).toThrow(/newer than/)
   })
 
-  // @UT-AC-STORE-111@ (FROM: @IMP-AC-STORE-008@)
   it('rejects an envelope whose inner profile fails Zod validation', () => {
     const bad = createValidExportedProfile()
     delete bad.registration
@@ -347,7 +318,6 @@ describe('importProfileFromJson — exchange envelope and back-compat', () => {
     expect(() => importProfileFromJson(JSON.stringify(envelope))).toThrow('Profile validation failed')
   })
 
-  // @UT-AC-STORE-112@ (FROM: @IMP-AC-STORE-008@)
   it('round-trip: export → import via envelope preserves the registration', () => {
     const profile = createValidExportedProfile() as AircraftProfile
     const exported = exportProfileToJson(profile)
@@ -360,18 +330,15 @@ describe('importProfileFromJson — exchange envelope and back-compat', () => {
 })
 
 describe('buildExchangeFilename', () => {
-  // @UT-AC-STORE-025@ (FROM: @IMP-AC-STORE-004@)
   it('returns `<registration>.aerodash.json` for a normal registration', () => {
     expect(buildExchangeFilename('D-EBPN')).toBe('D-EBPN.aerodash.json')
     expect(buildExchangeFilename('N123AB')).toBe('N123AB.aerodash.json')
   })
 
-  // @UT-AC-STORE-026@ (FROM: @IMP-AC-STORE-004@)
   it('sanitises unsafe filesystem characters', () => {
     expect(buildExchangeFilename('A/B:C*?')).toBe('A_B_C.aerodash.json')
   })
 
-  // @UT-AC-STORE-027@ (FROM: @IMP-AC-STORE-004@)
   it('falls back to `aircraft` when registration has no safe characters', () => {
     expect(buildExchangeFilename('///')).toBe('aircraft.aerodash.json')
     expect(buildExchangeFilename('')).toBe('aircraft.aerodash.json')
@@ -397,7 +364,6 @@ describe('downloadProfileAsJson', () => {
     globalThis.URL.revokeObjectURL = originalRevoke
   })
 
-  // @UT-AC-STORE-028@ (FROM: @IMP-AC-STORE-004@)
   it('creates and revokes a blob URL and clicks a download anchor', () => {
     const profile = createValidExportedProfile() as unknown as AircraftProfile
     const clickSpy = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {})
@@ -415,7 +381,6 @@ describe('downloadProfileAsJson', () => {
     clickSpy.mockRestore()
   })
 
-  // @UT-AC-STORE-029@ (FROM: @IMP-AC-STORE-004@)
   it('downloaded blob content re-imports successfully (round-trip safe)', async () => {
     const profile = createValidExportedProfile() as unknown as AircraftProfile
     let capturedBlob: Blob | null = null
@@ -437,7 +402,6 @@ describe('downloadProfileAsJson', () => {
     clickSpy.mockRestore()
   })
 
-  // @UT-AC-STORE-127@ (FROM: @IMP-AC-STORE-010@)
   it('downloaded blob omits operating-cost data by default', async () => {
     const profile = {
       ...createValidExportedProfile(),

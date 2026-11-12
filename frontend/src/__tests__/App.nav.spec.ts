@@ -13,7 +13,6 @@
  * the DOM regardless of viewport; we assert the link's presence per surface.
  */
 
-// @UT-UI-SHARED-003@ (FROM: @IMP-UI-SHARED-007@)
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { mount, flushPromises, type VueWrapper } from '@vue/test-utils'

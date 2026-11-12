@@ -1,5 +1,4 @@
 <template>
-  <!-- @IMP-AC-VIEW-037@ (FROM: @REQ-AD-017@) -->
   <section class="wind-limits-summary" aria-label="Aircraft wind limits">
     <h3 class="wind-limits-summary__title">
       Wind limits
@@ -35,7 +34,6 @@
 import { computed } from 'vue'
 import type { AircraftProfileWindLimit } from '@/core/adapters/aircraft.schema'
 
-// @IMP-AC-VIEW-038@ (FROM: @REQ-AD-017@)
 
 type Component = AircraftProfileWindLimit['component']
 type Classification = AircraftProfileWindLimit['classification']

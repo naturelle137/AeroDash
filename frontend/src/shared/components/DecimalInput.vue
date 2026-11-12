@@ -1,4 +1,3 @@
-<!-- @IMP-UI-COMP-DECIMAL-001@ (FROM: @REQ-UQ-001@) -->
 <template>
   <input
     :id="id"
@@ -23,7 +22,6 @@ export interface DecimalRejection {
 </script>
 
 <script setup lang="ts">
-// @IMP-UI-COMP-DECIMAL-002@ (FROM: @REQ-UQ-001@)
 import { ref, watch } from 'vue'
 
 const props = withDefaults(
@@ -83,7 +81,6 @@ function parseRaw(raw: string): number | null {
   return n
 }
 
-// @IMP-UI-SHARED-020@ (FROM: @REQ-UQ-006@)
 function commitStrict(raw: string): void {
   rawString.value = raw
   const parsed = /^-?\d*(?:[.,]\d*)?$/.test(raw) ? parseRaw(raw) : null

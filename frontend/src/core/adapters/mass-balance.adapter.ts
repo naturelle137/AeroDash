@@ -2,7 +2,6 @@ import { z } from 'zod'
 import type { MathCoreInput, MathCoreResult } from '../domain/mass-balance.math-types'
 import { computeMassBalanceCore } from '../logic/mass-balance.logic'
 import { mapZodErrorToViolations } from './mb.zod-violation-mapping'
-// @IMP-MB-CORE-016@ (FROM: @REQ-MB-002@, @REQ-SYS-003@, @REQ-SYS-012@)
 // Every numeric field feeding the math core is `.finite()`: Zod's
 // `z.number()` (and `.positive()`/`.nonnegative()`) accept ±Infinity, which
 // would propagate to `zeroFuelMoment = Infinity` → CG = NaN with
@@ -57,7 +56,6 @@ const EnvelopePointSchema = z.object({
   armOrMoment: createMomentReq(),
 })
 
-// @IMP-AD-CORE-002@ (FROM: @REQ-AD-002@, @REQ-AD-003@, @REQ-AD-005@, @REQ-AD-012@, @DES-ARCH-002@)
 export const MathCoreInputSchema = z
   .object({
     stations: z
@@ -94,7 +92,6 @@ export const MathCoreInputSchema = z
       )
       .max(10, { message: 'TOO_MANY_ITEMS' }),
   })
-  // @IMP-AD-CORE-003@ (FROM: @REQ-AD-002@, @REQ-AD-003@, @REQ-AD-012@)
   .superRefine((data, ctx) => {
     const totalPoints = data.stations.length + data.fuelStations.length
     if (totalPoints > 20) {
@@ -153,7 +150,6 @@ export const MathCoreInputSchema = z
  * Adapter version with Zod schema validation.
  * @param input - Unvalidated raw input
  */
-// @IMP-MB-CORE-014@ (FROM: @REQ-MB-002@, @DES-ARCH-005@)
 export function calculateMassBalance(input: unknown): MathCoreResult {
   const result = MathCoreInputSchema.safeParse(input)
 

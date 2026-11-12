@@ -14,10 +14,6 @@ This inconsistency led to:
 * Inconsistent user experience (e.g., disparate severity levels).
 * Challenges in validating the "Safety Gate" requirements where critical notifications must block actions.
 
-## Considered Options
-
-* **Original:** Not documented in original ADR
-
 ## Decision
 
 We have decided to **standardize the Notification System** by enforcing a strict schema and a centralized registry.
@@ -46,7 +42,7 @@ KEY DECISIONS:
 ### Positive
 
 * **Consistency:** The UI can now blindly consume notifications from any module using a single interface.
-* **Traceability:** Every error message in the logs can be instantly traced back to a specific requirement via its ID.
+* Stable notification IDs let tests and UI refer to the same message contract.
 * **Safety:** The `CRITICAL` severity is rigorously defined, allowing the system to reliably block "Save" or "Export" actions when safety constraints are violated.
 * **Maintainability:** Future developers have a clear template for adding new notifications.
 
@@ -54,30 +50,3 @@ KEY DECISIONS:
 
 * **Verbosity:** Requirement documents are slightly more verbose due to the full JSON objects.
 * **Maintenance:** The Central Register in `notification_schema.md` must be kept in sync with the individual requirement files. A divergence check might be needed in CI/CD.
-
-## Compliance
-
-All modules must emit notifications strictly matching the schema. The UI layer must implement the rendering logic defined for each Severity level.
-
----
-
-## Addendum: ERROR Severity (2026-03-29)
-
-**Context:** The original three-level severity (`INFO`, `WARNING`, `CRITICAL`) cannot express "input is invalid; the computation cannot run" without either implying the flight may proceed (`WARNING`) or equating typos with safety-limit breaches (`CRITICAL`). This drives alarm fatigue or incorrect UX (blocking modal for a missing field).
-
-**Decision:** Add `ERROR` between `WARNING` and `CRITICAL`:
-
-| Enum | Meaning | UI behavior |
-| :--- | :--- | :--- |
-| `ERROR` | Validation failed or request cannot be processed; user must fix input | Inline error / red outline |
-
-`CRITICAL` remains reserved for genuine safety-limit violations (CG out of envelope, MTOM exceeded, etc.).
-
-**Impact:**
-
-* `NotificationSeverity` type updated to include `ERROR`.
-* Notification ID pattern extended: `ERR-{MODULE}-{NUMBER}` (e.g., `ERR-SYS-001`).
-* Adapter validation failures (Zod schema) now emit `ERROR` instead of `CRITICAL`.
-* **Breaking:** Code that assumed exactly three severity levels must be updated.
-
-**References:** Issue #104, REQ-SYS-011, REQ-SYS-012.

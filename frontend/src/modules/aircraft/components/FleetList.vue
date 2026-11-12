@@ -1,5 +1,4 @@
 <template>
-  <!-- @IMP-AC-VIEW-005@ (FROM: @REQ-AC-001@, @REQ-AC-004@, @REQ-AC-005@) -->
   <div class="fleet-list">
     <div v-if="fleetStore.fleetLoadState === 'LOADING'" class="loading-state">Loading fleet...</div>
 
@@ -35,7 +34,6 @@
               :expired="freshnessFor(profile).requiresReverification"
             />
           </div>
-          <!-- @IMP-AC-VIEW-022@ (FROM: @REQ-AC-007@) -->
           <p
             v-if="provenanceLine(profile)"
             class="profile-item__provenance"
@@ -45,6 +43,7 @@
           >
             {{ provenanceLine(profile) }}
           </p>
+          <PerformanceTablesReview :profile="profile" />
         </div>
 
         <div class="profile-item__actions">
@@ -267,11 +266,11 @@ import { useActiveAircraftStore } from '../stores/active-aircraft.store'
 import { fleetRepository } from '../services/fleet.repository'
 import { downloadProfileAsJson } from '../services/profile.import'
 import ProfileStatusBadge from './ProfileStatusBadge.vue'
+import PerformanceTablesReview from './PerformanceTablesReview.vue'
 import VerifyProfileDialog from './VerifyProfileDialog.vue'
 import ConfirmDialog from '@/shared/components/ConfirmDialog.vue'
 import UndoToast from '@/shared/components/UndoToast.vue'
 
-// @IMP-AC-VIEW-006@ (FROM: @REQ-AC-001@, @REQ-AC-004@, @REQ-AC-005@)
 
 const router = useRouter()
 const route = useRoute()
@@ -279,7 +278,6 @@ const fleetStore = useFleetStore()
 const activeStore = useActiveAircraftStore()
 
 // ─── REQ-AC-007: verification provenance + expiry display ──────────────────
-// @IMP-AC-VIEW-022@ (FROM: @REQ-AC-007@)
 
 /** Freshness of a profile's verification, evaluated against the current date. */
 function freshnessFor(profile: AircraftProfile): VerificationFreshness {
@@ -315,7 +313,6 @@ function onVerify(profile: AircraftProfile): void {
   pendingVerify.value = profile
 }
 
-// @IMP-AC-VIEW-034@ (FROM: @REQ-AC-001@, @REQ-AC-007@)
 // Deep-link hand-off from the wizard's "Verify now" post-save action: arriving
 // with ?verify=<id> opens the sign-off dialog for that profile as soon as it is
 // present in the fleet, then strips the query so a reload doesn't re-trigger.
@@ -349,7 +346,6 @@ function onCancelVerify(): void {
 }
 
 // ─── confirm-then-undo destructive delete ─────────────────────────────────
-// @IMP-AC-VIEW-019@ (FROM: @REQ-AC-001@)
 //
 // `pendingDelete` drives the confirmation modal; once confirmed the profile is
 // removed and stashed in `recentlyDeleted` so the undo toast can re-create the

@@ -16,8 +16,6 @@ The disclaimer wording's source of record is
 
 ## 2. Acknowledgement Trigger & Frequency
 
-<!-- @DES-ARCH-014@ (FROM: @REQ-SYS-016@) -->
-
 - The acknowledgement state is resolved once per app load, on mount, before the
   safety-critical surfaces render.
 - Acceptance is keyed to a *disclaimer baseline*: the `MAJOR.MINOR` of the
@@ -33,8 +31,6 @@ The disclaimer wording's source of record is
   and the gate is presented on every load.
 
 ## 3. Blocking Enforcement
-
-<!-- @DES-ARCH-015@ (FROM: @REQ-SYS-016@) -->
 
 - The acknowledgement state defaults to *gate open* (blocked) and flips to
   *closed* only after a stored record matching the current baseline is read, or
@@ -61,8 +57,6 @@ The disclaimer wording's source of record is
 
 ## 4. Consent Content
 
-<!-- @DES-ARCH-016@ (FROM: @REQ-SYS-016@) -->
-
 The acknowledgement presents, and the pilot confirms by accepting:
 
 - AeroDash is not a certified aviation device and is used at the pilot's own
@@ -83,8 +77,6 @@ Links to the full [`DISCLAIMER.md`](../../DISCLAIMER.md) and the licence are
 presented alongside the acknowledgement.
 
 ## 5. Acceptance Persistence
-
-<!-- @DES-ARCH-017@ (FROM: @REQ-SYS-016@) -->
 
 - Acceptance is stored under the `localStorage` key
   `aerodash.disclaimer.ack.v1`.

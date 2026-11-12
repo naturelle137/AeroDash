@@ -1,5 +1,4 @@
 // Step definitions for aircraft-wizard-creation.feature and decimal-input-precision.feature
-// E2E trace tags live in the .feature file only (STC §B.3 / §3.4).
 
 import type { Page } from '@playwright/test'
 import { expect } from '@playwright/test'

@@ -1,4 +1,3 @@
-<!-- @IMP-AC-VIEW-ENVELOPE-001@ (FROM: @REQ-AD-011@, @REQ-MB-001@) -->
 <template>
   <div class="envelope-section">
     <p v-if="modelValue.length === 0" class="field-error" role="alert">
@@ -174,7 +173,6 @@
 </template>
 
 <script setup lang="ts">
-// @IMP-AC-VIEW-ENVELOPE-002@ (FROM: @REQ-AD-011@, @REQ-MB-001@)
 import type { AircraftProfileCertificationCategory } from '@/core/adapters/aircraft.schema'
 import DecimalInput from '@/shared/components/DecimalInput.vue'
 

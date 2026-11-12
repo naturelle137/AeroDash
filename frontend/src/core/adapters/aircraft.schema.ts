@@ -21,7 +21,6 @@ import { OCCUPANCY_REQUIREMENTS, STATION_KINDS } from '../domain/aircraft.types'
  * @see docs/architecture/adr/006-indexeddb-fleet-persistence.md
  */
 
-// @IMP-AD-CORE-022@ (FROM: @REQ-AD-002@, @REQ-AD-014@, @REQ-SYS-003@)
 // All numeric profile fields are `.finite()`: Zod's `z.number()` (incl.
 // `.positive()`/`.nonnegative()`) accepts ±Infinity, which would propagate to
 // the M&B math core as Infinity → CG = NaN with `success: true`. Profile
@@ -61,7 +60,6 @@ const FuelTankExtensionSchema = z.object({
   burnSequences: z.array(BurnSequenceEntrySchema),
 })
 
-// @IMP-AD-CORE-018@ (FROM: @REQ-AD-020@, @REQ-AD-021@)
 // Battery pack description for battery-electric aircraft. A single pack per
 // aircraft at v1 — multi-pack topologies (redundant strings, motor-glider
 // hybrids) are deferred. Mass is a fixed contribution to BEM and does NOT
@@ -113,49 +111,41 @@ const CertificationCategorySchema = z.object({
   envelope: z.array(EnvelopePointSchema).min(4).max(20),
 })
 
-// @IMP-AD-CORE-005@ (FROM: @REQ-AD-004@)
 const WeighingReportSchema = z.object({
   bem: finiteMass().positive(),
   emptyCg: finiteLen(),
   weighingDate: z.string().min(1),
-  // @IMP-AD-CORE-013@ (FROM: @REQ-AD-013@)
   validFrom: z.string().min(1),
 })
 
-// @IMP-AD-CORE-009@ (FROM: @REQ-AD-017@)
 const WindLimitSchema = z.object({
   component: z.enum(['MaxCrosswind', 'MaxTailwind', 'MaxTotalWind', 'MaxGust']),
   value: finiteNum().nonnegative(),
   classification: z.enum(['Demonstrated', 'Limit']),
 })
 
-// @IMP-AD-CORE-010@ (FROM: @REQ-AD-015@)
 const SurfaceConditionSchema = z.object({
   name: z.string().min(1),
   takeoffFactor: finiteNum().positive(),
   landingFactor: finiteNum().positive(),
 })
 
-// @IMP-AD-CORE-011@ (FROM: @REQ-AD-016@)
 const SafetyFactorsSchema = z.object({
   takeoff: finiteNum().positive(),
   landing: finiteNum().positive(),
 })
 
-// @IMP-AC-CORE-001@ (FROM: @REQ-AC-005@, @REQ-AC-006@)
 const PassengerProfileSchema = z.object({
   name: z.string().min(1),
   standardWeight: finiteMass().positive(),
   unit: z.enum(['kg', 'lbs']),
 })
 
-// @IMP-AD-CORE-008@ (FROM: @REQ-AD-006@, @REQ-AD-010@)
 const ChecklistScaffoldItemSchema = z.object({
   title: z.string().min(1),
   items: z.array(z.string()),
 })
 
-// @IMP-AD-CORE-015@ (FROM: @REQ-AD-009@, @DES-ARCH-002@)
 const PerformanceDataPointSchema = z.object({
   distance: finiteNum().nonnegative(),
   mass: finiteMass().positive(),
@@ -163,7 +153,6 @@ const PerformanceDataPointSchema = z.object({
   temperature: finiteNum(),
 })
 
-// @IMP-AD-CORE-014@ (FROM: @REQ-AD-008@, @REQ-AD-009@, @DES-ARCH-002@)
 const PerformanceProfileSchema = z.object({
   flightPhase: z.enum([
     'TakeoffRoll',
@@ -174,7 +163,6 @@ const PerformanceProfileSchema = z.object({
   dataPoints: z.array(PerformanceDataPointSchema).max(1000),
 })
 
-// @IMP-AC-CORE-004@ (FROM: @REQ-AC-007@)
 // Verification provenance — the human sign-off recorded when a Draft profile is
 // promoted to Verified (REQ-AC-007, H-011). It binds the "Verified" status to
 // *who* attested the data, *which POH revision* they checked it against, and
@@ -210,12 +198,9 @@ const VerificationProvenanceSchema = z.object({
   sourceWeighingDate: z.string().min(1),
 })
 
-// @IMP-AD-CORE-004@ (FROM: @REQ-AD-001@, @REQ-AD-002@, @REQ-AD-003@, @REQ-AD-005@, @REQ-AD-011@, @REQ-AD-012@, @REQ-AD-014@, @DES-ARCH-002@)
-// @IMP-AC-CORE-002@ (FROM: @REQ-AC-001@, @REQ-AC-005@, @REQ-AC-006@, @REQ-AD-006@, @REQ-AD-007@, @REQ-AD-010@)
 export const AircraftProfileSchema = z
   .object({
     id: z.string().uuid(),
-    // @IMP-AD-CORE-012@ (FROM: @REQ-AD-019@)
     ownerId: z.string().min(1),
     registration: z.string().min(1),
     manufacturer: z.string().min(1),
@@ -254,7 +239,6 @@ export const AircraftProfileSchema = z
     safetyFactors: SafetyFactorsSchema.optional(),
     // M3: Supplementary fields (REQ-AD-006, REQ-AD-007)
     costPerHour: finiteNum().nonnegative().optional(),
-    // @IMP-AD-CORE-016@ (FROM: @REQ-AD-006@)
     fuelCostIncluded: z.boolean().optional(),
     checklistScaffold: z.array(ChecklistScaffoldItemSchema).optional(),
     // M4: Performance profiles fully typed (REQ-AD-008, REQ-AD-009)
@@ -298,7 +282,6 @@ export const AircraftProfileSchema = z
         })
       }
 
-      // @IMP-AD-CORE-025@ (FROM: @REQ-UQ-006@)
       if (lp.kind !== undefined && (lp.kind === 'fuel') !== (lp.fuelTank !== null)) {
         ctx.addIssue({
           code: 'custom',
@@ -308,7 +291,6 @@ export const AircraftProfileSchema = z
       }
     })
 
-    // @IMP-AD-CORE-019@ (FROM: @REQ-AD-020@, @REQ-AD-021@)
     // Powertrain / BatteryPack consistency. Deliberately modelled via
     // superRefine rather than a Zod discriminated union so the rest of
     // AircraftProfile's sprawling optional surface (performanceProfiles,

@@ -3,11 +3,10 @@
  *
  * Runs the live `comment-discipline` scanner against the actual
  * repo and asserts no NEW forbidden-identifier comment slips past
- * the `baseline.json` snapshot. Same shape as the trace structural
- * gate at `frontend/scripts/trace/__tests__/repo-structural-gate.spec.ts`.
+ * the `baseline.json` snapshot.
  *
- * Rule source: `CLAUDE.md § Code comments` and
- * `CONTRIBUTING.md §4.x Code Comments`.
+ * Rule source: `AGENTS.md § Architecture and code comments` and
+ * `CONTRIBUTING.md §4 Code and tests`.
  */
 
 import path from 'node:path'
@@ -32,7 +31,7 @@ describe('repo comment-discipline gate', () => {
       console.error(
         '[comment-discipline-gate] New forbidden-identifier references in source comments.\n' +
           'Source comments must not embed GitHub issue/PR refs or audit-finding IDs ' +
-          '(see CLAUDE.md § Code comments). If the comment is genuinely pre-existing, ' +
+          '(see AGENTS.md § Architecture and code comments). If the comment is genuinely pre-existing, ' +
           'regenerate the baseline via `node frontend/scripts/comment-discipline/scripts/regen-baseline.mjs`.\n' +
           JSON.stringify(newFindings, null, 2),
       )

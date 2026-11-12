@@ -5,8 +5,7 @@ Feature: Battery-electric aircraft wizard (Pipistrel Velis Electro)
   So that the aircraft is represented on its own terms (battery pack, reserve floor)
   And so that the combustion UX for the rest of my fleet is unchanged
 
-  # @E2E-A-007@ (FROM: @UJ-A-004@)
-  @UJ-A-004 @phase-A @e2e @smoke @E2E-A-007
+  @phase-A @e2e @smoke
   Scenario: Pilot creates a Pipistrel Velis Electro, the wizard flips to electric and fuel UI is hidden
     Given the pilot navigates to the Fleet page
     When the pilot clicks "Add New Aircraft"
@@ -51,8 +50,7 @@ Feature: Battery-electric aircraft wizard (Pipistrel Velis Electro)
     Then the pilot is back on the Fleet page
     And the aircraft "OK-VVV" is listed with a "Draft" status badge
 
-  # @E2E-A-008@ (FROM: @UJ-A-004@)
-  @UJ-A-004 @phase-A @e2e @E2E-A-008
+  @phase-A @e2e
   Scenario: Combustion wizard is unchanged — fuel tank button remains visible for a Tecnam P2008 JC
     Given the pilot navigates to the Fleet page
     When the pilot clicks "Add New Aircraft"
@@ -70,7 +68,7 @@ Feature: Battery-electric aircraft wizard (Pipistrel Velis Electro)
     Then the wizard is on Step 4 — Load Stations
     And the "+ Add Fuel Tank" button is visible
 
-  @UJ-A-004 @phase-A @e2e
+  @phase-A @e2e
   Scenario Outline: Mobile wizard keeps the active step visible during navigation
     Given the pilot uses a 390 by 900 viewport
     And the pilot navigates to the Fleet page

@@ -6,7 +6,6 @@
  * @see frontend/src/modules/aircraft/components/FleetList.vue
  */
 
-// @UT-AC-VIEW-080@ (FROM: @IMP-AC-VIEW-005@, @IMP-AC-VIEW-006@)
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
@@ -154,7 +153,6 @@ function mountFleetList(options: {
 describe('FleetList — loading state', () => {
   beforeEach(() => { setActivePinia(createPinia()) })
 
-  // @UT-AC-VIEW-080@ (FROM: @IMP-AC-VIEW-005@)
   it('shows loading message when isLoading is true', () => {
     const wrapper = mountFleetList({ isLoading: true, profiles: [] })
     expect(wrapper.text()).toContain('Loading fleet')
@@ -164,13 +162,11 @@ describe('FleetList — loading state', () => {
 describe('FleetList — empty state', () => {
   beforeEach(() => { setActivePinia(createPinia()) })
 
-  // @UT-AC-VIEW-081@ (FROM: @IMP-AC-VIEW-005@)
   it('shows empty-state message when no profiles exist', () => {
     const wrapper = mountFleetList({ profiles: [] })
     expect(wrapper.text()).toContain('No aircraft profiles')
   })
 
-  // @UT-AC-VIEW-082@ (FROM: @IMP-AC-VIEW-005@)
   it('does not render the profiles list when empty', () => {
     const wrapper = mountFleetList({ profiles: [] })
     expect(wrapper.find('.profiles-list').exists()).toBe(false)
@@ -180,7 +176,6 @@ describe('FleetList — empty state', () => {
 describe('FleetList — profile list rendering', () => {
   beforeEach(() => { setActivePinia(createPinia()) })
 
-  // @UT-AC-VIEW-083@ (FROM: @IMP-AC-VIEW-005@)
   it('renders a list item for each profile', () => {
     const profiles = [
       makeProfile({ id: 'p1', registration: 'D-EBPN' }),
@@ -191,7 +186,6 @@ describe('FleetList — profile list rendering', () => {
     expect(items).toHaveLength(2)
   })
 
-  // @UT-AC-VIEW-084@ (FROM: @IMP-AC-VIEW-005@)
   it('displays registration and model for each profile', () => {
     const profile = makeProfile({ registration: 'D-EBPN', manufacturer: 'Tecnam', model: 'P2008 JC' })
     const wrapper = mountFleetList({ profiles: [profile] })
@@ -199,7 +193,6 @@ describe('FleetList — profile list rendering', () => {
     expect(wrapper.text()).toContain('Tecnam P2008 JC')
   })
 
-  // @UT-AC-VIEW-085@ (FROM: @IMP-AC-VIEW-005@)
   it('shows ProfileStatusBadge for each profile', () => {
     const profile = makeProfile({ status: 'draft' })
     const wrapper = mountFleetList({ profiles: [profile] })
@@ -210,14 +203,12 @@ describe('FleetList — profile list rendering', () => {
 describe('FleetList — active profile highlighting', () => {
   beforeEach(() => { setActivePinia(createPinia()) })
 
-  // @UT-AC-VIEW-086@ (FROM: @IMP-AC-VIEW-006@)
   it('applies active CSS class to the active profile item', () => {
     const profile = makeProfile({ id: 'p1' })
     const wrapper = mountFleetList({ profiles: [profile], activeProfile: profile })
     expect(wrapper.find('.profile-item--active').exists()).toBe(true)
   })
 
-  // @UT-AC-VIEW-087@ (FROM: @IMP-AC-VIEW-006@)
   it('does not apply active CSS class when no active profile', () => {
     const profile = makeProfile({ id: 'p1' })
     const wrapper = mountFleetList({ profiles: [profile], activeProfile: null })
@@ -228,7 +219,6 @@ describe('FleetList — active profile highlighting', () => {
 describe('FleetList — action buttons', () => {
   beforeEach(() => { setActivePinia(createPinia()) })
 
-  // @UT-AC-VIEW-088@ (FROM: @IMP-AC-VIEW-006@)
   it('Select button is disabled and aria-pressed=true when profile is already active', () => {
     const profile = makeProfile({ id: 'p1' })
     const wrapper = mountFleetList({ profiles: [profile], activeProfile: profile })
@@ -239,7 +229,6 @@ describe('FleetList — action buttons', () => {
     expect(btn.text()).toContain('Active')
   })
 
-  // @UT-AC-VIEW-089@ (FROM: @IMP-AC-VIEW-006@)
   it('Select button is enabled and aria-pressed=false when profile is not active', () => {
     const profile = makeProfile({ id: 'p1' })
     const wrapper = mountFleetList({ profiles: [profile], activeProfile: null })
@@ -250,14 +239,12 @@ describe('FleetList — action buttons', () => {
     expect(btn.text()).toContain('Select')
   })
 
-  // @UT-AC-VIEW-090@ (FROM: @IMP-AC-VIEW-006@)
   it('shows Verify button only for Draft profiles', () => {
     const draft = makeProfile({ status: 'draft' })
     const wrapper = mountFleetList({ profiles: [draft] })
     expect(wrapper.find('.btn-success').exists()).toBe(true)
   })
 
-  // @UT-AC-VIEW-091@ (FROM: @IMP-AC-VIEW-006@)
   it('shows Edit button for both Draft and Verified profiles', () => {
     const verified = makeProfile({ id: 'v1', status: 'verified' })
     const draft = makeProfile({ id: 'd1', status: 'draft' })
@@ -268,7 +255,6 @@ describe('FleetList — action buttons', () => {
     expect(wrapperD.find('.btn-secondary').exists()).toBe(true)
   })
 
-  // @UT-AC-VIEW-093@ (FROM: @IMP-AC-VIEW-006@, @IMP-UI-ROUTE-002@)
   it('navigates to fleet-edit route when Edit is clicked', async () => {
     const router = makeRouter()
     const pushSpy = vi.spyOn(router, 'push')
@@ -278,14 +264,12 @@ describe('FleetList — action buttons', () => {
     expect(pushSpy).toHaveBeenCalledWith({ name: 'fleet-edit', params: { id: 'p-nav-1' } })
   })
 
-  // @UT-AC-VIEW-092@ (FROM: @IMP-AC-VIEW-006@)
   it('always shows Delete button for each profile', () => {
     const profile = makeProfile()
     const wrapper = mountFleetList({ profiles: [profile] })
     expect(wrapper.find('.btn-danger').exists()).toBe(true)
   })
 
-  // @UT-AC-VIEW-094@ (FROM: @IMP-AC-VIEW-006@, @IMP-AC-STORE-004@)
   it('always shows Download button for each profile', () => {
     const profile = makeProfile()
     const wrapper = mountFleetList({ profiles: [profile] })
@@ -294,7 +278,6 @@ describe('FleetList — action buttons', () => {
     expect(downloadBtn.attributes('aria-label')).toContain(profile.registration)
   })
 
-  // @UT-AC-VIEW-095@ (FROM: @IMP-AC-VIEW-006@)
   it('icon buttons expose an aria-label referencing the registration', () => {
     const profile = makeProfile({ registration: 'D-EBPN', status: 'draft' })
     const wrapper = mountFleetList({ profiles: [profile] })
@@ -309,7 +292,6 @@ describe('FleetList — action buttons', () => {
 describe('FleetList — download action', () => {
   beforeEach(() => { setActivePinia(createPinia()) })
 
-  // @UT-AC-VIEW-096@ (FROM: @IMP-AC-VIEW-006@, @IMP-AC-STORE-004@)
   it('clicking the download icon triggers a blob URL + anchor click', async () => {
     const createObjectURL = vi.fn<(arg: Blob) => string>(() => 'blob:test')
     const revokeObjectURL = vi.fn<(url: string) => void>()
@@ -346,7 +328,6 @@ describe('FleetList — delete confirmation + undo', () => {
     document.body.innerHTML = ''
   })
 
-  // @UT-AC-VIEW-165@ (FROM: @IMP-AC-VIEW-019@)
   it('does not use the native window.confirm() when deleting', async () => {
     const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true)
     const profile = makeProfile({ id: 'p1', registration: 'D-EBPN' })
@@ -358,7 +339,6 @@ describe('FleetList — delete confirmation + undo', () => {
     confirmSpy.mockRestore()
   })
 
-  // @UT-AC-VIEW-166@ (FROM: @IMP-AC-VIEW-019@)
   it('opens an in-app confirmation dialog naming the aircraft on delete tap', async () => {
     const profile = makeProfile({ id: 'p1', registration: 'D-EBPN' })
     const wrapper = mountFleetList({ profiles: [profile] })
@@ -371,7 +351,6 @@ describe('FleetList — delete confirmation + undo', () => {
     expect(dialog?.textContent).toContain('D-EBPN')
   })
 
-  // @UT-AC-VIEW-167@ (FROM: @IMP-AC-VIEW-019@)
   it('does not delete (no undo toast) when the confirmation is cancelled', async () => {
     const profile = makeProfile({ id: 'p1', registration: 'D-EBPN' })
     const wrapper = mountFleetList({ profiles: [profile] })
@@ -385,7 +364,6 @@ describe('FleetList — delete confirmation + undo', () => {
     expect(document.querySelector('.confirm-dialog')).toBeNull()
   })
 
-  // @UT-AC-VIEW-168@ (FROM: @IMP-AC-VIEW-019@)
   it('deletes and shows an undo toast when the confirmation is accepted', async () => {
     const profile = makeProfile({ id: 'p1', registration: 'D-EBPN' })
     const wrapper = mountFleetList({ profiles: [profile] })
@@ -399,7 +377,6 @@ describe('FleetList — delete confirmation + undo', () => {
     expect(toast?.textContent).toContain('D-EBPN')
   })
 
-  // @UT-AC-VIEW-169@ (FROM: @IMP-AC-VIEW-019@)
   it('restores the deleted profile via the repository when undo is tapped', async () => {
     const profile = makeProfile({ id: 'p1', registration: 'D-EBPN' })
     const wrapper = mountFleetList({ profiles: [profile] })
@@ -413,7 +390,6 @@ describe('FleetList — delete confirmation + undo', () => {
     expect(fleetRepository.create).toHaveBeenCalledWith(profile)
   })
 
-  // @UT-AC-VIEW-170@ (FROM: @IMP-AC-VIEW-019@)
   it('disables the delete control while the profile is the active aircraft', () => {
     const profile = makeProfile({ id: 'p1', registration: 'D-EBPN' })
     const wrapper = mountFleetList({ profiles: [profile], activeProfile: profile })
@@ -423,7 +399,6 @@ describe('FleetList — delete confirmation + undo', () => {
     expect(deleteBtn.attributes('aria-label')).toContain('active aircraft')
   })
 
-  // @UT-AC-VIEW-171@ (FROM: @IMP-AC-VIEW-019@)
   it('does not open the confirmation for the active aircraft (defence in depth)', async () => {
     const profile = makeProfile({ id: 'p1', registration: 'D-EBPN' })
     const wrapper = mountFleetList({ profiles: [profile], activeProfile: profile })
@@ -462,7 +437,6 @@ describe('FleetList — verification provenance + expiry (REQ-AC-007)', () => {
 
   const today = new Date().toISOString().slice(0, 10)
 
-  // @UT-AC-VIEW-172@ (FROM: @IMP-AC-VIEW-022@)
   it('shows the verify dialog when the Verify button is tapped on a Draft', async () => {
     const { wrapper } = mountWithStore([makeProfile({ status: 'draft' })])
     expect(document.querySelector('.verify-dialog')).toBeNull()
@@ -472,7 +446,6 @@ describe('FleetList — verification provenance + expiry (REQ-AC-007)', () => {
     expect(document.querySelector('.verify-dialog')).not.toBeNull()
   })
 
-  // @UT-AC-VIEW-173@ (FROM: @IMP-AC-VIEW-022@)
   it('verifies a Draft with the captured sign-off provenance', async () => {
     const { wrapper, fleet } = mountWithStore([makeProfile({ id: 'd1', status: 'draft' })])
     const verifySpy = vi.spyOn(fleet, 'verifyProfile')
@@ -492,7 +465,6 @@ describe('FleetList — verification provenance + expiry (REQ-AC-007)', () => {
     })
   })
 
-  // @UT-AC-VIEW-174@ (FROM: @IMP-AC-VIEW-022@)
   it('renders the provenance line and no verify button for a fresh verified profile', () => {
     const profile = makeProfile({
       status: 'verified',
@@ -510,7 +482,6 @@ describe('FleetList — verification provenance + expiry (REQ-AC-007)', () => {
     expect(wrapper.find('.btn-verify').exists()).toBe(false)
   })
 
-  // @UT-AC-VIEW-175@ (FROM: @IMP-AC-VIEW-022@)
   it('flags an expired verification with the Expired badge and a re-verify affordance', () => {
     const profile = makeProfile({
       status: 'verified',
@@ -530,7 +501,6 @@ describe('FleetList — verification provenance + expiry (REQ-AC-007)', () => {
     expect(wrapper.text()).toContain('Verification expired')
   })
 
-  // @UT-AC-VIEW-176@ (FROM: @IMP-AC-VIEW-022@)
   it('re-attests an expired verified profile in place via reverifyProfile', async () => {
     const profile = makeProfile({
       id: 'v1',
@@ -563,7 +533,6 @@ describe('FleetList — verification provenance + expiry (REQ-AC-007)', () => {
   })
 })
 
-// @UT-AC-VIEW-184@ (FROM: @IMP-AC-VIEW-034@)
 describe('FleetList — verify-on-arrival deep link (?verify=<id>)', () => {
   beforeEach(() => {
     setActivePinia(createPinia())

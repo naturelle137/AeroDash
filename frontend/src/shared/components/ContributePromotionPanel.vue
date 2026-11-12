@@ -1,5 +1,4 @@
 <script setup lang="ts">
-// @IMP-UI-SHARED-014@ (FROM: @REQ-SYS-017@, @DES-UX-018@)
 import { GITHUB_ISSUES_URL, GITHUB_REPO_URL } from '@/core/logic/github-issue-url'
 </script>
 

@@ -36,7 +36,6 @@ import App from './App.vue'
 import router from './router'
 import { createLogger } from './shared/utils/logger'
 
-// @IMP-SYS-APP-002@ (FROM: @REQ-SYS-001@, @REQ-SYS-005@)
 import { registerSW } from 'virtual:pwa-register'
 import { usePwaUpdateStore } from './stores/pwa-update.store'
 
