@@ -43,6 +43,7 @@
           >
             {{ provenanceLine(profile) }}
           </p>
+          <PerformanceTablesReview :profile="profile" />
         </div>
 
         <div class="profile-item__actions">
@@ -265,6 +266,7 @@ import { useActiveAircraftStore } from '../stores/active-aircraft.store'
 import { fleetRepository } from '../services/fleet.repository'
 import { downloadProfileAsJson } from '../services/profile.import'
 import ProfileStatusBadge from './ProfileStatusBadge.vue'
+import PerformanceTablesReview from './PerformanceTablesReview.vue'
 import VerifyProfileDialog from './VerifyProfileDialog.vue'
 import ConfirmDialog from '@/shared/components/ConfirmDialog.vue'
 import UndoToast from '@/shared/components/UndoToast.vue'

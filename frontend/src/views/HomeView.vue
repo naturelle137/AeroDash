@@ -33,9 +33,9 @@ const modules: Module[] = [
   {
     id: 'performance',
     label: 'Performance',
-    description: 'TOLD: Takeoff, landing distances with corrections',
+    description: 'Inspect four raw POH table distances within supported bounds',
     path: '/performance',
-    soon: true,
+    soon: false,
     icon: 'pf',
   },
   {

@@ -65,7 +65,7 @@ AeroDash is a specialized **Flight Preparation and Decision Support Tool** desig
 
 * **Go/No-Go Decision Support:** Aims to compare calculated mass, CG and performance against entered aircraft limits; see the current delivery limits below.
 * **Aircraft-Specific Data:** Operates on the exact data of a specific airframe (based on its individual Weighing Report and POH), not generic type data.
-* **Performance goal:** Combine aircraft POH interpolation with applicable documented correction factors; core routines exist, while the integrated performance view remains unfinished.
+* **Performance goal:** Combine aircraft POH interpolation with applicable documented correction factors; the Performance view currently inspects four uncorrected POH distances within complete tables’ bounds.
 * **Endurance goal:** Compare planned flight time, including reserves, with usable fuel and planned flow. Integrated endurance planning remains future work.
 
 #### Target Operational Context
@@ -119,7 +119,7 @@ See the full development roadmap here:
 
 ## Current delivery limits
 
-The current frontend provides local aircraft management and an M&B preparation workflow. Performance, weather and endurance cards remain placeholders; cloud, airport integration and briefing export are future capabilities. See the [roadmap](docs/development/roadmap.md). Requirements describe the intended product, not a list of certified or fully shipped features.
+The current frontend provides local aircraft management, M&B preparation and raw POH table inspection. Import your own sourced tables in Fleet, review the points, explicitly verify the Draft, then select the snapshot in Performance and enter kg/ft/°C. Invalid or out-of-envelope lookups are blocked. No default performance tables, operational factors or runway assessment are supplied. Weather and endurance remain placeholders; cloud, airport integration and briefing export are future capabilities. See the [roadmap](docs/development/roadmap.md). Requirements describe the intended product, not a list of certified or fully shipped features.
 
 ## Development and documentation
 

@@ -24,6 +24,11 @@ const router = createRouter({
       component: MassBalanceView,
     },
     {
+      path: '/performance',
+      name: 'performance',
+      component: () => import('@/modules/performance/views/PerformanceView.vue'),
+    },
+    {
       path: '/fleet',
       name: 'fleet',
       component: FleetManagementView,

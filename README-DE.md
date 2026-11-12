@@ -65,7 +65,7 @@ AeroDash ist ein spezialisiertes **Tool zur Flugvorbereitung und Entscheidungshi
 
 * **Go/No-Go Entscheidungshilfe:** Soll anhand eingegebener Daten prüfen, dass sich das Flugzeug innerhalb der zertifizierten Grenzen für Masse, Schwerpunkt (CG) und Leistung unter den erwarteten Umweltbedingungen befindet.
 * **Flugzeugspezifische Daten:** Arbeitet mit den exakten Daten einer spezifischen Zelle (basierend auf dem individuellen Wägebericht und POH), nicht mit generischen Typdaten.
-* **Ziel der Leistungsberechnung:** POH-Interpolation mit anwendbaren dokumentierten Korrekturfaktoren verbinden. Rechenkern vorhanden, integrierter Performance-Ablauf noch offen.
+* **Ziel der Leistungsberechnung:** POH-Interpolation mit anwendbaren dokumentierten Korrekturfaktoren verbinden. Performance zeigt derzeit vier unkorrigierte POH-Distanzen innerhalb vollständiger Tabellengrenzen.
 * **Ziel des Ausdauerchecks:** Geplante Flugzeit einschließlich Reserven mit nutzbarem Kraftstoff und geplantem Verbrauch vergleichen. Der integrierte Ablauf ist noch offen.
 
 #### Zielgruppe & Kontext
@@ -114,7 +114,7 @@ Für AeroDash gilt **Doppellizenzierung**:
 
 ## Aktueller Funktionsumfang
 
-Die lokale Flugzeugverwaltung und ein Massen-/Schwerpunkt-Workflow sind vorhanden. Performance-, Wetter- und Ausdauer-Karten sind noch Platzhalter; Flughafenintegration, Briefing-Export und Cloud-Synchronisation bleiben geplant. Rechenkern-Tests belegen keinen fertigen Performance-Workflow und keine Prüfung realer Flugzeugdaten. Die [Roadmap](docs/development/roadmap.md) trennt diese Stände vom vollständigen Produktziel.
+Lokale Flugzeugverwaltung, Massen-/Schwerpunkt-Workflow und POH-Tabellenabfrage sind vorhanden. Eigene belegte Tabellen in Fleet importieren, Punkte prüfen, den Draft ausdrücklich verifizieren und den Stand in Performance mit kg/ft/°C abfragen. Ungültige Eingaben und Werte außerhalb der Tabellen bleiben gesperrt. Keine Standard-Leistungstabellen, Betriebsfaktoren oder Pistenbewertung werden bereitgestellt. Wetter- und Ausdauer-Karten sind noch Platzhalter; Flughafenintegration, Briefing-Export und Cloud-Synchronisation bleiben geplant. Synthetische Tests belegen die Verdrahtung, keine Prüfung realer Flugzeugdaten. Die [Roadmap](docs/development/roadmap.md) trennt diese Stände vom vollständigen Produktziel.
 
 ## Entwicklung und Dokumentation
 

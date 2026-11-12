@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Inspect four raw POH distances through Fleet import, explicit table review and Performance lookup; invalid or out-of-envelope points stay blocked (refs #311).
+
 ### Engineering
 
 - Simplify requirements into atomic EARS obligations, consolidate contributor/docs guidance and remove mandatory trace tags, registries and trace-only gates while retaining functional, security and calculation safeguards (refs #488, #360).
