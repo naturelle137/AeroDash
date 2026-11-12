@@ -154,7 +154,7 @@ function onCancelWipe(): void {
 </script>
 
 <template>
-  <main class="privacy-view" aria-labelledby="privacy-heading">
+  <section class="privacy-view" aria-labelledby="privacy-heading">
     <header class="privacy-view__header">
       <h1 id="privacy-heading">Privacy &amp; Local Data</h1>
       <p class="privacy-view__intro">
@@ -353,7 +353,7 @@ function onCancelWipe(): void {
         </div>
       </div>
     </div>
-  </main>
+  </section>
 </template>
 
 <style scoped>

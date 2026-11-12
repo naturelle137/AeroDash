@@ -1,6 +1,6 @@
 <template>
   <!-- @IMP-AC-VIEW-007@ (FROM: @REQ-AC-001@, @REQ-AC-004@, @REQ-AC-005@, @REQ-AC-006@) -->
-  <main class="fleet-management-view">
+  <div class="fleet-management-view">
     <h1>Aircraft Fleet Management</h1>
 
     <!-- Notifications banner -->
@@ -60,7 +60,7 @@
         </div>
       </div>
     </section>
-  </main>
+  </div>
 </template>
 
 <script setup lang="ts">
