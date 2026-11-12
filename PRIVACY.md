@@ -14,12 +14,13 @@ AeroDash is an offline-first, client-side single-page application (SPA) for flig
 
 All persisted data is stored **locally on the device, unencrypted**, and is **never transmitted** to any server (there is no backend in this release). Storage locations are listed in §5.
 
-| Data Category              | Source                          | Storage                                  | Contains PII?                                                                                  |
-| -------------------------- | ------------------------------- | ---------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| Aircraft profiles (fleet)  | Entered/imported by the pilot   | IndexedDB `aerodash-fleet`               | Yes — registration, `ownerId`, weighing reports, `costPerHour` (identify real aircraft/owners) |
-| Saved session (M&B inputs) | Entered by the pilot at runtime | localStorage `aerodash:session:payload`  | No — station weights and interaction flags only                                                |
-| Session-active flag        | Set by the app at startup       | sessionStorage `aerodash.session.active` | No — a single `'1'` marker for PWA cold-start detection                                        |
-| Calculation results        | Computed from inputs            | In-memory only (not persisted)           | No                                                                                             |
+| Data Category              | Source                          | Storage                                              | Contains PII?                                                                                  |
+| -------------------------- | ------------------------------- | ---------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| Aircraft profiles (fleet)  | Entered/imported by the pilot   | IndexedDB `aerodash-fleet`                           | Yes — registration, `ownerId`, weighing reports, `costPerHour` (identify real aircraft/owners) |
+| Saved session (M&B inputs) | Entered by the pilot at runtime | localStorage `aerodash:session:payload`              | No — station weights and interaction flags only                                                |
+| Manual runway inputs       | Entered by the pilot at runtime | localStorage `aerodash.performance.manual-runway.v1` | No — aerodrome/runway identifiers, declared distances, elevation and surface condition         |
+| Session-active flag        | Set by the app at startup       | sessionStorage `aerodash.session.active`             | No — a single `'1'` marker for PWA cold-start detection                                        |
+| Calculation results        | Computed from inputs            | In-memory only (not persisted)                       | No                                                                                             |
 
 No personal accounts, authentication, or cookies exist. Saved-session and fleet data persist across page reloads as described in §5.
 
@@ -48,6 +49,7 @@ profile is shared are minimised on export (see the `costPerHour` row).
 | `weighingReports` | IndexedDB `aerodash-fleet` | Basic empty mass / empty CG / weighing dates — the legal weight basis for all Mass & Balance computation (REQ-AD-004, REQ-AD-013). | Art. 6(1)(b) — core safety-computation input. | Only the fields needed for M&B math are stored; no inspector or facility identity is collected. |
 | `costPerHour`, `fuelCostIncluded` | IndexedDB `aerodash-fleet` | Optional operating-cost tracking for flight-cost estimation (REQ-AD-006). Not used in any safety computation. | Art. 6(1)(a) — voluntary, optional convenience data the pilot chooses to enter. | **Optional** at the schema layer; **excluded from the default profile export** so cost data is not disclosed when a profile is shared (REQ-AD-023; closes audit DP-008/DP-009). |
 | Saved session payload | localStorage `aerodash:session:payload` | Restores the in-progress M&B session (active aircraft id, certification category, per-station weights) across a page refresh (REQ-SYS-013). | Art. 6(1)(b) — necessary to preserve unsaved work in an offline tool. | No personal data beyond the aircraft-id reference; overwritten on change; cleared on aircraft switch; removed if it fails validation. |
+| Manual runway inputs | localStorage `aerodash.performance.manual-runway.v1` | Restores the pilot's declared runway values on this device. | Art. 6(1)(b) — necessary to preserve entered preparation data offline. | No personal data; overwritten on save; removed by Clear or local data deletion; ignored if invalid. |
 | Session-active flag | sessionStorage `aerodash.session.active` | Single `'1'` marker to detect PWA cold starts vs in-session updates. | Art. 6(1)(f) — legitimate interest in correct cold-start behaviour. | Contains no personal data; cleared automatically when the last tab closes. |
 | Other aircraft technical parameters | IndexedDB `aerodash-fleet` | Load points, envelope, certification categories, performance/wind/surface data — the technical inputs to M&B and performance math. | Art. 6(1)(b) — core computation inputs. | Non-personal technical data about the airframe, not the pilot. |
 

@@ -22,6 +22,7 @@ All persisted data is local to the browser, unencrypted, and not transmitted
 | :---- | :------- | :------------ | :----: | :------: |
 | IndexedDB `aerodash-fleet` (store `aircraft_profiles`) | Per-origin IndexedDB | `registration`, `ownerId`, weighing reports, `costPerHour` | Yes | Yes |
 | `localStorage` `aerodash:session:payload` | Per-origin localStorage | Station weights + aircraft-id reference | Yes | No |
+| `localStorage` `aerodash.performance.manual-runway.v1` | Per-origin localStorage | Pilot-entered runway values (no personal data) | Yes | No |
 | `localStorage` `aerodash-theme` | Per-origin localStorage | UI preference | Yes | No |
 | `sessionStorage` `aerodash.session.active` | Per-origin sessionStorage | PWA cold-start marker | Yes | No |
 

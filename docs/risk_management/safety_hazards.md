@@ -76,7 +76,7 @@ These hazards guide calculation and UX checks; listing a requirement does not pr
 **Hazard:** Take-off or landing on runway with insufficient length (Go/No-Go failure).
 **Severity:** S2
 **Cause:** Incorrect or omitted surface factor (Wet/Grass/Slope).
-**Relevant requirements:** REQ-AP-004, REQ-WX-004, REQ-WX-005
+**Relevant requirements:** REQ-AP-004, REQ-AP-013, REQ-AP-019, REQ-WX-004, REQ-WX-005
 
 ### H-010: Fuel starvation errors
 

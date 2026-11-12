@@ -8,12 +8,14 @@ import {
   type WipeReport,
 } from '@/modules/aircraft/services/data-rights.service'
 import { useFleetStore } from '@/modules/aircraft/stores/fleet.store'
+import { useManualRunwayStore } from '@/modules/airport/stores/manual-runway.store'
 import { useSessionPersistenceStore } from '@/stores/session-persistence.store'
 
 type Dialog = 'none' | 'wipe'
 
 const fleetStore = useFleetStore()
 const sessionStore = useSessionPersistenceStore()
+const manualRunwayStore = useManualRunwayStore()
 
 const dialog = ref<Dialog>('none')
 const busy = ref(false)
@@ -133,6 +135,11 @@ async function onConfirmWipe(): Promise<void> {
   } catch (err) {
     lastError.value = err instanceof Error ? err.message : 'Delete-All-Data failed: unknown error'
   } finally {
+    // The live Pinia runway (saved record, draft, `loaded`) outlives the wipe in
+    // this tab; re-read it from storage so Performance never shows an erased
+    // runway as saved/current. Re-reading (not blanking) keeps a partial
+    // failure accurate: a record whose key could not be removed is still shown.
+    manualRunwayStore.load()
     busy.value = false
   }
 }

@@ -11,6 +11,8 @@ import { flushPromises, mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import { nextTick, ref } from 'vue'
 import PrivacyView from '../PrivacyView.vue'
+import { useManualRunwayStore } from '@/modules/airport/stores/manual-runway.store'
+import { MANUAL_RUNWAY_STORAGE_KEY } from '@/modules/airport/services/manual-runway.repository'
 import type {
   BulkExportResult,
   WipeReport,
@@ -437,5 +439,87 @@ describe('PrivacyView — delete-all (REQ-SYS-014)', () => {
     expect(err.exists()).toBe(true)
     expect(err.text()).toContain('wipe blew up')
     expect(wrapper.find('[data-testid="privacy-wipe-notice"]').exists()).toBe(false)
+  })
+})
+
+// ─── Live manual runway state vs. Delete-All-Data (review508 B1) ──────────
+describe('PrivacyView — delete-all resets the live manual runway', () => {
+  // Synthetic values only; no published aerodrome declaration.
+  function saveRunway() {
+    localStorage.removeItem(MANUAL_RUNWAY_STORAGE_KEY)
+    const runway = useManualRunwayStore()
+    runway.load()
+    Object.assign(runway.draft, {
+      aerodrome: 'TEST', designator: '09', tora: '1000', toraUnit: 'm', lda: '900', ldaUnit: 'm',
+      fieldElevation: '-12', fieldElevationUnit: 'ft', surfaceType: 'paved', surfaceCondition: 'dry',
+    })
+    expect(runway.save()).toBe(true)
+    expect(runway.current).not.toBeNull()
+    return runway
+  }
+
+  async function confirmWipe() {
+    const wrapper = mountView()
+    await flushPromises()
+    await wrapper.find('[data-testid="wipe-request-btn"]').trigger('click')
+    await nextTick()
+    await wrapper.find('[data-testid="wipe-confirm-input"]').setValue('DELETE ALL DATA')
+    await nextTick()
+    await wrapper.find('[data-testid="wipe-confirm-btn"]').trigger('click')
+    await flushPromises()
+    return wrapper
+  }
+
+  afterEach(() => {
+    localStorage.removeItem(MANUAL_RUNWAY_STORAGE_KEY)
+  })
+
+  it('drops the erased runway from the same Pinia instance after a complete wipe', async () => {
+    const runway = saveRunway()
+    wipeMock.mockImplementationOnce(async () => {
+      localStorage.removeItem(MANUAL_RUNWAY_STORAGE_KEY)
+      return { ...defaultWipeReport(), localStorageKeysCleared: [MANUAL_RUNWAY_STORAGE_KEY] }
+    })
+
+    const wrapper = await confirmWipe()
+
+    expect(wrapper.find('[data-testid="privacy-wipe-notice"]').exists()).toBe(true)
+    expect(runway.saved).toBeNull()
+    expect(runway.current).toBeNull()
+    expect(runway.hasUnsavedChanges).toBe(false)
+    expect(runway.draft.aerodrome).toBe('')
+    expect(runway.draft.tora).toBe('')
+    expect(runway.storageError).toBeNull()
+  })
+
+  it('keeps showing a runway whose key could not be removed, alongside the CRITICAL notice', async () => {
+    const runway = saveRunway()
+    const savedAt = runway.saved?.savedAt
+    wipeMock.mockResolvedValueOnce({
+      ...defaultWipeReport(),
+      failures: [{ store: 'localStorage', key: MANUAL_RUNWAY_STORAGE_KEY, detail: 'removeItem failed' }],
+      complete: false,
+    })
+
+    const wrapper = await confirmWipe()
+
+    expect(wrapper.find('[data-testid="privacy-error"]').text()).toContain('Erasure incomplete')
+    expect(wrapper.find('[data-testid="privacy-wipe-notice"]').exists()).toBe(false)
+    expect(runway.saved?.savedAt).toBe(savedAt)
+    expect(runway.current).not.toBeNull()
+  })
+
+  it('re-reads the runway from storage even when the wipe throws', async () => {
+    const runway = saveRunway()
+    wipeMock.mockImplementationOnce(async () => {
+      localStorage.removeItem(MANUAL_RUNWAY_STORAGE_KEY)
+      throw new Error('wipe blew up')
+    })
+
+    const wrapper = await confirmWipe()
+
+    expect(wrapper.find('[data-testid="privacy-error"]').text()).toContain('wipe blew up')
+    expect(runway.saved).toBeNull()
+    expect(runway.current).toBeNull()
   })
 })

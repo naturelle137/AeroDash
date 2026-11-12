@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { useFleetStore } from '@/modules/aircraft/stores/fleet.store'
+import ManualRunwayPanel from '@/modules/airport/components/ManualRunwayPanel.vue'
 import { inspectPohDistances, inspectTables, type InspectionResult } from '../services/poh-inspection'
 
 const fleet = useFleetStore()
@@ -96,6 +97,7 @@ function compute(): void {
       </section>
       <p v-else role="status">No distances displayed. Select a reviewed profile and compute with valid conditions.</p>
     </form>
+    <ManualRunwayPanel />
   </main>
 </template>
 
