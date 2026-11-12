@@ -64,7 +64,7 @@ When Save or Export is triggered with unverified calculation parameters, the sys
 
 ### REQ-UI-016: Mark All as Verified Option
 
-The confirmation dialog [REQ-UI-015](#req-ui-015-unverified-data-export-warning) shall provide an option to "Mark all as Verified" which transitions the status of all current airport parameters to `Verified` in the local database.
+While the [unverified-data confirmation dialog](#req-ui-015-unverified-data-export-warning) is displayed, the system shall offer a "Mark all as Verified" action that sets all current airport parameters to `Verified` in the local database.
 
 ### REQ-UI-017: Low Safety Factor Export Warning
 

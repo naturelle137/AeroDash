@@ -65,8 +65,8 @@ AeroDash ist ein spezialisiertes **Tool zur Flugvorbereitung und Entscheidungshi
 
 * **Go/No-Go Entscheidungshilfe:** Soll anhand eingegebener Daten prüfen, dass sich das Flugzeug innerhalb der zertifizierten Grenzen für Masse, Schwerpunkt (CG) und Leistung unter den erwarteten Umweltbedingungen befindet.
 * **Flugzeugspezifische Daten:** Arbeitet mit den exakten Daten einer spezifischen Zelle (basierend auf dem individuellen Wägebericht und POH), nicht mit generischen Typdaten.
-* **Hybride Leistungsberechnung:** Kombiniert POH-Tabelleninterpolation mit standardisierten Sicherheitsfaktoren (z. B. FSM 3/75), um konservative Distanzschätzungen für unbefestigte oder kontaminierte Start- und Landebahnen zu liefern.
-* **Einfacher Reichweitencheck:** Berechnet die "Time to Empty" basierend auf den vom Benutzer eingegebenen Kraftstoffmengen, um zu validieren, ob die geplante Flugzeit inklusive Reserven innerhalb der Ausdauer liegt.
+* **Ziel der Leistungsberechnung:** POH-Interpolation mit anwendbaren dokumentierten Korrekturfaktoren verbinden. Rechenkern vorhanden, integrierter Performance-Ablauf noch offen.
+* **Ziel des Ausdauerchecks:** Geplante Flugzeit einschließlich Reserven mit nutzbarem Kraftstoff und geplantem Verbrauch vergleichen. Der integrierte Ablauf ist noch offen.
 
 #### Zielgruppe & Kontext
 

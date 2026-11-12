@@ -44,7 +44,7 @@ While connectivity is Offline, the system shall disable cloud sync, share-code g
 
 ### REQ-SYS-011: Input Validation Before Core Logic
 
-Before a core calculation, the system shall validate all module inputs against their input schema.
+When a core calculation is requested, the system shall validate all module inputs against their input schema before calculation.
 
 ### REQ-SYS-012: Validation Failure Error Notification
 
@@ -84,7 +84,7 @@ The system shall retain aircraft profiles locally for offline use.
 
 ### REQ-SYS-021: Local calculation availability
 
-After the application has been cached for offline use, the system shall make its calculation logic available without a network connection.
+While the application is cached for offline use, the system shall make its calculation logic available without a network connection.
 
 ### REQ-SYS-022: Portable flight plans
 

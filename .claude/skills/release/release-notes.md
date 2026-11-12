@@ -57,13 +57,16 @@ Always reaffirm it is still alpha and not certified when true.>
 
 - **Lead with the benefit, then the mechanism.** "Your aircraft profiles now persist
   across sessions and devices" — not "Aircraft CRUD persisted in IndexedDB".
+
 - **Bold lead-in = a theme**, grouping related changelog lines into one scannable bullet.
 - **Surface Security/Engineering items only when a pilot would care** — as a trust or
   compatibility signal ("still runs on older iPads and Chromebooks"; "import is size-
   and type-checked before it's read"). Drop trace registries, ESLint rules, test counts,
   CI plumbing, refactors.
+
 - **Be honest about limits.** This is safety-critical software. Never imply it is
   certified, and never let "What's Included" read as more complete than it is.
+
 - **Promise no dates.** Future work is named by milestone/version, never by calendar.
 
 ## Do not
@@ -71,10 +74,12 @@ Always reaffirm it is still alpha and not certified when true.>
 - Do not paste the changelog verbatim or narrate per commit/PR.
 - Do not use scope codes (`REQ-`, `IMP-`, `H-`, `UJ-`) as the message — they are allowed
   only as a light trailing anchor in parentheses, never the subject of a sentence.
+
 - Do not address developers ("we refactored", "the store now…", "added a Zod schema").
 - Do not include commit hashes, PR numbers, file paths, or internal type/class names.
   A `code` token is fine only when it is user-meaningful (e.g. the `.aerodash.json`
   exchange file, a version string).
+
 - Do not exceed what a pilot will read — tight bullets, scannable, no filler.
 
 ## Reusing an existing notes file

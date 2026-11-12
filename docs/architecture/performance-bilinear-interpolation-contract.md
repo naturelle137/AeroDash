@@ -166,11 +166,9 @@ where `lerp(a, b, t) = a + t × (b − a)`.
 
 ---
 
-## 7. Canonical POH Validation Test Vectors
+## 7. Synthetic Interpolation Test Vectors
 
-The following 4 × 3 grid represents synthetic-but-aviation-realistic values
-for a C172S-class aircraft (MTOM ≈ 1157 kg, service ceiling ≈ 6000 ft).
-Values are consistent across distance types and verified by manual calculation.
+The following 4 × 3 grids are synthetic software-test data, not extracted from a POH/AFM and not valid for an operational aircraft. Hand calculations below verify the interpolation arithmetic only.
 
 ### 7.1 TOR (Takeoff Roll) — values in metres
 

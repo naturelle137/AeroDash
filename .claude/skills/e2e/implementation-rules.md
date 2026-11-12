@@ -33,11 +33,13 @@ Source-of-truth rules for `frontend/tests/e2e/steps/**/*.ts` step definitions. I
 ## Imports
 
 required:
+
 - `import { expect } from '@playwright/test'`
 - `import { createBdd } from 'playwright-bdd'`
 - `const { Given, When, Then } = createBdd()`
 
 forbidden:
+
 - BDD imports from `@playwright/test`
 - any `frontend/src/` import
 
@@ -58,6 +60,7 @@ forbidden:
 order: `getByRole` > `getByLabel` > `getByText` > `data-testid` > CSS
 
 forbidden: visual classes, generated classes, XPath
+
 - css-usage: semantic only; css-comment required
 
 ## State and helpers

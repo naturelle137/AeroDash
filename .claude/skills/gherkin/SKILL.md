@@ -31,8 +31,8 @@ forbidden: trailing punctuation; abstract domain identifiers; technical jargon `
 ## When to escalate to the e2e skill
 
 If the request requires:
+
 - creating a new feature file with executable steps
 - generating matching step definitions
 - refactoring a feature/steps pair as a unit
 - running validation
-

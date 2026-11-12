@@ -16,111 +16,13 @@ The model is designed as a **single document aggregate** optimized for:
 - Direct JSON serialization for export/import
 - Cloud sync as an atomic unit
 
-## 2. Entity Relationship Diagram
+## 2. Executable model
 
-```mermaid
-erDiagram
-    AircraftProfile ||--o{ WeighingReport : "has (versioned)"
-    AircraftProfile ||--o{ LoadPoint : "has (max 20)"
-    AircraftProfile ||--o{ CertificationCategory : "has"
-    AircraftProfile ||--o{ PerformanceProfile : "has"
-    AircraftProfile ||--o{ SurfaceCondition : "has"
-    AircraftProfile ||--o{ WindLimit : "has"
-    AircraftProfile ||--o{ ChecklistScaffoldItem : "has"
-    LoadPoint ||--o| FuelTankExtension : "optionally extends"
-    LoadPoint ||--o{ ArmLookupEntry : "variable arm (opt.)"
-    FuelTankExtension ||--o{ BurnSequenceEntry : "has"
-    CertificationCategory ||--o{ EnvelopePoint : "has (4-20)"
-    PerformanceProfile ||--o{ PerformanceDataPoint : "has (max 1000)"
+`frontend/src/core/adapters/aircraft.schema.ts` is the executable record contract. The field descriptions below preserve domain meaning and limits; schema validation and reference tests govern accepted data. [ADR-008](adr/008-indexeddb-migration-strategy.md) defines actual version handling.
 
-    AircraftProfile {
-        string id PK
-        string ownerId
-        string registration
-        string manufacturer
-        string model
-        string icaoTypeDesignator
-        string shareCode "nullable"
-        string sourceUnit
-        string referenceDatumDescription
-        string referenceDatumLocation
-        number costPerHour "optional"
-        boolean fuelCostIncluded "optional"
-        string status "draft | verified"
-        number schemaVersion
-    }
+Powertrain is `combustion` (legacy default) or `electric`. Electric profiles require exactly one battery pack and reject fuel tanks; combustion profiles reject a battery pack. Battery usable energy must be positive, reserve nonnegative and below usable energy, optional voltage positive. [Native electric UX](../ux/native-electric-aircraft.md) separates creation choices from the persisted editor’s locked powertrain.
 
-    WeighingReport {
-        number bem
-        number emptyCg
-        date weighingDate
-        date validFrom
-    }
-
-    LoadPoint {
-        string name
-        string kind "optional: occupant | baggage | fuel"
-        number arm "if fixed scalar"
-        number operationalLimit "optional"
-        number defaultQuantity
-        string unit
-        string[] allowableCategories "optional"
-    }
-
-    ArmLookupEntry {
-        number massOrVolume
-        number moment
-    }
-
-    FuelTankExtension {
-        number unusableFuel
-        string[] permissibleFuelTypes
-    }
-
-    BurnSequenceEntry {
-        string sequenceName
-        number ordinalPosition
-    }
-
-    CertificationCategory {
-        string category "Normal | Utility | Aerobatic"
-        number mtom
-        string graphType "arm | moment"
-    }
-
-    EnvelopePoint {
-        number armOrMoment
-        number mass
-    }
-
-    PerformanceProfile {
-        string flightPhase "enum (4 phases)"
-    }
-
-    PerformanceDataPoint {
-        number distance
-        number mass
-        number pressureAltitude
-        number temperature
-    }
-
-    SurfaceCondition {
-        string name
-        number takeoffFactor
-        number landingFactor
-    }
-
-    WindLimit {
-        string component "enum (4 components)"
-        number value
-        string classification "Demonstrated | Limit"
-    }
-
-    ChecklistScaffoldItem {
-        string title
-        string[] items
-    }
-```
+Stations carry optional `occupancy: required | optional` independently of kind. See [occupancy](optional-occupancy.md) for conservative missing-metadata behavior and exchange/persistence rules. Verification provenance contains sign-off date, initials, POH revision and weighing-report identity; see [fleet verification](aircraft-fleet-module.md#verification-provenance).
 
 ## 3. Entity Definitions
 
@@ -304,5 +206,5 @@ UI interaction is not included in M3. The canonical field name on the root is
 
 1. **Zod Schema:** The authoritative runtime schema will be defined as a Zod object in `src/core/validation/`. Field constraints (array lengths, enum values, min/max points) shall mirror the limits stated in this document and the source requirements.
 2. **IndexedDB Storage:** Each `AircraftProfile` is stored as a single JSON document keyed by `id`. The `ownerId` + `registration` pair shall have a compound index to support the uniqueness check required by.
-3. **Unit Handling:** All numeric values within a profile are stored in the manufacturer's original unit. The Safety Core's unit normalization layer (`src/core/units/`) converts to SI at calculation time — never at storage time.
-4. **JSON Export/Import:** The document structure is designed so that `JSON.stringify` / `JSON.parse` of an `AircraftProfile` produces a valid exchange file.
+3. **Unit Handling:** All numeric values within a profile are stored in the manufacturer's original unit. The Safety Core's unit adapters converts to SI at calculation time — never at storage time.
+4. **JSON Export/Import:** Use the validated [exchange pipeline](aircraft-exchange-file-format.md); export excludes operating-cost data by default and import creates a draft copy.
