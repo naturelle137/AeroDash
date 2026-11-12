@@ -87,6 +87,45 @@ const mockProfile: AircraftContext = {
   ],
 }
 
+const baggageProfile: AircraftContext = {
+  ...mockProfile,
+  id: 'baggage-fixture',
+  loadPoints: [
+    {
+      name: 'Front Seats',
+      kind: 'occupant',
+      arm: 1.5,
+      armLookup: [],
+      operationalLimit: 170,
+      defaultQuantity: 0,
+      unit: 'kg',
+      allowableCategories: null,
+      fuelTank: null,
+    },
+    {
+      name: 'Baggage Area',
+      kind: 'baggage',
+      arm: 2.6,
+      armLookup: [],
+      operationalLimit: 50,
+      defaultQuantity: 0,
+      unit: 'kg',
+      allowableCategories: null,
+      fuelTank: null,
+    },
+    {
+      name: 'Rear Shelf',
+      arm: 2.8,
+      armLookup: [],
+      operationalLimit: 20,
+      defaultQuantity: 0,
+      unit: 'kg',
+      allowableCategories: null,
+      fuelTank: null,
+    },
+  ],
+}
+
 const multiCatProfile: AircraftContext = {
   ...mockProfile,
   id: 'klemm-107b',
@@ -1207,5 +1246,47 @@ describe('Mass Balance Store - applyRestoredSession', () => {
 
     const message = store.notifications.find((n) => n.id === 'WARN-UQ-001')?.message
     expect(message).toBeUndefined()
+  })
+
+  // @UT-MB-STORE-064@ (FROM: @IMP-MB-STORE-023@)
+  it('does NOT emit WARN-UQ-001 for a baggage station at zero while an empty seat still warns', () => {
+    const store = useMassBalanceStore()
+    store.loadProfile(baggageProfile)
+    store.updateStationWeight(2, 10)
+
+    const warnings = store.notifications.filter((n) => n.id === 'WARN-UQ-001')
+    expect(warnings).toHaveLength(1)
+    expect(warnings[0]!.message).toContain('Front Seats')
+    expect(warnings[0]!.message).not.toContain('Baggage Area')
+  })
+
+  // @UT-MB-STORE-065@ (FROM: @IMP-MB-STORE-023@)
+  it('clears WARN-UQ-001 when only the baggage station remains at zero', () => {
+    const store = useMassBalanceStore()
+    store.loadProfile(baggageProfile)
+    store.updateStationWeight(0, 80)
+    store.updateStationWeight(2, 10)
+
+    expect(store.stations[1]?.weight).toBe(0)
+    expect(store.notifications.some((n) => n.id === 'WARN-UQ-001')).toBe(false)
+  })
+
+  // @UT-MB-STORE-066@ (FROM: @IMP-MB-STORE-023@)
+  it('treats an unclassified non-fuel station as an occupant and warns at zero', () => {
+    const store = useMassBalanceStore()
+    store.loadProfile(baggageProfile)
+    store.updateStationWeight(0, 80)
+
+    const message = store.notifications.find((n) => n.id === 'WARN-UQ-001')?.message
+    expect(message).toContain('Rear Shelf')
+    expect(message).not.toContain('Baggage Area')
+  })
+
+  // @UT-MB-STORE-067@ (FROM: @IMP-MB-STORE-005@)
+  it('keeps baggage stations in the mandatory touch/verify gate', () => {
+    const store = useMassBalanceStore()
+    store.loadProfile(baggageProfile)
+
+    expect(store.stations[1]?.mandatory).toBe(true)
   })
 })

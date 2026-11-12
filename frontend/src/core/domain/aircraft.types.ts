@@ -48,8 +48,14 @@ export interface BatteryPackDefinition {
   chemistry?: string
 }
 
+// @IMP-AD-CORE-023@ (FROM: @REQ-UQ-006@)
+export const STATION_KINDS = ['occupant', 'baggage', 'fuel'] as const
+export type StationKind = (typeof STATION_KINDS)[number]
+
 export interface LoadPointDefinition {
   name: string
+  // Optional for legacy profiles; resolveStationKind() supplies the conservative default.
+  kind?: StationKind
   arm: number | null
   armLookup: ArmLookupEntry[]
   operationalLimit: number | null

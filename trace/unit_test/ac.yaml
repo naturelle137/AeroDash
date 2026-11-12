@@ -2203,3 +2203,31 @@ AC (auto)
     impl:
       - IMP-AC-STORE-011
       - IMP-AC-STORE-012
+
+  UT-AC-VIEW-190
+    title: Station type select shown on non-fuel rows, legacy defaults to seat
+    files:
+      - frontend/src/modules/aircraft/__tests__/LoadPointsSection.spec.ts
+    impl:
+      - IMP-AC-VIEW-040
+
+  UT-AC-VIEW-191
+    title: Station type select hidden on fuel-tank rows
+    files:
+      - frontend/src/modules/aircraft/__tests__/LoadPointsSection.spec.ts
+    impl:
+      - IMP-AC-VIEW-040
+
+  UT-AC-VIEW-192
+    title: Selecting baggage emits kind baggage
+    files:
+      - frontend/src/modules/aircraft/__tests__/LoadPointsSection.spec.ts
+    impl:
+      - IMP-AC-VIEW-040
+
+  UT-AC-VIEW-193
+    title: Fuel-tank toggle keeps kind consistent
+    files:
+      - frontend/src/modules/aircraft/__tests__/LoadPointsSection.spec.ts
+    impl:
+      - IMP-AC-VIEW-040

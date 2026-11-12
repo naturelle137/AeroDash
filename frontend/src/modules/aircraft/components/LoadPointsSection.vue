@@ -105,6 +105,24 @@
             </optgroup>
           </select>
         </div>
+
+        <!-- @IMP-AC-VIEW-040@ (FROM: @REQ-UQ-006@) -->
+        <div v-if="!lp.fuelTank" class="field-group">
+          <label :for="`${sectionId}-kind-${idx}`">Station Type</label>
+          <select
+            :id="`${sectionId}-kind-${idx}`"
+            :value="lp.kind === 'baggage' ? 'baggage' : 'occupant'"
+            @change="
+              patchRow(idx, {
+                kind: ($event.target as HTMLSelectElement).value as 'occupant' | 'baggage',
+              })
+            "
+          >
+            <option value="occupant">Seat (pilot, crew, passenger)</option>
+            <option value="baggage">Baggage / cargo</option>
+          </select>
+          <span class="field-hint">Empty seats trigger a plausibility warning; empty baggage does not.</span>
+        </div>
       </div>
 
       <!-- Per-station category restriction — only meaningful when the aircraft
@@ -376,9 +394,9 @@ function toggleFuelTank(idx: number, enabled: boolean): void {
       permissibleFuelTypes: ['AvGas 100LL'],
       burnSequences: [],
     }
-    patchRow(idx, { fuelTank: tank })
+    patchRow(idx, { fuelTank: tank, kind: 'fuel' })
   } else {
-    patchRow(idx, { fuelTank: null })
+    patchRow(idx, { fuelTank: null, kind: 'occupant' })
   }
 }
 
@@ -504,6 +522,7 @@ function hasBlankSequenceName(entries: readonly BurnSequenceEntry[]): boolean {
 function addRow(): void {
   const next: AircraftProfileLoadPoint = {
     name: '',
+    kind: 'occupant',
     arm: 0,
     armLookup: [],
     operationalLimit: null,
@@ -518,6 +537,7 @@ function addRow(): void {
 function addFuelTank(): void {
   const next: AircraftProfileLoadPoint = {
     name: 'Fuel Tank',
+    kind: 'fuel',
     arm: 0,
     armLookup: [],
     operationalLimit: null,

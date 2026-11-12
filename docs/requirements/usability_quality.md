@@ -54,8 +54,8 @@ This document defines the usability & quality behavior using the **EARS** (Easy 
 <!-- @REQ-UQ-006@ (FROM: @H-010@, @H-011@) -->
 ### REQ-UQ-006: Zero-Value Plausibility Check
 
-**Requirement:** When a mandatory mass-input station (e.g. pilot, crew, passenger) has a recorded weight of zero, the system shall emit a WARNING notification (`WARN-UQ-001`) alerting the user that the entered mass is implausibly low. The notification shall identify the offending station(s) by name.
-**Rationale:** A required occupant station with zero mass is almost always a missed-entry rather than an intentional empty seat — surfacing it as a soft warning catches the "garbage-in" defect class called out in the Safety-Critical Design Check before it reaches a Go/No-Go advisory. Fuel quantity is intentionally excluded because zero fuel is a legitimate planning state and is already constrained from below by the unusable-fuel floor.
+**Requirement:** When an occupant station (pilot, crew or passenger seat) has a recorded weight of zero, the system shall emit a WARNING notification (`WARN-UQ-001`) alerting the user that the entered mass is implausibly low. The notification shall identify the offending station(s) by name.
+**Rationale:** A required occupant station with zero mass is almost always a missed-entry rather than an intentional empty seat — surfacing it as a soft warning catches the "garbage-in" defect class called out in the Safety-Critical Design Check before it reaches a Go/No-Go advisory. Fuel and baggage/cargo stations are excluded: zero fuel is a legitimate planning state already floored by unusable fuel, and empty baggage is a normal loading state whose false alarms would train pilots to dismiss the warning. Station kind comes from the aircraft data (`kind`), never from the station name; stations without a kind are treated as occupant stations.
 **Priority:** P1
 **Status:** Implemented
 **Design Reference:** [Notification Schema](../architecture/notification_schema.md)

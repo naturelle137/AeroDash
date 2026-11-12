@@ -179,3 +179,24 @@ AD (auto)
       - frontend/src/core/domain/aircraft.types.ts
     req:
       - REQ-AD-021
+
+  IMP-AD-CORE-025
+    title: Station kind / fuel tank consistency validation
+    files:
+      - frontend/src/core/adapters/aircraft.schema.ts
+    req:
+      - REQ-UQ-006
+
+  IMP-AD-CORE-023
+    title: StationKind classification on LoadPointDefinition
+    files:
+      - frontend/src/core/domain/aircraft.types.ts
+    req:
+      - REQ-UQ-006
+
+  IMP-AD-CORE-024
+    title: resolveStationKind with conservative occupant default
+    files:
+      - frontend/src/core/logic/station-kind.ts
+    req:
+      - REQ-UQ-006

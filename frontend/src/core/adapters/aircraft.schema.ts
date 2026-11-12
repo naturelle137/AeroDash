@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { CANONICAL_FUEL_TYPES } from '../logic/fuel-density'
+import { STATION_KINDS } from '../domain/aircraft.types'
 
 /**
  * Canonical Zod schemas for the AircraftProfile aggregate-root document.
@@ -86,6 +87,7 @@ const BatteryPackSchema = z.object({
 
 const LoadPointSchema = z.object({
   name: z.string().min(1),
+  kind: z.enum(STATION_KINDS).optional(),
   arm: finiteLen().nullable(),
   armLookup: z.array(ArmLookupEntrySchema).default([]),
   operationalLimit: finiteMass().nonnegative().nullable(),
@@ -292,6 +294,15 @@ export const AircraftProfileSchema = z
           code: 'custom',
           message: 'NOT_ALLOWED',
           path: ['loadPoints', i, 'arm'],
+        })
+      }
+
+      // @IMP-AD-CORE-025@ (FROM: @REQ-UQ-006@)
+      if (lp.kind !== undefined && (lp.kind === 'fuel') !== (lp.fuelTank !== null)) {
+        ctx.addIssue({
+          code: 'custom',
+          message: 'STATION_KIND_MISMATCH',
+          path: ['loadPoints', i, 'kind'],
         })
       }
     })

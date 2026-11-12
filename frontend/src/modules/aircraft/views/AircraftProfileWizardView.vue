@@ -651,7 +651,7 @@ async function persistProfile(): Promise<AircraftProfile | null> {
     // the powertrain after configuring a tank earlier in the flow.
     const normalizedLoadPoints = loadPoints.value.map((lp) => {
       if (isElectric.value && lp.fuelTank) {
-        return { ...lp, fuelTank: null }
+        return { ...lp, fuelTank: null, kind: 'occupant' as const }
       }
       return lp.fuelTank &&
         lp.fuelTank.unusableFuel > 0 &&

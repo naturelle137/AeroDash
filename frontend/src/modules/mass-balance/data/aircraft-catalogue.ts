@@ -25,6 +25,7 @@ export const AIRCRAFT_CATALOGUE: AircraftContext[] = [
     loadPoints: [
       {
         name: 'Pilot & Passenger',
+        kind: 'occupant',
         arm: 1.8,
         armLookup: [],
         operationalLimit: 200,
@@ -35,6 +36,7 @@ export const AIRCRAFT_CATALOGUE: AircraftContext[] = [
       },
       {
         name: 'Baggage',
+        kind: 'baggage',
         arm: 2.417,
         armLookup: [],
         operationalLimit: 20,
@@ -45,6 +47,7 @@ export const AIRCRAFT_CATALOGUE: AircraftContext[] = [
       },
       {
         name: 'Fuel',
+        kind: 'fuel',
         arm: 2.209,
         armLookup: [],
         operationalLimit: 75,
@@ -90,6 +93,7 @@ export const AIRCRAFT_CATALOGUE: AircraftContext[] = [
     loadPoints: [
       {
         name: 'Pilot & Passenger',
+        kind: 'occupant',
         arm: 1.8,
         armLookup: [],
         operationalLimit: 200,
@@ -100,6 +104,7 @@ export const AIRCRAFT_CATALOGUE: AircraftContext[] = [
       },
       {
         name: 'Fuel',
+        kind: 'fuel',
         arm: 2.209,
         armLookup: [],
         operationalLimit: 75,
@@ -145,6 +150,7 @@ export const AIRCRAFT_CATALOGUE: AircraftContext[] = [
     loadPoints: [
       {
         name: 'Front Seats',
+        kind: 'occupant',
         arm: 2.054,
         armLookup: [],
         operationalLimit: 200,
@@ -155,6 +161,7 @@ export const AIRCRAFT_CATALOGUE: AircraftContext[] = [
       },
       {
         name: 'Rear Seats',
+        kind: 'occupant',
         arm: 2.921,
         armLookup: [],
         operationalLimit: 200,
@@ -165,6 +172,7 @@ export const AIRCRAFT_CATALOGUE: AircraftContext[] = [
       },
       {
         name: 'Baggage',
+        kind: 'baggage',
         arm: 3.556,
         armLookup: [],
         operationalLimit: 91,
@@ -175,6 +183,7 @@ export const AIRCRAFT_CATALOGUE: AircraftContext[] = [
       },
       {
         name: 'Fuel Tanks',
+        kind: 'fuel',
         arm: 1.87,
         armLookup: [],
         operationalLimit: 131,
@@ -220,6 +229,7 @@ export const AIRCRAFT_CATALOGUE: AircraftContext[] = [
     loadPoints: [
       {
         name: 'Front Seats',
+        kind: 'occupant',
         arm: 2.045,
         armLookup: [],
         operationalLimit: 200,
@@ -230,6 +240,7 @@ export const AIRCRAFT_CATALOGUE: AircraftContext[] = [
       },
       {
         name: 'Rear Seats',
+        kind: 'occupant',
         arm: 2.997,
         armLookup: [],
         operationalLimit: 200,
@@ -240,6 +251,7 @@ export const AIRCRAFT_CATALOGUE: AircraftContext[] = [
       },
       {
         name: 'Baggage Area 1',
+        kind: 'baggage',
         arm: 3.607,
         armLookup: [],
         operationalLimit: 54,
@@ -250,6 +262,7 @@ export const AIRCRAFT_CATALOGUE: AircraftContext[] = [
       },
       {
         name: 'Baggage Area 2',
+        kind: 'baggage',
         arm: 3.886,
         armLookup: [],
         operationalLimit: 23,
@@ -260,6 +273,7 @@ export const AIRCRAFT_CATALOGUE: AircraftContext[] = [
       },
       {
         name: 'Fuel Tanks',
+        kind: 'fuel',
         arm: 2.413,
         armLookup: [],
         operationalLimit: 153,
@@ -319,6 +333,7 @@ export const AIRCRAFT_CATALOGUE: AircraftContext[] = [
     loadPoints: [
       {
         name: 'Front Seats',
+        kind: 'occupant',
         arm: 1.6,
         armLookup: [],
         operationalLimit: 200,
@@ -329,6 +344,7 @@ export const AIRCRAFT_CATALOGUE: AircraftContext[] = [
       },
       {
         name: 'Rear Seats',
+        kind: 'occupant',
         arm: 2.7,
         armLookup: [],
         operationalLimit: 120,
@@ -339,6 +355,7 @@ export const AIRCRAFT_CATALOGUE: AircraftContext[] = [
       },
       {
         name: 'Baggage',
+        kind: 'baggage',
         arm: 3.4,
         armLookup: [],
         operationalLimit: 30,
@@ -349,6 +366,7 @@ export const AIRCRAFT_CATALOGUE: AircraftContext[] = [
       },
       {
         name: 'Forward Tank',
+        kind: 'fuel',
         arm: 0.8,
         armLookup: [],
         operationalLimit: 43,
@@ -366,6 +384,7 @@ export const AIRCRAFT_CATALOGUE: AircraftContext[] = [
       },
       {
         name: 'Aft Tank',
+        kind: 'fuel',
         arm: 3.2,
         armLookup: [],
         operationalLimit: 43,

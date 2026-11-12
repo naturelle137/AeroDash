@@ -109,4 +109,12 @@ describe('mapFleetProfileToContext', () => {
     const ctx = mapFleetProfileToContext(buildCombustionProfile())
     expect(ctx.certificationCategories[0]!.maxTakeoffMass).toBe(1157)
   })
+
+  it('forwards an explicit station kind and omits it for legacy load points', () => {
+    const profile = buildCombustionProfile()
+    expect('kind' in mapFleetProfileToContext(profile).loadPoints[0]!).toBe(false)
+
+    profile.loadPoints[0] = { ...profile.loadPoints[0]!, kind: 'baggage' }
+    expect(mapFleetProfileToContext(profile).loadPoints[0]!.kind).toBe('baggage')
+  })
 })

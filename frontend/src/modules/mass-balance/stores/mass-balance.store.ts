@@ -32,6 +32,7 @@ import {
 } from '@/core/logic/unit-normalization'
 import { normalizeFuelQuantityToKg, isFuelQuantityUnit } from '@/core/logic/fuel-mass'
 import { isKnownFuelType } from '@/core/logic/fuel-density'
+import { resolveStationKind } from '@/core/logic/station-kind'
 import type { MassUnit } from '@/core/domain/units'
 import type { SessionPayload } from '@/core/domain/session.schema'
 import type {
@@ -49,13 +50,10 @@ import type {
 // Helpers
 // ---------------------------------------------------------------------------
 
-/**
- * Derives whether a load point is mandatory for M&B input.
- * Non-fuel stations (fuelTank === null) must always be entered by the pilot;
- * fuel stations are optional (default 0 = no fuel loaded).
- */
+// Baggage stays mandatory: an empty hold is legitimate, but the pilot must
+// still confirm it, so only fuel is exempt from the touch/verify gate.
 function deriveMandatory(lp: LoadPointDefinition): boolean {
-  return lp.fuelTank === null
+  return resolveStationKind(lp) !== 'fuel'
 }
 
 // ---------------------------------------------------------------------------
@@ -672,18 +670,13 @@ export const useMassBalanceStore = defineStore('massBalance', {
     },
 
     /**
-     * Plausibility check — Zero-Value mandatory station mass.
+     * Plausibility check — Zero-Value occupant station mass.
      *
-     * Emits one WARN-UQ-001 listing every mandatory non-fuel station whose
-     * current weight is exactly zero. A required occupant (pilot, crew,
-     * passenger) at zero mass is almost always a missed entry rather than an
-     * intentional empty seat, so surfacing it as a soft warning catches the
-     * Safety-Critical Design Check's "Garbage-In" defect class before it can
-     * propagate into a Go/No-Go advisory.
-     *
-     * Fuel quantity is intentionally excluded: zero fuel is a legitimate
-     * planning state and is already constrained from below by the
-     * unusable-fuel floor on `MassStationInput`.
+     * Emits one WARN-UQ-001 listing every occupant station (resolved from the
+     * load point's `kind`, unclassified non-fuel stations count as occupant)
+     * whose current weight is exactly zero. Fuel and baggage are excluded:
+     * both are legitimately empty, and false alarms train pilots to dismiss
+     * the warning.
      *
      * The predicate is **strict equality with zero** (`s.weight === 0`).
      * Small positive masses are not flagged — REQ-UQ-006 narrows the
@@ -699,9 +692,8 @@ export const useMassBalanceStore = defineStore('massBalance', {
 
       const zeroNames = this.availableStations
         .filter((s) => {
-          if (!s.mandatory) return false
           const def = this.aircraft!.loadPoints[s.index]
-          if (!def || def.fuelTank !== null) return false
+          if (!def || resolveStationKind(def) !== 'occupant') return false
           return s.weight === 0
         })
         .map((s) => s.name)
