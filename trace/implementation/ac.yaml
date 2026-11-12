@@ -413,3 +413,17 @@ AC (auto)
       - frontend/src/modules/aircraft/views/AircraftProfileEditorView.vue
     req:
       - REQ-AD-017
+
+  IMP-AC-CORE-006
+    title: Strict real-calendar UTC sign-off date bound with injected clock
+    files:
+      - frontend/src/core/logic/profile-verification.ts
+    req:
+      - REQ-AC-007
+
+  IMP-AC-STORE-012
+    title: Resolve and reject invalid or future sign-off dates before persistence
+    files:
+      - frontend/src/modules/aircraft/stores/fleet.store.ts
+    req:
+      - REQ-AC-007

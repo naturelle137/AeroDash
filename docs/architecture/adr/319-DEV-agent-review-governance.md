@@ -51,11 +51,45 @@ cannot establish independent review. A clean automated COMMENT is insufficient.
    --match-head-commit <sha>`. For release/hotfix PRs targeting main or develop
    use `gh pr merge <pr> --merge --match-head-commit <sha>` to retain both
    parents. Verify the resulting signature and integration CI. Preserve branch
-   protection and the release publication confirmations.
+   protection and the bounded release acceptance below.
 8. The CEO decides product vision, expenditure, access and legal/safety claims;
-   agents own routine engineering and release operations. Existing publication
-   confirmations in the release instructions remain outside this review change. No new credentials,
-   paid services or duplicate workers are authorized by this decision.
+   agents own routine engineering and release operations under E3 below. No new
+   credentials, paid services or duplicate workers are authorized by this decision.
+
+## Bounded release authority (E3)
+
+E3 (explicit CEO answer, 2026-11-11; HQ directive 11/O-14) delegates only
+technical triage and routine project releases. Directive 16 governs review:
+one fresh independent session, any provider, that did not author the change.
+
+| Decision | Required acceptance |
+| :--- | :--- |
+| Technical release-audit triage | Independent agent accepts the concrete finding table, evidence and blocker/defer reasons before issue creation or remediation. |
+| Routine project release | Independent agent accepts the exact full release notes and concrete target candidate before publication. |
+| Legal or safety claims; publication under the CEO's name | Explicit CEO approval of the concrete scope/content, plus technical acceptance. |
+| Ambiguous board scope | Pending explicit clarification; elapsed time is not consent. |
+
+Record triage finding IDs, priority overrides and reasons, deferred issue/milestone
+links, and the accepted report revision. Never defer a safety blocker merely to
+ship. Release acceptance records version, exact notes blob/content digest,
+triage report, PR and full head/base SHAs, reviewer session/job, verdict and
+local/CI/security/domain evidence in a durable PR comment and HQ result.
+Notes acceptance may cover a draft before commit; candidate acceptance must
+identify its committed notes and each target PR before merging.
+
+A candidate or notes change needs a documented acceptance update covering the
+changed scope. A base refresh retains the single review under Decision 6:
+the integrator checks the refreshed candidate, signatures and current CI;
+no second full review or provider cross-check. CHANGES gets one repair round,
+then verification of the named findings and green final-head CI.
+
+FRR, reference provenance, hazard/requirement traceability, thresholds,
+CI/security, signatures and expected-head integration remain mandatory. E3
+and this governance PR approve no specific release and grant no spending,
+account, access, protection or deletion rights. Milestone/deletion confirmations
+remain in force. Existing GitHub/Netlify publication guards require separate
+authorization to restore; do not enable them or use a manual fallback to bypass
+them. Legal/safety approval never substitutes for technical acceptance.
 
 ## Enforcement and live settings
 

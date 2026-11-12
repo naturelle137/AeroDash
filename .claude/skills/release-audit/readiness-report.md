@@ -12,6 +12,11 @@ A SHORT management artifact for a go/no-go decision. Bullets, no prose blocks, n
 6. **Residual risk** — ≤5 bullets: the real exposures shipping in this release after fixes, each with a one-line mitigation or acceptance rationale.
 7. **Recommendation** — 1–2 lines: the ask of the decision-maker (approve release / approve with named conditions / hold), plus any pre-publish checklist (e.g. run `pnpm audit`, host-level headers).
 
+8. **Acceptance evidence** — triage report revision, independent reviewer session/job
+   and verdict; target PR/head/base, exact notes blob/digest and gate links when
+   recommending publication. Separate explicit CEO approval or pending board scope
+   under ADR-319 E3. A readiness recommendation alone is not release acceptance.
+
 ## Rules
 
 - Quantify: counts, milestone numbers, issue numbers, test/commit evidence — no vague "improved".

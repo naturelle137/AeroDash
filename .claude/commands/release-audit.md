@@ -15,7 +15,7 @@ Run the **`release-audit`** skill on the audit reports in `.logs/`.
 Invoke the `release-audit` skill and follow it exactly:
 
 1. **Ingest** the five `.logs/audit.<domain>-<date>.md` reports; inventory every finding.
-2. **Triage** each finding (blocker vs defer) against `gh` milestones + `docs/development/roadmap.md`, using the skill's blocker bar. Verify top "active defect" claims in code. Present the split and **wait for user confirmation**.
+2. **Triage** each finding (blocker vs defer) against `gh` milestones + `docs/development/roadmap.md`, using the skill's blocker bar. Verify top "active defect" claims in code. Record the concrete table and reasons; obtain **independent triage acceptance** per ADR-319 E3 before issues or remediation. Retain explicit CEO approval for board scope and hold ambiguous cases.
 3. **File** every deferred finding as a milestone-assigned issue (grouped, `resubmission`-labelled, per `.claude/commands/issue.md`).
 4. **Remediate** blockers with the `fix-{tech,cybersecurity,dp,process,ux}` agents — consolidated **FRR** before any `frontend/src/core/` (P1) change; partition files so concurrent fixers don't collide; then run the gate (`type-check`, `lint`, `test:unit`/`test:p1`, `pnpm audit`).
 5. **Report** release readiness in the short decision format (`readiness-report.md`).

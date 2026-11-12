@@ -43,3 +43,18 @@ Phase A End-to-End Tests
     title: Fleet Delete confirmation opens after a synthetic bfcache restore (iOS Safari swipe-back path — issue #232)
     files:
       - frontend/tests/e2e/features/phase-a-fleet-management/fleet-delete-after-browser-back.feature
+
+A (auto)
+  E2E-A-012
+    title: Desktop and mobile draft sign-off rejects tomorrow and persists today
+    files:
+      - frontend/tests/e2e/features/phase-a-fleet-management/verification-date.feature
+    uj:
+      - UJ-A-001
+
+  E2E-A-013
+    title: Desktop and mobile future persisted sign-off gates M&B until reverified
+    files:
+      - frontend/tests/e2e/features/phase-a-fleet-management/verification-date.feature
+    uj:
+      - UJ-A-001
