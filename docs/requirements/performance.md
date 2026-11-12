@@ -133,3 +133,36 @@ When an estimated performance value is exported, the system shall label it `ESTI
 ## Design References
 
 - **<a name="notificationScheme"></a>Notification Scheme:** [`docs/architecture/notification_schema.md`](../architecture/notification_schema.md)
+
+### REQ-PF-041: Raw table inspection
+
+When the pilot opens Performance, the system shall offer persisted Fleet profiles for raw POH table inspection.
+
+### REQ-PF-042: Complete reviewed source
+
+If a selected profile is Draft, invalid or lacks exactly one complete positive-distance rectangular grid for each of TOR, TOD, LR and LD, then the system shall block raw distance output.
+
+### REQ-PF-043: In-envelope application lookup
+
+If a requested condition lies outside any of the four tables' supported axes, then the raw table inspection service shall block output without clamping or extrapolation.
+
+### REQ-PF-044: Required lookup inputs
+
+If mass in kg, pressure altitude in ft or temperature in °C is empty, nonfinite or unsupported, then the system shall block raw distance output.
+
+### REQ-PF-045: Result invalidation
+
+When a lookup input or the selected profile changes, the system shall immediately clear the prior raw distances.
+
+### REQ-PF-046: Raw distance scope
+
+While raw table distances are displayed, the system shall identify them as uncorrected table values without operational factors or runway assessment.
+
+### REQ-PF-047: Import table review
+
+When a Fleet profile contains performance tables, the system shall offer read-only inspection of every imported point before explicit user verification.
+
+The raw inspection slice does not implement estimation, extrapolation, QNH conversion,
+correction selection or operational runway comparison. Those requirements remain future scope.
+Synthetic Test fixtures establish wiring only; applicable aircraft POH/AFM citations and
+independent reference cases are required for aircraft-specific validation.

@@ -114,6 +114,7 @@ interface NavItem {
 const navItems: NavItem[] = [
   { id: 'home',        label: 'Home',        path: '/',            icon: 'home' },
   { id: 'flight-prep', label: 'Flight Prep', path: '/mass-balance', icon: 'prep' },
+  { id: 'performance', label: 'Performance', path: '/performance', icon: 'prep' },
   { id: 'fleet',       label: 'Fleet',       path: '/fleet',       icon: 'fleet' },
   { id: 'weather',     label: 'Weather',     path: '/weather',     icon: 'wx',   soon: true },
   { id: 'fuel',        label: 'Fuel',        path: '/fuel',        icon: 'fuel', soon: true },
@@ -125,7 +126,7 @@ const navItems: NavItem[] = [
 // primary task destinations plus Privacy, so the GDPR data-rights surface
 // (REQ-SYS-014/015) stays reachable on phones. The icon-rail sidebar already
 // exposes every destination, including Privacy, at >= 768px.
-const BOTTOM_NAV_IDS = ['home', 'flight-prep', 'fleet', 'weather', 'privacy'] as const
+const BOTTOM_NAV_IDS = ['home', 'flight-prep', 'performance', 'fleet', 'privacy'] as const
 const bottomNavItems = BOTTOM_NAV_IDS.map((id) => navItems.find((item) => item.id === id)).filter(
   (item): item is NavItem => item !== undefined,
 )
