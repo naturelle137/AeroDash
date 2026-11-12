@@ -70,3 +70,26 @@ it('clears results on source-unit and provenance edits and visibly blocks invali
   expect(view.findAll('[role="alert"]')[0]!.text()).toContain('source-unit declarations')
   expect(view.find('[aria-label="Raw POH table distances"]').exists()).toBe(false)
 })
+
+it('composes the manual runway panel without letting runway entry create raw distances or an assessment', async () => {
+  localStorage.clear()
+  const fleet = useFleetStore()
+  fleet.profiles = [testPohAircraft()]
+  fleet.fleetLoadState = 'READY'
+  vi.spyOn(fleet, 'loadAll').mockResolvedValue()
+  const view = mount(PerformanceView, { global: { stubs: { RouterLink: true } } })
+  await flushPromises()
+  const panel = view.get('form[aria-labelledby="manual-runway-heading"]')
+  for (const [selector, value] of [
+    ['#manual-runway-aerodrome', 'TEST'], ['#manual-runway-designator', '27'], ['#manual-runway-tora', '800'],
+    ['#manual-runway-tora-unit', 'm'], ['#manual-runway-lda', '700'], ['#manual-runway-lda-unit', 'm'],
+    ['#manual-runway-elevation', '1000'], ['#manual-runway-elevation-unit', 'ft'],
+    ['#manual-runway-surface-type', 'paved'], ['#manual-runway-surface-condition', 'dry'],
+  ] as const) await view.get(selector).setValue(value)
+  await panel.trigger('submit')
+  expect(view.get('[aria-label="Saved manual runway"]').text()).toContain('1000 ft (304.8 m)')
+  expect(view.find('[aria-label="Raw POH table distances"]').exists()).toBe(false)
+  expect(view.text()).toContain('Runway assessment unavailable')
+  // Field elevation is never copied into the pressure-altitude lookup field.
+  expect((view.findAll('input')[1]!.element as HTMLInputElement).value).toBe('')
+})
