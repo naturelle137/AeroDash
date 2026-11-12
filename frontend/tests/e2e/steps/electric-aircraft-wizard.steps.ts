@@ -116,3 +116,58 @@ Then(
     await expect(page.getByText(new RegExp(`${value}\\s*kWh`, 'i')).first()).toBeVisible()
   },
 )
+
+const { Given } = createBdd()
+
+Given('the pilot uses a 390 by 900 viewport', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 900 })
+})
+
+When('the pilot completes the battery step when electric', async ({ page }) => {
+  if (await page.getByRole('heading', { name: /Battery Pack/ }).count()) {
+    await page.locator('#wizard-battery-usable-energy').fill('24.8')
+    await page.locator('#wizard-battery-reserve-floor').fill('5')
+    await page.getByRole('button', { name: /Continue/ }).click()
+  }
+})
+
+When('the pilot goes back one wizard step', async ({ page }) => {
+  await page.locator('.wizard-footer').getByRole('button', { name: /Back/ }).click()
+})
+
+Then(
+  'the wizard indicator shows {string} as active among {int} steps without clipping',
+  async ({ page, $testInfo }, label: string, count: number) => {
+    const nav = page.getByRole('navigation', { name: 'Wizard steps' })
+    const buttons = nav.getByRole('button')
+    const active = nav.locator('[aria-current="step"]')
+    await expect(buttons).toHaveCount(count)
+    await expect(active).toHaveCount(1)
+    await expect(active).toContainText(label)
+    await expect.poll(async () => active.evaluate((element) => {
+      const nav = element.closest('nav')!
+      const item = element.getBoundingClientRect()
+      const bounds = nav.getBoundingClientRect()
+      const left = bounds.left + nav.clientLeft
+      const right = left + nav.clientWidth
+      const header = document.querySelector('.app-header')!.getBoundingClientRect()
+      return item.left >= Math.max(0, left) - 1 && item.right <= Math.min(innerWidth, right) + 1
+        && item.top >= header.bottom - 1 && item.bottom <= innerHeight + 1
+    })).toBe(true)
+    if (label === 'Review') {
+      await $testInfo.attach('review-390', { body: await page.screenshot(), contentType: 'image/png' })
+      await page.setViewportSize({ width: 1440, height: 900 })
+      await page.evaluate(() => window.scrollTo(0, 0))
+      await $testInfo.attach('review-1440', { body: await page.screenshot(), contentType: 'image/png' })
+      await page.setViewportSize({ width: 390, height: 900 })
+    }
+  },
+)
+
+Then('the future {string} step is disabled', async ({ page }, label: string) => {
+  await expect(page.getByRole('navigation', { name: 'Wizard steps' }).getByRole('button', { name: label })).toBeDisabled()
+})
+
+When('the pilot selects the completed {string} step', async ({ page }, label: string) => {
+  await page.getByRole('navigation', { name: 'Wizard steps' }).getByRole('button', { name: label }).click()
+})
