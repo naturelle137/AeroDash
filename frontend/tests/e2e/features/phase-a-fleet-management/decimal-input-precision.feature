@@ -1,4 +1,4 @@
-@wip @phase-A @fleet @wizard @decimal
+@phase-A @fleet @wizard @decimal
 Feature: Decimal input precision in the aircraft wizard
   As a pilot
   I want decimal values I type to be stored exactly as entered
@@ -14,7 +14,7 @@ Feature: Decimal input precision in the aircraft wizard
 
   # @E2E-A-005@ (FROM: @UJ-A-001@)
   @UJ-A-001 @phase-A @e2e @E2E-A-005
-  Scenario: High-precision decimal values survive the Weighing Reports step intact
+  Scenario: High-precision decimal values survive the wizard and a reload intact
     When the pilot types "433.75" into the BEM field and tabs away
     Then the BEM field retains the value "433.75"
 
@@ -25,11 +25,21 @@ Feature: Decimal input precision in the aircraft wizard
     And the pilot adds a seat station named "Pilot" with arm "1.877"
     Then the arm field for station "Pilot" retains the value "1.877"
 
+    When the pilot saves the aircraft as a draft and reopens "D-EBPN" after a reload
+    Then "D-EBPN" is stored with BEM 433.75, Empty CG 1.105 and arm 1.877 for station "Pilot"
+
   # @E2E-A-006@ (FROM: @UJ-A-001@)
   @UJ-A-001 @phase-A @e2e @E2E-A-006
-  Scenario: European comma decimal separator is accepted and treated identically to a period
+  Scenario: European comma decimal separator is stored identically to a period
     When the pilot types "433,75" into the BEM field and tabs away
-    Then the BEM field retains the value "433.75"
+    Then the BEM field retains the value "433,75"
 
     When the pilot types "1,105" into the Empty CG field and tabs away
-    Then the Empty CG field retains the value "1.105"
+    Then the Empty CG field retains the value "1,105"
+
+    When the pilot clicks "Continue"
+    And the pilot adds a seat station named "Pilot" with arm "1,877"
+    Then the arm field for station "Pilot" retains the value "1,877"
+
+    When the pilot saves the aircraft as a draft and reopens "D-EBPN" after a reload
+    Then "D-EBPN" is stored with BEM 433.75, Empty CG 1.105 and arm 1.877 for station "Pilot"

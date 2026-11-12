@@ -49,3 +49,26 @@ export async function flushFleetSeed(page: Page): Promise<void> {
     { dbName: FLEET_DB_NAME, storeName: FLEET_STORE_NAME, profiles: queue },
   )
 }
+
+export async function readStoredProfile(page: Page, registration: string): Promise<unknown> {
+  return page.evaluate(
+    ({ dbName, storeName, reg }) =>
+      new Promise<unknown>((resolve, reject) => {
+        const req = indexedDB.open(dbName)
+        req.onerror = () => reject(req.error ?? new Error('open failed'))
+        req.onsuccess = () => {
+          const db = req.result
+          const all = db.transaction(storeName, 'readonly').objectStore(storeName).getAll()
+          all.onsuccess = () => {
+            db.close()
+            resolve((all.result as { registration?: string }[]).find((p) => p.registration === reg))
+          }
+          all.onerror = () => {
+            db.close()
+            reject(all.error ?? new Error('read failed'))
+          }
+        }
+      }),
+    { dbName: FLEET_DB_NAME, storeName: FLEET_STORE_NAME, reg: registration },
+  )
+}

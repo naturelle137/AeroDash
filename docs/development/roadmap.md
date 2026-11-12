@@ -23,8 +23,9 @@ On develop `2c5447c4782aa921cd850aa314886b69cad8672f`, safety repairs
 [#471](https://github.com/naturelle137/AeroDash/pull/471) are integrated and the
 enabled Chromium suite passes 22 scenarios in blocking CI, including all seven
 critical M&B math scenarios on a synthetic Draft seed and the six-step wizard.
-Decimal (A-005/A-006) and category-switch (A-001) scenarios remain `@wip`, so
-M&B journey acceptance remains partial. See the
+Decimal (A-005/A-006) and category-switch (A-001) scenarios are enabled by
+[#294](https://github.com/naturelle137/AeroDash/issues/294) follow-up; acceptance
+stays partial until they pass in integrated blocking CI. See the
 [QA293 evidence table](mb-qa-293.md) and the earlier [QA204 baseline](mb-qa-204.md).
 The Performance UI is still a placeholder;
 core tests do not establish an integrated performance preparation journey.

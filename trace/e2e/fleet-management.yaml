@@ -20,12 +20,12 @@ Phase A End-to-End Tests
       - frontend/tests/e2e/features/phase-a-fleet-management/aircraft-wizard-creation.feature
 
   E2E-A-005
-    title: High-precision decimal values survive the Weighing Reports step intact
+    title: High-precision decimal values survive the wizard and a reload intact
     files:
       - frontend/tests/e2e/features/phase-a-fleet-management/decimal-input-precision.feature
 
   E2E-A-006
-    title: European comma decimal separator is accepted and treated identically to a period
+    title: European comma decimal separator is stored identically to a period
     files:
       - frontend/tests/e2e/features/phase-a-fleet-management/decimal-input-precision.feature
 
