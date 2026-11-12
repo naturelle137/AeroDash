@@ -31,7 +31,10 @@ values and units; normalized values are never persisted. Damaged JSON, any
 contract violation or a higher `schemaVersion` is not used and is reported
 visibly; saving or clearing replaces it. Write/clear failures are displayed and
 the runway is not shown as saved. "Delete all local data" removes the key through
-the shared `aerodash` prefix.
+the shared `aerodash` prefix; afterwards the Privacy view re-reads the live runway
+store from storage, so the same tab never keeps showing an erased runway as
+saved/current, while a key that could not be removed stays visible next to the
+"Erasure incomplete" alert.
 
 ## Conversion and display
 

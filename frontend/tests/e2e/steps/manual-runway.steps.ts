@@ -7,6 +7,7 @@ const STORAGE_KEY = 'aerodash.performance.manual-runway.v1'
 const summary = (page: Page) => page.getByRole('region', { name: 'Saved manual runway', exact: true })
 const panel = (page: Page) => page.locator('form[aria-labelledby="manual-runway-heading"]')
 
+type SameDocument = Window & { __sameDocument?: string }
 type Entry = {
   aerodrome: string; designator: string; tora: string; toraUnit: string; lda: string; ldaUnit: string
   elevation: string; elevationUnit: string; surfaceType: string; condition?: string
@@ -104,6 +105,23 @@ When('the pilot reloads the app', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'Manual runway', exact: true })).toBeVisible()
 })
 
+When('the pilot deletes all local data from Privacy', async ({ page }) => {
+  // In-app navigation only: the same tab, document and Pinia instance must survive the wipe.
+  await page.evaluate(() => { (window as SameDocument).__sameDocument = 'before-wipe' })
+  await page.locator('nav a[href="/privacy"]:visible').first().click()
+  await page.getByTestId('wipe-request-btn').click()
+  await page.getByTestId('wipe-confirm-input').fill('DELETE ALL DATA')
+  await page.getByTestId('wipe-confirm-btn').click()
+  await expect(page.getByTestId('privacy-wipe-notice')).toBeVisible()
+  expect(await page.evaluate((key) => localStorage.getItem(key), STORAGE_KEY)).toBeNull()
+})
+
+When('the pilot returns to Performance without reloading', async ({ page }) => {
+  await openPerformance(page)
+  // A reload would have dropped the marker set before the wipe.
+  expect(await page.evaluate(() => (window as SameDocument).__sameDocument)).toBe('before-wipe')
+})
+
 When('the pilot clears the runway inputs', async ({ page }) => {
   await panel(page).getByRole('button', { name: 'Clear runway inputs', exact: true }).click()
   await expect(panel(page).getByRole('status').filter({ hasText: 'cleared from this device' })).toBeVisible()
@@ -151,6 +169,14 @@ Then('the manual runway evidence is captured as {string}', async ({ page, $testI
 Then('no saved runway is shown', async ({ page }) => {
   await expect(summary(page)).toHaveCount(0)
   await expect(panel(page)).toContainText('Runway assessment unavailable.')
+})
+
+Then('the runway form is empty', async ({ page }) => {
+  const form = panel(page)
+  for (const label of ['Aerodrome', 'Runway designator', 'TORA — takeoff run available', 'LDA — landing distance available', 'Field elevation']) {
+    await expect(form.getByLabel(label, { exact: true })).toHaveValue('')
+  }
+  await expect(form.getByText('Unsaved changes')).toHaveCount(0)
 })
 
 Then('saving is refused because {string}', async ({ page, $testInfo }, message: string) => {

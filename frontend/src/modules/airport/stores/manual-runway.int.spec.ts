@@ -1,9 +1,10 @@
 import 'fake-indexeddb/auto'
 import { IDBFactory } from 'fake-indexeddb'
 import { createPinia, setActivePinia } from 'pinia'
-import { beforeEach, expect, it } from 'vitest'
+import { flushPromises, mount } from '@vue/test-utils'
+import { beforeEach, expect, it, vi } from 'vitest'
 import { _resetFleetDbHandleForTest } from '@/modules/aircraft/services/fleet.repository'
-import { wipeAllLocalData } from '@/modules/aircraft/services/data-rights.service'
+import PrivacyView from '@/views/PrivacyView.vue'
 import { MANUAL_RUNWAY_STORAGE_KEY } from '../services/manual-runway.repository'
 import { useManualRunwayStore } from './manual-runway.store'
 
@@ -40,16 +41,31 @@ it('restores the exact original values and units in a fresh session', () => {
   expect(reloaded.hasUnsavedChanges).toBe(true)
 })
 
-it('is erased by the local data wipe', async () => {
+it('is erased by the real Privacy wipe in the same Pinia instance, not only in a fresh session', async () => {
   const store = useManualRunwayStore()
   store.load()
   enter(store)
-  store.save()
-  const report = await wipeAllLocalData()
-  expect(report.localStorageKeysCleared).toContain(MANUAL_RUNWAY_STORAGE_KEY)
+  expect(store.save()).toBe(true)
+  expect(store.current).not.toBeNull()
+
+  // No new Pinia between wipe and revisit: the live store must not keep the erased record.
+  const wrapper = mount(PrivacyView, { global: { stubs: { RouterLink: { template: '<a><slot /></a>' } } } })
+  await flushPromises()
+  await wrapper.find('[data-testid="wipe-request-btn"]').trigger('click')
+  await wrapper.find('[data-testid="wipe-confirm-input"]').setValue('DELETE ALL DATA')
+  await wrapper.find('[data-testid="wipe-confirm-btn"]').trigger('click')
+  await vi.waitFor(() => expect(wrapper.find('[data-testid="privacy-wipe-notice"]').exists()).toBe(true))
+
+  expect(localStorage.getItem(MANUAL_RUNWAY_STORAGE_KEY)).toBeNull()
+  expect(useManualRunwayStore()).toBe(store)
+  expect(store.saved).toBeNull()
+  expect(store.current).toBeNull()
+  expect(store.draft.aerodrome).toBe('')
+  expect(store.storageError).toBeNull()
+  wrapper.unmount()
+
   setActivePinia(createPinia())
   const reloaded = useManualRunwayStore()
   reloaded.load()
   expect(reloaded.saved).toBeNull()
-  expect(reloaded.storageError).toBeNull()
 })

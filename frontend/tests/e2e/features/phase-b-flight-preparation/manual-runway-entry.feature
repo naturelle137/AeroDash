@@ -25,6 +25,23 @@ Feature: Offline manual runway entry
       | 1440  | 1000   |
       | 390   | 844    |
 
+  Scenario Outline: Deleting all local data also removes the runway shown in the same session
+    Given the manual runway viewport is <width> by <height>
+    And the pilot opens Performance
+    When the pilot saves runway "TEST" "09" with TORA "1000" "m", LDA "900" "m", elevation "-12" "ft" and surface "Paved" "Dry"
+    And the pilot deletes all local data from Privacy
+    And the pilot returns to Performance without reloading
+    Then no saved runway is shown
+    And the runway form is empty
+    When the pilot reloads the app
+    Then no saved runway is shown
+    And the runway form is empty
+
+    Examples:
+      | width | height |
+      | 1440  | 1000   |
+      | 390   | 844    |
+
   Scenario Outline: Metre and foot declarations are retained independently
     Given the manual runway viewport is <width> by 1000
     And the pilot opens Performance

@@ -22,11 +22,18 @@ is unchanged.
 - Refused saves: missing surface condition, empty/zero/negative/Infinity TORA, NaN
   LDA and missing LDA unit; nothing is stored.
 - Damaged JSON and a future record version are visibly ignored and can be cleared.
+- Same-tab erasure (review508 B1 fix): save TEST 09 (TORA 1000 m / LDA 900 m), open
+  Privacy via the app nav, *Delete All Local Data*, return to Performance without a
+  reload (same document asserted) → no saved runway and an empty form; reload →
+  still empty. Failed on the unfixed build at both widths, passes with the fix.
+  After the fix all **65 enabled Chromium scenarios passed** (preview port 4609,
+  temporary local config; 4173 was occupied).
 
 | Evidence | Desktop | Mobile |
 | :--- | :--- | :--- |
 | Offline save, edit, reload | [1440px](offline-desktop.png) | [390px](offline-mobile.png) |
 | Refused save | [zero TORA](zero-tora-desktop.png) | [missing surface](missing-surface-mobile.png) |
+| Same-tab Delete All Local Data | [1440px](wipe-same-tab-desktop.png) | [390px](wipe-same-tab-mobile.png) |
 | Storage problem | — | [damaged](damaged-storage-mobile.png), [newer version](newer-storage-mobile.png) |
 
 Reproduce: `pnpm build`, then `CI=1 pnpm --filter frontend exec playwright test
