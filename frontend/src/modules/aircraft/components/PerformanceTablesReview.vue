@@ -13,7 +13,7 @@ function normalizedPoints(table: NonNullable<AircraftProfile['performanceProfile
     <summary>Review imported performance tables</summary>
     <p>Compare every point and table condition against the applicable POH/AFM before verifying.
       Original source values are preserved. Compare them with normalized lookup values in kg, ft pressure altitude, °C and m distance.
-      Verification records your review; it does not certify the data.</p>
+      Verification records your review; it does not certify the data. Scroll tables horizontally on small screens.</p>
     <p v-if="!profile.performanceProfiles?.length">No performance tables supplied. Export this profile,
       add sourced performanceProfiles to the JSON and import it as a new Draft.</p>
     <details v-for="(table, index) in profile.performanceProfiles" :key="index">
@@ -54,7 +54,7 @@ function normalizedPoints(table: NonNullable<AircraftProfile['performanceProfile
 <style scoped>
 .table-review { margin-top: .75rem; max-width: 100%; }
 summary { cursor: pointer; padding: .5rem 0; }
-p { line-height: 1.5; }
+p { line-height: 1.5; overflow-wrap: anywhere; }
 .table-scroll { overflow-x: auto; max-width: 100%; }
 table { border-collapse: collapse; width: 100%; font-size: .875rem; }
 th, td { text-align: left; padding: .5rem; border-bottom: 1px solid var(--color-border); }

@@ -43,7 +43,7 @@ it.each([
   original.sourceUnit = 'lb'
   original.performanceProfiles!.forEach((table) => {
     table.sourceUnits = sourceUnits
-    table.sourceReference = 'Synthetic wiring only; no aircraft manual'
+    table.sourceReference = '  Synthetic wiring only; no aircraft manual  '
     table.dataPoints = [{ mass: sourceUnits.mass === 'lb' ? 2000 : 907.18474,
       pressureAltitude: sourceUnits.pressureAltitude === 'm' ? 304.8 : 1000,
       temperature: sourceUnits.temperature === '°F' ? 50 : 10,

@@ -179,12 +179,15 @@ h2 {
 
 .fleet-section,
 .add-aircraft-section {
+  min-width: 0;
   border: 1px solid var(--color-border, #e5e7eb);
   border-radius: 8px;
   padding: 1.5rem;
   background: var(--color-surface-card, #f9fafb);
   color: var(--color-text, #212121);
 }
+
+[aria-labelledby="performance-import-help"] { overflow-wrap: anywhere; }
 
 .notifications-banner {
   background: var(--color-warning-bg, #fef3c7);

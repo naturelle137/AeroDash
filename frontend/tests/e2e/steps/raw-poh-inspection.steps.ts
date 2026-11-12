@@ -34,6 +34,7 @@ async function verify(page: Page) {
   await dialog.getByLabel('POH revision').fill('Test wiring only - no real POH')
   await dialog.getByRole('button', { name: 'Verify', exact: true }).click()
   await expect(dialog).toBeHidden()
+  await expect(page.getByRole('status', { name: 'Profile status: Verified', exact: true })).toBeVisible()
 }
 async function assertDistances(page: Page) {
   await expect(result(page)).toBeVisible()
@@ -172,9 +173,12 @@ When('I import invalid Test POH JSON with {string}', async ({ page }, problem: s
   if (problem === 'unknown unit axis') raw = { ...p, performanceProfiles: [{ ...p.performanceProfiles![0], sourceUnits: { mass: 'kg', pressureAltitude: 'ft', temperature: '°C', distance: 'm', altitude: 'ft' } }] }
   await importFile(page, raw)
 })
-Then('Fleet rejects the exchange and has no Test profile', async ({ page }) => {
+Then('Fleet rejects the exchange and has no Test profile', async ({ page, $testInfo }) => {
   await expect(page.locator('.field-error')).toContainText('Profile validation failed')
   await expect(page.locator('.profile-item')).toHaveCount(0)
+  const path = $testInfo.outputPath('rejected-exchange.png')
+  await page.screenshot({ path, fullPage: true })
+  await $testInfo.attach('Visible import rejection', { path, contentType: 'image/png' })
 })
 
 function sourceAircraft(mode: string) {
@@ -211,6 +215,7 @@ Then('Fleet shows the original and normalized reference vector for {string}', as
   await expect(original.locator('tbody td')).toHaveText([point.mass, point.pressureAltitude, point.temperature, point.distance].map(String))
   const normalized = row.getByRole('table', { name: 'Normalized lookup values', exact: true }).first()
   await expect(normalized.locator('tbody td')).toHaveText(['907.18474', '1000', '10', '304.8'])
+  await expect(page.locator('body')).toHaveJSProperty('scrollWidth', page.viewportSize()!.width)
   const path = $testInfo.outputPath(`source-review-${mode}-${page.viewportSize()!.width}.png`)
   await page.screenshot({ path, fullPage: true })
   await $testInfo.attach('Original and normalized review', { path, contentType: 'image/png' })
@@ -249,4 +254,28 @@ Then('the declared source reference vector computes after reload and export for 
   await page.getByLabel('Temperature (°C)', { exact: true }).fill('10')
   await compute(page)
   await expect(result(page).locator('dd')).toHaveText(['304.8 m', '304.8 m', '304.8 m', '304.8 m'])
+})
+
+Then('changing the imported source units requires explicit review again for {string}', async ({ page }, mode: string) => {
+  const changed = sourceAircraft(mode)
+  changed.performanceProfiles![0]!.sourceUnits!.distance = mode === 'imperial' ? 'm' : 'ft'
+  changed.performanceProfiles![0]!.sourceReference = 'Changed source reference; requires review'
+  await importFile(page, changed)
+  await expect(page.locator('.profile-item')).toHaveCount(2)
+  const draft = page.locator('.profile-item').filter({ hasText: 'Draft' })
+  await expect(draft).toHaveCount(1)
+  await draft.getByText('Review imported performance tables', { exact: true }).click()
+  await draft.getByText('TakeoffRoll — 1 points', { exact: true }).click()
+  await expect(draft).toContainText('Changed source reference; requires review')
+  await page.goto('/performance')
+  const select = page.getByLabel('Aircraft profile', { exact: true })
+  await expect(select.locator('option')).toHaveCount(3)
+  const id = await select.locator('option').filter({ hasText: '(draft)' }).getAttribute('value')
+  await select.selectOption(id!)
+  await page.getByLabel('Mass (kg)', { exact: true }).fill('907.18474')
+  await page.getByLabel('Pressure altitude (ft)', { exact: true }).fill('1000')
+  await page.getByLabel('Temperature (°C)', { exact: true }).fill('10')
+  await compute(page)
+  await expect(page.getByRole('alert').first()).toContainText('Draft profile')
+  await expect(result(page)).toHaveCount(0)
 })

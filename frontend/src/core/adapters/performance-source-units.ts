@@ -1,3 +1,4 @@
+import { FT_TO_M, LB_TO_KG } from '../logic/unit-conversion-constants'
 import {
   PerformanceProfileSchema,
   type AircraftProfilePerformanceProfile,
@@ -27,10 +28,10 @@ export function normalizePerformanceTable(raw: unknown): PerformanceNormalizatio
   const source = parsed.data
   const units = source.sourceUnits ?? LEGACY_PERFORMANCE_UNITS
   const dataPoints = source.dataPoints.map((point) => ({
-    mass: units.mass === 'lb' ? point.mass * 0.45359237 : point.mass,
-    pressureAltitude: units.pressureAltitude === 'm' ? point.pressureAltitude / 0.3048 : point.pressureAltitude,
+    mass: units.mass === 'lb' ? point.mass * LB_TO_KG : point.mass,
+    pressureAltitude: units.pressureAltitude === 'm' ? point.pressureAltitude / FT_TO_M : point.pressureAltitude,
     temperature: units.temperature === '°F' ? (point.temperature - 32) / 1.8 : point.temperature,
-    distance: units.distance === 'ft' ? point.distance * 0.3048 : point.distance,
+    distance: units.distance === 'ft' ? point.distance * FT_TO_M : point.distance,
   }))
   if (dataPoints.some((point) => Object.values(point).some((value) => !Number.isFinite(value)))) {
     return { status: 'failure', message: 'Performance source-unit conversion must produce finite values.' }

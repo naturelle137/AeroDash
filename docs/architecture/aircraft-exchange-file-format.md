@@ -96,8 +96,8 @@ back up an aircraft configuration. Pass `exportProfileToJson(profile, { includeO
 (and likewise `downloadProfileAsJson`) to retain them.
 
 Round-trip fidelity: source tables, declarations and references are preserved.
-Import changes `id`, `status`, `schemaVersion`, removes verification and omits default-excluded
-operating-cost fields on export.
+Import changes `id`, `status` and `schemaVersion` and removes prior verification.
+Default exports omit operating-cost fields.
 
 ## Schema Versioning
 

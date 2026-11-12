@@ -38,7 +38,7 @@ The top-level aggregate root. One IndexedDB record = one `AircraftProfile`.
 | `manufacturer`              | `string`                  |   Yes    | Aircraft manufacturer.                            |
 | `model`                     | `string`                  |   Yes    | Aircraft model designation.                       |
 | `icaoTypeDesignator`        | `string`                  |   Yes    | ICAO type designator code.                        |
-| `sourceUnit`                | `string`                  |   Yes    | Original unit system from manufacturer's POH/AFM. |
+| `sourceUnit`                | `string`                  |   Yes    | M&B units; performance units are independent.     |
 | `referenceDatumDescription` | `string`                  |   Yes    | Textual description of the reference datum.       |
 | `referenceDatumLocation`    | `string`                  |   Yes    | Physical location of the reference datum.         |
 | `shareCode`                 | `string \| null`          |    No    | Share-code for ad-hoc profile sharing.            |
@@ -54,7 +54,7 @@ The top-level aggregate root. One IndexedDB record = one `AircraftProfile`.
 | `checklistScaffold`         | `ChecklistScaffoldItem[]` |    No    | See Section 3.10.                                 |
 | `passengerProfiles`         | `PassengerProfile[]`      |    No    | Standard passenger weight profiles (M3).          |
 | `status`                    | `'draft' \| 'verified'`   |    No    | Profile verification state (defaults to `draft`). |
-| `schemaVersion`             | `number`                  |    No    | Schema version, currently `1` (defaults to `1`).  |
+| `schemaVersion`             | `number`                  |    No    | Schema version, currently `2` (defaults to `2`).  |
 
 ### 3.2 WeighingReport
 
@@ -142,9 +142,17 @@ Container for performance data of a specific flight phase. Backs `REQ-AD-008`
 | `flightPhase` | `string`                 |   Yes    | Enum: `TakeoffRoll`, `TakeoffDistance50ft`, `LandingRoll`, `LandingDistance50ft`. |
 | `dataPoints`  | `PerformanceDataPoint[]` |   Yes    | 0–1000 entries. Zod-enforced upper bound.                                         |
 
+Tables may also carry `sourceUnits` (all four axes: mass kg/lb, pressure altitude
+ft/m, temperature °C/°F, distance m/ft) and optional `sourceReference` (1–500
+characters, preserved verbatim). Unknown table/point keys fail validation.
+Original numbers persist; Fleet shows original and normalized points together.
+Absent declarations retain the labelled legacy kg/ft/°C/m contract. See the
+[source-unit contract](performance-source-units.md) for migration, definitions
+and independent reference vectors.
+
 #### 3.6.1 PerformanceDataPoint
 
-A single interpolation point for performance calculations.
+A single source point in its table's declared units (or legacy normalized units). All numeric fields must be finite.
 
 | Field              | Type     | Required | Description                                  |
 | :----------------- | :------- | :------: | :------------------------------------------- |

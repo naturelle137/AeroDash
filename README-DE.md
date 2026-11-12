@@ -114,7 +114,7 @@ Für AeroDash gilt **Doppellizenzierung**:
 
 ## Aktueller Funktionsumfang
 
-Lokale Flugzeugverwaltung, Massen-/Schwerpunkt-Workflow und POH-Tabellenabfrage sind vorhanden. Eigene belegte Tabellen in Fleet importieren, Punkte prüfen, den Draft ausdrücklich verifizieren und den Stand in Performance mit kg/ft/°C abfragen. Ungültige Eingaben und Werte außerhalb der Tabellen bleiben gesperrt. Keine Standard-Leistungstabellen, Betriebsfaktoren oder Pistenbewertung werden bereitgestellt. Wetter- und Ausdauer-Karten sind noch Platzhalter; Flughafenintegration, Briefing-Export und Cloud-Synchronisation bleiben geplant. Synthetische Tests belegen die Verdrahtung, keine Prüfung realer Flugzeugdaten. Die [Roadmap](docs/development/roadmap.md) trennt diese Stände vom vollständigen Produktziel.
+Lokale Flugzeugverwaltung, Massen-/Schwerpunkt-Workflow und POH-Tabellenabfrage sind vorhanden. Eigene belegte Tabellen in Fleet importieren, Originalpunkte und normalisierte Werte prüfen (Quelleneinheiten: kg/lb, ft/m, °C/°F, m/ft), den Draft ausdrücklich verifizieren und den Stand in Performance mit kg/ft/°C abfragen. Ungültige Eingaben und Werte außerhalb der Tabellen bleiben gesperrt. Keine Standard-Leistungstabellen, Betriebsfaktoren oder Pistenbewertung werden bereitgestellt. Wetter- und Ausdauer-Karten sind noch Platzhalter; Flughafenintegration, Briefing-Export und Cloud-Synchronisation bleiben geplant. Synthetische Tests belegen die Verdrahtung, keine Prüfung realer Flugzeugdaten. Die [Roadmap](docs/development/roadmap.md) trennt diese Stände vom vollständigen Produktziel.
 
 ## Entwicklung und Dokumentation
 

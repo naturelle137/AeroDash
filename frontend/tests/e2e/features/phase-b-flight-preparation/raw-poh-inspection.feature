@@ -52,6 +52,7 @@ Feature: Raw POH table inspection
     When I explicitly verify the Test POH profile in Fleet
     Then the declared source reference vector computes after reload and export for "<units>"
     And the raw POH browser evidence is captured
+    And changing the imported source units requires explicit review again for "<units>"
 
     Examples:
       | width | units      |
