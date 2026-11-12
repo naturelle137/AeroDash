@@ -3,8 +3,9 @@
 Promotion: [PR453](https://github.com/naturelle137/AeroDash/pull/453),
 `hotfix/ci449-job213` into main
 `007a559bf82cc4ec592cd4e1d001c720c3278819`.
-Final signed head, current CI/security links and conclusions are recorded in
-PR453's evidence comment and HQ213 result, avoiding self-referential commit SHAs.
+Original reviewed-head evidence is in HQ213; the Netlify fix's exact signed
+head, current runs and live skip evidence are in PR453's HQ233 evidence comment.
+Historical CI success is not final-head acceptance.
 
 ## Local candidate
 
@@ -40,7 +41,7 @@ missing contexts are real evidence of this gap, not candidate successes.
 Adding CI foundations to each probe would change its actual PR diff from
 "docs only" into "workflow + dependencies + docs". Thus pure-path main adoption
 needs a staged independent promotion followed by fresh probes before activation.
-HQ215 owns resolution of that sequencing dependency with existing HQ214;
+HQ237 (sole successor of HQ231) owns resolution after the completed HQ214 review and HQ233 fix;
 this author neither merges nor waives the prerequisite.
 
 ## Real negative Actions results
@@ -70,3 +71,22 @@ in this directory (`run-*.json`, `run-*.txt`, `probe-results.json`). Full evolvi
 CI snapshots and signature payloads are retained in HQ213 evidence. Every
 negative aggregate reported failure; timeout and cancellation report an overall
 cancelled run while the aggregate itself fails.
+
+## Netlify correction (review214 / fix233)
+
+Historical probes were evidence-only and unmerged, but not publication-free:
+Netlify automatically published previews outside GitHub publication guards.
+In particular reviewed head `ed0144aeac07f666d2f5b3ac23a47940ddf2ebbd` published
+preview453 (`6af4eb51133b94bf34a274e3`). Production/main was publicly identified
+at `007a559bf82cc4ec592cd4e1d001c720c3278819`. No historical deploy is removed.
+
+The new root `netlify.toml` unconditionally cancels Git builds (ignore exit 0)
+and blocks the build command (exit 1) even if a build hook bypasses ignore.
+Publication contract tests execute both commands across production/preview/branch
+contexts from root and frontend directories. Final-head live Netlify evidence,
+current gates, browser checks and signatures are recorded in HQ233 and linked
+from PR453. Existing GitHub guards are retained. HQ237, already assigned by HQ231, owns terminal checks;
+this is neither CI449 completion nor E3/publication authorization.
+
+Fresh HQ233 browser evidence: Chromium 3/3 passed; inspected
+[desktop 1440px](fix233-desktop.png) and [mobile 390px](fix233-mobile.png).
