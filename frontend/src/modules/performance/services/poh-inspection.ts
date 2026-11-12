@@ -13,7 +13,8 @@ export const PHASES = [
 ] as const
 const AXES = ['mass', 'pressureAltitude', 'temperature'] as const
 const UNITS = { mass: 'kg', pressureAltitude: 'ft', temperature: '°C' } as const
-export type InspectionInputs = Record<typeof AXES[number], string>
+/** Pressure altitude is raw text (direct entry) or an already validated derived number. */
+export type InspectionInputs = { mass: string; temperature: string; pressureAltitude: string | number }
 export type InspectionFailure = {
   status: 'blocked'
   reason: 'profile' | 'draft' | 'tables' | 'input' | 'envelope'
@@ -72,7 +73,13 @@ export function inspectPohDistances(raw: unknown, inputs: InspectionInputs, now:
   if (evaluateVerificationFreshness(profile, now).requiresReverification) return blocked('draft', 'Profile verification has expired or its source changed. Re-verify in Fleet.')
   const conditions = { mass: 0, pressureAltitude: 0, temperature: 0 }
   for (const axis of AXES) {
-    const text = inputs[axis].trim()
+    const raw = inputs[axis]
+    if (typeof raw === 'number') {
+      if (!Number.isFinite(raw)) return blocked('input', `Enter a finite ${axis} value in ${UNITS[axis]}; all three fields are required.`)
+      conditions[axis] = raw
+      continue
+    }
+    const text = raw.trim()
     // Decimal/scientific notation only; Number() also accepts unsupported hexadecimal syntax.
     if (!/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?$/i.test(text) || !Number.isFinite(Number(text))) {
       return blocked('input', `Enter a finite ${axis} value in ${UNITS[axis]}; all three fields are required.`)
