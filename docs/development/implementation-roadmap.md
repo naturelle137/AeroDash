@@ -1,5 +1,15 @@
 # Version Requirements and Journeys Summary
 
+## Acceptance status — 2026-11-12
+
+The requirement lists below describe implementation scope, not a blanket
+end-to-end acceptance verdict. v0.2.0-alpha and v0.3.0-alpha are published
+prereleases; no v0.4 release exists. Milestone 5 remains open with 22 open and
+45 closed issues at this snapshot. See [roadmap](roadmap.md) and the
+[QA204 evidence table](mb-qa-204.md) for the tested develop SHA, enabled and
+excluded journeys, pending safety integration, and fixture provenance limits.
+Preserve implemented core work while tracking missing integrated UI evidence.
+
 ## v0.2.0
 
 ### Requirements

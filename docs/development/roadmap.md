@@ -9,6 +9,27 @@
 |   🟡   | In progress |
 |   🔲   | Planned     |
 
+## Evidence snapshot — 2026-11-12
+
+The latest published release is [v0.3.0-alpha](https://github.com/naturelle137/AeroDash/releases/tag/v0.3.0-alpha),
+explicitly a prerelease. v0.2.0-alpha was also published; publication does not
+prove completion of every requirement or journey listed below.
+[v0.4.0-alpha milestone 5](https://github.com/naturelle137/AeroDash/milestone/5)
+is open (22 open / 45 closed issues at this snapshot); there is no v0.4 release.
+Issue counts are scope information, not acceptance evidence.
+
+On develop `abd33acdbbe591590652548c472ccaaebfdf7d0a`, the enabled
+Chromium suite passes four scenarios, while 17 scenarios remain excluded by
+`@wip`, including all seven critical M&B math scenarios in four feature files.
+Fleet creation, persistence and draft acknowledgment work when following the
+current six-step wizard and post-save choices. The historical E2E helper still
+expects five steps and immediate navigation. See the
+[QA evidence table](mb-qa-204.md); M&B journey acceptance remains partial.
+Safety repairs [#470](https://github.com/naturelle137/AeroDash/pull/470) and
+[#471](https://github.com/naturelle137/AeroDash/pull/471) are pending independent
+review/integration at this snapshot. The Performance UI is still a placeholder;
+core tests do not establish an integrated performance preparation journey.
+
 ---
 
 ## ✅ [v0.1.0-pre-alpha — Project Foundation](https://github.com/naturelle137/AeroDash/milestone/1)
@@ -26,14 +47,14 @@ automated test vectors passing in CI.
 
 ---
 
-## 🔲 [v0.3.0-alpha — Fleet Management (Local Persistence)](https://github.com/naturelle137/AeroDash/milestone/3)
+## 🟡 [v0.3.0-alpha — Fleet Management (Local Persistence)](https://github.com/naturelle137/AeroDash/milestone/3)
 
 User-managed aircraft fleet persisted in IndexedDB with immutable profile
 versioning, Draft/Verified status, PWA offline capability, and unit switching.
 
 ---
 
-## 🔲 [v0.4.0-alpha — Performance Math Core (POH Distance Calculations)](https://github.com/naturelle137/AeroDash/milestone/5)
+## 🟡 [v0.4.0-alpha — Performance Math Core (POH Distance Calculations)](https://github.com/naturelle137/AeroDash/milestone/5)
 
 Bilinear interpolation of POH performance tables for T/O and landing
 distances, safety factor application, extrapolation controls, and manual
