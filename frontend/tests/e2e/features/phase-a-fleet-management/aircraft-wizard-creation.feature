@@ -1,12 +1,12 @@
-@wip @phase-A @fleet @wizard
+@phase-A @fleet @wizard
 Feature: Aircraft creation wizard
   As a pilot
-  I want to create a new aircraft profile via a guided 5-step wizard
+  I want to create a new aircraft profile via a guided six-step wizard
   So that my Mass & Balance calculations use correct limits from my POH/AFM
 
   # @E2E-A-002@ (FROM: @UJ-A-001@)
   @UJ-A-001 @phase-A @e2e @smoke @E2E-A-002
-  Scenario: Pilot completes all 5 wizard steps and sees the new aircraft on the Fleet page with a Draft badge
+  Scenario: Pilot completes all six wizard steps and sees the new aircraft on the Fleet page with a Draft badge
     Given the pilot navigates to the Fleet page
     When the pilot clicks "Add New Aircraft"
     Then the wizard opens at Step 1 — Identity
@@ -35,15 +35,22 @@ Feature: Aircraft creation wizard
     Then the "Continue" button is enabled
 
     When the pilot clicks "Continue"
-    Then the wizard is on Step 5 — Review and Save
+    Then the wizard is on Step 5 — Wind Limits
+    And the "Continue" button is enabled
+
+    When the pilot clicks "Continue"
+    Then the wizard is on Step 6 — Review and Save
 
     When the pilot clicks "Save as Draft"
+    Then the saved-draft chooser offers "Start flight prep", "Verify now" and "Back to Fleet"
+
+    When the pilot chooses "Back to Fleet" in the saved-draft chooser
     Then the pilot is back on the Fleet page
     And the aircraft "D-EBPN" is listed with a "Draft" status badge
 
   # @E2E-A-003@ (FROM: @UJ-A-001@)
   @UJ-A-001 @phase-A @e2e @E2E-A-003
-  Scenario: Pilot cannot advance past Step 2 with fewer than 4 envelope points — Continue is disabled and an error is visible
+  Scenario: Envelope editor never drops below 4 points — removal is blocked at the minimum
     Given the pilot navigates to the Fleet page
     When the pilot clicks "Add New Aircraft"
     And the pilot fills in the Identity step with registration "D-EBPN", manufacturer "Tecnam", model "P2008 JC", ICAO "P208"
@@ -51,12 +58,11 @@ Feature: Aircraft creation wizard
     Then the wizard is on Step 2 — Certification and Envelope
 
     When the pilot sets MTOM to "630"
-    And the pilot removes an envelope point so that only 3 remain
-    Then the "Continue" button is disabled
-    And an envelope error message is visible
-
-    When the pilot adds a fourth envelope point
-    Then the "Continue" button is enabled
+    And the pilot adds a fifth envelope point
+    And the pilot removes one envelope point
+    Then 4 envelope points remain and none of them can be removed
+    And no envelope error message is visible
+    And the "Continue" button is enabled
 
   # @E2E-A-004@ (FROM: @UJ-A-001@)
   @UJ-A-001 @phase-A @e2e @E2E-A-004

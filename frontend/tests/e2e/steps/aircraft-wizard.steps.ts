@@ -1,6 +1,7 @@
 // Step definitions for aircraft-wizard-creation.feature and decimal-input-precision.feature
 // E2E trace tags live in the .feature file only (STC §B.3 / §3.4).
 
+import type { Page } from '@playwright/test'
 import { expect } from '@playwright/test'
 import { createBdd } from 'playwright-bdd'
 import { TEST_AIRCRAFT } from '../fixtures/test-aircraft'
@@ -94,38 +95,25 @@ When('the pilot confirms there are already 4 envelope points', async ({ page }) 
   await expect(removeButtons).toHaveCount(4)
 })
 
-When('the pilot removes an envelope point so that only 3 remain', async ({ page }) => {
-  // The 4 remove buttons are initially enabled only after the 4-point minimum is lifted.
-  // The component sets :disabled="cat.envelope.length <= 4", so to remove we
-  // need to first add a 5th point, then remove it — OR we trigger from the parent.
-  // Easier: add one extra point first, verify 5 buttons, then remove one.
+When('the pilot adds a fifth envelope point', async ({ page }) => {
   await page.getByRole('button', { name: '+ Add Point' }).click()
-  // Now there are 5 points → remove buttons enabled. Remove the last one.
+  await expect(page.getByRole('button', { name: '✕' })).toHaveCount(5)
+})
+
+When('the pilot removes one envelope point', async ({ page }) => {
+  await page.getByRole('button', { name: '✕' }).last().click()
+})
+
+Then('4 envelope points remain and none of them can be removed', async ({ page }) => {
   const removeButtons = page.getByRole('button', { name: '✕' })
-  await expect(removeButtons).toHaveCount(5)
-  // Remove the 5th point (index 4) — index 4 still leaves 4 points (enabled)
-  // Actually we want 3 points, so we need to remove 2. Remove from 5 → 4 → 3.
-  await removeButtons.nth(4).click()
-  // Now 4 points again. All remove buttons disabled. Add again then remove two.
-  // Simpler approach: add two points (total 6), remove 3 to get to 3.
-  await page.getByRole('button', { name: '+ Add Point' }).click()
-  await page.getByRole('button', { name: '+ Add Point' }).click()
-  // Now 6 points, remove buttons enabled. Remove 3.
-  const freshButtons = page.getByRole('button', { name: '✕' })
-  await freshButtons.nth(5).click()
-  await freshButtons.nth(4).click()
-  await freshButtons.nth(3).click()
-  // Now we have 3 envelope points.
+  await expect(removeButtons).toHaveCount(4)
+  for (const button of await removeButtons.all()) {
+    await expect(button).toBeDisabled()
+  }
 })
 
-Then('an envelope error message is visible', async ({ page }) => {
-  await expect(
-    page.getByRole('alert').filter({ hasText: /At least 4 points required/i }),
-  ).toBeVisible()
-})
-
-When('the pilot adds a fourth envelope point', async ({ page }) => {
-  await page.getByRole('button', { name: '+ Add Point' }).click()
+Then('no envelope error message is visible', async ({ page }) => {
+  await expect(page.getByRole('alert').filter({ hasText: /At least 4 points required/i })).toHaveCount(0)
 })
 
 // ─── Step 3: Weighing Reports ──────────────────────────────────────────────
@@ -191,10 +179,38 @@ When(
   },
 )
 
-// ─── Step 5: Review & Save ─────────────────────────────────────────────────
+// ─── Wind Limits ───────────────────────────────────────────────────
 
-Then('the wizard is on Step 5 — Review and Save', async ({ page }) => {
-  await expect(page.getByRole('heading', { name: /Step 5.*Review/i })).toBeVisible()
+Then('the wizard is on Step {int} — Wind Limits', async ({ page }, step: number) => {
+  await expect(page.getByRole('heading', { name: `Step ${step}: Wind Limits` })).toBeVisible()
+})
+
+// ─── Review & Save ─────────────────────────────────────────────────
+
+Then('the wizard is on Step {int} — Review and Save', async ({ page }, step: number) => {
+  await expect(page.getByRole('heading', { name: `Step ${step}: Review & Save` })).toBeVisible()
+})
+
+// ─── Post-save action chooser ──────────────────────────────────────────────
+
+function savedDraftChooser(page: Page) {
+  return page.getByRole('dialog', { name: 'Aircraft saved as draft' })
+}
+
+Then(
+  'the saved-draft chooser offers {string}, {string} and {string}',
+  async ({ page }, first: string, second: string, third: string) => {
+    const dialog = savedDraftChooser(page)
+    await expect(dialog).toBeVisible()
+    await expect(page).toHaveURL(/\/fleet\/new$/)
+    for (const name of [first, second, third]) {
+      await expect(dialog.getByRole('button', { name, exact: true })).toBeVisible()
+    }
+  },
+)
+
+When('the pilot chooses {string} in the saved-draft chooser', async ({ page }, action: string) => {
+  await savedDraftChooser(page).getByRole('button', { name: action, exact: true }).click()
 })
 
 // ─── Post-save assertions ──────────────────────────────────────────────────
@@ -285,7 +301,7 @@ Then(
 // ─── Shared utility: complete full wizard flow (used by flight-prep steps) ──
 
 export async function completeWizardFlow(
-  page: import('@playwright/test').Page,
+  page: Page,
   aircraft = TEST_AIRCRAFT,
 ): Promise<void> {
   // Navigate to fleet
@@ -349,10 +365,15 @@ export async function completeWizardFlow(
   await page.getByRole('button', { name: '+ Add Fuel Tank' }).click()
   await page.getByRole('button', { name: 'Continue →' }).click()
 
-  // Step 5: Save
-  await expect(page.getByRole('heading', { name: /Step 5/i })).toBeVisible()
+  // Step 5: Wind Limits (optional)
+  await expect(page.getByRole('heading', { name: /Step 5.*Wind Limits/i })).toBeVisible()
+  await page.getByRole('button', { name: 'Continue →' }).click()
+
+  // Step 6: Review & Save
+  await expect(page.getByRole('heading', { name: /Step 6.*Review/i })).toBeVisible()
   await page.getByRole('button', { name: 'Save as Draft' }).click()
 
-  // Back on fleet page
+  // Saving keeps the pilot on /fleet/new behind an explicit destination chooser.
+  await savedDraftChooser(page).getByRole('button', { name: 'Back to Fleet', exact: true }).click()
   await expect(page).toHaveURL(/\/fleet$/)
 }

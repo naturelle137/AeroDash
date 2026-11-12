@@ -53,7 +53,6 @@ Then('the pilot is taken to the aircraft creation wizard', async ({ page }) => {
 Given(
   'the pilot has added an aircraft with registration {string} via the wizard',
   async ({ page }, registration: string) => {
-    // Use the shared helper that walks through all 5 wizard steps
     await completeWizardFlow(page)
     // Verify it is in the fleet before proceeding
     await expect(page.locator('.profile-item', { hasText: registration })).toBeVisible()

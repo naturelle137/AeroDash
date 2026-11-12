@@ -5,12 +5,12 @@ Phase A End-to-End Tests
       - frontend/tests/e2e/features/phase-a-fleet-management/certification-category-switch.feature
 
   E2E-A-002
-    title: Pilot completes all 5 wizard steps and sees the new aircraft on the Fleet page with a Draft badge
+    title: Pilot completes all six wizard steps and sees the new aircraft on the Fleet page with a Draft badge
     files:
       - frontend/tests/e2e/features/phase-a-fleet-management/aircraft-wizard-creation.feature
 
   E2E-A-003
-    title: Pilot cannot advance past Step 2 with fewer than 4 envelope points
+    title: Envelope editor never drops below 4 points — removal is blocked at the minimum
     files:
       - frontend/tests/e2e/features/phase-a-fleet-management/aircraft-wizard-creation.feature
 
