@@ -46,6 +46,22 @@ describe('optional occupancy through the real input and math adapter', () => {
     wrapper.unmount()
   })
 
+  it('recomputes obligations on session restoration without persisting occupancy as input state', () => {
+    const { store } = setup()
+    const payload = {
+      version: 1 as const, aircraftId: store.aircraft!.id, activeCategory: 'Normal',
+      stations: [{ index: 1, weight: 65, touched: true, verified: false }],
+      savedAt: '2026-11-12T00:00:00.000Z',
+    }
+    store.applyRestoredSession(payload)
+    expect(store.stations[1]!.mandatory).toBe(true)
+    expect(store.allFieldsVerified).toBe(false)
+    store.applyRestoredSession({ ...payload, stations: [{ index: 1, weight: 0, touched: false, verified: false }] })
+    expect(store.stations[1]!.mandatory).toBe(false)
+    expect(store.allMandatoryFieldsPopulated).toBe(true)
+    expect(store.notifications.some(n => n.id === 'WARN-UQ-001')).toBe(false)
+  })
+
   it.each([-1, NaN, Infinity, undefined])('rejects invalid direct store input %s', (weight) => {
     const { store } = setup()
     store.updateStationWeight(1, weight as number)

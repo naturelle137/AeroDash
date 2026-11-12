@@ -94,7 +94,7 @@ Focus: Standard operational workflows for Mass & Balance and Hybrid Performance.
 
 **Outcome:** The pilot discovers that a simple single-line CG trend (Standard sequence only) would have shown a safe forward migration — hiding the danger of the Alternative path. When the forward tank drains first, the remaining aft fuel and heavy rear loading push the CG beyond the aft limit. The shaded polygon reveals the full range of risk, and the pilot mitigates it before engine start.
 
-<!-- @UJ-B-005@ (FROM: @REQ-AP-002@, @REQ-FE-002@, @REQ-MB-003@, @REQ-UI-005@, @REQ-UI-013@, @REQ-WX-002@, @REQ-WX-003@, @REQ-WX-008@) -->
+<!-- @UJ-B-005@ (FROM: @REQ-AP-002@, @REQ-FE-002@, @REQ-MB-003@, @REQ-UQ-006@, @REQ-UI-005@, @REQ-UI-013@, @REQ-WX-002@, @REQ-WX-003@, @REQ-WX-008@) -->
 
 ## <a name="UJ-B-005"></a>UJ-B-005: The "Textbook" Flight Prep (Happy Path)
 
@@ -117,3 +117,10 @@ Focus: Standard operational workflows for Mass & Balance and Hybrid Performance.
 | **Export**        | Generates the briefing pack.                              | "All green. Let me print this and head to the hangar."              | The PDF is generated cleanly. No warnings, no disclaimers beyond the standard data source note.                                                                                                                                                                                                                                                       |
 
 **Outcome:** The pilot completes a textbook flight preparation in under five minutes. No warnings, no critical notifications — just a clean, methodical workflow that produces a reliable briefing pack. This is the standard flow for the majority of flights.
+
+**Solo-loading variant:** With explicit optional passenger positions, the pilot
+enters a positive mass for the required crew aggregate and leaves optional
+passenger stations at numeric zero. No empty-seat warning or missing-mass
+confirmation appears. A required crew aggregate at zero still warns; blank or
+invalid passenger input blocks calculation until corrected. Draft-profile and
+other safety warnings remain visible.
