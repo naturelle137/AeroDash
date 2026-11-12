@@ -3,8 +3,7 @@
  *
  * Runs the live `comment-discipline` scanner against the actual
  * repo and asserts no NEW forbidden-identifier comment slips past
- * the `baseline.json` snapshot. Same shape as the trace structural
- * gate at `frontend/scripts/trace/__tests__/repo-structural-gate.spec.ts`.
+ * the `baseline.json` snapshot.
  *
  * Rule source: `CLAUDE.md § Code comments` and
  * `CONTRIBUTING.md §4.x Code Comments`.

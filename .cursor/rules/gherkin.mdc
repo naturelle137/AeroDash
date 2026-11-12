@@ -5,7 +5,6 @@ alwaysApply: false
 - authority: safety-critical BDD; clarity>DRY; explicitness>cleverness; no explanation unless asked
 - scope-: unimplemented features; future behavior
 - scope+: incomplete feature|scenario => `@wip`
-- trace: follow `traceability-e2e.mdc`
 - steps.lang: domain-driven; declarative; present tense; third person; English
 - steps.unit: 1 step = 1 action | 1 verifiable outcome
 - steps.data: explicit values only when behavior changes

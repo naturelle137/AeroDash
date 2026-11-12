@@ -11,7 +11,7 @@ alwaysApply: false
 - template.no_stray_markers: remove placeholder `-` / empty list lines under `### Related Issues` when filling refs
 - template.na.allow: `N/A` and Reason only on rows that literally include `OR N/A` in the template; forbid N/A on Target Branch, DoD, self-review, ADR, and Safety bullets — verify or answer honestly
 - template.na.checked: if disposition for an `OR N/A` row is N/A, fill Reason and set `[x]`; do not leave `[ ]`
-- template.checklist.complete: every checkbox dispositioned: `[x]` after work or valid N/A+Reason on allowed rows; do not leave `[ ]` from skipped steps (e.g. traceability matrix: perform check, then `[x]`); never `[x]` without work or valid N/A per `template.na.*`
+- template.checklist.complete: every checkbox dispositioned: `[x]` after work or valid N/A+Reason on allowed rows; do not leave `[ ]` from skipped steps; never `[x]` without work or valid N/A per `template.na.*`
 - template.post_merge: remaining `If merging to <base>…` line may stay `[ ]` until merge; not lazy skip
 - branch.source.allowed: `feature/*` `release/*` `hotfix/*`
 - branch.source.block: `main` `develop` detached invalid names

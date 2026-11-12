@@ -4,7 +4,7 @@
  * Source of truth for the rule: `CLAUDE.md § Code comments`
  * (mirrored in `CONTRIBUTING.md §4.x Code Comments`). Only the
  * forbidden-identifier slice is mechanically enforced here; the
- * why-only and trace-tag-preferred rules remain reviewer judgment.
+ * why-only rules remain reviewer judgment.
  *
  * What counts as a "forbidden identifier" inside a source comment:
  *   - GitHub issue/PR references: `refs #N`, `issue #N`, `Issue #N`,
@@ -13,11 +13,6 @@
  *   - Audit-finding IDs assigned by the `/audit.*` agents and never
  *     committed to git: `CS-NNN`, `DP-NNN`, `TECH-NNN`, `PR-NNN`,
  *     `UX-NNN` (three-digit form, case-sensitive)
- *
- * The only identifier references *permitted* in source comments are
- * shtracer tags (`@H-/@REQ-/@UJ-/@DES-/@IMP-/@UT-/@IT-/@E2E-`) per
- * `docs/stc.md`. Those tags begin with `@` and so cannot be confused
- * with the forbidden patterns above.
  *
  * The scanner deliberately only inspects COMMENTS. String/template
  * literals containing the same patterns (e.g. a test fixture or a
@@ -29,12 +24,7 @@ const ISSUE_REF_KEYWORDS_RE =
 
 const ISSUE_SLUG_RE = /\bissue-#?\d+\b/gi
 
-// Audit-finding IDs (CS-NNN, DP-NNN, TECH-NNN, PR-NNN, UX-NNN). The
-// lookbehind/lookahead exclude shtracer-tag fragments — `UX` shows
-// up inside `@DES-UX-013@` and we must not flag that. The dash and
-// `@` rejections together guarantee the match is a standalone token,
-// not a slice of a longer hyphenated identifier (e.g. trace tag,
-// store key) or an `@…@` wrapped tag.
+// Match standalone audit IDs without mistaking longer identifiers or store keys.
 const AUDIT_ID_RE = /(?<![@\w-])(?:CS|DP|TECH|PR|UX)-\d{3}(?![@\w-])/g
 
 /**

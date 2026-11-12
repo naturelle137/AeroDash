@@ -8,7 +8,7 @@ body:
       value: |
         Thank you for your idea! Please help us understand how this fits into the General Aviation context.
 
-        Keep entries word-efficient per `CLAUDE.md § Concision` — bullets over prose. Per its safety carve-out, never omit a required safety or traceability detail for brevity.
+        Keep entries word-efficient per `CLAUDE.md § Concision` — bullets over prose. Per its safety carve-out, never omit a required safety detail for brevity.
 
   - type: textarea
     id: problem
