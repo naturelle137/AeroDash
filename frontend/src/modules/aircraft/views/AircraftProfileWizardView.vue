@@ -811,6 +811,20 @@ h1 {
   letter-spacing: 0.03em;
 }
 
+@media (max-width: 767.98px) {
+  .step-indicator {
+    position: sticky;
+    top: var(--nav-header-height);
+    z-index: 1;
+    flex-wrap: wrap;
+    overflow: visible;
+  }
+
+  .step-btn {
+    flex: 1 0 33.333%;
+  }
+}
+
 /* ─── Wizard body ─────────────────────────────────────────────────────────── */
 
 .wizard-body {

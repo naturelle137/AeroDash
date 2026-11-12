@@ -69,3 +69,30 @@ Feature: Battery-electric aircraft wizard (Pipistrel Velis Electro)
     And the pilot clicks "Continue"
     Then the wizard is on Step 4 — Load Stations
     And the "+ Add Fuel Tank" button is visible
+
+  @UJ-A-004 @phase-A @e2e
+  Scenario Outline: Mobile wizard keeps the active step visible during navigation
+    Given the pilot uses a 390 by 900 viewport
+    And the pilot navigates to the Fleet page
+    When the pilot clicks "Add New Aircraft"
+    And the pilot fills in the Identity step with registration "D-TEST", manufacturer "<manufacturer>", model "<model>", ICAO "<icao>"
+    And the pilot clicks "Continue"
+    And the pilot sets MTOM to "<mtom>"
+    And the pilot clicks "Continue"
+    And the pilot sets BEM to "<bem>" and Empty CG to "<cg>"
+    And the pilot clicks "Continue"
+    And the pilot clicks "Continue"
+    And the pilot clicks "Continue"
+    And the pilot completes the battery step when electric
+    Then the wizard indicator shows "Review" as active among <count> steps without clipping
+    When the pilot goes back one wizard step
+    Then the wizard indicator shows "<previous>" as active among <count> steps without clipping
+    And the future "Review" step is disabled
+    When the pilot selects the completed "Identity" step
+    Then the wizard indicator shows "Identity" as active among <count> steps without clipping
+    And the future "Review" step is disabled
+
+    Examples:
+      | manufacturer | model         | icao | mtom | bem | cg    | count | previous     |
+      | Tecnam       | P2008 JC      | P208 | 630  | 433 | 1.882 | 6     | Wind Limits  |
+      | Pipistrel    | Velis Electro | PIVE | 600  | 428 | 1.920 | 7     | Battery Pack |
