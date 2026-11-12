@@ -463,7 +463,11 @@ describe('LoadPointsSection — station type', () => {
 
   // @UT-AC-VIEW-191@ (FROM: @IMP-AC-VIEW-040@)
   it('hides the station type select on fuel-tank rows', () => {
-    const tank = { unusableFuel: 0, permissibleFuelTypes: ['AvGas 100LL'], burnSequences: [] }
+    const tank: NonNullable<AircraftProfileLoadPoint['fuelTank']> = {
+      unusableFuel: 0,
+      permissibleFuelTypes: ['AvGas 100LL'],
+      burnSequences: [],
+    }
     const wrapper = mount(LoadPointsSection, {
       props: { modelValue: [makeRow({ kind: 'fuel', fuelTank: tank })], sectionId: 'test' },
     })
