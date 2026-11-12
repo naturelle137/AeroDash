@@ -156,6 +156,13 @@ UI (auto)
       - DES-ARCH-011
       - DES-ARCH-012
 
+  IMP-UI-SHARED-020
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/shared/components/DecimalInput.vue
+    req:
+      - REQ-UQ-006
+
 UI — Contribution hub (#395)
   IMP-UI-SHARED-009
     title: Contribution environment helper — auto-detected environment string for the defect form

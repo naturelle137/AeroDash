@@ -8,3 +8,10 @@ export function resolveStationKind(lp: Pick<LoadPointDefinition, 'kind' | 'fuelT
   if (lp.fuelTank !== null) return 'fuel'
   return lp.kind === 'baggage' ? 'baggage' : 'occupant'
 }
+
+// @IMP-AD-CORE-026@ (FROM: @REQ-UQ-006@)
+export function requiresOccupancy(
+  lp: Pick<LoadPointDefinition, 'kind' | 'fuelTank' | 'occupancy'>,
+): boolean {
+  return resolveStationKind(lp) === 'occupant' && lp.occupancy !== 'optional'
+}

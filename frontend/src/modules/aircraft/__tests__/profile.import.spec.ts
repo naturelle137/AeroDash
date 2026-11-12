@@ -1,3 +1,4 @@
+// @UT-AC-STORE-138@ (FROM: @IMP-AC-STORE-004@)
 /**
  * Unit tests for profile.import.ts
  *
@@ -459,5 +460,15 @@ describe('downloadProfileAsJson', () => {
     expect(exportedProfile).not.toHaveProperty('fuelCostIncluded')
 
     clickSpy.mockRestore()
+  })
+})
+
+describe('occupancy exchange contract', () => {
+  it.each(['required', 'optional', undefined] as const)('roundtrips %s occupancy', (occupancy) => {
+    const raw = createValidExportedProfile()
+    Object.assign((raw.loadPoints as Record<string, unknown>[])[0]!, { occupancy })
+    const parsed = importProfileFromJson(JSON.stringify(raw))
+    const restored = importProfileFromJson(exportProfileToJson(parsed))
+    expect(restored.loadPoints[0]!.occupancy).toBe(occupancy)
   })
 })

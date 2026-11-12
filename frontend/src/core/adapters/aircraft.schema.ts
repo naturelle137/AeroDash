@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { CANONICAL_FUEL_TYPES } from '../logic/fuel-density'
-import { STATION_KINDS } from '../domain/aircraft.types'
+import { OCCUPANCY_REQUIREMENTS, STATION_KINDS } from '../domain/aircraft.types'
 
 /**
  * Canonical Zod schemas for the AircraftProfile aggregate-root document.
@@ -88,6 +88,7 @@ const BatteryPackSchema = z.object({
 const LoadPointSchema = z.object({
   name: z.string().min(1),
   kind: z.enum(STATION_KINDS).optional(),
+  occupancy: z.enum(OCCUPANCY_REQUIREMENTS).optional(),
   arm: finiteLen().nullable(),
   armLookup: z.array(ArmLookupEntrySchema).default([]),
   operationalLimit: finiteMass().nonnegative().nullable(),

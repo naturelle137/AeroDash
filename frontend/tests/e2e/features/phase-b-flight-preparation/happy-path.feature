@@ -16,3 +16,20 @@ Feature: Complete a textbook flight preparation within all limits
     Then the aircraft masses are within limits
     And the center of gravity remains within the envelope during the flight
     And the only warning is the unverified draft-profile notice
+
+  @e2e @flight-prep @optional-occupancy
+# @E2E-B-012@ (FROM: @UJ-B-005@)
+  Scenario Outline: Solo loading retains required crew checks
+    When the viewport for occupancy is <width> pixels wide
+    And the pilot selects aircraft "D-ECSM"
+    And the pilot loads the solo configuration
+    Then only the draft notice remains for solo loading
+    When the pilot empties the required front aggregate
+    Then the empty required aggregate warns without naming the optional rear seats
+    When the pilot restores solo mass and clears the optional rear input
+    Then a missing optional input blocks calculation until explicit zero
+
+    Examples:
+      | width |
+      | 1280  |
+      | 390   |

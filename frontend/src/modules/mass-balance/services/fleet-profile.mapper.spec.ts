@@ -1,3 +1,4 @@
+// @UT-MB-STORE-069@ (FROM: @IMP-MB-SVC-001@)
 /**
  * Unit tests for the AircraftProfile → AircraftContext mapper.
  *
@@ -116,5 +117,13 @@ describe('mapFleetProfileToContext', () => {
 
     profile.loadPoints[0] = { ...profile.loadPoints[0]!, kind: 'baggage' }
     expect(mapFleetProfileToContext(profile).loadPoints[0]!.kind).toBe('baggage')
+  })
+})
+
+describe('occupancy mapping', () => {
+  it.each(['required', 'optional', undefined] as const)('forwards %s without automatic migration', (occupancy) => {
+    const profile = buildCombustionProfile()
+    profile.loadPoints[0]!.occupancy = occupancy
+    expect(mapFleetProfileToContext(profile).loadPoints[0]!.occupancy).toBe(occupancy)
   })
 })

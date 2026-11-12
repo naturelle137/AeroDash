@@ -536,3 +536,17 @@ AD (auto)
       - frontend/src/core/logic/station-kind.spec.ts
     impl:
       - IMP-AD-CORE-024
+
+  UT-AD-CORE-077
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/core/logic/station-kind.spec.ts
+    impl:
+      - IMP-AD-CORE-026
+
+  UT-AD-CORE-078
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+    impl:
+      - IMP-AD-CORE-023

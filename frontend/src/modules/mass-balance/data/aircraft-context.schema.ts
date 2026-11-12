@@ -9,7 +9,7 @@
  */
 import { z } from 'zod'
 import { CANONICAL_FUEL_TYPES } from '@/core/logic/fuel-density'
-import { STATION_KINDS } from '@/core/domain/aircraft.types'
+import { OCCUPANCY_REQUIREMENTS, STATION_KINDS } from '@/core/domain/aircraft.types'
 
 const BurnSequenceEntrySchema = z.object({
   sequenceName: z.string(),
@@ -43,6 +43,7 @@ const ArmLookupEntrySchema = z.object({
 const LoadPointSchema = z.object({
   name: z.string().min(1),
   kind: z.enum(STATION_KINDS).optional(),
+  occupancy: z.enum(OCCUPANCY_REQUIREMENTS).optional(),
   arm: z.number().nullable(),
   armLookup: z.array(ArmLookupEntrySchema),
   operationalLimit: z.number().nonnegative().nullable(),

@@ -1537,3 +1537,17 @@ MB (auto)
       - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
     impl:
       - IMP-MB-STORE-005
+
+  UT-MB-STORE-069
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/modules/mass-balance/services/fleet-profile.mapper.spec.ts
+    impl:
+      - IMP-MB-SVC-001
+
+  UT-MB-STORE-068
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+    impl:
+      - IMP-MB-STORE-023

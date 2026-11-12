@@ -200,3 +200,10 @@ AD (auto)
       - frontend/src/core/logic/station-kind.ts
     req:
       - REQ-UQ-006
+
+  IMP-AD-CORE-026
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/core/logic/station-kind.ts
+    req:
+      - REQ-UQ-006

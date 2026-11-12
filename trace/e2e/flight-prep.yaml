@@ -56,3 +56,10 @@ B (auto)
       - frontend/tests/e2e/features/phase-b-flight-preparation/fleet-based-aircraft-selection.feature
     uj:
       - UJ-B-005
+
+  E2E-B-012
+    title: TODO: describe this artifact
+    files:
+      - frontend/tests/e2e/features/phase-b-flight-preparation/happy-path.feature
+    uj:
+      - UJ-B-005

@@ -76,3 +76,11 @@ MB Store ↔ Real Adapter Integration
       - IMP-MB-STORE-021
     files:
       - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.int.spec.ts
+
+MB (auto)
+  IT-MB-STORE-004
+    title: TODO: describe this artifact
+    files:
+      - frontend/src/modules/mass-balance/stores/occupancy.int.spec.ts
+    impl:
+      - IMP-MB-STORE-023

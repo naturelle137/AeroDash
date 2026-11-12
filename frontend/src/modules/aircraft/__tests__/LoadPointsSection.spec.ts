@@ -1,3 +1,4 @@
+// @UT-AC-VIEW-194@ (FROM: @IMP-AC-VIEW-040@)
 /**
  * Unit tests for LoadPointsSection.vue
  * Covers: row rendering, add/remove, patch emissions, unit select, fuel-tank toggle,
@@ -495,5 +496,15 @@ describe('LoadPointsSection — station type', () => {
     const last = emitted[emitted.length - 1]?.[0] as AircraftProfileLoadPoint[]
     expect(last[0]!.kind).toBe('fuel')
     expect(last[0]!.fuelTank).not.toBeNull()
+  })
+})
+
+describe('occupancy configuration', () => {
+  it('shows conservative legacy default and emits explicit optional occupancy', async () => {
+    const wrapper = mount(LoadPointsSection, { props: { modelValue: [makeRow()], sectionId: 'test' } })
+    const choice = wrapper.get<HTMLSelectElement>('#test-occupancy-0')
+    expect(choice.element.value).toBe('required')
+    await choice.setValue('optional')
+    expect(wrapper.emitted('update:modelValue')!.at(-1)![0]).toEqual([makeRow({ occupancy: 'optional' })])
   })
 })

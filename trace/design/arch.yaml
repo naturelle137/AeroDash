@@ -145,6 +145,12 @@ Architecture Design
       - REQ-PF-011
       - REQ-PF-012
 
+  DES-ARCH-021
+    title: Configured occupant occupancy
+    file: docs/architecture/optional-occupancy.md
+    req:
+      - REQ-UQ-006
+
 ARCH (auto)
   DES-ARCH-010
     title: TODO: describe this artifact
