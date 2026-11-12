@@ -5,7 +5,7 @@ const { When, Then } = createBdd()
 
 // ─── Helpers ───────────────────────────────────────────────────────────────
 
-async function fillStation(page: import('@playwright/test').Page, label: string, value: string) {
+export async function fillStation(page: import('@playwright/test').Page, label: string, value: string) {
   // Exact label match: "Baggage" must not resolve to "Baggage Area 1", and the
   // fuel slider's aria-label must not compete with the decimal field.
   const input = page.locator('.mass-station-input').getByLabel(label, { exact: true })

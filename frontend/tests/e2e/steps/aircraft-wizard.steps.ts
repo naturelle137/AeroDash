@@ -4,6 +4,7 @@
 import type { Page } from '@playwright/test'
 import { expect } from '@playwright/test'
 import { createBdd } from 'playwright-bdd'
+import { readStoredProfile } from '../fixtures/fleet-seed'
 import { TEST_AIRCRAFT } from '../fixtures/test-aircraft'
 
 const { Given, When, Then } = createBdd()
@@ -248,21 +249,22 @@ Then(
 
 // ─── Decimal input precision steps ────────────────────────────────────────
 
+// DecimalInput keeps the pilot's typed text (a comma stays a comma) and emits
+// only the parsed number, so display assertions compare the typed text and the
+// numeric contract is checked on the persisted record.
+
 When(
   'the pilot types {string} into the BEM field and tabs away',
   async ({ page }, value: string) => {
     const bemInput = page.getByLabel('BEM')
     await bemInput.clear()
-    await bemInput.type(value)
+    await bemInput.pressSequentially(value)
     await bemInput.press('Tab')
   },
 )
 
 Then('the BEM field retains the value {string}', async ({ page }, expected: string) => {
-  const bemInput = page.getByLabel('BEM')
-  // After blur the DecimalInput normalises comma → period for display
-  const actual = await bemInput.inputValue()
-  expect(actual).toBe(expected)
+  await expect(page.getByLabel('BEM')).toHaveValue(expected)
 })
 
 When(
@@ -270,26 +272,67 @@ When(
   async ({ page }, value: string) => {
     const cgInput = page.getByLabel('Empty CG')
     await cgInput.clear()
-    await cgInput.type(value)
+    await cgInput.pressSequentially(value)
     await cgInput.press('Tab')
   },
 )
 
 Then('the Empty CG field retains the value {string}', async ({ page }, expected: string) => {
-  const cgInput = page.getByLabel('Empty CG')
-  const actual = await cgInput.inputValue()
-  expect(actual).toBe(expected)
+  await expect(page.getByLabel('Empty CG')).toHaveValue(expected)
 })
+
+async function stationRowNamed(page: Page, stationName: string) {
+  const rows = page.locator('.load-point-row')
+  await expect(rows.first()).toBeVisible()
+  for (const row of await rows.all()) {
+    if ((await row.getByLabel('Station Name').inputValue()) === stationName) return row
+  }
+  throw new Error(`No load station named "${stationName}"`)
+}
 
 Then(
   'the arm field for station {string} retains the value {string}',
   async ({ page }, stationName: string, expected: string) => {
-    // Find the load-point row that contains the station name
-    const stationRows = page.locator('.load-point-row')
-    const targetRow = stationRows.filter({ hasText: stationName })
-    const armInput = targetRow.getByLabel('Arm')
-    const actual = await armInput.inputValue()
-    expect(actual).toBe(expected)
+    const row = await stationRowNamed(page, stationName)
+    await expect(row.getByLabel('Arm')).toHaveValue(expected)
+  },
+)
+
+When(
+  'the pilot saves the aircraft as a draft and reopens {string} after a reload',
+  async ({ page }, registration: string) => {
+    await page.getByRole('button', { name: '+ Add Fuel Tank' }).click()
+    await page.getByRole('button', { name: 'Continue', exact: false }).click()
+    await expect(page.getByRole('heading', { name: /Step 5.*Wind Limits/i })).toBeVisible()
+    await page.getByRole('button', { name: 'Continue', exact: false }).click()
+    await expect(page.getByRole('heading', { name: /Step 6.*Review/i })).toBeVisible()
+    await page.getByRole('button', { name: 'Save as Draft' }).click()
+    await savedDraftChooser(page).getByRole('button', { name: 'Back to Fleet', exact: true }).click()
+    await expect(page).toHaveURL(/\/fleet$/)
+
+    await page.reload()
+    await page.getByRole('button', { name: `Edit ${registration}` }).click()
+    await expect(page.getByRole('heading', { name: 'Edit Aircraft' })).toBeVisible()
+  },
+)
+
+Then(
+  '{string} is stored with BEM {float}, Empty CG {float} and arm {float} for station {string}',
+  async ({ page }, registration: string, bem: number, emptyCg: number, arm: number, stationName: string) => {
+    const stored = (await readStoredProfile(page, registration)) as {
+      weighingReports: { bem: unknown; emptyCg: unknown }[]
+      loadPoints: { name: string; arm: unknown }[]
+    }
+    expect(stored, `${registration} was not persisted`).toBeDefined()
+    expect(stored.weighingReports[0]!.bem).toStrictEqual(bem)
+    expect(stored.weighingReports[0]!.emptyCg).toStrictEqual(emptyCg)
+    expect(stored.loadPoints.find((lp) => lp.name === stationName)?.arm).toStrictEqual(arm)
+
+    // The reopened editor renders the stored numbers, never the typed comma text.
+    await expect(page.getByLabel('BEM')).toHaveValue(String(bem))
+    await expect(page.getByLabel('Empty CG')).toHaveValue(String(emptyCg))
+    const row = await stationRowNamed(page, stationName)
+    await expect(row.getByLabel('Arm')).toHaveValue(String(arm))
   },
 )
 
