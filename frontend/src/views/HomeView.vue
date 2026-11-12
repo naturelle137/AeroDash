@@ -268,8 +268,7 @@ const soonModules = modules.filter((m) => m.soon)
 
 .hero__logo-wrap {
   flex-shrink: 0;
-  color: var(--color-primary);
-  filter: drop-shadow(var(--glow-primary));
+  /* No filter here: it would isolate the logo from blend-mode backdrop merging. */
 }
 
 .hero__copy {
