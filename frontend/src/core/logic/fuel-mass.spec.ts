@@ -1,5 +1,3 @@
-// @UT-MB-CORE-FUEL-MASS-001@ (FROM: @IMP-MB-CORE-FUEL-MASS-001@)
-
 import { describe, it, expect } from 'vitest'
 import { normalizeFuelQuantityToKg, isFuelQuantityUnit } from './fuel-mass'
 

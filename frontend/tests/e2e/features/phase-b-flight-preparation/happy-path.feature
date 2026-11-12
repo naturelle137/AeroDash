@@ -7,8 +7,7 @@ Feature: Complete a textbook flight preparation within all limits
     Given the fleet holds the synthetic Mass & Balance test aircraft
     And the pilot starts a new flight preparation
 
-  # @E2E-B-001@ (FROM: @UJ-B-005@)
-  @UJ-B-005 @e2e @flight-prep @happy-path @module-mb
+  @e2e @flight-prep @happy-path @module-mb
   Scenario: Pilot completes a clean flight preparation
     When the pilot selects aircraft "D-EBPN"
     And loads two passengers and light baggage
@@ -18,7 +17,6 @@ Feature: Complete a textbook flight preparation within all limits
     And the only warning is the unverified draft-profile notice
 
   @e2e @flight-prep @optional-occupancy
-# @E2E-B-012@ (FROM: @UJ-B-005@)
   Scenario Outline: Solo loading retains required crew checks
     When the viewport for occupancy is <width> pixels wide
     And the pilot selects aircraft "D-ECSM"

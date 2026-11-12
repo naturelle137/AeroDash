@@ -1,4 +1,3 @@
-<!-- @IMP-AC-VIEW-WIZARD-001@ (FROM: @REQ-AC-001@, @REQ-UQ-003@) -->
 <template>
   <div class="wizard-view">
     <header class="wizard-header">
@@ -245,7 +244,6 @@
 </template>
 
 <script setup lang="ts">
-// @IMP-AC-VIEW-WIZARD-002@ (FROM: @REQ-AC-001@, @REQ-UQ-003@)
 import { ref, computed, watch } from 'vue'
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
 import { v4 as uuidv4 } from 'uuid'
@@ -275,7 +273,6 @@ const activeStore = useActiveAircraftStore()
 
 // ─── Step definitions ───────────────────────────────────────────────────────
 //
-// @IMP-AC-VIEW-WIZARD-003@ (FROM: @REQ-AD-020@)
 // Steps are composed dynamically from a static base list so that the Battery
 // Pack step only appears for electric airframes. Keeping the list explicit
 // (rather than, say, a flag on each step) means the `step-indicator` can render
@@ -315,7 +312,6 @@ const identityFields = ref<IdentityFields>({
   shareCode: null,
 })
 
-// @IMP-AC-VIEW-WIZARD-004@ (FROM: @REQ-AD-020@, @REQ-AD-021@)
 // Battery pack draft. Seeded with zero so DecimalInput has a number to bind to;
 // schema validation (`usableEnergyKwh > 0`, `reserveFloorKwh < usableEnergyKwh`)
 // is the final guard at save time. The field-level validations in
@@ -493,7 +489,6 @@ watch(STEPS, (next) => {
 })
 
 // ─── In-app wizard exit modal ────────────────────────────────────────────────
-// @IMP-AC-VIEW-032@ (FROM: @REQ-AC-001@, @REQ-UI-011@)
 //
 // Replaces the native `window.confirm()` exit prompt, which the iOS Safari
 // back-gesture can dismiss out from under the pilot — silently discarding an
@@ -573,7 +568,6 @@ function onExitDismiss(): void {
 }
 
 // ─── Post-save action chooser ────────────────────────────────────────────────
-// @IMP-AC-VIEW-033@ (FROM: @REQ-AC-001@, @REQ-AC-005@)
 //
 // Saving previously dumped the pilot back to the fleet list — four extra taps
 // before they could start planning with the aircraft they just entered. The

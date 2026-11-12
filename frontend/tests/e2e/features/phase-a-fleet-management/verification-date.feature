@@ -1,8 +1,7 @@
 @phase-A @verification-date
 Feature: Verification dates cannot extend the trust window
 
-  # @E2E-A-012@ (FROM: @UJ-A-001@)
-  @UJ-A-001 @e2e
+  @e2e
   Scenario Outline: Draft verification rejects future dates and saves today
     Given a "draft" verification profile at viewport <width> by <height>
     When the pilot rejects a future sign-off then signs off today
@@ -13,8 +12,7 @@ Feature: Verification dates cannot extend the trust window
       | 1280  | 900    |
       | 390   | 844    |
 
-  # @E2E-A-013@ (FROM: @UJ-A-001@)
-  @UJ-A-001 @e2e
+  @e2e
   Scenario Outline: Future persisted verification stays gated until valid re-verification
     Given a "future persisted" verification profile at viewport <width> by <height>
     When the pilot checks the future persisted verification gate

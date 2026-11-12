@@ -1,4 +1,3 @@
-// @IT-MB-STORE-004@ (FROM: @IMP-MB-STORE-023@)
 import 'fake-indexeddb/auto'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'

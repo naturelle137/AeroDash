@@ -9,7 +9,6 @@
  * between store ↔ template is exercised exactly as production runs.
  */
 
-// @IT-SYS-APP-001@ (FROM: @IMP-SYS-STORE-011@, @IMP-SYS-STORE-012@)
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'

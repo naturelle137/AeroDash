@@ -110,7 +110,6 @@ Then('a critical notification {string} is displayed', async ({ page }, message: 
   await expect(page.locator('.notification--critical', { hasText: message })).toBeVisible()
 })
 
-
 When('the viewport for occupancy is {int} pixels wide', async ({ page }, width: number) => {
   await page.setViewportSize({ width, height: 900 })
 })

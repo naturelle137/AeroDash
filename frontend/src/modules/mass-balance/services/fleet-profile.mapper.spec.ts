@@ -1,11 +1,9 @@
-// @UT-MB-STORE-069@ (FROM: @IMP-MB-SVC-001@)
 /**
  * Unit tests for the AircraftProfile → AircraftContext mapper.
  *
  * @see fleet-profile.mapper.ts
  */
 
-// @UT-MB-SVC-001@ (FROM: @IMP-MB-SVC-001@)
 
 import { describe, it, expect } from 'vitest'
 import type { AircraftProfile } from '@/core/adapters/aircraft.schema'

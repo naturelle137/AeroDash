@@ -1,4 +1,3 @@
-// @IT-SYS-VIEW-001@ (FROM: @IMP-UI-VIEW-003@, @IMP-SYS-CORE-013@)
 //
 // Integration test: walking the full guided defect/feature flow and
 // confirming the prefilled GitHub URL passed to window.open carries the

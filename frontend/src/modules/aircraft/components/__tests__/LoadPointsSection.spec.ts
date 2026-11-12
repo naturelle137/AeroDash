@@ -5,7 +5,6 @@
  * @see frontend/src/modules/aircraft/components/LoadPointsSection.vue
  */
 
-// @UT-AC-VIEW-LP-001@ (FROM: @IMP-AC-VIEW-017@, @IMP-AC-VIEW-018@)
 
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'

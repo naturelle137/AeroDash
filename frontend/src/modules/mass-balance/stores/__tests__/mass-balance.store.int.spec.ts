@@ -1,7 +1,3 @@
-// @IT-MB-STORE-001@ (FROM: @IMP-MB-STORE-020@)
-// @IT-MB-STORE-002@ (FROM: @IMP-MB-STORE-022@)
-// @IT-MB-STORE-003@ (FROM: @IMP-MB-STORE-021@)
-
 /**
  * Mass & Balance store ↔ real math-core integration.
  *
@@ -104,7 +100,6 @@ describe('MassBalance store ↔ real adapter — imperial unit normalization (BU
     setActivePinia(createPinia())
   })
 
-  // @IT-MB-STORE-001@
   it('normalizes inches/lb to SI and computes the correct CG (in-envelope, no false Go)', () => {
     const store = useMassBalanceStore()
     store.loadProfile(imperialProfile)
@@ -128,7 +123,6 @@ describe('MassBalance store ↔ real adapter — imperial unit normalization (BU
     expect(store.uiState).toBe('VERIFIED_SAFE')
   })
 
-  // @IT-MB-STORE-001@
   it('flags CG_OUT_OF_ENVELOPE when an imperial arm pushes the CG past the inch-defined envelope', () => {
     // Heavy pilot far forward (800 lb @ 10 in), no fuel. Hand calc:
     //   takeoff mass = 1500+800 = 2300 lb (< 2400 MTOM → NOT a mass violation)
@@ -157,7 +151,6 @@ describe('MassBalance store ↔ real adapter — imperial unit normalization (BU
     expect(store.uiState).toBe('ERROR_CRITICAL')
   })
 
-  // @IT-MB-STORE-001@
   it('produces IDENTICAL results to the metric equivalent of the same aircraft', () => {
     // Metric twin: same physical aircraft expressed in kg / m up front.
     const metricTwin: AircraftContext = {
@@ -265,7 +258,6 @@ describe('MassBalance store ↔ real adapter — NaN result is blocked from the 
     setActivePinia(createPinia())
   })
 
-  // @IT-MB-STORE-002@
   it('never assigns a NaN-filled failed compute to lastResult; surfaces an ERROR instead', () => {
     const store = useMassBalanceStore()
     // Poison the empty CG with a non-finite value — the adapter rejects it
@@ -290,7 +282,6 @@ describe('MassBalance store ↔ real adapter — NaN result is blocked from the 
     expect(store.notifications.some((n) => n.id === 'ERR-SYS-001')).toBe(true)
   })
 
-  // @IT-MB-STORE-002@
   it('rejects an absurd out-of-range station mass without rendering a result', () => {
     const store = useMassBalanceStore()
     store.loadProfile(metricBase)
@@ -309,7 +300,6 @@ describe('MassBalance store ↔ real adapter — unknown fuel fails closed (BUND
     setActivePinia(createPinia())
   })
 
-  // @IT-MB-STORE-003@
   it('raises WARN-FE-001 and does not compute silently for an unknown fuel type', () => {
     const store = useMassBalanceStore()
     // Bypass the context-schema enum (the store consumes a typed AircraftContext
@@ -335,7 +325,6 @@ describe('MassBalance store ↔ real adapter — unknown fuel fails closed (BUND
     expect(store.hasWarningNotification).toBe(true)
   })
 
-  // @IT-MB-STORE-003@
   it('does NOT warn for each canonical fuel type', () => {
     for (const fuel of ['MoGas', 'AvGas 100LL', 'Jet A-1', 'AvGas UL91', 'Diesel'] as const) {
       setActivePinia(createPinia())

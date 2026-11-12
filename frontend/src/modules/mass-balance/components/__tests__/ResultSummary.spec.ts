@@ -1,5 +1,3 @@
-// @UT-MB-UI-004@ (FROM: @IMP-MB-UI-005@, @IMP-MB-UI-011@)
-
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
 import ResultSummary from '../ResultSummary.vue'

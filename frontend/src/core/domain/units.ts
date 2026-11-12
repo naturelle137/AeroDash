@@ -5,7 +5,6 @@
  * @see REQ-SYS-004
  */
 
-// @IMP-SYS-CORE-005@ (FROM: @REQ-SYS-004@)
 
 /** Volume units accepted for storage, input, and display. */
 export const VOLUME_UNITS = ['L', 'gal'] as const

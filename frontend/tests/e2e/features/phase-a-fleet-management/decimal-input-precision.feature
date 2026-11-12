@@ -12,8 +12,7 @@ Feature: Decimal input precision in the aircraft wizard
     And the pilot sets MTOM to "630"
     And the pilot clicks "Continue"
 
-  # @E2E-A-005@ (FROM: @UJ-A-001@)
-  @UJ-A-001 @phase-A @e2e @E2E-A-005
+  @phase-A @e2e
   Scenario: High-precision decimal values survive the wizard and a reload intact
     When the pilot types "433.75" into the BEM field and tabs away
     Then the BEM field retains the value "433.75"
@@ -28,8 +27,7 @@ Feature: Decimal input precision in the aircraft wizard
     When the pilot saves the aircraft as a draft and reopens "D-EBPN" after a reload
     Then "D-EBPN" is stored with BEM 433.75, Empty CG 1.105 and arm 1.877 for station "Pilot"
 
-  # @E2E-A-006@ (FROM: @UJ-A-001@)
-  @UJ-A-001 @phase-A @e2e @E2E-A-006
+  @phase-A @e2e
   Scenario: European comma decimal separator is stored identically to a period
     When the pilot types "433,75" into the BEM field and tabs away
     Then the BEM field retains the value "433,75"

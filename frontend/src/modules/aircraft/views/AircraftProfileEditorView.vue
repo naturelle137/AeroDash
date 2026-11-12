@@ -1,5 +1,4 @@
 <template>
-  <!-- @IMP-AC-VIEW-015@ (FROM: @REQ-AC-001@, @REQ-AC-005@, @REQ-AD-001@, @REQ-AD-002@, @REQ-AD-003@, @REQ-AD-004@, @REQ-AD-005@, @REQ-AD-007@, @REQ-AD-011@, @REQ-AD-012@, @REQ-AD-013@, @REQ-AD-014@, @REQ-AD-018@, @REQ-AD-019@) -->
   <div class="profile-editor-view">
     <header class="editor-header">
       <div class="editor-title">
@@ -156,7 +155,6 @@ import BatteryPackSection from '../components/BatteryPackSection.vue'
 import WindLimitsSection from '../components/WindLimitsSection.vue'
 import ProfileStatusBadge from '../components/ProfileStatusBadge.vue'
 
-// @IMP-AC-VIEW-016@ (FROM: @REQ-AC-001@, @REQ-AC-005@, @REQ-AD-001@, @REQ-AD-002@, @REQ-AD-003@, @REQ-AD-004@, @REQ-AD-005@, @REQ-AD-007@, @REQ-AD-011@, @REQ-AD-012@, @REQ-AD-013@, @REQ-AD-014@, @REQ-AD-018@, @REQ-AD-019@)
 
 const route = useRoute()
 const router = useRouter()
@@ -248,7 +246,6 @@ const loadPoints = computed<AircraftProfileLoadPoint[]>({
 
 const isElectric = computed(() => draft.value?.powertrain === 'electric')
 
-// @IMP-AC-VIEW-023@ (FROM: @REQ-AC-007@)
 // Reflect an expired/source-changed sign-off in the header badge so the pilot
 // sees that the loaded Verified profile is no longer a live verification.
 const sourceVerificationExpired = computed(
@@ -269,7 +266,6 @@ const batteryPack = computed<AircraftProfileBatteryPack>({
   },
 })
 
-// @IMP-AC-VIEW-039@ (FROM: @REQ-AD-017@)
 const windLimits = computed<AircraftProfileWindLimit[]>({
   get(): AircraftProfileWindLimit[] {
     return draft.value?.windLimits ?? []

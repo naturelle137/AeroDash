@@ -6,7 +6,6 @@
  * @see frontend/src/modules/aircraft/views/AircraftProfileEditorView.vue
  */
 
-// @UT-AC-VIEW-130@ (FROM: @IMP-AC-VIEW-015@, @IMP-AC-VIEW-016@)
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { flushPromises, mount } from '@vue/test-utils'
@@ -126,14 +125,12 @@ describe('AircraftProfileEditorView — hydration', () => {
     setActivePinia(createPinia())
   })
 
-  // @UT-AC-VIEW-130@
   it('loads the profile by route id and shows its registration', async () => {
     const profile = makeProfile({ registration: 'G-ABCD' })
     const { wrapper } = await mountEditor({ profile })
     expect(wrapper.text()).toContain('G-ABCD')
   })
 
-  // @UT-AC-VIEW-131@
   it('shows verified notice only when source profile is verified', async () => {
     const verified = makeProfile({ status: 'verified' })
     const { wrapper } = await mountEditor({ profile: verified })
@@ -141,7 +138,6 @@ describe('AircraftProfileEditorView — hydration', () => {
     expect(wrapper.text()).toContain('Save (converts to Draft)')
   })
 
-  // @UT-AC-VIEW-132@
   it('shows draft save label when source is draft', async () => {
     const draft = makeProfile({ status: 'draft' })
     const { wrapper } = await mountEditor({ profile: draft })
@@ -154,7 +150,6 @@ describe('AircraftProfileEditorView — save dispatch', () => {
     setActivePinia(createPinia())
   })
 
-  // @UT-AC-VIEW-133@
   it('calls updateProfile when saving a Draft', async () => {
     const draft = makeProfile({ status: 'draft' })
     const updateProfile = vi.fn<(id: string, changes: Partial<AircraftProfile>) => Promise<AircraftProfile>>()
@@ -178,7 +173,6 @@ describe('AircraftProfileEditorView — save dispatch', () => {
     expect(args[1]).not.toHaveProperty('status')
   })
 
-  // @UT-AC-VIEW-134@
   it('calls editVerifiedProfile when saving a Verified profile', async () => {
     const verified = makeProfile({ status: 'verified' })
     const updateProfile = vi.fn<(id: string, changes: Partial<AircraftProfile>) => Promise<AircraftProfile>>()
@@ -196,7 +190,6 @@ describe('AircraftProfileEditorView — save dispatch', () => {
     expect(updateProfile).not.toHaveBeenCalled()
   })
 
-  // @UT-AC-VIEW-135@
   it('keeps save button disabled when there are no changes (no draft-bump on open)', async () => {
     const draft = makeProfile({ status: 'draft' })
     const { wrapper } = await mountEditor({ profile: draft })
@@ -205,7 +198,6 @@ describe('AircraftProfileEditorView — save dispatch', () => {
     expect(wrapper.text()).toContain('No changes')
   })
 
-  // @UT-AC-VIEW-136@
   it('enables save and shows unsaved-changes indicator when a field is edited', async () => {
     const draft = makeProfile({ status: 'draft' })
     const { wrapper } = await mountEditor({ profile: draft })
@@ -222,7 +214,6 @@ describe('AircraftProfileEditorView — navigation', () => {
     setActivePinia(createPinia())
   })
 
-  // @UT-AC-VIEW-137@
   it('navigates back to fleet list when Cancel is clicked with no changes', async () => {
     const draft = makeProfile({ status: 'draft' })
     const { wrapper, router } = await mountEditor({ profile: draft })
@@ -232,7 +223,6 @@ describe('AircraftProfileEditorView — navigation', () => {
   })
 })
 
-// @UT-AC-VIEW-138@ (FROM: @IMP-AC-VIEW-015@, @REQ-AD-022@)
 describe('AircraftProfileEditorView — powertrain immutability & battery pack', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
@@ -291,7 +281,6 @@ describe('AircraftProfileEditorView — powertrain immutability & battery pack',
   })
 })
 
-// @UT-AC-VIEW-187@ (FROM: @IMP-AC-VIEW-039@)
 describe('AircraftProfileEditorView — wind limits', () => {
   beforeEach(() => {
     setActivePinia(createPinia())

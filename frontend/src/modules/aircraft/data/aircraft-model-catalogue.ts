@@ -8,7 +8,6 @@
  * @see docs/requirements/user_interface.md REQ-UI-001, REQ-UI-002, REQ-UI-003, REQ-UI-004
  */
 
-// @IMP-AC-VIEW-001@ (FROM: @REQ-UI-001@, @REQ-UI-003@, @REQ-UI-004@)
 
 import rawCatalogue from './aircraft-model-catalogue.json'
 

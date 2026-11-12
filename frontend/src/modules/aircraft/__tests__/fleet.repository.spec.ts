@@ -6,7 +6,6 @@
  * @see frontend/src/modules/aircraft/services/fleet.repository.ts
  */
 
-// @UT-AC-STORE-034@ (FROM: @IMP-AC-STORE-001@)
 
 import { describe, it, expect, beforeEach } from 'vitest'
 import 'fake-indexeddb/auto'
@@ -78,7 +77,6 @@ function buildProfile(overrides: Partial<AircraftProfile> = {}): AircraftProfile
 }
 
 describe('fleetRepository.create', () => {
-  // @UT-AC-STORE-034@ (FROM: @IMP-AC-STORE-001@)
   it('stores a profile and allows retrieval by id', async () => {
     const profile = buildProfile()
     await fleetRepository.create(profile)
@@ -90,7 +88,6 @@ describe('fleetRepository.create', () => {
     expect(found!.schemaVersion).toBe(1)
   })
 
-  // @UT-AC-STORE-035@ (FROM: @IMP-AC-STORE-001@)
   it('preserves all fields including passengerProfiles', async () => {
     const profile = buildProfile({
       passengerProfiles: [{ name: 'Standard Adult', standardWeight: 86, unit: 'kg' }],
@@ -102,7 +99,6 @@ describe('fleetRepository.create', () => {
     expect(found!.passengerProfiles[0]!.standardWeight).toBe(86)
   })
 
-  // @UT-AC-STORE-036@ (FROM: @IMP-AC-STORE-001@)
   it('rejects duplicate id (IDBRequest error propagated)', async () => {
     const profile = buildProfile()
     await fleetRepository.create(profile)
@@ -111,13 +107,11 @@ describe('fleetRepository.create', () => {
 })
 
 describe('fleetRepository.findById', () => {
-  // @UT-AC-STORE-037@ (FROM: @IMP-AC-STORE-001@)
   it('returns undefined for a non-existent id', async () => {
     const result = await fleetRepository.findById('00000000-0000-4000-a000-999999999999')
     expect(result).toBeUndefined()
   })
 
-  // @UT-AC-STORE-038@ (FROM: @IMP-AC-STORE-001@)
   it('returns the correct profile when multiple exist', async () => {
     const p1 = buildProfile({ id: '11111111-0000-4000-a000-000000000001', registration: 'D-AAA' })
     const p2 = buildProfile({ id: '11111111-0000-4000-a000-000000000002', registration: 'D-BBB' })
@@ -130,13 +124,11 @@ describe('fleetRepository.findById', () => {
 })
 
 describe('fleetRepository.findAll', () => {
-  // @UT-AC-STORE-039@ (FROM: @IMP-AC-STORE-001@)
   it('returns empty array when the store is empty', async () => {
     const all = await fleetRepository.findAll()
     expect(all).toEqual([])
   })
 
-  // @UT-AC-STORE-040@ (FROM: @IMP-AC-STORE-001@)
   it('returns all stored profiles', async () => {
     const p1 = buildProfile({ id: '11111111-0000-4000-a000-000000000001', registration: 'D-AAA' })
     const p2 = buildProfile({ id: '11111111-0000-4000-a000-000000000002', registration: 'D-BBB' })
@@ -153,7 +145,6 @@ describe('fleetRepository.findAll', () => {
 })
 
 describe('fleetRepository.update', () => {
-  // @UT-AC-STORE-041@ (FROM: @IMP-AC-STORE-001@)
   it('replaces a profile document in the store', async () => {
     const profile = buildProfile()
     await fleetRepository.create(profile)
@@ -166,7 +157,6 @@ describe('fleetRepository.update', () => {
     expect(found!.status).toBe('verified')
   })
 
-  // @UT-AC-STORE-042@ (FROM: @IMP-AC-STORE-001@)
   it('update does not affect other profiles', async () => {
     const p1 = buildProfile({ id: '11111111-0000-4000-a000-000000000001', registration: 'D-AAA' })
     const p2 = buildProfile({ id: '11111111-0000-4000-a000-000000000002', registration: 'D-BBB' })
@@ -182,7 +172,6 @@ describe('fleetRepository.update', () => {
 })
 
 describe('fleetRepository.deleteById', () => {
-  // @UT-AC-STORE-043@ (FROM: @IMP-AC-STORE-001@)
   it('removes a profile so findById returns undefined', async () => {
     const profile = buildProfile()
     await fleetRepository.create(profile)
@@ -191,14 +180,12 @@ describe('fleetRepository.deleteById', () => {
     expect(found).toBeUndefined()
   })
 
-  // @UT-AC-STORE-044@ (FROM: @IMP-AC-STORE-001@)
   it('deleteById is idempotent — no error when deleting a non-existent id', async () => {
     await expect(
       fleetRepository.deleteById('00000000-0000-4000-a000-999999999999'),
     ).resolves.toBeUndefined()
   })
 
-  // @UT-AC-STORE-045@ (FROM: @IMP-AC-STORE-001@)
   it('does not remove other profiles when deleting one', async () => {
     const p1 = buildProfile({ id: '11111111-0000-4000-a000-000000000001', registration: 'D-AAA' })
     const p2 = buildProfile({ id: '11111111-0000-4000-a000-000000000002', registration: 'D-BBB' })
@@ -214,7 +201,6 @@ describe('fleetRepository.deleteById', () => {
 })
 
 describe('fleetRepository CRUD round-trip', () => {
-  // @UT-AC-STORE-046@ (FROM: @IMP-AC-STORE-001@)
   it('full lifecycle: create → findById → update → findAll → deleteById → empty', async () => {
     const profile = buildProfile({ status: 'draft' })
 
@@ -240,7 +226,6 @@ describe('fleetRepository CRUD round-trip', () => {
     expect(all2).toHaveLength(0)
   })
 
-  // @UT-AC-STORE-047@ (FROM: @IMP-AC-STORE-001@)
   it('preserves Verified status and passengerProfiles through round-trip', async () => {
     const profile = buildProfile({
       status: 'verified',

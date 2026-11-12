@@ -27,7 +27,6 @@ import WindLimitsSummary from '@/modules/aircraft/components/WindLimitsSummary.v
 import ConfirmDialog from '@/shared/components/ConfirmDialog.vue'
 import UndoToast from '@/shared/components/UndoToast.vue'
 
-// @IMP-MB-UI-FLEET-001@ (FROM: @REQ-AC-001@, @REQ-MB-002@, @UJ-F-002@)
 
 const catalogueError = ref<string | null>(null)
 
@@ -72,7 +71,6 @@ const isFleetEmpty = computed(
   () => fleetStore.fleetLoadState === 'READY' && fleetStore.profiles.length === 0,
 )
 
-// @IMP-MB-VIEW-011@ (FROM: @REQ-AC-005@, @REQ-AC-007@)
 // Draft-aware aircraft picker. The legacy alphabetical-only
 // list let a pilot pick an unverified Draft envelope with no grouping or guard.
 // The picker now: groups options into Verified / Draft <optgroup>s, surfaces the
@@ -142,7 +140,6 @@ interface PendingSelection {
 /** A selection awaiting the pilot's inline acknowledgement before load (H-011, REQ-AC-005/007). */
 const pendingSelection = ref<PendingSelection | null>(null)
 
-// @IMP-MB-VIEW-013@ (FROM: @REQ-AC-001@, @REQ-AC-005@)
 // The <select> normally mirrors the loaded aircraft and snaps back to it while
 // a draft/expired pick is awaiting acknowledgement (so a stray tap can't appear
 // to silently switch the airframe). But when arriving from the wizard's
@@ -408,7 +405,6 @@ function loadProfileIntoStore(profile: AircraftProfile): boolean {
 }
 
 // ─── Fleet-load timeout escalation ───────────────────────────────────────────
-// @IMP-MB-VIEW-012@ (FROM: @REQ-AC-001@, @REQ-MB-002@)
 //
 // `fleetStore.loadAll()` reads IndexedDB, which can stall indefinitely (storage
 // blocked by another tab, a quota prompt, a wedged transaction). Without a
@@ -444,7 +440,6 @@ async function runFleetLoad(): Promise<void> {
   }
 }
 
-// @IMP-MB-UI-SESSION-001@ (FROM: @REQ-SYS-013@)
 onMounted(async () => {
   // Only auto-load on the first mount (initial LOADING state). If a previous
   // attempt errored, let the pilot retry explicitly via the Retry button.
@@ -552,13 +547,11 @@ const aircraftLabel = computed(() => {
   return `${store.aircraft.registration} — ${store.aircraft.manufacturer} ${store.aircraft.model}`
 })
 
-// @IMP-MB-VIEW-014@ (FROM: @REQ-AD-017@)
 // Wind limits ride on the full active profile, not the reduced M&B
 // AircraftContext — the context deliberately omits them, so read straight from
 // the active-aircraft store, which is set in lockstep with the loaded profile.
 const activeWindLimits = computed(() => activeAircraftStore.activeProfile?.windLimits ?? [])
 
-// @IMP-MB-VIEW-010@ (FROM: @REQ-AD-020@)
 // Battery-electric airframes surface an "Energy & Endurance" placeholder
 // rather than the combustion "Fuel & Endurance" card. The page-header subtitle
 // and sticky-strip chip follow the same discriminator so the pilot never sees
@@ -598,7 +591,6 @@ const categoryLimits = computed(() => {
 // value and snapshot the entire viewModel to verify correctness.
 // ---------------------------------------------------------------------------
 
-// @IMP-MB-UI-004@ (FROM: @REQ-UI-018@)
 const viewModel = computed(() => {
   const state = store.uiState
 
@@ -655,7 +647,6 @@ function onCategoryChange(category: string): void {
 }
 
 // ─── confirm-then-undo Reset Payload ──────────────────────────────────────
-// @IMP-MB-UI-FLEET-002@ (FROM: @REQ-UI-018@)
 //
 // A single tap on Reset Payload wipes every station weight — catastrophic
 // workload at a just-loaded, engine-running aircraft. Gate it behind a confirm
@@ -1009,7 +1000,6 @@ function onCancelSelection(): void {
         </div>
       </div>
 
-      <!-- @IMP-MB-VIEW-015@ (FROM: @REQ-AD-017@) -->
       <WindLimitsSummary
         v-if="store.aircraft"
         class="aircraft-wind-limits"
@@ -1088,7 +1078,6 @@ function onCancelSelection(): void {
           <!-- Left column: station inputs -->
           <section class="mb-layout__inputs">
             <InputGroupCard>
-              <!-- @IMP-MB-UI-007@ (FROM: @REQ-UQ-005@) -->
               <MassStationInput
                 v-for="station in stations"
                 :key="station.index"

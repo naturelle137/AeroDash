@@ -5,7 +5,6 @@
  * @see frontend/src/modules/aircraft/components/BatteryPackSection.vue
  */
 
-// @UT-AC-VIEW-BAT-001@ (FROM: @IMP-AC-VIEW-BAT-001@, @IMP-AC-VIEW-BAT-002@)
 
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'

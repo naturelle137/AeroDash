@@ -28,7 +28,6 @@ import {
 } from '@/core/domain/session.schema'
 import { migrateSessionPayload } from '@/core/logic/session-migrations'
 
-// @IMP-SYS-STORE-001@ (FROM: @REQ-SYS-013@)
 
 const STORAGE_KEY = 'aerodash:session:payload' as const
 const DEBOUNCE_MS = 300

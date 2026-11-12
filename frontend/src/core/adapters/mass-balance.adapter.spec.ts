@@ -65,7 +65,6 @@ describe('M&B Zod Adapter', () => {
     ['envelope', 0, 'armOrMoment', 'ENVELOPE[0].ARMORMOMENT'],
   ] as const
 
-  // @UT-AD-CORE-001@ (FROM: @IMP-AD-CORE-002@)
   it.each(missingRootFields)(
     'pushes a field error for missing root field %s input',
     (field, expectedPath) => {
@@ -95,7 +94,6 @@ describe('M&B Zod Adapter', () => {
     },
   )
 
-  // @UT-AD-CORE-002@ (FROM: @IMP-AD-CORE-002@)
   it.each(missingArrayFields)(
     'pushes a field error for arrays with missing %s input',
     (arrayName, index, propName, expectedPath) => {
@@ -137,7 +135,6 @@ describe('M&B Zod Adapter', () => {
     },
   )
 
-  // @UT-AD-CORE-003@ (FROM: @IMP-AD-CORE-002@)
   it.each(missingNestedArrayFields)(
     'pushes a field error for nested arrays with missing %s input',
     (arrayName, index, propName, expectedPath) => {
@@ -179,7 +176,6 @@ describe('M&B Zod Adapter', () => {
     },
   )
 
-  // @UT-AD-CORE-004@ (FROM: @IMP-AD-CORE-002@)
   it.each(invalidTypeRootFields)(
     'pushes a field error if %s input is no number, NaN or infinite',
     (field, expectedPath) => {
@@ -227,7 +223,6 @@ describe('M&B Zod Adapter', () => {
     },
   )
 
-  // @UT-AD-CORE-005@ (FROM: @IMP-AD-CORE-002@)
   it.each(invalidTypeArrayFields)(
     'pushes a field error for arrays if %s input is no number, NaN or infinite',
     (arrayName, index, propName, expectedPath) => {
@@ -291,7 +286,6 @@ describe('M&B Zod Adapter', () => {
     },
   )
 
-  // @UT-AD-CORE-006@ (FROM: @IMP-AD-CORE-002@)
   it.each(negativeRootFields)(
     'pushes a field error for negative values when only positives are allowed in %s',
     (field, expectedPath) => {
@@ -308,7 +302,6 @@ describe('M&B Zod Adapter', () => {
     },
   )
 
-  // @UT-AD-CORE-007@ (FROM: @IMP-AD-CORE-002@)
   it.each(negativeArrayFields)(
     'pushes a field error for arrays with negative %s input',
     (arrayName, index, propName, expectedPath) => {
@@ -339,7 +332,6 @@ describe('M&B Zod Adapter', () => {
     },
   )
 
-  // @UT-AD-CORE-008@ (FROM: @IMP-AD-CORE-003@)
   it('pushes TOO_MANY_ITEMS if combined stations and fuel stations exceed 20', () => {
     const input = createMathCoreInput()
 
@@ -365,7 +357,6 @@ describe('M&B Zod Adapter', () => {
     ).toBe(true)
   })
 
-  // @UT-AD-CORE-009@ (FROM: @IMP-AD-CORE-003@)
   it('pushes DUPLICATE_INDEX if an index is used multiple times across stations and fuelStations', () => {
     const input = createMathCoreInput()
 
@@ -377,7 +368,6 @@ describe('M&B Zod Adapter', () => {
     expect(result.violations.some((v) => v.code === 'DUPLICATE_INDEX')).toBe(true)
   })
 
-  // @UT-AD-CORE-010@ (FROM: @IMP-AD-CORE-003@)
   it('pushes REQUIRED if both arm and armLookup are missing for a station (XOR)', () => {
     const input = createMathCoreInput()
 
@@ -391,7 +381,6 @@ describe('M&B Zod Adapter', () => {
     ).toBe(true)
   })
 
-  // @UT-AD-CORE-011@ (FROM: @IMP-AD-CORE-003@)
   it('pushes NOT_ALLOWED if both arm and armLookup are provided for a station (XOR)', () => {
     const input = createMathCoreInput()
 
@@ -405,7 +394,6 @@ describe('M&B Zod Adapter', () => {
     ).toBe(true)
   })
 
-  // @UT-AD-CORE-012@ (FROM: @IMP-AD-CORE-002@)
   it('pushes OUT_OF_RANGE if an index is greater than 19', () => {
     const input = createMathCoreInput()
     input.stations[0]!.index = 25
@@ -417,7 +405,6 @@ describe('M&B Zod Adapter', () => {
     ).toBe(true)
   })
 
-  // @UT-AD-CORE-013@ (FROM: @IMP-AD-CORE-002@)
   it('pushes NOT_ALLOWED if graphType enum is invalid', () => {
     const input = createMathCoreInput() as unknown as Record<string, unknown>
     input.graphType = 'invalid_string'
@@ -429,7 +416,6 @@ describe('M&B Zod Adapter', () => {
     )
   })
 
-  // @UT-MB-CORE-070@ (FROM: @IMP-MB-CORE-014@)
   it('propagates unexpected core logic errors to the caller', () => {
     const input = createMathCoreInput()
 
@@ -442,7 +428,6 @@ describe('M&B Zod Adapter', () => {
 
   // ─── .finite() + domain ranges ────────────────────────────────────────────────
 
-  // @UT-MB-CORE-098@ (FROM: @IMP-MB-CORE-016@)
   it('rejects Infinity for basicEmptyMass as INVALID_INPUT (does not produce success:true with NaN CG)', () => {
     const input = createMathCoreInput()
     ;(input as unknown as Record<string, unknown>).basicEmptyMass = Infinity
@@ -454,7 +439,6 @@ describe('M&B Zod Adapter', () => {
     expect(Number.isNaN(result.takeoffCenterOfGravityPoint.arm)).toBe(true)
   })
 
-  // @UT-MB-CORE-099@ (FROM: @IMP-MB-CORE-016@)
   it('rejects -Infinity for a station arm', () => {
     const input = createMathCoreInput()
     input.stations[0]!.arm = -Infinity
@@ -467,7 +451,6 @@ describe('M&B Zod Adapter', () => {
     ).toBe(true)
   })
 
-  // @UT-MB-CORE-100@ (FROM: @IMP-MB-CORE-016@)
   it('rejects NaN for emptyCenterOfGravity', () => {
     const input = createMathCoreInput()
     ;(input as unknown as Record<string, unknown>).emptyCenterOfGravity = NaN
@@ -480,7 +463,6 @@ describe('M&B Zod Adapter', () => {
     ).toBe(true)
   })
 
-  // @UT-MB-CORE-101@ (FROM: @IMP-MB-CORE-016@)
   it('rejects an absurd finite mass magnitude (1e30) as OUT_OF_RANGE', () => {
     const input = createMathCoreInput()
     input.stations[0]!.mass = 1e30
@@ -496,7 +478,6 @@ describe('M&B Zod Adapter', () => {
     ).toBe(true)
   })
 
-  // @UT-MB-CORE-102@ (FROM: @IMP-MB-CORE-016@)
   it('rejects an absurd finite maxTakeoffMass (1e308)', () => {
     const input = createMathCoreInput()
     input.maxTakeoffMass = 1e308
@@ -507,7 +488,6 @@ describe('M&B Zod Adapter', () => {
     expect(result.violations.some((v) => v.field === 'MTOM' && v.code === 'OUT_OF_RANGE')).toBe(true)
   })
 
-  // @UT-MB-CORE-103@ (FROM: @IMP-MB-CORE-016@)
   it('still accepts a near-edge finite value just under the ceiling (no false rejection)', () => {
     const input = createMathCoreInput()
     // 199_999 kg is just below the 200_000 kg ceiling — a heavy but finite,

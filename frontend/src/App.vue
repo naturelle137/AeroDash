@@ -1,5 +1,4 @@
 <script setup lang="ts">
-// @IMP-UI-SHARED-002@ (FROM: @REQ-UI-011@, @REQ-SYS-001@, @REQ-SYS-006@, @H-019@, @REQ-SYS-016@, @DES-ARCH-014@, @DES-ARCH-015@)
 import { ref, computed, nextTick, onMounted, onBeforeUnmount } from 'vue'
 import { RouterView, RouterLink, useRoute } from 'vue-router'
 import { useTheme } from '@/shared/composables/useTheme'
@@ -62,7 +61,6 @@ const route = useRoute()
 
 const sidebarCollapsed = ref(false)
 
-// @IMP-SYS-SHARED-007@ (FROM: @REQ-SYS-001@)
 // iOS Safari aggressively restores SPA pages from the back/forward cache
 // (bfcache) when the pilot uses the browser back button — or, more commonly
 // on a tablet, the swipe-back edge gesture — to return from a deep route
@@ -120,7 +118,6 @@ const navItems: NavItem[] = [
   { id: 'weather',     label: 'Weather',     path: '/weather',     icon: 'wx',   soon: true },
   { id: 'fuel',        label: 'Fuel',        path: '/fuel',        icon: 'fuel', soon: true },
   { id: 'airport',     label: 'Airport DB',  path: '/airport',     icon: 'ap',   soon: true },
-  // @IMP-UI-SHARED-007@ (FROM: @REQ-SYS-014@, @REQ-SYS-015@)
   { id: 'privacy',     label: 'Privacy',     path: '/privacy',     icon: 'privacy' },
 ]
 
@@ -268,7 +265,6 @@ const themeLabel = computed(() =>
 
       <!-- Sidebar footer: contribute link + advisory + version -->
       <div class="sidebar-footer">
-        <!-- @IMP-UI-SHARED-015@ (FROM: @REQ-SYS-017@, @DES-UX-013@) -->
         <RouterLink
           to="/contribute"
           class="sidebar-contribute"

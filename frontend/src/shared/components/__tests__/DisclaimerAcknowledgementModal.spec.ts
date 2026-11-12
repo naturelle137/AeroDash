@@ -24,13 +24,11 @@ function mountModal(props: Record<string, unknown> = {}) {
 }
 
 describe('DisclaimerAcknowledgementModal', () => {
-  // @UT-UI-SHARED-004@ (FROM: @IMP-UI-SHARED-008@)
   it('does not render anything when closed', () => {
     mountModal({ open: false })
     expect(document.querySelector('[data-testid="disclaimer-gate"]')).toBeNull()
   })
 
-  // @UT-UI-SHARED-005@ (FROM: @IMP-UI-SHARED-008@)
   it('renders the gate with role="alertdialog" and aria-modal="true"', () => {
     mountModal()
     const dialog = document.querySelector('.disclaimer-gate')
@@ -39,7 +37,6 @@ describe('DisclaimerAcknowledgementModal', () => {
     expect(dialog?.getAttribute('aria-modal')).toBe('true')
   })
 
-  // @UT-UI-SHARED-006@ (FROM: @IMP-UI-SHARED-008@)
   it('labels the dialog via aria-labelledby and aria-describedby', () => {
     mountModal()
     const dialog = document.querySelector('.disclaimer-gate')!
@@ -53,7 +50,6 @@ describe('DisclaimerAcknowledgementModal', () => {
     )
   })
 
-  // @UT-UI-SHARED-007@ (FROM: @IMP-UI-SHARED-008@)
   it('renders the Pilot in Command obligations and POH precedence statement', () => {
     mountModal()
     const body = document.querySelector('.disclaimer-gate__body')!.textContent ?? ''
@@ -63,7 +59,6 @@ describe('DisclaimerAcknowledgementModal', () => {
     expect(body).toMatch(/advisory|verify/i)
   })
 
-  // @UT-UI-SHARED-008@ (FROM: @IMP-UI-SHARED-008@)
   it('emits "accept" when the accept button is clicked', async () => {
     const wrapper = mountModal()
     const acceptBtn = document.querySelector<HTMLButtonElement>(
@@ -74,7 +69,6 @@ describe('DisclaimerAcknowledgementModal', () => {
     expect(wrapper.emitted('accept')).toHaveLength(1)
   })
 
-  // @UT-UI-SHARED-009@ (FROM: @IMP-UI-SHARED-008@)
   it('renders no cancel / dismiss action — the only control is "Accept"', () => {
     mountModal()
     const buttons = document.querySelectorAll('.disclaimer-gate button')
@@ -82,19 +76,16 @@ describe('DisclaimerAcknowledgementModal', () => {
     expect(buttons[0]?.getAttribute('data-testid')).toBe('disclaimer-gate-accept')
   })
 
-  // @UT-UI-SHARED-010@ (FROM: @IMP-UI-SHARED-008@)
   it('shows the storage-unavailable advisory when the prop is set', () => {
     mountModal({ storageUnavailable: true })
     expect(document.querySelector('.disclaimer-gate__storage-advisory')).not.toBeNull()
   })
 
-  // @UT-UI-SHARED-011@ (FROM: @IMP-UI-SHARED-008@)
   it('hides the storage-unavailable advisory by default', () => {
     mountModal()
     expect(document.querySelector('.disclaimer-gate__storage-advisory')).toBeNull()
   })
 
-  // @UT-UI-SHARED-012@ (FROM: @IMP-UI-SHARED-008@)
   it('shows the write-failed advisory after a refused acknowledge() write', () => {
     mountModal({ writeFailed: true })
     const alert = document.querySelector('[data-testid="disclaimer-gate-write-failed"]')
@@ -102,7 +93,6 @@ describe('DisclaimerAcknowledgementModal', () => {
     expect(alert?.getAttribute('role')).toBe('alert')
   })
 
-  // @UT-UI-SHARED-013@ (FROM: @IMP-UI-SHARED-008@)
   it('prefers the specific write-failed advisory when both flags are set', () => {
     // M3 precedence: write-failed is the more actionable diagnosis ("clear
     // quota" / "refused write") and must win over the generic
@@ -116,7 +106,6 @@ describe('DisclaimerAcknowledgementModal', () => {
     expect(advisories.length).toBe(1)
   })
 
-  // @UT-UI-SHARED-014@ (FROM: @IMP-UI-SHARED-008@)
   it('confines Tab focus to the dialog: pulls escaped focus back and wraps at the boundaries', () => {
     mountModal()
     const focusables = Array.from(
@@ -147,7 +136,6 @@ describe('DisclaimerAcknowledgementModal', () => {
     expect(document.activeElement).toBe(last)
   })
 
-  // @UT-UI-SHARED-015@ (FROM: @IMP-UI-SHARED-008@)
   it('allows Tab between controls inside the dialog so the links stay reachable', () => {
     mountModal()
     const link = document.querySelector<HTMLAnchorElement>('.disclaimer-gate__legal a')!
@@ -160,7 +148,6 @@ describe('DisclaimerAcknowledgementModal', () => {
     expect(document.activeElement).toBe(link)
   })
 
-  // @UT-UI-SHARED-016@ (FROM: @IMP-UI-SHARED-008@)
   it('does not emit accept or dismiss on Escape', () => {
     const wrapper = mountModal()
     document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))

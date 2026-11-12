@@ -1,5 +1,4 @@
 <template>
-  <!-- @IMP-AC-VIEW-004@ (FROM: @REQ-AC-005@) -->
   <span
     class="profile-status-badge"
     :class="statusClass"

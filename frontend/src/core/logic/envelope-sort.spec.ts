@@ -1,5 +1,3 @@
-// @UT-MB-CORE-ENVELOPE-SORT-001@ (FROM: @IMP-MB-CORE-ENVELOPE-SORT-001@)
-
 import { describe, it, expect } from 'vitest'
 import { sortEnvelopeCcw } from './envelope-sort'
 import type { EnvelopePoint } from '../domain/aircraft.types'

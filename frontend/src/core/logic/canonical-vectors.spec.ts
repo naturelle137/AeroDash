@@ -48,7 +48,6 @@ const p2008File = parseVectorFile(p2008Raw, 'p2008-mb.vectors.json')
 
 describe('Canonical Math Test Vectors', () => {
   describe(`${da40File.aircraft} (${da40File.vectors.length} vectors)`, () => {
-    // @UT-MB-CORE-083@ (FROM: @IMP-MB-CORE-001@, @IMP-MB-CORE-002@, @IMP-MB-CORE-003@, @IMP-MB-CORE-004@, @IMP-MB-CORE-005@, @IMP-MB-CORE-006@, @IMP-MB-CORE-008@)
     it.each(da40File.vectors)('$id: $description', (vector) => {
       const input = toMathCoreInput(vector)
       const result = computeMassBalanceCore(input)
@@ -77,7 +76,6 @@ describe('Canonical Math Test Vectors', () => {
   })
 
   describe(`${p2008File.aircraft} (${p2008File.vectors.length} vectors)`, () => {
-    // @UT-MB-CORE-084@ (FROM: @IMP-MB-CORE-001@, @IMP-MB-CORE-002@, @IMP-MB-CORE-003@, @IMP-MB-CORE-004@, @IMP-MB-CORE-005@, @IMP-MB-CORE-006@, @IMP-MB-CORE-008@)
     it.each(p2008File.vectors)('$id: $description', (vector) => {
       const input = toMathCoreInput(vector)
       const result = computeMassBalanceCore(input)

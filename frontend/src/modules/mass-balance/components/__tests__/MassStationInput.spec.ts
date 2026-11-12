@@ -1,5 +1,3 @@
-// @UT-MB-UI-001@ (FROM: @IMP-MB-UI-006@, @IMP-MB-UI-008@)
-
 import { describe, it, expect, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import MassStationInput from '../MassStationInput.vue'
@@ -310,7 +308,6 @@ describe('MassStationInput', () => {
 
   // ─── REQ-UQ-005 — Unit-Sticky Label (Safety-Critical Design Check) ──────
 
-  // @UT-MB-UI-002@ (FROM: @IMP-MB-UI-007@, @REQ-UQ-005@, @H-001@, @H-002@)
   it('renders the active unit statically next to the station label', () => {
     const wrapper = mount(MassStationInput, {
       props: { station: makeStation({ name: 'Pilot' }), unit: 'kg' },
@@ -322,7 +319,6 @@ describe('MassStationInput', () => {
     expect(unitLabel.attributes('aria-label')).toBe('unit')
   })
 
-  // @UT-MB-UI-002@ (FROM: @IMP-MB-UI-007@, @REQ-UQ-005@)
   it('omits the unit chip only when no unit prop is supplied', () => {
     const wrapper = mount(MassStationInput, {
       props: { station: makeStation() },
@@ -330,7 +326,6 @@ describe('MassStationInput', () => {
     expect(wrapper.find('.mass-station-input__unit').exists()).toBe(false)
   })
 
-  // @UT-MB-UI-002@ (FROM: @IMP-MB-UI-007@, @REQ-UQ-005@)
   it('reflects an imperial mass unit (lb) on the static unit chip', () => {
     const wrapper = mount(MassStationInput, {
       props: { station: makeStation({ name: 'Front Seats' }), unit: 'lb' },
@@ -365,7 +360,6 @@ describe('MassStationInput', () => {
 })
 
 // ─── sanitised decimal entry + inline rejection feedback ─────────────────
-// @UT-MB-UI-003@ (FROM: @IMP-MB-UI-010@)
 describe('MassStationInput — "e"/out-of-range rejection feedback', () => {
   it('never expands "1e2" to 100 — the "e" is rejected, so no such weight is emitted', async () => {
     const wrapper = mount(MassStationInput, {

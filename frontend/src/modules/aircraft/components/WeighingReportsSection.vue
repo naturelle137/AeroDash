@@ -1,5 +1,4 @@
 <template>
-  <!-- @IMP-AC-VIEW-013@ (FROM: @REQ-AD-004@, @REQ-AD-013@) -->
   <div class="weighing-reports-section">
     <p class="section-intro">
       Each weighing report records the aircraft's Basic Empty Mass (BEM), Empty CG, and its
@@ -74,7 +73,6 @@ import { computed } from 'vue'
 import type { AircraftProfileWeighingReport } from '@/core/adapters/aircraft.schema'
 import DecimalInput from '@/shared/components/DecimalInput.vue'
 
-// @IMP-AC-VIEW-014@ (FROM: @REQ-AD-004@, @REQ-AD-013@)
 
 const props = defineProps<{
   modelValue: AircraftProfileWeighingReport[]

@@ -62,7 +62,6 @@ type EdgeCaseScenario = {
 // ── Scenarios ─────────────────────────────────────────────────────────────────
 
 const cgScenarios: MassBalanceScenario[] = [
-  // @UT-MB-CORE-002@ (FROM: @IMP-MB-CORE-001@, @IMP-MB-CORE-002@, @IMP-MB-CORE-004@, @IMP-MB-CORE-005@, @IMP-MB-CORE-006@)
   {
     name: 'empty aircraft',
     payload: [0, 0],
@@ -81,7 +80,6 @@ const cgScenarios: MassBalanceScenario[] = [
     expectedLandingMoment: 433 * 1.877,
     expectedLandingCenterOfGravity: 1.877,
   },
-  // @UT-MB-CORE-026@ (FROM: @IMP-MB-CORE-001@, @IMP-MB-CORE-002@, @IMP-MB-CORE-004@, @IMP-MB-CORE-005@, @IMP-MB-CORE-006@)
   {
     name: 'forward aircraft loading',
     payload: [180, 0],
@@ -100,7 +98,6 @@ const cgScenarios: MassBalanceScenario[] = [
     expectedLandingMoment: 433 * 1.877 + 180 * 1.8,
     expectedLandingCenterOfGravity: (433 * 1.877 + 180 * 1.8) / (433 + 180),
   },
-  // @UT-MB-CORE-027@ (FROM: @IMP-MB-CORE-001@, @IMP-MB-CORE-002@, @IMP-MB-CORE-004@, @IMP-MB-CORE-005@, @IMP-MB-CORE-006@)
   {
     name: 'aft aircraft loading',
     payload: [0, 180],
@@ -119,7 +116,6 @@ const cgScenarios: MassBalanceScenario[] = [
     expectedLandingMoment: 433 * 1.877 + 180 * 2.417,
     expectedLandingCenterOfGravity: (433 * 1.877 + 180 * 2.417) / (433 + 180),
   },
-  // @UT-MB-CORE-028@ (FROM: @IMP-MB-CORE-001@, @IMP-MB-CORE-002@, @IMP-MB-CORE-004@, @IMP-MB-CORE-005@, @IMP-MB-CORE-006@)
   {
     name: 'typical flight',
     payload: [85, 10],
@@ -142,7 +138,6 @@ const cgScenarios: MassBalanceScenario[] = [
 ]
 
 const limitViolationScenarios: LimitViolationScenario[] = [
-  // @UT-MB-CORE-003@ (FROM: @IMP-MB-CORE-003@)
   {
     name: 'TOM exceeds MTOM limit',
     payload: [250, 0],
@@ -150,7 +145,6 @@ const limitViolationScenarios: LimitViolationScenario[] = [
     expectedMtomViolation: true,
     expectedViolationType: 'MTOM_EXCEEDED',
   },
-  // @UT-MB-CORE-029@ (FROM: @IMP-MB-CORE-003@)
   {
     name: 'TOM is exactly at MTOM limit',
     payload: [217, 0],
@@ -158,7 +152,6 @@ const limitViolationScenarios: LimitViolationScenario[] = [
     expectedMtomViolation: false,
     expectedViolationType: 'MTOM_EXCEEDED',
   },
-  // @UT-MB-CORE-004@ (FROM: @IMP-MB-CORE-001@)
   {
     name: 'ZFM exceeds MZFM limit',
     payload: [250, 0],
@@ -167,7 +160,6 @@ const limitViolationScenarios: LimitViolationScenario[] = [
     expectedMzfmViolation: true,
     expectedViolationType: 'MZFM_EXCEEDED',
   },
-  // @UT-MB-CORE-030@ (FROM: @IMP-MB-CORE-001@)
   {
     name: 'ZFM is exactly at MZFM limit',
     payload: [167, 0],
@@ -176,7 +168,6 @@ const limitViolationScenarios: LimitViolationScenario[] = [
     expectedMzfmViolation: false,
     expectedViolationType: 'MZFM_EXCEEDED',
   },
-  // @UT-MB-CORE-005@ (FROM: @IMP-MB-CORE-008@, @IMP-MB-CORE-011@)
   {
     name: 'CG exceeds forward envelope limit',
     payload: [150, 0],
@@ -190,7 +181,6 @@ const limitViolationScenarios: LimitViolationScenario[] = [
     expectedCgViolation: true,
     expectedViolationType: 'CG_OUT_OF_ENVELOPE',
   },
-  // @UT-MB-CORE-031@ (FROM: @IMP-MB-CORE-008@, @IMP-MB-CORE-011@)
   {
     name: 'CG is exactly at forward envelope limit',
     payload: [150, 0],
@@ -204,7 +194,6 @@ const limitViolationScenarios: LimitViolationScenario[] = [
     expectedCgViolation: false,
     expectedViolationType: 'CG_OUT_OF_ENVELOPE',
   },
-  // @UT-MB-CORE-032@ (FROM: @IMP-MB-CORE-008@, @IMP-MB-CORE-011@)
   {
     name: 'CG exceeds aft envelope limit',
     payload: [0, 200],
@@ -212,7 +201,6 @@ const limitViolationScenarios: LimitViolationScenario[] = [
     expectedCgViolation: true,
     expectedViolationType: 'CG_OUT_OF_ENVELOPE',
   },
-  // @UT-MB-CORE-033@ (FROM: @IMP-MB-CORE-008@, @IMP-MB-CORE-011@)
   {
     name: 'CG is exactly at aft envelope limit',
     payload: [0, 200],
@@ -226,7 +214,6 @@ const limitViolationScenarios: LimitViolationScenario[] = [
     expectedCgViolation: false,
     expectedViolationType: 'CG_OUT_OF_ENVELOPE',
   },
-  // @UT-MB-CORE-006@ (FROM: @IMP-MB-CORE-010@, @IMP-MB-CORE-011@)
   {
     name: 'landing CG exits envelope after fuel burn',
     payload: [],
@@ -237,7 +224,6 @@ const limitViolationScenarios: LimitViolationScenario[] = [
     expectedCgMigrationViolation: true,
     expectedViolationType: 'CG_MIGRATION_EXCEEDED',
   },
-  // @UT-MB-CORE-034@ (FROM: @IMP-MB-CORE-010@, @IMP-MB-CORE-011@)
   {
     name: 'CG migration stays within envelope',
     payload: [85, 10],
@@ -248,7 +234,6 @@ const limitViolationScenarios: LimitViolationScenario[] = [
 ]
 
 const cgMigrationScenarios: CgMigrationScenario[] = [
-  // @UT-MB-CORE-035@ (FROM: @IMP-MB-CORE-007@, @IMP-MB-CORE-005@, @IMP-MB-CORE-006@)
   {
     name: 'empty aircraft (no CG shift)',
     payload: [0, 0],
@@ -258,7 +243,6 @@ const cgMigrationScenarios: CgMigrationScenario[] = [
       { arm: 1.877, mass: 433, label: 'Landing' },
     ],
   },
-  // @UT-MB-CORE-036@ (FROM: @IMP-MB-CORE-007@, @IMP-MB-CORE-005@, @IMP-MB-CORE-006@)
   {
     name: 'typical flight',
     payload: [85, 10],
@@ -268,7 +252,6 @@ const cgMigrationScenarios: CgMigrationScenario[] = [
       { arm: 1.8748, mass: 528, label: 'Landing' },
     ],
   },
-  // @UT-MB-CORE-037@ (FROM: @IMP-MB-CORE-007@, @IMP-MB-CORE-005@, @IMP-MB-CORE-006@)
   {
     name: 'fuel-only loading',
     payload: [0, 0],
@@ -281,7 +264,6 @@ const cgMigrationScenarios: CgMigrationScenario[] = [
 ]
 
 const edgeCaseScenarios: EdgeCaseScenario[] = [
-  // @UT-MB-CORE-017@ (FROM: @IMP-MB-CORE-001@)
   {
     name: 'fuel station index does not shadow payload station with same index',
     overrides: {
@@ -295,7 +277,6 @@ const edgeCaseScenarios: EdgeCaseScenario[] = [
     expectedLandingMass: 433 + 1000,
     expectedLandingArm: (433 * 1.877 + 1000 * 1.8) / (433 + 1000),
   },
-  // @UT-MB-CORE-039@ (FROM: @IMP-MB-CORE-002@)
   {
     name: 'unusable fuel equals total fuel yields zero usable',
     fuel: [50],
@@ -305,7 +286,6 @@ const edgeCaseScenarios: EdgeCaseScenario[] = [
     expectedLandingMass: 433,
     expectedLandingArm: 1.877,
   },
-  // @UT-MB-CORE-040@ (FROM: @IMP-MB-CORE-002@)
   {
     name: 'unusable fuel exceeds total fuel clamps to zero',
     fuel: [20],
@@ -315,7 +295,6 @@ const edgeCaseScenarios: EdgeCaseScenario[] = [
     expectedLandingMass: 433,
     expectedLandingArm: 1.877,
   },
-  // @UT-MB-CORE-041@ (FROM: @IMP-MB-CORE-001@)
   {
     name: 'empty stations array computes BEM-only CG',
     overrides: { stations: [] },
@@ -488,7 +467,6 @@ describe('Mass & Balance Math-Core Logic', () => {
       expectLimitViolationState(result, scenario)
     })
 
-    // @UT-MB-CORE-095@ (FROM: @IMP-MB-CORE-003@, @IMP-MB-CORE-008@)
     it('emits only MTOM_EXCEEDED (not CG_OUT_OF_ENVELOPE) when TOM exceeds MTOM but arm is within horizontal limits', () => {
       const input = createMathCoreInput()
       // payload[0] = 250 → TOM = 433+250 = 683 > 650 MTOM, arm ≈ 1.84 (within 1.841–1.978)
@@ -501,7 +479,6 @@ describe('Mass & Balance Math-Core Logic', () => {
       expect(result.violations.some((v) => v.type === 'CG_OUT_OF_ENVELOPE')).toBe(false)
     })
 
-    // @UT-MB-CORE-096@ (FROM: @IMP-MB-CORE-003@, @IMP-MB-CORE-008@)
     it('emits no violation when TOM is exactly at MTOM and arm is within horizontal limits', () => {
       const input = createMathCoreInput()
       // payload[0] = 217 → TOM = 433+217 = 650 = MTOM exactly, arm within envelope
@@ -514,7 +491,6 @@ describe('Mass & Balance Math-Core Logic', () => {
       expect(result.violations.some((v) => v.type === 'CG_OUT_OF_ENVELOPE')).toBe(false)
     })
 
-    // @UT-MB-CORE-097@ (FROM: @IMP-MB-CORE-003@, @IMP-MB-CORE-008@)
     it('emits both MTOM_EXCEEDED and CG_OUT_OF_ENVELOPE when TOM exceeds MTOM AND arm is outside arm limits', () => {
       const input = createMathCoreInput({
         envelope: [
@@ -550,7 +526,6 @@ describe('Mass & Balance Math-Core Logic', () => {
       expectMigrationPath(result, scenario.expectedPath)
     })
 
-    // @UT-MB-CORE-038@ (FROM: @IMP-MB-CORE-007@, @IMP-MB-CORE-008@, @IMP-MB-CORE-010@, @IMP-MB-CORE-011@)
     it('adds intermediate CG waypoints when two tanks share a burn sequence', () => {
       const input = createMathCoreInput({
         stations: [],
@@ -600,7 +575,6 @@ describe('Mass & Balance Math-Core Logic', () => {
       expect(result.migrationPath[2]!.label).toBe('Landing')
     })
 
-    // @UT-MB-CORE-085@ (FROM: @IMP-MB-CORE-010@, @IMP-MB-CORE-011@)
     it('checks burn waypoints against envelope in moment space when graphType is moment', () => {
       const input = createMathCoreInput({
         stations: [],
@@ -640,7 +614,6 @@ describe('Mass & Balance Math-Core Logic', () => {
       expect(result.violations.some((v) => v.type === 'CG_MIGRATION_EXCEEDED')).toBe(true)
     })
 
-    // @UT-MB-CORE-094@ (FROM: @IMP-MB-CORE-010@, @IMP-MB-CORE-011@, @IMP-MB-CORE-015@)
     it('detects CG migration violation when burn-down path exits and re-enters a concave envelope between waypoints', () => {
       // the burn-down LINE SEGMENT crosses the envelope
       // boundary between Takeoff and Landing waypoints, but both discrete
@@ -698,7 +671,6 @@ describe('Mass & Balance Math-Core Logic', () => {
       expect(result.violations.some((v) => v.type === 'CG_MIGRATION_EXCEEDED')).toBe(true)
     })
 
-    // @UT-MB-CORE-086@ (FROM: @IMP-MB-CORE-010@, @IMP-MB-CORE-011@)
     it('accepts burn waypoints in moment space when envelope contains the migration path', () => {
       const input = createMathCoreInput({
         stations: [],
@@ -758,7 +730,6 @@ describe('Mass & Balance Math-Core Logic', () => {
   })
 
   describe('graph type', () => {
-    // @UT-MB-CORE-019@ (FROM: @IMP-MB-CORE-008@)
     it('uses graph type "moment" correctly for takeoff', () => {
       const input = createMathCoreInput()
       input.graphType = 'moment'
@@ -808,7 +779,6 @@ describe('Mass & Balance Math-Core Logic', () => {
       expect(result.success).toBe(true)
     })
 
-    // @UT-MB-CORE-079@ (FROM: @IMP-MB-CORE-010@)
     it('uses graph type "moment" correctly for landing', () => {
       const input = createMathCoreInput()
       input.graphType = 'moment'
@@ -857,7 +827,6 @@ describe('Mass & Balance Math-Core Logic', () => {
   })
 
   describe('[white box tests]', () => {
-    // @UT-MB-CORE-068@ (FROM: @IMP-MB-CORE-001@)
     // Unique station and fuel station indices are validated by the adapter,
     // therefore the logic uses all provided station values for zero fuel mass.
     it('uses station values for zero fuel mass if fuel station index matches', () => {
@@ -872,7 +841,6 @@ describe('Mass & Balance Math-Core Logic', () => {
       expect(result.zeroFuelCenterOfGravityPoint.mass).toBe(input.basicEmptyMass + 100)
     })
 
-    // @UT-MB-CORE-069@ (FROM: @IMP-MB-CORE-001@)
     it('includes station in zero fuel mass when it does NOT match a fuel station index', () => {
       const input = createMathCoreInput()
       input.stations = [{ index: 0, mass: 100, arm: 2.0, armLookup: [] }]
@@ -884,7 +852,6 @@ describe('Mass & Balance Math-Core Logic', () => {
       expect(result.zeroFuelCenterOfGravityPoint.mass).toBe(input.basicEmptyMass + 100)
     })
 
-    // @UT-MB-CORE-082@ (FROM: @IMP-MB-CORE-001@)
     it('does not include fuel mass in zero fuel mass', () => {
       const input = createMathCoreInput()
       input.stations = []
@@ -896,7 +863,6 @@ describe('Mass & Balance Math-Core Logic', () => {
       expect(result.zeroFuelCenterOfGravityPoint.mass).toBe(input.basicEmptyMass)
     })
 
-    // @UT-MB-CORE-071@ (FROM: @IMP-MB-CORE-001@)
     it('throws an error if neither arm nor armLookup for the station are provided', () => {
       const input = createMathCoreInput()
       input.stations = [{ index: 0, mass: 100, arm: null, armLookup: [] }]
@@ -906,7 +872,6 @@ describe('Mass & Balance Math-Core Logic', () => {
       )
     })
 
-    // @UT-MB-CORE-076@ (FROM: @IMP-MB-CORE-001@)
     it('uses station arm if provided', () => {
       const input = createMathCoreInput()
       input.stations = [{ index: 0, mass: 100, arm: 2.0, armLookup: [] }]
@@ -920,7 +885,6 @@ describe('Mass & Balance Math-Core Logic', () => {
       expect(result.zeroFuelCenterOfGravityPoint.arm).toBeCloseTo(expectedZeroFuelCg, CG_PRECISION)
     })
 
-    // @UT-MB-CORE-077@ (FROM: @IMP-MB-CORE-001@)
     it('uses station arm lookup if provided', () => {
       const input = createMathCoreInput()
       input.stations = [
@@ -938,7 +902,6 @@ describe('Mass & Balance Math-Core Logic', () => {
       expect(result.zeroFuelCenterOfGravityPoint.arm).toBeCloseTo(expectedZeroFuelCg, CG_PRECISION)
     })
 
-    // @UT-MB-CORE-078@ (FROM: @IMP-MB-CORE-001@)
     it('uses station arm lookup if both arm and lookup table are provided', () => {
       const input = createMathCoreInput()
       input.stations = [
@@ -956,7 +919,6 @@ describe('Mass & Balance Math-Core Logic', () => {
       expect(result.zeroFuelCenterOfGravityPoint.arm).toBeCloseTo(expectedZeroFuelCg, CG_PRECISION)
     })
 
-    // @UT-MB-CORE-072@ (FROM: @IMP-MB-CORE-002@)
     it('throws an error if neither arm nor armLookup for the fuel station are provided', () => {
       const input = createMathCoreInput()
       input.fuelStations = [
@@ -968,7 +930,6 @@ describe('Mass & Balance Math-Core Logic', () => {
       )
     })
 
-    // @UT-MB-CORE-073@ (FROM: @IMP-MB-CORE-002@)
     it('uses fuel station arm if provided', () => {
       const input = createMathCoreInput()
       input.fuelStations = [
@@ -984,7 +945,6 @@ describe('Mass & Balance Math-Core Logic', () => {
       expect(result.takeoffCenterOfGravityPoint.arm).toBeCloseTo(expectedTakeoffCg, CG_PRECISION)
     })
 
-    // @UT-MB-CORE-074@ (FROM: @IMP-MB-CORE-002@)
     it('uses fuel station arm lookup if provided', () => {
       const input = createMathCoreInput()
       input.fuelStations = [
@@ -1009,7 +969,6 @@ describe('Mass & Balance Math-Core Logic', () => {
       expect(result.takeoffCenterOfGravityPoint.arm).toBeCloseTo(expectedTakeoffCg, CG_PRECISION)
     })
 
-    // @UT-MB-CORE-075@ (FROM: @IMP-MB-CORE-002@)
     it('uses fuel station arm lookup if both arm and lookup table are provided', () => {
       const input = createMathCoreInput()
       input.fuelStations = [
@@ -1034,7 +993,6 @@ describe('Mass & Balance Math-Core Logic', () => {
       expect(result.takeoffCenterOfGravityPoint.arm).toBeCloseTo(expectedTakeoffCg, CG_PRECISION)
     })
 
-    // @UT-MB-CORE-080@ (FROM: @IMP-MB-CORE-002@)
     it('throws an error if zeroFuelMass is exactly 0', () => {
       const input = createMathCoreInput()
       input.stations = [{ index: 0, mass: -433, arm: 2.0, armLookup: [] }]
@@ -1044,7 +1002,6 @@ describe('Mass & Balance Math-Core Logic', () => {
       )
     })
 
-    // @UT-MB-CORE-081@ (FROM: @IMP-MB-CORE-002@)
     it('throws an error if zeroFuelMass is smaller than 0', () => {
       const input = createMathCoreInput()
       input.stations = [{ index: 0, mass: -435, arm: 2.0, armLookup: [] }]

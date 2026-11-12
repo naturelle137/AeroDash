@@ -1,5 +1,4 @@
 <template>
-  <!-- @IMP-AC-VIEW-017@ (FROM: @REQ-AD-002@, @REQ-AD-003@, @REQ-AD-005@, @REQ-AD-011@, @REQ-AD-012@) -->
   <div class="load-points-section">
     <p class="section-intro">
       Load stations describe every place mass can be applied in the aircraft — seats, baggage
@@ -106,7 +105,6 @@
           </select>
         </div>
 
-        <!-- @IMP-AC-VIEW-040@ (FROM: @REQ-UQ-006@) -->
         <div v-if="!lp.fuelTank" class="field-group">
           <label :for="`${sectionId}-kind-${idx}`">Station Type</label>
           <select
@@ -336,7 +334,6 @@ import type {
 } from '@/core/adapters/aircraft.schema'
 import DecimalInput from '@/shared/components/DecimalInput.vue'
 
-// @IMP-AC-VIEW-018@ (FROM: @REQ-AD-002@, @REQ-AD-003@, @REQ-AD-005@, @REQ-AD-011@, @REQ-AD-012@)
 
 type FuelType = AircraftProfileFuelTankExtension['permissibleFuelTypes'][number]
 type Category = NonNullable<AircraftProfileLoadPoint['allowableCategories']>[number]
@@ -360,7 +357,7 @@ const props = withDefaults(
      * per-row unusable/permissible/burn-sequence fields) is visible. Defaults
      * to `'combustion'` so existing callers that do not pass the prop retain
      * the full fuel editor. For `'electric'` airframes the fuel editor is
-     * suppressed entirely — see @REQ-AD-020@ and ADR-009. The schema's
+     * suppressed entirely — see REQ-AD-020 and ADR-009. The schema's
      * `ELECTRIC_AIRCRAFT_HAS_FUEL_TANK` guard backstops the UI omission.
      */
     powertrain?: 'combustion' | 'electric'

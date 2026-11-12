@@ -1,4 +1,3 @@
-// @IMP-AC-TEST-FIXTURE-001@ (FROM: @REQ-AC-001@)
 // Canonical "Tecnam P2008 JC" test aircraft used across multiple E2E scenarios.
 // Using this single fixture guarantees all wizard-creation scenarios exercise
 // the same known-good data and makes future baseline changes a one-liner.

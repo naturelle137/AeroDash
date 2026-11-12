@@ -1,4 +1,3 @@
-// @UT-SYS-SHARED-049@ (FROM: @IMP-UI-SHARED-009@)
 import { describe, it, expect } from 'vitest'
 import { buildContributionEnvironment } from '../contribution-environment'
 

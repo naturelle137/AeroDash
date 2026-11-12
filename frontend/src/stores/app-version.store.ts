@@ -61,7 +61,6 @@
  * onMounted call and overwriting a newer remote value with an older one.
  */
 
-// @IMP-SYS-STORE-006@ (FROM: @REQ-SYS-006@, @REQ-UI-013@)
 
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
@@ -91,7 +90,6 @@ export const CACHE_TTL_MS = 24 * 60 * 60 * 1000
  */
 export const FAIL_CLOSED_MIN_SAFE_VERSION = '999.999.999'
 
-// @IMP-SYS-STORE-020@ (FROM: @REQ-SYS-006@, @H-019@)
 /**
  * Resolve the build-time floor: the value itself when it is a structurally
  * valid SemVer, else the {@link FAIL_CLOSED_MIN_SAFE_VERSION} sentinel.
@@ -133,7 +131,6 @@ export const useAppVersionStore = defineStore('appVersion', () => {
    * or `null` when no cache existed (first install). Exposed for diagnostics. */
   const cacheFetchedAt = ref<number | null>(null)
 
-  // @IMP-SYS-STORE-007@ (FROM: @REQ-SYS-006@)
   /**
    * `true` when `current < minimum` per SemVer §11 ordering. Defensive
    * wrapper around the canonical comparator in `app-version.semver.ts`: on
@@ -164,7 +161,6 @@ export const useAppVersionStore = defineStore('appVersion', () => {
    */
   let inFlight: Promise<void> | null = null
 
-  // @IMP-SYS-STORE-008@ (FROM: @REQ-SYS-006@, @H-019@)
   /**
    * Resolve the effective `minSafeVersion` and update the blocked-gate flag.
    *
@@ -287,7 +283,6 @@ export const useAppVersionStore = defineStore('appVersion', () => {
   }
 })
 
-// @IMP-SYS-STORE-018@ (FROM: @REQ-SYS-006@, @H-019@)
 /**
  * Wire `window.online` to re-run `checkMinSafeVersion()` on the active
  * store. Returns an unbind function so callers (e.g. `App.vue`'s

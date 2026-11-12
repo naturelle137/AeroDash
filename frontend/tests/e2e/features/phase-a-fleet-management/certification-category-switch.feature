@@ -7,8 +7,7 @@ Feature: Switch certification category and enforce utility constraints
     Given the fleet holds the synthetic Mass & Balance test aircraft
     And the pilot starts a new flight preparation
 
-  # @E2E-A-001@ (FROM: @UJ-A-003@)
-  @UJ-A-003 @phase-A @e2e @E2E-A-001 @category-switch @module-mb
+  @phase-A @e2e @category-switch @module-mb
   Scenario: Utility category applies tighter limits and removes rear-seat loading
     When the pilot selects aircraft "D-ECSM"
     And loads a pilot, a rear passenger, and training fuel

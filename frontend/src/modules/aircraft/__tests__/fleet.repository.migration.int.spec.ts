@@ -14,7 +14,6 @@
  * @see frontend/src/core/logic/profile-migrations.ts
  */
 
-// @IT-AC-STORE-101@ (FROM: @IMP-AC-STORE-001@, @IMP-AC-CORE-003@)
 
 import { describe, it, expect, beforeEach } from 'vitest'
 import 'fake-indexeddb/auto'
@@ -135,7 +134,6 @@ async function seedRaw(doc: RawFleetDoc, dbVersion = 2): Promise<void> {
 // ─── Downgrade scenarios (PWA cache rollback) ─────────────────────────────────
 
 describe('fleetRepository — downgrade after PWA cache rollback', () => {
-  // @IT-AC-STORE-102@ (FROM: @IMP-AC-STORE-001@, @IMP-AC-CORE-003@)
   it('drops a single document whose schemaVersion is from a future build', async () => {
     const futureId = '00000000-0000-4000-a000-0000000000f0'
     const futureDoc = {
@@ -158,7 +156,6 @@ describe('fleetRepository — downgrade after PWA cache rollback', () => {
     expect(diagnostics[0]!.storedVersion).toBe(CURRENT_PROFILE_SCHEMA_VERSION + 1)
   })
 
-  // @IT-AC-STORE-103@ (FROM: @IMP-AC-STORE-001@, @IMP-AC-CORE-003@)
   it('returns undefined and emits a future-version diagnostic for findByIdWithDiagnostics', async () => {
     const futureId = '00000000-0000-4000-a000-0000000000f1'
     await seedRaw({
@@ -174,7 +171,6 @@ describe('fleetRepository — downgrade after PWA cache rollback', () => {
     expect(diagnostics[0]!.storedVersion).toBe(42)
   })
 
-  // @IT-AC-STORE-104@ (FROM: @IMP-AC-STORE-001@, @IMP-AC-CORE-003@)
   it('keeps readable v1 profiles when one v-future doc is present (partial load)', async () => {
     const goodId = '00000000-0000-4000-a000-0000000000a0'
     const futureId = '00000000-0000-4000-a000-0000000000f2'
@@ -199,7 +195,6 @@ describe('fleetRepository — downgrade after PWA cache rollback', () => {
 // ─── Corruption / partial-migration recovery ─────────────────────────────────
 
 describe('fleetRepository — corruption + partial-migration crash recovery', () => {
-  // @IT-AC-STORE-105@ (FROM: @IMP-AC-STORE-001@, @IMP-AC-CORE-003@)
   it('drops a structurally invalid document and emits a corrupt diagnostic', async () => {
     const badId = '00000000-0000-4000-a000-0000000000b0'
     await seedRaw({
@@ -217,7 +212,6 @@ describe('fleetRepository — corruption + partial-migration crash recovery', ()
     expect(diagnostics[0]!.reason).toBe('corrupt')
   })
 
-  // @IT-AC-STORE-106@ (FROM: @IMP-AC-STORE-001@, @IMP-AC-CORE-003@)
   it('recovers cleanly from a mid-migration state (mix of v0 legacy + v1 docs)', async () => {
     // Simulates a build that wrote some docs through `create()` (v1) and was
     // interrupted before stamping older legacy records. On the next load the
@@ -248,7 +242,6 @@ describe('fleetRepository — corruption + partial-migration crash recovery', ()
     expect(diagnostics).toHaveLength(0)
   })
 
-  // @IT-AC-STORE-107@ (FROM: @IMP-AC-STORE-001@, @IMP-AC-CORE-003@)
   it('handles a fleet with a corrupt doc, a future-version doc, and a healthy doc together', async () => {
     const okId = '00000000-0000-4000-a000-0000000000d0'
     const corruptId = '00000000-0000-4000-a000-0000000000d1'
@@ -277,7 +270,6 @@ describe('fleetRepository — corruption + partial-migration crash recovery', ()
     expect(reasons).toEqual(['corrupt', 'unsupported-future-version'])
   })
 
-  // @IT-AC-STORE-108@ (FROM: @IMP-AC-STORE-001@, @IMP-AC-CORE-003@)
   it('diagnostics are per-call — interleaved findAll / findById do not cross-contaminate', async () => {
     // Before the per-call refactor, a single module
     // buffer could mix diagnostics from two concurrent loads. With the tuple
@@ -307,7 +299,6 @@ describe('fleetRepository — corruption + partial-migration crash recovery', ()
     expect(byIdResult.profile).toBeUndefined()
   })
 
-  // @IT-AC-STORE-110@ (FROM: @IMP-AC-STORE-001@, @IMP-AC-CORE-003@)
   it('back-compat findAll / findById silently discard diagnostics for callers that opt out', async () => {
     await seedRaw({
       ...buildProfile({ id: '00000000-0000-4000-a000-0000000000ea', registration: 'D-DR01' }),
@@ -324,7 +315,6 @@ describe('fleetRepository — corruption + partial-migration crash recovery', ()
 // ─── Envelope round-trip with migration ──────────────────────────────────────
 
 describe('fleetRepository — exchange envelope import back-compat', () => {
-  // @IT-AC-STORE-109@ (FROM: @IMP-AC-STORE-008@, @IMP-AC-CORE-003@)
   it('a profile imported from a legacy bare-profile JSON persists with schemaVersion=1', async () => {
     // This is the migration story across the export/import surface: a bare-
     // profile JSON file produced by an older build is still imported, and

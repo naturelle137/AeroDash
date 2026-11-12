@@ -7,7 +7,6 @@ Feature: Fleet Delete control survives a bfcache restore of the Fleet page
   So that destructive fleet management never silently no-ops on me on a
   cockpit tablet.
 
-  # @E2E-A-011@ (FROM: @UJ-A-001@)
   #
   # Regression-path check: exercises the IMP-SYS-SHARED-007 code path that
   # the iOS Safari swipe-back gesture triggers on real devices (bfcache
@@ -23,7 +22,7 @@ Feature: Fleet Delete control survives a bfcache restore of the Fleet page
   # by every other phase-A scenario that navigates between fleet routes;
   # an explicit control-path scenario here would pass with or without this
   # patch (no `<KeepAlive>` in the tree) so it has been omitted.
-  @UJ-A-001 @phase-A @e2e @E2E-A-011
+  @phase-A @e2e
   Scenario: Delete confirmation opens after a bfcache restore of the Fleet page
     Given a single Draft profile "D-EBPN" already exists in the fleet
     And the pilot is on the Fleet page

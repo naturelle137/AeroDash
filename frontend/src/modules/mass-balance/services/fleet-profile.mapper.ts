@@ -13,7 +13,6 @@
  * @see AircraftProfile in `@/core/adapters/aircraft.schema`
  */
 
-// @IMP-MB-SVC-001@ (FROM: @REQ-MB-002@, @REQ-AC-005@, @REQ-UQ-006@)
 
 import type { AircraftProfile } from '@/core/adapters/aircraft.schema'
 import type { AircraftContext } from '@/core/domain/aircraft.types'

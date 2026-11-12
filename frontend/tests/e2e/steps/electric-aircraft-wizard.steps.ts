@@ -1,7 +1,6 @@
 // Step definitions for electric-aircraft-wizard.feature — powertrain selector,
 // catalogue hint auto-flip, Battery Pack step, fuel-UI suppression on Step 4,
 // and the combustion-unchanged control scenario.
-// E2E trace tags live in the .feature file only (STC §B.3 / §3.4).
 
 import { expect } from '@playwright/test'
 import { createBdd } from 'playwright-bdd'

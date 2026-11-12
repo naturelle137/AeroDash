@@ -1,5 +1,3 @@
-// @UT-SYS-CORE-041@ (FROM: @IMP-SYS-CORE-014@)
-
 import { describe, expect, it } from 'vitest'
 import {
   FT_TO_M,

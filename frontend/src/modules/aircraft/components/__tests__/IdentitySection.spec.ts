@@ -5,7 +5,6 @@
  * @see frontend/src/modules/aircraft/components/IdentitySection.vue
  */
 
-// @UT-AC-VIEW-IDENT-001@ (FROM: @IMP-AC-VIEW-011@, @IMP-AC-VIEW-012@)
 
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
@@ -102,7 +101,6 @@ describe('IdentitySection — powertrain selector', () => {
   })
 })
 
-// @UT-AC-VIEW-IDENT-002@ (FROM: @IMP-AC-VIEW-031@, @REQ-AD-022@)
 describe('IdentitySection — lockPowertrain (edit-existing-aircraft flow)', () => {
   it('hides the powertrain radio group when lockPowertrain is true', () => {
     const wrapper = mount(IdentitySection, {

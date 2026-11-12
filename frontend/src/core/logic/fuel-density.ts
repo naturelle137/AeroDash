@@ -5,7 +5,6 @@
  * @see REQ-FE-001
  */
 
-// @IMP-FE-CORE-001@ (FROM: @REQ-FE-001@)
 
 /**
  * Canonical fuel-type strings — the single source of truth shared by the
@@ -13,7 +12,6 @@
  * fuel-density lookup. Any value outside this set is treated as UNKNOWN and
  * must be surfaced (fail-closed) rather than silently substituted.
  */
-// @IMP-FE-CORE-002@ (FROM: @REQ-FE-001@, @REQ-SYS-003@, H-002)
 export const CANONICAL_FUEL_TYPES = [
   'MoGas',
   'AvGas 100LL',
