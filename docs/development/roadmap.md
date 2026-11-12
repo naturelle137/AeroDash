@@ -18,16 +18,15 @@ prove completion of every requirement or journey listed below.
 is open (22 open / 45 closed issues at this snapshot); there is no v0.4 release.
 Issue counts are scope information, not acceptance evidence.
 
-On develop `abd33acdbbe591590652548c472ccaaebfdf7d0a`, the enabled
-Chromium suite passes four scenarios, while 17 scenarios remain excluded by
-`@wip`, including all seven critical M&B math scenarios in four feature files.
-Fleet creation, persistence and draft acknowledgment work when following the
-current six-step wizard and post-save choices. The historical E2E helper still
-expects five steps and immediate navigation. See the
-[QA evidence table](mb-qa-204.md); M&B journey acceptance remains partial.
-Safety repairs [#470](https://github.com/naturelle137/AeroDash/pull/470) and
-[#471](https://github.com/naturelle137/AeroDash/pull/471) are pending independent
-review/integration at this snapshot. The Performance UI is still a placeholder;
+On develop `2c5447c4782aa921cd850aa314886b69cad8672f`, safety repairs
+[#470](https://github.com/naturelle137/AeroDash/pull/470) and
+[#471](https://github.com/naturelle137/AeroDash/pull/471) are integrated and the
+enabled Chromium suite passes 22 scenarios in blocking CI, including all seven
+critical M&B math scenarios on a synthetic Draft seed and the six-step wizard.
+Decimal (A-005/A-006) and category-switch (A-001) scenarios remain `@wip`, so
+M&B journey acceptance remains partial. See the
+[QA293 evidence table](mb-qa-293.md) and the earlier [QA204 baseline](mb-qa-204.md).
+The Performance UI is still a placeholder;
 core tests do not establish an integrated performance preparation journey.
 
 ---
