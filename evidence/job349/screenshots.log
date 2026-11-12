@@ -1,0 +1,26 @@
+
+> aerodash-root@0.3.0-alpha test:e2e /var/home/critter/lokal/dev/.hq-worktrees/aerodash/job-339
+> pnpm --filter frontend run test:e2e --project=chromium --grep @E2E-A-001
+
+
+> @aerodash/frontend@0.3.0-alpha test:e2e /var/home/critter/lokal/dev/.hq-worktrees/aerodash/job-339/frontend
+> bddgen && playwright test --grep-invert @wip --project=chromium --grep @E2E-A-001
+
+[WebServer] (node:1109360) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:1109439) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+[WebServer]   - import "./scripts/build/telemetry-guard" without a file extension (vite.config.ts:9:52). Add the file extension
+[WebServer]   - import "./scripts/build/copy-legal-docs" without a file extension (vite.config.ts:10:31). Add the file extension
+[WebServer] Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+
+Running 1 test using 1 worker
+
+(node:1109895) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node-24 --trace-warnings ...` to show where the warning was created)
+(node:1109895) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node-24 --trace-warnings ...` to show where the warning was created)
+  ✓  1 [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-a-fleet-management/certification-category-switch.feature.spec.js:11:3 › Switch certification category and enforce utility constraints › Utility category applies tighter limits and removes rear-seat loading @UJ-A-003 @phase-A @e2e @E2E-A-001 @category-switch @module-mb (1.4s)
+
+  1 passed (5.4s)

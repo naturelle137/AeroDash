@@ -1,0 +1,241 @@
+
+> @aerodash/frontend@0.3.0-alpha type-check /var/home/critter/lokal/dev/.hq-worktrees/aerodash/job-339/frontend
+> vue-tsc --build
+
+
+> aerodash-root@0.3.0-alpha lint /var/home/critter/lokal/dev/.hq-worktrees/aerodash/job-339
+> pnpm --filter frontend run lint && pnpm run lint:md
+
+
+> @aerodash/frontend@0.3.0-alpha lint /var/home/critter/lokal/dev/.hq-worktrees/aerodash/job-339/frontend
+> run-s lint:*
+
+
+> @aerodash/frontend@0.3.0-alpha lint:oxlint /var/home/critter/lokal/dev/.hq-worktrees/aerodash/job-339/frontend
+> oxlint --fix
+
+
+> @aerodash/frontend@0.3.0-alpha lint:eslint /var/home/critter/lokal/dev/.hq-worktrees/aerodash/job-339/frontend
+> eslint --fix --cache
+
+
+> @aerodash/frontend@0.3.0-alpha lint:trace /var/home/critter/lokal/dev/.hq-worktrees/aerodash/job-339/frontend
+> node scripts/trace/index.mjs check --structural-only --baseline
+
+Traceability structural check passed: no new violations.
+
+> aerodash-root@0.3.0-alpha lint:md /var/home/critter/lokal/dev/.hq-worktrees/aerodash/job-339
+> markdownlint-cli2 "**/*.md"
+
+markdownlint-cli2 v0.23.3 (markdownlint v0.41.1)
+Finding: **/*.md !node_modules/** !.tools/** !.logs/** !reports/** !frontend/node_modules/** !.agent/** !frontend/playwright-report/** !frontend/test-results/** !frontend/.stryker-tmp/** !.cursor/** !.tmp/** !.claude/** !.claude-pr/** !.claire/** !.claude/worktrees/** !CHANGELOG.md
+Linting: 103 files
+Summary: 0 issues in 0 files
+
+> aerodash-root@0.3.0-alpha test:unit /var/home/critter/lokal/dev/.hq-worktrees/aerodash/job-339
+> pnpm --filter frontend run test:unit
+
+
+> @aerodash/frontend@0.3.0-alpha test:unit /var/home/critter/lokal/dev/.hq-worktrees/aerodash/job-339/frontend
+> vitest run
+
+(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - import "./vite.config" without a file extension (vitest.config.ts:3:24). Add the file extension
+  - import "./scripts/build/telemetry-guard" without a file extension (vite.config.ts:9:52). Add the file extension
+  - import "./scripts/build/copy-legal-docs" without a file extension (vite.config.ts:10:31). Add the file extension
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+
+ RUN  v4.1.12 /var/home/critter/lokal/dev/.hq-worktrees/aerodash/job-339/frontend
+
+Not implemented: navigation to another Document
+Not implemented: navigation to another Document
+Not implemented: navigation to another Document
+
+ Test Files  98 passed (98)
+      Tests  1785 passed (1785)
+   Start at  04:48:30
+   Duration  14.26s (transform 24.17s, setup 0ms, import 46.36s, tests 17.99s, environment 140.71s)
+
+
+> aerodash-root@0.3.0-alpha build /var/home/critter/lokal/dev/.hq-worktrees/aerodash/job-339
+> pnpm --filter frontend run build
+
+
+> @aerodash/frontend@0.3.0-alpha build /var/home/critter/lokal/dev/.hq-worktrees/aerodash/job-339/frontend
+> run-p type-check "build-only {@}" --
+
+
+> @aerodash/frontend@0.3.0-alpha type-check /var/home/critter/lokal/dev/.hq-worktrees/aerodash/job-339/frontend
+> vue-tsc --build
+
+
+> @aerodash/frontend@0.3.0-alpha build-only /var/home/critter/lokal/dev/.hq-worktrees/aerodash/job-339/frontend
+> vite build
+
+(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - import "./scripts/build/telemetry-guard" without a file extension (vite.config.ts:9:52). Add the file extension
+  - import "./scripts/build/copy-legal-docs" without a file extension (vite.config.ts:10:31). Add the file extension
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+vite v8.3.8 building client environment for production...
+transforming...
+✓ 294 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/manifest.webmanifest                             0.37 kB
+dist/index.html                                       3.54 kB │ gzip:  1.47 kB
+dist/DISCLAIMER.md                                    5.41 kB
+dist/LICENSE.txt                                     13.79 kB │ gzip:  4.79 kB
+dist/assets/PrivacyView-CCsoL4xB.css                  3.23 kB │ gzip:  0.87 kB
+dist/assets/AircraftProfileEditorView-CWDdH-Fx.css    3.48 kB │ gzip:  0.95 kB
+dist/assets/AircraftProfileWizardView-CNCvi2VU.css    6.44 kB │ gzip:  1.58 kB
+dist/assets/HomeView-BV-XQDRs.css                     6.49 kB │ gzip:  1.45 kB
+dist/assets/ContributeView-C8DjMyTu.css               9.53 kB │ gzip:  1.67 kB
+dist/assets/WindLimitsSection-Bm_7A0hT.css           15.26 kB │ gzip:  2.13 kB
+dist/assets/index-D3kSfn9S.css                       56.17 kB │ gzip:  8.96 kB
+dist/assets/useApi-il6ACzUc-Yv1THtVA.js               0.88 kB │ gzip:  0.48 kB
+dist/assets/workbox-window.prod.es5-Bd17z0YL.js       5.65 kB │ gzip:  2.20 kB
+dist/assets/HomeView-DHyvGz3H.js                      7.50 kB │ gzip:  2.38 kB
+dist/assets/PrivacyView-CLxeeSiJ.js                   9.34 kB │ gzip:  3.50 kB
+dist/assets/AircraftProfileEditorView-f5th_Adw.js     9.35 kB │ gzip:  3.37 kB
+dist/assets/AircraftProfileWizardView-Dzewvgr-.js    13.73 kB │ gzip:  4.94 kB
+dist/assets/ContributeView-p5AKYsz6.js               18.09 kB │ gzip:  5.90 kB
+dist/assets/WindLimitsSection-CSVSuJJU.js            35.84 kB │ gzip:  9.89 kB
+dist/assets/_plugin-vue_export-helper-vR9TZWD1.js    66.43 kB │ gzip: 25.97 kB
+dist/assets/index-HiYBXVOB.js                       255.42 kB │ gzip: 80.58 kB
+
+✓ built in 1.20s
+
+PWA v1.3.0
+mode      generateSW
+precache  27 entries (537.45 KiB)
+files generated
+  dist/sw.js
+  dist/workbox-40bdc2f7.js
+
+> aerodash-root@0.3.0-alpha test:e2e /var/home/critter/lokal/dev/.hq-worktrees/aerodash/job-339
+> pnpm --filter frontend run test:e2e --project=chromium
+
+
+> @aerodash/frontend@0.3.0-alpha test:e2e /var/home/critter/lokal/dev/.hq-worktrees/aerodash/job-339/frontend
+> bddgen && playwright test --grep-invert @wip --project=chromium
+
+[1A[2K
+[2m[WebServer] [22m(node:1089457) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K[2m[WebServer] [22m(node:1089621) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[1A[2K[2m[WebServer] [22m(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+[2m[WebServer] [22m  - import "./scripts/build/telemetry-guard" without a file extension (vite.config.ts:9:52). Add the file extension
+[2m[WebServer] [22m  - import "./scripts/build/copy-legal-docs" without a file extension (vite.config.ts:10:31). Add the file extension
+[2m[WebServer] [22mSet `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+
+
+Running 25 tests using 10 workers
+
+[1A[2K
+
+(node:1090207) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node-24 --trace-warnings ...` to show where the warning was created)
+[1A[2K(node:1090210) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node-24 --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:1090231) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node-24 --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:1090205) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node-24 --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:1090230) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node-24 --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:1090207) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node-24 --trace-warnings ...` to show where the warning was created)
+
+
+
+
+[1A[2K(node:1090208) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node-24 --trace-warnings ...` to show where the warning was created)
+[1A[2K
+
+(node:1090233) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node-24 --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:1090204) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node-24 --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:1090252) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node-24 --trace-warnings ...` to show where the warning was created)
+[1A[2K(node:1090210) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node-24 --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:1090231) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node-24 --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:1090230) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node-24 --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:1090205) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node-24 --trace-warnings ...` to show where the warning was created)
+
+
+
+
+[1A[2K(node:1090241) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node-24 --trace-warnings ...` to show where the warning was created)
+[1A[2K(node:1090233) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node-24 --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:1090208) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node-24 --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:1090204) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node-24 --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[1/25] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-a-fleet-management/certification-category-switch.feature.spec.js:11:3 › Switch certification category and enforce utility constraints › Utility category applies tighter limits and removes rear-seat loading @UJ-A-003 @phase-A @e2e @E2E-A-001 @category-switch @module-mb
+[1A[2K(node:1090252) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node-24 --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[2/25] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/burnout-check.feature.spec.js:11:3 › Detect CG migration during fuel burn-off › Fuel burn-off reveals aft CG migration beyond envelope limit @UJ-B-001 @phase-B @e2e @cg-migration @module-mb
+
+
+[1A[2K(node:1090241) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node-24 --trace-warnings ...` to show where the warning was created)
+[1A[2K[3/25] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/fleet-based-aircraft-selection.feature.spec.js:6:3 › Fleet-based aircraft selection on the Flight Prep page › Empty fleet shows "No aircraft" CTA that navigates to the wizard @phase-B @fleet @flight-prep @UJ-B-005 @e2e @E2E-B-008
+[1A[2K[4/25] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/burn-sequence-polygon.feature.spec.js:11:3 › Reveal CG migration risk across burn sequences › Alternative burn sequence pushes CG beyond aft envelope limit @UJ-B-004 @phase-B @e2e @burn-polygon @module-mb
+[1A[2K[5/25] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-a-fleet-management/decimal-input-precision.feature.spec.js:15:3 › Decimal input precision in the aircraft wizard › High-precision decimal values survive the wizard and a reload intact @phase-A @fleet @wizard @decimal @UJ-A-001 @e2e @E2E-A-005
+[1A[2K[6/25] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/happy-path.feature.spec.js:11:3 › Complete a textbook flight preparation within all limits › Pilot completes a clean flight preparation @UJ-B-005 @e2e @flight-prep @happy-path @module-mb
+[1A[2K[7/25] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-a-fleet-management/verification-date.feature.spec.js:8:5 › Verification dates cannot extend the trust window › Draft verification rejects future dates and saves today › Example #1 @phase-A @verification-date @UJ-A-001 @e2e
+[1A[2K[8/25] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-a-fleet-management/electric-aircraft-wizard.feature.spec.js:6:3 › Battery-electric aircraft wizard (Pipistrel Velis Electro) › Pilot creates a Pipistrel Velis Electro, the wizard flips to electric and fuel UI is hidden @phase-A @fleet @wizard @electric @UJ-A-004 @e2e @smoke @E2E-A-007
+[1A[2K[9/25] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-a-fleet-management/aircraft-wizard-creation.feature.spec.js:6:3 › Aircraft creation wizard › Pilot completes all six wizard steps and sees the new aircraft on the Fleet page with a Draft badge @phase-A @fleet @wizard @UJ-A-001 @e2e @smoke @E2E-A-002
+[1A[2K[10/25] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-a-fleet-management/fleet-delete-after-browser-back.feature.spec.js:6:3 › Fleet Delete control survives a bfcache restore of the Fleet page › Delete confirmation opens after a bfcache restore of the Fleet page @phase-A @fleet @regression @UJ-A-001 @e2e @E2E-A-011
+[1A[2K[11/25] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/fleet-based-aircraft-selection.feature.spec.js:14:3 › Fleet-based aircraft selection on the Flight Prep page › Aircraft added via wizard appears in the Flight Prep dropdown with a [Draft] label @phase-B @fleet @flight-prep @UJ-B-005 @e2e @E2E-B-009
+[1A[2K[12/25] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/burnout-check.feature.spec.js:18:3 › Detect CG migration during fuel burn-off › Redistributing baggage forward resolves CG migration violation @UJ-B-001 @phase-B @e2e @cg-migration @module-mb
+[1A[2K[13/25] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/overweight-discovery.feature.spec.js:11:3 › Discover structural mass limit violations › Full passenger and baggage load exceeds maximum takeoff mass @UJ-B-003 @phase-B @e2e @mass-limits @module-mb
+[1A[2K[14/25] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-sys-pwa/offline-smoke.feature.spec.js:6:3 › Offline-first app shell and M&B navigation › App shell loads and M&B navigation works while offline @offline @pwa @sys @smoke @technical-e2e @phase-D
+[1A[2K[15/25] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/burn-sequence-polygon.feature.spec.js:18:3 › Reveal CG migration risk across burn sequences › Redistributing load resolves burn-sequence CG migration violation @UJ-B-004 @phase-B @e2e @burn-polygon @module-mb
+[1A[2K[16/25] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-a-fleet-management/electric-aircraft-wizard.feature.spec.js:42:3 › Battery-electric aircraft wizard (Pipistrel Velis Electro) › Combustion wizard is unchanged — fuel tank button remains visible for a Tecnam P2008 JC @phase-A @fleet @wizard @electric @UJ-A-004 @e2e @E2E-A-008
+[1A[2K[17/25] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-a-fleet-management/aircraft-wizard-creation.feature.spec.js:38:3 › Aircraft creation wizard › Envelope editor never drops below 4 points — removal is blocked at the minimum @phase-A @fleet @wizard @UJ-A-001 @e2e @E2E-A-003
+[1A[2K[18/25] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-a-fleet-management/verification-date.feature.spec.js:14:5 › Verification dates cannot extend the trust window › Draft verification rejects future dates and saves today › Example #2 @phase-A @verification-date @UJ-A-001 @e2e
+[1A[2K[19/25] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/overweight-discovery.feature.spec.js:17:3 › Discover structural mass limit violations › Reducing baggage clears MTOM but zero-fuel mass still exceeds MZFM @UJ-B-003 @phase-B @e2e @mass-limits @module-mb
+[1A[2K[20/25] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-a-fleet-management/decimal-input-precision.feature.spec.js:27:3 › Decimal input precision in the aircraft wizard › European comma decimal separator is stored identically to a period @phase-A @fleet @wizard @decimal @UJ-A-001 @e2e @E2E-A-006
+[1A[2K[21/25] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/fleet-based-aircraft-selection.feature.spec.js:24:3 › Fleet-based aircraft selection on the Flight Prep page › Selecting a draft aircraft requires acknowledging the unverified-data warning @phase-B @fleet @flight-prep @UJ-B-005 @e2e @E2E-B-011
+[1A[2K[22/25] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-a-fleet-management/aircraft-wizard-creation.feature.spec.js:52:3 › Aircraft creation wizard › Owner ID field is not present anywhere in the wizard — system generates it automatically (REQ-AD-019) @phase-A @fleet @wizard @UJ-A-001 @e2e @E2E-A-004
+[1A[2K[23/25] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-a-fleet-management/verification-date.feature.spec.js:24:5 › Verification dates cannot extend the trust window › Future persisted verification stays gated until valid re-verification › Example #1 @phase-A @verification-date @UJ-A-001 @e2e
+[1A[2K[24/25] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/fleet-based-aircraft-selection.feature.spec.js:34:3 › Fleet-based aircraft selection on the Flight Prep page › Hardcoded catalogue aircraft are not in the dropdown when the fleet is empty — regression against AIRCRAFT_CATALOGUE leak @phase-B @fleet @flight-prep @UJ-B-005 @e2e @E2E-B-010
+[1A[2K[25/25] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-a-fleet-management/verification-date.feature.spec.js:31:5 › Verification dates cannot extend the trust window › Future persisted verification stays gated until valid re-verification › Example #2 @phase-A @verification-date @UJ-A-001 @e2e
+[1A[2K  25 passed (20.7s)
