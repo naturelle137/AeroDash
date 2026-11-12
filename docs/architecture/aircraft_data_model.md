@@ -61,6 +61,7 @@ erDiagram
 
     LoadPoint {
         string name
+        string kind "optional: occupant | baggage | fuel"
         number arm "if fixed scalar"
         number operationalLimit "optional"
         number defaultQuantity
@@ -180,6 +181,8 @@ Generic loading station (seats, baggage compartments, tanks). Up to 20 per profi
 | `unit`                | `string`                    |   Yes    | Measurement unit (stored in source unit).                                                                                                      |
 | `allowableCategories` | `string[] \| null`          |    No    | Certification categories in which this load point is available (e.g., `["Normal"]`). If `null`, the load point is available in all categories. |
 | `fuelTank`            | `FuelTankExtension \| null` |    No    | Fuel-specific extension. See Section 3.4.                                                                                                      |
+
+`kind` (optional, `occupant` \| `baggage` \| `fuel`) classifies the station for the zero-mass plausibility check (REQ-UQ-006): only `occupant` stations raise `WARN-UQ-001` at 0. A station with `fuelTank` is always `fuel`; `kind: "fuel"` without `fuelTank` or a non-fuel `kind` with `fuelTank` is rejected (`STATION_KIND_MISMATCH`). A non-fuel station without `kind` (legacy/imported data) is treated as `occupant` — the conservative default, so a missed seat entry still warns.
 
 #### 3.3.1 ArmLookupEntry
 
