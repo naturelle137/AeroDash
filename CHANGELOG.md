@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Enter, edit, save and reload an offline user-entered runway in Performance (distinct TORA/LDA, field elevation, explicit m/ft, required surface condition) with versioned recovery; no runway assessment is given (refs #302).
 - Preserve and review per-axis POH source units, normalize supported mixed units for raw-distance lookup, and reject incomplete or conflicting declarations (#492).
 
 ### Added

@@ -43,14 +43,16 @@ if (!runway.loaded) runway.load()
     <p v-if="runway.storageError" role="alert" class="storage-error">{{ runway.storageError }}</p>
 
     <div class="fields">
-      <label for="manual-runway-aerodrome">Aerodrome
+      <div class="field">
+        <label for="manual-runway-aerodrome">Aerodrome</label>
         <input id="manual-runway-aerodrome" v-model="runway.draft.aerodrome" type="text" autocomplete="off"
           :maxlength="MAX_AERODROME_LENGTH" :aria-invalid="!!error('aerodrome')" :aria-describedby="describedBy('aerodrome')" />
-      </label>
-      <label for="manual-runway-designator">Runway designator
+      </div>
+      <div class="field">
+        <label for="manual-runway-designator">Runway designator</label>
         <input id="manual-runway-designator" v-model="runway.draft.designator" type="text" autocomplete="off"
           :maxlength="MAX_DESIGNATOR_LENGTH" :aria-invalid="!!error('designator')" :aria-describedby="describedBy('designator')" />
-      </label>
+      </div>
     </div>
     <p v-if="error('aerodrome')" :id="describedBy('aerodrome')" class="field-error">{{ error('aerodrome') }}</p>
     <p v-if="error('designator')" :id="describedBy('designator')" class="field-error">{{ error('designator') }}</p>
@@ -58,28 +60,32 @@ if (!runway.loaded) runway.load()
     <fieldset>
       <legend>Declared available distances</legend>
       <div class="value-unit">
-        <label for="manual-runway-tora">TORA — takeoff run available
+        <div class="field">
+          <label for="manual-runway-tora">TORA — takeoff run available</label>
           <input id="manual-runway-tora" v-model="runway.draft.tora" type="text" inputmode="decimal"
             :aria-invalid="!!error('tora')" :aria-describedby="describedBy('tora')" />
-        </label>
-        <label for="manual-runway-tora-unit">TORA unit
+        </div>
+        <div class="field">
+          <label for="manual-runway-tora-unit">TORA unit</label>
           <select id="manual-runway-tora-unit" v-model="runway.draft.toraUnit" :aria-invalid="!!error('toraUnit')" :aria-describedby="describedBy('toraUnit')">
             <option value="">Select unit</option><option value="m">m</option><option value="ft">ft</option>
           </select>
-        </label>
+        </div>
       </div>
       <p v-if="error('tora')" :id="describedBy('tora')" class="field-error">{{ error('tora') }}</p>
       <p v-if="error('toraUnit')" :id="describedBy('toraUnit')" class="field-error">{{ error('toraUnit') }}</p>
       <div class="value-unit">
-        <label for="manual-runway-lda">LDA — landing distance available
+        <div class="field">
+          <label for="manual-runway-lda">LDA — landing distance available</label>
           <input id="manual-runway-lda" v-model="runway.draft.lda" type="text" inputmode="decimal"
             :aria-invalid="!!error('lda')" :aria-describedby="describedBy('lda')" />
-        </label>
-        <label for="manual-runway-lda-unit">LDA unit
+        </div>
+        <div class="field">
+          <label for="manual-runway-lda-unit">LDA unit</label>
           <select id="manual-runway-lda-unit" v-model="runway.draft.ldaUnit" :aria-invalid="!!error('ldaUnit')" :aria-describedby="describedBy('ldaUnit')">
             <option value="">Select unit</option><option value="m">m</option><option value="ft">ft</option>
           </select>
-        </label>
+        </div>
       </div>
       <p v-if="error('lda')" :id="describedBy('lda')" class="field-error">{{ error('lda') }}</p>
       <p v-if="error('ldaUnit')" :id="describedBy('ldaUnit')" class="field-error">{{ error('ldaUnit') }}</p>
@@ -88,15 +94,17 @@ if (!runway.loaded) runway.load()
     <fieldset>
       <legend>Field elevation</legend>
       <div class="value-unit">
-        <label for="manual-runway-elevation">Field elevation
+        <div class="field">
+          <label for="manual-runway-elevation">Field elevation</label>
           <input id="manual-runway-elevation" v-model="runway.draft.fieldElevation" type="text" inputmode="decimal"
             :aria-invalid="!!error('fieldElevation')" :aria-describedby="describedBy('fieldElevation')" />
-        </label>
-        <label for="manual-runway-elevation-unit">Field elevation unit
+        </div>
+        <div class="field">
+          <label for="manual-runway-elevation-unit">Field elevation unit</label>
           <select id="manual-runway-elevation-unit" v-model="runway.draft.fieldElevationUnit" :aria-invalid="!!error('fieldElevationUnit')" :aria-describedby="describedBy('fieldElevationUnit')">
             <option value="">Select unit</option><option value="m">m</option><option value="ft">ft</option>
           </select>
-        </label>
+        </div>
       </div>
       <p v-if="error('fieldElevation')" :id="describedBy('fieldElevation')" class="field-error">{{ error('fieldElevation') }}</p>
       <p v-if="error('fieldElevationUnit')" :id="describedBy('fieldElevationUnit')" class="field-error">{{ error('fieldElevationUnit') }}</p>
@@ -107,19 +115,21 @@ if (!runway.loaded) runway.load()
     <fieldset>
       <legend>Runway surface</legend>
       <div class="value-unit">
-        <label for="manual-runway-surface-type">Surface type
+        <div class="field">
+          <label for="manual-runway-surface-type">Surface type</label>
           <select id="manual-runway-surface-type" v-model="runway.draft.surfaceType" :aria-invalid="!!error('surfaceType')" :aria-describedby="describedBy('surfaceType')">
             <option value="">Select surface type</option>
             <option v-for="type in SURFACE_TYPES" :key="type" :value="type">{{ surfaceTypeLabels[type] }}</option>
           </select>
-        </label>
-        <label for="manual-runway-surface-condition">Surface condition
+        </div>
+        <div class="field">
+          <label for="manual-runway-surface-condition">Surface condition</label>
           <select id="manual-runway-surface-condition" v-model="runway.draft.surfaceCondition" :disabled="!conditionOptions.length"
             :aria-invalid="!!error('surfaceCondition')" :aria-describedby="describedBy('surfaceCondition')">
             <option value="">Select surface condition</option>
             <option v-for="option in conditionOptions" :key="option.value" :value="option.value">{{ option.label }}</option>
           </select>
-        </label>
+        </div>
       </div>
       <p v-if="error('surfaceType')" :id="describedBy('surfaceType')" class="field-error">{{ error('surfaceType') }}</p>
       <p v-if="error('surfaceCondition')" :id="describedBy('surfaceCondition')" class="field-error">{{ error('surfaceCondition') }}</p>
@@ -163,7 +173,7 @@ p { margin: 0; line-height: 1.6; }
 fieldset { border: 1px solid var(--color-border); border-radius: 8px; padding: .75rem 1rem 1rem; margin: 0; display: grid; gap: .5rem; min-width: 0; }
 legend { font-weight: 700; padding: 0 .25rem; }
 .fields, .value-unit { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 1rem; }
-label { display: grid; gap: .5rem; }
+.field { display: grid; gap: .5rem; align-content: start; }
 input, select, button { font: inherit; padding: .75rem; min-height: 44px; border-radius: 6px; border: 1px solid var(--color-border); background: var(--color-surface); color: inherit; min-width: 0; }
 select:disabled { opacity: .6; }
 [aria-invalid="true"] { border-color: var(--color-danger, #c0392b); border-width: 2px; }
