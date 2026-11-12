@@ -64,7 +64,7 @@ function onSubmitFeature(input: FeatureRequestInput): void {
 </script>
 
 <template>
-  <main class="contribute-view" aria-labelledby="contribute-heading">
+  <section class="contribute-view" aria-labelledby="contribute-heading">
     <header class="contribute-view__header">
       <h1 id="contribute-heading">{{ heading }}</h1>
       <p v-if="screen === 'category'" class="contribute-view__intro">
@@ -121,7 +121,7 @@ function onSubmitFeature(input: FeatureRequestInput): void {
     </div>
 
     <ContributePromotionPanel data-testid="contribute-promotion" />
-  </main>
+  </section>
 </template>
 
 <style scoped>

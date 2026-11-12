@@ -1,11 +1,11 @@
-@wip
 Feature: Detect CG migration during fuel burn-off
   As a pilot
   I want to discover unsafe CG migration before flight
   So that I can redistribute the load and avoid instability during landing
 
   Background:
-    Given the pilot starts a new flight preparation
+    Given the fleet holds the synthetic Mass & Balance test aircraft
+    And the pilot starts a new flight preparation
 
   # @E2E-B-002@ (FROM: @UJ-B-001@)
   @UJ-B-001 @phase-B @e2e @cg-migration @module-mb

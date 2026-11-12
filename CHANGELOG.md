@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Single `main` landmark: Fleet, wizard, editor, contribute and privacy views no longer nest a second `<main>` inside the app shell's `#main-content` (refs #294)
+- E2E: seven M&B journeys (E2E-B-001..007) and wizard journeys (E2E-A-002/003/004/007/008, E2E-B-009/011) now run in blocking CI against a deterministic synthetic Draft fleet and the current six-step wizard with post-save chooser; seed values are unchanged MVP-catalogue test data, not POH/AFM data (refs #294)
 - Wizard post-save **Verify now** now opens the sign-off dialog on arrival at the fleet list (handed off via a `?verify=<id>` query that is consumed and stripped on mount) instead of leaving the new aircraft unverified next to its shield icon (UX-012, REQ-AC-001/REQ-AC-007, refs #279)
 - Route navigations now reset the scroll position to the top by default while still restoring `savedPosition` on browser back/forward, so jumping into Mass & Balance from a scrolled wizard no longer drops the pilot mid-page (refs #279)
 - Mass & Balance aircraft picker now mirrors the pending draft profile while its WARN-AC-002 acknowledgement is awaiting, so the registration just saved in the wizard appears in the dropdown immediately instead of after the pilot confirms (UX-012, REQ-AC-001/REQ-AC-005, refs #279)

@@ -15,9 +15,7 @@ Feature: Fleet-based aircraft selection on the Flight Prep page
     Then the pilot is taken to the aircraft creation wizard
 
   # @E2E-B-009@ (FROM: @UJ-B-005@)
-  # @wip: depends on the wizard-creation flow (completeWizardFlow helper), which is
-  # not yet stable end-to-end — un-wip together with aircraft-wizard-creation.feature.
-  @wip @UJ-B-005 @phase-B @e2e @E2E-B-009
+  @UJ-B-005 @phase-B @e2e @E2E-B-009
   Scenario: Aircraft added via wizard appears in the Flight Prep dropdown with a [Draft] label
     Given the pilot has added an aircraft with registration "D-EBPN" via the wizard
     When the pilot navigates to the Flight Prep page
@@ -25,12 +23,11 @@ Feature: Fleet-based aircraft selection on the Flight Prep page
     And the dropdown contains an option matching "D-EBPN" with "[Draft]" in its label
 
     When the pilot selects the "D-EBPN" aircraft from the dropdown
+    And the pilot acknowledges the draft warning to continue
     Then the M&B section becomes unlocked
 
   # @E2E-B-011@ (FROM: @UJ-B-005@)
-  # @wip: depends on the wizard-creation flow (completeWizardFlow helper), which is
-  # not yet stable end-to-end — un-wip together with aircraft-wizard-creation.feature.
-  @wip @UJ-B-005 @phase-B @e2e @E2E-B-011
+  @UJ-B-005 @phase-B @e2e @E2E-B-011
   Scenario: Selecting a draft aircraft requires acknowledging the unverified-data warning
     Given the pilot has added an aircraft with registration "D-EBPN" via the wizard
     When the pilot navigates to the Flight Prep page

@@ -1,11 +1,11 @@
-@wip
 Feature: Reveal CG migration risk across burn sequences
   As a pilot
   I want to see CG behavior under all fuel burn sequences
   So that I can identify dangers hidden by a single-line trend
 
   Background:
-    Given the pilot starts a new flight preparation
+    Given the fleet holds the synthetic Mass & Balance test aircraft
+    And the pilot starts a new flight preparation
 
   # @E2E-B-006@ (FROM: @UJ-B-004@)
   @UJ-B-004 @phase-B @e2e @burn-polygon @module-mb

@@ -1,4 +1,4 @@
-@wip @phase-A @fleet @wizard @electric
+@phase-A @fleet @wizard @electric
 Feature: Battery-electric aircraft wizard (Pipistrel Velis Electro)
   As a pilot / flight-school instructor
   I want to add a Pipistrel Velis Electro to the fleet without seeing fuel fields
@@ -33,15 +33,21 @@ Feature: Battery-electric aircraft wizard (Pipistrel Velis Electro)
     And an informational note mentions "battery-electric"
 
     When the pilot clicks "Continue"
-    Then the wizard is on Step 4½ — Battery Pack
+    Then the wizard is on Step 5 — Wind Limits
+
+    When the pilot clicks "Continue"
+    Then the wizard is on Step 6 — Battery Pack
 
     When the pilot enters usable energy "24.8", reserve floor "5.0", nominal voltage "345" and chemistry "LiFePO4"
     And the pilot clicks "Continue"
-    Then the wizard is on Step 5 — Review and Save
+    Then the wizard is on Step 7 — Review and Save
     And the review shows powertrain "Electric"
     And the review shows battery pack usable energy "24.8"
 
     When the pilot clicks "Save as Draft"
+    Then the saved-draft chooser offers "Start flight prep", "Verify now" and "Back to Fleet"
+
+    When the pilot chooses "Back to Fleet" in the saved-draft chooser
     Then the pilot is back on the Fleet page
     And the aircraft "OK-VVV" is listed with a "Draft" status badge
 

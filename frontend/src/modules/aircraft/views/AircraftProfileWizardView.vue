@@ -1,6 +1,6 @@
 <!-- @IMP-AC-VIEW-WIZARD-001@ (FROM: @REQ-AC-001@, @REQ-UQ-003@) -->
 <template>
-  <main class="wizard-view">
+  <div class="wizard-view">
     <header class="wizard-header">
       <button type="button" class="btn-back" @click="onNavigateBack">← Back to Fleet</button>
       <h1>Add New Aircraft</h1>
@@ -241,7 +241,7 @@
       @choose="onPostSaveChoice"
       @dismiss="onPostSaveDismiss"
     />
-  </main>
+  </div>
 </template>
 
 <script setup lang="ts">

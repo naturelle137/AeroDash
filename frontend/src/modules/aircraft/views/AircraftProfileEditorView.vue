@@ -1,6 +1,6 @@
 <template>
   <!-- @IMP-AC-VIEW-015@ (FROM: @REQ-AC-001@, @REQ-AC-005@, @REQ-AD-001@, @REQ-AD-002@, @REQ-AD-003@, @REQ-AD-004@, @REQ-AD-005@, @REQ-AD-007@, @REQ-AD-011@, @REQ-AD-012@, @REQ-AD-013@, @REQ-AD-014@, @REQ-AD-018@, @REQ-AD-019@) -->
-  <main class="profile-editor-view">
+  <div class="profile-editor-view">
     <header class="editor-header">
       <div class="editor-title">
         <button type="button" class="btn-back" @click="onCancel">← Back to Fleet</button>
@@ -129,7 +129,7 @@
         </button>
       </div>
     </footer>
-  </main>
+  </div>
 </template>
 
 <script setup lang="ts">

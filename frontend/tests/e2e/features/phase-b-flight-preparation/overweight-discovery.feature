@@ -1,11 +1,11 @@
-@wip
 Feature: Discover structural mass limit violations
   As a pilot
   I want to be warned about all structural mass limits
   So that I respect both MTOM and MZFM constraints
 
   Background:
-    Given the pilot starts a new flight preparation
+    Given the fleet holds the synthetic Mass & Balance test aircraft
+    And the pilot starts a new flight preparation
 
   # @E2E-B-004@ (FROM: @UJ-B-003@)
   @UJ-B-003 @phase-B @e2e @mass-limits @module-mb

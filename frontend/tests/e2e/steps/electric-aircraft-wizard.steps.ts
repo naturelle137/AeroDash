@@ -65,10 +65,10 @@ Then('an informational note mentions {string}', async ({ page }, fragment: strin
   await expect(page.getByText(new RegExp(fragment, 'i'))).toBeVisible()
 })
 
-// ─── Step 4½ · Battery Pack ───────────────────────────────────────────────
+// ─── Battery Pack ─────────────────────────────────────────────────────────
 
-Then('the wizard is on Step 4½ — Battery Pack', async ({ page }) => {
-  await expect(page.getByRole('heading', { name: /Battery Pack/i })).toBeVisible()
+Then('the wizard is on Step {int} — Battery Pack', async ({ page }, step: number) => {
+  await expect(page.getByRole('heading', { name: `Step ${step}: Battery Pack` })).toBeVisible()
 })
 
 When(
