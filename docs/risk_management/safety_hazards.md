@@ -164,7 +164,8 @@ gap that issue #267 closed.
 
 **Hazard:** Data Integrity: Undetected typos in custom POH database.
 **Severity:** S1
-**Cause:** Garbage In, Garbage Out (e.g., wrong MTOM entered).
+**Cause:** Garbage In, Garbage Out (e.g., wrong MTOM entered), including future-dated sign-offs extending the verification window.
+**Date mitigation evidence:** REQ-AC-007 rejects future/invalid sign-offs in the store and dialog; the pure evaluator also expires persisted suspect provenance. Deterministic calendar/UTC-boundary tests and browser re-verification cover this path; legacy unattributed records remain a documented residual risk. This is software evidence, not validation of aircraft data.
 **Status:** Mitigated
 **Mitigated By:** REQ-AC-005, REQ-AC-007, REQ-UI-023, REQ-UQ-006
 
