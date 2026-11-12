@@ -29,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Serve the app shell for hosted Fleet/Performance deep links and reloads while preserving static assets (refs #493).
 - Suppress the Referer header on the minimum-safe-version request (fixes #377).
 
 - `WARN-UQ-001` now fires only for occupant stations (seats) at 0 kg, not for empty baggage: load points gain an optional `kind` (`occupant`/`baggage`/`fuel`), set for all catalogue stations and selectable in the aircraft editor; unclassified non-fuel stations still warn (conservative default) (REQ-UQ-006, H-010, H-011, closes #482)
