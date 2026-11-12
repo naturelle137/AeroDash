@@ -28,9 +28,8 @@ export const PA_ELEVATION_UNITS = ['ft', 'm'] as const
 export type PaElevationUnit = (typeof PA_ELEVATION_UNITS)[number]
 
 /**
- * Software input bounds, not limits of the atmosphere model. They cover observed
- * sea-level pressure extremes and aerodrome elevations while keeping every result
- * far inside the lowest standard-atmosphere layer the formula describes.
+ * Software input bounds for ordinary aerodrome use, not limits of the atmosphere
+ * model; accepted results stay between about −3800 ft and +19800 ft.
  */
 export const QNH_SUPPORTED_HPA = { min: 850, max: 1100 } as const
 export const ELEVATION_SUPPORTED_FT = { min: -1500, max: 15000 } as const

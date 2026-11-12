@@ -28,6 +28,9 @@ diverge or an entry goes stale.
 | `fuel-density-fallback` | `0.84` | kg/L | Conservative fallback = heaviest catalogued density (fail-closed) | 2026-05-28 | 2028-05-28 | REQ-FE-001 / H-002 |
 | `occupant-preset-masses-kg` | `[55, 70, 85]` | kg | Representative adult masses for one-tap entry (not regulatory) | 2026-05-28 | 2028-05-28 | REQ-UQ-001 / H-011 |
 | `occupant-preset-masses-lb` | `[120, 160, 200]` | lb | Representative adult masses for one-tap entry (not regulatory) | 2026-05-28 | 2028-05-28 | REQ-UQ-001 / H-011 |
+| `pressure-altitude-coefficient-ft` | `145366.45` | ft | NOAA/NWS pressure-altitude formula | 2026-11-12 | 2028-11-12 | REQ-PF-013 / H-007 |
+| `pressure-altitude-exponent` | `0.190284` | 1 | NOAA/NWS pressure-altitude formula | 2026-11-12 | 2028-11-12 | REQ-PF-013 / H-007 |
+| `standard-pressure-hpa` | `1013.25` | hPa | NOAA/NWS pressure-altitude formula | 2026-11-12 | 2028-11-12 | REQ-PF-013 / H-007 |
 
 > Occupant presets are **convenience shortcuts**, not authoritative masses. The
 > pilot always enters the actual or applicable standard mass. EASA standard-mass

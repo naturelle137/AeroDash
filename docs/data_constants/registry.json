@@ -85,6 +85,54 @@
         "file": "frontend/src/modules/mass-balance/data/occupant-presets.ts",
         "symbol": "OCCUPANT_PRESET_MASSES_LB"
       }
+    },
+    {
+      "id": "pressure-altitude-coefficient-ft",
+      "category": "pressure-altitude",
+      "description": "NWS pressure-altitude coefficient used for QNH/elevation derivation.",
+      "value": 145366.45,
+      "unit": "ft",
+      "source": "NOAA/NWS El Paso formula sheets 'Pressure Altitude' (h_alt = 145366.45 (1 - (P/1013.25)^0.190284) ft) and 'Altimeter Setting' (https://www.weather.gov/media/epz/wxcalc/pressureAltitude.pdf, https://www.weather.gov/media/epz/wxcalc/altimeterSetting.pdf); inverted to PA = elevation + h_alt(QNH).",
+      "effectiveDate": "2026-11-12",
+      "reviewBy": "2028-11-12",
+      "requirement": "REQ-PF-013",
+      "hazard": "H-007",
+      "code": {
+        "file": "frontend/src/core/logic/pressure-altitude.ts",
+        "symbol": "PRESSURE_ALTITUDE_COEFFICIENT_FT"
+      }
+    },
+    {
+      "id": "pressure-altitude-exponent",
+      "category": "pressure-altitude",
+      "description": "NWS standard-atmosphere exponent used for QNH/elevation derivation.",
+      "value": 0.190284,
+      "unit": "1",
+      "source": "NOAA/NWS El Paso formula sheets 'Pressure Altitude' (h_alt = 145366.45 (1 - (P/1013.25)^0.190284) ft) and 'Altimeter Setting' (https://www.weather.gov/media/epz/wxcalc/pressureAltitude.pdf, https://www.weather.gov/media/epz/wxcalc/altimeterSetting.pdf); inverted to PA = elevation + h_alt(QNH).",
+      "effectiveDate": "2026-11-12",
+      "reviewBy": "2028-11-12",
+      "requirement": "REQ-PF-013",
+      "hazard": "H-007",
+      "code": {
+        "file": "frontend/src/core/logic/pressure-altitude.ts",
+        "symbol": "PRESSURE_ALTITUDE_EXPONENT"
+      }
+    },
+    {
+      "id": "standard-pressure-hpa",
+      "category": "pressure-altitude",
+      "description": "Standard sea-level pressure used for QNH/elevation derivation.",
+      "value": 1013.25,
+      "unit": "hPa",
+      "source": "NOAA/NWS El Paso formula sheets 'Pressure Altitude' (h_alt = 145366.45 (1 - (P/1013.25)^0.190284) ft) and 'Altimeter Setting' (https://www.weather.gov/media/epz/wxcalc/pressureAltitude.pdf, https://www.weather.gov/media/epz/wxcalc/altimeterSetting.pdf); inverted to PA = elevation + h_alt(QNH).",
+      "effectiveDate": "2026-11-12",
+      "reviewBy": "2028-11-12",
+      "requirement": "REQ-PF-013",
+      "hazard": "H-007",
+      "code": {
+        "file": "frontend/src/core/logic/pressure-altitude.ts",
+        "symbol": "STANDARD_PRESSURE_HPA"
+      }
     }
   ]
 }
