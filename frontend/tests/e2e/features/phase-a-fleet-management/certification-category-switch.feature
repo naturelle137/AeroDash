@@ -21,3 +21,5 @@ Feature: Switch certification category and enforce utility constraints
     And the takeoff mass no longer includes the rear passenger
     And the total mass is within MTOM
     And no critical notifications are displayed
+    And the baggage areas are available but left empty
+    And the only warning is the unverified draft-profile notice
