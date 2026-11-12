@@ -90,3 +90,5 @@ The chart is the core visual feedback mechanism.
 ### Architectural Boundaries
 
 As governed by Issues #96, #97, and #98, the UI layer does not "know" why a polygon boundary was failed. It simply captures data and displays the resulting structural Notification flag.
+
+Occupant quick presets are available for required and optional occupant stations, including unclassified legacy non-fuel stations. Baggage and fuel stations have no occupant presets.

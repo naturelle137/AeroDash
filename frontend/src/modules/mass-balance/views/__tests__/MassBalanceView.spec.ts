@@ -5,6 +5,7 @@ import { createPinia, setActivePinia } from 'pinia'
 import { mount } from '@vue/test-utils'
 import { createRouter, createMemoryHistory } from 'vue-router'
 import MassBalanceView from '../MassBalanceView.vue'
+import { OCCUPANT_PRESET_MASSES_KG, OCCUPANT_PRESET_MASSES_LB } from '@/modules/mass-balance/data/occupant-presets'
 import { useMassBalanceStore } from '@/modules/mass-balance/stores/mass-balance.store'
 import { useFleetStore } from '@/modules/aircraft/stores/fleet.store'
 import type {
@@ -195,6 +196,32 @@ describe('MassBalanceView integration', () => {
     // tests that need empty/loading/error states override this.
     // Only seed mockProfile (multiCategoryProfile shares the same id).
     seedFleet([toFleetProfile(mockProfile)])
+  })
+
+  it('binds unit-aware presets only to resolved occupant stations', async () => {
+    const seat = mockProfile.loadPoints[0]!
+    const tank = mockProfile.loadPoints[1]!
+    const profile: AircraftContext = {
+      ...mockProfile,
+      loadPoints: [
+        { ...seat, name: 'Required', kind: 'occupant', occupancy: 'required' },
+        { ...seat, name: 'Optional', kind: 'occupant', occupancy: 'optional', unit: 'LB' },
+        { ...seat, name: 'Legacy' },
+        { ...seat, name: 'Baggage', kind: 'baggage' },
+        { ...tank, name: 'Fuel override', kind: 'baggage' },
+      ],
+    }
+    const store = useMassBalanceStore()
+    store.loadProfile(profile)
+    const wrapper = mountView()
+    const chips = (name: string) => wrapper.findAll(`[aria-label="${name} quick presets"] button`)
+    expect(chips('Required').map((chip) => chip.text())).toEqual(OCCUPANT_PRESET_MASSES_KG.map((n) => `${n} kg`))
+    expect(chips('Legacy').map((chip) => chip.text())).toEqual(OCCUPANT_PRESET_MASSES_KG.map((n) => `${n} kg`))
+    expect(chips('Optional').map((chip) => chip.text())).toEqual(OCCUPANT_PRESET_MASSES_LB.map((n) => `${n} LB`))
+    expect(wrapper.find('[aria-label="Baggage quick presets"]').exists()).toBe(false)
+    expect(wrapper.find('[aria-label="Fuel override quick presets"]').exists()).toBe(false)
+    await chips('Required')[1]!.trigger('click')
+    expect(store.stations[0]!.weight).toBe(OCCUPANT_PRESET_MASSES_KG[1])
   })
 
   it('renders INITIAL state with disabled controls and no chart/results', () => {
