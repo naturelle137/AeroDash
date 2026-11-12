@@ -1,5 +1,9 @@
 {
   "extends": "./tsconfig.app.json",
-  "include": ["env.d.ts", "src/**/*.ts", "src/**/*.mts", "src/**/*.vue"],
-  "exclude": ["eslint.config.ts", "vite.config.ts", "vitest.config.ts"]
+  "include": ["env.d.ts", "src/core/**/*.ts", "src/core/**/*.mts"],
+  "exclude": [
+    "src/core/**/*.spec.ts",
+    "src/core/**/*.int.spec.ts",
+    "src/core/**/*.e2e.spec.ts"
+  ]
 }

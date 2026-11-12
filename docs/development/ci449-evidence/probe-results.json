@@ -1,0 +1,1850 @@
+[
+  {
+    "target": "develop",
+    "kind": "docs",
+    "branch": "hotfix/ci449-probe213-develop-docs",
+    "parent": "abd33acdbbe591590652548c472ccaaebfdf7d0a",
+    "head": "9919daff07b88e50f85d837a4be8467fb50b1158",
+    "paths": [
+      "docs/ci449-evidence-only.md"
+    ],
+    "pr": 454,
+    "url": "https://github.com/naturelle137/AeroDash/pull/454",
+    "base": "abd33acdbbe591590652548c472ccaaebfdf7d0a",
+    "note": "Real unmodified target-baseline CI. Main does not yet contain CI Required: record absence honestly; this cannot prove candidate CI adoption before independent integration.",
+    "runs": [
+      {
+        "id": 43110041282,
+        "name": "DoD Attestation Gate",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110041282",
+        "head_sha": "9919daff07b88e50f85d837a4be8467fb50b1158",
+        "status": "completed",
+        "conclusion": "failure"
+      },
+      {
+        "id": 43110041288,
+        "name": "CI",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110041288",
+        "head_sha": "9919daff07b88e50f85d837a4be8467fb50b1158",
+        "status": "completed",
+        "conclusion": "success"
+      }
+    ],
+    "ci": {
+      "id": 43110041288,
+      "name": "CI",
+      "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110041288",
+      "head_sha": "9919daff07b88e50f85d837a4be8467fb50b1158",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "jobs": [
+      {
+        "id": 130823330235,
+        "name": "lint-markdown",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110041288/job/130823330235"
+      },
+      {
+        "id": 130823330460,
+        "name": "Security Scanning / CycloneDX SBOM",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110041288/job/130823330460"
+      },
+      {
+        "id": 130823330493,
+        "name": "Lint",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110041288/job/130823330493"
+      },
+      {
+        "id": 130823330532,
+        "name": "Security Scanning / Dependency Audit (pnpm audit)",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110041288/job/130823330532"
+      },
+      {
+        "id": 130823330577,
+        "name": "Security Scanning / OSV-Scanner",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110041288/job/130823330577"
+      },
+      {
+        "id": 130823330666,
+        "name": "Detect applicable gates",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110041288/job/130823330666"
+      },
+      {
+        "id": 130823330785,
+        "name": "Security Scanning / CodeQL SAST",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110041288/job/130823330785"
+      },
+      {
+        "id": 130823397963,
+        "name": "P1 Mutation Score",
+        "status": "completed",
+        "conclusion": "skipped",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110041288/job/130823397963"
+      },
+      {
+        "id": 130823547952,
+        "name": "Integration Tests",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110041288/job/130823547952"
+      },
+      {
+        "id": 130823548022,
+        "name": "Unit Tests",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110041288/job/130823548022"
+      },
+      {
+        "id": 130823548024,
+        "name": "Type Check",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110041288/job/130823548024"
+      },
+      {
+        "id": 130824681009,
+        "name": "Build",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110041288/job/130824681009"
+      },
+      {
+        "id": 130825037385,
+        "name": "E2E Tests",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110041288/job/130825037385"
+      },
+      {
+        "id": 130825479949,
+        "name": "CI Required",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110041288/job/130825479949"
+      }
+    ],
+    "verified": true,
+    "verification_reason": "valid",
+    "actual_changed_paths": [
+      "docs/ci449-evidence-only.md"
+    ],
+    "commit_url": "https://github.com/naturelle137/AeroDash/commit/9919daff07b88e50f85d837a4be8467fb50b1158"
+  },
+  {
+    "target": "develop",
+    "kind": "dependency",
+    "branch": "hotfix/ci449-probe213-develop-dependency",
+    "parent": "abd33acdbbe591590652548c472ccaaebfdf7d0a",
+    "head": "60e49854e80709d8542df23a8fda4f2834c9cc80",
+    "paths": [
+      "frontend/package.json"
+    ],
+    "pr": 455,
+    "url": "https://github.com/naturelle137/AeroDash/pull/455",
+    "base": "abd33acdbbe591590652548c472ccaaebfdf7d0a",
+    "note": "Real unmodified target-baseline CI. Main does not yet contain CI Required: record absence honestly; this cannot prove candidate CI adoption before independent integration.",
+    "runs": [
+      {
+        "id": 43110070888,
+        "name": "DoD Attestation Gate",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110070888",
+        "head_sha": "60e49854e80709d8542df23a8fda4f2834c9cc80",
+        "status": "completed",
+        "conclusion": "failure"
+      },
+      {
+        "id": 43110070986,
+        "name": "CI",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110070986",
+        "head_sha": "60e49854e80709d8542df23a8fda4f2834c9cc80",
+        "status": "completed",
+        "conclusion": "success"
+      }
+    ],
+    "ci": {
+      "id": 43110070986,
+      "name": "CI",
+      "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110070986",
+      "head_sha": "60e49854e80709d8542df23a8fda4f2834c9cc80",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "jobs": [
+      {
+        "id": 130823431528,
+        "name": "Lint",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110070986/job/130823431528"
+      },
+      {
+        "id": 130823431902,
+        "name": "Detect applicable gates",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110070986/job/130823431902"
+      },
+      {
+        "id": 130823431969,
+        "name": "lint-markdown",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110070986/job/130823431969"
+      },
+      {
+        "id": 130823432126,
+        "name": "Security Scanning / Dependency Audit (pnpm audit)",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110070986/job/130823432126"
+      },
+      {
+        "id": 130823432340,
+        "name": "Security Scanning / CodeQL SAST",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110070986/job/130823432340"
+      },
+      {
+        "id": 130823432374,
+        "name": "Security Scanning / CycloneDX SBOM",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110070986/job/130823432374"
+      },
+      {
+        "id": 130823432385,
+        "name": "Security Scanning / OSV-Scanner",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110070986/job/130823432385"
+      },
+      {
+        "id": 130823512431,
+        "name": "P1 Mutation Score / P1 Mutation Score",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110070986/job/130823512431"
+      },
+      {
+        "id": 130823639804,
+        "name": "Type Check",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110070986/job/130823639804"
+      },
+      {
+        "id": 130823639948,
+        "name": "Unit Tests",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110070986/job/130823639948"
+      },
+      {
+        "id": 130823640826,
+        "name": "Integration Tests",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110070986/job/130823640826"
+      },
+      {
+        "id": 130825130502,
+        "name": "Build",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110070986/job/130825130502"
+      },
+      {
+        "id": 130825433939,
+        "name": "E2E Tests",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110070986/job/130825433939"
+      },
+      {
+        "id": 130826344505,
+        "name": "CI Required",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110070986/job/130826344505"
+      }
+    ],
+    "verified": true,
+    "verification_reason": "valid",
+    "actual_changed_paths": [
+      "frontend/package.json"
+    ],
+    "commit_url": "https://github.com/naturelle137/AeroDash/commit/60e49854e80709d8542df23a8fda4f2834c9cc80"
+  },
+  {
+    "target": "develop",
+    "kind": "workflow",
+    "branch": "hotfix/ci449-probe213-develop-workflow",
+    "parent": "abd33acdbbe591590652548c472ccaaebfdf7d0a",
+    "head": "9c64ca5833cc561ebfc22c421399e41c50609cbc",
+    "paths": [
+      ".github/workflows/ci.yml"
+    ],
+    "pr": 456,
+    "url": "https://github.com/naturelle137/AeroDash/pull/456",
+    "base": "abd33acdbbe591590652548c472ccaaebfdf7d0a",
+    "note": "Real unmodified target-baseline CI. Main does not yet contain CI Required: record absence honestly; this cannot prove candidate CI adoption before independent integration.",
+    "runs": [
+      {
+        "id": 43110079598,
+        "name": "DoD Attestation Gate",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110079598",
+        "head_sha": "9c64ca5833cc561ebfc22c421399e41c50609cbc",
+        "status": "completed",
+        "conclusion": "failure"
+      },
+      {
+        "id": 43110079448,
+        "name": "CI",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110079448",
+        "head_sha": "9c64ca5833cc561ebfc22c421399e41c50609cbc",
+        "status": "completed",
+        "conclusion": "success"
+      }
+    ],
+    "ci": {
+      "id": 43110079448,
+      "name": "CI",
+      "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110079448",
+      "head_sha": "9c64ca5833cc561ebfc22c421399e41c50609cbc",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "jobs": [
+      {
+        "id": 130823459305,
+        "name": "Detect applicable gates",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110079448/job/130823459305"
+      },
+      {
+        "id": 130823459399,
+        "name": "Lint",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110079448/job/130823459399"
+      },
+      {
+        "id": 130823459542,
+        "name": "Security Scanning / OSV-Scanner",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110079448/job/130823459542"
+      },
+      {
+        "id": 130823459548,
+        "name": "lint-markdown",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110079448/job/130823459548"
+      },
+      {
+        "id": 130823459756,
+        "name": "Security Scanning / CycloneDX SBOM",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110079448/job/130823459756"
+      },
+      {
+        "id": 130823459781,
+        "name": "Security Scanning / Dependency Audit (pnpm audit)",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110079448/job/130823459781"
+      },
+      {
+        "id": 130823459823,
+        "name": "Security Scanning / CodeQL SAST",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110079448/job/130823459823"
+      },
+      {
+        "id": 130823565537,
+        "name": "P1 Mutation Score / P1 Mutation Score",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110079448/job/130823565537"
+      },
+      {
+        "id": 130823717815,
+        "name": "Unit Tests",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110079448/job/130823717815"
+      },
+      {
+        "id": 130823717853,
+        "name": "Type Check",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110079448/job/130823717853"
+      },
+      {
+        "id": 130823718027,
+        "name": "Integration Tests",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110079448/job/130823718027"
+      },
+      {
+        "id": 130824410388,
+        "name": "Build",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110079448/job/130824410388"
+      },
+      {
+        "id": 130824906509,
+        "name": "E2E Tests",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110079448/job/130824906509"
+      },
+      {
+        "id": 130826037502,
+        "name": "CI Required",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110079448/job/130826037502"
+      }
+    ],
+    "verified": true,
+    "verification_reason": "valid",
+    "actual_changed_paths": [
+      ".github/workflows/ci.yml"
+    ],
+    "commit_url": "https://github.com/naturelle137/AeroDash/commit/9c64ca5833cc561ebfc22c421399e41c50609cbc"
+  },
+  {
+    "target": "develop",
+    "kind": "p1",
+    "branch": "hotfix/ci449-probe213-develop-p1",
+    "parent": "abd33acdbbe591590652548c472ccaaebfdf7d0a",
+    "head": "84ee1f81ed93fa9323cdf937a75104e57ff255f3",
+    "paths": [
+      "frontend/src/core/logic/performance.bilinear-interpolation.spec.ts"
+    ],
+    "pr": 457,
+    "url": "https://github.com/naturelle137/AeroDash/pull/457",
+    "base": "abd33acdbbe591590652548c472ccaaebfdf7d0a",
+    "note": "Real unmodified target-baseline CI. Main does not yet contain CI Required: record absence honestly; this cannot prove candidate CI adoption before independent integration.",
+    "runs": [
+      {
+        "id": 43110088777,
+        "name": "DoD Attestation Gate",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110088777",
+        "head_sha": "84ee1f81ed93fa9323cdf937a75104e57ff255f3",
+        "status": "completed",
+        "conclusion": "failure"
+      },
+      {
+        "id": 43110088780,
+        "name": "CI",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110088780",
+        "head_sha": "84ee1f81ed93fa9323cdf937a75104e57ff255f3",
+        "status": "in_progress",
+        "conclusion": null
+      }
+    ],
+    "ci": {
+      "id": 43110088780,
+      "name": "CI",
+      "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110088780",
+      "head_sha": "84ee1f81ed93fa9323cdf937a75104e57ff255f3",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "jobs": [
+      {
+        "id": 130823492091,
+        "name": "lint-markdown",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110088780/job/130823492091"
+      },
+      {
+        "id": 130823492443,
+        "name": "Detect applicable gates",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110088780/job/130823492443"
+      },
+      {
+        "id": 130823492581,
+        "name": "Lint",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110088780/job/130823492581"
+      },
+      {
+        "id": 130823492623,
+        "name": "Security Scanning / Dependency Audit (pnpm audit)",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110088780/job/130823492623"
+      },
+      {
+        "id": 130823492636,
+        "name": "Security Scanning / CodeQL SAST",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110088780/job/130823492636"
+      },
+      {
+        "id": 130823492655,
+        "name": "Security Scanning / CycloneDX SBOM",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110088780/job/130823492655"
+      },
+      {
+        "id": 130823492682,
+        "name": "Security Scanning / OSV-Scanner",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110088780/job/130823492682"
+      },
+      {
+        "id": 130823897372,
+        "name": "P1 Mutation Score / P1 Mutation Score",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110088780/job/130823897372"
+      },
+      {
+        "id": 130823904826,
+        "name": "Unit Tests",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110088780/job/130823904826"
+      },
+      {
+        "id": 130823904837,
+        "name": "Integration Tests",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110088780/job/130823904837"
+      },
+      {
+        "id": 130823904845,
+        "name": "Type Check",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110088780/job/130823904845"
+      },
+      {
+        "id": 130824820223,
+        "name": "Build",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110088780/job/130824820223"
+      },
+      {
+        "id": 130825094596,
+        "name": "E2E Tests",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110088780/job/130825094596"
+      },
+      {
+        "id": 130826695635,
+        "name": "CI Required",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110088780/job/130826695635"
+      }
+    ],
+    "verified": true,
+    "verification_reason": "valid",
+    "actual_changed_paths": [
+      "frontend/src/core/logic/performance.bilinear-interpolation.spec.ts"
+    ],
+    "commit_url": "https://github.com/naturelle137/AeroDash/commit/84ee1f81ed93fa9323cdf937a75104e57ff255f3"
+  },
+  {
+    "target": "main",
+    "kind": "docs",
+    "branch": "hotfix/ci449-probe213-main-docs",
+    "parent": "007a559bf82cc4ec592cd4e1d001c720c3278819",
+    "head": "42452f65ad006ba9e9cb476b3317b6bd3d0ba1c9",
+    "paths": [
+      "docs/ci449-evidence-only.md"
+    ],
+    "pr": 458,
+    "url": "https://github.com/naturelle137/AeroDash/pull/458",
+    "base": "007a559bf82cc4ec592cd4e1d001c720c3278819",
+    "note": "Real unmodified target-baseline CI. Main does not yet contain CI Required: record absence honestly; this cannot prove candidate CI adoption before independent integration.",
+    "runs": [
+      {
+        "id": 43110099556,
+        "name": "Enforce Branching Model",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110099556",
+        "head_sha": "42452f65ad006ba9e9cb476b3317b6bd3d0ba1c9",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 43110099637,
+        "name": "CI",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110099637",
+        "head_sha": "42452f65ad006ba9e9cb476b3317b6bd3d0ba1c9",
+        "status": "completed",
+        "conclusion": "failure"
+      },
+      {
+        "id": 43110099760,
+        "name": "Traceability Gate",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110099760",
+        "head_sha": "42452f65ad006ba9e9cb476b3317b6bd3d0ba1c9",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 43110099603,
+        "name": "Security Scanning",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110099603",
+        "head_sha": "42452f65ad006ba9e9cb476b3317b6bd3d0ba1c9",
+        "status": "completed",
+        "conclusion": "failure"
+      }
+    ],
+    "ci": {
+      "id": 43110099637,
+      "name": "CI",
+      "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110099637",
+      "head_sha": "42452f65ad006ba9e9cb476b3317b6bd3d0ba1c9",
+      "status": "completed",
+      "conclusion": "failure"
+    },
+    "jobs": [
+      {
+        "id": 130823530939,
+        "name": "Lint",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110099637/job/130823530939"
+      },
+      {
+        "id": 130823766101,
+        "name": "Unit Tests",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110099637/job/130823766101"
+      },
+      {
+        "id": 130823766321,
+        "name": "Type Check",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110099637/job/130823766321"
+      },
+      {
+        "id": 130824676481,
+        "name": "Build",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110099637/job/130824676481"
+      },
+      {
+        "id": 130824894888,
+        "name": "E2E Tests",
+        "status": "completed",
+        "conclusion": "failure",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110099637/job/130824894888"
+      }
+    ],
+    "verified": true,
+    "verification_reason": "valid",
+    "actual_changed_paths": [
+      "docs/ci449-evidence-only.md"
+    ],
+    "commit_url": "https://github.com/naturelle137/AeroDash/commit/42452f65ad006ba9e9cb476b3317b6bd3d0ba1c9"
+  },
+  {
+    "target": "main",
+    "kind": "dependency",
+    "branch": "hotfix/ci449-probe213-main-dependency",
+    "parent": "007a559bf82cc4ec592cd4e1d001c720c3278819",
+    "head": "5f1022f4322ba5277e519019e13e82f68c13af4f",
+    "paths": [
+      "frontend/package.json"
+    ],
+    "pr": 459,
+    "url": "https://github.com/naturelle137/AeroDash/pull/459",
+    "base": "007a559bf82cc4ec592cd4e1d001c720c3278819",
+    "note": "Real unmodified target-baseline CI. Main does not yet contain CI Required: record absence honestly; this cannot prove candidate CI adoption before independent integration.",
+    "runs": [
+      {
+        "id": 43110108123,
+        "name": "Traceability Gate",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110108123",
+        "head_sha": "5f1022f4322ba5277e519019e13e82f68c13af4f",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 43110108008,
+        "name": "Enforce Branching Model",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110108008",
+        "head_sha": "5f1022f4322ba5277e519019e13e82f68c13af4f",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 43110108084,
+        "name": "Security Scanning",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110108084",
+        "head_sha": "5f1022f4322ba5277e519019e13e82f68c13af4f",
+        "status": "completed",
+        "conclusion": "failure"
+      },
+      {
+        "id": 43110108221,
+        "name": "CI",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110108221",
+        "head_sha": "5f1022f4322ba5277e519019e13e82f68c13af4f",
+        "status": "completed",
+        "conclusion": "failure"
+      }
+    ],
+    "ci": {
+      "id": 43110108221,
+      "name": "CI",
+      "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110108221",
+      "head_sha": "5f1022f4322ba5277e519019e13e82f68c13af4f",
+      "status": "completed",
+      "conclusion": "failure"
+    },
+    "jobs": [
+      {
+        "id": 130823561371,
+        "name": "Lint",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110108221/job/130823561371"
+      },
+      {
+        "id": 130824040712,
+        "name": "Type Check",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110108221/job/130824040712"
+      },
+      {
+        "id": 130824040823,
+        "name": "Unit Tests",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110108221/job/130824040823"
+      },
+      {
+        "id": 130825170120,
+        "name": "Build",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110108221/job/130825170120"
+      },
+      {
+        "id": 130825506941,
+        "name": "E2E Tests",
+        "status": "completed",
+        "conclusion": "failure",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110108221/job/130825506941"
+      }
+    ],
+    "verified": true,
+    "verification_reason": "valid",
+    "actual_changed_paths": [
+      "frontend/package.json"
+    ],
+    "commit_url": "https://github.com/naturelle137/AeroDash/commit/5f1022f4322ba5277e519019e13e82f68c13af4f"
+  },
+  {
+    "target": "main",
+    "kind": "workflow",
+    "branch": "hotfix/ci449-probe213-main-workflow",
+    "parent": "007a559bf82cc4ec592cd4e1d001c720c3278819",
+    "head": "b1dc5c160e106a1ca7ac945abffca0db2584e6bc",
+    "paths": [
+      ".github/workflows/ci.yml"
+    ],
+    "pr": 460,
+    "url": "https://github.com/naturelle137/AeroDash/pull/460",
+    "base": "007a559bf82cc4ec592cd4e1d001c720c3278819",
+    "note": "Real unmodified target-baseline CI. Main does not yet contain CI Required: record absence honestly; this cannot prove candidate CI adoption before independent integration.",
+    "runs": [
+      {
+        "id": 43110117884,
+        "name": "CI",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110117884",
+        "head_sha": "b1dc5c160e106a1ca7ac945abffca0db2584e6bc",
+        "status": "completed",
+        "conclusion": "failure"
+      },
+      {
+        "id": 43110117772,
+        "name": "Traceability Gate",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110117772",
+        "head_sha": "b1dc5c160e106a1ca7ac945abffca0db2584e6bc",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 43110116798,
+        "name": "Enforce Branching Model",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110116798",
+        "head_sha": "b1dc5c160e106a1ca7ac945abffca0db2584e6bc",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 43110116812,
+        "name": "Security Scanning",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110116812",
+        "head_sha": "b1dc5c160e106a1ca7ac945abffca0db2584e6bc",
+        "status": "completed",
+        "conclusion": "failure"
+      }
+    ],
+    "ci": {
+      "id": 43110117884,
+      "name": "CI",
+      "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110117884",
+      "head_sha": "b1dc5c160e106a1ca7ac945abffca0db2584e6bc",
+      "status": "completed",
+      "conclusion": "failure"
+    },
+    "jobs": [
+      {
+        "id": 130823595017,
+        "name": "Lint",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110117884/job/130823595017"
+      },
+      {
+        "id": 130823858865,
+        "name": "Type Check",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110117884/job/130823858865"
+      },
+      {
+        "id": 130823858880,
+        "name": "Unit Tests",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110117884/job/130823858880"
+      },
+      {
+        "id": 130824661687,
+        "name": "Build",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110117884/job/130824661687"
+      },
+      {
+        "id": 130825014603,
+        "name": "E2E Tests",
+        "status": "completed",
+        "conclusion": "failure",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110117884/job/130825014603"
+      }
+    ],
+    "verified": true,
+    "verification_reason": "valid",
+    "actual_changed_paths": [
+      ".github/workflows/ci.yml"
+    ],
+    "commit_url": "https://github.com/naturelle137/AeroDash/commit/b1dc5c160e106a1ca7ac945abffca0db2584e6bc"
+  },
+  {
+    "target": "main",
+    "kind": "p1",
+    "branch": "hotfix/ci449-probe213-main-p1",
+    "parent": "007a559bf82cc4ec592cd4e1d001c720c3278819",
+    "head": "671be33a216316cd34b011947de9324c333cd92e",
+    "paths": [
+      "frontend/src/core/logic/performance.bilinear-interpolation.spec.ts"
+    ],
+    "pr": 461,
+    "url": "https://github.com/naturelle137/AeroDash/pull/461",
+    "base": "007a559bf82cc4ec592cd4e1d001c720c3278819",
+    "note": "Real unmodified target-baseline CI. Main does not yet contain CI Required: record absence honestly; this cannot prove candidate CI adoption before independent integration.",
+    "runs": [
+      {
+        "id": 43110130668,
+        "name": "Enforce Branching Model",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110130668",
+        "head_sha": "671be33a216316cd34b011947de9324c333cd92e",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 43110130324,
+        "name": "Security Scanning",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110130324",
+        "head_sha": "671be33a216316cd34b011947de9324c333cd92e",
+        "status": "completed",
+        "conclusion": "failure"
+      },
+      {
+        "id": 43110130604,
+        "name": "Traceability Gate",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110130604",
+        "head_sha": "671be33a216316cd34b011947de9324c333cd92e",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 43110130799,
+        "name": "CI",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110130799",
+        "head_sha": "671be33a216316cd34b011947de9324c333cd92e",
+        "status": "completed",
+        "conclusion": "failure"
+      }
+    ],
+    "ci": {
+      "id": 43110130799,
+      "name": "CI",
+      "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110130799",
+      "head_sha": "671be33a216316cd34b011947de9324c333cd92e",
+      "status": "completed",
+      "conclusion": "failure"
+    },
+    "jobs": [
+      {
+        "id": 130823641047,
+        "name": "Lint",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110130799/job/130823641047"
+      },
+      {
+        "id": 130824290177,
+        "name": "Type Check",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110130799/job/130824290177"
+      },
+      {
+        "id": 130824290214,
+        "name": "Unit Tests",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110130799/job/130824290214"
+      },
+      {
+        "id": 130824952331,
+        "name": "Build",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110130799/job/130824952331"
+      },
+      {
+        "id": 130825170978,
+        "name": "E2E Tests",
+        "status": "completed",
+        "conclusion": "failure",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110130799/job/130825170978"
+      }
+    ],
+    "verified": true,
+    "verification_reason": "valid",
+    "actual_changed_paths": [
+      "frontend/src/core/logic/performance.bilinear-interpolation.spec.ts"
+    ],
+    "commit_url": "https://github.com/naturelle137/AeroDash/commit/671be33a216316cd34b011947de9324c333cd92e"
+  },
+  {
+    "target": "develop",
+    "kind": "negative-fail",
+    "branch": "hotfix/ci449-probe213-develop-negative-fail",
+    "parent": "abd33acdbbe591590652548c472ccaaebfdf7d0a",
+    "head": "c7a4ac916b95da98c9934e11f2b2ba47d30ba596",
+    "paths": [
+      ".github/workflows/ci.yml"
+    ],
+    "pr": 462,
+    "url": "https://github.com/naturelle137/AeroDash/pull/462",
+    "base": "abd33acdbbe591590652548c472ccaaebfdf7d0a",
+    "note": "Negative fail: upstream application steps are lightweight fixtures to bound runner cost; their successes ARE NOT application evidence. The production CI Required block is byte-identical (sha256 95f52d5958a42b2a968981a7f75f091edbad9724d81c7cb2032fe718cc29452c) except the deliberately absent integration dependency for missing. Evaluator/tests and needs graph otherwise unchanged. Actual Actions statuses feed toJSON(needs), never fabricated JSON. Designated cancel probe only may be cancelled.",
+    "runs": [
+      {
+        "id": 43110194151,
+        "name": "DoD Attestation Gate",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110194151",
+        "head_sha": "c7a4ac916b95da98c9934e11f2b2ba47d30ba596",
+        "status": "completed",
+        "conclusion": "failure"
+      },
+      {
+        "id": 43110194303,
+        "name": "CI",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110194303",
+        "head_sha": "c7a4ac916b95da98c9934e11f2b2ba47d30ba596",
+        "status": "completed",
+        "conclusion": "failure"
+      }
+    ],
+    "ci": {
+      "id": 43110194303,
+      "name": "CI",
+      "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110194303",
+      "head_sha": "c7a4ac916b95da98c9934e11f2b2ba47d30ba596",
+      "status": "completed",
+      "conclusion": "failure"
+    },
+    "jobs": [
+      {
+        "id": 130823851874,
+        "name": "Detect applicable gates",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110194303/job/130823851874"
+      },
+      {
+        "id": 130823852181,
+        "name": "Security Scanning",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110194303/job/130823852181"
+      },
+      {
+        "id": 130823852281,
+        "name": "Lint",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110194303/job/130823852281"
+      },
+      {
+        "id": 130823852333,
+        "name": "lint-markdown",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110194303/job/130823852333"
+      },
+      {
+        "id": 130823909448,
+        "name": "P1 Mutation Score",
+        "status": "completed",
+        "conclusion": "skipped",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110194303/job/130823909448"
+      },
+      {
+        "id": 130824620650,
+        "name": "Type Check",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110194303/job/130824620650"
+      },
+      {
+        "id": 130824620672,
+        "name": "Unit Tests",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110194303/job/130824620672"
+      },
+      {
+        "id": 130824620832,
+        "name": "Integration Tests",
+        "status": "completed",
+        "conclusion": "failure",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110194303/job/130824620832"
+      },
+      {
+        "id": 130824972697,
+        "name": "Build",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110194303/job/130824972697"
+      },
+      {
+        "id": 130825074421,
+        "name": "E2E Tests",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110194303/job/130825074421"
+      },
+      {
+        "id": 130825208554,
+        "name": "CI Required",
+        "status": "completed",
+        "conclusion": "failure",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110194303/job/130825208554"
+      }
+    ],
+    "verified": true,
+    "verification_reason": "valid",
+    "actual_changed_paths": [
+      ".github/workflows/ci.yml"
+    ],
+    "commit_url": "https://github.com/naturelle137/AeroDash/commit/c7a4ac916b95da98c9934e11f2b2ba47d30ba596"
+  },
+  {
+    "target": "develop",
+    "kind": "negative-timeout",
+    "branch": "hotfix/ci449-probe213-develop-negative-timeout",
+    "parent": "abd33acdbbe591590652548c472ccaaebfdf7d0a",
+    "head": "3e9e1891dae12023e3cb44b82f2edb95940c6018",
+    "paths": [
+      ".github/workflows/ci.yml"
+    ],
+    "pr": 463,
+    "url": "https://github.com/naturelle137/AeroDash/pull/463",
+    "base": "abd33acdbbe591590652548c472ccaaebfdf7d0a",
+    "note": "Negative timeout: upstream application steps are lightweight fixtures to bound runner cost; their successes ARE NOT application evidence. The production CI Required block is byte-identical (sha256 95f52d5958a42b2a968981a7f75f091edbad9724d81c7cb2032fe718cc29452c) except the deliberately absent integration dependency for missing. Evaluator/tests and needs graph otherwise unchanged. Actual Actions statuses feed toJSON(needs), never fabricated JSON. Designated cancel probe only may be cancelled.",
+    "runs": [
+      {
+        "id": 43110196791,
+        "name": "DoD Attestation Gate",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110196791",
+        "head_sha": "3e9e1891dae12023e3cb44b82f2edb95940c6018",
+        "status": "completed",
+        "conclusion": "failure"
+      },
+      {
+        "id": 43110196735,
+        "name": "CI",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110196735",
+        "head_sha": "3e9e1891dae12023e3cb44b82f2edb95940c6018",
+        "status": "completed",
+        "conclusion": "cancelled"
+      }
+    ],
+    "ci": {
+      "id": 43110196735,
+      "name": "CI",
+      "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110196735",
+      "head_sha": "3e9e1891dae12023e3cb44b82f2edb95940c6018",
+      "status": "completed",
+      "conclusion": "cancelled"
+    },
+    "jobs": [
+      {
+        "id": 130823860441,
+        "name": "Lint",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110196735/job/130823860441"
+      },
+      {
+        "id": 130823860602,
+        "name": "Security Scanning",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110196735/job/130823860602"
+      },
+      {
+        "id": 130823860712,
+        "name": "lint-markdown",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110196735/job/130823860712"
+      },
+      {
+        "id": 130823860728,
+        "name": "Detect applicable gates",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110196735/job/130823860728"
+      },
+      {
+        "id": 130824336629,
+        "name": "P1 Mutation Score",
+        "status": "completed",
+        "conclusion": "skipped",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110196735/job/130824336629"
+      },
+      {
+        "id": 130824657188,
+        "name": "Type Check",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110196735/job/130824657188"
+      },
+      {
+        "id": 130824657229,
+        "name": "Integration Tests",
+        "status": "completed",
+        "conclusion": "cancelled",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110196735/job/130824657229"
+      },
+      {
+        "id": 130824657266,
+        "name": "Unit Tests",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110196735/job/130824657266"
+      },
+      {
+        "id": 130824862866,
+        "name": "Build",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110196735/job/130824862866"
+      },
+      {
+        "id": 130825045170,
+        "name": "E2E Tests",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110196735/job/130825045170"
+      },
+      {
+        "id": 130826100644,
+        "name": "CI Required",
+        "status": "completed",
+        "conclusion": "failure",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110196735/job/130826100644"
+      }
+    ],
+    "verified": true,
+    "verification_reason": "valid",
+    "actual_changed_paths": [
+      ".github/workflows/ci.yml"
+    ],
+    "commit_url": "https://github.com/naturelle137/AeroDash/commit/3e9e1891dae12023e3cb44b82f2edb95940c6018"
+  },
+  {
+    "target": "develop",
+    "kind": "negative-missing",
+    "branch": "hotfix/ci449-probe213-develop-negative-missing",
+    "parent": "abd33acdbbe591590652548c472ccaaebfdf7d0a",
+    "head": "fbe9fc1c964266e2fd63f2dba533aeb69b8bff8d",
+    "paths": [
+      ".github/workflows/ci.yml"
+    ],
+    "pr": 464,
+    "url": "https://github.com/naturelle137/AeroDash/pull/464",
+    "base": "abd33acdbbe591590652548c472ccaaebfdf7d0a",
+    "note": "Negative missing: upstream application steps are lightweight fixtures to bound runner cost; their successes ARE NOT application evidence. The production CI Required block is byte-identical (sha256 95f52d5958a42b2a968981a7f75f091edbad9724d81c7cb2032fe718cc29452c) except the deliberately absent integration dependency for missing. Evaluator/tests and needs graph otherwise unchanged. Actual Actions statuses feed toJSON(needs), never fabricated JSON. Designated cancel probe only may be cancelled.",
+    "runs": [
+      {
+        "id": 43110207341,
+        "name": "DoD Attestation Gate",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110207341",
+        "head_sha": "fbe9fc1c964266e2fd63f2dba533aeb69b8bff8d",
+        "status": "completed",
+        "conclusion": "failure"
+      },
+      {
+        "id": 43110207381,
+        "name": "CI",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110207381",
+        "head_sha": "fbe9fc1c964266e2fd63f2dba533aeb69b8bff8d",
+        "status": "completed",
+        "conclusion": "failure"
+      }
+    ],
+    "ci": {
+      "id": 43110207381,
+      "name": "CI",
+      "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110207381",
+      "head_sha": "fbe9fc1c964266e2fd63f2dba533aeb69b8bff8d",
+      "status": "completed",
+      "conclusion": "failure"
+    },
+    "jobs": [
+      {
+        "id": 130823895983,
+        "name": "lint-markdown",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110207381/job/130823895983"
+      },
+      {
+        "id": 130823896300,
+        "name": "Detect applicable gates",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110207381/job/130823896300"
+      },
+      {
+        "id": 130823896403,
+        "name": "Security Scanning",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110207381/job/130823896403"
+      },
+      {
+        "id": 130823896581,
+        "name": "Lint",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110207381/job/130823896581"
+      },
+      {
+        "id": 130824566658,
+        "name": "P1 Mutation Score",
+        "status": "completed",
+        "conclusion": "skipped",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110207381/job/130824566658"
+      },
+      {
+        "id": 130824766800,
+        "name": "Type Check",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110207381/job/130824766800"
+      },
+      {
+        "id": 130824766881,
+        "name": "Unit Tests",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110207381/job/130824766881"
+      },
+      {
+        "id": 130824977683,
+        "name": "Build",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110207381/job/130824977683"
+      },
+      {
+        "id": 130825101233,
+        "name": "E2E Tests",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110207381/job/130825101233"
+      },
+      {
+        "id": 130825201629,
+        "name": "CI Required",
+        "status": "completed",
+        "conclusion": "failure",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110207381/job/130825201629"
+      }
+    ],
+    "verified": true,
+    "verification_reason": "valid",
+    "actual_changed_paths": [
+      ".github/workflows/ci.yml"
+    ],
+    "commit_url": "https://github.com/naturelle137/AeroDash/commit/fbe9fc1c964266e2fd63f2dba533aeb69b8bff8d"
+  },
+  {
+    "target": "develop",
+    "kind": "negative-detector-failure",
+    "branch": "hotfix/ci449-probe213-develop-negative-detector-failure",
+    "parent": "abd33acdbbe591590652548c472ccaaebfdf7d0a",
+    "head": "72b76e6307422d3b6d66263bb9d9b51062e7ba08",
+    "paths": [
+      ".github/workflows/ci.yml"
+    ],
+    "pr": 465,
+    "url": "https://github.com/naturelle137/AeroDash/pull/465",
+    "base": "abd33acdbbe591590652548c472ccaaebfdf7d0a",
+    "note": "Negative detector-failure: upstream application steps are lightweight fixtures to bound runner cost; their successes ARE NOT application evidence. The production CI Required block is byte-identical (sha256 95f52d5958a42b2a968981a7f75f091edbad9724d81c7cb2032fe718cc29452c) except the deliberately absent integration dependency for missing. Evaluator/tests and needs graph otherwise unchanged. Actual Actions statuses feed toJSON(needs), never fabricated JSON. Designated cancel probe only may be cancelled.",
+    "runs": [
+      {
+        "id": 43110217036,
+        "name": "DoD Attestation Gate",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110217036",
+        "head_sha": "72b76e6307422d3b6d66263bb9d9b51062e7ba08",
+        "status": "completed",
+        "conclusion": "failure"
+      },
+      {
+        "id": 43110217067,
+        "name": "CI",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110217067",
+        "head_sha": "72b76e6307422d3b6d66263bb9d9b51062e7ba08",
+        "status": "completed",
+        "conclusion": "failure"
+      }
+    ],
+    "ci": {
+      "id": 43110217067,
+      "name": "CI",
+      "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110217067",
+      "head_sha": "72b76e6307422d3b6d66263bb9d9b51062e7ba08",
+      "status": "completed",
+      "conclusion": "failure"
+    },
+    "jobs": [
+      {
+        "id": 130823927250,
+        "name": "Security Scanning",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110217067/job/130823927250"
+      },
+      {
+        "id": 130823927694,
+        "name": "Lint",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110217067/job/130823927694"
+      },
+      {
+        "id": 130823927958,
+        "name": "Detect applicable gates",
+        "status": "completed",
+        "conclusion": "failure",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110217067/job/130823927958"
+      },
+      {
+        "id": 130823928128,
+        "name": "lint-markdown",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110217067/job/130823928128"
+      },
+      {
+        "id": 130824602618,
+        "name": "Integration Tests",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110217067/job/130824602618"
+      },
+      {
+        "id": 130824602779,
+        "name": "Type Check",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110217067/job/130824602779"
+      },
+      {
+        "id": 130824603614,
+        "name": "Unit Tests",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110217067/job/130824603614"
+      },
+      {
+        "id": 130824797443,
+        "name": "P1 Mutation Score",
+        "status": "completed",
+        "conclusion": "skipped",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110217067/job/130824797443"
+      },
+      {
+        "id": 130824985741,
+        "name": "Build",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110217067/job/130824985741"
+      },
+      {
+        "id": 130825104591,
+        "name": "E2E Tests",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110217067/job/130825104591"
+      },
+      {
+        "id": 130825172009,
+        "name": "CI Required",
+        "status": "completed",
+        "conclusion": "failure",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110217067/job/130825172009"
+      }
+    ],
+    "verified": true,
+    "verification_reason": "valid",
+    "actual_changed_paths": [
+      ".github/workflows/ci.yml"
+    ],
+    "commit_url": "https://github.com/naturelle137/AeroDash/commit/72b76e6307422d3b6d66263bb9d9b51062e7ba08"
+  },
+  {
+    "target": "develop",
+    "kind": "negative-detector-output",
+    "branch": "hotfix/ci449-probe213-develop-negative-detector-output",
+    "parent": "abd33acdbbe591590652548c472ccaaebfdf7d0a",
+    "head": "ec035b5076f0496b3d4e4a876a7a2feac579b400",
+    "paths": [
+      ".github/workflows/ci.yml"
+    ],
+    "pr": 466,
+    "url": "https://github.com/naturelle137/AeroDash/pull/466",
+    "base": "abd33acdbbe591590652548c472ccaaebfdf7d0a",
+    "note": "Negative detector-output: upstream application steps are lightweight fixtures to bound runner cost; their successes ARE NOT application evidence. The production CI Required block is byte-identical (sha256 95f52d5958a42b2a968981a7f75f091edbad9724d81c7cb2032fe718cc29452c) except the deliberately absent integration dependency for missing. Evaluator/tests and needs graph otherwise unchanged. Actual Actions statuses feed toJSON(needs), never fabricated JSON. Designated cancel probe only may be cancelled.",
+    "runs": [
+      {
+        "id": 43110226413,
+        "name": "DoD Attestation Gate",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110226413",
+        "head_sha": "ec035b5076f0496b3d4e4a876a7a2feac579b400",
+        "status": "completed",
+        "conclusion": "failure"
+      },
+      {
+        "id": 43110226409,
+        "name": "CI",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110226409",
+        "head_sha": "ec035b5076f0496b3d4e4a876a7a2feac579b400",
+        "status": "completed",
+        "conclusion": "failure"
+      }
+    ],
+    "ci": {
+      "id": 43110226409,
+      "name": "CI",
+      "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110226409",
+      "head_sha": "ec035b5076f0496b3d4e4a876a7a2feac579b400",
+      "status": "completed",
+      "conclusion": "failure"
+    },
+    "jobs": [
+      {
+        "id": 130823957535,
+        "name": "Lint",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110226409/job/130823957535"
+      },
+      {
+        "id": 130823957787,
+        "name": "Security Scanning",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110226409/job/130823957787"
+      },
+      {
+        "id": 130823957814,
+        "name": "lint-markdown",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110226409/job/130823957814"
+      },
+      {
+        "id": 130823957846,
+        "name": "Detect applicable gates",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110226409/job/130823957846"
+      },
+      {
+        "id": 130824872121,
+        "name": "Integration Tests",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110226409/job/130824872121"
+      },
+      {
+        "id": 130824872139,
+        "name": "Unit Tests",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110226409/job/130824872139"
+      },
+      {
+        "id": 130824872262,
+        "name": "Type Check",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110226409/job/130824872262"
+      },
+      {
+        "id": 130824927582,
+        "name": "P1 Mutation Score",
+        "status": "completed",
+        "conclusion": "skipped",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110226409/job/130824927582"
+      },
+      {
+        "id": 130825071544,
+        "name": "Build",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110226409/job/130825071544"
+      },
+      {
+        "id": 130825135421,
+        "name": "E2E Tests",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110226409/job/130825135421"
+      },
+      {
+        "id": 130825388260,
+        "name": "CI Required",
+        "status": "completed",
+        "conclusion": "failure",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110226409/job/130825388260"
+      }
+    ],
+    "verified": true,
+    "verification_reason": "valid",
+    "actual_changed_paths": [
+      ".github/workflows/ci.yml"
+    ],
+    "commit_url": "https://github.com/naturelle137/AeroDash/commit/ec035b5076f0496b3d4e4a876a7a2feac579b400"
+  },
+  {
+    "target": "develop",
+    "kind": "negative-skipped",
+    "branch": "hotfix/ci449-probe213-develop-negative-skipped",
+    "parent": "abd33acdbbe591590652548c472ccaaebfdf7d0a",
+    "head": "243656fa81ebcbf8a00f7b078ee00fb02f30e909",
+    "paths": [
+      ".github/workflows/ci.yml"
+    ],
+    "pr": 467,
+    "url": "https://github.com/naturelle137/AeroDash/pull/467",
+    "base": "abd33acdbbe591590652548c472ccaaebfdf7d0a",
+    "note": "Negative skipped: upstream application steps are lightweight fixtures to bound runner cost; their successes ARE NOT application evidence. The production CI Required block is byte-identical (sha256 95f52d5958a42b2a968981a7f75f091edbad9724d81c7cb2032fe718cc29452c) except the deliberately absent integration dependency for missing. Evaluator/tests and needs graph otherwise unchanged. Actual Actions statuses feed toJSON(needs), never fabricated JSON. Designated cancel probe only may be cancelled.",
+    "runs": [
+      {
+        "id": 43110235528,
+        "name": "DoD Attestation Gate",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110235528",
+        "head_sha": "243656fa81ebcbf8a00f7b078ee00fb02f30e909",
+        "status": "completed",
+        "conclusion": "failure"
+      },
+      {
+        "id": 43110236020,
+        "name": "CI",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110236020",
+        "head_sha": "243656fa81ebcbf8a00f7b078ee00fb02f30e909",
+        "status": "completed",
+        "conclusion": "failure"
+      }
+    ],
+    "ci": {
+      "id": 43110236020,
+      "name": "CI",
+      "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110236020",
+      "head_sha": "243656fa81ebcbf8a00f7b078ee00fb02f30e909",
+      "status": "completed",
+      "conclusion": "failure"
+    },
+    "jobs": [
+      {
+        "id": 130823990363,
+        "name": "Lint",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110236020/job/130823990363"
+      },
+      {
+        "id": 130823990799,
+        "name": "Security Scanning",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110236020/job/130823990799"
+      },
+      {
+        "id": 130823990945,
+        "name": "lint-markdown",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110236020/job/130823990945"
+      },
+      {
+        "id": 130823991153,
+        "name": "Detect applicable gates",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110236020/job/130823991153"
+      },
+      {
+        "id": 130824397995,
+        "name": "Unit Tests",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110236020/job/130824397995"
+      },
+      {
+        "id": 130824398077,
+        "name": "Type Check",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110236020/job/130824398077"
+      },
+      {
+        "id": 130824400263,
+        "name": "Integration Tests",
+        "status": "completed",
+        "conclusion": "skipped",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110236020/job/130824400263"
+      },
+      {
+        "id": 130824753471,
+        "name": "P1 Mutation Score",
+        "status": "completed",
+        "conclusion": "skipped",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110236020/job/130824753471"
+      },
+      {
+        "id": 130824848732,
+        "name": "Build",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110236020/job/130824848732"
+      },
+      {
+        "id": 130824991386,
+        "name": "E2E Tests",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110236020/job/130824991386"
+      },
+      {
+        "id": 130825102892,
+        "name": "CI Required",
+        "status": "completed",
+        "conclusion": "failure",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110236020/job/130825102892"
+      }
+    ],
+    "verified": true,
+    "verification_reason": "valid",
+    "actual_changed_paths": [
+      ".github/workflows/ci.yml"
+    ],
+    "commit_url": "https://github.com/naturelle137/AeroDash/commit/243656fa81ebcbf8a00f7b078ee00fb02f30e909"
+  },
+  {
+    "target": "develop",
+    "kind": "negative-cancel",
+    "branch": "hotfix/ci449-probe213-develop-negative-cancel",
+    "parent": "abd33acdbbe591590652548c472ccaaebfdf7d0a",
+    "head": "4d4ae1261a3c7d38818afc713880dfb7818fd0db",
+    "paths": [
+      ".github/workflows/ci.yml"
+    ],
+    "pr": 468,
+    "url": "https://github.com/naturelle137/AeroDash/pull/468",
+    "base": "abd33acdbbe591590652548c472ccaaebfdf7d0a",
+    "note": "Negative cancel: upstream application steps are lightweight fixtures to bound runner cost; their successes ARE NOT application evidence. The production CI Required block is byte-identical (sha256 95f52d5958a42b2a968981a7f75f091edbad9724d81c7cb2032fe718cc29452c) except the deliberately absent integration dependency for missing. Evaluator/tests and needs graph otherwise unchanged. Actual Actions statuses feed toJSON(needs), never fabricated JSON. Designated cancel probe only may be cancelled.",
+    "runs": [
+      {
+        "id": 43110248700,
+        "name": "DoD Attestation Gate",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110248700",
+        "head_sha": "4d4ae1261a3c7d38818afc713880dfb7818fd0db",
+        "status": "completed",
+        "conclusion": "failure"
+      },
+      {
+        "id": 43110246798,
+        "name": "CI",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110246798",
+        "head_sha": "4d4ae1261a3c7d38818afc713880dfb7818fd0db",
+        "status": "completed",
+        "conclusion": "cancelled"
+      }
+    ],
+    "ci": {
+      "id": 43110246798,
+      "name": "CI",
+      "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110246798",
+      "head_sha": "4d4ae1261a3c7d38818afc713880dfb7818fd0db",
+      "status": "completed",
+      "conclusion": "cancelled"
+    },
+    "jobs": [
+      {
+        "id": 130824026569,
+        "name": "Security Scanning",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110246798/job/130824026569"
+      },
+      {
+        "id": 130824026629,
+        "name": "Lint",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110246798/job/130824026629"
+      },
+      {
+        "id": 130824026757,
+        "name": "Detect applicable gates",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110246798/job/130824026757"
+      },
+      {
+        "id": 130824026861,
+        "name": "lint-markdown",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110246798/job/130824026861"
+      },
+      {
+        "id": 130824647373,
+        "name": "Type Check",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110246798/job/130824647373"
+      },
+      {
+        "id": 130824647390,
+        "name": "Integration Tests",
+        "status": "completed",
+        "conclusion": "cancelled",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110246798/job/130824647390"
+      },
+      {
+        "id": 130824647432,
+        "name": "Unit Tests",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110246798/job/130824647432"
+      },
+      {
+        "id": 130824668044,
+        "name": "P1 Mutation Score",
+        "status": "completed",
+        "conclusion": "skipped",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110246798/job/130824668044"
+      },
+      {
+        "id": 130824957692,
+        "name": "Build",
+        "status": "completed",
+        "conclusion": "cancelled",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110246798/job/130824957692"
+      },
+      {
+        "id": 130825020006,
+        "name": "E2E Tests",
+        "status": "completed",
+        "conclusion": "cancelled",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110246798/job/130825020006"
+      },
+      {
+        "id": 130825110977,
+        "name": "CI Required",
+        "status": "completed",
+        "conclusion": "failure",
+        "html_url": "https://github.com/naturelle137/AeroDash/actions/runs/43110246798/job/130825110977"
+      }
+    ],
+    "verified": true,
+    "verification_reason": "valid",
+    "actual_changed_paths": [
+      ".github/workflows/ci.yml"
+    ],
+    "commit_url": "https://github.com/naturelle137/AeroDash/commit/4d4ae1261a3c7d38818afc713880dfb7818fd0db"
+  }
+]

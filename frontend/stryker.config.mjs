@@ -1,20 +1,27 @@
 // @ts-check
 /** @type {import('@stryker-mutator/api/core').PartialStrykerOptions} */
-
 const config = {
   packageManager: 'pnpm',
   testRunner: 'vitest',
   checkers: ['typescript'],
   tsconfigFile: 'tsconfig.stryker.json',
-
-  // ADD THIS: Force Stryker to load plugins correctly in a pnpm environment
   plugins: ['@stryker-mutator/vitest-runner', '@stryker-mutator/typescript-checker'],
-
-  // Ensure the temp directory is created relative to the frontend package
   tempDirName: '.stryker-tmp',
-
-  // This is crucial for pnpm symlinks
   symlinkNodeModules: true,
+  vitest: { configFile: 'vitest.config.p1.ts' },
+  mutate: [
+    'src/core/**/*.ts',
+    '!src/core/**/*.spec.ts',
+    '!src/core/**/*.int.spec.ts',
+    '!src/core/**/*.e2e.spec.ts',
+    '!src/core/**/*.types.ts',
+    '!src/core/**/*-types.ts',
+    '!src/core/**/__fixtures__/**',
+    '!src/core/**/__tests__/**',
+  ],
+  thresholds: { high: 70, low: 70, break: 70 },
+  reporters: ['progress', 'clear-text', 'html'],
+  htmlReporter: { fileName: 'reports/mutation/mutation.html' },
+  timeoutMS: 60000,
 }
-
 export default config

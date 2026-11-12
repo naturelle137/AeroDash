@@ -10,6 +10,8 @@ permissions:
 
 jobs:
   publish:
+    # Technical CI promotion carries no publication authority; E3 owns restoration.
+    if: ${{ false }}
     name: Tag & publish GitHub release
     runs-on: ubuntu-latest
 

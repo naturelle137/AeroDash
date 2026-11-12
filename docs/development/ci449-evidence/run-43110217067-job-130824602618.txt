@@ -1,0 +1,36 @@
+﻿2026-11-11T22:17:13.0168941Z Current runner version: '2.338.2'
+2026-11-11T22:17:13.0197645Z ##[group]Runner Image Provisioner
+2026-11-11T22:17:13.0198944Z Hosted Compute Agent
+2026-11-11T22:17:13.0199597Z Version: 20261028.624
+2026-11-11T22:17:13.0200306Z Commit: 54898b74c23fde5556c9b3c3a2290865feef0dfe
+2026-11-11T22:17:13.0201117Z Build Date: 2026-10-28T21:51:42Z
+2026-11-11T22:17:13.0201826Z Worker ID: {b3bde370-f7e9-4f5c-8f0d-a0b48f98b26b}
+2026-11-11T22:17:13.0202542Z Region: westcentralus
+2026-11-11T22:17:13.0203216Z Cloud: Azure
+2026-11-11T22:17:13.0203852Z ##[endgroup]
+2026-11-11T22:17:13.0205744Z ##[group]Operating System
+2026-11-11T22:17:13.0206404Z Ubuntu
+2026-11-11T22:17:13.0206935Z 26.04.1
+2026-11-11T22:17:13.0207575Z LTS
+2026-11-11T22:17:13.0208178Z ##[endgroup]
+2026-11-11T22:17:13.0208996Z ##[group]Runner Image
+2026-11-11T22:17:13.0209659Z Image: ubuntu-26.04
+2026-11-11T22:17:13.0210341Z Version: 20261101.186.1
+2026-11-11T22:17:13.0211952Z Included Software: https://github.com/actions/runner-images/blob/ubuntu26/20261101.186/images/ubuntu/Ubuntu2604-Readme.md
+2026-11-11T22:17:13.0213561Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu26%2F20261101.186
+2026-11-11T22:17:13.0214565Z ##[endgroup]
+2026-11-11T22:17:13.0215793Z ##[group]GITHUB_TOKEN Permissions
+2026-11-11T22:17:13.0218206Z Contents: read
+2026-11-11T22:17:13.0219128Z Metadata: read
+2026-11-11T22:17:13.0219856Z ##[endgroup]
+2026-11-11T22:17:13.0222432Z Secret source: Actions
+2026-11-11T22:17:13.0223486Z Cache mode: write
+2026-11-11T22:17:13.0224269Z Prepare workflow directory
+2026-11-11T22:17:13.0625422Z Prepare all required actions
+2026-11-11T22:17:13.0735714Z Complete job name: Integration Tests
+2026-11-11T22:17:13.2282386Z ##[group]Run echo "Evidence-only fixture; no application validation"
+2026-11-11T22:17:13.2283405Z echo "Evidence-only fixture; no application validation"
+2026-11-11T22:17:13.2888624Z shell: /usr/bin/bash -e {0}
+2026-11-11T22:17:13.2890105Z ##[endgroup]
+2026-11-11T22:17:13.3135791Z Evidence-only fixture; no application validation
+2026-11-11T22:17:13.3297502Z Cleaning up orphan processes

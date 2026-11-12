@@ -1,0 +1,38 @@
+﻿2026-11-11T22:16:57.6680935Z Current runner version: '2.338.2'
+2026-11-11T22:16:57.6708668Z ##[group]Runner Image Provisioner
+2026-11-11T22:16:57.6709638Z Hosted Compute Agent
+2026-11-11T22:16:57.6710377Z Version: 20261028.624
+2026-11-11T22:16:57.6711107Z Commit: 54898b74c23fde5556c9b3c3a2290865feef0dfe
+2026-11-11T22:16:57.6711871Z Build Date: 2026-10-28T21:51:42Z
+2026-11-11T22:16:57.6712791Z Worker ID: {c6c11228-b73c-47b9-85ae-db8924abe503}
+2026-11-11T22:16:57.6713553Z Region: westus
+2026-11-11T22:16:57.6714255Z Cloud: Azure
+2026-11-11T22:16:57.6714868Z ##[endgroup]
+2026-11-11T22:16:57.6716800Z ##[group]Operating System
+2026-11-11T22:16:57.6717870Z Ubuntu
+2026-11-11T22:16:57.6718568Z 26.04.1
+2026-11-11T22:16:57.6719197Z LTS
+2026-11-11T22:16:57.6719873Z ##[endgroup]
+2026-11-11T22:16:57.6720471Z ##[group]Runner Image
+2026-11-11T22:16:57.6721217Z Image: ubuntu-26.04
+2026-11-11T22:16:57.6721837Z Version: 20261101.186.1
+2026-11-11T22:16:57.6723268Z Included Software: https://github.com/actions/runner-images/blob/ubuntu26/20261101.186/images/ubuntu/Ubuntu2604-Readme.md
+2026-11-11T22:16:57.6724853Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu26%2F20261101.186
+2026-11-11T22:16:57.6725974Z ##[endgroup]
+2026-11-11T22:16:57.6727149Z ##[group]GITHUB_TOKEN Permissions
+2026-11-11T22:16:57.6729832Z Contents: read
+2026-11-11T22:16:57.6730516Z Metadata: read
+2026-11-11T22:16:57.6731203Z ##[endgroup]
+2026-11-11T22:16:57.6733517Z Secret source: Actions
+2026-11-11T22:16:57.6734687Z Cache mode: write
+2026-11-11T22:16:57.6735817Z Prepare workflow directory
+2026-11-11T22:16:57.7096047Z Prepare all required actions
+2026-11-11T22:16:57.7212664Z Complete job name: Detect applicable gates
+2026-11-11T22:16:57.8360969Z ##[group]Run echo "mutation_required=false" >> "$GITHUB_OUTPUT"; exit 1
+2026-11-11T22:16:57.8362297Z echo "mutation_required=false" >> "$GITHUB_OUTPUT"; exit 1
+2026-11-11T22:16:57.9302067Z shell: /usr/bin/bash -e {0}
+2026-11-11T22:16:57.9303089Z ##[endgroup]
+2026-11-11T22:16:57.9529911Z ##[error]Process completed with exit code 1.
+2026-11-11T22:16:57.9755700Z Evaluate and set job outputs
+2026-11-11T22:16:57.9799733Z Set output 'mutation_required'
+2026-11-11T22:16:57.9801850Z Cleaning up orphan processes

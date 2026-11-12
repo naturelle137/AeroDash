@@ -1,0 +1,257 @@
+﻿2026-11-11T22:18:30.1797140Z Current runner version: '2.338.2'
+2026-11-11T22:18:30.1817767Z ##[group]Runner Image Provisioner
+2026-11-11T22:18:30.1818518Z Hosted Compute Agent
+2026-11-11T22:18:30.1819060Z Version: 20261028.624
+2026-11-11T22:18:30.1819581Z Commit: 54898b74c23fde5556c9b3c3a2290865feef0dfe
+2026-11-11T22:18:30.1820200Z Build Date: 2026-10-28T21:51:42Z
+2026-11-11T22:18:30.1820788Z Worker ID: {e91845b7-16e0-4bd3-ad08-1a5a76f1a44a}
+2026-11-11T22:18:30.1821353Z Region: westus3
+2026-11-11T22:18:30.1821782Z Cloud: Azure
+2026-11-11T22:18:30.1822267Z ##[endgroup]
+2026-11-11T22:18:30.1823590Z ##[group]Operating System
+2026-11-11T22:18:30.1824146Z Ubuntu
+2026-11-11T22:18:30.1824621Z 26.04.1
+2026-11-11T22:18:30.1825027Z LTS
+2026-11-11T22:18:30.1825766Z ##[endgroup]
+2026-11-11T22:18:30.1826255Z ##[group]Runner Image
+2026-11-11T22:18:30.1826767Z Image: ubuntu-26.04
+2026-11-11T22:18:30.1827243Z Version: 20261101.186.1
+2026-11-11T22:18:30.1828291Z Included Software: https://github.com/actions/runner-images/blob/ubuntu26/20261101.186/images/ubuntu/Ubuntu2604-Readme.md
+2026-11-11T22:18:30.1829513Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu26%2F20261101.186
+2026-11-11T22:18:30.1830323Z ##[endgroup]
+2026-11-11T22:18:30.1831242Z ##[group]GITHUB_TOKEN Permissions
+2026-11-11T22:18:30.1832788Z Contents: read
+2026-11-11T22:18:30.1833317Z Metadata: read
+2026-11-11T22:18:30.1833774Z ##[endgroup]
+2026-11-11T22:18:30.1835584Z Secret source: Actions
+2026-11-11T22:18:30.1836350Z Cache mode: write
+2026-11-11T22:18:30.1836972Z Prepare workflow directory
+2026-11-11T22:18:30.2096552Z Prepare all required actions
+2026-11-11T22:18:30.2139971Z Getting action download info
+2026-11-11T22:18:30.4929135Z Download action repository 'actions/checkout@v5' (SHA:fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09)
+2026-11-11T22:18:30.7113129Z Complete job name: CI Required
+2026-11-11T22:18:30.7780285Z ##[group]Run actions/checkout@v5
+2026-11-11T22:18:30.7780979Z with:
+2026-11-11T22:18:30.7781352Z   repository: naturelle137/AeroDash
+2026-11-11T22:18:30.7784406Z   token: ***
+2026-11-11T22:18:30.7784776Z   ssh-strict: true
+2026-11-11T22:18:30.7785148Z   ssh-user: git
+2026-11-11T22:18:30.7785671Z   persist-credentials: true
+2026-11-11T22:18:30.7786070Z   clean: true
+2026-11-11T22:18:30.7786436Z   sparse-checkout-cone-mode: true
+2026-11-11T22:18:30.7786859Z   fetch-depth: 1
+2026-11-11T22:18:30.7787211Z   fetch-tags: false
+2026-11-11T22:18:30.7787564Z   show-progress: true
+2026-11-11T22:18:30.7787927Z   lfs: false
+2026-11-11T22:18:30.7788266Z   submodules: false
+2026-11-11T22:18:30.7788625Z   set-safe-directory: true
+2026-11-11T22:18:30.7789027Z   allow-unsafe-pr-checkout: false
+2026-11-11T22:18:30.7789641Z ##[endgroup]
+2026-11-11T22:18:30.9730567Z Syncing repository: naturelle137/AeroDash
+2026-11-11T22:18:30.9732735Z ##[group]Getting Git version info
+2026-11-11T22:18:30.9733771Z Working directory is '/home/runner/work/AeroDash/AeroDash'
+2026-11-11T22:18:30.9734721Z [command]/usr/bin/git version
+2026-11-11T22:18:30.9740382Z git version 2.56.0
+2026-11-11T22:18:30.9755980Z ##[endgroup]
+2026-11-11T22:18:30.9767965Z Temporarily overriding HOME='/home/runner/work/_temp/07e366c8-3808-4d1e-9600-dc43a3fbb3e6' before making global git config changes
+2026-11-11T22:18:30.9769804Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-11T22:18:30.9771665Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/AeroDash/AeroDash
+2026-11-11T22:18:30.9904563Z Deleting the contents of '/home/runner/work/AeroDash/AeroDash'
+2026-11-11T22:18:30.9908552Z ##[group]Initializing the repository
+2026-11-11T22:18:30.9922886Z [command]/usr/bin/git init /home/runner/work/AeroDash/AeroDash
+2026-11-11T22:18:31.0001474Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-11-11T22:18:31.0002983Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-11-11T22:18:31.0003925Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-11-11T22:18:31.0004661Z hint: call:
+2026-11-11T22:18:31.0005705Z hint:
+2026-11-11T22:18:31.0006288Z hint: 	git config --global init.defaultBranch <name>
+2026-11-11T22:18:31.0006902Z hint:
+2026-11-11T22:18:31.0007518Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-11-11T22:18:31.0008442Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-11-11T22:18:31.0009236Z hint:
+2026-11-11T22:18:31.0009655Z hint: 	git branch -m <name>
+2026-11-11T22:18:31.0010265Z hint:
+2026-11-11T22:18:31.0010965Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-11-11T22:18:31.0013064Z Initialized empty Git repository in /home/runner/work/AeroDash/AeroDash/.git/
+2026-11-11T22:18:31.0024275Z [command]/usr/bin/git remote add origin https://github.com/naturelle137/AeroDash
+2026-11-11T22:18:31.0072087Z ##[endgroup]
+2026-11-11T22:18:31.0072738Z ##[group]Disabling automatic garbage collection
+2026-11-11T22:18:31.0073415Z [command]/usr/bin/git config --local gc.auto 0
+2026-11-11T22:18:31.0100984Z ##[endgroup]
+2026-11-11T22:18:31.0101823Z ##[group]Setting up auth
+2026-11-11T22:18:31.0107483Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-11T22:18:31.0138541Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-11T22:18:31.0494500Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-11T22:18:31.0527553Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-11T22:18:31.0792200Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-11T22:18:31.0803736Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-11T22:18:31.1043856Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-11-11T22:18:31.1080457Z ##[endgroup]
+2026-11-11T22:18:31.1081187Z ##[group]Fetching the repository
+2026-11-11T22:18:31.1088688Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +0ff3022ce8b293f453c372fb328485bb287673a8:refs/remotes/pull/466/merge
+2026-11-11T22:18:32.0062301Z From https://github.com/naturelle137/AeroDash
+2026-11-11T22:18:32.0063573Z  * [new ref]         0ff3022ce8b293f453c372fb328485bb287673a8 -> pull/466/merge
+2026-11-11T22:18:32.0077330Z ##[endgroup]
+2026-11-11T22:18:32.0078290Z ##[group]Determining the checkout info
+2026-11-11T22:18:32.0079292Z ##[endgroup]
+2026-11-11T22:18:32.0081911Z [command]/usr/bin/git sparse-checkout disable
+2026-11-11T22:18:32.0131542Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-11-11T22:18:32.0159344Z ##[group]Checking out the ref
+2026-11-11T22:18:32.0161982Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/466/merge
+2026-11-11T22:18:32.0706936Z Note: switching to 'refs/remotes/pull/466/merge'.
+2026-11-11T22:18:32.0707967Z 
+2026-11-11T22:18:32.0708777Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-11-11T22:18:32.0710323Z changes and commit them, and you can discard any commits you make in this
+2026-11-11T22:18:32.0711788Z state without impacting any branches by switching back to a branch.
+2026-11-11T22:18:32.0712639Z 
+2026-11-11T22:18:32.0713231Z If you want to create a new branch to retain commits you create, you may
+2026-11-11T22:18:32.0715080Z do so (now or later) by using -c with the switch command. Example:
+2026-11-11T22:18:32.0716300Z 
+2026-11-11T22:18:32.0716840Z   git switch -c <new-branch-name>
+2026-11-11T22:18:32.0717544Z 
+2026-11-11T22:18:32.0718034Z Or undo this operation with:
+2026-11-11T22:18:32.0718898Z 
+2026-11-11T22:18:32.0719474Z   git switch -
+2026-11-11T22:18:32.0720570Z 
+2026-11-11T22:18:32.0721671Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-11-11T22:18:32.0723242Z 
+2026-11-11T22:18:32.0724967Z HEAD is now at 0ff3022 Merge ec035b5076f0496b3d4e4a876a7a2feac579b400 into abd33acdbbe591590652548c472ccaaebfdf7d0a
+2026-11-11T22:18:32.0730706Z ##[endgroup]
+2026-11-11T22:18:32.0763184Z [command]/usr/bin/git log -1 --format=%H
+2026-11-11T22:18:32.0785753Z 0ff3022ce8b293f453c372fb328485bb287673a8
+2026-11-11T22:18:32.1030834Z ##[group]Run node --test .github/scripts/ci-required.test.mjs
+2026-11-11T22:18:32.1032499Z node --test .github/scripts/ci-required.test.mjs
+2026-11-11T22:18:32.1082297Z shell: /usr/bin/bash -e {0}
+2026-11-11T22:18:32.1083311Z ##[endgroup]
+2026-11-11T22:18:32.5011638Z ✔ all mandatory green with valid non-P1 exemption passes (1.884594ms)
+2026-11-11T22:18:32.5012613Z ✔ P1 change with mutation success passes (0.138496ms)
+2026-11-11T22:18:32.5026308Z ✔ lint failure blocks (0.18922ms)
+2026-11-11T22:18:32.5041594Z ✔ lint-markdown failure blocks (0.08752ms)
+2026-11-11T22:18:32.5042177Z ✔ type-check failure blocks (0.065087ms)
+2026-11-11T22:18:32.5042722Z ✔ unit-tests failure blocks (0.095642ms)
+2026-11-11T22:18:32.5043212Z ✔ integration failure blocks (0.148751ms)
+2026-11-11T22:18:32.5043987Z ✔ build failure blocks (0.095051ms)
+2026-11-11T22:18:32.5046002Z ✔ e2e failure blocks (0.098997ms)
+2026-11-11T22:18:32.5046856Z ✔ security failure blocks (0.118085ms)
+2026-11-11T22:18:32.5047782Z ✔ changes failure blocks (0.055983ms)
+2026-11-11T22:18:32.5048749Z ✔ required mutation failure blocks (0.074731ms)
+2026-11-11T22:18:32.5049602Z ✔ lint cancelled blocks (0.045657ms)
+2026-11-11T22:18:32.5050514Z ✔ lint-markdown cancelled blocks (0.041882ms)
+2026-11-11T22:18:32.5051458Z ✔ type-check cancelled blocks (0.032318ms)
+2026-11-11T22:18:32.5052438Z ✔ unit-tests cancelled blocks (0.032869ms)
+2026-11-11T22:18:32.5053299Z ✔ integration cancelled blocks (0.022614ms)
+2026-11-11T22:18:32.5054220Z ✔ build cancelled blocks (0.058827ms)
+2026-11-11T22:18:32.5055060Z ✔ e2e cancelled blocks (0.027791ms)
+2026-11-11T22:18:32.5055972Z ✔ security cancelled blocks (0.020861ms)
+2026-11-11T22:18:32.5057072Z ✔ changes cancelled blocks (0.01975ms)
+2026-11-11T22:18:32.5057916Z ✔ required mutation cancelled blocks (0.022453ms)
+2026-11-11T22:18:32.5059053Z ✔ lint skipped blocks (0.021332ms)
+2026-11-11T22:18:32.5061158Z ✔ lint-markdown skipped blocks (0.019729ms)
+2026-11-11T22:18:32.5063417Z ✔ type-check skipped blocks (0.019058ms)
+2026-11-11T22:18:32.5065346Z ✔ unit-tests skipped blocks (0.019249ms)
+2026-11-11T22:18:32.5067600Z ✔ integration skipped blocks (0.032448ms)
+2026-11-11T22:18:32.5069459Z ✔ build skipped blocks (0.032177ms)
+2026-11-11T22:18:32.5071349Z ✔ e2e skipped blocks (0.06796ms)
+2026-11-11T22:18:32.5074209Z ✔ security skipped blocks (0.050085ms)
+2026-11-11T22:18:32.5078239Z ✔ changes skipped blocks (0.032058ms)
+2026-11-11T22:18:32.5078789Z ✔ required mutation skipped blocks (0.044306ms)
+2026-11-11T22:18:32.5080583Z ✔ lint missing blocks (0.085717ms)
+2026-11-11T22:18:32.5083008Z ✔ lint unknown result blocks (0.07421ms)
+2026-11-11T22:18:32.5095998Z ✔ lint-markdown missing blocks (0.034622ms)
+2026-11-11T22:18:32.5096613Z ✔ lint-markdown unknown result blocks (0.058998ms)
+2026-11-11T22:18:32.5097195Z ✔ type-check missing blocks (0.03416ms)
+2026-11-11T22:18:32.5097729Z ✔ type-check unknown result blocks (0.02676ms)
+2026-11-11T22:18:32.5098256Z ✔ unit-tests missing blocks (0.032668ms)
+2026-11-11T22:18:32.5098829Z ✔ unit-tests unknown result blocks (0.028673ms)
+2026-11-11T22:18:32.5139872Z ✔ integration missing blocks (0.063964ms)
+2026-11-11T22:18:32.5140419Z ✔ integration unknown result blocks (0.075873ms)
+2026-11-11T22:18:32.5140786Z ✔ build missing blocks (0.088561ms)
+2026-11-11T22:18:32.5141098Z ✔ build unknown result blocks (0.070765ms)
+2026-11-11T22:18:32.5141409Z ✔ e2e missing blocks (0.098046ms)
+2026-11-11T22:18:32.5141716Z ✔ e2e unknown result blocks (0.037526ms)
+2026-11-11T22:18:32.5142028Z ✔ security missing blocks (0.035312ms)
+2026-11-11T22:18:32.5154511Z ✔ security unknown result blocks (0.026259ms)
+2026-11-11T22:18:32.5157275Z ✔ changes missing blocks (0.034221ms)
+2026-11-11T22:18:32.5164468Z ✔ changes unknown result blocks (0.025558ms)
+2026-11-11T22:18:32.5171487Z ✔ required mutation missing blocks (0.091576ms)
+2026-11-11T22:18:32.5172243Z ✔ exempt mutation that failed blocks (0.050525ms)
+2026-11-11T22:18:32.5174433Z ✔ detector output missing or unknown cannot exempt mutation (0.090103ms)
+2026-11-11T22:18:32.5175894Z ✔ failed detector blocks even when outputs claim exemption (0.075381ms)
+2026-11-11T22:18:32.5176617Z ✔ empty, null and malformed needs block (0.077725ms)
+2026-11-11T22:18:32.5177176Z ✔ CLI exits 0 only for green input (27.421619ms)
+2026-11-11T22:18:32.5177755Z ✔ CLI exits non-zero for unset, invalid or failing input (102.700515ms)
+2026-11-11T22:18:32.5178438Z ✔ ci.yml CI Required needs list matches evaluator job set (1.347849ms)
+2026-11-11T22:18:32.5186484Z ✔ ci.yml mutation job is gated on detector applicability output (0.186497ms)
+2026-11-11T22:18:32.5561617Z ℹ tests 59
+2026-11-11T22:18:32.5562051Z ℹ suites 0
+2026-11-11T22:18:32.5562397Z ℹ pass 59
+2026-11-11T22:18:32.5562722Z ℹ fail 0
+2026-11-11T22:18:32.5563048Z ℹ cancelled 0
+2026-11-11T22:18:32.5563405Z ℹ skipped 0
+2026-11-11T22:18:32.5563753Z ℹ todo 0
+2026-11-11T22:18:32.5586496Z ℹ duration_ms 295.331369
+2026-11-11T22:18:32.5758415Z ##[group]Run node .github/scripts/ci-required.mjs
+2026-11-11T22:18:32.5758804Z node .github/scripts/ci-required.mjs
+2026-11-11T22:18:32.5803949Z shell: /usr/bin/bash -e {0}
+2026-11-11T22:18:32.5804220Z env:
+2026-11-11T22:18:32.5805736Z   NEEDS_JSON: {
+  "changes": {
+    "result": "success",
+    "outputs": {}
+  },
+  "lint": {
+    "result": "success",
+    "outputs": {}
+  },
+  "lint-markdown": {
+    "result": "success",
+    "outputs": {}
+  },
+  "type-check": {
+    "result": "success",
+    "outputs": {}
+  },
+  "unit-tests": {
+    "result": "success",
+    "outputs": {}
+  },
+  "integration": {
+    "result": "success",
+    "outputs": {}
+  },
+  "build": {
+    "result": "success",
+    "outputs": {}
+  },
+  "e2e": {
+    "result": "success",
+    "outputs": {}
+  },
+  "mutation": {
+    "result": "skipped",
+    "outputs": {}
+  },
+  "security": {
+    "result": "success",
+    "outputs": {}
+  }
+}
+2026-11-11T22:18:32.5807171Z ##[endgroup]
+2026-11-11T22:18:32.6093714Z CI Required: BLOCKED
+2026-11-11T22:18:32.6094919Z   - mutation: applicability decision missing (changes.mutation_required=undefined)
+2026-11-11T22:18:32.6132206Z ##[error]Process completed with exit code 1.
+2026-11-11T22:18:32.6256575Z Post job cleanup.
+2026-11-11T22:18:32.7005424Z [command]/usr/bin/git version
+2026-11-11T22:18:32.7030916Z git version 2.56.0
+2026-11-11T22:18:32.7064367Z Temporarily overriding HOME='/home/runner/work/_temp/6531cd7b-4feb-4d93-a004-2b0e197765f9' before making global git config changes
+2026-11-11T22:18:32.7065736Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-11T22:18:32.7067562Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/AeroDash/AeroDash
+2026-11-11T22:18:32.7104818Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-11T22:18:32.7138305Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-11T22:18:32.7420481Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-11T22:18:32.7462541Z http.https://github.com/.extraheader
+2026-11-11T22:18:32.7465951Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-11-11T22:18:32.7504250Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-11T22:18:32.7769447Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-11T22:18:32.7801481Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-11T22:18:32.8178702Z Cleaning up orphan processes

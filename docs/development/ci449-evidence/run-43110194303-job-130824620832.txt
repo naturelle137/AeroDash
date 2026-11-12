@@ -1,0 +1,36 @@
+﻿2026-11-11T22:17:25.0928961Z Current runner version: '2.338.2'
+2026-11-11T22:17:25.0956151Z ##[group]Runner Image Provisioner
+2026-11-11T22:17:25.0957016Z Hosted Compute Agent
+2026-11-11T22:17:25.0957680Z Version: 20261028.624
+2026-11-11T22:17:25.0958325Z Commit: 54898b74c23fde5556c9b3c3a2290865feef0dfe
+2026-11-11T22:17:25.0959015Z Build Date: 2026-10-28T21:51:42Z
+2026-11-11T22:17:25.0959728Z Worker ID: {891d67ac-7433-4e76-9416-15be7e3ad674}
+2026-11-11T22:17:25.0960402Z Region: northcentralus
+2026-11-11T22:17:25.0960981Z Cloud: Azure
+2026-11-11T22:17:25.0961510Z ##[endgroup]
+2026-11-11T22:17:25.0963147Z ##[group]Operating System
+2026-11-11T22:17:25.0963803Z Ubuntu
+2026-11-11T22:17:25.0964304Z 26.04.1
+2026-11-11T22:17:25.0964832Z LTS
+2026-11-11T22:17:25.0965343Z ##[endgroup]
+2026-11-11T22:17:25.0965869Z ##[group]Runner Image
+2026-11-11T22:17:25.0966444Z Image: ubuntu-26.04
+2026-11-11T22:17:25.0966981Z Version: 20261101.186.1
+2026-11-11T22:17:25.0968267Z Included Software: https://github.com/actions/runner-images/blob/ubuntu26/20261101.186/images/ubuntu/Ubuntu2604-Readme.md
+2026-11-11T22:17:25.0969730Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu26%2F20261101.186
+2026-11-11T22:17:25.0970761Z ##[endgroup]
+2026-11-11T22:17:25.0971864Z ##[group]GITHUB_TOKEN Permissions
+2026-11-11T22:17:25.0974647Z Contents: read
+2026-11-11T22:17:25.0975214Z Metadata: read
+2026-11-11T22:17:25.0975727Z ##[endgroup]
+2026-11-11T22:17:25.0977899Z Secret source: Actions
+2026-11-11T22:17:25.0978763Z Cache mode: write
+2026-11-11T22:17:25.0979809Z Prepare workflow directory
+2026-11-11T22:17:25.2161816Z Prepare all required actions
+2026-11-11T22:17:25.2505108Z Complete job name: Integration Tests
+2026-11-11T22:17:25.4385521Z ##[group]Run exit 1
+2026-11-11T22:17:25.4386296Z exit 1
+2026-11-11T22:17:25.5228678Z shell: /usr/bin/bash -e {0}
+2026-11-11T22:17:25.5229770Z ##[endgroup]
+2026-11-11T22:17:25.5523431Z ##[error]Process completed with exit code 1.
+2026-11-11T22:17:25.5880825Z Cleaning up orphan processes

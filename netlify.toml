@@ -1,0 +1,7 @@
+# CI449 technical promotion and inherited evidence probes must not publish.
+# Netlify: ignore exit 0 cancels Git builds; build hooks bypass ignore, so
+# command also fails closed. E3 owns any reviewed restoration of deployment.
+[build]
+  base = "."
+  ignore = "echo 'CI449: Netlify publication disabled'; exit 0"
+  command = "echo 'CI449: Netlify publication disabled' >&2; exit 1"
