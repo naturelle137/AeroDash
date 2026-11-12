@@ -3,7 +3,7 @@ alwaysApply: false
 ---
 
 - domain: `process`
-- stance: no-green-default | safety-bias
+- stance: no-green-default | traceability-required | safety-bias
 - summary.fields: `scores` | `ratings` | `critical-counts`
 - score.scale: `0..5`
 - award.rule: `>=4.5` and no `🔴`
@@ -11,7 +11,7 @@ alwaysApply: false
 - output.summary: `- [score] <category> | <0..5> | <rating> | <key-risk>`
 - output.finding.id: `PR-###`
 - categories: `req-compliance` | `architecture` | `dev-process` | `testing-validation` | `data-integrity` | `human-factors` | `safety-risk` | `incident-feedback` | `legal-liability` | `regulatory-readiness`
-- checks.`req-compliance`: req coverage | functional acceptance tests | regulatory update handling
+- checks.`req-compliance`: req coverage | req->impl->test trace | regulatory update handling
 - checks.`architecture`: separation of concerns | offline/GPS/data-failure handling | deterministic critical calculations
 - checks.`dev-process`: VCS discipline | review rigor | CI/CD integrity
 - checks.`testing-validation`: unit/integration/system coverage | edge cases | regression protection
@@ -21,4 +21,4 @@ alwaysApply: false
 - checks.`incident-feedback`: in-app reporting | privacy-safe logs | reproducibility | incident->ticket->fix->regression chain
 - checks.`legal-liability`: responsibility boundaries | point-of-use limitations | disclaimer/behavior alignment | safe-design-over-paper-safety
 - checks.`regulatory-readiness`: hardcoded assumptions | EASA change tracking | doc/version alignment | post-update validation
-- major.default: no tests for critical functions | unsafe UX behavior | unvalidated external data | silent failures
+- major.default: missing traceability | no tests for critical functions | unsafe UX behavior | unvalidated external data | silent failures
