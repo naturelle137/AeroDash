@@ -57,7 +57,7 @@ The file is a single JSON object mapping directly to an `AircraftProfile` docume
   ],
   "loadPoints": [
     {
-      "name": "Pilot", "arm": 1.8, "armLookup": [], "operationalLimit": 110,
+      "name": "Pilot", "kind": "occupant", "arm": 1.8, "armLookup": [], "operationalLimit": 110,
       "defaultQuantity": 0, "unit": "kg", "allowableCategories": null, "fuelTank": null
     }
   ],

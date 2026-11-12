@@ -238,6 +238,7 @@ MB Data Schema
     title: AircraftContext Zod Schema Validation
     req:
       - REQ-MB-002
+      - REQ-UQ-006
     des:
       - DES-ARCH-005
     files:
@@ -396,6 +397,7 @@ MB (auto)
     req:
       - REQ-MB-002
       - REQ-AC-005
+      - REQ-UQ-006
 
   IMP-MB-STORE-019
     title: TODO: describe this artifact

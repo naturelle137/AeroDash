@@ -59,6 +59,14 @@ Then('the rear seat station is not available for loading', async ({ page }) => {
   await expect(page.locator('.mass-station-input').getByLabel('Rear Seats', { exact: true })).toHaveCount(0)
 })
 
+Then('the baggage areas are available but left empty', async ({ page }) => {
+  for (const name of ['Baggage Area 1', 'Baggage Area 2']) {
+    const input = page.locator('.mass-station-input').getByLabel(name, { exact: true })
+    await expect(input).toBeVisible()
+    await expect(input).toHaveValue(/^0([.,]0*)?$/)
+  }
+})
+
 Then('the takeoff mass no longer includes the rear passenger', async ({ page }) => {
   const before = takeoffMassBefore.get(page)
   expect(before, 'takeoff mass before the category switch was not recorded').toBeDefined()

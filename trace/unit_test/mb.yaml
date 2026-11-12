@@ -1509,3 +1509,31 @@ MB (auto)
     impl:
       - IMP-MB-VIEW-014
       - IMP-MB-VIEW-015
+
+  UT-MB-STORE-064
+    title: No WARN-UQ-001 for empty baggage while empty seat warns
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+    impl:
+      - IMP-MB-STORE-023
+
+  UT-MB-STORE-065
+    title: WARN-UQ-001 clears when only baggage is empty
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+    impl:
+      - IMP-MB-STORE-023
+
+  UT-MB-STORE-066
+    title: Unclassified non-fuel station warns at zero
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+    impl:
+      - IMP-MB-STORE-023
+
+  UT-MB-STORE-067
+    title: Baggage stays in mandatory touch/verify gate
+    files:
+      - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
+    impl:
+      - IMP-MB-STORE-005

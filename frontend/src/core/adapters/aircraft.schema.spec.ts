@@ -1164,3 +1164,57 @@ describe('AircraftProfileSchema — verification provenance', () => {
     ).toBe(false)
   })
 })
+
+describe('AircraftProfileSchema — station kind', () => {
+  // @UT-AD-CORE-072@ (FROM: @IMP-AD-CORE-025@)
+  it('accepts a legacy load point without kind', () => {
+    expect(AircraftProfileSchema.safeParse(createValidProfile()).success).toBe(true)
+  })
+
+  // @UT-AD-CORE-073@ (FROM: @IMP-AD-CORE-025@)
+  it('accepts occupant and baggage kinds on non-fuel stations and keeps them', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        const lps = p.loadPoints as Record<string, unknown>[]
+        lps[0]!.kind = 'occupant'
+        lps.push({ ...lps[0]!, name: 'Baggage', kind: 'baggage' })
+      }),
+    )
+    expect(result.success).toBe(true)
+    expect(result.data?.loadPoints.map((lp) => lp.kind)).toEqual(['occupant', 'baggage'])
+  })
+
+  // @UT-AD-CORE-074@ (FROM: @IMP-AD-CORE-025@)
+  it('rejects kind fuel on a station without a fuel tank', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        ;(p.loadPoints as Record<string, unknown>[])[0]!.kind = 'fuel'
+      }),
+    )
+    expect(result.success).toBe(false)
+    expect(result.error?.issues.some((i) => i.message === 'STATION_KIND_MISMATCH')).toBe(true)
+  })
+
+  // @UT-AD-CORE-075@ (FROM: @IMP-AD-CORE-025@)
+  it('rejects a non-fuel kind on a station with a fuel tank', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        const lp = (p.loadPoints as Record<string, unknown>[])[0]!
+        lp.kind = 'baggage'
+        lp.fuelTank = { unusableFuel: 0, permissibleFuelTypes: ['AvGas 100LL'], burnSequences: [] }
+      }),
+    )
+    expect(result.success).toBe(false)
+    expect(result.error?.issues.some((i) => i.message === 'STATION_KIND_MISMATCH')).toBe(true)
+  })
+
+  // @UT-AD-CORE-076@ (FROM: @IMP-AD-CORE-025@)
+  it('rejects an unknown kind', () => {
+    const result = AircraftProfileSchema.safeParse(
+      cloneWith((p) => {
+        ;(p.loadPoints as Record<string, unknown>[])[0]!.kind = 'cargo'
+      }),
+    )
+    expect(result.success).toBe(false)
+  })
+})

@@ -473,3 +473,66 @@ AD (auto)
       - frontend/src/core/adapters/aircraft.schema.spec.ts
     impl:
       - IMP-AD-CORE-008
+
+  UT-AD-CORE-072
+    title: Legacy load point without kind is accepted
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+    impl:
+      - IMP-AD-CORE-025
+
+  UT-AD-CORE-073
+    title: Occupant and baggage kinds accepted and preserved
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+    impl:
+      - IMP-AD-CORE-025
+
+  UT-AD-CORE-074
+    title: Kind fuel without fuel tank rejected
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+    impl:
+      - IMP-AD-CORE-025
+
+  UT-AD-CORE-075
+    title: Non-fuel kind with fuel tank rejected
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+    impl:
+      - IMP-AD-CORE-025
+
+  UT-AD-CORE-076
+    title: Unknown kind rejected
+    files:
+      - frontend/src/core/adapters/aircraft.schema.spec.ts
+    impl:
+      - IMP-AD-CORE-025
+
+  UT-AD-CORE-068
+    title: Explicit occupant/baggage kind is returned
+    files:
+      - frontend/src/core/logic/station-kind.spec.ts
+    impl:
+      - IMP-AD-CORE-024
+
+  UT-AD-CORE-069
+    title: Unclassified non-fuel station resolves to occupant
+    files:
+      - frontend/src/core/logic/station-kind.spec.ts
+    impl:
+      - IMP-AD-CORE-024
+
+  UT-AD-CORE-070
+    title: Fuel tank always resolves to fuel
+    files:
+      - frontend/src/core/logic/station-kind.spec.ts
+    impl:
+      - IMP-AD-CORE-024
+
+  UT-AD-CORE-071
+    title: Kind fuel without tank resolves to occupant
+    files:
+      - frontend/src/core/logic/station-kind.spec.ts
+    impl:
+      - IMP-AD-CORE-024

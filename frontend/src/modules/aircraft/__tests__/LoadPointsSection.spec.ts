@@ -449,3 +449,51 @@ describe('LoadPointsSection — burn sequence editor', () => {
     expect(wrapper.text()).toContain('Sequence name cannot be empty')
   })
 })
+
+describe('LoadPointsSection — station type', () => {
+  // @UT-AC-VIEW-190@ (FROM: @IMP-AC-VIEW-040@)
+  it('shows the station type select on non-fuel rows, defaulting legacy rows to seat', () => {
+    const wrapper = mount(LoadPointsSection, {
+      props: { modelValue: [makeRow()], sectionId: 'test' },
+    })
+    const select = wrapper.find<HTMLSelectElement>('#test-kind-0')
+    expect(select.exists()).toBe(true)
+    expect(select.element.value).toBe('occupant')
+  })
+
+  // @UT-AC-VIEW-191@ (FROM: @IMP-AC-VIEW-040@)
+  it('hides the station type select on fuel-tank rows', () => {
+    const tank: NonNullable<AircraftProfileLoadPoint['fuelTank']> = {
+      unusableFuel: 0,
+      permissibleFuelTypes: ['AvGas 100LL'],
+      burnSequences: [],
+    }
+    const wrapper = mount(LoadPointsSection, {
+      props: { modelValue: [makeRow({ kind: 'fuel', fuelTank: tank })], sectionId: 'test' },
+    })
+    expect(wrapper.find('#test-kind-0').exists()).toBe(false)
+  })
+
+  // @UT-AC-VIEW-192@ (FROM: @IMP-AC-VIEW-040@)
+  it('emits kind baggage when the pilot classifies a station as baggage', async () => {
+    const wrapper = mount(LoadPointsSection, {
+      props: { modelValue: [makeRow()], sectionId: 'test' },
+    })
+    await wrapper.find('#test-kind-0').setValue('baggage')
+    const emitted = (wrapper.emitted('update:modelValue') ?? []) as unknown[][]
+    const last = emitted[emitted.length - 1]?.[0] as AircraftProfileLoadPoint[]
+    expect(last[0]!.kind).toBe('baggage')
+  })
+
+  // @UT-AC-VIEW-193@ (FROM: @IMP-AC-VIEW-040@)
+  it('keeps kind consistent with the fuel-tank toggle', async () => {
+    const wrapper = mount(LoadPointsSection, {
+      props: { modelValue: [makeRow({ kind: 'baggage' })], sectionId: 'test' },
+    })
+    await wrapper.find('.row-footer input[type="checkbox"]').setValue(true)
+    const emitted = (wrapper.emitted('update:modelValue') ?? []) as unknown[][]
+    const last = emitted[emitted.length - 1]?.[0] as AircraftProfileLoadPoint[]
+    expect(last[0]!.kind).toBe('fuel')
+    expect(last[0]!.fuelTank).not.toBeNull()
+  })
+})

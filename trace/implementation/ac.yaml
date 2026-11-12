@@ -427,3 +427,10 @@ AC (auto)
       - frontend/src/modules/aircraft/stores/fleet.store.ts
     req:
       - REQ-AC-007
+
+  IMP-AC-VIEW-040
+    title: Load point station type selector (seat / baggage)
+    files:
+      - frontend/src/modules/aircraft/components/LoadPointsSection.vue
+    req:
+      - REQ-UQ-006

@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- `WARN-UQ-001` now fires only for occupant stations (seats) at 0 kg, not for empty baggage: load points gain an optional `kind` (`occupant`/`baggage`/`fuel`), set for all catalogue stations and selectable in the aircraft editor; unclassified non-fuel stations still warn (conservative default) (REQ-UQ-006, H-010, H-011, closes #482)
 - Single `main` landmark: Fleet, wizard, editor, contribute and privacy views no longer nest a second `<main>` inside the app shell's `#main-content` (refs #294)
 - E2E: seven M&B journeys (E2E-B-001..007) and wizard journeys (E2E-A-002/003/004/007/008, E2E-B-009/011) now run in blocking CI against a deterministic synthetic Draft fleet and the current six-step wizard with post-save chooser; seed values are unchanged MVP-catalogue test data, not POH/AFM data (refs #294)
 - E2E: decimal precision (E2E-A-005/006) now asserts comma text stays as typed and numbers persist after save/reload; category switch (E2E-A-001) asserts catalogue MTOM, rear-seat removal and recalculated mass on the synthetic Draft seed; all three un-`@wip` (REQ-MB-001, REQ-UQ-001, refs #294)
