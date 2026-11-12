@@ -46,8 +46,18 @@ export function resolveOsf(
   operation: PerformanceOperation,
 ): number {
   switch (osf.preset) {
-    case 'custom':
-      return osf.customMultiplier ?? regulatoryBaseline(operation)
+    case 'custom': {
+      const multiplier = osf.customMultiplier
+      if (
+        typeof multiplier !== 'number' ||
+        !Number.isFinite(multiplier) ||
+        multiplier < OSF_MIN ||
+        multiplier > OSF_MAX
+      ) {
+        throw new RangeError('Custom OSF multiplier must be a finite number between 1 and 3')
+      }
+      return multiplier
+    }
     case 'poh-afm':
       return osf.pohMandatedFactor?.[operation] ?? regulatoryBaseline(operation)
     case 'short-field':

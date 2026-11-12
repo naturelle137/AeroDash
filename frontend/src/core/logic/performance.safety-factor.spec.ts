@@ -29,6 +29,7 @@ import {
   safetyMargin,
 } from './performance.safety-factor'
 import type {
+  OperationalSafetyFactorInput,
   PerformanceCorrectionFactors,
   SafetyFactorInput,
 } from '../domain/performance.math-types'
@@ -95,9 +96,22 @@ describe('resolveOsf — preset resolution (REQ-PF-006)', () => {
     expect(resolveOsf(osf, 'landing')).toBe(1.8)
   })
 
-  it('custom falls back to the baseline when the multiplier is absent', () => {
-    expect(resolveOsf({ preset: 'custom' }, 'takeoff')).toBe(1.25)
-    expect(resolveOsf({ preset: 'custom' }, 'landing')).toBe(1.43)
+  it.each(['takeoff', 'landing'] as const)('rejects a missing custom multiplier for %s', (operation) => {
+    expect(() => resolveOsf({ preset: 'custom' }, operation)).toThrow(RangeError)
+  })
+
+  describe.each(['takeoff', 'landing'] as const)('custom multiplier for %s', (operation) => {
+    it.each([undefined, Number.NaN, Infinity, -Infinity, 0, -1, 0.999, 3.001, null, '1.8'])(
+      'rejects invalid runtime value %s',
+      (customMultiplier) => {
+        const osf = { preset: 'custom', customMultiplier } as OperationalSafetyFactorInput
+        expect(() => resolveOsf(osf, operation)).toThrow(RangeError)
+      },
+    )
+
+    it.each([1, 1.8, 3])('preserves valid multiplier %s', (customMultiplier) => {
+      expect(resolveOsf({ preset: 'custom', customMultiplier }, operation)).toBe(customMultiplier)
+    })
   })
 })
 
