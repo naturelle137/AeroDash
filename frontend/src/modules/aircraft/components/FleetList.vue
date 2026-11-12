@@ -667,6 +667,10 @@ function onDismissUndo(): void {
     flex-wrap: wrap;
   }
 
+  .profile-item__identity {
+    flex-wrap: wrap;
+  }
+
   .profile-item__actions {
     justify-content: space-between;
     gap: 0.75rem;

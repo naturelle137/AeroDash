@@ -33,7 +33,10 @@ mixed-per-phase service test retain four distinct interpolated distances.
 Mobile table regions scroll horizontally; the page itself stays within 390px.
 The screenshots were visually inspected. The no-retry run followed correction
 of a test-helper persistence race and a mobile help-text overflow found during
-verification; earlier failed/flaky runs are not the final acceptance evidence.
+verification. Hosted Chromium also exposed a font-dependent 3px overflow of the
+Draft badge; the mobile identity row now wraps, retaining the strict page-width
+assertion and table scrolling. The named review finding was repaired in the same
+PR. Earlier failed/flaky runs are not the final acceptance evidence.
 
 ## Reproduction
 
