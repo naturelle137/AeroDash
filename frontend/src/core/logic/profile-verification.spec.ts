@@ -8,6 +8,7 @@
 
 import { describe, it, expect } from 'vitest'
 import {
+  isVerificationDateValid,
   VERIFICATION_VALIDITY_DAYS,
   evaluateVerificationFreshness,
   type VerifiableProfile,
@@ -16,7 +17,9 @@ import type { AircraftProfileVerification } from '../adapters/aircraft.schema'
 
 const SOURCE_DATE = '2026-01-10'
 
-function provenance(overrides: Partial<AircraftProfileVerification> = {}): AircraftProfileVerification {
+function provenance(
+  overrides: Partial<AircraftProfileVerification> = {},
+): AircraftProfileVerification {
   return {
     verifiedOn: '2026-01-10',
     verifiedBy: 'JS',
@@ -154,7 +157,10 @@ describe('evaluateVerificationFreshness — source change', () => {
 
   // @UT-AC-CORE-114@ (FROM: @IMP-AC-CORE-005@)
   it('is expired-source-changed when the profile has no weighing report at all', () => {
-    const result = evaluateVerificationFreshness(profile({ weighingReports: [] }), daysAfterVerified(0))
+    const result = evaluateVerificationFreshness(
+      profile({ weighingReports: [] }),
+      daysAfterVerified(0),
+    )
     expect(result.state).toBe('expired-source-changed')
     expect(result.requiresReverification).toBe(true)
   })
@@ -181,4 +187,69 @@ describe('evaluateVerificationFreshness — source change', () => {
     )
     expect(olderFirst.state).toBe('fresh')
   })
+})
+
+// @UT-AC-CORE-121@ (FROM: @IMP-AC-CORE-005@, @IMP-AC-CORE-006@)
+it.each([
+  '2026-01-11',
+  '2099-01-01',
+  '2025-02-29',
+  '2026-02-30',
+  '2026-04-31',
+  '2100-02-29',
+  '2026-13-01',
+  '2026-00-01',
+  '2026-01-00',
+  '2026-1-01',
+  '',
+  '2026-01-10T00:00:00Z',
+])('fails closed for suspect verification date %s', (verifiedOn) => {
+  const result = evaluateVerificationFreshness(
+    profile({ verification: provenance({ verifiedOn }) }),
+    daysAfterVerified(0),
+  )
+  expect(result).toEqual({
+    state: 'expired-aged',
+    requiresReverification: true,
+    provenance: provenance({ verifiedOn }),
+    expiresOn: null,
+    daysUntilExpiry: null,
+  })
+})
+
+// @UT-AC-CORE-122@ (FROM: @IMP-AC-CORE-005@, @IMP-AC-CORE-006@)
+it.each(['2024-02-29', '2000-02-29', '2026-01-10'])(
+  'accepts real calendar day %s through the last UTC millisecond',
+  (verifiedOn) => {
+    const now = new Date(`${verifiedOn}T23:59:59.999Z`)
+    expect(isVerificationDateValid(verifiedOn, now)).toBe(true)
+    const result = evaluateVerificationFreshness(
+      profile({ verification: provenance({ verifiedOn }) }),
+      now,
+    )
+    expect(result.state).toBe('fresh')
+    expect(result.daysUntilExpiry).toBe(90)
+  },
+)
+
+// @UT-AC-CORE-123@ (FROM: @IMP-AC-CORE-005@, @IMP-AC-CORE-006@)
+it('fails closed for an invalid supplied clock', () => {
+  expect(isVerificationDateValid(SOURCE_DATE, new Date(NaN))).toBe(false)
+  expect(evaluateVerificationFreshness(profile(), new Date(NaN))).toMatchObject({
+    state: 'expired-aged',
+    requiresReverification: true,
+    expiresOn: null,
+    daysUntilExpiry: null,
+  })
+})
+
+// @UT-AC-CORE-124@ (FROM: @IMP-AC-CORE-005@, @IMP-AC-CORE-006@)
+it('rejects tomorrow until the UTC day rolls over', () => {
+  const p = profile({ verification: provenance({ verifiedOn: '2026-01-11' }) })
+  expect(
+    evaluateVerificationFreshness(p, new Date('2026-01-10T23:59:59.999Z')).requiresReverification,
+  ).toBe(true)
+  expect(
+    evaluateVerificationFreshness(p, new Date('2026-01-11T00:00:00.000Z')).daysUntilExpiry,
+  ).toBe(90)
 })

@@ -13,6 +13,7 @@
  * @see docs/architecture/aircraft-fleet-module.md
  */
 
+import { isVerificationDateValid } from '@/core/logic/profile-verification'
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { v4 as uuidv4 } from 'uuid'
@@ -71,9 +72,19 @@ export interface VerificationSignoff {
   verifiedOn?: string
 }
 
-/** Today's calendar date as 'YYYY-MM-DD' (UTC). */
-function todayIso(): string {
-  return new Date().toISOString().slice(0, 10)
+export class InvalidVerificationDateError extends Error {
+  constructor() {
+    super('Verification date must be a real calendar date on or before today (UTC).')
+    this.name = 'InvalidVerificationDateError'
+  }
+}
+
+// @IMP-AC-STORE-012@ (FROM: @REQ-AC-007@)
+function resolveVerificationDate(date: string | undefined): string {
+  const now = new Date()
+  const verifiedOn = date?.trim() || now.toISOString().slice(0, 10)
+  if (!isVerificationDateValid(verifiedOn, now)) throw new InvalidVerificationDateError()
+  return verifiedOn
 }
 
 /** The active (latest by `validFrom`) weighing report date for an aircraft profile. */
@@ -204,7 +215,10 @@ export const useFleetStore = defineStore('fleet', () => {
    * Update an existing Draft profile.
    * BLOCKS updates to Verified profiles — use editVerifiedProfile() instead.
    */
-  async function updateProfile(id: string, changes: Partial<AircraftProfile>): Promise<AircraftProfile> {
+  async function updateProfile(
+    id: string,
+    changes: Partial<AircraftProfile>,
+  ): Promise<AircraftProfile> {
     const existing = profiles.value.find((p) => p.id === id)
     if (!existing) {
       throw new Error(`Profile not found: ${id}`)
@@ -272,6 +286,7 @@ export const useFleetStore = defineStore('fleet', () => {
       throw new Error(`Profile "${id}" is already verified.`)
     }
 
+    const verifiedOn = resolveVerificationDate(signoff.verifiedOn)
     const verifiedBy = signoff.verifiedBy.trim()
     const pohRevision = signoff.pohRevision.trim()
     if (verifiedBy === '' || pohRevision === '') {
@@ -283,7 +298,7 @@ export const useFleetStore = defineStore('fleet', () => {
       id: uuidv4(),
       status: 'verified',
       verification: {
-        verifiedOn: signoff.verifiedOn?.trim() || todayIso(),
+        verifiedOn,
         verifiedBy,
         pohRevision,
         sourceWeighingDate: activeWeighingDate(draft),
@@ -329,6 +344,7 @@ export const useFleetStore = defineStore('fleet', () => {
       throw new Error(`Profile "${id}" is not verified — use verifyProfile() for draft profiles.`)
     }
 
+    const verifiedOn = resolveVerificationDate(signoff.verifiedOn)
     const verifiedBy = signoff.verifiedBy.trim()
     const pohRevision = signoff.pohRevision.trim()
     if (verifiedBy === '' || pohRevision === '') {
@@ -340,7 +356,7 @@ export const useFleetStore = defineStore('fleet', () => {
       id,
       status: 'verified',
       verification: {
-        verifiedOn: signoff.verifiedOn?.trim() || todayIso(),
+        verifiedOn,
         verifiedBy,
         pohRevision,
         sourceWeighingDate: activeWeighingDate(existing),

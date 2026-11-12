@@ -81,8 +81,15 @@ export interface VerifiableProfile {
 function toEpochDay(iso: string): number | null {
   if (!ISO_DATE_RE.test(iso)) return null
   const ms = Date.parse(`${iso}T00:00:00.000Z`)
-  if (Number.isNaN(ms)) return null
+  if (!Number.isFinite(ms) || new Date(ms).toISOString().slice(0, 10) !== iso) return null
   return Math.floor(ms / DAY_MS)
+}
+
+// @IMP-AC-CORE-006@ (FROM: @REQ-AC-007@)
+export function isVerificationDateValid(iso: string, now: Date): boolean {
+  const verifiedDay = toEpochDay(iso)
+  const nowDay = Math.floor(now.getTime() / DAY_MS)
+  return verifiedDay !== null && Number.isFinite(nowDay) && verifiedDay <= nowDay
 }
 
 /** Format a UTC epoch-day index back to a 'YYYY-MM-DD' calendar date. */
@@ -110,7 +117,7 @@ function activeSourceWeighingDate(
  *   1. Not verified                 → `draft`
  *   2. Verified, no provenance      → `verified-unattributed`
  *   3. Source weighing report moved → `expired-source-changed`
- *   4. Past the validity window     → `expired-aged`
+ *   4. Invalid/future date or past the validity window → `expired-aged`
  *   5. Otherwise                    → `fresh`
  *
  * A `verified-unattributed` profile is intentionally NOT forced to re-verify:
@@ -155,9 +162,9 @@ export function evaluateVerificationFreshness(
     }
   }
 
-  // Age check. A structurally-valid but unparseable date fails closed (expired).
   const verifiedDay = toEpochDay(provenance.verifiedOn)
-  if (verifiedDay === null) {
+  const nowDay = Math.floor(now.getTime() / DAY_MS)
+  if (verifiedDay === null || !isVerificationDateValid(provenance.verifiedOn, now)) {
     return {
       state: 'expired-aged',
       requiresReverification: true,
@@ -168,7 +175,6 @@ export function evaluateVerificationFreshness(
   }
 
   const expiryDay = verifiedDay + VERIFICATION_VALIDITY_DAYS
-  const nowDay = Math.floor(now.getTime() / DAY_MS)
   const daysUntilExpiry = expiryDay - nowDay
   const expiresOn = fromEpochDay(expiryDay)
 

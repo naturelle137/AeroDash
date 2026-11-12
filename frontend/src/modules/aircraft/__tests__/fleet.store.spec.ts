@@ -7,13 +7,14 @@
 
 // @UT-AC-STORE-025@ (FROM: @IMP-AC-STORE-005@)
 
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import {
   useFleetStore,
   VerifiedMutationError,
   InvalidRegistrationError,
   IncompleteSignoffError,
+  InvalidVerificationDateError,
 } from '../stores/fleet.store'
 import { useActiveAircraftStore } from '../stores/active-aircraft.store'
 import type { AircraftProfile } from '@/core/adapters/aircraft.schema'
@@ -34,7 +35,9 @@ vi.mock('../services/fleet.repository', () => ({
     deleteById: vi.fn<() => Promise<void>>().mockResolvedValue(undefined),
     findById: vi.fn<() => Promise<AircraftProfile | undefined>>().mockResolvedValue(undefined),
     findByIdWithDiagnostics: vi
-      .fn<() => Promise<{ profile: AircraftProfile | undefined; diagnostics: readonly unknown[] }>>()
+      .fn<
+        () => Promise<{ profile: AircraftProfile | undefined; diagnostics: readonly unknown[] }>
+      >()
       .mockResolvedValue({ profile: undefined, diagnostics: [] }),
     openDB: vi.fn<() => Promise<IDBDatabase>>().mockResolvedValue({} as IDBDatabase),
   },
@@ -167,9 +170,9 @@ describe('useFleetStore', () => {
     const draft = await store.createProfile(minimalProfileData())
     const verified = await store.verifyProfile(draft.id, SIGNOFF)
 
-    await expect(
-      store.updateProfile(verified.id, { registration: 'D-MUTATED' }),
-    ).rejects.toThrow(VerifiedMutationError)
+    await expect(store.updateProfile(verified.id, { registration: 'D-MUTATED' })).rejects.toThrow(
+      VerifiedMutationError,
+    )
 
     // Verified profile is unchanged
     const stillVerified = store.profiles.find((p) => p.id === verified.id)
@@ -307,7 +310,9 @@ describe('useFleetStore', () => {
       schemaVersion: 1,
       powertrain: 'combustion',
       passengerProfiles: [],
-      weighingReports: [{ bem: 780, emptyCg: 2.1, weighingDate: '2025-01-01', validFrom: '2025-01-01' }],
+      weighingReports: [
+        { bem: 780, emptyCg: 2.1, weighingDate: '2025-01-01', validFrom: '2025-01-01' },
+      ],
       loadPoints: [
         {
           name: 'Pilot',
@@ -362,7 +367,8 @@ describe('useFleetStore', () => {
           id: 'aircraft-from-future',
           reason: 'unsupported-future-version',
           storedVersion: 7,
-          detail: 'Aircraft profile dropped: stored schemaVersion 7 is newer than this build can read.',
+          detail:
+            'Aircraft profile dropped: stored schemaVersion 7 is newer than this build can read.',
         },
       ],
     })
@@ -382,8 +388,20 @@ describe('useFleetStore', () => {
     vi.mocked(fleetRepository.findAllWithDiagnostics).mockResolvedValueOnce({
       profiles: [],
       diagnostics: [
-        { id: 'corrupt-a', reason: 'corrupt', storedVersion: 1, detail: 'Aircraft profile dropped: corrupt at storage layer — schema validation failed: root: missing' },
-        { id: 'corrupt-b', reason: 'corrupt', storedVersion: 1, detail: 'Aircraft profile dropped: corrupt at storage layer — schema validation failed: root: missing' },
+        {
+          id: 'corrupt-a',
+          reason: 'corrupt',
+          storedVersion: 1,
+          detail:
+            'Aircraft profile dropped: corrupt at storage layer — schema validation failed: root: missing',
+        },
+        {
+          id: 'corrupt-b',
+          reason: 'corrupt',
+          storedVersion: 1,
+          detail:
+            'Aircraft profile dropped: corrupt at storage layer — schema validation failed: root: missing',
+        },
       ],
     })
 
@@ -425,9 +443,9 @@ describe('useFleetStore', () => {
   it('updateProfile rejects invalid ICAO registration on edit', async () => {
     const store = useFleetStore()
     const profile = await store.createProfile(minimalProfileData())
-    await expect(
-      store.updateProfile(profile.id, { registration: '!!!BAD' }),
-    ).rejects.toThrow(InvalidRegistrationError)
+    await expect(store.updateProfile(profile.id, { registration: '!!!BAD' })).rejects.toThrow(
+      InvalidRegistrationError,
+    )
   })
 
   // @UT-AC-STORE-053@ (FROM: @IMP-AC-STORE-005@)
@@ -576,9 +594,7 @@ describe('useFleetStore', () => {
   // @UT-AC-STORE-064@ (FROM: @IMP-AC-STORE-005@, @IMP-AC-CORE-001@)
   it('passengerProfiles survive verify → editVerified cycle unmodified', async () => {
     const store = useFleetStore()
-    const passengerProfiles = [
-      { name: 'Standard Adult', standardWeight: 86, unit: 'kg' as const },
-    ]
+    const passengerProfiles = [{ name: 'Standard Adult', standardWeight: 86, unit: 'kg' as const }]
     const draft = await store.createProfile({ ...minimalProfileData(), passengerProfiles })
     const verified = await store.verifyProfile(draft.id, SIGNOFF)
 
@@ -797,4 +813,51 @@ describe('useFleetStore', () => {
       'Profile not found: no-such-id',
     )
   })
+})
+
+describe('verification calendar-date guard', () => {
+  beforeEach(() => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-03-01T23:59:59.999Z'))
+  })
+  afterEach(() => vi.useRealTimers())
+
+  // @UT-AC-STORE-136@ (FROM: @IMP-AC-STORE-011@, @IMP-AC-STORE-012@)
+  it.each(['2026-03-02', '2099-01-01', '2026-02-29', '2024-02-30', 'not-a-date'])(
+    'rejects %s in both actions without writes or state changes',
+    async (verifiedOn) => {
+      const store = useFleetStore()
+      const draft = await store.createProfile(minimalProfileData())
+      const verified = await store.verifyProfile(draft.id, SIGNOFF)
+      const other = await store.createProfile({ ...minimalProfileData(), registration: 'D-TEST' })
+      const active = useActiveAircraftStore()
+      active.setActiveProfile(verified)
+      const before = JSON.stringify(store.profiles)
+      vi.clearAllMocks()
+      await expect(store.verifyProfile(other.id, { ...SIGNOFF, verifiedOn })).rejects.toThrow(
+        InvalidVerificationDateError,
+      )
+      await expect(store.reverifyProfile(verified.id, { ...SIGNOFF, verifiedOn })).rejects.toThrow(
+        InvalidVerificationDateError,
+      )
+      expect(fleetRepository.create).not.toHaveBeenCalled()
+      expect(fleetRepository.update).not.toHaveBeenCalled()
+      expect(fleetRepository.deleteById).not.toHaveBeenCalled()
+      expect(JSON.stringify(store.profiles)).toBe(before)
+      expect(active.activeProfile).toEqual(verified)
+    },
+  )
+
+  // @UT-AC-STORE-137@ (FROM: @IMP-AC-STORE-011@, @IMP-AC-STORE-012@)
+  it.each([undefined, '   ', '2026-03-01', '2024-02-29'])(
+    'preserves accepted date/default semantics for %s in both actions',
+    async (verifiedOn) => {
+      const store = useFleetStore()
+      const draft = await store.createProfile(minimalProfileData())
+      const verified = await store.verifyProfile(draft.id, { ...SIGNOFF, verifiedOn })
+      const reverified = await store.reverifyProfile(verified.id, { ...SIGNOFF, verifiedOn })
+      expect(verified.verification?.verifiedOn).toBe(verifiedOn?.trim() || '2026-03-01')
+      expect(reverified.verification).toEqual(verified.verification)
+    },
+  )
 })

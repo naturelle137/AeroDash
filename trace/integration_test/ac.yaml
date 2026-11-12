@@ -201,3 +201,12 @@ AC (auto)
     impl:
       - IMP-AD-CORE-009
       - IMP-AC-VIEW-035
+
+  IT-AC-STORE-112
+    title: Persisted future provenance expires and imports remain draft
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.repository.int.spec.ts
+    impl:
+      - IMP-AC-CORE-005
+      - IMP-AC-CORE-006
+      - IMP-AC-STORE-004
