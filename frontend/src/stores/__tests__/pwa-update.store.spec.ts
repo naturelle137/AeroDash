@@ -7,23 +7,6 @@
  * raised on storage failure.
  */
 
-// @UT-SYS-STORE-017@ (FROM: @IMP-SYS-STORE-002@)
-// @UT-SYS-STORE-018@ (FROM: @IMP-SYS-STORE-004@)
-// @UT-SYS-STORE-019@ (FROM: @IMP-SYS-STORE-003@)
-// @UT-SYS-STORE-020@ (FROM: @IMP-SYS-STORE-009@)
-// @UT-SYS-STORE-026@ (FROM: @IMP-SYS-STORE-009@)
-// @UT-SYS-STORE-027@ (FROM: @IMP-SYS-STORE-004@)
-// @UT-SYS-STORE-028@ (FROM: @IMP-SYS-STORE-010@)
-// @UT-SYS-STORE-029@ (FROM: @IMP-SYS-STORE-010@)
-// @UT-SYS-STORE-030@ (FROM: @IMP-SYS-STORE-010@)
-// @UT-SYS-STORE-031@ (FROM: @IMP-SYS-STORE-010@)
-// @UT-SYS-STORE-032@ (FROM: @IMP-SYS-STORE-010@)
-// @UT-SYS-STORE-039@ (FROM: @IMP-SYS-STORE-011@)
-// @UT-SYS-STORE-040@ (FROM: @IMP-SYS-STORE-011@)
-// @UT-SYS-STORE-041@ (FROM: @IMP-SYS-STORE-011@)
-// @UT-SYS-STORE-042@ (FROM: @IMP-SYS-STORE-012@)
-// @UT-SYS-STORE-043@ (FROM: @IMP-SYS-STORE-010@)
-// @UT-SYS-STORE-044@ (FROM: @IMP-SYS-STORE-010@)
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
@@ -43,20 +26,17 @@ describe('usePwaUpdateStore', () => {
     setActivePinia(createPinia())
   })
 
-  // @UT-SYS-STORE-017@ (FROM: @IMP-SYS-STORE-002@)
   it('needsUpdate is false initially', () => {
     const store = usePwaUpdateStore()
     expect(store.needsUpdate).toBe(false)
   })
 
-  // @UT-SYS-STORE-018@ (FROM: @IMP-SYS-STORE-004@)
   it('onNeedsRefresh sets needsUpdate to true', () => {
     const store = usePwaUpdateStore()
     store.onNeedsRefresh()
     expect(store.needsUpdate).toBe(true)
   })
 
-  // @UT-SYS-STORE-019@ (FROM: @IMP-SYS-STORE-003@)
   it('offlineReady set by onOfflineReady', () => {
     const store = usePwaUpdateStore()
     expect(store.offlineReady).toBe(false)
@@ -64,7 +44,6 @@ describe('usePwaUpdateStore', () => {
     expect(store.offlineReady).toBe(true)
   })
 
-  // @UT-SYS-STORE-020@ (FROM: @IMP-SYS-STORE-009@)
   it('applyUpdate calls updateSW when set', async () => {
     const store = usePwaUpdateStore()
     const mockUpdateSW = vi.fn<(reloadPage?: boolean) => Promise<void>>().mockResolvedValue(undefined)
@@ -74,7 +53,6 @@ describe('usePwaUpdateStore', () => {
     expect(mockUpdateSW).toHaveBeenCalledWith(true)
   })
 
-  // @UT-SYS-STORE-026@ (FROM: @IMP-SYS-STORE-009@)
   it('applyUpdate falls back to window.location.reload when no updateSW is set', async () => {
     const reloadMock = vi.fn<() => void>()
     vi.stubGlobal('location', { reload: reloadMock })
@@ -85,7 +63,6 @@ describe('usePwaUpdateStore', () => {
     vi.unstubAllGlobals()
   })
 
-  // @UT-SYS-STORE-027@ (FROM: @IMP-SYS-STORE-004@)
   it('silent auto-update is absent — needsUpdate stays false until onNeedsRefresh is called', () => {
     const store = usePwaUpdateStore()
     // Simulate the store being initialised and SW registered, but no update signal yet.
@@ -97,7 +74,6 @@ describe('usePwaUpdateStore', () => {
     expect(mockUpdateSW).not.toHaveBeenCalled()
   })
 
-  // @UT-SYS-STORE-028@ (FROM: @IMP-SYS-STORE-010@)
   it('applyColdStartUpdate calls _updateSW(true) when set', async () => {
     const store = usePwaUpdateStore()
     const mockUpdateSW = vi.fn<(reloadPage?: boolean) => Promise<void>>().mockResolvedValue(undefined)
@@ -106,7 +82,6 @@ describe('usePwaUpdateStore', () => {
     expect(mockUpdateSW).toHaveBeenCalledExactlyOnceWith(true)
   })
 
-  // @UT-SYS-STORE-029@ (FROM: @IMP-SYS-STORE-010@)
   it('applyColdStartUpdate falls back to window.location.reload when _updateSW is unset', async () => {
     const reloadMock = vi.fn<() => void>()
     vi.stubGlobal('location', { reload: reloadMock })
@@ -117,20 +92,17 @@ describe('usePwaUpdateStore', () => {
     vi.unstubAllGlobals()
   })
 
-  // @UT-SYS-STORE-039@ (FROM: @IMP-SYS-STORE-011@)
   it('sessionStorageAdvisory is false initially', () => {
     const store = usePwaUpdateStore()
     expect(store.sessionStorageAdvisory).toBe(false)
   })
 
-  // @UT-SYS-STORE-040@ (FROM: @IMP-SYS-STORE-011@)
   it('raiseSessionStorageAdvisory sets the advisory flag', () => {
     const store = usePwaUpdateStore()
     store.raiseSessionStorageAdvisory()
     expect(store.sessionStorageAdvisory).toBe(true)
   })
 
-  // @UT-SYS-STORE-041@ (FROM: @IMP-SYS-STORE-011@)
   it('raiseSessionStorageAdvisory is idempotent — repeated calls leave the flag true', () => {
     const store = usePwaUpdateStore()
     store.raiseSessionStorageAdvisory()
@@ -139,7 +111,6 @@ describe('usePwaUpdateStore', () => {
     expect(store.sessionStorageAdvisory).toBe(true)
   })
 
-  // @UT-SYS-STORE-042@ (FROM: @IMP-SYS-STORE-012@)
   it('dismissSessionStorageAdvisory clears the flag', () => {
     const store = usePwaUpdateStore()
     store.raiseSessionStorageAdvisory()
@@ -147,7 +118,6 @@ describe('usePwaUpdateStore', () => {
     expect(store.sessionStorageAdvisory).toBe(false)
   })
 
-  // @UT-SYS-STORE-045@ (FROM: @IMP-SYS-STORE-011@)
   it('once dismissed, raiseSessionStorageAdvisory is a no-op (one-time-per-tab invariant)', () => {
     const store = usePwaUpdateStore()
     store.raiseSessionStorageAdvisory()
@@ -169,7 +139,6 @@ describe('captureAndMarkSession', () => {
     sessionStorage.clear()
   })
 
-  // @UT-SYS-STORE-030@ (FROM: @IMP-SYS-STORE-010@)
   it('returns wasActiveSession=false on first call (cold start) and sets the session key', () => {
     const result = captureAndMarkSession()
     expect(result.wasActiveSession).toBe(false)
@@ -177,7 +146,6 @@ describe('captureAndMarkSession', () => {
     expect(sessionStorage.getItem('aerodash.session.active')).toBe('1')
   })
 
-  // @UT-SYS-STORE-031@ (FROM: @IMP-SYS-STORE-010@)
   it('returns wasActiveSession=true on second call within the same session (in-session path)', () => {
     captureAndMarkSession() // cold start — sets the key
     const result = captureAndMarkSession() // same tab, key already present
@@ -185,7 +153,6 @@ describe('captureAndMarkSession', () => {
     expect(result.sessionStorageAvailable).toBe(true)
   })
 
-  // @UT-SYS-STORE-032@ (FROM: @IMP-SYS-STORE-010@)
   it('fails-safe (wasActiveSession=true) and reports sessionStorageAvailable=false when sessionStorage throws', () => {
     const originalStorage = Object.getOwnPropertyDescriptor(window, 'sessionStorage')
     Object.defineProperty(window, 'sessionStorage', {
@@ -209,7 +176,6 @@ describe('captureAndMarkSession', () => {
     }
   })
 
-  // @UT-SYS-STORE-035@ (FROM: @IMP-SYS-STORE-010@)
   it('returns wasActiveSession=false on a browser reload even though sessionStorage still has the flag', () => {
     sessionStorage.setItem('aerodash.session.active', '1')
     const getEntriesSpy = vi
@@ -225,7 +191,6 @@ describe('captureAndMarkSession', () => {
     getEntriesSpy.mockRestore()
   })
 
-  // @UT-SYS-STORE-036@ (FROM: @IMP-SYS-STORE-010@)
   it('returns wasActiveSession=true for a non-reload navigation when the session key is already set', () => {
     sessionStorage.setItem('aerodash.session.active', '1')
     const getEntriesSpy = vi
@@ -255,7 +220,6 @@ describe('createUpdateHandler', () => {
     vi.restoreAllMocks()
   })
 
-  // @UT-SYS-STORE-033@ (FROM: @IMP-SYS-STORE-010@)
   it('calls onNeedsRefresh (banner) when wasActiveSession is true', () => {
     const store = usePwaUpdateStore()
     const onNeedsRefreshSpy = vi.spyOn(store, 'onNeedsRefresh')
@@ -269,7 +233,6 @@ describe('createUpdateHandler', () => {
     expect(store.needsUpdate).toBe(true)
   })
 
-  // @UT-SYS-STORE-034@ (FROM: @IMP-SYS-STORE-010@)
   it('calls applyColdStartUpdate (silent) when wasActiveSession is false', () => {
     const store = usePwaUpdateStore()
     const onNeedsRefreshSpy = vi.spyOn(store, 'onNeedsRefresh')

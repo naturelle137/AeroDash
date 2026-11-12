@@ -89,7 +89,6 @@ export const useMassBalanceStore = defineStore('massBalance', {
   // ═══════════════════════════════════════════════════════════════════════════
 
   getters: {
-    // @IMP-MB-STORE-003@ (FROM: @REQ-MB-001@)
     activeCategoryDef(): CategoryDefinition | null {
       if (!this.aircraft || !this.activeCategory) return null
       return (
@@ -154,7 +153,6 @@ export const useMassBalanceStore = defineStore('massBalance', {
      *                  (The caller is responsible for the async fetch;
      *                   the store receives the resolved data.)
      */
-    // @IMP-MB-STORE-005@ (FROM: @REQ-MB-001@, @REQ-MB-002@, @DES-UX-007@, @DES-ARCH-005@)
     loadProfile(profile: AircraftContext): void {
       this.uiState = 'LOADING'
 
@@ -168,7 +166,6 @@ export const useMassBalanceStore = defineStore('massBalance', {
             : null
 
         // Initialize station inputs from load point definitions
-        // @IMP-MB-STORE-014@ (FROM: @REQ-MB-002@, @DES-UX-007@)
         // Catalogue defaults are authoritative, including intentional empty optional seats.
         this.stations = profile.loadPoints.map((lp, index) => ({
           index,
@@ -207,7 +204,6 @@ export const useMassBalanceStore = defineStore('massBalance', {
      *   3. Capture notifications
      *   4. evaluateState()
      */
-    // @IMP-MB-STORE-006@ (FROM: @REQ-MB-002@, @REQ-MB-003@, @DES-UX-007@, @DES-UX-008@, @DES-ARCH-005@)
     updateStationWeight(stationIndex: number, weight: number): void {
       const station = this.stations[stationIndex]
       if (!station) return
@@ -230,7 +226,6 @@ export const useMassBalanceStore = defineStore('massBalance', {
      * Stations not allowed in the new category become unavailable
      * (filtered by the `availableStations` getter).
      */
-    // @IMP-MB-STORE-007@ (FROM: @REQ-MB-001@, @REQ-UI-009@, @DES-UX-007@)
     changeCertificationCategory(category: string): void {
       if (!this.aircraft) return
 
@@ -242,7 +237,6 @@ export const useMassBalanceStore = defineStore('massBalance', {
       this.evaluateState()
     },
 
-    // @IMP-MB-STORE-008@ (FROM: @DES-UX-011@, @REQ-UI-014@)
     markFieldVerified(stationIndex: number): void {
       const station = this.stations[stationIndex]
       if (!station) return
@@ -251,7 +245,6 @@ export const useMassBalanceStore = defineStore('massBalance', {
       this.evaluateState()
     },
 
-    // @IMP-MB-STORE-009@ (FROM: @DES-ARCH-004@, @REQ-UI-016@)
     markAllVerified(): void {
       for (const station of this.availableStations) {
         station.verified = true
@@ -276,7 +269,6 @@ export const useMassBalanceStore = defineStore('massBalance', {
      *    current station array.
      *  - An unknown `activeCategory` leaves the profile default in place.
      */
-    // @IMP-MB-STORE-019@ (FROM: @REQ-SYS-013@)
     applyRestoredSession(payload: SessionPayload): void {
       if (!this.aircraft) return
       if (this.aircraft.id !== payload.aircraftId) return
@@ -309,7 +301,6 @@ export const useMassBalanceStore = defineStore('massBalance', {
      * notifications cannot leak into a newly selected aircraft's computation.
      * Session-persistence clears itself via its watcher on `aircraft.id`.
      */
-    // @IMP-MB-STORE-018@ (FROM: @REQ-AC-005@)
     clearProfile(): void {
       this.aircraft = null
       this.activeCategory = null
@@ -325,7 +316,6 @@ export const useMassBalanceStore = defineStore('massBalance', {
      * This is a deliberate user action, so all stations are marked as touched
      * and the calculation re-runs to show the empty-aircraft result.
      */
-    // @IMP-MB-STORE-010@ (FROM: @DES-UX-012@)
     resetPayload(): void {
       // Reset semantics (per product call):
       //   1. Each station resets to the greater of the profile's defaultQuantity
@@ -354,7 +344,6 @@ export const useMassBalanceStore = defineStore('massBalance', {
      * Assemble math-core input from raw state and run the calculation.
      * Captures the result and notifications wholesale.
      */
-    // @IMP-MB-STORE-013@ (FROM: @REQ-MB-002@, @REQ-MB-003@, @DES-ARCH-005@)
     _runCalculation(): void {
       for (const station of this.stations) {
         const lp = this.aircraft?.loadPoints[station.index]
@@ -399,8 +388,6 @@ export const useMassBalanceStore = defineStore('massBalance', {
         return
       }
 
-      // @IMP-MB-STORE-016@ (FROM: @REQ-AD-014@, @REQ-SYS-003@)
-      // @IMP-MB-STORE-020@ (FROM: @REQ-SYS-003@, @REQ-AD-014@)
       // Values are stored at rest in their original source unit (REQ-AD-014).
       // Normalize EVERY geometric quantity to SI (kg, m, kg·m) at the adapter
       // boundary before passing to the math core — not just mass. The arm unit
@@ -410,7 +397,6 @@ export const useMassBalanceStore = defineStore('massBalance', {
       // verdict (H-005 / H-006 class defect).
       const { massUnit: profileMassUnit, armUnit } = parseSourceUnit(this.aircraft!.sourceUnit)
 
-      // @IMP-MB-STORE-021@ (FROM: @REQ-FE-001@, @REQ-SYS-003@, H-002)
       // Fail-closed on an unrecognized fuel type: surface a WARNING instead of
       // silently substituting the conservative fallback density. Collected here
       // and merged into the notification set below.
@@ -525,7 +511,6 @@ export const useMassBalanceStore = defineStore('massBalance', {
         return
       }
 
-      // @IMP-MB-STORE-022@ (FROM: @REQ-SYS-012@, @REQ-UI-008@)
       // Fail-closed on adapter validation failure. The adapter
       // returns `success: false` with NaN-filled CgPoints; if we assigned that
       // to `lastResult` the UI would render "NaN kg" to the pilot, masking the
@@ -574,7 +559,6 @@ export const useMassBalanceStore = defineStore('massBalance', {
       }
 
       // Map raw violations to UI notifications
-      // @IMP-MB-STORE-011@ (FROM: @REQ-MB-004@, @REQ-MB-005@, @REQ-MB-009@, @REQ-MB-011@, @REQ-SYS-011@, @REQ-SYS-012@, @DES-UX-010@, @DES-ARCH-001@, @REQ-AC-005@)
       const violationNotes: Notification[] = result.violations.map((v): Notification => {
         switch (v.type) {
           case 'MTOM_EXCEEDED':
@@ -623,7 +607,6 @@ export const useMassBalanceStore = defineStore('massBalance', {
               dismissible: true,
             }
           case 'INVALID_INPUT':
-            // @IMP-MB-STORE-017@ (FROM: @REQ-UI-008@, @REQ-SYS-012@)
             // OUT_OF_RANGE is an operational range advisory (soft WARNING);
             // all other INVALID_INPUT codes are hard validation ERRORs.
             if (v.code === 'OUT_OF_RANGE') {
@@ -665,7 +648,6 @@ export const useMassBalanceStore = defineStore('massBalance', {
 
       this.lastResult = result
 
-      // @IMP-MB-STORE-015@ (FROM: @REQ-UQ-004@)
       // Update per-station error flags from INVALID_INPUT violations so the UI
       // can highlight the affected input fields as described in the validation
       // error message.
@@ -689,7 +671,6 @@ export const useMassBalanceStore = defineStore('massBalance', {
      * specified. Do not loosen this predicate without an accompanying
      * requirement and updated UT-MB-STORE-060…063.
      */
-    // @IMP-MB-STORE-023@ (FROM: @REQ-UQ-006@)
     _collectPlausibilityWarnings(): Notification[] {
       if (!this.aircraft) return []
 
@@ -795,7 +776,6 @@ export const useMassBalanceStore = defineStore('massBalance', {
      *
      * @see docs/architecture/frontend_state_machine.md §2
      */
-    // @IMP-MB-STORE-012@ (FROM: @DES-ARCH-003@, @DES-ARCH-004@, @DES-ARCH-005@)
     evaluateState(): void {
       // Guard: no aircraft loaded
       if (!this.aircraft || !this.activeCategory) {

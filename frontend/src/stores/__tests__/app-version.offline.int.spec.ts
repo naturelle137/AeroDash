@@ -17,7 +17,6 @@
  *   "Test: stale build blocked while offline"
  */
 
-// @IT-SYS-STORE-001@ (FROM: @IMP-SYS-STORE-008@, @IMP-SYS-STORE-013@, @IMP-SYS-STORE-014@, @IMP-SYS-STORE-015@)
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import 'fake-indexeddb/auto'
@@ -51,7 +50,6 @@ afterEach(() => {
 })
 
 describe('REQ-SYS-006 / H-019 — offline enforcement', () => {
-  // @IT-SYS-STORE-001@ (FROM: @IMP-SYS-STORE-008@, @IMP-SYS-STORE-013@)
   it('a stale bundle that previously ran online is BLOCKED on the next offline start', async () => {
     // --- Online run #1 — newer remote floor learned and persisted -----------
     vi.stubGlobal('navigator', { onLine: true })

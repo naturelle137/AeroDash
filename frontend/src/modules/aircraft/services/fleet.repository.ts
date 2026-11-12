@@ -24,7 +24,6 @@ import {
 import type { AircraftProfile } from '@/core/adapters/aircraft.schema'
 import { AircraftProfileSchema } from '@/core/adapters/aircraft.schema'
 
-// @IMP-AC-STORE-001@ (FROM: @REQ-AC-001@, @DES-ARCH-007@)
 
 /** Canonical IndexedDB database name — the single source of truth for the fleet store. */
 export const DB_NAME = 'aerodash-fleet'
@@ -343,7 +342,6 @@ export function deleteById(id: string): Promise<void> {
  * are cleared) so subsequent writes continue to hit the same object store
  * without a re-`onupgradeneeded`.
  */
-// @IMP-AC-STORE-009@ (FROM: @REQ-SYS-014@, @DES-ARCH-011@)
 export function deleteAll(): Promise<void> {
   return withStore<undefined>('readwrite', (store) => store.clear()).then(() => undefined)
 }

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-// @IMP-UI-SHARED-011@ (FROM: @REQ-SYS-018@, @DES-UX-015@)
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import {
   BUG_SEVERITY_VALUES,

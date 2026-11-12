@@ -1,5 +1,4 @@
 <template>
-  <!-- @IMP-AC-VIEW-035@ (FROM: @REQ-AD-017@) -->
   <div class="wind-limits-section">
     <p class="section-intro">
       Wind limits come from the POH/AFM. A <strong>Demonstrated</strong> value is advisory — the
@@ -73,7 +72,6 @@ import { computed } from 'vue'
 import type { AircraftProfileWindLimit } from '@/core/adapters/aircraft.schema'
 import DecimalInput from '@/shared/components/DecimalInput.vue'
 
-// @IMP-AC-VIEW-036@ (FROM: @REQ-AD-017@)
 
 type Component = AircraftProfileWindLimit['component']
 type Classification = AircraftProfileWindLimit['classification']

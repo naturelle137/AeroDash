@@ -113,7 +113,7 @@ If user picks update:
 
 ### Title
 
-- prefix from template (`[Bug]: `, `[Feat]: `)
+- prefix from template (`[Bug]: …`, `[Feat]: …`)
 - body: concise
 
 ### Labels

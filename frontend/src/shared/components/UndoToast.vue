@@ -1,4 +1,3 @@
-<!-- @IMP-UI-SHARED-005@ (FROM: @REQ-UI-011@) -->
 <template>
   <!--
     Transient "undo" toast for recoverable destructive actions (delete aircraft,
@@ -40,7 +39,6 @@
 </template>
 
 <script setup lang="ts">
-// @IMP-UI-SHARED-006@ (FROM: @REQ-UI-011@)
 import { onBeforeUnmount, watch } from 'vue'
 
 const props = withDefaults(

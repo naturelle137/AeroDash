@@ -12,7 +12,6 @@
  * @see frontend/src/core/logic/profile-migrations.ts
  */
 
-// @UT-AC-CORE-101@ (FROM: @IMP-AC-CORE-003@)
 
 import { describe, it, expect } from 'vitest'
 import {
@@ -322,7 +321,6 @@ describe('migrateProfileDocument — purity and determinism', () => {
 // ─── M4 round-trip: performance + surface + OSF + wind limits ────────────────
 
 describe('migrateProfileDocument — M4 round-trip (REQ-AD-008/009/015/016/017)', () => {
-  // @UT-AC-CORE-103@ (FROM: @IMP-AC-CORE-003@)
   // The performance-profile / surface-condition / OSF / wind-limit fields
   // shipped together in the v0.4.0 (M4) schema bump. Each is optional on the
   // Zod schema and therefore must survive the migration walker unchanged on

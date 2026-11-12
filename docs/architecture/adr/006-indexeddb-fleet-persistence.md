@@ -1,7 +1,5 @@
 # ADR-006: IndexedDB as Offline Fleet Persistence Store
 
-<!-- @DES-ARCH-007@ (FROM: @REQ-AC-001@, @REQ-AC-004@, @REQ-AC-005@) -->
-
 * **Status:** Accepted
 * **Date:** 2026-04-09
 
@@ -19,16 +17,6 @@ Candidate storage options considered:
 3. **Native IndexedDB** — async, large capacity, structured object storage, no library
 4. `idb` npm library — thin wrapper around IndexedDB
 5. `Dexie.js` — full ORM over IndexedDB
-
-## Considered Options
-
-* **Option 1: localStorage + JSON.stringify:** Simple but synchronous (blocks UI),
-  limited to ~5 MB, and fragile against partial writes.
-* **Option 2: idb library:** Cleaner Promise API but adds a dependency. Unnecessary
-  given the narrow surface area required by AeroDash.
-* **Option 3: Native IndexedDB (chosen):** No additional dependency, sufficient API
-  for our use case (put/get/getAll/delete), and supports `onupgradeneeded` for
-  schema migrations. Promises wrapped in thin utilities in `fleet.repository.ts`.
 
 ## Decision
 
@@ -77,9 +65,3 @@ ensuring the fleet is never empty between the two operations. See
 * Migration code complexity grows with each schema version bump.
 * Not available in Node.js test environments — integration tests require
   `fake-indexeddb` as a dev dependency.
-
-## Compliance
-
-Offline persistence of safety-critical aircraft data. All stored documents are
-validated against `AircraftProfileSchema` (Zod) before use in P1 calculations,
-satisfying the requirement that only schema-valid data reaches the Safety Core.

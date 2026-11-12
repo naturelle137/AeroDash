@@ -148,15 +148,6 @@ the view maps to these strings.
 
 ---
 
-## 7. Traceability
+## 7. Related scope
 
-| Requirement | What it guarantees |
-| :---------- | :----------------- |
-| [REQ-AD-020](../requirements/detailed_aircraft_data.md#REQ-AD-020) | Powertrain discriminator on every profile, with combustion default for legacy records. |
-| [REQ-AD-021](../requirements/detailed_aircraft_data.md#REQ-AD-021) | Battery pack record (usable / reserve / voltage / chemistry) while electric. |
-| [REQ-AD-022](../requirements/detailed_aircraft_data.md#REQ-AD-022) | Schema-level rejection of mixed topologies (fuel tank on electric, battery pack on combustion). |
-| [REQ-UI-021](../requirements/user_interface.md#REQ-UI-021) | Powertrain selector in the wizard, catalogue-hint pre-selection with override. |
-| [REQ-UI-022](../requirements/user_interface.md#REQ-UI-022) | Gated editor sections: fuel UI hidden for electric, battery UI hidden for combustion. |
-| [REQ-FE-006](../requirements/fuel_endurance.md#REQ-FE-006) | Energy & Endurance card title + suppression of fuel-tank rows in M&B for electric. |
-| [UJ-A-004](../journeys/01_fleet_management.md#UJ-A-004) | Adding a Pipistrel Velis Electro end-to-end journey. |
-| [ADR-009](../architecture/adr/009-powertrain-discriminator.md) | Why discriminator + `superRefine` over a discriminated union. |
+See [aircraft data](../requirements/detailed_aircraft_data.md), [interface requirements](../requirements/user_interface.md), [endurance requirements](../requirements/fuel_endurance.md) and [ADR-009](../architecture/adr/009-powertrain-discriminator.md). For a persisted profile, powertrain is read-only even when the catalogue model changes; creation retains the selector and override.

@@ -4,7 +4,6 @@ Feature: Offline-first app shell and M&B navigation
   I want the AeroDash app shell and M&B page to remain accessible
   So that I can perform safety-critical calculations without an internet connection
 
-  # @E2E-D-001@ (TECHNICAL)
   @smoke @technical-e2e @phase-D @offline
   Scenario: App shell loads and M&B navigation works while offline
     Given the pilot loads the app while online

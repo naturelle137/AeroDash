@@ -34,7 +34,6 @@
 
 import type { AircraftProfileVerification } from '../adapters/aircraft.schema'
 
-// @IMP-AC-CORE-005@ (FROM: @REQ-AC-007@)
 
 /**
  * Validity window for a verification sign-off, in days. Fixed constant — not
@@ -85,7 +84,6 @@ function toEpochDay(iso: string): number | null {
   return Math.floor(ms / DAY_MS)
 }
 
-// @IMP-AC-CORE-006@ (FROM: @REQ-AC-007@)
 export function isVerificationDateValid(iso: string, now: Date): boolean {
   const verifiedDay = toEpochDay(iso)
   const nowDay = Math.floor(now.getTime() / DAY_MS)

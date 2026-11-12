@@ -9,7 +9,6 @@ import {
 import type { TelemetryPayload } from '../logger'
 
 describe('safeSerialize', () => {
-  // @UT-SYS-SHARED-001@ (FROM: @IMP-SYS-SHARED-001@)
   it('returns primitives unchanged', () => {
     expect(safeSerialize(null)).toBeNull()
     expect(safeSerialize(undefined)).toBeUndefined()
@@ -18,7 +17,6 @@ describe('safeSerialize', () => {
     expect(safeSerialize('hello')).toBe('hello')
   })
 
-  // @UT-SYS-SHARED-002@ (FROM: @IMP-SYS-SHARED-001@)
   it('truncates strings exceeding MAX_STRING_LENGTH', () => {
     const longString = 'x'.repeat(15_000)
     const result = safeSerialize(longString) as string
@@ -26,7 +24,6 @@ describe('safeSerialize', () => {
     expect(result).toContain('...[+5000]')
   })
 
-  // @UT-SYS-SHARED-003@ (FROM: @IMP-SYS-SHARED-001@)
   it('serializes nested objects up to MAX_DEPTH', () => {
     const deep = { a: { b: { c: { d: { e: { f: 'too deep' } } } } } }
     const result = safeSerialize(deep) as Record<string, unknown>
@@ -36,7 +33,6 @@ describe('safeSerialize', () => {
     expect(level3.f).toBe('[MAX_DEPTH]')
   })
 
-  // @UT-SYS-SHARED-004@ (FROM: @IMP-SYS-SHARED-001@)
   it('truncates arrays exceeding MAX_ARRAY_LENGTH', () => {
     const bigArray = Array.from({ length: 150 }, (_, i) => i)
     const result = safeSerialize(bigArray) as unknown[]
@@ -44,13 +40,11 @@ describe('safeSerialize', () => {
     expect(result[100]).toBe('[...+50 items]')
   })
 
-  // @UT-SYS-SHARED-005@ (FROM: @IMP-SYS-SHARED-001@)
   it('converts non-standard types to string representation', () => {
     const sym = Symbol('test')
     expect(safeSerialize(sym)).toBe('Symbol(test)')
   })
 
-  // @UT-SYS-SHARED-006@ (FROM: @IMP-SYS-SHARED-001@)
   it('handles objects with non-enumerable or throwing getters gracefully', () => {
     const tricky = Object.create(null)
     Object.defineProperty(tricky, 'boom', {
@@ -65,7 +59,6 @@ describe('safeSerialize', () => {
 })
 
 describe('redactPayload', () => {
-  // @UT-SYS-SHARED-021@ (FROM: @IMP-SYS-SHARED-008@)
   it('replaces values for keys outside the allow-list with [REDACTED]', () => {
     const result = redactPayload({ password: 'hunter2', email: 'pilot@example.com' }) as Record<
       string,
@@ -77,7 +70,6 @@ describe('redactPayload', () => {
     })
   })
 
-  // @UT-SYS-SHARED-022@ (FROM: @IMP-SYS-SHARED-008@)
   it('preserves values for keys in the default allow-list', () => {
     const result = redactPayload({
       code: 'OK',
@@ -93,7 +85,6 @@ describe('redactPayload', () => {
     })
   })
 
-  // @UT-SYS-SHARED-023@ (FROM: @IMP-SYS-SHARED-008@)
   it('redacts nested object keys not in the allow-list', () => {
     const result = redactPayload({
       code: 'OK',
@@ -105,7 +96,6 @@ describe('redactPayload', () => {
     })
   })
 
-  // @UT-SYS-SHARED-024@ (FROM: @IMP-SYS-SHARED-008@)
   it('redacts PII embedded in arrays of objects', () => {
     const result = redactPayload({
       count: 1,
@@ -118,7 +108,6 @@ describe('redactPayload', () => {
     expect(result.stations).toBe(PII_REDACTED_MARKER)
   })
 
-  // @UT-SYS-SHARED-025@ (FROM: @IMP-SYS-SHARED-008@)
   it('walks arrays redacting unknown keys per element', () => {
     const arr = [
       { code: 'OK', tailNumber: 'D-EXYZ' },
@@ -131,7 +120,6 @@ describe('redactPayload', () => {
     ])
   })
 
-  // @UT-SYS-SHARED-026@ (FROM: @IMP-SYS-SHARED-008@)
   it('passes primitives, null and undefined through unchanged', () => {
     expect(redactPayload(null)).toBeNull()
     expect(redactPayload(undefined)).toBeUndefined()
@@ -140,7 +128,6 @@ describe('redactPayload', () => {
     expect(redactPayload(true)).toBe(true)
   })
 
-  // @UT-SYS-SHARED-027@ (FROM: @IMP-SYS-SHARED-008@)
   it('accepts a custom allow-list', () => {
     const allow = new Set(['onlyMe'])
     const result = redactPayload({ onlyMe: 'ok', code: 'also-not-allowed' }, allow) as Record<
@@ -153,7 +140,6 @@ describe('redactPayload', () => {
     })
   })
 
-  // @UT-SYS-SHARED-028@ (FROM: @IMP-SYS-SHARED-008@)
   it('exposes the documented default allow-list members', () => {
     // Spot-check load-bearing keys — drift here would silently leak PII.
     expect(DEFAULT_SAFE_FIELDS.has('code')).toBe(true)
@@ -182,7 +168,6 @@ describe('redactPayload', () => {
     expect(DEFAULT_SAFE_FIELDS.has('latitude')).toBe(false)
   })
 
-  // @UT-SYS-SHARED-045@ (FROM: @IMP-SYS-SHARED-008@)
   it('redacts a caller-supplied data.message even though the envelope uses that key', () => {
     // err.message can echo template-interpolated pilot input; passing it as a
     // data key must not bypass redaction merely because the log envelope also
@@ -191,7 +176,6 @@ describe('redactPayload', () => {
     expect(result.message).toBe(PII_REDACTED_MARKER)
   })
 
-  // @UT-SYS-SHARED-046@ (FROM: @IMP-SYS-SHARED-008@)
   it('redacts allow-listed-parent + non-allow-listed-child paths', () => {
     // A future maintainer writing `{ code: { pilotName: 'Anna' } }` must not
     // silently leak `pilotName` just because `code` is allow-listed.
@@ -204,7 +188,6 @@ describe('redactPayload', () => {
     })
   })
 
-  // @UT-SYS-SHARED-047@ (FROM: @IMP-SYS-SHARED-008@)
   it('guards against unbounded recursion when called outside the safeSerialize pipeline', () => {
     // Build a circular structure where each link uses an allow-listed key
     // (`code`) — without that, the recursion is short-circuited by redaction
@@ -244,7 +227,6 @@ describe('createLogger', () => {
     vi.restoreAllMocks()
   })
 
-  // @UT-SYS-SHARED-007@ (FROM: @IMP-SYS-SHARED-002@)
   it('info() outputs structured JSON to console.info', () => {
     const logger = createLogger('TestContext')
     logger.info('test message')
@@ -259,7 +241,6 @@ describe('createLogger', () => {
     })
   })
 
-  // @UT-SYS-SHARED-008@ (FROM: @IMP-SYS-SHARED-002@)
   it('warn() outputs structured JSON to console.warn with allow-listed data preserved', () => {
     const logger = createLogger('TestContext')
     logger.warn('warning message', { code: 'WARN_X', durationMs: 4 })
@@ -274,7 +255,6 @@ describe('createLogger', () => {
     })
   })
 
-  // @UT-SYS-SHARED-009@ (FROM: @IMP-SYS-SHARED-002@)
   it('error() outputs structured JSON to console.error', () => {
     const logger = createLogger('TestContext')
     logger.error('error message')
@@ -288,7 +268,6 @@ describe('createLogger', () => {
     })
   })
 
-  // @UT-SYS-SHARED-010@ (FROM: @IMP-SYS-SHARED-002@)
   it('debug() outputs structured JSON to console.debug when VITE_LOG_DEBUG=true', () => {
     vi.stubEnv('VITE_LOG_DEBUG', 'true')
     const logger = createLogger('TestContext')
@@ -303,7 +282,6 @@ describe('createLogger', () => {
     })
   })
 
-  // @UT-SYS-SHARED-011@ (FROM: @IMP-SYS-SHARED-002@)
   it('redacts non-allow-listed data fields on WARN', () => {
     const logger = createLogger('Adapter')
     logger.warn('input received', {
@@ -320,7 +298,6 @@ describe('createLogger', () => {
     })
   })
 
-  // @UT-SYS-SHARED-048@ (FROM: @IMP-SYS-SHARED-002@)
   it('redacts non-allow-listed data fields on ERROR', () => {
     // Split from UT-SYS-SHARED-011 so a future refactor
     // that diverges the ERROR path from the shared `emit()` is caught.
@@ -339,7 +316,6 @@ describe('createLogger', () => {
     })
   })
 
-  // @UT-SYS-SHARED-012@ (FROM: @IMP-SYS-SHARED-002@)
   it('omits data field when no data is provided', () => {
     const logger = createLogger('Core')
     logger.info('no data')
@@ -348,7 +324,6 @@ describe('createLogger', () => {
     expect(output).not.toHaveProperty('data')
   })
 
-  // @UT-SYS-SHARED-013@ (FROM: @IMP-SYS-SHARED-002@)
   it('telemetryTrace() emits raw inputs/outputs when VITE_LOG_TELEMETRY=true', () => {
     vi.stubEnv('VITE_LOG_TELEMETRY', 'true')
     const logger = createLogger('MassBalance.Core')
@@ -373,7 +348,6 @@ describe('createLogger', () => {
     })
   })
 
-  // @UT-SYS-SHARED-014@ (FROM: @IMP-SYS-SHARED-002@)
   it('telemetryTrace() omits durationMs when not provided', () => {
     vi.stubEnv('VITE_LOG_TELEMETRY', 'true')
     const logger = createLogger('Core')
@@ -383,7 +357,6 @@ describe('createLogger', () => {
     expect(output.data).not.toHaveProperty('durationMs')
   })
 
-  // @UT-SYS-SHARED-015@ (FROM: @IMP-SYS-SHARED-001@, @IMP-SYS-SHARED-002@)
   it('safely serializes large aircraft schematic objects without choking (raw on telemetry)', () => {
     vi.stubEnv('VITE_LOG_TELEMETRY', 'true')
     const logger = createLogger('Telemetry')
@@ -425,21 +398,18 @@ describe('createLogger — env-gating defaults', () => {
     vi.restoreAllMocks()
   })
 
-  // @UT-SYS-SHARED-029@ (FROM: @IMP-SYS-SHARED-002@)
   it('debug() is suppressed by default (VITE_LOG_DEBUG unset)', () => {
     const logger = createLogger('Dev')
     logger.debug('not visible by default')
     expect(consoleSpy.debug).not.toHaveBeenCalled()
   })
 
-  // @UT-SYS-SHARED-030@ (FROM: @IMP-SYS-SHARED-002@)
   it('telemetryTrace() is suppressed by default (VITE_LOG_TELEMETRY unset)', () => {
     const logger = createLogger('Dev')
     logger.telemetryTrace({ inputs: { mass: 80 }, outputs: { cg: 2.3 } })
     expect(consoleSpy.info).not.toHaveBeenCalled()
   })
 
-  // @UT-SYS-SHARED-031@ (FROM: @IMP-SYS-SHARED-002@)
   it('telemetryTrace() is suppressed when VITE_LOG_TELEMETRY is the string "false"', () => {
     vi.stubEnv('VITE_LOG_TELEMETRY', 'false')
     const logger = createLogger('Dev')
@@ -447,7 +417,6 @@ describe('createLogger — env-gating defaults', () => {
     expect(consoleSpy.info).not.toHaveBeenCalled()
   })
 
-  // @UT-SYS-SHARED-032@ (FROM: @IMP-SYS-SHARED-002@)
   it('telemetryTrace() bypasses the production INFO gate when explicitly opted in', () => {
     vi.stubEnv('PROD', true)
     vi.stubEnv('VITE_LOG_TELEMETRY', 'true')
@@ -483,42 +452,36 @@ describe('createLogger — production gating', () => {
     vi.restoreAllMocks()
   })
 
-  // @UT-SYS-SHARED-016@ (FROM: @IMP-SYS-SHARED-002@)
   it('suppresses debug() output in production even when VITE_LOG_DEBUG is unset', () => {
     const logger = createLogger('Prod')
     logger.debug('debug message')
     expect(consoleSpy.debug).not.toHaveBeenCalled()
   })
 
-  // @UT-SYS-SHARED-017@ (FROM: @IMP-SYS-SHARED-002@)
   it('suppresses info() output in production', () => {
     const logger = createLogger('Prod')
     logger.info('info message')
     expect(consoleSpy.info).not.toHaveBeenCalled()
   })
 
-  // @UT-SYS-SHARED-018@ (FROM: @IMP-SYS-SHARED-002@)
   it('suppresses telemetryTrace() output in production when VITE_LOG_TELEMETRY is unset', () => {
     const logger = createLogger('Prod')
     logger.telemetryTrace({ inputs: { mass: 80 }, outputs: { cg: 2.3 } })
     expect(consoleSpy.info).not.toHaveBeenCalled()
   })
 
-  // @UT-SYS-SHARED-019@ (FROM: @IMP-SYS-SHARED-002@)
   it('still emits warn() in production', () => {
     const logger = createLogger('Prod')
     logger.warn('warning message')
     expect(consoleSpy.warn).toHaveBeenCalledOnce()
   })
 
-  // @UT-SYS-SHARED-020@ (FROM: @IMP-SYS-SHARED-002@)
   it('still emits error() in production', () => {
     const logger = createLogger('Prod')
     logger.error('error message')
     expect(consoleSpy.error).toHaveBeenCalledOnce()
   })
 
-  // @UT-SYS-SHARED-033@ (FROM: @IMP-SYS-SHARED-002@)
   it('opts DEBUG into production output when VITE_LOG_DEBUG=true', () => {
     vi.stubEnv('VITE_LOG_DEBUG', 'true')
     const logger = createLogger('Prod')

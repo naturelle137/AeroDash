@@ -1,185 +1,46 @@
-# AeroDash Architecture Overview
+# AeroDash architecture
 
-## Motivation and Core Constraints
+AeroDash is a frontend-only Vue 3 PWA using strict TypeScript, Pinia, Vue Router and Vite. Aircraft profiles persist in IndexedDB; active preparation payload and preferences also use browser storage. See [data rights](docs/architecture/data-rights.md) and [PRIVACY.md](PRIVACY.md) for the concrete storage surface. No backend is required by the current app.
 
-AeroDash is a safety-critical flight preparation advisory tool for General Aviation pilots. The architecture is driven by the following constraints:
-
-- **Offline-First Applicability**: Must function globally on remote airfields devoid of cellular connectivity.
-- **Computational Safety**: Mathematical operations must be traceable, deterministically testable, and robust against misinterpretation.
-- **Platform Agnosticism**: General Aviation cockpits are BYOD (Bring Your Own Device). It must work performantly on old iPads, Android devices, and modern Desktop browsers.
-- **Data Portability**: Aircraft definitions must be strictly versioned, exportable (JSON), and cleanly separable from the core calculation logic over long lifecycles.
-
-## High-Level Architecture
-
-AeroDash is an **Offline-first Progressive Web Application (PWA)** built on Vue 3.
-
-The architecture emphasizes strict decoupling of the safety-critical computational mathematical core (P1 logic) from the Reactive UI layers.
-
-### Data Flow & Component Interaction
+## Data flow and boundaries
 
 ```mermaid
-flowchart TD
-    %% UI Layer
-    subgraph UI ["Vue 3 UI Layer"]
-        Views["Views (Pages)"]
-        Comps["Shared Components"]
-    end
-
-    %% State Management
-    subgraph State ["State Management"]
-        Pinia["Pinia Stores<br/>(Active Aircraft, Active FP)"]
-    end
-
-    %% Core Module
-    subgraph Core ["Safety Core (P1)"]
-        Math["Math Engine<br/>(M&B, Fuel, Performance)"]
-        Unit["Unit Normalization<br/>(SI conversion)"]
-        Val["Schema Validation (Zod)"]
-    end
-
-    %% Persistence Layer
-    subgraph Persistence ["Data Persistence"]
-        IDB[("Local DB (IndexedDB)")]
-        Cloud[("Cloud Backend<br/>(Sync Engine M6)")]
-    end
-
-    %% Communication
-    Bus(("Notification Bus<br/>(INFO, WARNING, CRITICAL)"))
-
-    %% Relationships
-    UI -->|Reads/Updates| State
-    State -->|Triggers calculations| Core
-    Core -->|Returns raw results & violations| State
-
-    State -.->|Fires Mathematical Limit Alerts| Bus
-    Persistence -.->|Fires Network Failure Alerts| Bus
-    Bus -.->|Subscribes to rendering| UI
-
-    State <-->|Loads/Saves| IDB
-    IDB <-->|"Bidirectional Sync<br>(Org precedence)"| Cloud
-
-    %% Styling Definitions
-    classDef uiLayer fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#0f172a;
-    classDef stateLayer fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#0f172a;
-    classDef coreLayer fill:#ffe4e6,stroke:#e11d48,stroke-width:2px,color:#0f172a;
-    classDef persistenceLayer fill:#fef08a,stroke:#ca8a04,stroke-width:2px,color:#0f172a;
-    classDef busLayer fill:#ffedd5,stroke:#ea580c,stroke-width:2px,color:#0f172a;
-
-    %% Apply Styles
-    class Views,Comps uiLayer;
-    class Pinia stateLayer;
-    class Math,Unit,Val coreLayer;
-    class IDB,Cloud persistenceLayer;
-    class Bus busLayer;
+flowchart LR
+    UI[Vue views] --> Store[Pinia feature stores]
+    Store --> Validate[Input validation and unit adapters]
+    Validate --> Core[Pure P1 calculations]
+    Core --> Result[Typed results and violations]
+    Result --> Store
+    Store --> UI
+    Store <--> Local[(Browser persistence)]
 ```
 
-### System Context & Component Architecture
+| Tier | Location | Responsibility |
+| :--- | :--- | :--- |
+| P1 | `frontend/src/core/` | Zod schemas, domain contracts, units and deterministic M&B/performance/fuel logic |
+| P2 | `frontend/src/modules/` | Aircraft and preparation features, stores and input/output adapters |
+| P3 | `frontend/src/shared/`, global `stores/`, `plugins/`, `router/`, app views | Navigation, shared components and application services |
 
-The following diagram illustrates the structural boundaries between the local AeroDash client and the remote cloud infrastructure. It highlights the modular layer design within both environments and their interaction via the REST API.
+P1 imports only core, standard-library APIs and Zod. It returns typed results; upper layers render warnings and enforce acknowledgement. P2 must not depend on shell implementations. See [dependency isolation](docs/architecture/adr/314-DEV-dependency-isolation.md) and [contributor rules](AGENTS.md).
 
-```mermaid
-flowchart TB
-    %% Frontend Subgraph
-    subgraph Frontend ["Frontend (AeroDash PWA)"]
-        direction TB
-        UI["UI Layer<br>(Vue Components / Views)"]
-        State["State Module<br>(Pinia Stores)"]
-        Core["Safety Core<br>(Pure TS / Math / Zod)"]
-        Sync["Services Layer<br>(API Client / Sync)"]
-        LocalDB[("Local Data<br>(IndexedDB)")]
+## Local profiles and preparation
 
-        UI --- State
-        State --- Core
-        State --- LocalDB
-        LocalDB --- Sync
-    end
+[Aircraft model](docs/architecture/aircraft_data_model.md), [fleet module](docs/architecture/aircraft-fleet-module.md) and [exchange contract](docs/architecture/aircraft-exchange-file-format.md) describe schema validation, immutable verified snapshots, draft edits, provenance/expiry and import/export boundaries. [Optional occupancy](docs/architecture/optional-occupancy.md) distinguishes a legitimate empty seat from invalid or missing occupant mass.
 
-    %% Network / API
-    Sync <-->|"REST API<br>JWT Auth"| API
+Profiles preserve manufacturer source units. Adapters normalize values to the internal calculation frame (kg, m, L, s as applicable); pressure-altitude lookup uses ft and temperature uses °C under its explicit contract. Calculations must not mix units implicitly. The original POH/weighing report remains authoritative.
 
-    %% Backend Subgraph
-    subgraph Backend ["Backend (AeroDash Cloud)"]
-        direction TB
-        API["API Layer<br>(Gateway / OIDC Auth)"]
-        BLL["Service Layer<br>(Business Logic / Sync Resolution)"]
-        DB[("Data Layer<br>(PostgreSQL / Blob Storage)")]
+## Numerical contracts and evidence
 
-        API --- BLL
-        BLL --- DB
-    end
+- [M&B requirements](docs/requirements/mass_balance.md) cover category limits, CG/envelope checks, variable station moments and fuel-burn migration.
+- [Interpolation](docs/architecture/performance-bilinear-interpolation-contract.md) defines the regular-grid lookup, clamping flags and hand-computed test vectors.
+- [Extrapolation](docs/architecture/performance-extrapolation-control.md) defines the 10% cap, single 20% penalty, minimum-distance floor and acknowledgement boundary.
+- [Safety-factor pipeline](docs/architecture/performance-safety-factor-pipeline.md) defines ground versus airborne correction, presets, margins and failures. Preset names are software behavior, not a claim that a factor is applicable to every operation.
+- [Notifications](docs/architecture/notification_schema.md) separate input-validation ERRORs from flight-limit CRITICALs.
 
-    %% Styling
-    classDef frontend fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#0f172a;
-    classDef backend fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#0f172a;
-    classDef storage fill:#fef08a,stroke:#ca8a04,stroke-width:2px,color:#0f172a;
+Core source/tests do not prove an integrated UI path or operational data validity. Performance and weather preparation remain unfinished; see the [roadmap](docs/development/roadmap.md). Preserve [source constants](docs/data_constants/README.md), [assumptions](ASSUMPTIONS.md), [hazards](docs/risk_management/safety_hazards.md) and [reference testing](docs/testing/TESTING.md).
 
-    class Frontend frontend;
-    class Backend backend;
-    class LocalDB,DB storage;
-```
+## Application lifecycle
 
-## Architectural Layers
+[PWA lifecycle](docs/architecture/adr/316-pwa-update-lifecycle.md) permits silent updates only for a classified cold start; active-session updates need consent. A failed session-storage check uses the consent path. Online minimum-safe-version checking can block unsafe versions; offline use cannot obtain a fresh remote safety verdict.
 
-- **Safety Core (`core/`)**: Framework-agnostic, pure TypeScript implementation handling all calculations, physical unit normalization (kg, m, L, s), and structural Zod schema validation. This is the P1 boundary — zero Vue/framework dependencies, enforceable via linting rules.
-- **Feature Modules (`modules/`)**: Encapsulated domain modules (M&B, Performance, Weather, etc.). Each module owns its components, stores, views, and services. Modules call into `core/` for safety calculations but never contain P1 math directly.
-- **Shared App Shell (`shared/`)**: Base UI components, layouts, composition functions, and non-safety utility helpers shared across all modules.
-- **Cross-Cutting Plugins (`plugins/`)**: Services with lifecycle or event subscriptions that cut across modules: Notification Bus, Connectivity State detection.
-- **Global State (`stores/`)**: Application-level Pinia stores (e.g., active aircraft, active flight plan) shared across modules.
-- **Data Persistence (`services/`)**: Module-level or shared external I/O (IndexedDB wrapper, API client, Cloud Sync).
-- **UI & Presentation**: Built with Vue 3 SFCs (no JSX). `vite-plugin-pwa` registers Service Workers caching the App Shell and computation logic for true 0-byte initial rural visits.
-
-## Directory Structure Matrix
-
-```text
-aerodash/
-├── backend/
-│   └── ...
-└── frontend/                  # Web App Workspace
-    ├── src/
-    │   ├── core/                    # P1 Safety Core: Pure TS. Zero framework dependencies.
-    │   │   ├── domain/              #   Data models (e.g. Envelope, Load Stations, etc.)
-    │   │   ├── logic/               #   Math calculations (e.g. Interpolation, polygon checks, M&B, FE, performance).
-    │   │   └── adapters/            #   Adapters for external systems (e.g. Zod schema validation for aircraft data).
-    │   │
-    │   ├── modules/                 # Feature Modules: Encapsulated domain logic.
-    │   │   ├── mass-balance/        #   M&B: components/, composables/, stores/, views/
-    │   │   │   ├── components/      #      Module specific Vue SFCs
-    │   │   │   ├── composables/     #      Module specific Vue composables
-    │   │   │   ├── stores/          #      Module specific Pinia stores
-    │   │   │   ├── services/        #      Module specific I/O services
-    │   │   │   └── views/           #      Module specific Vue views
-    │   │   ├── performance/         #   Performance calculation module.
-    │   │   ├── fuel-endurance/      #   Fuel & Endurance module.
-    │   │   ├── weather/             #   Weather & Meteorological module.
-    │   │   ├── aircraft/            #   Aircraft Management module.
-    │   │   ├── airport/             #   Airport Database module.
-    │   │   ├── sync/                #   Cloud Sync module.
-    │   │   └── export/              #   Documentation & Export module.
-    │   │
-    │   ├── shared/                  # App Shell: Shared UI, layouts, utilities.
-    │   │   ├── components/          #   Base Vue SFCs (BaseButton, BaseCard, etc.).
-    │   │   ├── composables/         #   Shared Vue composition functions.
-    │   │   ├── layouts/             #   Layout components (DefaultLayout, DarkLayout).
-    │   │   └── utils/               #   Non-safety TS helpers (formatting, dates).
-    │   │
-    │   ├── plugins/                 # Cross-cutting Services: Notification Bus, Connectivity.
-    │   ├── stores/                  # Global Pinia Stores: App-level state.
-    │   ├── router/                  # Vue Router configuration.
-    │   └── assets/                  # Static assets (images, fonts, styles).
-    │
-    └── tests/
-        ├── unit/                    # Vitest: Deterministic testing of core/ math & boundaries.
-        └── e2e/                     # Playwright: End-to-end verification of Critical User Journeys.
-```
-
-## Technology Stack Summary
-
-- **Frontend Framework**: Vue 3 (Composition API, No JSX) + Strict TypeScript
-- **Tooling**: Vite, vue-tsc, Pinia, Vue Router
-- **Formatting/Quality**: ESLint, Oxlint, Prettier
-- **Testing**: Vitest (Unit/Logic/Core), Playwright (E2E/UI Flows)
-- **Traceability/Safety**: `shtracer` (Requirements-to-Code mapping)
-
-## Detailed Architecture
-
-The detailed architecture (Design Details, Data Models, Schemas, etc.) and architecture decisions ADR are documented in the [docs/architecture](docs/architecture) folder.
+The app exposes local data erasure/export and a [contribution handoff](docs/architecture/adr/013-in-app-contribution-intake.md) to GitHub. Cloud/OIDC/organization sync is future scope and needs privacy/security design before implementation. No fake API endpoint contract is published for unimplemented services.

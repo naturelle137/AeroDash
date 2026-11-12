@@ -4,7 +4,7 @@
  * `comment-discipline` — scan source comments for forbidden
  * identifier references (issue/PR numbers, audit-finding IDs).
  *
- * The rule lives in `CLAUDE.md § Code comments`; this script
+ * The rule lives in `AGENTS.md § Architecture and code comments`; this script
  * provides the mechanical enforcement. Usage:
  *
  *   node frontend/scripts/comment-discipline/index.mjs           # diff vs baseline; non-zero on NEW findings
@@ -97,7 +97,7 @@ async function main() {
     console.error('')
     console.error('Source comments must not embed GitHub issue/PR refs (#N, refs #N, issue-N) or')
     console.error('audit-finding IDs (CS-/DP-/TECH-/PR-/UX-NNN). Put those in the commit message or')
-    console.error('PR body. See CLAUDE.md § Code comments. For a genuinely pre-existing entry, run:')
+    console.error('PR body. See AGENTS.md § Architecture and code comments. For a genuinely pre-existing entry, run:')
     console.error('  node frontend/scripts/comment-discipline/scripts/regen-baseline.mjs')
   }
   process.exit(exitCode)

@@ -7,7 +7,6 @@
 
 import type { AircraftProfile } from '@/core/adapters/aircraft.schema'
 
-// @IMP-AC-STORE-002@ (FROM: @REQ-AC-002@)
 
 /**
  * ICAO aircraft registration format (tightened):
@@ -35,7 +34,6 @@ export function validateIcaoRegistration(registration: string): boolean {
   return ICAO_REGISTRATION_REGEX.test(registration)
 }
 
-// @IMP-AC-STORE-003@ (FROM: @REQ-AC-003@)
 
 /**
  * Check whether a registration already exists within a collection of profiles.

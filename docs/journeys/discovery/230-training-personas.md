@@ -5,12 +5,7 @@
 > **Date:** 2026-05-25 · **Status:** Proposal (recommendation for triage).
 > **Owner module:** `uq` / `doc`.
 
-This document is a written recommendation, not a User Journey. It deliberately
-contains **no** `shtracer` `@UJ-…@` tags: proposed journey IDs are written as
-plain back-ticked text (e.g. `UJ-H-001`) so the traceability engine does not
-register them as real, dangling journeys. Authoring the journeys themselves is
-out of scope and is delegated to the follow-up tickets listed in
-[§7](#7-follow-up-issues-filed).
+This is a discovery recommendation, not an authored journey or delivered training mode. Follow-up issues in [§7](#7-follow-up-issues-filed) hold the proposed scope.
 
 ---
 
@@ -272,7 +267,7 @@ always-current list of links is the summary comment on #230.)*
 Per #230, the following are explicitly **out of scope** for this ticket and are
 left to the follow-ups above:
 
-- Authoring the new journeys themselves (no `@UJ-…@` tags created here).
+- Authoring the new journeys themselves.
 - Building any training-specific capability (`CAP-1/2/3`).
 - Changing persona definitions in the requirements documents (`docs/requirements/`)
   — the refined personas in [§3](#3-persona-inventory) are *proposed*, to be

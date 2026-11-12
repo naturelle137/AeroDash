@@ -1,4 +1,3 @@
-// @IMP-SYS-SHARED-004@ (FROM: @REQ-UI-011@)
 import { ref, watch, onMounted } from 'vue'
 
 export type Theme = 'light' | 'dark'

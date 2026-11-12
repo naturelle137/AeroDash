@@ -34,7 +34,6 @@
  * @see docs/architecture/adr/006-indexeddb-fleet-persistence.md
  */
 
-// @IMP-AC-CORE-003@ (FROM: @REQ-AC-001@, @REQ-SYS-013@)
 
 import { AircraftProfileSchema, type AircraftProfile } from '../adapters/aircraft.schema'
 

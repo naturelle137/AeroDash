@@ -19,7 +19,6 @@
  * @see docs/risk_management/safety_hazards.md (H-005, H-006 — CG envelope integrity)
  */
 
-// @IMP-MB-CORE-ENVELOPE-SORT-001@ (FROM: @REQ-MB-001@, @REQ-AD-011@)
 
 import type { EnvelopePoint } from '../domain/aircraft.types'
 

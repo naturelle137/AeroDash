@@ -18,14 +18,6 @@ We evaluated the top frameworks based on six primary criteria:
 5. **Longevity & Stability**: Long-term maintainability without breaking changes.
 6. **Solo-Dev Suitability**: Efficiency and learning curve.
 
-## Considered Options
-
-* **React**: The market leader with the largest ecosystem (excellent charting and PWA support). However, its aggressive Virtual DOM re-rendering poses a high risk of stuttering and battery drain on old tablets if optimization hooks (`useMemo`, `useCallback`) are not perfectly managed by the solo developer. Its fragmented "bring your own architecture" nature also introduces unnecessary complexity.
-* **Angular**: Highly structured enterprise framework with an "out-of-the-box" approach, including first-party PWA support. However, its massive bundle overhead is overkill for an offline PWA tool. The extreme learning curve (RxJS) makes it highly inefficient for a solo developer focused on aviation math.
-* **Svelte (v5) / SolidJS**: True performance kings utilizing compilation instead of a Virtual DOM, yielding minimal bundle sizes. However, their ecosystems are significantly smaller, meaning complex features like interactive charting wrappers would likely require time-consuming custom development from scratch.
-* **Flutter**: Excellent for consistent cross-platform native rendering, but entirely unsuitable for the Web/PWA requirement due to massive initial load payloads (>2MB Canvas engine). Moving to Dart would also sacrifice the rich TypeScript math/testing ecosystem needed for the Safety Core.
-* **Vue 3 (Composition API)**: The "golden middle." It combines the granular reactivity of Svelte/Solid with an ecosystem rivalry React. Features like `vite-plugin-pwa`, `Pinia`, and mature `Chart.js` wrappers provide a highly stable, solo-developer-friendly foundation while generating small, performant bundles that can run smoothly on older devices.
-
 ## Decision
 
 We have decided to use **Vue 3 with the Composition API** and strict **TypeScript** as the frontend framework for AeroDash.
@@ -46,7 +38,3 @@ By adopting Vue 3, we accept the following consequences:
 
 * **Runtime Footprint**: Compared to Svelte or SolidJS, Vue does ship a framework runtime to the browser, resulting in a marginally larger initial load and memory footprint.
 * **Template Typing**: While `<script setup lang="ts">` is excellent, TypeScript validation within the HTML template is sometimes not as foolproof as React's deeply integrated JSX/TSX.
-
-## Compliance
-
-n/a

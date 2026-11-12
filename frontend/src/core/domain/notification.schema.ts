@@ -7,7 +7,6 @@ import { z } from 'zod'
  * @see docs/architecture/notification_schema.md
  */
 
-// @IMP-SYS-CORE-004@ (FROM: @REQ-SYS-007@, @REQ-SYS-008@, @DES-ARCH-001@)
 export const NotificationSeveritySchema = z.enum(['INFO', 'WARNING', 'ERROR', 'CRITICAL'])
 
 export const NotificationActionSchema = z.object({

@@ -10,7 +10,6 @@
  * @see frontend/src/modules/mass-balance/views/MassBalanceView.vue
  */
 
-// @UT-MB-VIEW-020@ (FROM: @IMP-MB-SVC-001@, @IMP-MB-UI-004@)
 
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
@@ -287,7 +286,6 @@ describe('MassBalanceView — fleet picker', () => {
 
   // ── 6. Draft-aware grouping + inline acknowledgement (REQ-AC-005/007) ──────
 
-  // @UT-MB-VIEW-022@ (FROM: @IMP-MB-VIEW-011@)
   it('groups picker options into Verified and Draft optgroups', () => {
     const draft = buildFleetProfile({ id: 'bbbbbbbb-0000-4000-b000-000000000002', registration: 'D-DRAFT', status: 'draft' })
     const verified = buildFleetProfile({ id: 'aaaaaaaa-0000-4000-a000-000000000001', registration: 'D-VERIF', status: 'verified' })
@@ -299,7 +297,6 @@ describe('MassBalanceView — fleet picker', () => {
     expect(labels).toContain('Draft')
   })
 
-  // @UT-MB-VIEW-023@ (FROM: @IMP-MB-VIEW-011@)
   it('surfaces the active aircraft in a Last used optgroup at the top', () => {
     const profile = buildFleetProfile()
     seedFleet([profile])
@@ -312,7 +309,6 @@ describe('MassBalanceView — fleet picker', () => {
     expect(groups[0]!.find('option').attributes('value')).toBe(profile.id)
   })
 
-  // @UT-MB-VIEW-024@ (FROM: @IMP-MB-VIEW-011@)
   it('does NOT load a Draft on selection — shows the inline WARN-AC-002 acknowledgement first', async () => {
     const draft = buildFleetProfile({ id: 'bbbbbbbb-0000-4000-b000-000000000002', registration: 'D-DRAFT', status: 'draft' })
     seedFleet([draft])
@@ -334,7 +330,6 @@ describe('MassBalanceView — fleet picker', () => {
     expect(ack.text()).toContain('D-DRAFT')
   })
 
-  // @UT-MB-VIEW-025@ (FROM: @IMP-MB-VIEW-011@)
   it('loads the Draft only after the acknowledgement is confirmed', async () => {
     const draft = buildFleetProfile({ id: 'bbbbbbbb-0000-4000-b000-000000000002', registration: 'D-DRAFT', status: 'draft' })
     seedFleet([draft])
@@ -353,7 +348,6 @@ describe('MassBalanceView — fleet picker', () => {
     expect(wrapper.find('.draft-ack').exists()).toBe(false)
   })
 
-  // @UT-MB-VIEW-026@ (FROM: @IMP-MB-VIEW-011@)
   it('cancelling the acknowledgement leaves the Draft unloaded', async () => {
     const draft = buildFleetProfile({ id: 'bbbbbbbb-0000-4000-b000-000000000002', registration: 'D-DRAFT', status: 'draft' })
     seedFleet([draft])
@@ -392,7 +386,6 @@ describe('MassBalanceView — fleet picker', () => {
     })
   }
 
-  // @UT-MB-VIEW-027@ (FROM: @IMP-MB-VIEW-011@)
   it('marks an expired Verified profile with an [Expired] suffix in the picker', () => {
     const expired = buildExpiredVerified()
     seedFleet([expired])
@@ -405,7 +398,6 @@ describe('MassBalanceView — fleet picker', () => {
     expect(option?.text()).not.toContain('[Draft]')
   })
 
-  // @UT-MB-VIEW-028@ (FROM: @IMP-MB-VIEW-011@)
   it('does NOT load an expired Verified profile on selection — shows the inline acknowledgement first', async () => {
     const expired = buildExpiredVerified()
     seedFleet([expired])
@@ -426,7 +418,6 @@ describe('MassBalanceView — fleet picker', () => {
     expect(ack.text()).toContain('D-EXPIRD')
   })
 
-  // @UT-MB-VIEW-029@ (FROM: @IMP-MB-VIEW-011@)
   it('loads the expired Verified profile only after the acknowledgement is confirmed', async () => {
     const expired = buildExpiredVerified()
     seedFleet([expired])
@@ -445,7 +436,6 @@ describe('MassBalanceView — fleet picker', () => {
     expect(wrapper.find('.draft-ack').exists()).toBe(false)
   })
 
-  // @UT-MB-VIEW-030@ (FROM: @IMP-MB-VIEW-011@)
   it('cancelling the acknowledgement leaves an expired Verified profile unloaded', async () => {
     const expired = buildExpiredVerified()
     seedFleet([expired])
@@ -467,7 +457,6 @@ describe('MassBalanceView — fleet picker', () => {
   // watchdog on the load; when it expires the spinner is replaced by an
   // actionable error offering Retry or a jump to the Fleet page.
 
-  // @UT-MB-VIEW-031@ (FROM: @IMP-MB-VIEW-012@)
   it('escalates the fleet spinner to a Retry/Go-to-Fleet error after the load times out', async () => {
     vi.useFakeTimers()
     try {
@@ -498,7 +487,6 @@ describe('MassBalanceView — fleet picker', () => {
     }
   })
 
-  // @UT-MB-VIEW-032@ (FROM: @IMP-MB-VIEW-012@)
   it('clears the timeout state and re-attempts the load when Retry is clicked', async () => {
     vi.useFakeTimers()
     try {
@@ -526,7 +514,6 @@ describe('MassBalanceView — fleet picker', () => {
     }
   })
 
-  // @UT-MB-VIEW-033@ (FROM: @IMP-MB-VIEW-012@)
   it('routes to the Fleet page when Go to Fleet is clicked after a timeout', async () => {
     vi.useFakeTimers()
     try {
@@ -550,7 +537,6 @@ describe('MassBalanceView — fleet picker', () => {
     }
   })
 
-  // @UT-MB-VIEW-034@ (FROM: @IMP-MB-VIEW-013@)
   // Arriving from the wizard's "Start flight prep": the active aircraft is set
   // but the M&B store has not loaded the profile yet (gated by the draft ack).
   // The dropdown must mirror the pending profile so the pilot sees the
@@ -574,7 +560,6 @@ describe('MassBalanceView — fleet picker', () => {
   })
 })
 
-// @UT-MB-VIEW-035@ (FROM: @IMP-MB-VIEW-014@, @IMP-MB-VIEW-015@)
 describe('MassBalanceView — wind limits surfacing', () => {
   beforeEach(() => {
     setActivePinia(createPinia())

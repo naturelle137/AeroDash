@@ -4,8 +4,7 @@ Feature: Aircraft creation wizard
   I want to create a new aircraft profile via a guided six-step wizard
   So that my Mass & Balance calculations use correct limits from my POH/AFM
 
-  # @E2E-A-002@ (FROM: @UJ-A-001@)
-  @UJ-A-001 @phase-A @e2e @smoke @E2E-A-002
+  @phase-A @e2e @smoke
   Scenario: Pilot completes all six wizard steps and sees the new aircraft on the Fleet page with a Draft badge
     Given the pilot navigates to the Fleet page
     When the pilot clicks "Add New Aircraft"
@@ -48,8 +47,7 @@ Feature: Aircraft creation wizard
     Then the pilot is back on the Fleet page
     And the aircraft "D-EBPN" is listed with a "Draft" status badge
 
-  # @E2E-A-003@ (FROM: @UJ-A-001@)
-  @UJ-A-001 @phase-A @e2e @E2E-A-003
+  @phase-A @e2e
   Scenario: Envelope editor never drops below 4 points — removal is blocked at the minimum
     Given the pilot navigates to the Fleet page
     When the pilot clicks "Add New Aircraft"
@@ -64,8 +62,7 @@ Feature: Aircraft creation wizard
     And no envelope error message is visible
     And the "Continue" button is enabled
 
-  # @E2E-A-004@ (FROM: @UJ-A-001@)
-  @UJ-A-001 @phase-A @e2e @E2E-A-004
+  @phase-A @e2e
   Scenario: Owner ID field is not present anywhere in the wizard — system generates it automatically (REQ-AD-019)
     Given the pilot navigates to the Fleet page
     When the pilot clicks "Add New Aircraft"

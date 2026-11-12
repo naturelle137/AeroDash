@@ -9,7 +9,6 @@
  * Pure literal exports — no framework dependencies. P1 Safety Core.
  */
 
-// @IMP-SYS-CORE-014@ (FROM: @REQ-SYS-003@)
 
 /** 1 US liquid gallon = 3.785411784 L exactly (NIST). */
 export const US_GAL_TO_L = 3.785411784 as const

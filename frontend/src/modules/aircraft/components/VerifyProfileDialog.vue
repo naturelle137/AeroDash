@@ -1,5 +1,4 @@
 <template>
-  <!-- @IMP-AC-VIEW-020@ (FROM: @REQ-AC-007@) -->
   <!--
     Verification sign-off modal (REQ-AC-007, H-011). Verifying a profile is no
     longer a single un-attributed tap: the pilot must record who checked the
@@ -88,7 +87,6 @@
 </template>
 
 <script setup lang="ts">
-// @IMP-AC-VIEW-021@ (FROM: @REQ-AC-007@)
 import { isVerificationDateValid } from '@/core/logic/profile-verification'
 import { computed, nextTick, ref, watch } from 'vue'
 import type { VerificationSignoff } from '../stores/fleet.store'

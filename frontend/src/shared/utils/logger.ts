@@ -81,7 +81,6 @@ export const DEFAULT_SAFE_FIELDS: ReadonlySet<string> = new Set([
   'advisoryReason',
 ])
 
-// @IMP-SYS-SHARED-001@ (FROM: @DES-ARCH-001@)
 export function safeSerialize(value: unknown, depth = 0): unknown {
   if (depth > MAX_DEPTH) return '[MAX_DEPTH]'
   if (value === null || value === undefined) return value
@@ -131,7 +130,6 @@ export function safeSerialize(value: unknown, depth = 0): unknown {
  * Carries its own `MAX_DEPTH` guard so a caller bypassing `safeSerialize`
  * and handing in a cyclic structure cannot stack-overflow the redactor.
  */
-// @IMP-SYS-SHARED-008@ (FROM: @DES-ARCH-001@)
 export function redactPayload(
   value: unknown,
   allowList: ReadonlySet<string> = DEFAULT_SAFE_FIELDS,
@@ -253,7 +251,6 @@ function emit(level: LogLevel, context: string, message: string, data?: unknown,
   consoleFor(level)(JSON.stringify(entry))
 }
 
-// @IMP-SYS-SHARED-002@ (FROM: @DES-ARCH-001@)
 export function createLogger(context: string): Logger {
   const log = (level: LogLevel, message: string, data?: unknown): void => {
     if (!isLevelEnabled(level)) return

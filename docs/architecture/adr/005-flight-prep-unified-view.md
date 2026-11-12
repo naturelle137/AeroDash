@@ -23,23 +23,6 @@ seven-state machine (`INITIAL → LOADING → UNCONFIGURED → UNVERIFIED → VE
 WARNING / ERROR_CRITICAL`) but the view had no explicit way to communicate these states
 at the section level.
 
-## Considered Options
-
-- **Option A — Keep isolated M&B view, add separate routes per module:** Each module
-  ships as its own route (e.g., `/performance`, `/weather`). Pilots must navigate
-  between routes manually to complete a full pre-flight. State is not shared across
-  modules. No unified workflow is presented.
-
-- **Option B — Single scrollable "mega-form" page:** All modules combined into one
-  long form with no sectioning. Simple to implement but creates an overwhelming UI as
-  modules are added; no progressive disclosure.
-
-- **Option C — Numbered prep-card sections with progressive unlock:** The Flight
-  Preparation route (`/mass-balance`) presents a sequence of numbered sections
-  (01–05). Each section corresponds to a module. Active sections are fully interactive;
-  coming-soon sections are rendered as low-opacity placeholders. Aircraft selection is
-  promoted to its own first section (01) that gates the unlock of subsequent sections.
-
 ## Decision
 
 We adopt **Option C**.
@@ -74,7 +57,7 @@ The `viewModel` computed property on the view is the single source of truth for 
 rendering decisions. Tests can set `store.uiState` to any value and snapshot
 `viewModel` to verify correctness without mounting the full component tree.
 
-References: `@REQ-UI-011@`, `@REQ-SYS-001@`, `@REQ-MB-003@`.
+References: `REQ-UI-011`, `REQ-SYS-001`, `REQ-MB-003`.
 
 ## Consequences
 
@@ -107,11 +90,3 @@ References: `@REQ-UI-011@`, `@REQ-SYS-001@`, `@REQ-MB-003@`.
 - **Coming-soon placeholders require maintenance:** As each module ships, the
   placeholder must be replaced with the live section. The placeholders must be kept
   descriptively accurate to avoid misleading pilots.
-
-## Compliance
-
-The lock/unlock mechanism ensures that M&B calculations cannot run without a validated
-aircraft profile (`AircraftContextSchema` Zod validation). This enforces the safety
-gate defined in `REQ-MB-001` and `REQ-SYS-001` — no safety-core math executes on
-unvalidated input. The disclaimer at page bottom reinforces the advisory-only nature
-of the tool as required by operational guidance.

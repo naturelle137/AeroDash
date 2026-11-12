@@ -4,8 +4,6 @@ Focus: UI resilience and environmental factors.
 
 ---
 
-<!-- @UJ-D-001@ (FROM: @REQ-UI-011@, @REQ-UI-008@, @REQ-SYS-001@, @REQ-PF-013@, @REQ-DOC-001@, @REQ-DOC-002@, @REQ-DOC-003@, @REQ-DOC-005@) -->
-
 ## <a name="UJ-D-001"></a>UJ-D-001: Cockpit Usability & Stress Test
 
 **Persona:** Pilot (Night Flight)
@@ -28,8 +26,6 @@ Focus: UI resilience and environmental factors.
 
 **Outcome:** The pilot comfortably uses the application under adverse conditions — dark cockpit, no connectivity. Typos are caught but pilot authority is preserved. The PA calculation gives the pilot situational awareness about the actual performance environment. The exported PDF clearly flags any externally-sourced data that the pilot hasn't personally verified, and renders all active safety notifications so the paper copy is self-contained.
 
-<!-- @UJ-D-002@ (FROM: @REQ-AP-005@, @REQ-UI-014@, @REQ-UI-015@, @REQ-UI-016@) -->
-
 ## <a name="UJ-D-002"></a>UJ-D-002: Unverified Data Verification Flow
 
 **Persona:** Pilot
@@ -48,8 +44,6 @@ Focus: UI resilience and environmental factors.
 | **Export Attempt**     | Generates a PDF briefing pack.                                                                          | "Now let me print this for real."                                                             | The system generates the export without any `[UNVERIFIED]` markers on the destination airport. No unverified data warning or export block appears.        |
 
 **Outcome:** The pilot actively takes responsibility for the accuracy of externally-sourced data. The verification workflow ensures that auto-downloaded values are never silently trusted — the pilot must either verify individually or batch-accept the data before the system treats it as reliable.
-
-<!-- @UJ-D-003@ (FROM: @REQ-SYS-017@, @REQ-SYS-018@, @REQ-SYS-019@) -->
 
 ## <a name="UJ-D-003"></a>UJ-D-003: Reporting a Defect, Suggesting a Feature, or Raising a Security Concern
 

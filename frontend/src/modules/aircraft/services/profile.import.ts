@@ -24,7 +24,6 @@ import { v4 as uuidv4 } from 'uuid'
 import { AircraftProfileSchema } from '@/core/adapters/aircraft.schema'
 import type { AircraftProfile } from '@/core/adapters/aircraft.schema'
 
-// @IMP-AC-STORE-004@ (FROM: @REQ-AC-004@)
 
 /**
  * Maximum accepted size (in bytes) for an aircraft exchange file.
@@ -97,7 +96,6 @@ export class ImportError extends Error {
  *
  * @throws ImportError if the file fails any guard; the fleet is never modified.
  */
-// @IMP-AC-STORE-007@ (FROM: @REQ-AC-004@)
 export function validateImportFile(file: File): void {
   if (file.size === 0) {
     throw new ImportError('Import failed: file is empty')
@@ -134,7 +132,6 @@ export function validateImportFile(file: File): void {
  * Any other shape (including a tree that *looks* like an envelope but is
  * missing one of those keys) falls back to the legacy bare-profile path.
  */
-// @IMP-AC-STORE-008@ (FROM: @REQ-AC-004@)
 export function isExchangeEnvelope(value: unknown): value is ExchangeEnvelope {
   if (value === null || typeof value !== 'object' || Array.isArray(value)) return false
   const obj = value as Record<string, unknown>
@@ -213,7 +210,6 @@ export interface ExportProfileOptions {
   readonly includeOperatingCost?: boolean
 }
 
-// @IMP-AC-STORE-010@ (FROM: @REQ-AD-023@)
 /**
  * Return a copy of the profile with the operating-cost fields removed.
  *

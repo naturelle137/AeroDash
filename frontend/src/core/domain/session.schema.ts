@@ -18,7 +18,6 @@ import { z } from 'zod'
  * @see docs/architecture/frontend_state_machine.md
  */
 
-// @IMP-SYS-CORE-009@ (FROM: @REQ-SYS-013@)
 
 /**
  * Current session-payload schema version.

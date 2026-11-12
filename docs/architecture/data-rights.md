@@ -30,8 +30,6 @@ All persisted data is local to the browser, unencrypted, and not transmitted
 
 ## 3. Erasure Contract
 
-<!-- @DES-ARCH-011@ (FROM: @REQ-SYS-014@) -->
-
 Entry point: `wipeAllLocalData(): Promise<WipeReport>`. Gated in the `/privacy`
 view behind the typed phrase `DELETE ALL DATA`.
 
@@ -71,8 +69,6 @@ A `WipeFailure` is `{ store: 'indexeddb' \| 'localStorage' \| 'sessionStorage', 
   the success notice.
 
 ## 4. Bulk-Export Contract
-
-<!-- @DES-ARCH-012@ (FROM: @REQ-SYS-015@) -->
 
 Entry points: `exportAllProfiles(): Promise<BulkExportResult>` and
 `serializeBulkExport(envelope): string`. `BulkExportResult` is

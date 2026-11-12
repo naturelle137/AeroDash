@@ -4,8 +4,7 @@
  * Pre-existing forbidden-identifier comments (the inventory that
  * sits in the repo before this gate exists) are recorded in
  * `baseline.json` and grandfathered. The gate fails the build only
- * on NEW findings beyond that snapshot — same pattern as
- * `frontend/scripts/trace/baseline-structural.json`.
+ * on NEW findings beyond that snapshot.
  *
  * When the sibling cleanup PR removes a baselined comment, the
  * baseline regen script will shrink the snapshot; intentionally

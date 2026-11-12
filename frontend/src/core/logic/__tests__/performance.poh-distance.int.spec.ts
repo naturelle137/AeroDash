@@ -12,7 +12,6 @@
  * @see ../performance.poh-distance.ts
  */
 
-// @IT-PF-CORE-001@ (FROM: @IMP-PF-CORE-005@, @IMP-AC-CORE-003@)
 
 import { describe, it, expect } from 'vitest'
 import {

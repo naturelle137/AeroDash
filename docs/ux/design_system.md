@@ -4,9 +4,9 @@ This document establishes the global usability, accessibility, and interaction r
 
 ---
 
-## 1. Usability & Quality (UQ) Constants
+This is the target visual/interaction contract; the [roadmap](../development/roadmap.md) identifies unfinished capabilities.
 
-<!-- @DES-UQ-001@ (FROM: @REQ-UQ-001@, @REQ-UQ-003@, @REQ-UQ-005@)-->
+## 1. Usability & Quality (UQ) Constants
 
 ### 1.1 Input Ergonomics
 
@@ -16,8 +16,6 @@ AeroDash operates natively in cockpit environments. Inputs must be frictionless:
 - **Explicit Units:** Every input field must definitively display its active unit statically adjacent to the number (e.g., `kg`, `L`, `km/h`).
 - **Precision:** Data fields auto-format to a decimal precision appropriate to the active unit, ensuring a physical resolution of at least 1mm for lengths and 0.1 units for mass/volume. Standard precisions: `m`=3, `cm`=1, `mm`=0, `in`=2, `kg`/`lb`/`L`/`gal`=1.
 
-<!-- @DES-UQ-002@ (FROM: @REQ-UQ-002@)-->
-
 ### 1.2 Layout Responsiveness
 
 - **Mobile/Cockpit Tablet (Max-width: 768px):** Single-column stacked layout. Navigation and critical alert banners top, scrolling configuration inputs middle, interactive visualization (e.g. Charts) bottom. Go/No-Go Summaries must be sticky at the viewport bottom.
@@ -26,8 +24,6 @@ AeroDash operates natively in cockpit environments. Inputs must be frictionless:
 ---
 
 ## 2. Interaction State Taxonomy
-
-<!-- @DES-UX-003@ (FROM: @REQ-SYS-007@, @REQ-UI-015@) -->
 
 Component states strictly map to the Reactivity State Machine defined in [`docs/architecture/frontend_state_machine.md`](../architecture/frontend_state_machine.md) and the centralized Notification Schema.
 
@@ -51,8 +47,6 @@ Safety-critical notifications must bypass visual reliance for screen readers:
 - **Soft Warnings (e.g., Input Out of Range):** The field-level helper text must trigger `aria-live="polite"` to announce the warning without interrupting the active typing flow.
 
 ### 3.2 Night Operations (Dark Mode / Contrast)
-
-<!-- @DES-UX-004@ (FROM: @REQ-UI-011@, @REQ-UI-012@) -->
 
 - **Contrast Ratios:** The UI must support a togglable dark mode for night vision preservation. Both modes must meet **WCAG AAA** contrast styling, particularly for the Red (Unsafe) and Green (Safe) status highlights allowing instant parsing in extreme sun glare or pitch-black cockpit environments.
 - **Keyboard Parity:** All steppers, complex field `[i]` tooltips, and export functions must be fully tabbable in logical descending order.
@@ -80,8 +74,6 @@ If a Vue component throws a fatal rendering error (e.g., expecting an array but 
 - **Recovery Action:** A prominent "Restart Application" button that clears volatile Pinia memory and forces a `window.location.reload()`.
 
 ### 4.2 Graceful Degradation
-
-<!-- @DES-UX-005@ (FROM: @REQ-SYS-001@, @REQ-SYS-010@) -->
 
 - If a secondary API fails (e.g., Weather TAF timeout), the core app must continue functioning.
 - **Recovery Action:** The specific API-driven UI block (e.g., Auto-Wind input) must default to unlocked manual input fields, allowing the pilot to read the wind from an external source and type it in manually without blocking the M&B calculations.
@@ -138,7 +130,7 @@ Status primitives: `--red-{50,200,600,700,900}`, `--amber-{50,200,600,700}`, `--
 
 #### 5.1.2 Semantic Tokens (The Application)
 
-UI components must **exclusively** use semantic tokens. This allows seamless Dark Mode flipping and guarantees WCAG AAA contrast ratios. Tokens are defined under `:root` (light, default) and `[data-theme="dark"]`.
+UI components must **exclusively** use semantic tokens. This supports theme switching; verify actual contrast in the rendered UI rather than assuming conformance from token use. Tokens are defined under `:root` (light, default) and `[data-theme="dark"]`.
 
 **Surfaces & Backgrounds:**
 
@@ -181,7 +173,7 @@ UI components must **exclusively** use semantic tokens. This allows seamless Dar
 | Warning | `#ef6c00` / `#fff3e0` | `#ffcc80` / `#332200` |
 | Critical | `#c62828` / `#ffebee` | `#ef9a9a` / `#2e1515` |
 
-All status pairs maintain ≥ 4.5:1 contrast. Color is **never** the sole indicator of state — icons and shape changes are mandatory (see §3.3).
+The target for status pairs is ≥ 4.5:1 contrast; verify rendered foreground/background combinations. Color is **never** the sole indicator of state — icons and shape changes are mandatory (see §3.3).
 
 **Chart Tokens:** `--chart-grid`, `--chart-axis`, `--chart-tick-text`, `--chart-label` — see `theme.css` for exact values per theme.
 
@@ -216,8 +208,6 @@ A consistent 4px (0.25rem) base scale ensures rhythm and touch-target compliance
 - `--space-8`: 2rem (32px - section spacing)
 
 ### 5.4 Motion & Animation Principles
-
-<!-- @DES-UX-006@ (FROM: @REQ-UI-009@, @REQ-MB-003@) -->
 
 Motion is strictly functional. It must draw attention to state changes without causing motion sickness or introducing perceptible delay.
 
@@ -292,8 +282,6 @@ These tokens extend the core surface set and are required by the navigation shel
 
 ## 6. Navigation Shell
 
-<!-- @DES-UX-007@ (FROM: @REQ-UI-011@, @REQ-SYS-001@) -->
-
 ### 6.1 App Shell Layout
 
 The app shell uses a CSS Grid layout with two primary breakpoints.
@@ -350,7 +338,7 @@ The app shell uses a CSS Grid layout with two primary breakpoints.
 
 ### 6.5 AppLogo Component
 
-`frontend/src/shared/components/AppLogo.vue` — tagged `@IMP-UI-SHARED-001@`.
+`frontend/src/shared/components/AppLogo.vue` — tagged `IMP-UI-SHARED-001`.
 
 Accepts two props:
 
@@ -365,9 +353,7 @@ The wordmark splits into two `<span>` elements: `.app-logo__word-aero` (primary 
 
 ## 7. HomeView Layout Pattern
 
-<!-- @DES-UX-008@ (FROM: @REQ-UI-011@, @REQ-SYS-001@) -->
-
-`frontend/src/views/HomeView.vue` — tagged `@IMP-UI-VIEW-001@`.
+`frontend/src/views/HomeView.vue` — tagged `IMP-UI-VIEW-001`.
 
 The dashboard home page is structured as three vertically stacked sections with a `max-width: 900px` centered container.
 
@@ -397,8 +383,6 @@ Below 768 px the hero collapses to a single column (logo and copy stack vertical
 ---
 
 ## 8. Prep Card Pattern
-
-<!-- @DES-UX-009@ (FROM: @REQ-UI-011@, @REQ-MB-003@) -->
 
 The Flight Preparation view (`MassBalanceView.vue`) introduces the **prep card** as a reusable UI pattern for presenting numbered workflow steps.
 

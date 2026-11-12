@@ -4,7 +4,6 @@
  * @see frontend/src/core/logic/profile-verification.ts
  */
 
-// @UT-AC-CORE-104@ (FROM: @IMP-AC-CORE-005@)
 
 import { describe, it, expect } from 'vitest'
 import {
@@ -50,7 +49,6 @@ describe('VERIFICATION_VALIDITY_DAYS', () => {
 })
 
 describe('evaluateVerificationFreshness — draft + unattributed', () => {
-  // @UT-AC-CORE-105@ (FROM: @IMP-AC-CORE-005@)
   it('reports draft for a non-verified profile and never requires re-verification', () => {
     const result = evaluateVerificationFreshness(
       profile({ status: 'draft', verification: undefined }),
@@ -63,7 +61,6 @@ describe('evaluateVerificationFreshness — draft + unattributed', () => {
     expect(result.daysUntilExpiry).toBeNull()
   })
 
-  // @UT-AC-CORE-106@ (FROM: @IMP-AC-CORE-005@)
   it('reports verified-unattributed for a legacy Verified profile without provenance', () => {
     const result = evaluateVerificationFreshness(
       profile({ verification: undefined }),
@@ -77,7 +74,6 @@ describe('evaluateVerificationFreshness — draft + unattributed', () => {
 })
 
 describe('evaluateVerificationFreshness — fresh window', () => {
-  // @UT-AC-CORE-107@ (FROM: @IMP-AC-CORE-005@)
   it('is fresh on the verification day with the full window remaining', () => {
     const result = evaluateVerificationFreshness(profile(), daysAfterVerified(0))
     expect(result.state).toBe('fresh')
@@ -87,7 +83,6 @@ describe('evaluateVerificationFreshness — fresh window', () => {
     expect(result.provenance).toEqual(provenance())
   })
 
-  // @UT-AC-CORE-108@ (FROM: @IMP-AC-CORE-005@)
   it('is fresh one day before expiry', () => {
     const result = evaluateVerificationFreshness(
       profile(),
@@ -99,7 +94,6 @@ describe('evaluateVerificationFreshness — fresh window', () => {
 })
 
 describe('evaluateVerificationFreshness — aged expiry', () => {
-  // @UT-AC-CORE-109@ (FROM: @IMP-AC-CORE-005@)
   it('is expired exactly on the expiry day (boundary)', () => {
     const result = evaluateVerificationFreshness(
       profile(),
@@ -111,7 +105,6 @@ describe('evaluateVerificationFreshness — aged expiry', () => {
     expect(result.expiresOn).toBe('2026-04-10')
   })
 
-  // @UT-AC-CORE-110@ (FROM: @IMP-AC-CORE-005@)
   it('is expired well past the window with a negative days-remaining', () => {
     const result = evaluateVerificationFreshness(
       profile(),
@@ -121,7 +114,6 @@ describe('evaluateVerificationFreshness — aged expiry', () => {
     expect(result.daysUntilExpiry).toBe(-30)
   })
 
-  // @UT-AC-CORE-111@ (FROM: @IMP-AC-CORE-005@)
   it('fails closed (expired) when verifiedOn is structurally unparseable', () => {
     const result = evaluateVerificationFreshness(
       profile({ verification: provenance({ verifiedOn: 'not-a-date' }) }),
@@ -135,7 +127,6 @@ describe('evaluateVerificationFreshness — aged expiry', () => {
 })
 
 describe('evaluateVerificationFreshness — source change', () => {
-  // @UT-AC-CORE-112@ (FROM: @IMP-AC-CORE-005@)
   it('is expired-source-changed when the active weighing report no longer matches the sign-off', () => {
     const result = evaluateVerificationFreshness(
       profile({ weighingReports: [{ validFrom: '2026-02-01' }] }),
@@ -146,7 +137,6 @@ describe('evaluateVerificationFreshness — source change', () => {
     expect(result.expiresOn).toBeNull()
   })
 
-  // @UT-AC-CORE-113@ (FROM: @IMP-AC-CORE-005@)
   it('source-change takes precedence over an otherwise-fresh window', () => {
     const result = evaluateVerificationFreshness(
       profile({ weighingReports: [{ validFrom: '2030-01-01' }] }),
@@ -155,7 +145,6 @@ describe('evaluateVerificationFreshness — source change', () => {
     expect(result.state).toBe('expired-source-changed')
   })
 
-  // @UT-AC-CORE-114@ (FROM: @IMP-AC-CORE-005@)
   it('is expired-source-changed when the profile has no weighing report at all', () => {
     const result = evaluateVerificationFreshness(
       profile({ weighingReports: [] }),
@@ -165,7 +154,6 @@ describe('evaluateVerificationFreshness — source change', () => {
     expect(result.requiresReverification).toBe(true)
   })
 
-  // @UT-AC-CORE-115@ (FROM: @IMP-AC-CORE-005@)
   it('matches the LATEST weighing report by validFrom, regardless of array order', () => {
     // Sign-off (SOURCE_DATE) is bound to the newest report; an older sibling
     // must not "win". Both orderings must resolve to the newest report — if the
@@ -189,7 +177,6 @@ describe('evaluateVerificationFreshness — source change', () => {
   })
 })
 
-// @UT-AC-CORE-121@ (FROM: @IMP-AC-CORE-005@, @IMP-AC-CORE-006@)
 it.each([
   '2026-01-11',
   '2099-01-01',
@@ -217,7 +204,6 @@ it.each([
   })
 })
 
-// @UT-AC-CORE-122@ (FROM: @IMP-AC-CORE-005@, @IMP-AC-CORE-006@)
 it.each(['2024-02-29', '2000-02-29', '2026-01-10'])(
   'accepts real calendar day %s through the last UTC millisecond',
   (verifiedOn) => {
@@ -232,7 +218,6 @@ it.each(['2024-02-29', '2000-02-29', '2026-01-10'])(
   },
 )
 
-// @UT-AC-CORE-123@ (FROM: @IMP-AC-CORE-005@, @IMP-AC-CORE-006@)
 it('fails closed for an invalid supplied clock', () => {
   expect(isVerificationDateValid(SOURCE_DATE, new Date(NaN))).toBe(false)
   expect(evaluateVerificationFreshness(profile(), new Date(NaN))).toMatchObject({
@@ -243,7 +228,6 @@ it('fails closed for an invalid supplied clock', () => {
   })
 })
 
-// @UT-AC-CORE-124@ (FROM: @IMP-AC-CORE-005@, @IMP-AC-CORE-006@)
 it('rejects tomorrow until the UTC day rolls over', () => {
   const p = profile({ verification: provenance({ verifiedOn: '2026-01-11' }) })
   expect(

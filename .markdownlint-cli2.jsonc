@@ -1,7 +1,6 @@
 {
   "ignores": [
     "node_modules/**",
-    ".tools/**",
     ".logs/**",
     "reports/**",
     "frontend/node_modules/**",

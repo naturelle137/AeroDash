@@ -5,10 +5,9 @@ description: Use when authoring or editing Gherkin .feature files (Playwright BD
 
 # Gherkin authoring rules
 
-- authority: safety-critical BDD; clarity > DRY; explicitness > cleverness; verbosity per `CLAUDE.md § Concision`
+- authority: safety-critical BDD; clarity > DRY; explicitness > cleverness; verbosity per `AGENTS.md § Concision`
 - scope-: unimplemented features; future behavior
 - scope+: incomplete feature | scenario => `@wip`
-- trace: defer to `e2e/traceability-rules.md` if writing/refactoring trace-bearing files
 
 ## Step language
 
@@ -32,9 +31,8 @@ forbidden: trailing punctuation; abstract domain identifiers; technical jargon `
 ## When to escalate to the e2e skill
 
 If the request requires:
-- creating a new feature file with trace tags
+
+- creating a new feature file with executable steps
 - generating matching step definitions
 - refactoring a feature/steps pair as a unit
 - running validation
-
-→ stop and invoke the `e2e` skill (it loads this gherkin rule plus `traceability-rules.md` and `implementation-rules.md`). This skill is for in-place feature-file editing only.

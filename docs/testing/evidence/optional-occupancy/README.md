@@ -7,7 +7,7 @@ catalogue as synthetic Draft profiles; these are not validated POH/AFM data.
 
 | Check | Result |
 | :--- | :--- |
-| `pnpm lint` | Passed, including structural traceability |
+| `pnpm lint` | Passed at the recorded implementation tree |
 | `pnpm test:unit` | 1808 passed |
 | `pnpm test:integration` | 102 passed, including session restoration |
 | `pnpm build` | Passed |

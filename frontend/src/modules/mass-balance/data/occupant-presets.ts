@@ -11,7 +11,6 @@
  * these arrays drift from the registry (see frontend/scripts/data-constants).
  */
 
-// @IMP-MB-DATA-004@ (FROM: @REQ-UQ-001@)
 export const OCCUPANT_PRESET_MASSES_KG: readonly number[] = [55, 70, 85]
 
 export const OCCUPANT_PRESET_MASSES_LB: readonly number[] = [120, 160, 200]

@@ -11,7 +11,6 @@
  * @see frontend/src/core/logic/session-migrations.ts
  */
 
-// @UT-SYS-CORE-101@ (FROM: @IMP-SYS-CORE-012@)
 
 import { describe, it, expect } from 'vitest'
 import {
