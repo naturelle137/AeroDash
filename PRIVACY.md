@@ -212,12 +212,11 @@ safety-critical defect discovered after release block an unsafe build (a remote
   headers, no query string, and no device, install, or user identifier. No
   aircraft, fleet, or session data is included.
 - **What is nonetheless observable:** as with any HTTPS request, the server can
-  see your **IP address**, the browser's default **User-Agent**, and — unless a
-  `no-referrer` policy is applied (planned; see issue #377) — a same-origin
-  **`Referer`** (the in-app page URL you were on), plus the timing of the request
+  see your **IP address**, the browser's default **User-Agent**, and the timing of the request
   (roughly, when you opened the app online). For a self-hosted or single-origin
   deployment this is the same origin that already served you the app, so the
-  check introduces no third party.
+  check introduces no third party. The request uses `referrerPolicy: 'no-referrer'`
+  to suppress the **`Referer`** header.
 - **When it fires:** only when the device reports it is online — on app start
   and on reconnect. It is best-effort; any failure is ignored and the app keeps
   the last known safe-version floor.

@@ -43,7 +43,7 @@ describe('fetchRemoteMinSafeVersion — happy path', () => {
     expect(out).toBe('0.5.0')
     expect(fetchImpl).toHaveBeenCalledWith(
       DEFAULT_VERSION_ENDPOINT,
-      expect.objectContaining({ method: 'GET', cache: 'no-store', credentials: 'omit' }),
+      expect.objectContaining({ method: 'GET', cache: 'no-store', credentials: 'omit', referrerPolicy: 'no-referrer' }),
     )
   })
 

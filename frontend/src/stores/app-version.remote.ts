@@ -125,6 +125,7 @@ export async function fetchRemoteMinSafeVersion(
         method: 'GET',
         cache: 'no-store',
         credentials: 'omit',
+        referrerPolicy: 'no-referrer',
         signal: controller?.signal,
       })
 
