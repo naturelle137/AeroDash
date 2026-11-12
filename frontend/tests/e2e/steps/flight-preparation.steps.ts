@@ -115,6 +115,16 @@ When('the viewport for occupancy is {int} pixels wide', async ({ page }, width: 
   await page.setViewportSize({ width, height: 900 })
 })
 
+When('occupant presets exclude baggage and update the front mass', async ({ page, $testInfo }) => {
+  const front = page.getByRole('group', { name: 'Front Seats quick presets' })
+  await expect(front.getByRole('button')).toHaveCount(3)
+  await expect(page.getByRole('group', { name: /Baggage Area [12] quick presets/ })).toHaveCount(0)
+  await expect(page.getByRole('button', { name: /Set Baggage Area [12] to/ })).toHaveCount(0)
+  await front.getByRole('button', { name: 'Set Front Seats to 70 kg' }).click()
+  await expect(page.locator('.mass-station-input').getByLabel('Front Seats', { exact: true })).toHaveValue('70')
+  await $testInfo.attach('occupant-presets', { body: await page.screenshot({ fullPage: true }), contentType: 'image/png' })
+})
+
 When('the pilot loads the solo configuration', async ({ page }) => {
   await fillStation(page, 'Front Seats', '80')
   await fillStation(page, 'Baggage Area 1', '0')

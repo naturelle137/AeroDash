@@ -542,7 +542,7 @@ const lastResult = computed(() => store.lastResult)
 // in docs/data_constants/registry.json (occupant-preset-masses-*).
 function presetsForStation(stationIndex: number): readonly number[] {
   const lp = store.aircraft?.loadPoints[stationIndex]
-  if (!lp || lp.fuelTank) return []
+  if (!lp || resolveStationKind(lp) !== 'occupant') return []
   const isImperial = lp.unit?.toLowerCase() === 'lb'
   return isImperial ? OCCUPANT_PRESET_MASSES_LB : OCCUPANT_PRESET_MASSES_KG
 }

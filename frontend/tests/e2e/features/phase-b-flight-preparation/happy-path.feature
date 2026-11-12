@@ -22,6 +22,7 @@ Feature: Complete a textbook flight preparation within all limits
   Scenario Outline: Solo loading retains required crew checks
     When the viewport for occupancy is <width> pixels wide
     And the pilot selects aircraft "D-ECSM"
+    And occupant presets exclude baggage and update the front mass
     And the pilot loads the solo configuration
     Then only the draft notice remains for solo loading
     When the pilot empties the required front aggregate
