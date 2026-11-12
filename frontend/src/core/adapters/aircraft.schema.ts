@@ -146,14 +146,23 @@ const ChecklistScaffoldItemSchema = z.object({
   items: z.array(z.string()),
 })
 
-const PerformanceDataPointSchema = z.object({
+export const PerformanceSourceUnitsSchema = z.strictObject({
+  mass: z.enum(['kg', 'lb']),
+  pressureAltitude: z.enum(['ft', 'm']),
+  temperature: z.enum(['°C', '°F']),
+  distance: z.enum(['m', 'ft']),
+})
+
+const PerformanceDataPointSchema = z.strictObject({
   distance: finiteNum().nonnegative(),
   mass: finiteMass().positive(),
   pressureAltitude: finiteNum(),
   temperature: finiteNum(),
 })
 
-const PerformanceProfileSchema = z.object({
+export const PerformanceProfileSchema = z.strictObject({
+  sourceUnits: PerformanceSourceUnitsSchema.optional(),
+  sourceReference: z.string().min(1).max(500).optional(),
   flightPhase: z.enum([
     'TakeoffRoll',
     'TakeoffDistance50ft',
@@ -221,7 +230,7 @@ export const AircraftProfileSchema = z
       ])
       .default('draft'),
     // M3: Schema version for structured migration safety
-    schemaVersion: z.number().int().positive().finite().default(1),
+    schemaVersion: z.number().int().positive().finite().default(2),
     // v0.4: Verification provenance (REQ-AC-007, H-011). Present only on a
     // Verified snapshot recorded via the sign-off flow; legacy/imported Verified
     // profiles and all Drafts omit it. Optional so pre-provenance Verified

@@ -71,11 +71,42 @@ describe('raw table inspection service', () => {
 
   it('rejects unsupported versions and grids with no shared envelope', () => {
     const future = testPohAircraft()
-    future.schemaVersion = 2
+    future.schemaVersion = 3
     expect(inspectTables(future)).toMatchObject({ status: 'blocked', reason: 'profile' })
     const disjoint = testPohAircraft()
     disjoint.performanceProfiles![3]!.dataPoints.forEach((point) => { point.mass += 1000 })
     expect(inspectTables(disjoint)).toMatchObject({ status: 'blocked', reason: 'envelope' })
   })
 
+})
+
+it('interpolates the same grid when each phase declares different source units', () => {
+  const profile = testPohAircraft()
+  profile.sourceUnit = 'lb'
+  const declarations = [
+    { mass: 'kg', pressureAltitude: 'ft', temperature: '°C', distance: 'm' },
+    { mass: 'lb', pressureAltitude: 'ft', temperature: '°F', distance: 'ft' },
+    { mass: 'kg', pressureAltitude: 'm', temperature: '°F', distance: 'm' },
+    { mass: 'lb', pressureAltitude: 'm', temperature: '°C', distance: 'ft' },
+  ] as const
+  profile.performanceProfiles!.forEach((table, index) => {
+    const units = declarations[index]!
+    table.sourceUnits = units
+    table.dataPoints = table.dataPoints.map((point) => ({
+      mass: units.mass === 'lb' ? point.mass / 0.45359237 : point.mass,
+      pressureAltitude: units.pressureAltitude === 'm' ? point.pressureAltitude * 0.3048 : point.pressureAltitude,
+      temperature: units.temperature === '°F' ? point.temperature * 1.8 + 32 : point.temperature,
+      distance: units.distance === 'ft' ? point.distance / 0.3048 : point.distance,
+    }))
+  })
+  const original = JSON.stringify(profile.performanceProfiles)
+  for (let i = 0; i < 2; i++) {
+    const result = inspectPohDistances(profile, inputs, now)
+    expect(result.status).toBe('success')
+    if (result.status !== 'success') return
+    for (const [key, expected] of Object.entries({ takeoffRoll: 220, takeoffDistance50ft: 320, landingRoll: 420, landingDistance50ft: 520 })) {
+      expect(result.distances[key as keyof typeof result.distances]).toBeCloseTo(expected, 10)
+    }
+  }
+  expect(JSON.stringify(profile.performanceProfiles)).toBe(original)
 })

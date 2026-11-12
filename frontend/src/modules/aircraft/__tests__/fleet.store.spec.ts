@@ -102,7 +102,7 @@ describe('useFleetStore', () => {
     const store = useFleetStore()
     const profile = await store.createProfile(minimalProfileData())
     expect(profile.status).toBe('draft')
-    expect(profile.schemaVersion).toBe(1)
+    expect(profile.schemaVersion).toBe(2)
     expect(store.profiles).toHaveLength(1)
     expect(store.profiles[0]!.status).toBe('draft')
   })

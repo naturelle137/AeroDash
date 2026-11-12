@@ -13,6 +13,7 @@
  * @see docs/architecture/aircraft-fleet-module.md
  */
 
+import { CURRENT_PROFILE_SCHEMA_VERSION } from '@/core/logic/profile-migrations'
 import { isVerificationDateValid } from '@/core/logic/profile-verification'
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
@@ -201,7 +202,7 @@ export const useFleetStore = defineStore('fleet', () => {
       ownerId: data.ownerId && data.ownerId.trim() !== '' ? data.ownerId : uuidv4(),
       id: uuidv4(),
       status: 'draft',
-      schemaVersion: 1,
+      schemaVersion: CURRENT_PROFILE_SCHEMA_VERSION,
     })
 
     await fleetRepository.create(newProfile)

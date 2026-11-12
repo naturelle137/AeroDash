@@ -135,7 +135,7 @@ describe('integration: raw doc → migration → POH distance computation', () =
     const raw = rawDocument('verified')
     delete (raw as { schemaVersion?: number }).schemaVersion
     const out = expectMigrated(migrateProfileDocument(raw))
-    expect(out.profile.schemaVersion).toBe(1)
+    expect(out.profile.schemaVersion).toBe(2)
     const result = computePohDistances(out.profile, conditions(925, 1000, 10))
     expect(result.status).toBe('success')
   })

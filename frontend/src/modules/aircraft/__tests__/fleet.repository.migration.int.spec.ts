@@ -234,8 +234,8 @@ describe('fleetRepository — corruption + partial-migration crash recovery', ()
     const { profiles, diagnostics } = await findAllWithDiagnostics()
     expect(profiles).toHaveLength(2)
     const byReg = Object.fromEntries(profiles.map((p) => [p.registration, p]))
-    expect(byReg['D-V101']!.schemaVersion).toBe(1)
-    expect(byReg['D-LEG0']!.schemaVersion).toBe(1)
+    expect(byReg['D-V101']!.schemaVersion).toBe(CURRENT_PROFILE_SCHEMA_VERSION)
+    expect(byReg['D-LEG0']!.schemaVersion).toBe(CURRENT_PROFILE_SCHEMA_VERSION)
 
     // The legacy doc must have been forward-stamped by the migration walker
     // even though the bytes on disk still carry no version field.
@@ -327,12 +327,12 @@ describe('fleetRepository — exchange envelope import back-compat', () => {
     })
 
     const imported = importProfileFromJson(legacyJson)
-    expect(imported.schemaVersion).toBe(1)
+    expect(imported.schemaVersion).toBe(CURRENT_PROFILE_SCHEMA_VERSION)
     await create(imported)
 
     const found = await findById(imported.id)
     expect(found).toBeDefined()
     expect(found!.registration).toBe('D-LEG1')
-    expect(found!.schemaVersion).toBe(1)
+    expect(found!.schemaVersion).toBe(CURRENT_PROFILE_SCHEMA_VERSION)
   })
 })

@@ -44,3 +44,33 @@ Feature: Raw POH table inspection
       | negative distance |
       | nonfinite point   |
       | unsupported phase |
+
+  Scenario Outline: Source units survive visible review, lookup, reload and export
+    Given the raw POH workflow viewport is <width> by 1000
+    When I import a synthetic table declared in "<units>" source units
+    Then Fleet shows the original and normalized reference vector for "<units>"
+    When I explicitly verify the Test POH profile in Fleet
+    Then the declared source reference vector computes after reload and export for "<units>"
+    And the raw POH browser evidence is captured
+    And changing the imported source units requires explicit review again for "<units>"
+
+    Examples:
+      | width | units      |
+      | 1440  | normalized |
+      | 390   | normalized |
+      | 1440  | imperial   |
+      | 390   | imperial   |
+      | 1440  | mixed      |
+      | 390   | mixed      |
+
+  Scenario Outline: Unsupported source declarations fail visibly on import
+    Given the raw POH workflow viewport is <width> by 1000
+    When I import invalid Test POH JSON with "<problem>"
+    Then Fleet rejects the exchange and has no Test profile
+
+    Examples:
+      | width | problem              |
+      | 1440  | unsupported units    |
+      | 390   | incomplete units     |
+      | 1440  | conflicting units    |
+      | 390   | unknown unit axis    |

@@ -82,7 +82,7 @@ function compute(): void {
         <label>Temperature (°C)<input v-model="inputs.temperature" type="text" inputmode="decimal" /></label>
       </div>
       <p>Use pressure altitude directly, not QNH or field elevation. Mass is in kg; altitude in ft;
-        outside air temperature in °C. No unit conversion or atmospheric correction is applied.</p>
+        outside air temperature in °C. Source tables are converted to these lookup units; no atmospheric correction is applied.</p>
       <button type="submit" :disabled="!profile || fleet.fleetLoadState !== 'READY'">Compute raw distances</button>
       <p v-if="result?.status === 'blocked'" role="alert">{{ result.message }}</p>
       <section v-if="result?.status === 'success'" aria-label="Raw POH table distances" aria-live="polite">

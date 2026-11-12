@@ -10,8 +10,10 @@ Historical integrated [M&B evidence](mb-qa-293.md) and [occupancy evidence](../t
 
 ## Next product delivery
 
-1. Raw table inspection [#311](https://github.com/naturelle137/AeroDash/issues/311): select an aircraft with complete, pilot-checked POH tables, enter mass, pressure altitude and temperature, and inspect TOR/TOD/LR/LD. Restrict this first slice to all four tables’ supported envelope. Invalid, Draft, incomplete or out-of-range data blocks results. Show raw table distances, not operational required distances or flight approval. Existing fleet JSON import and verification supply the data; explain missing data and how to supply it. Supply no default performance tables or invented operational values.
-2. Extend that visible workflow with #302 manual runway/surface input, #304 QNH-to-pressure-altitude, #305 source-backed correction selection and #300 operational factors, runway margin and alerts. Correction fallbacks never replace missing aircraft distance tables.
+Delivered: raw table inspection [#311](https://github.com/naturelle137/AeroDash/issues/311) provides Fleet import/review/verification and in-envelope TOR/TOD/LR/LD lookup. Synthetic browser evidence proves wiring, not aircraft accuracy.
+
+1. Current increment [#492](https://github.com/naturelle137/AeroDash/issues/492): preserve explicit per-axis source units and original values, display normalized lookup values during Fleet review, and retain metadata through verification, reload and export. Support kg/lb, ft/m, °C/°F, m/ft independently; visibly reject unknown, partial or conflicting declarations. Keep undeclared tables under their labelled legacy normalized contract.
+2. Next: extend that visible workflow with #302 manual runway/surface input, #304 QNH-to-pressure-altitude, #305 source-backed correction selection and #300 operational factors, runway margin and alerts. Correction fallbacks never replace missing aircraft distance tables.
 3. Add #301 explicitly labelled estimates and #420 extrapolation/acknowledgement, with source review and complete UI tests. The first slice has no silent clamping or implicit acknowledgement.
 
 Every delivery includes relevant core/component tests, a real browser flow with mobile/desktop evidence, local gates, one independent review and green CI. A core-only PR does not complete a pilot workflow. Synthetic fixtures prove software behavior, not aviation accuracy; actual aircraft support requires applicable POH/AFM references and cases. The CEO evaluates usability, not aviation correctness.

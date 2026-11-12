@@ -85,7 +85,7 @@ describe('fleetRepository.create', () => {
     expect(found!.id).toBe(profile.id)
     expect(found!.registration).toBe('D-UNIT')
     expect(found!.status).toBe('draft')
-    expect(found!.schemaVersion).toBe(1)
+    expect(found!.schemaVersion).toBe(2)
   })
 
   it('preserves all fields including passengerProfiles', async () => {

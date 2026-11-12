@@ -21,7 +21,7 @@
  */
 
 import { v4 as uuidv4 } from 'uuid'
-import { AircraftProfileSchema } from '@/core/adapters/aircraft.schema'
+import { migrateProfileDocument, CURRENT_PROFILE_SCHEMA_VERSION } from '@/core/logic/profile-migrations'
 import type { AircraftProfile } from '@/core/adapters/aircraft.schema'
 
 
@@ -51,7 +51,7 @@ export const EXCHANGE_FORMAT = 'aerodash-aircraft' as const
  * whose `version` is greater than this constant so a future profile cannot
  * be imported into an older build (PWA-cache rollback semantics).
  */
-export const EXCHANGE_VERSION = 1 as const
+export const EXCHANGE_VERSION = 2 as const
 
 /** Envelope shape that wraps an exported aircraft profile. */
 export interface ExchangeEnvelope {
@@ -181,20 +181,20 @@ export function importProfileFromJson(jsonText: string): AircraftProfile {
     profileDoc = parsed
   }
 
-  const result = AircraftProfileSchema.safeParse(profileDoc)
-
-  if (!result.success) {
-    const issues = result.error.issues
-      .map((i) => `${i.path.join('.')}: ${i.message}`)
-      .join('; ')
-    throw new ImportError(`Profile validation failed: ${issues}`, result.error)
+  const result = migrateProfileDocument(profileDoc)
+  if (result.kind === 'unsupported-future-version') {
+    throw new ImportError('Import failed: profile version is newer than this build. Update the app.')
   }
-
-  // Force draft status and assign new UUID to prevent collisions
+  if (result.kind === 'corrupt') {
+    throw new ImportError(`Profile validation failed: ${result.reason}`)
+  }
+  // Imported source changes always need a new explicit review.
   return {
-    ...result.data,
+    ...result.profile,
+    schemaVersion: CURRENT_PROFILE_SCHEMA_VERSION,
     id: uuidv4(),
     status: 'draft',
+    verification: undefined,
   }
 }
 

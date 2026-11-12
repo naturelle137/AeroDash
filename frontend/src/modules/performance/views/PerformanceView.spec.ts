@@ -46,3 +46,27 @@ it('reports storage error with retry and blocks computation', async () => {
   await view.get('[role="alert"] button').trigger('click')
   expect(fleet.loadAll).toHaveBeenCalledTimes(2)
 })
+
+it('clears results on source-unit and provenance edits and visibly blocks invalid declarations', async () => {
+  const fleet = useFleetStore()
+  fleet.profiles = [testPohAircraft()]
+  fleet.fleetLoadState = 'READY'
+  vi.spyOn(fleet, 'loadAll').mockResolvedValue()
+  const view = mount(PerformanceView, { global: { stubs: { RouterLink: true } } })
+  await flushPromises()
+  await view.get('select').setValue(fleet.profiles[0]!.id)
+  for (const [index, value] of ['900', '1000', '10'].entries()) await view.findAll('input')[index]!.setValue(value)
+  await view.get('form').trigger('submit')
+  expect(view.find('[aria-label="Raw POH table distances"]').exists()).toBe(true)
+  fleet.profiles[0]!.performanceProfiles![0]!.sourceUnits = { mass: 'kg', pressureAltitude: 'ft', temperature: '°C', distance: 'm' }
+  await flushPromises()
+  expect(view.find('[aria-label="Raw POH table distances"]').exists()).toBe(false)
+  await view.get('form').trigger('submit')
+  fleet.profiles[0]!.performanceProfiles![0]!.sourceReference = 'Changed manual reference'
+  await flushPromises()
+  expect(view.find('[aria-label="Raw POH table distances"]').exists()).toBe(false)
+  Object.assign(fleet.profiles[0]!.performanceProfiles![0]!.sourceUnits!, { distance: 'yd' })
+  await view.get('form').trigger('submit')
+  expect(view.findAll('[role="alert"]')[0]!.text()).toContain('source-unit declarations')
+  expect(view.find('[aria-label="Raw POH table distances"]').exists()).toBe(false)
+})

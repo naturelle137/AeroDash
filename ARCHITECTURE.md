@@ -27,7 +27,7 @@ P1 imports only core, standard-library APIs and Zod. It returns typed results; u
 
 [Aircraft model](docs/architecture/aircraft_data_model.md), [fleet module](docs/architecture/aircraft-fleet-module.md) and [exchange contract](docs/architecture/aircraft-exchange-file-format.md) describe schema validation, immutable verified snapshots, draft edits, provenance/expiry and import/export boundaries. [Optional occupancy](docs/architecture/optional-occupancy.md) distinguishes a legitimate empty seat from invalid or missing occupant mass.
 
-Profiles preserve manufacturer source units. Adapters normalize values to the internal calculation frame (kg, m, L, s as applicable); pressure-altitude lookup uses ft and temperature uses °C under its explicit contract. Calculations must not mix units implicitly. The original POH/weighing report remains authoritative.
+Profiles preserve manufacturer source units. [Performance source units](docs/architecture/performance-source-units.md) are declared per table and axis independently of M&B; original points persist and the pure adapter normalizes copies for review and lookup. Adapters normalize values to the internal calculation frame (kg, m, L, s as applicable); pressure-altitude lookup uses ft and temperature uses °C under its explicit contract. Calculations must not mix units implicitly. The original POH/weighing report remains authoritative.
 
 ## Numerical contracts and evidence
 
