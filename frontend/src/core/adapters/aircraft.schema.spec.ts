@@ -1,3 +1,4 @@
+// @UT-AD-CORE-078@ (FROM: @IMP-AD-CORE-023@)
 import { describe, it, expect } from 'vitest'
 import { AircraftProfileSchema } from './aircraft.schema'
 
@@ -1216,5 +1217,24 @@ describe('AircraftProfileSchema — station kind', () => {
       }),
     )
     expect(result.success).toBe(false)
+  })
+})
+
+describe('configured occupancy', () => {
+  it.each(['required', 'optional'])('preserves %s occupancy without a schema migration', (occupancy) => {
+    const input = cloneWith((p) => { (p.loadPoints as Record<string, unknown>[])[0]!.occupancy = occupancy })
+    const parsed = AircraftProfileSchema.parse(input)
+    expect(parsed.loadPoints[0]!.occupancy).toBe(occupancy)
+  })
+  it('accepts omitted legacy occupancy', () => {
+    expect(AircraftProfileSchema.parse(createValidProfile()).loadPoints[0]!.occupancy).toBeUndefined()
+  })
+  it.each(['', 'sometimes', null, false])('rejects invalid occupancy %s', (occupancy) => {
+    const input = cloneWith((p) => { (p.loadPoints as Record<string, unknown>[])[0]!.occupancy = occupancy })
+    expect(AircraftProfileSchema.safeParse(input).success).toBe(false)
+  })
+  it.each([-1, NaN, Infinity, '', undefined])('rejects invalid configured quantity %s on an optional seat', (value) => {
+    const input = cloneWith((p) => { Object.assign((p.loadPoints as Record<string, unknown>[])[0]!, { occupancy: 'optional', defaultQuantity: value }) })
+    expect(AircraftProfileSchema.safeParse(input).success).toBe(false)
   })
 })

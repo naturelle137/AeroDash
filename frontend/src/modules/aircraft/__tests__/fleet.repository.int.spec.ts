@@ -1,3 +1,4 @@
+// @IT-AC-STORE-113@ (FROM: @IMP-AC-STORE-001@)
 /**
  * Integration tests for fleet.repository.ts using fake-indexeddb.
  * Covers CRUD lifecycle and schemaVersion field persistence.
@@ -455,4 +456,16 @@ it('does not trust future provenance from persisted or imported profiles', async
   expect(evaluateVerificationFreshness(imported, new Date('2026-03-01T00:00:00Z')).state).toBe(
     'draft',
   )
+})
+
+describe('occupancy persistence', () => {
+  it('loads an old profile and retains an explicit editor change through IndexedDB', async () => {
+    const profile = buildProfile()
+    await create(profile)
+    const old = (await findById(profile.id))!
+    expect(old.loadPoints[0]!.occupancy).toBeUndefined()
+    old.loadPoints[0]!.occupancy = 'optional'
+    await update(old)
+    expect((await findById(profile.id))!.loadPoints[0]!.occupancy).toBe('optional')
+  })
 })

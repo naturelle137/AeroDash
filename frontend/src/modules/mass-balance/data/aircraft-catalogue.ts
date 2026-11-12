@@ -26,6 +26,7 @@ export const AIRCRAFT_CATALOGUE: AircraftContext[] = [
       {
         name: 'Pilot & Passenger',
         kind: 'occupant',
+        occupancy: 'required',
         arm: 1.8,
         armLookup: [],
         operationalLimit: 200,
@@ -94,6 +95,7 @@ export const AIRCRAFT_CATALOGUE: AircraftContext[] = [
       {
         name: 'Pilot & Passenger',
         kind: 'occupant',
+        occupancy: 'required',
         arm: 1.8,
         armLookup: [],
         operationalLimit: 200,
@@ -151,6 +153,7 @@ export const AIRCRAFT_CATALOGUE: AircraftContext[] = [
       {
         name: 'Front Seats',
         kind: 'occupant',
+        occupancy: 'required',
         arm: 2.054,
         armLookup: [],
         operationalLimit: 200,
@@ -162,6 +165,7 @@ export const AIRCRAFT_CATALOGUE: AircraftContext[] = [
       {
         name: 'Rear Seats',
         kind: 'occupant',
+        occupancy: 'optional',
         arm: 2.921,
         armLookup: [],
         operationalLimit: 200,
@@ -230,6 +234,7 @@ export const AIRCRAFT_CATALOGUE: AircraftContext[] = [
       {
         name: 'Front Seats',
         kind: 'occupant',
+        occupancy: 'required',
         arm: 2.045,
         armLookup: [],
         operationalLimit: 200,
@@ -241,6 +246,7 @@ export const AIRCRAFT_CATALOGUE: AircraftContext[] = [
       {
         name: 'Rear Seats',
         kind: 'occupant',
+        occupancy: 'optional',
         arm: 2.997,
         armLookup: [],
         operationalLimit: 200,
@@ -334,6 +340,7 @@ export const AIRCRAFT_CATALOGUE: AircraftContext[] = [
       {
         name: 'Front Seats',
         kind: 'occupant',
+        occupancy: 'required',
         arm: 1.6,
         armLookup: [],
         operationalLimit: 200,
@@ -345,6 +352,7 @@ export const AIRCRAFT_CATALOGUE: AircraftContext[] = [
       {
         name: 'Rear Seats',
         kind: 'occupant',
+        occupancy: 'optional',
         arm: 2.7,
         armLookup: [],
         operationalLimit: 120,

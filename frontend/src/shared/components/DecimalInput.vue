@@ -36,6 +36,7 @@ const props = withDefaults(
     disabled?: boolean
     ariaLabel?: string
     allowNull?: boolean
+    preserveInvalid?: boolean
   }>(),
   {
     allowNull: false,
@@ -82,8 +83,30 @@ function parseRaw(raw: string): number | null {
   return n
 }
 
+// @IMP-UI-SHARED-020@ (FROM: @REQ-UQ-006@)
+function commitStrict(raw: string): void {
+  rawString.value = raw
+  const parsed = /^-?\d*(?:[.,]\d*)?$/.test(raw) ? parseRaw(raw) : null
+  if (parsed === null) {
+    emit('update:modelValue', null)
+    if (raw.trim() !== '') emit('reject', { reason: 'invalid' })
+  } else if (props.min !== undefined && parsed < props.min) {
+    emit('update:modelValue', null)
+    emit('reject', { reason: 'min' })
+  } else if (props.max !== undefined && parsed > props.max) {
+    emit('update:modelValue', null)
+    emit('reject', { reason: 'max' })
+  } else {
+    emit('update:modelValue', parsed)
+  }
+}
+
 function onInput(event: Event): void {
   const input = event.target as HTMLInputElement
+  if (props.preserveInvalid) {
+    commitStrict(input.value)
+    return
+  }
 
   // Strip any character that cannot belong to a decimal number ("e", "+",
   // letters, …). Forcing the DOM value back is required because Vue's `:value`
@@ -136,6 +159,10 @@ function onInput(event: Event): void {
 }
 
 function onBlur(): void {
+  if (props.preserveInvalid) {
+    commitStrict(rawString.value)
+    return
+  }
   // On blur, normalize: if the raw string is an intermediate state, emit final value
   const raw = rawString.value.trim()
   if (raw === '' || raw === '-' || raw.endsWith('.') || raw.endsWith(',')) {

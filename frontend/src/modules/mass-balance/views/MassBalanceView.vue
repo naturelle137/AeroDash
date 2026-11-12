@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { requiresOccupancy, resolveStationKind } from '@/core/logic/station-kind'
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useMassBalanceStore } from '@/modules/mass-balance/stores/mass-balance.store'
@@ -51,6 +52,11 @@ const store = useMassBalanceStore()
 const fleetStore = useFleetStore()
 const activeAircraftStore = useActiveAircraftStore()
 const sessionPersistenceStore = useSessionPersistenceStore()
+function isOptionalOccupant(index: number): boolean {
+  const lp = store.aircraft?.loadPoints[index]
+  return !!lp && resolveStationKind(lp) === 'occupant' && !requiresOccupancy(lp)
+}
+
 const router = useRouter()
 
 // ---------------------------------------------------------------------------
@@ -1093,6 +1099,7 @@ function onCancelSelection(): void {
                   ? (store.aircraft?.loadPoints[station.index]?.operationalLimit ?? null)
                   : null"
                 :presets="presetsForStation(station.index)"
+                :optional-occupant="isOptionalOccupant(station.index)"
                 :disabled="viewModel.inputsDisabled"
                 @update:weight="onStationWeightChange(station.index, $event)"
               />

@@ -1,3 +1,4 @@
+// @UT-MB-STORE-068@ (FROM: @IMP-MB-STORE-023@)
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import { useMassBalanceStore } from '../mass-balance.store'
@@ -1288,5 +1289,41 @@ describe('Mass Balance Store - applyRestoredSession', () => {
     store.loadProfile(baggageProfile)
 
     expect(store.stations[1]?.mandatory).toBe(true)
+  })
+})
+
+describe('configured optional occupancy', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    mockedCalculate.mockReturnValue(buildSuccessResult())
+  })
+  it('lists only required offenders and permits solo mass on a combined station', () => {
+    const store = useMassBalanceStore()
+    const profile = structuredClone(baggageProfile)
+    profile.loadPoints[2]!.kind = 'baggage'
+    profile.loadPoints.push({ ...profile.loadPoints[0]!, name: 'Optional Seat', occupancy: 'optional' })
+    store.loadProfile(profile)
+    expect(store.notifications.find(n => n.id === 'WARN-UQ-001')?.message).toContain('Front Seats')
+    expect(store.notifications.find(n => n.id === 'WARN-UQ-001')?.message).not.toContain('Optional Seat')
+    expect(store.stations[store.stations.length - 1]!.mandatory).toBe(false)
+    store.updateStationWeight(0, 80)
+    expect(store.notifications.some(n => n.id === 'WARN-UQ-001')).toBe(false)
+    expect(store.allMandatoryFieldsPopulated).toBe(true)
+    expect(store.uiState).toBe('VERIFIED_SAFE')
+  })
+  it('restores obligations for occupied optional seats and resets them on empty', () => {
+    const store = useMassBalanceStore()
+    const profile = structuredClone(mockProfile)
+    profile.loadPoints[0]!.occupancy = 'optional'
+    store.loadProfile(profile)
+    expect(store.allFieldsVerified).toBe(true)
+    store.updateStationWeight(0, 60)
+    expect(store.stations[0]!.mandatory).toBe(true)
+    expect(store.allFieldsVerified).toBe(false)
+    store.markFieldVerified(0)
+    expect(store.allFieldsVerified).toBe(true)
+    store.resetPayload()
+    expect(store.stations[0]!.mandatory).toBe(false)
+    expect(store.allFieldsVerified).toBe(true)
   })
 })

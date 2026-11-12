@@ -36,6 +36,7 @@ const props = defineProps<{
    * standard passenger weights. Omit / empty for stations without presets.
    */
   presets?: readonly number[]
+  optionalOccupant?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -97,7 +98,7 @@ function onFieldInput(value: number | null): void {
   // An accepted value clears any stale rejection hint immediately.
   rejectionHint.value = null
   clearRejectionTimer()
-  emit('update:weight', clamp(value ?? minWeight.value))
+  emit('update:weight', value ?? Number.NaN)
 }
 
 function onReject(detail: DecimalRejection): void {
@@ -168,6 +169,8 @@ function applyPreset(value: number): void {
       <span v-if="unit" class="mass-station-input__unit" aria-label="unit">{{ unit }}</span>
     </div>
 
+    <p v-if="optionalOccupant" class="mass-station-input__unusable">Optional passenger — enter 0 when empty</p>
+
     <!-- @IMP-MB-UI-008@ (FROM: @REQ-UQ-004@) -->
     <!-- coarse (±N) controls flank the fine (±1) control so a 75 kg
          passenger is a handful of taps, not 75. The fine control is retained. -->
@@ -195,7 +198,9 @@ function applyPreset(value: number): void {
       <DecimalInput
         :id="`station-${station.index}`"
         class="mass-station-input__field"
-        :model-value="station.weight"
+        :model-value="Number.isFinite(station.weight) ? station.weight : null"
+        allow-null
+        preserve-invalid
         :min="minWeight"
         :max="fieldMax"
         :disabled="disabled"

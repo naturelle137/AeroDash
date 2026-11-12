@@ -19,6 +19,8 @@
   "loadPoints": [
     {
       "name": "Front Seats",
+      "kind": "occupant",
+      "occupancy": "required",
       "arm": 1.600,
       "armLookup": null,
       "operationalLimit": 200,
@@ -29,6 +31,8 @@
     },
     {
       "name": "Rear Seats",
+      "kind": "occupant",
+      "occupancy": "optional",
       "arm": 2.700,
       "armLookup": null,
       "operationalLimit": 120,
@@ -39,6 +43,7 @@
     },
     {
       "name": "Baggage",
+      "kind": "baggage",
       "arm": 3.400,
       "armLookup": null,
       "operationalLimit": 30,

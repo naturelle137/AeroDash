@@ -32,7 +32,7 @@ import {
 } from '@/core/logic/unit-normalization'
 import { normalizeFuelQuantityToKg, isFuelQuantityUnit } from '@/core/logic/fuel-mass'
 import { isKnownFuelType } from '@/core/logic/fuel-density'
-import { resolveStationKind } from '@/core/logic/station-kind'
+import { requiresOccupancy, resolveStationKind } from '@/core/logic/station-kind'
 import type { MassUnit } from '@/core/domain/units'
 import type { SessionPayload } from '@/core/domain/session.schema'
 import type {
@@ -50,10 +50,9 @@ import type {
 // Helpers
 // ---------------------------------------------------------------------------
 
-// Baggage stays mandatory: an empty hold is legitimate, but the pilot must
-// still confirm it, so only fuel is exempt from the touch/verify gate.
-function deriveMandatory(lp: LoadPointDefinition): boolean {
-  return resolveStationKind(lp) !== 'fuel'
+function deriveMandatory(lp: LoadPointDefinition, weight: number): boolean {
+  const kind = resolveStationKind(lp)
+  return kind !== 'fuel' && !(kind === 'occupant' && !requiresOccupancy(lp) && weight === 0)
 }
 
 // ---------------------------------------------------------------------------
@@ -170,14 +169,14 @@ export const useMassBalanceStore = defineStore('massBalance', {
 
         // Initialize station inputs from load point definitions
         // @IMP-MB-STORE-014@ (FROM: @REQ-MB-002@, @DES-UX-007@)
-        // Mandatory (non-fuel) stations count as populated on load: catalogue defaults are authoritative, including 0 kg.
+        // Catalogue defaults are authoritative, including intentional empty optional seats.
         this.stations = profile.loadPoints.map((lp, index) => ({
           index,
           name: lp.name,
           weight: lp.defaultQuantity,
           verified: false,
-          mandatory: deriveMandatory(lp),
-          touched: deriveMandatory(lp) ? true : lp.defaultQuantity > 0,
+          mandatory: deriveMandatory(lp, lp.defaultQuantity),
+          touched: deriveMandatory(lp, lp.defaultQuantity) ? true : lp.defaultQuantity > 0,
           hasError: false,
         }))
 
@@ -357,6 +356,10 @@ export const useMassBalanceStore = defineStore('massBalance', {
      */
     // @IMP-MB-STORE-013@ (FROM: @REQ-MB-002@, @REQ-MB-003@, @DES-ARCH-005@)
     _runCalculation(): void {
+      for (const station of this.stations) {
+        const lp = this.aircraft?.loadPoints[station.index]
+        if (lp) station.mandatory = deriveMandatory(lp, station.weight)
+      }
       const catDef = this.activeCategoryDef
       if (!this.aircraft || !catDef) {
         this.notifications = []
@@ -672,7 +675,7 @@ export const useMassBalanceStore = defineStore('massBalance', {
     /**
      * Plausibility check — Zero-Value occupant station mass.
      *
-     * Emits one WARN-UQ-001 listing every occupant station (resolved from the
+     * Emits one WARN-UQ-001 listing every required occupant station (resolved from the
      * load point's `kind`, unclassified non-fuel stations count as occupant)
      * whose current weight is exactly zero. Fuel and baggage are excluded:
      * both are legitimately empty, and false alarms train pilots to dismiss
@@ -693,7 +696,7 @@ export const useMassBalanceStore = defineStore('massBalance', {
       const zeroNames = this.availableStations
         .filter((s) => {
           const def = this.aircraft!.loadPoints[s.index]
-          if (!def || resolveStationKind(def) !== 'occupant') return false
+          if (!def || !requiresOccupancy(def)) return false
           return s.weight === 0
         })
         .map((s) => s.name)

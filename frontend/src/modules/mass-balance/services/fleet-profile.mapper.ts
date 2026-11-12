@@ -47,6 +47,7 @@ export function mapFleetProfileToContext(profile: AircraftProfile): AircraftCont
     loadPoints: profile.loadPoints.map((lp) => ({
       name: lp.name,
       ...(lp.kind ? { kind: lp.kind } : {}),
+      ...(lp.occupancy ? { occupancy: lp.occupancy } : {}),
       arm: lp.arm,
       armLookup: lp.armLookup,
       operationalLimit: lp.operationalLimit,

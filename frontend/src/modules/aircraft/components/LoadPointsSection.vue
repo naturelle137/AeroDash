@@ -121,7 +121,19 @@
             <option value="occupant">Seat (pilot, crew, passenger)</option>
             <option value="baggage">Baggage / cargo</option>
           </select>
-          <span class="field-hint">Empty seats trigger a plausibility warning; empty baggage does not.</span>
+          <span class="field-hint">Required seats warn at zero; optional seats may be empty. Baggage may be empty.</span>
+        </div>
+        <div v-if="!lp.fuelTank && lp.kind !== 'baggage'" class="field-group">
+          <label :for="`${sectionId}-occupancy-${idx}`">Occupancy</label>
+          <select
+            :id="`${sectionId}-occupancy-${idx}`"
+            :value="lp.occupancy ?? 'required'"
+            @change="patchRow(idx, { occupancy: ($event.target as HTMLSelectElement).value as 'required' | 'optional' })"
+          >
+            <option value="required">Required occupant / crew aggregate</option>
+            <option value="optional">Optional passenger (zero means empty)</option>
+          </select>
+          <span class="field-hint">Older profiles default to required. Configure from your aircraft's loading arrangement.</span>
         </div>
       </div>
 

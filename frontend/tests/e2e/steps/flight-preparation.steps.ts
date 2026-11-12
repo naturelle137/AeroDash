@@ -110,3 +110,49 @@ Then('a critical notification {string} is displayed', async ({ page }, message: 
   await expect(page.locator('.notification--critical', { hasText: message })).toBeVisible()
 })
 
+
+When('the viewport for occupancy is {int} pixels wide', async ({ page }, width: number) => {
+  await page.setViewportSize({ width, height: 900 })
+})
+
+When('the pilot loads the solo configuration', async ({ page }) => {
+  await fillStation(page, 'Front Seats', '80')
+  await fillStation(page, 'Baggage Area 1', '0')
+  await fillStation(page, 'Baggage Area 2', '0')
+  await fillStation(page, 'Fuel Tanks', '50')
+  await expect(page.locator('.mass-station-input').getByLabel('Rear Seats', { exact: true })).toHaveValue('0')
+})
+
+Then('only the draft notice remains for solo loading', async ({ page, $testInfo }) => {
+  await expect(page.locator('.notification--warning')).toHaveCount(1)
+  await expect(page.locator('.notification--warning')).toHaveText('Draft Profile Active')
+  await expect(page.getByRole('region', { name: 'Calculation results' })).toBeVisible()
+  await expect(page.getByText(/missing.*mass|complete.*mandatory/i)).toHaveCount(0)
+  await $testInfo.attach('solo-loading', { body: await page.screenshot({ fullPage: true }), contentType: 'image/png' })
+})
+
+When('the pilot empties the required front aggregate', async ({ page }) => {
+  await fillStation(page, 'Front Seats', '0')
+})
+
+Then('the empty required aggregate warns without naming the optional rear seats', async ({ page, $testInfo }) => {
+  const warning = page.locator('.notification--warning', { hasText: 'Implausible mass' })
+  await expect(warning).toContainText('Front Seats')
+  await expect(warning).not.toContainText('Rear Seats')
+  await $testInfo.attach('required-zero', { body: await page.screenshot({ fullPage: true }), contentType: 'image/png' })
+})
+
+When('the pilot restores solo mass and clears the optional rear input', async ({ page }) => {
+  await fillStation(page, 'Front Seats', '80')
+  const rear = page.locator('.mass-station-input').getByLabel('Rear Seats', { exact: true })
+  await rear.fill('')
+  await rear.blur()
+})
+
+Then('a missing optional input blocks calculation until explicit zero', async ({ page }) => {
+  await expect(page.locator('.notification--error')).not.toHaveCount(0)
+  await expect(page.getByText('Implausible mass', { exact: false })).toHaveCount(0)
+  await fillStation(page, 'Rear Seats', '0')
+  await expect(page.locator('.notification--error')).toHaveCount(0)
+  await expect(page.locator('.notification--warning')).toHaveText('Draft Profile Active')
+})

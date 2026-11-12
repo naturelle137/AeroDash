@@ -19,6 +19,8 @@
   "loadPoints": [
     {
       "name": "Seats",
+      "kind": "occupant",
+      "occupancy": "required",
       "arm": 1.8,
       "armLookup": null,
       "operationalLimit": 200,
@@ -29,6 +31,7 @@
     },
     {
       "name": "Baggage",
+      "kind": "baggage",
       "arm": 2.417,
       "armLookup": null,
       "operationalLimit": 20,
@@ -39,6 +42,7 @@
     },
     {
       "name": "Fuel Tanks",
+      "kind": "fuel",
       "arm": 2.209,
       "armLookup": null,
       "operationalLimit": 120,

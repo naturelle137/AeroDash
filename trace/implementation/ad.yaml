@@ -200,3 +200,10 @@ AD (auto)
       - frontend/src/core/logic/station-kind.ts
     req:
       - REQ-UQ-006
+
+  IMP-AD-CORE-026
+    title: Resolve explicit occupancy with conservative legacy fallback
+    files:
+      - frontend/src/core/logic/station-kind.ts
+    req:
+      - REQ-UQ-006

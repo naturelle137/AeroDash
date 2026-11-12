@@ -2231,3 +2231,17 @@ AC (auto)
       - frontend/src/modules/aircraft/__tests__/LoadPointsSection.spec.ts
     impl:
       - IMP-AC-VIEW-040
+
+  UT-AC-VIEW-194
+    title: Editor exposes and updates explicit optional occupancy
+    files:
+      - frontend/src/modules/aircraft/__tests__/LoadPointsSection.spec.ts
+    impl:
+      - IMP-AC-VIEW-040
+
+  UT-AC-STORE-138
+    title: Occupancy metadata survives JSON exchange roundtrip
+    files:
+      - frontend/src/modules/aircraft/__tests__/profile.import.spec.ts
+    impl:
+      - IMP-AC-STORE-004

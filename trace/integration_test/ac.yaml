@@ -210,3 +210,10 @@ AC (auto)
       - IMP-AC-CORE-005
       - IMP-AC-CORE-006
       - IMP-AC-STORE-004
+
+  IT-AC-STORE-113
+    title: Legacy profile loading and occupancy edits survive IndexedDB
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.repository.int.spec.ts
+    impl:
+      - IMP-AC-STORE-001

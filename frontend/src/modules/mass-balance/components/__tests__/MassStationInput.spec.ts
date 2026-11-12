@@ -206,24 +206,24 @@ describe('MassStationInput', () => {
     expect(weightEmissions(wrapper)).toContain(75.5)
   })
 
-  it('does not emit a weight when only non-numeric characters are typed', async () => {
+  it('emits invalid state when non-numeric characters are typed', async () => {
     const wrapper = mount(MassStationInput, {
       props: { station: makeStation({ weight: 0 }) },
     })
 
     await field(wrapper).setValue('abc')
 
-    expect(wrapper.emitted('update:weight')).toBeUndefined()
+    expect(weightEmissions(wrapper)).toEqual([NaN])
   })
 
-  it('emits the floor weight when the field is cleared', async () => {
+  it('emits invalid state when the field is cleared', async () => {
     const wrapper = mount(MassStationInput, {
       props: { station: makeStation({ weight: 50 }) },
     })
 
     await field(wrapper).setValue('')
 
-    expect(weightEmissions(wrapper)).toEqual([0])
+    expect(weightEmissions(wrapper)).toEqual([NaN])
   })
 
   it('exposes the field as a sanitised decimal input, never type=number', () => {
