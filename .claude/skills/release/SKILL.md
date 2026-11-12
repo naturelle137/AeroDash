@@ -7,8 +7,9 @@ description: Use to cut a Gitflow release for AeroDash end-to-end — when the u
 
 Turn a stabilized `release/*` (or `hotfix/*`) branch into a published GitHub release and
 get `develop` back in sync. AeroDash is safety-critical and the release is **outward-facing
-and hard to reverse** — correctness over speed, two mandatory confirmation gates, nothing
-public the user hasn't approved.
+and hard to reverse** — correctness over speed, two mandatory acceptance gates
+under [ADR-319 E3](../../../docs/architecture/adr/319-DEV-agent-review-governance.md#bounded-release-authority-e3).
+Legal/safety claims and CEO-name publication still need explicit CEO approval.
 
 - `input`: optional version (e.g. `v0.3.0-alpha`). Empty → derive from the branch.
 - `pairs.with`: `/release-audit` (clear audit blockers first), `/pr.create` (PR conventions).
@@ -20,6 +21,9 @@ from root `package.json`, creates and pushes the `v<version>` tag if absent, and
 a GitHub Release whose body is `.github/release-notes/v<version>.md` (auto-detecting the
 pre-release flag from the SemVer suffix). **So the merge to `main` is what releases.** This
 skill prepares the inputs that workflow consumes, triggers the merge, then verifies the result.
+Inspect live publication guards first: the workflow may be disabled or guarded.
+E3 does not authorize restoring GitHub/Netlify publication or bypassing guards
+with the fallback in Step 6; stop publication until separately authorized.
 
 ## Merging into protected branches (`main` and `develop`) — read before Steps 4 & 6
 
@@ -31,7 +35,7 @@ A head/base refresh requires current CI and signature verification. Never bypass
 queue auto-merge, or assume a signed merge repairs unsigned history.
 
 Release and hotfix PRs to either target preserve ancestry. Use `gh pr merge <pr> --merge --match-head-commit <full-head-sha>` only
-after final live checks and the publication confirmations below. Verify resulting
+after final live checks and the acceptance gates below. Verify resulting
 signature and integration CI. Preserve the release branch until both target PRs
 are complete; inspect branch-deletion settings before merging.
 
@@ -86,8 +90,11 @@ Write (or refine) `.github/release-notes/v<version>.md` following **`release-not
 CHANGELOG section + the milestone theme + roadmap. Keep the established structure and tone of the
 shipped `v0.2.0-alpha.md` / `v0.3.0-alpha.md`.
 
-- **Confirmation gate #1 (mandatory):** show the full notes draft and get explicit user approval
-  before it goes anywhere. These notes are published verbatim to the public release page.
+- **Acceptance gate #1 (mandatory):** a fresh independent session accepts the
+  full notes draft against its dated CHANGELOG, triage and scope limits. Record
+  version, exact notes content/digest, reviewer job and verdict per ADR-319 E3.
+  Board-scope wording needs explicit CEO approval; ambiguity stays pending.
+  These notes are published verbatim to the public release page.
 - Commit the notes (with any version/changelog edits from Step 1) on the release branch with a
   conventional commit (e.g. `docs(repo): add v<version> release notes`), then push the branch:
   `git push origin <branch>`. (`.github/release-notes/**` and `CHANGELOG.md` are markdownlint-exempt.)
@@ -98,9 +105,11 @@ Merge the **release branch into `develop` before `main`**, so the branch still e
 `main` in Step 5 auto-deletes it. This is the canonical Gitflow back-merge (release → develop) done
 right, not the `main → develop` workaround forced by the branch being gone.
 
-- **Confirmation gate #2 (mandatory):** the next steps merge the release into `develop` and then
-  publish it to `main`. Get an explicit go-ahead **before the first merge** — once `develop` has it,
-  backing out means reverting.
+- **Acceptance gate #2 (mandatory):** before the first merge, record independent
+  acceptance of the concrete candidate and committed notes per ADR-319 E3.
+  Each target PR needs its full head/base, triage and fresh gate evidence.
+  Candidate/notes changes need a scoped acceptance update; a base refresh uses
+  Decision 6, not a second full review. Once merged, backing out means reverting.
 
 1. Open the back-merge PR from the release branch (reuse an open `head:<branch> base:develop` PR):
    `gh pr create --base develop --head <branch> --title "chore(repo): back-merge release v<version> to develop"`
@@ -115,7 +124,7 @@ right, not the `main → develop` workaround forced by the branch being gone.
      createCommitOnBranch API creates single-parent commits.
 3. Wait for the required `develop` checks (`gh pr checks <pr> --watch`):
    `Lint`, `Type Check`, `Unit Tests`, `Build`, `E2E Tests`.
-4. After the confirmation above, complete the live ADR-319 preflight and merge
+4. After candidate acceptance above, complete the live ADR-319 preflight and merge
    with `gh pr merge <pr> --merge --match-head-commit <sha>`. Verify resulting signature and CI.
    Preserve the release branch for Step 5.
 
@@ -126,8 +135,8 @@ right, not the `main → develop` workaround forced by the branch being gone.
    `gh pr create --base main --head <branch> --title "Release v<version>" --body-file <filled-template>`
    Reuse an existing open `head:<branch> base:main` PR instead of duplicating.
 2. Wait for all live required checks and applicable release/security gates.
-3. After the publication confirmation, obtain target-specific independent review
-   and complete the ADR-319 live preflight. Run `gh pr merge <pr> --merge --match-head-commit <sha>`; verify signature and resulting CI. Inspect the actual
+3. Record target-specific candidate acceptance through the single independent
+   review and complete the ADR-319 live preflight, including any explicit CEO approval. Run `gh pr merge <pr> --merge --match-head-commit <sha>`; verify signature and resulting CI. Inspect the actual
    `publish-release.yml` result.
 
 ## Step 6 — Verify the GitHub Release
@@ -158,8 +167,8 @@ The push to `main` triggers `publish-release.yml`. Watch and verify:
 
 - Never push directly to `main` or `develop` — always via PR.
 - Never `--no-verify`, never weaken or skip a gate to get green.
-- Never publish release notes the user hasn't approved (gate #1); never start the merge sequence
-  (Step 4, `develop` → then `main`) without gate #2.
+- Never publish without notes acceptance (gate #1) and target candidate acceptance
+  (gate #2); retain explicit CEO approval for board scope under ADR-319 E3.
 - Never fabricate changelog/notes entries — everything traces to the dated CHANGELOG section.
 - Keep the release notes pilot-facing — defer all wording decisions to `release-notes.md`.
 - Administrative bypass and direct protected-branch pushes are forbidden.
