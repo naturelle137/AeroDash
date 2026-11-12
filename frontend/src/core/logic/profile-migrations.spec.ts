@@ -74,7 +74,7 @@ function buildV1Document(overrides: Partial<Record<string, unknown>> = {}): Reco
 
 describe('migrateProfileDocument — current-version pass-through', () => {
   it('returns a parsed profile when the stored version is current', () => {
-    const result = migrateProfileDocument(buildV1Document())
+    const result = migrateProfileDocument(buildV1Document({ schemaVersion: CURRENT_PROFILE_SCHEMA_VERSION }))
     expect(result.kind).toBe('migrated')
     if (result.kind !== 'migrated') return
     expect(result.profile.schemaVersion).toBe(CURRENT_PROFILE_SCHEMA_VERSION)
@@ -96,8 +96,8 @@ describe('migrateProfileDocument — legacy v0 → v1 stamping', () => {
     const result = migrateProfileDocument(doc)
     expect(result.kind).toBe('migrated')
     if (result.kind !== 'migrated') return
-    expect(result.profile.schemaVersion).toBe(1)
-    expect(result.versionsApplied).toEqual([0])
+    expect(result.profile.schemaVersion).toBe(CURRENT_PROFILE_SCHEMA_VERSION)
+    expect(result.versionsApplied).toEqual([0, 1])
   })
 
   it('stamps schemaVersion when the field is the wrong type (string)', () => {
@@ -105,8 +105,8 @@ describe('migrateProfileDocument — legacy v0 → v1 stamping', () => {
     const result = migrateProfileDocument(doc)
     expect(result.kind).toBe('migrated')
     if (result.kind !== 'migrated') return
-    expect(result.profile.schemaVersion).toBe(1)
-    expect(result.versionsApplied).toEqual([0])
+    expect(result.profile.schemaVersion).toBe(CURRENT_PROFILE_SCHEMA_VERSION)
+    expect(result.versionsApplied).toEqual([0, 1])
   })
 
   it('stamps schemaVersion when stored value is NaN (corrupt numeric)', () => {
@@ -114,7 +114,7 @@ describe('migrateProfileDocument — legacy v0 → v1 stamping', () => {
     const result = migrateProfileDocument(doc)
     expect(result.kind).toBe('migrated')
     if (result.kind !== 'migrated') return
-    expect(result.profile.schemaVersion).toBe(1)
+    expect(result.profile.schemaVersion).toBe(CURRENT_PROFILE_SCHEMA_VERSION)
   })
 
   it('stamps schemaVersion when stored value is Infinity', () => {
@@ -122,7 +122,7 @@ describe('migrateProfileDocument — legacy v0 → v1 stamping', () => {
     const result = migrateProfileDocument(doc)
     expect(result.kind).toBe('migrated')
     if (result.kind !== 'migrated') return
-    expect(result.profile.schemaVersion).toBe(1)
+    expect(result.profile.schemaVersion).toBe(CURRENT_PROFILE_SCHEMA_VERSION)
   })
 
   it('stamps schemaVersion when stored value is non-integer (1.5)', () => {
@@ -130,7 +130,7 @@ describe('migrateProfileDocument — legacy v0 → v1 stamping', () => {
     const result = migrateProfileDocument(doc)
     expect(result.kind).toBe('migrated')
     if (result.kind !== 'migrated') return
-    expect(result.profile.schemaVersion).toBe(1)
+    expect(result.profile.schemaVersion).toBe(CURRENT_PROFILE_SCHEMA_VERSION)
   })
 
   it('stamps schemaVersion when stored value is negative', () => {
@@ -138,7 +138,7 @@ describe('migrateProfileDocument — legacy v0 → v1 stamping', () => {
     const result = migrateProfileDocument(doc)
     expect(result.kind).toBe('migrated')
     if (result.kind !== 'migrated') return
-    expect(result.profile.schemaVersion).toBe(1)
+    expect(result.profile.schemaVersion).toBe(CURRENT_PROFILE_SCHEMA_VERSION)
   })
 })
 
@@ -282,7 +282,7 @@ describe('runProfileMigrationWalker — registry-injection branches', () => {
   it('still parses successfully when given the production registry (default-bound wrapper invariant)', () => {
     // Smoke check that the wrapper-vs-walker split has not subtly broken the
     // module-private binding used by migrateProfileDocument.
-    const a = migrateProfileDocument(buildV1Document())
+    const a = migrateProfileDocument(buildV1Document({ schemaVersion: CURRENT_PROFILE_SCHEMA_VERSION }))
     expect(a.kind).toBe('migrated')
   })
 })
@@ -373,7 +373,7 @@ describe('migrateProfileDocument — M4 round-trip (REQ-AD-008/009/015/016/017)'
     expect(result.kind).toBe('migrated')
     if (result.kind !== 'migrated') return
     const p: AircraftProfile = result.profile
-    expect(p.schemaVersion).toBe(1)
+    expect(p.schemaVersion).toBe(CURRENT_PROFILE_SCHEMA_VERSION)
     expect(p.performanceProfiles).toEqual(M4_FIELDS.performanceProfiles)
     expect(p.surfaceConditions).toEqual(M4_FIELDS.surfaceConditions)
     expect(p.safetyFactors).toEqual(M4_FIELDS.safetyFactors)

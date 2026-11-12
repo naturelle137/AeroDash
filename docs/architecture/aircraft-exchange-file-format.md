@@ -1,7 +1,7 @@
 # Aircraft Profile Exchange File Format
 
-**Version:** 1.0
-**Date:** 2026-04-10
+**Version:** 2.0
+**Date:** 2026-11-12
 **Status:** Approved
 **ADR:** [003-aircraft-data-model](adr/003-aircraft-data-model.md)
 
@@ -33,7 +33,12 @@ The format is defined by and validated against the canonical
 
 ### Top-Level Structure
 
-The file is a single JSON object mapping directly to an `AircraftProfile` document.
+New exports use `{ "format": "aerodash-aircraft", "version": 2, "profile": { ... } }`.
+Import also accepts envelope v1 and legacy bare-profile JSON. Future versions fail
+before parsing. The inner profile uses schemaVersion 2; v0/v1 records migrate on
+read without changing source values. Table and point objects reject unknown keys.
+See [performance source units](performance-source-units.md) for per-axis declarations,
+original-value preservation, conversion definitions and reference vectors.
 
 The executable format is `AircraftProfileSchema` in `frontend/src/core/adapters/aircraft.schema.ts`; use the existing test fixtures for synthetic examples. No example here is operational aircraft data.
 
@@ -42,7 +47,7 @@ The executable format is `AircraftProfileSchema` in `frontend/src/core/adapters/
 | Field | Type | Constraint |
 | :---- | :--- | :--------- |
 | `id` | `string` | UUID v4 format |
-| `schemaVersion` | `integer` | Positive integer (currently `1`) |
+| `schemaVersion` | `integer` | Positive integer (currently `2`) |
 | `ownerId` | `string` | Non-empty |
 | `registration` | `string` | Non-empty |
 | `manufacturer` | `string` | Non-empty |
@@ -73,8 +78,8 @@ The executable format is `AircraftProfileSchema` in `frontend/src/core/adapters/
 ## Import Pipeline (`profile.import.ts`)
 
 1. **JSON parse** — malformed JSON throws `ImportError`
-2. **Zod validation** — `AircraftProfileSchema.safeParse`. Failure throws `ImportError`
-3. **Status override** — `status` forced to `'draft'`
+2. **Migration and Zod validation** — `migrateProfileDocument`; corrupt or future-version input throws `ImportError`
+3. **Status override** — `status` forced to `'draft'` and prior verification removed
 4. **ID reassignment** — new UUID v4 assigned to prevent collision
 5. **Return** — caller persists via `fleetRepository.create()`
 
@@ -90,13 +95,15 @@ fields (`costPerHour`, `fuelCostIncluded`) are **excluded** from the exported
 back up an aircraft configuration. Pass `exportProfileToJson(profile, { includeOperatingCost: true })`
 (and likewise `downloadProfileAsJson`) to retain them.
 
-Round-trip fidelity: all fields except `id`, `status`, and the default-excluded
-operating-cost fields are preserved (verified by `UT-AC-STORE-023` / `UT-AC-STORE-124`).
+Round-trip fidelity: source tables, declarations and references are preserved.
+Import changes `id`, `status`, `schemaVersion`, removes verification and omits default-excluded
+operating-cost fields on export.
 
 ## Schema Versioning
 
 | Version | Description |
 | :------ | :---------- |
+| `2` | Per-table sourceUnits and sourceReference; legacy normalized contract retained, unknown performance fields rejected |
 | `1` | M2 + M3 fields including `costPerHour`, `fuelCostIncluded`, `checklistScaffold`, `passengerProfiles`, `status`, and fully-typed `performanceProfiles` (REQ-AD-008, REQ-AD-009) |
 
 ## Related Documents

@@ -71,7 +71,7 @@ describe('raw table inspection service', () => {
 
   it('rejects unsupported versions and grids with no shared envelope', () => {
     const future = testPohAircraft()
-    future.schemaVersion = 2
+    future.schemaVersion = 3
     expect(inspectTables(future)).toMatchObject({ status: 'blocked', reason: 'profile' })
     const disjoint = testPohAircraft()
     disjoint.performanceProfiles![3]!.dataPoints.forEach((point) => { point.mass += 1000 })

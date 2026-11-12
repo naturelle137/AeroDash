@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Preserve and review per-axis POH source units, normalize supported mixed units for raw-distance lookup, and reject incomplete or conflicting declarations (#492).
+
+### Added
+
 - Use the original AeroDash logos in the app shell, browser favicon, iPhone Home Screen icon and PWA icons; installed icons may need removing and re-adding the Home Screen shortcut to refresh.
 - Inspect four raw POH distances through Fleet import, explicit table review and Performance lookup; invalid or out-of-envelope points stay blocked (refs #311).
 

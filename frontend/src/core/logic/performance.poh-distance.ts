@@ -24,6 +24,7 @@
  * @see docs/architecture/performance-bilinear-interpolation-contract.md
  */
 
+import { normalizePerformanceTable } from '../adapters/performance-source-units'
 import { bilinearInterpolate, type PerformanceTable } from './performance.bilinear-interpolation'
 import type {
   FlightPhase,
@@ -431,7 +432,9 @@ export function computePohDistances(
   const profiles = profile.performanceProfiles ?? []
   const byPhase = new Map<FlightPhase, PerformanceProfile>()
   for (const pp of profiles) {
-    byPhase.set(pp.flightPhase, pp)
+    const normalized = normalizePerformanceTable(pp)
+    if (normalized.status === 'failure') return { status: 'failure', reason: 'invalid_grid', message: normalized.message }
+    byPhase.set(pp.flightPhase, normalized.table)
   }
 
   const requiredPhases: FlightPhase[] = [

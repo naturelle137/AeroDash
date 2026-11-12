@@ -163,6 +163,30 @@ correction selection or operational runway comparison. Those requirements remain
 Synthetic Test fixtures establish wiring only; applicable aircraft POH/AFM citations and
 independent reference cases are required for aircraft-specific validation.
 
+### REQ-PF-048: Source-unit preservation
+
+When performance tables are imported, the system shall preserve each table's declared source units and numeric source values through export and persistence.
+
+### REQ-PF-049: Original and normalized review
+
+When a Fleet performance table is reviewed, the system shall display its original points alongside normalized kg/ft/°C/m lookup points.
+
+### REQ-PF-050: Invalid source declarations
+
+If a performance unit declaration is unsupported, incomplete or conflicting, then the system shall reject the profile with a visible validation error.
+
+### REQ-PF-051: Legacy performance units
+
+When a performance table has no source-unit declaration, the system shall identify its legacy kg/ft/°C/m contract independently of M&B sourceUnit.
+
+### REQ-PF-052: Source-unit conversion
+
+When computing raw distances from declared source units, the system shall normalize each performance axis independently according to the [source-unit contract](../architecture/performance-source-units.md).
+
+### REQ-PF-053: Source review invalidation
+
+When performance source values, unit declarations or references are edited, the system shall require a new Draft verification before raw distance computation.
+
 ## Design References
 
 - **<a name="notificationScheme"></a>Notification Scheme:** [`docs/architecture/notification_schema.md`](../architecture/notification_schema.md)

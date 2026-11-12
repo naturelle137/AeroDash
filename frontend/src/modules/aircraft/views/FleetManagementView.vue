@@ -39,8 +39,14 @@
       <p>Supply exactly one table for each <code>flightPhase</code>:
         <code>TakeoffRoll</code>, <code>TakeoffDistance50ft</code>, <code>LandingRoll</code>,
         <code>LandingDistance50ft</code>. Each table has a <code>dataPoints</code> array; each point
-        has numeric <code>mass</code> (kg), <code>pressureAltitude</code> (ft),
-        <code>temperature</code> (°C), and positive <code>distance</code> (m).
+        has numeric <code>mass</code>, <code>pressureAltitude</code>,
+        <code>temperature</code>, and positive <code>distance</code> in the table's source units.
+        Declare <code>sourceUnits: {"mass":"kg","pressureAltitude":"ft","temperature":"°C","distance":"m"}</code>
+        on each table. Supported units: mass kg/lb, pressure altitude ft/m, temperature °C/°F,
+        distance m/ft; mixed units are supported. All four declarations are required together.
+        Unknown fields, incomplete or unsupported declarations are rejected. Without sourceUnits,
+        the legacy contract is kg/ft/°C/m, independent of M&amp;B sourceUnit.
+        Add an optional <code>sourceReference</code> with manual revision, section/page and conditions.
         Include every mass × altitude × temperature combination once per table.</p>
       <p>No performance values are supplied by AeroDash. Preserve the applicable POH/AFM citation
         in your review's revision entry (include section/page where possible). Check source units,

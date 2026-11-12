@@ -4,6 +4,7 @@ import {
   pivotDataPointsToCube,
   type PohDistances,
 } from '@/core/logic/performance.poh-distance'
+import { normalizePerformanceTable } from '@/core/adapters/performance-source-units'
 import { CURRENT_PROFILE_SCHEMA_VERSION } from '@/core/logic/profile-migrations'
 import { evaluateVerificationFreshness } from '@/core/logic/profile-verification'
 
@@ -32,7 +33,7 @@ function blocked(reason: InspectionFailure['reason'], message: string): Inspecti
 /** Validate all grids before exposing their common supported envelope. Drafts may be inspected. */
 export function inspectTables(raw: unknown): TableInspection | InspectionFailure {
   const parsed = AircraftProfileSchema.safeParse(raw)
-  if (!parsed.success) return blocked('profile', 'Invalid aircraft profile. Review and re-import a valid Fleet exchange file.')
+  if (!parsed.success) return blocked('profile', 'Invalid aircraft profile or performance source-unit declarations. Review sourceUnits (all four axes: kg/lb, ft/m, °C/°F, m/ft) and re-import a valid Fleet exchange file.')
   const profile = parsed.data
   if (profile.schemaVersion > CURRENT_PROFILE_SCHEMA_VERSION) return blocked('profile', 'Unsupported profile version. Update AeroDash before using this profile.')
   const tables = profile.performanceProfiles ?? []
@@ -44,7 +45,9 @@ export function inspectTables(raw: unknown): TableInspection | InspectionFailure
   for (const phase of PHASES) {
     const matches = tables.filter((table) => table.flightPhase === phase)
     if (matches.length !== 1) return blocked('tables', `${phase}: require exactly one table (missing or duplicate phase). Update the Fleet exchange file and import it as a Draft.`)
-    const points = matches[0]!.dataPoints
+    const normalized = normalizePerformanceTable(matches[0])
+    if (normalized.status === 'failure') return blocked('tables', normalized.message)
+    const points = normalized.table.dataPoints
     if (points.some((point) => point.distance <= 0)) return blocked('tables', `${phase}: every distance must be positive. Review the source table.`)
     try {
       pivotDataPointsToCube(points)

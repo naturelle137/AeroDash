@@ -227,11 +227,11 @@ describe('AircraftProfileSchema — valid profiles', () => {
     expect(result.success).toBe(false)
   })
 
-  it('defaults schemaVersion to 1 when omitted', () => {
+  it('defaults schemaVersion to 2 when omitted', () => {
     const result = AircraftProfileSchema.safeParse(createValidProfile())
     expect(result.success).toBe(true)
     if (!result.success) return
-    expect(result.data.schemaVersion).toBe(1)
+    expect(result.data.schemaVersion).toBe(2)
   })
 
   it('rejects schemaVersion = 0 (must be positive integer)', () => {
