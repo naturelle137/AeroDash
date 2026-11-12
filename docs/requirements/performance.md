@@ -130,10 +130,6 @@ When an input change triggers a new extrapolation assessment, the system shall c
 
 When an estimated performance value is exported, the system shall label it `ESTIMATED (CAA SSL 07)` in the export.
 
-## Design References
-
-- **<a name="notificationScheme"></a>Notification Scheme:** [`docs/architecture/notification_schema.md`](../architecture/notification_schema.md)
-
 ### REQ-PF-041: Raw table inspection
 
 When the pilot opens Performance, the system shall offer persisted Fleet profiles for raw POH table inspection.
@@ -166,3 +162,7 @@ The raw inspection slice does not implement estimation, extrapolation, QNH conve
 correction selection or operational runway comparison. Those requirements remain future scope.
 Synthetic Test fixtures establish wiring only; applicable aircraft POH/AFM citations and
 independent reference cases are required for aircraft-specific validation.
+
+## Design References
+
+- **<a name="notificationScheme"></a>Notification Scheme:** [`docs/architecture/notification_schema.md`](../architecture/notification_schema.md)

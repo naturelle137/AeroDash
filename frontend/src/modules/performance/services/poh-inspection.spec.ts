@@ -68,4 +68,14 @@ describe('raw table inspection service', () => {
     duplicate.performanceProfiles![1]!.dataPoints[0] = duplicate.performanceProfiles![1]!.dataPoints[1]!
     expect(inspectTables(duplicate)).toMatchObject({ status: 'blocked', reason: 'tables' })
   })
+
+  it('rejects unsupported versions and grids with no shared envelope', () => {
+    const future = testPohAircraft()
+    future.schemaVersion = 2
+    expect(inspectTables(future)).toMatchObject({ status: 'blocked', reason: 'profile' })
+    const disjoint = testPohAircraft()
+    disjoint.performanceProfiles![3]!.dataPoints.forEach((point) => { point.mass += 1000 })
+    expect(inspectTables(disjoint)).toMatchObject({ status: 'blocked', reason: 'envelope' })
+  })
+
 })

@@ -10,6 +10,7 @@ async function importFile(page: Page, profile: unknown) {
     name: 'Test-wiring-only.aerodash.json', mimeType: 'application/json',
     buffer: Buffer.from(JSON.stringify({ format: 'aerodash-aircraft', version: 1, profile })),
   })
+  await expect(page.locator('.profile-item, .field-error').first()).toBeVisible()
 }
 async function selectOnlyProfile(page: Page) {
   const select = page.getByLabel('Aircraft profile', { exact: true })
@@ -46,7 +47,7 @@ Given('the raw POH workflow viewport is {int} by {int}', async ({ page }, width:
 When('I import the synthetic Test POH exchange file', async ({ page }) => {
   await importFile(page, testPohAircraft())
 })
-Then('I can inspect every imported table while the profile remains Draft', async ({ page }) => {
+Then('I can inspect every imported table while the profile remains Draft', async ({ page, $testInfo }) => {
   const row = page.locator('.profile-item').filter({ hasText: 'D-TEST' })
   await expect(row).toContainText('Draft')
   await row.getByText('Review imported performance tables', { exact: true }).click()
@@ -55,6 +56,9 @@ Then('I can inspect every imported table while the profile remains Draft', async
   }
   await expect(row.locator('tbody tr')).toHaveCount(32)
   await expect(row.locator('tbody tr').first()).toContainText('800')
+  const path = $testInfo.outputPath(`fleet-review-${page.viewportSize()!.width}.png`)
+  await page.screenshot({ path, fullPage: true })
+  await $testInfo.attach('Fleet table review', { path, contentType: 'image/png' })
 })
 Then('raw POH computation is blocked for the Draft', async ({ page }) => {
   await page.getByRole('link', { name: 'Open Performance', exact: true }).click()
@@ -133,7 +137,9 @@ Then('the raw POH browser evidence is captured', async ({ page, $testInfo }) => 
   const width = page.viewportSize()!.width
   await page.getByRole('heading', { name: 'Performance', exact: true }).scrollIntoViewIfNeeded()
   await expect(page.locator('body')).toHaveJSProperty('scrollWidth', width)
-  await $testInfo.attach(`raw-poh-${width}.png`, { body: await page.screenshot({ fullPage: true }), contentType: 'image/png' })
+  const path = $testInfo.outputPath(`raw-poh-${width}.png`)
+  await page.screenshot({ path, fullPage: true })
+  await $testInfo.attach(`Raw POH ${width}`, { path, contentType: 'image/png' })
 })
 When('I import a Test POH profile with {string}', async ({ page }, problem: string) => {
   const p = testPohAircraft()
