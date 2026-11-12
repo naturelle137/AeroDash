@@ -505,6 +505,7 @@ describe('occupancy configuration', () => {
     const choice = wrapper.get<HTMLSelectElement>('#test-occupancy-0')
     expect(choice.element.value).toBe('required')
     await choice.setValue('optional')
-    expect(wrapper.emitted('update:modelValue')!.at(-1)![0]).toEqual([makeRow({ occupancy: 'optional' })])
+    const changes = wrapper.emitted('update:modelValue')!
+    expect(changes[changes.length - 1]![0]).toEqual([makeRow({ occupancy: 'optional' })])
   })
 })

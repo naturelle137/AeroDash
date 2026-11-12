@@ -1305,7 +1305,7 @@ describe('configured optional occupancy', () => {
     store.loadProfile(profile)
     expect(store.notifications.find(n => n.id === 'WARN-UQ-001')?.message).toContain('Front Seats')
     expect(store.notifications.find(n => n.id === 'WARN-UQ-001')?.message).not.toContain('Optional Seat')
-    expect(store.stations.at(-1)!.mandatory).toBe(false)
+    expect(store.stations[store.stations.length - 1]!.mandatory).toBe(false)
     store.updateStationWeight(0, 80)
     expect(store.notifications.some(n => n.id === 'WARN-UQ-001')).toBe(false)
     expect(store.allMandatoryFieldsPopulated).toBe(true)

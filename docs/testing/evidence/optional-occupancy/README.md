@@ -10,7 +10,8 @@ catalogue as synthetic Draft profiles; these are not validated POH/AFM data.
 | `pnpm lint` | Passed, including structural traceability |
 | `pnpm test:unit` | 1808 passed |
 | `pnpm test:integration` | 102 passed, including session restoration |
-| `pnpm build` | Passed, including type-check |
+| `pnpm build` | Passed |
+| `pnpm --filter frontend exec vue-tsc --build --force` | Passed without incremental cache |
 | `pnpm --filter frontend test:p1:coverage` | 674 passed; per-file 90% gate passed |
 | `CI=true pnpm test:e2e --project=chromium` | 27 passed |
 | `pnpm --filter frontend comment:check` | No new violations |
@@ -28,6 +29,10 @@ viewports. Full-page screenshots were visually inspected:
 The same scenarios clear the optional input, assert validation errors, then enter
 explicit zero and assert recovery. Integration tests additionally reject negative,
 NaN, Infinity, missing, overflowing and invalid text through input/store paths.
+
+The first CI type-check exposed two ES2022 array methods in tests that the local
+incremental cache had missed; replaced with compatible index access and checked
+with `vue-tsc --build --force`.
 
 The initial browser run exposed missing occupancy forwarding in the runtime
 context schema; corrected before the successful complete rerun. Screenshots
