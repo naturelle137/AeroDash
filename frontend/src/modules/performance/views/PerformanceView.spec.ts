@@ -11,7 +11,8 @@ beforeEach(() => { setActivePinia(createPinia()); localStorage.clear() })
 function field(view: VueWrapper, caption: string) {
   const label = view.findAll('label').find((item) => item.text().startsWith(caption))
   if (!label) throw new Error(`No field ${caption}`)
-  return label.find('input, select')
+  const target = label.attributes('for')
+  return target ? view.get(`#${target}`) : label.find('input, select')
 }
 async function fillLookup(view: VueWrapper, mass: string, pressureAltitude: string, temperature: string) {
   await field(view, 'Enter pressure altitude directly').setValue(true)
@@ -125,8 +126,8 @@ async function fillDerived(view: VueWrapper, qnh: string, qnhUnit: string, eleva
   await field(view, 'Derive from QNH and field elevation').setValue(true)
   await field(view, 'QNH unit').setValue(qnhUnit)
   await field(view, 'QNH').setValue(qnh)
-  await field(view, 'Field elevation unit').setValue(elevationUnit)
-  await field(view, 'Field elevation').setValue(elevation)
+  await field(view, 'Pressure-altitude field elevation unit').setValue(elevationUnit)
+  await field(view, 'Pressure-altitude field elevation').setValue(elevation)
 }
 
 it('blocks computation until a pressure-altitude method is chosen', async () => {
@@ -154,7 +155,7 @@ it('keeps the direct entry untouched across method changes and clears results on
   await fillDerived(view, '1013.25', 'hPa', '0', 'ft')
   await view.get('form').trigger('submit')
   expect(results(view).text()).toContain('210.0 m')
-  for (const [caption, value] of [['QNH', '1013'], ['QNH unit', ''], ['Field elevation', '1'], ['Field elevation unit', 'm']] as const) {
+  for (const [caption, value] of [['QNH', '1013'], ['QNH unit', ''], ['Pressure-altitude field elevation', '1'], ['Pressure-altitude field elevation unit', 'm']] as const) {
     await view.get('form').trigger('submit')
     await field(view, caption).setValue(value)
     expect(results(view).exists()).toBe(false)
@@ -204,13 +205,13 @@ it('copies the saved runway elevation only on request and drops it when the runw
   for (const [selector, value] of runwayFields) await view.get(selector).setValue(value)
   await view.get('form[aria-labelledby="manual-runway-heading"]').trigger('submit')
   await field(view, 'Derive from QNH and field elevation').setValue(true)
-  expect((field(view, 'Field elevation').element as HTMLInputElement).value).toBe('')
+  expect((field(view, 'Pressure-altitude field elevation').element as HTMLInputElement).value).toBe('')
   await field(view, 'QNH unit').setValue('hPa')
   await field(view, 'QNH').setValue('1013.25')
   const copy = view.findAll('button').find((button) => button.text().includes('Use saved manual runway elevation'))!
   await copy.trigger('click')
-  expect((field(view, 'Field elevation').element as HTMLInputElement).value).toBe('304.8')
-  expect((field(view, 'Field elevation unit').element as HTMLSelectElement).value).toBe('m')
+  expect((field(view, 'Pressure-altitude field elevation').element as HTMLInputElement).value).toBe('304.8')
+  expect((field(view, 'Pressure-altitude field elevation unit').element as HTMLSelectElement).value).toBe('m')
   expect(view.text()).toContain('Copied by you from the saved manual runway TEST 27')
   expect(view.get('[aria-label="Derived pressure altitude"]').text()).toContain('1000 ft')
   await view.get('form').trigger('submit')
@@ -218,17 +219,17 @@ it('copies the saved runway elevation only on request and drops it when the runw
   // Editing the runway invalidates the copied elevation, its derived PA and the distances.
   await view.get('#manual-runway-elevation').setValue('0')
   expect(results(view).exists()).toBe(false)
-  expect((field(view, 'Field elevation').element as HTMLInputElement).value).toBe('')
+  expect((field(view, 'Pressure-altitude field elevation').element as HTMLInputElement).value).toBe('')
   expect(view.text()).toContain('copied field elevation was removed')
   expect(view.find('[aria-label="Derived pressure altitude"]').exists()).toBe(false)
   // A pilot edit after copying becomes pilot-entered and survives runway clearing.
   await view.get('#manual-runway-elevation').setValue('304.8')
   await copy.trigger('click')
-  await field(view, 'Field elevation').setValue('304.9')
+  await field(view, 'Pressure-altitude field elevation').setValue('304.9')
   expect(view.text()).toContain('Field elevation source: Entered by you.')
   const clear = view.findAll('button').find((button) => button.text().startsWith('Clear'))
   await clear!.trigger('click')
-  expect((field(view, 'Field elevation').element as HTMLInputElement).value).toBe('304.9')
+  expect((field(view, 'Pressure-altitude field elevation').element as HTMLInputElement).value).toBe('304.9')
 })
 
 it('does not persist pressure-altitude inputs', async () => {

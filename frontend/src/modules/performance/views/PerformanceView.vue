@@ -36,7 +36,9 @@ onMounted(() => fleet.loadAll())
 function paError(field: PressureAltitudeField): string | undefined {
   const derivation = pa.derivation.value
   if (derivation.status !== 'invalid') return undefined
-  return showPaErrors.value || pa.draft[field] !== '' ? derivation.errors[field] : undefined
+  // Once the pilot starts the derivation, every missing or invalid part is named.
+  const started = Object.values(pa.draft).some((value) => value !== '')
+  return showPaErrors.value || started ? derivation.errors[field] : undefined
 }
 function compute(): void {
   showPaErrors.value = true
@@ -118,21 +120,27 @@ function compute(): void {
           Derive from QNH and field elevation</label>
         <p v-if="!pa.method.value">No method selected. Choose one; nothing is assumed.</p>
         <div v-if="pa.method.value === 'direct'" class="fields">
-          <label>Pressure altitude (ft)<input v-model="pa.direct.value" type="text" inputmode="decimal" /></label>
+          <label>Pressure altitude (ft)<input id="pa-direct" v-model="pa.direct.value" type="text" inputmode="decimal" /></label>
         </div>
         <p v-if="pa.method.value === 'direct'">Used exactly as entered. Field elevation is never treated as pressure altitude.</p>
         <section v-if="pa.method.value === 'qnh-elevation'" aria-label="QNH and field elevation">
           <div class="fields">
-            <label>QNH<input v-model="pa.draft.qnh" type="text" inputmode="decimal" :aria-invalid="!!paError('qnh')" /></label>
-            <label>QNH unit<select v-model="pa.draft.qnhUnit" :aria-invalid="!!paError('qnhUnit')">
-              <option value="">Select unit</option>
-              <option v-for="unit in QNH_UNITS" :key="unit" :value="unit">{{ unit }}</option>
-            </select></label>
-            <label>Field elevation<input v-model="pa.draft.elevation" type="text" inputmode="decimal" :aria-invalid="!!paError('elevation')" /></label>
-            <label>Field elevation unit<select v-model="pa.draft.elevationUnit" :aria-invalid="!!paError('elevationUnit')">
-              <option value="">Select unit</option>
-              <option v-for="unit in PA_ELEVATION_UNITS" :key="unit" :value="unit">{{ unit }}</option>
-            </select></label>
+            <label for="pa-qnh">QNH<input id="pa-qnh" v-model="pa.draft.qnh" type="text" inputmode="decimal" :aria-invalid="!!paError('qnh')" /></label>
+            <div class="field">
+              <label for="pa-qnh-unit">QNH unit</label>
+              <select id="pa-qnh-unit" v-model="pa.draft.qnhUnit" :aria-invalid="!!paError('qnhUnit')">
+                <option value="">Select unit</option>
+                <option v-for="unit in QNH_UNITS" :key="unit" :value="unit">{{ unit }}</option>
+              </select>
+            </div>
+            <label for="pa-elevation">Pressure-altitude field elevation<input id="pa-elevation" v-model="pa.draft.elevation" type="text" inputmode="decimal" :aria-invalid="!!paError('elevation')" /></label>
+            <div class="field">
+              <label for="pa-elevation-unit">Pressure-altitude field elevation unit</label>
+              <select id="pa-elevation-unit" v-model="pa.draft.elevationUnit" :aria-invalid="!!paError('elevationUnit')">
+                <option value="">Select unit</option>
+                <option v-for="unit in PA_ELEVATION_UNITS" :key="unit" :value="unit">{{ unit }}</option>
+              </select>
+            </div>
           </div>
           <p v-for="field in (['qnh', 'qnhUnit', 'elevation', 'elevationUnit'] as const)" v-show="paError(field)" :key="field" class="field-error">{{ paError(field) }}</p>
           <p>Enter the current QNH yourself from an official source; AeroDash has no weather default.
@@ -193,6 +201,8 @@ input, select, button { font: inherit; padding: .75rem; min-height: 44px; border
 select { width: 100%; margin-top: .5rem; }
 button { cursor: pointer; font-weight: 600; }
 .pa-method { border: 1px solid var(--color-border); border-radius: 8px; padding: 1rem; margin: 1rem 0; display: grid; gap: .5rem; min-width: 0; }
+.field { display: grid; gap: .5rem; align-content: start; }
+.field select { margin-top: 0; }
 .choice { display: flex; align-items: center; gap: .5rem; }
 .choice input { min-height: 24px; }
 .secondary { justify-self: start; font-weight: 500; }
