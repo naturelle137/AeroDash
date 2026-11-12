@@ -114,6 +114,13 @@ describe('applySafetyFactors — rejects malformed OSF and structure', () => {
     expectInvalid({ ...VALID, osf: { preset: 'custom' } })
   })
 
+  it.each([undefined, Number.NaN, Infinity, -Infinity, 0, -1, 0.999, 3.001, null, '1.8'])(
+    'returns typed failure for invalid custom multiplier %s',
+    (customMultiplier) => {
+      expectInvalid({ ...VALID, osf: { preset: 'custom', customMultiplier } })
+    },
+  )
+
   it('rejects a custom multiplier below 1.00', () => {
     expectInvalid({ ...VALID, osf: { preset: 'custom', customMultiplier: 0.5 } })
   })
