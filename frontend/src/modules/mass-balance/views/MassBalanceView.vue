@@ -183,7 +183,7 @@ const pendingAck = computed(() => {
   }
   return {
     heading: 'Verification expired.',
-    body: `“${reg}” was verified more than ${VERIFICATION_VALIDITY_DAYS} days ago. Re-verify it against the POH/AFM before using it for a Go/No-Go decision.`,
+    body: `“${reg}” has an invalid verification date or has reached the ${VERIFICATION_VALIDITY_DAYS}-day verification limit. Re-verify it against the POH/AFM before using it for a Go/No-Go decision.`,
   }
 })
 

@@ -2141,3 +2141,65 @@ AC (auto)
     impl:
       - IMP-AC-VIEW-037
       - IMP-AC-VIEW-038
+
+  UT-AC-CORE-121
+    title: Future and malformed provenance fails closed
+    files:
+      - frontend/src/core/logic/profile-verification.spec.ts
+    impl:
+      - IMP-AC-CORE-005
+      - IMP-AC-CORE-006
+
+  UT-AC-CORE-122
+    title: Real leap days and same-day sign-offs remain fresh
+    files:
+      - frontend/src/core/logic/profile-verification.spec.ts
+    impl:
+      - IMP-AC-CORE-005
+      - IMP-AC-CORE-006
+
+  UT-AC-CORE-123
+    title: Invalid injected clock fails closed
+    files:
+      - frontend/src/core/logic/profile-verification.spec.ts
+    impl:
+      - IMP-AC-CORE-005
+      - IMP-AC-CORE-006
+
+  UT-AC-CORE-124
+    title: Tomorrow becomes valid exactly at UTC midnight
+    files:
+      - frontend/src/core/logic/profile-verification.spec.ts
+    impl:
+      - IMP-AC-CORE-005
+      - IMP-AC-CORE-006
+
+  UT-AC-VIEW-188
+    title: Dialog max and confirmation reject future or impossible dates
+    files:
+      - frontend/src/modules/aircraft/__tests__/VerifyProfileDialog.spec.ts
+    impl:
+      - IMP-AC-VIEW-021
+
+  UT-AC-VIEW-189
+    title: Confirmation rechecks clock and reopening refreshes date maximum
+    files:
+      - frontend/src/modules/aircraft/__tests__/VerifyProfileDialog.spec.ts
+    impl:
+      - IMP-AC-VIEW-021
+
+  UT-AC-STORE-136
+    title: Both verification actions reject suspect dates without mutation
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+    impl:
+      - IMP-AC-STORE-011
+      - IMP-AC-STORE-012
+
+  UT-AC-STORE-137
+    title: Both verification actions preserve valid dates and UTC defaults
+    files:
+      - frontend/src/modules/aircraft/__tests__/fleet.store.spec.ts
+    impl:
+      - IMP-AC-STORE-011
+      - IMP-AC-STORE-012

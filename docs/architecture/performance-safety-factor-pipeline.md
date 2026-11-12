@@ -95,7 +95,7 @@ Properties:
 
 ## 4. Operational Safety Factor presets (REQ-PF-006)
 
-`resolveOsf(preset, operation)` returns the multiplier applied above:
+`resolveOsf(osf, operation)` returns the multiplier applied above:
 
 | Preset | Takeoff | Landing |
 | :----- | :------ | :------ |
@@ -112,6 +112,12 @@ below the 1.43 landing baseline, selecting it correctly raises WARN-PF-002
 
 Decision **D4**: `poh-afm` falls back to the regulatory baseline when the
 profile carries no POH-mandated factor for that operation.
+
+Decision **D6**: direct `resolveOsf` calls with `custom` require a finite
+number in inclusive `[1, 3]`; missing, non-numeric or out-of-range multipliers
+throw `RangeError`. No coercion or baseline substitution is permitted. This
+retains the exported numeric API while preventing invalid custom input from
+producing a distance or advisory. Other raw input still requires the adapter.
 
 ---
 
@@ -180,7 +186,9 @@ distance to divide by). A negative margin mirrors `insufficient = true`.
 External inputs are validated with Zod **before** any math runs
 (`performance.safety-factor.adapter.ts`). A parse failure returns a typed
 `failure` carrying an `INVALID_INPUT` violation (notification id
-`ERR-SYS-001`) — the function never throws on a call site.
+`ERR-SYS-001`) — `applySafetyFactors` returns this failure rather than throwing.
+The direct custom resolver guard in §4 also protects callers bypassing this
+boundary; it does not replace validation of the complete pipeline input.
 
 | Rejected | Reason |
 | :------- | :----- |
@@ -218,3 +226,17 @@ notification contract ([notification_schema.md](./notification_schema.md)).
 - The module performs no rounding — display rounding is a P2/UI concern
   (`display-rounding.ts`); the pilot-facing Go/No-Go decision is made on the
   unrounded value.
+
+## 11. Custom resolver FRR
+
+| Field | Contract |
+| :---- | :------- |
+| Independent design approval | APPROVE before implementation, technical agent `/root/design_review`, HQ203, 2026-11-12; final PR review remains separate |
+| Requirements / hazards | REQ-PF-006; H-008, H-016 |
+| Output impact | Invalid direct custom calls terminate; valid distances, baselines and low-factor warnings retain their semantics |
+| Pure TS / determinism | No framework imports, I/O, clock, dependencies or side effects |
+| Zod plan | Existing finite `[1, 3]` and missing-custom refinement retained; adapter returns typed `INVALID_INPUT` |
+| Formula / units | \(D_{required}=D_{corrected}\times m\), \(1\le m\le3\); dimensionless multiplier, distances in metres; caller normalizes SI |
+| Tests / edges | Both operations: omitted/undefined, NaN, ±Infinity, zero/negative, below/above bounds, null/string; valid 1, 1.8, 3; adapter failures and existing composition/advisory regressions |
+| Trace | DES-ARCH-019 → IMP-PF-CORE-013 → UT-PF-CORE-043; boundary UT-PF-CORE-044 |
+| ADR / data provenance | D6 is a bounded contract repair; no new ADR or operational/POH values |

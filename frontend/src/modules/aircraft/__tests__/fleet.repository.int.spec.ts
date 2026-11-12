@@ -7,6 +7,8 @@
 
 // @IT-AC-STORE-005@ (FROM: @IMP-AC-CORE-002@)
 
+import { evaluateVerificationFreshness } from '@/core/logic/profile-verification'
+import { importProfileFromJson } from '../services/profile.import'
 import { describe, it, expect, beforeEach } from 'vitest'
 import 'fake-indexeddb/auto'
 import { IDBFactory } from 'fake-indexeddb'
@@ -275,9 +277,7 @@ describe('fleetRepository — CRUD lifecycle', () => {
       id: '00000000-0000-4000-a000-000000000013',
       costPerHour: 220.0,
       referenceDatumDescription: 'Leading edge of wing root',
-      checklistScaffold: [
-        { title: 'Normal procedures', items: ['Item A', 'Item B'] },
-      ],
+      checklistScaffold: [{ title: 'Normal procedures', items: ['Item A', 'Item B'] }],
     })
     await create(profile)
     const found = await findById(profile.id)
@@ -431,4 +431,28 @@ describe('fleetRepository — electric aircraft persistence', () => {
     expect(retrieved!.powertrain).toBe('combustion')
     expect(retrieved!.batteryPack).toBeUndefined()
   })
+})
+
+// @IT-AC-STORE-112@ (FROM: @IMP-AC-CORE-005@, @IMP-AC-CORE-006@, @IMP-AC-STORE-004@)
+it('does not trust future provenance from persisted or imported profiles', async () => {
+  const future = buildProfile({
+    status: 'verified',
+    verification: {
+      verifiedOn: '2099-01-01',
+      verifiedBy: 'JS',
+      pohRevision: 'Rev 7',
+      sourceWeighingDate: '2025-01-01',
+    },
+  })
+  await create(future)
+  const persisted = await findById(future.id)
+  expect(persisted).toBeDefined()
+  expect(evaluateVerificationFreshness(persisted!, new Date('2026-03-01T00:00:00Z'))).toMatchObject(
+    { state: 'expired-aged', requiresReverification: true, expiresOn: null },
+  )
+  const imported = importProfileFromJson(JSON.stringify(future))
+  expect(imported.status).toBe('draft')
+  expect(evaluateVerificationFreshness(imported, new Date('2026-03-01T00:00:00Z')).state).toBe(
+    'draft',
+  )
 })

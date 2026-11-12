@@ -35,7 +35,14 @@ Blocker bar — a finding blocks the release only if it hits a **shipped** featu
 
 Defer (even if an auditor wrote "now") when the fix needs **new heavy infra** (crypto signing, encryption-at-rest, HMAC envelopes, sync DPIA, incident-reporting backend, mutation-CI, regulatory/AIRAC workflows) or is tied to an **unbuilt future feature** → map it to the first milestone that delivers that feature.
 
-Bundle related findings across domains (e.g. all fuel-enum findings → one fix). Present the blocker/defer split as a table and **get user confirmation** before any outward action. Flag every case where you override an auditor's priority, with rationale.
+Bundle related findings across domains (e.g. all fuel-enum findings → one fix).
+Before issue creation or remediation, a fresh independent session must accept
+this concrete triage under [ADR-319 E3](../../../docs/architecture/adr/319-DEV-agent-review-governance.md#bounded-release-authority-e3).
+Record every finding ID, evidence, blocker/defer reason, priority override and
+rationale, accepted report revision and reviewer job/verdict. Deferred findings
+need issue/milestone links in the readiness report. Never reclassify a safety
+blocker merely to ship. Legal/safety claims or CEO-name publication require
+explicit CEO approval; ambiguous board scope stays pending, never timed out.
 
 ## Step 3 — File deferred findings as issues
 
@@ -58,6 +65,6 @@ Short and decision-oriented (see `readiness-report.md` for the exact shape). Sec
 
 ## Guardrails
 
-- Never auto-create issues or write code before the Step 2 confirmation.
+- Never auto-create issues or write code before the Step 2 independent triage acceptance.
 - Never tick a DoD/checklist item without evidence; never weaken a gate or skip a hook to pass.
 - Keep the audit reports immutable; write outputs to issues, code, and the readiness report only.

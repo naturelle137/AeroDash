@@ -135,3 +135,16 @@ Manufacturer → model → ICAO rows live in `aircraft-model-catalogue.json` (ve
 | REQ-UI-006 (Passenger selection) | `FleetManagementView.vue` |
 | REQ-AD-006 (Cost per hour) | `AircraftProfileSchema.costPerHour` |
 | REQ-AD-010 (Checklist scaffold) | `AircraftProfileSchema.checklistScaffold` |
+
+## Verification date repair — Formal Review Request
+
+- **REQ / hazard:** REQ-AC-007 / H-011.
+- **Output impact:** Invalid/future provenance requires re-verification (`expired-aged`, no computed expiry); M&B requires acknowledgement. Source-change precedence, legacy unattributed semantics and the 90-day window remain.
+- **Pure TS / determinism:** Only explicit inputs and UTC calendar arithmetic in P1; `now: Date` is supplied by callers. No new clock access, framework or I/O dependency in P1.
+- **Zod plan:** Keep structural validation at rest; apply the shared runtime date predicate before either store action writes, and when evaluating existing records. Imports still become Draft.
+- **Formula / units:** $v=\lfloor t_{verified}/86400000\rfloor$, $n=\lfloor t_{now}/86400000\rfloor$. Require strict real-calendar round-trip, finite $n$, and $v\le n$. Expiry remains $v+90$ UTC days; expired when $n\ge v+90$.
+- **UI:** Native UTC-today maximum, disabled confirmation for suspect dates, fresh clock check on confirmation; reset maximum/date when reopening. Missing/blank store date retains today's default.
+- **Test plan / edge cases:** Tomorrow and distant future; invalid month/day and non-leap February; leap/century boundaries; final UTC millisecond and midnight; today and exact 90-day expiry; invalid injected clock; both store actions reject without persistence/state mutation; future persisted provenance stays gated until valid re-verification; desktop/mobile browser evidence.
+- **ADR need:** None; repairs existing verification policy without architectural changes.
+- **Design approval:** Independent technical agent `/root/design_review`, job 202, 2026-11-12, **APPROVE before implementation** under ADR-319. Required fresh confirmation clock and accurate M&B warning wording incorporated. Final PR review remains independent and separate from this design gate.
+- **Scope:** No POH values changed or validated; MB-2/MB-3 excluded.

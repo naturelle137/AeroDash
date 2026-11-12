@@ -104,7 +104,7 @@ PF Core — Safety-Factor Pipeline
       - DES-ARCH-019
 
   IMP-PF-CORE-013
-    title: resolveOsf — OSF preset to applied multiplier
+    title: resolveOsf — OSF preset to applied multiplier, invalid custom calls throw
     files:
       - frontend/src/core/logic/performance.safety-factor.ts
     req:

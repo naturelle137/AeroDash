@@ -7,7 +7,7 @@
 
 // @UT-AC-VIEW-177@ (FROM: @IMP-AC-VIEW-020@, @IMP-AC-VIEW-021@)
 
-import { describe, it, expect, afterEach } from 'vitest'
+import { describe, it, expect, afterEach, beforeEach, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import VerifyProfileDialog from '../components/VerifyProfileDialog.vue'
 
@@ -19,7 +19,12 @@ function setInput(selector: string, value: string): void {
 }
 
 describe('VerifyProfileDialog', () => {
+  beforeEach(() => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-05-01T23:59:59.999Z'))
+  })
   afterEach(() => {
+    vi.useRealTimers()
     document.body.innerHTML = ''
   })
 
@@ -82,6 +87,45 @@ describe('VerifyProfileDialog', () => {
     })
     ;(document.querySelector('.verify-dialog__btn--cancel') as HTMLButtonElement).click()
     expect(wrapper.emitted('cancel')).toBeTruthy()
+    wrapper.unmount()
+  })
+  // @UT-AC-VIEW-188@ (FROM: @IMP-AC-VIEW-021@)
+  it('rejects future and invalid dates and accepts today with a UTC max', async () => {
+    const wrapper = mount(VerifyProfileDialog, { props: { open: true, registration: 'D-EBPN' } })
+    expect(document.querySelector('input[type="date"]')?.getAttribute('max')).toBe('2026-05-01')
+    setInput('input[aria-label="Verifier initials"]', 'JS')
+    setInput('input[aria-label="POH revision"]', 'Rev 7')
+    const button = document.querySelector('.verify-dialog__btn--primary') as HTMLButtonElement
+    for (const date of ['2026-05-02', '2026-02-30', '']) {
+      setInput('input[type="date"]', date)
+      await wrapper.vm.$nextTick()
+      expect(button.disabled).toBe(true)
+      button.disabled = false
+      button.click()
+      expect(wrapper.emitted('confirm')).toBeUndefined()
+      button.disabled = true
+    }
+    setInput('input[type="date"]', '2026-05-01')
+    await wrapper.vm.$nextTick()
+    expect(button.disabled).toBe(false)
+    button.click()
+    expect(wrapper.emitted('confirm')).toHaveLength(1)
+    wrapper.unmount()
+  })
+
+  // @UT-AC-VIEW-189@ (FROM: @IMP-AC-VIEW-021@)
+  it('rechecks the current clock on confirm and refreshes max when reopened', async () => {
+    const wrapper = mount(VerifyProfileDialog, { props: { open: true, registration: 'D-EBPN' } })
+    setInput('input[aria-label="Verifier initials"]', 'JS')
+    setInput('input[aria-label="POH revision"]', 'Rev 7')
+    await wrapper.vm.$nextTick()
+    vi.setSystemTime(new Date('2026-04-30T23:59:59Z'))
+    ;(document.querySelector('.verify-dialog__btn--primary') as HTMLButtonElement).click()
+    expect(wrapper.emitted('confirm')).toBeUndefined()
+    await wrapper.setProps({ open: false })
+    vi.setSystemTime(new Date('2026-05-02T00:00:00Z'))
+    await wrapper.setProps({ open: true })
+    expect(document.querySelector('input[type="date"]')?.getAttribute('max')).toBe('2026-05-02')
     wrapper.unmount()
   })
 })

@@ -305,7 +305,7 @@ PF Core — Conservative Extrapolation Control (Unit)
 
 PF Core — Safety-Factor Pipeline (Unit)
   UT-PF-CORE-043
-    title: Safety-factor pipeline — correction isolation, OSF presets, margin, CRIT/WARN emission
+    title: Safety-factor pipeline — correction isolation, OSF presets and invalid custom calls, margin, CRIT/WARN emission
     files:
       - frontend/src/core/logic/performance.safety-factor.spec.ts
     impl:

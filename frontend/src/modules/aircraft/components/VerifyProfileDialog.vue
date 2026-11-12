@@ -18,8 +18,8 @@
       >
         <h2 :id="titleId" class="verify-dialog__title">Verify {{ registration }}</h2>
         <p class="verify-dialog__intro">
-          Confirm you have checked this profile against the official POH/AFM. Your
-          sign-off is recorded with the profile.
+          Confirm you have checked this profile against the official POH/AFM. Your sign-off is
+          recorded with the profile.
         </p>
 
         <label class="verify-dialog__field">
@@ -54,13 +54,14 @@
           <input
             v-model="verifiedOn"
             type="date"
+            :max="today"
             class="verify-dialog__input"
             aria-label="Verification date"
           />
         </label>
 
         <p v-if="!canConfirm" class="verify-dialog__hint" role="status">
-          Enter your initials and the POH revision to sign off.
+          Enter your initials, POH revision and a valid date on or before today (UTC).
         </p>
 
         <div class="verify-dialog__actions">
@@ -88,6 +89,7 @@
 
 <script setup lang="ts">
 // @IMP-AC-VIEW-021@ (FROM: @REQ-AC-007@)
+import { isVerificationDateValid } from '@/core/logic/profile-verification'
 import { computed, nextTick, ref, watch } from 'vue'
 import type { VerificationSignoff } from '../stores/fleet.store'
 
@@ -110,14 +112,18 @@ function todayIso(): string {
 
 const verifiedBy = ref('')
 const pohRevision = ref('')
-const verifiedOn = ref(todayIso())
+const today = ref(todayIso())
+const verifiedOn = ref(today.value)
 
 const initialsEl = ref<HTMLInputElement | null>(null)
 const cancelBtn = ref<HTMLButtonElement | null>(null)
 let lastFocused: HTMLElement | null = null
 
 const canConfirm = computed(
-  () => verifiedBy.value.trim() !== '' && pohRevision.value.trim() !== '' && verifiedOn.value !== '',
+  () =>
+    verifiedBy.value.trim() !== '' &&
+    pohRevision.value.trim() !== '' &&
+    isVerificationDateValid(verifiedOn.value, new Date()),
 )
 
 watch(
@@ -128,7 +134,8 @@ watch(
       // never leaks into a different aircraft's sign-off.
       verifiedBy.value = ''
       pohRevision.value = ''
-      verifiedOn.value = todayIso()
+      today.value = todayIso()
+      verifiedOn.value = today.value
       lastFocused = document.activeElement as HTMLElement | null
       await nextTick()
       initialsEl.value?.focus()
@@ -140,7 +147,7 @@ watch(
 )
 
 function onConfirm(): void {
-  if (!canConfirm.value) return
+  if (!canConfirm.value || !isVerificationDateValid(verifiedOn.value, new Date())) return
   emit('confirm', {
     verifiedBy: verifiedBy.value.trim(),
     pohRevision: pohRevision.value.trim(),
