@@ -58,7 +58,7 @@ B (auto)
       - UJ-B-005
 
   E2E-B-012
-    title: TODO: describe this artifact
+    title: Solo loading and required-zero checks at desktop and mobile widths
     files:
       - frontend/tests/e2e/features/phase-b-flight-preparation/happy-path.feature
     uj:

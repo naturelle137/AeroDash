@@ -1539,14 +1539,14 @@ MB (auto)
       - IMP-MB-STORE-005
 
   UT-MB-STORE-069
-    title: TODO: describe this artifact
+    title: Fleet mapper preserves occupancy without migration
     files:
       - frontend/src/modules/mass-balance/services/fleet-profile.mapper.spec.ts
     impl:
       - IMP-MB-SVC-001
 
   UT-MB-STORE-068
-    title: TODO: describe this artifact
+    title: Mixed required and optional stations retain warning and verification rules
     files:
       - frontend/src/modules/mass-balance/stores/__tests__/mass-balance.store.spec.ts
     impl:

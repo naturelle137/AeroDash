@@ -212,7 +212,7 @@ AC (auto)
       - IMP-AC-STORE-004
 
   IT-AC-STORE-113
-    title: TODO: describe this artifact
+    title: Legacy profile loading and occupancy edits survive IndexedDB
     files:
       - frontend/src/modules/aircraft/__tests__/fleet.repository.int.spec.ts
     impl:

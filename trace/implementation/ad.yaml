@@ -202,7 +202,7 @@ AD (auto)
       - REQ-UQ-006
 
   IMP-AD-CORE-026
-    title: TODO: describe this artifact
+    title: Resolve explicit occupancy with conservative legacy fallback
     files:
       - frontend/src/core/logic/station-kind.ts
     req:

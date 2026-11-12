@@ -79,7 +79,7 @@ MB Store ↔ Real Adapter Integration
 
 MB (auto)
   IT-MB-STORE-004
-    title: TODO: describe this artifact
+    title: Optional occupancy through real input, context schema, store and adapter
     files:
       - frontend/src/modules/mass-balance/stores/occupancy.int.spec.ts
     impl:
