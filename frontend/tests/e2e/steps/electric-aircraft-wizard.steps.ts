@@ -157,7 +157,7 @@ Then(
     if (label === 'Review') {
       await $testInfo.attach('review-390', { body: await page.screenshot(), contentType: 'image/png' })
       await page.setViewportSize({ width: 1440, height: 900 })
-      await nav.scrollIntoViewIfNeeded()
+      await page.evaluate(() => window.scrollTo(0, 0))
       await $testInfo.attach('review-1440', { body: await page.screenshot(), contentType: 'image/png' })
       await page.setViewportSize({ width: 390, height: 900 })
     }
