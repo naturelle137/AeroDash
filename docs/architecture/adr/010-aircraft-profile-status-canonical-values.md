@@ -1,7 +1,5 @@
 # ADR-010: Canonical Lowercase Values for Aircraft Profile `status`
 
-<!-- @DES-ARCH-010@ (FROM: @REQ-AC-005@, @H-011@) -->
-
 - **Status:** Accepted
 - **Date:** 2026-04-10
 
@@ -39,8 +37,3 @@ Existing browsers may hold legacy documents with Title Case `status` fields.
 
 - One-time DB version bump and migration code path to maintain.
 - Documentation and user-facing copy must distinguish display labels from stored literals.
-
-## Compliance
-
-Supports REQ-AC-005 and hazard H-011 (aircraft data integrity): unverified profiles remain
-usable for planning while calculations surface an explicit WARNING.

@@ -1,7 +1,7 @@
 # M&B QA204 baseline evidence — 2026-11-12
 
 Candidate/base: `abd33acdbbe591590652548c472ccaaebfdf7d0a` (develop).
-This is a baseline, not acceptance after safety integration: PR470 and PR471
+Historical baseline, superseded by [QA293](mb-qa-293.md); the following observations are tied to the candidate above: PR470 and PR471
 were open drafts, with independent review/integration owned by HQ275/HQ282.
 [Develop CI](https://github.com/naturelle137/AeroDash/actions/runs/43107710431)
 is existing hosted evidence; the diagnostic failures below were run locally.
@@ -42,10 +42,4 @@ Reproduce diagnostics after generating BDD with direct `playwright test`
 overweight-discovery, burn-sequence-polygon, burnout-check and
  aircraft-wizard-creation. Use Chromium against the production preview.
 
-[#294](https://github.com/naturelle137/AeroDash/issues/294) must retain partial
-status until seeding, landmarks and current wizard helpers are repaired and all
-seven math scenarios genuinely pass in blocking CI. Do not restore automatic
-post-save navigation merely to satisfy an obsolete test: the chooser and its
-three explicit destinations are current behavior. A post-integration QA must
-consume actual HQ275/HQ282 outcomes, then test their resulting develop commit.
-No reopening of stale PR421/426/427 is authorized by this evidence.
+Current completion status belongs in the [roadmap](roadmap.md). These failures describe this historical candidate and must not be treated as current defects without reproduction.

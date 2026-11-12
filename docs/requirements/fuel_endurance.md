@@ -1,70 +1,39 @@
 # AeroDash Software Requirements - Fuel & Endurance (FE)
 
-This document defines the fuel & endurance behavior using the **EARS** (Easy Approach to Requirements Syntax) patterns.
-
----
-
 ## Requirements
 
-<!-- @REQ-FE-001@ (FROM: @H-002@) -->
 ### REQ-FE-001: Fuel Density Calculation
 
-**Requirement:** When a fuel type is selected, the system shall automatically calculate mass using the specific density of that fuel type: <ul><li>AvGas, MoGas = 0.72 kg/L,</li> <li>Jet A-1, Diesel = 0.84 kg/L.</li></ul>
-**Rationale:** Prevents weight errors due to fuel density differences.
-**Priority:** P1
-**Status:** Implemented
-**Design Reference:** n/a
+When a fuel type is selected, the system shall automatically calculate mass using the specific density of that fuel type: AvGas, MoGas = 0.72 kg/L, Jet A-1, Diesel = 0.84 kg/L.
 
-<!-- @REQ-FE-002@ (FROM: @H-010@) -->
 ### REQ-FE-002: Endurance Calculation
 
-**Requirement:** The system shall calculate maximum flight time (Endurance) based on usable fuel quantity and planned fuel flow rate.
-**Rationale:** Essential for flight planning and legal reserves check.
-**Priority:** P1
-**Status:** Deferred
-**Design Reference:** n/a
+The system shall calculate maximum flight time (Endurance) based on usable fuel quantity and planned fuel flow rate.
 
-<!-- @REQ-FE-003@ -->
 ### REQ-FE-003: Endurance Exceedance Warning
 
-**Requirement:** If the planned flight time (including reserves) exceeds the calculated maximum flight time (Endurance), then the system shall emit a WARNING notification (`WARN-FE-001`) alerting the pilot about insufficient fuel for the planned mission.
-**Rationale:** Safety alert for insufficient fuel for the planned mission + reserves.
-**Priority:** P1
-**Status:** Deferred
-**Design Reference:** [Notification Schema](../architecture/notification_schema.md)
+If the planned flight time (including reserves) exceeds the calculated maximum flight time (Endurance), then the system shall emit a WARNING notification (`WARN-FE-001`) alerting the pilot about insufficient fuel for the planned mission.
 
-<!-- @REQ-FE-004@ (FROM: @H-006@) -->
 ### REQ-FE-004: Fuel Burn Sequence
 
-**Requirement:** When calculating fuel consumption for aircraft with defined fuel burn sequences, the system shall drain tanks in the order specified by each named sequence (e.g., `Standard`, `Alternative`). For aircraft with multiple named sequences, the system shall compute the fuel state progression for **each** sequence independently.
-**Rationale:** Aircraft with multiple tanks at different lever arms (e.g., KL107B: Tank I at 2.47 m, Tank II at 2.80 m) have different CG migration paths depending on the burn order. The Standard sequence (Tank II → Tank I) and the Alternative sequence (Tank I → Tank II) produce divergent CG paths whose boundary defines the burn-down polygon.
-**Priority:** P1
-**Status:** Implemented
-**Design Reference:** n/a
+When calculating fuel consumption for a named burn sequence, the system shall drain tanks in the configured order.
 
-<!-- @REQ-FE-005@ -->
 ### REQ-FE-005: Landing Mass Estimation
 
-**Requirement:** The system shall allow the user to enter a "Planned Flight Time" or "Trip Fuel" value to calculate the estimated Landing Mass.
-**Rationale:** Necessary to determine the "Landing Fuel" state for CG calculation [REQ-MB-008](../requirements/mass_balance.md#REQ-MB-008).
-**Priority:** P1
-**Status:** Deferred
-**Design Reference:** n/a
-
-<!-- @REQ-FE-006@ (FROM: @REQ-AD-020@, @REQ-AD-021@) -->
+When the user enters Planned Flight Time, the system shall calculate estimated landing mass from the corresponding fuel burn.
 
 ### REQ-FE-006: Electric Endurance Card
 
-**Requirement:** While the selected aircraft's `powertrain` is `electric`, the Mass & Balance view shall label the Fuel & Endurance card `Energy & Endurance`. The system shall not render fuel-tank rows, burn-sequence selectors, or fuel-type controls for an electric aircraft.
-**Rationale:** Electric pilots plan with a battery pack (kWh) and a reserve floor, not fuel quantity and density. Surfacing the fuel vocabulary on an electric aircraft is the shoehorn defect called out in issue #225.
-**Priority:** P1
-**Status:** Deferred
-**Design Reference:** [Native Electric Aircraft UX](../ux/native-electric-aircraft.md)
+While the selected aircraft is electric, the system shall label the Mass & Balance endurance card `Energy & Endurance`.
 
----
+### REQ-FE-007: Independent sequences
 
-## Design References
+While an aircraft has multiple named burn sequences, the system shall calculate fuel-state progression independently for each sequence.
 
-- None
+### REQ-FE-008: Electric fuel controls
 
----
+While the selected aircraft is electric, the system shall hide fuel-tank rows, burn-sequence selectors and fuel-type controls.
+
+### REQ-FE-009: Trip-fuel landing mass
+
+When the user enters Trip Fuel, the system shall calculate estimated landing mass from that fuel burn.

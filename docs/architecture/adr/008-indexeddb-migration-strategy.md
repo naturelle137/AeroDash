@@ -1,7 +1,5 @@
 # ADR-008: IndexedDB Schema Migration Strategy for AircraftProfile
 
-<!-- @DES-ARCH-008@ (FROM: @REQ-AC-004@, @REQ-AC-005@) -->
-
 * **Status:** Accepted
 * **Date:** 2026-04-10
 
@@ -21,29 +19,6 @@ aviation tool.
 The `schemaVersion` integer field (`z.number().int().positive().default(1)`)
 was added to every persisted `AircraftProfile` document in Milestone 3 (M3)
 to enable safe, structured migration (refs GitHub #154, #166).
-
-## Considered Options
-
-* **Option 1 — IndexedDB `onupgradeneeded` only (version-number migration):**
-  Bump the IndexedDB database version integer on every schema change and run a
-  cursor migration inside `onupgradeneeded`. Simple for a single store, but the
-  `onupgradeneeded` handler only fires when the DB version number changes. It
-  does not support in-place document migration without bumping the DB version,
-  and it cannot detect or repair partially-migrated documents.
-
-* **Option 2 — Document-level `schemaVersion` field with lazy migration
-  (chosen):** Store a `schemaVersion` integer on every persisted document.
-  On `findById` / `findAll`, inspect the `schemaVersion` of the returned raw
-  document and apply incremental migration transforms before passing the result
-  to the Zod parser. Documents are written back with the current `schemaVersion`
-  after a successful migration. No DB version bump is needed for document-level
-  changes.
-
-* **Option 3 — Versioned stores (per-milestone object store):** Create a new
-  object store per milestone (e.g., `aircraft_profiles_v2`). Old stores are
-  migrated in `onupgradeneeded` and then dropped. High operational complexity,
-  requires coordinated DB version bumps, and risks data loss if migration
-  partially fails.
 
 ## Decision
 
@@ -158,10 +133,3 @@ passing through the Zod boundary.
   over many milestones. Each migration step must be thoroughly tested.
 * The write-back after migration requires a `readwrite` transaction on read
   paths; callers must be aware that `findById`/`findAll` may mutate the store.
-
-## Compliance
-
-Offline persistence of safety-critical aircraft data. All stored documents are
-validated against `AircraftProfileSchema` (Zod) before use in P1 calculations.
-The migration strategy ensures that no stale or partially-migrated document can
-reach the Safety Core, preserving the integrity of Go/No-Go advisories.

@@ -1,163 +1,135 @@
 # AeroDash Software Requirements - Performance (PF)
 
-This document defines the performance behavior using the **EARS** (Easy Approach to Requirements Syntax) patterns.
-
----
-
 ## Requirements
 
-<!-- @REQ-PF-001@ -->
 ### REQ-PF-001: Distinct Performance Variables
 
-**Requirement:** The system shall calculate four distinct performance variables for every flight: Takeoff Run (TOR), Takeoff Distance to 50ft (TOD), Landing Roll (LR), and Landing Distance from 50ft (LD).
-**Rationale:** Complete performance picture required for phase-specific corrections.
-**Priority:** P1
-**Status:** Implemented
-**Design Reference:** n/a
+When calculating performance, the system shall calculate Takeoff Run (TOR).
 
-<!-- @REQ-PF-002@ (FROM: @H-004@) -->
 ### REQ-PF-002: Bilinear Interpolation
 
-**Requirement:** The system shall determine base performance values via bilinear interpolation of the aircraft's POH tables, utilizing Mass, Pressure Altitude, and Temperature.
-**Rationale:** Core engine for certified baseline data.
-**Priority:** P1
-**Status:** Implemented
-**Design Reference:** n/a
+When the requested mass, pressure altitude and temperature are within the aircraft’s tabulated range, the system shall return the interpolated POH distance defined by the [interpolation contract](../architecture/performance-bilinear-interpolation-contract.md).
 
-<!-- @REQ-PF-003@ -->
 ### REQ-PF-003: Hierarchical Fallback
 
-**Requirement:** When calculating environmental corrections (wind, surface, slope), the system shall apply a hierarchical fallback: prioritize explicit POH factors, and fall back to standard FSM 3/75 factors only if a specific parameter is undocumented in the POH.
-**Rationale:** The Hybrid Engine: Maximizes precision by combining POH specifics with safe, standardized fallbacks for missing data (e.g., wet grass).
-**Priority:** P1
-**Status:** Approved
-**Design Reference:** n/a
+When a POH correction exists for wind, surface or slope, the system shall use that correction for that parameter.
 
-<!-- @REQ-PF-004@ -->
 ### REQ-PF-004: Correction Application Isolation
 
-**Requirement:** The system shall apply surface friction and runway slope correction factors exclusively to the ground roll segments (TOR and LR), while Density Altitude and Wind factors shall be applied to the entire distance.
-**Rationale:** Mathematical correctness (friction does not affect the airborne climb segment).
-**Priority:** P1
-**Status:** Approved
-**Design Reference:** n/a
+When applying surface friction or runway slope corrections, the system shall apply them only to TOR and LR.
 
-<!-- @REQ-PF-005@ -->
 ### REQ-PF-005: Missing Data Estimation
 
-**Requirement:** When the aircraft profile lacks data for either the Ground Roll or the 50ft Distance for takeoff and/or landing, the system shall calculate the missing Base Value by applying a conservative conversion factor derived from UK CAA Safety Sense Leaflet 07 (Takeoff: $TOD = TOR \times 1.9$, Landing: $LD = LR \times 1.67$) before applying any Operational Safety Factor.
-**Rationale:** Graceful degradation for legacy handbooks.
-**Priority:** P1
-**Status:** Approved
-**Design Reference:** n/a
+If one takeoff base distance is missing, then the system shall derive it using `TOD = TOR × 1.9` before applying the Operational Safety Factor.
 
-<!-- @REQ-PF-006@ -->
 ### REQ-PF-006: Operational Required Distance
 
-**Requirement:** The system shall calculate the Operational Required Distance by applying an Operational Safety Factor, allowing the user to select from predefined presets (EASA Standard, POH/AFM Specific, Short Field) or enter a custom numerical multiplier between $1.00$ and $3.00$.
-**Rationale:** Translates physical capability into legal/safe operational performance. EASA Standard Takeoff $1.25$, Landing $1.43$, Short Field Landing $1.15$.
-**Priority:** P1
-**Status:** Approved
-**Design Reference:** n/a
+When calculating performance, the system shall multiply the corrected distance by the selected Operational Safety Factor to obtain Operational Required Distance.
 
-<!-- @REQ-PF-007@ -->
 ### REQ-PF-007: Safety Margin Calculation
 
-**Requirement:** The system shall calculate the Safety Margin as an absolute value (Available Runway minus Operational Required Distance) and as a percentage.
-**Rationale:** Intuitive Go/No-Go decision making.
-**Priority:** P2
-**Status:** Approved
-**Design Reference:** n/a
+When calculating performance, the system shall report Available Runway minus Operational Required Distance as the absolute safety margin.
 
-<!-- @REQ-PF-008@ -->
 ### REQ-PF-008: Custom Obstacle Constraints
 
-**Requirement:** The system shall allow the pilot to define custom obstacle constraints (Target Height at a specific Distance) to verify climb gradients over off-airport obstacles.
-**Rationale:** Support for local procedures (e.g., road clearances).
-**Priority:** P2
-**Status:** Approved
-**Design Reference:** n/a
+The system shall allow the pilot to define custom obstacle constraints (Target Height at a specific Distance) to verify climb gradients over off-airport obstacles.
 
-<!-- @REQ-PF-009@ (FROM: @H-017@) -->
 ### REQ-PF-009: Unverified Obstacle Notification
 
-**Requirement:** While a pilot-defined obstacle is active, the system shall emit a persistent WARNING notification (`WARN-PF-001`) alerting the pilot that unverified obstacle data is in use.
-**Rationale:** Disclaims liability for user-measured Google Maps distances/heights.
-**Priority:** P1
-**Status:** Approved
-**Design Reference:** [Notification Schema](../architecture/notification_schema.md)
+While a pilot-defined obstacle is active, the system shall emit a persistent WARNING notification (`WARN-PF-001`) alerting the pilot that unverified obstacle data is in use.
 
-<!-- @REQ-PF-010@ (FROM: @H-007@, @H-012@) -->
 ### REQ-PF-010: Extrapolation Limits and Penalties
 
-**Requirement:** If extrapolation beyond the POH table limits is required for worse conditions (e.g., higher mass/temp), the system shall limit extrapolation to 10% and apply an additional 20% safety penalty.
-**Rationale:** Prevents optimistic data outside the certified envelope.
-**Priority:** P1
-**Status:** Approved
-**Design Reference:** [Conservative Extrapolation Control Contract](../architecture/performance-extrapolation-control.md)
+If a requested condition exceeds a POH axis maximum by more than 10% of that maximum, then the system shall block performance-distance output.
 
-<!-- @REQ-PF-011@ (FROM: @H-013@) -->
 ### REQ-PF-011: Performance Benefit Capping
 
-**Requirement:** The system shall strictly cap performance benefits at the best-case POH values; calculated distances shall never be shorter than the documented minimums (Minimum Distance Rule).
-**Rationale:** Prevents dangerous underestimations in extreme cold or low density altitudes.
-**Priority:** P1
-**Status:** Approved
-**Design Reference:** [Conservative Extrapolation Control Contract](../architecture/performance-extrapolation-control.md)
+When conditions are better than the POH table minimum, the system shall return no distance shorter than the documented best-case POH value.
 
-<!-- @REQ-PF-012@ (FROM: @H-012@) -->
 ### REQ-PF-012: Extrapolation Acknowledgment
 
-**Requirement:** When extrapolated data is used, the system shall require explicit user confirmation ("Pilot-in-Command acknowledges extrapolated data").
-**Rationale:** Legal safety barrier.
-**Priority:** P1
-**Status:** Approved
-**Design Reference:** [Conservative Extrapolation Control Contract](../architecture/performance-extrapolation-control.md)
+While a result uses extrapolated data, the system shall withhold acceptance of that result until explicit pilot acknowledgement.
 
-<!-- @REQ-PF-013@ -->
 ### REQ-PF-013: Pressure Altitude Formula
 
-**Requirement:** The system shall calculate Pressure Altitude utilizing the formula: PA = Elevation + (1013.25 - QNH) × 30.
-**Rationale:** Standardizes the entry parameter for all POH chart lookups.
-**Priority:** P1
-**Status:** Approved
-**Design Reference:** n/a
+When calculating pressure altitude, the system shall use `PA(ft) = Elevation(ft) + (1013.25 − QNH(hPa)) × 30`.
 
 ### REQ-PF-014
 
-**Status:** Deprecated
+Retired ID; reserved for historical references.
 
-<!-- @REQ-PF-015@ (FROM: @H-008@) -->
 ### REQ-PF-015: Runway Insufficient Notification
 
-**Requirement:** If the Operational Required Distance exceeds the published Available Distance (TORA/LDA), the system shall emit a CRITICAL notification (`CRIT-PF-002`) alerting the pilot that the runway is insufficient for the required distance.
-**Rationale:** The ultimate purpose of the tool.
-**Priority:** P1
-**Status:** Approved
-**Design Reference:** [Notification Schema](../architecture/notification_schema.md)
+If the Operational Required Distance exceeds the published Available Distance (TORA/LDA), the system shall emit a CRITICAL notification (`CRIT-PF-002`) alerting the pilot that the runway is insufficient for the required distance.
 
-<!-- @REQ-PF-016@ (FROM: @H-008@, @H-016@) -->
 ### REQ-PF-016: Low Safety Factor Warning
 
-**Requirement:** If the user-selected Operational Safety Factor is lower than the greater of the POH-mandated factor and the regulatory baseline (Takeoff: 1.25, Landing: 1.43), then the system shall emit a WARNING notification (`WARN-PF-002`) alerting the pilot that the safety factor is below the recommended minimum.
-**Rationale:** Pilot's final descision of safety factors with warning systems if standard safety margins decrease.
-**Priority:** P1
-**Status:** Approved
-**Design Reference:** [Notification Schema](../architecture/notification_schema.md)
+If the user-selected Operational Safety Factor is lower than the greater of the POH-mandated factor and the regulatory baseline (Takeoff: 1.25, Landing: 1.43), then the system shall emit a WARNING notification (`WARN-PF-002`) alerting the pilot that the safety factor is below the recommended minimum.
 
-<!-- @REQ-PF-017@ -->
 ### REQ-PF-017: Estimated Value Marking
 
-**Requirement:** If a performance value is derived using the REQ-PF-005 estimation logic, the system shall flag the result as "ESTIMATED (CAA SSL 07)" in both the user interface and the export documentation.
-**Rationale:** Transparency. Ensures the pilot is aware that the values are derived via generic factors and not specific airframe testing.
-**Priority:** P1
-**Status:** Approved
-**Design Reference:** n/a
+When a performance value is derived using REQ-PF-005 or its landing counterpart, the system shall label it `ESTIMATED (CAA SSL 07)` in the UI.
 
----
+### REQ-PF-018: Takeoff distance
+
+When calculating performance, the system shall calculate Takeoff Distance to 50 ft (TOD).
+
+### REQ-PF-019: Landing roll
+
+When calculating performance, the system shall calculate Landing Roll (LR).
+
+### REQ-PF-020: Landing distance
+
+When calculating performance, the system shall calculate Landing Distance from 50 ft (LD).
+
+### REQ-PF-021: Missing POH corrections
+
+If the POH has no correction for a parameter, then the system shall use the applicable FSM 3/75 fallback defined in the [factor contract](../architecture/performance-safety-factor-pipeline.md).
+
+### REQ-PF-022: Whole-distance corrections
+
+When applying density-altitude or wind corrections, the system shall apply them to the entire distance.
+
+### REQ-PF-023: Landing estimation
+
+If one landing base distance is missing, then the system shall derive it using `LD = LR × 1.67` before applying the Operational Safety Factor.
+
+### REQ-PF-024: Factor presets
+
+The system shall offer the EASA Standard (takeoff 1.25, landing 1.43), POH/AFM Specific and Short Field (landing 1.15) factor presets.
+
+### REQ-PF-025: Custom factor
+
+The system shall allow a custom Operational Safety Factor from 1.00 through 3.00 inclusive.
+
+### REQ-PF-026: Percentage margin
+
+When calculating performance, the system shall report the safety margin as `100 × (Available Runway − Operational Required Distance) / Operational Required Distance` for a positive required distance.
+
+### REQ-PF-027: Extrapolation penalty
+
+If worse conditions exceed a positive POH axis maximum by at most 10%, then the system shall apply a single 20% distance penalty to the clamped boundary distance.
+
+### REQ-PF-028: Nonpositive boundary
+
+If a worse-condition request exceeds a POH axis maximum of zero or less, then the system shall block extrapolation.
+
+### REQ-PF-029: Fixed extrapolation limits
+
+The system shall prevent the user from overriding the 10% extrapolation cap and 20% penalty.
+
+### REQ-PF-030: Extrapolated export
+
+While an extrapolated result is unacknowledged, the system shall prevent its export.
+
+### REQ-PF-031: Reset acknowledgement
+
+When an input change triggers a new extrapolation assessment, the system shall clear the prior acknowledgement.
+
+### REQ-PF-032: Estimated export marker
+
+When an estimated performance value is exported, the system shall label it `ESTIMATED (CAA SSL 07)` in the export.
 
 ## Design References
 
 - **<a name="notificationScheme"></a>Notification Scheme:** [`docs/architecture/notification_schema.md`](../architecture/notification_schema.md)
-
----

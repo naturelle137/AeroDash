@@ -28,44 +28,6 @@ before any code is written.
 
 The new feature is tracked under issue #395 (supersedes #281).
 
-## Considered Options
-
-* **A — In-app link-only.** Three plain-language buttons in the app open
-  the corresponding GitHub page in a new tab with the template
-  preselected: pilot enters all data on GitHub. Simplest to build,
-  zero coupling to GitHub's form schema, weakest UX for non-developers
-  (they still face a long structured form with no guidance and need to
-  navigate the GitHub UI cold).
-
-* **B — In-app guided form with prefilled handoff.** The app walks the
-  pilot through a friendly step-by-step form whose fields map to the
-  existing GitHub template fields. On submit, the app builds a fully
-  prefilled GitHub "new issue" URL (template selected, `title`, and
-  per-field body block) and opens it in a new tab. The pilot reviews and
-  clicks **Submit** on GitHub. The "have you searched the backlog?"
-  question is omitted in the app — the pilot cannot verify that without
-  leaving the app, so asking it would only confuse. Requires a small P1
-  URL builder (pure TS, easy to test) but no backend, no tokens, no
-  persistence.
-
-* **C — Full background submission.** The app captures every field and
-  submits the issue to GitHub silently. Requires either a stored
-  Personal Access Token (browser-side credential — a security risk in a
-  PWA we explicitly do not want) or a backend service to relay the
-  submission. AeroDash is offline-first and intentionally has no
-  backend; introducing one for issue intake contradicts the architecture
-  baseline and adds an operational surface that is not justified by
-  this feature's benefit.
-
-A separate constraint applies to security advisories: GitHub's
-advisory creation form
-(`/security/advisories/new`) does **not** accept URL pre-fill, so
-Option B is technically impossible for that channel — any in-app form
-would discard the user's input on handoff. Option C is also out (same
-reason as above, plus advisories carry private-vulnerability data that
-must reach GitHub's private workflow without intermediaries). Only
-Option A is available.
-
 ## Decision
 
 Adopt a **two-channel split** that picks the highest-UX feasible option
@@ -136,24 +98,3 @@ through `REQ-SYS-019`) capture the binding behaviour.
   from PR #392). This trade-off is acceptable: incident reporting is
   not a flight-critical workflow, and the airframe-side workflow (Mass &
   Balance, Performance) remains fully offline.
-
-## Compliance
-
-This decision does not introduce new safety hazards. The contribution
-hub is a pilot-initiated, non-flight-critical workflow and does not
-feed any Go/No-Go advisory. The three new requirements
-(`REQ-SYS-017`, `REQ-SYS-018`, `REQ-SYS-019`) carry no `FROM: @H-…@`
-link by design.
-
-The link-only path for security advisories preserves GitHub's
-[coordinated-disclosure private workflow](https://docs.github.com/en/code-security/security-advisories/working-with-repository-security-advisories/about-repository-security-advisories);
-sensitive vulnerability detail does not transit any AeroDash code.
-
-Privacy posture (GDPR Art. 25 — privacy by default): no pilot free-text
-is stored client-side and no telemetry is emitted on form interaction.
-Browser-side handoff to GitHub is initiated only by an explicit click on
-"Open GitHub to submit".
-
-This ADR supersedes the implementation direction recorded in (closed)
-PR #392; the `incident_report.yml` template and the in-app incident
-queue are out of scope and will not be reintroduced.

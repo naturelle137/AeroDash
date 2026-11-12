@@ -15,14 +15,6 @@ The data model must support:
 4. **Cloud sync** — atomic sync units to avoid partial-profile conflicts during bidirectional synchronization.
 5. **Original unit preservation** — all values stored in the manufacturer's POH/AFM units (REQ-AD-014), never silently converted.
 
-## Considered Options
-
-- **Flat document model:** Store the entire aircraft profile as a single flat JSON object with all fields at the top level. Simple to implement, but loses structural clarity for nested concepts like fuel tank ↔ load point relationships, certification categories with independent envelopes, and versioned weighing reports. Validation logic becomes unwieldy.
-
-- **Normalised relational-like model:** Separate entity types (LoadPoints, WeighingReports, PerformanceProfiles, etc.) stored as distinct IndexedDB object stores joined by foreign keys. Provides clean separation but introduces multi-store transactions, complex join logic for reads, and partial-sync risks — all antithetical to an offline-first PWA where single-read speed and atomic consistency are essential.
-
-- **Aggregate-root document with typed sub-entities:** A single `AircraftProfile` document acts as the aggregate root. Sub-entities (LoadPoint, FuelTankExtension, CertificationCategory, WeighingReport, etc.) are embedded arrays/objects within the root. Complex relationships (e.g., a LoadPoint optionally extended by FuelTankExtension) are expressed through composition rather than foreign keys.
-
 ## Decision
 
 We adopt the **aggregate-root document with typed sub-entities** pattern.
@@ -58,7 +50,3 @@ Key design choices within this model:
 
 - **Document size:** Heavily configured aircraft (many load points, 1000+ performance data points across four profiles) may produce documents of several hundred KB. This is acceptable for IndexedDB but should be monitored.
 - **Partial updates:** Updating a single field requires reading and rewriting the entire document. Given the relatively low write frequency (profile editing, not real-time telemetry), this is an acceptable trade-off.
-
-## Compliance
-
-The data model preserves manufacturer-original units (REQ-AD-014 / H-001), ensuring no silent unit conversions occur at the storage layer. All unit normalization is deferred to the Safety Core's runtime conversion layer (`src/core/units/`).

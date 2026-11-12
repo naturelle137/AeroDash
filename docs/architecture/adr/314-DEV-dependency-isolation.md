@@ -29,69 +29,6 @@ a core file are easy to introduce and hard to detect in code review.
 The goal of this ADR is to define how the boundary is enforced technically and
 procedurally so that architectural drift is caught automatically.
 
-## Considered Options
-
-### Option 1: Developer Discipline Only (Status Quo)
-
-Rely on code review and CONTRIBUTING.md prose to prevent illegal imports.
-No tooling enforcement.
-
-* **Pro:** Zero setup cost.
-* **Con:** Boundary violations are only detected in code review, if at all.
-  Review fatigue means drift accumulates silently over time.
-* **Con:** No IDE-time feedback. Developers discover violations only at PR stage.
-* **Verdict:** Insufficient for a safety-critical system.
-
-### Option 2: ESLint `no-restricted-imports` Rules (Selected)
-
-Add an ESLint rule block scoped to `src/core/**/*.ts` that prohibits importing
-from Vue/Pinia/Router packages and from any `modules/`, `shared/`, `stores/`,
-`plugins/`, or `router/` path segment.
-
-* **Pro:** Enforced at IDE-time (editor red squiggles) and in CI (the
-  `ci.yml` Lint job already runs ESLint on every PR to `develop`/`main`).
-* **Pro:** Minimal friction — no structural refactoring required.
-* **Pro:** Clear, actionable error messages pointing to the isolation rule.
-* **Con:** Catches import-level coupling only; runtime injection (e.g. passing a
-  Vue reactive proxy as a function argument) is not caught.
-* **Con:** Only as strong as the patterns maintained in `eslint.config.ts`.
-
-### Option 3: TypeScript Project References
-
-Split the repository into multiple `tsconfig.json` projects with explicit
-`references` arrays so that `core/` cannot transitively resolve symbols from
-`modules/` or `shared/`.
-
-* **Pro:** Compiler-level enforcement; stronger than ESLint patterns.
-* **Pro:** Enables incremental type-checking for large codebases.
-* **Con:** Requires significant restructuring of `tsconfig.json` and
-  `vite.config.ts`, plus `vue-tsc` build changes.
-* **Con:** High setup cost relative to current project size; deferred until the
-  project warrants it.
-* **Verdict:** Preferred long-term path; adopted as a future enhancement
-  candidate (see Consequences).
-
-### Option 4: Separate npm Workspaces / Packages
-
-Publish `core/` as a standalone internal package (`@aerodash/core`). A package
-boundary prevents `core` from installing or importing framework packages.
-
-* **Pro:** Strongest isolation — `npm install vue` in `core/` would fail.
-* **Con:** Major monorepo restructuring; overhead of inter-package versioning.
-* **Con:** Build pipeline and devcontainer must be adapted.
-* **Verdict:** Too heavyweight for the current project scale; revisit at
-  milestone v1.0.
-
-### Option 5: Runtime Module Federation / Plugin Architecture
-
-Isolate P1 in a Web Worker or separate JS chunk; P2/P3 communicate via
-structured messages.
-
-* **Pro:** True runtime isolation; P3 crash cannot reach P1.
-* **Con:** Prohibitive complexity; asynchronous messaging overhead in a
-  latency-sensitive pre-flight calculation scenario.
-* **Verdict:** Out of scope for the current architecture phase.
-
 ## Decision
 
 We adopt **Option 2 (ESLint `no-restricted-imports`)** as the primary
@@ -148,11 +85,3 @@ when stricter compiler-level guarantees are required.
   imported inside `core/` is blocked at the import level (ESLint rule), but
   the `package.json` `dependencies` list has no automated tier separation.
   Mitigated by the third-party library governance policy (CONTRIBUTING.md §10).
-
-## Compliance
-
-This ADR directly addresses the safety isolation requirement stated in Issue #50:
-isolation of the P1 calculation core from P2/P3 modules ensures that bugs or
-crashes in non-critical features cannot corrupt Mass & Balance or TOLD outputs.
-It supports the broader AeroDash safety philosophy of *no silent failures* in
-Go/No-Go advisory paths.

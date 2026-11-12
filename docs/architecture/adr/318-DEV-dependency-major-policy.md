@@ -46,35 +46,6 @@ half of the rotation** (`pnpm audit --audit-level=moderate` on the weekly
 cron, `osv-scanner` on every trigger, CycloneDX SBOM as a workflow
 artefact) — see §*Supply-chain scan in CI* below.
 
-## Considered Options
-
-* **Option A — Blanket downshift to LTS.** Drop every bleeding-edge line back
-  to the nearest LTS major (e.g. Vue Router 4, TS 5.x, Vite 7, Vitest 3,
-  ESLint 9, `@types/node` 24, `uuid` 11, Zod 3). Lowest behavioural risk; very
-  high churn cost: the lockfile, mutation-testing configuration, Stryker
-  TypeScript checker, `@vue/eslint-config-typescript`, and several plugin
-  peers all need re-pinning together, and at least one cycle of full regression.
-  Doing it inside a single PR — labelled `engineering` and *resubmitted* from a
-  prior release — is itself a safety risk: large surface, hard to bisect.
-
-* **Option B — Status quo + lockfile pinning.** Keep every version, rely on
-  `pnpm-lock.yaml` exact-version pinning, do nothing else. Cheapest. Leaves
-  TECH-009 / CS-014 unanswered; provides no governance hook for the *next*
-  bleeding-edge upgrade.
-
-* **Option C — Codified policy + per-major ADR justification + pinned
-  regression suite + CI scan triple (Selected).** Adopt a written policy
-  that pre-release or major-bumped lines may exist only when justified in
-  an ADR and only when a named regression suite is pinned against the
-  chosen version. Apply the policy retrospectively to today's bleeding-edge
-  lines: each is either *retained with justification* or *scheduled to
-  downshift* in a tracked follow-up. Layered with the existing CI gates
-  (P1 isolation lint, P1 unit test isolation, Stryker mutation gate on the
-  Safety Core) and a tightened supply-chain scan rotation (moderate-CVE
-  weekly cron + OSV-Scanner + CycloneDX SBOM, landed alongside the
-  policy), this provides technical defence against behavioural drift
-  without forcing a high-risk bulk downshift in this PR.
-
 ## Decision
 
 We adopt **Option C**. The policy and the per-package decision matrix are
@@ -269,24 +240,3 @@ the moderate-CVE feedback loop end-to-end.
   by the milestone-bound row-1 re-review (closing milestone v0.4.0-alpha
   with row 1 unchanged is a policy violation) and by the general
   expectation that any PR touching the deps changes this file.
-
-## Compliance
-
-This ADR addresses audit findings **TECH-009** (bleeding-edge / pre-release
-majors in a safety-advisory codebase) and **CS-014** (unverifiable CVE
-coverage on very recent majors) end-to-end:
-
-* the **product-side guard** is the policy + per-major decision matrix above
-  (every bleeding-edge line carries a named justification, regression
-  subset, and downshift target);
-* the **CI-side guard** is the scan triple in `.github/workflows/security.yml`
-  described in §*Supply-chain scan in CI* (`pnpm audit` raised to moderate
-  on the weekly cron, `osv-scanner` for OSV.dev cross-ecosystem coverage,
-  CycloneDX SBOM as a workflow artefact and attached to GitHub Releases).
-
-No `frontend/src/core/` source is touched and no P1 math semantics
-change, so no new hazards are introduced and no existing mitigation is
-weakened. The single residual concentrated risk — `vue-router@5` as the
-only pre-release line — is bound to the v0.4.0-alpha milestone-closure
-trigger described in row 1, so the re-evaluation cannot silently slip
-past that milestone exit.

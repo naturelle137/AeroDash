@@ -4,8 +4,6 @@ Focus: Creating, validating, and managing aircraft profiles.
 
 ---
 
-<!-- @UJ-A-001@ (FROM: @REQ-AC-001@, @REQ-AC-005@, @REQ-AC-007@, @REQ-AD-005@, @REQ-AD-012@, @REQ-AD-014@, @REQ-UQ-005@) -->
-
 ## <a name="UJ-A-001"></a>UJ-A-001: The "Fleet Admin" Workflow (Complex Profile)
 
 **Persona:** Fleet Admin / Owner
@@ -27,8 +25,6 @@ Focus: Creating, validating, and managing aircraft profiles.
 
 **Outcome:** The admin feels assured the Bonanza A36 is set up exactly per the POH — including its non-linear CG envelope and fuel moment table. The `Draft`/`Verified` status system and the locked fields guarantee that no pilot ever plans a flight against unverified data.
 
-<!-- @UJ-A-002@ (FROM: @REQ-SYS-003@, @REQ-SYS-004@, @REQ-UQ-005@) -->
-
 ## <a name="UJ-A-002"></a>UJ-A-002: Unit-Safety Across a Mixed Fleet
 
 **Persona:** Pilot
@@ -49,8 +45,6 @@ Focus: Creating, validating, and managing aircraft profiles.
 
 **Outcome:** The pilot notices the unit labels change the moment aircraft are switched, feels confident every value is correctly labelled, and never needs to perform a manual conversion. The system handles all SI normalization internally and transparently.
 
-<!-- @UJ-A-003@ (FROM: @REQ-AD-011@, @REQ-MB-001@, @REQ-UI-009@) -->
-
 ## <a name="UJ-A-003"></a>UJ-A-003: Certification Category Switch
 
 **Persona:** Pilot
@@ -69,8 +63,6 @@ Focus: Creating, validating, and managing aircraft profiles.
 | **Envelope Awareness** | Reviews the updated CG Envelope Chart.                                                                                                     | "The Utility envelope is much tighter. Let me make sure my fuel load still fits." | The system displays the recalculated CG point within the tighter Utility envelope. The pilot can see the difference between the Normal and Utility boundaries.                                  |
 
 **Outcome:** The pilot understands that switching certification category fundamentally changes the aircraft's operational limits. The system enforces category-specific rules automatically — different MTOM, different envelope, and restricted loading stations — preventing the pilot from accidentally planning an aerobatic flight with Normal-category limits.
-
-<!-- @UJ-A-004@ (FROM: @REQ-AD-020@, @REQ-AD-021@, @REQ-AD-022@, @REQ-UI-021@, @REQ-UI-022@, @REQ-UI-023@, @REQ-FE-006@) -->
 
 ## <a name="UJ-A-004"></a>UJ-A-004: Adding a Battery-Electric Aircraft (Pipistrel Velis Electro)
 

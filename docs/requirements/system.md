@@ -1,206 +1,181 @@
 # AeroDash Software Requirements - General & System Requirements (SYS)
 
-This document defines the system behavior using the **EARS** (Easy Approach to Requirements Syntax) patterns.
-
----
-
 ## Requirements
-
-<!-- @REQ-SYS-001@ -->
 
 ### REQ-SYS-001: Offline Functionality
 
-**Requirement:** The system shall be fully functional without an active internet connection; all aircraft profiles and calculation logic shall be stored locally.
-**Rationale:** Ensure usability in remote airfields or during flight.
-**Priority:** P2
-**Status:** Implemented
-**Design Reference:** n/a
-
-<!-- @REQ-SYS-002@ -->
+While no internet connection is available, the system shall support calculations using locally available aircraft and planning data.
 
 ### REQ-SYS-002: Portable Storage Format
 
-**Requirement:** The system shall store aircraft profiles and flight plans in a standardized, portable format.
-**Rationale:** Human-readable format and future-proofing.
-**Priority:** P1
-**Status:** Implemented
-**Design Reference:** n/a
-
-<!-- @REQ-SYS-003@ (FROM: @H-001@, @H-002@) -->
+The system shall provide aircraft profiles in a portable structured format.
 
 ### REQ-SYS-003: SI Unit Normalization
 
-**Requirement:** The system shall normalize all physical input parameters to a unified internal SI reference frame (kg, m, L, s) for the internal calculation logic.
-**Rationale:** Ensure mathematical consistency across mixed fleets.
-**Priority:** P1
-**Status:** Implemented
-**Design Reference:** n/a
-
-<!-- @REQ-SYS-004@ -->
+When equivalent physical inputs are expressed in different supported units, the system shall return physically equivalent calculation results.
 
 ### REQ-SYS-004: Supported Units
 
-**Requirement:** The system shall accept the following units for data storage, input and display: <ul><li>Volume: L, gal (US)</li> <li>Mass: kg, lb</li> <li>Speed: km/h, mph, kt, m/s</li> <li>Arm: m, in, ft</li> <li>Moment: kg·m, in-lb, ft-lb</li> <li>Temperature: °C, °F</li> <li>Altitude: ft, m</li> <li>Distance: km, mi, nm </li> <li>Pressure: hPa, inHg, mmHg</li></ul>
-**Rationale:** Ensures compatibility with POH data from both metric and imperial manufacturers.
-**Priority:** P1
-**Status:** Implemented
-**Design Reference:** n/a
-
-<!-- @REQ-SYS-005@ (FROM: @H-019@) -->
+The system shall accept input in these units: volume L/US gal; mass kg/lb; speed km/h, mph, kt, m/s; arm m/in/ft; moment kg·m/in-lb/ft-lb; temperature °C/°F; altitude ft/m; distance km/mi/nm; pressure hPa/inHg/mmHg.
 
 ### REQ-SYS-005: Update Available Notification
 
-**Requirement:** When a new software version is detected, the system shall prevent silent background updates and emit an INFO notification (`INFO-SYS-001`) informing the user about the available update and offering a reload action.
-**Rationale:** Prevents "State Confusion" where the pilot plans on an old version while the new one loads in the background.
-**Priority:** P1
-**Status:** Implemented
-**Design Reference:** [Notification Schema](../architecture/notification_schema.md)
-
-<!-- @REQ-SYS-006@ (FROM: @H-019@) -->
+When a new software version is detected during an active session, the system shall display an INFO notification (`INFO-SYS-001`) offering a reload action.
 
 ### REQ-SYS-006: Safe Version Verification
 
-**Requirement:** When the application initializes online, the system shall verify the local version against a remote "minimum safe version" and block execution if the local version is marked as unsafe
-**Rationale:** "Kill Switch" for critical bugs (e.g., calculation errors discovered post-release).
-**Priority:** P1
-**Status:** Implemented
-**Design Reference:** [ADR-011: Privacy Posture of the Remote `minSafeVersion` Fetch](../architecture/adr/011-min-safe-version-fetch-privacy.md)
-
-<!-- @REQ-SYS-007@ -->
+When the application initializes online, the system shall compare the local version with the remote minimum safe version.
 
 ### REQ-SYS-007: Centralized Notification Service
 
-**Requirement:** The system shall implement a centralized Notification Service that aggregates notifications from all functional modules.
-**Rationale:** Centralized handling of alerts ensures consistent UI behavior and preventing alert fatigue.
-**Priority:** P1
-**Status:** Implemented
-**Design Reference:** [Notification Schema](../architecture/notification_schema.md)
-
-<!-- @REQ-SYS-008@ -->
+When a functional module emits a notification, the system shall make it available through the application’s shared notification interface.
 
 ### REQ-SYS-008: Uniform Notification Model
 
-**Requirement:** The communication logic layer and UI layer shall be done via a uniform notification data model containing at minimum: Unique ID, Severity, Message, and Persistence flag.
-**Rationale:** Ensures strict data contract and decoupled interaction between Logic and UI layers.
-**Priority:** P1
-**Status:** Implemented
-**Design Reference:** [Notification Schema](../architecture/notification_schema.md)
-
-<!-- @REQ-SYS-009@ -->
+The system shall expose each notification with a unique ID, severity, message and persistence flag.
 
 ### REQ-SYS-009: Connectivity State Detection
 
-**Requirement:** The system shall monitor the device's network connectivity and maintain an application-wide connectivity state (`Online`, `Offline`).
-**Rationale:** Offline operation is a core design constraint, not an error condition. A centralized connectivity state replaces individual API failure notifications and prevents notification fatigue.
-**Priority:** P2
-**Status:** Deferred
-**Design Reference:** n/a
-
-<!-- @REQ-SYS-010@ -->
+The system shall monitor the device's network connectivity and maintain an application-wide connectivity state (`Online`, `Offline`).
 
 ### REQ-SYS-010: Online Feature Availability
 
-**Requirement:** While the connectivity state is `Offline`, the system shall disable all features requiring an active internet connection (Cloud Sync, Share-Code generation and retrieval, Weather and Airport API queries) and shall re-enable them when the state returns to `Online`.
-**Rationale:** Prevents misleading error states for expected offline behavior. Online-only features are gated at the UI level rather than producing individual failure notifications.
-**Priority:** P2
-**Status:** Deferred
-**Design Reference:** n/a
-
-<!-- @REQ-SYS-011@ -->
+While connectivity is Offline, the system shall disable cloud sync, share-code generation/retrieval and weather/airport API queries.
 
 ### REQ-SYS-011: Input Validation Before Core Logic
 
-**Requirement:** Before invoking any core calculation logic, the system shall validate all module inputs against their defined schema (Zod). If validation fails, the system shall reject the input and shall not execute the core calculation.
-**Rationale:** Prevents invalid or incomplete data from reaching safety-critical math logic. Validation failures are input errors, not safety-limit breaches.
-**Priority:** P1
-**Status:** Implemented
-**Design Reference:** [Notification Schema](../architecture/notification_schema.md)
-
-<!-- @REQ-SYS-012@ -->
+Before a core calculation, the system shall validate all module inputs against their input schema.
 
 ### REQ-SYS-012: Validation Failure Error Notification
 
-**Requirement:** If input validation fails (REQ-SYS-011), the system shall emit a Notification with severity `ERROR` containing the invalid field path and validation failure code (`ERR-SYS-001`). The notification context shall identify the originating module (e.g. `MassBalance.Validation`).
-**Rationale:** Distinguishes input mistakes (`ERROR` — inline field errors, user must fix) from safety-limit violations (`CRITICAL` — flight should not proceed). Reduces alarm fatigue by reserving `CRITICAL` for genuine safety hazards.
-**Priority:** P1
-**Status:** Implemented
-**Design Reference:** [Notification Schema](../architecture/notification_schema.md)
-
-<!-- @REQ-SYS-013@ -->
+If input validation fails, then the system shall emit an ERROR notification (`ERR-SYS-001`) containing the invalid field path and validation failure code.
 
 ### REQ-SYS-013: Session Payload Persistence
 
-**Priority:** P3
-**Status:** Implemented
-
-**Requirement:** When the pilot has entered preflight data, the system shall automatically serialise the active session payload to `localStorage` on each value change (debounced) and restore it on page reload, provided the restored payload passes Zod schema validation. An invalid or absent payload shall result in a clean session with no pre-population. The session payload shall be cleared when a different aircraft profile is selected.
-
-<!-- @REQ-SYS-014@ -->
+When preflight values change, the system shall save the active session locally after the configured debounce interval.
 
 ### REQ-SYS-014: Erasure of All Personal Data
 
-**Requirement:** When the user requests erasure of their data, the system shall, upon explicit confirmation, permanently and irrecoverably delete all personal data the application holds about the user, across every storage location under the application's control, in a single user action. If any part of that data cannot be deleted, then the system shall report the failure and shall not indicate the erasure as complete.
-**Rationale:** GDPR Art. 17 right to erasure (DP-002, DP-003). The control must encompass every category of personal data the application retains — not one storage mechanism — so the right is honoured in full regardless of where or how that data is held, including any account, profile, or synchronised data added in future. Which stores exist and how deletion is performed are design concerns; when a new personal-data store is introduced, this requirement's verification must be revisited.
-**Priority:** P2
-**Status:** Implemented
-**Design Reference:** [Data-Rights Design](../architecture/data-rights.md)
-
-<!-- @REQ-SYS-015@ -->
+When the user confirms erasure, the system shall permanently delete all personal data under its control across all storage locations in one user action.
 
 ### REQ-SYS-015: Export of All Personal Data
 
-**Requirement:** When the user requests a copy of their data, the system shall produce an export containing all personal data the application holds about the user in a structured, commonly-used, machine-readable format, and shall make that export available to the user to retain.
-**Rationale:** GDPR Art. 15 (right of access) and Art. 20 (data portability) (DP-002). A complete, portable copy lets the user inspect, archive, or migrate their data — including before exercising erasure (REQ-SYS-014). The concrete serialisation format and delivery mechanism are design concerns, and the export must extend to any account, profile, or synchronised data added in future.
-**Priority:** P2
-**Status:** Implemented
-**Design Reference:** [Data-Rights Design](../architecture/data-rights.md)
-
-<!-- @REQ-SYS-016@ -->
+When the user requests a copy of their data, the system shall produce an export of all personal data under its control in a structured, commonly used machine-readable format.
 
 ### REQ-SYS-016: Disclaimer Acknowledgement
 
-**Requirement:** If the user has not acknowledged the disclaimer, then the system shall prevent use of the safety-critical functions.
-**Rationale:** The disclaimer establishes that AeroDash is advisory only and that the Pilot in Command bears sole responsibility for verifying its outputs against the official POH/AFM. Requiring acknowledgement brings that liability boundary into the runtime path rather than leaving it in documentation the pilot may never open.
-**Priority:** P1
-**Status:** Draft
-**Design Reference:** [Disclaimer Acknowledgement](../architecture/disclaimer-acknowledgement.md)
-
-<!-- @REQ-SYS-017@ -->
+If the user has not acknowledged the disclaimer, then the system shall prevent use of the safety-critical functions.
 
 ### REQ-SYS-017: In-App Contribution Intake — Three-Channel Entry
 
-**Requirement:** The system shall expose an in-app contribution surface that lets the user pick one of exactly three intake channels — *defect report*, *feature request*, or *security vulnerability report* — and shall present each channel with a one-sentence plain-language description plus an info tooltip explaining when to use that channel.
-**Rationale:** AeroDash's target user is a non-developer pilot. Without an in-app intake, defects and improvement ideas observed in real flight prep do not reach the regression suite. Funnelling the user through one of three first-class channels (mirroring the existing GitHub intake structure) keeps reports correctly classified at the source.
-**Priority:** P3
-**Status:** Implemented
-**Design Reference:** [Contribution Hub Design](../ux/contribution.md), [ADR-013](../architecture/adr/013-in-app-contribution-intake.md)
-
-<!-- @REQ-SYS-018@ -->
+The system shall offer exactly three in-app contribution channels: defect report, feature request and security vulnerability report.
 
 ### REQ-SYS-018: Prefilled GitHub Issue Handoff for Defects and Feature Requests
 
-**Requirement:** When the user submits the in-app defect or feature form, the system shall open the corresponding GitHub "new issue" page in a new browser tab with the matching GitHub issue template preselected and every entered field prefilled into the GitHub form's title and body. The system shall not store or persist the entered values after the GitHub tab is opened, and shall not transmit the values anywhere other than the GitHub URL the user has explicitly chosen to open.
-**Rationale:** Reuses the existing `bug_report.yml` and `feature_request.yml` templates as the single source of truth for what an issue needs to contain. The user still confirms the submission on GitHub, preserving their authority over the final report; the app does not act as a submission relay.
-**Priority:** P3
-**Status:** Implemented
-**Design Reference:** [Contribution Hub Design](../ux/contribution.md), [ADR-013](../architecture/adr/013-in-app-contribution-intake.md)
-
-<!-- @REQ-SYS-019@ -->
+When the user submits a defect or feature form, the system shall open a new GitHub issue tab with the matching template and all entered fields prefilled in the title/body.
 
 ### REQ-SYS-019: Security Advisory Link-Only Handoff
 
-**Requirement:** When the user selects the security vulnerability channel, the system shall display a short explanation that security reports are handled privately on GitHub and shall provide a button that opens the repository's private security advisory creation form in a new browser tab. The system shall not collect security-report content in any in-app field.
-**Rationale:** GitHub's security-advisory creation form does not accept URL pre-fill; any in-app field collection would discard the user's input on handoff. Routing the user directly to GitHub's private workflow also keeps sensitive vulnerability detail off the public issue tracker and out of any AeroDash storage.
-**Priority:** P3
-**Status:** Implemented
-**Design Reference:** [Contribution Hub Design](../ux/contribution.md), [ADR-013](../architecture/adr/013-in-app-contribution-intake.md)
+When the security channel is selected, the system shall explain that vulnerability reports are handled privately on GitHub.
 
----
+### REQ-SYS-020: Local aircraft storage
+
+The system shall retain aircraft profiles locally for offline use.
+
+### REQ-SYS-021: Local calculation availability
+
+After the application has been cached for offline use, the system shall make its calculation logic available without a network connection.
+
+### REQ-SYS-022: Portable flight plans
+
+The system shall provide flight plans in a portable structured format.
+
+### REQ-SYS-023: No silent activation
+
+While an active-session update is waiting, the system shall prevent silent replacement of the running application.
+
+### REQ-SYS-024: Unsafe version block
+
+If the local version is below the minimum safe version, then the system shall block execution.
+
+### REQ-SYS-025: Enable online features
+
+When connectivity returns to Online, the system shall re-enable network-dependent features.
+
+### REQ-SYS-026: Reject invalid calculation inputs
+
+If input validation fails, then the system shall prevent the core calculation from executing.
+
+### REQ-SYS-027: Validation context
+
+When an input-validation error is reported, the system shall identify its originating module in the notification context.
+
+### REQ-SYS-028: Session restoration
+
+When the page reloads with a valid saved session, the system shall restore its preflight values.
+
+### REQ-SYS-029: Invalid saved session
+
+If the saved session is absent or fails schema validation, then the system shall start a clean session.
+
+### REQ-SYS-030: Aircraft switch
+
+When a different aircraft profile is selected, the system shall clear the previous session payload.
+
+### REQ-SYS-031: Erasure failure reporting
+
+If any personal data cannot be deleted, then the system shall report the erasure failure.
+
+### REQ-SYS-032: Incomplete erasure status
+
+While any requested personal-data deletion has failed, the system shall not report erasure as complete.
+
+### REQ-SYS-033: Data copy delivery
+
+When a personal-data export is produced, the system shall make it available for the user to retain.
+
+### REQ-SYS-034: Channel descriptions
+
+The system shall display a one-sentence plain-language description for each contribution channel.
+
+### REQ-SYS-035: Channel help
+
+When the user activates a contribution channel’s info tooltip, the system shall explain when to use that channel.
+
+### REQ-SYS-036: Issue data retention
+
+When the GitHub issue tab opens, the system shall discard the in-app report values.
+
+### REQ-SYS-037: Issue transmission boundary
+
+The system shall transmit in-app issue values only through the GitHub URL the user explicitly chooses to open.
+
+### REQ-SYS-038: Private advisory handoff
+
+When the user activates the security-report button, the system shall open the repository’s private advisory creation form in a new tab.
+
+### REQ-SYS-039: No security detail collection
+
+The system shall provide no in-app field for collecting security-report content.
+
+### REQ-SYS-050: Unit storage
+
+The system shall preserve aircraft values expressed in these supported units: volume L/US gal; mass kg/lb; speed km/h, mph, kt, m/s; arm m/in/ft; moment kg·m/in-lb/ft-lb; temperature °C/°F; altitude ft/m; distance km/mi/nm; pressure hPa/inHg/mmHg.
+
+### REQ-SYS-051: Unit display
+
+The system shall display physical values in the user’s selected supported unit.
+
+### REQ-SYS-052: Cold-start update
+
+When an update is detected on a classified cold start with no active session, the system shall apply the update without an active-session consent prompt.
+
+### REQ-SYS-053: Session detection failure
+
+If session storage is unavailable during update classification, then the system shall use the consent-required update path.
 
 ## Design References
 
 - **<a name="notificationScheme"></a>Notification Scheme:** [`docs/architecture/notification_schema.md`](../architecture/notification_schema.md)
 - **<a name="dataRights"></a>Data-Rights (Erasure & Bulk Export):** [`docs/architecture/data-rights.md`](../architecture/data-rights.md)
 - **<a name="disclaimerAck"></a>Disclaimer Acknowledgement:** [`docs/architecture/disclaimer-acknowledgement.md`](../architecture/disclaimer-acknowledgement.md)
-
----

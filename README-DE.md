@@ -49,12 +49,9 @@ Die "Schätzung" aus der Flugvorbereitung der Allgemeinen Luftfahrt (General Avi
 * Wenn das POH sagt, dass es knapp wird, sagen wir dir, dass es knapp wird. Wir ziehen einen abgesagten Flug einem kalkulierten Risiko vor.
 * Berechnungen basieren auf verifizierter Physik und anerkannten Luftfahrtstandards, nicht auf UI-Bequemlichkeit.
 
-#### 3. Rückverfolgbarkeit
+#### Nachweise
 
-* Vertrauen wird durch Transparenz verdient. Es gibt keine "verborgene Magie" – jede Ausgabe in AeroDash ist auf eine spezifische Anforderung und eine verifizierte Datenquelle rückverfolgbar.
-* Alle Gefahren, die sich aus der Nutzung von AeroDash ergeben könnten, werden verstanden und minimiert.
-
----
+* Berechnungen brauchen klare Eingaben, Grenzen und unabhängig geprüfte Referenzfälle. Synthetische Tests ersetzen keine Prüfung realer POH-/AFM-Daten.
 
 <a name="intendedUse"></a>
 
@@ -66,7 +63,7 @@ AeroDash ist ein spezialisiertes **Tool zur Flugvorbereitung und Entscheidungshi
 
 #### Kernfunktionen
 
-* **Go/No-Go Entscheidungshilfe:** Liefert den mathematischen Nachweis, dass sich das Flugzeug innerhalb der zertifizierten Grenzen für Masse, Schwerpunkt (CG) und Leistung unter den erwarteten Umweltbedingungen befindet.
+* **Go/No-Go Entscheidungshilfe:** Soll anhand eingegebener Daten prüfen, dass sich das Flugzeug innerhalb der zertifizierten Grenzen für Masse, Schwerpunkt (CG) und Leistung unter den erwarteten Umweltbedingungen befindet.
 * **Flugzeugspezifische Daten:** Arbeitet mit den exakten Daten einer spezifischen Zelle (basierend auf dem individuellen Wägebericht und POH), nicht mit generischen Typdaten.
 * **Hybride Leistungsberechnung:** Kombiniert POH-Tabelleninterpolation mit standardisierten Sicherheitsfaktoren (z. B. FSM 3/75), um konservative Distanzschätzungen für unbefestigte oder kontaminierte Start- und Landebahnen zu liefern.
 * **Einfacher Reichweitencheck:** Berechnet die "Time to Empty" basierend auf den vom Benutzer eingegebenen Kraftstoffmengen, um zu validieren, ob die geplante Flugzeit inklusive Reserven innerhalb der Ausdauer liegt.
@@ -114,3 +111,13 @@ Für AeroDash gilt **Doppellizenzierung**:
 
 * **Quellcode** (z. B. die Anwendung unter `frontend/`, Skripte und Konfiguration zum Bauen und Ausführen der Software) steht unter der **[European Union Public Licence (EUPL) v. 1.2](LICENSE)** (englischer Vertragstext).
 * **Dokumentation** (Markdown unter `docs/` sowie Markdown im Repository-Root wie dieses README, Anforderungen, Journeys und Leitfäden) steht unter **[Creative Commons Attribution-ShareAlike 4.0 International](LICENSE-DOCUMENTATION)** (CC BY-SA 4.0).
+
+## Aktueller Funktionsumfang
+
+Die lokale Flugzeugverwaltung und ein Massen-/Schwerpunkt-Workflow sind vorhanden. Performance-, Wetter- und Ausdauer-Karten sind noch Platzhalter; Flughafenintegration, Briefing-Export und Cloud-Synchronisation bleiben geplant. Rechenkern-Tests belegen keinen fertigen Performance-Workflow und keine Prüfung realer Flugzeugdaten. Die [Roadmap](docs/development/roadmap.md) trennt diese Stände vom vollständigen Produktziel.
+
+## Entwicklung und Dokumentation
+
+Node >=22.12 und Corepack/pnpm verwenden: `pnpm install --frozen-lockfile`, danach `pnpm dev` (Port 5173). Prüfungen: `pnpm lint && pnpm test:unit`, Browser: `pnpm test:e2e --project=chromium`.
+
+[AGENTS.md](AGENTS.md), [Beitragen](CONTRIBUTING.md), [Architektur](ARCHITECTURE.md), [Anforderungen](docs/requirements/README.md) und [Tests](docs/testing/TESTING.md) sind die zentralen Entwicklerdokumente auf Englisch. README.md bleibt Englisch, README-DE.md Deutsch.

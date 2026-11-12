@@ -1,10 +1,7 @@
-<!-- @DES-ARCH-006@ (FROM: @REQ-PF-002@) -->
-
 # Performance Bilinear Interpolation Contract
 
 **Module:** Performance (P1 Safety Core)
 **Status:** Baseline — v0.3.0 milestone exit criterion
-**Refs:** REQ-PF-002 | IMP-PF-CORE-001 | issues #155, #169
 
 ---
 

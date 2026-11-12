@@ -1,7 +1,5 @@
 # AeroDash Architecture - Aircraft Data Model
 
-<!-- @DES-ARCH-002@ (FROM: @REQ-AD-001@, @REQ-AD-002@, @REQ-AD-003@, @REQ-AD-004@, @REQ-AD-005@, @REQ-AD-006@, @REQ-AD-007@, @REQ-AD-008@, @REQ-AD-009@, @REQ-AD-010@, @REQ-AD-011@, @REQ-AD-012@, @REQ-AD-013@, @REQ-AD-014@, @REQ-AD-015@, @REQ-AD-016@, @REQ-AD-017@, @REQ-AD-018@, @REQ-AD-019@) -->
-
 **Version:** 1.0
 **Date:** 2026-03-05
 **Status:** Approved

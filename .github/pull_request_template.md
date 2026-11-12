@@ -1,53 +1,20 @@
-<!-- markdownlint-disable-file MD041 -->
-<!-- Authoring: keep this description word-efficient per CLAUDE.md § Concision (bullets over prose, no padding). Per its safety carve-out, never drop a required safety or traceability field below for brevity. -->
-### Summary
-<!-- Briefly describe the code and documentation changes made in this PR. -->
+# Pull request
 
-### Related Issues
-<!-- How does this PR relate to tickets? Use the correct keyword for your target branch! -->
-<!-- Target: develop  -> CLOSE ISSUE.  Use "Closes #" or "Fixes #" (e.g., Closes #123) -->
-<!-- Target: main     -> No open issues expected (already closed on develop merge). Use "Ref #" if needed. -->
--
+## Problem and resulting behavior
 
-### Issue State Management (Post-Merge)
-<!-- Please ensure these manual steps are taken once the PR is merged: -->
-<!-- Delete the following lines if not applicable: -->
-- [ ] If merging to `develop`: Issue auto-closed by `Closes #` keyword; verify Issue Label is `fixed` & Project Status is `Done`
+<!-- State the concrete trigger and outcome. Link the issue; close only completed scope. -->
 
-### Affected Items
-<!-- What existing items are implemented or affected by these code changes? -->
-<!-- Note: Journeys and Hazards are already traced to Requirements in the documentation. -->
-- **Requirements Implemented/Affected:** `REQ-...` OR `N/A`
+## Validation
 
-### Documentation Updates
-<!-- Documentation is an integral part of this product. Please link the specific IDs created/modified (e.g., REQ-SYS-001, H-1A) -->
-- [ ] **Requirements:** Created/Updated ID(s): ______ in `docs/requirements/` OR `N/A` (Reason: _________)
-- [ ] **Architecture:** Created/Updated ID(s): ______ in `docs/architecture/` OR `N/A` (Reason: _________)
-- [ ] **Risk Management:** Hazards updated/mitigated ID(s): ______ in `docs/risk_management/` OR `N/A` (Reason: _________)
-- [ ] **Journeys:** Created/Updated ID(s): ______ in `docs/journeys/` OR `N/A` (Reason: _________)
-- [ ] **Code Docs:** API docs/README/Changelog updated OR `N/A` (Reason: _________)
+<!-- Actual commands/results and relevant browser/domain evidence; state exclusions and limitations. -->
 
-### Safety Considerations
+## Safety and data
 
-- [ ] Checked Safety Traceability Matrix.
-- [ ] No new hazards introduced.
-- [ ] Existing mitigations preserved.
-- [ ] P1 isolation maintained (no new P2/P3 imports in core modules).
+<!-- For affected calculations, explain input validation, units, boundary behavior and source/reference cases. Distinguish synthetic fixtures from operational POH validation. -->
 
-### Quality & Testing Checklist
+## Delivery
 
-- [ ] **Target Branch:** This PR correctly targets `develop` (features/bugs) OR `main` (releases/hotfixes).
-- [ ] **Unit Tests:** Added/updated and passing locally OR `N/A` (Reason: _________).
-- [ ] **Integration Tests:** Passing OR `N/A` (Reason: _________).
-- [ ] **Manual Testing:** Performed successfully (Mandatory for `main`) OR `N/A` (Reason: _________).
-- [ ] **DoD:** All Definition of Done items from the linked Feature/Bug are met.
-- [ ] **Review:** I have performed a self-review of my own code and documentation.
-- [ ] **ADR:** Does this change require an Architectural Decision Record (ADR) update/creation? If yes, it is included.
-
-### Independent Review (integration worker completes)
-
-- [ ] Independent verdict recorded with PR URL, reviewed head/base SHAs,
-  author/reviewer providers, HQ job and evidence links per ADR-319.
-- [ ] Every introduced commit has a verified signature; blocking findings and
-  conversations resolved; local gates and final-head CI green.
-- [ ] Live head/base rechecked before immediate expected-head merge; refresh CI after a change. No queued auto-merge or administrative bypass.
+- [ ] Required local checks and CI pass; P1 isolation and applicable functional/security safeguards are preserved.
+- [ ] Relevant requirements/design/help and the Unreleased changelog are updated.
+- [ ] One independent fresh-session review is complete; blocking findings are resolved (at most one fix round).
+- [ ] Commits are signed and the PR follows branch protection.

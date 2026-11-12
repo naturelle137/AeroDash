@@ -1,9 +1,7 @@
-<!-- @DES-ARCH-020@ (FROM: @REQ-PF-010@, @REQ-PF-011@, @REQ-PF-012@) -->
 # Conservative Extrapolation Control Contract
 
 **Module:** Performance (P1 Safety Core)
 **Status:** Baseline — v0.4.0-alpha milestone (Performance Math Core)
-**Refs:** REQ-PF-010 · REQ-PF-011 · REQ-PF-012 | H-007 · H-012 · H-013 | IMP-PF-CORE-006…011
 
 ---
 
@@ -180,7 +178,7 @@ and no safety factors are computed for a blocked point.
 ## 8. P1 → P2 acknowledgment-gate contract (REQ-PF-012)
 
 P1 decides; P2 enforces and renders. The Performance UI module **must** honour
-this contract so the REQ-PF-012 legal-safety barrier is real and not advisory:
+this contract so the REQ-PF-012 result-acceptance barrier is real and not advisory:
 
 1. **Block is terminal.** A `blocked` result is surfaced as an error
    ("conditions exceed the maximum extrapolation boundary"); the UI presents
@@ -207,7 +205,7 @@ this P1 contract.
 
 ## 9. Immutable constants (REQ-PF-010, architecture constraint)
 
-The 10% cap and 20% penalty are fixed by regulatory intent and **must not be
+The 10% cap and 20% penalty are fixed by this software contract and **must not be
 user-configurable**:
 
 ```text
@@ -236,20 +234,3 @@ mode. No input, profile field, or setting may override either value.
   pilot-facing decision is made on the unrounded penalised value.
 
 ---
-
-## 11. Traceability & implementation status
-
-| Layer | Tag(s) | State |
-| :---- | :----- | :---- |
-| Hazard | H-007, H-012, H-013 | — |
-| Requirement | REQ-PF-010, REQ-PF-011, REQ-PF-012 | Approved |
-| Design | this document | Baseline |
-| Implementation (P1) | IMP-PF-CORE-006…011 (`performance.extrapolation.ts`) | **Done** — cap/penalty/floor/state + fail-safe facade |
-| Journey | UJ-C-001 (Hot & High + Extrapolation), UJ-E-003 (Deep Winter floor) | authored |
-| E2E | UJ-C-001, UJ-E-003 | **Pending** — needs the Performance UI module + acknowledgment-gate (§8) |
-
-The P1 control (cap / +20% penalty / Minimum-Distance floor / `requiresAcknowledgment`
-state) is implemented and unit-tested. The runtime enforcement of §8 (a result
-that is *not accepted* without explicit acknowledgment) and the UJ-C-001 / UJ-E-003
-E2E coverage depend on the Performance UI module, which is tracked separately and
-is **not** part of this design artifact.

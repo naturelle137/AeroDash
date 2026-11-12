@@ -4,7 +4,7 @@ Source-of-truth rules for `frontend/tests/e2e/steps/**/*.ts` step definitions. I
 
 - criticality: safety-critical aviation
 - mode: strict correctness
-- verbosity: per `CLAUDE.md § Concision`
+- verbosity: per `AGENTS.md § Concision`
 
 ## Paths
 
@@ -14,7 +14,7 @@ Source-of-truth rules for `frontend/tests/e2e/steps/**/*.ts` step definitions. I
 - generated-path: `.features-gen/`
 - generated-edit: forbidden
 - technical-feature-dir: `frontend/tests/e2e/features/technical/`
-- phase-slugs: STC only
+- phase directories: follow the existing `frontend/tests/e2e/features/` layout
 
 ## Step file layout
 

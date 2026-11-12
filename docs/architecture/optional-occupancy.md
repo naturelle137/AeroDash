@@ -1,4 +1,3 @@
-<!-- @DES-ARCH-021@ (FROM: @REQ-UQ-006@) -->
 # Configured occupant occupancy
 
 `LoadPointDefinition.occupancy` is an optional `required | optional` field,

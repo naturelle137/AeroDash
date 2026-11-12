@@ -1,7 +1,5 @@
 # Aircraft Fleet Module Architecture
 
-<!-- @DES-ARCH-009@ (FROM: @REQ-AC-001@, @REQ-AC-005@) -->
-
 ## Overview
 
 The Aircraft Fleet Module (`frontend/src/modules/aircraft/`) is a **P2 Feature
@@ -13,32 +11,7 @@ itself strictly P2 — it may use Vue, Pinia, and browser APIs.
 
 ## Module Layout
 
-```text
-frontend/src/modules/aircraft/
-├── data/
-│   ├── aircraft-model-catalogue.json — Static catalogue rows (manufacturer → model → ICAO)
-│   └── aircraft-model-catalogue.ts   — Imports JSON + lookup helpers (getManufacturers, etc.)
-├── services/
-│   ├── fleet.repository.ts           — Native IndexedDB CRUD (aerodash-fleet DB)
-│   ├── profile.validator.ts          — ICAO registration validation + duplicate check
-│   └── profile.import.ts             — JSON exchange file import/export
-├── stores/
-│   ├── fleet.store.ts                — Fleet CRUD + Draft/Verified FSM; IndexedDB load emits LOADING/READY/ERROR
-│   └── active-aircraft.store.ts      — In-session active aircraft context (Pinia)
-├── components/
-│   ├── AircraftModelSelector.vue     — Manufacturer→Model→ICAO hierarchy selector
-│   ├── ProfileStatusBadge.vue        — Draft/Verified status badge
-│   └── FleetList.vue                 — Fleet list with CRUD and selection
-├── views/
-│   └── FleetManagementView.vue       — Main fleet management page (/fleet route)
-└── __tests__/
-    ├── profile.validator.spec.ts     — Unit tests (UT-AC-STORE-001..016)
-    ├── profile.import.spec.ts        — Unit tests (UT-AC-STORE-017..024)
-    ├── aircraft-model-catalogue.spec.ts — Unit tests (UT-AC-CAT-001..005)
-    ├── AircraftModelSelector.spec.ts — Unit tests (UT-AC-VIEW-009..011)
-    ├── fleet.store.spec.ts           — Unit tests (UT-AC-STORE-025..035)
-    └── fleet.repository.int.spec.ts  — Integration tests (IT-AC-STORE-001..004)
-```
+`services/` owns IndexedDB persistence, profile validation and JSON exchange; `stores/` orchestrates fleet/profile state; `components/` and `views/` implement the list, six-step wizard, editor and verification dialogs. Tests live alongside these modules. The executable tree is authoritative; avoid duplicating inventories of test IDs here.
 
 ## P1 / P2 Boundary
 
@@ -52,7 +25,7 @@ PassengerProfileSchema         →   FleetManagementView.vue (passenger profile 
 ```
 
 P1 only exports pure types and schemas. P2 imports them for validation and
-display. P2 never calls back into P1 — P1 functions are invoked from P2 only.
+display. P2 calls P1 functions; P1 never imports or calls back into P2.
 
 ## Draft/Verified State Machine
 
@@ -78,7 +51,7 @@ display. P2 never calls back into P1 — P1 functions are invoked from P2 only.
                   ┌───────────────────────────────┐                   │
                   │          verified             │───────────────────┘
                   │  - Immutable (read-only)      │
-                  │  - Safe for calculations      │
+                  │  - Provenance still evaluated      │
                   │  - updateProfile() BLOCKED    │
                   └───────────────────────────────┘
 ```
@@ -91,18 +64,17 @@ display. P2 never calls back into P1 — P1 functions are invoked from P2 only.
 | `verifyProfile()` | Creates verified snapshot (new UUID), deletes draft | Error: already verified |
 | `editVerifiedProfile()` | Error: not verified | Replaces record in place (same id) with status `draft` and merged changes |
 | `deleteProfile()` | Allowed | Allowed |
-| Use in M&B calculation | Allowed; store prepends `WARN-AC-002` | Allowed, no draft warning |
+| Use in M&B calculation | Allowed; store prepends `WARN-AC-002` | Subject to provenance/expiry and acknowledgement safeguards |
 
 ## IndexedDB Schema
 
-Database: `aerodash-fleet`, Version: `1`
+Database: `aerodash-fleet`, Version: `2` (legacy status normalization)
 
 | Object Store | Key Path | Indexes |
 | :----------- | :------- | :------ |
 | `aircraft_profiles` | `id` (UUID) | `ownerId` (non-unique), `registration` (non-unique) |
 
-The `schemaVersion` field on each document enables structured migration in the
-`onupgradeneeded` handler without data loss. See
+The `schemaVersion` field on each document enables structured migration in repository migrations without data loss. See
 [ADR-006](adr/006-indexeddb-fleet-persistence.md) for migration strategy.
 
 ## Fleet list hydration (`useFleetStore`)
@@ -136,15 +108,6 @@ Manufacturer → model → ICAO rows live in `aircraft-model-catalogue.json` (ve
 | REQ-AD-006 (Cost per hour) | `AircraftProfileSchema.costPerHour` |
 | REQ-AD-010 (Checklist scaffold) | `AircraftProfileSchema.checklistScaffold` |
 
-## Verification date repair — Formal Review Request
+## Verification provenance
 
-- **REQ / hazard:** REQ-AC-007 / H-011.
-- **Output impact:** Invalid/future provenance requires re-verification (`expired-aged`, no computed expiry); M&B requires acknowledgement. Source-change precedence, legacy unattributed semantics and the 90-day window remain.
-- **Pure TS / determinism:** Only explicit inputs and UTC calendar arithmetic in P1; `now: Date` is supplied by callers. No new clock access, framework or I/O dependency in P1.
-- **Zod plan:** Keep structural validation at rest; apply the shared runtime date predicate before either store action writes, and when evaluating existing records. Imports still become Draft.
-- **Formula / units:** $v=\lfloor t_{verified}/86400000\rfloor$, $n=\lfloor t_{now}/86400000\rfloor$. Require strict real-calendar round-trip, finite $n$, and $v\le n$. Expiry remains $v+90$ UTC days; expired when $n\ge v+90$.
-- **UI:** Native UTC-today maximum, disabled confirmation for suspect dates, fresh clock check on confirmation; reset maximum/date when reopening. Missing/blank store date retains today's default.
-- **Test plan / edge cases:** Tomorrow and distant future; invalid month/day and non-leap February; leap/century boundaries; final UTC millisecond and midnight; today and exact 90-day expiry; invalid injected clock; both store actions reject without persistence/state mutation; future persisted provenance stays gated until valid re-verification; desktop/mobile browser evidence.
-- **ADR need:** None; repairs existing verification policy without architectural changes.
-- **Design approval:** Independent technical agent `/root/design_review`, job 202, 2026-11-12, **APPROVE before implementation** under ADR-319. Required fresh confirmation clock and accurate M&B warning wording incorporated. Final PR review remains independent and separate from this design gate.
-- **Scope:** No POH values changed or validated; MB-2/MB-3 excluded.
+Both verification actions reject invalid/future `YYYY-MM-DD` dates before persistence. Sign-offs bind date, verifier initials and POH revision to the source weighing report. Expiry begins at exactly 90 UTC calendar days; changed weighing reports and invalid stored dates fail closed. Legacy missing provenance retains `verified-unattributed` semantics. These are software guards, not validation of the entered POH data.
