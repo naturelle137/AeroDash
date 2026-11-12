@@ -4,7 +4,7 @@ Source-of-truth rules for `frontend/tests/e2e/steps/**/*.ts` step definitions. I
 
 - criticality: safety-critical aviation
 - mode: strict correctness
-- verbosity: per `CLAUDE.md § Concision`
+- verbosity: per `AGENTS.md § Concision`
 
 ## Paths
 
@@ -14,7 +14,7 @@ Source-of-truth rules for `frontend/tests/e2e/steps/**/*.ts` step definitions. I
 - generated-path: `.features-gen/`
 - generated-edit: forbidden
 - technical-feature-dir: `frontend/tests/e2e/features/technical/`
-- phase-slugs: STC only
+- phase directories: follow the existing `frontend/tests/e2e/features/` layout
 
 ## Step file layout
 
@@ -33,11 +33,13 @@ Source-of-truth rules for `frontend/tests/e2e/steps/**/*.ts` step definitions. I
 ## Imports
 
 required:
+
 - `import { expect } from '@playwright/test'`
 - `import { createBdd } from 'playwright-bdd'`
 - `const { Given, When, Then } = createBdd()`
 
 forbidden:
+
 - BDD imports from `@playwright/test`
 - any `frontend/src/` import
 
@@ -58,6 +60,7 @@ forbidden:
 order: `getByRole` > `getByLabel` > `getByText` > `data-testid` > CSS
 
 forbidden: visual classes, generated classes, XPath
+
 - css-usage: semantic only; css-comment required
 
 ## State and helpers

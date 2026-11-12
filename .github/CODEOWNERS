@@ -40,10 +40,6 @@
 /frontend/**/*.int.spec.ts              @naturelle137
 /docs/testing/                          @naturelle137
 
-# --- TRACEABILITY TOOLING ---
-/.tools/                                @naturelle137
-/trace/                                 @naturelle137
-
 # --- CODEOWNER STEWARDSHIP ---
 # Only the Engineering Lead can modify the governance rules themselves.
 .github/CODEOWNERS                      @naturelle137

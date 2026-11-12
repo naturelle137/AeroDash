@@ -59,7 +59,6 @@
  * that would later trip the `onblocked` path on a schema upgrade.
  */
 
-// @IMP-SYS-STORE-013@ (FROM: @REQ-SYS-006@, @H-019@)
 
 import { SEMVER_RE, isValidSemVer } from '@/stores/app-version.semver'
 
@@ -203,7 +202,6 @@ function withStore<T>(
   )
 }
 
-// @IMP-SYS-STORE-014@ (FROM: @REQ-SYS-006@, @H-019@)
 /**
  * Inspect the cached minimum safe version with a discriminated outcome.
  *
@@ -230,7 +228,6 @@ export async function inspectCachedMinSafeVersion(): Promise<CachedMinSafeVersio
   return { kind: 'hit', value: raw.value, fetchedAt: raw.fetchedAt }
 }
 
-// @IMP-SYS-STORE-019@ (FROM: @REQ-SYS-006@, @H-019@)
 /**
  * Load the cached minimum safe version — legacy convenience that flattens
  * the {@link inspectCachedMinSafeVersion} discriminated outcome to either
@@ -257,7 +254,6 @@ export async function loadCachedMinSafeVersion(): Promise<CachedMinSafeVersion |
   }
 }
 
-// @IMP-SYS-STORE-015@ (FROM: @REQ-SYS-006@, @H-019@)
 /**
  * Persist a new highest-seen `minSafeVersion`. Best-effort: silently swallows
  * storage errors so a transient IndexedDB failure cannot crash the boot path.
@@ -294,7 +290,6 @@ export async function persistCachedMinSafeVersion(
   }
 }
 
-// @IMP-SYS-STORE-016@ (FROM: @REQ-SYS-006@, @H-019@)
 /**
  * Remove the cached record. Only intended for test fixtures and the future
  * Delete-All-Data operation (#272). Best-effort — silently no-ops on

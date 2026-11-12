@@ -1,4 +1,3 @@
-<!-- @IMP-UI-SHARED-003@ (FROM: @REQ-UI-011@) -->
 <template>
   <!--
     Accessible, dark-mode-safe confirmation modal — the in-app replacement for
@@ -57,7 +56,6 @@
 </template>
 
 <script setup lang="ts">
-// @IMP-UI-SHARED-004@ (FROM: @REQ-UI-011@)
 import { nextTick, ref, watch } from 'vue'
 
 let uid = 0

@@ -1,9 +1,7 @@
-<!-- @DES-ARCH-019@ (FROM: @REQ-PF-004@, @REQ-PF-006@, @REQ-PF-007@, @REQ-PF-015@, @REQ-PF-016@) -->
 # Performance Safety-Factor Pipeline Contract
 
 **Module:** Performance (P1 Safety Core)
 **Status:** Baseline — v0.4.0-alpha milestone (Performance Math Core)
-**Refs:** REQ-PF-004 · REQ-PF-006 · REQ-PF-007 · REQ-PF-015 · REQ-PF-016 | H-008 · H-016 | IMP-PF-CORE-006…
 
 ---
 
@@ -227,16 +225,6 @@ notification contract ([notification_schema.md](./notification_schema.md)).
   (`display-rounding.ts`); the pilot-facing Go/No-Go decision is made on the
   unrounded value.
 
-## 11. Custom resolver FRR
+## 11. Direct custom-factor boundary
 
-| Field | Contract |
-| :---- | :------- |
-| Independent design approval | APPROVE before implementation, technical agent `/root/design_review`, HQ203, 2026-11-12; final PR review remains separate |
-| Requirements / hazards | REQ-PF-006; H-008, H-016 |
-| Output impact | Invalid direct custom calls terminate; valid distances, baselines and low-factor warnings retain their semantics |
-| Pure TS / determinism | No framework imports, I/O, clock, dependencies or side effects |
-| Zod plan | Existing finite `[1, 3]` and missing-custom refinement retained; adapter returns typed `INVALID_INPUT` |
-| Formula / units | \(D_{required}=D_{corrected}\times m\), \(1\le m\le3\); dimensionless multiplier, distances in metres; caller normalizes SI |
-| Tests / edges | Both operations: omitted/undefined, NaN, ±Infinity, zero/negative, below/above bounds, null/string; valid 1, 1.8, 3; adapter failures and existing composition/advisory regressions |
-| Trace | DES-ARCH-019 → IMP-PF-CORE-013 → UT-PF-CORE-043; boundary UT-PF-CORE-044 |
-| ADR / data provenance | D6 is a bounded contract repair; no new ADR or operational/POH values |
+Direct custom calls reject omitted, nonnumeric, nonfinite and out-of-range multipliers; valid 1, 1.8 and 3 remain covered for both operations. The adapter returns typed `INVALID_INPUT`; no invalid multiplier reaches distance/advisory output. D6 and the existing reference/regression tests define this boundary.

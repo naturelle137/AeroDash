@@ -41,7 +41,6 @@
  * standard browser cache (no query param).
  */
 
-// @IMP-SYS-STORE-017@ (FROM: @REQ-SYS-006@, @H-019@)
 
 import { SEMVER_RE } from '@/stores/app-version.semver'
 

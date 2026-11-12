@@ -4,7 +4,6 @@
  */
 import type { ArmLookupEntry } from '../domain/aircraft.types'
 
-// @IMP-MB-CORE-012@ (FROM: @REQ-MB-012@)
 /**
  * Linear interpolation for arm lookup tables.
  * Arm = Moment / Mass (or Volume).

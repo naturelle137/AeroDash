@@ -1,7 +1,6 @@
 import { z } from 'zod'
 import type { Violation } from '../domain/mass-balance.math-types'
 
-// @IMP-SYS-CORE-002@ (FROM: @REQ-SYS-008@, @DES-ARCH-001@)
 export const mapZodErrorToViolations = (error: z.ZodError): Violation[] => {
   return error.issues.map((err) => {
     const pArray = err.path || []

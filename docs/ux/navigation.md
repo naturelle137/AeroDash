@@ -1,7 +1,7 @@
 # AeroDash Navigation Architecture
 
 This document describes the navigation shell introduced in the UI redesign
-(`@IMP-UI-SHARED-002@`, `@IMP-UI-ROUTE-001@`), covering desktop sidebar behaviour,
+(`IMP-UI-SHARED-002`, `IMP-UI-ROUTE-001`), covering desktop sidebar behaviour,
 mobile bottom tab bar, nav item states, and route structure.
 
 See also: [`design_system.md §6`](design_system.md) for token values and
@@ -128,7 +128,7 @@ Active route detection uses a helper function `isActive(item)`:
 
 ## 6. Route Structure
 
-Defined in `frontend/src/router/index.ts` — tagged `@IMP-UI-ROUTE-001@`.
+Defined in `frontend/src/router/index.ts` — tagged `IMP-UI-ROUTE-001`.
 
 | Route | Name | Component | Notes |
 | --- | --- | --- | --- |

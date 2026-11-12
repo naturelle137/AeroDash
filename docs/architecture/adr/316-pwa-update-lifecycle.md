@@ -77,10 +77,3 @@ disappearing is not invisible to the operator.
 * If a pilot opens a new tab from an existing tab (e.g. Cmd+click) the
   `sessionStorage` key is **not** inherited — the new tab is treated as a cold
   start. This is correct behaviour: the new tab has no in-flight calculation.
-
-## Compliance
-
-REQ-SYS-005 (explicit consent for SW updates during active sessions) and H-019
-(no silent logic swap during computation) are satisfied. The cold-start path is
-explicitly excluded from the H-019 hazard because no calculation state exists
-to be invalidated.

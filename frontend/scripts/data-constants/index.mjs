@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* eslint-disable no-console -- CLI entry point: stdout/stderr is the interface (mirrors scripts/trace/index.mjs). */
+/* eslint-disable no-console -- CLI entry point: stdout/stderr is the interface. */
 /**
  * Data-constants gate CLI.
  *

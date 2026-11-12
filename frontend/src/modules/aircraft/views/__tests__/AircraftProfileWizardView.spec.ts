@@ -9,7 +9,6 @@
  * @see frontend/src/modules/aircraft/views/AircraftProfileWizardView.vue
  */
 
-// @UT-AC-VIEW-183@ (FROM: @IMP-AC-VIEW-032@, @IMP-AC-VIEW-033@)
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'

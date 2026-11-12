@@ -15,7 +15,6 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
-// @IMP-SYS-STORE-002@ (FROM: @REQ-SYS-005@)
 export const usePwaUpdateStore = defineStore('pwaUpdate', () => {
   const needsUpdate = ref(false)
   const offlineReady = ref(false)
@@ -35,12 +34,10 @@ export const usePwaUpdateStore = defineStore('pwaUpdate', () => {
   const sessionStorageAdvisoryDismissed = ref(false)
   let _updateSW: ((reloadPage?: boolean) => Promise<void>) | null = null
 
-  // @IMP-SYS-STORE-003@ (FROM: @REQ-SYS-001@, @REQ-SYS-002@)
   function onOfflineReady(): void {
     offlineReady.value = true
   }
 
-  // @IMP-SYS-STORE-004@ (FROM: @REQ-SYS-005@)
   /**
    * Called by the Service Worker registration when a new version is available
    * AND a prior session was already active in this browser tab lineage
@@ -62,12 +59,10 @@ export const usePwaUpdateStore = defineStore('pwaUpdate', () => {
     needsUpdate.value = true
   }
 
-  // @IMP-SYS-STORE-005@ (FROM: @REQ-SYS-005@)
   function setUpdateSW(fn: (reloadPage?: boolean) => Promise<void>): void {
     _updateSW = fn
   }
 
-  // @IMP-SYS-STORE-009@ (FROM: @REQ-SYS-005@)
   async function applyUpdate(): Promise<void> {
     if (_updateSW) {
       await _updateSW(true)
@@ -76,7 +71,6 @@ export const usePwaUpdateStore = defineStore('pwaUpdate', () => {
     }
   }
 
-  // @IMP-SYS-STORE-010@ (FROM: @REQ-SYS-005@)
   /**
    * Called on cold-start when the Service Worker reports a new version AND no
    * prior session was active in the current browser tab lineage. Applies the
@@ -92,7 +86,6 @@ export const usePwaUpdateStore = defineStore('pwaUpdate', () => {
     }
   }
 
-  // @IMP-SYS-STORE-011@ (FROM: @REQ-SYS-005@)
   /**
    * Idempotent — repeated calls leave the advisory raised exactly once. Once
    * the pilot has dismissed the advisory this call is a no-op for the rest of
@@ -106,7 +99,6 @@ export const usePwaUpdateStore = defineStore('pwaUpdate', () => {
     sessionStorageAdvisory.value = true
   }
 
-  // @IMP-SYS-STORE-012@ (FROM: @REQ-SYS-005@)
   function dismissSessionStorageAdvisory(): void {
     sessionStorageAdvisory.value = false
     sessionStorageAdvisoryDismissed.value = true

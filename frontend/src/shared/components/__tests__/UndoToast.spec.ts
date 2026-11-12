@@ -5,7 +5,6 @@
  * @see frontend/src/shared/components/UndoToast.vue
  */
 
-// @UT-UI-SHARED-002@ (FROM: @IMP-UI-SHARED-005@, @IMP-UI-SHARED-006@)
 
 import { describe, it, expect, afterEach, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'

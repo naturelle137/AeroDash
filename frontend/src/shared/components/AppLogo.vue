@@ -1,5 +1,4 @@
 <script setup lang="ts">
-// @IMP-UI-SHARED-001@ (FROM: @REQ-UI-011@)
 defineProps<{
   /** Icon-only mark (no wordmark). Default: false (full wordmark). */
   iconOnly?: boolean

@@ -1,4 +1,3 @@
-// @UT-SYS-CORE-102@ (FROM: @IMP-SYS-CORE-013@)
 import { describe, it, expect } from 'vitest'
 import {
   buildBugReportUrl,

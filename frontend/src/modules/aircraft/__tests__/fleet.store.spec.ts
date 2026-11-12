@@ -5,7 +5,6 @@
  * @see frontend/src/modules/aircraft/stores/fleet.store.ts
  */
 
-// @UT-AC-STORE-025@ (FROM: @IMP-AC-STORE-005@)
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
@@ -99,7 +98,6 @@ describe('useFleetStore', () => {
     })
   })
 
-  // @UT-AC-STORE-025@ (FROM: @IMP-AC-STORE-005@)
   it('creates Draft profile by default', async () => {
     const store = useFleetStore()
     const profile = await store.createProfile(minimalProfileData())
@@ -109,7 +107,6 @@ describe('useFleetStore', () => {
     expect(store.profiles[0]!.status).toBe('draft')
   })
 
-  // @UT-AC-STORE-026@ (FROM: @IMP-AC-STORE-005@)
   it('verifyProfile creates new immutable snapshot with Verified status', async () => {
     const store = useFleetStore()
     const draft = await store.createProfile(minimalProfileData())
@@ -126,7 +123,6 @@ describe('useFleetStore', () => {
     expect(store.profiles.find((p) => p.id === verified.id)).toBeDefined()
   })
 
-  // @UT-AC-STORE-027@ (FROM: @IMP-AC-STORE-005@)
   it('editVerifiedProfile replaces the Verified record in place with a Draft', async () => {
     const store = useFleetStore()
     const draft = await store.createProfile(minimalProfileData())
@@ -145,7 +141,6 @@ describe('useFleetStore', () => {
     expect(inFleet!.registration).toBe('D-ECSM')
   })
 
-  // @UT-AC-STORE-028@ (FROM: @IMP-AC-STORE-005@)
   it('editVerifiedProfile converts status Verified → Draft and applies changes', async () => {
     const store = useFleetStore()
     const draft = await store.createProfile(minimalProfileData())
@@ -164,7 +159,6 @@ describe('useFleetStore', () => {
     expect(rows[0]!.model).toBe('P2010')
   })
 
-  // @UT-AC-STORE-029@ (FROM: @IMP-AC-STORE-005@)
   it('blocks direct in-place mutation of Verified profile via updateProfile', async () => {
     const store = useFleetStore()
     const draft = await store.createProfile(minimalProfileData())
@@ -179,7 +173,6 @@ describe('useFleetStore', () => {
     expect(stillVerified!.registration).toBe('D-EBPN')
   })
 
-  // @UT-AC-STORE-030@ (FROM: @IMP-AC-STORE-005@)
   it('emits a duplicate warning when creating profile with existing registration', async () => {
     const store = useFleetStore()
     await store.createProfile(minimalProfileData())
@@ -189,7 +182,6 @@ describe('useFleetStore', () => {
     expect(store.notifications.some((n) => n.code === 'WARN-AC-001')).toBe(true)
   })
 
-  // @UT-AC-STORE-031@ (FROM: @IMP-AC-STORE-005@)
   it('emits draft warning when checkDraftWarning is called with Draft profile', async () => {
     const store = useFleetStore()
     const profile = await store.createProfile(minimalProfileData())
@@ -197,7 +189,6 @@ describe('useFleetStore', () => {
     expect(store.notifications.some((n) => n.code === 'WARN-AC-002')).toBe(true)
   })
 
-  // @UT-AC-STORE-032@ (FROM: @IMP-AC-STORE-005@)
   it('does not emit draft warning when profile is Verified', async () => {
     const store = useFleetStore()
     const draft = await store.createProfile(minimalProfileData())
@@ -207,7 +198,6 @@ describe('useFleetStore', () => {
     expect(store.notifications.some((n) => n.code === 'WARN-AC-002')).toBe(false)
   })
 
-  // @UT-AC-STORE-033@ (FROM: @IMP-AC-STORE-005@)
   it('deleteProfile removes the profile from the store', async () => {
     const store = useFleetStore()
     const profile = await store.createProfile(minimalProfileData())
@@ -215,7 +205,6 @@ describe('useFleetStore', () => {
     expect(store.profiles).toHaveLength(0)
   })
 
-  // @UT-AC-STORE-083@ (FROM: @IMP-AC-STORE-005@, @REQ-AC-001@)
   it('starts with fleetLoadState LOADING until the first successful loadAll', async () => {
     vi.mocked(fleetRepository.findAllWithDiagnostics).mockResolvedValueOnce({
       profiles: [],
@@ -230,7 +219,6 @@ describe('useFleetStore', () => {
     expect(store.profiles).toHaveLength(0)
   })
 
-  // @UT-AC-STORE-048@ (FROM: @IMP-AC-STORE-005@)
   it('loadAll sets isLoading=true during fetch and false after completion (LOADING→READY)', async () => {
     const store = useFleetStore()
     let capturedDuringLoad: boolean | undefined
@@ -247,7 +235,6 @@ describe('useFleetStore', () => {
     expect(store.isLoading).toBe(false)
   })
 
-  // @UT-AC-STORE-049@ (FROM: @IMP-AC-STORE-005@)
   it('loadAll sets isLoading=false even when IndexedDB throws (LOADING→ERROR)', async () => {
     const store = useFleetStore()
     const { fleetRepository } = await import('../services/fleet.repository')
@@ -261,7 +248,6 @@ describe('useFleetStore', () => {
     expect(store.isLoading).toBe(false)
   })
 
-  // @UT-AC-STORE-124@ (FROM: @IMP-AC-STORE-005@)
   it('loadAll clears a stale unreadableProfileCount when a later load throws (LOADING→ERROR)', async () => {
     const store = useFleetStore()
     const { fleetRepository } = await import('../services/fleet.repository')
@@ -291,7 +277,6 @@ describe('useFleetStore', () => {
     expect(store.unreadableProfileCount).toBe(0)
   })
 
-  // @UT-AC-STORE-050@ (FROM: @IMP-AC-STORE-005@)
   it('loadAll populates profiles from IndexedDB (READY state)', async () => {
     const store = useFleetStore()
     const { fleetRepository } = await import('../services/fleet.repository')
@@ -354,7 +339,6 @@ describe('useFleetStore', () => {
 
   // ── Migration diagnostics surfaced as INFO notifications ──────────────────
 
-  // @UT-AC-STORE-113@ (FROM: @IMP-AC-STORE-005@, @IMP-AC-CORE-003@, @REQ-SYS-013@)
   it('loadAll emits one INFO-AC-001 notification per dropped profile (future version)', async () => {
     // Without this, profiles dropped by the migration registry would silently
     // disappear from the fleet UI — the pilot would think the aircraft was
@@ -383,7 +367,6 @@ describe('useFleetStore', () => {
     expect(infos[0]!.message).toContain('newer than this build')
   })
 
-  // @UT-AC-STORE-114@ (FROM: @IMP-AC-STORE-005@, @IMP-AC-CORE-003@, @REQ-SYS-013@)
   it('loadAll emits one INFO-AC-001 notification per dropped profile (corrupt)', async () => {
     vi.mocked(fleetRepository.findAllWithDiagnostics).mockResolvedValueOnce({
       profiles: [],
@@ -416,7 +399,6 @@ describe('useFleetStore', () => {
     expect(store.unreadableProfileCount).toBe(2)
   })
 
-  // @UT-AC-STORE-115@ (FROM: @IMP-AC-STORE-005@, @IMP-AC-CORE-003@)
   it('loadAll emits no INFO notification when no profile is dropped', async () => {
     vi.mocked(fleetRepository.findAllWithDiagnostics).mockResolvedValueOnce({
       profiles: [],
@@ -431,7 +413,6 @@ describe('useFleetStore', () => {
 
   // ── ICAO registration validation ──
 
-  // @UT-AC-STORE-051@ (FROM: @IMP-AC-STORE-005@)
   it('createProfile rejects invalid ICAO registration format', async () => {
     const store = useFleetStore()
     await expect(
@@ -439,7 +420,6 @@ describe('useFleetStore', () => {
     ).rejects.toThrow(InvalidRegistrationError)
   })
 
-  // @UT-AC-STORE-052@ (FROM: @IMP-AC-STORE-005@)
   it('updateProfile rejects invalid ICAO registration on edit', async () => {
     const store = useFleetStore()
     const profile = await store.createProfile(minimalProfileData())
@@ -448,7 +428,6 @@ describe('useFleetStore', () => {
     )
   })
 
-  // @UT-AC-STORE-053@ (FROM: @IMP-AC-STORE-005@)
   it('updateProfile emits duplicate warning when registration conflicts with another profile', async () => {
     const store = useFleetStore()
     await store.createProfile(minimalProfileData())
@@ -459,7 +438,6 @@ describe('useFleetStore', () => {
     expect(store.notifications.some((n) => n.code === 'WARN-AC-001')).toBe(true)
   })
 
-  // @UT-AC-STORE-054@ (FROM: @IMP-AC-STORE-005@)
   it('updateProfile throws when profile not found', async () => {
     const store = useFleetStore()
     await expect(
@@ -469,7 +447,6 @@ describe('useFleetStore', () => {
 
   // ── Draft → computation → WARNING notification ──────────────────────────
 
-  // @UT-AC-STORE-055@ (FROM: @IMP-AC-STORE-005@)
   it('WARNING WARN-AC-002 is visible after checkDraftWarning on Draft profile used for computation', async () => {
     const store = useFleetStore()
     const draftProfile = await store.createProfile(minimalProfileData())
@@ -485,7 +462,6 @@ describe('useFleetStore', () => {
 
   // ── editVerifiedProfile in-place replacement ──
 
-  // @UT-AC-STORE-056@ (FROM: @IMP-AC-STORE-005@)
   it('editVerifiedProfile preserves untouched fields when converting Verified to Draft', async () => {
     const store = useFleetStore()
     const draft = await store.createProfile(minimalProfileData())
@@ -506,7 +482,6 @@ describe('useFleetStore', () => {
     expect(edited.weighingReports).toEqual(verified.weighingReports)
   })
 
-  // @UT-AC-STORE-057@ (FROM: @IMP-AC-STORE-005@)
   it('verifyProfile throws if profile is already Verified', async () => {
     const store = useFleetStore()
     const draft = await store.createProfile(minimalProfileData())
@@ -516,7 +491,6 @@ describe('useFleetStore', () => {
     )
   })
 
-  // @UT-AC-STORE-058@ (FROM: @IMP-AC-STORE-005@)
   it('verifyProfile throws if profile not found', async () => {
     const store = useFleetStore()
     await expect(store.verifyProfile('no-such-id', SIGNOFF)).rejects.toThrow(
@@ -524,7 +498,6 @@ describe('useFleetStore', () => {
     )
   })
 
-  // @UT-AC-STORE-059@ (FROM: @IMP-AC-STORE-005@)
   it('editVerifiedProfile throws if profile not found', async () => {
     const store = useFleetStore()
     await expect(store.editVerifiedProfile('no-such-id', {})).rejects.toThrow(
@@ -532,7 +505,6 @@ describe('useFleetStore', () => {
     )
   })
 
-  // @UT-AC-STORE-060@ (FROM: @IMP-AC-STORE-005@)
   it('editVerifiedProfile throws if called on a Draft profile', async () => {
     const store = useFleetStore()
     const draft = await store.createProfile(minimalProfileData())
@@ -543,7 +515,6 @@ describe('useFleetStore', () => {
 
   // ── verifyProfile updates active aircraft context ───────────────────────
 
-  // @UT-AC-STORE-061@ (FROM: @IMP-AC-STORE-005@, @IMP-AC-STORE-006@)
   it('verifyProfile updates activeAircraftStore when the Draft was the active profile', async () => {
     const store = useFleetStore()
     const activeStore = useActiveAircraftStore()
@@ -556,7 +527,6 @@ describe('useFleetStore', () => {
     expect(activeStore.activeProfile?.status).toBe('verified')
   })
 
-  // @UT-AC-STORE-062@ (FROM: @IMP-AC-STORE-005@, @IMP-AC-STORE-006@)
   it('verifyProfile does not change activeAircraftStore when a different profile is active', async () => {
     const store = useFleetStore()
     const activeStore = useActiveAircraftStore()
@@ -571,7 +541,6 @@ describe('useFleetStore', () => {
 
   // ── passengerProfiles round-trip persistence ─────────────────────────
 
-  // @UT-AC-STORE-063@ (FROM: @IMP-AC-STORE-005@, @IMP-AC-CORE-001@)
   it('passengerProfiles are persisted in store state after createProfile', async () => {
     const store = useFleetStore()
     const data = {
@@ -591,7 +560,6 @@ describe('useFleetStore', () => {
     expect(inFleet!.passengerProfiles).toEqual(profile.passengerProfiles)
   })
 
-  // @UT-AC-STORE-064@ (FROM: @IMP-AC-STORE-005@, @IMP-AC-CORE-001@)
   it('passengerProfiles survive verify → editVerified cycle unmodified', async () => {
     const store = useFleetStore()
     const passengerProfiles = [{ name: 'Standard Adult', standardWeight: 86, unit: 'kg' as const }]
@@ -609,7 +577,6 @@ describe('useFleetStore', () => {
     expect(inFleet!.status).toBe('draft')
   })
 
-  // @UT-AC-STORE-065@ (FROM: @IMP-AC-STORE-005@, @IMP-AC-CORE-001@)
   it('passenger standard weight application: profile weight matches schema value', async () => {
     const store = useFleetStore()
     const data = {
@@ -627,7 +594,6 @@ describe('useFleetStore', () => {
     expect(profile.passengerProfiles[0]!.unit).toBe('kg')
   })
 
-  // @UT-AC-STORE-066@ (FROM: @IMP-AC-STORE-005@, @IMP-AC-CORE-001@)
   it('passengerProfiles default to empty array when not provided', async () => {
     const store = useFleetStore()
     const data = { ...minimalProfileData(), passengerProfiles: [] }
@@ -635,7 +601,6 @@ describe('useFleetStore', () => {
     expect(profile.passengerProfiles).toEqual([])
   })
 
-  // @UT-AC-STORE-067@ (FROM: @IMP-AC-STORE-005@)
   it('clearNotifications empties the notifications array', async () => {
     const store = useFleetStore()
     const profile = await store.createProfile(minimalProfileData())
@@ -647,7 +612,6 @@ describe('useFleetStore', () => {
 
   // ── Branch coverage: updateProfile registration-change guard ──
 
-  // @UT-AC-STORE-080@ (FROM: @IMP-AC-STORE-005@)
   it('updateProfile succeeds when no registration field is included in changes', async () => {
     const store = useFleetStore()
     const profile = await store.createProfile(minimalProfileData())
@@ -660,7 +624,6 @@ describe('useFleetStore', () => {
     expect(store.notifications).toHaveLength(0)
   })
 
-  // @UT-AC-STORE-081@ (FROM: @IMP-AC-STORE-005@, @IMP-AC-STORE-003@)
   it('updateProfile succeeds with a valid new registration that is not a duplicate', async () => {
     const store = useFleetStore()
     const profile = await store.createProfile(minimalProfileData())
@@ -674,7 +637,6 @@ describe('useFleetStore', () => {
 
   // ── notifications cleared on aircraft context switch ────────────────────
 
-  // @UT-AC-STORE-082@ (FROM: @IMP-AC-STORE-005@, @IMP-AC-STORE-006@)
   it('notifications are cleared after calling clearNotifications on aircraft switch', async () => {
     // "Prior aircraft load data, results, and notifications cleared on switch."
     // The fleet store provides clearNotifications() for callers (e.g. the aircraft management
@@ -700,7 +662,6 @@ describe('useFleetStore', () => {
 
   // ── REQ-AC-007: verification provenance + expiry-on-source-edit ──
 
-  // @UT-AC-STORE-129@ (FROM: @IMP-AC-STORE-011@)
   it('verifyProfile records the full sign-off provenance bound to the active weighing report', async () => {
     const store = useFleetStore()
     const draft = await store.createProfile({
@@ -726,7 +687,6 @@ describe('useFleetStore', () => {
     })
   })
 
-  // @UT-AC-STORE-130@ (FROM: @IMP-AC-STORE-011@)
   it('verifyProfile defaults verifiedOn to today when the sign-off omits a date', async () => {
     const store = useFleetStore()
     const draft = await store.createProfile(minimalProfileData())
@@ -737,7 +697,6 @@ describe('useFleetStore', () => {
     expect(verified.verification?.verifiedOn).toBe(today)
   })
 
-  // @UT-AC-STORE-131@ (FROM: @IMP-AC-STORE-011@)
   it('verifyProfile rejects a sign-off with blank initials or POH revision', async () => {
     const store = useFleetStore()
     const draft = await store.createProfile(minimalProfileData())
@@ -752,7 +711,6 @@ describe('useFleetStore', () => {
     ).rejects.toThrow(IncompleteSignoffError)
   })
 
-  // @UT-AC-STORE-132@ (FROM: @IMP-AC-STORE-011@)
   it('editVerifiedProfile strips the verification provenance when reverting to Draft', async () => {
     const store = useFleetStore()
     const draft = await store.createProfile(minimalProfileData())
@@ -765,7 +723,6 @@ describe('useFleetStore', () => {
     expect(edited.verification).toBeUndefined()
   })
 
-  // @UT-AC-STORE-133@ (FROM: @IMP-AC-STORE-011@)
   it('updateProfile never leaves verification provenance on a Draft', async () => {
     const store = useFleetStore()
     const draft = await store.createProfile(minimalProfileData())
@@ -776,7 +733,6 @@ describe('useFleetStore', () => {
     expect(updated.verification).toBeUndefined()
   })
 
-  // @UT-AC-STORE-134@ (FROM: @IMP-AC-STORE-011@)
   it('reverifyProfile re-stamps provenance in place on an already-verified profile', async () => {
     const store = useFleetStore()
     const draft = await store.createProfile(minimalProfileData())
@@ -803,7 +759,6 @@ describe('useFleetStore', () => {
     expect(store.profiles.filter((p) => p.id === verified.id)).toHaveLength(1)
   })
 
-  // @UT-AC-STORE-135@ (FROM: @IMP-AC-STORE-011@)
   it('reverifyProfile throws on a Draft profile and on a missing id', async () => {
     const store = useFleetStore()
     const draft = await store.createProfile(minimalProfileData())
@@ -822,7 +777,6 @@ describe('verification calendar-date guard', () => {
   })
   afterEach(() => vi.useRealTimers())
 
-  // @UT-AC-STORE-136@ (FROM: @IMP-AC-STORE-011@, @IMP-AC-STORE-012@)
   it.each(['2026-03-02', '2099-01-01', '2026-02-29', '2024-02-30', 'not-a-date'])(
     'rejects %s in both actions without writes or state changes',
     async (verifiedOn) => {
@@ -848,7 +802,6 @@ describe('verification calendar-date guard', () => {
     },
   )
 
-  // @UT-AC-STORE-137@ (FROM: @IMP-AC-STORE-011@, @IMP-AC-STORE-012@)
   it.each([undefined, '   ', '2026-03-01', '2024-02-29'])(
     'preserves accepted date/default semantics for %s in both actions',
     async (verifiedOn) => {

@@ -25,21 +25,6 @@ The design system already defined `--nav-sidebar-width`, `--nav-header-height`, 
 related dimension tokens (`REQ-UI-011`), anticipating a navigation shell. These tokens
 were unused at the point this ADR was written.
 
-## Considered Options
-
-- **Option A — Keep single-route, add breadcrumb/back links:** Add a header bar to
-  each view on an ad-hoc basis. Does not solve the lack of a home page or module
-  overview. Navigation patterns would diverge per view as the module count grows.
-
-- **Option B — Top navigation bar only:** A horizontal nav bar across the full width.
-  Works well on desktop but produces a crowded tab row on mobile as modules are added.
-  Provides no sidebar real estate for labels, sub-items, or status indicators.
-
-- **Option C — Sidebar (desktop) + bottom tab bar (mobile) + dashboard home:**
-  A fixed top header contains the logo and global controls. A persistent left sidebar
-  on desktop lists all modules. A bottom tab bar on mobile shows the primary four
-  destinations. A dedicated home route (`/`) serves as the entry point.
-
 ## Decision
 
 We adopt **Option C**.
@@ -63,9 +48,9 @@ and wordmark, accepting `iconOnly` and `size` props so it adapts between the exp
 and collapsed sidebar states.
 
 The router is extended with the `/` → `HomeView` route alongside the existing
-`/mass-balance` route. Both are tagged `@IMP-UI-ROUTE-001@`.
+`/mass-balance` route. Both are tagged `IMP-UI-ROUTE-001`.
 
-References: `@REQ-UI-011@`, `@REQ-SYS-001@`.
+References: `REQ-UI-011`, `REQ-SYS-001`.
 
 ## Consequences
 
@@ -94,10 +79,3 @@ References: `@REQ-UI-011@`, `@REQ-SYS-001@`.
   feel like unfinished UI. The muted styling (`opacity: 0.5`, dashed borders) is
   intended to signal "in development" rather than "broken", but this requires user
   familiarity.
-
-## Compliance
-
-The navigation shell must meet WCAG AAA contrast and touch-target requirements
-(`REQ-UI-011`, `REQ-UQ-001`). All interactive nav elements have minimum 44 × 44 px
-touch targets. Disabled/soon items use `<span>` instead of `<a>` to prevent keyboard
-focus on non-functional links.

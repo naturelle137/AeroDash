@@ -1,5 +1,4 @@
 <script setup lang="ts">
-// @IMP-MB-UI-005@ (FROM: @REQ-UQ-003@, @REQ-UQ-005@, @REQ-UQ-004@)
 import { computed } from 'vue'
 import type { MathCoreResult } from '@/modules/mass-balance/stores/mass-balance.types'
 import {
@@ -24,7 +23,6 @@ defineEmits<{
 }>()
 
 // ─── Limit-proximity highlighting ────────────────────────────────────────────
-// @IMP-MB-UI-011@ (FROM: @REQ-UQ-003@, @REQ-UI-018@)
 //
 // A presentational at-a-glance cue, NOT a Go/No-Go determination — the
 // authoritative limit checks remain the math-core notifications (CRIT-MB-002 /

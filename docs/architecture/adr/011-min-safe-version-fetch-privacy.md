@@ -1,7 +1,5 @@
 # ADR-011: Privacy Posture of the Remote `minSafeVersion` Fetch
 
-<!-- @DES-ARCH-013@ (FROM: @REQ-SYS-006@) -->
-
 - **Status:** Proposed
 - **Date:** 2026-05-28
 
@@ -82,30 +80,6 @@ It is **best-effort**: every failure mode (network down, non-2xx, oversized
 body, parse failure, timeout) returns `null` and the prior enforced floor is
 kept. A flaky or hostile endpoint can never *unblock* a kill-switched build.
 
-## Considered Options
-
-- **Option A — Drop the remote fetch (build-time + IndexedDB cache only):**
-  zero network activity, perfectly matching the "no transmission" promise. But
-  the build-time floor cannot be raised post-release without shipping a new
-  bundle, and a kill-switched older bundle resurrected from the Service Worker
-  cache would only learn of a newer floor it had previously cached — never one
-  published *after* it went offline. This guts the post-release usefulness of
-  the REQ-SYS-006 kill switch and weakens the H-019 mitigation.
-- **Option B — Keep the fetch, leave it undocumented (status quo at audit
-  time):** rejected. The metadata exposure is real and the privacy notice was
-  inaccurate; an undocumented network request in an offline-first tool is the
-  exact DP-018 finding.
-- **Option C — Keep the fetch, minimise it, document it, *and* add a runtime
-  opt-out toggle:** a user could disable the version check. Rejected as the
-  default posture: REQ-SYS-006 is a **safety control**. A pilot who disables it
-  silently re-creates H-019 (running known-unsafe calculation logic) — the
-  precise hazard the requirement exists to prevent. Trading a bounded,
-  same-origin metadata exposure for the ability to switch off a safety
-  kill-switch is the wrong default for a flight-prep tool. (A network-level or
-  self-hosting opt-out remains available to the user — see the Decision.)
-- **Option D — Keep the fetch, keep it minimal, document the residual exposure,
-  provide no in-app opt-out, and correct the privacy notice (chosen).**
-
 ## Decision
 
 We adopt **Option D**. The remote `minSafeVersion` fetch is retained because it
@@ -165,24 +139,3 @@ which this ADR makes binding:
 - Privacy-maximalist users who want *no* outbound request must take an external
   action (stay offline, block the endpoint, or self-host); there is no in-app
   switch, by design.
-
-## Compliance
-
-- **REQ-SYS-006 (Safe Version Verification)** and **H-019 (PWA caching latency
-  errors)** are preserved; this ADR is the Design Reference linked from
-  REQ-SYS-006.
-- **GDPR.** The request transmits no personal data as defined by the app's data
-  inventory (no fleet, session, account, or identifier data — see `PRIVACY.md`
-  §2). The IP address is processed only transiently at the transport layer to
-  serve a request the user initiated by opening the app online, on the
-  Art. 6(1)(f) legitimate-interest basis of keeping safety-critical computation
-  logic current (H-019); no server-side retention or profiling is performed or
-  intended by AeroDash. Where the household-activity exemption (Art. 2(2)(c))
-  applies to a private pilot, this processing falls outside GDPR scope, as noted
-  in `PRIVACY.md` §3.1.
-- **Transparency (GDPR Art. 13/5(1)(a)).** Satisfied by the `PRIVACY.md`
-  correction mandated in the Decision — primarily the new **§7 Network
-  Activity**, which discloses the request directly, supported by the scoped §1
-  overview and the §8 (Third-Party Dependencies) / §9 (Security Measures)
-  cross-references.
-- Closes data-privacy audit finding **DP-018** (v0.3.0-alpha, 2026-05-08).

@@ -7,16 +7,14 @@ Feature: Detect CG migration during fuel burn-off
     Given the fleet holds the synthetic Mass & Balance test aircraft
     And the pilot starts a new flight preparation
 
-  # @E2E-B-002@ (FROM: @UJ-B-001@)
-  @UJ-B-001 @phase-B @e2e @cg-migration @module-mb
+  @phase-B @e2e @cg-migration @module-mb
   Scenario: Fuel burn-off reveals aft CG migration beyond envelope limit
     When the pilot selects aircraft "D-EAMB"
     And loads heavy rear passengers and aft baggage
     And adds a full fuel load
     Then a critical notification "CG Migration Limit Exceeded" is displayed
 
-  # @E2E-B-003@ (FROM: @UJ-B-001@)
-  @UJ-B-001 @phase-B @e2e @cg-migration @module-mb
+  @phase-B @e2e @cg-migration @module-mb
   Scenario: Redistributing baggage forward resolves CG migration violation
     When the pilot selects aircraft "D-EAMB"
     And loads heavy rear passengers and aft baggage

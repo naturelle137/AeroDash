@@ -1,5 +1,4 @@
 <template>
-  <!-- @IMP-AC-VIEW-BAT-001@ (FROM: @REQ-AD-020@, @REQ-AD-021@) -->
   <div class="battery-pack-section">
     <p class="section-intro">
       Electric aircraft replace the fuel tank with a battery pack. Enter the nameplate usable
@@ -73,7 +72,6 @@ import { computed } from 'vue'
 import type { AircraftProfileBatteryPack } from '@/core/adapters/aircraft.schema'
 import DecimalInput from '@/shared/components/DecimalInput.vue'
 
-// @IMP-AC-VIEW-BAT-002@ (FROM: @REQ-AD-020@, @REQ-AD-021@)
 
 const props = defineProps<{
   modelValue: AircraftProfileBatteryPack

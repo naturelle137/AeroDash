@@ -1,7 +1,5 @@
 # Aircraft Profile Exchange File Format
 
-<!-- @DES-ARCH-010@ (FROM: @REQ-AC-004@) -->
-
 **Version:** 1.0
 **Date:** 2026-04-10
 **Status:** Approved
@@ -22,7 +20,7 @@ The format is defined by and validated against the canonical
 
 | Constraint | Rationale |
 | :--------- | :-------- |
-| Imported profile always forced to `status = 'Draft'` | Prevents unverified data being used in safety calculations without pilot review |
+| Imported profile always forced to `status = 'draft'` | Prevents unverified data being used in safety calculations without pilot review |
 | Imported profile always receives a new UUID | Prevents ID collisions with existing fleet entries |
 | Malformed JSON → `ImportError`, fleet unmodified | Atomicity: fleet is never partially updated |
 | Zod validation failure → `ImportError`, fleet unmodified | All safety-critical fields must pass schema constraints before persistence |
@@ -37,52 +35,7 @@ The format is defined by and validated against the canonical
 
 The file is a single JSON object mapping directly to an `AircraftProfile` document.
 
-```json
-{
-  "id": "<uuid-v4>",
-  "schemaVersion": 1,
-  "status": "Verified",
-  "ownerId": "<user-identifier>",
-  "registration": "D-EBPN",
-  "manufacturer": "Tecnam",
-  "model": "P2008 JC",
-  "icaoTypeDesignator": "P208",
-  "sourceUnit": "kg",
-  "referenceDatumDescription": "Leading edge of wing",
-  "referenceDatumLocation": "Station 0",
-  "shareCode": null,
-  "passengerProfiles": [],
-  "weighingReports": [
-    { "bem": 432.0, "emptyCg": 1.882, "weighingDate": "2025-01-01", "validFrom": "2025-01-01" }
-  ],
-  "loadPoints": [
-    {
-      "name": "Pilot", "kind": "occupant", "arm": 1.8, "armLookup": [], "operationalLimit": 110,
-      "defaultQuantity": 0, "unit": "kg", "allowableCategories": null, "fuelTank": null
-    }
-  ],
-  "certificationCategories": [
-    {
-      "category": "Normal", "mtom": 650, "maxZeroFuelMass": null, "graphType": "arm",
-      "envelope": [
-        { "armOrMoment": 1.841, "mass": 432 }, { "armOrMoment": 1.841, "mass": 650 },
-        { "armOrMoment": 1.978, "mass": 650 }, { "armOrMoment": 1.978, "mass": 432 }
-      ]
-    }
-  ],
-  "costPerHour": 185.5,
-  "fuelCostIncluded": false,
-  "checklistScaffold": [{ "title": "Pre-flight", "items": ["Check fuel", "Check oil"] }],
-  "performanceProfiles": [
-    {
-      "flightPhase": "TakeoffDistance50ft",
-      "dataPoints": [
-        { "distance": 380, "mass": 550, "pressureAltitude": 0, "temperature": 15 }
-      ]
-    }
-  ]
-}
-```
+The executable format is `AircraftProfileSchema` in `frontend/src/core/adapters/aircraft.schema.ts`; use the existing test fixtures for synthetic examples. No example here is operational aircraft data.
 
 ## Required Fields
 
@@ -99,7 +52,7 @@ The file is a single JSON object mapping directly to an `AircraftProfile` docume
 | `referenceDatumDescription` | `string` | Non-empty |
 | `referenceDatumLocation` | `string` | Non-empty |
 | `shareCode` | `string \| null` | Nullable |
-| `status` | `'Draft' \| 'Verified'` | Overridden to `'Draft'` on import |
+| `status` | `'draft' \| 'verified'` | Overridden to `'draft'` on import |
 | `weighingReports` | `array` | Minimum 1 entry |
 | `loadPoints` | `array` | Max 20; each entry must satisfy arm XOR armLookup |
 | `certificationCategories` | `array` | Min 1; each envelope 4–20 points |
@@ -121,7 +74,7 @@ The file is a single JSON object mapping directly to an `AircraftProfile` docume
 
 1. **JSON parse** — malformed JSON throws `ImportError`
 2. **Zod validation** — `AircraftProfileSchema.safeParse`. Failure throws `ImportError`
-3. **Status override** — `status` forced to `'Draft'`
+3. **Status override** — `status` forced to `'draft'`
 4. **ID reassignment** — new UUID v4 assigned to prevent collision
 5. **Return** — caller persists via `fleetRepository.create()`
 

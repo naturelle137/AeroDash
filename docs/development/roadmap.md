@@ -1,109 +1,28 @@
-# AeroDash Roadmap
+# AeroDash roadmap
 
-> **Source of truth:** [GitHub Milestones](https://github.com/naturelle137/AeroDash/milestones?state=all)
-> — this page is a read-only overview. Scope, priorities, and timelines are managed in the milestones.
+AeroDash’s goal is an understandable, aircraft-specific flight preparation workflow: M&B, performance, endurance and a usable decision summary. [Requirements](../requirements/README.md) retain the full product intent. Milestone numbers describe sequencing, not proof of completion; use [GitHub milestones](https://github.com/naturelle137/AeroDash/milestones?state=all) for active work.
 
-| Status | Meaning     |
-| :----: | :---------- |
-|   ✅   | Done        |
-|   🟡   | In progress |
-|   🔲   | Planned     |
+## Available workflows and limits
 
-## Evidence snapshot — 2026-11-12
+At the docs-reset baseline `4aaba7e` (2026-11-12), source includes a local fleet wizard/editor, IndexedDB persistence, draft/verified profiles with provenance and expiry, JSON exchange, configurable occupant occupancy, and an integrated M&B view with fuel-burn/envelope calculations. The latest base also repairs mobile wizard step visibility.
 
-The latest published release is [v0.3.0-alpha](https://github.com/naturelle137/AeroDash/releases/tag/v0.3.0-alpha),
-explicitly a prerelease. v0.2.0-alpha was also published; publication does not
-prove completion of every requirement or journey listed below.
-[v0.4.0-alpha milestone 5](https://github.com/naturelle137/AeroDash/milestone/5)
-is open (22 open / 45 closed issues at this snapshot); there is no v0.4 release.
-Issue counts are scope information, not acceptance evidence.
+Historical integrated [M&B evidence](mb-qa-293.md) and [occupancy evidence](../testing/evidence/optional-occupancy/README.md) use synthetic aircraft. They do not establish aircraft-specific POH validation or a current-head pass. Performance UI is still a placeholder even though interpolation, extrapolation and safety-factor core modules exist. Missing-distance estimation (#301) is not implemented; its earlier PR was closed unmerged. Weather and endurance cards are also placeholders; airport integration, briefing export and sync remain future scope; requirements for them remain future obligations.
 
-On develop `2c5447c4782aa921cd850aa314886b69cad8672f`, safety repairs
-[#470](https://github.com/naturelle137/AeroDash/pull/470) and
-[#471](https://github.com/naturelle137/AeroDash/pull/471) are integrated and the
-enabled Chromium suite passes 22 scenarios in blocking CI, including all seven
-critical M&B math scenarios on a synthetic Draft seed and the six-step wizard.
-Decimal (A-005/A-006) and category-switch (A-001) scenarios are enabled by
-[#294](https://github.com/naturelle137/AeroDash/issues/294) follow-up; acceptance
-stays partial until they pass in integrated blocking CI. See the
-[QA293 evidence table](mb-qa-293.md) and the earlier [QA204 baseline](mb-qa-204.md).
-The Performance UI is still a placeholder;
-core tests do not establish an integrated performance preparation journey.
+## Next product delivery
 
----
+1. Deliver [#311](https://github.com/naturelle137/AeroDash/issues/311): select an aircraft with complete, pilot-checked POH tables, enter mass, pressure altitude and temperature, and inspect TOR/TOD/LR/LD. Restrict this first slice to all four tables’ supported envelope. Invalid, Draft, incomplete or out-of-range data blocks results. Show raw table distances, not operational required distances or flight approval. Existing fleet JSON import and verification supply the data; explain missing data and how to supply it. Supply no default performance tables or invented operational values.
+2. Extend that visible workflow with #302 manual runway/surface input, #304 QNH-to-pressure-altitude, #305 source-backed correction selection and #300 operational factors, runway margin and alerts. Correction fallbacks never replace missing aircraft distance tables.
+3. Add #301 explicitly labelled estimates and #420 extrapolation/acknowledgement, with source review and complete UI tests. The first slice has no silent clamping or implicit acknowledgement.
 
-## ✅ [v0.1.0-pre-alpha — Project Foundation](https://github.com/naturelle137/AeroDash/milestone/1)
+Every delivery includes relevant core/component tests, a real browser flow with mobile/desktop evidence, local gates, one independent review and green CI. A core-only PR does not complete a pilot workflow. Synthetic fixtures prove software behavior, not aviation accuracy; actual aircraft support requires applicable POH/AFM references and cases. The CEO evaluates usability, not aviation correctness.
 
-Establish the core project structure, governance, and developer experience.
-LICENSE, CONTRIBUTING, README, linting, CI stubs, and Gitflow branching.
+## Further capabilities
 
----
+- **Offline preparation:** usable fuel/endurance planning, landing mass, obstacle constraints and a consolidated Go/No-Go advisory; native electric-aircraft energy/endurance support.
+- **Weather and airports:** METAR/TAF, time/location forecasts, source/timestamp display, manual overrides, runway conditions and wind-limit warnings; graceful offline behavior.
+- **Briefing pack:** compact PDF/print M&B and performance output with unverified/estimated markers, warnings and acknowledgement gates.
+- **Connected pilot:** OIDC authentication, personal/organization workspaces, role-based permissions, sharing and offline-first synchronization. No backend is shipped by the current frontend-only app.
+- **Usability:** dark mode, touch-friendly controls, small-screen layouts, contextual help and cross-device offline verification.
+- **Release maturity:** reliable integrated workflows, domain-reference validation, security testing and bilingual user help. A release number does not imply certification or approved aviation data.
 
-## 🟡 [v0.2.0-alpha — Walking Skeleton: Mass & Balance](https://github.com/naturelle137/AeroDash/milestone/2)
-
-Prove the safety-critical math engine with a fully traceable Mass & Balance
-computation pipeline. Three predefined aircraft, strict P1/UI separation,
-automated test vectors passing in CI.
-
----
-
-## 🟡 [v0.3.0-alpha — Fleet Management (Local Persistence)](https://github.com/naturelle137/AeroDash/milestone/3)
-
-User-managed aircraft fleet persisted in IndexedDB with immutable profile
-versioning, Draft/Verified status, PWA offline capability, and unit switching.
-
----
-
-## 🟡 [v0.4.0-alpha — Performance Math Core (POH Distance Calculations)](https://github.com/naturelle137/AeroDash/milestone/5)
-
-Bilinear interpolation of POH performance tables for T/O and landing
-distances, safety factor application, extrapolation controls, and manual
-airport entry with surface condition selection.
-
----
-
-## 🔲 [v0.5.0-alpha — Fuel Endurance & Offline Go/No-Go](https://github.com/naturelle137/AeroDash/milestone/6)
-
-Complete the offline pre-flight vertical slice: fuel endurance planning,
-landing mass calculation, obstacle constraints, and an aggregated Go/No-Go
-decision summary.
-
----
-
-## 🔲 [v0.6.0-alpha — Online Integrations (Weather & Airport)](https://github.com/naturelle137/AeroDash/milestone/7)
-
-METAR/TAF and ICAO airport data with explicit data provenance, surface
-condition inference from precipitation, crosswind limit detection, and graceful
-offline degradation.
-
----
-
-## 🔲 [v0.7.0-alpha — Export & Digital Briefing Pack](https://github.com/naturelle137/AeroDash/milestone/11)
-
-Client-side PDF/print export of the complete flight preparation with
-`[UNVERIFIED]` markers, disclaimer rendering, notification transcription, and
-an export gate requiring explicit pilot acknowledgment.
-
----
-
-## 🔲 [v0.8.0-alpha — Sync & Auth (Connected Pilot)](https://github.com/naturelle137/AeroDash/milestone/12)
-
-Backend API, OIDC authentication, RBAC, offline-first cloud sync, profile
-schema revalidation on ingestion, and share-code generation for ad-hoc fleet
-sharing.
-
----
-
-## 🔲 [v0.9.0-beta — Pre-Release Polishing](https://github.com/naturelle137/AeroDash/milestone/9)
-
-UX hardening for cockpit use: dark mode, 44 px touch targets, 320 px
-responsive layout, cross-device offline verification, contextual tooltips, and
-a full trace-registry completeness audit.
-
----
-
-## 🔲 [v1.0.0 — Production Release (Safety Baseline)](https://github.com/naturelle137/AeroDash/milestone/10)
-
-Formal V&V execution, 100 % bi-directional traceability via shtracer, safety
-and penetration audits, bilingual EN/DE user manual and legal disclaimers, and
-public production release.
+Trainer/instructor ideas #331–337 remain far-future backlog outside active milestones; the [discovery proposal](../journeys/discovery/230-training-personas.md) is not a delivered training mode. Necessary security/privacy fixes remain owned separately (#377); cosmetic tooling and release research do not displace performance delivery.

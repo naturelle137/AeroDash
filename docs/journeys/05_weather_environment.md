@@ -4,8 +4,6 @@ Focus: Meteorological data integration and surface condition logic.
 
 ---
 
-<!-- @UJ-E-001@ (FROM: @REQ-WX-001@, @REQ-WX-003@, @REQ-WX-004@, @REQ-WX-005@, @REQ-WX-006@, @REQ-AP-004@) -->
-
 ## <a name="UJ-E-001"></a>UJ-E-001: The "Rainy Day" Scenario (WX Integration)
 
 **Persona:** Pilot
@@ -27,8 +25,6 @@ Focus: Meteorological data integration and surface condition logic.
 
 **Outcome:** The pilot benefits from automated, safety-conservative surface defaults based on real-world METAR data, but retains full PIC authority to override inaccurate or outdated weather conditions. The distinction between "Wet" and "Standing Water" is safety-critical — the correction factor difference can be the difference between Go and No-Go.
 
-<!-- @UJ-E-002@ (FROM: @REQ-WX-003@, @REQ-WX-007@, @REQ-WX-009@) -->
-
 ## <a name="UJ-E-002"></a>UJ-E-002: The "Crosswind Challenge"
 
 **Persona:** Pilot
@@ -49,8 +45,6 @@ Focus: Meteorological data integration and surface condition logic.
 
 **Outcome:** The pilot avoids a potential loss-of-control situation during the takeoff roll by discovering that the crosswind exceeds the aircraft's structural limits, and resolves it by selecting a more favorable runway.
 
-<!-- @UJ-E-003@ (FROM: @REQ-PF-010@, @REQ-PF-011@, @REQ-PF-012@) -->
-
 ## <a name="UJ-E-003"></a>UJ-E-003: Deep Winter Departure
 
 **Persona:** Pilot
@@ -67,8 +61,6 @@ Focus: Meteorological data integration and surface condition logic.
 | **Result Review**     | Reviews the calculated takeoff distance. | "The distance isn't as short as I expected. The system seems to be holding back." | The system displays a distance that is no lower than the AFM value at -25°C for the given weight and altitude. The result is flagged as extrapolated. The system requires explicit acknowledgment. |
 
 **Outcome:** The pilot departs safely with realistic expectations. The system prevents aggressive mathematical optimization below mapped limits by flooring the result at the best documented AFM value.
-
-<!-- @UJ-E-004@ (FROM: @REQ-AD-017@, @REQ-WX-009@) -->
 
 ## <a name="UJ-E-004"></a>UJ-E-004: Wind Limit Classification (Demonstrated vs. Limit)
 

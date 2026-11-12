@@ -1,5 +1,4 @@
 <template>
-  <!-- @IMP-AC-VIEW-007@ (FROM: @REQ-AC-001@, @REQ-AC-004@, @REQ-AC-005@, @REQ-AC-006@) -->
   <div class="fleet-management-view">
     <h1>Aircraft Fleet Management</h1>
 
@@ -71,7 +70,6 @@ import { useFleetStore } from '../stores/fleet.store'
 import { importProfileFromJson, validateImportFile, ImportError } from '../services/profile.import'
 import FleetList from '../components/FleetList.vue'
 
-// @IMP-AC-VIEW-008@ (FROM: @REQ-AC-001@, @REQ-AC-004@, @REQ-AC-006@)
 
 const fleetStore = useFleetStore()
 const router = useRouter()

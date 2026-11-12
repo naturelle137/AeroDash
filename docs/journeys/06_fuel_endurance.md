@@ -4,8 +4,6 @@ Focus: Fuel management, endurance calculations, and fuel type interactions.
 
 ---
 
-<!-- @UJ-F-001@ (FROM: @REQ-FE-002@, @REQ-FE-003@, @REQ-FE-005@) -->
-
 ## <a name="UJ-F-001"></a>UJ-F-001: The "Long Haul" (Endurance Check)
 
 **Persona:** Pilot
@@ -25,8 +23,6 @@ Focus: Fuel management, endurance calculations, and fuel type interactions.
 | **Adjustment**        | Reduces the planned flight time to 3 h 00 m (adding a fuel stop en route). | "Okay, I'll plan a stop halfway to be safe."    | The warning clears. The planned flight time including reserves is now within the available endurance.                            |
 
 **Outcome:** The pilot avoids departing on a flight where unexpected headwinds or diversions could drain the required fuel reserves, guided by the system's endurance calculation.
-
-<!-- @UJ-F-002@ (FROM: @REQ-AD-003@, @REQ-FE-001@, @REQ-FE-004@, @REQ-MB-002@) -->
 
 ## <a name="UJ-F-002"></a>UJ-F-002: Fuel Type Density Mix-up
 

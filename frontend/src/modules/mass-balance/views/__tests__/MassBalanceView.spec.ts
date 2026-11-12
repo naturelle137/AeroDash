@@ -1,5 +1,3 @@
-// @UT-MB-VIEW-021@ (FROM: @IMP-MB-UI-FLEET-002@, @IMP-MB-UI-008@)
-
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 import { mount } from '@vue/test-utils'

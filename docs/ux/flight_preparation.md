@@ -40,7 +40,7 @@ give pilots an immediate mental model of the complete pre-flight workflow.
 
 1. The page mounts with `store.uiState = 'INITIAL'`.
 2. Section 01 (Aircraft) is always visible and interactive. The pilot selects an
-   aircraft from the catalogue dropdown.
+   aircraft from the persisted fleet dropdown.
 3. `onAircraftSelected` is called: the selected profile is validated against
    `AircraftContextSchema` (Zod). If validation fails, an inline `ERROR_CRITICAL`
    alert is shown inside section 01. If it passes, `store.loadProfile(profile)` is
@@ -74,7 +74,7 @@ locked. The pilot can select a different aircraft to retry.
 
 Always visible. Contains:
 
-- **Aircraft select dropdown:** Lists all aircraft in `AIRCRAFT_CATALOGUE`.
+- **Aircraft select dropdown:** Lists persisted fleet profiles, grouped by verification status.
 - **Category dropdown:** Shown only when the selected aircraft has more than one
   certification category. Disabled while `viewModel.inputsDisabled` is true.
 - **Selected aircraft label:** Displayed in the section 01 header once an aircraft is

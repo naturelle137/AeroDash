@@ -4,8 +4,7 @@
  * The delete control on the Fleet list page must keep
  * firing its confirmation dialog after the pilot returns from the editor via
  * the browser back button or after the page is restored from the browser's
- * bfcache (iOS Safari swipe-back gesture). E2E trace tags live in the
- * `.feature` file only (STC §B.3 / §3.4).
+ * bfcache (iOS Safari swipe-back gesture).
  */
 
 import { expect } from '@playwright/test'

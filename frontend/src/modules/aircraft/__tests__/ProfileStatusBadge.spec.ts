@@ -5,7 +5,6 @@
  * @see frontend/src/modules/aircraft/components/ProfileStatusBadge.vue
  */
 
-// @UT-AC-VIEW-070@ (FROM: @IMP-AC-VIEW-004@)
 
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
@@ -17,13 +16,11 @@ import ProfileStatusBadge from '../components/ProfileStatusBadge.vue'
  */
 
 describe('ProfileStatusBadge — Verified status', () => {
-  // @UT-AC-VIEW-070@ (FROM: @IMP-AC-VIEW-004@)
   it('renders "Verified" label for Verified status', () => {
     const wrapper = mount(ProfileStatusBadge, { props: { status: 'verified' } })
     expect(wrapper.text()).toBe('Verified')
   })
 
-  // @UT-AC-VIEW-071@ (FROM: @IMP-AC-VIEW-004@)
   it('applies status-verified CSS class for Verified status', () => {
     const wrapper = mount(ProfileStatusBadge, { props: { status: 'verified' } })
     const badge = wrapper.find('[role="status"]')
@@ -31,19 +28,16 @@ describe('ProfileStatusBadge — Verified status', () => {
     expect(badge.classes()).not.toContain('status-draft')
   })
 
-  // @UT-AC-VIEW-072@ (FROM: @IMP-AC-VIEW-004@)
   it('sets correct aria-label for Verified status', () => {
     const wrapper = mount(ProfileStatusBadge, { props: { status: 'verified' } })
     expect(wrapper.find('[role="status"]').attributes('aria-label')).toBe('Profile status: Verified')
   })
 
-  // @UT-AC-VIEW-073@ (FROM: @IMP-AC-VIEW-004@)
   it('sets informative title for Verified status', () => {
     const wrapper = mount(ProfileStatusBadge, { props: { status: 'verified' } })
     expect(wrapper.find('[role="status"]').attributes('title')).toContain('safe for calculations')
   })
 
-  // @UT-AC-VIEW-074@ (FROM: @IMP-AC-VIEW-004@)
   it('has role="status" for accessibility', () => {
     const wrapper = mount(ProfileStatusBadge, { props: { status: 'verified' } })
     expect(wrapper.find('[role="status"]').exists()).toBe(true)
@@ -51,13 +45,11 @@ describe('ProfileStatusBadge — Verified status', () => {
 })
 
 describe('ProfileStatusBadge — Draft status', () => {
-  // @UT-AC-VIEW-075@ (FROM: @IMP-AC-VIEW-004@)
   it('renders "Draft" label for Draft status', () => {
     const wrapper = mount(ProfileStatusBadge, { props: { status: 'draft' } })
     expect(wrapper.text()).toBe('Draft')
   })
 
-  // @UT-AC-VIEW-076@ (FROM: @IMP-AC-VIEW-004@)
   it('applies status-draft CSS class for Draft status', () => {
     const wrapper = mount(ProfileStatusBadge, { props: { status: 'draft' } })
     const badge = wrapper.find('[role="status"]')
@@ -65,13 +57,11 @@ describe('ProfileStatusBadge — Draft status', () => {
     expect(badge.classes()).not.toContain('status-verified')
   })
 
-  // @UT-AC-VIEW-077@ (FROM: @IMP-AC-VIEW-004@)
   it('sets correct aria-label for Draft status', () => {
     const wrapper = mount(ProfileStatusBadge, { props: { status: 'draft' } })
     expect(wrapper.find('[role="status"]').attributes('aria-label')).toBe('Profile status: Draft')
   })
 
-  // @UT-AC-VIEW-078@ (FROM: @IMP-AC-VIEW-004@)
   it('sets safety warning in title for Draft status', () => {
     const wrapper = mount(ProfileStatusBadge, { props: { status: 'draft' } })
     const title = wrapper.find('[role="status"]').attributes('title')
@@ -81,7 +71,6 @@ describe('ProfileStatusBadge — Draft status', () => {
 })
 
 describe('ProfileStatusBadge — expired verification (REQ-AC-007)', () => {
-  // @UT-AC-VIEW-181@ (FROM: @IMP-AC-VIEW-004@)
   it('renders an "Expired" badge with the critical class when a verified profile is expired', () => {
     const wrapper = mount(ProfileStatusBadge, { props: { status: 'verified', expired: true } })
     const badge = wrapper.find('[role="status"]')
@@ -92,7 +81,6 @@ describe('ProfileStatusBadge — expired verification (REQ-AC-007)', () => {
     expect(badge.attributes('title')).toContain('expired')
   })
 
-  // @UT-AC-VIEW-182@ (FROM: @IMP-AC-VIEW-004@)
   it('ignores the expired flag for a Draft (only verified can expire)', () => {
     const wrapper = mount(ProfileStatusBadge, { props: { status: 'draft', expired: true } })
     expect(wrapper.text()).toBe('Draft')

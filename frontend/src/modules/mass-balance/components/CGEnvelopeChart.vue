@@ -124,7 +124,6 @@ const xStep = computed(() => (xTicks.value.length >= 2 ? xTicks.value[1]! - xTic
 const yStep = computed(() => (yTicks.value.length >= 2 ? yTicks.value[1]! - yTicks.value[0]! : 1))
 
 // ─── Derived SVG geometry ──────────────────────────────────────────────────
-// @IMP-MB-UI-001@ (FROM: @REQ-UI-019@)
 
 const envelopePts = computed(() =>
   props.envelope.map((ep) => `${sx(ep.armOrMoment)},${sy(ep.mass)}`).join(' '),
@@ -155,7 +154,6 @@ const cgMarkers = computed(() => {
   ]
 })
 
-// @IMP-MB-UI-002@ (FROM: @REQ-UI-010@)
 /** SVG marker length in user-space pixels — matches markerWidth on #cg-arrow. */
 const ARROW_LENGTH_PX = 8
 /** Below this on-screen path length, the arrowhead is suppressed. The line
@@ -192,7 +190,6 @@ const migrationD = computed(() => {
 const showMigrationArrow = computed(() => migrationLengthPx.value >= ARROW_MIN_PX)
 
 // ─── Severity-driven palette ───────────────────────────────────────────────
-// @IMP-MB-UI-003@ (FROM: @REQ-UI-018@)
 
 const isCritical = computed(() => props.severity === 'critical')
 const isNeutral = computed(() => props.severity === null)
@@ -235,7 +232,6 @@ const pathDash = computed(() => (isCritical.value ? '6,4' : isNeutral.value ? '4
 const pathStroke = computed(() => (isCritical.value ? 3 : 2))
 
 // ─── Colour-independent severity signalling ─────────────────────────────────
-// @IMP-MB-UI-009@ (FROM: @REQ-UI-019@)
 // DES-UX §3.3: colour must never be the sole differentiator of a safety
 // state. Each severity maps to a distinct marker SHAPE so SAFE, WARNING, and
 // CRITICAL stay tellable apart under cockpit glare and for colour-blind

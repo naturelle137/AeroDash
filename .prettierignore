@@ -1,5 +1,3 @@
-.tools/shtracer
-.tools/.shtracer.md
 .logs
 reports
 node_modules

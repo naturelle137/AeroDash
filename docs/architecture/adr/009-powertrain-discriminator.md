@@ -27,31 +27,6 @@ The goal of this ADR is to extend the aircraft data model so that electric
 aircraft are represented on their own terms while leaving the combustion
 majority untouched.
 
-## Considered Options
-
-* **Option 1 — Single schema, optional battery pack, optional fuel tanks.**
-  Add both `fuelTank` (already present) and an optional `batteryPack` field.
-  No discriminator. Consumers decide at render time whether a profile is
-  electric by inspecting whether a battery pack is present. Rejected because
-  it pushes the classification into every consumer and makes the "combustion
-  profile with a stray battery pack" state representable.
-
-* **Option 2 — Zod discriminated union.** Split `AircraftProfileSchema` into
-  `CombustionAircraftProfileSchema` and `ElectricAircraftProfileSchema`
-  sharing a `powertrain` literal discriminator. Type-level guarantees are
-  maximal. Rejected because `AircraftProfile` already has 15+ optional sister
-  fields (wind limits, surface conditions, performance profiles, checklist
-  scaffolds, safety factors…) and duplicating them across two branches
-  inflates the surface area dramatically for a change that fundamentally
-  only affects two fields.
-
-* **Option 3 — Flat discriminator + `superRefine` cross-field guard
-  (chosen).** Add `powertrain: z.enum(['combustion', 'electric']).default('combustion')`
-  and `batteryPack: BatteryPackSchema.optional()`. Cross-field consistency
-  (battery pack required iff electric, fuel tank forbidden for electric,
-  reserve floor strictly below usable energy) is enforced via `superRefine`.
-  The rest of the schema is untouched.
-
 ## Decision
 
 We take **Option 3**.
@@ -134,11 +109,3 @@ catalogue or fleet store.
   isn't strictly necessary at v1.
 * Adding a third powertrain later (e.g. hybrid) will need its own
   cross-field guard rather than a free branch.
-
-## Compliance
-
-Not a safety-critical calculation change. The discriminator threads
-cleanly through the Mass & Balance contract (`AircraftContext.powertrain`)
-so P1 code can branch notification vocabulary without importing catalogue
-data. All added schema fields have Zod validation; electric profiles
-cannot bypass the cross-field guards through the import/export path.

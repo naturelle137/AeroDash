@@ -23,7 +23,6 @@ export function computeMassBalanceCore(input: MathCoreInput): MathCoreResult {
   let zeroFuelMass = input.basicEmptyMass
   let zeroFuelMoment = input.basicEmptyMass * input.emptyCenterOfGravity
 
-  // @IMP-MB-CORE-001@ (FROM: @REQ-MB-009@)
   for (const s of input.stations) {
     if (s.armLookup.length === 0 && s.arm === null) {
       throw new Error(
@@ -55,7 +54,6 @@ export function computeMassBalanceCore(input: MathCoreInput): MathCoreResult {
     })
   }
 
-  // @IMP-MB-CORE-002@ (FROM: @REQ-MB-008@)
   // Pre-resolve arm and usable mass for each fuel station.
   // Unusable fuel is already included in basicEmptyMass, so only usable fuel is added.
   const resolvedFuel = input.fuelStations.map((fs) => {
@@ -76,33 +74,28 @@ export function computeMassBalanceCore(input: MathCoreInput): MathCoreResult {
     takeoffMoment += rf.usableMass * rf.resolvedArm
   }
 
-  // @IMP-MB-CORE-005@ (FROM: @REQ-MB-008@)
   const takeoffCenterOfGravityPoint: CgPoint = {
     arm: takeoffMoment / takeoffMass,
     mass: takeoffMass,
     moment: takeoffMoment,
   }
 
-  // @IMP-MB-CORE-003@ (FROM: @REQ-MB-005@)
   if (takeoffMass > input.maxTakeoffMass) {
     violations.push({
       type: 'MTOM_EXCEEDED',
     })
   }
 
-  // @IMP-MB-CORE-004@ (FROM: @REQ-MB-008@)
   // Landing Mass = Zero Fuel Mass (all usable fuel burned).
   const landingMass = zeroFuelMass
   const landingMoment = zeroFuelMoment
 
-  // @IMP-MB-CORE-006@ (FROM: @REQ-MB-008@)
   const landingCenterOfGravityPoint: CgPoint = {
     arm: landingMoment / landingMass,
     mass: landingMass,
     moment: landingMoment,
   }
 
-  // @IMP-MB-CORE-007@ (FROM: @REQ-MB-008@, @REQ-FE-004@)
   // Compute intermediate CG waypoints for multi-tank burn sequences.
   // Each named sequence defines the order in which tanks are drained.
   // Draining each tank (except the last) produces an intermediate CG point.
@@ -150,7 +143,6 @@ export function computeMassBalanceCore(input: MathCoreInput): MathCoreResult {
   for (const wp of burnSequenceWaypoints) migrationPath.push(wp)
   migrationPath.push({ ...landingCenterOfGravityPoint, label: 'Landing' })
 
-  // @IMP-MB-CORE-008@ (FROM: @REQ-MB-006@, @REQ-MB-004@, @REQ-MB-011@)
   // CG_OUT_OF_ENVELOPE fires only when the CG arm (or moment) violates the
   // horizontal limits of the certified envelope — it is NOT raised for a
   // mass-only violation already covered by MTOM_EXCEEDED. When the takeoff
@@ -180,7 +172,6 @@ export function computeMassBalanceCore(input: MathCoreInput): MathCoreResult {
       violations.push({ type: 'CG_OUT_OF_ENVELOPE' })
     }
   } else {
-    // @IMP-MB-CORE-010@ (FROM: @REQ-MB-011@, @REQ-FE-004@)
     // Check each segment of the migration path against the envelope.
     // A violation occurs when any waypoint is outside the envelope OR when
     // the line segment connecting two consecutive waypoints crosses the

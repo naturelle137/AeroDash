@@ -7,13 +7,7 @@ export default mergeConfig(
   defineConfig({
     test: {
       environment: 'jsdom',
-      // Scripts/trace CLI tests sit alongside the dev tooling under
-      // `scripts/trace/__tests__/` and exercise pure-node modules; they
-      // share the same unit-test gate but contribute no coverage to the
-      // `src/` thresholds (coverage.include only collects from `src/`).
-      // The `eslint-rules/__tests__/` slice covers the in-repo custom
-      // ESLint rules (e.g. `aerodash/no-e2e-tag-in-ts`).
-      include: ['src/**/*.spec.ts', 'scripts/**/*.spec.ts', 'eslint-rules/**/*.spec.ts'],
+      include: ['src/**/*.spec.ts', 'scripts/**/*.spec.ts'],
       exclude: [
         ...configDefaults.exclude,
         'tests/e2e/**',

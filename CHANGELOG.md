@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Engineering
+
+- Simplify requirements into atomic EARS obligations, consolidate contributor/docs guidance and remove mandatory trace tags, registries and trace-only gates while retaining functional, security and calculation safeguards (refs #488, #360).
+
+
 ### Added
 
 - CI: `CI Required` fail-closed aggregate on every PR to `develop`/`main` and on push to both; adds `lint-markdown` compatibility job, `Integration Tests`, explicit mutation-applicability detector, and reuses security scanning via the same run. Post-merge `playwright.yml` removed (push now covered by `ci.yml`) (refs #449)

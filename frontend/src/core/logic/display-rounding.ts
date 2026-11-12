@@ -9,7 +9,6 @@
  * @see REQ-UQ-004
  */
 
-// @IMP-SYS-CORE-007@ (FROM: @REQ-UQ-004@)
 
 /**
  * Apply conservative upward rounding to a mass or distance value and
@@ -57,7 +56,6 @@ export function formatArm(value: number, decimals: number = 3): string {
   return value.toFixed(decimals)
 }
 
-// @IMP-SYS-CORE-008@ (FROM: @REQ-UQ-003@)
 /**
  * Return the display decimal precision for a given unit symbol.
  *

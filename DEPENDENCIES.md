@@ -60,7 +60,6 @@ Before adding any new dependency to the project, verify:
 | husky | ^9.x | MIT | Git hooks (pre-commit, commit-msg) | Dev |
 | @commitlint/cli | ^19.x | MIT | Commit message linting | Dev |
 | @commitlint/config-conventional | ^19.x | MIT | Conventional commit rules | Dev |
-| shtracer | submodule | MIT | Traceability engine | Dev |
 
 ### Assets
 
@@ -78,8 +77,6 @@ Once AeroDash has runtime dependencies (`src/`), automated license checking will
 
 - **CI (GitHub Action):** `license-checker --failOn "GPL-2.0;SSPL;UNLICENSED"` on PRs targeting `main`.
 - **Not a Husky hook:** License scanning walks the full dependency tree — too slow for local pre-push.
-
-See also: [ADR 308-DEV](docs/architecture/adr/308-DEV-traceability-engine.md) for the traceability automation approach.
 
 ## Major-Version & Supply-Chain Policy
 

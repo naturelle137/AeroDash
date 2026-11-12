@@ -25,7 +25,6 @@
  * result.
  */
 
-// @IMP-SYS-SHARED-010@ (FROM: @REQ-SYS-006@, @H-019@)
 
 import { createLogger } from '@/shared/utils/logger'
 

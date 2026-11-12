@@ -69,11 +69,8 @@ describe('comment-discipline / detectForbiddenInComment', () => {
     ])
   })
 
-  it('does not flag shtracer tags (the permitted form)', () => {
-    expect(detectForbiddenInComment('@REQ-SYS-006@')).toEqual([])
-    expect(detectForbiddenInComment('@IMP-MB-CORE-014@ (FROM: @REQ-MB-005@)')).toEqual([])
-    expect(detectForbiddenInComment('@DES-UX-013@')).toEqual([])
-    expect(detectForbiddenInComment('@H-019@')).toEqual([])
+  it('does not flag audit-like fragments of longer identifiers', () => {
+    expect(detectForbiddenInComment('store-UX-013-key')).toEqual([])
   })
 
   it('does not flag plain prose without forbidden patterns', () => {
@@ -124,7 +121,7 @@ describe('comment-discipline / scanSource', () => {
   })
 
   it('returns no findings for a clean source file', () => {
-    const src = ['// @IMP-MB-CORE-014@ (FROM: @REQ-MB-005@)', 'export const ok = 1', ''].join('\n')
+    const src = ['// Keep values finite before conversion.', 'export const ok = 1', ''].join('\n')
     expect(scanSource('frontend/src/ok.ts', src)).toEqual([])
   })
 })

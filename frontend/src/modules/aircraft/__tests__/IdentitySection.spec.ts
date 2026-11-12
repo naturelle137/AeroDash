@@ -6,7 +6,6 @@
  * @see frontend/src/modules/aircraft/components/IdentitySection.vue
  */
 
-// @UT-AC-VIEW-110@ (FROM: @IMP-AC-VIEW-011@, @IMP-AC-VIEW-012@)
 
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
@@ -30,7 +29,6 @@ function makeFields(overrides: Partial<IdentityFields> = {}): IdentityFields {
 }
 
 describe('IdentitySection — rendering', () => {
-  // @UT-AC-VIEW-110@
   it('displays the provided field values', () => {
     const wrapper = mount(IdentitySection, {
       props: { modelValue: makeFields(), sectionId: 'test' },
@@ -39,7 +37,6 @@ describe('IdentitySection — rendering', () => {
     expect((reg.element as HTMLInputElement).value).toBe('D-EBPN')
   })
 
-  // @UT-AC-VIEW-111@
   it('renders registration error when provided', () => {
     const wrapper = mount(IdentitySection, {
       props: {
@@ -51,7 +48,6 @@ describe('IdentitySection — rendering', () => {
     expect(wrapper.text()).toContain('Invalid registration format.')
   })
 
-  // @UT-AC-VIEW-116@
   it('does not render an ownerId input field', () => {
     const wrapper = mount(IdentitySection, {
       props: { modelValue: makeFields(), sectionId: 'test' },
@@ -59,7 +55,7 @@ describe('IdentitySection — rendering', () => {
     expect(wrapper.find('#test-ownerId').exists()).toBe(false)
   })
 
-  // @UT-AC-VIEW-117@ — share code is a future cloud-generated field; never user input
+  //  — share code is a future cloud-generated field; never user input
   it('does not render a share-code input field', () => {
     const wrapper = mount(IdentitySection, {
       props: { modelValue: makeFields({ shareCode: null }), sectionId: 'test' },
@@ -69,7 +65,6 @@ describe('IdentitySection — rendering', () => {
 })
 
 describe('IdentitySection — emits', () => {
-  // @UT-AC-VIEW-113@
   it('emits patched modelValue when registration changes', async () => {
     const fields = makeFields()
     const wrapper = mount(IdentitySection, {
@@ -81,7 +76,7 @@ describe('IdentitySection — emits', () => {
     expect(emitted[emitted.length - 1]?.[0]).toMatchObject({ registration: 'G-ABCD' })
   })
 
-  // @UT-AC-VIEW-118@ — multi-emit batch preserves prior changes (iOS defect regression)
+  //  — multi-emit batch preserves prior changes (iOS defect regression)
   it('preserves prior patches when AircraftModelSelector fires manufacturer + model + icao back-to-back', async () => {
     const wrapper = mount(IdentitySection, {
       props: { modelValue: makeFields({ manufacturer: '', model: '', icaoTypeDesignator: '' }), sectionId: 'test' },
