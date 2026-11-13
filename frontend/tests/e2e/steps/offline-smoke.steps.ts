@@ -21,9 +21,8 @@ Then('the app shell is still visible', async ({ page }) => {
 })
 
 Then('the pilot can navigate to the Mass and Balance page', async ({ page }) => {
-  // Use client-side navigation (click a link) — page.goto() sends a network request
-  // even with a Service Worker, which fails offline. Vue Router handles the navigation
-  // in-memory via the cached app shell (REQ-SYS-001, offline-first).
+  // This smoke covers only same-document navigation. The production offline suite
+  // separately proves service-worker-controlled route reopening and persistence.
   const mbLink = page.getByRole('link', { name: /Flight Prep|Start flight preparation|mass.balance/i }).first()
   await expect(mbLink).toBeVisible()
   await mbLink.click()

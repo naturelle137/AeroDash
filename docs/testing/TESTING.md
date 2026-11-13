@@ -30,3 +30,15 @@ Coverage configuration uses 90% line/branch/function for P1, 80% for P2 and 60% 
 Stryker mutates P1 executable code using `vitest.config.p1.ts`; its fail floor is 70. Inspect `frontend/reports/mutation/mutation.html` for survivors. The CI workflow runs it for P1-affecting changes on develop and on main; do not weaken this functional safeguard.
 
 `CI Required` aggregates lint, Markdown, type-check, unit/coverage, integration, build, Chromium E2E, security and the conditionally required mutation job. Unexpected missing, cancelled, failed or skipped mandatory jobs block integration. Security includes CodeQL, audit, OSV and SBOM; report advisory versus blocking results accurately. Functional checks and source/data safeguards remain after removal of trace tooling.
+
+## Cached offline preparation
+
+Run `pnpm test:offline` to build production and run Chromium at 390px and 1440px.
+The suite accepts the disclaimer, imports and explicitly verifies a synthetic profile,
+saves a manual runway, waits for service-worker control and the Workbox precache,
+then disconnects and reloads real routes. It checks persisted Fleet/runway/M&B input,
+raw in-envelope lookup, stale-result invalidation and reconnection status.
+Screenshots and traces are attached in `frontend/playwright-report/offline/`; CI uploads them
+as `offline-workflow-evidence`. These fixtures prove software wiring only, not
+POH/AFM accuracy, aviation suitability or guaranteed browser storage retention.
+The older offline smoke covers same-document navigation only.

@@ -21,7 +21,8 @@
     "lint:ci:oxlint": "pnpm --filter frontend run lint:ci:oxlint",
     "lint:ci:eslint": "pnpm --filter frontend run lint:ci:eslint",
     "format": "pnpm --filter frontend run format",
-    "lint-staged": "lint-staged"
+    "lint-staged": "lint-staged",
+    "test:offline": "pnpm --filter frontend test:offline"
   },
   "devDependencies": {
     "@commitlint/cli": "^21.2.4",
