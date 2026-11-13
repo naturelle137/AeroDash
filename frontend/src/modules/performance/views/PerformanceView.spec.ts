@@ -242,3 +242,56 @@ it('does not persist pressure-altitude inputs', async () => {
   const again = await mountReady()
   expect(again.text()).toContain('No method selected')
 })
+
+const assessment = (view: VueWrapper) => view.find('[aria-label="Correction source assessment"]')
+const assessButton = (view: VueWrapper) => view.findAll('button').find((item) => item.text() === 'Assess correction sources')!
+
+it('assesses correction sources on request and clears the assessment when any basis changes', async () => {
+  const fleet = useFleetStore()
+  // Synthetic type designator of an inspected manual; the match must never count as applicability.
+  const tecnamLike = { ...testPohAircraft(), icaoTypeDesignator: 'P208',
+    certificationCategories: [{ ...testPohAircraft().certificationCategories[0]!, mtom: 650 }],
+    surfaceConditions: [{ name: 'Grass', takeoffFactor: 1.2, landingFactor: 1.2 }] }
+  fleet.profiles = [tecnamLike]
+  fleet.fleetLoadState = 'READY'
+  vi.spyOn(fleet, 'loadAll').mockResolvedValue()
+  const view = mount(PerformanceView, { global: { stubs: { RouterLink: true } } })
+  await flushPromises()
+  expect(assessButton(view).attributes('disabled')).toBeDefined()
+  await view.get('#performance-aircraft').setValue(tecnamLike.id)
+  await assessButton(view).trigger('click')
+  const text = assessment(view).text()
+  expect(text).toContain('No correction source is available for D-TEST')
+  expect(text).toContain('stores surface factors without source, target or range evidence. They are not used.')
+  expect(text).toContain('Supplement S4 (650 kg)')
+  expect(text).toContain('Written for 630 kg; this profile\'s maximum mass is 650 kg.')
+  expect(text).toContain('No saved, unchanged manual runway')
+  expect(text).toContain('adds metres per knot')
+  expect(text).not.toMatch(/selected source|approved source|×\s?\d/)
+  expect(view.find('[aria-label="Raw POH table distances"]').exists()).toBe(false)
+
+  await field(view, 'Mass (kg)').setValue('900')
+  expect(assessment(view).exists()).toBe(false)
+  await assessButton(view).trigger('click')
+  await view.get('#manual-runway-aerodrome').setValue('TEST')
+  expect(assessment(view).exists()).toBe(false)
+  await assessButton(view).trigger('click')
+  fleet.profiles = [{ ...tecnamLike, registration: 'D-TESU' }]
+  await flushPromises()
+  expect(assessment(view).exists()).toBe(false)
+})
+
+it('refuses source assessment for a Draft or a profile without complete base tables', async () => {
+  const fleet = useFleetStore()
+  fleet.profiles = [{ ...testPohAircraft(), performanceProfiles: [] }, { ...testPohAircraft(), id: '00000000-0000-4000-a000-000000000429', status: 'draft' }]
+  fleet.fleetLoadState = 'READY'
+  vi.spyOn(fleet, 'loadAll').mockResolvedValue()
+  const view = mount(PerformanceView, { global: { stubs: { RouterLink: true } } })
+  await flushPromises()
+  await view.get('#performance-aircraft').setValue(fleet.profiles[0]!.id)
+  await assessButton(view).trigger('click')
+  expect(assessment(view).text()).toContain('No correction source can replace missing aircraft tables')
+  await view.get('#performance-aircraft').setValue(fleet.profiles[1]!.id)
+  await assessButton(view).trigger('click')
+  expect(assessment(view).text()).toContain('This profile is a Draft')
+})

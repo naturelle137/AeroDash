@@ -2,6 +2,7 @@
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { useFleetStore } from '@/modules/aircraft/stores/fleet.store'
 import ManualRunwayPanel from '@/modules/airport/components/ManualRunwayPanel.vue'
+import CorrectionSourcePanel from '../components/CorrectionSourcePanel.vue'
 import {
   ELEVATION_SUPPORTED_FT,
   PA_ELEVATION_UNITS,
@@ -30,6 +31,7 @@ const distances = [
   { key: 'landingDistance50ft', label: 'LD — Landing distance from 50 ft' },
 ] as const
 
+const sourceInputsRevision = computed(() => JSON.stringify([inputs.mass, inputs.temperature, pa.revision.value]))
 // Results belong to one exact set of inputs and one persisted snapshot.
 watch([profile, inputs, () => fleet.fleetLoadState, pa.revision], () => { result.value = null }, { deep: true, flush: 'sync' })
 onMounted(() => fleet.loadAll())
@@ -187,6 +189,8 @@ function compute(): void {
       <p v-else role="status">No distances displayed. Select a reviewed profile and compute with valid conditions.</p>
     </form>
     <ManualRunwayPanel />
+    <CorrectionSourcePanel :profile="profile" :tables-complete="tables?.status === 'ready'"
+      :ready="fleet.fleetLoadState === 'READY'" :inputs-revision="sourceInputsRevision" />
   </main>
 </template>
 
