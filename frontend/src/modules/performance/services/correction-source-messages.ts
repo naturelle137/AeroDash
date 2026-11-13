@@ -53,7 +53,7 @@ const TARGET_LABELS = { 'ground-roll': 'ground roll', 'distance-over-obstacle': 
 export function reasonMessage(reason: UnsupportedReason): string {
   switch (reason.code) {
     case 'configuration-unverified': return `Applicability to this aircraft is not established. Required evidence: ${reason.required}.`
-    case 'revision-not-current': return `The inspected copy (${reason.revision}) is not confirmed as the current revision.`
+    case 'revision-not-current': return `The inspected copy, ${reason.revision}, is not confirmed as the current revision.`
     case 'authenticity-unconfirmed': return 'The inspected copy is not confirmed as an authentic, current publication.'
     case 'scope-not-accepted': return `Scope not accepted: ${reason.scope}.`
     case 'target-unresolved': return 'The source does not state whether the correction applies to the ground roll or the whole distance.'

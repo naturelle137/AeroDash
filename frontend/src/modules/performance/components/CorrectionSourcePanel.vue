@@ -79,7 +79,13 @@ function candidatesOf(rows: CorrectionAssessment[]) {
       byId.set(candidate.id, entry)
     }
   }
-  return [...byId.entries()].map(([id, value]) => ({ id, ...value }))
+  // Identical takeoff and landing reasons are shown once to keep the list short.
+  return [...byId.entries()].map(([id, value]) => {
+    const [first, ...rest] = value.perOperation
+    const same = first && rest.every((item) => item.reasons.join('\n') === first.reasons.join('\n'))
+    const perOperation = same && rest.length ? [{ operation: 'Takeoff and landing', reasons: first.reasons }] : value.perOperation
+    return { id, ...value, perOperation }
+  })
 }
 </script>
 

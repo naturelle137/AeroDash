@@ -329,7 +329,7 @@ function tecnamEntries(variant: 'basic' | 's4'): SourceCandidate[] {
   ]
 }
 
-const FSM_GAPS: EvidenceGap[] = [{ code: 'authenticity-unconfirmed' }, { code: 'revision-not-current', revision: FSM_3_75.revision }, { code: 'numeric-contract-unaccepted' }]
+const FSM_GAPS: EvidenceGap[] = [{ code: 'authenticity-unconfirmed' }, { code: 'numeric-contract-unaccepted' }]
 const CAA_GAPS: EvidenceGap[] = [{ code: 'scope-not-accepted', scope: 'UK general-aviation guidance' }, { code: 'numeric-contract-unaccepted' }]
 
 export const CORRECTION_SOURCE_REGISTER: readonly SourceCandidate[] = Object.freeze([

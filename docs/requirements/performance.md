@@ -219,6 +219,38 @@ When the pressure-altitude method, a source value, a unit or the elevation sourc
 
 The system shall not persist pressure-altitude inputs or derived pressure altitude.
 
+### REQ-PF-062: Explicit source assessment
+
+When the pilot requests it, the system shall assess wind, surface and slope correction sources for the selected profile and saved manual runway, for takeoff and landing.
+
+### REQ-PF-063: Source provenance display
+
+When a source assessment is displayed, the system shall show each candidate's document, revision, section and origin.
+
+### REQ-PF-064: Unsupported reasons
+
+If no candidate is applicable to a correction, then the system shall show that correction as unavailable with each candidate's specific reasons.
+
+### REQ-PF-065: No unaccepted selection
+
+The system shall not present a correction source as selected unless its configuration, revision, target, range, baseline and numeric contract are accepted.
+
+### REQ-PF-066: No source without base tables
+
+If a profile lacks complete POH base tables, then the system shall block source assessment.
+
+### REQ-PF-067: Legacy surface factors
+
+While a profile stores surface factors without source evidence, the system shall identify them as unused in the source assessment.
+
+### REQ-PF-068: Source assessment invalidation
+
+When the profile, a runway input, the saved runway or a lookup input changes, the system shall immediately clear the prior source assessment.
+
+The source assessment applies no correction. REQ-PF-003, REQ-PF-004, REQ-PF-021 and REQ-PF-022 remain
+unimplemented: no inspected source is accepted, and FSM 3/75 is not an accepted fallback. See the
+[source assessment contract](../architecture/performance-correction-sources.md).
+
 ## Design References
 
 - **<a name="notificationScheme"></a>Notification Scheme:** [`docs/architecture/notification_schema.md`](../architecture/notification_schema.md)
