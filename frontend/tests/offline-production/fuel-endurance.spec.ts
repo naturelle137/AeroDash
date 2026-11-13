@@ -171,7 +171,7 @@ test('persisted fleet tank inputs feed the session-only fuel plan online and cac
     path: info.outputPath('direct-trip-fuel.png'),
     contentType: 'image/png',
   })
-  await direct.scrollIntoViewIfNeeded()
+  await direct.evaluate((element) => element.scrollIntoView({ block: 'center' }))
   await page.screenshot({ path: info.outputPath('direct-controls.png') })
   await info.attach('direct-controls', {
     path: info.outputPath('direct-controls.png'),
