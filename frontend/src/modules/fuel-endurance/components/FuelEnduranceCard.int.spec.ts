@@ -86,6 +86,43 @@ describe('fuel plan with live M&B store', () => {
     expect(arrival().exists()).toBe(false)
     expect(wrapper.text()).toContain('Valid current Mass & Balance loading is required')
   })
+  it('uses the same category-filtered tanks for takeoff and remaining fuel', async () => {
+    const store = useMassBalanceStore()
+    const aircraft = AircraftContextSchema.parse(syntheticFuelContext())
+    aircraft.sourceUnit = 'kg'
+    aircraft.weighingReports[0]!.basicEmptyMass = 560
+    const category = aircraft.certificationCategories[0]!
+    aircraft.certificationCategories = [
+      { ...category, category: 'Normal' },
+      { ...category, category: 'Utility' },
+    ]
+    aircraft.loadPoints.push({
+      ...aircraft.loadPoints[0]!,
+      name: 'Normal-only tank',
+      defaultQuantity: 30,
+      allowableCategories: ['Normal'],
+    })
+    store.loadProfile(aircraft)
+    const wrapper = mount(FuelEnduranceCard)
+    await wrapper.get('#fe-consumption').setValue('10')
+    await wrapper.get('#fe-trip').setValue('120')
+    await wrapper.get('#fe-reserve').setValue('30')
+    const values = () =>
+      wrapper
+        .find('[aria-label="Estimated trip arrival"]')
+        .findAll('dd')
+        .map((dd) => dd.text())
+    expect(values()).toEqual(['620 kg', '20 kg', '600 kg', '40 kg'])
+    store.changeCertificationCategory('Utility')
+    await nextTick()
+    expect(values()).toEqual(['600 kg', '20 kg', '580 kg', '20 kg'])
+    store.updateStationWeight(1, NaN)
+    await nextTick()
+    expect(values()).toEqual(['600 kg', '20 kg', '580 kg', '20 kg'])
+    store.changeCertificationCategory('Normal')
+    await nextTick()
+    expect(wrapper.find('[aria-label="Estimated trip arrival"]').exists()).toBe(false)
+  })
   it('invalidates arrival on non-fuel loading failures and recomputes payload edits', async () => {
     const store = useMassBalanceStore()
     const aircraft = AircraftContextSchema.parse(syntheticFuelContext())
