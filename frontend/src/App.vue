@@ -4,6 +4,7 @@ import { RouterView, RouterLink, useRoute } from 'vue-router'
 import { useTheme } from '@/shared/composables/useTheme'
 import AppLogo from '@/shared/components/AppLogo.vue'
 import AppVersion from '@/shared/components/AppVersion.vue'
+import ConnectivityStatus from '@/shared/components/ConnectivityStatus.vue'
 import DisclaimerAcknowledgementModal from '@/shared/components/DisclaimerAcknowledgementModal.vue'
 import { usePwaUpdateStore } from '@/stores/pwa-update.store'
 import { useAppVersionStore, attachConnectivityRefresh } from '@/stores/app-version.store'
@@ -174,6 +175,7 @@ const themeLabel = computed(() =>
       </div>
 
       <div class="app-header__end">
+        <ConnectivityStatus />
         <!-- Theme toggle -->
         <button
           class="icon-btn"

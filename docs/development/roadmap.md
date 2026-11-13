@@ -8,6 +8,8 @@ At the docs-reset baseline `4aaba7e` (2026-11-12), source includes a local fleet
 
 Historical integrated [M&B evidence](mb-qa-293.md) and [occupancy evidence](../testing/evidence/optional-occupancy/README.md) use synthetic aircraft. They do not establish aircraft-specific POH validation or a current-head pass. The Performance view now inspects all four raw POH table distances through Fleet import, explicit review and in-envelope lookup. It supplies no default tables, operational factors or runway assessment; a manual runway can be declared and saved offline but is not compared; interpolation, extrapolation and safety-factor core modules remain separate. Missing-distance estimation (#301) is not implemented; its earlier PR was closed unmerged. Weather and endurance cards are also placeholders; airport integration, briefing export and sync remain future scope; requirements for them remain future obligations.
 
+Browser connectivity is visible throughout Fleet and preparation; it does not verify Internet access, cache readiness or source freshness. After a successful online load and caching, the production app can reopen persisted Fleet and manual runway data offline for local M&B and raw table inspection (#283). Weather, airport queries and sync remain future scope.
+
 ## Next product delivery
 
 Delivered: raw table inspection [#311](https://github.com/naturelle137/AeroDash/issues/311) provides Fleet import/review/verification and in-envelope TOR/TOD/LR/LD lookup; [#492](https://github.com/naturelle137/AeroDash/issues/492) preserves per-axis source units through review, lookup, reload and export. Synthetic browser evidence proves wiring, not aircraft accuracy.

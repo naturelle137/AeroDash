@@ -34,7 +34,8 @@
     "lint:eslint": "eslint --fix --cache",
     "lint:ci:oxlint": "oxlint",
     "lint:ci:eslint": "eslint",
-    "format": "prettier --write --experimental-cli src/"
+    "format": "prettier --write --experimental-cli src/",
+    "test:offline": "pnpm build && playwright test --config playwright.offline.config.ts"
   },
   "repository": {
     "type": "git",

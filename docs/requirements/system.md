@@ -36,7 +36,7 @@ The system shall expose each notification with a unique ID, severity, message an
 
 ### REQ-SYS-009: Connectivity State Detection
 
-The system shall monitor the device's network connectivity and maintain an application-wide connectivity state (`Online`, `Offline`).
+When the browser reports a connectivity change, the system shall update the visible browser online/offline status.
 
 ### REQ-SYS-010: Online Feature Availability
 
@@ -173,6 +173,14 @@ When an update is detected on a classified cold start with no active session, th
 ### REQ-SYS-053: Session detection failure
 
 If session storage is unavailable during update classification, then the system shall use the consent-required update path.
+
+### REQ-SYS-054: Connectivity meaning
+
+The system shall describe browser connectivity as distinct from Internet reachability, cache readiness and source freshness.
+
+### REQ-SYS-055: Cached preparation reopening
+
+When a previously cached application is reopened offline, the system shall restore valid locally persisted aircraft and manual runway data.
 
 ## Design References
 

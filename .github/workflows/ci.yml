@@ -201,6 +201,19 @@ jobs:
       - name: Run E2E tests
         run: pnpm --filter frontend test:e2e
 
+      - name: Run production cached offline workflow
+        run: pnpm --filter frontend exec playwright test --config playwright.offline.config.ts
+
+      - name: Upload offline workflow evidence
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v5
+        with:
+          name: offline-workflow-evidence
+          path: |
+            frontend/offline-report/
+            frontend/test-results/
+          retention-days: 14
+
       - name: Run bounded touch and desktop workflow
         run: pnpm --filter frontend exec playwright test --config playwright.touch.config.ts
         env:

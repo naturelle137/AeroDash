@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Show browser connectivity with explicit limits and verify cached offline reopening of persisted Fleet, M&B, raw Performance and manual runway inputs at mobile and desktop widths (refs #283).
+
 - Assess wind, surface and slope correction sources in Performance for the selected profile and saved runway, with document provenance and specific unsupported reasons; no correction is applied (refs #305).
 - Choose direct pressure-altitude entry or derive it from entered QNH (hPa) and field elevation (ft/m) using the NWS standard-atmosphere relationship, with visible provenance and limits; inputs are not stored (refs #304).
 - Enter, edit, save and reload an offline user-entered runway in Performance (distinct TORA/LDA, field elevation, explicit m/ft, required surface condition) with versioned recovery; no runway assessment is given (refs #302).
