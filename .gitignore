@@ -37,6 +37,7 @@ reports
 # Claude Code agent working directories
 .claire/
 .claude/worktrees/
+.worktrees/
 
 *.tsbuildinfo
 

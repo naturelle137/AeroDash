@@ -21,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Engineering
 
+- Ignore local `.worktrees/` directories to keep working copies out of version control.
+
 - Simplify requirements into atomic EARS obligations, consolidate contributor/docs guidance and remove mandatory trace tags, registries and trace-only gates while retaining functional, security and calculation safeguards (refs #488, #360).
 
 
