@@ -528,6 +528,17 @@ function onGoToFleet(): void {
 // ---------------------------------------------------------------------------
 
 const stations = computed(() => store.availableStations)
+const firstIncompleteStation = computed(() =>
+  stations.value.find((station) => station.hasError) ??
+  (['UNCONFIGURED', 'UNVERIFIED'].includes(store.uiState)
+    ? stations.value.find((station) => station.mandatory && (!station.touched || !station.verified))
+    : undefined),
+)
+
+function focusFirstIncompleteStation(): void {
+  const station = firstIncompleteStation.value
+  if (station) document.getElementById(`station-${station.index}`)?.focus()
+}
 const notifications = computed(() => store.notifications)
 const lastResult = computed(() => store.lastResult)
 
@@ -812,7 +823,7 @@ function onCancelSelection(): void {
             class="prep-sticky-strip__state-badge"
             :class="`prep-sticky-strip__state-badge--${viewModel.bannerSeverity}`"
           >
-            {{ viewModel.isSafe ? 'VERIFIED SAFE' : viewModel.isWarning ? 'WARNING' : 'CRITICAL' }}
+            {{ viewModel.isSafe ? 'WITHIN LIMITS' : viewModel.isWarning ? 'WARNING' : 'CRITICAL' }}
           </span>
         </template>
         <span v-else-if="card.soon" class="prep-sticky-strip__soon-pill">Coming soon</span>
@@ -1031,7 +1042,7 @@ function onCancelSelection(): void {
           Select aircraft to unlock
         </span>
         <span v-else-if="viewModel.bannerSeverity" class="state-badge" :class="`state-badge--${viewModel.bannerSeverity}`">
-          {{ viewModel.isSafe ? 'VERIFIED SAFE' : viewModel.isWarning ? 'WARNING' : 'CRITICAL' }}
+          {{ viewModel.isSafe ? 'WITHIN LIMITS' : viewModel.isWarning ? 'WARNING' : 'CRITICAL' }}
         </span>
       </div>
 
@@ -1064,13 +1075,22 @@ function onCancelSelection(): void {
             {{ n.message }}
           </div>
           <div v-if="viewModel.isSafe" class="notification notification--success">
-            Mass &amp; Balance verified — safe for flight
+            Mass &amp; Balance within entered limits — verify against POH/AFM
           </div>
         </div>
 
         <!-- Status hint (UNCONFIGURED / UNVERIFIED) -->
-        <p v-if="viewModel.statusHint" class="status-hint" role="status">
-          {{ viewModel.statusHint }}
+        <p v-if="viewModel.statusHint || firstIncompleteStation" class="status-hint" role="status">
+          {{ viewModel.statusHint || 'Review input errors' }}
+          <button
+            v-if="firstIncompleteStation"
+            type="button"
+            class="review-input-btn"
+            :aria-controls="`station-${firstIncompleteStation.index}`"
+            @click="focusFirstIncompleteStation"
+          >
+            Review {{ firstIncompleteStation.name }}
+          </button>
         </p>
 
         <!-- Two-column (desktop) / stacked (mobile) layout -->
@@ -1928,7 +1948,8 @@ function onCancelSelection(): void {
   min-width: 0;
 }
 
-.reset-btn {
+.reset-btn,
+.review-input-btn {
   padding: var(--space-2) var(--space-4);
   font-size: var(--text-sm);
   font-family: inherit;
@@ -1944,7 +1965,8 @@ function onCancelSelection(): void {
     border-color var(--transition-fast);
 }
 
-.reset-btn:hover:not(:disabled) {
+.reset-btn:hover:not(:disabled),
+.review-input-btn:hover {
   background: var(--color-surface-hover);
   border-color: var(--color-primary);
   color: var(--color-primary);
@@ -1955,7 +1977,8 @@ function onCancelSelection(): void {
   cursor: not-allowed;
 }
 
-.reset-btn:focus-visible {
+.reset-btn:focus-visible,
+.review-input-btn:focus-visible {
   outline: 2px solid var(--color-focus);
   outline-offset: 2px;
 }

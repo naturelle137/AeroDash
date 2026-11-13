@@ -153,6 +153,21 @@ describe('AircraftProfileWizardView — post-save chooser & exit modal', () => {
     }
   }
 
+  it('describes blocked identity progression and removes the hint when valid', async () => {
+    const original = h.identityValue.registration
+    h.identityValue.registration = ''
+    const { wrapper } = await mountWizard()
+    const button = wrapper.findAll('button').find((b) => b.text().includes('Continue'))!
+    expect(button.attributes('disabled')).toBeDefined()
+    expect(button.attributes('aria-describedby')).toBe('continue-hint')
+    expect(wrapper.get('#continue-hint').text()).toContain('registration')
+    h.identityValue.registration = original
+    wrapper.unmount()
+    const valid = await mountWizard()
+    expect(valid.wrapper.find('#continue-hint').exists()).toBe(false)
+    valid.wrapper.unmount()
+  })
+
   it('opens the post-save chooser instead of routing straight back to the fleet', async () => {
     const fleet = useFleetStore()
     vi.spyOn(fleet, 'createProfile').mockResolvedValue(newDraft())

@@ -176,3 +176,20 @@ describe('IdentitySection — lockPowertrain (edit-existing-aircraft flow)', () 
     expect(wrapper.find('.powertrain-readonly').exists()).toBe(false)
   })
 })
+
+
+describe('IdentitySection — registration entry', () => {
+  it('normalizes typed registration and preserves the insertion position', async () => {
+    const wrapper = mount(IdentitySection, {
+      props: { modelValue: makeFields(), sectionId: 'test' },
+    })
+    const field = wrapper.get<HTMLInputElement>('#test-registration')
+    field.element.value = 'd-test'
+    field.element.setSelectionRange(2, 2)
+    await field.trigger('input')
+    expect(field.element.value).toBe('D-TEST')
+    expect(field.element.selectionStart).toBe(2)
+    const updates = wrapper.emitted('update:modelValue')!
+    expect(updates[updates.length - 1]![0]).toMatchObject({ registration: 'D-TEST' })
+  })
+})

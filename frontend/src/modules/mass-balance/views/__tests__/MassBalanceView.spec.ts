@@ -243,16 +243,20 @@ describe('MassBalanceView integration', () => {
     expect(wrapper.find('input[type="number"]').exists()).toBe(false)
   })
 
-  it('renders UNCONFIGURED state with required-fields hint', () => {
+  it('renders UNCONFIGURED guidance that focuses the first incomplete input', async () => {
     const store = useMassBalanceStore()
     store.loadProfile(mockProfile)
     store.stations[0]!.touched = false
     store.evaluateState()
-    const wrapper = mountView()
+    const wrapper = mount(MassBalanceView, { global: { plugins: [makeRouter()] }, attachTo: document.body })
 
     expect(store.uiState).toBe('UNCONFIGURED')
     expect(wrapper.text()).toContain('Complete required fields')
     expect(wrapper.find('input#station-0').attributes('disabled')).toBeUndefined()
+    const review = wrapper.get('button[aria-controls="station-0"]')
+    await review.trigger('click')
+    expect(document.activeElement).toBe(wrapper.get('#station-0').element)
+    wrapper.unmount()
   })
 
   it('handles user weight input, calls updateStationWeight, and transitions to VERIFIED_SAFE', async () => {
@@ -325,7 +329,9 @@ describe('MassBalanceView integration', () => {
 
     expect(store.uiState).toBe('VERIFIED_SAFE')
     expect(wrapper.find('.state-banner.banner--success').exists()).toBe(true)
-    expect(wrapper.text()).toContain('Mass & Balance verified')
+    expect(wrapper.text()).toContain('WITHIN LIMITS')
+    expect(wrapper.text()).toContain('Mass & Balance within entered limits — verify against POH/AFM')
+    expect(wrapper.text()).not.toContain('VERIFIED SAFE')
   })
 
   it('calls resetPayload after confirming the Reset Payload action and keeps results visible', async () => {

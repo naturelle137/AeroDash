@@ -185,6 +185,9 @@
 
     <!-- Navigation footer -->
     <footer class="wizard-footer">
+      <p v-if="!canContinue && currentStep < STEPS.length - 1" id="continue-hint" role="status">
+        {{ continueHint }}
+      </p>
       <div class="footer-left">
         <button
           v-if="currentStep > 0"
@@ -201,6 +204,7 @@
           type="button"
           class="btn btn-primary"
           :disabled="!canContinue"
+          :aria-describedby="!canContinue ? 'continue-hint' : undefined"
           @click="goNext"
         >
           Continue →
@@ -454,6 +458,29 @@ function isStepValid(id: StepId): boolean {
 const stepNumber = computed(() => currentStep.value + 1)
 
 const canContinue = computed(() => isStepValid(stepId.value))
+
+const continueHint = computed(() => {
+  switch (stepId.value) {
+    case 'identity': {
+      const f = identityFields.value
+      const missing = [
+        !f.manufacturer.trim() && 'manufacturer',
+        !f.model.trim() && 'model',
+        !f.icaoTypeDesignator.trim() && 'ICAO designator',
+        !f.registration.trim() && 'registration',
+      ].filter(Boolean)
+      return registrationError.value || `To continue, complete: ${missing.join(', ')}.`
+    }
+    case 'envelope':
+      return 'To continue, enter a positive maximum takeoff mass and 4–20 envelope points for each category.'
+    case 'weighing':
+      return 'To continue, add a weighing report with positive empty mass, weighing date and valid-from date.'
+    case 'battery-pack':
+      return 'To continue, enter positive usable energy and a reserve of zero or more, below usable energy.'
+    default:
+      return 'Complete the required fields to continue.'
+  }
+})
 
 const canSave = computed(
   () =>
@@ -908,7 +935,14 @@ h1 {
 
 /* ─── Footer ─────────────────────────────────────────────────────────────── */
 
+#continue-hint {
+  flex-basis: 100%;
+  margin: 0;
+  font-size: 0.875rem;
+}
+
 .wizard-footer {
+  flex-wrap: wrap;
   position: sticky;
   bottom: 0;
   left: 0;
@@ -968,5 +1002,10 @@ h1 {
   border: 1px solid var(--color-critical, #fecaca);
   border-radius: 6px;
   font-size: 0.875rem;
+}
+@media (max-width: 767.98px) {
+  .wizard-footer {
+    bottom: var(--nav-bottom-height);
+  }
 }
 </style>
