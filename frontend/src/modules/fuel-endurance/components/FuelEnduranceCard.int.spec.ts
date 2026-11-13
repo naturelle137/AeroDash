@@ -9,14 +9,15 @@ import FuelEnduranceCard from './FuelEnduranceCard.vue'
 
 describe('fuel plan with live M&B store', () => {
   beforeEach(() => setActivePinia(createPinia()))
-  function setup() {
+  async function setup() {
     const store = useMassBalanceStore()
     store.loadProfile(AircraftContextSchema.parse(syntheticFuelContext()))
     const wrapper = mount(FuelEnduranceCard)
+    await wrapper.get('#fe-method').setValue('duration')
     return { store, wrapper }
   }
   it('requires explicit inputs, recomputes tanks/categories, clears on aircraft change and remount', async () => {
-    const { store, wrapper } = setup()
+    const { store, wrapper } = await setup()
     const results = () => wrapper.find('[aria-label="Fuel planning results"]')
     expect(results().exists()).toBe(false)
     await wrapper.get('#fe-consumption').setValue('10')
@@ -42,7 +43,7 @@ describe('fuel plan with live M&B store', () => {
     const aircraft = AircraftContextSchema.parse(syntheticFuelContext())
     store.loadProfile({ ...aircraft, id: 'different-aircraft' })
     await nextTick()
-    expect(wrapper.get<HTMLInputElement>('#fe-consumption').element.value).toBe('')
+    expect(wrapper.get<HTMLSelectElement>('#fe-method').element.value).toBe('')
     expect(results().exists()).toBe(false)
     wrapper.unmount()
     const reopened = mount(FuelEnduranceCard)
@@ -55,6 +56,7 @@ describe('fuel plan with live M&B store', () => {
     aircraft.weighingReports[0]!.basicEmptyMass = 560
     store.loadProfile(aircraft)
     const wrapper = mount(FuelEnduranceCard)
+    await wrapper.get('#fe-method').setValue('duration')
     const arrival = () => wrapper.find('[aria-label="Estimated trip arrival"]')
     const values = () =>
       arrival()
@@ -86,7 +88,7 @@ describe('fuel plan with live M&B store', () => {
     expect(arrival().exists()).toBe(false)
     expect(wrapper.text()).toContain('Valid current Mass & Balance loading is required')
   })
-  it('uses the same category-filtered tanks for takeoff and remaining fuel', async () => {
+  it.each(['duration', 'direct'])('uses category-filtered tanks in %s mode', async (method) => {
     const store = useMassBalanceStore()
     const aircraft = AircraftContextSchema.parse(syntheticFuelContext())
     aircraft.sourceUnit = 'kg'
@@ -104,14 +106,16 @@ describe('fuel plan with live M&B store', () => {
     })
     store.loadProfile(aircraft)
     const wrapper = mount(FuelEnduranceCard)
-    await wrapper.get('#fe-consumption').setValue('10')
-    await wrapper.get('#fe-trip').setValue('120')
-    await wrapper.get('#fe-reserve').setValue('30')
+    await wrapper.get('#fe-method').setValue(method)
+    if (method === 'direct') {
+      await wrapper.get('#fe-direct-trip').setValue('20')
+    } else {
+      await wrapper.get('#fe-consumption').setValue('10')
+      await wrapper.get('#fe-trip').setValue('120')
+      await wrapper.get('#fe-reserve').setValue('30')
+    }
     const values = () =>
-      wrapper
-        .find('[aria-label="Estimated trip arrival"]')
-        .findAll('dd')
-        .map((dd) => dd.text())
+      wrapper.findAll('[aria-label="Estimated trip arrival"] dd').map((dd) => dd.text())
     expect(values()).toEqual(['620 kg', '20 kg', '600 kg', '40 kg'])
     store.changeCertificationCategory('Utility')
     await nextTick()
@@ -123,43 +127,51 @@ describe('fuel plan with live M&B store', () => {
     await nextTick()
     expect(wrapper.find('[aria-label="Estimated trip arrival"]').exists()).toBe(false)
   })
-  it('invalidates arrival on non-fuel loading failures and recomputes payload edits', async () => {
-    const store = useMassBalanceStore()
-    const aircraft = AircraftContextSchema.parse(syntheticFuelContext())
-    aircraft.loadPoints.push({
-      ...aircraft.loadPoints[0]!,
-      name: 'Payload',
-      fuelTank: null,
-      defaultQuantity: 60,
-    })
-    store.loadProfile(aircraft)
-    const wrapper = mount(FuelEnduranceCard)
-    for (const id of ['consumption', 'trip', 'reserve'])
-      await wrapper.get(`#fe-${id}`).setValue('10')
-    const mass = () =>
-      wrapper.find('[aria-label="Estimated trip arrival"]').findAll('dd')[2]!.text()
-    const before = mass()
-    store.updateStationWeight(1, 70)
-    await nextTick()
-    expect(mass()).not.toBe(before)
-    for (const invalid of [NaN, -1, Infinity, 101]) {
-      store.updateStationWeight(1, invalid)
+  it.each(['duration', 'direct'])(
+    'invalidates arrival on non-fuel failures in %s mode',
+    async (method) => {
+      const store = useMassBalanceStore()
+      const aircraft = AircraftContextSchema.parse(syntheticFuelContext())
+      aircraft.loadPoints.push({
+        ...aircraft.loadPoints[0]!,
+        name: 'Payload',
+        fuelTank: null,
+        defaultQuantity: 60,
+      })
+      store.loadProfile(aircraft)
+      const wrapper = mount(FuelEnduranceCard)
+      await wrapper.get('#fe-method').setValue(method)
+      if (method === 'direct') {
+        await wrapper.get('#fe-direct-trip').setValue('10')
+      } else {
+        for (const id of ['consumption', 'trip', 'reserve'])
+          await wrapper.get(`#fe-${id}`).setValue('10')
+      }
+      const mass = () =>
+        wrapper.find('[aria-label="Estimated trip arrival"]').findAll('dd')[2]!.text()
+      const before = mass()
+      store.updateStationWeight(1, 70)
+      await nextTick()
+      expect(mass()).not.toBe(before)
+      for (const invalid of [NaN, -1, Infinity, 101]) {
+        store.updateStationWeight(1, invalid)
+        await nextTick()
+        expect(wrapper.find('[aria-label="Estimated trip arrival"]').exists()).toBe(false)
+        expect(wrapper.text()).toContain('Arrival estimate unavailable')
+      }
+      store.updateStationWeight(1, 60)
+      await nextTick()
+      expect(mass()).toBe(before)
+      store.aircraft!.loadPoints[0]!.unit = 'unsupported'
       await nextTick()
       expect(wrapper.find('[aria-label="Estimated trip arrival"]').exists()).toBe(false)
-      expect(wrapper.text()).toContain('Arrival estimate unavailable')
-    }
-    store.updateStationWeight(1, 60)
-    await nextTick()
-    expect(mass()).toBe(before)
-    store.aircraft!.loadPoints[0]!.unit = 'unsupported'
-    await nextTick()
-    expect(wrapper.find('[aria-label="Estimated trip arrival"]').exists()).toBe(false)
-    expect(wrapper.text()).toContain('unsupported fuel unit')
-  })
+      expect(wrapper.text()).toContain('unsupported fuel unit')
+    },
+  )
   it.each(['', '-1', 'NaN', 'Infinity', '0x10', '1e2', '9'.repeat(400)])(
     'invalidates a prior result for %s',
     async (raw) => {
-      const { wrapper } = setup()
+      const { wrapper } = await setup()
       for (const id of ['consumption', 'trip', 'reserve'])
         await wrapper.get(`#fe-${id}`).setValue('10')
       expect(wrapper.find('[aria-label="Fuel planning results"]').exists()).toBe(true)
@@ -168,7 +180,7 @@ describe('fuel plan with live M&B store', () => {
     },
   )
   it('renders equality and reserve-only insufficiency without a success claim', async () => {
-    const { wrapper } = setup()
+    const { wrapper } = await setup()
     await wrapper.get('#fe-consumption').setValue('10')
     await wrapper.get('#fe-trip').setValue('240')
     await wrapper.get('#fe-reserve').setValue('0')
@@ -178,5 +190,94 @@ describe('fuel plan with live M&B store', () => {
     await wrapper.get('#fe-reserve').setValue('241')
     expect(wrapper.text()).toContain('reserve alone')
     expect(wrapper.text()).toContain('WARN-FE-001')
+  })
+  it('selects direct fuel without duration prerequisites and clears hidden inputs on switches', async () => {
+    const { wrapper } = await setup()
+    for (const id of ['consumption', 'trip', 'reserve'])
+      await wrapper.get(`#fe-${id}`).setValue('10')
+    await wrapper.get('#fe-method').setValue('direct')
+    const arrival = () => wrapper.find('[aria-label="Estimated trip arrival"]')
+    expect(arrival().exists()).toBe(false)
+    expect(wrapper.text()).toContain('explicit finite nonnegative Trip Fuel')
+    expect(wrapper.find('#fe-consumption').exists()).toBe(false)
+    await wrapper.get('#fe-direct-trip').setValue('20')
+    expect(arrival().findAll('dd')[3]!.text()).toBe('20 kg')
+    for (const text of [
+      'Total endurance',
+      'Required reserve fuel',
+      'WARN-FE-001',
+      'Zero margin',
+      'Margin =',
+    ])
+      expect(wrapper.text()).not.toContain(text)
+    await wrapper.get('#fe-method').setValue('duration')
+    expect(arrival().exists()).toBe(false)
+    expect(wrapper.get<HTMLInputElement>('#fe-consumption').element.value).toBe('')
+    await wrapper.get('#fe-method').setValue('direct')
+    expect(wrapper.get<HTMLInputElement>('#fe-direct-trip').element.value).toBe('')
+    expect(arrival().exists()).toBe(false)
+  })
+  it('direct zero/full fuel retains unusable mass, recomputes current loading and resets aircraft', async () => {
+    const store = useMassBalanceStore()
+    const aircraft = AircraftContextSchema.parse(syntheticFuelContext())
+    aircraft.sourceUnit = 'kg'
+    aircraft.weighingReports[0]!.basicEmptyMass = 560
+    store.loadProfile(aircraft)
+    const wrapper = mount(FuelEnduranceCard)
+    expect(wrapper.get<HTMLSelectElement>('#fe-method').element.value).toBe('')
+    await wrapper.get('#fe-method').setValue('direct')
+    const input = wrapper.get('#fe-direct-trip')
+    const values = () =>
+      wrapper.findAll('[aria-label="Estimated trip arrival"] dd').map((dd) => dd.text())
+    await input.setValue('0')
+    expect(values()).toEqual(['600 kg', '0 kg', '600 kg', '40 kg'])
+    await input.setValue('40')
+    expect(values()).toEqual(['600 kg', '40 kg', '560 kg', '0 kg'])
+    await input.setValue('40,001')
+    expect(values()).toEqual([])
+    expect(wrapper.text()).toContain('Trip fuel exceeds available usable fuel')
+    await input.setValue('20')
+    store.updateStationWeight(0, 60)
+    await nextTick()
+    expect(values()).toEqual(['610 kg', '20 kg', '590 kg', '30 kg'])
+    store.activeCategory = null
+    await nextTick()
+    expect(values()).toEqual([])
+    store.activeCategory = aircraft.certificationCategories[0]!.category
+    await nextTick()
+    expect(values()).toEqual(['610 kg', '20 kg', '590 kg', '30 kg'])
+    store.lastResult = null
+    await nextTick()
+    expect(values()).toEqual([])
+    expect(wrapper.text()).toContain('Valid current Mass & Balance loading is required')
+    store.loadProfile({ ...aircraft, id: 'next' })
+    await nextTick()
+    expect(wrapper.get<HTMLSelectElement>('#fe-method').element.value).toBe('')
+    await wrapper.get('#fe-method').setValue('direct')
+    expect(wrapper.get<HTMLInputElement>('#fe-direct-trip').element.value).toBe('')
+    wrapper.unmount()
+    expect(mount(FuelEnduranceCard).get<HTMLSelectElement>('#fe-method').element.value).toBe('')
+  })
+  it.each(['', '-1', 'NaN', 'Infinity', '0x10', '1e2', '2kg', '9'.repeat(400)])(
+    'direct mode rejects %s after a valid result',
+    async (raw) => {
+      const { wrapper } = await setup()
+      await wrapper.get('#fe-method').setValue('direct')
+      await wrapper.get('#fe-direct-trip').setValue('20')
+      expect(wrapper.find('[aria-label="Estimated trip arrival"]').exists()).toBe(true)
+      await wrapper.get('#fe-direct-trip').setValue(raw)
+      expect(wrapper.find('[aria-label="Estimated trip arrival"]').exists()).toBe(false)
+      expect(wrapper.text()).toContain('explicit finite nonnegative Trip Fuel')
+    },
+  )
+  it('blocks direct planning for electric inventory', async () => {
+    const { store, wrapper } = await setup()
+    await wrapper.get('#fe-method').setValue('direct')
+    await wrapper.get('#fe-direct-trip').setValue('20')
+    store.aircraft!.powertrain = 'electric'
+    await nextTick()
+    expect(wrapper.find('[aria-label="Estimated trip arrival"]').exists()).toBe(false)
+    expect(wrapper.text()).toContain('Combustion aircraft required')
+    expect(wrapper.get('fieldset').attributes('disabled')).toBeDefined()
   })
 })

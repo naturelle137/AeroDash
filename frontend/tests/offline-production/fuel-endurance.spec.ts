@@ -17,6 +17,10 @@ test('persisted fleet tank inputs feed the session-only fuel plan online and cac
     .toBe(true)
   const profile = testPohAircraft()
   profile.weighingReports[0]!.bem = 560
+  profile.certificationCategories.push({
+    ...profile.certificationCategories[0]!,
+    category: 'Utility',
+  })
   profile.loadPoints = [
     {
       name: 'Synthetic tank',
@@ -26,7 +30,7 @@ test('persisted fleet tank inputs feed the session-only fuel plan online and cac
       operationalLimit: 100,
       defaultQuantity: 10,
       unit: 'kg',
-      allowableCategories: null,
+      allowableCategories: ['Normal'],
       fuelTank: { unusableFuel: 10, permissibleFuelTypes: ['AvGas 100LL'], burnSequences: [] },
     },
   ]
@@ -63,11 +67,20 @@ test('persisted fleet tank inputs feed the session-only fuel plan online and cac
   await expect(card.getByTestId('usable-fuel')).toHaveText(
     'Usable fuel: 40 kg. Excluded unusable fuel: 10 kg.',
   )
+  await card.getByLabel('Planning method').selectOption('duration')
   await rate.fill('10')
   await trip.fill('120')
   await reserve.fill('30')
-  await expect(results.locator(':scope > dl > dd')).toHaveText(['240 min', '20 kg', '5 kg', '25 kg', '15 kg'])
-  await expect(page.getByRole('region', { name: 'Estimated trip arrival', exact: true }).locator('dd')).toHaveText(['600 kg', '20 kg', '580 kg', '20 kg'])
+  await expect(results.locator(':scope > dl > dd')).toHaveText([
+    '240 min',
+    '20 kg',
+    '5 kg',
+    '25 kg',
+    '15 kg',
+  ])
+  await expect(
+    page.getByRole('region', { name: 'Estimated trip arrival', exact: true }).locator('dd'),
+  ).toHaveText(['600 kg', '20 kg', '580 kg', '20 kg'])
   await results.scrollIntoViewIfNeeded()
   await page.screenshot({ path: info.outputPath('fuel-plan.png') })
   await info.attach('fuel-plan', {
@@ -111,11 +124,69 @@ test('persisted fleet tank inputs feed the session-only fuel plan online and cac
   await tank.fill('50')
   await tank.blur()
   await expect(results).toBeVisible()
+  const method = card.getByLabel('Planning method')
+  await method.selectOption('direct')
+  const direct = card.getByLabel('Trip Fuel (kg)', { exact: true })
+  await expect(arrival).toHaveCount(0)
+  await expect(rate).toHaveCount(0)
+  for (const invalid of ['', '-1', 'NaN', 'Infinity', '0x10', '1e2', '1kg', '9'.repeat(400)]) {
+    await direct.fill(invalid)
+    await expect(arrival).toHaveCount(0)
+    await expect(card).toContainText('explicit finite nonnegative Trip Fuel')
+  }
+  await direct.fill('0')
+  await expect(arrival.locator('dd')).toHaveText(['600 kg', '0 kg', '600 kg', '40 kg'])
+  await direct.fill('40')
+  await expect(arrival.locator('dd')).toHaveText(['600 kg', '40 kg', '560 kg', '0 kg'])
+  await direct.fill('40.001')
+  await expect(arrival).toHaveCount(0)
+  await expect(card).toContainText('Trip fuel exceeds available usable fuel')
+  await direct.fill('20')
+  await expect(arrival.locator('dd')).toHaveText(['600 kg', '20 kg', '580 kg', '20 kg'])
+  for (const text of [
+    'Total endurance',
+    'Required reserve fuel',
+    'WARN-FE-001',
+    'Zero margin',
+    'Margin =',
+  ])
+    await expect(card).not.toContainText(text)
+  await tank.fill('60')
+  await tank.blur()
+  await expect(arrival.locator('dd')).toHaveText(['610 kg', '20 kg', '590 kg', '30 kg'])
+  await tank.fill('')
+  await tank.blur()
+  await expect(arrival).toHaveCount(0)
+  await tank.fill('50')
+  await tank.blur()
+  const category = page.getByLabel('Certification category')
+  await category.selectOption('Utility')
+  await expect(arrival).toHaveCount(0)
+  await expect(card).toContainText('No fuel tanks available in this category')
+  await category.selectOption('Normal')
+  await expect(arrival.locator('dd')).toHaveText(['600 kg', '20 kg', '580 kg', '20 kg'])
+  await results.scrollIntoViewIfNeeded()
+  await page.screenshot({ path: info.outputPath('direct-trip-fuel.png') })
+  await info.attach('direct-trip-fuel', {
+    path: info.outputPath('direct-trip-fuel.png'),
+    contentType: 'image/png',
+  })
+  await direct.evaluate((element) => element.scrollIntoView({ block: 'center' }))
+  await page.screenshot({ path: info.outputPath('direct-controls.png') })
+  await info.attach('direct-controls', {
+    path: info.outputPath('direct-controls.png'),
+    contentType: 'image/png',
+  })
+  await method.selectOption('duration')
+  await expect(arrival).toHaveCount(0)
+  await expect(rate).toHaveValue('')
+  await method.selectOption('direct')
+  await expect(direct).toHaveValue('')
   const other = picker.locator('option').filter({ hasText: 'D-NEXT' }).first()
   await picker.selectOption((await other.getAttribute('value'))!)
   await expect(results).toHaveCount(0)
   await picker.selectOption((await option.getAttribute('value'))!)
-  await expect(rate).toHaveValue('')
+  await expect(method).toHaveValue('')
   await tank.fill('50')
   await tank.blur()
   await expect
@@ -127,12 +198,19 @@ test('persisted fleet tank inputs feed the session-only fuel plan online and cac
     .toBe(true)
   await context.setOffline(true)
   expect((await page.reload())?.fromServiceWorker()).toBe(true)
-  await expect(rate).toHaveValue('')
+  await expect(method).toHaveValue('')
   await expect(results).toHaveCount(0)
+  await method.selectOption('duration')
   await rate.fill('10')
   await trip.fill('120')
   await reserve.fill('30')
-  await expect(results.locator(':scope > dl > dd')).toHaveText(['240 min', '20 kg', '5 kg', '25 kg', '15 kg'])
+  await expect(results.locator(':scope > dl > dd')).toHaveText([
+    '240 min',
+    '20 kg',
+    '5 kg',
+    '25 kg',
+    '15 kg',
+  ])
   await expect(arrival.locator('dd')).toHaveText(['600 kg', '20 kg', '580 kg', '20 kg'])
   await results.scrollIntoViewIfNeeded()
   await page.screenshot({ path: info.outputPath('fuel-offline.png') })
@@ -140,5 +218,25 @@ test('persisted fleet tank inputs feed the session-only fuel plan online and cac
     path: info.outputPath('fuel-offline.png'),
     contentType: 'image/png',
   })
+  await method.selectOption('direct')
+  await expect(arrival).toHaveCount(0)
+  await direct.fill('20')
+  await expect(arrival.locator('dd')).toHaveText(['600 kg', '20 kg', '580 kg', '20 kg'])
+  await results.scrollIntoViewIfNeeded()
+  await page.screenshot({ path: info.outputPath('direct-offline.png') })
+  await info.attach('direct-offline', {
+    path: info.outputPath('direct-offline.png'),
+    contentType: 'image/png',
+  })
+  await page.reload()
+  await expect(method).toHaveValue('')
+  await method.selectOption('direct')
+  await expect(direct).toHaveValue('')
+  await direct.fill('20')
+  await expect(arrival).toBeVisible()
+  await page.goto('/fleet')
+  await page.goto('/mass-balance')
+  await expect(method).toHaveValue('')
+  await expect(arrival).toHaveCount(0)
   expect(await page.evaluate(() => document.body.scrollWidth)).toBe(page.viewportSize()!.width)
 })
