@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Choose direct Trip Fuel (kg) in Flight Preparation for estimated arrival mass and remaining usable fuel without duration or consumption inputs (#509).
+
+### Added
+
 - Fuel & Endurance estimates trip arrival mass from validated M&B takeoff mass, retains reserve and blocks impossible trips (#507).
 
 ### Added
