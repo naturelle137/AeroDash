@@ -2,6 +2,7 @@
 import { computed, ref, watch } from 'vue'
 import { useMassBalanceStore } from '@/modules/mass-balance/stores/mass-balance.store'
 import { usableFuelForPlanning } from '../services/usable-fuel'
+import { calculateTripArrival } from '@/core/logic/trip-arrival'
 import { calculateFuelEndurance } from '@/core/logic/fuel-endurance'
 
 const store = useMassBalanceStore()
@@ -34,6 +35,30 @@ const result = computed(() =>
     : null,
 )
 const plan = computed(() => (result.value?.ok ? result.value.plan : null))
+const arrival = computed(() => {
+  if (!fuel.value.ok || !plan.value) return null
+  const mb = store.lastResult
+  if (
+    !mb?.success ||
+    store.hasErrorNotification ||
+    mb.violations.some((v) => v.type === 'STATION_LIMIT_EXCEEDED')
+  ) {
+    return { ok: false as const, reason: 'Valid current Mass & Balance loading is required.' }
+  }
+  const result = calculateTripArrival({
+    takeoffMassKg: mb.takeoffCenterOfGravityPoint.mass,
+    usableFuelKg: fuel.value.usableFuelKg,
+    tripFuelKg: plan.value.tripFuelKg,
+  })
+  if (result.ok) return result
+  return {
+    ok: false as const,
+    reason:
+      result.reason === 'TRIP_EXCEEDS_USABLE_FUEL'
+        ? 'Trip fuel exceeds available usable fuel; reduce the trip or correct the tank loads.'
+        : 'Mass & Balance and fuel inventory must contain finite, consistent masses.',
+  }
+})
 const format = (value: number) =>
   value > 0 && value < 0.001
     ? '<0.001'
@@ -84,6 +109,20 @@ const format = (value: number) =>
         <dt>{{ plan.marginKg < 0 ? 'Fuel shortfall' : 'Remaining after trip + reserve' }}</dt>
         <dd>{{ format(Math.abs(plan.marginKg)) }} kg</dd>
       </dl>
+      <section v-if="arrival?.ok" aria-label="Estimated trip arrival" aria-live="polite">
+        <h3>Estimated trip arrival</h3>
+        <dl>
+          <dt>Takeoff mass</dt>
+          <dd>{{ format(arrival.takeoffMassKg) }} kg</dd>
+          <dt>Trip fuel burned</dt>
+          <dd>{{ format(arrival.tripFuelKg) }} kg</dd>
+          <dt>Estimated arrival mass</dt>
+          <dd>{{ format(arrival.arrivalMassKg) }} kg</dd>
+          <dt>Usable fuel remaining on arrival</dt>
+          <dd>{{ format(arrival.remainingFuelKg) }} kg</dd>
+        </dl>
+      </section>
+      <p v-else-if="arrival" role="status">Arrival estimate unavailable: {{ arrival.reason }}</p>
       <p>
         Endurance = usable kg ÷ kg/h × 60. Required fuel = (trip min + reserve min) ÷ 60 × kg/h.
         Margin = usable − required kg.
@@ -97,7 +136,10 @@ const format = (value: number) =>
       <p v-if="plan.marginKg === 0">Zero margin: exactly the entered arithmetic budget.</p>
       <p>
         Arithmetic planning aid only. Verify against your aircraft POH/AFM. This does not assess
-        operational suitability or calculate trip-specific landing mass or CG.
+        operational suitability, landing CG or the envelope. Estimated arrival mass = validated
+        M&amp;B takeoff mass − trip fuel burned, assuming constant consumption. Reserve remains on
+        board; fuel remaining on arrival differs from the budget margin after trip + reserve. The
+        separate M&amp;B landing point assumes all usable fuel is burned.
       </p>
     </div>
     <p v-else-if="fuel.ok" role="status">

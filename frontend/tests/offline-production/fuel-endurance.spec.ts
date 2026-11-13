@@ -16,6 +16,7 @@ test('persisted fleet tank inputs feed the session-only fuel plan online and cac
     .poll(() => page.evaluate(() => navigator.serviceWorker.controller !== null))
     .toBe(true)
   const profile = testPohAircraft()
+  profile.weighingReports[0]!.bem = 560
   profile.loadPoints = [
     {
       name: 'Synthetic tank',
@@ -65,16 +66,21 @@ test('persisted fleet tank inputs feed the session-only fuel plan online and cac
   await rate.fill('10')
   await trip.fill('120')
   await reserve.fill('30')
-  await expect(results.locator('dd')).toHaveText(['240 min', '20 kg', '5 kg', '25 kg', '15 kg'])
+  await expect(results.locator(':scope > dl > dd')).toHaveText(['240 min', '20 kg', '5 kg', '25 kg', '15 kg'])
+  await expect(page.getByRole('region', { name: 'Estimated trip arrival', exact: true }).locator('dd')).toHaveText(['600 kg', '20 kg', '580 kg', '20 kg'])
   await results.scrollIntoViewIfNeeded()
   await page.screenshot({ path: info.outputPath('fuel-plan.png') })
   await info.attach('fuel-plan', {
     path: info.outputPath('fuel-plan.png'),
     contentType: 'image/png',
   })
+  const arrival = page.getByRole('region', { name: 'Estimated trip arrival', exact: true })
+  await trip.fill('0')
+  await expect(arrival.locator('dd')).toHaveText(['600 kg', '0 kg', '600 kg', '40 kg'])
   await trip.fill('240')
   await reserve.fill('0')
   await expect(results).toContainText('Zero margin')
+  await expect(arrival.locator('dd')).toHaveText(['600 kg', '40 kg', '560 kg', '0 kg'])
   await reserve.fill('1')
   await expect(results).toContainText('WARN-FE-001')
   await results.scrollIntoViewIfNeeded()
@@ -83,6 +89,19 @@ test('persisted fleet tank inputs feed the session-only fuel plan online and cac
     path: info.outputPath('fuel-shortfall.png'),
     contentType: 'image/png',
   })
+  await trip.fill('241')
+  await expect(arrival).toHaveCount(0)
+  await expect(results).toContainText('Trip fuel exceeds available usable fuel')
+  await trip.fill('120')
+  await reserve.fill('180')
+  await expect(arrival.locator('dd')).toHaveText(['600 kg', '20 kg', '580 kg', '20 kg'])
+  await expect(results).toContainText('WARN-FE-001')
+  await tank.fill('60')
+  await tank.blur()
+  await expect(arrival.locator('dd')).toHaveText(['610 kg', '20 kg', '590 kg', '30 kg'])
+  await tank.fill('50')
+  await tank.blur()
+  await reserve.fill('30')
   await trip.fill('')
   await expect(results).toHaveCount(0)
   await trip.fill('120')
@@ -113,7 +132,8 @@ test('persisted fleet tank inputs feed the session-only fuel plan online and cac
   await rate.fill('10')
   await trip.fill('120')
   await reserve.fill('30')
-  await expect(results.locator('dd')).toHaveText(['240 min', '20 kg', '5 kg', '25 kg', '15 kg'])
+  await expect(results.locator(':scope > dl > dd')).toHaveText(['240 min', '20 kg', '5 kg', '25 kg', '15 kg'])
+  await expect(arrival.locator('dd')).toHaveText(['600 kg', '20 kg', '580 kg', '20 kg'])
   await results.scrollIntoViewIfNeeded()
   await page.screenshot({ path: info.outputPath('fuel-offline.png') })
   await info.attach('fuel-offline', {
