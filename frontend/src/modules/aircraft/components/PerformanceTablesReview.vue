@@ -53,7 +53,7 @@ function normalizedPoints(table: NonNullable<AircraftProfile['performanceProfile
 
 <style scoped>
 .table-review { margin-top: .75rem; max-width: 100%; }
-summary { cursor: pointer; padding: .5rem 0; }
+summary { cursor: pointer; padding: .5rem 0; min-height: 44px; }
 p { line-height: 1.5; overflow-wrap: anywhere; }
 .table-scroll { overflow-x: auto; max-width: 100%; }
 table { border-collapse: collapse; width: 100%; font-size: .875rem; }

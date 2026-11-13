@@ -209,7 +209,7 @@ button { cursor: pointer; font-weight: 600; }
 .pa-method { border: 1px solid var(--color-border); border-radius: 8px; padding: 1rem; margin: 1rem 0; display: grid; gap: .5rem; min-width: 0; }
 .field { display: grid; gap: .5rem; align-content: start; }
 .field select { margin-top: 0; }
-.choice { display: flex; align-items: center; gap: .5rem; }
+.choice { display: flex; align-items: center; gap: .5rem; min-height: 44px; padding: .5rem; cursor: pointer; }
 .choice input { min-height: 24px; }
 .secondary { justify-self: start; font-weight: 500; }
 .field-error { color: var(--color-error, #b3261e); margin: 0; }
@@ -218,5 +218,5 @@ button { cursor: pointer; font-weight: 600; }
 button:disabled { opacity: .5; cursor: default; }
 dd { margin: .5rem 0; font-size: 1.5rem; font-weight: 700; }
 [role="alert"] { padding: .75rem; border-left: 4px solid var(--color-warning, #ba7b24); }
-a { color: var(--color-primary); text-decoration: underline; }
+a { display: inline-flex; align-items: center; min-height: 44px; max-width: 100%; color: var(--color-primary); text-decoration: underline; }
 </style>
