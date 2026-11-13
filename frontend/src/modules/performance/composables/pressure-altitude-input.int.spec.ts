@@ -34,7 +34,11 @@ it('resolves the persisted runway elevation only after an explicit copy', () => 
   Object.assign(input.draft, { qnh: '1013.25', qnhUnit: 'hPa' })
   expect(input.resolution.value.status).toBe('blocked')
   expect(input.useRunwayElevation()).toBe(true)
-  expect(input.resolution.value).toMatchObject({ status: 'ready', method: 'qnh-elevation', value: -100, displayFt: -100 })
+  // Independent reference (Python decimal): QNH 1013.25 hPa at −100 ft gives −108.164857 ft.
+  expect(input.resolution.value).toMatchObject({ status: 'ready', method: 'qnh-elevation', displayFt: -108 })
+  const resolution = input.resolution.value
+  if (resolution.status !== 'ready') throw new Error('expected ready')
+  expect(resolution.value).toBeCloseTo(-108.164857, 5)
   // The stored declaration keeps its original value; nothing about PA is written.
   expect(JSON.parse(localStorage.getItem(MANUAL_RUNWAY_STORAGE_KEY)!).runway.fieldElevation).toEqual({ value: -100, unit: 'ft' })
   expect(Object.keys(localStorage)).toEqual([MANUAL_RUNWAY_STORAGE_KEY])
