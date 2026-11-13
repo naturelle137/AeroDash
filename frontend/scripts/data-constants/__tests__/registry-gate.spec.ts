@@ -10,6 +10,9 @@ import {
 } from '@/modules/mass-balance/data/occupant-presets'
 
 import {
+  ALTIMETER_SETTING_LAPSE_RATE_K_PER_M,
+  ALTIMETER_SETTING_OFFSET_HPA,
+  ALTIMETER_SETTING_TEMPERATURE_K,
   PRESSURE_ALTITUDE_COEFFICIENT_FT,
   PRESSURE_ALTITUDE_EXPONENT,
   STANDARD_PRESSURE_HPA,
@@ -75,6 +78,9 @@ describe('data-constants drift — registry value matches code', () => {
     'pressure-altitude-coefficient-ft',
     'pressure-altitude-exponent',
     'standard-pressure-hpa',
+    'altimeter-setting-offset-hpa',
+    'altimeter-setting-lapse-rate-k-per-m',
+    'altimeter-setting-temperature-k',
   ])
 
   it('fuel-density-avgas-mogas matches FUEL_DENSITY_KG_PER_L (AvGas/MoGas)', () => {
@@ -108,6 +114,9 @@ describe('data-constants drift — registry value matches code', () => {
     expect(PRESSURE_ALTITUDE_COEFFICIENT_FT).toBe(entry('pressure-altitude-coefficient-ft').value)
     expect(PRESSURE_ALTITUDE_EXPONENT).toBe(entry('pressure-altitude-exponent').value)
     expect(STANDARD_PRESSURE_HPA).toBe(entry('standard-pressure-hpa').value)
+    expect(ALTIMETER_SETTING_OFFSET_HPA).toBe(entry('altimeter-setting-offset-hpa').value)
+    expect(ALTIMETER_SETTING_LAPSE_RATE_K_PER_M).toBe(entry('altimeter-setting-lapse-rate-k-per-m').value)
+    expect(ALTIMETER_SETTING_TEMPERATURE_K).toBe(entry('altimeter-setting-temperature-k').value)
   })
 
   it('every registry constant is drift-checked', () => {

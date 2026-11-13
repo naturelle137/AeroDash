@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import {
+  ALTIMETER_SETTING_LAPSE_RATE_K_PER_M,
+  ALTIMETER_SETTING_OFFSET_HPA,
+  ALTIMETER_SETTING_TEMPERATURE_K,
   ELEVATION_SUPPORTED_FT,
   PRESSURE_ALTITUDE_COEFFICIENT_FT,
   PRESSURE_ALTITUDE_EXPONENT,
@@ -7,6 +10,8 @@ import {
   STANDARD_PRESSURE_HPA,
   derivePressureAltitude,
   pressureAltitudeFromQnh,
+  pressureAltitudeFromStationPressure,
+  stationPressureFromQnh,
   type PressureAltitudeDraft,
 } from './pressure-altitude'
 
@@ -29,21 +34,27 @@ describe('pressure altitude from QNH and field elevation', () => {
     expect(PRESSURE_ALTITUDE_COEFFICIENT_FT).toBe(145366.45)
     expect(PRESSURE_ALTITUDE_EXPONENT).toBe(0.190284)
     expect(STANDARD_PRESSURE_HPA).toBe(1013.25)
+    expect(ALTIMETER_SETTING_OFFSET_HPA).toBe(0.3)
+    expect(ALTIMETER_SETTING_LAPSE_RATE_K_PER_M).toBe(0.0065)
+    expect(ALTIMETER_SETTING_TEMPERATURE_K).toBe(288)
   })
 
-  // Expected values computed independently with Python decimal (40 digits), not with this module.
+  // Expected values computed independently with Python decimal (40 digits), not with this module:
+  // P = (QNH^n − 1013.25^n · 0.0065/288 · h_m)^(1/n) + 0.3, PA = 145366.45 · (1 − (P/1013.25)^n).
   it.each([
-    ['1013.25', '0', 0],
-    ['1013', '0', 6.825481],
-    ['1000', '0', 363.644579],
-    ['950', '0', 1772.030170],
-    ['1050', '0', -988.828124],
-    ['850', '0', 4779.193602],
-    ['1100', '0', -2290.118213],
-    ['983', '1500', 2335.965561],
-    ['1030', '-1240', -1694.231377],
-    ['850', '15000', 19779.193602],
-    ['1100', '-1500', -3790.118213],
+    ['1013.25', '0', -8.188777],
+    ['1013', '0', -1.364932],
+    ['1000', '0', 355.368070],
+    ['950', '0', 1763.402729],
+    ['1050', '0', -996.784081],
+    ['850', '0', 4769.753243],
+    ['1100', '0', -2297.780099],
+    ['983', '1500', 2327.192520],
+    ['1013.25', '1000', 991.567192],
+    ['1030', '-1240', -1702.026273],
+    ['940', '-100', 1952.205967],
+    ['850', '15000', 19763.937842],
+    ['1100', '-1500', -3797.457643],
   ])('QNH %s hPa at %s ft gives %f ft', (qnh, elevation, expected) => {
     expect(derived({ qnh, elevation }).pressureAltitudeFt).toBeCloseTo(expected, 5)
   })
@@ -51,20 +62,40 @@ describe('pressure altitude from QNH and field elevation', () => {
   it('converts metre elevation exactly through FT_TO_M', () => {
     const result = derived({ qnh: '1000', elevation: '457.2', elevationUnit: 'm' })
     expect(result.elevationFt).toBeCloseTo(1500, 9)
-    expect(result.pressureAltitudeFt).toBeCloseTo(1863.644579, 5)
+    expect(result.pressureAltitudeFt).toBeCloseTo(1854.993736, 5)
     expect(result.elevation).toEqual({ value: 457.2, unit: 'm' })
-    expect(result.displayPressureAltitudeFt).toBe(1864)
+    expect(result.displayPressureAltitudeFt).toBe(1855)
   })
 
-  // Round trip through the NWS altimeter-setting formula: station pressure P (incl. the
-  // 0.3 hPa sensor offset) and elevation give QNH; the model must recover the NWS
-  // pressure altitude of P − 0.3. Values from the independent Python computation.
+  // Same-P round trip through both cited NWS sheets: station pressure P and elevation give the
+  // altimeter setting A (with P − 0.3 as published); the model must recover P itself and the NWS
+  // pressure altitude of that same P. Settings and PA from the independent Python computation.
   it.each([
-    [1014.274988, 1800, 1772.030170],
-    [1014.582449, 400, 363.644579],
-    [1014.497606, 4500, 4465.958496],
-  ])('inverts the NWS altimeter setting %f hPa at %i ft', (qnh, elevationFt, stationPa) => {
-    expect(Math.abs(pressureAltitudeFromQnh(qnh, elevationFt) - stationPa)).toBeLessThan(0.01)
+    // Review PA-01 reproduction.
+    [950.3, 1800, 1014.274988094126, 1763.402729357421],
+    [1000, 0, 999.7, 363.644578556939],
+    [1013.25, 400, 1027.684959077727, 0],
+    [980, 4500, 1151.105203218686, 920.001823507912],
+    [1030, -1240, 984.506223674033, -454.231376885259],
+    [1050, -1500, 994.377629805917, -988.828124275084],
+  ])('recovers station pressure %f hPa at %i ft from its NWS altimeter setting', (stationHpa, elevationFt, qnh, stationPa) => {
+    expect(stationPressureFromQnh(qnh, elevationFt)).toBeCloseTo(stationHpa, 9)
+    expect(pressureAltitudeFromStationPressure(stationHpa)).toBeCloseTo(stationPa, 6)
+    expect(pressureAltitudeFromQnh(qnh, elevationFt)).toBeCloseTo(stationPa, 6)
+  })
+
+  it('stays within the documented bound of the idealized elevation + PA(QNH) relation', () => {
+    const idealized = (qnh: number, elevationFt: number) => elevationFt
+      + PRESSURE_ALTITUDE_COEFFICIENT_FT * (1 - Math.pow(qnh / STANDARD_PRESSURE_HPA, PRESSURE_ALTITUDE_EXPONENT))
+    for (const qnh of [850, 950, 1013.25, 1100]) {
+      for (const elevationFt of [-1500, 0, 1800, 15000]) {
+        const difference = pressureAltitudeFromQnh(qnh, elevationFt) - idealized(qnh, elevationFt)
+        expect(difference).toBeLessThan(-7.3)
+        expect(difference).toBeGreaterThan(-15.3)
+      }
+    }
+    // PA-01 case: the idealized relation gives 1772.030103 ft instead of 1763.402729 ft.
+    expect(idealized(1014.274988094126, 1800)).toBeCloseTo(1772.030103, 5)
   })
 
   it('differs from the linear 30 ft/hPa rule, which understates PA above standard pressure', () => {
@@ -84,7 +115,7 @@ describe('pressure altitude from QNH and field elevation', () => {
   })
 
   it('never displays negative zero', () => {
-    expect(Object.is(derived({ qnh: '1013.26' }).displayPressureAltitudeFt, 0)).toBe(true)
+    expect(Object.is(derived({ qnh: '1012.96' }).displayPressureAltitudeFt, 0)).toBe(true)
   })
 
   it.each(['', '  ', 'abc', 'NaN', 'Infinity', '0x3F5', '1e400', '1,013'])('rejects QNH text %j', (qnh) => {

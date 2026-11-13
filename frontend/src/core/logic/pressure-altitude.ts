@@ -5,14 +5,14 @@ import { FT_TO_M } from './unit-conversion-constants'
  * and field elevation. Pure and deterministic; no weather source, default or
  * aircraft data.
  *
- * Model: the NOAA/NWS altimeter-setting relationship
- *   A = (P − 0.3) · (1 + (1013.25^n · 0.0065 / 288) · h / (P − 0.3)^n)^(1/n)
- * and NWS pressure altitude h_alt = 145366.45 · (1 − (P / 1013.25)^n) ft,
- * n = 0.190284 (NWS El Paso "Altimeter Setting" and "Pressure Altitude"
- * formula sheets). Solving the first for the pressure at field elevation and
- * substituting into the second gives PA = elevation + h_alt(QNH). This is the
- * standard-atmosphere definition of the setting, not an aircraft model; the
- * linear "30 ft per hPa" rule is only an approximation of it.
+ * Model: the two NOAA/NWS (El Paso) formula sheets, applied to the same station
+ * pressure P (hPa), with n = 0.190284 and h the station elevation in m:
+ *   altimeter setting  A = (P − 0.3) · (1 + (1013.25^n · 0.0065 / 288) · h / (P − 0.3)^n)^(1/n)
+ *   pressure altitude  PA = 145366.45 · (1 − (P / 1013.25)^n) ft
+ * Solving the first for P gives P = (A^n − 1013.25^n · 0.0065 / 288 · h)^(1/n) + 0.3,
+ * which the second turns into PA. The 0.3 hPa term is kept exactly as published.
+ * This is the standard-atmosphere definition of the setting, not an aircraft
+ * model; the linear "30 ft per hPa" rule is only an approximation of it.
  */
 
 /** NWS pressure-altitude coefficient (ft). */
@@ -21,6 +21,12 @@ export const PRESSURE_ALTITUDE_COEFFICIENT_FT = 145366.45 as const
 export const PRESSURE_ALTITUDE_EXPONENT = 0.190284 as const
 /** Standard sea-level pressure (hPa). */
 export const STANDARD_PRESSURE_HPA = 1013.25 as const
+/** NWS altimeter-setting pressure term subtracted from station pressure (hPa). */
+export const ALTIMETER_SETTING_OFFSET_HPA = 0.3 as const
+/** NWS altimeter-setting lapse rate (K/m). */
+export const ALTIMETER_SETTING_LAPSE_RATE_K_PER_M = 0.0065 as const
+/** NWS altimeter-setting reference temperature (K). */
+export const ALTIMETER_SETTING_TEMPERATURE_K = 288 as const
 
 export const QNH_UNITS = ['hPa'] as const
 export type QnhUnit = (typeof QNH_UNITS)[number]
@@ -29,7 +35,7 @@ export type PaElevationUnit = (typeof PA_ELEVATION_UNITS)[number]
 
 /**
  * Software input bounds for ordinary aerodrome use, not limits of the atmosphere
- * model; accepted results stay between about −3800 ft and +19800 ft.
+ * model; accepted results stay between about −3800 ft and +19770 ft.
  */
 export const QNH_SUPPORTED_HPA = { min: 850, max: 1100 } as const
 export const ELEVATION_SUPPORTED_FT = { min: -1500, max: 15000 } as const
@@ -69,10 +75,24 @@ function parseDecimal(text: string): number | null {
   return Number.isFinite(value) ? value : null
 }
 
-/** Exact formula for already validated inputs inside the supported domain. */
+/** Station pressure (hPa) whose NWS altimeter setting at this elevation equals the QNH. */
+export function stationPressureFromQnh(qnhHpa: number, elevationFt: number): number {
+  const n = PRESSURE_ALTITUDE_EXPONENT
+  const reduced = Math.pow(qnhHpa, n)
+    - Math.pow(STANDARD_PRESSURE_HPA, n) * ALTIMETER_SETTING_LAPSE_RATE_K_PER_M / ALTIMETER_SETTING_TEMPERATURE_K
+    * elevationFt * FT_TO_M
+  return Math.pow(reduced, 1 / n) + ALTIMETER_SETTING_OFFSET_HPA
+}
+
+/** NWS pressure altitude (ft) of a station pressure (hPa). */
+export function pressureAltitudeFromStationPressure(stationHpa: number): number {
+  return PRESSURE_ALTITUDE_COEFFICIENT_FT
+    * (1 - Math.pow(stationHpa / STANDARD_PRESSURE_HPA, PRESSURE_ALTITUDE_EXPONENT))
+}
+
+/** Cited NWS equations for already validated inputs inside the supported domain. */
 export function pressureAltitudeFromQnh(qnhHpa: number, elevationFt: number): number {
-  return elevationFt + PRESSURE_ALTITUDE_COEFFICIENT_FT
-    * (1 - Math.pow(qnhHpa / STANDARD_PRESSURE_HPA, PRESSURE_ALTITUDE_EXPONENT))
+  return pressureAltitudeFromStationPressure(stationPressureFromQnh(qnhHpa, elevationFt))
 }
 
 /** Validates the raw text form; an empty field or missing unit never becomes a default. */

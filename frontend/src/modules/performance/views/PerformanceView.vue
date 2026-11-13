@@ -161,9 +161,11 @@ function compute(): void {
               ({{ pa.derivation.value.elevationFt.toFixed(1) }} ft). The lookup uses the unrounded value.</p>
           </div>
           <p v-else>No derived pressure altitude. Enter QNH and field elevation with units.</p>
-          <p class="method-limits">Method: standard-atmosphere altimeter-setting relationship published by
-            NOAA/NWS, PA = elevation + 145366.45 × (1 − (QNH / 1013.25)^0.190284) ft. It assumes the QNH is the
-            current altimeter setting for this aerodrome and the elevation is where you need pressure altitude.
+          <p class="method-limits">Method: NOAA/NWS altimeter-setting and pressure-altitude formulas, solved for
+            the station pressure P whose altimeter setting at this elevation equals the QNH (including the
+            published 0.3 hPa term); PA = 145366.45 × (1 − (P / 1013.25)^0.190284) ft. With QNH 1013.25 hPa this
+            gives about 8 ft below the elevation. It assumes the QNH is the current altimeter setting for this
+            aerodrome and the elevation is where you need pressure altitude.
             It is not the 30 ft/hPa rule of thumb, not an aircraft model and not validated against your POH/AFM.
             These inputs are not stored.</p>
         </section>

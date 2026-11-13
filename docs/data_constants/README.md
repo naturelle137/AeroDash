@@ -31,6 +31,9 @@ diverge or an entry goes stale.
 | `pressure-altitude-coefficient-ft` | `145366.45` | ft | NOAA/NWS pressure-altitude formula | 2026-11-12 | 2028-11-12 | REQ-PF-013 / H-007 |
 | `pressure-altitude-exponent` | `0.190284` | 1 | NOAA/NWS pressure-altitude formula | 2026-11-12 | 2028-11-12 | REQ-PF-013 / H-007 |
 | `standard-pressure-hpa` | `1013.25` | hPa | NOAA/NWS pressure-altitude formula | 2026-11-12 | 2028-11-12 | REQ-PF-013 / H-007 |
+| `altimeter-setting-offset-hpa` | `0.3` | hPa | NOAA/NWS altimeter-setting formula | 2026-11-12 | 2028-11-12 | REQ-PF-013 / H-007 |
+| `altimeter-setting-lapse-rate-k-per-m` | `0.0065` | K/m | NOAA/NWS altimeter-setting formula | 2026-11-12 | 2028-11-12 | REQ-PF-013 / H-007 |
+| `altimeter-setting-temperature-k` | `288` | K | NOAA/NWS altimeter-setting formula | 2026-11-12 | 2028-11-12 | REQ-PF-013 / H-007 |
 
 > Occupant presets are **convenience shortcuts**, not authoritative masses. The
 > pilot always enters the actual or applicable standard mass. EASA standard-mass
