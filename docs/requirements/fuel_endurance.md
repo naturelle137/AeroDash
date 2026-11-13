@@ -18,9 +18,9 @@ If the planned flight time (including reserves) exceeds the calculated maximum f
 
 When calculating fuel consumption for a named burn sequence, the system shall drain tanks in the configured order.
 
-### REQ-FE-005: Landing Mass Estimation
+### REQ-FE-005: Estimated trip arrival mass
 
-When the user enters Planned Flight Time, the system shall calculate estimated landing mass from the corresponding fuel burn.
+When the user enters a valid explicit consumption and trip duration, the system shall calculate estimated arrival mass as validated M&B takeoff mass minus trip fuel burned.
 
 ### REQ-FE-006: Electric Endurance Card
 
@@ -62,4 +62,16 @@ When the selected aircraft changes, the system shall clear manual endurance plan
 
 When the preparation view is reopened or reloaded, the system shall start manual endurance planning unconfigured.
 
-Current scope: REQ-FE-002/003 and manual arithmetic are available in Flight Preparation. Consumption is assumed constant; reserve is user chosen without a regulatory default. Zero margin is arithmetic equality, not a safety verdict. REQ-FE-005/009 trip-specific landing mass/CG, burn scheduling and electric endurance remain future work; the existing M&B zero-fuel landing output is separate.
+### REQ-FE-016: Arrival fuel
+
+When displaying a trip arrival estimate, the system shall show usable fuel remaining before reserve budgeting.
+
+### REQ-FE-017: Unavailable arrival estimate
+
+If current M&B loading or fuel inventory is invalid or unavailable, then the system shall block the arrival estimate with a visible reason.
+
+### REQ-FE-018: Impossible trip
+
+If trip fuel exceeds usable fuel, then the system shall block the arrival estimate with a visible reason.
+
+Current scope: REQ-FE-002/003 and manual arithmetic are available in Flight Preparation. Consumption is assumed constant; reserve is user chosen without a regulatory default. Zero margin is arithmetic equality, not a safety verdict. REQ-FE-005 estimated trip arrival mass retains reserve and does not assess landing CG, envelope or operational suitability. REQ-FE-009 direct Trip Fuel entry, trip-specific CG, burn scheduling and electric endurance remain future work; the existing M&B zero-fuel landing output is separate.
