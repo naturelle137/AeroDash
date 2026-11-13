@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Fuel & Endurance estimates trip arrival mass from validated M&B takeoff mass, retains reserve and blocks impossible trips (#507).
+
+### Added
+
 - Flight Preparation fuel endurance and reserve arithmetic from usable tank loads and explicit manual planning inputs, including shortage warnings and cached offline use (#505).
 
 ### Fixed
