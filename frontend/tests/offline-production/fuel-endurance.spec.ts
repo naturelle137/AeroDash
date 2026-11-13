@@ -30,7 +30,7 @@ test('persisted fleet tank inputs feed the session-only fuel plan online and cac
       operationalLimit: 100,
       defaultQuantity: 10,
       unit: 'kg',
-      allowableCategories: null,
+      allowableCategories: ['Normal'],
       fuelTank: { unusableFuel: 10, permissibleFuelTypes: ['AvGas 100LL'], burnSequences: [] },
     },
   ]
@@ -161,7 +161,8 @@ test('persisted fleet tank inputs feed the session-only fuel plan online and cac
   await tank.blur()
   const category = page.getByLabel('Certification category')
   await category.selectOption('Utility')
-  await expect(arrival.locator('dd')).toHaveText(['600 kg', '20 kg', '580 kg', '20 kg'])
+  await expect(arrival).toHaveCount(0)
+  await expect(card).toContainText('No fuel tanks available in this category')
   await category.selectOption('Normal')
   await expect(arrival.locator('dd')).toHaveText(['600 kg', '20 kg', '580 kg', '20 kg'])
   await results.scrollIntoViewIfNeeded()
