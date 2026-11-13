@@ -121,3 +121,5 @@ Lokale Flugzeugverwaltung, Massen-/Schwerpunkt-Workflow und POH-Tabellenabfrage 
 Node >=22.12 und Corepack/pnpm verwenden: `pnpm install --frozen-lockfile`, danach `pnpm dev` (Port 5173). Prüfungen: `pnpm lint && pnpm test:unit`, Browser: `pnpm test:e2e --project=chromium`.
 
 [AGENTS.md](AGENTS.md), [Beitragen](CONTRIBUTING.md), [Architektur](ARCHITECTURE.md), [Anforderungen](docs/requirements/README.md) und [Tests](docs/testing/TESTING.md) sind die zentralen Entwicklerdokumente auf Englisch. README.md bleibt Englisch, README-DE.md Deutsch.
+
+**Kraftstoff und Flugzeit:** Die Flugvorbereitung verwendet verfügbare Tankmengen abzüglich nicht ausfliegbaren Kraftstoffs. Durchschnittsverbrauch (kg/h), Flugzeit und Reserve (Minuten) werden ausdrücklich eingegeben. Die Anzeige berechnet Reichweite in Minuten, Bedarf und Fehlmenge bei konstantem Verbrauch; sie gibt keine regulatorische Mindestreserve oder Flugfreigabe vor. Die neuen Eingaben werden beim Flugzeugwechsel, Verlassen der Ansicht oder Neuladen gelöscht. Flugbezogene Landemasse/Schwerpunkt und elektrische Ausdauer bleiben offen.

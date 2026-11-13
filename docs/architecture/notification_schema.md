@@ -265,6 +265,10 @@ This section defines the complete JSON payload for each notification. These payl
 
 `{field}` is replaced with the invalid field path, `{code}` with the Zod validation code, and `{Module}` with the originating module name (e.g., `MassBalance`).
 
+#### WARN-FE-002 — Fuel Density Fallback
+
+M&B retains a WARNING with context `FuelEndurance.Density` when an unknown fuel type requires conservative fallback density. This is distinct from insufficient fuel (`WARN-FE-001`). The endurance planner blocks fallback-derived fuel rather than accepting it as validated usable fuel.
+
 ### 6.7 User Interface (UI)
 
 #### WARN-UI-001 — Input Out of Range

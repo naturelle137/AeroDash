@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Flight Preparation fuel endurance and reserve arithmetic from usable tank loads and explicit manual planning inputs, including shortage warnings and cached offline use (#505).
+
 ### Fixed
 
 - Normalize registration while typing, explain blocked wizard progression, focus incomplete M&B inputs on request, respect tablet navigation expansion and describe M&B results as within entered limits (refs #291).
