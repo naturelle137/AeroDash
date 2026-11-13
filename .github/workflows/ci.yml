@@ -201,6 +201,21 @@ jobs:
       - name: Run E2E tests
         run: pnpm --filter frontend test:e2e
 
+      - name: Run bounded touch and desktop workflow
+        run: pnpm --filter frontend exec playwright test --config playwright.touch.config.ts
+        env:
+          PLAYWRIGHT_HTML_OUTPUT_DIR: playwright-touch-report
+
+      - name: Upload touch workflow evidence
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v5
+        with:
+          name: touch-workflow-evidence
+          path: |
+            frontend/playwright-touch-report/
+            frontend/test-results-touch/
+          retention-days: 14
+
       - name: Upload Playwright report
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v5

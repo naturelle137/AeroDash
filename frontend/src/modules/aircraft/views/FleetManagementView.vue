@@ -279,7 +279,21 @@ h2 {
 }
 
 .import-file-input {
+  min-height: 44px;
+  max-width: 100%;
   color: var(--color-text, #212121);
+}
+
+.import-file-input::file-selector-button {
+  min-height: 44px;
+  cursor: pointer;
+}
+
+a[href="/performance"] {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  max-width: 100%;
 }
 
 .field-error {

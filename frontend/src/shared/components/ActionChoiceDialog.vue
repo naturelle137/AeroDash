@@ -162,7 +162,7 @@ function onDismiss(): void {
 }
 
 .action-choice__btn {
-  min-height: 44px; /* WCAG 2.2 AAA touch target — gloved cockpit use */
+  min-height: 44px;
   padding: var(--space-2, 0.5rem) var(--space-5, 1.5rem);
   border-radius: var(--radius-md, 6px);
   font: inherit;

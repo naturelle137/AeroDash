@@ -526,16 +526,6 @@ function onDismissUndo(): void {
   flex-wrap: wrap;
 }
 
-/* ─── Icon-only action buttons (Select / Verify / Download / Edit / Delete) ───
- *
- * Sized generously for touch use under cockpit vibration:
- *   • 2.75rem × 2.75rem (≈44 px) meets WCAG 2.2 SC 2.5.8 AAA target size.
- *   • 0.75rem gap between siblings prevents mis-tap.
- *   • Clear focus ring + hover colour differentiation for gloved use.
- *   • Every button carries an `aria-label` and a `.sr-only` text label so
- *     screen readers and automated tests can still discriminate actions.
- */
-
 .sr-only {
   position: absolute;
   width: 1px;

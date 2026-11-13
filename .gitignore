@@ -60,3 +60,5 @@ test-results/
 playwright-report/
 
 Thumbs.db
+frontend/test-results-touch/
+frontend/playwright-touch-report/
