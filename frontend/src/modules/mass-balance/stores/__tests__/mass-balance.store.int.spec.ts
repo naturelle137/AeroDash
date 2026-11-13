@@ -321,7 +321,10 @@ describe('MassBalance store ↔ real adapter — unknown fuel fails closed (BUND
     }
     store.loadProfile(unknownFuel)
 
-    expect(store.notifications.some((n) => n.id === 'WARN-FE-002')).toBe(true)
+    expect(store.notifications).toContainEqual(expect.objectContaining({
+      id: 'WARN-FE-002', severity: 'WARNING', context: 'FuelEndurance.Density',
+    }))
+    expect(store.notifications.some((n) => n.id === 'WARN-FE-001')).toBe(false)
     expect(store.hasWarningNotification).toBe(true)
   })
 

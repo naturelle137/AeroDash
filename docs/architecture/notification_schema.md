@@ -65,6 +65,7 @@ These notification IDs define the intended message contract. See the roadmap for
 | `WARN-AC-001`  | Registration Duplicate             | `WARNING`  | [REQ-AC-003](../requirements/aircraft_management.md#req-ac-003-duplicate-registration-warning)            | If an aircraft registration already exists.                                                                                                                                                       |
 | `WARN-AC-002`  | Draft Profile Active               | `WARNING`  | [REQ-AC-005](../requirements/aircraft_management.md#req-ac-005-profile-verification-status)               | Mass & Balance (and future modules) when active aircraft context has fleet status `draft`.                                                                                                        |
 | `WARN-FE-001`  | Insufficient Fuel                  | `WARNING`  | [REQ-FE-003](../requirements/fuel_endurance.md#req-fe-003-endurance-exceedance-warning)                   | If the planned flight time (including reserves) exceeds the calculated maximum flight time (Endurance).                                                                                           |
+| `WARN-FE-002`  | Fuel Density Fallback              | `WARNING`  | [REQ-FE-001](../requirements/fuel_endurance.md#req-fe-001-fuel-density-calculation)                       | M&B uses fallback density for unknown fuel; the endurance planner blocks it.                                                                                                                      |
 | `CRIT-MB-001`  | CG Out of Envelope                 | `CRITICAL` | [REQ-MB-004](../requirements/mass_balance.md#req-mb-004-out-of-envelope-notification)                     | If the calculated CG is outside the defined aircraft envelope.                                                                                                                                    |
 | `CRIT-MB-002`  | MTOM Exceeded                      | `CRITICAL` | [REQ-MB-005](../requirements/mass_balance.md#req-mb-005-mtom-exceedance-notification)                     | If the total mass exceeds MTOM.                                                                                                                                                                   |
 | `CRIT-MB-003`  | CG Migration Limit Exceeded        | `CRITICAL` | [REQ-MB-011](../requirements/mass_balance.md#req-mb-011-cg-migration-exceedance)                          | If the CG migration vector exits the envelope at any point.                                                                                                                                       |
@@ -124,6 +125,10 @@ This section defines the complete JSON payload for each notification. These payl
   "context": "Fuel.Endurance"
 }
 ```
+
+#### WARN-FE-002 — Fuel Density Fallback
+
+M&B retains a WARNING with context `FuelEndurance.Density` when an unknown fuel type requires conservative fallback density. This is distinct from insufficient fuel (`WARN-FE-001`). The endurance planner blocks fallback-derived fuel rather than accepting it as validated usable fuel.
 
 ### 6.3 Mass & Balance (MB)
 
@@ -264,10 +269,6 @@ This section defines the complete JSON payload for each notification. These payl
 ```
 
 `{field}` is replaced with the invalid field path, `{code}` with the Zod validation code, and `{Module}` with the originating module name (e.g., `MassBalance`).
-
-#### WARN-FE-002 — Fuel Density Fallback
-
-M&B retains a WARNING with context `FuelEndurance.Density` when an unknown fuel type requires conservative fallback density. This is distinct from insufficient fuel (`WARN-FE-001`). The endurance planner blocks fallback-derived fuel rather than accepting it as validated usable fuel.
 
 ### 6.7 User Interface (UI)
 

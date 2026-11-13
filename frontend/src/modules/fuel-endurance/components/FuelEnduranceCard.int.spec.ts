@@ -48,13 +48,17 @@ describe('fuel plan with live M&B store', () => {
     const reopened = mount(FuelEnduranceCard)
     expect(reopened.find('[aria-label="Fuel planning results"]').exists()).toBe(false)
   })
-  it.each(['', '-1', 'NaN', 'Infinity', '0x10', '1e2', '9'.repeat(400)])('invalidates a prior result for %s', async raw => {
-    const { wrapper } = setup()
-    for (const id of ['consumption', 'trip', 'reserve']) await wrapper.get(`#fe-${id}`).setValue('10')
-    expect(wrapper.find('[aria-label="Fuel planning results"]').exists()).toBe(true)
-    await wrapper.get('#fe-trip').setValue(raw)
-    expect(wrapper.find('[aria-label="Fuel planning results"]').exists()).toBe(false)
-  })
+  it.each(['', '-1', 'NaN', 'Infinity', '0x10', '1e2', '9'.repeat(400)])(
+    'invalidates a prior result for %s',
+    async (raw) => {
+      const { wrapper } = setup()
+      for (const id of ['consumption', 'trip', 'reserve'])
+        await wrapper.get(`#fe-${id}`).setValue('10')
+      expect(wrapper.find('[aria-label="Fuel planning results"]').exists()).toBe(true)
+      await wrapper.get('#fe-trip').setValue(raw)
+      expect(wrapper.find('[aria-label="Fuel planning results"]').exists()).toBe(false)
+    },
+  )
   it('renders equality and reserve-only insufficiency without a success claim', async () => {
     const { wrapper } = setup()
     await wrapper.get('#fe-consumption').setValue('10')
