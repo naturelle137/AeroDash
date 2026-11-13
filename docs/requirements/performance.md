@@ -52,7 +52,7 @@ While a result uses extrapolated data, the system shall withhold acceptance of t
 
 ### REQ-PF-013: Pressure Altitude Formula
 
-When calculating pressure altitude, the system shall use `PA(ft) = Elevation(ft) + (1013.25 − QNH(hPa)) × 30`.
+When deriving pressure altitude from QNH and field elevation, the system shall use `PA(ft) = 145366.45 × (1 − (P / 1013.25)^0.190284)` with station pressure `P(hPa) = (QNH^0.190284 − 1013.25^0.190284 × 0.0065 / 288 × Elevation(m))^(1/0.190284) + 0.3` per the [pressure-altitude contract](../architecture/pressure-altitude.md).
 
 ### REQ-PF-014
 
@@ -158,7 +158,7 @@ While raw table distances are displayed, the system shall identify them as uncor
 
 When a Fleet profile contains performance tables, the system shall offer read-only inspection of every imported point before explicit user verification.
 
-The raw inspection slice does not implement estimation, extrapolation, QNH conversion,
+The raw inspection slice does not implement estimation, extrapolation,
 correction selection or operational runway comparison. Those requirements remain future scope.
 Synthetic Test fixtures establish wiring only; applicable aircraft POH/AFM citations and
 independent reference cases are required for aircraft-specific validation.
@@ -186,6 +186,38 @@ When computing raw distances from declared source units, the system shall normal
 ### REQ-PF-053: Source review invalidation
 
 When performance source values, unit declarations or references are edited, the system shall require a new Draft verification before raw distance computation.
+
+### REQ-PF-054: Explicit pressure-altitude method
+
+The system shall require the pilot to choose either direct pressure-altitude entry or derivation from QNH and field elevation before raw distance computation.
+
+### REQ-PF-055: Direct entry preservation
+
+When the pressure-altitude method changes, the system shall retain the direct pressure-altitude entry unchanged.
+
+### REQ-PF-056: Pressure-altitude input domain
+
+If QNH is not a finite hPa value from 850 through 1100 or field elevation is not a finite ft/m value from −1500 through 15000 ft, then the system shall block derivation with a visible reason.
+
+### REQ-PF-057: Derived pressure-altitude display
+
+When pressure altitude is derived, the system shall display the result in ft together with the entered QNH, elevation, units, elevation source and method limits.
+
+### REQ-PF-058: Runway elevation reuse
+
+When the pilot explicitly requests it, the system shall copy the saved manual runway field elevation and unit into the derivation and label that source.
+
+### REQ-PF-059: Copied elevation invalidation
+
+When a saved manual runway is edited or cleared, the system shall remove an unchanged elevation copied from it.
+
+### REQ-PF-060: Pressure-altitude invalidation
+
+When the pressure-altitude method, a source value, a unit or the elevation source changes, the system shall immediately clear the prior raw distances.
+
+### REQ-PF-061: Non-persistent derivation
+
+The system shall not persist pressure-altitude inputs or derived pressure altitude.
 
 ## Design References
 

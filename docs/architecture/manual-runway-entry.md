@@ -13,8 +13,9 @@ airport-validated**.
 | Surface | Required type (paved, grass/unpaved) and a condition from REQ-AP-004/REQ-AP-008 |
 
 Nothing has a default: no unit, surface, distance or elevation is inferred. Field
-elevation is geometric and is never copied into, or converted to, the pressure-
-altitude lookup; QNH conversion is separate future work.
+elevation is geometric and is never used as pressure altitude. The pilot may
+explicitly copy it into the [QNH derivation](pressure-altitude.md); the stored
+declaration is unchanged.
 
 ## Tiers
 

@@ -18,9 +18,14 @@ async function selectOnlyProfile(page: Page) {
   const id = await select.locator('option').nth(1).getAttribute('value')
   await select.selectOption(id!)
 }
+/** No pressure-altitude method is preselected; direct entry is a deliberate choice. */
+async function directPa(page: Page, value: string) {
+  await page.getByRole('radio', { name: 'Enter pressure altitude directly', exact: true }).check()
+  await page.getByLabel('Pressure altitude (ft)', { exact: true }).fill(value)
+}
 async function validInputs(page: Page) {
   await page.getByLabel('Mass (kg)', { exact: true }).fill('900')
-  await page.getByLabel('Pressure altitude (ft)', { exact: true }).fill('1000')
+  await directPa(page, '1000')
   await page.getByLabel('Temperature (°C)', { exact: true }).fill('10')
 }
 async function compute(page: Page) {
@@ -225,7 +230,7 @@ Then('the declared source reference vector computes after reload and export for 
   for (let i = 0; i < 2; i++) {
     await selectOnlyProfile(page)
     await page.getByLabel('Mass (kg)', { exact: true }).fill('907.18474')
-    await page.getByLabel('Pressure altitude (ft)', { exact: true }).fill('1000')
+    await directPa(page, '1000')
     await page.getByLabel('Temperature (°C)', { exact: true }).fill('10')
     await compute(page)
     await expect(result(page).locator('dd')).toHaveText(['304.8 m', '304.8 m', '304.8 m', '304.8 m'])
@@ -250,7 +255,7 @@ Then('the declared source reference vector computes after reload and export for 
   await page.goto('/performance')
   await selectOnlyProfile(page)
   await page.getByLabel('Mass (kg)', { exact: true }).fill('907.18474')
-  await page.getByLabel('Pressure altitude (ft)', { exact: true }).fill('1000')
+  await directPa(page, '1000')
   await page.getByLabel('Temperature (°C)', { exact: true }).fill('10')
   await compute(page)
   await expect(result(page).locator('dd')).toHaveText(['304.8 m', '304.8 m', '304.8 m', '304.8 m'])
@@ -273,7 +278,7 @@ Then('changing the imported source units requires explicit review again for {str
   const id = await select.locator('option').filter({ hasText: '(draft)' }).getAttribute('value')
   await select.selectOption(id!)
   await page.getByLabel('Mass (kg)', { exact: true }).fill('907.18474')
-  await page.getByLabel('Pressure altitude (ft)', { exact: true }).fill('1000')
+  await directPa(page, '1000')
   await page.getByLabel('Temperature (°C)', { exact: true }).fill('10')
   await compute(page)
   await expect(page.getByRole('alert').first()).toContainText('Draft profile')

@@ -154,7 +154,11 @@ Then('the runway form still holds LDA {string} in {string} and TORA {string} in 
 })
 
 Then('the field elevation is not used as pressure altitude', async ({ page }) => {
+  await expect(page.getByText('No method selected.')).toBeVisible()
+  await page.getByRole('radio', { name: 'Enter pressure altitude directly', exact: true }).check()
   await expect(page.getByLabel('Pressure altitude (ft)', { exact: true })).toHaveValue('')
+  await page.getByRole('radio', { name: 'Derive from QNH and field elevation', exact: true }).check()
+  await expect(page.getByLabel('Pressure-altitude field elevation', { exact: true })).toHaveValue('')
 })
 
 Then('the manual runway evidence is captured as {string}', async ({ page, $testInfo }, name: string) => {

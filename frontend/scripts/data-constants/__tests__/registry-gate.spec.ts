@@ -9,6 +9,14 @@ import {
   OCCUPANT_PRESET_MASSES_LB,
 } from '@/modules/mass-balance/data/occupant-presets'
 
+import {
+  ALTIMETER_SETTING_LAPSE_RATE_K_PER_M,
+  ALTIMETER_SETTING_OFFSET_HPA,
+  ALTIMETER_SETTING_TEMPERATURE_K,
+  PRESSURE_ALTITUDE_COEFFICIENT_FT,
+  PRESSURE_ALTITUDE_EXPONENT,
+  STANDARD_PRESSURE_HPA,
+} from '@/core/logic/pressure-altitude'
 import { loadRegistry, validateRegistry } from '../lib/registry.mjs'
 
 // This spec is the CI surface for the data-constants gate. It runs
@@ -67,6 +75,12 @@ describe('data-constants drift — registry value matches code', () => {
     'fuel-density-fallback',
     'occupant-preset-masses-kg',
     'occupant-preset-masses-lb',
+    'pressure-altitude-coefficient-ft',
+    'pressure-altitude-exponent',
+    'standard-pressure-hpa',
+    'altimeter-setting-offset-hpa',
+    'altimeter-setting-lapse-rate-k-per-m',
+    'altimeter-setting-temperature-k',
   ])
 
   it('fuel-density-avgas-mogas matches FUEL_DENSITY_KG_PER_L (AvGas/MoGas)', () => {
@@ -94,6 +108,15 @@ describe('data-constants drift — registry value matches code', () => {
 
   it('occupant-preset-masses-lb matches OCCUPANT_PRESET_MASSES_LB', () => {
     expect(OCCUPANT_PRESET_MASSES_LB).toEqual(entry('occupant-preset-masses-lb').value)
+  })
+
+  it('pressure-altitude constants match the core formula', () => {
+    expect(PRESSURE_ALTITUDE_COEFFICIENT_FT).toBe(entry('pressure-altitude-coefficient-ft').value)
+    expect(PRESSURE_ALTITUDE_EXPONENT).toBe(entry('pressure-altitude-exponent').value)
+    expect(STANDARD_PRESSURE_HPA).toBe(entry('standard-pressure-hpa').value)
+    expect(ALTIMETER_SETTING_OFFSET_HPA).toBe(entry('altimeter-setting-offset-hpa').value)
+    expect(ALTIMETER_SETTING_LAPSE_RATE_K_PER_M).toBe(entry('altimeter-setting-lapse-rate-k-per-m').value)
+    expect(ALTIMETER_SETTING_TEMPERATURE_K).toBe(entry('altimeter-setting-temperature-k').value)
   })
 
   it('every registry constant is drift-checked', () => {

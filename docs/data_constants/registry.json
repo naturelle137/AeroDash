@@ -85,6 +85,102 @@
         "file": "frontend/src/modules/mass-balance/data/occupant-presets.ts",
         "symbol": "OCCUPANT_PRESET_MASSES_LB"
       }
+    },
+    {
+      "id": "pressure-altitude-coefficient-ft",
+      "category": "pressure-altitude",
+      "description": "NWS pressure-altitude coefficient used for QNH/elevation derivation.",
+      "value": 145366.45,
+      "unit": "ft",
+      "source": "NOAA/NWS El Paso formula sheets 'Pressure Altitude' (PA = 145366.45 (1 - (P/1013.25)^0.190284) ft) and 'Altimeter Setting' (A = (P - 0.3) (1 + (1013.25^0.190284 x 0.0065 / 288) h / (P - 0.3)^0.190284)^(1/0.190284), h in m) (https://www.weather.gov/media/epz/wxcalc/pressureAltitude.pdf, https://www.weather.gov/media/epz/wxcalc/altimeterSetting.pdf); both applied to the same station pressure P, solved for P from QNH and elevation.",
+      "effectiveDate": "2026-11-12",
+      "reviewBy": "2028-11-12",
+      "requirement": "REQ-PF-013",
+      "hazard": "H-007",
+      "code": {
+        "file": "frontend/src/core/logic/pressure-altitude.ts",
+        "symbol": "PRESSURE_ALTITUDE_COEFFICIENT_FT"
+      }
+    },
+    {
+      "id": "pressure-altitude-exponent",
+      "category": "pressure-altitude",
+      "description": "NWS standard-atmosphere exponent used for QNH/elevation derivation.",
+      "value": 0.190284,
+      "unit": "1",
+      "source": "NOAA/NWS El Paso formula sheets 'Pressure Altitude' (PA = 145366.45 (1 - (P/1013.25)^0.190284) ft) and 'Altimeter Setting' (A = (P - 0.3) (1 + (1013.25^0.190284 x 0.0065 / 288) h / (P - 0.3)^0.190284)^(1/0.190284), h in m) (https://www.weather.gov/media/epz/wxcalc/pressureAltitude.pdf, https://www.weather.gov/media/epz/wxcalc/altimeterSetting.pdf); both applied to the same station pressure P, solved for P from QNH and elevation.",
+      "effectiveDate": "2026-11-12",
+      "reviewBy": "2028-11-12",
+      "requirement": "REQ-PF-013",
+      "hazard": "H-007",
+      "code": {
+        "file": "frontend/src/core/logic/pressure-altitude.ts",
+        "symbol": "PRESSURE_ALTITUDE_EXPONENT"
+      }
+    },
+    {
+      "id": "standard-pressure-hpa",
+      "category": "pressure-altitude",
+      "description": "Standard sea-level pressure used for QNH/elevation derivation.",
+      "value": 1013.25,
+      "unit": "hPa",
+      "source": "NOAA/NWS El Paso formula sheets 'Pressure Altitude' (PA = 145366.45 (1 - (P/1013.25)^0.190284) ft) and 'Altimeter Setting' (A = (P - 0.3) (1 + (1013.25^0.190284 x 0.0065 / 288) h / (P - 0.3)^0.190284)^(1/0.190284), h in m) (https://www.weather.gov/media/epz/wxcalc/pressureAltitude.pdf, https://www.weather.gov/media/epz/wxcalc/altimeterSetting.pdf); both applied to the same station pressure P, solved for P from QNH and elevation.",
+      "effectiveDate": "2026-11-12",
+      "reviewBy": "2028-11-12",
+      "requirement": "REQ-PF-013",
+      "hazard": "H-007",
+      "code": {
+        "file": "frontend/src/core/logic/pressure-altitude.ts",
+        "symbol": "STANDARD_PRESSURE_HPA"
+      }
+    },
+    {
+      "id": "altimeter-setting-offset-hpa",
+      "category": "pressure-altitude",
+      "description": "NWS altimeter-setting pressure term subtracted from station pressure, used for QNH/elevation derivation.",
+      "value": 0.3,
+      "unit": "hPa",
+      "source": "NOAA/NWS El Paso formula sheets 'Pressure Altitude' (PA = 145366.45 (1 - (P/1013.25)^0.190284) ft) and 'Altimeter Setting' (A = (P - 0.3) (1 + (1013.25^0.190284 x 0.0065 / 288) h / (P - 0.3)^0.190284)^(1/0.190284), h in m) (https://www.weather.gov/media/epz/wxcalc/pressureAltitude.pdf, https://www.weather.gov/media/epz/wxcalc/altimeterSetting.pdf); both applied to the same station pressure P, solved for P from QNH and elevation.",
+      "effectiveDate": "2026-11-12",
+      "reviewBy": "2028-11-12",
+      "requirement": "REQ-PF-013",
+      "hazard": "H-007",
+      "code": {
+        "file": "frontend/src/core/logic/pressure-altitude.ts",
+        "symbol": "ALTIMETER_SETTING_OFFSET_HPA"
+      }
+    },
+    {
+      "id": "altimeter-setting-lapse-rate-k-per-m",
+      "category": "pressure-altitude",
+      "description": "NWS altimeter-setting lapse rate used for QNH/elevation derivation.",
+      "value": 0.0065,
+      "unit": "K/m",
+      "source": "NOAA/NWS El Paso formula sheets 'Pressure Altitude' (PA = 145366.45 (1 - (P/1013.25)^0.190284) ft) and 'Altimeter Setting' (A = (P - 0.3) (1 + (1013.25^0.190284 x 0.0065 / 288) h / (P - 0.3)^0.190284)^(1/0.190284), h in m) (https://www.weather.gov/media/epz/wxcalc/pressureAltitude.pdf, https://www.weather.gov/media/epz/wxcalc/altimeterSetting.pdf); both applied to the same station pressure P, solved for P from QNH and elevation.",
+      "effectiveDate": "2026-11-12",
+      "reviewBy": "2028-11-12",
+      "requirement": "REQ-PF-013",
+      "hazard": "H-007",
+      "code": {
+        "file": "frontend/src/core/logic/pressure-altitude.ts",
+        "symbol": "ALTIMETER_SETTING_LAPSE_RATE_K_PER_M"
+      }
+    },
+    {
+      "id": "altimeter-setting-temperature-k",
+      "category": "pressure-altitude",
+      "description": "NWS altimeter-setting reference temperature used for QNH/elevation derivation.",
+      "value": 288,
+      "unit": "K",
+      "source": "NOAA/NWS El Paso formula sheets 'Pressure Altitude' (PA = 145366.45 (1 - (P/1013.25)^0.190284) ft) and 'Altimeter Setting' (A = (P - 0.3) (1 + (1013.25^0.190284 x 0.0065 / 288) h / (P - 0.3)^0.190284)^(1/0.190284), h in m) (https://www.weather.gov/media/epz/wxcalc/pressureAltitude.pdf, https://www.weather.gov/media/epz/wxcalc/altimeterSetting.pdf); both applied to the same station pressure P, solved for P from QNH and elevation.",
+      "effectiveDate": "2026-11-12",
+      "reviewBy": "2028-11-12",
+      "requirement": "REQ-PF-013",
+      "hazard": "H-007",
+      "code": {
+        "file": "frontend/src/core/logic/pressure-altitude.ts",
+        "symbol": "ALTIMETER_SETTING_TEMPERATURE_K"
+      }
     }
   ]
 }

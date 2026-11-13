@@ -62,7 +62,7 @@ These hazards guide calculation and UX checks; listing a requirement does not pr
 **Hazard:** Misjudgment of Density Altitude (Hot & High).
 **Severity:** S1
 **Cause:** Critical for P2008/DA40 in summer scenarios.
-**Relevant requirements:** REQ-PF-010
+**Relevant requirements:** REQ-PF-010, REQ-PF-013
 
 ### H-008: Runway length errors
 
