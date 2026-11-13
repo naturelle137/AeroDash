@@ -37,3 +37,29 @@ While the selected aircraft is electric, the system shall hide fuel-tank rows, b
 ### REQ-FE-009: Trip-fuel landing mass
 
 When the user enters Trip Fuel, the system shall calculate estimated landing mass from that fuel burn.
+
+### REQ-FE-010: Explicit manual plan
+
+When planning combustion endurance, the system shall require explicit positive finite average consumption in kg/h.
+
+### REQ-FE-011: Explicit durations
+
+When planning combustion endurance, the system shall require explicit finite nonnegative trip and user-chosen reserve durations in minutes.
+
+### REQ-FE-012: Usable inventory
+
+When planning combustion endurance, the system shall exclude unusable fuel and tanks unavailable in the selected category from the existing tank loads.
+
+### REQ-FE-013: Invalid inventory
+
+If a tank load, fuel unit or fuel type is unsupported or invalid, then the system shall block endurance results.
+
+### REQ-FE-014: Aircraft reset
+
+When the selected aircraft changes, the system shall clear manual endurance planning inputs.
+
+### REQ-FE-015: Session lifetime
+
+When the preparation view is reopened or reloaded, the system shall start manual endurance planning unconfigured.
+
+Current scope: REQ-FE-002/003 and manual arithmetic are available in Flight Preparation. Consumption is assumed constant; reserve is user chosen without a regulatory default. Zero margin is arithmetic equality, not a safety verdict. REQ-FE-005/009 trip-specific landing mass/CG, burn scheduling and electric endurance remain future work; the existing M&B zero-fuel landing output is separate.

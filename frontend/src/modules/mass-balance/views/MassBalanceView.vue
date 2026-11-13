@@ -19,6 +19,7 @@ import {
   evaluateVerificationFreshness,
   type VerificationFreshness,
 } from '@/core/logic/profile-verification'
+import FuelEnduranceCard from '@/modules/fuel-endurance/components/FuelEnduranceCard.vue'
 import InputGroupCard from '@/modules/mass-balance/components/InputGroupCard.vue'
 import MassStationInput from '@/modules/mass-balance/components/MassStationInput.vue'
 import CGEnvelopeChart from '@/modules/mass-balance/components/CGEnvelopeChart.vue'
@@ -238,7 +239,7 @@ const CARD_ORDER = computed<readonly CardMeta[]>(() => [
   { id: 'weather', badge: '04', title: 'Weather', soon: true },
   // `title` follows the electric/combustion discriminator so the sticky
   // strip chip reads "Energy & Endurance" on a Velis Electro profile.
-  { id: 'fuel', badge: '05', title: energySectionTitle.value, soon: true },
+  { id: 'fuel', badge: '05', title: energySectionTitle.value, soon: isElectric.value },
 ])
 
 /** Strip height in px — kept in sync with --prep-sticky-h (2.75rem @16px). */
@@ -1193,18 +1194,20 @@ function onCancelSelection(): void {
       </p>
     </section>
 
-    <!-- ═══ COMING SOON: Fuel / Energy & Endurance ═════════════════════════ -->
+    <!-- Fuel planning / future electric energy planning -->
     <section
       id="prep-card-fuel"
-      class="prep-card prep-card--soon"
-      :aria-label="`${energySectionTitle} — coming soon`"
+      class="prep-card"
+      :class="{ 'prep-card--soon': isElectric }"
+      :aria-label="energySectionTitle"
     >
       <div class="prep-card__header">
-        <span class="prep-card__badge prep-card__badge--soon">05</span>
-        <h2 class="prep-card__title prep-card__title--soon">{{ energySectionTitle }}</h2>
-        <span class="soon-pill">Coming soon</span>
+        <span class="prep-card__badge" :class="{ 'prep-card__badge--soon': isElectric }">05</span>
+        <h2 class="prep-card__title" :class="{ 'prep-card__title--soon': isElectric }">{{ energySectionTitle }}</h2>
+        <span v-if="isElectric" class="soon-pill">Coming soon</span>
       </div>
-      <p class="soon-desc">{{ energySectionDescription }}</p>
+      <p v-if="isElectric" class="soon-desc">{{ energySectionDescription }}</p>
+      <FuelEnduranceCard v-else />
     </section>
 
     <!-- ═══ Operational disclaimer (bottom, non-blocking) ═════════════════ -->

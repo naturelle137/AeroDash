@@ -222,6 +222,19 @@ describe('MassBalanceView integration', () => {
     expect(store.stations[0]!.weight).toBe(OCCUPANT_PRESET_MASSES_KG[1])
   })
 
+  it('keeps electric endurance as a placeholder without combustion planning inputs', async () => {
+    const store = useMassBalanceStore()
+    store.loadProfile({ ...mockProfile, id: 'synthetic-electric', powertrain: 'electric', loadPoints: [] })
+    const wrapper = mountView()
+    await wrapper.vm.$nextTick()
+    const card = wrapper.get('#prep-card-fuel')
+    expect(card.text()).toContain('Energy & Endurance')
+    expect(card.text()).toContain('Coming soon')
+    expect(card.find('input').exists()).toBe(false)
+    expect(card.find('[aria-label="Fuel planning results"]').exists()).toBe(false)
+    wrapper.unmount()
+  })
+
   it('renders INITIAL state with disabled controls and no chart/results', () => {
     const wrapper = mountView()
 

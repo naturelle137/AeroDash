@@ -472,7 +472,7 @@ export const useMassBalanceStore = defineStore('massBalance', {
             const primaryFuel = permissible[0]
             if (primaryFuel === undefined || !isKnownFuelType(primaryFuel)) {
               fuelFallbackNotes.push({
-                id: 'WARN-FE-001',
+                id: 'WARN-FE-002',
                 severity: 'WARNING',
                 message: `Unknown fuel type${primaryFuel ? ` "${primaryFuel}"` : ''} — using conservative fallback density; verify fuel mass`,
                 context: 'FuelEndurance.Density',

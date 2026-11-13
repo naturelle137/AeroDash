@@ -300,7 +300,7 @@ describe('MassBalance store ↔ real adapter — unknown fuel fails closed (BUND
     setActivePinia(createPinia())
   })
 
-  it('raises WARN-FE-001 and does not compute silently for an unknown fuel type', () => {
+  it('raises WARN-FE-002 and does not compute silently for an unknown fuel type', () => {
     const store = useMassBalanceStore()
     // Bypass the context-schema enum (the store consumes a typed AircraftContext
     // directly) to simulate data that slipped through a looser path.
@@ -321,7 +321,10 @@ describe('MassBalance store ↔ real adapter — unknown fuel fails closed (BUND
     }
     store.loadProfile(unknownFuel)
 
-    expect(store.notifications.some((n) => n.id === 'WARN-FE-001')).toBe(true)
+    expect(store.notifications).toContainEqual(expect.objectContaining({
+      id: 'WARN-FE-002', severity: 'WARNING', context: 'FuelEndurance.Density',
+    }))
+    expect(store.notifications.some((n) => n.id === 'WARN-FE-001')).toBe(false)
     expect(store.hasWarningNotification).toBe(true)
   })
 
@@ -337,7 +340,7 @@ describe('MassBalance store ↔ real adapter — unknown fuel fails closed (BUND
         ),
       }
       store.loadProfile(profile)
-      expect(store.notifications.some((n) => n.id === 'WARN-FE-001')).toBe(false)
+      expect(store.notifications.some((n) => n.id === 'WARN-FE-002')).toBe(false)
     }
   })
 })

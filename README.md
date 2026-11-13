@@ -66,7 +66,7 @@ AeroDash is a specialized **Flight Preparation and Decision Support Tool** desig
 * **Go/No-Go Decision Support:** Aims to compare calculated mass, CG and performance against entered aircraft limits; see the current delivery limits below.
 * **Aircraft-Specific Data:** Operates on the exact data of a specific airframe (based on its individual Weighing Report and POH), not generic type data.
 * **Performance goal:** Combine aircraft POH interpolation with applicable documented correction factors; the Performance view currently inspects four uncorrected POH distances within complete tables’ bounds.
-* **Endurance goal:** Compare planned flight time, including reserves, with usable fuel and planned flow. Integrated endurance planning remains future work.
+* **Fuel & Endurance:** Flight Preparation uses available tank loads minus unusable fuel, with your explicit constant average consumption (kg/h), flight duration and reserve (minutes). It shows endurance, required fuel and shortages. No reserve minimum or consumption is supplied. Inputs clear when changing aircraft, leaving the preparation view or reloading; trip-specific landing mass/CG and electric endurance remain future work.
 
 #### Target Operational Context
 
