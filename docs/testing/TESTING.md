@@ -38,7 +38,7 @@ The suite accepts the disclaimer, imports and explicitly verifies a synthetic pr
 saves a manual runway, waits for service-worker control and the Workbox precache,
 then disconnects and reloads real routes. It checks persisted Fleet/runway/M&B input,
 raw in-envelope lookup, stale-result invalidation and reconnection status.
-Screenshots and traces are attached in `frontend/offline-report/`; CI uploads them
+Screenshots and traces are attached in `frontend/playwright-report/offline/`; CI uploads them
 as `offline-workflow-evidence`. These fixtures prove software wiring only, not
 POH/AFM accuracy, aviation suitability or guaranteed browser storage retention.
 The older offline smoke covers same-document navigation only.

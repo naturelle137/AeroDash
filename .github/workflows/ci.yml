@@ -210,7 +210,7 @@ jobs:
         with:
           name: offline-workflow-evidence
           path: |
-            frontend/offline-report/
+            frontend/playwright-report/offline/
             frontend/test-results/
           retention-days: 14
 

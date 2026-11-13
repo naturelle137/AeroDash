@@ -6,7 +6,7 @@ export default defineConfig({
   timeout: 60_000,
   expect: { timeout: 10_000 },
   workers: 1,
-  reporter: [['list'], ['html', { outputFolder: 'offline-report', open: 'never' }]],
+  reporter: [['list'], ['html', { outputFolder: 'playwright-report/offline', open: 'never' }]],
   use: { baseURL: 'http://localhost:4278', headless: true, trace: 'on' },
   webServer: { command: 'pnpm run preview --port 4278 --strictPort', port: 4278, reuseExistingServer: false },
   projects: [390, 1440].map((width) => ({
