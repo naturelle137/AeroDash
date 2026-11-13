@@ -91,7 +91,7 @@
         autocorrect="off"
         autocomplete="off"
         spellcheck="false"
-        @input="patch({ registration: ($event.target as HTMLInputElement).value })"
+        @input="onRegistrationInput"
       />
       <span v-if="registrationError" class="field-error" role="alert">{{ registrationError }}</span>
     </div>
@@ -218,6 +218,15 @@ function isSameIdentity(a: IdentityFields, b: IdentityFields): boolean {
 function patch(changes: Partial<IdentityFields>): void {
   local.value = { ...local.value, ...changes }
   emit('update:modelValue', local.value)
+}
+
+function onRegistrationInput(event: Event): void {
+  const input = event.target as HTMLInputElement
+  const start = input.selectionStart
+  const end = input.selectionEnd
+  input.value = input.value.toUpperCase()
+  if (start !== null && end !== null) input.setSelectionRange(start, end)
+  patch({ registration: input.value })
 }
 
 /**

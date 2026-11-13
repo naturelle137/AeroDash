@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Normalize registration while typing, explain blocked wizard progression, focus incomplete M&B inputs on request, respect tablet navigation expansion and describe M&B results as within entered limits (refs #291).
+
 - Enlarge Fleet import/review, workflow links and pressure-altitude radio labels for the measured 44 CSS-pixel software target; add mobile touch and desktop browser regression with screenshots and traces (refs #292, #501). Dimensions do not establish glove/turbulence suitability or certification.
 
 ### Added

@@ -82,6 +82,16 @@ describe('App.vue — Privacy data-rights nav reachability (REQ-SYS-014/015)', (
     expect(link.text()).toContain('Privacy')
   })
 
+  it('keeps the explicit sidebar toggle and accessible state synchronized', async () => {
+    wrapper = await mountApp()
+    const toggle = wrapper.get('button[aria-controls="app-sidebar"]')
+    const expanded = toggle.attributes('aria-expanded')
+    await toggle.trigger('click')
+    expect(toggle.attributes('aria-expanded')).toBe(expanded === 'true' ? 'false' : 'true')
+    await toggle.trigger('click')
+    expect(toggle.attributes('aria-expanded')).toBe(expanded)
+  })
+
   it('exposes the Privacy link in the desktop/tablet sidebar', async () => {
     wrapper = await mountApp()
     const sidebar = wrapper.find('.app-sidebar')

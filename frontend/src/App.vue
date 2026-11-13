@@ -59,7 +59,7 @@ onBeforeUnmount(() => {
 const { theme, toggleTheme } = useTheme()
 const route = useRoute()
 
-const sidebarCollapsed = ref(false)
+const sidebarCollapsed = ref(window.matchMedia?.('(min-width: 768px) and (max-width: 1023.98px)').matches ?? false)
 
 // iOS Safari aggressively restores SPA pages from the back/forward cache
 // (bfcache) when the pilot uses the browser back button — or, more commonly
@@ -886,17 +886,4 @@ const themeLabel = computed(() =>
   }
 }
 
-/* ─── Responsive: narrow desktop / tablet (768–1024 px) ──────────────────── */
-
-@media (min-width: 768px) and (max-width: 1023.98px) {
-  .app-shell:not(.sidebar--collapsed) {
-    grid-template-columns: var(--nav-sidebar-collapsed) 1fr;
-  }
-
-  .app-shell:not(.sidebar--collapsed) .sidebar-nav__label,
-  .app-shell:not(.sidebar--collapsed) .soon-badge,
-  .app-shell:not(.sidebar--collapsed) .sidebar-footer__text {
-    display: none;
-  }
-}
 </style>
