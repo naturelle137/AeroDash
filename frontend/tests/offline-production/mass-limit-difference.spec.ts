@@ -165,3 +165,83 @@ test('current mass-limit differences update without stale values, cached offline
   await shot('offline')
   await context.setOffline(false)
 })
+
+// PR #522 review finding 1: lb-in profile limits must be compared in kg. Synthetic vectors only:
+// BEM 1500 lb + one lb payload station; 1 lb = 0.45359237 kg. MTOM 2400 lb = 1088.621688 kg,
+// MZFM 2000 lb = 907.18474 kg. Raw (unconverted) limits would read "Below MTOM by 1451.9 kg".
+test('imperial lb-in profile compares mass with kg-normalized MTOM/MZFM', async ({ page }, info) => {
+  await page.goto('/fleet')
+  await page.getByTestId('disclaimer-gate-accept').click()
+
+  const base = testPohAircraft()
+  const envelope = [
+    { mass: 1500, armOrMoment: 30 }, { mass: 2600, armOrMoment: 30 },
+    { mass: 2600, armOrMoment: 50 }, { mass: 1500, armOrMoment: 50 },
+  ]
+  const profile = {
+    ...base, id: '00000000-0000-4000-a000-000000005221', registration: 'N522LB', sourceUnit: 'lb-in',
+    performanceProfiles: [],
+    weighingReports: [{ bem: 1500, emptyCg: 40, weighingDate: '2026-01-01', validFrom: '2026-01-01' }],
+    loadPoints: [{
+      name: 'Synthetic payload', kind: 'occupant', occupancy: 'required',
+      arm: 38, armLookup: [], operationalLimit: 1200, defaultQuantity: 0, unit: 'lb',
+      allowableCategories: null, fuelTank: null,
+    }],
+    certificationCategories: [
+      { category: 'Normal', mtom: 2400, maxZeroFuelMass: null, graphType: 'arm', envelope },
+      { category: 'Utility', mtom: 2400, maxZeroFuelMass: 2000, graphType: 'arm', envelope },
+    ],
+  }
+  await page.getByLabel('Or import from Exchange File (.json)').setInputFiles({
+    name: 'synthetic-imperial.json', mimeType: 'application/json',
+    buffer: Buffer.from(JSON.stringify({ format: 'aerodash-aircraft', version: 1, profile })),
+  })
+  await expect(page.getByRole('button', { name: 'Verify N522LB', exact: true })).toBeVisible()
+  await page.goto('/mass-balance')
+
+  const picker = page.getByLabel('Select aircraft', { exact: true })
+  const option = picker.locator('option').filter({ hasText: 'N522LB' }).first()
+  await picker.selectOption((await option.getAttribute('value'))!)
+  await page.getByRole('button', { name: 'Continue anyway', exact: true }).click()
+
+  const input = page.locator('#station-0')
+  const takeoff = page.getByTestId('takeoff-limit-difference')
+  const zeroFuel = page.getByTestId('zero-fuel-limit-difference')
+  async function load(value: string) {
+    await input.fill(value)
+    await input.blur()
+  }
+  async function shot(name: string) {
+    await page.screenshot({ path: info.outputPath(`${name}.png`), fullPage: true })
+    await info.attach(name, { path: info.outputPath(`${name}.png`), contentType: 'image/png' })
+  }
+
+  // Normal (no MZFM). 2090 lb = 948.0080533 kg → 140.6136347 kg below, floored.
+  await load('590')
+  await expect(takeoff).toHaveText('Below MTOM by 140.6 kg')
+  await expect(zeroFuel).toHaveCount(0)
+  await expect(page.locator('.result-summary__limit').first()).not.toContainText('2400')
+  await shot('imperial-below-mtom')
+  await load('900') // 2400 lb
+  await expect(takeoff).toHaveText('Exactly at MTOM')
+  await load('1000') // 2500 lb = 1133.980925 kg → 45.359237 kg above, ceiled.
+  await expect(takeoff).toHaveText('Above MTOM by 45.4 kg')
+  await expect(page.locator('.notification--critical').first()).toBeVisible()
+  await shot('imperial-above-mtom')
+
+  // Utility adds MZFM 2000 lb.
+  await page.locator('#category-select').selectOption('Utility')
+  await load('400') // ZFM 1900 lb
+  await expect(zeroFuel).toHaveText('Below MZFM by 45.3 kg')
+  await expect(takeoff).toHaveText('Below MTOM by 226.7 kg')
+  await load('500')
+  await expect(zeroFuel).toHaveText('Exactly at MZFM')
+  await load('600')
+  await expect(zeroFuel).toHaveText('Above MZFM by 45.4 kg')
+  await shot('imperial-utility-mzfm')
+
+  // Back to a category without MZFM: the zero-fuel comparison disappears.
+  await page.locator('#category-select').selectOption('Normal')
+  await expect(zeroFuel).toHaveCount(0)
+  await expect(takeoff).toHaveText('Below MTOM by 136.0 kg')
+})
