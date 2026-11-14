@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Estimate trip arrival CG for exactly one lookup-table tank with zero unusable fuel from table moments at takeoff and remaining load; nonzero unusable fuel stays unsupported pending #530 (#529).
+
 ### Fixed
 
 - Remove the unsourced 98 % "approaching limit" cue and green within-limit styling in M&B; show one raw exact-MTOM/MZFM cross-check prompt (#527).
