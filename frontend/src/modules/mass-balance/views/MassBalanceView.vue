@@ -23,6 +23,7 @@ import FuelEnduranceCard from '@/modules/fuel-endurance/components/FuelEndurance
 import InputGroupCard from '@/modules/mass-balance/components/InputGroupCard.vue'
 import MassStationInput from '@/modules/mass-balance/components/MassStationInput.vue'
 import CGEnvelopeChart from '@/modules/mass-balance/components/CGEnvelopeChart.vue'
+import MbPrintPreview from '@/modules/export/MbPrintPreview.vue'
 import ResultSummary from '@/modules/mass-balance/components/ResultSummary.vue'
 import WindLimitsSummary from '@/modules/aircraft/components/WindLimitsSummary.vue'
 import ConfirmDialog from '@/shared/components/ConfirmDialog.vue'
@@ -836,6 +837,17 @@ function onCancelSelection(): void {
       <h1 class="fp-page-title">Flight Preparation</h1>
       <p class="fp-page-sub">Mass &amp; Balance · Performance · Weather · {{ isElectric ? 'Energy' : 'Fuel' }}</p>
     </div>
+
+    <MbPrintPreview :source="{
+      state: store.uiState,
+      ready: fleetStore.fleetLoadState === 'READY' && !pendingSelection,
+      aircraft: store.aircraft,
+      profile: fleetStore.profiles.find(p => p.id === store.aircraft?.id) ?? null,
+      category: store.activeCategoryDef,
+      stations: store.availableStations,
+      result: store.lastResult,
+      notifications: store.notifications,
+    }" />
 
     <!-- ═══ Session restore banner (INFO-SYS-001) ════════════════════════════
          Shown when the persisted preflight session could not be restored on
