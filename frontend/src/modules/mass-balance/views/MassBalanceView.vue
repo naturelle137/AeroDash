@@ -19,6 +19,7 @@ import {
   evaluateVerificationFreshness,
   type VerificationFreshness,
 } from '@/core/logic/profile-verification'
+import { useFuelPlanning } from '@/modules/fuel-endurance/services/use-fuel-planning'
 import FuelEnduranceCard from '@/modules/fuel-endurance/components/FuelEnduranceCard.vue'
 import InputGroupCard from '@/modules/mass-balance/components/InputGroupCard.vue'
 import MassStationInput from '@/modules/mass-balance/components/MassStationInput.vue'
@@ -50,6 +51,7 @@ function dismissSessionDropBanner(): void {
 // ---------------------------------------------------------------------------
 
 const store = useMassBalanceStore()
+const fuelPlanning = useFuelPlanning()
 const fleetStore = useFleetStore()
 const activeAircraftStore = useActiveAircraftStore()
 const sessionPersistenceStore = useSessionPersistenceStore()
@@ -57,6 +59,18 @@ function isOptionalOccupant(index: number): boolean {
   const lp = store.aircraft?.loadPoints[index]
   return !!lp && resolveStationKind(lp) === 'occupant' && !requiresOccupancy(lp)
 }
+
+const printSource = computed(() => ({
+      state: store.uiState,
+      ready: fleetStore.fleetLoadState === 'READY' && !pendingSelection.value,
+      aircraft: store.aircraft,
+      profile: fleetStore.profiles.find(p => p.id === store.aircraft?.id) ?? null,
+      category: store.activeCategoryDef,
+      stations: store.availableStations,
+      result: store.lastResult,
+      notifications: store.notifications,
+      fuel: fuelPlanning.presentation.value,
+    }))
 
 const router = useRouter()
 
@@ -838,16 +852,7 @@ function onCancelSelection(): void {
       <p class="fp-page-sub">Mass &amp; Balance · Performance · Weather · {{ isElectric ? 'Energy' : 'Fuel' }}</p>
     </div>
 
-    <MbPrintPreview :source="{
-      state: store.uiState,
-      ready: fleetStore.fleetLoadState === 'READY' && !pendingSelection,
-      aircraft: store.aircraft,
-      profile: fleetStore.profiles.find(p => p.id === store.aircraft?.id) ?? null,
-      category: store.activeCategoryDef,
-      stations: store.availableStations,
-      result: store.lastResult,
-      notifications: store.notifications,
-    }" />
+    <MbPrintPreview :source="printSource" :read-source="() => printSource" />
 
     <!-- ═══ Session restore banner (INFO-SYS-001) ════════════════════════════
          Shown when the persisted preflight session could not be restored on
@@ -1219,7 +1224,7 @@ function onCancelSelection(): void {
         <span v-if="isElectric" class="soon-pill">Coming soon</span>
       </div>
       <p v-if="isElectric" class="soon-desc">{{ energySectionDescription }}</p>
-      <FuelEnduranceCard v-else />
+      <FuelEnduranceCard v-else :planning="fuelPlanning" />
     </section>
 
     <!-- ═══ Operational disclaimer (bottom, non-blocking) ═════════════════ -->

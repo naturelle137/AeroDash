@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Optional current manual fuel plan and estimated trip arrival in offline M&B printing, with current-input guards and preserved warnings (#517).
+
+### Added
+
 - Preview and print a current offline M&B summary with warnings, source-status markers and stale-result blocking (#515); no downloadable PDF or Performance export.
 
 - Estimate fixed-arm multi-tank arrival CG with an explicit complete named burn sequence; invalid schedules retain valid arrival mass (#513).

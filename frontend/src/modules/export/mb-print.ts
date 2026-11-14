@@ -1,3 +1,4 @@
+import type { FuelPresentation } from '@/modules/fuel-endurance/services/use-fuel-planning'
 import type { AircraftProfile } from '@/core/adapters/aircraft.schema'
 import { normalizeMassToKg, normalizeArmToM, normalizeMomentToSI, parseSourceUnit } from '@/core/logic/unit-normalization'
 import { evaluateVerificationFreshness } from '@/core/logic/profile-verification'
@@ -5,6 +6,7 @@ import { formatArm, formatMassConservative } from '@/core/logic/display-rounding
 import type { AircraftContext, CategoryDefinition, MathCoreResult, MassBalanceState, Notification, StationInput } from '@/modules/mass-balance/stores/mass-balance.types'
 
 export interface MbPrintSource {
+  fuel?: FuelPresentation
   state: MassBalanceState
   ready: boolean
   aircraft: AircraftContext | null
@@ -24,8 +26,8 @@ export function canPrintMb(source: MbPrintSource): boolean {
 }
 
 /** Presentation only: retain the store's results and notification text without recalculation. */
-export function assembleMbPrint(source: MbPrintSource, now: Date) {
-  if (!canPrintMb(source) || !source.profile || !source.aircraft || !source.category || !source.result) return null
+export function assembleMbPrint(source: MbPrintSource, now: Date, includeFuel = false) {
+  if ((includeFuel && (!source.fuel || source.fuel.reason)) || !canPrintMb(source) || !source.profile || !source.aircraft || !source.category || !source.result) return null
   const { profile, aircraft, category, result } = source
   const { massUnit, armUnit } = parseSourceUnit(aircraft.sourceUnit)
   const freshness = evaluateVerificationFreshness(profile, now)
@@ -34,6 +36,11 @@ export function assembleMbPrint(source: MbPrintSource, now: Date) {
   const mass = (value: number) => `${formatMassConservative(value, 1)} kg${marker}`
   const arm = (value: number) => `${formatArm(value, 3)} m${marker}`
   return {
+    fuel: includeFuel && source.fuel ? {
+      ...source.fuel,
+      rows: source.fuel.rows.map(row => ({ ...row, value: `${row.value}${marker}` })),
+      warnings: [...source.fuel.warnings],
+    } : null,
     generated: `${now.toISOString()} (UTC)`,
     identity: `${aircraft.registration} — ${aircraft.manufacturer} ${aircraft.model}`,
     category: category.category,

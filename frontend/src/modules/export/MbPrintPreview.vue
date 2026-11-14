@@ -2,15 +2,18 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { assembleMbPrint, canPrintMb, type MbPrintSnapshot, type MbPrintSource } from './mb-print'
 
-const props = defineProps<{ source: MbPrintSource }>()
+const props = defineProps<{ source: MbPrintSource; readSource?: () => MbPrintSource }>()
+// Read live dependencies even when the parent render has not flushed before native print.
+const currentSource = computed(() => props.readSource?.() ?? props.source)
+const includeFuel = ref(false)
 const snapshot = ref<MbPrintSnapshot | null>(null)
 const opened = ref(false)
 const closeButton = ref<HTMLButtonElement>()
 const printRoot = ref<HTMLElement>()
 let returnFocus: HTMLElement | null = null
 let fingerprint = ''
-const currentKey = computed(() => JSON.stringify(props.source))
-const eligible = computed(() => canPrintMb(props.source))
+const currentKey = computed(() => JSON.stringify([currentSource.value, includeFuel.value]))
+const eligible = computed(() => canPrintMb(currentSource.value) && (!includeFuel.value || (!!currentSource.value.fuel && !currentSource.value.fuel.reason)))
 // The key check also protects print media before Vue's queued watcher runs.
 const currentSnapshot = computed(() => currentKey.value === fingerprint ? snapshot.value : null)
 function invalidate(): void {
@@ -21,7 +24,7 @@ function invalidate(): void {
 watch(currentKey, invalidate, { flush: 'sync' })
 
 async function open(): Promise<void> {
-  const value = assembleMbPrint(props.source, new Date())
+  const value = assembleMbPrint(currentSource.value, new Date(), includeFuel.value)
   if (!value) return
   returnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null
   fingerprint = currentKey.value
@@ -37,7 +40,7 @@ function close(): void {
   returnFocus?.focus()
 }
 function recheck(): boolean {
-  const fresh = assembleMbPrint(props.source, new Date())
+  const fresh = assembleMbPrint(currentSource.value, new Date(), includeFuel.value)
   if (!eligible.value || !currentSnapshot.value || fresh?.status !== snapshot.value?.status) {
     invalidate()
     return false
@@ -71,6 +74,8 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
+  <label class="mb-fuel-choice"><input v-model="includeFuel" type="checkbox" /> Include current fuel plan</label>
+  <p v-if="includeFuel && currentSource.fuel?.reason" role="status">Fuel inclusion blocked: {{ currentSource.fuel.reason }}</p>
   <button type="button" :disabled="!eligible" class="mb-preview-action" @click="open">M&amp;B print preview</button>
   <Teleport to="body">
     <div ref="printRoot" class="mb-print-root" :class="{ 'mb-print-root--open': opened }">
@@ -80,7 +85,7 @@ onBeforeUnmount(() => {
           <button type="button" :disabled="!currentSnapshot || !eligible" @click="print">Print M&amp;B</button>
         </nav>
         <template v-if="currentSnapshot">
-          <h1>Mass &amp; Balance only</h1>
+          <h1>{{ currentSnapshot.fuel ? 'Mass & Balance + current fuel plan' : 'Mass & Balance only' }}</h1>
           <p>{{ currentSnapshot.identity }}{{ currentSnapshot.marker }} · {{ currentSnapshot.category }}</p>
           <p>Generated: {{ currentSnapshot.generated }}</p>
           <h2>Profile and source status</h2>
@@ -115,7 +120,20 @@ onBeforeUnmount(() => {
           <table><thead><tr><th>Mass</th><th>Envelope coordinate</th></tr></thead><tbody>
             <tr v-for="(row, index) in currentSnapshot.envelope" :key="index"><td>{{ row.mass }}</td><td>{{ row.horizontal }}</td></tr>
           </tbody></table>
-          <p>No Performance, runway, weather or fuel/endurance planning results are included.</p>
+          <section v-if="currentSnapshot.fuel" aria-label="Current fuel plan and estimated trip arrival">
+            <h2>Current fuel plan and estimated trip arrival</h2>
+            <p>Manual method: {{ currentSnapshot.fuel.method === 'duration' ? 'Duration and consumption' : 'Direct Trip Fuel (kg)' }}.</p>
+            <table><thead><tr><th>Parameter</th><th>Value</th></tr></thead><tbody>
+              <tr v-for="row in currentSnapshot.fuel.rows" :key="row.label"><td>{{ row.label }}</td><td>{{ row.value }}</td></tr>
+            </tbody></table>
+            <p v-if="currentSnapshot.fuel.sequence">Selected arrival CG burn sequence: {{ currentSnapshot.fuel.sequence }}</p>
+            <p v-if="currentSnapshot.fuel.cgReason">Estimated arrival CG unavailable: {{ currentSnapshot.fuel.cgReason }}</p>
+            <ul v-if="currentSnapshot.fuel.warnings.length"><li v-for="warning in currentSnapshot.fuel.warnings" :key="warning">{{ warning }}</li></ul>
+            <p v-if="currentSnapshot.fuel.method === 'duration'">User-supplied consumption is assumed constant. Reserve is user chosen; no regulatory minimum is supplied.</p>
+            <p v-else>Direct Trip Fuel is the explicit mass expected to burn during the trip. No duration, consumption, endurance or reserve budget is calculated.</p>
+            <p>Arithmetic planning aid only. Verify against your aircraft POH/AFM. Reserve remains aboard; usable fuel remaining on arrival is before reserve budgeting and differs from the margin after trip + reserve. Trip arrival is separate from the all-usable-fuel-burned M&amp;B endpoint. This does not assess operational suitability, landing suitability or the full burn path/envelope and provides no Go/No-Go advisory.</p>
+          </section>
+          <p>No Performance, runway or weather results are included.<template v-if="!currentSnapshot.fuel"> No fuel/endurance planning results are included.</template></p>
         </template>
         <p v-else role="status">Preview invalidated. Return to preparation, review the current inputs and open a new M&amp;B print preview.</p>
       </section>
