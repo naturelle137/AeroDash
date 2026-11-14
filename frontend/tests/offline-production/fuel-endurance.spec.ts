@@ -83,6 +83,7 @@ test('persisted fleet tank inputs feed the session-only fuel plan online and cac
   const trip = card.getByLabel('Planned flight duration (min)')
   const reserve = card.getByLabel('Reserve duration (min)')
   const results = page.getByRole('region', { name: 'Fuel planning results' })
+  const arrival = page.getByRole('region', { name: 'Estimated trip arrival', exact: true })
   await expect(card.getByTestId('usable-fuel')).toHaveText(
     'Usable fuel: 40 kg. Excluded unusable fuel: 10 kg.',
   )
@@ -103,13 +104,12 @@ test('persisted fleet tank inputs feed the session-only fuel plan online and cac
       .locator('dd:not([data-testid="arrival-cg"])'),
   ).toHaveText(['600 kg', '20 kg', '580 kg', '20 kg'])
   await expect(card.getByTestId('arrival-cg')).toHaveText('1.966 m')
-  await results.scrollIntoViewIfNeeded()
+  await arrival.evaluate((element) => element.scrollIntoView({ block: 'center' }))
   await page.screenshot({ path: info.outputPath('fuel-plan.png') })
   await info.attach('fuel-plan', {
     path: info.outputPath('fuel-plan.png'),
     contentType: 'image/png',
   })
-  const arrival = page.getByRole('region', { name: 'Estimated trip arrival', exact: true })
   await trip.fill('0')
   await expect(arrival.locator('dd:not([data-testid="arrival-cg"])')).toHaveText([
     '600 kg',
@@ -130,7 +130,7 @@ test('persisted fleet tank inputs feed the session-only fuel plan online and cac
   await expect(card.getByTestId('arrival-cg')).toHaveText('2 m')
   await reserve.fill('1')
   await expect(results).toContainText('WARN-FE-001')
-  await results.scrollIntoViewIfNeeded()
+  await arrival.evaluate((element) => element.scrollIntoView({ block: 'center' }))
   await page.screenshot({ path: info.outputPath('fuel-shortfall.png') })
   await info.attach('fuel-shortfall', {
     path: info.outputPath('fuel-shortfall.png'),
@@ -249,7 +249,7 @@ test('persisted fleet tank inputs feed the session-only fuel plan online and cac
     '580 kg',
     '20 kg',
   ])
-  await results.scrollIntoViewIfNeeded()
+  await arrival.evaluate((element) => element.scrollIntoView({ block: 'center' }))
   await page.screenshot({ path: info.outputPath('direct-trip-fuel.png') })
   await info.attach('direct-trip-fuel', {
     path: info.outputPath('direct-trip-fuel.png'),
@@ -302,7 +302,7 @@ test('persisted fleet tank inputs feed the session-only fuel plan online and cac
     '580 kg',
     '20 kg',
   ])
-  await results.scrollIntoViewIfNeeded()
+  await arrival.evaluate((element) => element.scrollIntoView({ block: 'center' }))
   await page.screenshot({ path: info.outputPath('fuel-offline.png') })
   await info.attach('fuel-offline', {
     path: info.outputPath('fuel-offline.png'),
@@ -317,7 +317,7 @@ test('persisted fleet tank inputs feed the session-only fuel plan online and cac
     '580 kg',
     '20 kg',
   ])
-  await results.scrollIntoViewIfNeeded()
+  await arrival.evaluate((element) => element.scrollIntoView({ block: 'center' }))
   await page.screenshot({ path: info.outputPath('direct-offline.png') })
   await info.attach('direct-offline', {
     path: info.outputPath('direct-offline.png'),
@@ -352,7 +352,7 @@ test('persisted fleet tank inputs feed the session-only fuel plan online and cac
       await expect(card.getByTestId('arrival-cg')).toHaveCount(0)
       await expect(arrival).toContainText(reason)
     }
-    await results.scrollIntoViewIfNeeded()
+    await arrival.evaluate((element) => element.scrollIntoView({ block: 'center' }))
     const imagePath = info.outputPath(`${registration}-unsupported-offline.png`)
     await page.screenshot({ path: imagePath })
     await info.attach(`${registration}-unsupported-offline`, {

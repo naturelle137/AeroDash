@@ -34,7 +34,7 @@ While an aircraft has multiple named burn sequences, the system shall calculate 
 
 While the selected aircraft is electric, the system shall hide fuel-tank rows, burn-sequence selectors and fuel-type controls.
 
-### REQ-FE-009: Trip-fuel landing mass
+### REQ-FE-009: Direct trip arrival mass
 
 When direct Trip Fuel mode has explicit finite nonnegative fuel mass in kg and valid current M&B and usable inventory, the system shall calculate estimated arrival mass as takeoff mass minus that trip fuel.
 
@@ -48,7 +48,7 @@ When using duration-based combustion planning, the system shall require explicit
 
 ### REQ-FE-012: Usable inventory
 
-When using duration-based combustion planning, the system shall exclude unusable fuel and tanks unavailable in the selected category from the existing tank loads.
+When using manual combustion fuel planning, the system shall exclude unusable fuel and tanks unavailable in the selected category from the existing tank loads.
 
 ### REQ-FE-013: Invalid inventory
 
