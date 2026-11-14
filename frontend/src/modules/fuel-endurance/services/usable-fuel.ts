@@ -35,8 +35,10 @@ export function usableFuelForPlanning(
     )
       continue
     tankCount++
-    const station = stations.find((s) => s.index === index)
-    const quantity = station?.weight
+    const matches = stations.filter((s) => s.index === index)
+    if (matches.length !== 1)
+      return { ok: false, reason: `${tank.name}: exactly one current tank load is required.` }
+    const quantity = matches[0]!.weight
     const fuel = tank.fuelTank
     if (!isFuelQuantityUnit(tank.unit) || !fuel.permissibleFuelTypes.every(isKnownFuelType)) {
       return {

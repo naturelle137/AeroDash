@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Add estimated trip arrival CG for one category-available fixed-arm fuel tank in both manual planning modes, with explicit unsupported reasons and cached-offline coverage.
+
 ### Added
 
 - Choose direct Trip Fuel (kg) in Flight Preparation for estimated arrival mass and remaining usable fuel without duration or consumption inputs (#509).

@@ -39,6 +39,18 @@ Profiles preserve manufacturer source units. [Performance source units](docs/arc
 
 Core source/tests do not prove an integrated UI path or operational data validity. The P2 Performance inspection service validates persisted profiles, complete positive grids, decimal input and the common envelope before invoking the core; any clamping blocks output. Fleet exposes imported points for review. [Manual runway entry](docs/architecture/manual-runway-entry.md) stores pilot-declared runway values offline without assessment. [Pressure altitude](docs/architecture/pressure-altitude.md) is entered directly or derived from QNH and field elevation by explicit pilot choice. Operational performance and weather preparation remain unfinished; see the [roadmap](docs/development/roadmap.md). Preserve [source constants](docs/data_constants/README.md), [assumptions](ASSUMPTIONS.md), [hazards](docs/risk_management/safety_hazards.md) and [reference testing](docs/testing/TESTING.md).
 
+## Trip arrival estimate
+
+Both manual fuel modes use the current validated M&B takeoff mass and moment in SI.
+The P2 fuel adapter counts every category-available tank, including empty tanks, and
+normalizes its explicit fixed arm through the existing source-unit boundary. Exactly
+one tank without lookup geometry supports CG. P1 subtracts only the planned burned
+mass and moment; unusable fuel stays in BEM and reserve remains aboard. Unsupported
+CG configurations retain valid arrival mass with a reason. No tank selection or burn
+schedule is inferred. The estimate is separate from the all-usable-burned M&B endpoint
+and does not assess landing suitability or the full burn path/envelope. Synthetic
+arithmetic and browser tests establish software wiring only.
+
 ## Application lifecycle
 
 [PWA lifecycle](docs/architecture/adr/316-pwa-update-lifecycle.md) permits silent updates only for a classified cold start; active-session updates need consent. A failed session-storage check uses the consent path. Online minimum-safe-version checking can block unsafe versions; offline use cannot obtain a fresh remote safety verdict.

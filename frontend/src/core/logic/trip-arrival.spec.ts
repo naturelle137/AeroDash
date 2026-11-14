@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { calculateFuelEndurance } from './fuel-endurance'
-import { calculateTripArrival } from './trip-arrival'
+import { calculateTripArrival, calculateTripArrivalCg } from './trip-arrival'
 
 // Independent synthetic arithmetic, never operational aircraft reference values.
 const input = { takeoffMassKg: 600, usableFuelKg: 40, tripFuelKg: 20 }
@@ -71,5 +71,76 @@ describe('estimated trip arrival mass', () => {
       arrivalMassKg: 600,
       remainingFuelKg: 0,
     })
+  })
+})
+
+// BEM560 kg at2 m includes unusable fuel. Usable40 kg at1 m gives600 kg/1160 kg·m.
+describe('single fixed-arm estimated trip arrival CG', () => {
+  const cgInput = { ...input, takeoffMomentKgM: 1160, tankArmM: 1 }
+  it.each([
+    [0, 1160, 1160 / 600],
+    [20, 1140, 1140 / 580],
+    [40, 1120, 2],
+  ])('subtracts only burned moment for %s kg', (tripFuelKg, arrivalMomentKgM, arrivalCgM) => {
+    expect(calculateTripArrivalCg({ ...cgInput, tripFuelKg })).toEqual({
+      ok: true,
+      arrivalMomentKgM,
+      arrivalCgM,
+    })
+  })
+  it('moves forward when fuel is aft of takeoff CG', () => {
+    expect(calculateTripArrivalCg({ ...cgInput, takeoffMomentKgM: 1240, tankArmM: 3 })).toEqual({
+      ok: true,
+      arrivalMomentKgM: 1180,
+      arrivalCgM: 1180 / 580,
+    })
+  })
+  it('accepts zero and negative datum-relative geometry', () => {
+    expect(calculateTripArrivalCg({ ...cgInput, takeoffMomentKgM: 0, tankArmM: 0 })).toEqual({
+      ok: true,
+      arrivalMomentKgM: 0,
+      arrivalCgM: 0,
+    })
+    expect(calculateTripArrivalCg({ ...cgInput, takeoffMomentKgM: -1160, tankArmM: -1 })).toEqual({
+      ok: true,
+      arrivalMomentKgM: -1140,
+      arrivalCgM: -1140 / 580,
+    })
+  })
+  for (const field of Object.keys(cgInput)) {
+    it.each([undefined, null, '', NaN, Infinity, -Infinity])(
+      `rejects malformed ${field} %s`,
+      (value) => {
+        expect(calculateTripArrivalCg({ ...cgInput, [field]: value })).toEqual({
+          ok: false,
+          reason: 'INVALID_INPUT',
+        })
+      },
+    )
+  }
+  it('rejects impossible inventories and burns', () => {
+    expect(calculateTripArrivalCg({ ...cgInput, usableFuelKg: 600 })).toEqual({
+      ok: false,
+      reason: 'INCONSISTENT_MASS',
+    })
+    expect(calculateTripArrivalCg({ ...cgInput, tripFuelKg: 41 })).toEqual({
+      ok: false,
+      reason: 'TRIP_EXCEEDS_USABLE_FUEL',
+    })
+  })
+  it('rejects overflow instead of returning nonfinite geometry', () => {
+    expect(calculateTripArrivalCg({ ...cgInput, tankArmM: Number.MAX_VALUE })).toEqual({
+      ok: false,
+      reason: 'NUMERIC_OVERFLOW',
+    })
+    expect(
+      calculateTripArrivalCg({
+        takeoffMassKg: 0.5,
+        usableFuelKg: 0,
+        tripFuelKg: 0,
+        takeoffMomentKgM: Number.MAX_VALUE,
+        tankArmM: 0,
+      }),
+    ).toEqual({ ok: false, reason: 'NUMERIC_OVERFLOW' })
   })
 })
