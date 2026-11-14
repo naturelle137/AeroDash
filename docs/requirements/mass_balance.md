@@ -110,6 +110,18 @@ The system shall plot the selected category's envelope and the calculated CG poi
 
 The system shall interpret stored envelope and arm-table moments as the profile source mass unit multiplied by its arm unit (e.g. lb·in for `lb-in`, lb·ft for `lb-ft`) and convert them to kg·m with both the mass and the length factor before calculation, charting and printing.
 
+### REQ-MB-028: No limit-proximity band
+
+The system shall not highlight a calculated mass below its entered limit as approaching that limit.
+
+### REQ-MB-029: Neutral within-limit presentation
+
+While the M&B result is within entered limits, the system shall present the banner, state badges and chart in neutral colours distinct from the pending state.
+
+### REQ-MB-030: Exact-limit cross-check
+
+When the unrounded takeoff mass equals MTOM or the zero-fuel mass equals MZFM in the current valid result, the system shall show one prompt naming each such limit that no arithmetic mass difference remains and that loading and entered category/profile limits require POH/AFM re-check.
+
 ## Design References
 
 - **<a name="notificationScheme"></a>Notification Scheme:** [`docs/architecture/notification_schema.md`](../architecture/notification_schema.md)
