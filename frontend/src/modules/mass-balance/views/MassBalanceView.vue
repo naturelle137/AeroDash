@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { requiresOccupancy, resolveStationKind } from '@/core/logic/station-kind'
+import { normalizeMassToKg, parseSourceUnit } from '@/core/logic/unit-normalization'
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useMassBalanceStore } from '@/modules/mass-balance/stores/mass-balance.store'
@@ -602,12 +603,18 @@ const activeCategory = computed(() => store.activeCategory)
 const envelope = computed(() => store.activeCategoryDef?.envelope ?? [])
 const graphType = computed(() => store.activeCategoryDef?.graphType ?? 'arm')
 
+// Profile limits stay in the profile's source unit (e.g. lb for `lb-in`);
+// results are SI kg, so normalize here exactly as the store does before the
+// calculation. Comparing kg against raw lb would misstate the limit relation.
 const categoryLimits = computed(() => {
   const def = store.activeCategoryDef
-  if (!def) return null
+  const aircraft = store.aircraft
+  if (!def || !aircraft) return null
+  const { massUnit } = parseSourceUnit(aircraft.sourceUnit)
   return {
-    maxTakeoffMass: def.maxTakeoffMass,
-    maxZeroFuelMass: def.maxZeroFuelMass,
+    maxTakeoffMass: normalizeMassToKg(def.maxTakeoffMass, massUnit),
+    maxZeroFuelMass:
+      def.maxZeroFuelMass != null ? normalizeMassToKg(def.maxZeroFuelMass, massUnit) : null,
   }
 })
 
@@ -1170,6 +1177,7 @@ function onCancelSelection(): void {
               :result="lastResult"
               :limits="categoryLimits"
               :can-export="viewModel.canExport"
+              :show-limit-difference="!pendingSelection && !viewModel.isLoading"
               :export-requires-confirmation="viewModel.exportRequiresConfirmation"
             />
           </aside>

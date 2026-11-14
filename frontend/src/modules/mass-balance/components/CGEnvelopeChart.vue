@@ -233,7 +233,7 @@ const pathStroke = computed(() => (isCritical.value ? 3 : 2))
 
 // ─── Colour-independent severity signalling ─────────────────────────────────
 // DES-UX §3.3: colour must never be the sole differentiator of a safety
-// state. Each severity maps to a distinct marker SHAPE so SAFE, WARNING, and
+// state. Each severity maps to a distinct marker SHAPE so success, WARNING, and
 // CRITICAL stay tellable apart under cockpit glare and for colour-blind
 // pilots — not just by hue:
 //   success / neutral → circle ·  warning → triangle (▲) ·  critical → cross (×)
@@ -262,7 +262,7 @@ const ariaLabel = computed(() => {
   const tag =
     props.severity === 'critical' ? 'CRITICAL'
     : props.severity === 'warning' ? 'WARNING'
-    : props.severity === 'success' ? 'SAFE'
+    : props.severity === 'success' ? 'inside entered envelope (calculated state only)'
     : 'pending'
   return `CG Envelope Chart — ${tag}, TOM ${props.result.takeoffCenterOfGravityPoint.mass.toFixed(1)} kg`
 })

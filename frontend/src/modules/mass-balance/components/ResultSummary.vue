@@ -5,18 +5,24 @@ import {
   formatMassConservative,
   formatArm,
 } from '@/core/logic/display-rounding'
+import {
+  massLimitDifference,
+  massLimitDifferenceText,
+} from '@/modules/mass-balance/utils/mass-limit-difference'
 
 interface CategoryLimits {
   maxTakeoffMass: number
   maxZeroFuelMass: number | null
 }
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   result: MathCoreResult | null
   limits: CategoryLimits | null
   canExport: boolean
   exportRequiresConfirmation?: boolean
-}>()
+  /** False while the shown figures are not for the current, acknowledged selection. */
+  showLimitDifference?: boolean
+}>(), { showLimitDifference: true })
 
 defineEmits<{
   (e: 'export'): void
@@ -55,9 +61,21 @@ const zeroFuelMassProximity = computed<LimitProximity>(() =>
     : 'normal',
 )
 
+const takeoffDifference = computed(() =>
+  props.showLimitDifference && props.result?.success
+    ? massLimitDifference(props.result.takeoffCenterOfGravityPoint.mass, props.limits?.maxTakeoffMass)
+    : null,
+)
+
+const zeroFuelDifference = computed(() =>
+  props.showLimitDifference && props.result?.success
+    ? massLimitDifference(props.result.zeroFuelCenterOfGravityPoint.mass, props.limits?.maxZeroFuelMass)
+    : null,
+)
+
 /** Colour-independent status text for screen readers (never colour alone). */
 function proximityLabel(proximity: LimitProximity): string {
-  if (proximity === 'over') return 'at or above limit'
+  if (proximity === 'over') return 'above limit'
   if (proximity === 'near') return 'approaching limit'
   return ''
 }
@@ -89,6 +107,14 @@ function proximityLabel(proximity: LimitProximity): string {
             <span v-if="takeoffMassProximity !== 'normal'" class="result-summary__sr-only">
               {{ proximityLabel(takeoffMassProximity) }}
             </span>
+            <p
+              v-if="takeoffDifference"
+              class="result-summary__difference"
+              :class="`result-summary__difference--${takeoffDifference.relation}`"
+              data-testid="takeoff-limit-difference"
+            >
+              {{ massLimitDifferenceText(takeoffDifference, 'MTOM') }}
+            </p>
           </dd>
         </div>
 
@@ -108,6 +134,14 @@ function proximityLabel(proximity: LimitProximity): string {
             <span v-if="zeroFuelMassProximity !== 'normal'" class="result-summary__sr-only">
               {{ proximityLabel(zeroFuelMassProximity) }}
             </span>
+            <p
+              v-if="zeroFuelDifference"
+              class="result-summary__difference"
+              :class="`result-summary__difference--${zeroFuelDifference.relation}`"
+              data-testid="zero-fuel-limit-difference"
+            >
+              {{ massLimitDifferenceText(zeroFuelDifference, 'MZFM') }}
+            </p>
           </dd>
         </div>
 
@@ -131,6 +165,11 @@ function proximityLabel(proximity: LimitProximity): string {
           </dd>
         </div>
       </dl>
+      <p v-if="takeoffDifference || zeroFuelDifference" class="result-summary__scope">
+        Arithmetic comparison with the mass limits entered in the aircraft profile; not
+        additional permissible payload and not a flight-suitability or Go/No-Go
+        determination. Cross-check against the POH/AFM.
+      </p>
     </template>
   </section>
 </template>
@@ -189,6 +228,23 @@ function proximityLabel(proximity: LimitProximity): string {
 
 .result-summary__value--over {
   color: var(--color-critical, #c62828);
+}
+
+.result-summary__difference {
+  margin: 0.25rem 0 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #212121);
+}
+
+.result-summary__difference--above {
+  color: var(--color-critical, #c62828);
+}
+
+.result-summary__scope {
+  margin: 0.75rem 0 0;
+  font-size: 0.75rem;
+  color: var(--color-text-secondary, #666);
 }
 
 .result-summary__sr-only {

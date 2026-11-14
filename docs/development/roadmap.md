@@ -26,6 +26,7 @@ Every delivery includes relevant core/component tests, a real browser flow with 
 
 - **Offline preparation:** variable-arm trip-specific CG and full-flight fuel-burn path assessment, obstacle constraints and a consolidated Go/No-Go advisory; native electric-aircraft energy/endurance support.
 - **Weather and airports:** METAR/TAF, time/location forecasts, source/timestamp display, manual overrides, runway conditions and wind-limit warnings; graceful offline behavior.
+- **Decision summary:** Flight Preparation shows current takeoff/zero-fuel mass differences to entered MTOM/MZFM as an arithmetic comparison (#521); it adds no margin threshold, payload advice or suitability verdict, and #110 remains open.
 - **Briefing pack:** the M&B native-browser print slice (#515) and optional current manual fuel/arrival section (#517) are implemented; full briefing assembly, downloadable PDF and Performance export remain open. The all-usable-fuel-burned endpoint is not trip arrival or a suitability verdict. Controlled Performance sources (#305/#300), remaining runway work (#302), estimation (#301) and #420 remain open.
 - **Connected pilot:** OIDC authentication, personal/organization workspaces, role-based permissions, sharing and offline-first synchronization. No backend is shipped by the current frontend-only app.
 - **Usability:** dark mode, touch-friendly controls, small-screen layouts, contextual help and cross-device offline verification.

@@ -126,10 +126,11 @@ describe('CGEnvelopeChart — chart rendering', () => {
 // ─── ariaLabel computed branches ─────────────────────────────────────────────
 
 describe('CGEnvelopeChart — ariaLabel', () => {
-  it('includes SAFE and TOM mass when severity is success', () => {
+  it('uses neutral wording and TOM mass when severity is success', () => {
     const wrapper = mountChart({ result: buildResult(), severity: 'success' })
 
-    expect(wrapper.find('svg').attributes('aria-label')).toContain('SAFE')
+    expect(wrapper.find('svg').attributes('aria-label')).toContain('inside entered envelope')
+    expect(wrapper.find('svg').attributes('aria-label')).not.toContain('SAFE')
     expect(wrapper.find('svg').attributes('aria-label')).toContain('520.0 kg')
   })
 

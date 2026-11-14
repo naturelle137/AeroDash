@@ -89,9 +89,9 @@ Then('the aircraft masses are within limits', async ({ page }) => {
 })
 
 Then('the center of gravity remains within the envelope during the flight', async ({ page }) => {
-  // Draft seeds cap the overall state at WARNING (WARN-AC-002), so SAFE is
+  // Draft seeds cap the overall state at WARNING (WARN-AC-002), so the success state is
   // unreachable by design; a CG breach would raise the chart to CRITICAL.
-  await expect(page.getByRole('img', { name: /CG Envelope Chart — (SAFE|WARNING), TOM/ })).toBeVisible()
+  await expect(page.getByRole('img', { name: /CG Envelope Chart — (inside entered envelope[^,]*|WARNING), TOM/ })).toBeVisible()
   // .notification--critical: semantic severity class; no ARIA role distinguishes critical-level alerts
   await expect(page.locator('.notification--critical')).toHaveCount(0)
 })
