@@ -575,7 +575,7 @@ const energySectionTitle = computed(() => (isElectric.value ? 'Energy & Enduranc
 
 const energySectionDescription = computed(() =>
   isElectric.value
-    ? 'Battery state-of-charge projection, energy reserve margin, motor-hour endurance.'
+    ? 'Fuel-burn arrival estimates are unavailable for electric aircraft. Battery state-of-charge projection, energy reserve margin and motor-hour endurance are future work.'
     : 'Fuel density correction, endurance vs planned flight time, reserve calculation.',
 )
 

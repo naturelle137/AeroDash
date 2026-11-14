@@ -38,9 +38,27 @@ test('persisted fleet tank inputs feed the session-only fuel plan online and cac
   for (const [id, registration] of [
     [profile.id, 'D-TEST'],
     ['00000000-0000-4000-a000-000000000429', 'D-NEXT'],
+    ['00000000-0000-4000-a000-000000000430', 'D-MULTI'],
+    ['00000000-0000-4000-a000-000000000431', 'D-VARY'],
   ]) {
     profile.id = id!
     profile.registration = registration!
+    if (registration === 'D-MULTI') {
+      profile.loadPoints[0]!.defaultQuantity = 50
+      profile.loadPoints.push({
+        ...structuredClone(profile.loadPoints[0]!),
+        name: 'Empty available tank',
+        defaultQuantity: 10,
+      })
+    }
+    if (registration === 'D-VARY') {
+      profile.loadPoints = [profile.loadPoints[0]!]
+      profile.loadPoints[0]!.arm = null
+      profile.loadPoints[0]!.armLookup = [
+        { massOrVolume: 0, moment: 0 },
+        { massOrVolume: 100, moment: 100 },
+      ]
+    }
     await page.getByLabel('Or import from Exchange File (.json)').setInputFiles({
       name: 'synthetic-fuel.json',
       mimeType: 'application/json',
@@ -209,6 +227,17 @@ test('persisted fleet tank inputs feed the session-only fuel plan online and cac
   await expect(arrival).toHaveCount(0)
   await tank.fill('50')
   await tank.blur()
+  await page.getByRole('button', { name: 'Reset Payload', exact: true }).click()
+  await page
+    .getByRole('alertdialog')
+    .getByRole('button', { name: 'Reset', exact: true })
+    .click()
+  await expect(arrival).toHaveCount(0)
+  await direct.fill('0')
+  await expect(card.getByTestId('arrival-cg')).toHaveText('2 m')
+  await tank.fill('50')
+  await tank.blur()
+  await direct.fill('20')
   const category = page.getByLabel('Certification category')
   await category.selectOption('Utility')
   await expect(arrival).toHaveCount(0)
@@ -306,5 +335,30 @@ test('persisted fleet tank inputs feed the session-only fuel plan online and cac
   await page.goto('/mass-balance')
   await expect(method).toHaveValue('')
   await expect(arrival).toHaveCount(0)
+  for (const [registration, reason] of [
+    ['D-MULTI', 'Exactly one category-available'],
+    ['D-VARY', 'Variable-arm tanks'],
+  ]) {
+    const unsupported = picker.locator('option').filter({ hasText: registration }).first()
+    await picker.selectOption((await unsupported.getAttribute('value'))!)
+    for (const planning of ['duration', 'direct']) {
+      await method.selectOption(planning)
+      if (planning === 'duration') {
+        await rate.fill('10')
+        await trip.fill('120')
+        await reserve.fill('30')
+      } else await direct.fill('20')
+      await expect(arrival).toContainText('580 kg')
+      await expect(card.getByTestId('arrival-cg')).toHaveCount(0)
+      await expect(arrival).toContainText(reason)
+    }
+    await results.scrollIntoViewIfNeeded()
+    const imagePath = info.outputPath(`${registration}-unsupported-offline.png`)
+    await page.screenshot({ path: imagePath })
+    await info.attach(`${registration}-unsupported-offline`, {
+      path: imagePath,
+      contentType: 'image/png',
+    })
+  }
   expect(await page.evaluate(() => document.body.scrollWidth)).toBe(page.viewportSize()!.width)
 })

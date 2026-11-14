@@ -37,7 +37,7 @@ Run `pnpm test:offline` to build production and run Chromium at 390px and 1440px
 The suite accepts the disclaimer, imports and explicitly verifies a synthetic profile,
 saves a manual runway, waits for service-worker control and the Workbox precache,
 then disconnects and reloads real routes. It checks persisted Fleet/runway/M&B input,
-raw in-envelope lookup, stale-result invalidation and reconnection status. The fuel scenario imports two synthetic aircraft, enters existing tank loads, checks explicit trip/reserve arithmetic, equality, shortage and invalidation, then recalculates offline after reload with planning inputs cleared.
+raw in-envelope lookup, stale-result invalidation and reconnection status. The fuel scenario imports synthetic single/empty-multiple/variable-arm tank profiles, checks both planning modes, arrival mass/CG arithmetic, equality, shortage, payload/category/aircraft resets and invalidation, then recalculates offline after reload with planning inputs cleared. Unsupported CG retains valid arrival mass and a reason.
 Screenshots and traces are attached in `frontend/playwright-report/offline/`; CI uploads them
 as `offline-workflow-evidence`. These fixtures prove software wiring only, not
 POH/AFM accuracy, aviation suitability or guaranteed browser storage retention.
