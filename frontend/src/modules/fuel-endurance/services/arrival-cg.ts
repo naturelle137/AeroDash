@@ -14,6 +14,7 @@ import {
   type TripArrivalCgResult,
 } from '@/core/logic/trip-arrival'
 import { usableFuelForPlanning } from './usable-fuel'
+import { isExplicitSourceUnit } from '@/modules/mass-balance/services/lookup-fuel-input'
 
 export type ArrivalCgResult =
   { ok: true; arrivalMomentKgM: number; arrivalCgM: number } | { ok: false; reason: string }
@@ -94,9 +95,8 @@ export function arrivalCgForPlanning(
 type Profile = ReturnType<typeof AircraftContextSchema.parse>
 const MB_REQUIRED = 'Valid current Mass & Balance loading is required.'
 
-// The shared parser tolerates legacy unknown units; arrival CG must not guess geometry.
 function sourceUnitReason(sourceUnit: string): string | null {
-  return /^(kg|lb)(-(m|in|ft))?$/.test(sourceUnit.trim().toLowerCase())
+  return isExplicitSourceUnit(sourceUnit)
     ? null
     : 'A supported explicit source unit is required for tank geometry.'
 }
@@ -119,8 +119,8 @@ const LOOKUP_REASONS: Partial<
 }
 
 // The table's moment at each load is the total tank moment. Arrival subtracts
-// F(q) − F(q − b) from the current M&B takeoff moment, which equals the existing
-// M&B contribution only when unusable fuel is exactly zero.
+// F(q) − F(q − b) from the current M&B takeoff moment. M&B adds F(q) − F(u), but
+// arrival CG remains limited to u = 0 with an exact (0, 0) origin knot.
 function lookupArrivalCg(
   profile: Profile,
   tank: Profile['loadPoints'][number],

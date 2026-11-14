@@ -64,11 +64,12 @@ const armLookupScenarios: ArmLookupScenario[] = [
     expectedTakeoffArm: 1.8788,
   },
   {
-    name: 'zero fuel mass with lookup table',
+    // Default fuel fixture carries 3 kg unusable fuel; q = u adds zero usable mass and moment.
+    name: 'zero usable fuel with lookup table',
     stations: [{ mass: 170 }, { mass: 10 }],
     fuel: [
       {
-        mass: 0,
+        mass: 3,
         arm: null,
         armLookup: [
           { massOrVolume: 0, moment: 0 },
