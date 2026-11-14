@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useFuelPlanning, type FuelPlanning } from '../services/use-fuel-planning'
 const props = defineProps<{ planning?: FuelPlanning }>()
-const { method, directTripFuel, consumption, trip, reserve, sequence, sequences, fuel, plan, arrival, arrivalCg, format } = props.planning ?? useFuelPlanning()
+const { method, directTripFuel, consumption, trip, reserve, sequence, sequences, fuel, plan, arrival, arrivalCg, format, presentation } = props.planning ?? useFuelPlanning()
 </script>
 
 <template>
@@ -108,13 +108,7 @@ const { method, directTripFuel, consumption, trip, reserve, sequence, sequences,
         Endurance = usable kg ÷ kg/h × 60. Required fuel = (trip min + reserve min) ÷ 60 × kg/h.
         Margin = usable − required kg.
       </p>
-      <p v-if="plan?.warning" role="alert">
-        WARN-FE-001 — Insufficient fuel for the entered trip plus reserve.
-      </p>
-      <p v-if="plan?.reserveShortfall" role="alert">
-        Usable fuel is insufficient even for the reserve alone.
-      </p>
-      <p v-if="plan?.marginKg === 0">Zero margin: exactly the entered arithmetic budget.</p>
+      <p v-for="warning in presentation.warnings" :key="warning" role="alert">{{ warning }}</p>
       <p>
         Arithmetic planning aid only. Verify against your aircraft POH/AFM. This does not assess
         operational suitability, landing suitability or the full burn path/envelope. Estimated

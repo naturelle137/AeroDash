@@ -13,6 +13,9 @@ const printRoot = ref<HTMLElement>()
 let returnFocus: HTMLElement | null = null
 let fingerprint = ''
 const currentKey = computed(() => JSON.stringify([currentSource.value, includeFuel.value]))
+const inclusionReason = computed(() => !canPrintMb(currentSource.value)
+  ? 'Current Mass & Balance is not eligible for printing; review loading and notifications.'
+  : currentSource.value.fuel?.reason ?? (!currentSource.value.fuel ? 'Current fuel plan is unavailable.' : null))
 const eligible = computed(() => canPrintMb(currentSource.value) && (!includeFuel.value || (!!currentSource.value.fuel && !currentSource.value.fuel.reason)))
 // The key check also protects print media before Vue's queued watcher runs.
 const currentSnapshot = computed(() => currentKey.value === fingerprint ? snapshot.value : null)
@@ -75,14 +78,14 @@ onBeforeUnmount(() => {
 
 <template>
   <label class="mb-fuel-choice"><input v-model="includeFuel" type="checkbox" /> Include current fuel plan</label>
-  <p v-if="includeFuel && currentSource.fuel?.reason" role="status">Fuel inclusion blocked: {{ currentSource.fuel.reason }}</p>
+  <p v-if="includeFuel && inclusionReason" role="status">Fuel inclusion blocked: {{ inclusionReason }}</p>
   <button type="button" :disabled="!eligible" class="mb-preview-action" @click="open">M&amp;B print preview</button>
   <Teleport to="body">
     <div ref="printRoot" class="mb-print-root" :class="{ 'mb-print-root--open': opened }">
       <section v-if="opened" role="dialog" aria-modal="true" aria-label="M&B print preview" class="mb-print-sheet">
         <nav class="mb-print-controls" aria-label="Print controls">
           <button ref="closeButton" type="button" @click="close">Back to preparation</button>
-          <button type="button" :disabled="!currentSnapshot || !eligible" @click="print">Print M&amp;B</button>
+          <button type="button" :disabled="!currentSnapshot || !eligible" @click="print">{{ includeFuel ? 'Print M&B + fuel' : 'Print M&B' }}</button>
         </nav>
         <template v-if="currentSnapshot">
           <h1>{{ currentSnapshot.fuel ? 'Mass & Balance + current fuel plan' : 'Mass & Balance only' }}</h1>
@@ -144,6 +147,8 @@ onBeforeUnmount(() => {
 </template>
 
 <style>
+.mb-fuel-choice { display: flex; align-items: center; gap: .75rem; min-height: 44px; padding: .5rem 0; width: fit-content; }
+.mb-fuel-choice input { width: 24px; height: 24px; }
 .mb-preview-action, .mb-print-controls button { padding: .75rem; margin: .5rem 0; font: inherit; }
 .mb-print-root { display: none; }
 .mb-print-root--open { display: block; position: fixed; inset: 0; z-index: 10000; overflow: auto; background: #eef1f4; color: #111; padding: 1rem; }
