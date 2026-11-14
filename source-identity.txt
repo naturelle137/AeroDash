@@ -1,0 +1,56 @@
+commit d27325a1aff90ac67e751db3dca0aec2d091f10a
+Author:     naturelle137 <3775385+naturelle137@users.noreply.github.com>
+AuthorDate: Sat Nov 14 18:48:59 2026 +0100
+Commit:     GitHub <noreply@github.com>
+CommitDate: Sat Nov 14 18:48:59 2026 +0100
+
+    feat(fe): single lookup tank arrival CG with zero unusable fuel (#531)
+    
+    * feat(fe): single lookup-tank arrival CG for zero unusable fuel
+    
+    Subtract F(q) - F(q - b) of the validated total-moment table from the
+    current M&B takeoff moment for exactly one category-available lookup tank
+    with arm null and unusable fuel exactly zero. Nonzero unusable fuel,
+    fixed arm plus lookup and multiple available tanks with lookup geometry
+    stay unsupported; fixed-arm paths are unchanged.
+    
+    Refs #529
+    
+    Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+    
+    * docs(fe): document partial single lookup-tank arrival CG scope
+    
+    Requirements REQ-FE-034..036, architecture contract, README, roadmap and
+    changelog. Nonzero unusable fuel remains unsupported pending #530.
+    
+    Refs #529
+    
+    Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+    
+    * test(fe): cached-offline lookup-tank arrival CG journeys and print
+    
+    Both planning modes with zero/partial/full burn, out-of-range correction,
+    category/method/profile resets, unsupported nonzero unusable fuel, missing
+    origin and multiple tanks, offline reload and print consistency with
+    retained warning and profile markers.
+    
+    Refs #529
+    
+    Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+    
+    * refactor(fe): share SI bounds without importing the mocked M&B adapter
+    
+    Refs #529
+    
+    Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+    
+    * docs(fe): lookup-tank arrival CG offline evidence
+    
+    Refs #529
+    
+    Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+    
+    ---------
+    
+    Co-authored-by: naturelle137 <oettinger31@outlook.de>
+    Co-authored-by: Claude Opus 5.5 <noreply@anthropic.com>

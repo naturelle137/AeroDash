@@ -1,0 +1,74 @@
+{
+  "commit": "d27325a1aff90ac67e751db3dca0aec2d091f10a",
+  "tree": "d617bd969cf9a589d95654076e0a1084652ac799",
+  "frozen_sources": {
+    "frontend/tests/offline-production/fuel-endurance.spec.ts": "b9bc7a7e855c3e51abbb14cb389d5c23d0846c58bb757cab722e20bb2688330d",
+    "frontend/tests/offline-production/fuel-print.spec.ts": "1e2ca328a9f0d05b2910a032a38947af5e4f0df5685ae533b947c1ad8405becd",
+    "frontend/playwright.offline.config.ts": "1b7dafab0e9f8a35a5f9f31d8ed4c58720045256992737c2e23abfb45253f733",
+    "frontend/package.json": "8e6d816bed960f39d157e83544ebf94c7965ea83c11283c88edc36f28fee37b8",
+    "pnpm-lock.yaml": "4472044ffd2cf464a307e03bce62ae339b274985918664ae4e785d1146e8107f"
+  },
+  "verified_artifacts": 667,
+  "dist_entries": 39,
+  "sw_sha256": "b70f4922f6be2e439833a361144a80e0912902dfa4b873ceea45271ab3113add",
+  "traces": [
+    {
+      "path": "evidence/test-results/fuel-endurance-persisted-f-3ecb6-n-online-and-cached-offline-chromium-390/trace.zip",
+      "library_errors": 0,
+      "successful_poll_retries": 2,
+      "offline": [
+        {
+          "offline": true
+        }
+      ],
+      "assertions": 335,
+      "events": 4676,
+      "source_embedded_matches": true
+    },
+    {
+      "path": "evidence/test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-390/trace.zip",
+      "library_errors": 0,
+      "successful_poll_retries": 0,
+      "offline": [
+        {
+          "offline": true
+        },
+        {
+          "offline": false
+        }
+      ],
+      "assertions": 197,
+      "events": 3460,
+      "source_embedded_matches": true
+    },
+    {
+      "path": "evidence/test-results/fuel-endurance-persisted-f-3ecb6-n-online-and-cached-offline-chromium-1440/trace.zip",
+      "library_errors": 0,
+      "successful_poll_retries": 2,
+      "offline": [
+        {
+          "offline": true
+        }
+      ],
+      "assertions": 335,
+      "events": 4582,
+      "source_embedded_matches": true
+    },
+    {
+      "path": "evidence/test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-1440/trace.zip",
+      "library_errors": 0,
+      "successful_poll_retries": 0,
+      "offline": [
+        {
+          "offline": true
+        },
+        {
+          "offline": false
+        }
+      ],
+      "assertions": 197,
+      "events": 3426,
+      "source_embedded_matches": true
+    }
+  ]
+}

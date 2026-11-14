@@ -1,0 +1,20 @@
+Scope: all 2 workspace projects
+Lockfile is up to date, resolution step is skipped
+Progress: resolved 1, reused 0, downloaded 0, added 0
+Packages: +1074
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Progress: resolved 1074, reused 1074, downloaded 0, added 650
+Progress: resolved 1074, reused 1074, downloaded 0, added 1074, done
+
+devDependencies:
++ @commitlint/cli 21.2.4
++ @commitlint/config-conventional 21.2.4
++ @release-it/conventional-changelog 11.0.1
++ husky 9.1.7
++ lint-staged 17.6.0
++ markdownlint-cli2 0.23.3
++ release-it 20.2.1
+
+. prepare$ husky
+. prepare: Done
+Done in 2.4s using pnpm v10.32.1

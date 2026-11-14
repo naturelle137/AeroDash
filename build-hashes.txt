@@ -1,0 +1,2 @@
+b70f4922f6be2e439833a361144a80e0912902dfa4b873ceea45271ab3113add  frontend/dist/sw.js
+6a701e273c8b5622888b6b47b452aa843eecc659178f436b93397413c0ed7da4  /var/home/critter/lokal/dev/agent-hq/var/jobs/1312/dist-manifest.before.sha256
