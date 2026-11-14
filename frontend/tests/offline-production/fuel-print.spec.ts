@@ -21,7 +21,7 @@ test('optional current fuel in cached offline native print with synchronous stal
     kind: 'occupant' as const, occupancy: 'required' as const, arm: 1, armLookup: [],
     operationalLimit: 100, defaultQuantity: 0, unit: 'kg', allowableCategories: null, fuelTank: null,
   })))
-  for (const registration of ['D-FUEL', 'D-VARY', 'D-MULTI']) {
+  for (const registration of ['D-FUEL', 'D-VARY', 'D-MULTI', 'D-LOOK']) {
     profile.registration = registration
     if (registration === 'D-VARY') {
       profile.id = '00000000-0000-4000-a000-000000000429'
@@ -40,6 +40,16 @@ test('optional current fuel in cached offline native print with synchronous stal
           { sequenceName: 'Incomplete synthetic sequence', ordinalPosition: 1 },
         ]
       }
+    }
+    if (registration === 'D-LOOK') {
+      // Synthetic nonlinear total-moment table with zero unusable fuel.
+      profile.id = '00000000-0000-4000-a000-000000000529'
+      profile.loadPoints = profile.loadPoints.filter(point => point.name !== 'Synthetic second tank')
+      profile.loadPoints[0]!.arm = null
+      profile.loadPoints[0]!.fuelTank!.unusableFuel = 0
+      profile.loadPoints[0]!.fuelTank!.burnSequences = []
+      profile.loadPoints[0]!.armLookup = [{ massOrVolume: 0, moment: 0 }, { massOrVolume: 10, moment: 10 },
+        { massOrVolume: 30, moment: 60 }, { massOrVolume: 50, moment: 150 }]
     }
     await page.getByLabel('Or import from Exchange File (.json)').setInputFiles({
       name: 'synthetic-fuel-print.json', mimeType: 'application/json',
@@ -165,7 +175,7 @@ test('optional current fuel in cached offline native print with synchronous stal
       await include.check()
       await action.click()
       await expect(section).toContainText('Estimated arrival mass')
-      await expect(section).toContainText(registration === 'D-VARY' ? 'Variable-arm tanks' : 'Choose an explicit named burn sequence')
+      await expect(section).toContainText(registration === 'D-VARY' ? 'exactly zero unusable fuel' : 'Choose an explicit named burn sequence')
       await capture(`${registration}-${planning}-unsupported`)
       await back.click()
     }
@@ -193,6 +203,29 @@ test('optional current fuel in cached offline native print with synchronous stal
   await page.getByRole('alertdialog').getByRole('button', { name: 'Reset', exact: true }).click()
   await expect(action).toBeDisabled()
   await expect(include).toBeChecked()
+  await select('D-LOOK')
+  for (const planning of ['duration', 'direct']) {
+    await method.selectOption(planning)
+    if (planning === 'duration') {
+      await rate.fill('10'); await trip.fill('120'); await reserve.fill('30')
+    } else await direct.fill('20')
+    await expect(page.getByTestId('arrival-cg')).toHaveText('1.057 m')
+    await include.check()
+    await action.click()
+    // BEM 500 kg·m + F(50) 150; burn 20 removes F(50) − F(30) = 90: 560 / 530.
+    await expect(section).toContainText('530 kg [UNVERIFIED]')
+    await expect(section).toContainText('1.057 m [UNVERIFIED]')
+    await expect(section).not.toContainText('Estimated arrival CG unavailable')
+    await expect(preview).toContainText('UNVERIFIED')
+    await capture(`D-LOOK-${planning}-supported`)
+    await back.click()
+  }
+  await page.getByRole('textbox', { name: 'Synthetic tank', exact: true }).fill('60')
+  await page.getByRole('textbox', { name: 'Synthetic tank', exact: true }).blur()
+  await action.click()
+  await expect(section).toContainText('540 kg [UNVERIFIED]')
+  await expect(section).toContainText('cover the whole current tank load')
+  await back.click()
   await page.reload()
   await select('D-MULTI')
   await expect(include).not.toBeChecked()

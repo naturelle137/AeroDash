@@ -40,6 +40,9 @@ test('persisted fleet tank inputs feed the session-only fuel plan online and cac
     ['00000000-0000-4000-a000-000000000429', 'D-NEXT'],
     ['00000000-0000-4000-a000-000000000430', 'D-MULTI'],
     ['00000000-0000-4000-a000-000000000431', 'D-VARY'],
+    ['00000000-0000-4000-a000-000000000529', 'D-LOOK'],
+    ['00000000-0000-4000-a000-000000000530', 'D-BADT'],
+    ['00000000-0000-4000-a000-000000000531', 'D-LOOK2'],
   ]) {
     profile.id = id!
     profile.registration = registration!
@@ -68,6 +71,31 @@ test('persisted fleet tank inputs feed the session-only fuel plan online and cac
         { massOrVolume: 0, moment: 0 },
         { massOrVolume: 100, moment: 100 },
       ]
+    }
+    if (registration!.startsWith('D-LOOK') || registration === 'D-BADT') {
+      // Synthetic nonlinear total-moment table (kg, kg·m), zero unusable fuel.
+      profile.loadPoints = [structuredClone(profile.loadPoints[0]!)]
+      profile.loadPoints[0]!.fuelTank!.unusableFuel = 0
+      profile.loadPoints[0]!.armLookup =
+        registration === 'D-BADT'
+          ? [
+              { massOrVolume: 10, moment: 10 },
+              { massOrVolume: 50, moment: 150 },
+            ]
+          : [
+              { massOrVolume: 0, moment: 0 },
+              { massOrVolume: 10, moment: 10 },
+              { massOrVolume: 30, moment: 60 },
+              { massOrVolume: 50, moment: 150 },
+            ]
+      if (registration === 'D-LOOK2')
+        profile.loadPoints.push({
+          ...structuredClone(profile.loadPoints[0]!),
+          name: 'Synthetic B',
+          arm: 3,
+          armLookup: [],
+          defaultQuantity: 0,
+        })
     }
     await page.getByLabel('Or import from Exchange File (.json)').setInputFiles({
       name: 'synthetic-fuel.json',
@@ -342,7 +370,7 @@ test('persisted fleet tank inputs feed the session-only fuel plan online and cac
   await page.goto('/mass-balance')
   await expect(method).toHaveValue('')
   await expect(arrival).toHaveCount(0)
-  for (const [registration, reason] of [['D-VARY', 'Variable-arm tanks']]) {
+  for (const [registration, reason] of [['D-VARY', 'exactly zero unusable fuel']]) {
     const unsupported = picker.locator('option').filter({ hasText: registration }).first()
     await picker.selectOption((await unsupported.getAttribute('value'))!)
     for (const planning of ['duration', 'direct']) {
@@ -439,5 +467,95 @@ test('persisted fleet tank inputs feed the session-only fuel plan online and cac
     path: info.outputPath('multi-reset-offline.png'),
     contentType: 'image/png',
   })
+  expect(await page.evaluate(() => document.body.scrollWidth)).toBe(page.viewportSize()!.width)
+
+  // Single lookup tank with zero unusable fuel, still cached offline.
+  async function choose(registration: string) {
+    const entry = picker.locator('option').filter({ hasText: registration }).first()
+    await picker.selectOption((await entry.getAttribute('value'))!)
+    await tank.fill('50')
+    await tank.blur()
+  }
+  async function shot(name: string) {
+    await arrival.evaluate((element) => element.scrollIntoView({ block: 'center' }))
+    const path = info.outputPath(`${name}.png`)
+    await page.screenshot({ path })
+    await info.attach(name, { path, contentType: 'image/png' })
+  }
+  const masses = () => arrival.locator('dd:not([data-testid="arrival-cg"])')
+  await choose('D-LOOK')
+  await expect(method).toHaveValue('')
+  await method.selectOption('duration')
+  await rate.fill('10')
+  await trip.fill('60')
+  await reserve.fill('30')
+  // (1270 − (150 − 105)) / 600 kg·m/kg
+  await expect(masses()).toHaveText(['610 kg', '10 kg', '600 kg', '40 kg'])
+  await expect(card.getByTestId('arrival-cg')).toHaveText('2.042 m')
+  await expect(arrival).toContainText('A lookup table is supported only for exactly one')
+  await expect(results).toContainText('table moment at the takeoff load minus the table moment')
+  await expect(page.getByRole('alert').filter({ hasText: 'CG Out of Envelope' })).toBeVisible()
+  await shot('lookup-duration-partial-offline')
+  await trip.fill('0')
+  await expect(card.getByTestId('arrival-cg')).toHaveText('2.082 m')
+  await trip.fill('300')
+  await reserve.fill('0')
+  await expect(masses()).toHaveText(['610 kg', '50 kg', '560 kg', '0 kg'])
+  await expect(card.getByTestId('arrival-cg')).toHaveText('2 m')
+  await expect(results).toContainText('Zero margin')
+  await method.selectOption('direct')
+  await expect(direct).toHaveValue('')
+  await expect(arrival).toHaveCount(0)
+  for (const [burn, cg] of [
+    ['0', '2.082 m'],
+    ['50', '2 m'],
+    ['30', '1.991 m'],
+  ]) {
+    await direct.fill(burn!)
+    await expect(card.getByTestId('arrival-cg')).toHaveText(cg!)
+  }
+  await shot('lookup-direct-partial-offline')
+  await tank.fill('60')
+  await tank.blur()
+  await expect(masses()).toHaveText(['620 kg', '30 kg', '590 kg', '30 kg'])
+  await expect(card.getByTestId('arrival-cg')).toHaveCount(0)
+  await expect(arrival).toContainText('cover the whole current tank load')
+  await shot('lookup-out-of-range-offline')
+  await tank.fill('50')
+  await tank.blur()
+  await expect(card.getByTestId('arrival-cg')).toHaveText('1.991 m')
+  await category.selectOption('Utility')
+  await expect(arrival).toHaveCount(0)
+  await expect(card).toContainText('No fuel tanks available in this category')
+  await category.selectOption('Normal')
+  await expect(card.getByTestId('arrival-cg')).toHaveText('1.991 m')
+  for (const [registration, reason, mass] of [
+    ['D-BADT', 'starting exactly at zero quantity and zero moment', '600 kg'],
+    ['D-LOOK2', 'exactly one category-available tank', '600 kg'],
+    // Unusable 10 kg stays in BEM: takeoff 600 kg, arrival 590 kg.
+    ['D-VARY', 'exactly zero unusable fuel', '590 kg'],
+  ]) {
+    await choose(registration!)
+    await expect(method).toHaveValue('')
+    for (const planning of ['duration', 'direct']) {
+      await method.selectOption(planning)
+      if (planning === 'duration') {
+        await rate.fill('10')
+        await trip.fill('60')
+        await reserve.fill('30')
+      } else await direct.fill('10')
+      await expect(arrival).toContainText(mass!)
+      await expect(card.getByTestId('arrival-cg')).toHaveCount(0)
+      await expect(arrival).toContainText(reason!)
+    }
+    await shot(`${registration}-lookup-unsupported-offline`)
+  }
+  expect((await page.reload())?.fromServiceWorker()).toBe(true)
+  await choose('D-LOOK')
+  await expect(method).toHaveValue('')
+  await method.selectOption('direct')
+  await direct.fill('10')
+  await expect(card.getByTestId('arrival-cg')).toHaveText('2.042 m')
+  await shot('lookup-reload-offline')
   expect(await page.evaluate(() => document.body.scrollWidth)).toBe(page.viewportSize()!.width)
 })
