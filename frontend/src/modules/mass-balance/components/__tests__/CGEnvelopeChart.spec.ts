@@ -169,12 +169,23 @@ describe('CGEnvelopeChart — severity palette', () => {
     expect(polygon.attributes('stroke')).toBe('#9e9e9e')
   })
 
-  it('applies success (green) fill to the envelope polygon when severity is success', () => {
+  it('applies a neutral, non-green fill distinct from pending when severity is success', () => {
     const wrapper = mountChart({ result: buildResult(), severity: 'success' })
+    const pending = envelopePolygon(mountChart({ result: buildResult(), severity: null }))
 
     const polygon = envelopePolygon(wrapper)
-    expect(polygon.attributes('fill')).toBe('rgba(76,175,80,0.10)')
-    expect(polygon.attributes('stroke')).toBe('#388e3c')
+    expect(polygon.attributes('fill')).toBe('rgba(84,110,122,0.10)')
+    expect(polygon.attributes('stroke')).toBe('#546e7a')
+    expect(polygon.attributes('stroke')).not.toBe(pending.attributes('stroke'))
+    expect(wrapper.find('path').attributes('stroke')).not.toMatch(/#2e7d32|#388e3c|#a5d6a7/i)
+  })
+
+  it('keeps the dark-theme calculated-inside palette neutral and distinct from pending', () => {
+    themeMock.value = 'dark'
+    const inside = envelopePolygon(mountChart({ result: buildResult(), severity: 'success' }))
+    const pending = envelopePolygon(mountChart({ result: buildResult(), severity: null }))
+    expect(inside.attributes('stroke')).toBe('#90a4ae')
+    expect(inside.attributes('stroke')).not.toBe(pending.attributes('stroke'))
   })
 
   it('applies warning (orange) fill to the envelope polygon when severity is warning', () => {

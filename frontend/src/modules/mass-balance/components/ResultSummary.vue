@@ -29,37 +29,27 @@ defineEmits<{
   (e: 'export'): void
 }>()
 
-// ─── Limit-proximity highlighting ────────────────────────────────────────────
+// ─── Above-limit highlighting ────────────────────────────────────────────────
 //
-// A presentational at-a-glance cue, NOT a Go/No-Go determination — the
-// authoritative limit checks remain the math-core notifications (CRIT-MB-002 /
-// CRIT-MB-004). Here we only colour the displayed mass so the pilot's eye is
-// drawn to a figure that is at/over its limit ("over") or within the warning
-// band just below it ("near"). Comparison uses the raw mass, not the
-// conservatively-rounded display string, so the band is exact.
+// A presentational cue, NOT a Go/No-Go determination — the authoritative limit
+// checks remain the math-core notifications. Only a raw mass strictly above its
+// entered limit is coloured; there is no proximity band, because no applicable
+// source defines a marginal threshold below a limit.
 
-/** Fraction of the limit at/above which a mass is flagged "near" (within 2%). */
-const NEAR_LIMIT_FRACTION = 0.98
-
-type LimitProximity = 'normal' | 'near' | 'over'
-
-function massProximity(value: number, limit: number | null | undefined): LimitProximity {
-  if (limit == null || !(limit > 0)) return 'normal'
-  if (value > limit) return 'over'
-  if (value >= limit * NEAR_LIMIT_FRACTION) return 'near'
-  return 'normal'
+function isAboveLimit(value: number, limit: number | null | undefined): boolean {
+  return massLimitDifference(value, limit)?.relation === 'above'
 }
 
-const takeoffMassProximity = computed<LimitProximity>(() =>
+const takeoffMassAbove = computed(() =>
   props.result?.success
-    ? massProximity(props.result.takeoffCenterOfGravityPoint.mass, props.limits?.maxTakeoffMass)
-    : 'normal',
+    ? isAboveLimit(props.result.takeoffCenterOfGravityPoint.mass, props.limits?.maxTakeoffMass)
+    : false,
 )
 
-const zeroFuelMassProximity = computed<LimitProximity>(() =>
+const zeroFuelMassAbove = computed(() =>
   props.result?.success
-    ? massProximity(props.result.zeroFuelCenterOfGravityPoint.mass, props.limits?.maxZeroFuelMass)
-    : 'normal',
+    ? isAboveLimit(props.result.zeroFuelCenterOfGravityPoint.mass, props.limits?.maxZeroFuelMass)
+    : false,
 )
 
 const takeoffDifference = computed(() =>
@@ -74,12 +64,14 @@ const zeroFuelDifference = computed(() =>
     : null,
 )
 
-/** Colour-independent status text for screen readers (never colour alone). */
-function proximityLabel(proximity: LimitProximity): string {
-  if (proximity === 'over') return 'above limit'
-  if (proximity === 'near') return 'approaching limit'
-  return ''
-}
+// Raw equality only (from the unrounded comparison); a rounded display that
+// reads like the limit must never produce this prompt.
+const exactLimitNames = computed(() =>
+  [
+    takeoffDifference.value?.relation === 'at' ? 'MTOM' : null,
+    zeroFuelDifference.value?.relation === 'at' ? 'MZFM' : null,
+  ].filter((name): name is string => name !== null),
+)
 </script>
 
 <template>
@@ -97,7 +89,7 @@ function proximityLabel(proximity: LimitProximity): string {
           <dd>
             <span
               class="result-summary__value"
-              :class="`result-summary__value--${takeoffMassProximity}`"
+              :class="{ 'result-summary__value--over': takeoffMassAbove }"
             >
               {{ formatMassConservative(result.takeoffCenterOfGravityPoint.mass, 1) }}
             </span>
@@ -105,9 +97,7 @@ function proximityLabel(proximity: LimitProximity): string {
             <span v-if="limits" class="result-summary__limit">
               / MTOM {{ formatMassLimitConservative(limits.maxTakeoffMass, 1) }} kg
             </span>
-            <span v-if="takeoffMassProximity !== 'normal'" class="result-summary__sr-only">
-              {{ proximityLabel(takeoffMassProximity) }}
-            </span>
+            <span v-if="takeoffMassAbove" class="result-summary__sr-only">above limit</span>
             <p
               v-if="takeoffDifference"
               class="result-summary__difference"
@@ -124,7 +114,7 @@ function proximityLabel(proximity: LimitProximity): string {
           <dd>
             <span
               class="result-summary__value"
-              :class="`result-summary__value--${zeroFuelMassProximity}`"
+              :class="{ 'result-summary__value--over': zeroFuelMassAbove }"
             >
               {{ formatMassConservative(result.zeroFuelCenterOfGravityPoint.mass, 1) }}
             </span>
@@ -132,9 +122,7 @@ function proximityLabel(proximity: LimitProximity): string {
             <span v-if="limits?.maxZeroFuelMass != null" class="result-summary__limit">
               / MZFM {{ formatMassLimitConservative(limits.maxZeroFuelMass, 1) }} kg
             </span>
-            <span v-if="zeroFuelMassProximity !== 'normal'" class="result-summary__sr-only">
-              {{ proximityLabel(zeroFuelMassProximity) }}
-            </span>
+            <span v-if="zeroFuelMassAbove" class="result-summary__sr-only">above limit</span>
             <p
               v-if="zeroFuelDifference"
               class="result-summary__difference"
@@ -166,6 +154,15 @@ function proximityLabel(proximity: LimitProximity): string {
           </dd>
         </div>
       </dl>
+      <p
+        v-if="exactLimitNames.length > 0"
+        class="result-summary__exact"
+        data-testid="exact-limit-cross-check"
+      >
+        Exactly at {{ exactLimitNames.join(' and ') }}: no arithmetic mass difference remains.
+        Re-check the loading and the entered category/profile
+        {{ exactLimitNames.length > 1 ? 'limits' : 'limit' }} against the POH/AFM.
+      </p>
       <p v-if="takeoffDifference || zeroFuelDifference" class="result-summary__scope">
         Arithmetic comparison with the mass limits entered in the aircraft profile; not
         additional permissible payload and not a flight-suitability or Go/No-Go
@@ -220,13 +217,8 @@ function proximityLabel(proximity: LimitProximity): string {
   color: var(--color-text-primary, #212121);
 }
 
-/* Limit-proximity highlighting — colour is a secondary cue; the `/ limit`
-   ratio and the screen-reader status text carry the same information without
-   relying on colour. */
-.result-summary__value--near {
-  color: var(--color-warning, #b45309);
-}
-
+/* Colour is a secondary cue; the visible difference text and the
+   screen-reader status text carry the same information. */
 .result-summary__value--over {
   color: var(--color-critical, #c62828);
 }
@@ -240,6 +232,18 @@ function proximityLabel(proximity: LimitProximity): string {
 
 .result-summary__difference--above {
   color: var(--color-critical, #c62828);
+}
+
+.result-summary__exact {
+  margin: 0.75rem 0 0;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--color-border, #e0e0e0);
+  border-left: 4px solid var(--color-text-secondary, #666);
+  border-radius: 0.25rem;
+  background: var(--color-surface-alt, #f5f5f5);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-primary, #212121);
 }
 
 .result-summary__scope {

@@ -169,29 +169,30 @@ describe('ResultSummary', () => {
     expect(wrapper.find('.result-summary__sr-only').text()).toContain('above limit')
   })
 
-  it('flags the takeoff mass as near-limit when within 2% of MTOM', () => {
-    const wrapper = mount(ResultSummary, {
-      props: {
-        result: buildResult({
-          takeoffCenterOfGravityPoint: { arm: 1.91, mass: 625, moment: 1193.75 },
-        }),
-        limits: defaultLimits,
-        canExport: false,
-      },
-    })
-
-    const takeoffValue = wrapper.findAll('.result-summary__value')[0]!
-    expect(takeoffValue.classes()).toContain('result-summary__value--near')
+  it('has no proximity band: 979 and 981 kg below a 1000 kg MTOM look identical', () => {
+    const limits = { maxTakeoffMass: 1000, maxZeroFuelMass: 900 }
+    for (const mass of [979, 981, 999.96]) {
+      const wrapper = mount(ResultSummary, {
+        props: {
+          result: buildResult({ takeoffCenterOfGravityPoint: { arm: 1.91, mass, moment: mass * 1.91 } }),
+          limits,
+          canExport: false,
+        },
+      })
+      const takeoffValue = wrapper.findAll('.result-summary__value')[0]!
+      expect(takeoffValue.classes()).toEqual(['result-summary__value'])
+      expect(wrapper.find('.result-summary__sr-only').exists()).toBe(false)
+      expect(wrapper.text()).not.toMatch(/approaching/i)
+    }
   })
 
-  it('does not flag masses comfortably below their limits', () => {
+  it('does not flag masses below their limits', () => {
     const wrapper = mount(ResultSummary, {
       props: { result: buildResult(), limits: defaultLimits, canExport: false },
     })
 
     const takeoffValue = wrapper.findAll('.result-summary__value')[0]!
     expect(takeoffValue.classes()).not.toContain('result-summary__value--over')
-    expect(takeoffValue.classes()).not.toContain('result-summary__value--near')
     expect(wrapper.find('.result-summary__sr-only').exists()).toBe(false)
   })
 
@@ -210,7 +211,7 @@ describe('ResultSummary', () => {
     expect(zeroFuelValue.classes()).toContain('result-summary__value--over')
   })
 
-  it('applies no proximity highlight when limits are absent', () => {
+  it('applies no above-limit highlight when limits are absent', () => {
     const wrapper = mount(ResultSummary, {
       props: {
         result: buildResult({
@@ -223,7 +224,6 @@ describe('ResultSummary', () => {
 
     const takeoffValue = wrapper.findAll('.result-summary__value')[0]!
     expect(takeoffValue.classes()).not.toContain('result-summary__value--over')
-    expect(takeoffValue.classes()).not.toContain('result-summary__value--near')
   })
 
   it('shows error message instead of NaN values when result.success is false', () => {
@@ -333,5 +333,103 @@ describe('ResultSummary — mass-limit differences', () => {
     expect(w.find('.result-summary__scope').exists()).toBe(false)
     await w.setProps({ showLimitDifference: true })
     expect(w.get('[data-testid="takeoff-limit-difference"]').text()).toBe('Below MTOM by 100.0 kg')
+  })
+
+  it('names no exact-limit cross-check when masses are below or above', () => {
+    expect(mountWith(530, 500, defaultLimits).find('[data-testid="exact-limit-cross-check"]').exists()).toBe(false)
+    expect(mountWith(630.5, 601.25, defaultLimits).find('[data-testid="exact-limit-cross-check"]').exists()).toBe(false)
+  })
+})
+
+// Synthetic software vectors (normalized kg), not aircraft data.
+describe('ResultSummary — exact-limit cross-check', () => {
+  const limits: CategoryLimits = { maxTakeoffMass: 1000, maxZeroFuelMass: 900 }
+  const prompt = '[data-testid="exact-limit-cross-check"]'
+  function mountWith(takeoff: number, zeroFuel: number, l: CategoryLimits | null = limits) {
+    return mount(ResultSummary, {
+      props: {
+        result: buildResult({
+          takeoffCenterOfGravityPoint: { arm: 1.91, mass: takeoff, moment: takeoff * 1.91 },
+          zeroFuelCenterOfGravityPoint: { arm: 1.9, mass: zeroFuel, moment: zeroFuel * 1.9 },
+        }),
+        limits: l,
+        canExport: false,
+      },
+    })
+  }
+
+  it.each([
+    [979, 'Below MTOM by 21.0 kg'],
+    [981, 'Below MTOM by 19.0 kg'],
+    [999.96, 'Below MTOM by less than 0.1 kg'],
+    [1000.04, 'Above MTOM by 0.1 kg'],
+  ])('shows no MTOM prompt for takeoff %s kg (%s)', (takeoff, text) => {
+    const w = mountWith(takeoff, 800)
+    expect(w.get('[data-testid="takeoff-limit-difference"]').text()).toBe(text)
+    expect(w.find(prompt).exists()).toBe(false)
+  })
+
+  it('does not infer equality from a rounded mass that displays as the limit', () => {
+    const w = mountWith(999.96, 899.96)
+    // Conservative mass display rounds up, so both masses read exactly like their limits.
+    expect(w.findAll('.result-summary__value')[0]!.text()).toBe('1000.0')
+    expect(w.findAll('.result-summary__value')[1]!.text()).toBe('900.0')
+    expect(w.get('[data-testid="takeoff-limit-difference"]').text()).toBe('Below MTOM by less than 0.1 kg')
+    expect(w.find(prompt).exists()).toBe(false)
+  })
+
+  it('prompts once for raw MTOM equality only', () => {
+    const w = mountWith(1000, 800)
+    expect(w.findAll(prompt)).toHaveLength(1)
+    expect(w.get(prompt).text()).toBe(
+      'Exactly at MTOM: no arithmetic mass difference remains. Re-check the loading and the entered category/profile limit against the POH/AFM.',
+    )
+    expect(w.findAll('.result-summary__value')[0]!.classes()).not.toContain('result-summary__value--over')
+  })
+
+  it.each([
+    [899.96, 'Below MZFM by less than 0.1 kg', ''],
+    [900, 'Exactly at MZFM', 'Exactly at MZFM: '],
+    [900.04, 'Above MZFM by 0.1 kg', ''],
+  ])('relates ZFM %s kg to MZFM by raw value', (zeroFuel, text, promptStart) => {
+    const w = mountWith(950, zeroFuel)
+    expect(w.get('[data-testid="zero-fuel-limit-difference"]').text()).toBe(text)
+    expect(w.find(prompt).exists() ? w.get(prompt).text().slice(0, promptStart.length) : '').toBe(promptStart)
+  })
+
+  it('shows one prompt naming MTOM and MZFM when both are exact', () => {
+    const w = mountWith(1000, 900)
+    expect(w.findAll(prompt)).toHaveLength(1)
+    expect(w.get(prompt).text()).toMatch(/^Exactly at MTOM and MZFM: no arithmetic mass difference remains\./)
+    expect(w.get(prompt).text()).toContain('category/profile limits against the POH/AFM')
+    expect(w.get(prompt).text()).not.toMatch(/payload|suitab/i)
+  })
+
+  it('creates no MZFM relation or prompt when the category has no MZFM', () => {
+    const w = mountWith(990, 900, { maxTakeoffMass: 1000, maxZeroFuelMass: null })
+    expect(w.find('[data-testid="zero-fuel-limit-difference"]').exists()).toBe(false)
+    expect(w.find(prompt).exists()).toBe(false)
+  })
+
+  it('drops the previous equality when the category limits change', async () => {
+    const w = mountWith(1000, 900)
+    await w.setProps({ limits: { maxTakeoffMass: 1100, maxZeroFuelMass: 950 } })
+    expect(w.find(prompt).exists()).toBe(false)
+    expect(w.get('[data-testid="takeoff-limit-difference"]').text()).toBe('Below MTOM by 100.0 kg')
+  })
+
+  it('hides the prompt for a pending, failed or absent result and restores it for the current one', async () => {
+    const w = mountWith(1000, 900)
+    const valid = w.props('result')
+    await w.setProps({ showLimitDifference: false })
+    expect(w.find(prompt).exists()).toBe(false)
+    await w.setProps({ showLimitDifference: true })
+    expect(w.find(prompt).exists()).toBe(true)
+    await w.setProps({ result: { success: false } as unknown as MathCoreResult })
+    expect(w.find(prompt).exists()).toBe(false)
+    await w.setProps({ result: null })
+    expect(w.find(prompt).exists()).toBe(false)
+    await w.setProps({ result: valid })
+    expect(w.findAll(prompt)).toHaveLength(1)
   })
 })
