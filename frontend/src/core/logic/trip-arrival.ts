@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { MAX_ARM_M, MAX_MASS_KG, MAX_MOMENT_KGM } from '../adapters/mass-balance.adapter'
+import { MAX_ARM_M, MAX_MASS_KG, MAX_MOMENT_KGM } from './si-bounds'
 import { interpolateMomentStrict } from './mb.arm-lookup'
 
 const ArrivalInputSchema = z.object({
