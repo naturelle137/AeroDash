@@ -1,12 +1,21 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useMassBalanceStore } from '@/modules/mass-balance/stores/mass-balance.store'
-import { arrivalCgForPlanning } from '../services/arrival-cg'
+import { arrivalCgForPlanning, arrivalSequenceChoices } from '../services/arrival-cg'
 import { usableFuelForPlanning } from '../services/usable-fuel'
 import { calculateTripArrival } from '@/core/logic/trip-arrival'
 import { calculateFuelEndurance } from '@/core/logic/fuel-endurance'
 
 const store = useMassBalanceStore()
+const sequence = ref('')
+const sequences = computed(() => arrivalSequenceChoices(store.aircraft, store.activeCategory))
+watch(
+  () => [store.aircraft, store.activeCategory],
+  () => {
+    sequence.value = ''
+  },
+  { deep: true, flush: 'sync' },
+)
 const method = ref('')
 const directTripFuel = ref('')
 const consumption = ref('')
@@ -26,6 +35,7 @@ watch(
 watch(
   method,
   () => {
+    sequence.value = ''
     directTripFuel.value = ''
     consumption.value = ''
     trip.value = ''
@@ -91,6 +101,7 @@ const arrivalCg = computed(() => {
     store.stations,
     store.lastResult,
     arrival.value.tripFuelKg,
+    sequence.value,
   )
 })
 const format = (value: number) =>
@@ -118,6 +129,13 @@ const format = (value: number) =>
           <option value="" disabled>Choose a planning method</option>
           <option value="duration">Duration and consumption</option>
           <option value="direct">Direct Trip Fuel (kg)</option>
+        </select>
+      </div>
+      <div v-if="sequences.length" class="plan-field">
+        <label for="fe-sequence">Arrival CG burn sequence</label>
+        <select id="fe-sequence" v-model="sequence">
+          <option value="" disabled>Choose a named burn sequence</option>
+          <option v-for="name in sequences" :key="name" :value="name">{{ name }}</option>
         </select>
       </div>
       <div v-if="method === 'direct'" class="plan-field">
@@ -186,7 +204,10 @@ const format = (value: number) =>
         <p v-if="arrivalCg && !arrivalCg.ok" role="status">
           Estimated arrival CG unavailable: {{ arrivalCg.reason }}
         </p>
-        <p>Arrival CG supports one category-available fixed-arm tank without a lookup table.</p>
+        <p>
+          Arrival CG requires fixed-arm tanks without lookup tables. Multiple tanks require an
+          explicit complete named burn sequence; empty available tanks count too.
+        </p>
       </section>
       <p v-else-if="arrival" role="status">Arrival estimate unavailable: {{ arrival.reason }}</p>
       <p v-if="plan">

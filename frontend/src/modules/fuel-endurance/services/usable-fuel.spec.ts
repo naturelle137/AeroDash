@@ -7,7 +7,12 @@ describe('existing tank inventory for fuel planning', () => {
     const aircraft = syntheticFuelContext()
     expect(
       usableFuelForPlanning(aircraft, aircraft.certificationCategories[0]!.category, stations),
-    ).toEqual({ ok: true, usableFuelKg: 40, excludedUnusableKg: 10 })
+    ).toEqual({
+      ok: true,
+      usableFuelKg: 40,
+      excludedUnusableKg: 10,
+      tanks: [{ index: 0, usableFuelKg: 40 }],
+    })
     aircraft.loadPoints[0]!.unit = 'L'
     const converted = usableFuelForPlanning(
       aircraft,
