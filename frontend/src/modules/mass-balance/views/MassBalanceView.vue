@@ -600,7 +600,9 @@ const categories = computed(
 )
 const activeCategory = computed(() => store.activeCategory)
 
-const envelope = computed(() => store.activeCategoryDef?.envelope ?? [])
+// Same SI envelope the math core uses; the raw profile envelope stays in its
+// source unit (e.g. lb/in) and would not share the result points' axes.
+const envelope = computed(() => store.activeEnvelopeSI)
 const graphType = computed(() => store.activeCategoryDef?.graphType ?? 'arm')
 
 // Profile limits stay in the profile's source unit (e.g. lb for `lb-in`);

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Plot source-unit (e.g. lb-in) envelopes in SI with the calculated CG points, label chart axis units and floor unit-labelled MTOM/MZFM limits (#523).
+
 ### Added
 
 - Show current takeoff/zero-fuel mass differences to entered limits in Flight Preparation with a scope statement and neutral chart wording (#521).

@@ -39,6 +39,7 @@ import type {
   MassBalanceState,
   AircraftContext,
   CategoryDefinition,
+  EnvelopePoint,
   LoadPointDefinition,
   StationInput,
   Notification,
@@ -95,6 +96,24 @@ export const useMassBalanceStore = defineStore('massBalance', {
         this.aircraft.certificationCategories.find((c) => c.category === this.activeCategory) ??
         null
       )
+    },
+
+    /**
+     * Active category envelope in SI (kg; m for arm graphs, kg·m for moment
+     * graphs). The math core and the chart both use this, so plotted points and
+     * the envelope always share one coordinate system.
+     */
+    activeEnvelopeSI(): EnvelopePoint[] {
+      const catDef = this.activeCategoryDef
+      if (!catDef || !this.aircraft) return []
+      const { massUnit, armUnit } = parseSourceUnit(this.aircraft.sourceUnit)
+      return catDef.envelope.map((p) => ({
+        mass: normalizeMassToKg(p.mass, massUnit),
+        armOrMoment:
+          catDef.graphType === 'arm'
+            ? normalizeArmToM(p.armOrMoment, armUnit)
+            : normalizeMomentToSI(p.armOrMoment, armUnit),
+      }))
     },
 
     /** Stations filtered by the active category's allowable load points. */
@@ -412,13 +431,6 @@ export const useMassBalanceStore = defineStore('massBalance', {
           moment: normalizeMomentToSI(e.moment, armUnit),
         }))
 
-      // Normalize an envelope point's armOrMoment: it is an ARM (length) in
-      // arm-graph mode and a MOMENT in moment-graph mode.
-      const normalizeArmOrMoment = (value: number) =>
-        catDef.graphType === 'arm'
-          ? normalizeArmToM(value, armUnit)
-          : normalizeMomentToSI(value, armUnit)
-
       const input: MathCoreInput = {
         stations: this.availableStations
           .filter((s) => {
@@ -442,10 +454,7 @@ export const useMassBalanceStore = defineStore('massBalance', {
           catDef.maxZeroFuelMass !== null
             ? normalizeMassToKg(catDef.maxZeroFuelMass, profileMassUnit)
             : null,
-        envelope: catDef.envelope.map((p) => ({
-          mass: normalizeMassToKg(p.mass, profileMassUnit),
-          armOrMoment: normalizeArmOrMoment(p.armOrMoment),
-        })),
+        envelope: this.activeEnvelopeSI,
         graphType: catDef.graphType,
         fuelStations: this.availableStations
           .filter((_s) => {

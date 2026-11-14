@@ -45,6 +45,18 @@ export function formatFuelConservative(value: number, decimals: number = 1): str
 }
 
 /**
+ * Format a mass limit (e.g. MTOM) rounded DOWN so a displayed limit never
+ * suggests more permissible mass than the entered limit.
+ *
+ * @param value - Limit in SI units.
+ * @param decimals - Number of decimal places in the output string.
+ * @returns Formatted string with floor rounding.
+ */
+export function formatMassLimitConservative(value: number, decimals: number = 1): string {
+  return formatFuelConservative(value, decimals)
+}
+
+/**
  * Format an arm or moment value (CG position) to the specified decimal
  * places using standard rounding (not conservative).
  *
