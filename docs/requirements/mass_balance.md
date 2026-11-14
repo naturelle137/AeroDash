@@ -98,6 +98,14 @@ The system shall state next to the mass-limit difference that it is an arithmeti
 
 The system shall describe the chart's success state in its accessible label only as inside the entered envelope for the calculated state.
 
+### REQ-MB-025: Mass-limit label rounding
+
+The system shall display MTOM and MZFM next to the calculated masses in kg with their unit and rounded down, so a displayed limit never exceeds the entered limit.
+
+### REQ-MB-026: Chart coordinate units
+
+The system shall plot the selected category's envelope and the calculated CG points in kg and m (arm graph) or kg·m (moment graph), normalized with the same conversion used for the calculation, and label both axes with these units.
+
 ## Design References
 
 - **<a name="notificationScheme"></a>Notification Scheme:** [`docs/architecture/notification_schema.md`](../architecture/notification_schema.md)
