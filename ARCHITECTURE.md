@@ -66,15 +66,31 @@ valid arrival mass with a reason. No schedule is inferred.
 A single category-available lookup tank is supported only with `arm: null` and
 exactly zero unusable fuel. Imported lookup moments are total tank moments at each
 load, so P1 subtracts F(q) − F(q − b) from the current takeoff moment, interpolating
-moments (never arms) with the same segment rule as M&B. For u = 0 and F(0) = 0 this
-reproduces both existing M&B endpoints. P2 rejects raw negative/nonfinite knots before
+moments (never arms) with the same segment rule as M&B. P2 rejects raw negative/nonfinite knots before
 normalization clamps them, then normalizes the axis like tank loads and moments with
 the profile mass × length unit; P1 requires ≥ 2 strictly ascending knots from exactly
-(0, 0), coverage of [0, q] and the existing SI bounds. Nonzero unusable fuel stays
-unsupported: current M&B adds (q − u)·F(q)/q, not F(q) − F(u) (#530). The estimate is separate
+(0, 0), coverage of [0, q] and the existing SI bounds. Nonzero-unusable arrival CG stays
+unsupported (arrival mass is kept). The estimate is separate
 from the all-usable-burned M&B endpoint and does not assess landing suitability or
 the full burn path/envelope. Synthetic arithmetic and browser tests establish
 software wiring only.
+
+## Lookup fuel tanks in M&B
+
+A fuel lookup table holds the total tank moment F at each total tank load. Unusable
+fuel u is part of BEM, so a tank at current load q contributes mass q − u and moment
+F(q) − F(u); fixed arms still contribute (q − u) · arm. Non-fuel lookup stations keep
+the legacy arm lookup. The P2 store first checks raw values (explicit source unit,
+tank unit and known fuel types, finite nonnegative knots, q ≥ u) before
+normalization can clamp or fall back. The P1 adapter then requires ≥ 2 finite knots
+with strictly ascending quantities in SI bounds, coverage of u and q without
+sorting, clamping, extrapolation or an invented origin, and a bounded difference;
+signed and nonmonotonic moments are valid. Arm plus lookup is `NOT_ALLOWED`. Any
+failure emits `ERR-SYS-001` and leaves no result, so chart markers, summary, fuel
+arrival and print are blocked rather than stale. Takeoff, named-sequence waypoints
+and envelope checks (arm and moment graphs) use the corrected contribution; the
+all-usable-burned endpoint remains the zero-fuel point. Endpoints and straight
+segments do not validate a nonlinear full-flight path.
 
 ## M&B print summary
 

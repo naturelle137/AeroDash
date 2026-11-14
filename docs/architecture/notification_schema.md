@@ -270,6 +270,8 @@ M&B retains a WARNING with context `FuelEndurance.Density` when an unknown fuel 
 
 `{field}` is replaced with the invalid field path, `{code}` with the Zod validation code, and `{Module}` with the originating module name (e.g., `MassBalance`).
 
+For a fuel lookup tank, `{field}` is the tank name and the message appends a readable reason; codes include `BELOW_UNUSABLE`, `INVALID_GEOMETRY`, `LOOKUP_OUT_OF_RANGE`, `NUMERIC_OVERFLOW` and `UNSUPPORTED_UNIT`.
+
 ### 6.7 User Interface (UI)
 
 #### WARN-UI-001 — Input Out of Range
