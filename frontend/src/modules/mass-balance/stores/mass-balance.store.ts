@@ -112,7 +112,7 @@ export const useMassBalanceStore = defineStore('massBalance', {
         armOrMoment:
           catDef.graphType === 'arm'
             ? normalizeArmToM(p.armOrMoment, armUnit)
-            : normalizeMomentToSI(p.armOrMoment, armUnit),
+            : normalizeMomentToSI(p.armOrMoment, massUnit, armUnit),
       }))
     },
 
@@ -421,14 +421,15 @@ export const useMassBalanceStore = defineStore('massBalance', {
       // and merged into the notification set below.
       const fuelFallbackNotes: Notification[] = []
 
-      // Normalize an armLookup table (mass/volume axis → kg, moment → kg·m).
+      // Normalize an armLookup table (mass/volume axis → kg via the station's
+      // unit; moment → kg·m via the profile sourceUnit mass × length).
       const normalizeArmLookup = (
         entries: { massOrVolume: number; moment: number }[],
         massToKg: (v: number) => number,
       ) =>
         entries.map((e) => ({
           massOrVolume: massToKg(e.massOrVolume),
-          moment: normalizeMomentToSI(e.moment, armUnit),
+          moment: normalizeMomentToSI(e.moment, profileMassUnit, armUnit),
         }))
 
       const input: MathCoreInput = {

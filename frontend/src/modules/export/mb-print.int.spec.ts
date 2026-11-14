@@ -46,6 +46,35 @@ describe('M&B print presentation with real store calculation', () => {
     expect(result.status).toContain('expired-aged [UNVERIFIED]')
     expect(result.provenance!.revision).toBe('Synthetic')
   })
+  it('prints lb-in moment envelope rows in kg·m from the real store calculation', () => {
+    // Synthetic vectors: 1 lb = 0.45359237 kg, 1 in = 0.0254 m. 50000 / 100000 lb·in =
+    // 576.0623099 / 1152.1246198 kg·m; BEM 1500 lb × 40 in = 691.27477188 kg·m.
+    setActivePinia(createPinia())
+    const profile = testPohAircraft()
+    profile.status = 'draft'
+    profile.sourceUnit = 'lb-in'
+    profile.weighingReports = [{ bem: 1500, emptyCg: 40, weighingDate: '2026-01-01', validFrom: '2026-01-01' }]
+    profile.certificationCategories = [{
+      category: 'Normal', mtom: 2400, maxZeroFuelMass: null, graphType: 'moment',
+      envelope: [
+        { mass: 1500, armOrMoment: 50000 }, { mass: 2600, armOrMoment: 50000 },
+        { mass: 2600, armOrMoment: 100000 }, { mass: 1500, armOrMoment: 100000 },
+      ],
+    }]
+    const store = useMassBalanceStore()
+    store.loadProfile(mapFleetProfileToContext(profile))
+    expect(store.lastResult!.takeoffCenterOfGravityPoint.moment).toBeCloseTo(691.27477188, 6)
+    const result = assembleMbPrint(reactive({ state: store.uiState, ready: true, profile, aircraft: store.aircraft,
+      category: store.activeCategoryDef, result: store.lastResult, stations: store.availableStations,
+      notifications: store.notifications }), new Date('2026-11-14'))!
+    expect(result.graphType).toBe('moment')
+    expect(result.envelope.map(r => r.horizontal)).toEqual([
+      '576.062 kg·m [UNVERIFIED]', '576.062 kg·m [UNVERIFIED]',
+      '1152.125 kg·m [UNVERIFIED]', '1152.125 kg·m [UNVERIFIED]',
+    ])
+    expect(result.envelope[0]!.mass).toBe('680.4 kg [UNVERIFIED]')
+    expect(result.points[0]!.cg).toBe('1.016 m [UNVERIFIED]')
+  })
   it.each(['INITIAL', 'LOADING', 'UNCONFIGURED', 'UNVERIFIED', 'ERROR_CRITICAL'] as const)('blocks retained success in %s', state => {
     const input = source()
     input.state = state
