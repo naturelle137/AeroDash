@@ -72,7 +72,7 @@ export function assembleMbPrint(source: MbPrintSource, now: Date, includeFuel = 
     graphType: category.graphType,
     envelope: category.envelope.map(p => ({
       mass: mass(normalizeMassToKg(p.mass, massUnit)),
-      horizontal: `${formatArm(category.graphType === 'arm' ? normalizeArmToM(p.armOrMoment, armUnit) : normalizeMomentToSI(p.armOrMoment, armUnit), 3)} ${category.graphType === 'arm' ? 'm' : 'kg·m'}${marker}`,
+      horizontal: `${formatArm(category.graphType === 'arm' ? normalizeArmToM(p.armOrMoment, armUnit) : normalizeMomentToSI(p.armOrMoment, massUnit, armUnit), 3)} ${category.graphType === 'arm' ? 'm' : 'kg·m'}${marker}`,
     })),
     notifications: source.notifications.map(n => ({ id: n.id, severity: n.severity, message: n.message, context: n.context })),
   }

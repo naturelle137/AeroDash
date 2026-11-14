@@ -95,23 +95,43 @@ describe('volumeLToUnit', () => {
   })
 })
 
+// Independent reference: 1 lb = 0.45359237 kg, 1 in = 0.0254 m, 1 ft = 0.3048 m (exact).
 describe('normalizeMomentToSI', () => {
-  it('returns the value unchanged for m (kg·m) input', () => {
-    expect(normalizeMomentToSI(123.4, 'm')).toBe(123.4)
+  it('returns the value unchanged for kg·m input', () => {
+    expect(normalizeMomentToSI(123.4, 'kg', 'm')).toBe(123.4)
   })
 
-  it('scales a kg·in moment to kg·m by the inch factor (1 kg·in = 0.0254 kg·m)', () => {
-    expect(normalizeMomentToSI(1, 'in')).toBeCloseTo(0.0254, 10)
+  it('scales a kg·in moment to kg·m by the inch factor only (1 kg·in = 0.0254 kg·m)', () => {
+    expect(normalizeMomentToSI(1, 'kg', 'in')).toBeCloseTo(0.0254, 10)
+    expect(normalizeMomentToSI(27800, 'kg', 'in')).toBeCloseTo(706.12, 8)
   })
 
   it('scales a kg·ft moment to kg·m by the foot factor (1 kg·ft = 0.3048 kg·m)', () => {
-    expect(normalizeMomentToSI(1, 'ft')).toBeCloseTo(0.3048, 10)
+    expect(normalizeMomentToSI(1, 'kg', 'ft')).toBeCloseTo(0.3048, 10)
   })
 
-  it('is consistent with mass×arm: 100 kg × 40 in == moment 4000 kg·in normalized', () => {
-    const armM = normalizeArmToM(40, 'in')
-    const momentSI = normalizeMomentToSI(100 * 40, 'in')
-    expect(momentSI).toBeCloseTo(100 * armM, 10)
+  it('applies mass and length factors to lb·in: 60000 lb·in = 691.27477188 kg·m, not 1524', () => {
+    expect(normalizeMomentToSI(60000, 'lb', 'in')).toBeCloseTo(691.27477188, 8)
+    expect(normalizeMomentToSI(60000, 'lb', 'in')).not.toBeCloseTo(1524, 0)
+  })
+
+  it('applies mass and length factors to lb·ft: 5000 lb·ft = 691.27477188 kg·m', () => {
+    expect(normalizeMomentToSI(5000, 'lb', 'ft')).toBeCloseTo(691.27477188, 8)
+  })
+
+  it('applies the mass factor to lb·m', () => {
+    expect(normalizeMomentToSI(1000, 'lb', 'm')).toBeCloseTo(453.59237, 8)
+  })
+
+  it.each([
+    ['kg', 'in', 100, 40],
+    ['lb', 'in', 1500, 40],
+    ['lb', 'ft', 1500, 3.5],
+  ] as const)('equals normalized mass × normalized arm for %s-%s', (massUnit, armUnit, mass, arm) => {
+    expect(normalizeMomentToSI(mass * arm, massUnit, armUnit)).toBeCloseTo(
+      normalizeMassToKg(mass, massUnit) * normalizeArmToM(arm, armUnit),
+      9,
+    )
   })
 })
 

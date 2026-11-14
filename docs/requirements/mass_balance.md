@@ -106,6 +106,10 @@ The system shall display MTOM and MZFM next to the calculated masses in kg with 
 
 The system shall plot the selected category's envelope and the calculated CG points in kg and m (arm graph) or kg·m (moment graph), normalized with the same conversion used for the calculation, and label both axes with these units.
 
+### REQ-MB-027: Source-unit moment normalization
+
+The system shall interpret stored envelope and arm-table moments as the profile source mass unit multiplied by its arm unit (e.g. lb·in for `lb-in`, lb·ft for `lb-ft`) and convert them to kg·m with both the mass and the length factor before calculation, charting and printing.
+
 ## Design References
 
 - **<a name="notificationScheme"></a>Notification Scheme:** [`docs/architecture/notification_schema.md`](../architecture/notification_schema.md)

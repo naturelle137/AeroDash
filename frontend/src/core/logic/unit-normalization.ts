@@ -88,23 +88,22 @@ export function armMToUnit(m: number, targetUnit: ArmUnit): number {
 // ─── Moment normalization (→ kg·m) ────────────────────────────────────────────
 
 /**
- * Normalize a moment value to SI (kg·m) given the profile's arm (length) unit.
+ * Normalize a stored moment to SI (kg·m).
  *
- * A moment = mass × arm. Mass is already normalized to kg at the adapter
- * boundary BEFORE the math core runs, so a stored moment whose arm component is
- * in `in`/`ft` only needs the length factor applied to reach kg·m. (Stored
- * moments — `armLookup.moment`, envelope `armOrMoment` in moment-graph mode —
- * are expressed as kg × armUnit when the profile is metric-mass / imperial-arm,
- * which is the only imperial case AeroDash ships.)
+ * Stored moments (`armLookup.moment`, envelope `armOrMoment` in moment-graph
+ * mode) are expressed in the profile `sourceUnit`: profile mass unit × arm
+ * unit. An `lb-in` profile stores lb·in, `lb-ft` stores lb·ft, `kg-in` kg·in
+ * and `kg`/`kg-m` kg·m. Both factors are required; applying only the length
+ * factor would label lb·m as kg·m. Station-level unit overrides do not change
+ * the moment unit.
  *
- * @param value - moment in (kg · armUnit)
+ * @param value - moment in (massUnit · armUnit)
+ * @param massUnit - the profile mass unit of the moment's mass component
  * @param armUnit - the arm/length unit of the moment's length component
  * @returns moment in kg·m
  */
-export function normalizeMomentToSI(value: number, armUnit: ArmUnit): number {
-  if (armUnit === 'in') return value * IN_TO_M
-  if (armUnit === 'ft') return value * FT_TO_M
-  return value // already kg·m
+export function normalizeMomentToSI(value: number, massUnit: MassUnit, armUnit: ArmUnit): number {
+  return normalizeArmToM(normalizeMassToKg(value, massUnit), armUnit)
 }
 
 // ─── Volume normalization (→ L) ───────────────────────────────────────────────

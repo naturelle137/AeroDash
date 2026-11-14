@@ -13,6 +13,12 @@
  *   ZFM CG (1500·40 + 400·38) / 1900 in = 39.578947 in = 1.0053053 m
  * Moment graph (`kg-in`): envelope moments are kg·in → ×0.0254 kg·m.
  *   20000 / 50000 kg·in → 508 / 1270 kg·m
+ * Moment graph (`lb-in`): stored moments are lb·in → ×0.45359237×0.0254 kg·m.
+ *   50000 / 100000 lb·in → 576.0623099 / 1152.1246198 kg·m
+ *   65000 / 90000 lb·in  → 748.88100287 / 1036.91215782 kg·m
+ *   BEM 1500 lb × 40 in = 60000 lb·in = 691.27477188 kg·m (length-only: 1524)
+ *   baggage armLookup 0→0, 100 lb→9500 lb·in; 50 lb → 4750 lb·in = 54.72591944 kg·m
+ *   ZFM 1950 lb = 884.5051215 kg; 79950 lb·in = 921.12363353 kg·m
  * Synthetic test data only; not aircraft operational validation.
  */
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -125,6 +131,63 @@ const momentProfile: AircraftContext = {
         { armOrMoment: 20000, mass: 900 },
         { armOrMoment: 50000, mass: 900 },
         { armOrMoment: 50000, mass: 500 },
+      ],
+    },
+  ],
+}
+
+const lbMomentProfile: AircraftContext = {
+  ...imperialProfile,
+  id: 'lb-in-moment-chart-units',
+  sourceUnit: 'lb-in',
+  loadPoints: [
+    {
+      name: 'Pilot',
+      arm: 38,
+      armLookup: [],
+      operationalLimit: 800,
+      defaultQuantity: 400,
+      unit: 'lb',
+      allowableCategories: ['Normal', 'Utility'],
+      fuelTank: null,
+    },
+    {
+      name: 'Baggage',
+      arm: null,
+      armLookup: [
+        { massOrVolume: 0, moment: 0 },
+        { massOrVolume: 100, moment: 9500 },
+      ],
+      operationalLimit: 100,
+      defaultQuantity: 50,
+      unit: 'lb',
+      allowableCategories: ['Normal', 'Utility'],
+      fuelTank: null,
+    },
+  ],
+  certificationCategories: [
+    {
+      category: 'Normal',
+      maxTakeoffMass: 2400,
+      maxZeroFuelMass: null,
+      graphType: 'moment',
+      envelope: [
+        { armOrMoment: 50000, mass: 1500 },
+        { armOrMoment: 50000, mass: 2600 },
+        { armOrMoment: 100000, mass: 2600 },
+        { armOrMoment: 100000, mass: 1500 },
+      ],
+    },
+    {
+      category: 'Utility',
+      maxTakeoffMass: 2400,
+      maxZeroFuelMass: 2000,
+      graphType: 'moment',
+      envelope: [
+        { armOrMoment: 65000, mass: 1600 },
+        { armOrMoment: 65000, mass: 2400 },
+        { armOrMoment: 90000, mass: 2400 },
+        { armOrMoment: 90000, mass: 1600 },
       ],
     },
   ],
@@ -307,6 +370,52 @@ describe('MassBalanceView — chart envelope and points share SI coordinates', (
     expect(wrapper.text()).toContain('CG Moment (kg·m)')
   })
 
+  it('normalizes a lb-in moment envelope and armLookup with mass and length factors', async () => {
+    const { store, wrapper } = await loadAndMount(lbMomentProfile)
+
+    expectEnvelope(wrapper, [
+      { armOrMoment: 576.0623099, mass: 680.388555 },
+      { armOrMoment: 576.0623099, mass: 1179.340162 },
+      { armOrMoment: 1152.1246198, mass: 1179.340162 },
+      { armOrMoment: 1152.1246198, mass: 680.388555 },
+    ])
+    const zfm = store.lastResult!.zeroFuelCenterOfGravityPoint
+    expect(zfm.mass).toBeCloseTo(884.5051215, 6)
+    // Includes the armLookup moment 54.72591944 kg·m; a length-only lookup would add 120.65.
+    expect(zfm.moment).toBeCloseTo(921.12363353, 6)
+
+    const box = polygonBox(wrapper)
+    const p = zfmPixel(wrapper)
+    expect(p.x).toBeGreaterThan(box.xMin)
+    expect(p.x).toBeLessThan(box.xMax)
+    expect(p.y).toBeGreaterThan(box.yMin)
+    expect(p.y).toBeLessThan(box.yMax)
+    expect(wrapper.text()).toContain('CG Moment (kg·m)')
+    expect(store.uiState).not.toBe('ERROR_CRITICAL')
+  })
+
+  it('follows a lb-in moment category switch, keeping MZFM difference and point inside', async () => {
+    const { store, wrapper } = await loadAndMount(lbMomentProfile)
+    store.changeCertificationCategory('Utility')
+    await wrapper.vm.$nextTick()
+
+    expectEnvelope(wrapper, [
+      { armOrMoment: 748.88100287, mass: 725.747792 },
+      { armOrMoment: 748.88100287, mass: 1088.621688 },
+      { armOrMoment: 1036.91215782, mass: 1088.621688 },
+      { armOrMoment: 1036.91215782, mass: 725.747792 },
+    ])
+    expect(store.lastResult!.zeroFuelCenterOfGravityPoint.moment).toBeCloseTo(921.12363353, 6)
+    // MZFM 2000 lb − ZFM 1950 lb = 50 lb = 22.6796185 kg, floored.
+    expect(wrapper.find('[data-testid="zero-fuel-limit-difference"]').text()).toBe(
+      'Below MZFM by 22.6 kg',
+    )
+    const box = polygonBox(wrapper)
+    const p = zfmPixel(wrapper)
+    expect(p.x).toBeGreaterThan(box.xMin)
+    expect(p.x).toBeLessThan(box.xMax)
+  })
+
   it('keeps SI profiles unchanged and follows a switch from an imperial profile', async () => {
     const { store, wrapper } = await loadAndMount(imperialProfile)
     store.loadProfile(siProfile)
@@ -314,5 +423,19 @@ describe('MassBalanceView — chart envelope and points share SI coordinates', (
 
     expectEnvelope(wrapper, siProfile.certificationCategories[0]!.envelope)
     expect(wrapper.find('.result-summary__limit').text()).toBe('/ MTOM 630.0 kg')
+  })
+
+  it('replaces a lb-in moment envelope when switching to a kg-in moment profile', async () => {
+    const { store, wrapper } = await loadAndMount(lbMomentProfile)
+    store.loadProfile(momentProfile)
+    await wrapper.vm.$nextTick()
+
+    expectEnvelope(wrapper, [
+      { armOrMoment: 508, mass: 500 },
+      { armOrMoment: 508, mass: 900 },
+      { armOrMoment: 1270, mass: 900 },
+      { armOrMoment: 1270, mass: 500 },
+    ])
+    expect(store.lastResult!.zeroFuelCenterOfGravityPoint.moment).toBeCloseTo(706.12, 4)
   })
 })

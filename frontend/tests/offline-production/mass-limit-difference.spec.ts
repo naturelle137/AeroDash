@@ -324,3 +324,111 @@ test('kg-in moment envelope and calculated points share kg·m axes', async ({ pa
   await page.screenshot({ path: info.outputPath('moment-kg-in.png'), fullPage: true })
   await info.attach('moment-kg-in', { path: info.outputPath('moment-kg-in.png'), contentType: 'image/png' })
 })
+
+/** Position of the ZFM marker inside the drawn polygon box as fractions (x left→right, y bottom→top). */
+async function zfmFractionInEnvelope(page: Page) {
+  const { box, zfm } = await chartGeometry(page)
+  return { x: (zfm.x - box.xMin) / (box.xMax - box.xMin), y: (box.yMax - zfm.y) / (box.yMax - box.yMin) }
+}
+
+// Moment graph in a lb-in profile: stored moments are lb·in (profile mass × length) and are drawn
+// in kg·m with the SI points. Synthetic vectors only (1 lb = 0.45359237 kg, 1 in = 0.0254 m):
+// BEM 1500 lb × 40 in = 60000 lb·in = 691.27477188 kg·m (length-only conversion gave 1524);
+// envelope 50000–100000 lb·in = 576.0623099–1152.1246198 kg·m, 1500–2600 lb.
+// Payload 400 lb × 38 in + baggage armLookup 50 lb → 4750 lb·in: ZFM 1950 lb, 79950 lb·in
+// = 884.5051215 kg, 921.12363353 kg·m. Unit-independent fractions inside the box therefore are
+// x = (79950 − 50000) / 50000 = 0.599 and y = (1950 − 1500) / 1100 = 0.40909.
+test('lb-in moment envelope, armLookup and calculated points share kg·m axes', async ({ page }, info) => {
+  await page.goto('/fleet')
+  await page.getByTestId('disclaimer-gate-accept').click()
+
+  const base = testPohAircraft()
+  const profile = {
+    ...base, id: '00000000-0000-4000-a000-000000005241', registration: 'N524LB', sourceUnit: 'lb-in',
+    performanceProfiles: [],
+    weighingReports: [{ bem: 1500, emptyCg: 40, weighingDate: '2026-01-01', validFrom: '2026-01-01' }],
+    loadPoints: [
+      {
+        name: 'Synthetic payload', kind: 'occupant', occupancy: 'required',
+        arm: 38, armLookup: [], operationalLimit: 1200, defaultQuantity: 0, unit: 'lb',
+        allowableCategories: null, fuelTank: null,
+      },
+      {
+        name: 'Synthetic baggage', kind: 'baggage', occupancy: 'optional',
+        arm: null, armLookup: [{ massOrVolume: 0, moment: 0 }, { massOrVolume: 100, moment: 9500 }],
+        operationalLimit: 100, defaultQuantity: 0, unit: 'lb', allowableCategories: null, fuelTank: null,
+      },
+    ],
+    certificationCategories: [
+      {
+        category: 'Normal', mtom: 2400, maxZeroFuelMass: null, graphType: 'moment', envelope: [
+          { mass: 1500, armOrMoment: 50000 }, { mass: 2600, armOrMoment: 50000 },
+          { mass: 2600, armOrMoment: 100000 }, { mass: 1500, armOrMoment: 100000 },
+        ],
+      },
+      {
+        category: 'Utility', mtom: 2400, maxZeroFuelMass: 2000, graphType: 'moment', envelope: [
+          { mass: 1600, armOrMoment: 65000 }, { mass: 2400, armOrMoment: 65000 },
+          { mass: 2400, armOrMoment: 90000 }, { mass: 1600, armOrMoment: 90000 },
+        ],
+      },
+    ],
+  }
+  await page.getByLabel('Or import from Exchange File (.json)').setInputFiles({
+    name: 'synthetic-lb-moment.json', mimeType: 'application/json',
+    buffer: Buffer.from(JSON.stringify({ format: 'aerodash-aircraft', version: 1, profile })),
+  })
+  await expect(page.getByRole('button', { name: 'Verify N524LB', exact: true })).toBeVisible()
+  await page.goto('/mass-balance')
+
+  const picker = page.getByLabel('Select aircraft', { exact: true })
+  const option = picker.locator('option').filter({ hasText: 'N524LB' }).first()
+  await picker.selectOption((await option.getAttribute('value'))!)
+  await page.getByRole('button', { name: 'Continue anyway', exact: true }).click()
+
+  const payload = page.locator('#station-0')
+  const baggage = page.locator('#station-1')
+  const chart = page.getByRole('img', { name: /CG Envelope Chart/ })
+  async function load(input: typeof payload, value: string) {
+    await input.fill(value)
+    await input.blur()
+  }
+  async function shot(name: string) {
+    await page.screenshot({ path: info.outputPath(`${name}.png`), fullPage: true })
+    await info.attach(name, { path: info.outputPath(`${name}.png`), contentType: 'image/png' })
+  }
+
+  await load(payload, '400')
+  await load(baggage, '50')
+  // MTOM 2400 lb − TOM 1950 lb = 450 lb = 204.1165665 kg, floored.
+  await expect(page.getByTestId('takeoff-limit-difference')).toHaveText('Below MTOM by 204.1 kg')
+  await expect(page.getByText('CG Moment (kg·m)', { exact: true })).toBeVisible()
+  await expect(chart).not.toHaveAttribute('aria-label', /CRITICAL/)
+  let f = await zfmFractionInEnvelope(page)
+  expect(f.x).toBeCloseTo(0.599, 2)
+  expect(f.y).toBeCloseTo(0.40909, 2)
+  await shot('moment-lb-in-normal')
+
+  // Utility: x = (79950 − 65000) / 25000 = 0.598, y = (1950 − 1600) / 800 = 0.4375.
+  await page.locator('#category-select').selectOption('Utility')
+  await expect(page.getByTestId('zero-fuel-limit-difference')).toHaveText('Below MZFM by 22.6 kg')
+  f = await zfmFractionInEnvelope(page)
+  expect(f.x).toBeCloseTo(0.598, 2)
+  expect(f.y).toBeCloseTo(0.4375, 2)
+  await shot('moment-lb-in-utility')
+
+  // Printed category limits use the same kg·m normalization: 65000 / 90000 lb·in.
+  await page.getByRole('button', { name: 'M&B print preview', exact: true }).click()
+  const sheet = page.getByRole('dialog', { name: 'M&B print preview' })
+  await expect(sheet).toContainText('748.881 kg·m')
+  await expect(sheet).toContainText('1036.912 kg·m')
+  await expect(sheet).not.toContainText('1651.000 kg·m') // length-only 65000 lb·in
+  await shot('moment-lb-in-print')
+  await sheet.getByRole('button', { name: 'Back to preparation', exact: true }).click()
+
+  // Back to Normal after the switch: the previous category's polygon is not retained.
+  await page.locator('#category-select').selectOption('Normal')
+  await expect(page.getByTestId('zero-fuel-limit-difference')).toHaveCount(0)
+  f = await zfmFractionInEnvelope(page)
+  expect(f.x).toBeCloseTo(0.599, 2)
+})
