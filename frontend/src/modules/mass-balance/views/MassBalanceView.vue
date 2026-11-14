@@ -838,16 +838,16 @@ function onCancelSelection(): void {
       <p class="fp-page-sub">Mass &amp; Balance · Performance · Weather · {{ isElectric ? 'Energy' : 'Fuel' }}</p>
     </div>
 
-            <MbPrintPreview :source="{
-              state: store.uiState,
-              ready: fleetStore.fleetLoadState === 'READY' && !pendingSelection,
-              aircraft: store.aircraft,
-              profile: fleetStore.profiles.find(p => p.id === store.aircraft?.id) ?? null,
-              category: store.activeCategoryDef,
-              stations: store.availableStations,
-              result: store.lastResult,
-              notifications: store.notifications,
-            }" />
+    <MbPrintPreview :source="{
+      state: store.uiState,
+      ready: fleetStore.fleetLoadState === 'READY' && !pendingSelection,
+      aircraft: store.aircraft,
+      profile: fleetStore.profiles.find(p => p.id === store.aircraft?.id) ?? null,
+      category: store.activeCategoryDef,
+      stations: store.availableStations,
+      result: store.lastResult,
+      notifications: store.notifications,
+    }" />
 
     <!-- ═══ Session restore banner (INFO-SYS-001) ════════════════════════════
          Shown when the persisted preflight session could not be restored on

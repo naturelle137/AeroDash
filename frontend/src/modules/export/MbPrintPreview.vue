@@ -6,13 +6,19 @@ const props = defineProps<{ source: MbPrintSource }>()
 const snapshot = ref<MbPrintSnapshot | null>(null)
 const opened = ref(false)
 const closeButton = ref<HTMLButtonElement>()
+const printRoot = ref<HTMLElement>()
 let returnFocus: HTMLElement | null = null
 let fingerprint = ''
 const currentKey = computed(() => JSON.stringify(props.source))
 const eligible = computed(() => canPrintMb(props.source))
 // The key check also protects print media before Vue's queued watcher runs.
 const currentSnapshot = computed(() => currentKey.value === fingerprint ? snapshot.value : null)
-watch(currentKey, () => { snapshot.value = null }, { flush: 'sync' })
+function invalidate(): void {
+  snapshot.value = null
+  // Native printing can capture the DOM before Vue flushes its pending render.
+  printRoot.value?.setAttribute('data-print-invalid', 'true')
+}
+watch(currentKey, invalidate, { flush: 'sync' })
 
 async function open(): Promise<void> {
   const value = assembleMbPrint(props.source, new Date())
@@ -20,6 +26,7 @@ async function open(): Promise<void> {
   returnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null
   fingerprint = currentKey.value
   snapshot.value = value
+  printRoot.value?.removeAttribute('data-print-invalid')
   opened.value = true
   await nextTick()
   closeButton.value?.focus()
@@ -32,7 +39,7 @@ function close(): void {
 function recheck(): boolean {
   const fresh = assembleMbPrint(props.source, new Date())
   if (!eligible.value || !currentSnapshot.value || fresh?.status !== snapshot.value?.status) {
-    snapshot.value = null
+    invalidate()
     return false
   }
   return true
@@ -64,7 +71,7 @@ onBeforeUnmount(() => {
 <template>
   <button type="button" :disabled="!eligible" class="mb-preview-action" @click="open">M&amp;B print preview</button>
   <Teleport to="body">
-    <div class="mb-print-root" :class="{ 'mb-print-root--open': opened }">
+    <div ref="printRoot" class="mb-print-root" :class="{ 'mb-print-root--open': opened }">
       <section v-if="opened" role="dialog" aria-modal="true" aria-label="M&B print preview" class="mb-print-sheet">
         <nav class="mb-print-controls" aria-label="Print controls">
           <button ref="closeButton" type="button" @click="close">Back to preparation</button>
@@ -110,6 +117,7 @@ onBeforeUnmount(() => {
         </template>
         <p v-else role="status">Preview invalidated. Return to preparation, review the current inputs and open a new M&amp;B print preview.</p>
       </section>
+      <p class="mb-print-guard">Preview unavailable or invalidated. Return to Flight Preparation and open an eligible current M&amp;B print preview.</p>
       <p v-if="!opened" class="mb-print-blocked">Open an eligible current M&amp;B print preview from Flight Preparation before printing.</p>
     </div>
   </Teleport>
@@ -126,7 +134,7 @@ onBeforeUnmount(() => {
 .mb-print-sheet th, .mb-print-sheet td { text-align: left; border-bottom: 1px solid #888; padding: .4rem; vertical-align: top; }
 .mb-print-sheet dd { margin: 0 0 .5rem; }
 .mb-print-controls { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .5rem; }
-.mb-print-blocked { display: none; }
+.mb-print-blocked, .mb-print-guard { display: none; }
 @media (max-width: 480px) { .mb-print-root--open { padding: .25rem; } .mb-print-sheet { padding: .75rem; } }
 @media print {
   @page { size: A4; margin: 15mm; }
@@ -135,6 +143,8 @@ onBeforeUnmount(() => {
   .mb-print-sheet { max-width: none; padding: 0; margin: 0; font: 10pt/1.4 sans-serif; }
   .mb-print-controls { display: none; }
   .mb-print-blocked { display: block; }
+  .mb-print-root[data-print-invalid] .mb-print-sheet, .mb-print-root[data-print-invalid] .mb-print-blocked { display: none; }
+  .mb-print-root[data-print-invalid] .mb-print-guard { display: block; }
   .mb-print-sheet h1, .mb-print-sheet h2, .mb-print-sheet thead { break-after: avoid; }
   .mb-print-sheet thead { display: table-header-group; }
   .mb-print-sheet tr { break-inside: avoid; }

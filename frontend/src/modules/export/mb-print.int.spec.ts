@@ -76,6 +76,7 @@ describe('M&B print presentation with real store calculation', () => {
     if (change === 'status') input.state = 'LOADING'
     if (change === 'notifications') input.notifications[0]!.message = 'New warning'
     window.dispatchEvent(new Event('beforeprint'))
+    expect(document.querySelector('.mb-print-root')?.getAttribute('data-print-invalid')).toBe('true')
     await nextTick()
     expect(document.body.textContent).not.toContain('500.0 kg')
     expect(document.body.textContent).toContain('Preview invalidated')
@@ -102,6 +103,7 @@ describe('M&B print presentation with real store calculation', () => {
     await wrapper.get('button').trigger('click')
     vi.setSystemTime(new Date('2026-11-14'))
     window.dispatchEvent(new Event('beforeprint'))
+    expect(document.querySelector('.mb-print-root')?.getAttribute('data-print-invalid')).toBe('true')
     await nextTick()
     expect(document.body.textContent).not.toContain('500.0 kg')
     wrapper.unmount()

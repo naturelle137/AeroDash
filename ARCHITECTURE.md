@@ -66,6 +66,20 @@ from the all-usable-burned M&B endpoint and does not assess landing suitability 
 the full burn path/envelope. Synthetic arithmetic and browser tests establish
 software wiring only.
 
+## M&B print summary
+
+The P2 export module assembles presentation data from the current M&B result,
+category, available loading, notifications and selected Fleet profile. It reuses
+unit adapters, display rounding and profile freshness evaluation without new
+calculation math. A preview retains one session-only snapshot; any source change
+invalidates it. Eligibility is checked at opening, Print click and `beforeprint`.
+The native event sets a synchronous DOM/CSS guard on failure so pending Vue
+renders cannot leak old results into print media. Preparation chrome is excluded
+from print while this workflow is mounted. No upload, PDF dependency, profile
+verification mutation or notification acknowledgement is performed. Tabular
+limits replace graphics; this is M&B only, and the all-usable-fuel-burned endpoint
+is distinct from trip arrival and does not assess flight or landing suitability.
+
 ## Application lifecycle
 
 [PWA lifecycle](docs/architecture/adr/316-pwa-update-lifecycle.md) permits silent updates only for a classified cold start; active-session updates need consent. A failed session-storage check uses the consent path. Online minimum-safe-version checking can block unsafe versions; offline use cannot obtain a fresh remote safety verdict.
