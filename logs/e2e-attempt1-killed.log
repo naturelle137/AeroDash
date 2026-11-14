@@ -1,0 +1,697 @@
+
+> aerodash-root@0.3.0-alpha test:e2e /var/home/critter/lokal/dev/.hq-worktrees/aerodash/job-1314
+> pnpm --filter frontend run test:e2e --project=chromium
+
+
+> @aerodash/frontend@0.3.0-alpha test:e2e /var/home/critter/lokal/dev/.hq-worktrees/aerodash/job-1314/frontend
+> bddgen && playwright test --grep-invert @wip --project=chromium
+
+[1A[2K[WebServer] [33m(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+[WebServer]   - import "./scripts/build/telemetry-guard" without a file extension (vite.config.ts:9:52). Add the file extension
+[WebServer]   - import "./scripts/build/copy-legal-docs" without a file extension (vite.config.ts:10:31). Add the file extension
+[WebServer] Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.[39m
+
+
+Running 97 tests using 10 workers
+
+[1A[2K[1/97] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-a-fleet-management/fleet-delete-after-browser-back.feature.spec.js:6:3 › Fleet Delete control survives a bfcache restore of the Fleet page › Delete confirmation opens after a bfcache restore of the Fleet page @phase-A @fleet @regression @e2e
+[1A[2K[2/97] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-a-fleet-management/aircraft-wizard-creation.feature.spec.js:6:3 › Aircraft creation wizard › Pilot completes all six wizard steps and sees the new aircraft on the Fleet page with a Draft badge @phase-A @fleet @wizard @e2e @smoke
+[1A[2K[3/97] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/correction-source-assessment.feature.spec.js:8:5 › Correction source assessment › The pilot sees which source each correction needs and why none applies › Example #1 @performance
+[1A[2K[4/97] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-a-fleet-management/decimal-input-precision.feature.spec.js:15:3 › Decimal input precision in the aircraft wizard › High-precision decimal values survive the wizard and a reload intact @phase-A @fleet @wizard @decimal @e2e
+[1A[2K[5/97] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/burn-sequence-polygon.feature.spec.js:11:3 › Reveal CG migration risk across burn sequences › Alternative burn sequence pushes CG beyond aft envelope limit @phase-B @e2e @burn-polygon @module-mb
+[1A[2K[6/97] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-a-fleet-management/verification-date.feature.spec.js:8:5 › Verification dates cannot extend the trust window › Draft verification rejects future dates and saves today › Example #1 @phase-A @verification-date @e2e
+[1A[2K[7/97] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-a-fleet-management/certification-category-switch.feature.spec.js:11:3 › Switch certification category and enforce utility constraints › Utility category applies tighter limits and removes rear-seat loading @phase-A @e2e @category-switch @module-mb
+[1A[2K[8/97] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/burnout-check.feature.spec.js:11:3 › Detect CG migration during fuel burn-off › Fuel burn-off reveals aft CG migration beyond envelope limit @phase-B @e2e @cg-migration @module-mb
+[1A[2K[9/97] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-a-fleet-management/electric-aircraft-wizard.feature.spec.js:6:3 › Battery-electric aircraft wizard (Pipistrel Velis Electro) › Pilot creates a Pipistrel Velis Electro, the wizard flips to electric and fuel UI is hidden @phase-A @fleet @wizard @electric @e2e @smoke
+[1A[2K[10/97] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/cockpit-ux.feature.spec.js:8:5 › Clear flight preparation guidance › Registration entry uses consistent casing › Example #1 @cockpit-ux
+[1A[2K  1) [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-a-fleet-management/fleet-delete-after-browser-back.feature.spec.js:6:3 › Fleet Delete control survives a bfcache restore of the Fleet page › Delete confirmation opens after a bfcache restore of the Fleet page @phase-A @fleet @regression @e2e 
+
+    TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+    Call log:
+    [2m  - <launching> /home/critter/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --no-sandbox --user-data-dir=/tmp/playwright_chromiumdev_profile-zBm1tO --remote-debugging-pipe --no-startup-window[22m
+    [2m  - <launched> pid=108218[22m
+    [2m  - [pid=108218][err] [108218:108429:1114/215344.438094:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: Datei oder Verzeichnis nicht gefunden[22m
+
+
+    Error Context: test-results/tests-e2e-features-phase-a-f82de-e-restore-of-the-Fleet-page-chromium/error-context.md
+
+
+[1A[2K  2) [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-a-fleet-management/aircraft-wizard-creation.feature.spec.js:6:3 › Aircraft creation wizard › Pilot completes all six wizard steps and sees the new aircraft on the Fleet page with a Draft badge @phase-A @fleet @wizard @e2e @smoke 
+
+    TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+    Call log:
+    [2m  - <launching> /home/critter/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --no-sandbox --user-data-dir=/tmp/playwright_chromiumdev_profile-GPZN1T --remote-debugging-pipe --no-startup-window[22m
+    [2m  - <launched> pid=108219[22m
+    [2m  - [pid=108219][err] [108219:108446:1114/215344.439236:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: Datei oder Verzeichnis nicht gefunden[22m
+
+
+    Error Context: test-results/tests-e2e-features-phase-a-528ae-eet-page-with-a-Draft-badge-chromium/error-context.md
+
+
+[1A[2K  3) [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/correction-source-assessment.feature.spec.js:8:5 › Correction source assessment › The pilot sees which source each correction needs and why none applies › Example #1 @performance 
+
+    TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+    Call log:
+    [2m  - <launching> /home/critter/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --no-sandbox --user-data-dir=/tmp/playwright_chromiumdev_profile-ndNrW9 --remote-debugging-pipe --no-startup-window[22m
+    [2m  - <launched> pid=108220[22m
+    [2m  - [pid=108220][err] [108220:108404:1114/215344.437822:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: Datei oder Verzeichnis nicht gefunden[22m
+
+
+    Error Context: test-results/tests-e2e-features-phase-b-2b080--why-none-applies-Example-1-chromium/error-context.md
+
+
+[1A[2K  4) [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-a-fleet-management/decimal-input-precision.feature.spec.js:15:3 › Decimal input precision in the aircraft wizard › High-precision decimal values survive the wizard and a reload intact @phase-A @fleet @wizard @decimal @e2e 
+
+    TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+    Call log:
+    [2m  - <launching> /home/critter/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --no-sandbox --user-data-dir=/tmp/playwright_chromiumdev_profile-ziaBBJ --remote-debugging-pipe --no-startup-window[22m
+    [2m  - <launched> pid=108221[22m
+    [2m  - [pid=108221][err] [108221:108415:1114/215344.437940:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: Datei oder Verzeichnis nicht gefunden[22m
+
+
+    Error Context: test-results/tests-e2e-features-phase-a-62287--wizard-and-a-reload-intact-chromium/error-context.md
+
+
+[1A[2K  5) [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-a-fleet-management/verification-date.feature.spec.js:8:5 › Verification dates cannot extend the trust window › Draft verification rejects future dates and saves today › Example #1 @phase-A @verification-date @e2e 
+
+    TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+    Call log:
+    [2m  - <launching> /home/critter/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --no-sandbox --user-data-dir=/tmp/playwright_chromiumdev_profile-TdLCtE --remote-debugging-pipe --no-startup-window[22m
+    [2m  - <launched> pid=108222[22m
+    [2m  - [pid=108222][err] [108222:108428:1114/215344.438099:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: Datei oder Verzeichnis nicht gefunden[22m
+
+
+    Error Context: test-results/tests-e2e-features-phase-a-415ee-s-and-saves-today-Example-1-chromium/error-context.md
+
+
+[1A[2K  6) [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/burn-sequence-polygon.feature.spec.js:11:3 › Reveal CG migration risk across burn sequences › Alternative burn sequence pushes CG beyond aft envelope limit @phase-B @e2e @burn-polygon @module-mb 
+
+    TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+    Call log:
+    [2m  - <launching> /home/critter/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --no-sandbox --user-data-dir=/tmp/playwright_chromiumdev_profile-dAh3nG --remote-debugging-pipe --no-startup-window[22m
+    [2m  - <launched> pid=108223[22m
+    [2m  - [pid=108223][err] [108223:108374:1114/215344.436750:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: Datei oder Verzeichnis nicht gefunden[22m
+
+
+    Error Context: test-results/tests-e2e-features-phase-b-2d83e-G-beyond-aft-envelope-limit-chromium/error-context.md
+
+
+[1A[2K  7) [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-a-fleet-management/certification-category-switch.feature.spec.js:11:3 › Switch certification category and enforce utility constraints › Utility category applies tighter limits and removes rear-seat loading @phase-A @e2e @category-switch @module-mb 
+
+    TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+    Call log:
+    [2m  - <launching> /home/critter/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --no-sandbox --user-data-dir=/tmp/playwright_chromiumdev_profile-C45oEa --remote-debugging-pipe --no-startup-window[22m
+    [2m  - <launched> pid=108224[22m
+    [2m  - [pid=108224][err] [108224:108372:1114/215344.436711:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: Datei oder Verzeichnis nicht gefunden[22m
+
+
+    Error Context: test-results/tests-e2e-features-phase-a-7f0a7-d-removes-rear-seat-loading-chromium/error-context.md
+
+
+[1A[2K  8) [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-a-fleet-management/electric-aircraft-wizard.feature.spec.js:6:3 › Battery-electric aircraft wizard (Pipistrel Velis Electro) › Pilot creates a Pipistrel Velis Electro, the wizard flips to electric and fuel UI is hidden @phase-A @fleet @wizard @electric @e2e @smoke 
+
+    TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+    Call log:
+    [2m  - <launching> /home/critter/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --no-sandbox --user-data-dir=/tmp/playwright_chromiumdev_profile-olm3xr --remote-debugging-pipe --no-startup-window[22m
+    [2m  - <launched> pid=108226[22m
+    [2m  - [pid=108226][err] [108226:108463:1114/215344.439841:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: Datei oder Verzeichnis nicht gefunden[22m
+
+
+    Error Context: test-results/tests-e2e-features-phase-a-08f73-ctric-and-fuel-UI-is-hidden-chromium/error-context.md
+
+
+[1A[2K  9) [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/burnout-check.feature.spec.js:11:3 › Detect CG migration during fuel burn-off › Fuel burn-off reveals aft CG migration beyond envelope limit @phase-B @e2e @cg-migration @module-mb 
+
+    TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+    Call log:
+    [2m  - <launching> /home/critter/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --no-sandbox --user-data-dir=/tmp/playwright_chromiumdev_profile-bBVAGJ --remote-debugging-pipe --no-startup-window[22m
+    [2m  - <launched> pid=108225[22m
+    [2m  - [pid=108225][err] [108225:108410:1114/215344.437881:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: Datei oder Verzeichnis nicht gefunden[22m
+
+
+    Error Context: test-results/tests-e2e-features-phase-b-986bd-ation-beyond-envelope-limit-chromium/error-context.md
+
+
+[1A[2K  10) [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/cockpit-ux.feature.spec.js:8:5 › Clear flight preparation guidance › Registration entry uses consistent casing › Example #1 @cockpit-ux 
+
+    TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+    Call log:
+    [2m  - <launching> /home/critter/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --no-sandbox --user-data-dir=/tmp/playwright_chromiumdev_profile-doBlmj --remote-debugging-pipe --no-startup-window[22m
+    [2m  - <launched> pid=108227[22m
+    [2m  - [pid=108227][err] [108227:108455:1114/215344.439353:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: Datei oder Verzeichnis nicht gefunden[22m
+
+
+    Error Context: test-results/tests-e2e-features-phase-b-09ef0-consistent-casing-Example-1-chromium/error-context.md
+
+
+[1A[2K[11/97] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/fleet-based-aircraft-selection.feature.spec.js:6:3 › Fleet-based aircraft selection on the Flight Prep page › Empty fleet shows "No aircraft" CTA that navigates to the wizard @phase-B @fleet @flight-prep @e2e
+[1A[2K[12/97] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-a-fleet-management/aircraft-wizard-creation.feature.spec.js:38:3 › Aircraft creation wizard › Envelope editor never drops below 4 points — removal is blocked at the minimum @phase-A @fleet @wizard @e2e
+[1A[2K[13/97] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/burn-sequence-polygon.feature.spec.js:18:3 › Reveal CG migration risk across burn sequences › Redistributing load resolves burn-sequence CG migration violation @phase-B @e2e @burn-polygon @module-mb
+[1A[2K[14/97] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/correction-source-assessment.feature.spec.js:44:5 › Correction source assessment › The pilot sees which source each correction needs and why none applies › Example #2 @performance
+[1A[2K[15/97] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-a-fleet-management/decimal-input-precision.feature.spec.js:27:3 › Decimal input precision in the aircraft wizard › European comma decimal separator is stored identically to a period @phase-A @fleet @wizard @decimal @e2e
+[1A[2K[16/97] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/burnout-check.feature.spec.js:18:3 › Detect CG migration during fuel burn-off › Redistributing baggage forward resolves CG migration violation @phase-B @e2e @cg-migration @module-mb
+[1A[2K[17/97] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/happy-path.feature.spec.js:11:3 › Complete a textbook flight preparation within all limits › Pilot completes a clean flight preparation @e2e @flight-prep @happy-path @module-mb
+[1A[2K[18/97] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/cockpit-ux.feature.spec.js:14:5 › Clear flight preparation guidance › Registration entry uses consistent casing › Example #2 @cockpit-ux
+[1A[2K[19/97] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-a-fleet-management/verification-date.feature.spec.js:14:5 › Verification dates cannot extend the trust window › Draft verification rejects future dates and saves today › Example #2 @phase-A @verification-date @e2e
+[1A[2K[20/97] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-a-fleet-management/electric-aircraft-wizard.feature.spec.js:42:3 › Battery-electric aircraft wizard (Pipistrel Velis Electro) › Combustion wizard is unchanged — fuel tank button remains visible for a Tecnam P2008 JC @phase-A @fleet @wizard @electric @e2e
+[1A[2K  11) [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/fleet-based-aircraft-selection.feature.spec.js:6:3 › Fleet-based aircraft selection on the Flight Prep page › Empty fleet shows "No aircraft" CTA that navigates to the wizard @phase-B @fleet @flight-prep @e2e 
+
+    TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+    Call log:
+    [2m  - <launching> /home/critter/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --no-sandbox --user-data-dir=/tmp/playwright_chromiumdev_profile-t00p69 --remote-debugging-pipe --no-startup-window[22m
+    [2m  - <launched> pid=109923[22m
+    [2m  - [pid=109923][err] [109923:109990:1114/215645.226792:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: Datei oder Verzeichnis nicht gefunden[22m
+
+
+    Error Context: test-results/tests-e2e-features-phase-b-1a7d1-hat-navigates-to-the-wizard-chromium/error-context.md
+
+
+[1A[2K  12) [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-a-fleet-management/aircraft-wizard-creation.feature.spec.js:38:3 › Aircraft creation wizard › Envelope editor never drops below 4 points — removal is blocked at the minimum @phase-A @fleet @wizard @e2e 
+
+    TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+    Call log:
+    [2m  - <launching> /home/critter/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --no-sandbox --user-data-dir=/tmp/playwright_chromiumdev_profile-cQWS5w --remote-debugging-pipe --no-startup-window[22m
+    [2m  - <launched> pid=109926[22m
+    [2m  - [pid=109926][err] [109926:110076:1114/215645.264116:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: Datei oder Verzeichnis nicht gefunden[22m
+
+
+    Error Context: test-results/tests-e2e-features-phase-a-dbbbc-l-is-blocked-at-the-minimum-chromium/error-context.md
+
+
+[1A[2K  13) [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/burn-sequence-polygon.feature.spec.js:18:3 › Reveal CG migration risk across burn sequences › Redistributing load resolves burn-sequence CG migration violation @phase-B @e2e @burn-polygon @module-mb 
+
+    TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+    Call log:
+    [2m  - <launching> /home/critter/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --no-sandbox --user-data-dir=/tmp/playwright_chromiumdev_profile-LUbL4z --remote-debugging-pipe --no-startup-window[22m
+    [2m  - <launched> pid=109929[22m
+    [2m  - [pid=109929][err] [109929:110016:1114/215645.241686:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: Datei oder Verzeichnis nicht gefunden[22m
+
+
+    Error Context: test-results/tests-e2e-features-phase-b-9c627-ence-CG-migration-violation-chromium/error-context.md
+
+
+[1A[2K  14) [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/correction-source-assessment.feature.spec.js:44:5 › Correction source assessment › The pilot sees which source each correction needs and why none applies › Example #2 @performance 
+
+    TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+    Call log:
+    [2m  - <launching> /home/critter/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --no-sandbox --user-data-dir=/tmp/playwright_chromiumdev_profile-K8Rjil --remote-debugging-pipe --no-startup-window[22m
+    [2m  - <launched> pid=109934[22m
+    [2m  - [pid=109934][err] [109934:110046:1114/215645.249066:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: Datei oder Verzeichnis nicht gefunden[22m
+
+
+    Error Context: test-results/tests-e2e-features-phase-b-e395a--why-none-applies-Example-2-chromium/error-context.md
+
+
+[1A[2K  15) [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-a-fleet-management/decimal-input-precision.feature.spec.js:27:3 › Decimal input precision in the aircraft wizard › European comma decimal separator is stored identically to a period @phase-A @fleet @wizard @decimal @e2e 
+
+    TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+    Call log:
+    [2m  - <launching> /home/critter/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --no-sandbox --user-data-dir=/tmp/playwright_chromiumdev_profile-fAtqJh --remote-debugging-pipe --no-startup-window[22m
+    [2m  - <launched> pid=109935[22m
+    [2m  - [pid=109935][err] [109935:110092:1114/215645.273715:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: Datei oder Verzeichnis nicht gefunden[22m
+
+
+    Error Context: test-results/tests-e2e-features-phase-a-3bea3-red-identically-to-a-period-chromium/error-context.md
+
+
+[1A[2K  16) [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/burnout-check.feature.spec.js:18:3 › Detect CG migration during fuel burn-off › Redistributing baggage forward resolves CG migration violation @phase-B @e2e @cg-migration @module-mb 
+
+    TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+    Call log:
+    [2m  - <launching> /home/critter/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --no-sandbox --user-data-dir=/tmp/playwright_chromiumdev_profile-6UkLfQ --remote-debugging-pipe --no-startup-window[22m
+    [2m  - <launched> pid=109960[22m
+    [2m  - [pid=109960][err] [109960:110108:1114/215645.283732:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: Datei oder Verzeichnis nicht gefunden[22m
+
+
+    Error Context: test-results/tests-e2e-features-phase-b-93b20-lves-CG-migration-violation-chromium/error-context.md
+
+
+[1A[2K  17) [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-a-fleet-management/verification-date.feature.spec.js:14:5 › Verification dates cannot extend the trust window › Draft verification rejects future dates and saves today › Example #2 @phase-A @verification-date @e2e 
+
+    TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+    Call log:
+    [2m  - <launching> /home/critter/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --no-sandbox --user-data-dir=/tmp/playwright_chromiumdev_profile-B4uu9v --remote-debugging-pipe --no-startup-window[22m
+    [2m  - <launched> pid=109981[22m
+    [2m  - [pid=109981][err] [109981:110140:1114/215645.308033:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: Datei oder Verzeichnis nicht gefunden[22m
+
+
+    Error Context: test-results/tests-e2e-features-phase-a-29726-s-and-saves-today-Example-2-chromium/error-context.md
+
+
+[1A[2K  18) [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/cockpit-ux.feature.spec.js:14:5 › Clear flight preparation guidance › Registration entry uses consistent casing › Example #2 @cockpit-ux 
+
+    TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+    Call log:
+    [2m  - <launching> /home/critter/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --no-sandbox --user-data-dir=/tmp/playwright_chromiumdev_profile-qmwVXi --remote-debugging-pipe --no-startup-window[22m
+    [2m  - <launched> pid=109995[22m
+    [2m  - [pid=109995][err] [109995:110185:1114/215645.327038:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: Datei oder Verzeichnis nicht gefunden[22m
+
+
+    Error Context: test-results/tests-e2e-features-phase-b-369fa-consistent-casing-Example-2-chromium/error-context.md
+
+
+[1A[2K  19) [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/happy-path.feature.spec.js:11:3 › Complete a textbook flight preparation within all limits › Pilot completes a clean flight preparation @e2e @flight-prep @happy-path @module-mb 
+
+    TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+    Call log:
+    [2m  - <launching> /home/critter/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --no-sandbox --user-data-dir=/tmp/playwright_chromiumdev_profile-OgpHlA --remote-debugging-pipe --no-startup-window[22m
+    [2m  - <launched> pid=109982[22m
+    [2m  - [pid=109982][err] [109982:110153:1114/215645.311948:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: Datei oder Verzeichnis nicht gefunden[22m
+
+
+    Error Context: test-results/tests-e2e-features-phase-b-b90c0--a-clean-flight-preparation-chromium/error-context.md
+
+
+[1A[2K  20) [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-a-fleet-management/electric-aircraft-wizard.feature.spec.js:42:3 › Battery-electric aircraft wizard (Pipistrel Velis Electro) › Combustion wizard is unchanged — fuel tank button remains visible for a Tecnam P2008 JC @phase-A @fleet @wizard @electric @e2e 
+
+    TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+    Call log:
+    [2m  - <launching> /home/critter/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --no-sandbox --user-data-dir=/tmp/playwright_chromiumdev_profile-7XewTA --remote-debugging-pipe --no-startup-window[22m
+    [2m  - <launched> pid=110120[22m
+    [2m  - [pid=110120][err] [110120:110204:1114/215645.372015:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: Datei oder Verzeichnis nicht gefunden[22m
+
+
+    Error Context: test-results/tests-e2e-features-phase-a-98075-sible-for-a-Tecnam-P2008-JC-chromium/error-context.md
+
+
+[1A[2K[21/97] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/fleet-based-aircraft-selection.feature.spec.js:14:3 › Fleet-based aircraft selection on the Flight Prep page › Aircraft added via wizard appears in the Flight Prep dropdown with a [Draft] label @phase-B @fleet @flight-prep @e2e
+[1A[2K[22/97] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/overweight-discovery.feature.spec.js:11:3 › Discover structural mass limit violations › Full passenger and baggage load exceeds maximum takeoff mass @phase-B @e2e @mass-limits @module-mb
+[1A[2K[23/97] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/pressure-altitude.feature.spec.js:8:5 › Explicit pressure-altitude method › Derive pressure altitude from QNH and field elevation while offline › Example #1 @performance @offline
+[1A[2K[24/97] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/manual-runway-entry.feature.spec.js:8:5 › Offline manual runway entry › Enter, edit and reload a manual runway while offline › Example #1 @performance @offline
+[1A[2K[25/97] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-a-fleet-management/verification-date.feature.spec.js:24:5 › Verification dates cannot extend the trust window › Future persisted verification stays gated until valid re-verification › Example #1 @phase-A @verification-date @e2e
+[1A[2K[26/97] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/raw-poh-inspection.feature.spec.js:8:5 › Raw POH table inspection › Import, review and inspect all four distances without developer tools › Example #1 @performance
+[1A[2K[27/97] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-a-fleet-management/aircraft-wizard-creation.feature.spec.js:52:3 › Aircraft creation wizard › Owner ID field is not present anywhere in the wizard — system generates it automatically (REQ-AD-019) @phase-A @fleet @wizard @e2e
+[1A[2K[28/97] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/cockpit-ux.feature.spec.js:20:5 › Clear flight preparation guidance › Registration entry uses consistent casing › Example #3 @cockpit-ux
+[1A[2K[29/97] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/happy-path.feature.spec.js:22:5 › Complete a textbook flight preparation within all limits › Solo loading retains required crew checks › Example #1 @e2e @flight-prep @optional-occupancy
+[1A[2K[30/97] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-a-fleet-management/electric-aircraft-wizard.feature.spec.js:60:5 › Battery-electric aircraft wizard (Pipistrel Velis Electro) › Mobile wizard keeps the active step visible during navigation › Example #1 @phase-A @fleet @wizard @electric @e2e
+[1A[2K  21) [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/fleet-based-aircraft-selection.feature.spec.js:14:3 › Fleet-based aircraft selection on the Flight Prep page › Aircraft added via wizard appears in the Flight Prep dropdown with a [Draft] label @phase-B @fleet @flight-prep @e2e 
+
+    TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+    Call log:
+    [2m  - <launching> /home/critter/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --no-sandbox --user-data-dir=/tmp/playwright_chromiumdev_profile-Mut4sM --remote-debugging-pipe --no-startup-window[22m
+    [2m  - <launched> pid=111616[22m
+    [2m  - [pid=111616][err] [111616:111673:1114/215946.160317:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: Datei oder Verzeichnis nicht gefunden[22m
+
+
+    Error Context: test-results/tests-e2e-features-phase-b-2f713-dropdown-with-a-Draft-label-chromium/error-context.md
+
+
+[1A[2K  22) [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/overweight-discovery.feature.spec.js:11:3 › Discover structural mass limit violations › Full passenger and baggage load exceeds maximum takeoff mass @phase-B @e2e @mass-limits @module-mb 
+
+    TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+    Call log:
+    [2m  - <launching> /home/critter/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --no-sandbox --user-data-dir=/tmp/playwright_chromiumdev_profile-jhBjtg --remote-debugging-pipe --no-startup-window[22m
+    [2m  - <launched> pid=111617[22m
+    [2m  - [pid=111617][err] [111617:111691:1114/215946.178565:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: Datei oder Verzeichnis nicht gefunden[22m
+
+
+    Error Context: test-results/tests-e2e-features-phase-b-24acc-xceeds-maximum-takeoff-mass-chromium/error-context.md
+
+
+[1A[2K  23) [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/pressure-altitude.feature.spec.js:8:5 › Explicit pressure-altitude method › Derive pressure altitude from QNH and field elevation while offline › Example #1 @performance @offline 
+
+    TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+    Call log:
+    [2m  - <launching> /home/critter/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --no-sandbox --user-data-dir=/tmp/playwright_chromiumdev_profile-HFrVls --remote-debugging-pipe --no-startup-window[22m
+    [2m  - <launched> pid=111632[22m
+    [2m  - [pid=111632][err] [111632:111744:1114/215946.216201:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: Datei oder Verzeichnis nicht gefunden[22m
+
+
+    Error Context: test-results/tests-e2e-features-phase-b-41b83-ion-while-offline-Example-1-chromium/error-context.md
+
+
+[1A[2K  24) [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/manual-runway-entry.feature.spec.js:8:5 › Offline manual runway entry › Enter, edit and reload a manual runway while offline › Example #1 @performance @offline 
+
+    TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+    Call log:
+    [2m  - <launching> /home/critter/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --no-sandbox --user-data-dir=/tmp/playwright_chromiumdev_profile-W6bw56 --remote-debugging-pipe --no-startup-window[22m
+    [2m  - <launched> pid=111635[22m
+    [2m  - [pid=111635][err] [111635:111761:1114/215946.225421:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: Datei oder Verzeichnis nicht gefunden[22m
+
+
+    Error Context: test-results/tests-e2e-features-phase-b-69df7-way-while-offline-Example-1-chromium/error-context.md
+
+
+[1A[2K  25) [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-a-fleet-management/verification-date.feature.spec.js:24:5 › Verification dates cannot extend the trust window › Future persisted verification stays gated until valid re-verification › Example #1 @phase-A @verification-date @e2e 
+
+    TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+    Call log:
+    [2m  - <launching> /home/critter/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --no-sandbox --user-data-dir=/tmp/playwright_chromiumdev_profile-b01PU7 --remote-debugging-pipe --no-startup-window[22m
+    [2m  - <launched> pid=111636[22m
+    [2m  - [pid=111636][err] [111636:111784:1114/215946.242768:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: Datei oder Verzeichnis nicht gefunden[22m
+
+
+    Error Context: test-results/tests-e2e-features-phase-a-4f716-d-re-verification-Example-1-chromium/error-context.md
+
+
+[1A[2K  26) [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-a-fleet-management/aircraft-wizard-creation.feature.spec.js:52:3 › Aircraft creation wizard › Owner ID field is not present anywhere in the wizard — system generates it automatically (REQ-AD-019) @phase-A @fleet @wizard @e2e 
+
+    TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+    Call log:
+    [2m  - <launching> /home/critter/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --no-sandbox --user-data-dir=/tmp/playwright_chromiumdev_profile-RjqNIM --remote-debugging-pipe --no-startup-window[22m
+    [2m  - <launched> pid=111677[22m
+    [2m  - [pid=111677][err] [111677:111806:1114/215946.256581:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: Datei oder Verzeichnis nicht gefunden[22m
+
+
+    Error Context: test-results/tests-e2e-features-phase-a-4c0bf-t-automatically-REQ-AD-019--chromium/error-context.md
+
+
+[1A[2K  27) [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/raw-poh-inspection.feature.spec.js:8:5 › Raw POH table inspection › Import, review and inspect all four distances without developer tools › Example #1 @performance 
+
+    TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+    Call log:
+    [2m  - <launching> /home/critter/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --no-sandbox --user-data-dir=/tmp/playwright_chromiumdev_profile-GoL2Nd --remote-debugging-pipe --no-startup-window[22m
+    [2m  - <launched> pid=111682[22m
+    [2m  - [pid=111682][err] [111682:111831:1114/215946.272796:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: Datei oder Verzeichnis nicht gefunden[22m
+
+
+    Error Context: test-results/tests-e2e-features-phase-b-4f546-t-developer-tools-Example-1-chromium/error-context.md
+
+
+[1A[2K  28) [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/cockpit-ux.feature.spec.js:20:5 › Clear flight preparation guidance › Registration entry uses consistent casing › Example #3 @cockpit-ux 
+
+    TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+    Call log:
+    [2m  - <launching> /home/critter/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --no-sandbox --user-data-dir=/tmp/playwright_chromiumdev_profile-bfmVDJ --remote-debugging-pipe --no-startup-window[22m
+    [2m  - <launched> pid=111685[22m
+    [2m  - [pid=111685][err] [111685:111841:1114/215946.273403:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: Datei oder Verzeichnis nicht gefunden[22m
+
+
+    Error Context: test-results/tests-e2e-features-phase-b-53259-consistent-casing-Example-3-chromium/error-context.md
+
+
+[1A[2K  29) [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/happy-path.feature.spec.js:22:5 › Complete a textbook flight preparation within all limits › Solo loading retains required crew checks › Example #1 @e2e @flight-prep @optional-occupancy 
+
+    TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+    Call log:
+    [2m  - <launching> /home/critter/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --no-sandbox --user-data-dir=/tmp/playwright_chromiumdev_profile-LCszIl --remote-debugging-pipe --no-startup-window[22m
+    [2m  - <launched> pid=111712[22m
+    [2m  - [pid=111712][err] [111712:111861:1114/215946.284227:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: Datei oder Verzeichnis nicht gefunden[22m
+
+
+    Error Context: test-results/tests-e2e-features-phase-b-41570-uired-crew-checks-Example-1-chromium/error-context.md
+
+
+[1A[2K  30) [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-a-fleet-management/electric-aircraft-wizard.feature.spec.js:60:5 › Battery-electric aircraft wizard (Pipistrel Velis Electro) › Mobile wizard keeps the active step visible during navigation › Example #1 @phase-A @fleet @wizard @electric @e2e 
+
+    TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+    Call log:
+    [2m  - <launching> /home/critter/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --no-sandbox --user-data-dir=/tmp/playwright_chromiumdev_profile-40XDs8 --remote-debugging-pipe --no-startup-window[22m
+    [2m  - <launched> pid=111878[22m
+    [2m  - [pid=111878][err] [111878:111905:1114/215946.391469:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: Datei oder Verzeichnis nicht gefunden[22m
+
+
+    Error Context: test-results/tests-e2e-features-phase-a-cd1cd-during-navigation-Example-1-chromium/error-context.md
+
+
+[1A[2K[31/97] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/fleet-based-aircraft-selection.feature.spec.js:24:3 › Fleet-based aircraft selection on the Flight Prep page › Selecting a draft aircraft requires acknowledging the unverified-data warning @phase-B @fleet @flight-prep @e2e
+[1A[2K[32/97] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/overweight-discovery.feature.spec.js:17:3 › Discover structural mass limit violations › Reducing baggage clears MTOM but zero-fuel mass still exceeds MZFM @phase-B @e2e @mass-limits @module-mb
+[1A[2K[33/97] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/pressure-altitude.feature.spec.js:31:5 › Explicit pressure-altitude method › Derive pressure altitude from QNH and field elevation while offline › Example #2 @performance @offline
+[1A[2K[34/97] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/cockpit-ux.feature.spec.js:28:3 › Clear flight preparation guidance › Incomplete aircraft identity explains blocked progression @cockpit-ux
+[1A[2K[35/97] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/raw-poh-inspection.feature.spec.js:22:5 › Raw POH table inspection › Import, review and inspect all four distances without developer tools › Example #2 @performance
+[1A[2K[36/97] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-a-fleet-management/verification-date.feature.spec.js:31:5 › Verification dates cannot extend the trust window › Future persisted verification stays gated until valid re-verification › Example #2 @phase-A @verification-date @e2e
+[1A[2K[37/97] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/happy-path.feature.spec.js:34:5 › Complete a textbook flight preparation within all limits › Solo loading retains required crew checks › Example #2 @e2e @flight-prep @optional-occupancy
+[1A[2K[38/97] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/manual-runway-entry.feature.spec.js:27:5 › Offline manual runway entry › Enter, edit and reload a manual runway while offline › Example #2 @performance @offline
+[1A[2K[39/97] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/touch-flow.feature.spec.js:6:3 › Reachable flight preparation controls › Fleet import and review controls remain reachable @performance @touch-flow
+[1A[2K[40/97] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-a-fleet-management/electric-aircraft-wizard.feature.spec.js:82:5 › Battery-electric aircraft wizard (Pipistrel Velis Electro) › Mobile wizard keeps the active step visible during navigation › Example #2 @phase-A @fleet @wizard @electric @e2e
+[1A[2K  31) [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/fleet-based-aircraft-selection.feature.spec.js:24:3 › Fleet-based aircraft selection on the Flight Prep page › Selecting a draft aircraft requires acknowledging the unverified-data warning @phase-B @fleet @flight-prep @e2e 
+
+    TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+    Call log:
+    [2m  - <launching> /home/critter/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --no-sandbox --user-data-dir=/tmp/playwright_chromiumdev_profile-8n2dd3 --remote-debugging-pipe --no-startup-window[22m
+    [2m  - <launched> pid=113313[22m
+    [2m  - [pid=113313][err] [113313:113358:1114/220247.129711:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: Datei oder Verzeichnis nicht gefunden[22m
+
+
+    Error Context: test-results/tests-e2e-features-phase-b-b1a99-the-unverified-data-warning-chromium/error-context.md
+
+
+[1A[2K  32) [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/overweight-discovery.feature.spec.js:17:3 › Discover structural mass limit violations › Reducing baggage clears MTOM but zero-fuel mass still exceeds MZFM @phase-B @e2e @mass-limits @module-mb 
+
+    TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+    Call log:
+    [2m  - <launching> /home/critter/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --no-sandbox --user-data-dir=/tmp/playwright_chromiumdev_profile-75t7Ni --remote-debugging-pipe --no-startup-window[22m
+    [2m  - <launched> pid=113314[22m
+    [2m  - [pid=113314][err] [113314:113378:1114/220247.140529:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: Datei oder Verzeichnis nicht gefunden[22m
+
+
+    Error Context: test-results/tests-e2e-features-phase-b-93b11-uel-mass-still-exceeds-MZFM-chromium/error-context.md
+
+
+[1A[2K  33) [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/pressure-altitude.feature.spec.js:31:5 › Explicit pressure-altitude method › Derive pressure altitude from QNH and field elevation while offline › Example #2 @performance @offline 
+
+    TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+    Call log:
+    [2m  - <launching> /home/critter/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --no-sandbox --user-data-dir=/tmp/playwright_chromiumdev_profile-gyDWKf --remote-debugging-pipe --no-startup-window[22m
+    [2m  - <launched> pid=113329[22m
+    [2m  - [pid=113329][err] [113329:113414:1114/220247.176146:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: Datei oder Verzeichnis nicht gefunden[22m
+
+
+    Error Context: test-results/tests-e2e-features-phase-b-9aeee-ion-while-offline-Example-2-chromium/error-context.md
+
+
+[1A[2K  34) [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/cockpit-ux.feature.spec.js:28:3 › Clear flight preparation guidance › Incomplete aircraft identity explains blocked progression @cockpit-ux 
+
+    TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+    Call log:
+    [2m  - <launching> /home/critter/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --no-sandbox --user-data-dir=/tmp/playwright_chromiumdev_profile-hdyHya --remote-debugging-pipe --no-startup-window[22m
+    [2m  - <launched> pid=113341[22m
+    [2m  - [pid=113341][err] [113341:113458:1114/220247.200104:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: Datei oder Verzeichnis nicht gefunden[22m
+
+
+    Error Context: test-results/tests-e2e-features-phase-b-46370-xplains-blocked-progression-chromium/error-context.md
+
+
+[1A[2K  35) [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/raw-poh-inspection.feature.spec.js:22:5 › Raw POH table inspection › Import, review and inspect all four distances without developer tools › Example #2 @performance 
+
+    TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+    Call log:
+    [2m  - <launching> /home/critter/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --no-sandbox --user-data-dir=/tmp/playwright_chromiumdev_profile-N16QOz --remote-debugging-pipe --no-startup-window[22m
+    [2m  - <launched> pid=113374[22m
+    [2m  - [pid=113374][err] [113374:113486:1114/220247.238333:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: Datei oder Verzeichnis nicht gefunden[22m
+
+
+    Error Context: test-results/tests-e2e-features-phase-b-e143a-t-developer-tools-Example-2-chromium/error-context.md
+
+
+[1A[2K  36) [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-a-fleet-management/verification-date.feature.spec.js:31:5 › Verification dates cannot extend the trust window › Future persisted verification stays gated until valid re-verification › Example #2 @phase-A @verification-date @e2e 
+
+    TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+    Call log:
+    [2m  - <launching> /home/critter/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --no-sandbox --user-data-dir=/tmp/playwright_chromiumdev_profile-YlRBEH --remote-debugging-pipe --no-startup-window[22m
+    [2m  - <launched> pid=113387[22m
+    [2m  - [pid=113387][err] [113387:113539:1114/220247.266356:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: Datei oder Verzeichnis nicht gefunden[22m
+
+
+    Error Context: test-results/tests-e2e-features-phase-a-e2d77-d-re-verification-Example-2-chromium/error-context.md
+
+
+[1A[2K  37) [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/manual-runway-entry.feature.spec.js:27:5 › Offline manual runway entry › Enter, edit and reload a manual runway while offline › Example #2 @performance @offline 
+
+    TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+    Call log:
+    [2m  - <launching> /home/critter/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --no-sandbox --user-data-dir=/tmp/playwright_chromiumdev_profile-IlnX09 --remote-debugging-pipe --no-startup-window[22m
+    [2m  - <launched> pid=113389[22m
+    [2m  - [pid=113389][err] [113389:113527:1114/220247.263909:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: Datei oder Verzeichnis nicht gefunden[22m
+
+
+    Error Context: test-results/tests-e2e-features-phase-b-bcef1-way-while-offline-Example-2-chromium/error-context.md
+
+
+[1A[2K  38) [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/happy-path.feature.spec.js:34:5 › Complete a textbook flight preparation within all limits › Solo loading retains required crew checks › Example #2 @e2e @flight-prep @optional-occupancy 
+
+    TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+    Call log:
+    [2m  - <launching> /home/critter/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --no-sandbox --user-data-dir=/tmp/playwright_chromiumdev_profile-FDDh7W --remote-debugging-pipe --no-startup-window[22m
+    [2m  - <launched> pid=113388[22m
+    [2m  - [pid=113388][err] [113388:113511:1114/220247.252835:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: Datei oder Verzeichnis nicht gefunden[22m
+
+
+    Error Context: test-results/tests-e2e-features-phase-b-6af8d-uired-crew-checks-Example-2-chromium/error-context.md
+
+
+[1A[2K  39) [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/touch-flow.feature.spec.js:6:3 › Reachable flight preparation controls › Fleet import and review controls remain reachable @performance @touch-flow 
+
+    TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+    Call log:
+    [2m  - <launching> /home/critter/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --no-sandbox --user-data-dir=/tmp/playwright_chromiumdev_profile-0brQLT --remote-debugging-pipe --no-startup-window[22m
+    [2m  - <launched> pid=113418[22m
+    [2m  - [pid=113418][err] [113418:113568:1114/220247.289142:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: Datei oder Verzeichnis nicht gefunden[22m
+
+
+    Error Context: test-results/tests-e2e-features-phase-b-3cb83-w-controls-remain-reachable-chromium/error-context.md
+
+
+[1A[2K  40) [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-a-fleet-management/electric-aircraft-wizard.feature.spec.js:82:5 › Battery-electric aircraft wizard (Pipistrel Velis Electro) › Mobile wizard keeps the active step visible during navigation › Example #2 @phase-A @fleet @wizard @electric @e2e 
+
+    TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+    Call log:
+    [2m  - <launching> /home/critter/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --no-sandbox --user-data-dir=/tmp/playwright_chromiumdev_profile-sdMjp6 --remote-debugging-pipe --no-startup-window[22m
+    [2m  - <launched> pid=113547[22m
+    [2m  - [pid=113547][err] [113547:113595:1114/220247.358013:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: Datei oder Verzeichnis nicht gefunden[22m
+
+
+    Error Context: test-results/tests-e2e-features-phase-a-1add0-during-navigation-Example-2-chromium/error-context.md
+
+
+[1A[2K[41/97] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/fleet-based-aircraft-selection.feature.spec.js:34:3 › Fleet-based aircraft selection on the Flight Prep page › Hardcoded catalogue aircraft are not in the dropdown when the fleet is empty — regression against AIRCRAFT_CATALOGUE leak @phase-B @fleet @flight-prep @e2e
+[1A[2K[42/97] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-sys-pwa/offline-smoke.feature.spec.js:6:3 › Offline-first app shell and M&B navigation › App shell loads and M&B navigation works while offline @offline @pwa @sys @smoke @technical-e2e @phase-D
+[1A[2K[43/97] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/cockpit-ux.feature.spec.js:36:5 › Clear flight preparation guidance › Tablet navigation respects an explicit expansion › Example #1 @cockpit-ux
+[1A[2K[44/97] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/raw-poh-inspection.feature.spec.js:40:5 › Raw POH table inspection › Invalid table data never produces distances › Example #1 @performance
+[1A[2K[45/97] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/manual-runway-entry.feature.spec.js:50:5 › Offline manual runway entry › Deleting all local data also removes the runway shown in the same session › Example #1 @performance @offline
+[1A[2K[46/97] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/pressure-altitude.feature.spec.js:58:5 › Explicit pressure-altitude method › Invalid QNH or field elevation never yields a pressure altitude › Example #1 @performance @offline
+[1A[2K[47/97] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/touch-flow.feature.spec.js:15:3 › Reachable flight preparation controls › Lookup choices support touch and keyboard @performance @touch-flow
+[1A[2K  41) [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-sys-pwa/offline-smoke.feature.spec.js:6:3 › Offline-first app shell and M&B navigation › App shell loads and M&B navigation works while offline @offline @pwa @sys @smoke @technical-e2e @phase-D 
+
+    TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+    Call log:
+    [2m  - <launching> /home/critter/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --no-sandbox --user-data-dir=/tmp/playwright_chromiumdev_profile-MYtQpL --remote-debugging-pipe --no-startup-window[22m
+    [2m  - <launched> pid=116302[22m
+    [2m  - [pid=116302][err] [116302:116331:1114/220547.993882:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: Datei oder Verzeichnis nicht gefunden[22m
+
+
+    Error Context: test-results/tests-e2e-features-phase-s-8929d-igation-works-while-offline-chromium/error-context.md
+
+
+[1A[2K  42) [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/fleet-based-aircraft-selection.feature.spec.js:34:3 › Fleet-based aircraft selection on the Flight Prep page › Hardcoded catalogue aircraft are not in the dropdown when the fleet is empty — regression against AIRCRAFT_CATALOGUE leak @phase-B @fleet @flight-prep @e2e 
+
+    TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+    Call log:
+    [2m  - <launching> /home/critter/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --no-sandbox --user-data-dir=/tmp/playwright_chromiumdev_profile-iLW1gu --remote-debugging-pipe --no-startup-window[22m
+    [2m  - <launched> pid=116303[22m
+    [2m  - [pid=116303][err] [116303:116347:1114/220548.012787:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: Datei oder Verzeichnis nicht gefunden[22m
+
+
+    Error Context: test-results/tests-e2e-features-phase-b-a587c-nst-AIRCRAFT-CATALOGUE-leak-chromium/error-context.md
+
+
+[1A[2K  43) [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/raw-poh-inspection.feature.spec.js:40:5 › Raw POH table inspection › Invalid table data never produces distances › Example #1 @performance 
+
+    TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+    Call log:
+    [2m  - <launching> /home/critter/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --no-sandbox --user-data-dir=/tmp/playwright_chromiumdev_profile-8WbhZO --remote-debugging-pipe --no-startup-window[22m
+    [2m  - <launched> pid=116356[22m
+    [2m  - [pid=116356][err] [116356:116407:1114/220548.123116:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: Datei oder Verzeichnis nicht gefunden[22m
+
+
+    Error Context: test-results/tests-e2e-features-phase-b-dbc34-roduces-distances-Example-1-chromium/error-context.md
+
+
+[1A[2K  44) [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/cockpit-ux.feature.spec.js:36:5 › Clear flight preparation guidance › Tablet navigation respects an explicit expansion › Example #1 @cockpit-ux 
+
+    TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+    Call log:
+    [2m  - <launching> /home/critter/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --no-sandbox --user-data-dir=/tmp/playwright_chromiumdev_profile-da1cxm --remote-debugging-pipe --no-startup-window[22m
+    [2m  - <launched> pid=116357[22m
+    [2m  - [pid=116357][err] [116357:116436:1114/220548.145591:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: Datei oder Verzeichnis nicht gefunden[22m
+
+
+    Error Context: test-results/tests-e2e-features-phase-b-b2715-xplicit-expansion-Example-1-chromium/error-context.md
+
+
+[1A[2K  45) [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/manual-runway-entry.feature.spec.js:50:5 › Offline manual runway entry › Deleting all local data also removes the runway shown in the same session › Example #1 @performance @offline 
+
+    TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+    Call log:
+    [2m  - <launching> /home/critter/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --no-sandbox --user-data-dir=/tmp/playwright_chromiumdev_profile-P9XeMY --remote-debugging-pipe --no-startup-window[22m
+    [2m  - <launched> pid=116362[22m
+    [2m  - [pid=116362][err] [116362:116460:1114/220548.158140:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: Datei oder Verzeichnis nicht gefunden[22m
+
+
+    Error Context: test-results/tests-e2e-features-phase-b-e62e1--the-same-session-Example-1-chromium/error-context.md
+
+
+[1A[2K  46) [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/pressure-altitude.feature.spec.js:58:5 › Explicit pressure-altitude method › Invalid QNH or field elevation never yields a pressure altitude › Example #1 @performance @offline 
+
+    TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+    Call log:
+    [2m  - <launching> /home/critter/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --no-sandbox --user-data-dir=/tmp/playwright_chromiumdev_profile-uK8kem --remote-debugging-pipe --no-startup-window[22m
+    [2m  - <launched> pid=116368[22m
+    [2m  - [pid=116368][err] [116368:116448:1114/220548.147732:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: Datei oder Verzeichnis nicht gefunden[22m
+
+
+    Error Context: test-results/tests-e2e-features-phase-b-15230-pressure-altitude-Example-1-chromium/error-context.md
+
+
+[1A[2K  47) [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/touch-flow.feature.spec.js:15:3 › Reachable flight preparation controls › Lookup choices support touch and keyboard @performance @touch-flow 
+
+    TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+    Call log:
+    [2m  - <launching> /home/critter/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --no-sandbox --user-data-dir=/tmp/playwright_chromiumdev_profile-h8qB1R --remote-debugging-pipe --no-startup-window[22m
+    [2m  - <launched> pid=116459[22m
+    [2m  - [pid=116459][err] [116459:116497:1114/220548.256788:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: Datei oder Verzeichnis nicht gefunden[22m
+
+
+    Error Context: test-results/tests-e2e-features-phase-b-11de3--support-touch-and-keyboard-chromium/error-context.md
+
+
+[1A[2K[48/97] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/cockpit-ux.feature.spec.js:42:5 › Clear flight preparation guidance › Tablet navigation respects an explicit expansion › Example #2 @cockpit-ux
+[1A[2K[49/97] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/raw-poh-inspection.feature.spec.js:46:5 › Raw POH table inspection › Invalid table data never produces distances › Example #2 @performance
+[1A[2K[50/97] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/pressure-altitude.feature.spec.js:65:5 › Explicit pressure-altitude method › Invalid QNH or field elevation never yields a pressure altitude › Example #2 @performance @offline
+[1A[2K[51/97] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/manual-runway-entry.feature.spec.js:63:5 › Offline manual runway entry › Deleting all local data also removes the runway shown in the same session › Example #2 @performance @offline
+[1A[2K[52/97] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/touch-flow.feature.spec.js:26:3 › Reachable flight preparation controls › Saved runway and unsupported sources stay usable @performance @touch-flow
+[1A[2K  48) [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/cockpit-ux.feature.spec.js:42:5 › Clear flight preparation guidance › Tablet navigation respects an explicit expansion › Example #2 @cockpit-ux 
+
+    TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+    Call log:
+    [2m  - <launching> /home/critter/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --no-sandbox --user-data-dir=/tmp/playwright_chromiumdev_profile-4xXeNG --remote-debugging-pipe --no-startup-window[22m
+    [2m  - <launched> pid=120655[22m
+    [2m  - [pid=120655][err] [120655:120688:1114/220848.996135:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: Datei oder Verzeichnis nicht gefunden[22m
+
+
+    Error Context: test-results/tests-e2e-features-phase-b-aef87-xplicit-expansion-Example-2-chromium/error-context.md
+
+
+[1A[2K  49) [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/raw-poh-inspection.feature.spec.js:46:5 › Raw POH table inspection › Invalid table data never produces distances › Example #2 @performance 
+
+    TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+    Call log:
+    [2m  - <launching> /home/critter/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --no-sandbox --user-data-dir=/tmp/playwright_chromiumdev_profile-DOxy7b --remote-debugging-pipe --no-startup-window[22m
+    [2m  - <launched> pid=120664[22m
+    [2m  - [pid=120664][err] [120664:120723:1114/220849.036042:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: Datei oder Verzeichnis nicht gefunden[22m
+
+
+    Error Context: test-results/tests-e2e-features-phase-b-7d2bf-roduces-distances-Example-2-chromium/error-context.md
+
+
+[1A[2K  50) [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/pressure-altitude.feature.spec.js:65:5 › Explicit pressure-altitude method › Invalid QNH or field elevation never yields a pressure altitude › Example #2 @performance @offline 
+
+    TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+    Call log:
+    [2m  - <launching> /home/critter/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --no-sandbox --user-data-dir=/tmp/playwright_chromiumdev_profile-H9PZ7S --remote-debugging-pipe --no-startup-window[22m
+    [2m  - <launched> pid=120673[22m
+    [2m  - [pid=120673][err] [120673:120754:1114/220849.057449:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: Datei oder Verzeichnis nicht gefunden[22m
+
+
+    Error Context: test-results/tests-e2e-features-phase-b-0353d-pressure-altitude-Example-2-chromium/error-context.md
+
+
+[1A[2K  51) [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/manual-runway-entry.feature.spec.js:63:5 › Offline manual runway entry › Deleting all local data also removes the runway shown in the same session › Example #2 @performance @offline 
+
+    TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+    Call log:
+    [2m  - <launching> /home/critter/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --no-sandbox --user-data-dir=/tmp/playwright_chromiumdev_profile-x57QCe --remote-debugging-pipe --no-startup-window[22m
+    [2m  - <launched> pid=120674[22m
+    [2m  - [pid=120674][err] [120674:120753:1114/220849.057455:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: Datei oder Verzeichnis nicht gefunden[22m
+
+
+    Error Context: test-results/tests-e2e-features-phase-b-270c0--the-same-session-Example-2-chromium/error-context.md
+
+
+[1A[2K  52) [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/touch-flow.feature.spec.js:26:3 › Reachable flight preparation controls › Saved runway and unsupported sources stay usable @performance @touch-flow 
+
+    TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+    Call log:
+    [2m  - <launching> /home/critter/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --no-sandbox --user-data-dir=/tmp/playwright_chromiumdev_profile-JGKiJk --remote-debugging-pipe --no-startup-window[22m
+    [2m  - <launched> pid=120763[22m
+    [2m  - [pid=120763][err] [120763:120826:1114/220849.157695:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: Datei oder Verzeichnis nicht gefunden[22m
+
+
+    Error Context: test-results/tests-e2e-features-phase-b-e686d-pported-sources-stay-usable-chromium/error-context.md
+
+
+[1A[2K[53/97] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/cockpit-ux.feature.spec.js:48:5 › Clear flight preparation guidance › Tablet navigation respects an explicit expansion › Example #3 @cockpit-ux
+[1A[2K[54/97] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/raw-poh-inspection.feature.spec.js:52:5 › Raw POH table inspection › Invalid table data never produces distances › Example #3 @performance
+[1A[2K[55/97] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/manual-runway-entry.feature.spec.js:80:5 › Offline manual runway entry › Metre and foot declarations are retained independently › Example #1 @performance @offline
+[1A[2K[56/97] [chromium] › tests/e2e/.features-gen/tests/e2e/features/phase-b-flight-preparation/pressure-altitude.feature.spec.js:72:5 › Explicit pressure-altitude method › Invalid QNH or field elevation never yields a pressure altitude › Example #3 @performance @offline
+ ELIFECYCLE  Command failed.

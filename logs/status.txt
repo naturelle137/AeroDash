@@ -1,0 +1,11 @@
+install=0
+lint=0
+unit=0
+integration=0
+build=0
+p1=0
+e2e attempts 1-2: headed (no CI) Chromium launch timeouts, aborted
+e2e(CI=1 headless chromium)=0
+offline=1
+offline@f666852=1 (23 passed, 1 failed: neutral-exact-limit 390 fill timeout; status echo bug corrected)
+offline@f666852 run2=0

@@ -1,0 +1,623 @@
+[WebServer] [33m(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+[WebServer]   - import "./scripts/build/telemetry-guard" without a file extension (vite.config.ts:9:52). Add the file extension
+[WebServer]   - import "./scripts/build/copy-legal-docs" without a file extension (vite.config.ts:10:31). Add the file extension
+[WebServer] Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.[39m
+
+Running 24 tests using 1 worker
+
+  ✓   1 [chromium-390] › tests/offline-production/fleet-restore.spec.ts:28:1 › Privacy export restores all synthetic values as drafts through explicit offline Fleet confirmation (2.8s)
+  ✓   2 [chromium-390] › tests/offline-production/fleet-restore.spec.ts:124:1 › storage abort preserves real active preparation and persistent fleet, then retries the same preview (1.3s)
+  ✘   3 [chromium-390] › tests/offline-production/fuel-endurance.spec.ts:5:1 › persisted fleet tank inputs feed the session-only fuel plan online and cached offline (16.1s)
+  ✘   4 [chromium-390] › tests/offline-production/fuel-print.spec.ts:5:1 › optional current fuel in cached offline native print with synchronous stale guards (2.0m)
+  ✓   5 [chromium-390] › tests/offline-production/lookup-fuel-mb.spec.ts:89:1 › lookup fuel M&B uses total-moment differences on screen, chart, print and offline (3.5s)
+  ✓   6 [chromium-390] › tests/offline-production/mass-limit-difference.spec.ts:6:1 › current mass-limit differences update without stale values, cached offline (2.3s)
+  ✓   7 [chromium-390] › tests/offline-production/mass-limit-difference.spec.ts:194:1 › imperial lb-in profile compares mass with kg-normalized MTOM/MZFM (937ms)
+  ✓   8 [chromium-390] › tests/offline-production/mass-limit-difference.spec.ts:283:1 › kg-in moment envelope and calculated points share kg·m axes (558ms)
+  ✓   9 [chromium-390] › tests/offline-production/mass-limit-difference.spec.ts:341:1 › lb-in moment envelope, armLookup and calculated points share kg·m axes (893ms)
+  ✓  10 [chromium-390] › tests/offline-production/mb-print.spec.ts:5:1 › current M&B native print, cancellation, guarded transitions and cached offline reload (2.1s)
+  ✓  11 [chromium-390] › tests/offline-production/neutral-exact-limit.spec.ts:6:1 › neutral within-limit state and raw exact-limit cross-check, cached offline (2.8s)
+  ✓  12 [chromium-390] › tests/offline-production/offline.spec.ts:25:1 › cached preparation reopens offline with persisted synthetic data and live browser status (2.4s)
+  ✓  13 [chromium-1440] › tests/offline-production/fleet-restore.spec.ts:28:1 › Privacy export restores all synthetic values as drafts through explicit offline Fleet confirmation (2.8s)
+  ✓  14 [chromium-1440] › tests/offline-production/fleet-restore.spec.ts:124:1 › storage abort preserves real active preparation and persistent fleet, then retries the same preview (1.4s)
+  ✘  15 [chromium-1440] › tests/offline-production/fuel-endurance.spec.ts:5:1 › persisted fleet tank inputs feed the session-only fuel plan online and cached offline (16.8s)
+  ✘  16 [chromium-1440] › tests/offline-production/fuel-print.spec.ts:5:1 › optional current fuel in cached offline native print with synchronous stale guards (2.0m)
+  ✓  17 [chromium-1440] › tests/offline-production/lookup-fuel-mb.spec.ts:89:1 › lookup fuel M&B uses total-moment differences on screen, chart, print and offline (3.7s)
+  ✓  18 [chromium-1440] › tests/offline-production/mass-limit-difference.spec.ts:6:1 › current mass-limit differences update without stale values, cached offline (2.6s)
+  ✓  19 [chromium-1440] › tests/offline-production/mass-limit-difference.spec.ts:194:1 › imperial lb-in profile compares mass with kg-normalized MTOM/MZFM (999ms)
+  ✓  20 [chromium-1440] › tests/offline-production/mass-limit-difference.spec.ts:283:1 › kg-in moment envelope and calculated points share kg·m axes (565ms)
+  ✓  21 [chromium-1440] › tests/offline-production/mass-limit-difference.spec.ts:341:1 › lb-in moment envelope, armLookup and calculated points share kg·m axes (927ms)
+  ✓  22 [chromium-1440] › tests/offline-production/mb-print.spec.ts:5:1 › current M&B native print, cancellation, guarded transitions and cached offline reload (2.0s)
+  ✓  23 [chromium-1440] › tests/offline-production/neutral-exact-limit.spec.ts:6:1 › neutral within-limit state and raw exact-limit cross-check, cached offline (3.0s)
+  ✓  24 [chromium-1440] › tests/offline-production/offline.spec.ts:25:1 › cached preparation reopens offline with persisted synthetic data and live browser status (2.5s)
+
+
+  1) [chromium-390] › tests/offline-production/fuel-endurance.spec.ts:5:1 › persisted fleet tank inputs feed the session-only fuel plan online and cached offline 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveText[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator: getByRole('region', { name: 'Estimated trip arrival', exact: true }).locator('dd:not([data-testid="arrival-cg"])')
+    Timeout: 10000ms
+    [32m- Expected  - 6[39m
+    [31m+ Received  + 1[39m
+
+    [32m- Array [[39m
+    [32m-   "620 kg",[39m
+    [32m-   "30 kg",[39m
+    [32m-   "590 kg",[39m
+    [32m-   "30 kg",[39m
+    [32m- ][39m
+    [31m+ Array [][39m
+
+    Call log:
+    [2m  - Expect "toHaveText" with timeout 10000ms[22m
+    [2m  - waiting for getByRole('region', { name: 'Estimated trip arrival', exact: true }).locator('dd:not([data-testid="arrival-cg"])')[22m
+    [2m    24 × locator resolved to 0 elements[22m
+
+
+      518 |   await tank.fill('60')
+      519 |   await tank.blur()
+    > 520 |   await expect(masses()).toHaveText(['620 kg', '30 kg', '590 kg', '30 kg'])
+          |                          ^
+      521 |   await expect(card.getByTestId('arrival-cg')).toHaveCount(0)
+      522 |   await expect(arrival).toContainText('cover the whole current tank load')
+      523 |   await shot('lookup-out-of-range-offline')
+        at /var/home/critter/lokal/dev/.hq-worktrees/aerodash/job-1314/frontend/tests/offline-production/fuel-endurance.spec.ts:520:26
+
+    attachment #1: fuel-plan (image/png) ───────────────────────────────────────────────────────────
+    test-results/fuel-endurance-persisted-f-3ecb6-n-online-and-cached-offline-chromium-390/attachments/fuel-plan-ee2c79b403c8dbc1700d9bf673f40f1675c45c00.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: fuel-shortfall (image/png) ──────────────────────────────────────────────────────
+    test-results/fuel-endurance-persisted-f-3ecb6-n-online-and-cached-offline-chromium-390/attachments/fuel-shortfall-b5f3f7f4d5aa4c37dca52c76382974c7a3a7cc9c.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: direct-trip-fuel (image/png) ────────────────────────────────────────────────────
+    test-results/fuel-endurance-persisted-f-3ecb6-n-online-and-cached-offline-chromium-390/attachments/direct-trip-fuel-5664aeb5e73a5af354ffaa2543919e043ecf9f89.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: direct-controls (image/png) ─────────────────────────────────────────────────────
+    test-results/fuel-endurance-persisted-f-3ecb6-n-online-and-cached-offline-chromium-390/attachments/direct-controls-79bdec6a3f9a726fa3b00ee85829ff7db2d81cdf.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #5: fuel-offline (image/png) ────────────────────────────────────────────────────────
+    test-results/fuel-endurance-persisted-f-3ecb6-n-online-and-cached-offline-chromium-390/attachments/fuel-offline-2defedee000a023ea02e9082a9ea265c3e82bda5.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #6: direct-offline (image/png) ──────────────────────────────────────────────────────
+    test-results/fuel-endurance-persisted-f-3ecb6-n-online-and-cached-offline-chromium-390/attachments/direct-offline-958fa6b02a1b4e1faf3bcf96e4c05df958cae6c9.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #7: D-VARY-unsupported-offline (image/png) ──────────────────────────────────────────
+    test-results/fuel-endurance-persisted-f-3ecb6-n-online-and-cached-offline-chromium-390/attachments/D-VARY-unsupported-offline-825a1ae5bf76a7eb1866ebf3b60dda0bedfe6633.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #8: multi-duration-A first (image/png) ──────────────────────────────────────────────
+    test-results/fuel-endurance-persisted-f-3ecb6-n-online-and-cached-offline-chromium-390/attachments/multi-duration-A-first-55de4a1d6e19f17ba58206d5d7a42dad9da96da0.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #9: multi-duration-B first (image/png) ──────────────────────────────────────────────
+    test-results/fuel-endurance-persisted-f-3ecb6-n-online-and-cached-offline-chromium-390/attachments/multi-duration-B-first-2bdbaa09565b2402484a042421e893f7b59f2d75.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #10: multi-unselected (image/png) ───────────────────────────────────────────────────
+    test-results/fuel-endurance-persisted-f-3ecb6-n-online-and-cached-offline-chromium-390/attachments/multi-unselected-9a0ce8cef990c2a075adf5645e39dc2acf1dceeb.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #11: multi-controls (image/png) ─────────────────────────────────────────────────────
+    test-results/fuel-endurance-persisted-f-3ecb6-n-online-and-cached-offline-chromium-390/attachments/multi-controls-7d33827c9fa285b47732acedb884cd27a6dcfdef.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #12: multi-direct-A first (image/png) ───────────────────────────────────────────────
+    test-results/fuel-endurance-persisted-f-3ecb6-n-online-and-cached-offline-chromium-390/attachments/multi-direct-A-first-53a4650de35cb8e544d5e3e0333fb7edf95a0f33.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #13: multi-direct-B first (image/png) ───────────────────────────────────────────────
+    test-results/fuel-endurance-persisted-f-3ecb6-n-online-and-cached-offline-chromium-390/attachments/multi-direct-B-first-3d0a6ebd167dc1cb1df4bc40d68344dd1504633f.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #14: multi-reset-offline (image/png) ────────────────────────────────────────────────
+    test-results/fuel-endurance-persisted-f-3ecb6-n-online-and-cached-offline-chromium-390/attachments/multi-reset-offline-b60432fdcd772255d8070b96ee5466ddbecd03cf.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #15: lookup-duration-partial-offline (image/png) ────────────────────────────────────
+    test-results/fuel-endurance-persisted-f-3ecb6-n-online-and-cached-offline-chromium-390/attachments/lookup-duration-partial-offline-d0b91ad82e02e376058f38fb27a2e94ff212565e.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #16: lookup-direct-partial-offline (image/png) ──────────────────────────────────────
+    test-results/fuel-endurance-persisted-f-3ecb6-n-online-and-cached-offline-chromium-390/attachments/lookup-direct-partial-offline-7c0694ab207ff64c29dec7dc5546f5cb4c7e931a.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/fuel-endurance-persisted-f-3ecb6-n-online-and-cached-offline-chromium-390/error-context.md
+
+    attachment #18: trace (application/zip) ────────────────────────────────────────────────────────
+    test-results/fuel-endurance-persisted-f-3ecb6-n-online-and-cached-offline-chromium-390/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/fuel-endurance-persisted-f-3ecb6-n-online-and-cached-offline-chromium-390/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [chromium-390] › tests/offline-production/fuel-print.spec.ts:5:1 › optional current fuel in cached offline native print with synchronous stale guards 
+
+    [31mTest timeout of 120000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 120000ms exceeded.
+    Call log:
+    [2m  - waiting for getByRole('button', { name: 'M&B print preview', exact: true })[22m
+    [2m    - locator resolved to <button disabled type="button" class="mb-preview-action">M&B print preview</button>[22m
+    [2m  - attempting click action[22m
+    [2m    2 × waiting for element to be visible, enabled and stable[22m
+    [2m      - element is not enabled[22m
+    [2m    - retrying click action[22m
+    [2m    - waiting 20ms[22m
+    [2m    2 × waiting for element to be visible, enabled and stable[22m
+    [2m      - element is not enabled[22m
+    [2m    - retrying click action[22m
+    [2m      - waiting 100ms[22m
+    [2m    221 × waiting for element to be visible, enabled and stable[22m
+    [2m        - element is not enabled[22m
+    [2m      - retrying click action[22m
+    [2m        - waiting 500ms[22m
+
+
+      223 |   await page.getByRole('textbox', { name: 'Synthetic tank', exact: true }).fill('60')
+      224 |   await page.getByRole('textbox', { name: 'Synthetic tank', exact: true }).blur()
+    > 225 |   await action.click()
+          |                ^
+      226 |   await expect(section).toContainText('540 kg [UNVERIFIED]')
+      227 |   await expect(section).toContainText('cover the whole current tank load')
+      228 |   await back.click()
+        at /var/home/critter/lokal/dev/.hq-worktrees/aerodash/job-1314/frontend/tests/offline-production/fuel-print.spec.ts:225:16
+
+    attachment #1: offline-duration-reserve-shortfall-screen.png (image/png) ───────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-390/attachments/offline-duration-reserve-shortfall-screen-png-a9cfc0db01715d3ef60dea0d86c2d659a4fb5113.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: offline-duration-reserve-shortfall-fuel-screen.png (image/png) ──────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-390/attachments/offline-duration-reserve-shortfall-fuel-screen-png-b47e46695f9d005a599b8f4b29896bfd9fc6b6cb.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: offline-duration-reserve-shortfall-print.png (image/png) ────────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-390/attachments/offline-duration-reserve-shortfall-print-png-f906d1f5f53a882ea7540e580f8dc2baae76d009.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: offline-duration-reserve-shortfall.pdf (application/pdf) ────────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-390/attachments/offline-duration-reserve-shortfall-pdf-397c8f2eeda1ef300f76fbb686d67f57c970d645.pdf
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #5: offline-direct-screen.png (image/png) ───────────────────────────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-390/attachments/offline-direct-screen-png-ec0aa395daf1c0839880b27d9804c17e3166f1d0.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #6: offline-direct-fuel-screen.png (image/png) ──────────────────────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-390/attachments/offline-direct-fuel-screen-png-458a5bf40acd460c2b7d10551ab2ad2982dcee38.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #7: offline-direct-print.png (image/png) ────────────────────────────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-390/attachments/offline-direct-print-png-7121b705941f9b999e359feddba31f0e838c3827.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #8: offline-direct.pdf (application/pdf) ────────────────────────────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-390/attachments/offline-direct-pdf-0410f0b3c0dd930c0cc326fc313b014b4d458efb.pdf
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #9: D-VARY-duration-unsupported-screen.png (image/png) ──────────────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-390/attachments/D-VARY-duration-unsupported-screen-png-a004e9663eda632a3cb2eb0f0d3803779394ffeb.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #10: D-VARY-duration-unsupported-fuel-screen.png (image/png) ────────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-390/attachments/D-VARY-duration-unsupported-fuel-screen-png-2ee5dc05e4b97cfb12a55195d901f984e467ab73.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #11: D-VARY-duration-unsupported-print.png (image/png) ──────────────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-390/attachments/D-VARY-duration-unsupported-print-png-879d32be1f1f8e662d3c72333fa8244cd379d86e.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #12: D-VARY-duration-unsupported.pdf (application/pdf) ──────────────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-390/attachments/D-VARY-duration-unsupported-pdf-e75d18fde7da7440daf34aad8ff007f54b090d4e.pdf
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #13: D-VARY-direct-unsupported-screen.png (image/png) ───────────────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-390/attachments/D-VARY-direct-unsupported-screen-png-36c4f2ce10575b803f2c4f418744f4239f187f61.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #14: D-VARY-direct-unsupported-fuel-screen.png (image/png) ──────────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-390/attachments/D-VARY-direct-unsupported-fuel-screen-png-71eec4ddf7eadc9e957adf9f0d373dbe16b6ce5d.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #15: D-VARY-direct-unsupported-print.png (image/png) ────────────────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-390/attachments/D-VARY-direct-unsupported-print-png-f69fbb4e6ecb986cbbf3dffe84172e4adb18d4e9.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #16: D-VARY-direct-unsupported.pdf (application/pdf) ────────────────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-390/attachments/D-VARY-direct-unsupported-pdf-67816395459ae07c9eda7dac969e297b34786190.pdf
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #17: D-MULTI-duration-unsupported-screen.png (image/png) ────────────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-390/attachments/D-MULTI-duration-unsupported-screen-png-8c1cd5b90f5d0cf8c1dc3fcba73f011b58b022ac.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #18: D-MULTI-duration-unsupported-fuel-screen.png (image/png) ───────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-390/attachments/D-MULTI-duration-unsupported-fuel-screen-png-88259b186930863f7b13f93e9168257aa6ded191.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #19: D-MULTI-duration-unsupported-print.png (image/png) ─────────────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-390/attachments/D-MULTI-duration-unsupported-print-png-b32a7b9bd3337cec159a835cc6ec5e7914fb73d7.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #20: D-MULTI-duration-unsupported.pdf (application/pdf) ─────────────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-390/attachments/D-MULTI-duration-unsupported-pdf-8c0f2a2e5199835f5c97df29f82b17c3dcd1ccb5.pdf
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #21: D-MULTI-direct-unsupported-screen.png (image/png) ──────────────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-390/attachments/D-MULTI-direct-unsupported-screen-png-c3c913fc24b04cdbd4217aafcaaf66572495e50b.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #22: D-MULTI-direct-unsupported-fuel-screen.png (image/png) ─────────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-390/attachments/D-MULTI-direct-unsupported-fuel-screen-png-7ddc44544aa2eb0acfaa58ce42b3fd18f23210b8.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #23: D-MULTI-direct-unsupported-print.png (image/png) ───────────────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-390/attachments/D-MULTI-direct-unsupported-print-png-4b1008a55a38f65494c109f88fccd8c1cb0aa535.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #24: D-MULTI-direct-unsupported.pdf (application/pdf) ───────────────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-390/attachments/D-MULTI-direct-unsupported-pdf-33bb3827085f75740fd9728a8eea5a4235aeec6e.pdf
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #25: invalid-sequence-long-reason-screen.png (image/png) ────────────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-390/attachments/invalid-sequence-long-reason-screen-png-43608059a3743bacbcfd9506903dcb65b2f82812.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #26: invalid-sequence-long-reason-fuel-screen.png (image/png) ───────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-390/attachments/invalid-sequence-long-reason-fuel-screen-png-91a6bf812bbf673e4ff4f971bdf6548797ddecaa.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #27: invalid-sequence-long-reason-print.png (image/png) ─────────────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-390/attachments/invalid-sequence-long-reason-print-png-b796a02ac119d4ea45926818861e9d1596f8b9de.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #28: invalid-sequence-long-reason.pdf (application/pdf) ─────────────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-390/attachments/invalid-sequence-long-reason-pdf-1efabc767544164c2236f08b2e2c7da8b4f12f62.pdf
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #29: D-LOOK-duration-supported-screen.png (image/png) ───────────────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-390/attachments/D-LOOK-duration-supported-screen-png-4b8d6956e28e76d9aafd68087b1c89ad47dbe344.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #30: D-LOOK-duration-supported-fuel-screen.png (image/png) ──────────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-390/attachments/D-LOOK-duration-supported-fuel-screen-png-c1478d5e2898f92c92b0e700bc15ad2aeb33e20b.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #31: D-LOOK-duration-supported-print.png (image/png) ────────────────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-390/attachments/D-LOOK-duration-supported-print-png-15a5dcdd890dd78794f149ef847885547e71c2a2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #32: D-LOOK-duration-supported.pdf (application/pdf) ────────────────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-390/attachments/D-LOOK-duration-supported-pdf-71f5645c3bf6c4f532d2ae3f8ab6b0866a6a793f.pdf
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #33: D-LOOK-direct-supported-screen.png (image/png) ─────────────────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-390/attachments/D-LOOK-direct-supported-screen-png-a3c33a0fb8d0f6f62137f4de08c613d456a5ca13.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #34: D-LOOK-direct-supported-fuel-screen.png (image/png) ────────────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-390/attachments/D-LOOK-direct-supported-fuel-screen-png-898923f6c5ea8a190c351d9637594a51f91e0098.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #35: D-LOOK-direct-supported-print.png (image/png) ──────────────────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-390/attachments/D-LOOK-direct-supported-print-png-14960e1306361dfc0a94d1241e8d2f5a27221c13.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #36: D-LOOK-direct-supported.pdf (application/pdf) ──────────────────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-390/attachments/D-LOOK-direct-supported-pdf-0a8d6baabed25e17605b578388b661119467ec07.pdf
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-390/error-context.md
+
+    attachment #38: trace (application/zip) ────────────────────────────────────────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-390/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-390/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [chromium-1440] › tests/offline-production/fuel-endurance.spec.ts:5:1 › persisted fleet tank inputs feed the session-only fuel plan online and cached offline 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveText[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator: getByRole('region', { name: 'Estimated trip arrival', exact: true }).locator('dd:not([data-testid="arrival-cg"])')
+    Timeout: 10000ms
+    [32m- Expected  - 6[39m
+    [31m+ Received  + 1[39m
+
+    [32m- Array [[39m
+    [32m-   "620 kg",[39m
+    [32m-   "30 kg",[39m
+    [32m-   "590 kg",[39m
+    [32m-   "30 kg",[39m
+    [32m- ][39m
+    [31m+ Array [][39m
+
+    Call log:
+    [2m  - Expect "toHaveText" with timeout 10000ms[22m
+    [2m  - waiting for getByRole('region', { name: 'Estimated trip arrival', exact: true }).locator('dd:not([data-testid="arrival-cg"])')[22m
+    [2m    24 × locator resolved to 0 elements[22m
+
+
+      518 |   await tank.fill('60')
+      519 |   await tank.blur()
+    > 520 |   await expect(masses()).toHaveText(['620 kg', '30 kg', '590 kg', '30 kg'])
+          |                          ^
+      521 |   await expect(card.getByTestId('arrival-cg')).toHaveCount(0)
+      522 |   await expect(arrival).toContainText('cover the whole current tank load')
+      523 |   await shot('lookup-out-of-range-offline')
+        at /var/home/critter/lokal/dev/.hq-worktrees/aerodash/job-1314/frontend/tests/offline-production/fuel-endurance.spec.ts:520:26
+
+    attachment #1: fuel-plan (image/png) ───────────────────────────────────────────────────────────
+    test-results/fuel-endurance-persisted-f-3ecb6-n-online-and-cached-offline-chromium-1440/attachments/fuel-plan-7e1bb59908f8065131ba7f7dd2605c6bde0690ac.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: fuel-shortfall (image/png) ──────────────────────────────────────────────────────
+    test-results/fuel-endurance-persisted-f-3ecb6-n-online-and-cached-offline-chromium-1440/attachments/fuel-shortfall-5faf2007c303be93fb46bab29480b9a37cc63651.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: direct-trip-fuel (image/png) ────────────────────────────────────────────────────
+    test-results/fuel-endurance-persisted-f-3ecb6-n-online-and-cached-offline-chromium-1440/attachments/direct-trip-fuel-fdb344e6d8a7ea063da7ffee02366fc0f680af26.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: direct-controls (image/png) ─────────────────────────────────────────────────────
+    test-results/fuel-endurance-persisted-f-3ecb6-n-online-and-cached-offline-chromium-1440/attachments/direct-controls-d0de87c1ca00c96d3d12cef526edaf5e3035fac4.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #5: fuel-offline (image/png) ────────────────────────────────────────────────────────
+    test-results/fuel-endurance-persisted-f-3ecb6-n-online-and-cached-offline-chromium-1440/attachments/fuel-offline-05e1375285601fde4daaa6ae11087bf148734908.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #6: direct-offline (image/png) ──────────────────────────────────────────────────────
+    test-results/fuel-endurance-persisted-f-3ecb6-n-online-and-cached-offline-chromium-1440/attachments/direct-offline-3d9930de24bc3da064fa250343aa4e4fc86c68d1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #7: D-VARY-unsupported-offline (image/png) ──────────────────────────────────────────
+    test-results/fuel-endurance-persisted-f-3ecb6-n-online-and-cached-offline-chromium-1440/attachments/D-VARY-unsupported-offline-a7c76d6ad566705364e1bae90834ca588682d3f6.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #8: multi-duration-A first (image/png) ──────────────────────────────────────────────
+    test-results/fuel-endurance-persisted-f-3ecb6-n-online-and-cached-offline-chromium-1440/attachments/multi-duration-A-first-09cf0853aaebb65d2944b11dd736ad1d7719c248.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #9: multi-duration-B first (image/png) ──────────────────────────────────────────────
+    test-results/fuel-endurance-persisted-f-3ecb6-n-online-and-cached-offline-chromium-1440/attachments/multi-duration-B-first-1b7b8b0142b676e3a49553c649c1f784d0f71698.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #10: multi-unselected (image/png) ───────────────────────────────────────────────────
+    test-results/fuel-endurance-persisted-f-3ecb6-n-online-and-cached-offline-chromium-1440/attachments/multi-unselected-7fe6b87504519de17e53088aa56df9374d89c807.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #11: multi-controls (image/png) ─────────────────────────────────────────────────────
+    test-results/fuel-endurance-persisted-f-3ecb6-n-online-and-cached-offline-chromium-1440/attachments/multi-controls-e39b06918243a1c1730f6b4588671f2368e1e127.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #12: multi-direct-A first (image/png) ───────────────────────────────────────────────
+    test-results/fuel-endurance-persisted-f-3ecb6-n-online-and-cached-offline-chromium-1440/attachments/multi-direct-A-first-e79ab2df8add39734ef8ebb8d1dfe390c16232be.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #13: multi-direct-B first (image/png) ───────────────────────────────────────────────
+    test-results/fuel-endurance-persisted-f-3ecb6-n-online-and-cached-offline-chromium-1440/attachments/multi-direct-B-first-58318372cc29c0f52a72359c6a6ef0ab312906ce.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #14: multi-reset-offline (image/png) ────────────────────────────────────────────────
+    test-results/fuel-endurance-persisted-f-3ecb6-n-online-and-cached-offline-chromium-1440/attachments/multi-reset-offline-170c1df26e8a11a37be85c05398931a7d4b3e02d.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #15: lookup-duration-partial-offline (image/png) ────────────────────────────────────
+    test-results/fuel-endurance-persisted-f-3ecb6-n-online-and-cached-offline-chromium-1440/attachments/lookup-duration-partial-offline-a761001bd77c11643248f8b7cb1ad3c4c23ed21e.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #16: lookup-direct-partial-offline (image/png) ──────────────────────────────────────
+    test-results/fuel-endurance-persisted-f-3ecb6-n-online-and-cached-offline-chromium-1440/attachments/lookup-direct-partial-offline-faa4a97d844555693741ce1a9311aa3146825a2a.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/fuel-endurance-persisted-f-3ecb6-n-online-and-cached-offline-chromium-1440/error-context.md
+
+    attachment #18: trace (application/zip) ────────────────────────────────────────────────────────
+    test-results/fuel-endurance-persisted-f-3ecb6-n-online-and-cached-offline-chromium-1440/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/fuel-endurance-persisted-f-3ecb6-n-online-and-cached-offline-chromium-1440/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [chromium-1440] › tests/offline-production/fuel-print.spec.ts:5:1 › optional current fuel in cached offline native print with synchronous stale guards 
+
+    [31mTest timeout of 120000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 120000ms exceeded.
+    Call log:
+    [2m  - waiting for getByRole('button', { name: 'M&B print preview', exact: true })[22m
+    [2m    - locator resolved to <button disabled type="button" class="mb-preview-action">M&B print preview</button>[22m
+    [2m  - attempting click action[22m
+    [2m    2 × waiting for element to be visible, enabled and stable[22m
+    [2m      - element is not enabled[22m
+    [2m    - retrying click action[22m
+    [2m    - waiting 20ms[22m
+    [2m    2 × waiting for element to be visible, enabled and stable[22m
+    [2m      - element is not enabled[22m
+    [2m    - retrying click action[22m
+    [2m      - waiting 100ms[22m
+    [2m    219 × waiting for element to be visible, enabled and stable[22m
+    [2m        - element is not enabled[22m
+    [2m      - retrying click action[22m
+    [2m        - waiting 500ms[22m
+
+
+      223 |   await page.getByRole('textbox', { name: 'Synthetic tank', exact: true }).fill('60')
+      224 |   await page.getByRole('textbox', { name: 'Synthetic tank', exact: true }).blur()
+    > 225 |   await action.click()
+          |                ^
+      226 |   await expect(section).toContainText('540 kg [UNVERIFIED]')
+      227 |   await expect(section).toContainText('cover the whole current tank load')
+      228 |   await back.click()
+        at /var/home/critter/lokal/dev/.hq-worktrees/aerodash/job-1314/frontend/tests/offline-production/fuel-print.spec.ts:225:16
+
+    attachment #1: offline-duration-reserve-shortfall-screen.png (image/png) ───────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-1440/attachments/offline-duration-reserve-shortfall-screen-png-67804f2a379a80a6a1cb52c1c6945758eeac3ea3.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: offline-duration-reserve-shortfall-fuel-screen.png (image/png) ──────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-1440/attachments/offline-duration-reserve-shortfall-fuel-screen-png-b2da0b69e94c4fe5b22d1985c14cef2fca95cad3.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: offline-duration-reserve-shortfall-print.png (image/png) ────────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-1440/attachments/offline-duration-reserve-shortfall-print-png-1a883cc4ce33a8882b842f27a20acd2a6482a450.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: offline-duration-reserve-shortfall.pdf (application/pdf) ────────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-1440/attachments/offline-duration-reserve-shortfall-pdf-f0a4757b778524a88b5caede3230b23631035263.pdf
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #5: offline-direct-screen.png (image/png) ───────────────────────────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-1440/attachments/offline-direct-screen-png-fe2289d51221b356f3756d48599a3f21a0978e0d.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #6: offline-direct-fuel-screen.png (image/png) ──────────────────────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-1440/attachments/offline-direct-fuel-screen-png-d3860491f34fbc6dacc64254531a7689d6194263.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #7: offline-direct-print.png (image/png) ────────────────────────────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-1440/attachments/offline-direct-print-png-138504d955eda6a730c976e4455de6eec5124f35.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #8: offline-direct.pdf (application/pdf) ────────────────────────────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-1440/attachments/offline-direct-pdf-6f8014fc9646c374cc5cd0f085e7a5c6b7c856d4.pdf
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #9: D-VARY-duration-unsupported-screen.png (image/png) ──────────────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-1440/attachments/D-VARY-duration-unsupported-screen-png-fb74a378dc7039dfd1c3933ba50061ae8e15edd0.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #10: D-VARY-duration-unsupported-fuel-screen.png (image/png) ────────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-1440/attachments/D-VARY-duration-unsupported-fuel-screen-png-8a4df58a578b6607b448f6def1c58d8d359f875f.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #11: D-VARY-duration-unsupported-print.png (image/png) ──────────────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-1440/attachments/D-VARY-duration-unsupported-print-png-c1b4ae78e1ae14af6f342d0e960d6bddc55b323f.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #12: D-VARY-duration-unsupported.pdf (application/pdf) ──────────────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-1440/attachments/D-VARY-duration-unsupported-pdf-b616d3f67c79e70764d390dbbfbe4d6419ca98d6.pdf
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #13: D-VARY-direct-unsupported-screen.png (image/png) ───────────────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-1440/attachments/D-VARY-direct-unsupported-screen-png-a838d748d9b1d9955d6f874c0a00eac203c2664e.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #14: D-VARY-direct-unsupported-fuel-screen.png (image/png) ──────────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-1440/attachments/D-VARY-direct-unsupported-fuel-screen-png-831bb5c7169cf46191f503bdde4a370d43ff5f84.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #15: D-VARY-direct-unsupported-print.png (image/png) ────────────────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-1440/attachments/D-VARY-direct-unsupported-print-png-c12a9ef304fc863a2517f35a5a037e6e5bc28141.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #16: D-VARY-direct-unsupported.pdf (application/pdf) ────────────────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-1440/attachments/D-VARY-direct-unsupported-pdf-22abf3ac03502fdc6db228d077db0bcc4d20d562.pdf
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #17: D-MULTI-duration-unsupported-screen.png (image/png) ────────────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-1440/attachments/D-MULTI-duration-unsupported-screen-png-6abfa4e0eb0290323b044171db6042ffadaa2185.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #18: D-MULTI-duration-unsupported-fuel-screen.png (image/png) ───────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-1440/attachments/D-MULTI-duration-unsupported-fuel-screen-png-f72d3144c954b8f1dbf49a223a2e78410d9cfad7.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #19: D-MULTI-duration-unsupported-print.png (image/png) ─────────────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-1440/attachments/D-MULTI-duration-unsupported-print-png-903756c69388ed2e90b3811a2e334db9751400fc.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #20: D-MULTI-duration-unsupported.pdf (application/pdf) ─────────────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-1440/attachments/D-MULTI-duration-unsupported-pdf-5ba9b88045ffcd84a509c16e7980123846f12ba3.pdf
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #21: D-MULTI-direct-unsupported-screen.png (image/png) ──────────────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-1440/attachments/D-MULTI-direct-unsupported-screen-png-dd16e336c69ced2ffd211aac90d476f546995145.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #22: D-MULTI-direct-unsupported-fuel-screen.png (image/png) ─────────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-1440/attachments/D-MULTI-direct-unsupported-fuel-screen-png-4dd0426b1b553947e9da040d2678d798591ee79e.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #23: D-MULTI-direct-unsupported-print.png (image/png) ───────────────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-1440/attachments/D-MULTI-direct-unsupported-print-png-e61e4f7460f273b006a6eca8ec1156f6476923a2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #24: D-MULTI-direct-unsupported.pdf (application/pdf) ───────────────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-1440/attachments/D-MULTI-direct-unsupported-pdf-d0b41782f47d62b3a429d5b9e6f95484b021c5a0.pdf
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #25: invalid-sequence-long-reason-screen.png (image/png) ────────────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-1440/attachments/invalid-sequence-long-reason-screen-png-53827f27248191228d3397db1eb2cf6ac72a28bc.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #26: invalid-sequence-long-reason-fuel-screen.png (image/png) ───────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-1440/attachments/invalid-sequence-long-reason-fuel-screen-png-781c1b09a91f4e258f71f44f93be9e58ddf3256b.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #27: invalid-sequence-long-reason-print.png (image/png) ─────────────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-1440/attachments/invalid-sequence-long-reason-print-png-957a6360cf8765204fa96e7d294c311c990e90ec.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #28: invalid-sequence-long-reason.pdf (application/pdf) ─────────────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-1440/attachments/invalid-sequence-long-reason-pdf-164e6d6d279414db963f2b73384c9824366a19d0.pdf
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #29: D-LOOK-duration-supported-screen.png (image/png) ───────────────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-1440/attachments/D-LOOK-duration-supported-screen-png-f0e0b7d9018c14a28fca72eac06baa36859b90c5.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #30: D-LOOK-duration-supported-fuel-screen.png (image/png) ──────────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-1440/attachments/D-LOOK-duration-supported-fuel-screen-png-ad657e55168530048584928f66779377371a2084.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #31: D-LOOK-duration-supported-print.png (image/png) ────────────────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-1440/attachments/D-LOOK-duration-supported-print-png-4fe6301085b938c5e4e50b8f367df6810d216e22.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #32: D-LOOK-duration-supported.pdf (application/pdf) ────────────────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-1440/attachments/D-LOOK-duration-supported-pdf-320747e5c3d1cad586e504fad342663288d4e8a2.pdf
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #33: D-LOOK-direct-supported-screen.png (image/png) ─────────────────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-1440/attachments/D-LOOK-direct-supported-screen-png-0f26420f6340df26459a1287e81a440be83e4ebe.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #34: D-LOOK-direct-supported-fuel-screen.png (image/png) ────────────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-1440/attachments/D-LOOK-direct-supported-fuel-screen-png-8ff9dc304fcc03ff35e5a67e690bfe77771301d6.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #35: D-LOOK-direct-supported-print.png (image/png) ──────────────────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-1440/attachments/D-LOOK-direct-supported-print-png-660b85483d1b5b9147c280b1f482e1cf844d1cda.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #36: D-LOOK-direct-supported.pdf (application/pdf) ──────────────────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-1440/attachments/D-LOOK-direct-supported-pdf-e7d4d8e2e266dd0b8ffd1f0d15d0a1b5ec5f30ec.pdf
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-1440/error-context.md
+
+    attachment #38: trace (application/zip) ────────────────────────────────────────────────────────
+    test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-1440/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-1440/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4 failed
+    [chromium-390] › tests/offline-production/fuel-endurance.spec.ts:5:1 › persisted fleet tank inputs feed the session-only fuel plan online and cached offline 
+    [chromium-390] › tests/offline-production/fuel-print.spec.ts:5:1 › optional current fuel in cached offline native print with synchronous stale guards 
+    [chromium-1440] › tests/offline-production/fuel-endurance.spec.ts:5:1 › persisted fleet tank inputs feed the session-only fuel plan online and cached offline 
+    [chromium-1440] › tests/offline-production/fuel-print.spec.ts:5:1 › optional current fuel in cached offline native print with synchronous stale guards 
+  20 passed (5.4m)

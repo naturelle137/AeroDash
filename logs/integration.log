@@ -1,0 +1,22 @@
+
+> aerodash-root@0.3.0-alpha test:integration /var/home/critter/lokal/dev/.hq-worktrees/aerodash/job-1314
+> pnpm --filter frontend run test:integration
+
+
+> @aerodash/frontend@0.3.0-alpha test:integration /var/home/critter/lokal/dev/.hq-worktrees/aerodash/job-1314/frontend
+> vitest run --config vitest.config.int.ts
+
+(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - import "./vite.config" without a file extension (vitest.config.int.ts:14:24). Add the file extension
+  - import "./scripts/build/telemetry-guard" without a file extension (vite.config.ts:9:52). Add the file extension
+  - import "./scripts/build/copy-legal-docs" without a file extension (vite.config.ts:10:31). Add the file extension
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+
+ RUN  v4.1.12 /var/home/critter/lokal/dev/.hq-worktrees/aerodash/job-1314/frontend
+
+
+ Test Files  21 passed (21)
+      Tests  195 passed (195)
+   Start at  21:53:20
+   Duration  2.51s (transform 6.80s, setup 0ms, import 11.41s, tests 1.80s, environment 19.17s)
+

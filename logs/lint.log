@@ -1,0 +1,24 @@
+
+> aerodash-root@0.3.0-alpha lint /var/home/critter/lokal/dev/.hq-worktrees/aerodash/job-1314
+> pnpm --filter frontend run lint && pnpm run lint:md
+
+
+> @aerodash/frontend@0.3.0-alpha lint /var/home/critter/lokal/dev/.hq-worktrees/aerodash/job-1314/frontend
+> run-s lint:*
+
+
+> @aerodash/frontend@0.3.0-alpha lint:oxlint /var/home/critter/lokal/dev/.hq-worktrees/aerodash/job-1314/frontend
+> oxlint --fix
+
+
+> @aerodash/frontend@0.3.0-alpha lint:eslint /var/home/critter/lokal/dev/.hq-worktrees/aerodash/job-1314/frontend
+> eslint --fix --cache
+
+
+> aerodash-root@0.3.0-alpha lint:md /var/home/critter/lokal/dev/.hq-worktrees/aerodash/job-1314
+> markdownlint-cli2 "**/*.md"
+
+markdownlint-cli2 v0.23.3 (markdownlint v0.41.1)
+Finding: **/*.md !node_modules/** !.logs/** !reports/** !frontend/node_modules/** !.agent/** !frontend/playwright-report/** !frontend/test-results/** !frontend/.stryker-tmp/** !.cursor/** !.tmp/** !.claude/** !.claude-pr/** !.claire/** !.claude/worktrees/** !CHANGELOG.md
+Linting: 110 files
+Summary: 0 issues in 0 files
