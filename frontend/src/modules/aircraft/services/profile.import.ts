@@ -96,15 +96,15 @@ export class ImportError extends Error {
  *
  * @throws ImportError if the file fails any guard; the fleet is never modified.
  */
-export function validateImportFile(file: File): void {
-  if (file.size === 0) {
+export function validateImportFile(file: File, maxBytes = MAX_IMPORT_FILE_BYTES): void {
+  if (!Number.isFinite(file.size) || file.size <= 0) {
     throw new ImportError('Import failed: file is empty')
   }
 
-  if (file.size > MAX_IMPORT_FILE_BYTES) {
-    const limitKb = Math.round(MAX_IMPORT_FILE_BYTES / 1024)
+  if (file.size > maxBytes) {
+    const limitKb = Math.round(maxBytes / 1024)
     throw new ImportError(
-      `Import failed: file is too large (max ${limitKb} KB). Exchange files are only a few KB.`,
+      `Import failed: file is too large (max ${limitKb} KB).`,
     )
   }
 

@@ -86,6 +86,38 @@ If stored provenance contains an invalid or future date, then the system shall t
 
 While a legacy verified profile has no provenance, the system shall retain its `verified-unattributed` classification.
 
+### REQ-AC-022: Backup preview
+
+When the user selects a valid Privacy fleet backup, the system shall display every registration and the total count before explicit restore confirmation.
+
+### REQ-AC-023: Backup validation
+
+If a backup exceeds 5 MiB or 100 profiles, has an unsupported envelope version, mismatched count, invalid profile or ambiguous registration, then the system shall reject the entire backup.
+
+### REQ-AC-024: Restore identity
+
+When a backup is restored, the system shall assign every profile a fresh local ID and unverified draft status under existing exchange migration rules.
+
+### REQ-AC-025: Restore fidelity
+
+When a backup is restored, the system shall preserve each profile's source data and units under existing exchange migration rules.
+
+### REQ-AC-026: Atomic restore
+
+When the user confirms a backup restore, the system shall commit every profile in one IndexedDB transaction or none.
+
+### REQ-AC-027: Restore conflicts
+
+If a restored registration conflicts case-insensitively with a persisted aircraft, then the system shall reject the entire restore without overwrite or rename.
+
+### REQ-AC-028: Restore preservation
+
+If a restore is cancelled or fails, then the system shall preserve the existing fleet and active preparation.
+
+### REQ-AC-029: Restore availability
+
+When a restore commits, the system shall expose the imported drafts in Fleet immediately and after a cached offline reload.
+
 ## Design References
 
 - **<a name="notificationScheme"></a>Notification Scheme:** [`docs/architecture/notification_schema.md`](../architecture/notification_schema.md)

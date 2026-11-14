@@ -111,3 +111,22 @@ Manufacturer → model → ICAO rows live in `aircraft-model-catalogue.json` (ve
 ## Verification provenance
 
 Both verification actions reject invalid/future `YYYY-MM-DD` dates before persistence. Sign-offs bind date, verifier initials and POH revision to the source weighing report. Expiry begins at exactly 90 UTC calendar days; changed weighing reports and invalid stored dates fail closed. Legacy missing provenance retains `verified-unattributed` semantics. These are software guards, not validation of the entered POH data.
+
+## Offline fleet backup restore
+
+Fleet accepts the existing Privacy `exportSchemaVersion: 1` envelope separately
+from single-profile exchange. A JSON file/type guard caps reads at 5 MiB; parsing
+requires 1–100 records and an exact `profileCount` before profile migration.
+Every record passes the existing exchange migration, fresh-ID and draft rules;
+verification sign-off is removed while source references, units and data remain.
+The user reviews all registrations and confirms explicitly. Cancel writes nothing.
+
+`fleet.import.ts` validates the batch and case-insensitive registrations outside
+Vue. `restoreBatch` rechecks all raw persisted registrations inside the same
+readwrite transaction as all `add` requests, including unreadable stored rows and
+changes since preview. No overwrite, skip or rename is allowed. Request errors
+or abort roll back all additions; success resolves only at transaction completion.
+The store appends the validated snapshot only after commit and does not select an
+aircraft or mutate preparation. A storage failure retains the preview for retry.
+Single-profile exchange keeps its existing workflow. These bounds cover local
+backup recovery, not cloud sync, preferences/app lock or operational validation.
