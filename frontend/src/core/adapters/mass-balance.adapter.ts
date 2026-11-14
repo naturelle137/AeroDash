@@ -2,6 +2,7 @@ import { z } from 'zod'
 import type { MathCoreInput, MathCoreResult } from '../domain/mass-balance.math-types'
 import { computeMassBalanceCore } from '../logic/mass-balance.logic'
 import { mapZodErrorToViolations } from './mb.zod-violation-mapping'
+import { MAX_ARM_M, MAX_MASS_KG, MAX_MOMENT_KGM } from '../logic/si-bounds'
 // Every numeric field feeding the math core is `.finite()`: Zod's
 // `z.number()` (and `.positive()`/`.nonnegative()`) accept ±Infinity, which
 // would propagate to `zeroFuelMoment = Infinity` → CG = NaN with
@@ -16,9 +17,6 @@ import { mapZodErrorToViolations } from './mb.zod-violation-mapping'
 //   mass        ≤ 200_000 kg  (well above any Part-NCO SEP; covers misuse)
 //   arm         ∈ [-100, 100] m
 //   moment      ∈ [-20_000_000, 20_000_000] kg·m
-const MAX_MASS_KG = 200_000
-const MAX_ARM_M = 100
-const MAX_MOMENT_KGM = 20_000_000
 
 const createNumReq = () => z.number().finite({ message: 'NOT_A_NUMBER' })
 const createNumGt0Req = () =>

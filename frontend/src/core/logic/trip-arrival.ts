@@ -1,4 +1,6 @@
 import { z } from 'zod'
+import { MAX_ARM_M, MAX_MASS_KG, MAX_MOMENT_KGM } from './si-bounds'
+import { interpolateMomentStrict } from './mb.arm-lookup'
 
 const ArrivalInputSchema = z.object({
   takeoffMassKg: z.number().finite().positive(),
@@ -42,7 +44,12 @@ export type TripArrivalCgResult =
   | {
       ok: false
       reason:
-        'INVALID_INPUT' | 'INCONSISTENT_MASS' | 'TRIP_EXCEEDS_USABLE_FUEL' | 'NUMERIC_OVERFLOW'
+        | 'INVALID_INPUT'
+        | 'INCONSISTENT_MASS'
+        | 'TRIP_EXCEEDS_USABLE_FUEL'
+        | 'NUMERIC_OVERFLOW'
+        | 'INVALID_GEOMETRY'
+        | 'LOOKUP_OUT_OF_RANGE'
     }
 
 // All inputs use SI. Unusable fuel stays in BEM; only the planned burn leaves the tank.
@@ -112,6 +119,55 @@ export function calculateSequencedTripArrivalCg(input: unknown): TripArrivalCgRe
   const arrivalMomentKgM = takeoffMomentKgM - burnedMomentKgM
   const arrivalCgM = arrivalMomentKgM / mass.arrivalMassKg
   if (![arrivalMomentKgM, arrivalCgM].every(Number.isFinite))
+    return { ok: false, reason: 'NUMERIC_OVERFLOW' }
+  return { ok: true, arrivalMomentKgM, arrivalCgM }
+}
+
+const LookupArrivalInputSchema = ArrivalInputSchema.extend({
+  takeoffMassKg: z.number().finite().positive().max(MAX_MASS_KG),
+  takeoffMomentKgM: z.number().finite().min(-MAX_MOMENT_KGM).max(MAX_MOMENT_KGM),
+  lookup: z.array(z.object({ massOrVolume: z.number(), moment: z.number() })),
+})
+
+/**
+ * Single variable-geometry tank with zero unusable fuel. The table holds the total
+ * tank moment at each tank mass (kg, kg·m), so F(0) = 0 and the burned contribution is
+ * F(q) − F(q − b). Arms are never interpolated and the departure arm is never frozen.
+ * Nonzero unusable fuel needs a different departure convention and must not use this.
+ */
+export function calculateLookupTripArrivalCg(input: unknown): TripArrivalCgResult {
+  const parsed = LookupArrivalInputSchema.safeParse(input)
+  if (!parsed.success) return { ok: false, reason: 'INVALID_INPUT' }
+  const { lookup, takeoffMomentKgM, usableFuelKg, tripFuelKg } = parsed.data
+  const validGeometry =
+    lookup.length >= 2 &&
+    lookup[0]!.massOrVolume === 0 &&
+    lookup[0]!.moment === 0 &&
+    lookup.every(
+      (entry, i) =>
+        Number.isFinite(entry.massOrVolume) &&
+        entry.massOrVolume <= MAX_MASS_KG &&
+        Number.isFinite(entry.moment) &&
+        Math.abs(entry.moment) <= MAX_MOMENT_KGM &&
+        (i === 0 || entry.massOrVolume > lookup[i - 1]!.massOrVolume),
+    )
+  if (!validGeometry) return { ok: false, reason: 'INVALID_GEOMETRY' }
+  const mass = calculateTripArrival(parsed.data)
+  if (!mass.ok) return mass
+  const departureTankMomentKgM = interpolateMomentStrict(usableFuelKg, lookup)
+  const remainingTankMomentKgM = interpolateMomentStrict(usableFuelKg - tripFuelKg, lookup)
+  if (departureTankMomentKgM === null || remainingTankMomentKgM === null)
+    return { ok: false, reason: 'LOOKUP_OUT_OF_RANGE' }
+  const burnedMomentKgM = departureTankMomentKgM - remainingTankMomentKgM
+  const arrivalMomentKgM = takeoffMomentKgM - burnedMomentKgM
+  const arrivalCgM = arrivalMomentKgM / mass.arrivalMassKg
+  if (
+    ![departureTankMomentKgM, remainingTankMomentKgM, burnedMomentKgM].every(Number.isFinite) ||
+    !Number.isFinite(arrivalMomentKgM) ||
+    Math.abs(arrivalMomentKgM) > MAX_MOMENT_KGM ||
+    !Number.isFinite(arrivalCgM) ||
+    Math.abs(arrivalCgM) > MAX_ARM_M
+  )
     return { ok: false, reason: 'NUMERIC_OVERFLOW' }
   return { ok: true, arrivalMomentKgM, arrivalCgM }
 }

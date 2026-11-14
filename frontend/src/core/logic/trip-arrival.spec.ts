@@ -4,6 +4,7 @@ import {
   calculateTripArrival,
   calculateTripArrivalCg,
   calculateSequencedTripArrivalCg,
+  calculateLookupTripArrivalCg,
 } from './trip-arrival'
 
 // Independent synthetic arithmetic, never operational aircraft reference values.
@@ -246,6 +247,160 @@ describe('explicit multi-tank arrival endpoint', () => {
         tripFuelKg: 0,
         takeoffMomentKgM: Number.MAX_VALUE,
         tanks: tanks.map((tank) => ({ ...tank, usableFuelKg: 0 })),
+      }),
+    ).toEqual({ ok: false, reason: 'NUMERIC_OVERFLOW' })
+  })
+})
+
+// Synthetic nonlinear total-moment table (kg, kg·m): segment slopes 1, 2.5 and 4.5 m.
+// Base W 560 kg / Z 1120 kg·m, tank q 50 kg with zero unusable fuel.
+const knots = [
+  { massOrVolume: 0, moment: 0 },
+  { massOrVolume: 10, moment: 10 },
+  { massOrVolume: 30, moment: 60 },
+  { massOrVolume: 50, moment: 150 },
+]
+const lookupInput = {
+  takeoffMassKg: 610,
+  takeoffMomentKgM: 1270,
+  usableFuelKg: 50,
+  tripFuelKg: 0,
+  lookup: knots,
+}
+describe('single lookup-tank arrival CG with zero unusable fuel', () => {
+  it.each([
+    [0, 1270, 610],
+    [10, 1225, 600],
+    [20, 1180, 590],
+    [30, 1155, 580],
+    [50, 1120, 560],
+  ])('burn %s kg subtracts F(q) − F(q − b) for moment %s at mass %s', (burn, moment, mass) => {
+    const result = calculateLookupTripArrivalCg({ ...lookupInput, tripFuelKg: burn })
+    expect(result).toEqual({ ok: true, arrivalMomentKgM: moment, arrivalCgM: moment / mass })
+  })
+  it('crosses several breakpoints and never freezes the departure arm', () => {
+    // Remaining 5 kg sits on the first segment: F(50) − F(5) = 150 − 5.
+    const result = calculateLookupTripArrivalCg({ ...lookupInput, tripFuelKg: 45 })
+    expect(result).toEqual({ ok: true, arrivalMomentKgM: 1125, arrivalCgM: 1125 / 565 })
+    expect(1270 - 45 * (150 / 50)).not.toBe(1125)
+  })
+  it('returns departure exactly at zero burn and the zero-fuel base at full burn', () => {
+    expect(calculateLookupTripArrivalCg(lookupInput)).toMatchObject({ arrivalMomentKgM: 1270 })
+    expect(calculateLookupTripArrivalCg({ ...lookupInput, tripFuelKg: 50 })).toMatchObject({
+      arrivalMomentKgM: 1120,
+      arrivalCgM: 2,
+    })
+  })
+  it('accepts signed and non-monotonic moments', () => {
+    const signed = knots.map((k) => ({ ...k, moment: -k.moment }))
+    expect(
+      calculateLookupTripArrivalCg({
+        ...lookupInput,
+        takeoffMomentKgM: 970,
+        tripFuelKg: 20,
+        lookup: signed,
+      }),
+    ).toEqual({ ok: true, arrivalMomentKgM: 1060, arrivalCgM: 1060 / 590 })
+    const wavy = [
+      { massOrVolume: 0, moment: 0 },
+      { massOrVolume: 20, moment: 40 },
+      { massOrVolume: 50, moment: -20 },
+    ]
+    // F(50) = −20, F(30) = 20: burning 20 kg adds 40 kg·m.
+    expect(
+      calculateLookupTripArrivalCg({
+        ...lookupInput,
+        takeoffMomentKgM: 1100,
+        tripFuelKg: 20,
+        lookup: wavy,
+      }),
+    ).toEqual({ ok: true, arrivalMomentKgM: 1140, arrivalCgM: 1140 / 590 })
+  })
+  it('supports an empty current tank only for zero burn after validating geometry', () => {
+    const empty = { ...lookupInput, takeoffMassKg: 560, takeoffMomentKgM: 1120, usableFuelKg: 0 }
+    expect(calculateLookupTripArrivalCg(empty)).toEqual({
+      ok: true,
+      arrivalMomentKgM: 1120,
+      arrivalCgM: 2,
+    })
+    expect(calculateLookupTripArrivalCg({ ...empty, tripFuelKg: 1 })).toEqual({
+      ok: false,
+      reason: 'TRIP_EXCEEDS_USABLE_FUEL',
+    })
+    expect(calculateLookupTripArrivalCg({ ...empty, lookup: [knots[0]] })).toEqual({
+      ok: false,
+      reason: 'INVALID_GEOMETRY',
+    })
+  })
+  it.each([
+    ['empty', []],
+    ['singleton', [{ massOrVolume: 50, moment: 150 }]],
+    ['duplicate', [knots[0], knots[2], { massOrVolume: 30, moment: 65 }, knots[3]]],
+    ['unsorted', [knots[0], knots[3], knots[2]]],
+    ['missing origin', knots.slice(1)],
+    ['nonzero origin moment', [{ massOrVolume: 0, moment: 1 }, knots[3]]],
+    ['negative axis', [{ massOrVolume: -1, moment: 0 }, knots[0], knots[3]]],
+    ['axis above mass bound', [knots[0], { massOrVolume: 200_001, moment: 1 }]],
+    ['moment above bound', [knots[0], { massOrVolume: 50, moment: 20_000_001 }]],
+    ['moment below bound', [knots[0], { massOrVolume: 50, moment: -20_000_001 }]],
+  ])('rejects %s geometry without sorting, clamping or inventing an origin', (_, lookup) => {
+    expect(calculateLookupTripArrivalCg({ ...lookupInput, lookup })).toEqual({
+      ok: false,
+      reason: 'INVALID_GEOMETRY',
+    })
+  })
+  it('rejects a load beyond the table instead of extrapolating', () => {
+    expect(
+      calculateLookupTripArrivalCg({
+        ...lookupInput,
+        takeoffMassKg: 611,
+        usableFuelKg: 51,
+        tripFuelKg: 20,
+      }),
+    ).toEqual({ ok: false, reason: 'LOOKUP_OUT_OF_RANGE' })
+  })
+  it.each([
+    ['nonfinite knot', { lookup: [knots[0], { massOrVolume: 50, moment: Infinity }] }],
+    ['NaN knot', { lookup: [knots[0], { massOrVolume: NaN, moment: 1 }] }],
+    ['missing lookup', { lookup: undefined }],
+    ['nonfinite moment', { takeoffMomentKgM: Infinity }],
+    ['moment above bound', { takeoffMomentKgM: 20_000_001 }],
+    ['mass above bound', { takeoffMassKg: 200_001 }],
+    ['negative burn', { tripFuelKg: -1 }],
+  ])('rejects %s input', (_, patch) => {
+    expect(calculateLookupTripArrivalCg({ ...lookupInput, ...patch })).toEqual({
+      ok: false,
+      reason: 'INVALID_INPUT',
+    })
+  })
+  it('rejects overdraw and inconsistent mass', () => {
+    expect(calculateLookupTripArrivalCg({ ...lookupInput, tripFuelKg: 50.001 })).toEqual({
+      ok: false,
+      reason: 'TRIP_EXCEEDS_USABLE_FUEL',
+    })
+    expect(calculateLookupTripArrivalCg({ ...lookupInput, takeoffMassKg: 50 })).toEqual({
+      ok: false,
+      reason: 'INCONSISTENT_MASS',
+    })
+  })
+  it('rejects results outside the existing SI moment and arm bounds', () => {
+    const steep = [knots[0], { massOrVolume: 1, moment: -20_000_000 }]
+    expect(
+      calculateLookupTripArrivalCg({
+        takeoffMassKg: 2,
+        takeoffMomentKgM: 1,
+        usableFuelKg: 1,
+        tripFuelKg: 1,
+        lookup: steep,
+      }),
+    ).toEqual({ ok: false, reason: 'NUMERIC_OVERFLOW' })
+    expect(
+      calculateLookupTripArrivalCg({
+        takeoffMassKg: 2,
+        takeoffMomentKgM: 201,
+        usableFuelKg: 1,
+        tripFuelKg: 1,
+        lookup: [knots[0], { massOrVolume: 1, moment: 0 }],
       }),
     ).toEqual({ ok: false, reason: 'NUMERIC_OVERFLOW' })
   })

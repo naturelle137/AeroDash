@@ -4,6 +4,29 @@
  */
 import type { ArmLookupEntry } from '../domain/aircraft.types'
 
+/** The single linear moment rule shared by legacy arm lookup and strict moment lookup. */
+function interpolateSegmentMoment(p1: ArmLookupEntry, p2: ArmLookupEntry, x: number): number {
+  const ratio = (x - p1.massOrVolume) / (p2.massOrVolume - p1.massOrVolume)
+  return p1.moment + ratio * (p2.moment - p1.moment)
+}
+
+/**
+ * Strict total-moment lookup for a caller-validated table: at least two entries
+ * in strictly ascending quantity order. Returns null outside the table instead of
+ * clamping or extrapolating.
+ */
+export function interpolateMomentStrict(
+  x: number,
+  lookup: readonly ArmLookupEntry[],
+): number | null {
+  for (let i = 0; i < lookup.length - 1; i++) {
+    const p1 = lookup[i]!
+    const p2 = lookup[i + 1]!
+    if (x >= p1.massOrVolume && x <= p2.massOrVolume) return interpolateSegmentMoment(p1, p2, x)
+  }
+  return null
+}
+
 /**
  * Linear interpolation for arm lookup tables.
  * Arm = Moment / Mass (or Volume).
@@ -25,9 +48,7 @@ export function interpolateArmFromLookup(mass: number, lookup: ArmLookupEntry[])
     const p1 = sorted[i]!
     const p2 = sorted[i + 1]!
     if (mass >= p1.massOrVolume && mass <= p2.massOrVolume) {
-      const ratio = (mass - p1.massOrVolume) / (p2.massOrVolume - p1.massOrVolume)
-      const moment = p1.moment + ratio * (p2.moment - p1.moment)
-      return moment / mass
+      return interpolateSegmentMoment(p1, p2, mass) / mass
     }
   }
 

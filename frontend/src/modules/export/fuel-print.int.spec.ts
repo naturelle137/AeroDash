@@ -9,13 +9,20 @@ import { useFuelPlanning, type FuelPlanning } from '@/modules/fuel-endurance/ser
 import MbPrintPreview from './MbPrintPreview.vue'
 import { assembleMbPrint, type MbPrintSource } from './mb-print'
 
-function setup() {
+function setup(variable = false) {
   setActivePinia(createPinia())
   const profile = testPohAircraft()
   profile.status = 'draft'
   profile.loadPoints = [{ name: 'Synthetic tank', arm: 1, armLookup: [], operationalLimit: 100,
     defaultQuantity: 50, unit: 'kg', allowableCategories: null,
     fuelTank: { unusableFuel: 10, permissibleFuelTypes: ['AvGas 100LL'], burnSequences: [] } }]
+  if (variable) {
+    // Synthetic nonlinear total-moment table with zero unusable fuel.
+    profile.loadPoints[0]!.arm = null
+    profile.loadPoints[0]!.fuelTank!.unusableFuel = 0
+    profile.loadPoints[0]!.armLookup = [{ massOrVolume: 0, moment: 0 }, { massOrVolume: 10, moment: 10 },
+      { massOrVolume: 30, moment: 60 }, { massOrVolume: 50, moment: 150 }]
+  }
   const store = useMassBalanceStore()
   store.loadProfile(mapFleetProfileToContext(profile))
   let planning: FuelPlanning
@@ -62,7 +69,7 @@ describe('shared current fuel print presentation', () => {
     store.aircraft!.loadPoints[0]!.arm = null
     store.aircraft!.loadPoints[0]!.armLookup = [{ massOrVolume: 0, moment: 0 }, { massOrVolume: 100, moment: 100 }]
     const fuel = assembleMbPrint(source.value, new Date(), true)!.fuel!
-    expect(fuel.cgReason).toContain('Variable-arm tanks')
+    expect(fuel.cgReason).toContain('exactly zero unusable fuel')
     expect(fuel.rows).toContainEqual({ label: 'Estimated arrival mass', value: '520 kg [UNVERIFIED]' })
     expect(fuel.rows.map(r => r.label)).not.toContain('Total endurance')
     expect(fuel.warnings).toEqual([])
@@ -73,6 +80,22 @@ describe('shared current fuel print presentation', () => {
     p.directTripFuel.value = '20'
     store.notifications.push({ id: 'block', severity: 'CRITICAL', message: 'Blocked', persistent: false, dismissible: false })
     expect(assembleMbPrint(source.value, new Date(), true)).toBeNull()
+    wrapper.unmount()
+  })
+  it('prints the same single lookup-tank arrival CG as the screen with profile markers', () => {
+    const { planning: p, source, store, wrapper } = setup(true)
+    p.method.value = 'direct'; p.directTripFuel.value = '20'
+    const result = p.arrivalCg.value
+    if (!result?.ok) throw new Error('expected supported lookup arrival CG')
+    const takeoff = store.lastResult!.takeoffCenterOfGravityPoint
+    expect(result.arrivalMomentKgM).toBeCloseTo(takeoff.moment - (150 - 60), 9)
+    const screen = p.presentation.value.rows.find(r => r.label === 'Estimated arrival CG')!
+    expect(screen.value).toBe(`${p.format(result.arrivalCgM)} m`)
+    const fuel = assembleMbPrint(source.value, new Date(), true)!.fuel!
+    expect(fuel.cgReason).toBeNull()
+    expect(fuel.rows).toContainEqual({ label: 'Estimated arrival CG', value: `${screen.value} [UNVERIFIED]` })
+    store.updateStationWeight(0, 60)
+    expect(assembleMbPrint(source.value, new Date(), true)!.fuel!.cgReason).toContain('cover the whole current tank load')
     wrapper.unmount()
   })
   it.each(['input', 'method', 'sequence', 'loading'] as const)('synchronously blocks native print on %s before parent render, never silently falls back', async change => {

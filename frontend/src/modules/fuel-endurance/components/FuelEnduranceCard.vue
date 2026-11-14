@@ -99,8 +99,11 @@ const { method, directTripFuel, consumption, trip, reserve, sequence, sequences,
           Estimated arrival CG unavailable: {{ arrivalCg.reason }}
         </p>
         <p>
-          Arrival CG requires fixed-arm tanks without lookup tables. Multiple tanks require an
-          explicit complete named burn sequence; empty available tanks count too.
+          Arrival CG supports fixed-arm tanks without lookup tables; multiple tanks require an
+          explicit complete named burn sequence. A lookup table is supported only for exactly one
+          available tank with zero unusable fuel, no fixed arm and a strictly ascending table from
+          zero quantity and zero moment that covers the current load. Empty available tanks count
+          too.
         </p>
       </section>
       <p v-else-if="arrival" role="status">Arrival estimate unavailable: {{ arrival.reason }}</p>
@@ -115,8 +118,9 @@ const { method, directTripFuel, consumption, trip, reserve, sequence, sequences,
         arrival mass = validated M&amp;B takeoff mass − trip fuel burned. Reserve remains on board;
         fuel remaining on arrival differs from the budget margin after trip + reserve. The separate
         M&amp;B landing point assumes all usable fuel is burned. Estimated trip arrival CG subtracts
-        the burned fuel moment from the current M&amp;B takeoff moment; it is separate from that
-        all-usable-burned point.
+        the burned fuel moment from the current M&amp;B takeoff moment; for a lookup table this is
+        the table moment at the takeoff load minus the table moment at the remaining load. It is
+        separate from that all-usable-burned point.
       </p>
     </div>
     <p v-else-if="fuel.ok && arrival && !arrival.ok" role="status">
