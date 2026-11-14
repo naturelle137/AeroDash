@@ -82,6 +82,22 @@ While an aircraft has multiple burn sequences, the system shall provide a burn-d
 
 If ZFM exceeds the aircraft’s specified MZFM, then the system shall emit a CRITICAL notification (`CRIT-MB-004`) identifying the exceedance.
 
+### REQ-MB-021: Mass-limit difference
+
+While a valid M&B result and a positive category limit exist, the system shall state in kg, from unrounded values, whether takeoff mass is below, exactly at or above MTOM, and likewise zero-fuel mass against MZFM when the category defines one.
+
+### REQ-MB-022: Mass-limit difference rounding
+
+The system shall never display a positive margin larger than, or an excess smaller than, the unrounded difference, and shall show a non-zero sub-0.1 kg difference as such.
+
+### REQ-MB-023: Mass-limit scope statement
+
+The system shall state next to the mass-limit difference that it is an arithmetic comparison with entered profile limits and not a flight-suitability determination.
+
+### REQ-MB-024: Neutral chart label
+
+The system shall describe the chart's success state in its accessible label only as inside the entered envelope for the calculated state.
+
 ## Design References
 
 - **<a name="notificationScheme"></a>Notification Scheme:** [`docs/architecture/notification_schema.md`](../architecture/notification_schema.md)

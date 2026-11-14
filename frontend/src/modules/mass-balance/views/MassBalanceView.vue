@@ -1170,6 +1170,7 @@ function onCancelSelection(): void {
               :result="lastResult"
               :limits="categoryLimits"
               :can-export="viewModel.canExport"
+              :show-limit-difference="!pendingSelection && !viewModel.isLoading"
               :export-requires-confirmation="viewModel.exportRequiresConfirmation"
             />
           </aside>

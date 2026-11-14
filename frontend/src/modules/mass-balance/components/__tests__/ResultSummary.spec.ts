@@ -149,7 +149,7 @@ describe('ResultSummary', () => {
 
     const takeoffValue = wrapper.findAll('.result-summary__value')[0]!
     expect(takeoffValue.classes()).toContain('result-summary__value--over')
-    expect(wrapper.find('.result-summary__sr-only').text()).toContain('at or above limit')
+    expect(wrapper.find('.result-summary__sr-only').text()).toContain('above limit')
   })
 
   it('flags the takeoff mass as near-limit when within 2% of MTOM', () => {
@@ -225,5 +225,96 @@ describe('ResultSummary', () => {
     expect(wrapper.find('.result-summary__error').exists()).toBe(true)
     expect(wrapper.text()).toContain('Input validation failed')
     expect(wrapper.findAll('.result-summary__value')).toHaveLength(0)
+  })
+})
+
+describe('ResultSummary — mass-limit differences', () => {
+  function mountWith(takeoff: number, zeroFuel: number, limits: CategoryLimits | null) {
+    return mount(ResultSummary, {
+      props: {
+        result: buildResult({
+          takeoffCenterOfGravityPoint: { arm: 1.91, mass: takeoff, moment: takeoff * 1.91 },
+          zeroFuelCenterOfGravityPoint: { arm: 1.9, mass: zeroFuel, moment: zeroFuel * 1.9 },
+        }),
+        limits,
+        canExport: false,
+      },
+    })
+  }
+
+  it('shows below, at and above relations as text for MTOM and MZFM', () => {
+    const below = mountWith(530, 500, defaultLimits)
+    expect(below.get('[data-testid="takeoff-limit-difference"]').text()).toBe('Below MTOM by 100.0 kg')
+    expect(below.get('[data-testid="zero-fuel-limit-difference"]').text()).toBe('Below MZFM by 100.0 kg')
+
+    const at = mountWith(630, 600, defaultLimits)
+    expect(at.get('[data-testid="takeoff-limit-difference"]').text()).toBe('Exactly at MTOM')
+    expect(at.get('[data-testid="zero-fuel-limit-difference"]').text()).toBe('Exactly at MZFM')
+
+    const above = mountWith(630.5, 601.25, defaultLimits)
+    expect(above.get('[data-testid="takeoff-limit-difference"]').text()).toBe('Above MTOM by 0.5 kg')
+    expect(above.get('[data-testid="zero-fuel-limit-difference"]').text()).toBe('Above MZFM by 1.3 kg')
+  })
+
+  it('keeps sub-display-unit differences visible in both directions', () => {
+    const w = mountWith(629.96, 600.0001, defaultLimits)
+    expect(w.get('[data-testid="takeoff-limit-difference"]').text()).toBe('Below MTOM by less than 0.1 kg')
+    expect(w.get('[data-testid="zero-fuel-limit-difference"]').text()).toBe('Above MZFM by 0.1 kg')
+  })
+
+  it('omits the MZFM difference when the category has no MZFM', () => {
+    const w = mountWith(530, 500, { maxTakeoffMass: 630, maxZeroFuelMass: null })
+    expect(w.find('[data-testid="zero-fuel-limit-difference"]').exists()).toBe(false)
+    expect(w.find('[data-testid="takeoff-limit-difference"]').exists()).toBe(true)
+  })
+
+  it('shows no comparison or scope text without limits or on a failed result', () => {
+    expect(mountWith(530, 500, null).find('.result-summary__scope').exists()).toBe(false)
+    const failed = mount(ResultSummary, {
+      props: { result: { success: false } as unknown as MathCoreResult, limits: defaultLimits, canExport: false },
+    })
+    expect(failed.find('[data-testid="takeoff-limit-difference"]').exists()).toBe(false)
+  })
+
+  it('states the scope and updates synchronously when limits or masses change', async () => {
+    const w = mountWith(530, 500, defaultLimits)
+    expect(w.get('.result-summary__scope').text()).toContain('not a flight-suitability or Go/No-Go')
+    await w.setProps({ limits: { maxTakeoffMass: 500, maxZeroFuelMass: null } })
+    expect(w.get('[data-testid="takeoff-limit-difference"]').text()).toBe('Above MTOM by 30.0 kg')
+    expect(w.find('[data-testid="zero-fuel-limit-difference"]').exists()).toBe(false)
+    await w.setProps({ limits: null })
+    expect(w.find('[data-testid="takeoff-limit-difference"]').exists()).toBe(false)
+  })
+
+  it('drops a stale comparison when the result becomes null or failed, then shows the new one', async () => {
+    const w = mountWith(530, 500, defaultLimits)
+    const diff = '[data-testid="takeoff-limit-difference"]'
+    expect(w.get(diff).text()).toBe('Below MTOM by 100.0 kg')
+    const valid = w.props('result')
+
+    await w.setProps({ result: null })
+    expect(w.find(diff).exists()).toBe(false)
+    expect(w.find('.result-summary__scope').exists()).toBe(false)
+
+    await w.setProps({ result: valid })
+    await w.setProps({ result: { success: false } as unknown as MathCoreResult })
+    expect(w.find(diff).exists()).toBe(false)
+
+    await w.setProps({
+      result: buildResult({
+        takeoffCenterOfGravityPoint: { arm: 1.91, mass: 640, moment: 640 * 1.91 },
+      }),
+    })
+    expect(w.get(diff).text()).toBe('Above MTOM by 10.0 kg')
+  })
+
+  it('suppresses numeric comparisons while showLimitDifference is false and restores them', async () => {
+    const w = mountWith(530, 500, defaultLimits)
+    await w.setProps({ showLimitDifference: false })
+    expect(w.find('[data-testid="takeoff-limit-difference"]').exists()).toBe(false)
+    expect(w.find('[data-testid="zero-fuel-limit-difference"]').exists()).toBe(false)
+    expect(w.find('.result-summary__scope').exists()).toBe(false)
+    await w.setProps({ showLimitDifference: true })
+    expect(w.get('[data-testid="takeoff-limit-difference"]').text()).toBe('Below MTOM by 100.0 kg')
   })
 })

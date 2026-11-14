@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Show current takeoff/zero-fuel mass differences to entered limits in Flight Preparation with a scope statement and neutral chart wording (#521).
 - Restore Privacy fleet backups offline with explicit preview, fresh drafts and atomic conflict-safe persistence (#519).
 
 ### Added
