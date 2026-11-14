@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import type { MathCoreResult } from '@/modules/mass-balance/stores/mass-balance.types'
 import {
   formatMassConservative,
+  formatMassLimitConservative,
   formatArm,
 } from '@/core/logic/display-rounding'
 import {
@@ -102,7 +103,7 @@ function proximityLabel(proximity: LimitProximity): string {
             </span>
             <span class="result-summary__unit">kg</span>
             <span v-if="limits" class="result-summary__limit">
-              / {{ formatMassConservative(limits.maxTakeoffMass, 0) }}
+              / MTOM {{ formatMassLimitConservative(limits.maxTakeoffMass, 1) }} kg
             </span>
             <span v-if="takeoffMassProximity !== 'normal'" class="result-summary__sr-only">
               {{ proximityLabel(takeoffMassProximity) }}
@@ -129,7 +130,7 @@ function proximityLabel(proximity: LimitProximity): string {
             </span>
             <span class="result-summary__unit">kg</span>
             <span v-if="limits?.maxZeroFuelMass != null" class="result-summary__limit">
-              / {{ formatMassConservative(limits.maxZeroFuelMass, 0) }}
+              / MZFM {{ formatMassLimitConservative(limits.maxZeroFuelMass, 1) }} kg
             </span>
             <span v-if="zeroFuelMassProximity !== 'normal'" class="result-summary__sr-only">
               {{ proximityLabel(zeroFuelMassProximity) }}

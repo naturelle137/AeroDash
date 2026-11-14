@@ -252,7 +252,8 @@ function trianglePoints(cx: number, cy: number): string {
   return `${cx},${cy - TRI_R} ${cx + dx},${cy + dy} ${cx - dx},${cy + dy}`
 }
 
-const xAxisLabel = computed(() => (props.graphType === 'moment' ? 'CG Moment' : 'CG Arm'))
+// Inputs are SI: the store normalizes the envelope and results before charting.
+const xAxisLabel = computed(() => (props.graphType === 'moment' ? 'CG Moment (kg·m)' : 'CG Arm (m)'))
 
 // ─── Accessibility ─────────────────────────────────────────────────────────
 
@@ -396,6 +397,7 @@ const ariaLabel = computed(() => {
 
       <!-- ─── Envelope polygon ─────────────────────────────────────────── -->
       <polygon
+        data-testid="cg-envelope-polygon"
         :points="envelopePts"
         :fill="palette.envFill"
         :stroke="palette.envStroke"
@@ -466,6 +468,7 @@ const ariaLabel = computed(() => {
             :x="m.cx + 9"
             :y="m.cy + m.labelDy"
             class="point-label"
+            :data-testid="`cg-point-label-${m.key}`"
             :fill="palette.pt"
           >
             {{ m.label }}

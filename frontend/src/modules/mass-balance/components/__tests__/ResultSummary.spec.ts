@@ -87,7 +87,7 @@ describe('ResultSummary', () => {
     })
 
     const limitSpans = wrapper.findAll('.result-summary__limit')
-    expect(limitSpans[0]!.text()).toBe('/ 630')
+    expect(limitSpans[0]!.text()).toBe('/ MTOM 630.0 kg')
   })
 
   it('omits the takeoff mass limit span when limits prop is null', () => {
@@ -110,7 +110,24 @@ describe('ResultSummary', () => {
 
     const limitSpans = wrapper.findAll('.result-summary__limit')
     expect(limitSpans).toHaveLength(2)
-    expect(limitSpans[1]!.text()).toBe('/ 600')
+    expect(limitSpans[1]!.text()).toBe('/ MZFM 600.0 kg')
+  })
+
+  it('rounds a non-integer kg limit down, never presenting more permissible mass', () => {
+    // 2400 lb = 1088.621688 kg; 2000 lb = 907.18474 kg.
+    const wrapper = mount(ResultSummary, {
+      props: {
+        result: buildResult(),
+        limits: { maxTakeoffMass: 1088.621688, maxZeroFuelMass: 907.18474 },
+        canExport: false,
+      },
+    })
+
+    const limitSpans = wrapper.findAll('.result-summary__limit')
+    expect(limitSpans[0]!.text()).toBe('/ MTOM 1088.6 kg')
+    expect(limitSpans[1]!.text()).toBe('/ MZFM 907.1 kg')
+    expect(wrapper.text()).not.toContain('1089')
+    expect(wrapper.text()).not.toContain('907.2')
   })
 
   it('omits the zero fuel mass limit span when maxZeroFuelMass is null', () => {

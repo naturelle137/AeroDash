@@ -422,20 +422,20 @@ describe('CGEnvelopeChart — CG markers', () => {
 // ─── xAxisLabel computed branch ──────────────────────────────────────────────
 
 describe('CGEnvelopeChart — axis labels', () => {
-  it('displays "CG Arm" on the x-axis when graphType is arm', () => {
+  it('displays "CG Arm (m)" on the x-axis when graphType is arm', () => {
     const wrapper = mountChart({ graphType: 'arm' })
 
     const axisLabels = wrapper.findAll('text.axis-label')
     const xLabel = axisLabels[0]!
-    expect(xLabel.text()).toBe('CG Arm')
+    expect(xLabel.text()).toBe('CG Arm (m)')
   })
 
-  it('displays "CG Moment" on the x-axis when graphType is moment', () => {
+  it('displays "CG Moment (kg·m)" on the x-axis when graphType is moment', () => {
     const wrapper = mountChart({ graphType: 'moment' })
 
     const axisLabels = wrapper.findAll('text.axis-label')
     const xLabel = axisLabels[0]!
-    expect(xLabel.text()).toBe('CG Moment')
+    expect(xLabel.text()).toBe('CG Moment (kg·m)')
   })
 
   it('always displays "Mass (kg)" on the y-axis', () => {

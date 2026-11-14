@@ -47,7 +47,8 @@ Then('the takeoff mass limit reflects the selected category', async ({ page }) =
   const limit = aircraft?.certificationCategories.find((c) => c.category === category)
   expect(limit, `${registration} has no "${category}" category in the catalogue`).toBeDefined()
   await expect(takeoffMassItem(page).locator('.result-summary__limit')).toHaveText(
-    `/ ${limit!.maxTakeoffMass}`,
+    // Catalogue limits are kg; the label floors to 0.1 kg.
+    `/ MTOM ${limit!.maxTakeoffMass.toFixed(1)} kg`,
   )
 })
 

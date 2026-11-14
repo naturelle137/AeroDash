@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import {
   formatMassConservative,
   formatFuelConservative,
+  formatMassLimitConservative,
   formatArm,
   getDecimalPrecision,
 } from './display-rounding'
@@ -28,6 +29,18 @@ describe('formatMassConservative', () => {
 
   it('uses 1 decimal place by default', () => {
     expect(formatMassConservative(583.0)).toBe('583.0')
+  })
+})
+
+describe('formatMassLimitConservative', () => {
+  it('rounds a mass limit DOWN so it never overstates permissible mass', () => {
+    // 2400 lb = 1088.621688 kg → 1088.6, never 1088.7 or 1089
+    expect(formatMassLimitConservative(1088.621688, 1)).toBe('1088.6')
+    expect(formatMassLimitConservative(1088.621688, 0)).toBe('1088')
+  })
+
+  it('returns an exact limit unchanged', () => {
+    expect(formatMassLimitConservative(630, 1)).toBe('630.0')
   })
 })
 
