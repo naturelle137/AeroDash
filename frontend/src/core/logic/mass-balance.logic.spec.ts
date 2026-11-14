@@ -945,52 +945,62 @@ describe('Mass & Balance Math-Core Logic', () => {
       expect(result.takeoffCenterOfGravityPoint.arm).toBeCloseTo(expectedTakeoffCg, CG_PRECISION)
     })
 
-    it('uses fuel station arm lookup if provided', () => {
+    it('uses the total-moment difference F(q) − F(u) for a fuel lookup table', () => {
       const input = createMathCoreInput()
       input.fuelStations = [
         {
           index: 0,
           mass: 100,
           arm: null,
-          armLookup: [{ massOrVolume: 100, moment: 100 }],
+          armLookup: [
+            { massOrVolume: 0, moment: 0 },
+            { massOrVolume: 100, moment: 100 },
+          ],
           unusableFuel: 0,
           burnSequences: [],
         },
       ]
       const expectedTakeoffCg =
-        (input.emptyCenterOfGravity * input.basicEmptyMass +
-          input.fuelStations[0]!.mass *
-            (input.fuelStations[0]!.armLookup[0]!.moment! /
-              input.fuelStations[0]!.armLookup[0]!.massOrVolume!)) /
-        (input.basicEmptyMass + input.fuelStations[0]!.mass)
+        (input.emptyCenterOfGravity * input.basicEmptyMass + 100) / (input.basicEmptyMass + 100)
 
       const result = computeMassBalanceCore(input)
 
       expect(result.takeoffCenterOfGravityPoint.arm).toBeCloseTo(expectedTakeoffCg, CG_PRECISION)
     })
 
-    it('uses fuel station arm lookup if both arm and lookup table are provided', () => {
+    it('refuses a fuel station that declares both a fixed arm and a lookup table', () => {
       const input = createMathCoreInput()
       input.fuelStations = [
         {
           index: 0,
           mass: 100,
           arm: 2.0,
-          armLookup: [{ massOrVolume: 100, moment: 100 }],
+          armLookup: [
+            { massOrVolume: 0, moment: 0 },
+            { massOrVolume: 100, moment: 100 },
+          ],
           unusableFuel: 0,
           burnSequences: [],
         },
       ]
-      const expectedTakeoffCg =
-        (input.emptyCenterOfGravity * input.basicEmptyMass +
-          input.fuelStations[0]!.mass *
-            (input.fuelStations[0]!.armLookup[0]!.moment! /
-              input.fuelStations[0]!.armLookup[0]!.massOrVolume!)) /
-        (input.basicEmptyMass + input.fuelStations[0]!.mass)
 
-      const result = computeMassBalanceCore(input)
+      expect(() => computeMassBalanceCore(input)).toThrow('declares both arm and armLookup')
+    })
 
-      expect(result.takeoffCenterOfGravityPoint.arm).toBeCloseTo(expectedTakeoffCg, CG_PRECISION)
+    it('refuses a fuel lookup that is singleton or does not cover the load', () => {
+      const input = createMathCoreInput()
+      for (const armLookup of [
+        [{ massOrVolume: 100, moment: 100 }],
+        [
+          { massOrVolume: 0, moment: 0 },
+          { massOrVolume: 50, moment: 50 },
+        ],
+      ]) {
+        input.fuelStations = [
+          { index: 0, mass: 100, arm: null, armLookup, unusableFuel: 0, burnSequences: [] },
+        ]
+        expect(() => computeMassBalanceCore(input)).toThrow('lookup is invalid')
+      }
     })
 
     it('throws an error if zeroFuelMass is exactly 0', () => {

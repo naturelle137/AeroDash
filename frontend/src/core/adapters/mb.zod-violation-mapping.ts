@@ -29,6 +29,10 @@ export const mapZodErrorToViolations = (error: z.ZodError): Violation[] => {
         'OUT_OF_RANGE',
         'TOO_MANY_ITEMS',
         'DUPLICATE_INDEX',
+        'BELOW_UNUSABLE',
+        'INVALID_GEOMETRY',
+        'LOOKUP_OUT_OF_RANGE',
+        'NUMERIC_OVERFLOW',
       ].includes(err.message)
     ) {
       code = err.message as Violation['code']

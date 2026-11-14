@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { MAX_ARM_M, MAX_MASS_KG, MAX_MOMENT_KGM } from './si-bounds'
-import { interpolateMomentStrict } from './mb.arm-lookup'
+import { interpolateMomentStrict, isStrictMomentLookup } from './mb.arm-lookup'
 
 const ArrivalInputSchema = z.object({
   takeoffMassKg: z.number().finite().positive(),
@@ -133,24 +133,14 @@ const LookupArrivalInputSchema = ArrivalInputSchema.extend({
  * Single variable-geometry tank with zero unusable fuel. The table holds the total
  * tank moment at each tank mass (kg, kg·m), so F(0) = 0 and the burned contribution is
  * F(q) − F(q − b). Arms are never interpolated and the departure arm is never frozen.
- * Nonzero unusable fuel needs a different departure convention and must not use this.
+ * Nonzero unusable fuel arrival CG remains outside this supported subset.
  */
 export function calculateLookupTripArrivalCg(input: unknown): TripArrivalCgResult {
   const parsed = LookupArrivalInputSchema.safeParse(input)
   if (!parsed.success) return { ok: false, reason: 'INVALID_INPUT' }
   const { lookup, takeoffMomentKgM, usableFuelKg, tripFuelKg } = parsed.data
   const validGeometry =
-    lookup.length >= 2 &&
-    lookup[0]!.massOrVolume === 0 &&
-    lookup[0]!.moment === 0 &&
-    lookup.every(
-      (entry, i) =>
-        Number.isFinite(entry.massOrVolume) &&
-        entry.massOrVolume <= MAX_MASS_KG &&
-        Number.isFinite(entry.moment) &&
-        Math.abs(entry.moment) <= MAX_MOMENT_KGM &&
-        (i === 0 || entry.massOrVolume > lookup[i - 1]!.massOrVolume),
-    )
+    isStrictMomentLookup(lookup) && lookup[0]!.massOrVolume === 0 && lookup[0]!.moment === 0
   if (!validGeometry) return { ok: false, reason: 'INVALID_GEOMETRY' }
   const mass = calculateTripArrival(parsed.data)
   if (!mass.ok) return mass

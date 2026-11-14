@@ -33,6 +33,10 @@ import {
 import { normalizeFuelQuantityToKg, isFuelQuantityUnit } from '@/core/logic/fuel-mass'
 import { isKnownFuelType } from '@/core/logic/fuel-density'
 import { requiresOccupancy, resolveStationKind } from '@/core/logic/station-kind'
+import {
+  lookupFuelInputReason,
+  lookupFuelViolationMessage,
+} from '@/modules/mass-balance/services/lookup-fuel-input'
 import type { MassUnit } from '@/core/domain/units'
 import type { SessionPayload } from '@/core/domain/session.schema'
 import type {
@@ -50,6 +54,18 @@ import type {
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
+
+// Same ERR-SYS-001 validation contract, with the tank name and a readable reason.
+function lookupFuelNotification(tankName: string, code: string, reason: string): Notification {
+  return {
+    id: 'ERR-SYS-001',
+    severity: 'ERROR',
+    message: `Invalid input: ${tankName} (${code}) — ${reason}`,
+    context: 'MassBalance.Validation',
+    persistent: false,
+    dismissible: true,
+  }
+}
 
 function deriveMandatory(lp: LoadPointDefinition, weight: number): boolean {
   const kind = resolveStationKind(lp)
@@ -416,6 +432,27 @@ export const useMassBalanceStore = defineStore('massBalance', {
       // verdict (H-005 / H-006 class defect).
       const { massUnit: profileMassUnit, armUnit } = parseSourceUnit(this.aircraft!.sourceUnit)
 
+      // Variable-geometry fuel tanks are checked raw, before normalization can clamp
+      // negatives or fall back to a profile unit/density, and block the whole result.
+      const lookupBlocks: Notification[] = []
+      for (const s of this.stations) s.hasError = false
+      for (const s of this.availableStations) {
+        const def = this.aircraft.loadPoints[s.index]
+        const block = def && lookupFuelInputReason(def, s.weight, this.aircraft.sourceUnit)
+        if (!def || !block) continue
+        const station = this.stations[s.index]
+        if (station) station.hasError = true
+        lookupBlocks.push(lookupFuelNotification(def.name, block.code, block.reason))
+      }
+      if (lookupBlocks.length > 0) {
+        this.notifications = [
+          ...(draftProfileWarning ? [draftProfileWarning] : []),
+          ...lookupBlocks,
+        ]
+        this.lastResult = null
+        return
+      }
+
       // Fail-closed on an unrecognized fuel type: surface a WARNING instead of
       // silently substituting the conservative fallback density. Collected here
       // and merged into the notification set below.
@@ -472,9 +509,7 @@ export const useMassBalanceStore = defineStore('massBalance', {
             // mass-only normalizeMassToKg which silently treats 'L' as 'kg'
             // (H-002 — fuel unit confusion).
             const rawUnit = def.unit || profileMassUnit
-            const fuelUnit = isFuelQuantityUnit(rawUnit)
-              ? rawUnit
-              : (profileMassUnit as MassUnit)
+            const fuelUnit = isFuelQuantityUnit(rawUnit) ? rawUnit : (profileMassUnit as MassUnit)
             const permissible = ft.permissibleFuelTypes
 
             // Fail-closed: if the tank's first permissible fuel type is not
@@ -528,24 +563,31 @@ export const useMassBalanceStore = defineStore('massBalance', {
       // failed compute. The error/warning violations still surface so the state
       // machine resolves to ERROR_CRITICAL / WARNING (never VERIFIED_SAFE).
       if (!result.success) {
+        const fuelStationName = (v: { path?: readonly (string | number)[] }) => {
+          const i = v.path?.[0] === 'fuelStations' ? v.path[1] : undefined
+          const station = typeof i === 'number' ? input.fuelStations[i] : undefined
+          return (station && this.aircraft!.loadPoints[station.index]?.name) ?? 'Fuel tank'
+        }
         const failureNotes = result.violations.map((v): Notification =>
-          v.type === 'INVALID_INPUT' && v.code === 'OUT_OF_RANGE'
-            ? {
-                id: 'WARN-UI-001',
-                severity: 'WARNING',
-                message: `${v.field ?? 'Input'} is out of standard operational range`,
-                context: 'MassBalance.Validation',
-                persistent: false,
-                dismissible: true,
-              }
-            : {
-                id: 'ERR-SYS-001',
-                severity: 'ERROR',
-                message: `Invalid input: ${v.field ?? 'unknown'} (${v.code ?? 'validation failed'})`,
-                context: 'MassBalance.Validation',
-                persistent: false,
-                dismissible: true,
-              },
+          lookupFuelViolationMessage(v) !== null
+            ? lookupFuelNotification(fuelStationName(v), v.code!, lookupFuelViolationMessage(v)!)
+            : v.type === 'INVALID_INPUT' && v.code === 'OUT_OF_RANGE'
+              ? {
+                  id: 'WARN-UI-001',
+                  severity: 'WARNING',
+                  message: `${v.field ?? 'Input'} is out of standard operational range`,
+                  context: 'MassBalance.Validation',
+                  persistent: false,
+                  dismissible: true,
+                }
+              : {
+                  id: 'ERR-SYS-001',
+                  severity: 'ERROR',
+                  message: `Invalid input: ${v.field ?? 'unknown'} (${v.code ?? 'validation failed'})`,
+                  context: 'MassBalance.Validation',
+                  persistent: false,
+                  dismissible: true,
+                },
         )
         this.notifications = [
           ...(draftProfileWarning ? [draftProfileWarning] : []),

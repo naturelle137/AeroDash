@@ -5,7 +5,7 @@
  */
 import type { MathCoreInput, MathCoreResult, Violation } from '../domain/mass-balance.math-types'
 import type { CgPoint, MigrationPoint } from '../domain/mass-balance.math-types'
-import { interpolateArmFromLookup } from './mb.arm-lookup'
+import { fuelLookupUsableMoment, interpolateArmFromLookup } from './mb.arm-lookup'
 import { isCgWithinEnvelope, doesSegmentCrossEnvelope } from './mb.envelope'
 
 /**
@@ -54,24 +54,39 @@ export function computeMassBalanceCore(input: MathCoreInput): MathCoreResult {
     })
   }
 
-  // Pre-resolve arm and usable mass for each fuel station.
+  // Pre-resolve usable mass and moment for each fuel station.
   // Unusable fuel is already included in basicEmptyMass, so only usable fuel is added.
+  // Fixed arms contribute (q − u)·arm; lookup tables hold total tank moments, so a
+  // lookup tank contributes F(q) − F(u) (validated by the adapter, re-checked here).
   const resolvedFuel = input.fuelStations.map((fs) => {
     if (fs.armLookup.length === 0 && fs.arm === null) {
       throw new Error(
         `CRITICAL DOMAIN ERROR: Fuel Station ${fs.index} is missing both arm and armLookup.`,
       )
     }
-    const resolvedArm: number =
-      fs.armLookup.length > 0 ? interpolateArmFromLookup(fs.mass, fs.armLookup) : fs.arm!
-    return { ...fs, resolvedArm, usableMass: Math.max(0, fs.mass - fs.unusableFuel) }
+    if (fs.armLookup.length > 0) {
+      if (fs.arm !== null) {
+        throw new Error(
+          `CRITICAL DOMAIN ERROR: Fuel Station ${fs.index} declares both arm and armLookup.`,
+        )
+      }
+      const lookup = fuelLookupUsableMoment(fs.mass, fs.unusableFuel, fs.armLookup)
+      if (!lookup.ok) {
+        throw new Error(
+          `CRITICAL DOMAIN ERROR: Fuel Station ${fs.index} lookup is invalid (${lookup.reason}).`,
+        )
+      }
+      return { ...fs, usableMass: lookup.usableMassKg, usableMoment: lookup.usableMomentKgM }
+    }
+    const usableMass = Math.max(0, fs.mass - fs.unusableFuel)
+    return { ...fs, usableMass, usableMoment: usableMass * fs.arm! }
   })
 
   let takeoffMass = zeroFuelCenterOfGravityPoint.mass
   let takeoffMoment = zeroFuelMoment
   for (const rf of resolvedFuel) {
     takeoffMass += rf.usableMass
-    takeoffMoment += rf.usableMass * rf.resolvedArm
+    takeoffMoment += rf.usableMoment
   }
 
   const takeoffCenterOfGravityPoint: CgPoint = {
@@ -123,7 +138,7 @@ export function computeMassBalanceCore(input: MathCoreInput): MathCoreResult {
     for (let i = 0; i < ordered.length - 1; i++) {
       const rf = ordered[i]!
       curMass -= rf.usableMass
-      curMoment -= rf.usableMass * rf.resolvedArm
+      curMoment -= rf.usableMoment
 
       // Invariant: with ZFM>0 and ordered tanks subset of takeoff fuel, curMass stays >0 after each partial burn.
       /* v8 ignore else -- @preserve */
