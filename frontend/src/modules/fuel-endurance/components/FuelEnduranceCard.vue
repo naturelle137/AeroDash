@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useMassBalanceStore } from '@/modules/mass-balance/stores/mass-balance.store'
+import { arrivalCgForPlanning } from '../services/arrival-cg'
 import { usableFuelForPlanning } from '../services/usable-fuel'
 import { calculateTripArrival } from '@/core/logic/trip-arrival'
 import { calculateFuelEndurance } from '@/core/logic/fuel-endurance'
@@ -81,6 +82,16 @@ const arrival = computed(() => {
         ? 'Trip fuel exceeds available usable fuel; reduce the trip or correct the tank loads.'
         : 'Mass & Balance and fuel inventory must contain finite, consistent masses.',
   }
+})
+const arrivalCg = computed(() => {
+  if (!arrival.value?.ok) return null
+  return arrivalCgForPlanning(
+    store.aircraft,
+    store.activeCategory,
+    store.stations,
+    store.lastResult,
+    arrival.value.tripFuelKg,
+  )
 })
 const format = (value: number) =>
   value > 0 && value < 0.001
@@ -167,7 +178,15 @@ const format = (value: number) =>
           <dd>{{ format(arrival.arrivalMassKg) }} kg</dd>
           <dt>Usable fuel remaining on arrival</dt>
           <dd>{{ format(arrival.remainingFuelKg) }} kg</dd>
+          <template v-if="arrivalCg?.ok">
+            <dt>Estimated arrival CG</dt>
+            <dd data-testid="arrival-cg">{{ format(arrivalCg.arrivalCgM) }} m</dd>
+          </template>
         </dl>
+        <p v-if="arrivalCg && !arrivalCg.ok" role="status">
+          Estimated arrival CG unavailable: {{ arrivalCg.reason }}
+        </p>
+        <p>Arrival CG supports one category-available fixed-arm tank without a lookup table.</p>
       </section>
       <p v-else-if="arrival" role="status">Arrival estimate unavailable: {{ arrival.reason }}</p>
       <p v-if="plan">
@@ -183,10 +202,12 @@ const format = (value: number) =>
       <p v-if="plan?.marginKg === 0">Zero margin: exactly the entered arithmetic budget.</p>
       <p>
         Arithmetic planning aid only. Verify against your aircraft POH/AFM. This does not assess
-        operational suitability, landing CG or the envelope. Estimated arrival mass = validated
-        M&amp;B takeoff mass − trip fuel burned. Reserve remains on board; fuel remaining on arrival
-        differs from the budget margin after trip + reserve. The separate M&amp;B landing point
-        assumes all usable fuel is burned.
+        operational suitability, landing suitability or the full burn path/envelope. Estimated
+        arrival mass = validated M&amp;B takeoff mass − trip fuel burned. Reserve remains on board;
+        fuel remaining on arrival differs from the budget margin after trip + reserve. The separate
+        M&amp;B landing point assumes all usable fuel is burned. Estimated trip arrival CG subtracts
+        the burned fuel moment from the current M&amp;B takeoff moment; it is separate from that
+        all-usable-burned point.
       </p>
     </div>
     <p v-else-if="fuel.ok && arrival && !arrival.ok" role="status">

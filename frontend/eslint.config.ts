@@ -41,6 +41,7 @@ export default defineConfigWithVueTs(
     '**/coverage/**',
     '**/node_modules/**',
     '**/stryker-tmp/**',
+    '**/.stryker-tmp/**',
     '**/playwright-report/**',
   ]),
 

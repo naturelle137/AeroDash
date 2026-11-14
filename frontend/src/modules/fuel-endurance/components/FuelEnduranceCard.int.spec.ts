@@ -60,7 +60,7 @@ describe('fuel plan with live M&B store', () => {
     const arrival = () => wrapper.find('[aria-label="Estimated trip arrival"]')
     const values = () =>
       arrival()
-        .findAll('dd')
+        .findAll('dd:not([data-testid="arrival-cg"])')
         .map((dd) => dd.text())
     await wrapper.get('#fe-consumption').setValue('10')
     await wrapper.get('#fe-trip').setValue('120')
@@ -115,11 +115,16 @@ describe('fuel plan with live M&B store', () => {
       await wrapper.get('#fe-reserve').setValue('30')
     }
     const values = () =>
-      wrapper.findAll('[aria-label="Estimated trip arrival"] dd').map((dd) => dd.text())
+      wrapper
+        .findAll('[aria-label="Estimated trip arrival"] dd:not([data-testid="arrival-cg"])')
+        .map((dd) => dd.text())
     expect(values()).toEqual(['620 kg', '20 kg', '600 kg', '40 kg'])
+    expect(wrapper.find('[data-testid="arrival-cg"]').exists()).toBe(false)
+    expect(wrapper.text()).toContain('Exactly one category-available')
     store.changeCertificationCategory('Utility')
     await nextTick()
     expect(values()).toEqual(['600 kg', '20 kg', '580 kg', '20 kg'])
+    expect(wrapper.find('[data-testid="arrival-cg"]').exists()).toBe(true)
     store.updateStationWeight(1, NaN)
     await nextTick()
     expect(values()).toEqual(['600 kg', '20 kg', '580 kg', '20 kg'])
@@ -148,7 +153,10 @@ describe('fuel plan with live M&B store', () => {
           await wrapper.get(`#fe-${id}`).setValue('10')
       }
       const mass = () =>
-        wrapper.find('[aria-label="Estimated trip arrival"]').findAll('dd')[2]!.text()
+        wrapper
+          .find('[aria-label="Estimated trip arrival"]')
+          .findAll('dd:not([data-testid="arrival-cg"])')[2]!
+          .text()
       const before = mass()
       store.updateStationWeight(1, 70)
       await nextTick()
@@ -201,7 +209,7 @@ describe('fuel plan with live M&B store', () => {
     expect(wrapper.text()).toContain('explicit finite nonnegative Trip Fuel')
     expect(wrapper.find('#fe-consumption').exists()).toBe(false)
     await wrapper.get('#fe-direct-trip').setValue('20')
-    expect(arrival().findAll('dd')[3]!.text()).toBe('20 kg')
+    expect(arrival().findAll('dd:not([data-testid="arrival-cg"])')[3]!.text()).toBe('20 kg')
     for (const text of [
       'Total endurance',
       'Required reserve fuel',
@@ -228,7 +236,9 @@ describe('fuel plan with live M&B store', () => {
     await wrapper.get('#fe-method').setValue('direct')
     const input = wrapper.get('#fe-direct-trip')
     const values = () =>
-      wrapper.findAll('[aria-label="Estimated trip arrival"] dd').map((dd) => dd.text())
+      wrapper
+        .findAll('[aria-label="Estimated trip arrival"] dd:not([data-testid="arrival-cg"])')
+        .map((dd) => dd.text())
     await input.setValue('0')
     expect(values()).toEqual(['600 kg', '0 kg', '600 kg', '40 kg'])
     await input.setValue('40')
@@ -280,4 +290,52 @@ describe('fuel plan with live M&B store', () => {
     expect(wrapper.text()).toContain('Combustion aircraft required')
     expect(wrapper.get('fieldset').attributes('disabled')).toBeDefined()
   })
+  it.each(['duration', 'direct'])(
+    'recomputes CG and retains mass for unsupported tanks in %s mode',
+    async (method) => {
+      const store = useMassBalanceStore()
+      const aircraft = AircraftContextSchema.parse(syntheticFuelContext())
+      aircraft.sourceUnit = 'kg'
+      aircraft.weighingReports[0]!.basicEmptyMass = 560
+      aircraft.weighingReports[0]!.emptyCg = 2
+      store.loadProfile(aircraft)
+      const wrapper = mount(FuelEnduranceCard)
+      await wrapper.get('#fe-method').setValue(method)
+      if (method === 'direct') await wrapper.get('#fe-direct-trip').setValue('20')
+      else {
+        await wrapper.get('#fe-consumption').setValue('10')
+        await wrapper.get('#fe-trip').setValue('120')
+        await wrapper.get('#fe-reserve').setValue('30')
+      }
+      const cg = () => wrapper.find('[data-testid="arrival-cg"]')
+      expect(cg().text()).toBe('1.966 m')
+      // Existing M&B alerts remain in the store while this is arithmetic only.
+      expect(store.hasCriticalNotification).toBe(true)
+      store.updateStationWeight(0, 60)
+      await nextTick()
+      expect(cg().text()).toBe('1.949 m')
+      store.resetPayload()
+      await nextTick()
+      expect(cg().text()).toBe('1.966 m')
+      store.aircraft!.loadPoints[0]!.armLookup = [
+        { massOrVolume: 0, moment: 0 },
+        { massOrVolume: 100, moment: 100 },
+      ]
+      store.updateStationWeight(0, 50)
+      await nextTick()
+      expect(cg().exists()).toBe(false)
+      expect(wrapper.text()).toContain('Variable-arm tanks are unsupported')
+      expect(wrapper.text()).toContain('580 kg')
+      store.aircraft!.loadPoints[0]!.armLookup = []
+      store.updateStationWeight(0, 50)
+      await nextTick()
+      expect(cg().text()).toBe('1.966 m')
+      store.lastResult!.takeoffCenterOfGravityPoint.moment = NaN
+      await nextTick()
+      expect(cg().exists()).toBe(false)
+      expect(wrapper.text()).toContain('finite and consistent')
+      await wrapper.get('#fe-method').setValue(method === 'direct' ? 'duration' : 'direct')
+      expect(cg().exists()).toBe(false)
+    },
+  )
 })

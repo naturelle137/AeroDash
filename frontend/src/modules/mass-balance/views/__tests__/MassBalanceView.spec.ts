@@ -229,6 +229,7 @@ describe('MassBalanceView integration', () => {
     await wrapper.vm.$nextTick()
     const card = wrapper.get('#prep-card-fuel')
     expect(card.text()).toContain('Energy & Endurance')
+    expect(card.text()).toContain('Fuel-burn arrival estimates are unavailable for electric aircraft')
     expect(card.text()).toContain('Coming soon')
     expect(card.find('input').exists()).toBe(false)
     expect(card.find('[aria-label="Fuel planning results"]').exists()).toBe(false)
