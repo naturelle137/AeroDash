@@ -43,13 +43,28 @@ Core source/tests do not prove an integrated UI path or operational data validit
 
 Both manual fuel modes use the current validated M&B takeoff mass and moment in SI.
 The P2 fuel adapter counts every category-available tank, including empty tanks, and
-normalizes its explicit fixed arm through the existing source-unit boundary. Exactly
-one tank without lookup geometry supports CG. P1 subtracts only the planned burned
-mass and moment; unusable fuel stays in BEM and reserve remains aboard. Unsupported
-CG configurations retain valid arrival mass with a reason. No tank selection or burn
-schedule is inferred. The estimate is separate from the all-usable-burned M&B endpoint
-and does not assess landing suitability or the full burn path/envelope. Synthetic
-arithmetic and browser tests establish software wiring only.
+normalizes its explicit fixed arm through the existing source-unit boundary. One tank without lookup geometry supports CG directly; multiple tanks require an
+explicit existing named sequence. The legacy `BurnSequenceEntry` contract stores
+`sequenceName` and `ordinalPosition` on each fuel tank. M&B migration collects the
+union of names, sorts participating tanks by their first matching ordinal, and
+computes intermediate full-tank endpoints. It does not enforce complete membership
+or unique entries/positions; that behavior is unchanged.
+
+Trip arrival validates the selected name separately: every category-available tank
+(including empty tanks) must carry exactly one matching entry with a distinct finite
+positive integer ordinal. Gaps are allowed; order is numeric. Matching entries on
+category-excluded tanks invalidate a multi-tank sequence. Names are exact identities.
+The selector presents existing names without a default, so invalid schedules can be
+selected but produce a visible reason. Aircraft/category/profile changes clear the
+selection; load/input changes recompute it. Method changes and reload reset it.
+
+P1 drains usable loaded mass in order up to the trip burn, subtracting each burned
+moment in SI. Shared inventory conversion supplies each tank's usable mass; unusable
+fuel stays in BEM and reserve remains aboard. Unsupported CG configurations retain
+valid arrival mass with a reason. No schedule is inferred. The estimate is separate
+from the all-usable-burned M&B endpoint and does not assess landing suitability or
+the full burn path/envelope. Synthetic arithmetic and browser tests establish
+software wiring only.
 
 ## Application lifecycle
 

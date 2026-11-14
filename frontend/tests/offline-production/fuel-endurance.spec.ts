@@ -44,15 +44,25 @@ test('persisted fleet tank inputs feed the session-only fuel plan online and cac
     profile.id = id!
     profile.registration = registration!
     if (registration === 'D-MULTI') {
-      profile.loadPoints[0]!.defaultQuantity = 50
+      profile.weighingReports[0]!.emptyCg = 1080 / 560
+      profile.loadPoints[0]!.defaultQuantity = 30
       profile.loadPoints.push({
         ...structuredClone(profile.loadPoints[0]!),
-        name: 'Empty available tank',
-        defaultQuantity: 10,
+        name: 'Synthetic B',
+        arm: 3,
+      })
+      profile.loadPoints.forEach((tank, i) => {
+        tank.fuelTank!.burnSequences = [
+          { sequenceName: 'A first', ordinalPosition: i + 1 },
+          { sequenceName: 'B first', ordinalPosition: 2 - i },
+        ]
       })
     }
     if (registration === 'D-VARY') {
       profile.loadPoints = [profile.loadPoints[0]!]
+      profile.weighingReports[0]!.emptyCg = 2
+      profile.loadPoints[0]!.defaultQuantity = 50
+      profile.loadPoints[0]!.fuelTank!.burnSequences = []
       profile.loadPoints[0]!.arm = null
       profile.loadPoints[0]!.armLookup = [
         { massOrVolume: 0, moment: 0 },
@@ -228,10 +238,7 @@ test('persisted fleet tank inputs feed the session-only fuel plan online and cac
   await tank.fill('50')
   await tank.blur()
   await page.getByRole('button', { name: 'Reset Payload', exact: true }).click()
-  await page
-    .getByRole('alertdialog')
-    .getByRole('button', { name: 'Reset', exact: true })
-    .click()
+  await page.getByRole('alertdialog').getByRole('button', { name: 'Reset', exact: true }).click()
   await expect(arrival).toHaveCount(0)
   await direct.fill('0')
   await expect(card.getByTestId('arrival-cg')).toHaveText('2 m')
@@ -335,10 +342,7 @@ test('persisted fleet tank inputs feed the session-only fuel plan online and cac
   await page.goto('/mass-balance')
   await expect(method).toHaveValue('')
   await expect(arrival).toHaveCount(0)
-  for (const [registration, reason] of [
-    ['D-MULTI', 'Exactly one category-available'],
-    ['D-VARY', 'Variable-arm tanks'],
-  ]) {
+  for (const [registration, reason] of [['D-VARY', 'Variable-arm tanks']]) {
     const unsupported = picker.locator('option').filter({ hasText: registration }).first()
     await picker.selectOption((await unsupported.getAttribute('value'))!)
     for (const planning of ['duration', 'direct']) {
@@ -360,5 +364,80 @@ test('persisted fleet tank inputs feed the session-only fuel plan online and cac
       contentType: 'image/png',
     })
   }
+  const multi = picker.locator('option').filter({ hasText: 'D-MULTI' }).first()
+  await picker.selectOption((await multi.getAttribute('value'))!)
+  const sequence = card.getByLabel('Arrival CG burn sequence')
+  for (const planning of ['duration', 'direct']) {
+    await method.selectOption(planning)
+    if (planning === 'duration') {
+      await rate.fill('30')
+      await trip.fill('60')
+      await reserve.fill('10')
+    } else await direct.fill('30')
+    await expect(sequence).toHaveValue('')
+    await expect(arrival).toContainText('570 kg')
+    await expect(arrival).toContainText('Choose an explicit named burn sequence')
+    await expect(card.getByTestId('arrival-cg')).toHaveCount(0)
+    if (planning === 'direct') {
+      for (const [label, target] of [
+        ['unselected', arrival],
+        ['controls', sequence],
+      ] as const) {
+        await target.evaluate((element) => element.scrollIntoView({ block: 'center' }))
+        const path = info.outputPath(`multi-${label}.png`)
+        await page.screenshot({ path })
+        await info.attach(`multi-${label}`, { path, contentType: 'image/png' })
+      }
+    }
+    for (const [name, cg] of [
+      ['A first', '1.947 m'],
+      ['B first', '1.912 m'],
+    ]) {
+      await sequence.selectOption(name!)
+      await expect(card.getByTestId('arrival-cg')).toHaveText(cg!)
+      await arrival.evaluate((element) => element.scrollIntoView({ block: 'center' }))
+      const path = info.outputPath(`multi-${planning}-${name!.charAt(0)}.png`)
+      await page.screenshot({ path })
+      await info.attach(`multi-${planning}-${name}`, { path, contentType: 'image/png' })
+    }
+    await tank.fill('40')
+    await tank.blur()
+    await expect(card.getByTestId('arrival-cg')).toHaveText('1.897 m')
+    await tank.fill('30')
+    await tank.blur()
+    await expect(card.getByTestId('arrival-cg')).toHaveText('1.912 m')
+  }
+  await category.selectOption('Utility')
+  await expect(arrival).toHaveCount(0)
+  await category.selectOption('Normal')
+  await expect(sequence).toHaveValue('')
+  await expect(arrival).toContainText('570 kg')
+  await sequence.selectOption('A first')
+  await expect(card.getByTestId('arrival-cg')).toHaveText('1.947 m')
+  await expect
+    .poll(() =>
+      page.evaluate(() => {
+        const saved = localStorage.getItem('aerodash:session:payload')
+        return saved ? JSON.parse(saved).aircraftId : null
+      }),
+    )
+    .toBe(await multi.getAttribute('value'))
+  expect((await page.reload())?.fromServiceWorker()).toBe(true)
+  await expect(picker.locator('option:checked')).toContainText('D-MULTI')
+  await expect(method).toHaveValue('')
+  await expect(sequence).toHaveValue('')
+  await expect(arrival).toHaveCount(0)
+  await method.selectOption('direct')
+  await expect(direct).toHaveValue('')
+  await direct.fill('30')
+  await expect(card.getByTestId('arrival-cg')).toHaveCount(0)
+  await sequence.selectOption('B first')
+  await expect(card.getByTestId('arrival-cg')).toHaveText('1.912 m')
+  await arrival.evaluate((element) => element.scrollIntoView({ block: 'center' }))
+  await page.screenshot({ path: info.outputPath('multi-reset-offline.png') })
+  await info.attach('multi-reset-offline', {
+    path: info.outputPath('multi-reset-offline.png'),
+    contentType: 'image/png',
+  })
   expect(await page.evaluate(() => document.body.scrollWidth)).toBe(page.viewportSize()!.width)
 })

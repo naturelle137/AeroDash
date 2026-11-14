@@ -63,7 +63,7 @@ describe('trip arrival CG SI adapter and eligibility', () => {
     const loads = [...stations, { ...stations[0]!, index: 1, weight: 10 }]
     expect(arrivalCgForPlanning(aircraft, 'Normal', loads, mb, 20)).toMatchObject({
       ok: false,
-      reason: expect.stringContaining('Exactly one'),
+      reason: expect.stringContaining('Choose an explicit'),
     })
     aircraft.loadPoints[1]!.allowableCategories = ['Utility']
     expect(arrivalCgForPlanning(aircraft, 'Normal', stations, mb, 20).ok).toBe(true)
@@ -103,5 +103,65 @@ describe('trip arrival CG SI adapter and eligibility', () => {
       expect(arrivalCgForPlanning(aircraft, 'Normal', stations, invalid, 20).ok).toBe(false)
     aircraft.powertrain = 'electric'
     expect(arrivalCgForPlanning(aircraft, 'Normal', stations, mb, 20).ok).toBe(false)
+  })
+})
+
+describe('multi-tank adapter', () => {
+  function multi() {
+    const { aircraft, mb } = setup()
+    aircraft.loadPoints[0]!.defaultQuantity = 30
+    aircraft.loadPoints.push({ ...structuredClone(aircraft.loadPoints[0]!), name: 'B', arm: 3 })
+    aircraft.loadPoints.forEach((tank, i) => {
+      tank.fuelTank!.burnSequences = [
+        { sequenceName: 'A first', ordinalPosition: i + 1 },
+        { sequenceName: 'B first', ordinalPosition: 2 - i },
+      ]
+    })
+    const loads = [0, 1].map((index) => ({ ...stations[0]!, index, weight: 30 }))
+    return { aircraft, mb, loads }
+  }
+  it.each(['kg-m', 'lb-in'])(
+    'retains unusable fuel and normalizes shared inventory/geometry in %s',
+    (unit) => {
+      const { aircraft, mb, loads } = multi()
+      aircraft.sourceUnit = unit
+      if (unit === 'lb-in') {
+        aircraft.loadPoints.forEach((tank, i) => {
+          tank.arm = (i === 0 ? 1 : 3) / 0.0254
+          tank.unit = 'lb'
+          tank.fuelTank!.unusableFuel = 10 / 0.45359237
+          loads[i]!.weight = 30 / 0.45359237
+        })
+      }
+      for (const [name, moment] of [
+        ['A first', 1110],
+        ['B first', 1090],
+      ] as const) {
+        const result = arrivalCgForPlanning(aircraft, 'Normal', loads, mb, 30, name)
+        expect(result.ok).toBe(true)
+        if (!result.ok) throw new Error(result.reason)
+      expect(result.arrivalCgM).toBeCloseTo(moment / 570, 12)
+      }
+    },
+  )
+  it('rejects unknown/incomplete/duplicate schedules and excluded references', () => {
+    const { aircraft, mb, loads } = multi()
+    expect(arrivalCgForPlanning(aircraft, 'Normal', loads, mb, 30, 'unknown').ok).toBe(false)
+    aircraft.loadPoints[1]!.fuelTank!.burnSequences = []
+    expect(arrivalCgForPlanning(aircraft, 'Normal', loads, mb, 30, 'A first').ok).toBe(false)
+    aircraft.loadPoints[1]!.fuelTank!.burnSequences = [
+      { sequenceName: 'A first', ordinalPosition: 2 },
+      { sequenceName: 'A first', ordinalPosition: 3 },
+    ]
+    expect(arrivalCgForPlanning(aircraft, 'Normal', loads, mb, 30, 'A first').ok).toBe(false)
+    aircraft.loadPoints[1]!.fuelTank!.burnSequences.pop()
+    aircraft.loadPoints.push({
+      ...structuredClone(aircraft.loadPoints[0]!),
+      allowableCategories: ['Utility'],
+    })
+    expect(arrivalCgForPlanning(aircraft, 'Normal', loads, mb, 30, 'A first')).toMatchObject({
+      ok: false,
+      reason: expect.stringContaining('category-excluded'),
+    })
   })
 })

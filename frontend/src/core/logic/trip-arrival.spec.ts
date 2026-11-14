@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import { calculateFuelEndurance } from './fuel-endurance'
-import { calculateTripArrival, calculateTripArrivalCg } from './trip-arrival'
+import {
+  calculateTripArrival,
+  calculateTripArrivalCg,
+  calculateSequencedTripArrivalCg,
+} from './trip-arrival'
 
 // Independent synthetic arithmetic, never operational aircraft reference values.
 const input = { takeoffMassKg: 600, usableFuelKg: 40, tripFuelKg: 20 }
@@ -140,6 +144,108 @@ describe('single fixed-arm estimated trip arrival CG', () => {
         tripFuelKg: 0,
         takeoffMomentKgM: Number.MAX_VALUE,
         tankArmM: 0,
+      }),
+    ).toEqual({ ok: false, reason: 'NUMERIC_OVERFLOW' })
+  })
+})
+
+// Two synthetic tanks; BEM and unusable fuel are already included in takeoff mass/moment.
+describe('explicit multi-tank arrival endpoint', () => {
+  const tanks = [1, 3].map((tankArmM, index) => ({
+    usableFuelKg: 20,
+    tankArmM,
+    burnSequences: [
+      { sequenceName: 'A first', ordinalPosition: index + 1 },
+      { sequenceName: 'B first', ordinalPosition: 2 - index },
+    ],
+  }))
+  const base = {
+    takeoffMassKg: 600,
+    takeoffMomentKgM: 1160,
+    tripFuelKg: 30,
+    sequenceName: 'A first',
+    tanks,
+  }
+  it.each([
+    ['A first', 0, 1160, 600],
+    ['B first', 0, 1160, 600],
+    ['A first', 20, 1140, 580],
+    ['B first', 20, 1100, 580],
+    ['A first', 30, 1110, 570],
+    ['B first', 30, 1090, 570],
+    ['A first', 40, 1080, 560],
+    ['B first', 40, 1080, 560],
+  ])('%s burn %s kg', (sequenceName, tripFuelKg, moment, mass) => {
+    expect(calculateSequencedTripArrivalCg({ ...base, sequenceName, tripFuelKg })).toEqual({
+      ok: true,
+      arrivalMomentKgM: moment,
+      arrivalCgM: moment / mass,
+    })
+  })
+  it('skips empty tanks only during burn, without dropping their sequence obligation', () => {
+    const empty = structuredClone(tanks)
+    empty[0]!.usableFuelKg = 0
+    expect(calculateSequencedTripArrivalCg({ ...base, tanks: empty, tripFuelKg: 10 })).toEqual({
+      ok: true,
+      arrivalMomentKgM: 1130,
+      arrivalCgM: 1130 / 590,
+    })
+    empty[0]!.burnSequences = []
+    expect(calculateSequencedTripArrivalCg({ ...base, tanks: empty, tripFuelKg: 0 }).ok).toBe(false)
+  })
+  it.each([0, -1, 1.5, NaN, Infinity, 2])(
+    'rejects invalid or duplicate position %s',
+    (ordinalPosition) => {
+      const invalid = structuredClone(tanks)
+      invalid[0]!.burnSequences[0]!.ordinalPosition = ordinalPosition
+      expect(calculateSequencedTripArrivalCg({ ...base, tanks: invalid })).toEqual({
+        ok: false,
+        reason: 'INVALID_INPUT',
+      })
+    },
+  )
+  it('rejects absent, unknown, incomplete and duplicate entries', () => {
+    for (const sequenceName of ['', 'unknown', ' A first '])
+      expect(calculateSequencedTripArrivalCg({ ...base, sequenceName }).ok).toBe(false)
+    for (const entries of [[], [tanks[0]!.burnSequences[0]!, tanks[0]!.burnSequences[0]!]]) {
+      const invalid = structuredClone(tanks)
+      invalid[0]!.burnSequences = entries
+      expect(calculateSequencedTripArrivalCg({ ...base, tanks: invalid }).ok).toBe(false)
+    }
+    for (const invalid of [null, {}, { ...base, tanks: [] }, { ...base, tanks: [tanks[0]] }])
+      expect(calculateSequencedTripArrivalCg(invalid).ok).toBe(false)
+  })
+  it('rejects overdraw, inconsistent totals, malformed input and overflow', () => {
+    expect(calculateSequencedTripArrivalCg({ ...base, tripFuelKg: 41 })).toEqual({
+      ok: false,
+      reason: 'TRIP_EXCEEDS_USABLE_FUEL',
+    })
+    expect(calculateSequencedTripArrivalCg({ ...base, takeoffMassKg: 40 })).toEqual({
+      ok: false,
+      reason: 'INCONSISTENT_MASS',
+    })
+    for (const field of ['takeoffMassKg', 'takeoffMomentKgM', 'tripFuelKg'])
+      for (const value of [undefined, NaN, Infinity, '30'])
+        expect(calculateSequencedTripArrivalCg({ ...base, [field]: value }).ok).toBe(false)
+    for (const field of ['usableFuelKg', 'tankArmM']) {
+      for (const value of [NaN, Infinity]) {
+        const invalid = tanks.map((tank) => ({ ...tank, [field]: value }))
+        expect(calculateSequencedTripArrivalCg({ ...base, tanks: invalid }).ok).toBe(false)
+      }
+    }
+    expect(
+      calculateSequencedTripArrivalCg({
+        ...base,
+        tanks: tanks.map((tank) => ({ ...tank, tankArmM: Number.MAX_VALUE })),
+      }),
+    ).toEqual({ ok: false, reason: 'NUMERIC_OVERFLOW' })
+    expect(
+      calculateSequencedTripArrivalCg({
+        ...base,
+        takeoffMassKg: 0.5,
+        tripFuelKg: 0,
+        takeoffMomentKgM: Number.MAX_VALUE,
+        tanks: tanks.map((tank) => ({ ...tank, usableFuelKg: 0 })),
       }),
     ).toEqual({ ok: false, reason: 'NUMERIC_OVERFLOW' })
   })

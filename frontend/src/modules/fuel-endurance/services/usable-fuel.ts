@@ -4,7 +4,13 @@ import { isFuelQuantityUnit, normalizeFuelQuantityToKg } from '@/core/logic/fuel
 import { isKnownFuelType } from '@/core/logic/fuel-density'
 
 export type UsableFuelResult =
-  { ok: true; usableFuelKg: number; excludedUnusableKg: number } | { ok: false; reason: string }
+  | {
+      ok: true
+      usableFuelKg: number
+      excludedUnusableKg: number
+      tanks: { index: number; usableFuelKg: number }[]
+    }
+  | { ok: false; reason: string }
 
 export function usableFuelForPlanning(
   aircraft: unknown,
@@ -24,6 +30,7 @@ export function usableFuelForPlanning(
   if (!profile.certificationCategories.some((c) => c.category === category)) {
     return { ok: false, reason: 'Select a valid aircraft category.' }
   }
+  const tanks: { index: number; usableFuelKg: number }[] = []
   let usableFuelKg = 0
   let excludedUnusableKg = 0
   let tankCount = 0
@@ -62,15 +69,17 @@ export function usableFuelForPlanning(
       tank.unit,
       fuel.permissibleFuelTypes,
     )
-    usableFuelKg += normalizeFuelQuantityToKg(
+    const tankUsableKg = normalizeFuelQuantityToKg(
       quantity - fuel.unusableFuel,
       tank.unit,
       fuel.permissibleFuelTypes,
     )
+    tanks.push({ index, usableFuelKg: tankUsableKg })
+    usableFuelKg += tankUsableKg
     excludedUnusableKg += unusableKg
   }
   if (tankCount === 0) return { ok: false, reason: 'No fuel tanks available in this category.' }
   if (![usableFuelKg, excludedUnusableKg].every(Number.isFinite))
     return { ok: false, reason: 'Fuel conversion exceeds numeric limits.' }
-  return { ok: true, usableFuelKg, excludedUnusableKg }
+  return { ok: true, usableFuelKg, excludedUnusableKg, tanks }
 }

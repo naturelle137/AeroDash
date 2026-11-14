@@ -120,7 +120,7 @@ describe('fuel plan with live M&B store', () => {
         .map((dd) => dd.text())
     expect(values()).toEqual(['620 kg', '20 kg', '600 kg', '40 kg'])
     expect(wrapper.find('[data-testid="arrival-cg"]').exists()).toBe(false)
-    expect(wrapper.text()).toContain('Exactly one category-available')
+    expect(wrapper.text()).toContain('Choose an explicit named burn sequence')
     store.changeCertificationCategory('Utility')
     await nextTick()
     expect(values()).toEqual(['600 kg', '20 kg', '580 kg', '20 kg'])
@@ -336,6 +336,65 @@ describe('fuel plan with live M&B store', () => {
       expect(wrapper.text()).toContain('finite and consistent')
       await wrapper.get('#fe-method').setValue(method === 'direct' ? 'duration' : 'direct')
       expect(cg().exists()).toBe(false)
+    },
+  )
+  it.each(['duration', 'direct'])(
+    'requires a sequence and recomputes both orders in %s',
+    async (method) => {
+      const store = useMassBalanceStore()
+      const aircraft = AircraftContextSchema.parse(syntheticFuelContext())
+      aircraft.sourceUnit = 'kg'
+      aircraft.weighingReports[0]!.basicEmptyMass = 560
+      aircraft.weighingReports[0]!.emptyCg = 1080 / 560
+      aircraft.loadPoints[0]!.defaultQuantity = 30
+      aircraft.loadPoints.push({ ...structuredClone(aircraft.loadPoints[0]!), name: 'B', arm: 3 })
+      aircraft.loadPoints.forEach((tank, i) => {
+        tank.fuelTank!.burnSequences = [
+          { sequenceName: 'A first', ordinalPosition: i + 1 },
+          { sequenceName: 'B first', ordinalPosition: 2 - i },
+        ]
+      })
+      const category = aircraft.certificationCategories[0]!
+      aircraft.certificationCategories = [
+        { ...category, category: 'Normal' },
+        { ...category, category: 'Utility' },
+      ]
+      store.loadProfile(aircraft)
+      const wrapper = mount(FuelEnduranceCard)
+      await wrapper.get('#fe-method').setValue(method)
+      if (method === 'direct') await wrapper.get('#fe-direct-trip').setValue('30')
+      else {
+        await wrapper.get('#fe-consumption').setValue('30')
+        await wrapper.get('#fe-trip').setValue('60')
+        await wrapper.get('#fe-reserve').setValue('10')
+      }
+      const cg = () => wrapper.find('[data-testid="arrival-cg"]')
+      expect(cg().exists()).toBe(false)
+      expect(wrapper.text()).toContain('570 kg')
+      expect(wrapper.get<HTMLSelectElement>('#fe-sequence').element.value).toBe('')
+      await wrapper.get('#fe-sequence').setValue('A first')
+      expect(cg().text()).toBe('1.947 m')
+      await wrapper.get('#fe-sequence').setValue('B first')
+      expect(cg().text()).toBe('1.912 m')
+      store.updateStationWeight(0, 40)
+      await nextTick()
+      expect(cg().text()).toBe('1.897 m')
+      store.changeCertificationCategory('Utility')
+      await nextTick()
+      expect(cg().exists()).toBe(false)
+      expect(wrapper.get<HTMLSelectElement>('#fe-sequence').element.value).toBe('')
+      await wrapper.get('#fe-sequence').setValue('A first')
+      expect(cg().exists()).toBe(true)
+      store.aircraft!.loadPoints[1]!.fuelTank!.burnSequences = []
+      await nextTick()
+      expect(cg().exists()).toBe(false)
+      expect(wrapper.text()).toContain('580 kg')
+      await wrapper.get('#fe-sequence').setValue('A first')
+      expect(cg().exists()).toBe(false)
+      expect(wrapper.text()).toContain('distinct positive integer positions')
+      wrapper.unmount()
+      const reopened = mount(FuelEnduranceCard)
+      expect(reopened.get<HTMLSelectElement>('#fe-sequence').element.value).toBe('')
     },
   )
 })

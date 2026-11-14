@@ -90,7 +90,7 @@ While direct Trip Fuel mode is selected, the system shall omit duration-based en
 
 If direct Trip Fuel is blank, negative, malformed or nonfinite, then the system shall block the arrival estimate with a visible reason.
 
-Current scope: REQ-FE-002/003 and manual arithmetic are available in Flight Preparation. Consumption is assumed constant; reserve is user chosen without a regulatory default. Zero margin is arithmetic equality, not a safety verdict. REQ-FE-005 estimated trip arrival mass retains reserve and does not assess landing suitability, the full burn path/envelope or operational suitability. REQ-FE-009 direct Trip Fuel entry is available without duration, consumption or reserve inputs. Reserve remains aboard and unusable fuel is not subtracted again. Single fixed-arm tank arrival CG is available; multiple tanks (including empty available tanks), variable-arm tanks and burn scheduling remain unsupported for trip CG. Electric endurance remains future work; the existing M&B zero-fuel landing output is separate.
+Current scope: REQ-FE-002/003 and manual arithmetic are available in Flight Preparation. Consumption is assumed constant; reserve is user chosen without a regulatory default. Zero margin is arithmetic equality, not a safety verdict. REQ-FE-005 estimated trip arrival mass retains reserve and does not assess landing suitability, the full burn path/envelope or operational suitability. REQ-FE-009 direct Trip Fuel entry is available without duration, consumption or reserve inputs. Reserve remains aboard and unusable fuel is not subtracted again. Fixed-arm trip arrival CG supports one tank or an explicitly selected complete named multi-tank sequence, including empty available tanks. Variable-arm trip CG and full-flight burn-path assessment remain unsupported. Electric endurance remains future work; the existing M&B zero-fuel landing output is separate.
 
 ### REQ-FE-023: Fixed-arm trip arrival CG
 
@@ -111,3 +111,27 @@ When displaying estimated arrival CG, the system shall label its unit in metres.
 ### REQ-FE-027: Arrival assessment boundary
 
 When displaying estimated trip arrival, the system shall distinguish it from the separate all-usable-fuel-burned M&B endpoint.
+
+### REQ-FE-028: Explicit arrival sequence
+
+While multiple fuel tanks are category-available, the system shall require an explicit named burn sequence selection for trip arrival CG.
+
+### REQ-FE-029: Complete arrival sequence
+
+If a selected multi-tank sequence does not cover every category-available tank exactly once with distinct finite positive integer order values, then the system shall suppress trip arrival CG with a visible reason.
+
+### REQ-FE-030: Excluded sequence references
+
+If a selected multi-tank sequence includes a category-excluded tank, then the system shall suppress trip arrival CG with a visible reason.
+
+### REQ-FE-031: Ordered arrival moment
+
+When a valid multi-tank sequence has finite fixed arms without lookup geometry, the system shall calculate trip arrival moment by subtracting the usable fuel burned from each tank in sequence order from takeoff moment in SI.
+
+### REQ-FE-032: Sequence context reset
+
+When the aircraft profile or certification category changes, the system shall clear the arrival sequence selection.
+
+### REQ-FE-033: Sequence session reset
+
+When the preparation view opens or the planning method changes, the system shall leave the arrival sequence unselected.
