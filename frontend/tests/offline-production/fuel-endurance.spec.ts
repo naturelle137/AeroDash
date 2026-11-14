@@ -378,6 +378,17 @@ test('persisted fleet tank inputs feed the session-only fuel plan online and cac
     await expect(arrival).toContainText('570 kg')
     await expect(arrival).toContainText('Choose an explicit named burn sequence')
     await expect(card.getByTestId('arrival-cg')).toHaveCount(0)
+    if (planning === 'direct') {
+      for (const [label, target] of [
+        ['unselected', arrival],
+        ['controls', sequence],
+      ] as const) {
+        await target.evaluate((element) => element.scrollIntoView({ block: 'center' }))
+        const path = info.outputPath(`multi-${label}.png`)
+        await page.screenshot({ path })
+        await info.attach(`multi-${label}`, { path, contentType: 'image/png' })
+      }
+    }
     for (const [name, cg] of [
       ['A first', '1.947 m'],
       ['B first', '1.912 m'],
@@ -403,6 +414,14 @@ test('persisted fleet tank inputs feed the session-only fuel plan online and cac
   await expect(arrival).toContainText('570 kg')
   await sequence.selectOption('A first')
   await expect(card.getByTestId('arrival-cg')).toHaveText('1.947 m')
+  await expect
+    .poll(() =>
+      page.evaluate(() => {
+        const saved = localStorage.getItem('aerodash:session:payload')
+        return saved ? JSON.parse(saved).aircraftId : null
+      }),
+    )
+    .toBe(await multi.getAttribute('value'))
   expect((await page.reload())?.fromServiceWorker()).toBe(true)
   await expect(picker.locator('option:checked')).toContainText('D-MULTI')
   await expect(method).toHaveValue('')
