@@ -59,10 +59,12 @@ function keydown(event: KeyboardEvent): void {
   }
 }
 onMounted(() => {
+  document.body.classList.add('mb-print-active')
   window.addEventListener('beforeprint', recheck)
   window.addEventListener('keydown', keydown)
 })
 onBeforeUnmount(() => {
+  document.body.classList.remove('mb-print-active')
   window.removeEventListener('beforeprint', recheck)
   window.removeEventListener('keydown', keydown)
 })
@@ -138,7 +140,7 @@ onBeforeUnmount(() => {
 @media (max-width: 480px) { .mb-print-root--open { padding: .25rem; } .mb-print-sheet { padding: .75rem; } }
 @media print {
   @page { size: A4; margin: 15mm; }
-  body:has(> .mb-print-root) > :not(.mb-print-root) { display: none !important; }
+  body.mb-print-active > :not(.mb-print-root) { display: none !important; }
   body > .mb-print-root { display: block; position: static; overflow: visible; padding: 0; background: white; color: black; }
   .mb-print-sheet { max-width: none; padding: 0; margin: 0; font: 10pt/1.4 sans-serif; }
   .mb-print-controls { display: none; }

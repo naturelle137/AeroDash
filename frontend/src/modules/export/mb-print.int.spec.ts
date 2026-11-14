@@ -68,6 +68,7 @@ describe('M&B print presentation with real store calculation', () => {
   it.each(['loading', 'category', 'aircraft', 'status', 'notifications'] as const)('invalidates open preview on %s and blocks beforeprint', async change => {
     const input = source()
     const wrapper = mount(MbPrintPreview, { props: { source: input }, attachTo: document.body })
+    expect(document.body.classList.contains('mb-print-active')).toBe(true)
     await wrapper.get('button').trigger('click')
     expect(document.body.textContent).toContain('500.0 kg')
     if (change === 'loading') input.stations.push({ index: 0, name: 'Added', weight: 10, mandatory: false, touched: true, verified: false, hasError: false })
@@ -83,6 +84,7 @@ describe('M&B print presentation with real store calculation', () => {
     const print = [...document.querySelectorAll('button')].find(b => b.textContent === 'Print M&B')!
     expect(print.disabled).toBe(true)
     wrapper.unmount()
+    expect(document.body.classList.contains('mb-print-active')).toBe(false)
   })
   it('cancels without changing preparation and rechecks expiry before native Print', async () => {
     vi.useFakeTimers()
