@@ -211,12 +211,14 @@ const palette = computed(() => {
         envFill: dark ? 'rgba(255,204,128,0.12)' : 'rgba(255,152,0,0.10)',
         envStroke: dark ? '#ffcc80' : '#ef6c00',
       }
+    // Calculated inside the entered envelope: deliberately neutral (no green
+    // clearance cue), but solid and darker than the dashed pending state.
     case 'success':
       return {
-        pt: dark ? '#a5d6a7' : '#2e7d32',
-        line: dark ? '#a5d6a7' : '#2e7d32',
-        envFill: dark ? 'rgba(165,214,167,0.12)' : 'rgba(76,175,80,0.10)',
-        envStroke: dark ? '#a5d6a7' : '#388e3c',
+        pt: dark ? '#cfd8dc' : '#37474f',
+        line: dark ? '#b0bec5' : '#455a64',
+        envFill: dark ? 'rgba(176,190,197,0.12)' : 'rgba(84,110,122,0.10)',
+        envStroke: dark ? '#90a4ae' : '#546e7a',
       }
     default:
       return {

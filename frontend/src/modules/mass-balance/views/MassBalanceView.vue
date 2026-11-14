@@ -1418,9 +1418,11 @@ function onCancelSelection(): void {
   white-space: nowrap;
 }
 
+/* Within entered limits is a calculated state, not a clearance: neutral, no green. */
 .prep-sticky-strip__state-badge--success {
-  background: var(--color-success-bg);
-  color: var(--color-success);
+  background: var(--color-surface-alt);
+  color: var(--color-text-primary);
+  box-shadow: inset 0 0 0 1px var(--color-text-secondary);
 }
 
 .prep-sticky-strip__state-badge--warning {
@@ -1861,8 +1863,9 @@ function onCancelSelection(): void {
 }
 
 .state-badge--success {
-  background: var(--color-success-bg);
-  color: var(--color-success);
+  background: var(--color-surface-alt);
+  color: var(--color-text-primary);
+  box-shadow: inset 0 0 0 1px var(--color-text-secondary);
 }
 
 .state-badge--warning {
@@ -1908,8 +1911,8 @@ function onCancelSelection(): void {
 }
 
 .banner--success {
-  background: var(--color-success-bg);
-  border: 1px solid var(--color-success);
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-text-secondary);
 }
 
 .banner--warning {
@@ -1928,7 +1931,7 @@ function onCancelSelection(): void {
 }
 
 .notification--success {
-  color: var(--color-success);
+  color: var(--color-text-primary);
 }
 
 .notification--warning {
