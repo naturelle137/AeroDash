@@ -36,6 +36,13 @@ describe('fleet backup validation', () => {
     expect(() => previewFleetRestore(text)).toThrow(/failed|conflict/i)
   })
 
+  it('accepts the full record bound and rejects a larger matching batch', () => {
+    const profiles = Array.from({ length: 100 }, (_, i) => ({ ...testPohAircraft(), registration: `N${1000 + i}` }))
+    expect(previewFleetRestore(backup({ profileCount: 100, profiles }))).toHaveLength(100)
+    profiles.push({ ...testPohAircraft(), registration: 'N9999' })
+    expect(() => previewFleetRestore(backup({ profileCount: 101, profiles }))).toThrow('1–100')
+  })
+
   it('checks file bounds/type before reading', () => {
     for (const size of [0, MAX_FLEET_IMPORT_BYTES + 1, Infinity, NaN]) {
       expect(() => validateFleetImportFile({ size, name: 'backup.json', type: 'application/json' } as File)).toThrow(/failed|conflict/i)

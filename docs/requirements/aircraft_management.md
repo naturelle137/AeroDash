@@ -96,7 +96,7 @@ If a backup exceeds 5 MiB or 100 profiles, has an unsupported envelope version, 
 
 ### REQ-AC-024: Restore identity
 
-When a backup is restored, the system shall assign every profile a fresh local ID and unverified draft status under existing exchange migration rules.
+When a backup is restored, the system shall assign every profile a fresh local ID.
 
 ### REQ-AC-025: Restore fidelity
 
@@ -112,11 +112,23 @@ If a restored registration conflicts case-insensitively with a persisted aircraf
 
 ### REQ-AC-028: Restore preservation
 
-If a restore is cancelled or fails, then the system shall preserve the existing fleet and active preparation.
+If a restore is cancelled or fails, then the system shall preserve the existing fleet.
 
 ### REQ-AC-029: Restore availability
 
-When a restore commits, the system shall expose the imported drafts in Fleet immediately and after a cached offline reload.
+When a restore commits, the system shall expose the imported drafts in Fleet immediately.
+
+### REQ-AC-030: Restored draft status
+
+When a backup is restored, the system shall mark every imported profile as an unverified draft under existing exchange migration rules.
+
+### REQ-AC-031: Preparation preservation
+
+If a restore is cancelled or fails, then the system shall preserve the active preparation.
+
+### REQ-AC-032: Offline restore persistence
+
+When Fleet reopens after a cached offline reload, the system shall expose the committed restored profiles.
 
 ## Design References
 

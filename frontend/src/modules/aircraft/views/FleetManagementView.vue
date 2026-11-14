@@ -300,6 +300,7 @@ h2 {
 }
 
 .btn {
+  min-height: 44px;
   padding: 0.5rem 1.25rem;
   border: none;
   border-radius: 4px;
