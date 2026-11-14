@@ -470,6 +470,13 @@ test('persisted fleet tank inputs feed the session-only fuel plan online and cac
   expect(await page.evaluate(() => document.body.scrollWidth)).toBe(page.viewportSize()!.width)
 
   // Single lookup tank with zero unusable fuel, still cached offline.
+  // Blocked M&B has no arrival region; centre the visible validation error instead.
+  async function blockedShot(name: string) {
+    const error = page.getByRole('alert').filter({ hasText: 'Invalid input: Synthetic tank' })
+    await error.evaluate((element) => element.scrollIntoView({ block: 'center' }))
+    await page.screenshot({ path: info.outputPath(`${name}.png`) })
+    await info.attach(name, { path: info.outputPath(`${name}.png`), contentType: 'image/png' })
+  }
   async function choose(registration: string) {
     const entry = picker.locator('option').filter({ hasText: registration }).first()
     await picker.selectOption((await entry.getAttribute('value'))!)
@@ -515,12 +522,16 @@ test('persisted fleet tank inputs feed the session-only fuel plan online and cac
     await expect(card.getByTestId('arrival-cg')).toHaveText(cg!)
   }
   await shot('lookup-direct-partial-offline')
+  // A load beyond the table now blocks M&B itself, so no arrival mass or CG remains.
   await tank.fill('60')
   await tank.blur()
-  await expect(masses()).toHaveText(['620 kg', '30 kg', '590 kg', '30 kg'])
+  await expect(
+    page.getByText(/Invalid input: Synthetic tank \(LOOKUP_OUT_OF_RANGE\)/),
+  ).toBeVisible()
+  await expect(arrival).toHaveCount(0)
   await expect(card.getByTestId('arrival-cg')).toHaveCount(0)
-  await expect(arrival).toContainText('cover the whole current tank load')
-  await shot('lookup-out-of-range-offline')
+  await expect(card).toContainText('Valid current Mass & Balance loading is required')
+  await blockedShot('lookup-out-of-range-offline')
   await tank.fill('50')
   await tank.blur()
   await expect(card.getByTestId('arrival-cg')).toHaveText('1.991 m')
@@ -529,8 +540,17 @@ test('persisted fleet tank inputs feed the session-only fuel plan online and cac
   await expect(card).toContainText('No fuel tanks available in this category')
   await category.selectOption('Normal')
   await expect(card.getByTestId('arrival-cg')).toHaveText('1.991 m')
+  // A table that does not cover u = 0 blocks M&B (no invented origin) and thus arrival.
+  await choose('D-BADT')
+  await expect(
+    page.getByText(/Invalid input: Synthetic tank \(LOOKUP_OUT_OF_RANGE\)/),
+  ).toBeVisible()
+  await method.selectOption('direct')
+  await direct.fill('10')
+  await expect(arrival).toHaveCount(0)
+  await expect(card).toContainText('Valid current Mass & Balance loading is required')
+  await blockedShot('D-BADT-lookup-blocked-offline')
   for (const [registration, reason, mass] of [
-    ['D-BADT', 'starting exactly at zero quantity and zero moment', '600 kg'],
     ['D-LOOK2', 'exactly one category-available tank', '600 kg'],
     // Unusable 10 kg stays in BEM: takeoff 600 kg, arrival 590 kg.
     ['D-VARY', 'exactly zero unusable fuel', '590 kg'],
