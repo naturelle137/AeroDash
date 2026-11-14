@@ -77,8 +77,18 @@ The native event sets a synchronous DOM/CSS guard on failure so pending Vue
 renders cannot leak old results into print media. Preparation chrome is excluded
 from print while this workflow is mounted. No upload, PDF dependency, profile
 verification mutation or notification acknowledgement is performed. Tabular
-limits replace graphics; this is M&B only, and the all-usable-fuel-burned endpoint
+limits replace graphics; the all-usable-fuel-burned endpoint
 is distinct from trip arrival and does not assess flight or landing suitability.
+
+The preparation view owns one session-only fuel composable shared with its fuel
+card. Its typed read-only presentation contains raw-input identity, current results,
+warnings and unsupported-CG reasons; export performs no fuel calculation. Fuel
+inclusion starts unchecked and remains an explicit choice even if the plan becomes
+invalid. A possible trip with a reserve shortfall remains eligible; invalid inputs
+or an impossible trip block combined printing. Both print checks read live source
+dependencies through a getter before any pending parent render. Fuel changes and
+include-choice changes invalidate the snapshot synchronously. Printed fuel values
+reuse profile markers and distinguish arrival inventory from reserve budget margin.
 
 ## Application lifecycle
 

@@ -1,113 +1,7 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
-import { useMassBalanceStore } from '@/modules/mass-balance/stores/mass-balance.store'
-import { arrivalCgForPlanning, arrivalSequenceChoices } from '../services/arrival-cg'
-import { usableFuelForPlanning } from '../services/usable-fuel'
-import { calculateTripArrival } from '@/core/logic/trip-arrival'
-import { calculateFuelEndurance } from '@/core/logic/fuel-endurance'
-
-const store = useMassBalanceStore()
-const sequence = ref('')
-const sequences = computed(() => arrivalSequenceChoices(store.aircraft, store.activeCategory))
-watch(
-  () => [store.aircraft, store.activeCategory],
-  () => {
-    sequence.value = ''
-  },
-  { deep: true, flush: 'sync' },
-)
-const method = ref('')
-const directTripFuel = ref('')
-const consumption = ref('')
-const trip = ref('')
-const reserve = ref('')
-watch(
-  () => store.aircraft?.id,
-  () => {
-    method.value = ''
-    directTripFuel.value = ''
-    consumption.value = ''
-    trip.value = ''
-    reserve.value = ''
-  },
-  { flush: 'sync' },
-)
-watch(
-  method,
-  () => {
-    sequence.value = ''
-    directTripFuel.value = ''
-    consumption.value = ''
-    trip.value = ''
-    reserve.value = ''
-  },
-  { flush: 'sync' },
-)
-const fuel = computed(() =>
-  usableFuelForPlanning(store.aircraft, store.activeCategory, store.stations),
-)
-function decimal(raw: string): number {
-  return /^\d+(?:[.,]\d+)?$/.test(raw.trim()) ? Number(raw.trim().replace(',', '.')) : NaN
-}
-const result = computed(() =>
-  method.value === 'duration' && fuel.value.ok
-    ? calculateFuelEndurance({
-        usableFuelKg: fuel.value.usableFuelKg,
-        consumptionKgPerHour: decimal(consumption.value),
-        tripMinutes: decimal(trip.value),
-        reserveMinutes: decimal(reserve.value),
-      })
-    : null,
-)
-const plan = computed(() => (result.value?.ok ? result.value.plan : null))
-const arrival = computed(() => {
-  if (!fuel.value.ok || !method.value) return null
-  const tripFuelKg =
-    method.value === 'direct' ? decimal(directTripFuel.value) : plan.value?.tripFuelKg
-  if (tripFuelKg === undefined) return null
-  if (!Number.isFinite(tripFuelKg) || tripFuelKg < 0) {
-    return {
-      ok: false as const,
-      reason: 'Enter explicit finite nonnegative Trip Fuel in kg. Blank fields are unconfigured.',
-    }
-  }
-  const mb = store.lastResult
-  if (
-    !mb?.success ||
-    store.hasErrorNotification ||
-    mb.violations.some((v) => v.type === 'STATION_LIMIT_EXCEEDED')
-  ) {
-    return { ok: false as const, reason: 'Valid current Mass & Balance loading is required.' }
-  }
-  const result = calculateTripArrival({
-    takeoffMassKg: mb.takeoffCenterOfGravityPoint.mass,
-    usableFuelKg: fuel.value.usableFuelKg,
-    tripFuelKg,
-  })
-  if (result.ok) return result
-  return {
-    ok: false as const,
-    reason:
-      result.reason === 'TRIP_EXCEEDS_USABLE_FUEL'
-        ? 'Trip fuel exceeds available usable fuel; reduce the trip or correct the tank loads.'
-        : 'Mass & Balance and fuel inventory must contain finite, consistent masses.',
-  }
-})
-const arrivalCg = computed(() => {
-  if (!arrival.value?.ok) return null
-  return arrivalCgForPlanning(
-    store.aircraft,
-    store.activeCategory,
-    store.stations,
-    store.lastResult,
-    arrival.value.tripFuelKg,
-    sequence.value,
-  )
-})
-const format = (value: number) =>
-  value > 0 && value < 0.001
-    ? '<0.001'
-    : value.toLocaleString('en-GB', { maximumFractionDigits: 3 })
+import { useFuelPlanning, type FuelPlanning } from '../services/use-fuel-planning'
+const props = defineProps<{ planning?: FuelPlanning }>()
+const { method, directTripFuel, consumption, trip, reserve, sequence, sequences, fuel, plan, arrival, arrivalCg, format, presentation } = props.planning ?? useFuelPlanning()
 </script>
 
 <template>
@@ -214,13 +108,7 @@ const format = (value: number) =>
         Endurance = usable kg ÷ kg/h × 60. Required fuel = (trip min + reserve min) ÷ 60 × kg/h.
         Margin = usable − required kg.
       </p>
-      <p v-if="plan?.warning" role="alert">
-        WARN-FE-001 — Insufficient fuel for the entered trip plus reserve.
-      </p>
-      <p v-if="plan?.reserveShortfall" role="alert">
-        Usable fuel is insufficient even for the reserve alone.
-      </p>
-      <p v-if="plan?.marginKg === 0">Zero margin: exactly the entered arithmetic budget.</p>
+      <p v-for="warning in presentation.warnings" :key="warning" role="alert">{{ warning }}</p>
       <p>
         Arithmetic planning aid only. Verify against your aircraft POH/AFM. This does not assess
         operational suitability, landing suitability or the full burn path/envelope. Estimated

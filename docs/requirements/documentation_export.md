@@ -58,11 +58,43 @@ When the user closes M&B print preview, the system shall retain the current prep
 
 While the production app and aircraft are cached locally, the system shall support M&B print preview and native browser Print after an offline reload.
 
-The implemented slice is M&B only. Full briefing assembly, downloadable PDF,
+The implemented slice is M&B with optional current manual fuel planning. Full briefing assembly, downloadable PDF,
 Performance export and low-factor export remain future scope. Browser-generated
 PDFs in QA are evidence of browser pagination, not a downloadable product feature
 or physical printer execution. Preview data is session-only and does not change
 profile verification or acknowledge notifications.
+
+### REQ-DOC-015: Explicit fuel inclusion
+
+When opening Flight Preparation, the system shall leave Include current fuel plan unchecked.
+
+### REQ-DOC-016: Current fuel output
+
+When the user explicitly includes an eligible manual fuel plan, the system shall print its current inputs, inventory, mode-specific results and estimated trip arrival in a separate section.
+
+### REQ-DOC-017: Fuel inclusion failure
+
+If requested fuel inclusion has invalid inventory, M&B or manual inputs, an impossible trip, no method or an electric profile, then the system shall block combined printing with a visible reason.
+
+### REQ-DOC-018: Fuel warnings
+
+While a duration plan has a possible trip, the system shall retain active budget warnings including reserve-only shortfall and zero margin in combined print output.
+
+### REQ-DOC-019: Unsupported printed arrival CG
+
+If arrival CG is unsupported, then the system shall retain valid printed arrival mass with the current unsupported-CG reason.
+
+### REQ-DOC-020: Current fuel snapshot
+
+When fuel method, raw inputs or sequence change, the system shall synchronously invalidate an open combined print snapshot.
+
+### REQ-DOC-021: Fuel print markers
+
+Where profile data is unverified, the system shall mark affected fuel and arrival values [UNVERIFIED] in print output.
+
+### REQ-DOC-022: Combined offline print
+
+While the production app and aircraft are cached locally, the system shall support explicit re-entry and inclusion of a manual fuel plan after an offline reload.
 
 ## Design References
 
