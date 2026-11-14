@@ -16,9 +16,9 @@ import { mapZodErrorToViolations } from './mb.zod-violation-mapping'
 //   mass        ≤ 200_000 kg  (well above any Part-NCO SEP; covers misuse)
 //   arm         ∈ [-100, 100] m
 //   moment      ∈ [-20_000_000, 20_000_000] kg·m
-const MAX_MASS_KG = 200_000
-const MAX_ARM_M = 100
-const MAX_MOMENT_KGM = 20_000_000
+export const MAX_MASS_KG = 200_000
+export const MAX_ARM_M = 100
+export const MAX_MOMENT_KGM = 20_000_000
 
 const createNumReq = () => z.number().finite({ message: 'NOT_A_NUMBER' })
 const createNumGt0Req = () =>

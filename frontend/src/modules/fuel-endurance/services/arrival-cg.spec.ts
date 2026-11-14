@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest'
 import { calculateMassBalance } from '@/core/adapters/mass-balance.adapter'
 import { syntheticFuelContext, stations } from './synthetic-fuel.fixture'
 import { arrivalCgForPlanning } from './arrival-cg'
+import { normalizeFuelQuantityToKg } from '@/core/logic/fuel-mass'
+import { normalizeMomentToSI, parseSourceUnit } from '@/core/logic/unit-normalization'
 
 // Synthetic BEM includes unusable fuel; no operational aircraft reference data.
 function setup() {
@@ -78,7 +80,7 @@ describe('trip arrival CG SI adapter and eligibility', () => {
     aircraft.loadPoints[0]!.armLookup = [{ massOrVolume: 10, moment: 10 }]
     expect(arrivalCgForPlanning(aircraft, 'Normal', stations, mb, 20)).toMatchObject({
       ok: false,
-      reason: expect.stringContaining('Variable-arm'),
+      reason: expect.stringContaining('both a fixed arm and a lookup table'),
     })
   })
   it('rejects unknown source units instead of using the legacy fallback', () => {
@@ -140,7 +142,7 @@ describe('multi-tank adapter', () => {
         const result = arrivalCgForPlanning(aircraft, 'Normal', loads, mb, 30, name)
         expect(result.ok).toBe(true)
         if (!result.ok) throw new Error(result.reason)
-      expect(result.arrivalCgM).toBeCloseTo(moment / 570, 12)
+        expect(result.arrivalCgM).toBeCloseTo(moment / 570, 12)
       }
     },
   )
@@ -165,3 +167,294 @@ describe('multi-tank adapter', () => {
     })
   })
 })
+
+// Synthetic nonlinear total-moment tables, not aircraft data. The kg/kg·m knots
+// (0,0),(10,10),(30,60),(50,150) are also expressed in other supported raw units.
+const LB = 0.45359237
+const LB_IN = LB * 0.0254
+const KG_KNOTS: [number, number][] = [
+  [0, 0],
+  [10, 10],
+  [30, 60],
+  [50, 150],
+]
+function variable(
+  unit = 'kg',
+  sourceUnit = 'kg-m',
+  table = KG_KNOTS,
+  quantity = 50,
+  mbQuantity = quantity,
+) {
+  const aircraft = syntheticFuelContext()
+  const tank = aircraft.loadPoints[0]!
+  aircraft.sourceUnit = sourceUnit
+  tank.arm = null
+  tank.unit = unit
+  tank.operationalLimit = null
+  tank.fuelTank!.unusableFuel = 0
+  tank.armLookup = table.map(([massOrVolume, moment]) => ({ massOrVolume, moment }))
+  const loads = [{ ...stations[0]!, weight: quantity }]
+  // Mirrors the store's existing SI boundary for the M&B input.
+  const { massUnit, armUnit } = parseSourceUnit(sourceUnit)
+  const toKg = (v: number) =>
+    normalizeFuelQuantityToKg(v, unit as 'kg', tank.fuelTank!.permissibleFuelTypes)
+  const mb = calculateMassBalance({
+    basicEmptyMass: 560,
+    emptyCenterOfGravity: 2,
+    maxTakeoffMass: 1000,
+    maxZeroFuelMass: null,
+    graphType: 'arm',
+    envelope: [
+      { mass: 500, armOrMoment: 0 },
+      { mass: 1000, armOrMoment: 0 },
+      { mass: 1000, armOrMoment: 4 },
+      { mass: 500, armOrMoment: 4 },
+    ],
+    stations: [],
+    fuelStations: [
+      {
+        index: 0,
+        mass: toKg(mbQuantity),
+        unusableFuel: 0,
+        arm: null,
+        armLookup: tank.armLookup.map((e) => ({
+          massOrVolume: toKg(e.massOrVolume),
+          moment: normalizeMomentToSI(e.moment, massUnit, armUnit),
+        })),
+        burnSequences: [],
+      },
+    ],
+  })
+  return { aircraft, mb, loads }
+}
+const cg = (r: ReturnType<typeof arrivalCgForPlanning>) => {
+  if (!r.ok) throw new Error(r.reason)
+  return r
+}
+describe('single variable-arm tank adapter (zero unusable fuel)', () => {
+  it.each([
+    [0, 1270, 610],
+    [10, 1225, 600],
+    [20, 1180, 590],
+    [30, 1155, 580],
+    [50, 1120, 560],
+  ])('burn %s kg gives %s kg·m at %s kg from actual M&B', (burn, moment, mass) => {
+    const { aircraft, mb, loads } = variable()
+    expect(mb.takeoffCenterOfGravityPoint.moment).toBe(1270)
+    const result = cg(arrivalCgForPlanning(aircraft, 'Normal', loads, mb, burn))
+    expect(result.arrivalMomentKgM).toBeCloseTo(moment, 9)
+    expect(result.arrivalCgM).toBeCloseTo(moment / mass, 12)
+  })
+  it('matches the takeoff point at zero burn and the zero-fuel point at full burn', () => {
+    const { aircraft, mb, loads } = variable()
+    const before = structuredClone(mb)
+    expect(cg(arrivalCgForPlanning(aircraft, 'Normal', loads, mb, 0)).arrivalCgM).toBe(
+      mb.takeoffCenterOfGravityPoint.arm,
+    )
+    expect(cg(arrivalCgForPlanning(aircraft, 'Normal', loads, mb, 50)).arrivalCgM).toBeCloseTo(
+      mb.landingCenterOfGravityPoint.arm,
+      12,
+    )
+    expect(mb).toEqual(before)
+  })
+  it.each([
+    ['lb', 'lb-in', LB, LB_IN],
+    ['L', 'kg-m', 0.72, 1],
+    ['USG', 'lb-in', 3.785411784 * 0.72, LB_IN],
+    ['gal', 'lb-in', 3.785411784 * 0.72, LB_IN],
+    ['IMPgal', 'kg', 4.54609 * 0.72, 1],
+    ['kg', 'kg-ft', 1, 0.3048],
+  ])('normalizes a %s axis with %s moments once each', (unit, sourceUnit, axis, moment) => {
+    const table = KG_KNOTS.map(([x, m]) => [x / axis, m / moment] as [number, number])
+    const { aircraft, mb, loads } = variable(unit, sourceUnit, table, 50 / axis)
+    const result = cg(arrivalCgForPlanning(aircraft, 'Normal', loads, mb, 20))
+    expect(result.arrivalMomentKgM).toBeCloseTo(1180, 9)
+    expect(result.arrivalCgM).toBeCloseTo(1180 / 590, 12)
+  })
+  it('supports an empty current tank only at zero burn', () => {
+    const { aircraft, mb, loads } = variable('kg', 'kg-m', KG_KNOTS, 0)
+    expect(cg(arrivalCgForPlanning(aircraft, 'Normal', loads, mb, 0)).arrivalCgM).toBe(2)
+    expect(arrivalCgForPlanning(aircraft, 'Normal', loads, mb, 1).ok).toBe(false)
+  })
+  it('accepts signed datum-relative moments', () => {
+    const table = KG_KNOTS.map(([x, m]) => [x, -m] as [number, number])
+    const { aircraft, mb, loads } = variable('kg', 'kg-m', table)
+    expect(
+      cg(arrivalCgForPlanning(aircraft, 'Normal', loads, mb, 20)).arrivalMomentKgM,
+    ).toBeCloseTo(1060, 9)
+  })
+  it.each([0, 20, 40])('keeps nonzero unusable fuel unsupported at %s kg burn', (burn) => {
+    const { aircraft, loads } = variable()
+    aircraft.loadPoints[0]!.fuelTank!.unusableFuel = 10
+    // Even a constant-arm-shaped lookup stays outside the zero-unusable contract.
+    for (const table of [
+      KG_KNOTS,
+      [
+        [0, 0],
+        [50, 50],
+      ],
+    ])
+      for (const [i, [x, m]] of table.entries())
+        aircraft.loadPoints[0]!.armLookup[i] = { massOrVolume: x!, moment: m! }
+    const legacy = calculateMassBalance({
+      ...setupInput(),
+      fuelStations: [
+        {
+          index: 0,
+          mass: 50,
+          unusableFuel: 10,
+          arm: null,
+          armLookup: [
+            { massOrVolume: 0, moment: 0 },
+            { massOrVolume: 10, moment: 10 },
+            { massOrVolume: 30, moment: 60 },
+            { massOrVolume: 50, moment: 150 },
+          ],
+          burnSequences: [],
+        },
+      ],
+    })
+    // Existing M&B convention (1240) differs from the total-load moment (1260).
+    expect(legacy.takeoffCenterOfGravityPoint.moment).toBe(1240)
+    expect(arrivalCgForPlanning(aircraft, 'Normal', loads, legacy, burn)).toEqual({
+      ok: false,
+      reason: expect.stringContaining('exactly zero unusable fuel'),
+    })
+  })
+  it('rejects a fixed arm combined with a lookup table', () => {
+    const { aircraft, mb, loads } = variable()
+    aircraft.loadPoints[0]!.arm = 3
+    expect(arrivalCgForPlanning(aircraft, 'Normal', loads, mb, 20)).toMatchObject({
+      ok: false,
+      reason: expect.stringContaining('both a fixed arm'),
+    })
+  })
+  it('rejects multiple available tanks with lookup geometry even with a sequence', () => {
+    const { aircraft, mb, loads } = variable()
+    const second = structuredClone(aircraft.loadPoints[0]!)
+    second.armLookup = []
+    second.arm = 1
+    aircraft.loadPoints.push({ ...second, name: 'Empty' })
+    aircraft.loadPoints.forEach((tank, i) => {
+      tank.fuelTank!.burnSequences = [{ sequenceName: 'S', ordinalPosition: i + 1 }]
+    })
+    const both = [...loads, { ...loads[0]!, index: 1, weight: 0 }]
+    for (const name of ['', 'S'])
+      expect(arrivalCgForPlanning(aircraft, 'Normal', both, mb, 20, name)).toMatchObject({
+        ok: false,
+        reason: expect.stringContaining('exactly one category-available tank'),
+      })
+    aircraft.loadPoints[1]!.allowableCategories = ['Utility']
+    expect(arrivalCgForPlanning(aircraft, 'Normal', loads, mb, 20).ok).toBe(true)
+  })
+  it.each([
+    [
+      'negative raw quantity (clamped by normalization)',
+      [
+        [-1, 0],
+        [0, 0],
+        [50, 150],
+      ],
+    ],
+    ['singleton', [[50, 150]]],
+    [
+      'duplicate',
+      [
+        [0, 0],
+        [30, 60],
+        [30, 65],
+        [50, 150],
+      ],
+    ],
+    [
+      'unsorted',
+      [
+        [0, 0],
+        [50, 150],
+        [30, 60],
+      ],
+    ],
+    [
+      'missing origin',
+      [
+        [10, 10],
+        [50, 150],
+      ],
+    ],
+    [
+      'nonzero origin moment',
+      [
+        [0, 1],
+        [50, 150],
+      ],
+    ],
+  ])('rejects %s geometry with a visible reason', (_, table) => {
+    const { aircraft, mb, loads } = variable()
+    aircraft.loadPoints[0]!.armLookup = (table as number[][]).map(([massOrVolume, moment]) => ({
+      massOrVolume: massOrVolume!,
+      moment: moment!,
+    }))
+    const result = arrivalCgForPlanning(aircraft, 'Normal', loads, mb, 20)
+    expect(result).toMatchObject({
+      ok: false,
+      reason: expect.stringContaining('Variable-arm lookup geometry'),
+    })
+  })
+  it.each([
+    [0, Infinity],
+    [NaN, 150],
+  ])('rejects nonfinite raw knot (%s, %s) at the profile schema', (x, m) => {
+    const { aircraft, mb, loads } = variable()
+    aircraft.loadPoints[0]!.armLookup[3] = { massOrVolume: x, moment: m }
+    expect(arrivalCgForPlanning(aircraft, 'Normal', loads, mb, 20).ok).toBe(false)
+  })
+  it('rejects loads beyond the table and conversion overflow without clamping', () => {
+    const { aircraft, mb, loads } = variable('kg', 'kg-m', KG_KNOTS, 60)
+    expect(arrivalCgForPlanning(aircraft, 'Normal', loads, mb, 20)).toMatchObject({
+      ok: false,
+      reason: expect.stringContaining('cover the whole current tank load'),
+    })
+    const usg = variable(
+      'USG',
+      'kg-m',
+      [
+        [0, 0],
+        [10, 10],
+      ],
+      5,
+    )
+    usg.aircraft.loadPoints[0]!.armLookup.push({ massOrVolume: 1e308, moment: 20 })
+    expect(arrivalCgForPlanning(usg.aircraft, 'Normal', usg.loads, usg.mb, 1)).toMatchObject({
+      ok: false,
+      reason: expect.stringContaining('numeric limits'),
+    })
+  })
+  it('rejects unknown source units and stale or invalid M&B', () => {
+    const { aircraft, mb, loads } = variable()
+    aircraft.sourceUnit = 'kg-furlong'
+    expect(arrivalCgForPlanning(aircraft, 'Normal', loads, mb, 20).ok).toBe(false)
+    aircraft.sourceUnit = 'kg-m'
+    const stale = variable('kg', 'kg-m', KG_KNOTS, 50, 40).mb
+    for (const invalid of [stale, null, { ...mb, success: false }])
+      expect(arrivalCgForPlanning(aircraft, 'Normal', loads, invalid, 20)).toMatchObject({
+        ok: false,
+        reason: expect.stringContaining('Valid current Mass & Balance'),
+      })
+  })
+})
+function setupInput() {
+  return {
+    basicEmptyMass: 560,
+    emptyCenterOfGravity: 2,
+    maxTakeoffMass: 1000,
+    maxZeroFuelMass: null,
+    graphType: 'arm' as const,
+    envelope: [
+      { mass: 500, armOrMoment: 0 },
+      { mass: 1000, armOrMoment: 0 },
+      { mass: 1000, armOrMoment: 4 },
+      { mass: 500, armOrMoment: 4 },
+    ],
+    stations: [],
+  }
+}

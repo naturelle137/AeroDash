@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import type { ArmLookupEntry } from '../domain/aircraft.types'
-import { interpolateArmFromLookup } from './mb.arm-lookup'
+import { interpolateArmFromLookup, interpolateMomentStrict } from './mb.arm-lookup'
 
 const CG_PRECISION = 4
 
@@ -109,5 +109,28 @@ describe('interpolateArmFromLookup', () => {
     expect(() => interpolateArmFromLookup(NaN, lookup)).toThrow(
       'Invalid Input: armLookup has an invalid input.',
     )
+  })
+})
+
+describe('interpolateMomentStrict', () => {
+  const table = [
+    { massOrVolume: 0, moment: 0 },
+    { massOrVolume: 10, moment: 10 },
+    { massOrVolume: 30, moment: 60 },
+  ]
+  it.each([
+    [0, 0],
+    [5, 5],
+    [10, 10],
+    [20, 35],
+    [30, 60],
+  ])('interpolates total moment at %s', (x, moment) => {
+    expect(interpolateMomentStrict(x, table)).toBe(moment)
+  })
+  it.each([-0.001, 30.001, NaN])('returns null outside the table at %s', (x) => {
+    expect(interpolateMomentStrict(x, table)).toBeNull()
+  })
+  it('shares the legacy segment rule inside the table', () => {
+    expect(interpolateArmFromLookup(20, table)).toBe(interpolateMomentStrict(20, table)! / 20)
   })
 })

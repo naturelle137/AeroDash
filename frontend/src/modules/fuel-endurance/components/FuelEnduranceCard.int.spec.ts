@@ -324,7 +324,7 @@ describe('fuel plan with live M&B store', () => {
       store.updateStationWeight(0, 50)
       await nextTick()
       expect(cg().exists()).toBe(false)
-      expect(wrapper.text()).toContain('Variable-arm tanks are unsupported')
+      expect(wrapper.text()).toContain('both a fixed arm and a lookup table')
       expect(wrapper.text()).toContain('580 kg')
       store.aircraft!.loadPoints[0]!.armLookup = []
       store.updateStationWeight(0, 50)
@@ -395,6 +395,98 @@ describe('fuel plan with live M&B store', () => {
       wrapper.unmount()
       const reopened = mount(FuelEnduranceCard)
       expect(reopened.get<HTMLSelectElement>('#fe-sequence').element.value).toBe('')
+    },
+  )
+  it.each(['duration', 'direct'])(
+    'computes single lookup-tank arrival CG and resets or recovers in %s mode',
+    async (method) => {
+      // Synthetic nonlinear total-moment table, zero unusable fuel; not aircraft data.
+      const store = useMassBalanceStore()
+      const aircraft = AircraftContextSchema.parse(syntheticFuelContext())
+      aircraft.sourceUnit = 'kg'
+      aircraft.weighingReports[0]!.basicEmptyMass = 560
+      aircraft.weighingReports[0]!.emptyCg = 2
+      const tank = aircraft.loadPoints[0]!
+      tank.arm = null
+      tank.fuelTank!.unusableFuel = 0
+      tank.allowableCategories = ['Normal']
+      tank.armLookup = [
+        { massOrVolume: 0, moment: 0 },
+        { massOrVolume: 10, moment: 10 },
+        { massOrVolume: 30, moment: 60 },
+        { massOrVolume: 50, moment: 150 },
+      ]
+      aircraft.loadPoints.push({
+        ...structuredClone(tank),
+        name: 'Utility-only lookup tank',
+        defaultQuantity: 0,
+        allowableCategories: ['Utility'],
+      })
+      const category = aircraft.certificationCategories[0]!
+      aircraft.certificationCategories = [
+        { ...category, category: 'Normal' },
+        { ...category, category: 'Utility' },
+      ]
+      store.loadProfile(aircraft)
+      store.updateStationWeight(0, 50)
+      const wrapper = mount(FuelEnduranceCard)
+      await wrapper.get('#fe-method').setValue(method)
+      if (method === 'direct') await wrapper.get('#fe-direct-trip').setValue('10')
+      else {
+        await wrapper.get('#fe-consumption').setValue('10')
+        await wrapper.get('#fe-trip').setValue('60')
+        await wrapper.get('#fe-reserve').setValue('30')
+      }
+      const cg = () => wrapper.find('[data-testid="arrival-cg"]')
+      // Profile edits in place recalculate only on a loading change.
+      const reload = async () => {
+        store.updateStationWeight(0, 49)
+        store.updateStationWeight(0, 50)
+        await nextTick()
+      }
+      const arrival = () => wrapper.get('[aria-label="Estimated trip arrival"]').text()
+      // (1270 − (150 − 105)) / 600
+      expect(cg().text()).toBe('2.042 m')
+      expect(arrival()).toContain('600 kg')
+      store.updateStationWeight(0, 30)
+      await nextTick()
+      // (1180 − (60 − 35)) / 580
+      expect(cg().text()).toBe('1.991 m')
+      store.updateStationWeight(0, 60)
+      await nextTick()
+      expect(cg().exists()).toBe(false)
+      expect(arrival()).toContain('610 kg')
+      expect(arrival()).toContain('cover the whole current tank load')
+      await reload()
+      expect(cg().text()).toBe('2.042 m')
+      store.aircraft!.loadPoints[0]!.fuelTank!.unusableFuel = 10
+      await reload()
+      expect(cg().exists()).toBe(false)
+      expect(arrival()).toContain('590 kg')
+      expect(arrival()).toContain('exactly zero unusable fuel')
+      store.aircraft!.loadPoints[0]!.fuelTank!.unusableFuel = 0
+      store.aircraft!.loadPoints[0]!.armLookup.reverse()
+      await reload()
+      expect(cg().exists()).toBe(false)
+      expect(arrival()).toContain('strictly ascending quantities')
+      store.aircraft!.loadPoints[0]!.armLookup.reverse()
+      await reload()
+      expect(cg().text()).toBe('2.042 m')
+      store.changeCertificationCategory('Utility')
+      await nextTick()
+      expect(cg().exists()).toBe(false)
+      store.changeCertificationCategory('Normal')
+      await reload()
+      expect(cg().text()).toBe('2.042 m')
+      store.aircraft!.loadPoints[1]!.allowableCategories = ['Normal']
+      await reload()
+      expect(cg().exists()).toBe(false)
+      expect(arrival()).toContain('exactly one category-available tank')
+      store.aircraft!.loadPoints[1]!.allowableCategories = ['Utility']
+      await reload()
+      expect(cg().text()).toBe('2.042 m')
+      await wrapper.get('#fe-method').setValue(method === 'direct' ? 'duration' : 'direct')
+      expect(cg().exists()).toBe(false)
     },
   )
 })
