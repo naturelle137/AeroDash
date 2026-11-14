@@ -23,6 +23,7 @@ import {
 } from '@/core/logic/profile-migrations'
 import type { AircraftProfile } from '@/core/adapters/aircraft.schema'
 import { AircraftProfileSchema } from '@/core/adapters/aircraft.schema'
+import { assertNoRegistrationConflicts, MAX_FLEET_IMPORT_PROFILES } from './fleet.import'
 
 
 /** Canonical IndexedDB database name — the single source of truth for the fleet store. */
@@ -243,6 +244,39 @@ export async function create(profile: AircraftProfile): Promise<void> {
   await withStore<IDBValidKey>('readwrite', (store) => store.add(parsed))
 }
 
+/** Resolve only after commit; conflicts and any failed add abort the whole batch. */
+export async function restoreBatch(profiles: readonly AircraftProfile[]): Promise<void> {
+  if (profiles.length < 1 || profiles.length > MAX_FLEET_IMPORT_PROFILES) {
+    throw new Error('Restore requires 1–100 profiles.')
+  }
+  const parsed = profiles.map((p) => AircraftProfileSchema.parse(p))
+  if (parsed.some((p) => p.status !== 'draft' || p.verification !== undefined)) {
+    throw new Error('Restored profiles must be unverified drafts.')
+  }
+  assertNoRegistrationConflicts(parsed, [])
+  const db = await openDB()
+  await new Promise<void>((resolve, reject) => {
+    const tx = db.transaction(STORE_NAME, 'readwrite')
+    const store = tx.objectStore(STORE_NAME)
+    let failure: unknown
+    tx.oncomplete = () => resolve()
+    tx.onabort = () => reject(failure ?? new Error(
+      `Restore transaction aborted (${tx.error?.name ?? 'AbortError'}). No aircraft were imported.`,
+    ))
+    const request = store.getAll()
+    request.onsuccess = () => {
+      try {
+        // Reading raw rows prevents overwriting registrations hidden by migration diagnostics.
+        assertNoRegistrationConflicts(parsed, request.result)
+        for (const profile of parsed) store.add(profile)
+      } catch (err) {
+        failure = err
+        tx.abort()
+      }
+    }
+  })
+}
+
 /**
  * Retrieve a single AircraftProfile by id alongside any migration diagnostic.
  *
@@ -348,6 +382,7 @@ export function deleteAll(): Promise<void> {
 
 export const fleetRepository = {
   openDB,
+  restoreBatch,
   create,
   findById,
   findByIdWithDiagnostics,

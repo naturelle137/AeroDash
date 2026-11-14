@@ -210,6 +210,13 @@ export const useFleetStore = defineStore('fleet', () => {
     return newProfile
   }
 
+  async function restoreProfiles(batch: readonly AircraftProfile[]): Promise<void> {
+    // Snapshot before yielding so the reviewed records cannot change during persistence.
+    const restored = batch.map((p) => AircraftProfileSchema.parse(p))
+    await fleetRepository.restoreBatch(restored)
+    profiles.value.push(...restored)
+  }
+
   /**
    * Update an existing Draft profile.
    * BLOCKS updates to Verified profiles — use editVerifiedProfile() instead.
@@ -446,6 +453,7 @@ export const useFleetStore = defineStore('fleet', () => {
     // Actions
     loadAll,
     createProfile,
+    restoreProfiles,
     updateProfile,
     deleteProfile,
     verifyProfile,

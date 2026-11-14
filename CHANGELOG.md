@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Restore Privacy fleet backups offline with explicit preview, fresh drafts and atomic conflict-safe persistence (#519).
+
+### Added
+
 - Optional current manual fuel plan and estimated trip arrival in offline M&B printing, with current-input guards and preserved warnings (#517).
 
 ### Added

@@ -28,6 +28,27 @@
       <FleetList />
     </section>
 
+    <section class="fleet-section" aria-labelledby="restore-heading" :aria-busy="restoreBusy">
+      <h2 id="restore-heading">Restore fleet backup</h2>
+      <p>Choose a bulk JSON backup exported from Privacy. Restore adds new unverified drafts;
+        review their source data before use. Existing aircraft and preparation stay in place.</p>
+      <label for="restore-file">Fleet backup (.json, up to 5 MB / 100 profiles)</label>
+      <input id="restore-file" type="file" accept=".json" class="import-file-input"
+        :disabled="restoreBusy" @change="onRestoreFile" />
+      <p v-if="restoreError" role="alert">{{ restoreError }}</p>
+      <div v-if="restorePreview.length" data-testid="restore-preview">
+        <p>Review {{ restorePreview.length }} aircraft. All will be imported as Draft.</p>
+        <ul><li v-for="profile in restorePreview" :key="profile.id">{{ profile.registration }}</li></ul>
+        <button type="button" class="btn btn-primary" :disabled="restoreBusy" @click="onConfirmRestore">
+          Confirm restore
+        </button>
+        <button type="button" class="btn" :disabled="restoreBusy" @click="restorePreview = []; restoreError = ''">
+          Cancel restore
+        </button>
+      </div>
+      <p v-if="restoreNotice" role="status">{{ restoreNotice }}</p>
+    </section>
+
     <section class="fleet-section" aria-labelledby="performance-import-help">
       <h2 id="performance-import-help">Supply POH performance tables</h2>
       <p>Use a Fleet row's Download button to download an aircraft exchange JSON. Keep its
@@ -96,6 +117,7 @@ import type { AircraftProfile } from '@/core/adapters/aircraft.schema'
 import { useFleetStore } from '../stores/fleet.store'
 import { importProfileFromJson, validateImportFile, ImportError } from '../services/profile.import'
 import FleetList from '../components/FleetList.vue'
+import { previewFleetRestore, validateFleetImportFile, assertNoRegistrationConflicts } from '../services/fleet.import'
 
 
 const fleetStore = useFleetStore()
@@ -103,6 +125,48 @@ const router = useRouter()
 
 const importError = ref('')
 const fileInputRef = ref<HTMLInputElement | null>(null)
+
+const restorePreview = ref<AircraftProfile[]>([])
+const restoreError = ref('')
+const restoreNotice = ref('')
+const restoreBusy = ref(false)
+
+async function onRestoreFile(event: Event): Promise<void> {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  restorePreview.value = []
+  restoreError.value = ''
+  restoreNotice.value = ''
+  if (!file) return
+  restoreBusy.value = true
+  try {
+    validateFleetImportFile(file)
+    const preview = previewFleetRestore(await file.text())
+    assertNoRegistrationConflicts(preview, fleetStore.profiles)
+    restorePreview.value = preview
+  } catch (err) {
+    restoreError.value = err instanceof Error ? err.message : 'Restore failed. No aircraft were imported.'
+  } finally {
+    input.value = ''
+    restoreBusy.value = false
+  }
+}
+
+async function onConfirmRestore(): Promise<void> {
+  if (restoreBusy.value || !restorePreview.value.length) return
+  restoreBusy.value = true
+  restoreError.value = ''
+  try {
+    const count = restorePreview.value.length
+    await fleetStore.restoreProfiles(restorePreview.value)
+    restorePreview.value = []
+    restoreNotice.value = `Restored ${count} aircraft as Draft. Review their data before use.`
+  } catch (err) {
+    restoreError.value = err instanceof Error ? `Restore failed: ${err.message}` : 'Restore failed. No aircraft were imported.'
+  } finally {
+    restoreBusy.value = false
+  }
+}
 
 // ─── Lifecycle ─────────────────────────────────────────────────────────────
 
@@ -236,6 +300,7 @@ h2 {
 }
 
 .btn {
+  min-height: 44px;
   padding: 0.5rem 1.25rem;
   border: none;
   border-radius: 4px;
