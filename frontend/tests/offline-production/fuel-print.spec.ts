@@ -90,7 +90,11 @@ test('optional current fuel in cached offline native print with synchronous stal
     })
   })
   async function capture(name: string) {
-    await page.screenshot({ path: info.outputPath(`${name}-screen.png`), fullPage: true })
+    await preview.evaluate(element => element.parentElement!.scrollTo(0, 0))
+    await page.screenshot({ path: info.outputPath(`${name}-screen.png`) })
+    await section.evaluate(element => element.scrollIntoView({ block: 'center' }))
+    expect(await page.evaluate(() => document.body.scrollWidth)).toBe(page.viewportSize()!.width)
+    await page.screenshot({ path: info.outputPath(`${name}-fuel-screen.png`) })
     await preview.getByRole('button', { name: /^Print M&B/ }).click()
     await expect.poll(() => page.locator('html').getAttribute('data-print-events').then(Number)).toBeGreaterThan(0)
     await page.emulateMedia({ media: 'print' })
@@ -98,7 +102,7 @@ test('optional current fuel in cached offline native print with synchronous stal
     await expect(section).toBeVisible()
     await page.screenshot({ path: info.outputPath(`${name}-print.png`), fullPage: true })
     await page.pdf({ path: info.outputPath(`${name}.pdf`), preferCSSPageSize: true })
-    for (const [file, contentType] of [[`${name}-screen.png`, 'image/png'], [`${name}-print.png`, 'image/png'], [`${name}.pdf`, 'application/pdf']]) {
+    for (const [file, contentType] of [[`${name}-screen.png`, 'image/png'], [`${name}-fuel-screen.png`, 'image/png'], [`${name}-print.png`, 'image/png'], [`${name}.pdf`, 'application/pdf']]) {
       await info.attach(file!, { path: info.outputPath(file!), contentType: contentType! })
     }
     await page.emulateMedia({ media: 'screen' })

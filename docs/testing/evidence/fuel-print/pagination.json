@@ -1,0 +1,66 @@
+{
+  "390/D-MULTI-direct-unsupported.pdf": {
+    "pages": 4,
+    "sha256": "55aeb324f905fa1b38abdeb8b52aac53e73929381b9b4ce81515eed489991f1f"
+  },
+  "390/D-MULTI-duration-unsupported.pdf": {
+    "pages": 4,
+    "sha256": "7d2e0195f8eb745b2ef79f462749672658f3497e37502992390abb161821803b"
+  },
+  "390/D-VARY-direct-unsupported.pdf": {
+    "pages": 4,
+    "sha256": "62ae6ee9bfa8be6fdd3d0e63351262cc63cb3e4bfd5fbaac94a91dfbe72ab72a"
+  },
+  "390/D-VARY-duration-unsupported.pdf": {
+    "pages": 4,
+    "sha256": "14e5394faf4fdd1fb20844dffd8a5f8ce5bb9c210bc1ea5795a3f79d84aa7bb0"
+  },
+  "390/fuel-stale-blocked.pdf": {
+    "pages": 1,
+    "sha256": "425e6848edc1a93c98d5183fdcedd5204e0e49e7cd0e0634da9fcf4c189d39d5"
+  },
+  "390/invalid-sequence-long-reason.pdf": {
+    "pages": 4,
+    "sha256": "01a1e5907bd45a2776d1a85f081a40770f2cdd5462844723a8a910b765a82507"
+  },
+  "390/offline-direct.pdf": {
+    "pages": 4,
+    "sha256": "c43469b06a0a08a3c7ca37be24eb99269587f8fb673cf1ccf9da704ebbd8f268"
+  },
+  "390/offline-duration-reserve-shortfall.pdf": {
+    "pages": 4,
+    "sha256": "dba03d5c51b9ad5d2e4d5c54ddcfd40381bef19ae510db53d46119daa48fb662"
+  },
+  "1440/D-MULTI-direct-unsupported.pdf": {
+    "pages": 4,
+    "sha256": "d7eb40a5d92ad4efd237f8e8b806912d49983eec4476bdb1b7eac27fe1402acc"
+  },
+  "1440/D-MULTI-duration-unsupported.pdf": {
+    "pages": 4,
+    "sha256": "dc1ea47cb7e843243277c5042ee982b71681313c5ee9b9e4e9295459144fe337"
+  },
+  "1440/D-VARY-direct-unsupported.pdf": {
+    "pages": 4,
+    "sha256": "13eb9b4dda581a45066f7abd56c65ff979467ebd89f020d0aacd99d9e0292fcf"
+  },
+  "1440/D-VARY-duration-unsupported.pdf": {
+    "pages": 4,
+    "sha256": "bf3bb148dfa0d17f07e6b7622330ad0df50733597ba05eb148a89b9a4fc667c0"
+  },
+  "1440/fuel-stale-blocked.pdf": {
+    "pages": 1,
+    "sha256": "400dbea2abde5c382c2c0d9aa2c089ffa4d29eb3d9b74a50ddb7fae4fe1e4ad4"
+  },
+  "1440/invalid-sequence-long-reason.pdf": {
+    "pages": 4,
+    "sha256": "2b40ce8b8a8951b4479a9a149bffd580546897ce0d7d1d6c9df85a7154811931"
+  },
+  "1440/offline-direct.pdf": {
+    "pages": 4,
+    "sha256": "555db0ab24bd016844cf6b2c0ea3c90ad10fd0e4a7116fdfcd0f322cfc8ffab8"
+  },
+  "1440/offline-duration-reserve-shortfall.pdf": {
+    "pages": 4,
+    "sha256": "5b8a04f452b69d45a07a1cf728505745bec2540d677c2ceb50e80ca1cfd87f16"
+  }
+}
