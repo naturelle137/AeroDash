@@ -1,0 +1,43 @@
+
+> @aerodash/frontend@0.3.0-alpha test:p1:coverage /var/home/critter/lokal/dev/.hq-worktrees/aerodash/job-1301/frontend
+> vitest run --config vitest.config.p1.ts --coverage
+
+(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - import "./vite.config" without a file extension (vitest.config.p1.ts:15:24). Add the file extension
+  - import "./scripts/build/telemetry-guard" without a file extension (vite.config.ts:9:52). Add the file extension
+  - import "./scripts/build/copy-legal-docs" without a file extension (vite.config.ts:10:31). Add the file extension
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+
+ RUN  v4.1.12 /var/home/critter/lokal/dev/.hq-worktrees/aerodash/job-1301/frontend
+      Coverage enabled with v8
+
+
+ Test Files  30 passed (30)
+      Tests  978 passed (978)
+   Start at  18:35:42
+   Duration  1.00s (transform 2.71s, setup 0ms, import 4.71s, tests 683ms, environment 28ms)
+
+ % Coverage report from v8
+-------------------|---------|----------|---------|---------|-------------------
+File               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+-------------------|---------|----------|---------|---------|-------------------
+All files          |   98.89 |    97.41 |     100 |   99.31 |                   
+ logic             |    98.7 |    97.08 |     100 |   99.18 |                   
+  ...-issue-url.ts |   98.55 |    94.44 |     100 |     100 | 105               
+  manual-runway.ts |   97.93 |    95.65 |     100 |     100 | 177,227,272       
+  ...erpolation.ts |   95.83 |    95.45 |     100 |   95.65 | 185-186           
+  ...on-sources.ts |   98.94 |     96.1 |     100 |     100 | 157,172,274       
+  ...rapolation.ts |     100 |    97.22 |     100 |     100 | 275               
+  ...h-distance.ts |    96.8 |    93.33 |     100 |   97.24 | 178-179,368       
+  ...ety-factor.ts |      96 |       96 |     100 |   95.91 | 67-68             
+  ...migrations.ts |     100 |    95.65 |     100 |     100 | 183               
+  ...migrations.ts |   97.22 |     91.3 |     100 |     100 | 76,134            
+  ...malization.ts |     100 |    95.83 |     100 |     100 | 40                
+-------------------|---------|----------|---------|---------|-------------------
+
+=============================== Coverage summary ===============================
+Statements   : 98.89% ( 1165/1178 )
+Branches     : 97.41% ( 677/695 )
+Functions    : 100% ( 199/199 )
+Lines        : 99.31% ( 1017/1024 )
+================================================================================
