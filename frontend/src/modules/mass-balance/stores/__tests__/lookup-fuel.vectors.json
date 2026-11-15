@@ -1,0 +1,381 @@
+{
+  "scope": "Synthetic software references only; not aircraft data. Copied from the reviewed total-moment contract vectors (source revision 99ab6642be741d7bb0a58f2cb229d4833ab127f2).",
+  "base": {
+    "massKg": 560,
+    "momentKgM": 1120
+  },
+  "rows": [
+    {
+      "id": "nonzero-u-burn-0",
+      "sourceUnit": "kg-m",
+      "tankUnit": "kg",
+      "fuelType": "AvGas 100LL",
+      "table": [
+        [
+          0,
+          0
+        ],
+        [
+          10,
+          10
+        ],
+        [
+          30,
+          60
+        ],
+        [
+          50,
+          150
+        ]
+      ],
+      "unusable": 10,
+      "departureQuantity": 50,
+      "burnKg": 0,
+      "expectedMassKg": 600,
+      "expectedMomentKgM": 1260,
+      "legacyMomentKgM": 1240,
+      "currentQuantity": 50
+    },
+    {
+      "id": "nonzero-u-burn-10",
+      "sourceUnit": "kg-m",
+      "tankUnit": "kg",
+      "fuelType": "AvGas 100LL",
+      "table": [
+        [
+          0,
+          0
+        ],
+        [
+          10,
+          10
+        ],
+        [
+          30,
+          60
+        ],
+        [
+          50,
+          150
+        ]
+      ],
+      "unusable": 10,
+      "departureQuantity": 50,
+      "burnKg": 10,
+      "expectedMassKg": 590,
+      "expectedMomentKgM": 1215,
+      "legacyMomentKgM": 1198.75,
+      "currentQuantity": 40
+    },
+    {
+      "id": "nonzero-u-burn-20",
+      "sourceUnit": "kg-m",
+      "tankUnit": "kg",
+      "fuelType": "AvGas 100LL",
+      "table": [
+        [
+          0,
+          0
+        ],
+        [
+          10,
+          10
+        ],
+        [
+          30,
+          60
+        ],
+        [
+          50,
+          150
+        ]
+      ],
+      "unusable": 10,
+      "departureQuantity": 50,
+      "burnKg": 20,
+      "expectedMassKg": 580,
+      "expectedMomentKgM": 1170,
+      "legacyMomentKgM": 1160,
+      "currentQuantity": 30
+    },
+    {
+      "id": "nonzero-u-burn-30",
+      "sourceUnit": "kg-m",
+      "tankUnit": "kg",
+      "fuelType": "AvGas 100LL",
+      "table": [
+        [
+          0,
+          0
+        ],
+        [
+          10,
+          10
+        ],
+        [
+          30,
+          60
+        ],
+        [
+          50,
+          150
+        ]
+      ],
+      "unusable": 10,
+      "departureQuantity": 50,
+      "burnKg": 30,
+      "expectedMassKg": 570,
+      "expectedMomentKgM": 1145,
+      "legacyMomentKgM": 1137.5,
+      "currentQuantity": 20
+    },
+    {
+      "id": "nonzero-u-burn-40",
+      "sourceUnit": "kg-m",
+      "tankUnit": "kg",
+      "fuelType": "AvGas 100LL",
+      "table": [
+        [
+          0,
+          0
+        ],
+        [
+          10,
+          10
+        ],
+        [
+          30,
+          60
+        ],
+        [
+          50,
+          150
+        ]
+      ],
+      "unusable": 10,
+      "departureQuantity": 50,
+      "burnKg": 40,
+      "expectedMassKg": 560,
+      "expectedMomentKgM": 1120,
+      "legacyMomentKgM": 1120,
+      "currentQuantity": 10
+    },
+    {
+      "id": "zero-u-burn-0",
+      "sourceUnit": "kg-m",
+      "tankUnit": "kg",
+      "fuelType": "AvGas 100LL",
+      "table": [
+        [
+          0,
+          0
+        ],
+        [
+          10,
+          10
+        ],
+        [
+          30,
+          60
+        ],
+        [
+          50,
+          150
+        ]
+      ],
+      "unusable": 0,
+      "departureQuantity": 50,
+      "burnKg": 0,
+      "expectedMassKg": 610,
+      "expectedMomentKgM": 1270,
+      "legacyMomentKgM": 1270,
+      "currentQuantity": 50
+    },
+    {
+      "id": "zero-u-burn-50",
+      "sourceUnit": "kg-m",
+      "tankUnit": "kg",
+      "fuelType": "AvGas 100LL",
+      "table": [
+        [
+          0,
+          0
+        ],
+        [
+          10,
+          10
+        ],
+        [
+          30,
+          60
+        ],
+        [
+          50,
+          150
+        ]
+      ],
+      "unusable": 0,
+      "departureQuantity": 50,
+      "burnKg": 50,
+      "expectedMassKg": 560,
+      "expectedMomentKgM": 1120,
+      "legacyMomentKgM": 1120,
+      "currentQuantity": 0
+    },
+    {
+      "id": "normalized-lb",
+      "sourceUnit": "lb-in",
+      "tankUnit": "lb",
+      "fuelType": "AvGas 100LL",
+      "table": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          22.046226218487757,
+          867.9616621451872
+        ],
+        [
+          66.13867865546327,
+          5207.769972871124
+        ],
+        [
+          110.23113109243879,
+          13019.42493217781
+        ]
+      ],
+      "unusable": 22.046226218487757,
+      "departureQuantity": 110.23113109243879,
+      "burnKg": 20,
+      "expectedMassKg": 580.0,
+      "expectedMomentKgM": 1170,
+      "legacyMomentKgM": 1160,
+      "currentQuantity": 66.13867865546327
+    },
+    {
+      "id": "normalized-L",
+      "sourceUnit": "kg-m",
+      "tankUnit": "L",
+      "fuelType": "AvGas 100LL",
+      "table": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          13.88888888888889,
+          10.0
+        ],
+        [
+          41.66666666666667,
+          60.0
+        ],
+        [
+          69.44444444444444,
+          150.0
+        ]
+      ],
+      "unusable": 13.88888888888889,
+      "departureQuantity": 69.44444444444444,
+      "burnKg": 20,
+      "expectedMassKg": 580.0,
+      "expectedMomentKgM": 1170,
+      "legacyMomentKgM": 1160,
+      "currentQuantity": 41.66666666666667
+    },
+    {
+      "id": "normalized-USG",
+      "sourceUnit": "lb-in",
+      "tankUnit": "USG",
+      "fuelType": "AvGas 100LL",
+      "table": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          3.6690562827520616,
+          867.9616621451872
+        ],
+        [
+          11.007168848256185,
+          5207.769972871124
+        ],
+        [
+          18.345281413760308,
+          13019.42493217781
+        ]
+      ],
+      "unusable": 3.6690562827520616,
+      "departureQuantity": 18.345281413760308,
+      "burnKg": 20,
+      "expectedMassKg": 580.0,
+      "expectedMomentKgM": 1170,
+      "legacyMomentKgM": 1160,
+      "currentQuantity": 11.007168848256185
+    },
+    {
+      "id": "normalized-IMPgal",
+      "sourceUnit": "kg-m",
+      "tankUnit": "IMPgal",
+      "fuelType": "AvGas 100LL",
+      "table": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          3.0551284485984413,
+          10.0
+        ],
+        [
+          9.165385345795324,
+          60.0
+        ],
+        [
+          15.275642242992207,
+          150.0
+        ]
+      ],
+      "unusable": 3.0551284485984413,
+      "departureQuantity": 15.275642242992207,
+      "burnKg": 20,
+      "expectedMassKg": 580.0,
+      "expectedMomentKgM": 1170,
+      "legacyMomentKgM": 1160,
+      "currentQuantity": 9.165385345795324
+    },
+    {
+      "id": "negative-datum",
+      "sourceUnit": "kg-m",
+      "tankUnit": "kg",
+      "fuelType": "AvGas 100LL",
+      "table": [
+        [
+          0,
+          0
+        ],
+        [
+          10,
+          -10
+        ],
+        [
+          30,
+          -60
+        ],
+        [
+          50,
+          -150
+        ]
+      ],
+      "unusable": 10,
+      "departureQuantity": 50,
+      "burnKg": 20,
+      "expectedMassKg": 580,
+      "expectedMomentKgM": 1070,
+      "legacyMomentKgM": 1080,
+      "currentQuantity": 30
+    }
+  ]
+}

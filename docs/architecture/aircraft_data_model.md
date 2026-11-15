@@ -93,6 +93,8 @@ Used when the arm/moment relationship is non-linear (e.g., swept-wing fuel tanks
 | `massOrVolume` | `number` |   Yes    | Input value (mass or volume).      |
 | `moment`       | `number` |   Yes    | Corresponding moment at that load. |
 
+For a fuel tank, `moment` is the total tank moment at that total tank load, including unusable fuel; M&B adds the difference between the current load and the unusable quantity.
+
 ### 3.4 FuelTankExtension
 
 Optional extension applied to a `LoadPoint` to specialise it as a fuel tank. Up to 10 load points may carry this extension.

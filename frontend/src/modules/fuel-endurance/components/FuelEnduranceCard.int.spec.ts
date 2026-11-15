@@ -452,11 +452,15 @@ describe('fuel plan with live M&B store', () => {
       await nextTick()
       // (1180 − (60 − 35)) / 580
       expect(cg().text()).toBe('1.991 m')
+      // M&B itself blocks a load beyond the table, so no arrival output remains.
       store.updateStationWeight(0, 60)
       await nextTick()
+      expect(store.lastResult).toBeNull()
       expect(cg().exists()).toBe(false)
-      expect(arrival()).toContain('610 kg')
-      expect(arrival()).toContain('cover the whole current tank load')
+      expect(wrapper.text()).toContain(
+        'Arrival estimate unavailable: Valid current Mass & Balance loading is required.',
+      )
+      expect(wrapper.text()).not.toContain('610 kg')
       await reload()
       expect(cg().text()).toBe('2.042 m')
       store.aircraft!.loadPoints[0]!.fuelTank!.unusableFuel = 10
@@ -467,8 +471,10 @@ describe('fuel plan with live M&B store', () => {
       store.aircraft!.loadPoints[0]!.fuelTank!.unusableFuel = 0
       store.aircraft!.loadPoints[0]!.armLookup.reverse()
       await reload()
+      // Unsorted geometry now blocks M&B itself before any arrival estimate.
+      expect(store.lastResult).toBeNull()
       expect(cg().exists()).toBe(false)
-      expect(arrival()).toContain('strictly ascending quantities')
+      expect(wrapper.text()).toContain('Valid current Mass & Balance loading is required.')
       store.aircraft!.loadPoints[0]!.armLookup.reverse()
       await reload()
       expect(cg().text()).toBe('2.042 m')

@@ -314,8 +314,8 @@ describe('single variable-arm tank adapter (zero unusable fuel)', () => {
         },
       ],
     })
-    // Existing M&B convention (1240) differs from the total-load moment (1260).
-    expect(legacy.takeoffCenterOfGravityPoint.moment).toBe(1240)
+    // M&B now adds the total-load contribution F(q) − F(u) = 140, not (q − u)·F(q)/q = 120.
+    expect(legacy.takeoffCenterOfGravityPoint.moment).toBe(1260)
     expect(arrivalCgForPlanning(aircraft, 'Normal', loads, legacy, burn)).toEqual({
       ok: false,
       reason: expect.stringContaining('exactly zero unusable fuel'),
@@ -409,11 +409,20 @@ describe('single variable-arm tank adapter (zero unusable fuel)', () => {
     expect(arrivalCgForPlanning(aircraft, 'Normal', loads, mb, 20).ok).toBe(false)
   })
   it('rejects loads beyond the table and conversion overflow without clamping', () => {
+    // M&B itself now blocks an uncovered load, so arrival has no current result to use.
     const { aircraft, mb, loads } = variable('kg', 'kg-m', KG_KNOTS, 60)
+    expect(mb.success).toBe(false)
+    expect(mb.violations).toContainEqual(
+      expect.objectContaining({ code: 'LOOKUP_OUT_OF_RANGE' }),
+    )
     expect(arrivalCgForPlanning(aircraft, 'Normal', loads, mb, 20)).toMatchObject({
       ok: false,
-      reason: expect.stringContaining('cover the whole current tank load'),
+      reason: expect.stringContaining('Valid current Mass & Balance'),
     })
+    // A stale valid q50 result offered for the q60 loading is also refused.
+    expect(
+      arrivalCgForPlanning(aircraft, 'Normal', loads, variable().mb, 20).ok,
+    ).toBe(false)
     const usg = variable(
       'USG',
       'kg-m',
@@ -424,6 +433,7 @@ describe('single variable-arm tank adapter (zero unusable fuel)', () => {
       5,
     )
     usg.aircraft.loadPoints[0]!.armLookup.push({ massOrVolume: 1e308, moment: 20 })
+    // The current valid M&B was computed from the finite table; the overflowing knot is refused.
     expect(arrivalCgForPlanning(usg.aircraft, 'Normal', usg.loads, usg.mb, 1)).toMatchObject({
       ok: false,
       reason: expect.stringContaining('numeric limits'),

@@ -122,6 +122,22 @@ While the M&B result is within entered limits, the system shall present the bann
 
 When the unrounded takeoff mass equals MTOM or the zero-fuel mass equals MZFM in the current valid result, the system shall show one prompt naming each such limit that no arithmetic mass difference remains and that loading and entered category/profile limits require POH/AFM re-check.
 
+### REQ-MB-031: Lookup fuel tank contribution
+
+When a fuel tank has a lookup table and no fixed arm, the system shall add the table moment at the total current tank load minus the table moment at the unusable fuel quantity, and the current load minus unusable fuel as mass, keeping unusable fuel in BEM exactly once.
+
+### REQ-MB-032: Lookup fuel geometry validation
+
+If a fuel lookup table has fewer than two finite points, quantities that are negative or not strictly ascending, moments outside the SI bounds, or does not cover both the unusable fuel quantity and the current tank load, then the system shall block the M&B result with a visible validation error without sorting, clamping or extrapolating.
+
+### REQ-MB-033: Lookup fuel load below unusable fuel
+
+If the current load of a fuel lookup tank is below its unusable fuel quantity, then the system shall block the M&B result with a visible validation error instead of treating usable fuel as zero.
+
+### REQ-MB-034: Lookup fuel units
+
+If a fuel lookup tank lacks an explicit supported source unit, tank unit or known fuel type, or declares both a fixed arm and a lookup table, then the system shall block the M&B result with a visible validation error.
+
 ## Design References
 
 - **<a name="notificationScheme"></a>Notification Scheme:** [`docs/architecture/notification_schema.md`](../architecture/notification_schema.md)

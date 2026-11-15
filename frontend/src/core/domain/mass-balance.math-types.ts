@@ -30,6 +30,14 @@ export interface Violation {
     | 'OUT_OF_RANGE'
     | 'TOO_MANY_ITEMS'
     | 'DUPLICATE_INDEX'
+    /** Fuel lookup tank: current quantity below unusable fuel. */
+    | 'BELOW_UNUSABLE'
+    /** Fuel lookup table: fewer than two finite, unique, strictly ascending entries. */
+    | 'INVALID_GEOMETRY'
+    /** Fuel lookup table does not cover unusable fuel or current quantity. */
+    | 'LOOKUP_OUT_OF_RANGE'
+    /** Fuel lookup arithmetic leaves the SI bounds. */
+    | 'NUMERIC_OVERFLOW'
   stationIndex?: number
 }
 

@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Add lookup fuel tanks to M&B as F(q) − F(u) of their total-load moment table and block invalid tables, uncovered loads or loads below unusable fuel visibly (#530).
 - Remove the unsourced 98 % "approaching limit" cue and green within-limit styling in M&B; show one raw exact-MTOM/MZFM cross-check prompt (#527).
 - Convert lb·in/lb·ft envelope and arm-table moments of lb-based profiles to kg·m with the mass factor in calculation, chart and print; kg-based and arm-graph profiles are unchanged (#523, #524).
 - Plot source-unit (e.g. lb-in) envelopes in SI with the calculated CG points, label chart axis units and floor unit-labelled MTOM/MZFM limits (#523).

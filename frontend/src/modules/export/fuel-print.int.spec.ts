@@ -94,8 +94,13 @@ describe('shared current fuel print presentation', () => {
     const fuel = assembleMbPrint(source.value, new Date(), true)!.fuel!
     expect(fuel.cgReason).toBeNull()
     expect(fuel.rows).toContainEqual({ label: 'Estimated arrival CG', value: `${screen.value} [UNVERIFIED]` })
+    // A load beyond the table blocks M&B, so neither screen CG nor print remains.
     store.updateStationWeight(0, 60)
-    expect(assembleMbPrint(source.value, new Date(), true)!.fuel!.cgReason).toContain('cover the whole current tank load')
+    expect(store.lastResult).toBeNull()
+    expect(p.arrivalCg.value?.ok).not.toBe(true)
+    expect(assembleMbPrint(source.value, new Date(), true)).toBeNull()
+    store.updateStationWeight(0, 50)
+    expect(assembleMbPrint(source.value, new Date(), true)!.fuel!.rows).toContainEqual({ label: 'Estimated arrival CG', value: `${screen.value} [UNVERIFIED]` })
     wrapper.unmount()
   })
   it.each(['input', 'method', 'sequence', 'loading'] as const)('synchronously blocks native print on %s before parent render, never silently falls back', async change => {

@@ -3,6 +3,7 @@ import type { MathCoreInput, MathCoreResult } from '../domain/mass-balance.math-
 import { computeMassBalanceCore } from '../logic/mass-balance.logic'
 import { mapZodErrorToViolations } from './mb.zod-violation-mapping'
 import { MAX_ARM_M, MAX_MASS_KG, MAX_MOMENT_KGM } from '../logic/si-bounds'
+import { fuelLookupUsableMoment } from '../logic/mb.arm-lookup'
 // Every numeric field feeding the math core is `.finite()`: Zod's
 // `z.number()` (and `.positive()`/`.nonnegative()`) accept ±Infinity, which
 // would propagate to `zeroFuelMoment = Infinity` → CG = NaN with
@@ -141,6 +142,20 @@ export const MathCoreInputSchema = z
     data.fuelStations.forEach((fs, i) => checkAndAddIndex(fs.index, ['fuelStations', i, 'index']))
     data.stations.forEach((s, i) => validateArmXor(s, 'stations', i))
     data.fuelStations.forEach((fs, i) => validateArmXor(fs, 'fuelStations', i))
+
+    // Lookup tanks hold total tank moments; the usable contribution F(q) − F(u)
+    // needs strict geometry covering both u and q. Ambiguous arm+lookup is already
+    // NOT_ALLOWED above and is not evaluated here.
+    data.fuelStations.forEach((fs, i) => {
+      if (fs.arm !== null || fs.armLookup.length === 0) return
+      const lookup = fuelLookupUsableMoment(fs.mass, fs.unusableFuel, fs.armLookup)
+      if (lookup.ok) return
+      ctx.addIssue({
+        code: 'custom',
+        message: lookup.reason === 'INVALID_INPUT' ? 'NOT_A_NUMBER' : lookup.reason,
+        path: ['fuelStations', i, lookup.reason === 'BELOW_UNUSABLE' ? 'mass' : 'armLookup'],
+      })
+    })
   })
 
 /**
