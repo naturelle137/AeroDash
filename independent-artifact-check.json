@@ -1,0 +1,112 @@
+{
+  "commit": "9e4109e24a58712e23a12366e6d4824c2db945dd",
+  "tree": "e48ba39caf5417e2e40b233f84c991d18bd8b7e8",
+  "sources": {
+    "frontend/tests/offline-production/lookup-fuel-mb.spec.ts": "f44aa6f0a1cba63cbeca5c287f37f5f8a4ca8565328bc29115d84ee6f20f2137",
+    "frontend/tests/offline-production/fuel-endurance.spec.ts": "28172fda05b708d58a8b7ae2f98bf2340f118a6a734626a4a66755054e02d731",
+    "frontend/tests/offline-production/fuel-print.spec.ts": "a05d72eb9fa40470e384764a959922f5f2f9b9789b5806106be9bb53cc86534d",
+    "frontend/playwright.offline.config.ts": "1b7dafab0e9f8a35a5f9f31d8ed4c58720045256992737c2e23abfb45253f733",
+    "frontend/package.json": "8e6d816bed960f39d157e83544ebf94c7965ea83c11283c88edc36f28fee37b8",
+    "pnpm-lock.yaml": "4472044ffd2cf464a307e03bce62ae339b274985918664ae4e785d1146e8107f"
+  },
+  "artifacts": 750,
+  "sw_sha256": "31501f925f742932ca6b1579f82d6bd8f403b7af2b90be71d649a1a8efea9694",
+  "traces": [
+    {
+      "name": "fleet-restore-Privacy-expo-7c616--offline-Fleet-confirmation-chromium-1440",
+      "errors": 0
+    },
+    {
+      "name": "fleet-restore-Privacy-expo-7c616--offline-Fleet-confirmation-chromium-390",
+      "errors": 0
+    },
+    {
+      "name": "fleet-restore-storage-abor-5a206-en-retries-the-same-preview-chromium-1440",
+      "errors": 2
+    },
+    {
+      "name": "fleet-restore-storage-abor-5a206-en-retries-the-same-preview-chromium-390",
+      "errors": 2
+    },
+    {
+      "name": "fuel-endurance-persisted-f-3ecb6-n-online-and-cached-offline-chromium-1440",
+      "errors": 2
+    },
+    {
+      "name": "fuel-endurance-persisted-f-3ecb6-n-online-and-cached-offline-chromium-390",
+      "errors": 4
+    },
+    {
+      "name": "fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-1440",
+      "errors": 0
+    },
+    {
+      "name": "fuel-print-optional-curren-3e78b-th-synchronous-stale-guards-chromium-390",
+      "errors": 0
+    },
+    {
+      "name": "lookup-fuel-mb-lookup-fuel-8158b-een-chart-print-and-offline-chromium-1440",
+      "errors": 2
+    },
+    {
+      "name": "lookup-fuel-mb-lookup-fuel-8158b-een-chart-print-and-offline-chromium-390",
+      "errors": 2
+    },
+    {
+      "name": "mass-limit-difference-curr-4f5a2-stale-values-cached-offline-chromium-1440",
+      "errors": 0
+    },
+    {
+      "name": "mass-limit-difference-curr-4f5a2-stale-values-cached-offline-chromium-390",
+      "errors": 0
+    },
+    {
+      "name": "mass-limit-difference-impe-ecd98-ith-kg-normalized-MTOM-MZFM-chromium-1440",
+      "errors": 0
+    },
+    {
+      "name": "mass-limit-difference-impe-ecd98-ith-kg-normalized-MTOM-MZFM-chromium-390",
+      "errors": 0
+    },
+    {
+      "name": "mass-limit-difference-kg-i-4f669-ated-points-share-kg\u00b7m-axes-chromium-1440",
+      "errors": 0
+    },
+    {
+      "name": "mass-limit-difference-kg-i-4f669-ated-points-share-kg\u00b7m-axes-chromium-390",
+      "errors": 0
+    },
+    {
+      "name": "mass-limit-difference-lb-i-3a944-ated-points-share-kg\u00b7m-axes-chromium-1440",
+      "errors": 0
+    },
+    {
+      "name": "mass-limit-difference-lb-i-3a944-ated-points-share-kg\u00b7m-axes-chromium-390",
+      "errors": 0
+    },
+    {
+      "name": "mb-print-current-M-B-nativ-10d4b-s-and-cached-offline-reload-chromium-1440",
+      "errors": 0
+    },
+    {
+      "name": "mb-print-current-M-B-nativ-10d4b-s-and-cached-offline-reload-chromium-390",
+      "errors": 0
+    },
+    {
+      "name": "neutral-exact-limit-neutra-555b8--cross-check-cached-offline-chromium-1440",
+      "errors": 0
+    },
+    {
+      "name": "neutral-exact-limit-neutra-555b8--cross-check-cached-offline-chromium-390",
+      "errors": 0
+    },
+    {
+      "name": "offline-cached-preparation-d8fa6-ata-and-live-browser-status-chromium-1440",
+      "errors": 2
+    },
+    {
+      "name": "offline-cached-preparation-d8fa6-ata-and-live-browser-status-chromium-390",
+      "errors": 2
+    }
+  ]
+}

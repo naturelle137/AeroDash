@@ -1,0 +1,2690 @@
+[
+  {
+    "line": 115,
+    "params": {
+      "expected": "true"
+    },
+    "after": {
+      "type": "after",
+      "callId": "expect@30",
+      "endTime": 21947.901,
+      "annotations": []
+    }
+  },
+  {
+    "line": 113,
+    "params": {
+      "expected": "true"
+    },
+    "after": {
+      "type": "after",
+      "callId": "expect@32",
+      "endTime": 21947.883,
+      "annotations": []
+    }
+  },
+  {
+    "line": 134,
+    "params": {},
+    "after": {
+      "type": "after",
+      "callId": "expect@34",
+      "endTime": 21978.32,
+      "annotations": []
+    }
+  },
+  {
+    "line": 134,
+    "params": {},
+    "after": {
+      "type": "after",
+      "callId": "expect@36",
+      "endTime": 21992.717,
+      "annotations": []
+    }
+  },
+  {
+    "line": 134,
+    "params": {},
+    "after": {
+      "type": "after",
+      "callId": "expect@38",
+      "endTime": 22005.872,
+      "annotations": []
+    }
+  },
+  {
+    "line": 158,
+    "params": {
+      "expected": "600.0"
+    },
+    "after": {
+      "type": "after",
+      "callId": "expect@43",
+      "endTime": 22153.257,
+      "annotations": []
+    }
+  },
+  {
+    "line": 159,
+    "params": {
+      "expected": "2.100"
+    },
+    "after": {
+      "type": "after",
+      "callId": "expect@44",
+      "endTime": 22159.113,
+      "annotations": []
+    }
+  },
+  {
+    "line": 160,
+    "params": {},
+    "after": {
+      "type": "after",
+      "callId": "expect@45",
+      "endTime": 22163.919,
+      "annotations": []
+    }
+  },
+  {
+    "line": 161,
+    "params": {},
+    "after": {
+      "type": "after",
+      "callId": "expect@46",
+      "endTime": 22168.093,
+      "annotations": []
+    }
+  },
+  {
+    "line": 165,
+    "params": {
+      "expected": "580.0"
+    },
+    "after": {
+      "type": "after",
+      "callId": "expect@51",
+      "endTime": 22276.039,
+      "annotations": []
+    }
+  },
+  {
+    "line": 166,
+    "params": {
+      "expected": "2.017"
+    },
+    "after": {
+      "type": "after",
+      "callId": "expect@52",
+      "endTime": 22280.826,
+      "annotations": []
+    }
+  },
+  {
+    "line": 167,
+    "params": {},
+    "after": {
+      "type": "after",
+      "callId": "expect@53",
+      "endTime": 22285.071,
+      "annotations": []
+    }
+  },
+  {
+    "line": 169,
+    "params": {
+      "expected": "0.9650717703349283"
+    },
+    "after": {
+      "type": "after",
+      "callId": "expect@56",
+      "endTime": 22292.858,
+      "annotations": []
+    }
+  },
+  {
+    "line": 170,
+    "params": {
+      "expected": "0.9569377990430623"
+    },
+    "after": {
+      "type": "after",
+      "callId": "expect@59",
+      "endTime": 22299.596,
+      "annotations": []
+    }
+  },
+  {
+    "line": 174,
+    "params": {
+      "expected": "580.0 kg [UNVERIFIED]"
+    },
+    "after": {
+      "type": "after",
+      "callId": "expect@63",
+      "endTime": 22417.796,
+      "annotations": []
+    }
+  },
+  {
+    "line": 175,
+    "params": {
+      "expected": "2.017 m [UNVERIFIED]"
+    },
+    "after": {
+      "type": "after",
+      "callId": "expect@64",
+      "endTime": 22426.827,
+      "annotations": []
+    }
+  },
+  {
+    "line": 176,
+    "params": {
+      "expected": "560.0 kg [UNVERIFIED]"
+    },
+    "after": {
+      "type": "after",
+      "callId": "expect@65",
+      "endTime": 22435.199,
+      "annotations": []
+    }
+  },
+  {
+    "line": 177,
+    "params": {
+      "expected": "2.000 m [UNVERIFIED]"
+    },
+    "after": {
+      "type": "after",
+      "callId": "expect@66",
+      "endTime": 22443.176,
+      "annotations": []
+    }
+  },
+  {
+    "line": 184,
+    "params": {
+      "expected": "Preview invalidated"
+    },
+    "after": {
+      "type": "after",
+      "callId": "expect@70",
+      "endTime": 22571.193,
+      "annotations": []
+    }
+  },
+  {
+    "line": 185,
+    "params": {
+      "expected": "2.017 m"
+    },
+    "after": {
+      "type": "after",
+      "callId": "expect@71",
+      "endTime": 22576.634,
+      "annotations": []
+    }
+  },
+  {
+    "line": 191,
+    "params": {},
+    "after": {
+      "type": "after",
+      "callId": "expect@75",
+      "endTime": 22600.627,
+      "annotations": []
+    }
+  },
+  {
+    "line": 192,
+    "params": {},
+    "after": {
+      "type": "after",
+      "callId": "expect@76",
+      "endTime": 22604.705,
+      "annotations": []
+    }
+  },
+  {
+    "line": 193,
+    "params": {},
+    "after": {
+      "type": "after",
+      "callId": "expect@77",
+      "endTime": 22608.274,
+      "annotations": []
+    }
+  },
+  {
+    "line": 194,
+    "params": {},
+    "after": {
+      "type": "after",
+      "callId": "expect@78",
+      "endTime": 22612.263,
+      "annotations": []
+    }
+  },
+  {
+    "line": 199,
+    "params": {},
+    "after": {
+      "type": "after",
+      "callId": "expect@86",
+      "endTime": 22770.731,
+      "annotations": []
+    }
+  },
+  {
+    "line": 200,
+    "params": {},
+    "after": {
+      "type": "after",
+      "callId": "expect@87",
+      "endTime": 22775.352,
+      "annotations": []
+    }
+  },
+  {
+    "line": 201,
+    "params": {},
+    "after": {
+      "type": "after",
+      "callId": "expect@88",
+      "endTime": 22778.68,
+      "annotations": []
+    }
+  },
+  {
+    "line": 207,
+    "params": {
+      "expected": "560.0"
+    },
+    "after": {
+      "type": "after",
+      "callId": "expect@96",
+      "endTime": 22920.179,
+      "annotations": []
+    }
+  },
+  {
+    "line": 208,
+    "params": {
+      "expected": "2.000"
+    },
+    "after": {
+      "type": "after",
+      "callId": "expect@97",
+      "endTime": 22925.567,
+      "annotations": []
+    }
+  },
+  {
+    "line": 210,
+    "params": {
+      "expected": "2.017"
+    },
+    "after": {
+      "type": "after",
+      "callId": "expect@100",
+      "endTime": 22945.202,
+      "annotations": []
+    }
+  },
+  {
+    "line": 214,
+    "params": {},
+    "after": {
+      "type": "after",
+      "callId": "expect@102",
+      "endTime": 22958.815,
+      "annotations": []
+    }
+  },
+  {
+    "line": 215,
+    "params": {
+      "expected": "0.936"
+    },
+    "after": {
+      "type": "after",
+      "callId": "expect@105",
+      "endTime": 22966.068,
+      "annotations": []
+    }
+  },
+  {
+    "line": 216,
+    "params": {},
+    "after": {
+      "type": "after",
+      "callId": "expect@106",
+      "endTime": 22970.114,
+      "annotations": []
+    }
+  },
+  {
+    "line": 218,
+    "params": {},
+    "after": {
+      "type": "after",
+      "callId": "expect@109",
+      "endTime": 22992.642,
+      "annotations": []
+    }
+  },
+  {
+    "line": 221,
+    "params": {
+      "expected": "2.100"
+    },
+    "after": {
+      "type": "after",
+      "callId": "expect@113",
+      "endTime": 23072.56,
+      "annotations": []
+    }
+  },
+  {
+    "line": 225,
+    "params": {},
+    "after": {
+      "type": "after",
+      "callId": "expect@116",
+      "endTime": 23094.044,
+      "annotations": []
+    }
+  },
+  {
+    "line": 228,
+    "params": {
+      "expected": "50"
+    },
+    "after": {
+      "type": "after",
+      "callId": "expect@119",
+      "endTime": 23164.578,
+      "annotations": []
+    }
+  },
+  {
+    "line": 229,
+    "params": {
+      "expected": "2.100"
+    },
+    "after": {
+      "type": "after",
+      "callId": "expect@120",
+      "endTime": 23170.692,
+      "annotations": []
+    }
+  },
+  {
+    "line": 237,
+    "params": {
+      "expected": "570 kg"
+    },
+    "after": {
+      "type": "after",
+      "callId": "expect@125",
+      "endTime": 23214.031,
+      "annotations": []
+    }
+  },
+  {
+    "line": 238,
+    "params": {},
+    "after": {
+      "type": "after",
+      "callId": "expect@126",
+      "endTime": 23219.15,
+      "annotations": []
+    }
+  },
+  {
+    "line": 239,
+    "params": {
+      "expected": "exactly zero unusable fuel"
+    },
+    "after": {
+      "type": "after",
+      "callId": "expect@127",
+      "endTime": 23225.561,
+      "annotations": []
+    }
+  },
+  {
+    "line": 245,
+    "params": {
+      "expected": "Estimated arrival mass"
+    },
+    "after": {
+      "type": "after",
+      "callId": "expect@130",
+      "endTime": 23332.95,
+      "annotations": []
+    }
+  },
+  {
+    "line": 246,
+    "params": {
+      "expected": "exactly zero unusable fuel"
+    },
+    "after": {
+      "type": "after",
+      "callId": "expect@131",
+      "endTime": 23344.175,
+      "annotations": []
+    }
+  },
+  {
+    "line": 247,
+    "params": {
+      "expected": "2.017 m [UNVERIFIED]"
+    },
+    "after": {
+      "type": "after",
+      "callId": "expect@132",
+      "endTime": 23354.521,
+      "annotations": []
+    }
+  },
+  {
+    "line": 253,
+    "params": {
+      "expected": "2.100"
+    },
+    "after": {
+      "type": "after",
+      "callId": "expect@139",
+      "endTime": 23566.084,
+      "annotations": []
+    }
+  },
+  {
+    "line": 255,
+    "params": {
+      "expected": "580.0"
+    },
+    "after": {
+      "type": "after",
+      "callId": "expect@142",
+      "endTime": 23586.568,
+      "annotations": []
+    }
+  },
+  {
+    "line": 256,
+    "params": {
+      "expected": "2.017"
+    },
+    "after": {
+      "type": "after",
+      "callId": "expect@143",
+      "endTime": 23591.773,
+      "annotations": []
+    }
+  },
+  {
+    "line": 257,
+    "params": {},
+    "after": {
+      "type": "after",
+      "callId": "expect@144",
+      "endTime": 23595.948,
+      "annotations": []
+    }
+  },
+  {
+    "line": 258,
+    "params": {
+      "expected": "0.2925"
+    },
+    "after": {
+      "type": "after",
+      "callId": "expect@147",
+      "endTime": 23602.778,
+      "annotations": []
+    }
+  },
+  {
+    "line": 261,
+    "params": {},
+    "after": {
+      "type": "after",
+      "callId": "expect@152",
+      "endTime": 23714.76,
+      "annotations": []
+    }
+  },
+  {
+    "line": 262,
+    "params": {},
+    "after": {
+      "type": "after",
+      "callId": "expect@153",
+      "endTime": 23718.926,
+      "annotations": []
+    }
+  },
+  {
+    "line": 266,
+    "params": {},
+    "after": {
+      "type": "after",
+      "callId": "expect@157",
+      "endTime": 23784.951,
+      "annotations": []
+    }
+  },
+  {
+    "line": 267,
+    "params": {},
+    "after": {
+      "type": "after",
+      "callId": "expect@158",
+      "endTime": 23790.301,
+      "annotations": []
+    }
+  },
+  {
+    "line": 268,
+    "params": {},
+    "after": {
+      "type": "after",
+      "callId": "expect@159",
+      "endTime": 23794.863,
+      "annotations": []
+    }
+  },
+  {
+    "line": 272,
+    "params": {
+      "expected": "2.017"
+    },
+    "after": {
+      "type": "after",
+      "callId": "expect@167",
+      "endTime": 23956.994,
+      "annotations": []
+    }
+  },
+  {
+    "line": 276,
+    "params": {
+      "expected": "50"
+    },
+    "after": {
+      "type": "after",
+      "callId": "expect@171",
+      "endTime": 24015.539,
+      "annotations": []
+    }
+  },
+  {
+    "line": 277,
+    "params": {
+      "expected": "2.100"
+    },
+    "after": {
+      "type": "after",
+      "callId": "expect@172",
+      "endTime": 24021.343,
+      "annotations": []
+    }
+  },
+  {
+    "line": 285,
+    "params": {
+      "expected": "true"
+    },
+    "after": {
+      "type": "after",
+      "callId": "expect@175",
+      "endTime": 24426.843,
+      "annotations": []
+    }
+  },
+  {
+    "line": 279,
+    "params": {
+      "expected": "true"
+    },
+    "after": {
+      "type": "after",
+      "callId": "expect@177",
+      "endTime": 24042.339,
+      "annotations": [],
+      "error": {
+        "name": "",
+        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m",
+        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n    at /var/home/critter/lokal/dev/.hq-worktrees/aerodash/job-1367/frontend/tests/offline-production/lookup-fuel-mb.spec.ts:279:3"
+      }
+    }
+  },
+  {
+    "line": 279,
+    "params": {
+      "expected": "true"
+    },
+    "after": {
+      "type": "after",
+      "callId": "expect@179",
+      "endTime": 24164.349,
+      "annotations": [],
+      "error": {
+        "name": "",
+        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m",
+        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n    at /var/home/critter/lokal/dev/.hq-worktrees/aerodash/job-1367/frontend/tests/offline-production/lookup-fuel-mb.spec.ts:279:3"
+      }
+    }
+  },
+  {
+    "line": 279,
+    "params": {
+      "expected": "true"
+    },
+    "after": {
+      "type": "after",
+      "callId": "expect@181",
+      "endTime": 24426.829,
+      "annotations": []
+    }
+  },
+  {
+    "line": 288,
+    "params": {
+      "expected": "true"
+    },
+    "after": {
+      "type": "after",
+      "callId": "expect@184",
+      "endTime": 24484.373,
+      "annotations": []
+    }
+  },
+  {
+    "line": 290,
+    "params": {},
+    "after": {
+      "type": "after",
+      "callId": "expect@186",
+      "endTime": 24568.427,
+      "annotations": []
+    }
+  },
+  {
+    "line": 291,
+    "params": {
+      "expected": "2.017"
+    },
+    "after": {
+      "type": "after",
+      "callId": "expect@187",
+      "endTime": 24574.387,
+      "annotations": []
+    }
+  },
+  {
+    "line": 293,
+    "params": {},
+    "after": {
+      "type": "after",
+      "callId": "expect@190",
+      "endTime": 24596.662,
+      "annotations": []
+    }
+  },
+  {
+    "line": 294,
+    "params": {},
+    "after": {
+      "type": "after",
+      "callId": "expect@191",
+      "endTime": 24601.033,
+      "annotations": []
+    }
+  },
+  {
+    "line": 296,
+    "params": {
+      "expected": "2.017"
+    },
+    "after": {
+      "type": "after",
+      "callId": "expect@194",
+      "endTime": 24623.388,
+      "annotations": []
+    }
+  },
+  {
+    "line": 298,
+    "params": {
+      "expected": "2.017 m [UNVERIFIED]"
+    },
+    "after": {
+      "type": "after",
+      "callId": "expect@196",
+      "endTime": 24664.839,
+      "annotations": []
+    }
+  },
+  {
+    "line": null,
+    "params": {
+      "selector": "internal:role=button[name=\"Verify D-LKG\"s]",
+      "expression": "to.be.visible",
+      "expectedValue": {
+        "value": {
+          "v": "undefined"
+        },
+        "handles": []
+      },
+      "isNot": false,
+      "timeout": 10000
+    },
+    "after": {
+      "type": "after",
+      "callId": "call@1863",
+      "endTime": 21977.002,
+      "result": {
+        "matches": true,
+        "received": {
+          "value": {
+            "s": "visible"
+          },
+          "ariaSnapshot": "- button \"Verify D-LKG\": Verify"
+        }
+      },
+      "afterSnapshot": "after@call@1863"
+    }
+  },
+  {
+    "line": null,
+    "params": {
+      "selector": "internal:role=button[name=\"Verify N530US\"s]",
+      "expression": "to.be.visible",
+      "expectedValue": {
+        "value": {
+          "v": "undefined"
+        },
+        "handles": []
+      },
+      "isNot": false,
+      "timeout": 10000
+    },
+    "after": {
+      "type": "after",
+      "callId": "call@1867",
+      "endTime": 21991.677,
+      "result": {
+        "matches": true,
+        "received": {
+          "value": {
+            "s": "visible"
+          },
+          "ariaSnapshot": "- button \"Verify N530US\": Verify"
+        }
+      },
+      "afterSnapshot": "after@call@1867"
+    }
+  },
+  {
+    "line": null,
+    "params": {
+      "selector": "internal:role=button[name=\"Verify D-LOW\"s]",
+      "expression": "to.be.visible",
+      "expectedValue": {
+        "value": {
+          "v": "undefined"
+        },
+        "handles": []
+      },
+      "isNot": false,
+      "timeout": 10000
+    },
+    "after": {
+      "type": "after",
+      "callId": "call@1871",
+      "endTime": 22004.56,
+      "result": {
+        "matches": true,
+        "received": {
+          "value": {
+            "s": "visible"
+          },
+          "ariaSnapshot": "- button \"Verify D-LOW\": Verify"
+        }
+      },
+      "afterSnapshot": "after@call@1871"
+    }
+  },
+  {
+    "line": null,
+    "params": {
+      "selector": "internal:role=region[name=\"Calculation results\"i] >> .result-summary__item >> internal:has-text=\"Takeoff Mass\"i",
+      "expression": "to.have.text",
+      "expectedText": [
+        {
+          "string": "600.0",
+          "matchSubstring": true,
+          "normalizeWhiteSpace": true
+        }
+      ],
+      "expectedValue": {
+        "value": {
+          "v": "undefined"
+        },
+        "handles": []
+      },
+      "isNot": false,
+      "timeout": 10000
+    },
+    "after": {
+      "type": "after",
+      "callId": "call@1881",
+      "endTime": 22151.666,
+      "result": {
+        "matches": true,
+        "received": {
+          "value": {
+            "s": "Takeoff Mass600.0kg / MTOM 1000.0 kg Below MTOM by 400.0 kg"
+          },
+          "ariaSnapshot": "- term: Takeoff Mass\n- definition:\n  - text: 600.0kg / MTOM 1000.0 kg\n  - paragraph: Below MTOM by 400.0 kg"
+        }
+      },
+      "afterSnapshot": "after@call@1881"
+    }
+  },
+  {
+    "line": null,
+    "params": {
+      "selector": "internal:role=region[name=\"Calculation results\"i] >> .result-summary__item >> internal:has-text=\"CG (Takeoff)\"i",
+      "expression": "to.have.text",
+      "expectedText": [
+        {
+          "string": "2.100",
+          "matchSubstring": true,
+          "normalizeWhiteSpace": true
+        }
+      ],
+      "expectedValue": {
+        "value": {
+          "v": "undefined"
+        },
+        "handles": []
+      },
+      "isNot": false,
+      "timeout": 10000
+    },
+    "after": {
+      "type": "after",
+      "callId": "call@1883",
+      "endTime": 22157.602,
+      "result": {
+        "matches": true,
+        "received": {
+          "value": {
+            "s": "CG (Takeoff)2.100m"
+          },
+          "ariaSnapshot": "- term: CG (Takeoff)\n- definition: 2.100m"
+        }
+      },
+      "afterSnapshot": "after@call@1883"
+    }
+  },
+  {
+    "line": null,
+    "params": {
+      "selector": "internal:role=alert >> internal:has-text=\"CG Out of Envelope\"i",
+      "expression": "to.be.visible",
+      "expectedValue": {
+        "value": {
+          "v": "undefined"
+        },
+        "handles": []
+      },
+      "isNot": false,
+      "timeout": 10000
+    },
+    "after": {
+      "type": "after",
+      "callId": "call@1885",
+      "endTime": 22162.677,
+      "result": {
+        "matches": true,
+        "received": {
+          "value": {
+            "s": "visible"
+          },
+          "ariaSnapshot": "- alert: Draft Profile Active CG Out of Envelope"
+        }
+      },
+      "afterSnapshot": "after@call@1885"
+    }
+  },
+  {
+    "line": null,
+    "params": {
+      "selector": "internal:role=button[name=\"M&B print preview\"s]",
+      "expression": "to.be.disabled",
+      "expectedValue": {
+        "value": {
+          "v": "undefined"
+        },
+        "handles": []
+      },
+      "isNot": false,
+      "timeout": 10000
+    },
+    "after": {
+      "type": "after",
+      "callId": "call@1887",
+      "endTime": 22166.9,
+      "result": {
+        "matches": true,
+        "received": {
+          "value": {
+            "s": "disabled"
+          },
+          "ariaSnapshot": "- button \"M&B print preview\" [disabled]"
+        }
+      },
+      "afterSnapshot": "after@call@1887"
+    }
+  },
+  {
+    "line": null,
+    "params": {
+      "selector": "internal:role=region[name=\"Calculation results\"i] >> .result-summary__item >> internal:has-text=\"Takeoff Mass\"i",
+      "expression": "to.have.text",
+      "expectedText": [
+        {
+          "string": "580.0",
+          "matchSubstring": true,
+          "normalizeWhiteSpace": true
+        }
+      ],
+      "expectedValue": {
+        "value": {
+          "v": "undefined"
+        },
+        "handles": []
+      },
+      "isNot": false,
+      "timeout": 10000
+    },
+    "after": {
+      "type": "after",
+      "callId": "call@1895",
+      "endTime": 22274.596,
+      "result": {
+        "matches": true,
+        "received": {
+          "value": {
+            "s": "Takeoff Mass580.0kg / MTOM 1000.0 kg Below MTOM by 420.0 kg"
+          },
+          "ariaSnapshot": "- term: Takeoff Mass\n- definition:\n  - text: 580.0kg / MTOM 1000.0 kg\n  - paragraph: Below MTOM by 420.0 kg"
+        }
+      },
+      "afterSnapshot": "after@call@1895"
+    }
+  },
+  {
+    "line": null,
+    "params": {
+      "selector": "internal:role=region[name=\"Calculation results\"i] >> .result-summary__item >> internal:has-text=\"CG (Takeoff)\"i",
+      "expression": "to.have.text",
+      "expectedText": [
+        {
+          "string": "2.017",
+          "matchSubstring": true,
+          "normalizeWhiteSpace": true
+        }
+      ],
+      "expectedValue": {
+        "value": {
+          "v": "undefined"
+        },
+        "handles": []
+      },
+      "isNot": false,
+      "timeout": 10000
+    },
+    "after": {
+      "type": "after",
+      "callId": "call@1897",
+      "endTime": 22279.601,
+      "result": {
+        "matches": true,
+        "received": {
+          "value": {
+            "s": "CG (Takeoff)2.017m"
+          },
+          "ariaSnapshot": "- term: CG (Takeoff)\n- definition: 2.017m"
+        }
+      },
+      "afterSnapshot": "after@call@1897"
+    }
+  },
+  {
+    "line": null,
+    "params": {
+      "selector": "internal:role=alert >> internal:has-text=\"CG Out of Envelope\"i",
+      "expression": "to.have.count",
+      "expectedNumber": 0,
+      "expectedValue": {
+        "value": {
+          "v": "undefined"
+        },
+        "handles": []
+      },
+      "isNot": false,
+      "timeout": 10000
+    },
+    "after": {
+      "type": "after",
+      "callId": "call@1899",
+      "endTime": 22283.982,
+      "result": {
+        "matches": true,
+        "received": {
+          "value": {
+            "n": 0
+          }
+        }
+      },
+      "afterSnapshot": "after@call@1899"
+    }
+  },
+  {
+    "line": null,
+    "params": {
+      "selector": "internal:role=dialog[name=\"M&B print preview\"s]",
+      "expression": "to.have.text",
+      "expectedText": [
+        {
+          "string": "580.0 kg [UNVERIFIED]",
+          "matchSubstring": true,
+          "normalizeWhiteSpace": true
+        }
+      ],
+      "expectedValue": {
+        "value": {
+          "v": "undefined"
+        },
+        "handles": []
+      },
+      "isNot": false,
+      "timeout": 10000
+    },
+    "after": {
+      "type": "after",
+      "callId": "call@1913",
+      "endTime": 22415.502,
+      "result": {
+        "matches": true,
+        "received": {
+          "value": {
+            "s": "Back to preparationPrint M&BMass & Balance onlyD-LKG \u2014 Test Test POH wiring only [UNVERIFIED] \u00b7 NormalGenerated: 2026-11-15T06:49:25.714Z (UTC)Profile and source statusdraft; draft [UNVERIFIED]Profile verification is a recorded user check, not operational approval. Acknowledging a draft selection does not verify its data.Calculation based on unverified external data. Pilot in Command assumes full responsibility.Check all calculations against the aircraft's official POH/AFM before flight. The official handbook takes precedence.Verification provenance: not recorded.Profile source units: kg-m. Datum: Test datum [UNVERIFIED].Weighing date 2026-01-01, valid from 2026-01-01: BEM 560.0 kg [UNVERIFIED], empty CG 2.000 m [UNVERIFIED] (normalized SI).Current loadingStationQuantityLookup tank30 kg [UNVERIFIED]M&B resultsEndpointMassCG armTakeoff580.0 kg [UNVERIFIED]2.017 m [UNVERIFIED]Zero fuel560.0 kg [UNVERIFIED]2.000 m [UNVERIFIED]All usable fuel burned560.0 kg [UNVERIFIED]2.000 m [UNVERIFIED]The all-usable-fuel-burned endpoint is not the trip-specific arrival. This summary does not assess full-flight or landing suitability and provides no Go/No-Go advisory.Current M&B notificationsWARNING \u00b7 WARN-AC-002 \u00b7 Aircraft.Status: Draft Profile ActiveApplicable category limitsMaximum takeoff mass: 1000.0 kg [UNVERIFIED]. Maximum zero-fuel mass: Not specified.Envelope vertices (arm graph, closed polygon; tabular presentation only):MassEnvelope coordinate500.0 kg [UNVERIFIED]0.000 m [UNVERIFIED]1000.0 kg [UNVERIFIED]0.000 m [UNVERIFIED]1000.0 kg [UNVERIFIED]2.090 m [UNVERIFIED]500.0 kg [UNVERIFIED]2.090 m [UNVERIFIED]No Performance, runway or weather results are included. No fuel/endurance planning results are included."
+          },
+          "ariaSnapshot": "- dialog \"M&B print preview\":\n  - navigation \"Print controls\":\n    - button \"Back to preparation\"\n    - button \"Print M&B\"\n  - heading \"Mass & Balance only\" [level=1]\n  - paragraph: D-LKG \u2014 Test Test POH wiring only [UNVERIFIED] \u00b7 Normal\n  - paragraph: \"Generated: 2026-11-15T06:49:25.714Z (UTC)\"\n  - heading \"Profile and source status\" [level=2]\n  - paragraph: draft; draft [UNVERIFIED]\n  - paragraph: Profile verification is a recorded user check, not operational approval. Acknowledging a draft selection does not verify its data.\n  - paragraph:\n    - strong: Calculation based on unverified external data. Pilot in Command assumes full responsibility.\n  - paragraph: Check all calculations against the aircraft's official POH/AFM before flight. The official handbook takes precedence.\n  - paragraph: \"Verification provenance: not recorded.\"\n  - paragraph: \"Profile source units: kg-m. Datum: Test datum [UNVERIFIED].\"\n  - list:\n    - listitem: \"Weighing date 2026-01-01, valid from 2026-01-01: BEM 560.0 kg [UNVERIFIED], empty CG 2.000 m [UNVERIFIED] (normalized SI).\"\n  - heading \"Current loading\" [level=2]\n  - table:\n    - rowgroup:\n      - row \"Station Quantity\":\n        - columnheader \"Station\"\n        - columnheader \"Quantity\"\n    - rowgroup:\n      - row \"Lookup tank 30 kg [UNVERIFIED]\":\n        - cell \"Lookup tank\"\n        - cell \"30 kg [UNVERIFIED]\"\n  - heading \"M&B results\" [level=2]\n  - table:\n    - rowgroup:\n      - row \"Endpoint Mass CG arm\":\n        - columnheader \"Endpoint\"\n        - columnheader \"Mass\"\n        - columnheader \"CG arm\"\n    - rowgroup:\n      - row \"Takeoff 580.0 kg [UNVERIFIED] 2.017 m [UNVERIFIED]\":\n        - cell \"Takeoff\"\n        - cell \"580.0 kg [UNVERIFIED]\"\n        - cell \"2.017 m [UNVERIFIED]\"\n      - row \"Zero fuel 560.0 kg [UNVERIFIED] 2.000 m [UNVERIFIED]\":\n        - cell \"Zero fuel\"\n        - cell \"560.0 kg [UNVERIFIED]\"\n        - cell \"2.000 m [UNVERIFIED]\"\n      - row \"All usable fuel burned 560.0 kg [UNVERIFIED] 2.000 m [UNVERIFIED]\":\n        - cell \"All usable fuel burned\"\n        - cell \"560.0 kg [UNVERIFIED]\"\n        - cell \"2.000 m [UNVERIFIED]\"\n  - paragraph: The all-usable-fuel-burned endpoint is not the trip-specific arrival. This summary does not assess full-flight or landing suitability and provides no Go/No-Go advisory.\n  - heading \"Current M&B notifications\" [level=2]\n  - list:\n    - listitem:\n      - strong: WARNING \u00b7 WARN-AC-002 \u00b7 Aircraft.Status\n      - text: \": Draft Profile Active\"\n  - heading \"Applicable category limits\" [level=2]\n  - paragraph: \"Maximum takeoff mass: 1000.0 kg [UNVERIFIED]. Maximum zero-fuel mass: Not specified.\"\n  - paragraph: \"Envelope vertices (arm graph, closed polygon; tabular presentation only):\"\n  - table:\n    - rowgroup:\n      - row \"Mass Envelope coordinate\":\n        - columnheader \"Mass\"\n        - columnheader \"Envelope coordinate\"\n    - rowgroup:\n      - row \"500.0 kg [UNVERIFIED] 0.000 m [UNVERIFIED]\":\n        - cell \"500.0 kg [UNVERIFIED]\"\n        - cell \"0.000 m [UNVERIFIED]\"\n      - row \"1000.0 kg [UNVERIFIED] 0.000 m [UNVERIFIED]\":\n        - cell \"1000.0 kg [UNVERIFIED]\"\n        - cell \"0.000 m [UNVERIFIED]\"\n      - row \"1000.0 kg [UNVERIFIED] 2.090 m [UNVERIFIED]\":\n        - cell \"1000.0 kg [UNVERIFIED]\"\n        - cell \"2.090 m [UNVERIFIED]\"\n      - row \"500.0 kg [UNVERIFIED] 2.090 m [UNVERIFIED]\":\n        - cell \"500.0 kg [UNVERIFIED]\"\n        - cell \"2.090 m [UNVERIFIED]\"\n  - paragraph: No Performance, runway or weather results are included. No fuel/endurance planning results are included."
+        }
+      },
+      "afterSnapshot": "after@call@1913"
+    }
+  },
+  {
+    "line": null,
+    "params": {
+      "selector": "internal:role=dialog[name=\"M&B print preview\"s]",
+      "expression": "to.have.text",
+      "expectedText": [
+        {
+          "string": "2.017 m [UNVERIFIED]",
+          "matchSubstring": true,
+          "normalizeWhiteSpace": true
+        }
+      ],
+      "expectedValue": {
+        "value": {
+          "v": "undefined"
+        },
+        "handles": []
+      },
+      "isNot": false,
+      "timeout": 10000
+    },
+    "after": {
+      "type": "after",
+      "callId": "call@1915",
+      "endTime": 22425.038,
+      "result": {
+        "matches": true,
+        "received": {
+          "value": {
+            "s": "Back to preparationPrint M&BMass & Balance onlyD-LKG \u2014 Test Test POH wiring only [UNVERIFIED] \u00b7 NormalGenerated: 2026-11-15T06:49:25.714Z (UTC)Profile and source statusdraft; draft [UNVERIFIED]Profile verification is a recorded user check, not operational approval. Acknowledging a draft selection does not verify its data.Calculation based on unverified external data. Pilot in Command assumes full responsibility.Check all calculations against the aircraft's official POH/AFM before flight. The official handbook takes precedence.Verification provenance: not recorded.Profile source units: kg-m. Datum: Test datum [UNVERIFIED].Weighing date 2026-01-01, valid from 2026-01-01: BEM 560.0 kg [UNVERIFIED], empty CG 2.000 m [UNVERIFIED] (normalized SI).Current loadingStationQuantityLookup tank30 kg [UNVERIFIED]M&B resultsEndpointMassCG armTakeoff580.0 kg [UNVERIFIED]2.017 m [UNVERIFIED]Zero fuel560.0 kg [UNVERIFIED]2.000 m [UNVERIFIED]All usable fuel burned560.0 kg [UNVERIFIED]2.000 m [UNVERIFIED]The all-usable-fuel-burned endpoint is not the trip-specific arrival. This summary does not assess full-flight or landing suitability and provides no Go/No-Go advisory.Current M&B notificationsWARNING \u00b7 WARN-AC-002 \u00b7 Aircraft.Status: Draft Profile ActiveApplicable category limitsMaximum takeoff mass: 1000.0 kg [UNVERIFIED]. Maximum zero-fuel mass: Not specified.Envelope vertices (arm graph, closed polygon; tabular presentation only):MassEnvelope coordinate500.0 kg [UNVERIFIED]0.000 m [UNVERIFIED]1000.0 kg [UNVERIFIED]0.000 m [UNVERIFIED]1000.0 kg [UNVERIFIED]2.090 m [UNVERIFIED]500.0 kg [UNVERIFIED]2.090 m [UNVERIFIED]No Performance, runway or weather results are included. No fuel/endurance planning results are included."
+          },
+          "ariaSnapshot": "- dialog \"M&B print preview\":\n  - navigation \"Print controls\":\n    - button \"Back to preparation\"\n    - button \"Print M&B\"\n  - heading \"Mass & Balance only\" [level=1]\n  - paragraph: D-LKG \u2014 Test Test POH wiring only [UNVERIFIED] \u00b7 Normal\n  - paragraph: \"Generated: 2026-11-15T06:49:25.714Z (UTC)\"\n  - heading \"Profile and source status\" [level=2]\n  - paragraph: draft; draft [UNVERIFIED]\n  - paragraph: Profile verification is a recorded user check, not operational approval. Acknowledging a draft selection does not verify its data.\n  - paragraph:\n    - strong: Calculation based on unverified external data. Pilot in Command assumes full responsibility.\n  - paragraph: Check all calculations against the aircraft's official POH/AFM before flight. The official handbook takes precedence.\n  - paragraph: \"Verification provenance: not recorded.\"\n  - paragraph: \"Profile source units: kg-m. Datum: Test datum [UNVERIFIED].\"\n  - list:\n    - listitem: \"Weighing date 2026-01-01, valid from 2026-01-01: BEM 560.0 kg [UNVERIFIED], empty CG 2.000 m [UNVERIFIED] (normalized SI).\"\n  - heading \"Current loading\" [level=2]\n  - table:\n    - rowgroup:\n      - row \"Station Quantity\":\n        - columnheader \"Station\"\n        - columnheader \"Quantity\"\n    - rowgroup:\n      - row \"Lookup tank 30 kg [UNVERIFIED]\":\n        - cell \"Lookup tank\"\n        - cell \"30 kg [UNVERIFIED]\"\n  - heading \"M&B results\" [level=2]\n  - table:\n    - rowgroup:\n      - row \"Endpoint Mass CG arm\":\n        - columnheader \"Endpoint\"\n        - columnheader \"Mass\"\n        - columnheader \"CG arm\"\n    - rowgroup:\n      - row \"Takeoff 580.0 kg [UNVERIFIED] 2.017 m [UNVERIFIED]\":\n        - cell \"Takeoff\"\n        - cell \"580.0 kg [UNVERIFIED]\"\n        - cell \"2.017 m [UNVERIFIED]\"\n      - row \"Zero fuel 560.0 kg [UNVERIFIED] 2.000 m [UNVERIFIED]\":\n        - cell \"Zero fuel\"\n        - cell \"560.0 kg [UNVERIFIED]\"\n        - cell \"2.000 m [UNVERIFIED]\"\n      - row \"All usable fuel burned 560.0 kg [UNVERIFIED] 2.000 m [UNVERIFIED]\":\n        - cell \"All usable fuel burned\"\n        - cell \"560.0 kg [UNVERIFIED]\"\n        - cell \"2.000 m [UNVERIFIED]\"\n  - paragraph: The all-usable-fuel-burned endpoint is not the trip-specific arrival. This summary does not assess full-flight or landing suitability and provides no Go/No-Go advisory.\n  - heading \"Current M&B notifications\" [level=2]\n  - list:\n    - listitem:\n      - strong: WARNING \u00b7 WARN-AC-002 \u00b7 Aircraft.Status\n      - text: \": Draft Profile Active\"\n  - heading \"Applicable category limits\" [level=2]\n  - paragraph: \"Maximum takeoff mass: 1000.0 kg [UNVERIFIED]. Maximum zero-fuel mass: Not specified.\"\n  - paragraph: \"Envelope vertices (arm graph, closed polygon; tabular presentation only):\"\n  - table:\n    - rowgroup:\n      - row \"Mass Envelope coordinate\":\n        - columnheader \"Mass\"\n        - columnheader \"Envelope coordinate\"\n    - rowgroup:\n      - row \"500.0 kg [UNVERIFIED] 0.000 m [UNVERIFIED]\":\n        - cell \"500.0 kg [UNVERIFIED]\"\n        - cell \"0.000 m [UNVERIFIED]\"\n      - row \"1000.0 kg [UNVERIFIED] 0.000 m [UNVERIFIED]\":\n        - cell \"1000.0 kg [UNVERIFIED]\"\n        - cell \"0.000 m [UNVERIFIED]\"\n      - row \"1000.0 kg [UNVERIFIED] 2.090 m [UNVERIFIED]\":\n        - cell \"1000.0 kg [UNVERIFIED]\"\n        - cell \"2.090 m [UNVERIFIED]\"\n      - row \"500.0 kg [UNVERIFIED] 2.090 m [UNVERIFIED]\":\n        - cell \"500.0 kg [UNVERIFIED]\"\n        - cell \"2.090 m [UNVERIFIED]\"\n  - paragraph: No Performance, runway or weather results are included. No fuel/endurance planning results are included."
+        }
+      },
+      "afterSnapshot": "after@call@1915"
+    }
+  },
+  {
+    "line": null,
+    "params": {
+      "selector": "internal:role=dialog[name=\"M&B print preview\"s]",
+      "expression": "to.have.text",
+      "expectedText": [
+        {
+          "string": "560.0 kg [UNVERIFIED]",
+          "matchSubstring": true,
+          "normalizeWhiteSpace": true
+        }
+      ],
+      "expectedValue": {
+        "value": {
+          "v": "undefined"
+        },
+        "handles": []
+      },
+      "isNot": false,
+      "timeout": 10000
+    },
+    "after": {
+      "type": "after",
+      "callId": "call@1917",
+      "endTime": 22433.531,
+      "result": {
+        "matches": true,
+        "received": {
+          "value": {
+            "s": "Back to preparationPrint M&BMass & Balance onlyD-LKG \u2014 Test Test POH wiring only [UNVERIFIED] \u00b7 NormalGenerated: 2026-11-15T06:49:25.714Z (UTC)Profile and source statusdraft; draft [UNVERIFIED]Profile verification is a recorded user check, not operational approval. Acknowledging a draft selection does not verify its data.Calculation based on unverified external data. Pilot in Command assumes full responsibility.Check all calculations against the aircraft's official POH/AFM before flight. The official handbook takes precedence.Verification provenance: not recorded.Profile source units: kg-m. Datum: Test datum [UNVERIFIED].Weighing date 2026-01-01, valid from 2026-01-01: BEM 560.0 kg [UNVERIFIED], empty CG 2.000 m [UNVERIFIED] (normalized SI).Current loadingStationQuantityLookup tank30 kg [UNVERIFIED]M&B resultsEndpointMassCG armTakeoff580.0 kg [UNVERIFIED]2.017 m [UNVERIFIED]Zero fuel560.0 kg [UNVERIFIED]2.000 m [UNVERIFIED]All usable fuel burned560.0 kg [UNVERIFIED]2.000 m [UNVERIFIED]The all-usable-fuel-burned endpoint is not the trip-specific arrival. This summary does not assess full-flight or landing suitability and provides no Go/No-Go advisory.Current M&B notificationsWARNING \u00b7 WARN-AC-002 \u00b7 Aircraft.Status: Draft Profile ActiveApplicable category limitsMaximum takeoff mass: 1000.0 kg [UNVERIFIED]. Maximum zero-fuel mass: Not specified.Envelope vertices (arm graph, closed polygon; tabular presentation only):MassEnvelope coordinate500.0 kg [UNVERIFIED]0.000 m [UNVERIFIED]1000.0 kg [UNVERIFIED]0.000 m [UNVERIFIED]1000.0 kg [UNVERIFIED]2.090 m [UNVERIFIED]500.0 kg [UNVERIFIED]2.090 m [UNVERIFIED]No Performance, runway or weather results are included. No fuel/endurance planning results are included."
+          },
+          "ariaSnapshot": "- dialog \"M&B print preview\":\n  - navigation \"Print controls\":\n    - button \"Back to preparation\"\n    - button \"Print M&B\"\n  - heading \"Mass & Balance only\" [level=1]\n  - paragraph: D-LKG \u2014 Test Test POH wiring only [UNVERIFIED] \u00b7 Normal\n  - paragraph: \"Generated: 2026-11-15T06:49:25.714Z (UTC)\"\n  - heading \"Profile and source status\" [level=2]\n  - paragraph: draft; draft [UNVERIFIED]\n  - paragraph: Profile verification is a recorded user check, not operational approval. Acknowledging a draft selection does not verify its data.\n  - paragraph:\n    - strong: Calculation based on unverified external data. Pilot in Command assumes full responsibility.\n  - paragraph: Check all calculations against the aircraft's official POH/AFM before flight. The official handbook takes precedence.\n  - paragraph: \"Verification provenance: not recorded.\"\n  - paragraph: \"Profile source units: kg-m. Datum: Test datum [UNVERIFIED].\"\n  - list:\n    - listitem: \"Weighing date 2026-01-01, valid from 2026-01-01: BEM 560.0 kg [UNVERIFIED], empty CG 2.000 m [UNVERIFIED] (normalized SI).\"\n  - heading \"Current loading\" [level=2]\n  - table:\n    - rowgroup:\n      - row \"Station Quantity\":\n        - columnheader \"Station\"\n        - columnheader \"Quantity\"\n    - rowgroup:\n      - row \"Lookup tank 30 kg [UNVERIFIED]\":\n        - cell \"Lookup tank\"\n        - cell \"30 kg [UNVERIFIED]\"\n  - heading \"M&B results\" [level=2]\n  - table:\n    - rowgroup:\n      - row \"Endpoint Mass CG arm\":\n        - columnheader \"Endpoint\"\n        - columnheader \"Mass\"\n        - columnheader \"CG arm\"\n    - rowgroup:\n      - row \"Takeoff 580.0 kg [UNVERIFIED] 2.017 m [UNVERIFIED]\":\n        - cell \"Takeoff\"\n        - cell \"580.0 kg [UNVERIFIED]\"\n        - cell \"2.017 m [UNVERIFIED]\"\n      - row \"Zero fuel 560.0 kg [UNVERIFIED] 2.000 m [UNVERIFIED]\":\n        - cell \"Zero fuel\"\n        - cell \"560.0 kg [UNVERIFIED]\"\n        - cell \"2.000 m [UNVERIFIED]\"\n      - row \"All usable fuel burned 560.0 kg [UNVERIFIED] 2.000 m [UNVERIFIED]\":\n        - cell \"All usable fuel burned\"\n        - cell \"560.0 kg [UNVERIFIED]\"\n        - cell \"2.000 m [UNVERIFIED]\"\n  - paragraph: The all-usable-fuel-burned endpoint is not the trip-specific arrival. This summary does not assess full-flight or landing suitability and provides no Go/No-Go advisory.\n  - heading \"Current M&B notifications\" [level=2]\n  - list:\n    - listitem:\n      - strong: WARNING \u00b7 WARN-AC-002 \u00b7 Aircraft.Status\n      - text: \": Draft Profile Active\"\n  - heading \"Applicable category limits\" [level=2]\n  - paragraph: \"Maximum takeoff mass: 1000.0 kg [UNVERIFIED]. Maximum zero-fuel mass: Not specified.\"\n  - paragraph: \"Envelope vertices (arm graph, closed polygon; tabular presentation only):\"\n  - table:\n    - rowgroup:\n      - row \"Mass Envelope coordinate\":\n        - columnheader \"Mass\"\n        - columnheader \"Envelope coordinate\"\n    - rowgroup:\n      - row \"500.0 kg [UNVERIFIED] 0.000 m [UNVERIFIED]\":\n        - cell \"500.0 kg [UNVERIFIED]\"\n        - cell \"0.000 m [UNVERIFIED]\"\n      - row \"1000.0 kg [UNVERIFIED] 0.000 m [UNVERIFIED]\":\n        - cell \"1000.0 kg [UNVERIFIED]\"\n        - cell \"0.000 m [UNVERIFIED]\"\n      - row \"1000.0 kg [UNVERIFIED] 2.090 m [UNVERIFIED]\":\n        - cell \"1000.0 kg [UNVERIFIED]\"\n        - cell \"2.090 m [UNVERIFIED]\"\n      - row \"500.0 kg [UNVERIFIED] 2.090 m [UNVERIFIED]\":\n        - cell \"500.0 kg [UNVERIFIED]\"\n        - cell \"2.090 m [UNVERIFIED]\"\n  - paragraph: No Performance, runway or weather results are included. No fuel/endurance planning results are included."
+        }
+      },
+      "afterSnapshot": "after@call@1917"
+    }
+  },
+  {
+    "line": null,
+    "params": {
+      "selector": "internal:role=dialog[name=\"M&B print preview\"s]",
+      "expression": "to.have.text",
+      "expectedText": [
+        {
+          "string": "2.000 m [UNVERIFIED]",
+          "matchSubstring": true,
+          "normalizeWhiteSpace": true
+        }
+      ],
+      "expectedValue": {
+        "value": {
+          "v": "undefined"
+        },
+        "handles": []
+      },
+      "isNot": false,
+      "timeout": 10000
+    },
+    "after": {
+      "type": "after",
+      "callId": "call@1919",
+      "endTime": 22441.493,
+      "result": {
+        "matches": true,
+        "received": {
+          "value": {
+            "s": "Back to preparationPrint M&BMass & Balance onlyD-LKG \u2014 Test Test POH wiring only [UNVERIFIED] \u00b7 NormalGenerated: 2026-11-15T06:49:25.714Z (UTC)Profile and source statusdraft; draft [UNVERIFIED]Profile verification is a recorded user check, not operational approval. Acknowledging a draft selection does not verify its data.Calculation based on unverified external data. Pilot in Command assumes full responsibility.Check all calculations against the aircraft's official POH/AFM before flight. The official handbook takes precedence.Verification provenance: not recorded.Profile source units: kg-m. Datum: Test datum [UNVERIFIED].Weighing date 2026-01-01, valid from 2026-01-01: BEM 560.0 kg [UNVERIFIED], empty CG 2.000 m [UNVERIFIED] (normalized SI).Current loadingStationQuantityLookup tank30 kg [UNVERIFIED]M&B resultsEndpointMassCG armTakeoff580.0 kg [UNVERIFIED]2.017 m [UNVERIFIED]Zero fuel560.0 kg [UNVERIFIED]2.000 m [UNVERIFIED]All usable fuel burned560.0 kg [UNVERIFIED]2.000 m [UNVERIFIED]The all-usable-fuel-burned endpoint is not the trip-specific arrival. This summary does not assess full-flight or landing suitability and provides no Go/No-Go advisory.Current M&B notificationsWARNING \u00b7 WARN-AC-002 \u00b7 Aircraft.Status: Draft Profile ActiveApplicable category limitsMaximum takeoff mass: 1000.0 kg [UNVERIFIED]. Maximum zero-fuel mass: Not specified.Envelope vertices (arm graph, closed polygon; tabular presentation only):MassEnvelope coordinate500.0 kg [UNVERIFIED]0.000 m [UNVERIFIED]1000.0 kg [UNVERIFIED]0.000 m [UNVERIFIED]1000.0 kg [UNVERIFIED]2.090 m [UNVERIFIED]500.0 kg [UNVERIFIED]2.090 m [UNVERIFIED]No Performance, runway or weather results are included. No fuel/endurance planning results are included."
+          },
+          "ariaSnapshot": "- dialog \"M&B print preview\":\n  - navigation \"Print controls\":\n    - button \"Back to preparation\"\n    - button \"Print M&B\"\n  - heading \"Mass & Balance only\" [level=1]\n  - paragraph: D-LKG \u2014 Test Test POH wiring only [UNVERIFIED] \u00b7 Normal\n  - paragraph: \"Generated: 2026-11-15T06:49:25.714Z (UTC)\"\n  - heading \"Profile and source status\" [level=2]\n  - paragraph: draft; draft [UNVERIFIED]\n  - paragraph: Profile verification is a recorded user check, not operational approval. Acknowledging a draft selection does not verify its data.\n  - paragraph:\n    - strong: Calculation based on unverified external data. Pilot in Command assumes full responsibility.\n  - paragraph: Check all calculations against the aircraft's official POH/AFM before flight. The official handbook takes precedence.\n  - paragraph: \"Verification provenance: not recorded.\"\n  - paragraph: \"Profile source units: kg-m. Datum: Test datum [UNVERIFIED].\"\n  - list:\n    - listitem: \"Weighing date 2026-01-01, valid from 2026-01-01: BEM 560.0 kg [UNVERIFIED], empty CG 2.000 m [UNVERIFIED] (normalized SI).\"\n  - heading \"Current loading\" [level=2]\n  - table:\n    - rowgroup:\n      - row \"Station Quantity\":\n        - columnheader \"Station\"\n        - columnheader \"Quantity\"\n    - rowgroup:\n      - row \"Lookup tank 30 kg [UNVERIFIED]\":\n        - cell \"Lookup tank\"\n        - cell \"30 kg [UNVERIFIED]\"\n  - heading \"M&B results\" [level=2]\n  - table:\n    - rowgroup:\n      - row \"Endpoint Mass CG arm\":\n        - columnheader \"Endpoint\"\n        - columnheader \"Mass\"\n        - columnheader \"CG arm\"\n    - rowgroup:\n      - row \"Takeoff 580.0 kg [UNVERIFIED] 2.017 m [UNVERIFIED]\":\n        - cell \"Takeoff\"\n        - cell \"580.0 kg [UNVERIFIED]\"\n        - cell \"2.017 m [UNVERIFIED]\"\n      - row \"Zero fuel 560.0 kg [UNVERIFIED] 2.000 m [UNVERIFIED]\":\n        - cell \"Zero fuel\"\n        - cell \"560.0 kg [UNVERIFIED]\"\n        - cell \"2.000 m [UNVERIFIED]\"\n      - row \"All usable fuel burned 560.0 kg [UNVERIFIED] 2.000 m [UNVERIFIED]\":\n        - cell \"All usable fuel burned\"\n        - cell \"560.0 kg [UNVERIFIED]\"\n        - cell \"2.000 m [UNVERIFIED]\"\n  - paragraph: The all-usable-fuel-burned endpoint is not the trip-specific arrival. This summary does not assess full-flight or landing suitability and provides no Go/No-Go advisory.\n  - heading \"Current M&B notifications\" [level=2]\n  - list:\n    - listitem:\n      - strong: WARNING \u00b7 WARN-AC-002 \u00b7 Aircraft.Status\n      - text: \": Draft Profile Active\"\n  - heading \"Applicable category limits\" [level=2]\n  - paragraph: \"Maximum takeoff mass: 1000.0 kg [UNVERIFIED]. Maximum zero-fuel mass: Not specified.\"\n  - paragraph: \"Envelope vertices (arm graph, closed polygon; tabular presentation only):\"\n  - table:\n    - rowgroup:\n      - row \"Mass Envelope coordinate\":\n        - columnheader \"Mass\"\n        - columnheader \"Envelope coordinate\"\n    - rowgroup:\n      - row \"500.0 kg [UNVERIFIED] 0.000 m [UNVERIFIED]\":\n        - cell \"500.0 kg [UNVERIFIED]\"\n        - cell \"0.000 m [UNVERIFIED]\"\n      - row \"1000.0 kg [UNVERIFIED] 0.000 m [UNVERIFIED]\":\n        - cell \"1000.0 kg [UNVERIFIED]\"\n        - cell \"0.000 m [UNVERIFIED]\"\n      - row \"1000.0 kg [UNVERIFIED] 2.090 m [UNVERIFIED]\":\n        - cell \"1000.0 kg [UNVERIFIED]\"\n        - cell \"2.090 m [UNVERIFIED]\"\n      - row \"500.0 kg [UNVERIFIED] 2.090 m [UNVERIFIED]\":\n        - cell \"500.0 kg [UNVERIFIED]\"\n        - cell \"2.090 m [UNVERIFIED]\"\n  - paragraph: No Performance, runway or weather results are included. No fuel/endurance planning results are included."
+        }
+      },
+      "afterSnapshot": "after@call@1919"
+    }
+  },
+  {
+    "line": null,
+    "params": {
+      "selector": "internal:role=dialog[name=\"M&B print preview\"s]",
+      "expression": "to.have.text",
+      "expectedText": [
+        {
+          "string": "Preview invalidated",
+          "matchSubstring": true,
+          "normalizeWhiteSpace": true
+        }
+      ],
+      "expectedValue": {
+        "value": {
+          "v": "undefined"
+        },
+        "handles": []
+      },
+      "isNot": false,
+      "timeout": 10000
+    },
+    "after": {
+      "type": "after",
+      "callId": "call@1927",
+      "endTime": 22569.506,
+      "result": {
+        "matches": true,
+        "received": {
+          "value": {
+            "s": "Back to preparationPrint M&BPreview invalidated. Return to preparation, review the current inputs and open a new M&B print preview."
+          },
+          "ariaSnapshot": "- dialog \"M&B print preview\":\n  - navigation \"Print controls\":\n    - button \"Back to preparation\"\n    - button \"Print M&B\" [disabled]\n  - status: Preview invalidated. Return to preparation, review the current inputs and open a new M&B print preview."
+        }
+      },
+      "afterSnapshot": "after@call@1927"
+    }
+  },
+  {
+    "line": null,
+    "params": {
+      "selector": "internal:role=dialog[name=\"M&B print preview\"s]",
+      "expression": "to.have.text",
+      "expectedText": [
+        {
+          "string": "2.017 m",
+          "matchSubstring": true,
+          "normalizeWhiteSpace": true
+        }
+      ],
+      "expectedValue": {
+        "value": {
+          "v": "undefined"
+        },
+        "handles": []
+      },
+      "isNot": true,
+      "timeout": 10000
+    },
+    "after": {
+      "type": "after",
+      "callId": "call@1929",
+      "endTime": 22575.224,
+      "result": {
+        "matches": false,
+        "received": {
+          "value": {
+            "s": "Back to preparationPrint M&BPreview invalidated. Return to preparation, review the current inputs and open a new M&B print preview."
+          },
+          "ariaSnapshot": "- dialog \"M&B print preview\":\n  - navigation \"Print controls\":\n    - button \"Back to preparation\"\n    - button \"Print M&B\" [disabled]\n  - status: Preview invalidated. Return to preparation, review the current inputs and open a new M&B print preview."
+        }
+      },
+      "afterSnapshot": "after@call@1929"
+    }
+  },
+  {
+    "line": null,
+    "params": {
+      "selector": "internal:text=/Invalid input: Lookup tank \\(/",
+      "expression": "to.be.visible",
+      "expectedValue": {
+        "value": {
+          "v": "undefined"
+        },
+        "handles": []
+      },
+      "isNot": false,
+      "timeout": 10000
+    },
+    "after": {
+      "type": "after",
+      "callId": "call@1937",
+      "endTime": 22599.066,
+      "result": {
+        "matches": true,
+        "received": {
+          "value": {
+            "s": "visible"
+          },
+          "ariaSnapshot": "- text: \"Invalid input: Lookup tank (NOT_A_NUMBER) \u2014 Tank load and unusable fuel must be finite and nonnegative.\""
+        }
+      },
+      "afterSnapshot": "after@call@1937"
+    }
+  },
+  {
+    "line": null,
+    "params": {
+      "selector": "internal:role=region[name=\"Calculation results\"i]",
+      "expression": "to.have.count",
+      "expectedNumber": 0,
+      "expectedValue": {
+        "value": {
+          "v": "undefined"
+        },
+        "handles": []
+      },
+      "isNot": false,
+      "timeout": 10000
+    },
+    "after": {
+      "type": "after",
+      "callId": "call@1939",
+      "endTime": 22603.418,
+      "result": {
+        "matches": true,
+        "received": {
+          "value": {
+            "n": 0
+          }
+        }
+      },
+      "afterSnapshot": "after@call@1939"
+    }
+  },
+  {
+    "line": null,
+    "params": {
+      "selector": "internal:testid=[data-testid=\"cg-point-label-tom\"s]",
+      "expression": "to.have.count",
+      "expectedNumber": 0,
+      "expectedValue": {
+        "value": {
+          "v": "undefined"
+        },
+        "handles": []
+      },
+      "isNot": false,
+      "timeout": 10000
+    },
+    "after": {
+      "type": "after",
+      "callId": "call@1941",
+      "endTime": 22607.188,
+      "result": {
+        "matches": true,
+        "received": {
+          "value": {
+            "n": 0
+          }
+        }
+      },
+      "afterSnapshot": "after@call@1941"
+    }
+  },
+  {
+    "line": null,
+    "params": {
+      "selector": "internal:role=button[name=\"M&B print preview\"s]",
+      "expression": "to.be.disabled",
+      "expectedValue": {
+        "value": {
+          "v": "undefined"
+        },
+        "handles": []
+      },
+      "isNot": false,
+      "timeout": 10000
+    },
+    "after": {
+      "type": "after",
+      "callId": "call@1943",
+      "endTime": 22611.057,
+      "result": {
+        "matches": true,
+        "received": {
+          "value": {
+            "s": "disabled"
+          },
+          "ariaSnapshot": "- button \"M&B print preview\" [disabled]"
+        }
+      },
+      "afterSnapshot": "after@call@1943"
+    }
+  },
+  {
+    "line": null,
+    "params": {
+      "selector": "internal:text=/Invalid input: Lookup tank \\(LOOKUP_OUT_OF_RANGE\\)/",
+      "expression": "to.be.visible",
+      "expectedValue": {
+        "value": {
+          "v": "undefined"
+        },
+        "handles": []
+      },
+      "isNot": false,
+      "timeout": 10000
+    },
+    "after": {
+      "type": "after",
+      "callId": "call@1957",
+      "endTime": 22769.493,
+      "result": {
+        "matches": true,
+        "received": {
+          "value": {
+            "s": "visible"
+          },
+          "ariaSnapshot": "- text: \"Invalid input: Lookup tank (LOOKUP_OUT_OF_RANGE) \u2014 Fuel moment table must cover both unusable fuel and the current tank load; values are not clamped or extrapolated.\""
+        }
+      },
+      "afterSnapshot": "after@call@1957"
+    }
+  },
+  {
+    "line": null,
+    "params": {
+      "selector": "internal:role=region[name=\"Calculation results\"i]",
+      "expression": "to.have.count",
+      "expectedNumber": 0,
+      "expectedValue": {
+        "value": {
+          "v": "undefined"
+        },
+        "handles": []
+      },
+      "isNot": false,
+      "timeout": 10000
+    },
+    "after": {
+      "type": "after",
+      "callId": "call@1959",
+      "endTime": 22773.753,
+      "result": {
+        "matches": true,
+        "received": {
+          "value": {
+            "n": 0
+          }
+        }
+      },
+      "afterSnapshot": "after@call@1959"
+    }
+  },
+  {
+    "line": null,
+    "params": {
+      "selector": "internal:testid=[data-testid=\"cg-point-label-tom\"s]",
+      "expression": "to.have.count",
+      "expectedNumber": 0,
+      "expectedValue": {
+        "value": {
+          "v": "undefined"
+        },
+        "handles": []
+      },
+      "isNot": false,
+      "timeout": 10000
+    },
+    "after": {
+      "type": "after",
+      "callId": "call@1961",
+      "endTime": 22777.663,
+      "result": {
+        "matches": true,
+        "received": {
+          "value": {
+            "n": 0
+          }
+        }
+      },
+      "afterSnapshot": "after@call@1961"
+    }
+  },
+  {
+    "line": null,
+    "params": {
+      "selector": "internal:role=region[name=\"Calculation results\"i] >> .result-summary__item >> internal:has-text=\"Takeoff Mass\"i",
+      "expression": "to.have.text",
+      "expectedText": [
+        {
+          "string": "560.0",
+          "matchSubstring": true,
+          "normalizeWhiteSpace": true
+        }
+      ],
+      "expectedValue": {
+        "value": {
+          "v": "undefined"
+        },
+        "handles": []
+      },
+      "isNot": false,
+      "timeout": 10000
+    },
+    "after": {
+      "type": "after",
+      "callId": "call@1975",
+      "endTime": 22918.731,
+      "result": {
+        "matches": true,
+        "received": {
+          "value": {
+            "s": "Takeoff Mass560.0kg / MTOM 1000.0 kg Below MTOM by 440.0 kg"
+          },
+          "ariaSnapshot": "- term: Takeoff Mass\n- definition:\n  - text: 560.0kg / MTOM 1000.0 kg\n  - paragraph: Below MTOM by 440.0 kg"
+        }
+      },
+      "afterSnapshot": "after@call@1975"
+    }
+  },
+  {
+    "line": null,
+    "params": {
+      "selector": "internal:role=region[name=\"Calculation results\"i] >> .result-summary__item >> internal:has-text=\"CG (Takeoff)\"i",
+      "expression": "to.have.text",
+      "expectedText": [
+        {
+          "string": "2.000",
+          "matchSubstring": true,
+          "normalizeWhiteSpace": true
+        }
+      ],
+      "expectedValue": {
+        "value": {
+          "v": "undefined"
+        },
+        "handles": []
+      },
+      "isNot": false,
+      "timeout": 10000
+    },
+    "after": {
+      "type": "after",
+      "callId": "call@1977",
+      "endTime": 22924.277,
+      "result": {
+        "matches": true,
+        "received": {
+          "value": {
+            "s": "CG (Takeoff)2.000m"
+          },
+          "ariaSnapshot": "- term: CG (Takeoff)\n- definition: 2.000m"
+        }
+      },
+      "afterSnapshot": "after@call@1977"
+    }
+  },
+  {
+    "line": null,
+    "params": {
+      "selector": "internal:role=region[name=\"Calculation results\"i] >> .result-summary__item >> internal:has-text=\"CG (Takeoff)\"i",
+      "expression": "to.have.text",
+      "expectedText": [
+        {
+          "string": "2.017",
+          "matchSubstring": true,
+          "normalizeWhiteSpace": true
+        }
+      ],
+      "expectedValue": {
+        "value": {
+          "v": "undefined"
+        },
+        "handles": []
+      },
+      "isNot": false,
+      "timeout": 10000
+    },
+    "after": {
+      "type": "after",
+      "callId": "call@1983",
+      "endTime": 22944.017,
+      "result": {
+        "matches": true,
+        "received": {
+          "value": {
+            "s": "CG (Takeoff)2.017m"
+          },
+          "ariaSnapshot": "- term: CG (Takeoff)\n- definition: 2.017m"
+        }
+      },
+      "afterSnapshot": "after@call@1983"
+    }
+  },
+  {
+    "line": null,
+    "params": {
+      "selector": "internal:text=\"CG Moment (kg\u00b7m)\"s",
+      "expression": "to.be.visible",
+      "expectedValue": {
+        "value": {
+          "v": "undefined"
+        },
+        "handles": []
+      },
+      "isNot": false,
+      "timeout": 10000
+    },
+    "after": {
+      "type": "after",
+      "callId": "call@1987",
+      "endTime": 22957.656,
+      "result": {
+        "matches": true,
+        "received": {
+          "value": {
+            "s": "visible"
+          },
+          "ariaSnapshot": "- text: CG Moment (kg\u00b7m)"
+        }
+      },
+      "afterSnapshot": "after@call@1987"
+    }
+  },
+  {
+    "line": null,
+    "params": {
+      "selector": "internal:role=alert >> internal:has-text=\"CG Out of Envelope\"i",
+      "expression": "to.have.count",
+      "expectedNumber": 0,
+      "expectedValue": {
+        "value": {
+          "v": "undefined"
+        },
+        "handles": []
+      },
+      "isNot": false,
+      "timeout": 10000
+    },
+    "after": {
+      "type": "after",
+      "callId": "call@1993",
+      "endTime": 22968.912,
+      "result": {
+        "matches": true,
+        "received": {
+          "value": {
+            "n": 0
+          }
+        }
+      },
+      "afterSnapshot": "after@call@1993"
+    }
+  },
+  {
+    "line": null,
+    "params": {
+      "selector": "internal:role=alert >> internal:has-text=\"CG Out of Envelope\"i",
+      "expression": "to.be.visible",
+      "expectedValue": {
+        "value": {
+          "v": "undefined"
+        },
+        "handles": []
+      },
+      "isNot": false,
+      "timeout": 10000
+    },
+    "after": {
+      "type": "after",
+      "callId": "call@1999",
+      "endTime": 22991.284,
+      "result": {
+        "matches": true,
+        "received": {
+          "value": {
+            "s": "visible"
+          },
+          "ariaSnapshot": "- alert: Draft Profile Active CG Out of Envelope"
+        }
+      },
+      "afterSnapshot": "after@call@1999"
+    }
+  },
+  {
+    "line": null,
+    "params": {
+      "selector": "internal:role=region[name=\"Calculation results\"i] >> .result-summary__item >> internal:has-text=\"CG (Takeoff)\"i",
+      "expression": "to.have.text",
+      "expectedText": [
+        {
+          "string": "2.100",
+          "matchSubstring": true,
+          "normalizeWhiteSpace": true
+        }
+      ],
+      "expectedValue": {
+        "value": {
+          "v": "undefined"
+        },
+        "handles": []
+      },
+      "isNot": false,
+      "timeout": 10000
+    },
+    "after": {
+      "type": "after",
+      "callId": "call@2005",
+      "endTime": 23070.959,
+      "result": {
+        "matches": true,
+        "received": {
+          "value": {
+            "s": "CG (Takeoff)2.100m"
+          },
+          "ariaSnapshot": "- term: CG (Takeoff)\n- definition: 2.100m"
+        }
+      },
+      "afterSnapshot": "after@call@2005"
+    }
+  },
+  {
+    "line": null,
+    "params": {
+      "selector": "internal:role=region[name=\"Calculation results\"i]",
+      "expression": "to.have.count",
+      "expectedNumber": 0,
+      "expectedValue": {
+        "value": {
+          "v": "undefined"
+        },
+        "handles": []
+      },
+      "isNot": false,
+      "timeout": 10000
+    },
+    "after": {
+      "type": "after",
+      "callId": "call@2011",
+      "endTime": 23093.016,
+      "result": {
+        "matches": true,
+        "received": {
+          "value": {
+            "n": 0
+          }
+        }
+      },
+      "afterSnapshot": "after@call@2011"
+    }
+  },
+  {
+    "line": null,
+    "params": {
+      "selector": "#station-0",
+      "expression": "to.have.value",
+      "expectedText": [
+        {
+          "string": "50"
+        }
+      ],
+      "expectedValue": {
+        "value": {
+          "v": "undefined"
+        },
+        "handles": []
+      },
+      "isNot": false,
+      "timeout": 10000
+    },
+    "after": {
+      "type": "after",
+      "callId": "call@2017",
+      "endTime": 23163.117,
+      "result": {
+        "matches": true,
+        "received": {
+          "value": {
+            "s": "50"
+          },
+          "ariaSnapshot": "- textbox \"Lookup tank\": \"50\""
+        }
+      },
+      "afterSnapshot": "after@call@2017"
+    }
+  },
+  {
+    "line": null,
+    "params": {
+      "selector": "internal:role=region[name=\"Calculation results\"i] >> .result-summary__item >> internal:has-text=\"CG (Takeoff)\"i",
+      "expression": "to.have.text",
+      "expectedText": [
+        {
+          "string": "2.100",
+          "matchSubstring": true,
+          "normalizeWhiteSpace": true
+        }
+      ],
+      "expectedValue": {
+        "value": {
+          "v": "undefined"
+        },
+        "handles": []
+      },
+      "isNot": false,
+      "timeout": 10000
+    },
+    "after": {
+      "type": "after",
+      "callId": "call@2019",
+      "endTime": 23169.128,
+      "result": {
+        "matches": true,
+        "received": {
+          "value": {
+            "s": "CG (Takeoff)2.100m"
+          },
+          "ariaSnapshot": "- term: CG (Takeoff)\n- definition: 2.100m"
+        }
+      },
+      "afterSnapshot": "after@call@2019"
+    }
+  },
+  {
+    "line": null,
+    "params": {
+      "selector": "internal:role=region[name=\"Estimated trip arrival\"s]",
+      "expression": "to.have.text",
+      "expectedText": [
+        {
+          "string": "570 kg",
+          "matchSubstring": true,
+          "normalizeWhiteSpace": true
+        }
+      ],
+      "expectedValue": {
+        "value": {
+          "v": "undefined"
+        },
+        "handles": []
+      },
+      "isNot": false,
+      "timeout": 10000
+    },
+    "after": {
+      "type": "after",
+      "callId": "call@2029",
+      "endTime": 23212.557,
+      "result": {
+        "matches": true,
+        "received": {
+          "value": {
+            "s": "Estimated trip arrivalTakeoff mass580 kgTrip fuel burned10 kgEstimated arrival mass570 kgUsable fuel remaining on arrival10 kg Estimated arrival CG unavailable: Variable-arm arrival CG requires exactly zero unusable fuel; tanks with unusable fuel are unsupported. Arrival CG supports fixed-arm tanks without lookup tables; multiple tanks require an explicit complete named burn sequence. A lookup table is supported only for exactly one available tank with zero unusable fuel, no fixed arm and a strictly ascending table from zero quantity and zero moment that covers the current load. Empty available tanks count too. "
+          },
+          "ariaSnapshot": "- region \"Estimated trip arrival\":\n  - heading \"Estimated trip arrival\" [level=3]\n  - term: Takeoff mass\n  - definition: 580 kg\n  - term: Trip fuel burned\n  - definition: 10 kg\n  - term: Estimated arrival mass\n  - definition: 570 kg\n  - term: Usable fuel remaining on arrival\n  - definition: 10 kg\n  - status: \"Estimated arrival CG unavailable: Variable-arm arrival CG requires exactly zero unusable fuel; tanks with unusable fuel are unsupported.\"\n  - paragraph: Arrival CG supports fixed-arm tanks without lookup tables; multiple tanks require an explicit complete named burn sequence. A lookup table is supported only for exactly one available tank with zero unusable fuel, no fixed arm and a strictly ascending table from zero quantity and zero moment that covers the current load. Empty available tanks count too."
+        }
+      },
+      "afterSnapshot": "after@call@2029"
+    }
+  },
+  {
+    "line": null,
+    "params": {
+      "selector": "internal:role=region[name=\"Fuel & Endurance\"s] >> internal:testid=[data-testid=\"arrival-cg\"s]",
+      "expression": "to.have.count",
+      "expectedNumber": 0,
+      "expectedValue": {
+        "value": {
+          "v": "undefined"
+        },
+        "handles": []
+      },
+      "isNot": false,
+      "timeout": 10000
+    },
+    "after": {
+      "type": "after",
+      "callId": "call@2031",
+      "endTime": 23217.76,
+      "result": {
+        "matches": true,
+        "received": {
+          "value": {
+            "n": 0
+          }
+        }
+      },
+      "afterSnapshot": "after@call@2031"
+    }
+  },
+  {
+    "line": null,
+    "params": {
+      "selector": "internal:role=region[name=\"Fuel & Endurance\"s]",
+      "expression": "to.have.text",
+      "expectedText": [
+        {
+          "string": "exactly zero unusable fuel",
+          "matchSubstring": true,
+          "normalizeWhiteSpace": true
+        }
+      ],
+      "expectedValue": {
+        "value": {
+          "v": "undefined"
+        },
+        "handles": []
+      },
+      "isNot": false,
+      "timeout": 10000
+    },
+    "after": {
+      "type": "after",
+      "callId": "call@2033",
+      "endTime": 23223.924,
+      "result": {
+        "matches": true,
+        "received": {
+          "value": {
+            "s": "05Fuel & Endurance Use the tank loads entered in Mass & Balance. Unusable fuel is excluded; unavailable tanks are not counted.  Usable fuel: 20 kg. Excluded unusable fuel: 10 kg. Manual fuel planPlanning methodChoose a planning methodDuration and consumptionDirect Trip Fuel (kg)Trip Fuel (kg) Enter the fuel mass expected to be burned during the trip. No duration, consumption or reserve budget is calculated. Inputs last only while this preparation view is open; changing aircraft or reloading clears them. Estimated trip arrivalTakeoff mass580 kgTrip fuel burned10 kgEstimated arrival mass570 kgUsable fuel remaining on arrival10 kg Estimated arrival CG unavailable: Variable-arm arrival CG requires exactly zero unusable fuel; tanks with unusable fuel are unsupported. Arrival CG supports fixed-arm tanks without lookup tables; multiple tanks require an explicit complete named burn sequence. A lookup table is supported only for exactly one available tank with zero unusable fuel, no fixed arm and a strictly ascending table from zero quantity and zero moment that covers the current load. Empty available tanks count too.  Arithmetic planning aid only. Verify against your aircraft POH/AFM. This does not assess operational suitability, landing suitability or the full burn path/envelope. Estimated arrival mass = validated M&B takeoff mass \u2212 trip fuel burned. Reserve remains on board; fuel remaining on arrival differs from the budget margin after trip + reserve. The separate M&B landing point assumes all usable fuel is burned. Estimated trip arrival CG subtracts the burned fuel moment from the current M&B takeoff moment; for a lookup table this is the table moment at the takeoff load minus the table moment at the remaining load. It is separate from that all-usable-burned point. "
+          },
+          "ariaSnapshot": "- region \"Fuel & Endurance\":\n  - text: \"05\"\n  - heading \"Fuel & Endurance\" [level=2]\n  - paragraph: Use the tank loads entered in Mass & Balance. Unusable fuel is excluded; unavailable tanks are not counted.\n  - paragraph: \"Usable fuel: 20 kg. Excluded unusable fuel: 10 kg.\"\n  - group \"Manual fuel plan\":\n    - text: Manual fuel plan Planning method\n    - combobox \"Planning method\":\n      - option \"Choose a planning method\" [disabled]\n      - option \"Duration and consumption\"\n      - option \"Direct Trip Fuel (kg)\" [selected]\n    - text: Trip Fuel (kg)\n    - textbox \"Trip Fuel (kg)\": \"10\"\n  - paragraph: Enter the fuel mass expected to be burned during the trip. No duration, consumption or reserve budget is calculated. Inputs last only while this preparation view is open; changing aircraft or reloading clears them.\n  - region \"Fuel planning results\":\n    - region \"Estimated trip arrival\":\n      - heading \"Estimated trip arrival\" [level=3]\n      - term: Takeoff mass\n      - definition: 580 kg\n      - term: Trip fuel burned\n      - definition: 10 kg\n      - term: Estimated arrival mass\n      - definition: 570 kg\n      - term: Usable fuel remaining on arrival\n      - definition: 10 kg\n      - status: \"Estimated arrival CG unavailable: Variable-arm arrival CG requires exactly zero unusable fuel; tanks with unusable fuel are unsupported.\"\n      - paragraph: Arrival CG supports fixed-arm tanks without lookup tables; multiple tanks require an explicit complete named burn sequence. A lookup table is supported only for exactly one available tank with zero unusable fuel, no fixed arm and a strictly ascending table from zero quantity and zero moment that covers the current load. Empty available tanks count too.\n    - paragraph: Arithmetic planning aid only. Verify against your aircraft POH/AFM. This does not assess operational suitability, landing suitability or the full burn path/envelope. Estimated arrival mass = validated M&B takeoff mass \u2212 trip fuel burned. Reserve remains on board; fuel remaining on arrival differs from the budget margin after trip + reserve. The separate M&B landing point assumes all usable fuel is burned. Estimated trip arrival CG subtracts the burned fuel moment from the current M&B takeoff moment; for a lookup table this is the table moment at the takeoff load minus the table moment at the remaining load. It is separate from that all-usable-burned point."
+        }
+      },
+      "afterSnapshot": "after@call@2033"
+    }
+  },
+  {
+    "line": null,
+    "params": {
+      "selector": "internal:role=dialog[name=\"M&B print preview\"s] >> internal:role=region[name=\"Current fuel plan and estimated trip arrival\"i]",
+      "expression": "to.have.text",
+      "expectedText": [
+        {
+          "string": "Estimated arrival mass",
+          "matchSubstring": true,
+          "normalizeWhiteSpace": true
+        }
+      ],
+      "expectedValue": {
+        "value": {
+          "v": "undefined"
+        },
+        "handles": []
+      },
+      "isNot": false,
+      "timeout": 10000
+    },
+    "after": {
+      "type": "after",
+      "callId": "call@2039",
+      "endTime": 23329.978,
+      "result": {
+        "matches": true,
+        "received": {
+          "value": {
+            "s": "Current fuel plan and estimated trip arrivalManual method: Direct Trip Fuel (kg).ParameterValueUsable fuel20 kg [UNVERIFIED]Excluded unusable fuel10 kg [UNVERIFIED]Takeoff mass580 kg [UNVERIFIED]Trip fuel burned10 kg [UNVERIFIED]Estimated arrival mass570 kg [UNVERIFIED]Usable fuel remaining on arrival10 kg [UNVERIFIED]Estimated arrival CG unavailable: Variable-arm arrival CG requires exactly zero unusable fuel; tanks with unusable fuel are unsupported.Direct Trip Fuel is the explicit mass expected to burn during the trip. No duration, consumption, endurance or reserve budget is calculated.Arithmetic planning aid only. Verify against your aircraft POH/AFM. Reserve remains aboard; usable fuel remaining on arrival is before reserve budgeting and differs from the margin after trip + reserve. Trip arrival is separate from the all-usable-fuel-burned M&B endpoint. This does not assess operational suitability, landing suitability or the full burn path/envelope and provides no Go/No-Go advisory."
+          },
+          "ariaSnapshot": "- region \"Current fuel plan and estimated trip arrival\":\n  - heading \"Current fuel plan and estimated trip arrival\" [level=2]\n  - paragraph: \"Manual method: Direct Trip Fuel (kg).\"\n  - table:\n    - rowgroup:\n      - row \"Parameter Value\":\n        - columnheader \"Parameter\"\n        - columnheader \"Value\"\n    - rowgroup:\n      - row \"Usable fuel 20 kg [UNVERIFIED]\":\n        - cell \"Usable fuel\"\n        - cell \"20 kg [UNVERIFIED]\"\n      - row \"Excluded unusable fuel 10 kg [UNVERIFIED]\":\n        - cell \"Excluded unusable fuel\"\n        - cell \"10 kg [UNVERIFIED]\"\n      - row \"Takeoff mass 580 kg [UNVERIFIED]\":\n        - cell \"Takeoff mass\"\n        - cell \"580 kg [UNVERIFIED]\"\n      - row \"Trip fuel burned 10 kg [UNVERIFIED]\":\n        - cell \"Trip fuel burned\"\n        - cell \"10 kg [UNVERIFIED]\"\n      - row \"Estimated arrival mass 570 kg [UNVERIFIED]\":\n        - cell \"Estimated arrival mass\"\n        - cell \"570 kg [UNVERIFIED]\"\n      - row \"Usable fuel remaining on arrival 10 kg [UNVERIFIED]\":\n        - cell \"Usable fuel remaining on arrival\"\n        - cell \"10 kg [UNVERIFIED]\"\n  - paragraph: \"Estimated arrival CG unavailable: Variable-arm arrival CG requires exactly zero unusable fuel; tanks with unusable fuel are unsupported.\"\n  - paragraph: Direct Trip Fuel is the explicit mass expected to burn during the trip. No duration, consumption, endurance or reserve budget is calculated.\n  - paragraph: Arithmetic planning aid only. Verify against your aircraft POH/AFM. Reserve remains aboard; usable fuel remaining on arrival is before reserve budgeting and differs from the margin after trip + reserve. Trip arrival is separate from the all-usable-fuel-burned M&B endpoint. This does not assess operational suitability, landing suitability or the full burn path/envelope and provides no Go/No-Go advisory."
+        }
+      },
+      "afterSnapshot": "after@call@2039"
+    }
+  },
+  {
+    "line": null,
+    "params": {
+      "selector": "internal:role=dialog[name=\"M&B print preview\"s] >> internal:role=region[name=\"Current fuel plan and estimated trip arrival\"i]",
+      "expression": "to.have.text",
+      "expectedText": [
+        {
+          "string": "exactly zero unusable fuel",
+          "matchSubstring": true,
+          "normalizeWhiteSpace": true
+        }
+      ],
+      "expectedValue": {
+        "value": {
+          "v": "undefined"
+        },
+        "handles": []
+      },
+      "isNot": false,
+      "timeout": 10000
+    },
+    "after": {
+      "type": "after",
+      "callId": "call@2041",
+      "endTime": 23341.378,
+      "result": {
+        "matches": true,
+        "received": {
+          "value": {
+            "s": "Current fuel plan and estimated trip arrivalManual method: Direct Trip Fuel (kg).ParameterValueUsable fuel20 kg [UNVERIFIED]Excluded unusable fuel10 kg [UNVERIFIED]Takeoff mass580 kg [UNVERIFIED]Trip fuel burned10 kg [UNVERIFIED]Estimated arrival mass570 kg [UNVERIFIED]Usable fuel remaining on arrival10 kg [UNVERIFIED]Estimated arrival CG unavailable: Variable-arm arrival CG requires exactly zero unusable fuel; tanks with unusable fuel are unsupported.Direct Trip Fuel is the explicit mass expected to burn during the trip. No duration, consumption, endurance or reserve budget is calculated.Arithmetic planning aid only. Verify against your aircraft POH/AFM. Reserve remains aboard; usable fuel remaining on arrival is before reserve budgeting and differs from the margin after trip + reserve. Trip arrival is separate from the all-usable-fuel-burned M&B endpoint. This does not assess operational suitability, landing suitability or the full burn path/envelope and provides no Go/No-Go advisory."
+          },
+          "ariaSnapshot": "- region \"Current fuel plan and estimated trip arrival\":\n  - heading \"Current fuel plan and estimated trip arrival\" [level=2]\n  - paragraph: \"Manual method: Direct Trip Fuel (kg).\"\n  - table:\n    - rowgroup:\n      - row \"Parameter Value\":\n        - columnheader \"Parameter\"\n        - columnheader \"Value\"\n    - rowgroup:\n      - row \"Usable fuel 20 kg [UNVERIFIED]\":\n        - cell \"Usable fuel\"\n        - cell \"20 kg [UNVERIFIED]\"\n      - row \"Excluded unusable fuel 10 kg [UNVERIFIED]\":\n        - cell \"Excluded unusable fuel\"\n        - cell \"10 kg [UNVERIFIED]\"\n      - row \"Takeoff mass 580 kg [UNVERIFIED]\":\n        - cell \"Takeoff mass\"\n        - cell \"580 kg [UNVERIFIED]\"\n      - row \"Trip fuel burned 10 kg [UNVERIFIED]\":\n        - cell \"Trip fuel burned\"\n        - cell \"10 kg [UNVERIFIED]\"\n      - row \"Estimated arrival mass 570 kg [UNVERIFIED]\":\n        - cell \"Estimated arrival mass\"\n        - cell \"570 kg [UNVERIFIED]\"\n      - row \"Usable fuel remaining on arrival 10 kg [UNVERIFIED]\":\n        - cell \"Usable fuel remaining on arrival\"\n        - cell \"10 kg [UNVERIFIED]\"\n  - paragraph: \"Estimated arrival CG unavailable: Variable-arm arrival CG requires exactly zero unusable fuel; tanks with unusable fuel are unsupported.\"\n  - paragraph: Direct Trip Fuel is the explicit mass expected to burn during the trip. No duration, consumption, endurance or reserve budget is calculated.\n  - paragraph: Arithmetic planning aid only. Verify against your aircraft POH/AFM. Reserve remains aboard; usable fuel remaining on arrival is before reserve budgeting and differs from the margin after trip + reserve. Trip arrival is separate from the all-usable-fuel-burned M&B endpoint. This does not assess operational suitability, landing suitability or the full burn path/envelope and provides no Go/No-Go advisory."
+        }
+      },
+      "afterSnapshot": "after@call@2041"
+    }
+  },
+  {
+    "line": null,
+    "params": {
+      "selector": "internal:role=dialog[name=\"M&B print preview\"s]",
+      "expression": "to.have.text",
+      "expectedText": [
+        {
+          "string": "2.017 m [UNVERIFIED]",
+          "matchSubstring": true,
+          "normalizeWhiteSpace": true
+        }
+      ],
+      "expectedValue": {
+        "value": {
+          "v": "undefined"
+        },
+        "handles": []
+      },
+      "isNot": false,
+      "timeout": 10000
+    },
+    "after": {
+      "type": "after",
+      "callId": "call@2043",
+      "endTime": 23352.711,
+      "result": {
+        "matches": true,
+        "received": {
+          "value": {
+            "s": "Back to preparationPrint M&B + fuelMass & Balance + current fuel planD-LKG \u2014 Test Test POH wiring only [UNVERIFIED] \u00b7 NormalGenerated: 2026-11-15T06:49:26.616Z (UTC)Profile and source statusdraft; draft [UNVERIFIED]Profile verification is a recorded user check, not operational approval. Acknowledging a draft selection does not verify its data.Calculation based on unverified external data. Pilot in Command assumes full responsibility.Check all calculations against the aircraft's official POH/AFM before flight. The official handbook takes precedence.Verification provenance: not recorded.Profile source units: kg-m. Datum: Test datum [UNVERIFIED].Weighing date 2026-01-01, valid from 2026-01-01: BEM 560.0 kg [UNVERIFIED], empty CG 2.000 m [UNVERIFIED] (normalized SI).Current loadingStationQuantityLookup tank30 kg [UNVERIFIED]M&B resultsEndpointMassCG armTakeoff580.0 kg [UNVERIFIED]2.017 m [UNVERIFIED]Zero fuel560.0 kg [UNVERIFIED]2.000 m [UNVERIFIED]All usable fuel burned560.0 kg [UNVERIFIED]2.000 m [UNVERIFIED]The all-usable-fuel-burned endpoint is not the trip-specific arrival. This summary does not assess full-flight or landing suitability and provides no Go/No-Go advisory.Current M&B notificationsWARNING \u00b7 WARN-AC-002 \u00b7 Aircraft.Status: Draft Profile ActiveApplicable category limitsMaximum takeoff mass: 1000.0 kg [UNVERIFIED]. Maximum zero-fuel mass: Not specified.Envelope vertices (arm graph, closed polygon; tabular presentation only):MassEnvelope coordinate500.0 kg [UNVERIFIED]0.000 m [UNVERIFIED]1000.0 kg [UNVERIFIED]0.000 m [UNVERIFIED]1000.0 kg [UNVERIFIED]2.090 m [UNVERIFIED]500.0 kg [UNVERIFIED]2.090 m [UNVERIFIED]Current fuel plan and estimated trip arrivalManual method: Direct Trip Fuel (kg).ParameterValueUsable fuel20 kg [UNVERIFIED]Excluded unusable fuel10 kg [UNVERIFIED]Takeoff mass580 kg [UNVERIFIED]Trip fuel burned10 kg [UNVERIFIED]Estimated arrival mass570 kg [UNVERIFIED]Usable fuel remaining on arrival10 kg [UNVERIFIED]Estimated arrival CG unavailable: Variable-arm arrival CG requires exactly zero unusable fuel; tanks with unusable fuel are unsupported.Direct Trip Fuel is the explicit mass expected to burn during the trip. No duration, consumption, endurance or reserve budget is calculated.Arithmetic planning aid only. Verify against your aircraft POH/AFM. Reserve remains aboard; usable fuel remaining on arrival is before reserve budgeting and differs from the margin after trip + reserve. Trip arrival is separate from the all-usable-fuel-burned M&B endpoint. This does not assess operational suitability, landing suitability or the full burn path/envelope and provides no Go/No-Go advisory.No Performance, runway or weather results are included."
+          },
+          "ariaSnapshot": "- dialog \"M&B print preview\":\n  - navigation \"Print controls\":\n    - button \"Back to preparation\"\n    - button \"Print M&B + fuel\"\n  - heading \"Mass & Balance + current fuel plan\" [level=1]\n  - paragraph: D-LKG \u2014 Test Test POH wiring only [UNVERIFIED] \u00b7 Normal\n  - paragraph: \"Generated: 2026-11-15T06:49:26.616Z (UTC)\"\n  - heading \"Profile and source status\" [level=2]\n  - paragraph: draft; draft [UNVERIFIED]\n  - paragraph: Profile verification is a recorded user check, not operational approval. Acknowledging a draft selection does not verify its data.\n  - paragraph:\n    - strong: Calculation based on unverified external data. Pilot in Command assumes full responsibility.\n  - paragraph: Check all calculations against the aircraft's official POH/AFM before flight. The official handbook takes precedence.\n  - paragraph: \"Verification provenance: not recorded.\"\n  - paragraph: \"Profile source units: kg-m. Datum: Test datum [UNVERIFIED].\"\n  - list:\n    - listitem: \"Weighing date 2026-01-01, valid from 2026-01-01: BEM 560.0 kg [UNVERIFIED], empty CG 2.000 m [UNVERIFIED] (normalized SI).\"\n  - heading \"Current loading\" [level=2]\n  - table:\n    - rowgroup:\n      - row \"Station Quantity\":\n        - columnheader \"Station\"\n        - columnheader \"Quantity\"\n    - rowgroup:\n      - row \"Lookup tank 30 kg [UNVERIFIED]\":\n        - cell \"Lookup tank\"\n        - cell \"30 kg [UNVERIFIED]\"\n  - heading \"M&B results\" [level=2]\n  - table:\n    - rowgroup:\n      - row \"Endpoint Mass CG arm\":\n        - columnheader \"Endpoint\"\n        - columnheader \"Mass\"\n        - columnheader \"CG arm\"\n    - rowgroup:\n      - row \"Takeoff 580.0 kg [UNVERIFIED] 2.017 m [UNVERIFIED]\":\n        - cell \"Takeoff\"\n        - cell \"580.0 kg [UNVERIFIED]\"\n        - cell \"2.017 m [UNVERIFIED]\"\n      - row \"Zero fuel 560.0 kg [UNVERIFIED] 2.000 m [UNVERIFIED]\":\n        - cell \"Zero fuel\"\n        - cell \"560.0 kg [UNVERIFIED]\"\n        - cell \"2.000 m [UNVERIFIED]\"\n      - row \"All usable fuel burned 560.0 kg [UNVERIFIED] 2.000 m [UNVERIFIED]\":\n        - cell \"All usable fuel burned\"\n        - cell \"560.0 kg [UNVERIFIED]\"\n        - cell \"2.000 m [UNVERIFIED]\"\n  - paragraph: The all-usable-fuel-burned endpoint is not the trip-specific arrival. This summary does not assess full-flight or landing suitability and provides no Go/No-Go advisory.\n  - heading \"Current M&B notifications\" [level=2]\n  - list:\n    - listitem:\n      - strong: WARNING \u00b7 WARN-AC-002 \u00b7 Aircraft.Status\n      - text: \": Draft Profile Active\"\n  - heading \"Applicable category limits\" [level=2]\n  - paragraph: \"Maximum takeoff mass: 1000.0 kg [UNVERIFIED]. Maximum zero-fuel mass: Not specified.\"\n  - paragraph: \"Envelope vertices (arm graph, closed polygon; tabular presentation only):\"\n  - table:\n    - rowgroup:\n      - row \"Mass Envelope coordinate\":\n        - columnheader \"Mass\"\n        - columnheader \"Envelope coordinate\"\n    - rowgroup:\n      - row \"500.0 kg [UNVERIFIED] 0.000 m [UNVERIFIED]\":\n        - cell \"500.0 kg [UNVERIFIED]\"\n        - cell \"0.000 m [UNVERIFIED]\"\n      - row \"1000.0 kg [UNVERIFIED] 0.000 m [UNVERIFIED]\":\n        - cell \"1000.0 kg [UNVERIFIED]\"\n        - cell \"0.000 m [UNVERIFIED]\"\n      - row \"1000.0 kg [UNVERIFIED] 2.090 m [UNVERIFIED]\":\n        - cell \"1000.0 kg [UNVERIFIED]\"\n        - cell \"2.090 m [UNVERIFIED]\"\n      - row \"500.0 kg [UNVERIFIED] 2.090 m [UNVERIFIED]\":\n        - cell \"500.0 kg [UNVERIFIED]\"\n        - cell \"2.090 m [UNVERIFIED]\"\n  - region \"Current fuel plan and estimated trip arrival\":\n    - heading \"Current fuel plan and estimated trip arrival\" [level=2]\n    - paragraph: \"Manual method: Direct Trip Fuel (kg).\"\n    - table:\n      - rowgroup:\n        - row \"Parameter Value\":\n          - columnheader \"Parameter\"\n          - columnheader \"Value\"\n      - rowgroup:\n        - row \"Usable fuel 20 kg [UNVERIFIED]\":\n          - cell \"Usable fuel\"\n          - cell \"20 kg [UNVERIFIED]\"\n        - row \"Excluded unusable fuel 10 kg [UNVERIFIED]\":\n          - cell \"Excluded unusable fuel\"\n          - cell \"10 kg [UNVERIFIED]\"\n        - row \"Takeoff mass 580 kg [UNVERIFIED]\":\n          - cell \"Takeoff mass\"\n          - cell \"580 kg [UNVERIFIED]\"\n        - row \"Trip fuel burned 10 kg [UNVERIFIED]\":\n          - cell \"Trip fuel burned\"\n          - cell \"10 kg [UNVERIFIED]\"\n        - row \"Estimated arrival mass 570 kg [UNVERIFIED]\":\n          - cell \"Estimated arrival mass\"\n          - cell \"570 kg [UNVERIFIED]\"\n        - row \"Usable fuel remaining on arrival 10 kg [UNVERIFIED]\":\n          - cell \"Usable fuel remaining on arrival\"\n          - cell \"10 kg [UNVERIFIED]\"\n    - paragraph: \"Estimated arrival CG unavailable: Variable-arm arrival CG requires exactly zero unusable fuel; tanks with unusable fuel are unsupported.\"\n    - paragraph: Direct Trip Fuel is the explicit mass expected to burn during the trip. No duration, consumption, endurance or reserve budget is calculated.\n    - paragraph: Arithmetic planning aid only. Verify against your aircraft POH/AFM. Reserve remains aboard; usable fuel remaining on arrival is before reserve budgeting and differs from the margin after trip + reserve. Trip arrival is separate from the all-usable-fuel-burned M&B endpoint. This does not assess operational suitability, landing suitability or the full burn path/envelope and provides no Go/No-Go advisory.\n  - paragraph: No Performance, runway or weather results are included."
+        }
+      },
+      "afterSnapshot": "after@call@2043"
+    }
+  },
+  {
+    "line": null,
+    "params": {
+      "selector": "internal:role=region[name=\"Calculation results\"i] >> .result-summary__item >> internal:has-text=\"CG (Takeoff)\"i",
+      "expression": "to.have.text",
+      "expectedText": [
+        {
+          "string": "2.100",
+          "matchSubstring": true,
+          "normalizeWhiteSpace": true
+        }
+      ],
+      "expectedValue": {
+        "value": {
+          "v": "undefined"
+        },
+        "handles": []
+      },
+      "isNot": false,
+      "timeout": 10000
+    },
+    "after": {
+      "type": "after",
+      "callId": "call@2055",
+      "endTime": 23564.839,
+      "result": {
+        "matches": true,
+        "received": {
+          "value": {
+            "s": "CG (Takeoff)2.100m"
+          },
+          "ariaSnapshot": "- term: CG (Takeoff)\n- definition: 2.100m"
+        }
+      },
+      "afterSnapshot": "after@call@2055"
+    }
+  },
+  {
+    "line": null,
+    "params": {
+      "selector": "internal:role=region[name=\"Calculation results\"i] >> .result-summary__item >> internal:has-text=\"Takeoff Mass\"i",
+      "expression": "to.have.text",
+      "expectedText": [
+        {
+          "string": "580.0",
+          "matchSubstring": true,
+          "normalizeWhiteSpace": true
+        }
+      ],
+      "expectedValue": {
+        "value": {
+          "v": "undefined"
+        },
+        "handles": []
+      },
+      "isNot": false,
+      "timeout": 10000
+    },
+    "after": {
+      "type": "after",
+      "callId": "call@2061",
+      "endTime": 23585.129,
+      "result": {
+        "matches": true,
+        "received": {
+          "value": {
+            "s": "Takeoff Mass580.0kg / MTOM 1000.0 kg Below MTOM by 420.0 kg"
+          },
+          "ariaSnapshot": "- term: Takeoff Mass\n- definition:\n  - text: 580.0kg / MTOM 1000.0 kg\n  - paragraph: Below MTOM by 420.0 kg"
+        }
+      },
+      "afterSnapshot": "after@call@2061"
+    }
+  },
+  {
+    "line": null,
+    "params": {
+      "selector": "internal:role=region[name=\"Calculation results\"i] >> .result-summary__item >> internal:has-text=\"CG (Takeoff)\"i",
+      "expression": "to.have.text",
+      "expectedText": [
+        {
+          "string": "2.017",
+          "matchSubstring": true,
+          "normalizeWhiteSpace": true
+        }
+      ],
+      "expectedValue": {
+        "value": {
+          "v": "undefined"
+        },
+        "handles": []
+      },
+      "isNot": false,
+      "timeout": 10000
+    },
+    "after": {
+      "type": "after",
+      "callId": "call@2063",
+      "endTime": 23590.555,
+      "result": {
+        "matches": true,
+        "received": {
+          "value": {
+            "s": "CG (Takeoff)2.017m"
+          },
+          "ariaSnapshot": "- term: CG (Takeoff)\n- definition: 2.017m"
+        }
+      },
+      "afterSnapshot": "after@call@2063"
+    }
+  },
+  {
+    "line": null,
+    "params": {
+      "selector": "internal:text=\"CG Moment (kg\u00b7m)\"s",
+      "expression": "to.be.visible",
+      "expectedValue": {
+        "value": {
+          "v": "undefined"
+        },
+        "handles": []
+      },
+      "isNot": false,
+      "timeout": 10000
+    },
+    "after": {
+      "type": "after",
+      "callId": "call@2065",
+      "endTime": 23594.822,
+      "result": {
+        "matches": true,
+        "received": {
+          "value": {
+            "s": "visible"
+          },
+          "ariaSnapshot": "- text: CG Moment (kg\u00b7m)"
+        }
+      },
+      "afterSnapshot": "after@call@2065"
+    }
+  },
+  {
+    "line": null,
+    "params": {
+      "selector": "internal:text=/Invalid input: Lookup tank \\(/",
+      "expression": "to.be.visible",
+      "expectedValue": {
+        "value": {
+          "v": "undefined"
+        },
+        "handles": []
+      },
+      "isNot": false,
+      "timeout": 10000
+    },
+    "after": {
+      "type": "after",
+      "callId": "call@2077",
+      "endTime": 23713.512,
+      "result": {
+        "matches": true,
+        "received": {
+          "value": {
+            "s": "visible"
+          },
+          "ariaSnapshot": "- text: \"Invalid input: Lookup tank (NOT_A_NUMBER) \u2014 Tank load and unusable fuel must be finite and nonnegative.\""
+        }
+      },
+      "afterSnapshot": "after@call@2077"
+    }
+  },
+  {
+    "line": null,
+    "params": {
+      "selector": "internal:role=region[name=\"Calculation results\"i]",
+      "expression": "to.have.count",
+      "expectedNumber": 0,
+      "expectedValue": {
+        "value": {
+          "v": "undefined"
+        },
+        "handles": []
+      },
+      "isNot": false,
+      "timeout": 10000
+    },
+    "after": {
+      "type": "after",
+      "callId": "call@2079",
+      "endTime": 23717.806,
+      "result": {
+        "matches": true,
+        "received": {
+          "value": {
+            "n": 0
+          }
+        }
+      },
+      "afterSnapshot": "after@call@2079"
+    }
+  },
+  {
+    "line": null,
+    "params": {
+      "selector": "internal:text=/Invalid input: Lookup tank \\(BELOW_UNUSABLE\\)/",
+      "expression": "to.be.visible",
+      "expectedValue": {
+        "value": {
+          "v": "undefined"
+        },
+        "handles": []
+      },
+      "isNot": false,
+      "timeout": 10000
+    },
+    "after": {
+      "type": "after",
+      "callId": "call@2087",
+      "endTime": 23782.794,
+      "result": {
+        "matches": true,
+        "received": {
+          "value": {
+            "s": "visible"
+          },
+          "ariaSnapshot": "- text: \"Invalid input: Lookup tank (BELOW_UNUSABLE) \u2014 Tank load is below unusable fuel; enter the total tank quantity including unusable fuel.\""
+        }
+      },
+      "afterSnapshot": "after@call@2087"
+    }
+  },
+  {
+    "line": null,
+    "params": {
+      "selector": "internal:role=region[name=\"Calculation results\"i]",
+      "expression": "to.have.count",
+      "expectedNumber": 0,
+      "expectedValue": {
+        "value": {
+          "v": "undefined"
+        },
+        "handles": []
+      },
+      "isNot": false,
+      "timeout": 10000
+    },
+    "after": {
+      "type": "after",
+      "callId": "call@2089",
+      "endTime": 23788.658,
+      "result": {
+        "matches": true,
+        "received": {
+          "value": {
+            "n": 0
+          }
+        }
+      },
+      "afterSnapshot": "after@call@2089"
+    }
+  },
+  {
+    "line": null,
+    "params": {
+      "selector": "internal:testid=[data-testid=\"cg-point-label-tom\"s]",
+      "expression": "to.have.count",
+      "expectedNumber": 0,
+      "expectedValue": {
+        "value": {
+          "v": "undefined"
+        },
+        "handles": []
+      },
+      "isNot": false,
+      "timeout": 10000
+    },
+    "after": {
+      "type": "after",
+      "callId": "call@2091",
+      "endTime": 23793.634,
+      "result": {
+        "matches": true,
+        "received": {
+          "value": {
+            "n": 0
+          }
+        }
+      },
+      "afterSnapshot": "after@call@2091"
+    }
+  },
+  {
+    "line": null,
+    "params": {
+      "selector": "internal:role=region[name=\"Calculation results\"i] >> .result-summary__item >> internal:has-text=\"CG (Takeoff)\"i",
+      "expression": "to.have.text",
+      "expectedText": [
+        {
+          "string": "2.017",
+          "matchSubstring": true,
+          "normalizeWhiteSpace": true
+        }
+      ],
+      "expectedValue": {
+        "value": {
+          "v": "undefined"
+        },
+        "handles": []
+      },
+      "isNot": false,
+      "timeout": 10000
+    },
+    "after": {
+      "type": "after",
+      "callId": "call@2105",
+      "endTime": 23954.961,
+      "result": {
+        "matches": true,
+        "received": {
+          "value": {
+            "s": "CG (Takeoff)2.017m"
+          },
+          "ariaSnapshot": "- term: CG (Takeoff)\n- definition: 2.017m"
+        }
+      },
+      "afterSnapshot": "after@call@2105"
+    }
+  },
+  {
+    "line": null,
+    "params": {
+      "selector": "#station-0",
+      "expression": "to.have.value",
+      "expectedText": [
+        {
+          "string": "50"
+        }
+      ],
+      "expectedValue": {
+        "value": {
+          "v": "undefined"
+        },
+        "handles": []
+      },
+      "isNot": false,
+      "timeout": 10000
+    },
+    "after": {
+      "type": "after",
+      "callId": "call@2113",
+      "endTime": 24014.009,
+      "result": {
+        "matches": true,
+        "received": {
+          "value": {
+            "s": "50"
+          },
+          "ariaSnapshot": "- textbox \"Lookup tank\": \"50\""
+        }
+      },
+      "afterSnapshot": "after@call@2113"
+    }
+  },
+  {
+    "line": null,
+    "params": {
+      "selector": "internal:role=region[name=\"Calculation results\"i] >> .result-summary__item >> internal:has-text=\"CG (Takeoff)\"i",
+      "expression": "to.have.text",
+      "expectedText": [
+        {
+          "string": "2.100",
+          "matchSubstring": true,
+          "normalizeWhiteSpace": true
+        }
+      ],
+      "expectedValue": {
+        "value": {
+          "v": "undefined"
+        },
+        "handles": []
+      },
+      "isNot": false,
+      "timeout": 10000
+    },
+    "after": {
+      "type": "after",
+      "callId": "call@2115",
+      "endTime": 24019.864,
+      "result": {
+        "matches": true,
+        "received": {
+          "value": {
+            "s": "CG (Takeoff)2.100m"
+          },
+          "ariaSnapshot": "- term: CG (Takeoff)\n- definition: 2.100m"
+        }
+      },
+      "afterSnapshot": "after@call@2115"
+    }
+  },
+  {
+    "line": null,
+    "params": {
+      "selector": "internal:text=\"Browser offline\"i",
+      "expression": "to.be.visible",
+      "expectedValue": {
+        "value": {
+          "v": "undefined"
+        },
+        "handles": []
+      },
+      "isNot": false,
+      "timeout": 10000
+    },
+    "after": {
+      "type": "after",
+      "callId": "call@2133",
+      "endTime": 24566.644,
+      "result": {
+        "matches": true,
+        "received": {
+          "value": {
+            "s": "visible"
+          },
+          "ariaSnapshot": "- status: Browser offline"
+        }
+      },
+      "afterSnapshot": "after@call@2133"
+    }
+  },
+  {
+    "line": null,
+    "params": {
+      "selector": "internal:role=region[name=\"Calculation results\"i] >> .result-summary__item >> internal:has-text=\"CG (Takeoff)\"i",
+      "expression": "to.have.text",
+      "expectedText": [
+        {
+          "string": "2.017",
+          "matchSubstring": true,
+          "normalizeWhiteSpace": true
+        }
+      ],
+      "expectedValue": {
+        "value": {
+          "v": "undefined"
+        },
+        "handles": []
+      },
+      "isNot": false,
+      "timeout": 10000
+    },
+    "after": {
+      "type": "after",
+      "callId": "call@2135",
+      "endTime": 24572.556,
+      "result": {
+        "matches": true,
+        "received": {
+          "value": {
+            "s": "CG (Takeoff)2.017m"
+          },
+          "ariaSnapshot": "- term: CG (Takeoff)\n- definition: 2.017m"
+        }
+      },
+      "afterSnapshot": "after@call@2135"
+    }
+  },
+  {
+    "line": null,
+    "params": {
+      "selector": "internal:text=/Invalid input: Lookup tank \\(/",
+      "expression": "to.be.visible",
+      "expectedValue": {
+        "value": {
+          "v": "undefined"
+        },
+        "handles": []
+      },
+      "isNot": false,
+      "timeout": 10000
+    },
+    "after": {
+      "type": "after",
+      "callId": "call@2141",
+      "endTime": 24595.477,
+      "result": {
+        "matches": true,
+        "received": {
+          "value": {
+            "s": "visible"
+          },
+          "ariaSnapshot": "- text: \"Invalid input: Lookup tank (NOT_A_NUMBER) \u2014 Tank load and unusable fuel must be finite and nonnegative.\""
+        }
+      },
+      "afterSnapshot": "after@call@2141"
+    }
+  },
+  {
+    "line": null,
+    "params": {
+      "selector": "internal:role=region[name=\"Calculation results\"i]",
+      "expression": "to.have.count",
+      "expectedNumber": 0,
+      "expectedValue": {
+        "value": {
+          "v": "undefined"
+        },
+        "handles": []
+      },
+      "isNot": false,
+      "timeout": 10000
+    },
+    "after": {
+      "type": "after",
+      "callId": "call@2143",
+      "endTime": 24599.924,
+      "result": {
+        "matches": true,
+        "received": {
+          "value": {
+            "n": 0
+          }
+        }
+      },
+      "afterSnapshot": "after@call@2143"
+    }
+  },
+  {
+    "line": null,
+    "params": {
+      "selector": "internal:role=region[name=\"Calculation results\"i] >> .result-summary__item >> internal:has-text=\"CG (Takeoff)\"i",
+      "expression": "to.have.text",
+      "expectedText": [
+        {
+          "string": "2.017",
+          "matchSubstring": true,
+          "normalizeWhiteSpace": true
+        }
+      ],
+      "expectedValue": {
+        "value": {
+          "v": "undefined"
+        },
+        "handles": []
+      },
+      "isNot": false,
+      "timeout": 10000
+    },
+    "after": {
+      "type": "after",
+      "callId": "call@2149",
+      "endTime": 24621.397,
+      "result": {
+        "matches": true,
+        "received": {
+          "value": {
+            "s": "CG (Takeoff)2.017m"
+          },
+          "ariaSnapshot": "- term: CG (Takeoff)\n- definition: 2.017m"
+        }
+      },
+      "afterSnapshot": "after@call@2149"
+    }
+  },
+  {
+    "line": null,
+    "params": {
+      "selector": "internal:role=dialog[name=\"M&B print preview\"s]",
+      "expression": "to.have.text",
+      "expectedText": [
+        {
+          "string": "2.017 m [UNVERIFIED]",
+          "matchSubstring": true,
+          "normalizeWhiteSpace": true
+        }
+      ],
+      "expectedValue": {
+        "value": {
+          "v": "undefined"
+        },
+        "handles": []
+      },
+      "isNot": false,
+      "timeout": 10000
+    },
+    "after": {
+      "type": "after",
+      "callId": "call@2153",
+      "endTime": 24663.075,
+      "result": {
+        "matches": true,
+        "received": {
+          "value": {
+            "s": "Back to preparationPrint M&BMass & Balance onlyD-LKG \u2014 Test Test POH wiring only [UNVERIFIED] \u00b7 NormalGenerated: 2026-11-15T06:49:27.963Z (UTC)Profile and source statusdraft; draft [UNVERIFIED]Profile verification is a recorded user check, not operational approval. Acknowledging a draft selection does not verify its data.Calculation based on unverified external data. Pilot in Command assumes full responsibility.Check all calculations against the aircraft's official POH/AFM before flight. The official handbook takes precedence.Verification provenance: not recorded.Profile source units: kg-m. Datum: Test datum [UNVERIFIED].Weighing date 2026-01-01, valid from 2026-01-01: BEM 560.0 kg [UNVERIFIED], empty CG 2.000 m [UNVERIFIED] (normalized SI).Current loadingStationQuantityLookup tank30 kg [UNVERIFIED]M&B resultsEndpointMassCG armTakeoff580.0 kg [UNVERIFIED]2.017 m [UNVERIFIED]Zero fuel560.0 kg [UNVERIFIED]2.000 m [UNVERIFIED]All usable fuel burned560.0 kg [UNVERIFIED]2.000 m [UNVERIFIED]The all-usable-fuel-burned endpoint is not the trip-specific arrival. This summary does not assess full-flight or landing suitability and provides no Go/No-Go advisory.Current M&B notificationsWARNING \u00b7 WARN-AC-002 \u00b7 Aircraft.Status: Draft Profile ActiveApplicable category limitsMaximum takeoff mass: 1000.0 kg [UNVERIFIED]. Maximum zero-fuel mass: Not specified.Envelope vertices (arm graph, closed polygon; tabular presentation only):MassEnvelope coordinate500.0 kg [UNVERIFIED]0.000 m [UNVERIFIED]1000.0 kg [UNVERIFIED]0.000 m [UNVERIFIED]1000.0 kg [UNVERIFIED]2.090 m [UNVERIFIED]500.0 kg [UNVERIFIED]2.090 m [UNVERIFIED]No Performance, runway or weather results are included. No fuel/endurance planning results are included."
+          },
+          "ariaSnapshot": "- dialog \"M&B print preview\":\n  - navigation \"Print controls\":\n    - button \"Back to preparation\"\n    - button \"Print M&B\"\n  - heading \"Mass & Balance only\" [level=1]\n  - paragraph: D-LKG \u2014 Test Test POH wiring only [UNVERIFIED] \u00b7 Normal\n  - paragraph: \"Generated: 2026-11-15T06:49:27.963Z (UTC)\"\n  - heading \"Profile and source status\" [level=2]\n  - paragraph: draft; draft [UNVERIFIED]\n  - paragraph: Profile verification is a recorded user check, not operational approval. Acknowledging a draft selection does not verify its data.\n  - paragraph:\n    - strong: Calculation based on unverified external data. Pilot in Command assumes full responsibility.\n  - paragraph: Check all calculations against the aircraft's official POH/AFM before flight. The official handbook takes precedence.\n  - paragraph: \"Verification provenance: not recorded.\"\n  - paragraph: \"Profile source units: kg-m. Datum: Test datum [UNVERIFIED].\"\n  - list:\n    - listitem: \"Weighing date 2026-01-01, valid from 2026-01-01: BEM 560.0 kg [UNVERIFIED], empty CG 2.000 m [UNVERIFIED] (normalized SI).\"\n  - heading \"Current loading\" [level=2]\n  - table:\n    - rowgroup:\n      - row \"Station Quantity\":\n        - columnheader \"Station\"\n        - columnheader \"Quantity\"\n    - rowgroup:\n      - row \"Lookup tank 30 kg [UNVERIFIED]\":\n        - cell \"Lookup tank\"\n        - cell \"30 kg [UNVERIFIED]\"\n  - heading \"M&B results\" [level=2]\n  - table:\n    - rowgroup:\n      - row \"Endpoint Mass CG arm\":\n        - columnheader \"Endpoint\"\n        - columnheader \"Mass\"\n        - columnheader \"CG arm\"\n    - rowgroup:\n      - row \"Takeoff 580.0 kg [UNVERIFIED] 2.017 m [UNVERIFIED]\":\n        - cell \"Takeoff\"\n        - cell \"580.0 kg [UNVERIFIED]\"\n        - cell \"2.017 m [UNVERIFIED]\"\n      - row \"Zero fuel 560.0 kg [UNVERIFIED] 2.000 m [UNVERIFIED]\":\n        - cell \"Zero fuel\"\n        - cell \"560.0 kg [UNVERIFIED]\"\n        - cell \"2.000 m [UNVERIFIED]\"\n      - row \"All usable fuel burned 560.0 kg [UNVERIFIED] 2.000 m [UNVERIFIED]\":\n        - cell \"All usable fuel burned\"\n        - cell \"560.0 kg [UNVERIFIED]\"\n        - cell \"2.000 m [UNVERIFIED]\"\n  - paragraph: The all-usable-fuel-burned endpoint is not the trip-specific arrival. This summary does not assess full-flight or landing suitability and provides no Go/No-Go advisory.\n  - heading \"Current M&B notifications\" [level=2]\n  - list:\n    - listitem:\n      - strong: WARNING \u00b7 WARN-AC-002 \u00b7 Aircraft.Status\n      - text: \": Draft Profile Active\"\n  - heading \"Applicable category limits\" [level=2]\n  - paragraph: \"Maximum takeoff mass: 1000.0 kg [UNVERIFIED]. Maximum zero-fuel mass: Not specified.\"\n  - paragraph: \"Envelope vertices (arm graph, closed polygon; tabular presentation only):\"\n  - table:\n    - rowgroup:\n      - row \"Mass Envelope coordinate\":\n        - columnheader \"Mass\"\n        - columnheader \"Envelope coordinate\"\n    - rowgroup:\n      - row \"500.0 kg [UNVERIFIED] 0.000 m [UNVERIFIED]\":\n        - cell \"500.0 kg [UNVERIFIED]\"\n        - cell \"0.000 m [UNVERIFIED]\"\n      - row \"1000.0 kg [UNVERIFIED] 0.000 m [UNVERIFIED]\":\n        - cell \"1000.0 kg [UNVERIFIED]\"\n        - cell \"0.000 m [UNVERIFIED]\"\n      - row \"1000.0 kg [UNVERIFIED] 2.090 m [UNVERIFIED]\":\n        - cell \"1000.0 kg [UNVERIFIED]\"\n        - cell \"2.090 m [UNVERIFIED]\"\n      - row \"500.0 kg [UNVERIFIED] 2.090 m [UNVERIFIED]\":\n        - cell \"500.0 kg [UNVERIFIED]\"\n        - cell \"2.090 m [UNVERIFIED]\"\n  - paragraph: No Performance, runway or weather results are included. No fuel/endurance planning results are included."
+        }
+      },
+      "afterSnapshot": "after@call@2153"
+    }
+  }
+]

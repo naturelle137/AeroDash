@@ -1,0 +1,45 @@
+commit 9e4109e24a58712e23a12366e6d4824c2db945dd
+Author:     naturelle137 <3775385+naturelle137@users.noreply.github.com>
+AuthorDate: Sun Nov 15 06:51:59 2026 +0100
+Commit:     GitHub <noreply@github.com>
+CommitDate: Sun Nov 15 06:51:59 2026 +0100
+
+    fix(mb): add lookup fuel tanks as total-moment difference F(q) − F(u) (#532)
+    
+    * fix(mb): use total-moment difference F(q)-F(u) for lookup fuel tanks
+    
+    Lookup tables hold the total tank moment at each load while unusable fuel
+    stays in BEM, so the usable contribution is F(q)-F(u), not (q-u)*F(q)/q.
+    Strict geometry, coverage of u and q, q>=u and SI bounds are validated in
+    P1 with typed violations; the store checks raw values before normalization
+    and blocks the result visibly.
+    
+    Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+    
+    * test(mb): cover lookup fuel total moments through store, fuel and print
+    
+    Store integration uses the reviewed synthetic kg, lb, L, USG and IMPgal
+    vectors; existing tests that relied on q<u or uncovered loads now assert
+    the visible M&B block with their original intent.
+    
+    Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+    
+    * docs(mb): document total-load lookup fuel semantics and validation
+    
+    Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+    
+    * test(mb): cover lookup fuel total moments in cached-offline production flow
+    
+    Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+    
+    * test(mb): expect M&B block for uncovered lookup loads in #529 offline flows
+    
+    A load beyond the table or a table missing u = 0 now blocks M&B itself;
+    the fuel and print journeys assert the visible error and correction.
+    
+    Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+    
+    ---------
+    
+    Co-authored-by: naturelle137 <oettinger31@outlook.de>
+    Co-authored-by: Claude Opus 5.5 <noreply@anthropic.com>
