@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Estimate trip arrival CG for exactly one lookup-table tank with zero unusable fuel from table moments at takeoff and remaining load; nonzero unusable fuel stays unsupported pending #530 (#529).
+- Estimate trip arrival CG for exactly one lookup-table tank with zero unusable fuel from table moments at takeoff and remaining load; nonzero unusable fuel remains unsupported for trip arrival CG (#529).
 
 ### Fixed
 
