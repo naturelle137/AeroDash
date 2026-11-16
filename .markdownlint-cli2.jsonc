@@ -5,6 +5,8 @@
     "reports/**",
     "frontend/node_modules/**",
     ".agent/**",
+    ".agents/**",
+    ".codex/**",
     "frontend/playwright-report/**",
     "frontend/test-results/**",
     "frontend/.stryker-tmp/**",

@@ -8,8 +8,8 @@ import ManualRunwayPanel from './ManualRunwayPanel.vue'
 const valid = {
   '#manual-runway-aerodrome': 'TEST',
   '#manual-runway-designator': '27',
-  '#manual-runway-tora': '2000',
   '#manual-runway-tora-unit': 'ft',
+  '#manual-runway-tora': '2000',
   '#manual-runway-lda': '550',
   '#manual-runway-lda-unit': 'm',
   '#manual-runway-elevation': '-12',
@@ -30,13 +30,13 @@ beforeEach(() => {
 afterEach(() => { vi.restoreAllMocks() })
 
 describe('ManualRunwayPanel', () => {
-  it('starts empty without default surface or units and blocks saving', async () => {
+  it('starts with preferred units, empty values and no surface and blocks saving', async () => {
     const view = mount(ManualRunwayPanel)
-    for (const selector of Object.keys(valid)) expect((view.get(selector).element as HTMLInputElement).value).toBe('')
+    for (const selector of Object.keys(valid)) expect((view.get(selector).element as HTMLInputElement).value).toBe(selector.endsWith('-unit') ? (selector.includes('elevation') ? 'ft' : 'm') : '')
     expect(view.get('#manual-runway-surface-condition').attributes('disabled')).toBeDefined()
     await view.get('form').trigger('submit')
-    expect(view.get('[role="alert"]').text()).toContain('correct 10 fields')
-    expect(view.findAll('.field-error')).toHaveLength(10)
+    expect(view.get('[role="alert"]').text()).toContain('correct 7 fields')
+    expect(view.findAll('.field-error')).toHaveLength(7)
     expect(localStorage.getItem(MANUAL_RUNWAY_STORAGE_KEY)).toBeNull()
     expect(summary(view).exists()).toBe(false)
     expect(view.text()).toContain('Runway assessment unavailable')

@@ -6,7 +6,17 @@ import { testPohAircraft } from '../../../../tests/fixtures/poh-aircraft'
 import { importProfileFromJson, exportProfileToJson } from '@/modules/aircraft/services/profile.import'
 import { _resetFleetDbHandleForTest } from '@/modules/aircraft/services/fleet.repository'
 import { useFleetStore } from '@/modules/aircraft/stores/fleet.store'
-import { inspectPohDistances } from './poh-inspection'
+import { assessPerformance, massSourceFromText } from './poh-inspection'
+
+function inspectPohDistances(profile: unknown, values: { mass: string; pressureAltitude: string; temperature: string }, at: Date) {
+  const mass = massSourceFromText(values.mass, 'entered lookup mass')
+  const result = assessPerformance(profile, { takeoff: mass, landing: mass, pressureAltitude: values.pressureAltitude, temperature: values.temperature }, at)
+  if (result.status === 'blocked') return result
+  if (result.takeoff.status !== 'success' || result.landing.status !== 'success') return { status: 'blocked' }
+  const [tor, tod] = result.takeoff.distances
+  const [lr, ld] = result.landing.distances
+  return { status: 'success', distances: { takeoffRoll: tor!.distance, takeoffDistance50ft: tod!.distance, landingRoll: lr!.distance, landingDistance50ft: ld!.distance } }
+}
 
 beforeEach(() => {
   Object.defineProperty(globalThis, 'indexedDB', { value: new IDBFactory(), configurable: true })

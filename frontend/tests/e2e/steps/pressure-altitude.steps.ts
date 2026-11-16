@@ -38,8 +38,8 @@ When('the pilot derives pressure altitude from QNH {string} {string} and field e
     const section = qnhSection(page)
     await section.getByLabel('QNH', { exact: true }).fill(qnh)
     await section.getByLabel('QNH unit', { exact: true }).selectOption(qnhUnit)
-    await section.getByLabel('Pressure-altitude field elevation', { exact: true }).fill(elevation)
     await section.getByLabel('Pressure-altitude field elevation unit', { exact: true }).selectOption(elevationUnit)
+    await section.getByLabel('Pressure-altitude field elevation', { exact: true }).fill(elevation)
   })
 
 When('the pilot changes the QNH to {string}', async ({ page }, qnh: string) => {

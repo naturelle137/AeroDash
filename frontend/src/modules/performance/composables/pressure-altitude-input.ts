@@ -1,6 +1,8 @@
 import { computed, reactive, ref, watch } from 'vue'
 import { derivePressureAltitude, type PressureAltitudeDraft } from '@/core/logic/pressure-altitude'
 import { useManualRunwayStore } from '@/modules/airport/stores/manual-runway.store'
+import { useLoadedUnitPreferences } from '@/modules/performance/stores/unit-preferences.store'
+import { convertLengthText, isLengthUnit } from '@/core/logic/unit-preferences'
 
 export type PressureAltitudeMethod = '' | 'direct' | 'qnh-elevation'
 export type PressureAltitudeResolution =
@@ -18,13 +20,18 @@ type RunwayCopy = { text: string; unit: string; savedAt: string; label: string }
 export function usePressureAltitudeInput() {
   const runway = useManualRunwayStore()
   if (!runway.loaded) runway.load()
+  const units = useLoadedUnitPreferences()
 
   const method = ref<PressureAltitudeMethod>('')
   // Kept while the derived method is active so switching back never overwrites it.
   const direct = ref('')
-  const draft = reactive<PressureAltitudeDraft>({ qnh: '', qnhUnit: '', elevation: '', elevationUnit: '' })
+  // Only units come from preferences; the numbers start blank every session.
+  const draft = reactive<PressureAltitudeDraft>({
+    qnh: '', qnhUnit: units.preferences.qnh, elevation: '', elevationUnit: units.preferences.fieldElevation,
+  })
   const runwayCopy = ref<RunwayCopy | null>(null)
   const notice = ref<string | null>(null)
+  let copying = false
 
   const derivation = computed(() => derivePressureAltitude(draft))
   const copiedFromRunway = computed(() => runwayCopy.value !== null
@@ -39,12 +46,30 @@ export function usePressureAltitudeInput() {
     if (!record) return false
     const { aerodrome, designator, fieldElevation } = record.runway
     const copy = { text: String(fieldElevation.value), unit: fieldElevation.unit, savedAt: record.savedAt, label: `${aerodrome} ${designator}` }
-    draft.elevation = copy.text
-    draft.elevationUnit = copy.unit
+    copying = true
+    try {
+      draft.elevation = copy.text
+      draft.elevationUnit = copy.unit
+    } finally {
+      copying = false
+    }
     runwayCopy.value = copy
     notice.value = null
     return true
   }
+
+  // Changing the unit converts the same physical elevation; a converted copy keeps its runway provenance.
+  watch(() => draft.elevationUnit, (to, from) => {
+    if (copying || !isLengthUnit(from) || !isLengthUnit(to)) return
+    const wasCopied = runwayCopy.value !== null && draft.elevation === runwayCopy.value.text && from === runwayCopy.value.unit
+    const converted = convertLengthText(draft.elevation, from, to)
+    if (converted === null) return
+    draft.elevation = converted
+    if (wasCopied) runwayCopy.value = { ...runwayCopy.value!, text: converted, unit: to }
+  }, { flush: 'sync' })
+  watch(() => units.preferences.fieldElevation, (unit) => {
+    if (draft.elevation.trim() === '') draft.elevationUnit = unit
+  }, { flush: 'sync' })
 
   // A copied elevation belongs to exactly one saved runway declaration.
   watch(() => savedRunway.value?.savedAt ?? null, (savedAt) => {
@@ -52,7 +77,7 @@ export function usePressureAltitudeInput() {
     if (!copy || savedAt === copy.savedAt) return
     if (copiedFromRunway.value) {
       draft.elevation = ''
-      draft.elevationUnit = ''
+      draft.elevationUnit = units.preferences.fieldElevation
       notice.value = 'The saved manual runway was edited or cleared, so the copied field elevation was removed. Enter or copy it again.'
     }
     runwayCopy.value = null
