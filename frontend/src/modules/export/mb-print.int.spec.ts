@@ -16,7 +16,7 @@ function source(): MbPrintSource {
   const store = useMassBalanceStore()
   store.loadProfile(mapFleetProfileToContext(profile))
   return reactive({ state: store.uiState, ready: true, profile, aircraft: store.aircraft,
-    category: store.activeCategoryDef, result: store.lastResult, stations: store.availableStations,
+    category: store.activeCategoryDef, result: store.lastResult, chartEnvelope: store.activeEnvelopeSI, stations: store.availableStations,
     notifications: store.notifications })
 }
 afterEach(() => { document.body.innerHTML = ''; vi.restoreAllMocks() })
@@ -66,13 +66,16 @@ describe('M&B print presentation with real store calculation', () => {
     store.loadProfile(mapFleetProfileToContext(profile))
     expect(store.lastResult!.takeoffCenterOfGravityPoint.moment).toBeCloseTo(691.27477188, 6)
     const result = assembleMbPrint(reactive({ state: store.uiState, ready: true, profile, aircraft: store.aircraft,
-      category: store.activeCategoryDef, result: store.lastResult, stations: store.availableStations,
+      category: store.activeCategoryDef, result: store.lastResult, chartEnvelope: store.activeEnvelopeSI, stations: store.availableStations,
       notifications: store.notifications }), new Date('2026-11-14'))!
     expect(result.graphType).toBe('moment')
     expect(result.envelope.map(r => r.horizontal)).toEqual([
       '576.062 kg·m [UNVERIFIED]', '576.062 kg·m [UNVERIFIED]',
       '1152.125 kg·m [UNVERIFIED]', '1152.125 kg·m [UNVERIFIED]',
     ])
+    expect(result.chart.envelope).toEqual(store.activeEnvelopeSI)
+    expect(result.chart.result).toEqual(store.lastResult)
+    expect(result.chart.envelope[0]!.armOrMoment).toBeCloseTo(576.0623099, 6)
     expect(result.envelope[0]!.mass).toBe('680.4 kg [UNVERIFIED]')
     expect(result.points[0]!.cg).toBe('1.016 m [UNVERIFIED]')
   })

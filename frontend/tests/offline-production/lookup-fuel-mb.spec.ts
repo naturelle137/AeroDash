@@ -158,7 +158,10 @@ test('lookup fuel M&B uses total-moment differences on screen, chart, print and 
   await expect(takeoffMass).toContainText('600.0')
   await expect(takeoffCg).toContainText('2.100')
   await expect(critical).toBeVisible()
-  await expect(action).toBeDisabled()
+  await expect(action).toBeEnabled()
+  await action.click()
+  await expect(preview).toHaveCount(0)
+  await expect(page.locator('#briefing-eligibility')).toContainText('not eligible')
   await shot('lookup-q50-arm-critical')
 
   await load('30')
@@ -191,7 +194,10 @@ test('lookup fuel M&B uses total-moment differences on screen, chart, print and 
   await expect(page.getByText(/Invalid input: Lookup tank \(/)).toBeVisible()
   await expect(summary).toHaveCount(0)
   await expect(page.getByTestId('cg-point-label-tom')).toHaveCount(0)
-  await expect(action).toBeDisabled()
+  await expect(action).toBeEnabled()
+  await action.click()
+  await expect(preview).toHaveCount(0)
+  await expect(page.locator('#briefing-eligibility')).toContainText('not eligible')
   await shot('lookup-below-unusable-blocked')
   await errorShot('lookup-below-unusable-blocked')
 

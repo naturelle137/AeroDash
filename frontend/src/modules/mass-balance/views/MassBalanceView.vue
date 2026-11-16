@@ -72,6 +72,7 @@ const mbSource = computed(() => ({
       category: store.activeCategoryDef,
       stations: store.availableStations,
       result: store.lastResult,
+      chartEnvelope: store.activeEnvelopeSI,
       notifications: store.notifications,
       fuel: fuelPlanning.presentation.value,
     }))
@@ -2140,4 +2141,6 @@ function onCancelSelection(): void {
     min-width: 0;
   }
 }
+/* Reserve space after the final preparation content for the persistent action. */
+.fp-view { padding-bottom: calc(12rem + env(safe-area-inset-bottom, 0px)); }
 </style>

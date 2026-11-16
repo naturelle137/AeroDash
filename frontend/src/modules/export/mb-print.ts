@@ -4,7 +4,7 @@ import type { AircraftProfile } from '@/core/adapters/aircraft.schema'
 import { normalizeMassToKg, normalizeArmToM, normalizeMomentToSI, parseSourceUnit } from '@/core/logic/unit-normalization'
 import { evaluateVerificationFreshness } from '@/core/logic/profile-verification'
 import { formatArm, formatMassConservative } from '@/core/logic/display-rounding'
-import type { AircraftContext, CategoryDefinition, MathCoreResult, MassBalanceState, Notification, StationInput } from '@/modules/mass-balance/stores/mass-balance.types'
+import type { AircraftContext, CategoryDefinition, EnvelopePoint, MathCoreResult, MassBalanceState, Notification, StationInput } from '@/modules/mass-balance/stores/mass-balance.types'
 
 export interface MbPrintSource {
   performance?: PerformancePresentation
@@ -15,6 +15,7 @@ export interface MbPrintSource {
   profile: AircraftProfile | null
   category: CategoryDefinition | null
   stations: StationInput[]
+  chartEnvelope: EnvelopePoint[]
   result: MathCoreResult | null
   notifications: Notification[]
 }
@@ -41,10 +42,7 @@ export function assembleMbPrint(source: MbPrintSource, now: Date) {
     performance: source.performance ? JSON.parse(JSON.stringify(source.performance)) as PerformancePresentation : null,
     chart: {
       result: JSON.parse(JSON.stringify(result)) as MathCoreResult,
-      envelope: category.envelope.map(p => ({
-        mass: normalizeMassToKg(p.mass, massUnit),
-        armOrMoment: category.graphType === 'arm' ? normalizeArmToM(p.armOrMoment, armUnit) : normalizeMomentToSI(p.armOrMoment, massUnit, armUnit),
-      })),
+      envelope: source.chartEnvelope.map(point => ({ ...point })),
       severity: source.state === 'WARNING' ? 'warning' as const : 'success' as const,
     },
     fuel: source.fuel ? {

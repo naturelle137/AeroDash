@@ -30,7 +30,7 @@ function setup(variable = false) {
   const wrapper = mount(defineComponent({ setup() {
     planning = useFuelPlanning()
     source = computed(() => ({ state: store.uiState, ready: true, aircraft: store.aircraft,
-      profile, category: store.activeCategoryDef, result: store.lastResult,
+      profile, category: store.activeCategoryDef, result: store.lastResult, chartEnvelope: store.activeEnvelopeSI,
       stations: store.availableStations, notifications: store.notifications,
       fuel: planning.presentation.value }))
     return () => h(MbPrintPreview, { source: source.value, readSource: () => source.value })

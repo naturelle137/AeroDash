@@ -143,10 +143,10 @@ onBeforeUnmount(() => {
               <p v-if="currentSnapshot.performance.conditions">Calculation basis: {{ currentSnapshot.performance.conditions.pressureAltitude }} · {{ currentSnapshot.performance.conditions.temperature }}</p>
               <section v-for="group in currentSnapshot.performance.groups" :key="group.id">
                 <h3>{{ group.title }}</h3>
-                <p v-if="group.mass">{{ group.mass }}</p>
+                <p v-if="group.mass">{{ group.mass }}{{ currentSnapshot.marker }}</p>
                 <p v-if="group.reason">{{ group.reason }}</p>
                 <p v-else-if="group.status !== 'success'">No current {{ group.title.toLowerCase() }} distances computed.</p>
-                <table v-if="group.rows.length"><tbody><tr v-for="row in group.rows" :key="row.label"><th>{{ row.label }}</th><td>{{ row.value }}<p v-if="row.note">{{ row.note }}</p></td></tr></tbody></table>
+                <table v-if="group.rows.length"><tbody><tr v-for="row in group.rows" :key="row.label"><th>{{ row.label }}</th><td>{{ row.value }}{{ currentSnapshot.marker }}<p v-if="row.note">{{ row.note }}</p></td></tr></tbody></table>
               </section>
               <h3>Operational assessment unavailable</h3>
               <p>{{ currentSnapshot.performance.operational.reason }}</p>
@@ -168,12 +168,10 @@ onBeforeUnmount(() => {
  .briefing-action { position: fixed; bottom: 1rem; right: 1.5rem; z-index: 210; max-width: min(30rem, calc(100vw - 2rem)); padding: .5rem 1rem; border: 1px solid var(--color-divider, #888); border-radius: .5rem; background: var(--color-surface, white); box-shadow: 0 2px 12px #0003; }
 .briefing-action p { margin: 0; font-size: .8rem; }
 .mb-preview-action { width: 100%; }
-.fp-view { padding-bottom: 11rem; }
 .briefing-chart { margin: 1rem 0; break-inside: avoid; --chart-grid: #ddd; --chart-axis: #555; --chart-tick-text: #333; --chart-label: #222; }
 .briefing-chart figcaption { font-size: .85em; }
 @media (max-width: 767.98px) {
   .briefing-action { bottom: calc(var(--nav-bottom-height, 56px) + env(safe-area-inset-bottom, 0px)); right: 0; left: 0; max-width: none; border-radius: 0; padding: .5rem 1rem; }
-  .fp-view { padding-bottom: calc(12rem + env(safe-area-inset-bottom, 0px)); }
 }
 .mb-preview-action, .mb-print-controls button { padding: .75rem; margin: .5rem 0; font: inherit; }
 .mb-print-root { display: none; }

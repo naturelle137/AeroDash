@@ -50,15 +50,19 @@ test('complete current briefing pack with chart, persistent action and native st
     await runway.getByLabel('Surface condition', { exact: true }).selectOption('dry')
     await runway.getByRole('button', { name: 'Save runway inputs', exact: true }).click()
     await perf.getByRole('button', { name: 'Compute raw distances', exact: true }).click()
-    const scroller = page.locator('.app-main')
     for (const fraction of [0, .5, 1]) {
-      await scroller.evaluate((element, f) => { element.scrollTop = element.scrollHeight * f }, fraction)
+      await page.evaluate(f => window.scrollTo(0, document.documentElement.scrollHeight * f), fraction)
+      await expect.poll(() => page.evaluate(() => window.scrollY > 0)).toBe(fraction > 0)
       await expect(action).toBeInViewport()
       const buttonBox = (await action.boundingBox())!
       const navBox = await page.locator('.app-bottom-nav').boundingBox()
-      if (navBox) expect(buttonBox.y + buttonBox.height).toBeLessThanOrEqual(navBox.y)
+      const clearance = navBox ? navBox.y : page.viewportSize()!.height
+      expect(buttonBox.y + buttonBox.height).toBeLessThanOrEqual(clearance)
       await page.screenshot({ path: info.outputPath(`${offline ? 'offline' : 'online'}-scroll-${fraction}.png`) })
     }
+    const lastContent = (await page.getByRole('note', { name: 'Operational disclaimer' }).boundingBox())!
+    const actionTop = (await page.locator('.briefing-action').boundingBox())!.y
+    expect(lastContent.y + lastContent.height).toBeLessThanOrEqual(actionTop)
     await action.focus()
     await page.keyboard.press('Enter')
     await expect(preview).toContainText('900.0 kg')
