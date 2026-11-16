@@ -1,0 +1,4 @@
+
+> @aerodash/frontend@0.3.0-alpha type-check /var/home/critter/lokal/dev/.hq-worktrees/aerodash/job-1624/frontend
+> vue-tsc --build
+

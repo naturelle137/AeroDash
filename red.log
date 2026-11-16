@@ -1,0 +1,52 @@
+(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - import "./vite.config" without a file extension (vitest.config.int.ts:14:24). Add the file extension
+  - import "./scripts/build/telemetry-guard" without a file extension (vite.config.ts:9:52). Add the file extension
+  - import "./scripts/build/copy-legal-docs" without a file extension (vite.config.ts:10:31). Add the file extension
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+
+ RUN  v4.1.12 /var/home/critter/lokal/dev/.hq-worktrees/aerodash/job-1624/frontend
+
+ ❯ src/modules/mass-balance/stores/__tests__/lookup-fuel.int.spec.ts (28 tests | 2 failed) 41ms
+     × preserves an independent station warning while lookup is blocked (draft: false) 8ms
+     × preserves an independent station warning while lookup is blocked (draft: true) 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/modules/mass-balance/stores/__tests__/lookup-fuel.int.spec.ts > lookup fuel tank total-moment M&B in the store > preserves an independent station warning while lookup is blocked (draft: false)
+ FAIL  src/modules/mass-balance/stores/__tests__/lookup-fuel.int.spec.ts > lookup fuel tank total-moment M&B in the store > preserves an independent station warning while lookup is blocked (draft: true)
+AssertionError: expected [] to deeply equal [ { id: 'WARN-MB-005', …(5) } ]
+
+- Expected
++ Received
+
+- [
+-   {
+-     "context": "MassBalance.Stations",
+-     "dismissible": true,
+-     "id": "WARN-MB-005",
+-     "message": "Station 2 limit exceeded",
+-     "persistent": false,
+-     "severity": "WARNING",
+-   },
+- ]
++ []
+
+ ❯ src/modules/mass-balance/stores/__tests__/lookup-fuel.int.spec.ts:170:73
+    168|         }),
+    169|       )
+    170|       expect(store.notifications.filter((n) => n.id === 'WARN-MB-005')…
+       |                                                                         ^
+    171|       expect(store.availableStations.map((s) => s.index)).toEqual([0, …
+    172|       expect(store.stations.map((s) => s.hasError)).toEqual([true, fal…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 26 passed (28)
+   Start at  00:01:25
+   Duration  1.51s (transform 101ms, setup 0ms, import 230ms, tests 41ms, environment 1.02s)
+
+undefined
+/var/home/critter/lokal/dev/.hq-worktrees/aerodash/job-1624/frontend:
+ ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL  Command failed with exit code 1: vitest run --config vitest.config.int.ts src/modules/mass-balance/stores/__tests__/lookup-fuel.int.spec.ts

@@ -1,0 +1,14 @@
+(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - import "./vite.config" without a file extension (vitest.config.int.ts:14:24). Add the file extension
+  - import "./scripts/build/telemetry-guard" without a file extension (vite.config.ts:9:52). Add the file extension
+  - import "./scripts/build/copy-legal-docs" without a file extension (vite.config.ts:10:31). Add the file extension
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+
+ RUN  v4.1.12 /var/home/critter/lokal/dev/.hq-worktrees/aerodash/job-1624/frontend
+
+
+ Test Files  1 passed (1)
+      Tests  28 passed (28)
+   Start at  00:02:11
+   Duration  951ms (transform 76ms, setup 0ms, import 177ms, tests 36ms, environment 553ms)
+
