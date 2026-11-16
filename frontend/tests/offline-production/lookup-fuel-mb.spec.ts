@@ -149,8 +149,8 @@ test('lookup fuel M&B uses total-moment differences on screen, chart, print and 
   const takeoffCg = summary.locator('.result-summary__item', { hasText: 'CG (Takeoff)' })
   const takeoffMass = summary.locator('.result-summary__item', { hasText: 'Takeoff Mass' })
   const critical = page.getByRole('alert').filter({ hasText: 'CG Out of Envelope' })
-  const action = page.getByRole('button', { name: 'M&B print preview', exact: true })
-  const preview = page.getByRole('dialog', { name: 'M&B print preview', exact: true })
+  const action = page.getByRole('button', { name: 'Briefing Pack', exact: true })
+  const preview = page.getByRole('dialog', { name: 'Briefing Pack preview', exact: true })
   const category = page.locator('#category-select')
 
   await select('D-LKG')
@@ -158,7 +158,10 @@ test('lookup fuel M&B uses total-moment differences on screen, chart, print and 
   await expect(takeoffMass).toContainText('600.0')
   await expect(takeoffCg).toContainText('2.100')
   await expect(critical).toBeVisible()
-  await expect(action).toBeDisabled()
+  await expect(action).toBeEnabled()
+  await action.click()
+  await expect(preview).toHaveCount(0)
+  await expect(page.locator('#briefing-eligibility')).toContainText('not eligible')
   await shot('lookup-q50-arm-critical')
 
   await load('30')
@@ -191,7 +194,10 @@ test('lookup fuel M&B uses total-moment differences on screen, chart, print and 
   await expect(page.getByText(/Invalid input: Lookup tank \(/)).toBeVisible()
   await expect(summary).toHaveCount(0)
   await expect(page.getByTestId('cg-point-label-tom')).toHaveCount(0)
-  await expect(action).toBeDisabled()
+  await expect(action).toBeEnabled()
+  await action.click()
+  await expect(preview).toHaveCount(0)
+  await expect(page.locator('#briefing-eligibility')).toContainText('not eligible')
   await shot('lookup-below-unusable-blocked')
   await errorShot('lookup-below-unusable-blocked')
 
@@ -237,7 +243,6 @@ test('lookup fuel M&B uses total-moment differences on screen, chart, print and 
   await expect(arrival).toContainText('570 kg')
   await expect(card.getByTestId('arrival-cg')).toHaveCount(0)
   await expect(card).toContainText('exactly zero unusable fuel')
-  await page.getByLabel('Include current fuel plan', { exact: true }).check()
   await action.click()
   const section = preview.getByRole('region', {
     name: 'Current fuel plan and estimated trip arrival',

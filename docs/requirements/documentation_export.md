@@ -2,9 +2,9 @@
 
 ## Requirements
 
-### REQ-DOC-001: M&B Print Preview
+### REQ-DOC-001: Briefing Pack Preview
 
-When the user requests an eligible M&B print preview in Flight Preparation, the system shall display a client-only M&B print summary.
+When the user requests an eligible Briefing Pack preview in Flight Preparation, the system shall display a client-only current Flight Preparation briefing pack.
 
 ### REQ-DOC-002: Unverified Data Marker
 
@@ -28,7 +28,7 @@ When the user exports a briefing pack, the system shall include the performance 
 
 ### REQ-DOC-007: Print Snapshot Contents
 
-When opening the M&B print preview, the system shall assemble the current aircraft identity, category, UTC generation time, loading units, takeoff and zero-fuel mass/CG, all-usable-fuel-burned endpoint, category limits, notifications and profile provenance into one snapshot.
+When opening the M&B print preview, the system shall assemble the current aircraft identity, category, UTC generation time, loading units, takeoff and zero-fuel mass/CG, all-usable-fuel-burned endpoint, category limits, notifications, load chart, fuel and current Performance presentation into one snapshot.
 
 ### REQ-DOC-008: Print Eligibility
 
@@ -36,7 +36,7 @@ While M&B has no successful result, incomplete or invalid inputs, a pending prof
 
 ### REQ-DOC-009: Snapshot Invalidation
 
-When aircraft, category, loading, profile status or notifications change, the system shall invalidate an open M&B print snapshot.
+When aircraft, category, loading, profile status, notifications, fuel, runway, Performance conditions or unit preferences change, the system shall invalidate an open M&B print snapshot.
 
 ### REQ-DOC-010: Native Print Guard
 
@@ -58,23 +58,19 @@ When the user closes M&B print preview, the system shall retain the current prep
 
 While the production app and aircraft are cached locally, the system shall support M&B print preview and native browser Print after an offline reload.
 
-The implemented slice is M&B with optional current manual fuel planning. Full briefing assembly, downloadable PDF,
-Performance export and low-factor export remain future scope. Browser-generated
-PDFs in QA are evidence of browser pagination, not a downloadable product feature
-or physical printer execution. Preview data is session-only and does not change
-profile verification or acknowledge notifications.
+Preview data is session-only. Browser-generated PDFs in QA demonstrate browser pagination, not physical printer execution or a downloadable PDF product.
 
-### REQ-DOC-015: Explicit fuel inclusion
+### REQ-DOC-015: Persistent action
 
-When opening Flight Preparation, the system shall leave Include current fuel plan unchecked.
+While Flight Preparation is mounted, the system shall keep a keyboard-reachable Briefing Pack action visible above mobile navigation with safe-area and content clearance.
 
 ### REQ-DOC-016: Current fuel output
 
-When the user explicitly includes an eligible manual fuel plan, the system shall print its current inputs, inventory, mode-specific results and estimated trip arrival in a separate section.
+When opening the briefing pack, the system shall include the current fuel inventory and configured mode-specific planning presentation.
 
-### REQ-DOC-017: Fuel inclusion failure
+### REQ-DOC-017: Unavailable fuel results
 
-If requested fuel inclusion has invalid inventory, M&B or manual inputs, an impossible trip, no method or an electric profile, then the system shall block combined printing with a visible reason.
+If a fuel plan is unconfigured or invalid, then the system shall show its current reason without successful trip-arrival or endurance results.
 
 ### REQ-DOC-018: Fuel warnings
 
@@ -94,7 +90,27 @@ Where profile data is unverified, the system shall mark affected fuel and arriva
 
 ### REQ-DOC-022: Combined offline print
 
-While the production app and aircraft are cached locally, the system shall support explicit re-entry and inclusion of a manual fuel plan after an offline reload.
+While the production app and aircraft are cached locally, the system shall support explicit re-entry and automatic inclusion of a manual fuel plan after an offline reload.
+
+### REQ-DOC-023: Current runway and Performance
+
+When opening the briefing pack, the system shall include the shared current runway and Performance input, result and unavailable-reason presentation.
+
+### REQ-DOC-024: Printed chart
+
+When printing the briefing pack, the system shall render the existing normalized loading chart with readable axes, units and endpoint legend.
+
+### REQ-DOC-025: Limits beside results
+
+When displaying M&B calculations in the pack, the system shall place applicable named mass limits beside their respective values.
+
+### REQ-DOC-026: Empty notification section
+
+While no M&B notifications exist, the system shall omit the M&B notification section.
+
+### REQ-DOC-027: Removed source section
+
+When displaying the briefing pack, the system shall omit the separate profile/source-status and category-limits chapters.
 
 ## Design References
 

@@ -1,24 +1,25 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import CGEnvelopeChart from '@/modules/mass-balance/components/CGEnvelopeChart.vue'
 import { assembleMbPrint, canPrintMb, type MbPrintSnapshot, type MbPrintSource } from './mb-print'
 
 const props = defineProps<{ source: MbPrintSource; readSource?: () => MbPrintSource }>()
 // Read live dependencies even when the parent render has not flushed before native print.
 const currentSource = computed(() => props.readSource?.() ?? props.source)
-const includeFuel = ref(false)
 const snapshot = ref<MbPrintSnapshot | null>(null)
 const opened = ref(false)
+const showEligibility = ref(false)
 const closeButton = ref<HTMLButtonElement>()
 const printRoot = ref<HTMLElement>()
 let returnFocus: HTMLElement | null = null
-let fingerprint = ''
-const currentKey = computed(() => JSON.stringify([currentSource.value, includeFuel.value]))
-const inclusionReason = computed(() => !canPrintMb(currentSource.value)
-  ? 'Current Mass & Balance is not eligible for printing; review loading and notifications.'
-  : currentSource.value.fuel?.reason ?? (!currentSource.value.fuel ? 'Current fuel plan is unavailable.' : null))
-const eligible = computed(() => canPrintMb(currentSource.value) && (!includeFuel.value || (!!currentSource.value.fuel && !currentSource.value.fuel.reason)))
+const fingerprint = ref('')
+const currentKey = computed(() => JSON.stringify(currentSource.value))
+const eligibilityReason = computed(() => canPrintMb(currentSource.value)
+  ? 'Current Mass & Balance is eligible. Unavailable preparation sections will show their reasons.'
+  : 'Current Mass & Balance is not eligible for printing; review aircraft, loading and notifications.')
+const eligible = computed(() => canPrintMb(currentSource.value))
 // The key check also protects print media before Vue's queued watcher runs.
-const currentSnapshot = computed(() => currentKey.value === fingerprint ? snapshot.value : null)
+const currentSnapshot = computed(() => currentKey.value === fingerprint.value ? snapshot.value : null)
 function invalidate(): void {
   snapshot.value = null
   // Native printing can capture the DOM before Vue flushes its pending render.
@@ -27,10 +28,10 @@ function invalidate(): void {
 watch(currentKey, invalidate, { flush: 'sync' })
 
 async function open(): Promise<void> {
-  const value = assembleMbPrint(currentSource.value, new Date(), includeFuel.value)
-  if (!value) return
+  const value = assembleMbPrint(currentSource.value, new Date())
+  if (!value) { showEligibility.value = true; return }
   returnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null
-  fingerprint = currentKey.value
+  fingerprint.value = currentKey.value
   snapshot.value = value
   printRoot.value?.removeAttribute('data-print-invalid')
   opened.value = true
@@ -43,7 +44,7 @@ function close(): void {
   returnFocus?.focus()
 }
 function recheck(): boolean {
-  const fresh = assembleMbPrint(currentSource.value, new Date(), includeFuel.value)
+  const fresh = assembleMbPrint(currentSource.value, new Date())
   if (!eligible.value || !currentSnapshot.value || fresh?.status !== snapshot.value?.status) {
     invalidate()
     return false
@@ -77,78 +78,101 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <label class="mb-fuel-choice"><input v-model="includeFuel" type="checkbox" /> Include current fuel plan</label>
-  <p v-if="includeFuel && inclusionReason" role="status">Fuel inclusion blocked: {{ inclusionReason }}</p>
-  <button type="button" :disabled="!eligible" class="mb-preview-action" @click="open">M&amp;B print preview</button>
+  <div class="briefing-action">
+    <button type="button" class="mb-preview-action" aria-describedby="briefing-eligibility" @click="open">Briefing Pack</button>
+    <p v-if="showEligibility || !eligible" id="briefing-eligibility" role="status">{{ eligibilityReason }}</p>
+    <p v-else id="briefing-eligibility">Current preparation · Preview and print</p>
+  </div>
   <Teleport to="body">
     <div ref="printRoot" class="mb-print-root" :class="{ 'mb-print-root--open': opened }">
-      <section v-if="opened" role="dialog" aria-modal="true" aria-label="M&B print preview" class="mb-print-sheet">
+      <section v-if="opened" role="dialog" aria-modal="true" aria-label="Briefing Pack preview" class="mb-print-sheet">
         <nav class="mb-print-controls" aria-label="Print controls">
           <button ref="closeButton" type="button" @click="close">Back to preparation</button>
-          <button type="button" :disabled="!currentSnapshot || !eligible" @click="print">{{ includeFuel ? 'Print M&B + fuel' : 'Print M&B' }}</button>
+          <button type="button" :disabled="!currentSnapshot || !eligible" @click="print">Print Briefing Pack</button>
         </nav>
         <template v-if="currentSnapshot">
-          <h1>{{ currentSnapshot.fuel ? 'Mass & Balance + current fuel plan' : 'Mass & Balance only' }}</h1>
+          <h1>Flight Preparation Briefing Pack</h1>
           <p>{{ currentSnapshot.identity }}{{ currentSnapshot.marker }} · {{ currentSnapshot.category }}</p>
           <p>Generated: {{ currentSnapshot.generated }}</p>
-          <h2>Profile and source status</h2>
-          <p>{{ currentSnapshot.status }}</p>
-          <p>Profile verification is a recorded user check, not operational approval. Acknowledging a draft selection does not verify its data.</p>
           <p v-if="currentSnapshot.unverified"><strong>Calculation based on unverified external data. Pilot in Command assumes full responsibility.</strong></p>
-          <p>Check all calculations against the aircraft's official POH/AFM before flight. The official handbook takes precedence.</p>
-          <dl v-if="currentSnapshot.provenance">
-            <dt>POH/AFM revision</dt><dd>{{ currentSnapshot.provenance.revision }}</dd>
-            <dt>Verified on</dt><dd>{{ currentSnapshot.provenance.verifiedOn }}</dd>
-            <dt>Source weighing report valid from</dt><dd>{{ currentSnapshot.provenance.sourceDate }}</dd>
-            <dt>Verification expires</dt><dd>{{ currentSnapshot.provenance.expiresOn ?? 'Not available' }}</dd>
-          </dl>
-          <p v-else>Verification provenance: not recorded.</p>
-          <p>Profile source units: {{ currentSnapshot.sourceUnit }}. Datum: {{ currentSnapshot.datum }}{{ currentSnapshot.marker }}.</p>
-          <ul><li v-for="(report, index) in currentSnapshot.weighingReports" :key="index">Weighing date {{ report.date }}, valid from {{ report.validFrom }}: BEM {{ report.mass }}, empty CG {{ report.cg }} (normalized SI).</li></ul>
           <h2>Current loading</h2>
           <table><thead><tr><th>Station</th><th>Quantity</th></tr></thead><tbody>
             <tr v-for="(row, index) in currentSnapshot.loading" :key="index"><td>{{ row.name }}</td><td>{{ row.quantity }}</td></tr>
           </tbody></table>
           <h2>M&amp;B results</h2>
-          <table><thead><tr><th>Endpoint</th><th>Mass</th><th>CG arm</th></tr></thead><tbody>
-            <tr v-for="row in currentSnapshot.points" :key="row.label"><td>{{ row.label }}</td><td>{{ row.mass }}</td><td>{{ row.cg }}</td></tr>
+          <table><thead><tr><th>Endpoint</th><th>Mass</th><th>CG arm</th><th>Applicable limit</th></tr></thead><tbody>
+            <tr v-for="row in currentSnapshot.points" :key="row.label"><td>{{ row.label }}</td><td>{{ row.mass }}</td><td>{{ row.cg }}</td><td>{{ row.limit }}</td></tr>
           </tbody></table>
-          <p>The all-usable-fuel-burned endpoint is not the trip-specific arrival. This summary does not assess full-flight or landing suitability and provides no Go/No-Go advisory.</p>
-          <h2>Current M&amp;B notifications</h2>
-          <ul v-if="currentSnapshot.notifications.length"><li v-for="(note, index) in currentSnapshot.notifications" :key="index"><strong>{{ note.severity }} · {{ note.id }} · {{ note.context ?? 'MassBalance' }}</strong>: {{ note.message }}</li></ul>
-          <p v-else>No current M&amp;B notifications.</p>
-          <h2>Applicable category limits</h2>
-          <p>Maximum takeoff mass: {{ currentSnapshot.mtom }}. Maximum zero-fuel mass: {{ currentSnapshot.mzfm }}.</p>
-          <p>Envelope vertices ({{ currentSnapshot.graphType }} graph, closed polygon; tabular presentation only):</p>
-          <table><thead><tr><th>Mass</th><th>Envelope coordinate</th></tr></thead><tbody>
-            <tr v-for="(row, index) in currentSnapshot.envelope" :key="index"><td>{{ row.mass }}</td><td>{{ row.horizontal }}</td></tr>
-          </tbody></table>
+          <figure class="briefing-chart">
+            <h2>Loading envelope chart</h2>
+            <CGEnvelopeChart :result="currentSnapshot.chart.result" :envelope="currentSnapshot.chart.envelope" :graph-type="currentSnapshot.graphType" :severity="currentSnapshot.chart.severity" print />
+            <figcaption>TOM: takeoff · ZFM: zero fuel · LM: all usable fuel burned endpoint. Mass in kg; {{ currentSnapshot.graphType === 'arm' ? 'CG arm in m' : 'moment in kg·m' }}{{ currentSnapshot.marker }}. The line joins calculated burn points.</figcaption>
+          </figure>
+          <section v-if="currentSnapshot.notifications.length" aria-label="Current M&B notifications">
+            <h2>Current M&amp;B notifications</h2>
+            <ul><li v-for="(note, index) in currentSnapshot.notifications" :key="index"><strong>{{ note.severity }} · {{ note.id }} · {{ note.context ?? 'MassBalance' }}</strong>: {{ note.message }}</li></ul>
+          </section>
           <section v-if="currentSnapshot.fuel" aria-label="Current fuel plan and estimated trip arrival">
             <h2>Current fuel plan and estimated trip arrival</h2>
-            <p>Manual method: {{ currentSnapshot.fuel.method === 'duration' ? 'Duration and consumption' : 'Direct Trip Fuel (kg)' }}.</p>
-            <table><thead><tr><th>Parameter</th><th>Value</th></tr></thead><tbody>
+            <p v-if="currentSnapshot.fuel.method">Manual method: {{ currentSnapshot.fuel.method === 'duration' ? 'Duration and consumption' : 'Direct Trip Fuel (kg)' }}.</p>
+            <p v-if="currentSnapshot.fuelReason">Fuel plan / trip arrival unavailable: {{ currentSnapshot.fuelReason }}</p>
+            <table v-if="currentSnapshot.fuel.rows.length"><thead><tr><th>Parameter</th><th>Value</th></tr></thead><tbody>
               <tr v-for="row in currentSnapshot.fuel.rows" :key="row.label"><td>{{ row.label }}</td><td>{{ row.value }}</td></tr>
             </tbody></table>
             <p v-if="currentSnapshot.fuel.sequence">Selected arrival CG burn sequence: {{ currentSnapshot.fuel.sequence }}</p>
             <p v-if="currentSnapshot.fuel.cgReason">Estimated arrival CG unavailable: {{ currentSnapshot.fuel.cgReason }}</p>
             <ul v-if="currentSnapshot.fuel.warnings.length"><li v-for="warning in currentSnapshot.fuel.warnings" :key="warning">{{ warning }}</li></ul>
             <p v-if="currentSnapshot.fuel.method === 'duration'">User-supplied consumption is assumed constant. Reserve is user chosen; no regulatory minimum is supplied.</p>
-            <p v-else>Direct Trip Fuel is the explicit mass expected to burn during the trip. No duration, consumption, endurance or reserve budget is calculated.</p>
-            <p>Arithmetic planning aid only. Verify against your aircraft POH/AFM. Reserve remains aboard; usable fuel remaining on arrival is before reserve budgeting and differs from the margin after trip + reserve. Trip arrival is separate from the all-usable-fuel-burned M&amp;B endpoint. This does not assess operational suitability, landing suitability or the full burn path/envelope and provides no Go/No-Go advisory.</p>
+            <p v-else-if="currentSnapshot.fuel.method === 'direct'">Direct Trip Fuel is the explicit mass expected to burn during the trip. No duration, consumption, endurance or reserve budget is calculated.</p>
           </section>
-          <p>No Performance, runway or weather results are included.<template v-if="!currentSnapshot.fuel"> No fuel/endurance planning results are included.</template></p>
+          <p v-if="!currentSnapshot.fuel">Fuel plan / trip arrival unavailable: {{ currentSnapshot.fuelReason }}</p>
+          <section aria-label="Current manual runway">
+            <h2>Manual runway declarations</h2>
+            <template v-if="currentSnapshot.performance?.runway.status === 'declared'">
+              <p>{{ currentSnapshot.performance.runway.label }}</p>
+              <table><tbody><tr v-for="row in currentSnapshot.performance.runway.rows" :key="row.label"><th>{{ row.label }}</th><td>{{ row.value }}</td></tr></tbody></table>
+              <p>{{ currentSnapshot.performance.runway.note }}</p>
+            </template>
+            <p v-else>{{ currentSnapshot.performance?.runway.reason ?? 'No current manual runway declaration is available.' }}</p>
+          </section>
+          <section aria-label="Current Performance">
+            <h2>Current Performance</h2>
+            <template v-if="currentSnapshot.performance">
+              <p v-if="currentSnapshot.performance.reason">{{ currentSnapshot.performance.reason }}</p>
+              <table><tbody><tr v-for="row in currentSnapshot.performance.inputs" :key="row.label"><th>{{ row.label }}</th><td>{{ row.value }}</td></tr></tbody></table>
+              <p v-if="currentSnapshot.performance.conditions">Calculation basis: {{ currentSnapshot.performance.conditions.pressureAltitude }} · {{ currentSnapshot.performance.conditions.temperature }}</p>
+              <section v-for="group in currentSnapshot.performance.groups" :key="group.id">
+                <h3>{{ group.title }}</h3>
+                <p v-if="group.mass">{{ group.mass }}{{ currentSnapshot.marker }}</p>
+                <p v-if="group.reason">{{ group.reason }}</p>
+                <p v-else-if="group.status !== 'success'">No current {{ group.title.toLowerCase() }} distances computed.</p>
+                <table v-if="group.rows.length"><tbody><tr v-for="row in group.rows" :key="row.label"><th>{{ row.label }}</th><td>{{ row.value }}{{ currentSnapshot.marker }}<p v-if="row.note">{{ row.note }}</p></td></tr></tbody></table>
+              </section>
+              <h3>Operational assessment unavailable</h3>
+              <p>{{ currentSnapshot.performance.operational.reason }}</p>
+              <ul v-if="currentSnapshot.performance.operational.rows.length"><li v-for="(row, index) in currentSnapshot.performance.operational.rows" :key="index">{{ row.label }}: {{ row.value }}<ul><li v-for="(reason, n) in row.reasons" :key="n">{{ reason }}</li></ul></li></ul>
+              <p v-for="scope in currentSnapshot.performance.scope" :key="scope">{{ scope }}</p>
+            </template>
+            <p v-else>Current Performance inputs and results are unavailable.</p>
+          </section>
         </template>
-        <p v-else role="status">Preview invalidated. Return to preparation, review the current inputs and open a new M&amp;B print preview.</p>
+        <p v-else role="status">Preview invalidated. Return to preparation, review the current inputs and open a new Briefing Pack preview.</p>
       </section>
-      <p class="mb-print-guard">Preview unavailable or invalidated. Return to Flight Preparation and open an eligible current M&amp;B print preview.</p>
-      <p v-if="!opened" class="mb-print-blocked">Open an eligible current M&amp;B print preview from Flight Preparation before printing.</p>
+      <p class="mb-print-guard">Preview unavailable or invalidated. Return to Flight Preparation and open an eligible current Briefing Pack preview.</p>
+      <p v-if="!opened" class="mb-print-blocked">Open an eligible current Briefing Pack preview from Flight Preparation before printing.</p>
     </div>
   </Teleport>
 </template>
 
 <style>
-.mb-fuel-choice { display: flex; align-items: center; gap: .75rem; min-height: 44px; padding: .5rem 0; width: fit-content; }
-.mb-fuel-choice input { width: 24px; height: 24px; }
+ .briefing-action { position: fixed; bottom: 1rem; right: 1.5rem; z-index: 210; max-width: min(30rem, calc(100vw - 2rem)); padding: .5rem 1rem; border: 1px solid var(--color-divider, #888); border-radius: .5rem; background: var(--color-surface, white); box-shadow: 0 2px 12px #0003; }
+.briefing-action p { margin: 0; font-size: .8rem; }
+.mb-preview-action { width: 100%; }
+.briefing-chart { margin: 1rem 0; break-inside: avoid; --chart-grid: #ddd; --chart-axis: #555; --chart-tick-text: #333; --chart-label: #222; }
+.briefing-chart figcaption { font-size: .85em; }
+@media (max-width: 767.98px) {
+  .briefing-action { bottom: calc(var(--nav-bottom-height, 56px) + env(safe-area-inset-bottom, 0px)); right: 0; left: 0; max-width: none; border-radius: 0; padding: .5rem 1rem; }
+}
 .mb-preview-action, .mb-print-controls button { padding: .75rem; margin: .5rem 0; font: inherit; }
 .mb-print-root { display: none; }
 .mb-print-root--open { display: block; position: fixed; inset: 0; z-index: 10000; overflow: auto; background: #eef1f4; color: #111; padding: 1rem; }
@@ -166,7 +190,8 @@ onBeforeUnmount(() => {
   body.mb-print-active > :not(.mb-print-root) { display: none !important; }
   body > .mb-print-root { display: block; position: static; overflow: visible; padding: 0; background: white; color: black; }
   .mb-print-sheet { max-width: none; padding: 0; margin: 0; font: 10pt/1.4 sans-serif; }
-  .mb-print-controls { display: none; }
+  .mb-print-controls, .briefing-action { display: none; }
+  .briefing-chart .cg-chart { max-height: 100mm; width: 100%; }
   .mb-print-blocked { display: block; }
   .mb-print-root[data-print-invalid] .mb-print-sheet, .mb-print-root[data-print-invalid] .mb-print-blocked { display: none; }
   .mb-print-root[data-print-invalid] .mb-print-guard { display: block; }

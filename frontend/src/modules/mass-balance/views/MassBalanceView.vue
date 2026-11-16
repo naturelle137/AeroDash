@@ -64,7 +64,7 @@ function isOptionalOccupant(index: number): boolean {
   return !!lp && resolveStationKind(lp) === 'occupant' && !requiresOccupancy(lp)
 }
 
-const printSource = computed(() => ({
+const mbSource = computed(() => ({
       state: store.uiState,
       ready: fleetStore.fleetLoadState === 'READY' && !pendingSelection.value,
       aircraft: store.aircraft,
@@ -72,6 +72,7 @@ const printSource = computed(() => ({
       category: store.activeCategoryDef,
       stations: store.availableStations,
       result: store.lastResult,
+      chartEnvelope: store.activeEnvelopeSI,
       notifications: store.notifications,
       fuel: fuelPlanning.presentation.value,
     }))
@@ -631,7 +632,7 @@ const performanceContext = computed<PerformanceStepContext>(() => ({
   notReadyReason: pendingSelection.value
     ? 'Confirm or cancel the pending aircraft selection in section 01 first.'
     : 'Load the fleet successfully before computing.',
-  profile: printSource.value.profile,
+  profile: mbSource.value.profile,
   category: store.activeCategory,
   ...flightPrepMassSources({
     hasAircraft: !!store.aircraft,
@@ -644,6 +645,7 @@ const performanceContext = computed<PerformanceStepContext>(() => ({
   }),
 }))
 const performanceStep = usePerformanceStep(() => performanceContext.value)
+const printSource = computed(() => ({ ...mbSource.value, performance: performanceStep.presentation.value }))
 
 // ---------------------------------------------------------------------------
 // ViewModel — single deterministic mapping of uiState → presentational flags
@@ -2139,4 +2141,6 @@ function onCancelSelection(): void {
     min-width: 0;
   }
 }
+/* Reserve space after the final preparation content for the persistent action. */
+.fp-view { padding-bottom: calc(12rem + env(safe-area-inset-bottom, 0px)); }
 </style>

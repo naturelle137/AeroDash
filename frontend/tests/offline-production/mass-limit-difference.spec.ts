@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test, type Page, type Locator } from '@playwright/test'
 import { testPohAircraft } from '../fixtures/poh-aircraft'
 
 // Synthetic arithmetic vectors only (BEM 500 kg + one payload station); no operational aircraft validation.
@@ -86,7 +86,7 @@ test('current mass-limit differences update without stale values, cached offline
   await expect(takeoff).toHaveText('Below MTOM by 200.0 kg')
 
   await select('D-LIMA')
-  await expect(page.getByRole('button', { name: 'M&B print preview', exact: true })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Briefing Pack', exact: true })).toBeVisible()
 
   // Below both limits: TOM 800 (1000), ZFM 800 (900).
   await load('300')
@@ -170,7 +170,7 @@ test('current mass-limit differences update without stale values, cached offline
  * Rendered envelope polygon bounds and the ZFM marker centre (label at cx + 9, cy − 10),
  * in SVG user units. Envelope and points share axes only if both are in the same unit.
  */
-async function chartGeometry(page: Page) {
+async function chartGeometry(page: Page | Locator) {
   const points = (await page.getByTestId('cg-envelope-polygon').getAttribute('points'))!
     .split(' ').map((pair) => pair.split(',').map(Number) as [number, number])
   const label = page.getByTestId('cg-point-label-zfm')
@@ -326,7 +326,7 @@ test('kg-in moment envelope and calculated points share kg·m axes', async ({ pa
 })
 
 /** Position of the ZFM marker inside the drawn polygon box as fractions (x left→right, y bottom→top). */
-async function zfmFractionInEnvelope(page: Page) {
+async function zfmFractionInEnvelope(page: Page | Locator) {
   const { box, zfm } = await chartGeometry(page)
   return { x: (zfm.x - box.xMin) / (box.xMax - box.xMin), y: (box.yMax - zfm.y) / (box.yMax - box.yMin) }
 }
@@ -418,11 +418,12 @@ test('lb-in moment envelope, armLookup and calculated points share kg·m axes', 
   await shot('moment-lb-in-utility')
 
   // Printed category limits use the same kg·m normalization: 65000 / 90000 lb·in.
-  await page.getByRole('button', { name: 'M&B print preview', exact: true }).click()
-  const sheet = page.getByRole('dialog', { name: 'M&B print preview' })
-  await expect(sheet).toContainText('748.881 kg·m')
-  await expect(sheet).toContainText('1036.912 kg·m')
-  await expect(sheet).not.toContainText('1651.000 kg·m') // length-only 65000 lb·in
+  await page.getByRole('button', { name: 'Briefing Pack', exact: true }).click()
+  const sheet = page.getByRole('dialog', { name: 'Briefing Pack preview' })
+  await expect(sheet).toContainText('CG Moment (kg·m)')
+  const printed = await zfmFractionInEnvelope(sheet)
+  expect(printed.x).toBeCloseTo(0.598, 2)
+  expect(printed.y).toBeCloseTo(0.4375, 2)
   await shot('moment-lb-in-print')
   await sheet.getByRole('button', { name: 'Back to preparation', exact: true }).click()
 

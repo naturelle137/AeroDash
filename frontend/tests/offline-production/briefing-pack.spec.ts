@@ -1,0 +1,101 @@
+import { expect, test } from '@playwright/test'
+import { testPohAircraft } from '../fixtures/poh-aircraft'
+
+// Synthetic 750 kg BEM + 100 kg payload + 50 kg fuel. Linear table formula:
+// 100 + phaseIndex*100 + mass-800 + PA/100 + temperature (metres).
+test('complete current briefing pack with chart, persistent action and native stale guard online and offline', async ({ page, context }, info) => {
+  await page.goto('/fleet')
+  await page.getByTestId('disclaimer-gate-accept').click()
+  await page.evaluate(async () => { await navigator.serviceWorker.ready })
+  await page.reload()
+  await expect.poll(() => page.evaluate(() => !!navigator.serviceWorker.controller)).toBe(true)
+  const profile = testPohAircraft()
+  profile.weighingReports[0]!.bem = 750
+  profile.certificationCategories.push({ ...profile.certificationCategories[0]!, category: 'Utility' })
+  profile.loadPoints = [
+    { name: 'Synthetic payload', kind: 'occupant', occupancy: 'required', arm: 1, armLookup: [], operationalLimit: 1000, defaultQuantity: 100, unit: 'kg', allowableCategories: null, fuelTank: null },
+    { name: 'Synthetic tank', kind: 'fuel', arm: 1, armLookup: [], operationalLimit: 100, defaultQuantity: 50, unit: 'kg', allowableCategories: null, fuelTank: { unusableFuel: 0, permissibleFuelTypes: ['AvGas 100LL'], burnSequences: [] } },
+  ]
+  await page.getByLabel('Or import from Exchange File (.json)').setInputFiles({ name: 'synthetic-performance.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify({ format: 'aerodash-aircraft', version: 1, profile })) })
+  await page.getByRole('button', { name: 'Verify D-TEST', exact: true }).click()
+  const dialog = page.getByRole('dialog')
+  await dialog.getByLabel('Verifier initials').fill('TS')
+  await dialog.getByLabel('POH revision').fill('Synthetic wiring only')
+  await dialog.getByRole('button', { name: 'Verify', exact: true }).click()
+  await expect(dialog).toBeHidden()
+  await page.goto('/mass-balance')
+  const picker = page.getByLabel('Select aircraft', { exact: true })
+  await picker.selectOption((await picker.locator('option').filter({ hasText: 'D-TEST' }).first().getAttribute('value'))!)
+  const action = page.getByRole('button', { name: 'Briefing Pack', exact: true })
+  const preview = page.getByRole('dialog', { name: 'Briefing Pack preview' })
+  const perf = page.getByRole('region', { name: 'Performance', exact: true })
+  const fuel = page.getByRole('region', { name: 'Fuel & Endurance', exact: true })
+  for (const offline of [false, true]) {
+    if (offline) {
+      await context.setOffline(true)
+      expect((await page.reload())?.fromServiceWorker()).toBe(true)
+    }
+    await fuel.getByLabel('Planning method').selectOption('direct')
+    await fuel.getByLabel('Trip Fuel (kg)', { exact: true }).fill('20')
+    await perf.getByRole('radio', { name: 'Enter pressure altitude directly', exact: true }).check()
+    await perf.getByLabel('Pressure altitude (ft)', { exact: true }).fill('1000')
+    await perf.getByLabel('Temperature (°C)', { exact: true }).fill('10')
+    const runway = perf.getByRole('form', { name: 'Manual runway', exact: true })
+    await runway.getByLabel('Aerodrome', { exact: true }).fill('Synthetic field')
+    await runway.getByLabel('Runway designator', { exact: true }).fill('18')
+    await runway.getByLabel('TORA — takeoff run available', { exact: true }).fill('1000')
+    await runway.getByLabel('LDA — landing distance available', { exact: true }).fill('900')
+    await runway.getByLabel('Field elevation', { exact: true }).fill('1000')
+    await runway.getByLabel('Surface type', { exact: true }).selectOption('paved')
+    await runway.getByLabel('Surface condition', { exact: true }).selectOption('dry')
+    await runway.getByRole('button', { name: 'Save runway inputs', exact: true }).click()
+    await perf.getByRole('button', { name: 'Compute raw distances', exact: true }).click()
+    for (const fraction of [0, .5, 1]) {
+      await page.evaluate(f => window.scrollTo(0, document.documentElement.scrollHeight * f), fraction)
+      await expect.poll(() => page.evaluate(() => window.scrollY > 0)).toBe(fraction > 0)
+      await expect(action).toBeInViewport()
+      const buttonBox = (await action.boundingBox())!
+      const navBox = await page.locator('.app-bottom-nav').boundingBox()
+      const clearance = navBox ? navBox.y : page.viewportSize()!.height
+      expect(buttonBox.y + buttonBox.height).toBeLessThanOrEqual(clearance)
+      await page.screenshot({ path: info.outputPath(`${offline ? 'offline' : 'online'}-scroll-${fraction}.png`) })
+    }
+    const lastContent = (await page.getByRole('note', { name: 'Operational disclaimer' }).boundingBox())!
+    const actionTop = (await page.locator('.briefing-action').boundingBox())!.y
+    expect(lastContent.y + lastContent.height).toBeLessThanOrEqual(actionTop)
+    await action.focus()
+    await page.keyboard.press('Enter')
+    await expect(preview).toContainText('900.0 kg')
+    await expect(preview).toContainText('880.0 kg')
+    await expect(preview).toContainText('220.0 m')
+    await expect(preview).toContainText('400.0 m')
+    await expect(preview).toContainText('Synthetic field')
+    await expect(preview).toContainText('MTOM:')
+    await expect(preview.getByRole('img')).toBeVisible()
+    for (const removed of ['Profile and source status', 'Applicable category limits', 'No current M&B notifications.', 'The all-usable-fuel-burned endpoint is not the trip-specific arrival.']) {
+      await expect(preview).not.toContainText(removed)
+    }
+    await expect(preview.getByRole('heading', { name: 'Current M&B notifications' })).toHaveCount(0)
+    await preview.getByRole('button', { name: 'Print Briefing Pack', exact: true }).click()
+    await page.emulateMedia({ media: 'print' })
+    await expect(page.locator('#app')).toBeHidden()
+    await expect(preview.getByRole('img')).toBeVisible()
+    const pdfPath = info.outputPath(`${offline ? 'offline' : 'online'}-complete.pdf`)
+    await page.pdf({ path: pdfPath, preferCSSPageSize: true, printBackground: true })
+    await info.attach('complete-pack-pdf', { path: pdfPath, contentType: 'application/pdf' })
+    await page.screenshot({ path: info.outputPath(`${offline ? 'offline' : 'online'}-print.png`), fullPage: true })
+    await page.emulateMedia({ media: 'screen' })
+    // Native printing in the same event turn as a conditions mutation.
+    const guarded = await perf.getByLabel('Temperature (°C)', { exact: true }).evaluate((input: HTMLInputElement) => {
+      input.value = '11'; input.dispatchEvent(new Event('input', { bubbles: true })); window.print()
+      return document.querySelector('.mb-print-root')?.getAttribute('data-print-invalid')
+    })
+    expect(guarded).toBe('true')
+    await expect(preview).not.toContainText('220.0 m')
+    await page.keyboard.press('Escape')
+    await action.click()
+    await expect(preview).toContainText('Not computed for the current inputs')
+    await expect(preview).not.toContainText('220.0 m')
+    await page.keyboard.press('Escape')
+  }
+})

@@ -5,6 +5,7 @@ import { createPinia, setActivePinia } from 'pinia'
 import { testPohAircraft } from '../../../tests/fixtures/poh-aircraft'
 import { mapFleetProfileToContext } from '@/modules/mass-balance/services/fleet-profile.mapper'
 import { useMassBalanceStore } from '@/modules/mass-balance/stores/mass-balance.store'
+import { presentPerformance, presentOperationalAssessment } from '@/modules/performance/services/performance-presentation'
 import MbPrintPreview from './MbPrintPreview.vue'
 import { assembleMbPrint, canPrintMb, type MbPrintSource } from './mb-print'
 
@@ -15,7 +16,7 @@ function source(): MbPrintSource {
   const store = useMassBalanceStore()
   store.loadProfile(mapFleetProfileToContext(profile))
   return reactive({ state: store.uiState, ready: true, profile, aircraft: store.aircraft,
-    category: store.activeCategoryDef, result: store.lastResult, stations: store.availableStations,
+    category: store.activeCategoryDef, result: store.lastResult, chartEnvelope: store.activeEnvelopeSI, stations: store.availableStations,
     notifications: store.notifications })
 }
 afterEach(() => { document.body.innerHTML = ''; vi.restoreAllMocks() })
@@ -65,13 +66,16 @@ describe('M&B print presentation with real store calculation', () => {
     store.loadProfile(mapFleetProfileToContext(profile))
     expect(store.lastResult!.takeoffCenterOfGravityPoint.moment).toBeCloseTo(691.27477188, 6)
     const result = assembleMbPrint(reactive({ state: store.uiState, ready: true, profile, aircraft: store.aircraft,
-      category: store.activeCategoryDef, result: store.lastResult, stations: store.availableStations,
+      category: store.activeCategoryDef, result: store.lastResult, chartEnvelope: store.activeEnvelopeSI, stations: store.availableStations,
       notifications: store.notifications }), new Date('2026-11-14'))!
     expect(result.graphType).toBe('moment')
     expect(result.envelope.map(r => r.horizontal)).toEqual([
       '576.062 kg·m [UNVERIFIED]', '576.062 kg·m [UNVERIFIED]',
       '1152.125 kg·m [UNVERIFIED]', '1152.125 kg·m [UNVERIFIED]',
     ])
+    expect(result.chart.envelope).toEqual(store.activeEnvelopeSI)
+    expect(result.chart.result).toEqual(store.lastResult)
+    expect(result.chart.envelope[0]!.armOrMoment).toBeCloseTo(576.0623099, 6)
     expect(result.envelope[0]!.mass).toBe('680.4 kg [UNVERIFIED]')
     expect(result.points[0]!.cg).toBe('1.016 m [UNVERIFIED]')
   })
@@ -110,10 +114,40 @@ describe('M&B print presentation with real store calculation', () => {
     await nextTick()
     expect(document.body.textContent).not.toContain('500.0 kg')
     expect(document.body.textContent).toContain('Preview invalidated')
-    const print = [...document.querySelectorAll('button')].find(b => b.textContent === 'Print M&B')!
+    const print = [...document.querySelectorAll('button')].find(b => b.textContent === 'Print Briefing Pack')!
     expect(print.disabled).toBe(true)
     wrapper.unmount()
     expect(document.body.classList.contains('mb-print-active')).toBe(false)
+  })
+  it.each(['conditions', 'runway', 'units'] as const)('synchronously guards shared Performance %s changes and reopens a current pack', async change => {
+    const input = source()
+    input.notifications = []
+    input.performance = presentPerformance({
+      inputKey: 'initial', inputs: [], aircraft: null,
+      takeoff: { status: 'ready', massKg: 500, origin: 'current M&B' },
+      landing: { status: 'unavailable', reason: 'No actual trip arrival.' },
+      assessment: null, pressureAltitudeBasis: '', pendingReason: 'Compute raw distances.',
+      runway: { status: 'unavailable', reason: 'No declared runway.' },
+      operational: presentOperationalAssessment(null, 'No source.'),
+    })
+    const wrapper = mount(MbPrintPreview, { props: { source: input }, attachTo: document.body })
+    await wrapper.get('button').trigger('click')
+    expect(document.querySelector('.briefing-chart svg')).not.toBeNull()
+    expect(document.body.textContent).not.toContain('Current M&B notifications')
+    expect(document.body.textContent).not.toContain('Profile and source status')
+    expect(document.body.textContent).not.toContain('Applicable category limits')
+    expect(document.body.textContent).toContain('MTOM:')
+    input.performance = { ...input.performance, inputKey: change }
+    window.dispatchEvent(new Event('beforeprint'))
+    expect(document.querySelector('.mb-print-root')?.hasAttribute('data-print-invalid')).toBe(true)
+    await nextTick()
+    expect(document.body.textContent).not.toContain('500.0 kg')
+    document.querySelector<HTMLButtonElement>('.mb-print-controls button')!.click()
+    await nextTick()
+    await wrapper.get('button').trigger('click')
+    expect(document.body.textContent).toContain('500.0 kg')
+    expect(document.querySelector('.mb-print-root')?.hasAttribute('data-print-invalid')).toBe(false)
+    wrapper.unmount()
   })
   it('cancels without changing preparation and rechecks expiry before native Print', async () => {
     vi.useFakeTimers()
