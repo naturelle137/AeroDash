@@ -33,7 +33,7 @@ const AUDIT_ID_RE = /(?<![@\w-])(?:CS|DP|TECH|PR|UX)-\d{3}(?![@\w-])/g
  * line comment, and conversely never miss a comment because the line
  * also contains a string.
  *
- * Supports: TS/JS line comments (`//`), block comments (`/* … *​/`),
+ * Supports: TS/JS line comments (`//`), block comments,
  * single-quote / double-quote / template-string literals, and Vue
  * `<template>` HTML comments (`<!-- … -->`). `<style>` blocks in Vue
  * SFCs are stripped before this runs — CSS hex colours like
