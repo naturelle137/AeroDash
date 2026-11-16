@@ -48,7 +48,7 @@ dist/assets/_plugin-vue_export-helper-FV6_UWAd.js    66.50 kB │ gzip: 25.99 kB
 dist/assets/fleet.store-CxYPEBi4.js                 131.37 kB │ gzip: 39.29 kB
 dist/assets/index-Crz9ogUb.js                       244.61 kB │ gzip: 78.40 kB
 
-✓ built in 691ms
+✓ built in 579ms
 
 PWA v1.3.0
 mode      generateSW

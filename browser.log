@@ -1,6 +1,6 @@
-[WebServer] (node:761642) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (node:768514) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 [WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
-[WebServer] (node:761655) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (node:768525) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 [WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
 [WebServer] (!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
 [WebServer]   - import "./scripts/build/telemetry-guard" without a file extension (vite.config.ts:9:52). Add the file extension
@@ -9,11 +9,11 @@
 
 Running 2 tests using 1 worker
 
-(node:761708) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(node:768580) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 (Use `node-24 --trace-warnings ...` to show where the warning was created)
-  ✓  1 [chromium-390] › tests/offline-production/lookup-fuel-mb.spec.ts:89:1 › lookup fuel M&B uses total-moment differences on screen, chart, print and offline (4.2s)
-(node:761850) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+  ✓  1 [chromium-390] › tests/offline-production/lookup-fuel-mb.spec.ts:89:1 › lookup fuel M&B uses total-moment differences on screen, chart, print and offline (4.1s)
+(node:768696) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 (Use `node-24 --trace-warnings ...` to show where the warning was created)
-  ✓  2 [chromium-1440] › tests/offline-production/lookup-fuel-mb.spec.ts:89:1 › lookup fuel M&B uses total-moment differences on screen, chart, print and offline (4.5s)
+  ✓  2 [chromium-1440] › tests/offline-production/lookup-fuel-mb.spec.ts:89:1 › lookup fuel M&B uses total-moment differences on screen, chart, print and offline (4.6s)
 
-  2 passed (11.5s)
+  2 passed (11.3s)
