@@ -751,8 +751,13 @@ function onDismissResetUndo(): void {
 }
 
 function onAircraftSelected(event: Event): void {
-  const id = (event.target as HTMLSelectElement).value
-  if (!id) return
+  const select = event.target as HTMLSelectElement
+  const id = select.value
+  // The placeholder does not discard preparation; keep its displayed identity current.
+  if (!id) {
+    select.value = selectedAircraftId.value
+    return
+  }
   catalogueError.value = null
 
   const fleetProfile = fleetStore.profiles.find((a) => a.id === id)

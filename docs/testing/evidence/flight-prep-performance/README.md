@@ -21,11 +21,12 @@ acceptance remains with the delivery owner after independent review.
 | P1 isolation and per-file coverage | `pnpm --filter frontend test:p1:coverage` | Passed; aggregate lines 99.35%, branches 97.39% |
 | P1 mutation | `pnpm --filter frontend test:mutation` | 79.90%; required floor 70 |
 | Full Chromium BDD | `CI=1 pnpm test:e2e --project=chromium --workers=4 --retries=0` | 97 passed |
-| Full cached-offline suite | `pnpm --filter frontend exec playwright test --config playwright.offline.config.ts` | 26 passed at 390/1440 px |
-| Changed browser workflows after scientific-notation fix | Above Playwright command with `flight-prep-performance` filter | 4 passed at 390/1440 px |
+| Full cached-offline suite | `pnpm --filter frontend exec playwright test --config playwright.offline.config.ts` | 28 passed at 390/1440 px |
+| Changed browser workflows after aircraft-placeholder correction | Above Playwright command with `flight-prep-performance` filter | 4 passed at 390/1440 px |
 
-Full browser suites preceded the final scientific-notation conversion fix; the
-changed workflows were then rerun against a fresh production build. The PR CI
+Full browser suites include the scientific-notation conversion fix. The final
+aircraft-placeholder display correction was then checked by the changed workflows
+against a fresh production build. The PR CI
 runs the full Chromium and cached-offline suites again at its final head.
 
 ## Slice A acceptance
@@ -39,6 +40,7 @@ runs the full Chromium and cached-offline suites again at its final head.
 | Normalized lb tables and differing phase envelopes | Service tests and source-unit BDD vectors |
 | Draft/expired/missing grids | Service tests, BDD and real aircraft-switch browser case |
 | Payload/fuel/method/category/profile/runway/conditions/units invalidate results | Integration input-key tests and browser workflows |
+| Empty aircraft placeholder preserves displayed identity and current loading | Browser workflow |
 | hPa/ft/m fallback and explicit persisted overrides | Browser defaults, saved declaration/reload, invalid preference case |
 | Physical conversion including `1e3` ft to 304.8 m | Core, integration and actual browser field conversion |
 | Numeric PA/QNH reset; derived/direct paths agree within display precision | Browser reload/conversion and existing independent PA vectors |
