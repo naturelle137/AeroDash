@@ -67,6 +67,17 @@ function lookupFuelNotification(tankName: string, code: string, reason: string):
   }
 }
 
+function stationLimitNotification(stationIndex: number | undefined): Notification {
+  return {
+    id: 'WARN-MB-005',
+    severity: 'WARNING',
+    message: `Station ${stationIndex ?? ''} limit exceeded`,
+    context: 'MassBalance.Stations',
+    persistent: false,
+    dismissible: true,
+  }
+}
+
 function deriveMandatory(lp: LoadPointDefinition, weight: number): boolean {
   const kind = resolveStationKind(lp)
   return kind !== 'fuel' && !(kind === 'occupant' && !requiresOccupancy(lp) && weight === 0)
@@ -432,6 +443,15 @@ export const useMassBalanceStore = defineStore('massBalance', {
       // verdict (H-005 / H-006 class defect).
       const { massUnit: profileMassUnit, armUnit } = parseSourceUnit(this.aircraft!.sourceUnit)
 
+      // Station limits are independent of lookup validity and use the original source quantities.
+      const stationLimitViolations: MathCoreResult['violations'] = []
+      for (const s of this.availableStations) {
+        const def = this.aircraft.loadPoints[s.index]
+        if (def?.operationalLimit != null && s.weight > def.operationalLimit) {
+          stationLimitViolations.push({ type: 'STATION_LIMIT_EXCEEDED', stationIndex: s.index })
+        }
+      }
+
       // Variable-geometry fuel tanks are checked raw, before normalization can clamp
       // negatives or fall back to a profile unit/density, and block the whole result.
       const lookupBlocks: Notification[] = []
@@ -448,6 +468,7 @@ export const useMassBalanceStore = defineStore('massBalance', {
         this.notifications = [
           ...(draftProfileWarning ? [draftProfileWarning] : []),
           ...lookupBlocks,
+          ...stationLimitViolations.map((v) => stationLimitNotification(v.stationIndex)),
         ]
         this.lastResult = null
         return
@@ -599,16 +620,7 @@ export const useMassBalanceStore = defineStore('massBalance', {
         return
       }
 
-      // Enforce per-station operationalLimit
-      for (const s of this.availableStations) {
-        const def = this.aircraft!.loadPoints[s.index]
-        if (def?.operationalLimit != null && s.weight > def.operationalLimit) {
-          result.violations.push({
-            type: 'STATION_LIMIT_EXCEEDED',
-            stationIndex: s.index,
-          })
-        }
-      }
+      result.violations.push(...stationLimitViolations)
 
       // Map raw violations to UI notifications
       const violationNotes: Notification[] = result.violations.map((v): Notification => {
@@ -650,14 +662,7 @@ export const useMassBalanceStore = defineStore('massBalance', {
               dismissible: true,
             }
           case 'STATION_LIMIT_EXCEEDED':
-            return {
-              id: 'WARN-MB-005',
-              severity: 'WARNING',
-              message: `Station ${v.stationIndex ?? ''} limit exceeded`,
-              context: 'MassBalance.Stations',
-              persistent: false,
-              dismissible: true,
-            }
+            return stationLimitNotification(v.stationIndex)
           case 'INVALID_INPUT':
             // OUT_OF_RANGE is an operational range advisory (soft WARNING);
             // all other INVALID_INPUT codes are hard validation ERRORs.
