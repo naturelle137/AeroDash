@@ -247,6 +247,8 @@
     <VerifyProfileDialog
       :open="pendingVerify !== null"
       :registration="pendingVerify?.registration ?? ''"
+      :busy="verifyBusy"
+      :error="verifyError"
       @confirm="onConfirmVerify"
       @cancel="onCancelVerify"
     />
@@ -308,8 +310,12 @@ function needsVerification(profile: AircraftProfile): boolean {
 }
 
 const pendingVerify = ref<AircraftProfile | null>(null)
+const verifyBusy = ref(false)
+const verifyError = ref<string | null>(null)
 
 function onVerify(profile: AircraftProfile): void {
+  if (verifyBusy.value) return
+  verifyError.value = null
   pendingVerify.value = profile
 }
 
@@ -330,19 +336,28 @@ watch(
 
 async function onConfirmVerify(signoff: VerificationSignoff): Promise<void> {
   const profile = pendingVerify.value
-  pendingVerify.value = null
-  if (!profile) return
-  // A Draft is promoted to a new Verified snapshot; an expired Verified profile
-  // is re-attested in place. Both record the same sign-off provenance.
-  if (profile.status === 'verified') {
-    await fleetStore.reverifyProfile(profile.id, signoff)
-  } else {
-    await fleetStore.verifyProfile(profile.id, signoff)
+  if (!profile || verifyBusy.value) return
+  verifyBusy.value = true
+  verifyError.value = null
+  try {
+    // Keep the dialog open through persistence and store publication.
+    if (profile.status === 'verified') {
+      await fleetStore.reverifyProfile(profile.id, signoff)
+    } else {
+      await fleetStore.verifyProfile(profile.id, signoff)
+    }
+    pendingVerify.value = null
+  } catch {
+    verifyError.value = 'Verification could not be saved. Please try again.'
+  } finally {
+    verifyBusy.value = false
   }
 }
 
 function onCancelVerify(): void {
+  if (verifyBusy.value) return
   pendingVerify.value = null
+  verifyError.value = null
 }
 
 // ─── confirm-then-undo destructive delete ─────────────────────────────────

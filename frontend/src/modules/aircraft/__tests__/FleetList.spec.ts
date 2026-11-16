@@ -577,3 +577,88 @@ describe('FleetList — verify-on-arrival deep link (?verify=<id>)', () => {
     expect(document.querySelector('.verify-dialog')).toBeNull()
   })
 })
+
+describe.each(['draft', 'verified'] as const)('FleetList — %s persistence lifecycle', (status) => {
+  afterEach(() => { document.body.innerHTML = '' })
+
+  function setup() {
+    const profile = makeProfile({
+      status,
+      verification: status === 'verified' ? {
+        verifiedOn: '2000-01-01', verifiedBy: 'AB', pohRevision: 'Rev 4',
+        sourceWeighingDate: '2025-01-01',
+      } : undefined,
+    })
+    const pinia = createPinia()
+    setActivePinia(pinia)
+    const fleet = makeFleetStore({ profiles: [profile] })()
+    makeActiveStore(null)()
+    const wrapper = mount(FleetList, { global: { plugins: [pinia, makeRouter()] } })
+    const write = vi.spyOn(fleet, status === 'draft' ? 'verifyProfile' : 'reverifyProfile')
+    const otherWrite = vi.spyOn(fleet, status === 'draft' ? 'reverifyProfile' : 'verifyProfile')
+    return { wrapper, profile, write, otherWrite }
+  }
+
+  async function fillSignoff(wrapper: ReturnType<typeof mountFleetList>) {
+    await wrapper.find('.btn-verify').trigger('click')
+    const inputs = document.querySelectorAll<HTMLInputElement>('.verify-dialog input')
+    for (const [index, value] of [' JS ', ' Rev 7 ', '2026-05-01'].entries()) {
+      inputs[index]!.value = value
+      inputs[index]!.dispatchEvent(new Event('input', { bubbles: true }))
+    }
+    await wrapper.vm.$nextTick()
+  }
+
+  function confirm() {
+    document.querySelector<HTMLButtonElement>('.verify-dialog__btn--primary')!.click()
+  }
+
+  it('protects every cancel route and duplicate confirmation until the write resolves', async () => {
+    const { wrapper, profile, write, otherWrite } = setup()
+    let resolve!: () => void
+    write.mockImplementationOnce(() => new Promise<void>((done) => { resolve = done }))
+    await fillSignoff(wrapper)
+    confirm()
+    // A second click before the prop render must also be guarded by the parent.
+    confirm()
+    await wrapper.vm.$nextTick()
+    expect(document.querySelector('.verify-dialog')).not.toBeNull()
+    expect(document.querySelector('.verify-dialog')!.getAttribute('aria-busy')).toBe('true')
+    expect(document.querySelector<HTMLButtonElement>('.verify-dialog__btn--primary')!.disabled).toBe(true)
+    const cancel = document.querySelector<HTMLButtonElement>('.verify-dialog__btn--cancel')!
+    expect(cancel.disabled).toBe(true)
+    cancel.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    document.querySelector('.verify-dialog')!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+    document.querySelector('.verify-dialog__backdrop')!.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    await wrapper.vm.$nextTick()
+    expect(document.querySelector('.verify-dialog')).not.toBeNull()
+    expect(write).toHaveBeenCalledExactlyOnceWith(profile.id, {
+      verifiedBy: 'JS', pohRevision: 'Rev 7', verifiedOn: '2026-05-01',
+    })
+    expect(otherWrite).not.toHaveBeenCalled()
+    resolve()
+    await flushPromises()
+    expect(document.querySelector('.verify-dialog')).toBeNull()
+    wrapper.unmount()
+  })
+
+  it('shows rejected persistence without losing signoff and retries successfully', async () => {
+    const { wrapper, profile, write, otherWrite } = setup()
+    write.mockRejectedValueOnce(new Error('IndexedDB unavailable'))
+    await fillSignoff(wrapper)
+    confirm()
+    await flushPromises()
+    expect(document.querySelector('[role="alert"]')?.textContent).toContain('Verification could not be saved')
+    expect(document.querySelector<HTMLInputElement>('[aria-label="Verifier initials"]')!.value).toBe(' JS ')
+    expect(document.querySelector<HTMLButtonElement>('.verify-dialog__btn--primary')!.disabled).toBe(false)
+    confirm()
+    await flushPromises()
+    expect(write).toHaveBeenCalledTimes(2)
+    for (const call of write.mock.calls) {
+      expect(call).toEqual([profile.id, { verifiedBy: 'JS', pohRevision: 'Rev 7', verifiedOn: '2026-05-01' }])
+    }
+    expect(otherWrite).not.toHaveBeenCalled()
+    expect(document.querySelector('.verify-dialog')).toBeNull()
+    wrapper.unmount()
+  })
+})
