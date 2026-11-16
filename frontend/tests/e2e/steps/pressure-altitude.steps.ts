@@ -38,8 +38,8 @@ When('the pilot derives pressure altitude from QNH {string} {string} and field e
     const section = qnhSection(page)
     await section.getByLabel('QNH', { exact: true }).fill(qnh)
     await section.getByLabel('QNH unit', { exact: true }).selectOption(qnhUnit)
-    await section.getByLabel('Pressure-altitude field elevation', { exact: true }).fill(elevation)
     await section.getByLabel('Pressure-altitude field elevation unit', { exact: true }).selectOption(elevationUnit)
+    await section.getByLabel('Pressure-altitude field elevation', { exact: true }).fill(elevation)
   })
 
 When('the pilot changes the QNH to {string}', async ({ page }, qnh: string) => {
@@ -101,7 +101,7 @@ Then('the pilot is warned {string}', async ({ page }, id: string) => {
 Then('the copied field elevation has been removed', async ({ page }) => {
   const section = qnhSection(page)
   await expect(section.getByLabel('Pressure-altitude field elevation', { exact: true })).toHaveValue('')
-  await expect(section.getByLabel('Pressure-altitude field elevation unit', { exact: true })).toHaveValue('')
+  await expect(section.getByLabel('Pressure-altitude field elevation unit', { exact: true })).toHaveValue('ft')
   await expect(section.getByRole('status')).toContainText('copied field elevation was removed')
   await expect(derived(page)).toHaveCount(0)
 })

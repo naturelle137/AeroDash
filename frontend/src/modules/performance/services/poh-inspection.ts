@@ -1,9 +1,10 @@
 import { AircraftProfileSchema, type AircraftProfile } from '@/core/adapters/aircraft.schema'
 import {
-  computePohDistances,
   pivotDataPointsToCube,
+  type PerformanceCube3D,
   type PohDistances,
 } from '@/core/logic/performance.poh-distance'
+import { lookupPhaseDistance, type MassTreatment, type PhaseLookupResult } from '@/core/logic/performance.phase-lookup'
 import { normalizePerformanceTable } from '@/core/adapters/performance-source-units'
 import { CURRENT_PROFILE_SCHEMA_VERSION } from '@/core/logic/profile-migrations'
 import { evaluateVerificationFreshness } from '@/core/logic/profile-verification'
@@ -11,38 +12,83 @@ import { evaluateVerificationFreshness } from '@/core/logic/profile-verification
 export const PHASES = [
   'TakeoffRoll', 'TakeoffDistance50ft', 'LandingRoll', 'LandingDistance50ft',
 ] as const
+export type Phase = typeof PHASES[number]
+export const PHASE_INFO = {
+  TakeoffRoll: { key: 'takeoffRoll', label: 'TOR — Takeoff roll' },
+  TakeoffDistance50ft: { key: 'takeoffDistance50ft', label: 'TOD — Takeoff distance to 50 ft' },
+  LandingRoll: { key: 'landingRoll', label: 'LR — Landing roll' },
+  LandingDistance50ft: { key: 'landingDistance50ft', label: 'LD — Landing distance from 50 ft' },
+} as const satisfies Record<Phase, { key: keyof PohDistances; label: string }>
+export const GROUP_PHASES = {
+  takeoff: ['TakeoffRoll', 'TakeoffDistance50ft'],
+  landing: ['LandingRoll', 'LandingDistance50ft'],
+} as const satisfies Record<string, readonly Phase[]>
+export type PerformanceGroupId = keyof typeof GROUP_PHASES
+
 const AXES = ['mass', 'pressureAltitude', 'temperature'] as const
-const UNITS = { mass: 'kg', pressureAltitude: 'ft', temperature: '°C' } as const
-/** Pressure altitude is raw text (direct entry) or an already validated derived number. */
-export type InspectionInputs = { mass: string; temperature: string; pressureAltitude: string | number }
+type Range = { min: number; max: number }
 export type InspectionFailure = {
   status: 'blocked'
-  reason: 'profile' | 'draft' | 'tables' | 'input' | 'envelope'
+  reason: 'profile' | 'draft' | 'tables' | 'input'
   message: string
 }
 export type TableInspection = {
   status: 'ready'
   profile: AircraftProfile
-  bounds: Record<typeof AXES[number], { min: number; max: number }>
+  /** Normalized kg/ft/°C/m grids. */
+  cubes: Record<Phase, PerformanceCube3D>
+  bounds: Record<Phase, Record<typeof AXES[number], Range>>
 }
-export type InspectionResult = InspectionFailure | { status: 'success'; distances: PohDistances }
+
+/** A mass offered to one phase group; unavailable masses carry the exact reason. */
+export type MassSource =
+  | { status: 'ready'; massKg: number; origin: string }
+  | { status: 'unavailable'; reason: string }
+export type AssessmentInputs = {
+  takeoff: MassSource
+  landing: MassSource
+  /** Raw text (direct entry) or an already validated derived number (ft). */
+  pressureAltitude: string | number
+  temperature: string
+}
+export type PhaseDistance = {
+  phase: Phase
+  label: string
+  /** Metres; unrounded. */
+  distance: number
+  massTreatment: MassTreatment
+  lookupMass: number
+  massRange: Range
+}
+export type GroupAssessment =
+  | { status: 'success'; massKg: number; origin: string; distances: PhaseDistance[] }
+  | { status: 'blocked'; massKg: number | null; reason: 'mass' | 'envelope' | 'tables'; message: string }
+export type PerformanceAssessment =
+  | InspectionFailure
+  | {
+    status: 'assessed'
+    conditions: { pressureAltitudeFt: number; temperatureC: number }
+    takeoff: GroupAssessment
+    landing: GroupAssessment
+  }
 
 function blocked(reason: InspectionFailure['reason'], message: string): InspectionFailure {
   return { status: 'blocked', reason, message }
 }
 
-/** Validate all grids before exposing their common supported envelope. Drafts may be inspected. */
+function range(axis: readonly number[]): Range {
+  return { min: axis[0]!, max: axis[axis.length - 1]! }
+}
+
+/** Validate all grids before exposing their per-phase envelopes. Drafts may be inspected. */
 export function inspectTables(raw: unknown): TableInspection | InspectionFailure {
   const parsed = AircraftProfileSchema.safeParse(raw)
   if (!parsed.success) return blocked('profile', 'Invalid aircraft profile or performance source-unit declarations. Review sourceUnits (all four axes: kg/lb, ft/m, °C/°F, m/ft) and re-import a valid Fleet exchange file.')
   const profile = parsed.data
   if (profile.schemaVersion > CURRENT_PROFILE_SCHEMA_VERSION) return blocked('profile', 'Unsupported profile version. Update AeroDash before using this profile.')
   const tables = profile.performanceProfiles ?? []
-  const bounds = {
-    mass: { min: -Infinity, max: Infinity },
-    pressureAltitude: { min: -Infinity, max: Infinity },
-    temperature: { min: -Infinity, max: Infinity },
-  }
+  const cubes = {} as Record<Phase, PerformanceCube3D>
+  const bounds = {} as TableInspection['bounds']
   for (const phase of PHASES) {
     const matches = tables.filter((table) => table.flightPhase === phase)
     if (matches.length !== 1) return blocked('tables', `${phase}: require exactly one table (missing or duplicate phase). Update the Fleet exchange file and import it as a Draft.`)
@@ -51,54 +97,86 @@ export function inspectTables(raw: unknown): TableInspection | InspectionFailure
     const points = normalized.table.dataPoints
     if (points.some((point) => point.distance <= 0)) return blocked('tables', `${phase}: every distance must be positive. Review the source table.`)
     try {
-      pivotDataPointsToCube(points)
+      cubes[phase] = pivotDataPointsToCube(points)
     } catch {
       return blocked('tables', `${phase}: require a complete rectangular grid without duplicate coordinates. Review the source table.`)
     }
-    for (const axis of AXES) {
-      bounds[axis].min = Math.max(bounds[axis].min, Math.min(...points.map((point) => point[axis])))
-      bounds[axis].max = Math.min(bounds[axis].max, Math.max(...points.map((point) => point[axis])))
-    }
+    const cube = cubes[phase]
+    bounds[phase] = { mass: range(cube.massAxis), pressureAltitude: range(cube.altitudeAxis), temperature: range(cube.temperatureAxis) }
   }
-  if (AXES.some((axis) => bounds[axis].min > bounds[axis].max)) return blocked('envelope', 'The four tables have no common supported envelope. Review the source tables.')
-  return { status: 'ready', profile, bounds }
+  return { status: 'ready', profile, cubes, bounds }
 }
 
+const DECIMAL = /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?$/i
+
 /** UI strings are validated here: an empty field must never become numeric zero. */
-export function inspectPohDistances(raw: unknown, inputs: InspectionInputs, now: Date): InspectionResult {
+export function parseLookupNumber(raw: string | number): number | null {
+  if (typeof raw === 'number') return Number.isFinite(raw) ? raw : null
+  const text = raw.trim()
+  // Decimal/scientific notation only; Number() also accepts unsupported hexadecimal syntax.
+  if (!DECIMAL.test(text) || !Number.isFinite(Number(text))) return null
+  return Number(text)
+}
+
+/** A pilot-entered mass for the standalone lookup, applied to the named group. */
+export function massSourceFromText(text: string, origin: string): MassSource {
+  const value = parseLookupNumber(text)
+  if (value === null) return { status: 'unavailable', reason: 'Enter a finite mass in kg.' }
+  if (value <= 0) return { status: 'unavailable', reason: 'Mass must be positive (kg).' }
+  return { status: 'ready', massKg: value, origin }
+}
+
+const fmt = (value: number) => Number(value.toFixed(3)).toString()
+
+function lookupMessage(label: string, massKg: number, origin: string, result: Extract<PhaseLookupResult, { status: 'blocked' }>, conditions: { pressureAltitudeFt: number; temperatureC: number }): { reason: 'envelope' | 'tables' | 'mass'; message: string } {
+  const r = result.range
+  switch (result.reason) {
+    case 'pressure-altitude-outside':
+      return { reason: 'envelope', message: `${label}: pressure altitude ${fmt(conditions.pressureAltitudeFt)} ft is outside the table (${r!.min} to ${r!.max} ft). No clamping or extrapolation is available.` }
+    case 'temperature-outside':
+      return { reason: 'envelope', message: `${label}: temperature ${fmt(conditions.temperatureC)} °C is outside the table (${r!.min} to ${r!.max} °C). No clamping or extrapolation is available.` }
+    case 'mass-above-table':
+      return { reason: 'envelope', message: `${label}: ${origin} ${fmt(massKg)} kg is above the table maximum ${fmt(r!.max)} kg. Upper-bound extrapolation is unsupported because no accepted source limit exists.` }
+    case 'mass-below-table-unsupported':
+      return { reason: 'tables', message: `${label}: ${origin} ${fmt(massKg)} kg is below the table minimum ${fmt(r!.min)} kg, and the table decreases with mass somewhere, so no documented best case can be capped. Review the source table.` }
+    case 'invalid-input':
+      return { reason: 'mass', message: `${label}: ${origin} must be a finite positive mass in kg.` }
+    case 'invalid-distance':
+      return { reason: 'tables', message: `${label}: lookup did not produce a finite positive distance. Review the source table.` }
+  }
+}
+
+function assessGroup(tables: TableInspection, group: PerformanceGroupId, mass: MassSource, conditions: { pressureAltitudeFt: number; temperatureC: number }): GroupAssessment {
+  if (mass.status === 'unavailable') return { status: 'blocked', massKg: null, reason: 'mass', message: mass.reason }
+  const distances: PhaseDistance[] = []
+  for (const phase of GROUP_PHASES[group]) {
+    const { label } = PHASE_INFO[phase]
+    const result = lookupPhaseDistance(tables.cubes[phase], { mass: mass.massKg, pressureAltitude: conditions.pressureAltitudeFt, temperature: conditions.temperatureC })
+    if (result.status === 'blocked') return { status: 'blocked', massKg: mass.massKg, ...lookupMessage(label, mass.massKg, mass.origin, result, conditions) }
+    distances.push({ phase, label, distance: result.distance, massTreatment: result.massTreatment, lookupMass: result.lookupMass, massRange: result.massRange })
+  }
+  return { status: 'success', massKg: mass.massKg, origin: mass.origin, distances }
+}
+
+/**
+ * Raw POH distances for takeoff and landing, each with its own mass. One group's
+ * missing mass or envelope failure never removes the other group's valid result.
+ */
+export function assessPerformance(raw: unknown, inputs: AssessmentInputs, now: Date): PerformanceAssessment {
   const tables = inspectTables(raw)
   if (tables.status === 'blocked') return tables
-  const { profile, bounds } = tables
+  const { profile } = tables
   if (profile.status !== 'verified') return blocked('draft', 'Draft profile: review the imported tables in Fleet and explicitly verify the profile before computing.')
   if (evaluateVerificationFreshness(profile, now).requiresReverification) return blocked('draft', 'Profile verification has expired or its source changed. Re-verify in Fleet.')
-  const conditions = { mass: 0, pressureAltitude: 0, temperature: 0 }
-  for (const axis of AXES) {
-    const raw = inputs[axis]
-    if (typeof raw === 'number') {
-      if (!Number.isFinite(raw)) return blocked('input', `Enter a finite ${axis} value in ${UNITS[axis]}; all three fields are required.`)
-      conditions[axis] = raw
-      continue
-    }
-    const text = raw.trim()
-    // Decimal/scientific notation only; Number() also accepts unsupported hexadecimal syntax.
-    if (!/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?$/i.test(text) || !Number.isFinite(Number(text))) {
-      return blocked('input', `Enter a finite ${axis} value in ${UNITS[axis]}; all three fields are required.`)
-    }
-    conditions[axis] = Number(text)
+  const pressureAltitudeFt = parseLookupNumber(inputs.pressureAltitude)
+  if (pressureAltitudeFt === null) return blocked('input', 'Enter a finite pressure altitude in ft.')
+  const temperatureC = parseLookupNumber(inputs.temperature)
+  if (temperatureC === null) return blocked('input', 'Enter a finite outside air temperature in °C.')
+  const conditions = { pressureAltitudeFt, temperatureC }
+  return {
+    status: 'assessed',
+    conditions,
+    takeoff: assessGroup(tables, 'takeoff', inputs.takeoff, conditions),
+    landing: assessGroup(tables, 'landing', inputs.landing, conditions),
   }
-  if (conditions.mass <= 0) return blocked('input', 'Mass must be positive (kg).')
-  for (const axis of AXES) {
-    if (conditions[axis] < bounds[axis].min || conditions[axis] > bounds[axis].max) {
-      return blocked('envelope', `${axis} is outside the common table envelope (${bounds[axis].min} to ${bounds[axis].max} ${UNITS[axis]}). No clamping or extrapolation is available.`)
-    }
-  }
-  const result = computePohDistances(profile, conditions)
-  if (result.status === 'failure') return blocked('tables', result.message)
-  if (Object.values(result.clamping).some((flags) => Object.values(flags).some(Boolean))) {
-    return blocked('envelope', 'Lookup required clamping. No distances are available for this point.')
-  }
-  if (Object.values(result.distances).some((distance) => !Number.isFinite(distance) || distance <= 0)) {
-    return blocked('tables', 'Lookup did not produce four finite positive distances. Review the source tables.')
-  }
-  return { status: 'success', distances: result.distances }
 }

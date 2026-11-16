@@ -30,6 +30,9 @@ import ResultSummary from '@/modules/mass-balance/components/ResultSummary.vue'
 import WindLimitsSummary from '@/modules/aircraft/components/WindLimitsSummary.vue'
 import ConfirmDialog from '@/shared/components/ConfirmDialog.vue'
 import UndoToast from '@/shared/components/UndoToast.vue'
+import FlightPrepPerformance from '@/modules/performance/components/FlightPrepPerformance.vue'
+import { usePerformanceStep, type PerformanceStepContext } from '@/modules/performance/composables/performance-step'
+import { flightPrepMassSources } from '@/modules/performance/services/flight-prep-masses'
 
 
 const catalogueError = ref<string | null>(null)
@@ -251,7 +254,7 @@ interface CardMeta {
 const CARD_ORDER = computed<readonly CardMeta[]>(() => [
   { id: 'aircraft', badge: '01', title: 'Aircraft' },
   { id: 'mb', badge: '02', title: 'Mass & Balance' },
-  { id: 'performance', badge: '03', title: 'Performance', soon: true },
+  { id: 'performance', badge: '03', title: 'Performance' },
   { id: 'weather', badge: '04', title: 'Weather', soon: true },
   // `title` follows the electric/combustion discriminator so the sticky
   // strip chip reads "Energy & Endurance" on a Velis Electro profile.
@@ -620,6 +623,28 @@ const categoryLimits = computed(() => {
   }
 })
 
+// Performance reuses the selected profile/category and the current masses; it
+// never asks for a second aircraft or mass entry.
+const performanceContext = computed<PerformanceStepContext>(() => ({
+  revision: JSON.stringify([store.stations, fuelPlanning.presentation.value.inputKey]),
+  ready: fleetStore.fleetLoadState === 'READY' && !pendingSelection.value,
+  notReadyReason: pendingSelection.value
+    ? 'Confirm or cancel the pending aircraft selection in section 01 first.'
+    : 'Load the fleet successfully before computing.',
+  profile: printSource.value.profile,
+  category: store.activeCategory,
+  ...flightPrepMassSources({
+    hasAircraft: !!store.aircraft,
+    uiState: store.uiState,
+    lastResult: store.lastResult,
+    hasErrorNotification: store.hasErrorNotification,
+    electric: isElectric.value,
+    arrival: fuelPlanning.arrival.value,
+    fuelReason: fuelPlanning.presentation.value.reason,
+  }),
+}))
+const performanceStep = usePerformanceStep(() => performanceContext.value)
+
 // ---------------------------------------------------------------------------
 // ViewModel — single deterministic mapping of uiState → presentational flags
 //
@@ -726,8 +751,13 @@ function onDismissResetUndo(): void {
 }
 
 function onAircraftSelected(event: Event): void {
-  const id = (event.target as HTMLSelectElement).value
-  if (!id) return
+  const select = event.target as HTMLSelectElement
+  const id = select.value
+  // The placeholder does not discard preparation; keep its displayed identity current.
+  if (!id) {
+    select.value = selectedAircraftId.value
+    return
+  }
   catalogueError.value = null
 
   const fleetProfile = fleetStore.profiles.find((a) => a.id === id)
@@ -1187,21 +1217,13 @@ function onCancelSelection(): void {
       </template>
     </section>
 
-    <!-- ═══ COMING SOON: Performance ══════════════════════════════════════ -->
-    <section
-      id="prep-card-performance"
-      class="prep-card prep-card--soon"
-      aria-label="Performance — coming soon"
-    >
+    <!-- ═══ Performance ═══════════════════════════════════════════════════ -->
+    <section id="prep-card-performance" class="prep-card" aria-labelledby="prep-performance-title">
       <div class="prep-card__header">
-        <span class="prep-card__badge prep-card__badge--soon">03</span>
-        <h2 class="prep-card__title prep-card__title--soon">Performance</h2>
-        <span class="soon-pill">Coming soon</span>
+        <span class="prep-card__badge">03</span>
+        <h2 id="prep-performance-title" class="prep-card__title">Performance</h2>
       </div>
-      <p class="soon-desc">
-        TOLD calculations — takeoff &amp; landing distances with POH-based correction factors,
-        wet/dry/grass surface conditions, operational safety factors.
-      </p>
+      <FlightPrepPerformance :step="performanceStep" :context="performanceContext" />
     </section>
 
     <!-- ═══ COMING SOON: Weather ════════════════════════════════════════════ -->

@@ -138,9 +138,9 @@ When the pilot opens Performance, the system shall offer persisted Fleet profile
 
 If a selected profile is Draft, invalid or lacks exactly one complete positive-distance rectangular grid for each of TOR, TOD, LR and LD, then the system shall block raw distance output.
 
-### REQ-PF-043: In-envelope application lookup
+### REQ-PF-043: Supported application lookup
 
-If a requested condition lies outside any of the four tables' supported axes, then the raw table inspection service shall block output without clamping or extrapolation.
+If a requested condition lies outside a required table's axes and does not meet REQ-PF-073, then the system shall block that phase group.
 
 ### REQ-PF-044: Required lookup inputs
 
@@ -254,3 +254,43 @@ unimplemented: no inspected source is accepted, and FSM 3/75 is not an accepted 
 ## Design References
 
 - **<a name="notificationScheme"></a>Notification Scheme:** [`docs/architecture/notification_schema.md`](../architecture/notification_schema.md)
+
+### REQ-PF-069: Current takeoff mass
+
+When Flight Prep computes takeoff distances, the system shall use its current validated M&B takeoff mass.
+
+### REQ-PF-070: Current landing mass
+
+When Flight Prep computes landing distances, the system shall use its current valid trip-arrival mass.
+
+### REQ-PF-071: Independent phase availability
+
+If trip-arrival mass is unavailable or invalid, then the system shall block landing distances independently of valid takeoff distances.
+
+### REQ-PF-072: Shared current presentation
+
+When preparation inputs change, the system shall invalidate the shared Performance presentation synchronously.
+
+### REQ-PF-073: Supported mass benefit cap
+
+If a positive requested mass is below a required table minimum and every row is nondecreasing in mass, then the system shall use the minimum-mass boundary distance at the requested in-range pressure altitude and temperature.
+
+### REQ-PF-074: Unsupported mass benefit cap
+
+If any required table row decreases with mass, then the system shall block below-minimum mass lookup for that phase group.
+
+### REQ-PF-075: Fresh unit preferences
+
+Where no valid saved unit preference exists, the system shall default to hPa QNH, ft pressure altitude, ft field elevation and m runway distances.
+
+### REQ-PF-076: Physical length conversion
+
+When an entered length unit changes, the system shall convert its value to preserve the physical quantity.
+
+### REQ-PF-077: Saved units
+
+When saved preferences or runway declarations reopen, the system shall preserve their explicit units.
+
+### REQ-PF-078: Session numeric conditions
+
+When the page reloads, the system shall start numeric pressure-altitude and QNH inputs empty.

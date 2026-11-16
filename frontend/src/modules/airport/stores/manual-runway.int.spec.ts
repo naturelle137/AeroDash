@@ -18,7 +18,7 @@ beforeEach(() => {
 // Synthetic values only; no published aerodrome declaration.
 function enter(store: ReturnType<typeof useManualRunwayStore>) {
   Object.assign(store.draft, {
-    aerodrome: 'TEST', designator: '18', tora: '3280', toraUnit: 'ft', lda: '1000', ldaUnit: 'm',
+    aerodrome: 'TEST', designator: '18', toraUnit: 'ft', tora: '3280', lda: '1000', ldaUnit: 'm',
     fieldElevation: '-100', fieldElevationUnit: 'ft', surfaceType: 'unpaved', surfaceCondition: 'damaged-turf',
   })
 }
@@ -34,7 +34,7 @@ it('restores the exact original values and units in a fresh session', () => {
   const reloaded = useManualRunwayStore()
   reloaded.load()
   expect(reloaded.saved?.savedAt).toBe('2026-11-12T08:00:00.000Z')
-  expect(reloaded.draft).toMatchObject({ tora: '3280', toraUnit: 'ft', lda: '1000', ldaUnit: 'm', fieldElevation: '-100', fieldElevationUnit: 'ft' })
+  expect(reloaded.draft).toMatchObject({ toraUnit: 'ft', tora: '3280', lda: '1000', ldaUnit: 'm', fieldElevation: '-100', fieldElevationUnit: 'ft' })
   expect(reloaded.current).not.toBeNull()
   reloaded.draft.fieldElevationUnit = 'm'
   expect(reloaded.current).toBeNull()

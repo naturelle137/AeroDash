@@ -37,7 +37,7 @@ it('uses persisted profiles and immediately clears results on numeric, selection
   await field(view, 'Mass (kg)').setValue('')
   expect(view.find('[aria-label="Raw POH table distances"]').exists()).toBe(false)
   await view.get('form').trigger('submit')
-  expect(view.get('[role="alert"]').text()).toContain('required')
+  expect(view.text()).toContain('finite mass')
   await field(view, 'Mass (kg)').setValue('900')
   await view.get('form').trigger('submit')
   fleet.profiles[0]!.performanceProfiles = []
@@ -200,7 +200,7 @@ it('copies the saved runway elevation only on request and drops it when the runw
   const runwayFields = [
     ['#manual-runway-aerodrome', 'TEST'], ['#manual-runway-designator', '27'], ['#manual-runway-tora', '800'],
     ['#manual-runway-tora-unit', 'm'], ['#manual-runway-lda', '700'], ['#manual-runway-lda-unit', 'm'],
-    ['#manual-runway-elevation', '304.8'], ['#manual-runway-elevation-unit', 'm'],
+    ['#manual-runway-elevation-unit', 'm'], ['#manual-runway-elevation', '304.8'],
     ['#manual-runway-surface-type', 'paved'], ['#manual-runway-surface-condition', 'dry'],
   ] as const
   for (const [selector, value] of runwayFields) await view.get(selector).setValue(value)

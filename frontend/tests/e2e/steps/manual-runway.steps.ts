@@ -17,12 +17,12 @@ async function enter(page: Page, entry: Entry) {
   const form = panel(page)
   await form.getByLabel('Aerodrome', { exact: true }).fill(entry.aerodrome)
   await form.getByLabel('Runway designator', { exact: true }).fill(entry.designator)
-  await form.getByLabel('TORA — takeoff run available', { exact: true }).fill(entry.tora)
   await form.getByLabel('TORA unit', { exact: true }).selectOption(entry.toraUnit)
-  await form.getByLabel('LDA — landing distance available', { exact: true }).fill(entry.lda)
+  await form.getByLabel('TORA — takeoff run available', { exact: true }).fill(entry.tora)
   await form.getByLabel('LDA unit', { exact: true }).selectOption(entry.ldaUnit)
-  await form.getByLabel('Field elevation', { exact: true }).fill(entry.elevation)
+  await form.getByLabel('LDA — landing distance available', { exact: true }).fill(entry.lda)
   await form.getByLabel('Field elevation unit', { exact: true }).selectOption(entry.elevationUnit)
+  await form.getByLabel('Field elevation', { exact: true }).fill(entry.elevation)
   await form.getByLabel('Surface type', { exact: true }).selectOption({ label: entry.surfaceType })
   if (entry.condition) await form.getByLabel('Surface condition', { exact: true }).selectOption({ label: entry.condition })
 }
@@ -96,8 +96,8 @@ When('the pilot enters runway {string} {string} with TORA {string} {string}, LDA
 When('the pilot saves the runway inputs', async ({ page }) => { await save(page) })
 
 When('the pilot changes the LDA to {string} {string}', async ({ page }, value: string, unit: string) => {
-  await panel(page).getByLabel('LDA — landing distance available', { exact: true }).fill(value)
   await panel(page).getByLabel('LDA unit', { exact: true }).selectOption(unit)
+  await panel(page).getByLabel('LDA — landing distance available', { exact: true }).fill(value)
 })
 
 When('the pilot reloads the app', async ({ page }) => {

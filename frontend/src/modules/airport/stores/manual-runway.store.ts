@@ -12,6 +12,8 @@ import {
   type ManualRunwayRecord,
 } from '@/core/logic/manual-runway'
 import { clearManualRunway, loadManualRunway, saveManualRunway } from '../services/manual-runway.repository'
+import { useLoadedUnitPreferences } from '@/modules/performance/stores/unit-preferences.store'
+import { applyPreferredUnit, convertOnLengthUnitChange } from '@/modules/airport/composables/length-unit-conversion'
 
 /** Orchestrates pilot-declared runway inputs; validation and conversion stay in the core. */
 export const useManualRunwayStore = defineStore('manualRunway', () => {
@@ -21,6 +23,8 @@ export const useManualRunwayStore = defineStore('manualRunway', () => {
   const notice = ref<string | null>(null)
   const showErrors = ref(false)
   const loaded = ref(false)
+  const units = useLoadedUnitPreferences()
+  let filling = false
 
   const validation = computed(() => validateManualRunway(draft))
   const errors = computed(() => validation.value.status === 'invalid' ? validation.value.errors : {})
@@ -39,9 +43,26 @@ export const useManualRunwayStore = defineStore('manualRunway', () => {
     if (!options.some((option) => option.value === draft.surfaceCondition)) draft.surfaceCondition = ''
   }, { flush: 'sync' })
   watch(draft, () => { notice.value = null }, { flush: 'sync' })
+  for (const [value, unit] of [['tora', 'toraUnit'], ['lda', 'ldaUnit'], ['fieldElevation', 'fieldElevationUnit']] as const) {
+    convertOnLengthUnitChange(draft, value, unit, () => filling)
+  }
+  function applyPreferences(): void {
+    const { runwayDistance, fieldElevation } = units.preferences
+    applyPreferredUnit(draft, 'tora', 'toraUnit', runwayDistance)
+    applyPreferredUnit(draft, 'lda', 'ldaUnit', runwayDistance)
+    applyPreferredUnit(draft, 'fieldElevation', 'fieldElevationUnit', fieldElevation)
+  }
+  watch(() => units.preferences, applyPreferences, { flush: 'sync' })
 
+  /** A saved record keeps its own explicit units; only a fresh form takes the preferences. */
   function fill(next: ManualRunwayDraft): void {
-    Object.assign(draft, next)
+    filling = true
+    try {
+      Object.assign(draft, next)
+      applyPreferences()
+    } finally {
+      filling = false
+    }
   }
 
   function load(): void {
