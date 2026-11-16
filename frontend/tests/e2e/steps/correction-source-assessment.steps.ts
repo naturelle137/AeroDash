@@ -71,10 +71,14 @@ Then('the {string} source rejects the candidate {string} because {string}', asyn
   await expect(entry).toContainText('not applied')
 })
 
+When('the pilot computes raw distances for the current inputs', async ({ page }) => {
+  await page.getByRole('button', { name: 'Compute raw distances', exact: true }).click()
+})
+
 Then('the raw takeoff roll still reads {string}', async ({ page }, distance: string) => {
   const raw = page.getByRole('region', { name: 'Raw POH table distances', exact: true })
   await expect(raw.locator('dd').first()).toHaveText(distance)
-  await expect(raw).toContainText('No corrections, margins or runway comparison.')
+  await expect(raw).toContainText('No runway comparison, Go/No-Go advisory or operational approval is provided.')
 })
 
 Then('the correction source assessment has been cleared', async ({ page }) => {

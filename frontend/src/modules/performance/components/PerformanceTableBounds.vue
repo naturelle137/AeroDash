@@ -14,9 +14,9 @@ defineProps<{ tables: TableInspection | InspectionFailure | null }>()
         <tbody>
           <tr v-for="phase in PHASES" :key="phase">
             <th scope="row">{{ PHASE_INFO[phase].label }}</th>
-            <td>{{ tables.bounds[phase].mass.min }} to {{ tables.bounds[phase].mass.max }}</td>
-            <td>{{ tables.bounds[phase].pressureAltitude.min }} to {{ tables.bounds[phase].pressureAltitude.max }}</td>
-            <td>{{ tables.bounds[phase].temperature.min }} to {{ tables.bounds[phase].temperature.max }}</td>
+            <td>{{ tables.bounds[phase].mass.min }} to {{ tables.bounds[phase].mass.max }} kg</td>
+            <td>{{ tables.bounds[phase].pressureAltitude.min }} to {{ tables.bounds[phase].pressureAltitude.max }} ft</td>
+            <td>{{ tables.bounds[phase].temperature.min }} to {{ tables.bounds[phase].temperature.max }} °C</td>
           </tr>
         </tbody>
       </table>

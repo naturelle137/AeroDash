@@ -25,7 +25,7 @@ const { temperature, showPaErrors, presentation, compute } = props.step
         :aria-label="`${group.title} raw distances`" role="group">
         <h3>{{ group.title }}</h3>
         <p v-if="group.mass">Mass: {{ group.mass }}</p>
-        <p v-if="group.status === 'blocked'" role="alert">{{ group.title }} unavailable: {{ group.reason }}</p>
+        <p v-if="group.status === 'blocked'" :role="presentation.status === 'blocked' ? undefined : 'alert'">{{ group.title }} unavailable: {{ group.reason }}</p>
         <p v-else-if="group.status === 'not-computed'">Not computed.</p>
         <dl v-else class="distances">
           <div v-for="row in group.rows" :key="row.label">

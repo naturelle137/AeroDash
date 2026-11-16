@@ -238,7 +238,7 @@ Then('the declared source reference vector computes after reload and export for 
     await page.getByLabel('Temperature (°C)', { exact: true }).fill('11')
     await expect(result(page)).toHaveCount(0)
     await compute(page)
-    await expect(page.getByRole('alert').first()).toContainText('outside')
+    await expect(page.getByRole('group', { name: 'Takeoff raw distances', exact: true })).toContainText('outside')
     await page.reload()
     await expect(result(page)).toHaveCount(0)
   }

@@ -1,11 +1,12 @@
 import { computed, ref, shallowRef, watch } from 'vue'
 import type { AircraftProfile } from '@/core/adapters/aircraft.schema'
+import { assessCorrectionSources, profileFacts } from '@/core/logic/performance.correction-sources'
 import { SURFACE_CONDITIONS } from '@/core/logic/manual-runway'
 import { useManualRunwayStore } from '@/modules/airport/stores/manual-runway.store'
 import { useLoadedUnitPreferences } from '@/modules/performance/stores/unit-preferences.store'
 import { usePressureAltitudeInput } from './pressure-altitude-input'
 import { assessPerformance, inspectTables, type MassSource, type PerformanceAssessment } from '../services/poh-inspection'
-import { presentPerformance, type PerformancePresentation, type RunwayPresentation } from '../services/performance-presentation'
+import { presentOperationalAssessment, presentPerformance, type PerformancePresentation, type RunwayPresentation } from '../services/performance-presentation'
 
 /** Everything outside this step that a result depends on. */
 export type PerformanceStepContext = {
@@ -89,6 +90,16 @@ export function usePerformanceStep(context: () => PerformanceStepContext) {
     const { ready, notReadyReason, profile, category, takeoff, landing } = ctx.value
     return presentPerformance({
       inputKey: inputKey.value,
+      inputs: [
+        { label: 'Pressure altitude method', value: pa.method.value === 'direct' ? 'Direct entry' : pa.method.value === 'qnh-elevation' ? 'Derived from QNH and field elevation' : 'Not selected' },
+        ...(pa.method.value === 'direct' ? [{ label: 'Entered pressure altitude', value: `${pa.direct.value.trim() || 'Not entered'} ft` }]
+          : pa.method.value === 'qnh-elevation' ? [
+            { label: 'QNH', value: `${pa.draft.qnh.trim() || 'Not entered'} ${pa.draft.qnhUnit}` },
+            { label: 'Field elevation', value: `${pa.draft.elevation.trim() || 'Not entered'} ${pa.draft.elevationUnit}` },
+            { label: 'Field elevation source', value: pa.elevationProvenance.value },
+          ] : []),
+        { label: 'Outside air temperature', value: `${temperature.value.trim() || 'Not entered'} °C` },
+      ],
       aircraft: profile ? { registration: profile.registration, model: `${profile.manufacturer} ${profile.model}`, category } : null,
       takeoff,
       landing,
@@ -98,6 +109,11 @@ export function usePerformanceStep(context: () => PerformanceStepContext) {
         : !profile ? 'Select an aircraft profile.'
           : 'Not computed for the current inputs. Choose the pressure-altitude method, enter the temperature and compute.',
       runway: runwayPresentation.value,
+      operational: presentOperationalAssessment(ready && profile
+        ? assessCorrectionSources(profileFacts(profile, tables.value?.status === 'ready'), runway.current ? {
+          label: `${runway.current.record.runway.aerodrome} ${runway.current.record.runway.designator}`,
+          surface: runway.current.record.runway.surface,
+        } : null) : null, !ready ? notReadyReason : 'Select an aircraft profile.'),
     })
   })
 

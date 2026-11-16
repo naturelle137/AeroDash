@@ -34,7 +34,7 @@ test('Flight Prep shares current phase masses and converted units online and cac
   const tank = page.getByRole('textbox', { name: 'Synthetic tank', exact: true })
   const fuel = page.getByRole('region', { name: 'Fuel & Endurance', exact: true })
   const method = fuel.getByLabel('Planning method')
-  const burn = fuel.getByLabel('Planned trip fuel (kg)')
+  const burn = fuel.getByLabel('Trip Fuel (kg)')
   const preferences = performance.getByRole('group', { name: 'Unit preferences' })
   const runway = performance.getByRole('form', { name: 'Manual runway', exact: true })
   const pa = performance.getByLabel('Pressure altitude (ft)', { exact: true })
@@ -75,11 +75,11 @@ test('Flight Prep shares current phase masses and converted units online and cac
   await payload.fill('101'); await payload.blur()
   await expect(takeoff.locator('dd')).toHaveCount(0)
   await payload.fill('100'); await payload.blur()
-  await page.getByLabel('Category', { exact: true }).selectOption('Utility')
+  await page.getByLabel('Certification category', { exact: true }).selectOption('Utility')
   await expect(takeoff.locator('dd')).toHaveCount(0)
   await compute()
   await expect(takeoff.locator('dd')).toHaveCount(2)
-  await page.getByLabel('Category', { exact: true }).selectOption('Normal')
+  await page.getByLabel('Certification category', { exact: true }).selectOption('Normal')
 
   // Same physical quantity through genuine field-unit conversion, save and reopen.
   await runway.getByLabel('Aerodrome', { exact: true }).fill('Synthetic field')

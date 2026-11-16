@@ -1,3 +1,5 @@
+import type { SourceAssessment } from '@/core/logic/performance.correction-sources'
+import { BLOCKER_MESSAGES, CORRECTION_LABELS, INPUT_GAP_MESSAGES, OPERATION_LABELS, SUMMARY_MESSAGES, reasonMessage } from './correction-source-messages'
 import type { GroupAssessment, MassSource, PerformanceAssessment, PerformanceGroupId } from './poh-inspection'
 
 /**
@@ -13,12 +15,43 @@ export interface PerformancePresentation {
   readonly aircraft: { readonly registration: string; readonly model: string; readonly category: string | null } | null
   /** Overall reason when status is `not-computed` or `blocked`. */
   readonly reason: string | null
+  /** Current entered conditions, including blocked/uncomputed input text. */
+  readonly inputs: readonly { readonly label: string; readonly value: string }[]
   /** Conditions actually used; null until assessed. */
   readonly conditions: { readonly pressureAltitude: string; readonly temperature: string } | null
   readonly groups: readonly PerformanceGroupPresentation[]
+  readonly operational: OperationalPresentation
   readonly runway: RunwayPresentation
   /** Scope statements that must accompany any displayed distance. */
   readonly scope: readonly string[]
+}
+
+export interface OperationalPresentation {
+  readonly status: 'unavailable'
+  readonly reason: string
+  readonly sources: SourceAssessment | null
+  readonly rows: readonly { readonly label: string; readonly value: string; readonly reasons: readonly string[] }[]
+}
+
+/** Preserve source-specific limitations for the pack without applying a correction. */
+export function presentOperationalAssessment(sources: SourceAssessment | null, unavailableReason: string): OperationalPresentation {
+  return {
+    status: 'unavailable',
+    reason: !sources ? unavailableReason : sources.status === 'blocked' ? BLOCKER_MESSAGES[sources.reason]
+      : 'Corrections and operational runway comparison are unavailable. No correction is applied, including where a source is identified.',
+    sources,
+    rows: sources?.status === 'assessed' ? sources.corrections.map((row) => ({
+      label: `${OPERATION_LABELS[row.operation]} — ${CORRECTION_LABELS[row.correction]}`,
+      value: SUMMARY_MESSAGES[row.summary],
+      reasons: [
+        ...(row.inputGap ? [INPUT_GAP_MESSAGES[row.inputGap]] : []),
+        ...row.candidates.flatMap(({ candidate, reasons }) => [
+          `${candidate.document.title}, ${candidate.document.identifier}, ${candidate.document.revision}, ${candidate.section}`,
+          ...reasons.map(reasonMessage),
+        ]),
+      ],
+    })) : [],
+  }
 }
 
 export interface PerformanceGroupPresentation {
@@ -73,6 +106,7 @@ function groupPresentation(id: PerformanceGroupId, source: MassSource, group: Gr
 
 export type PresentationInput = {
   inputKey: string
+  inputs: PerformancePresentation['inputs']
   aircraft: PerformancePresentation['aircraft']
   takeoff: MassSource
   landing: MassSource
@@ -82,11 +116,12 @@ export type PresentationInput = {
   /** Why no result exists when `assessment` is null. */
   pendingReason: string
   runway: RunwayPresentation
+  operational: OperationalPresentation
 }
 
 export function presentPerformance(input: PresentationInput): PerformancePresentation {
   const { assessment } = input
-  const common = { inputKey: input.inputKey, aircraft: input.aircraft, runway: input.runway, scope: PERFORMANCE_SCOPE }
+  const common = { inputKey: input.inputKey, inputs: input.inputs, aircraft: input.aircraft, runway: input.runway, operational: input.operational, scope: PERFORMANCE_SCOPE }
   if (!assessment || assessment.status === 'blocked') {
     return {
       ...common,

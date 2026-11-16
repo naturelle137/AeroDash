@@ -96,8 +96,8 @@ When('the pilot enters runway {string} {string} with TORA {string} {string}, LDA
 When('the pilot saves the runway inputs', async ({ page }) => { await save(page) })
 
 When('the pilot changes the LDA to {string} {string}', async ({ page }, value: string, unit: string) => {
-  await panel(page).getByLabel('LDA — landing distance available', { exact: true }).fill(value)
   await panel(page).getByLabel('LDA unit', { exact: true }).selectOption(unit)
+  await panel(page).getByLabel('LDA — landing distance available', { exact: true }).fill(value)
 })
 
 When('the pilot reloads the app', async ({ page }) => {

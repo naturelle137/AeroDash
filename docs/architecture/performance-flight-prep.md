@@ -4,8 +4,10 @@ Flight Prep and the standalone route consume `usePerformanceStep`. The step
 combines the existing normalized tables, explicit PA input, manual runway and
 correction-source assessment. `PerformancePresentation` in
 `modules/performance/services/performance-presentation.ts` is the read-only pack
-contract: input identity, aircraft/category, conditions, independent phase groups,
-runway declaration and scope. Consumers render current data without calculation.
+contract: input identity, aircraft/category, current entered conditions (even when blocked),
+conditions actually used, independent phase groups,
+runway declaration, operational unavailability with current source assessment/reasons,
+and scope. Consumers render current data without calculation.
 Read `step.presentation.value` through a live getter before snapshot or print;
 compare `inputKey` to invalidate an existing snapshot. Slice B owns print guards.
 

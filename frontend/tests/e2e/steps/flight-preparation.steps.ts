@@ -136,7 +136,7 @@ Then('only the draft notice remains for solo loading', async ({ page, $testInfo 
   await expect(page.locator('.notification--warning')).toHaveCount(1)
   await expect(page.locator('.notification--warning')).toHaveText('Draft Profile Active')
   await expect(page.getByRole('region', { name: 'Calculation results' })).toBeVisible()
-  await expect(page.getByText(/missing.*mass|complete.*mandatory/i)).toHaveCount(0)
+  await expect(page.getByRole('region', { name: 'Mass and Balance', exact: true }).getByText(/missing.*mass|complete.*mandatory/i)).toHaveCount(0)
   await $testInfo.attach('solo-loading', { body: await page.screenshot({ fullPage: true }), contentType: 'image/png' })
 })
 

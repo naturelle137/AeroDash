@@ -20,6 +20,10 @@ it('keeps phase masses independent and invalidates synchronously on all source c
     step.pa.method.value = 'direct'; step.pa.direct.value = '1000'; step.temperature.value = '10'
     step.compute()
     expect(step.presentation.value.groups[0]!.rows[0]!.value).toBe('220.0 m')
+    expect(step.presentation.value.inputs).toContainEqual({ label: 'Entered pressure altitude', value: '1000 ft' })
+    expect(step.presentation.value.operational.status).toBe('unavailable')
+    expect(step.presentation.value.operational.rows).toHaveLength(6)
+    expect(step.presentation.value.operational.rows[0]!.reasons).toContain('AeroDash does not collect a wind component yet.')
     expect(step.presentation.value.groups[1]!.rows[0]!.value).toBe('370.0 m')
     const runway = useManualRunwayStore()
     const units = useUnitPreferencesStore()
