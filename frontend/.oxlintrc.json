@@ -7,5 +7,31 @@
   "categories": {
     "correctness": "error"
   },
+  "overrides": [
+    {
+      "files": ["src/core/adapters/performance.safety-factor.adapter.spec.ts"],
+      "rules": {
+        "vitest/expect-expect": ["error", { "assertFunctionNames": ["expect", "expectInvalid"] }]
+      }
+    },
+    {
+      "files": ["src/core/logic/mass-balance.logic.spec.ts"],
+      "rules": {
+        "vitest/expect-expect": [
+          "error",
+          {
+            "assertFunctionNames": [
+              "expect",
+              "expectCgPoint",
+              "expectCgState",
+              "expectLimitViolation",
+              "expectLimitViolationState",
+              "expectMigrationPath"
+            ]
+          }
+        ]
+      }
+    }
+  ],
   "ignorePatterns": ["**/stryker-tmp/**"]
 }
