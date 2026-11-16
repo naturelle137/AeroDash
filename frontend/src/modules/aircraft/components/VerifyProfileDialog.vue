@@ -12,6 +12,7 @@
         class="verify-dialog"
         role="dialog"
         aria-modal="true"
+        :aria-busy="busy"
         :aria-labelledby="titleId"
         @keydown.esc.prevent="onCancel"
       >
@@ -26,6 +27,7 @@
           <input
             ref="initialsEl"
             v-model="verifiedBy"
+            :disabled="busy"
             type="text"
             class="verify-dialog__input"
             maxlength="10"
@@ -39,6 +41,7 @@
           <span class="verify-dialog__label">POH / AFM revision</span>
           <input
             v-model="pohRevision"
+            :disabled="busy"
             type="text"
             class="verify-dialog__input"
             maxlength="40"
@@ -52,6 +55,7 @@
           <span class="verify-dialog__label">Verification date</span>
           <input
             v-model="verifiedOn"
+            :disabled="busy"
             type="date"
             :max="today"
             class="verify-dialog__input"
@@ -63,11 +67,14 @@
           Enter your initials, POH revision and a valid date on or before today (UTC).
         </p>
 
+        <p v-if="error" class="verify-dialog__hint" role="alert">{{ error }}</p>
+
         <div class="verify-dialog__actions">
           <button
             ref="cancelBtn"
             type="button"
             class="verify-dialog__btn verify-dialog__btn--cancel"
+            :disabled="busy"
             @click="onCancel"
           >
             Cancel
@@ -75,7 +82,7 @@
           <button
             type="button"
             class="verify-dialog__btn verify-dialog__btn--primary"
-            :disabled="!canConfirm"
+            :disabled="busy || !canConfirm"
             @click="onConfirm"
           >
             Verify
@@ -97,6 +104,8 @@ const titleId = `verify-${++uid}-title`
 const props = defineProps<{
   open: boolean
   registration: string
+  busy?: boolean
+  error?: string | null
 }>()
 
 const emit = defineEmits<{
@@ -145,7 +154,7 @@ watch(
 )
 
 function onConfirm(): void {
-  if (!canConfirm.value || !isVerificationDateValid(verifiedOn.value, new Date())) return
+  if (props.busy || !canConfirm.value || !isVerificationDateValid(verifiedOn.value, new Date())) return
   emit('confirm', {
     verifiedBy: verifiedBy.value.trim(),
     pohRevision: pohRevision.value.trim(),
@@ -154,6 +163,7 @@ function onConfirm(): void {
 }
 
 function onCancel(): void {
+  if (props.busy) return
   emit('cancel')
 }
 </script>
