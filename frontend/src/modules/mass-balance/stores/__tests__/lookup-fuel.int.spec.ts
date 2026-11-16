@@ -3,7 +3,8 @@
  * total tank moments; unusable fuel stays in BEM, so the usable contribution is
  * F(q) − F(u). Vectors are synthetic software references, not aircraft data.
  */
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+import * as mathAdapter from '@/core/adapters/mass-balance.adapter'
 import { setActivePinia, createPinia } from 'pinia'
 import { useMassBalanceStore } from '../mass-balance.store'
 import type { AircraftContext } from '@/core/domain/aircraft.types'
@@ -66,10 +67,40 @@ function profile(row: Row, graphType: 'arm' | 'moment' = 'arm'): AircraftContext
   } as unknown as AircraftContext
 }
 
+function profileWithStationLimit(): AircraftContext {
+  const p = profile(row('nonzero-u-burn-0'))
+  const station = {
+    name: 'Fixed-arm baggage',
+    arm: 2,
+    armLookup: [],
+    operationalLimit: 100,
+    defaultQuantity: 120,
+    unit: 'kg',
+    allowableCategories: null,
+    fuelTank: null,
+  }
+  // An excluded overloaded station keeps the available station's original index noncontiguous.
+  p.loadPoints.push(
+    { ...station, name: 'Excluded baggage', allowableCategories: ['Utility'] },
+    station,
+  )
+  return p
+}
+
+const stationWarning = {
+  id: 'WARN-MB-005',
+  severity: 'WARNING',
+  message: 'Station 2 limit exceeded',
+  context: 'MassBalance.Stations',
+  persistent: false,
+  dismissible: true,
+}
+
 const row = (id: string) => vectors.rows.find((r) => r.id === id)!
 
 describe('lookup fuel tank total-moment M&B in the store', () => {
   beforeEach(() => setActivePinia(createPinia()))
+  afterEach(() => vi.restoreAllMocks())
 
   it.each(vectors.rows.map((r) => [r.id, r] as const))(
     '%s gives the reviewed SI takeoff mass and moment',
@@ -113,6 +144,69 @@ describe('lookup fuel tank total-moment M&B in the store', () => {
     store.updateStationWeight(0, 30)
     expect(store.lastResult!.takeoffCenterOfGravityPoint.moment).toBe(1170)
     expect(store.stations[0]!.hasError).toBe(false)
+  })
+
+  it.each([false, true])(
+    'preserves an independent station warning while lookup is blocked (draft: %s)',
+    (draft) => {
+      const store = useMassBalanceStore()
+      const p = profileWithStationLimit()
+      if (draft) p.status = 'draft'
+      store.loadProfile(p)
+      expect(store.lastResult!.takeoffCenterOfGravityPoint.mass).toBe(720)
+      const calculate = vi.spyOn(mathAdapter, 'calculateMassBalance')
+
+      store.updateStationWeight(0, 9)
+      expect(calculate).not.toHaveBeenCalled()
+      expect(store.lastResult).toBeNull()
+      expect(store.uiState).toBe('ERROR_CRITICAL')
+      expect(store.notifications).toContainEqual(
+        expect.objectContaining({
+          id: 'ERR-SYS-001',
+          severity: 'ERROR',
+          message: expect.stringContaining('Lookup tank (BELOW_UNUSABLE)'),
+        }),
+      )
+      expect(store.notifications.filter((n) => n.id === 'WARN-MB-005')).toEqual([stationWarning])
+      expect(store.availableStations.map((s) => s.index)).toEqual([0, 2])
+      expect(store.stations.map((s) => s.hasError)).toEqual([true, false, false])
+      expect(store.notifications.filter((n) => n.id === 'WARN-AC-002')).toHaveLength(draft ? 1 : 0)
+
+      store.updateStationWeight(2, 80)
+      expect(calculate).not.toHaveBeenCalled()
+      expect(store.notifications.filter((n) => n.id === 'WARN-MB-005')).toEqual([])
+      expect(store.notifications).toContainEqual(
+        expect.objectContaining({
+          id: 'ERR-SYS-001',
+          message: expect.stringContaining('(BELOW_UNUSABLE)'),
+        }),
+      )
+      expect(store.lastResult).toBeNull()
+      expect(store.uiState).toBe('ERROR_CRITICAL')
+      expect(store.stations.map((s) => s.hasError)).toEqual([true, false, false])
+      expect(store.notifications.filter((n) => n.id === 'WARN-AC-002')).toHaveLength(draft ? 1 : 0)
+    },
+  )
+
+  it('keeps one station warning and the successful result on valid lookup, then clears it', () => {
+    const store = useMassBalanceStore()
+    store.loadProfile(profileWithStationLimit())
+    expect(store.lastResult!.success).toBe(true)
+    expect(store.lastResult!.takeoffCenterOfGravityPoint.mass).toBe(720)
+    expect(store.lastResult!.violations).toEqual([
+      { type: 'STATION_LIMIT_EXCEEDED', stationIndex: 2 },
+    ])
+    expect(store.notifications).toEqual([stationWarning])
+    expect(store.uiState).toBe('WARNING')
+    expect(store.stations.map((s) => s.hasError)).toEqual([false, false, false])
+
+    store.updateStationWeight(2, 80)
+    expect(store.lastResult!.success).toBe(true)
+    expect(store.lastResult!.takeoffCenterOfGravityPoint.mass).toBe(680)
+    expect(store.lastResult!.violations).toEqual([])
+    expect(store.notifications).toEqual([])
+    expect(store.uiState).toBe('VERIFIED_SAFE')
+    expect(store.stations.map((s) => s.hasError)).toEqual([false, false, false])
   })
 
   it('accepts q = u as zero usable fuel and resets to the unusable floor', () => {
