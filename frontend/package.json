@@ -63,7 +63,7 @@
     "@stryker-mutator/vitest-runner": "^9.6.1",
     "@tsconfig/node24": "^24.0.5",
     "@types/jsdom": "^28.0.3",
-    "@types/node": "^25.9.9",
+    "@types/node": "^26.6.6",
     "@vitejs/plugin-vue": "^6.0.10",
     "@vitest/coverage-v8": "^4.1.12",
     "@vitest/eslint-plugin": "^1.6.28",
