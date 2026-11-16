@@ -5,6 +5,7 @@ import { createPinia, setActivePinia } from 'pinia'
 import { testPohAircraft } from '../../../tests/fixtures/poh-aircraft'
 import { mapFleetProfileToContext } from '@/modules/mass-balance/services/fleet-profile.mapper'
 import { useMassBalanceStore } from '@/modules/mass-balance/stores/mass-balance.store'
+import { presentPerformance, presentOperationalAssessment } from '@/modules/performance/services/performance-presentation'
 import MbPrintPreview from './MbPrintPreview.vue'
 import { assembleMbPrint, canPrintMb, type MbPrintSource } from './mb-print'
 
@@ -114,6 +115,36 @@ describe('M&B print presentation with real store calculation', () => {
     expect(print.disabled).toBe(true)
     wrapper.unmount()
     expect(document.body.classList.contains('mb-print-active')).toBe(false)
+  })
+  it.each(['conditions', 'runway', 'units'] as const)('synchronously guards shared Performance %s changes and reopens a current pack', async change => {
+    const input = source()
+    input.notifications = []
+    input.performance = presentPerformance({
+      inputKey: 'initial', inputs: [], aircraft: null,
+      takeoff: { status: 'ready', massKg: 500, origin: 'current M&B' },
+      landing: { status: 'unavailable', reason: 'No actual trip arrival.' },
+      assessment: null, pressureAltitudeBasis: '', pendingReason: 'Compute raw distances.',
+      runway: { status: 'unavailable', reason: 'No declared runway.' },
+      operational: presentOperationalAssessment(null, 'No source.'),
+    })
+    const wrapper = mount(MbPrintPreview, { props: { source: input }, attachTo: document.body })
+    await wrapper.get('button').trigger('click')
+    expect(document.querySelector('.briefing-chart svg')).not.toBeNull()
+    expect(document.body.textContent).not.toContain('Current M&B notifications')
+    expect(document.body.textContent).not.toContain('Profile and source status')
+    expect(document.body.textContent).not.toContain('Applicable category limits')
+    expect(document.body.textContent).toContain('MTOM:')
+    input.performance = { ...input.performance, inputKey: change }
+    window.dispatchEvent(new Event('beforeprint'))
+    expect(document.querySelector('.mb-print-root')?.hasAttribute('data-print-invalid')).toBe(true)
+    await nextTick()
+    expect(document.body.textContent).not.toContain('500.0 kg')
+    document.querySelector<HTMLButtonElement>('.mb-print-controls button')!.click()
+    await nextTick()
+    await wrapper.get('button').trigger('click')
+    expect(document.body.textContent).toContain('500.0 kg')
+    expect(document.querySelector('.mb-print-root')?.hasAttribute('data-print-invalid')).toBe(false)
+    wrapper.unmount()
   })
   it('cancels without changing preparation and rechecks expiry before native Print', async () => {
     vi.useFakeTimers()
