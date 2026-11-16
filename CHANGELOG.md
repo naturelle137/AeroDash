@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Round printed MTOM/MZFM limits down while retaining kg and verification markers; keep actual masses rounded up (#556).
+
 - Keep Fleet verification open until persistence completes; protect pending sign-offs and allow retry after failure.
 
 - Add lookup fuel tanks to M&B as F(q) − F(u) of their total-load moment table and block invalid tables, uncovered loads or loads below unusable fuel visibly (#530).

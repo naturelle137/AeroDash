@@ -38,7 +38,7 @@ describe('M&B print presentation with real store calculation', () => {
     input.category!.maxTakeoffMass = 1000
     input.category!.envelope[0] = { mass: 1000, armOrMoment: 40 }
     let result = assembleMbPrint(input, new Date('2026-11-14'))!
-    expect(result.mtom).toBe('453.6 kg [UNVERIFIED]')
+    expect(result.mtom).toBe('453.5 kg [UNVERIFIED]')
     expect(result.envelope[0]!.horizontal).toBe('1.016 m [UNVERIFIED]')
     input.profile!.status = 'verified'
     expect(assembleMbPrint(input, new Date('2026-11-14'))!.status).toContain('verified-unattributed [UNVERIFIED]')
@@ -46,6 +46,52 @@ describe('M&B print presentation with real store calculation', () => {
     result = assembleMbPrint(input, new Date('2026-11-14'))!
     expect(result.status).toContain('expired-aged [UNVERIFIED]')
     expect(result.provenance!.revision).toBe('Synthetic')
+  })
+  it.each(['lb-in', 'kg'] as const)('rounds %s limits DOWN and actual masses UP with freshness markers', sourceUnit => {
+    setActivePinia(createPinia())
+    const profile = testPohAircraft()
+    profile.sourceUnit = sourceUnit
+    profile.status = 'verified'
+    profile.verification = { verifiedOn: '2026-11-01', verifiedBy: 'TEST', pohRevision: 'Synthetic', sourceWeighingDate: '2026-01-01' }
+    const imperial = sourceUnit === 'lb-in'
+    profile.weighingReports[0]!.bem = imperial ? 1500 : 680.388555
+    profile.weighingReports[0]!.emptyCg = imperial ? 40 : 1.016
+    profile.certificationCategories = [{
+      category: 'Normal', mtom: imperial ? 2400 : 1088.621688,
+      maxZeroFuelMass: imperial ? 2000 : 907.18474, graphType: 'arm',
+      envelope: [
+        { mass: imperial ? 1000 : 400, armOrMoment: imperial ? 20 : 0.5 },
+        { mass: imperial ? 2600 : 1200, armOrMoment: imperial ? 20 : 0.5 },
+        { mass: imperial ? 2600 : 1200, armOrMoment: imperial ? 60 : 1.5 },
+        { mass: imperial ? 1000 : 400, armOrMoment: imperial ? 60 : 1.5 },
+      ],
+    }]
+    const store = useMassBalanceStore()
+    store.loadProfile(mapFleetProfileToContext(profile))
+    const input: MbPrintSource = { state: store.uiState, ready: true, profile, aircraft: store.aircraft,
+      category: store.activeCategoryDef, result: store.lastResult, chartEnvelope: store.activeEnvelopeSI,
+      stations: store.availableStations, notifications: store.notifications }
+    expect(store.lastResult!.takeoffCenterOfGravityPoint.mass).toBeCloseTo(680.388555, 6)
+    for (const [date, marker] of [['2026-11-14', ''], ['2027-03-01', ' [UNVERIFIED]']] as const) {
+      const result = assembleMbPrint(input, new Date(date))!
+      expect(result.mtom).toBe(`1088.6 kg${marker}`)
+      expect(result.mzfm).toBe(`907.1 kg${marker}`)
+      expect(result.points.map(point => point.limit)).toEqual([
+        `MTOM: 1088.6 kg${marker}`, `MZFM: 907.1 kg${marker}`, 'Not specified',
+      ])
+      expect(result.points.map(point => point.mass)).toEqual(Array(3).fill(`680.4 kg${marker}`))
+      expect(result.marker).toBe(marker)
+      expect(result.unverified).toBe(marker !== '')
+    }
+    input.category!.maxZeroFuelMass = null
+    const absent = assembleMbPrint(input, new Date('2026-11-14'))!
+    expect(absent.mzfm).toBe('Not specified')
+    expect(absent.points[1]!.limit).toBe('Not specified')
+    profile.status = 'draft'
+    const draft = assembleMbPrint(input, new Date('2026-11-14'))!
+    expect(draft.mtom).toBe('1088.6 kg [UNVERIFIED]')
+    expect(draft.points[0]!.mass).toBe('680.4 kg [UNVERIFIED]')
+    expect(draft.mzfm).toBe('Not specified')
   })
   it('prints lb-in moment envelope rows in kg·m from the real store calculation', () => {
     // Synthetic vectors: 1 lb = 0.45359237 kg, 1 in = 0.0254 m. 50000 / 100000 lb·in =

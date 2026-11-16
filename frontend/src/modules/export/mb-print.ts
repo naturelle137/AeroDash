@@ -3,7 +3,7 @@ import type { FuelPresentation } from '@/modules/fuel-endurance/services/use-fue
 import type { AircraftProfile } from '@/core/adapters/aircraft.schema'
 import { normalizeMassToKg, normalizeArmToM, normalizeMomentToSI, parseSourceUnit } from '@/core/logic/unit-normalization'
 import { evaluateVerificationFreshness } from '@/core/logic/profile-verification'
-import { formatArm, formatMassConservative } from '@/core/logic/display-rounding'
+import { formatArm, formatMassConservative, formatMassLimitConservative } from '@/core/logic/display-rounding'
 import type { AircraftContext, CategoryDefinition, EnvelopePoint, MathCoreResult, MassBalanceState, Notification, StationInput } from '@/modules/mass-balance/stores/mass-balance.types'
 
 export interface MbPrintSource {
@@ -37,6 +37,7 @@ export function assembleMbPrint(source: MbPrintSource, now: Date) {
   const unverified = freshness.state !== 'fresh'
   const marker = unverified ? ' [UNVERIFIED]' : ''
   const mass = (value: number) => `${formatMassConservative(value, 1)} kg${marker}`
+  const massLimit = (value: number) => `${formatMassLimitConservative(value, 1)} kg${marker}`
   const arm = (value: number) => `${formatArm(value, 3)} m${marker}`
   return {
     performance: source.performance ? JSON.parse(JSON.stringify(source.performance)) as PerformancePresentation : null,
@@ -76,9 +77,9 @@ export function assembleMbPrint(source: MbPrintSource, now: Date) {
       { label: 'Takeoff', point: result.takeoffCenterOfGravityPoint },
       { label: 'Zero fuel', point: result.zeroFuelCenterOfGravityPoint },
       { label: 'All usable fuel burned', point: result.landingCenterOfGravityPoint },
-    ].map(({ label, point }) => ({ label, mass: mass(point.mass), cg: arm(point.arm), limit: label === 'Takeoff' ? `MTOM: ${mass(normalizeMassToKg(category.maxTakeoffMass, massUnit))}` : label === 'Zero fuel' && category.maxZeroFuelMass !== null ? `MZFM: ${mass(normalizeMassToKg(category.maxZeroFuelMass, massUnit))}` : 'Not specified' })),
-    mtom: mass(normalizeMassToKg(category.maxTakeoffMass, massUnit)),
-    mzfm: category.maxZeroFuelMass === null ? 'Not specified' : mass(normalizeMassToKg(category.maxZeroFuelMass, massUnit)),
+    ].map(({ label, point }) => ({ label, mass: mass(point.mass), cg: arm(point.arm), limit: label === 'Takeoff' ? `MTOM: ${massLimit(normalizeMassToKg(category.maxTakeoffMass, massUnit))}` : label === 'Zero fuel' && category.maxZeroFuelMass !== null ? `MZFM: ${massLimit(normalizeMassToKg(category.maxZeroFuelMass, massUnit))}` : 'Not specified' })),
+    mtom: massLimit(normalizeMassToKg(category.maxTakeoffMass, massUnit)),
+    mzfm: category.maxZeroFuelMass === null ? 'Not specified' : massLimit(normalizeMassToKg(category.maxZeroFuelMass, massUnit)),
     graphType: category.graphType,
     envelope: category.envelope.map(p => ({
       mass: mass(normalizeMassToKg(p.mass, massUnit)),
