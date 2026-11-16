@@ -13,6 +13,8 @@ describe('unit preferences and physical lengths', () => {
   })
   it('converts positive and negative quantities without relabelling', () => {
     expect(convertLengthText('1000', 'ft', 'm')).toBe('304.8')
+    expect(convertLengthText('1e3', 'ft', 'm')).toBe('304.8')
+    expect(convertLengthText('3.048E2', 'm', 'ft')).toBe('1000')
     expect(convertLengthText('304.8', 'm', 'ft')).toBe('1000')
     expect(convertLengthText('-100', 'ft', 'm')).toBe('-30.48')
     expect(convertLengthText(' 0 ', 'm', 'ft')).toBe('0')
@@ -21,7 +23,11 @@ describe('unit preferences and physical lengths', () => {
     expect(isLengthUnit('ft')).toBe(true)
     expect(isLengthUnit('nm')).toBe(false)
   })
-  it.each(['', 'Infinity', 'NaN', '1x', '0x10', '1e999'])('leaves invalid text %s for field validation', (text) => {
+  it.each(['', 'Infinity', 'NaN', '1x', '0x10', '1e999', '9'.repeat(400)])('leaves invalid text %s for field validation', (text) => {
     expect(convertLengthText(text, 'ft', 'm')).toBeNull()
   })
+})
+
+it('keeps conversion overflow invalid instead of silently relabelling a finite input', () => {
+  expect(convertLengthText('1e308', 'm', 'ft')).toBe('Infinity')
 })

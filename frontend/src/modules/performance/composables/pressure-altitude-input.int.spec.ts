@@ -107,3 +107,15 @@ it('keeps runway provenance when a copied elevation is converted', () => {
   expect(input.copiedFromRunway.value).toBe(true)
   stop()
 })
+
+it('converts accepted scientific-notation elevations instead of relabelling them', () => {
+  const { input, stop } = withInput()
+  input.method.value = 'qnh-elevation'
+  input.draft.qnh = '1013.25'
+  input.draft.elevation = '1e3'
+  const before = input.resolution.value
+  input.draft.elevationUnit = 'm'
+  expect(input.draft.elevation).toBe('304.8')
+  expect(input.resolution.value).toEqual(before)
+  stop()
+})

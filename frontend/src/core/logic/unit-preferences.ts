@@ -47,7 +47,7 @@ export function recoverUnitPreferences(raw: string | null): UnitPreferencesRecov
 /** Fractional digits kept after converting entered text; error ≤ 0.00005 of the target unit. */
 export const CONVERTED_TEXT_DECIMALS = 4
 
-const DECIMAL = /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)$/
+const DECIMAL = /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?$/i
 
 /**
  * Converts the same physical length when the pilot changes a unit. Returns null
