@@ -7,6 +7,7 @@ import type {
 import { useTheme } from '@/shared/composables/useTheme'
 
 const props = defineProps<{
+  print?: boolean
   result: MathCoreResult | null
   envelope: EnvelopePoint[]
   graphType: 'arm' | 'moment'
@@ -195,13 +196,13 @@ const isCritical = computed(() => props.severity === 'critical')
 const isNeutral = computed(() => props.severity === null)
 
 const palette = computed(() => {
-  const dark = theme.value === 'dark'
+  const dark = !props.print && theme.value === 'dark'
   switch (props.severity) {
     case 'critical':
       return {
         pt: dark ? '#ef9a9a' : '#d32f2f',
         line: dark ? '#ef9a9a' : '#d32f2f',
-        envFill: 'url(#cg-crosshatch)',
+        envFill: props.print ? 'url(#print-cg-crosshatch)' : 'url(#cg-crosshatch)',
         envStroke: dark ? '#ef9a9a' : '#d32f2f',
       }
     case 'warning':
@@ -298,7 +299,7 @@ const ariaLabel = computed(() => {
              reads as unsafe in monochrome / colour-blind / glare conditions,
              independent of the red hue (DES-UX §3.3). -->
         <pattern
-          id="cg-crosshatch"
+          :id="print ? 'print-cg-crosshatch' : 'cg-crosshatch'"
           patternUnits="userSpaceOnUse"
           width="5"
           height="5"
@@ -307,7 +308,7 @@ const ariaLabel = computed(() => {
           <line x1="0" y1="0" x2="0" y2="5" :stroke="palette.envStroke" stroke-width="1.2" opacity="0.4" />
           <line x1="0" y1="0" x2="5" y2="0" :stroke="palette.envStroke" stroke-width="1.2" opacity="0.4" />
         </pattern>
-        <marker id="cg-arrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+        <marker :id="print ? 'print-cg-arrow' : 'cg-arrow'" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
           <polygon points="0,0 8,3 0,6" :fill="palette.line" />
         </marker>
       </defs>
@@ -415,7 +416,7 @@ const ariaLabel = computed(() => {
         :stroke="palette.line"
         :stroke-width="pathStroke"
         :stroke-dasharray="pathDash"
-        :marker-end="showMigrationArrow ? 'url(#cg-arrow)' : undefined"
+        :marker-end="showMigrationArrow ? (print ? 'url(#print-cg-arrow)' : 'url(#cg-arrow)') : undefined"
       />
 
       <!-- ─── CG point markers ────────────────────────────────────────── -->

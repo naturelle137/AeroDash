@@ -64,7 +64,7 @@ function isOptionalOccupant(index: number): boolean {
   return !!lp && resolveStationKind(lp) === 'occupant' && !requiresOccupancy(lp)
 }
 
-const printSource = computed(() => ({
+const mbSource = computed(() => ({
       state: store.uiState,
       ready: fleetStore.fleetLoadState === 'READY' && !pendingSelection.value,
       aircraft: store.aircraft,
@@ -631,7 +631,7 @@ const performanceContext = computed<PerformanceStepContext>(() => ({
   notReadyReason: pendingSelection.value
     ? 'Confirm or cancel the pending aircraft selection in section 01 first.'
     : 'Load the fleet successfully before computing.',
-  profile: printSource.value.profile,
+  profile: mbSource.value.profile,
   category: store.activeCategory,
   ...flightPrepMassSources({
     hasAircraft: !!store.aircraft,
@@ -644,6 +644,7 @@ const performanceContext = computed<PerformanceStepContext>(() => ({
   }),
 }))
 const performanceStep = usePerformanceStep(() => performanceContext.value)
+const printSource = computed(() => ({ ...mbSource.value, performance: performanceStep.presentation.value }))
 
 // ---------------------------------------------------------------------------
 // ViewModel — single deterministic mapping of uiState → presentational flags

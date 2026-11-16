@@ -86,7 +86,7 @@ test('current mass-limit differences update without stale values, cached offline
   await expect(takeoff).toHaveText('Below MTOM by 200.0 kg')
 
   await select('D-LIMA')
-  await expect(page.getByRole('button', { name: 'M&B print preview', exact: true })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Briefing Pack', exact: true })).toBeVisible()
 
   // Below both limits: TOM 800 (1000), ZFM 800 (900).
   await load('300')
@@ -418,8 +418,8 @@ test('lb-in moment envelope, armLookup and calculated points share kg·m axes', 
   await shot('moment-lb-in-utility')
 
   // Printed category limits use the same kg·m normalization: 65000 / 90000 lb·in.
-  await page.getByRole('button', { name: 'M&B print preview', exact: true }).click()
-  const sheet = page.getByRole('dialog', { name: 'M&B print preview' })
+  await page.getByRole('button', { name: 'Briefing Pack', exact: true }).click()
+  const sheet = page.getByRole('dialog', { name: 'Briefing Pack preview' })
   await expect(sheet).toContainText('748.881 kg·m')
   await expect(sheet).toContainText('1036.912 kg·m')
   await expect(sheet).not.toContainText('1651.000 kg·m') // length-only 65000 lb·in

@@ -110,7 +110,7 @@ describe('M&B print presentation with real store calculation', () => {
     await nextTick()
     expect(document.body.textContent).not.toContain('500.0 kg')
     expect(document.body.textContent).toContain('Preview invalidated')
-    const print = [...document.querySelectorAll('button')].find(b => b.textContent === 'Print M&B')!
+    const print = [...document.querySelectorAll('button')].find(b => b.textContent === 'Print Briefing Pack')!
     expect(print.disabled).toBe(true)
     wrapper.unmount()
     expect(document.body.classList.contains('mb-print-active')).toBe(false)

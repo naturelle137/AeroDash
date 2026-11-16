@@ -1,3 +1,4 @@
+import type { PerformancePresentation } from '@/modules/performance/services/performance-presentation'
 import type { FuelPresentation } from '@/modules/fuel-endurance/services/use-fuel-planning'
 import type { AircraftProfile } from '@/core/adapters/aircraft.schema'
 import { normalizeMassToKg, normalizeArmToM, normalizeMomentToSI, parseSourceUnit } from '@/core/logic/unit-normalization'
@@ -6,6 +7,7 @@ import { formatArm, formatMassConservative } from '@/core/logic/display-rounding
 import type { AircraftContext, CategoryDefinition, MathCoreResult, MassBalanceState, Notification, StationInput } from '@/modules/mass-balance/stores/mass-balance.types'
 
 export interface MbPrintSource {
+  performance?: PerformancePresentation
   fuel?: FuelPresentation
   state: MassBalanceState
   ready: boolean
@@ -26,8 +28,8 @@ export function canPrintMb(source: MbPrintSource): boolean {
 }
 
 /** Presentation only: retain the store's results and notification text without recalculation. */
-export function assembleMbPrint(source: MbPrintSource, now: Date, includeFuel = false) {
-  if ((includeFuel && (!source.fuel || source.fuel.reason)) || !canPrintMb(source) || !source.profile || !source.aircraft || !source.category || !source.result) return null
+export function assembleMbPrint(source: MbPrintSource, now: Date) {
+  if (!canPrintMb(source) || !source.profile || !source.aircraft || !source.category || !source.result) return null
   const { profile, aircraft, category, result } = source
   const { massUnit, armUnit } = parseSourceUnit(aircraft.sourceUnit)
   const freshness = evaluateVerificationFreshness(profile, now)
@@ -36,11 +38,21 @@ export function assembleMbPrint(source: MbPrintSource, now: Date, includeFuel = 
   const mass = (value: number) => `${formatMassConservative(value, 1)} kg${marker}`
   const arm = (value: number) => `${formatArm(value, 3)} m${marker}`
   return {
-    fuel: includeFuel && source.fuel ? {
+    performance: source.performance ? JSON.parse(JSON.stringify(source.performance)) as PerformancePresentation : null,
+    chart: {
+      result: JSON.parse(JSON.stringify(result)) as MathCoreResult,
+      envelope: category.envelope.map(p => ({
+        mass: normalizeMassToKg(p.mass, massUnit),
+        armOrMoment: category.graphType === 'arm' ? normalizeArmToM(p.armOrMoment, armUnit) : normalizeMomentToSI(p.armOrMoment, massUnit, armUnit),
+      })),
+      severity: source.state === 'WARNING' ? 'warning' as const : 'success' as const,
+    },
+    fuel: source.fuel ? {
       ...source.fuel,
-      rows: source.fuel.rows.map(row => ({ ...row, value: `${row.value}${marker}` })),
+      rows: source.fuel.rows.filter(row => !source.fuel?.reason || ['Usable fuel', 'Excluded unusable fuel'].includes(row.label)).map(row => ({ ...row, value: `${row.value}${marker}` })),
       warnings: [...source.fuel.warnings],
     } : null,
+    fuelReason: source.fuel?.reason ?? (!source.fuel ? 'Current fuel plan is unavailable.' : null),
     generated: `${now.toISOString()} (UTC)`,
     identity: `${aircraft.registration} — ${aircraft.manufacturer} ${aircraft.model}`,
     category: category.category,
@@ -66,7 +78,7 @@ export function assembleMbPrint(source: MbPrintSource, now: Date, includeFuel = 
       { label: 'Takeoff', point: result.takeoffCenterOfGravityPoint },
       { label: 'Zero fuel', point: result.zeroFuelCenterOfGravityPoint },
       { label: 'All usable fuel burned', point: result.landingCenterOfGravityPoint },
-    ].map(({ label, point }) => ({ label, mass: mass(point.mass), cg: arm(point.arm) })),
+    ].map(({ label, point }) => ({ label, mass: mass(point.mass), cg: arm(point.arm), limit: label === 'Takeoff' ? `MTOM: ${mass(normalizeMassToKg(category.maxTakeoffMass, massUnit))}` : label === 'Zero fuel' && category.maxZeroFuelMass !== null ? `MZFM: ${mass(normalizeMassToKg(category.maxZeroFuelMass, massUnit))}` : 'Not specified' })),
     mtom: mass(normalizeMassToKg(category.maxTakeoffMass, massUnit)),
     mzfm: category.maxZeroFuelMass === null ? 'Not specified' : mass(normalizeMassToKg(category.maxZeroFuelMass, massUnit)),
     graphType: category.graphType,

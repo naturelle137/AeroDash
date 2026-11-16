@@ -92,29 +92,29 @@ and envelope checks (arm and moment graphs) use the corrected contribution; the
 all-usable-burned endpoint remains the zero-fuel point. Endpoints and straight
 segments do not validate a nonlinear full-flight path.
 
-## M&B print summary
+## Current briefing pack
 
-The P2 export module assembles presentation data from the current M&B result,
-category, available loading, notifications and selected Fleet profile. It reuses
-unit adapters, display rounding and profile freshness evaluation without new
-calculation math. A preview retains one session-only snapshot; any source change
-invalidates it. Eligibility is checked at opening, Print click and `beforeprint`.
-The native event sets a synchronous DOM/CSS guard on failure so pending Vue
-renders cannot leak old results into print media. Preparation chrome is excluded
-from print while this workflow is mounted. No upload, PDF dependency, profile
-verification mutation or notification acknowledgement is performed. Tabular
-limits replace graphics; the all-usable-fuel-burned endpoint
-is distinct from trip arrival and does not assess flight or landing suitability.
+The P2 export module snapshots current M&B loading/results/notifications, fuel
+presentation and the shared Performance presentation from live getters. It does
+no safety calculation or DOM scraping. Limits use the existing SI adapters;
+the printed chart reuses CGEnvelopeChart with normalized envelope/result data,
+a white-background palette and distinct SVG definition IDs. Named MTOM/MZFM
+limits sit beside their applicable calculation rows. Aircraft identity and
+per-value unverified markers remain; a separate source-status chapter is omitted.
 
-The preparation view owns one session-only fuel composable shared with its fuel
-card. Its typed read-only presentation contains raw-input identity, current results,
-warnings and unsupported-CG reasons; export performs no fuel calculation. Fuel
-inclusion starts unchecked and remains an explicit choice even if the plan becomes
-invalid. A possible trip with a reserve shortfall remains eligible; invalid inputs
-or an impossible trip block combined printing. Both print checks read live source
-dependencies through a getter before any pending parent render. Fuel changes and
-include-choice changes invalidate the snapshot synchronously. Printed fuel values
-reuse profile markers and distinguish arrival inventory from reserve budget margin.
+The pack automatically includes current fuel and Performance sections. Invalid
+or unconfigured fuel retains current inventory and an explicit reason while
+suppressing successful trip/endurance outputs. Performance inputKey changes
+invalidate the whole snapshot, including unsaved runway/condition changes. An
+unavailable landing result does not erase independently valid takeoff results.
+The persistent action explains blocked M&B eligibility and reserves content
+space above mobile navigation and its safe area.
+
+Opening, Print click and beforeprint check live eligibility. Source changes
+synchronously invalidate the snapshot and set a DOM/CSS guard before queued Vue
+renders can expose stale numbers to native printing. The snapshot fingerprint
+is reactive so a new current snapshot can be opened after invalidation.
+Cancellation preserves inputs. Browser printing needs no upload or PDF library.
 
 ## Application lifecycle
 
