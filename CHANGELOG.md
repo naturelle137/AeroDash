@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Engineering
 
+- Record the local at-rest threat model and bounded CTO acceptance of plaintext persistence, with encryption alternatives and reopening conditions (refs #287).
+
 - Keep new local profile owners null with lossless v3 migration and document the pre-OIDC secrets policy (refs #288).
 
 - Apply the existing picomatch CVE exception to pnpm audit until the same 2026-11-24 UTC deadline, preserving other audit failures (refs #581).

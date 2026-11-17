@@ -1,5 +1,7 @@
 # AeroDash Software Requirements - General & System Requirements (SYS)
 
+Local persistence security tradeoffs and residual-risk ownership: [ADR-015](../architecture/adr/015-local-at-rest-risk.md).
+
 ## Requirements
 
 ### REQ-SYS-001: Offline Functionality
