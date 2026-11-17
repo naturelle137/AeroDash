@@ -106,11 +106,12 @@ test('live partial edits recover, warnings follow their values and inline units 
     // Inspect the captured artifact, including each value's adjacent warning.
     const pdfText = execFileSync('pdftotext', ['-layout', pdf, '-'], { encoding: 'utf8' }).replace(/\s+/g, ' ')
     expect(pdfText).toContain('Flight Preparation Briefing Pack')
+    expect(pdfText).toContain('1962 ft, derived from QNH and field elevation (unrounded value used)')
     for (const control of ['Back to preparation', 'Print Briefing Pack', 'Select aircraft', 'Planning method']) {
       expect(pdfText).not.toContain(control)
     }
     const qnhWarning = 'WARNING WARN-UI-001: QNH 940 hPa is outside the standard 950–1100 hPa range. Check the value.'
-    for (const value of ['247.0 m', '347.0 m', '430.6 m', '530.6 m']) {
+    for (const value of ['247.1 m', '347.1 m', '430.6 m', '530.6 m']) {
       expect(pdfText).toContain(`${value} ${qnhWarning}`)
     }
     expect(pdfText.split(qnhWarning)).toHaveLength(5)

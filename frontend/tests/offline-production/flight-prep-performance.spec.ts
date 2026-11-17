@@ -49,7 +49,7 @@ test('Flight Prep shares current phase masses and converted units online and cac
   async function shot(name: string) {
     await performance.getByRole('region', { name: 'Raw POH table distances', exact: true }).scrollIntoViewIfNeeded()
     const path = info.outputPath(`${name}.png`)
-    await page.screenshot({ path })
+    await page.screenshot({ path, animations: 'disabled' })
     await info.attach(name, { path, contentType: 'image/png' })
   }
   await payload.fill('100'); await payload.blur()
@@ -133,7 +133,7 @@ test('Flight Prep shares current phase masses and converted units online and cac
   await performance.getByRole('radio', { name: 'Derive from QNH and field elevation', exact: true }).check()
   await expect(takeoff.locator('dd')).toHaveText(['228.5 m', '328.5 m'])
   await performance.getByLabel('Pressure-altitude field elevation unit', { exact: true }).selectOption('m')
-  await expect(elevation).toHaveValue('454.36536')
+  await expect(elevation).toHaveValue('454.3654')
   await expect(takeoff.locator('dd')).toHaveText(['228.5 m', '328.5 m'])
   for (const invalid of ['', '849.99', '1100.01', 'Infinity']) {
     await qnh.fill(invalid)
@@ -151,7 +151,7 @@ test('Flight Prep shares current phase masses and converted units online and cac
     await derived.scrollIntoViewIfNeeded()
     expect(await page.evaluate(() => document.body.scrollWidth)).toBeLessThanOrEqual(viewport.width)
     const path = info.outputPath(`qnh-${viewport.width}.png`)
-    await page.screenshot({ path }); await info.attach(`qnh-${viewport.width}`, { path, contentType: 'image/png' })
+    await page.screenshot({ path, animations: 'disabled' }); await info.attach(`qnh-${viewport.width}`, { path, contentType: 'image/png' })
   }
   await page.setViewportSize(originalViewport)
   // Restore the copied elevation before checking saved-runway invalidation.
@@ -180,9 +180,14 @@ test('Flight Prep shares current phase masses and converted units online and cac
   await qnh.fill('1013'); await elevation.fill('0')
   await expect(derived).toContainText('Derived pressure altitude: 7 ft')
   await expect(takeoff.locator('dd')).toHaveText(['210.1 m', '310.1 m'])
-  await derived.scrollIntoViewIfNeeded()
-  const offlinePath = info.outputPath('qnh-warmed-offline.png')
-  await page.screenshot({ path: offlinePath }); await info.attach('qnh-warmed-offline', { path: offlinePath, contentType: 'image/png' })
+  for (const viewport of [{ width: 1440, height: 1000 }, { width: 440, height: 894 }, { width: 320, height: 894 }]) {
+    await page.setViewportSize(viewport)
+    await derived.scrollIntoViewIfNeeded()
+    expect(await page.evaluate(() => document.body.scrollWidth)).toBeLessThanOrEqual(viewport.width)
+    const path = info.outputPath(`qnh-warmed-offline-${viewport.width}.png`)
+    await page.screenshot({ path, animations: 'disabled' }); await info.attach(`qnh-warmed-offline-${viewport.width}`, { path, contentType: 'image/png' })
+  }
+  await page.setViewportSize(originalViewport)
   await conditions()
 
   // Exact max, upper excursion, exact minimum and below-min benefit cap.
