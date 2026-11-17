@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Engineering
 
+- Apply the existing picomatch CVE exception to pnpm audit until the same 2026-11-24 UTC deadline, preserving other audit failures (refs #581).
+
 - Propose an advisory-specific picomatch tooling-risk exception expiring 2026-11-24 UTC, with reachability evidence and CTO acceptance required (#581).
 
 - Replace unsupported missing-distance formulas and fixed CAA attribution with source eligibility and per-value provenance requirements (#301).

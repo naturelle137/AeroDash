@@ -122,3 +122,49 @@ The security workflow and its existing PR warn-only / push-and-schedule hard-fai
 policy remain unchanged. A green PR alone does not establish actual develop
 acceptance. The parent owns the sole fresh review and subsequent CI decision;
 no alert is dismissed and no issue is closed by this proposal.
+
+## Newly propagated pnpm detection (2026-11-17)
+
+HQ1866 accepted the OSV tooling-risk decision at 2026-11-17T17:03:21.257060Z
+(`var/jobs/1866/security-risk-acceptance.json`), following review HQ1895 with no
+fix round. That delivered decision and its OSV configuration remain unchanged.
+PR #583 run 44144122587/job 134254475312 then failed pnpm audit on the same
+GHSA-fc5q-39xc-vjpf / CVE-2026-112366: two high root paths through lint-staged
+and markdownlint-cli2/micromatch. OSV ignores do not configure pnpm.
+
+A fresh check of the [official registry](https://registry.npmjs.org/picomatch/latest)
+and [GitHub advisory API](https://api.github.com/advisories/GHSA-fc5q-39xc-vjpf)
+still returned latest 4.0.7, affected `<=4.0.7`, and no first patched version
+(advisory updated 2026-11-17T15:56:44Z). No supported complete fix was available.
+This is the same accepted Node tooling availability risk, with no new risk
+class, vulnerability repair or expiry extension.
+
+The dependency-audit Run step invokes `scripts/security/pnpm-audit.mjs`.
+Before **2026-11-24T00:00:00Z** it audits a byte-identical lockfile in a
+temporary directory whose package manifest sets only
+`pnpm.auditConfig.ignoreCves: [CVE-2026-112366]`. The directory is removed
+afterwards, including on failure. At that instant and afterwards it runs the
+normal audit in the repository without an ignore. The clock comes from the process, with no CLI or
+environment expiry override. The [pnpm 10 audit documentation](https://pnpm.io/10.x/cli/audit)
+documents CVE ignores; the project uses pnpm 10.32.1. Actual CLI/source inspection
+showed that `audit --ignore` persists a package.json ignore and returns success
+before checking remaining findings. It is therefore unsuitable here. The temporary
+manifest uses pnpm's documented `auditConfig.ignoreCves` filtering instead.
+PR/push high and scheduled moderate thresholds remain unchanged. Exit statuses,
+registry failures, spawn failures and signals remain failures. No global ignore,
+ignore-unfixable or ignore-registry-errors setting is added. The lockfile,
+browser application and OSV TOML remain byte identical.
+
+CI runs `node --test scripts/security/pnpm-audit.test.mjs` before the wrapper.
+Injected-clock tests cover one millisecond before, exactly at and after expiry;
+fake audit processes cover unrelated high/critical findings, scheduled moderate,
+clean post-expiry scans and process/network failure statuses. Spawn errors,
+signals and invalid clocks also fail closed. Tests check lockfile identity,
+project-file preservation and cleanup after errors; no ReDoS payload is executed.
+
+Remove this wrapper exception as soon as a supported complete fix covers both
+resolved picomatch lines, or at the existing expiry, whichever comes first.
+HQ1866/AeroDash CTO and the weekly security rotation retain removal ownership.
+HQ1892 owns this new mechanism's sole fresh review, at most one named fix round,
+protected integration and actual develop CI. That review does not reopen the
+accepted OSV risk decision. Issue #581 remains open.
