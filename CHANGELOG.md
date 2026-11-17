@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Engineering
 
+- Install the PDF text extractor in CI so cached-offline PDF content assertions run at both viewport widths.
 - Align the roadmap with delivered Flight Preparation, briefing print and bounded fuel-unit recovery (#565).
 
 ### Added

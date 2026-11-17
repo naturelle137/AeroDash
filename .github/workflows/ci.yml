@@ -195,6 +195,12 @@ jobs:
       - name: Install Playwright browsers (Chromium only)
         run: pnpm --filter frontend exec playwright install chromium
 
+      - name: Install PDF text extractor
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y poppler-utils
+          pdftotext -v
+
       - name: Build frontend
         run: pnpm --filter frontend run build
 
