@@ -10,7 +10,7 @@ Feature: Raw POH table inspection
     When I explicitly verify the Test POH profile in Fleet
     Then the Performance navigation opens a usable table lookup
     And four raw Test distances are computed inside the envelope
-    And editing each input immediately clears the raw distances
+    And editing inputs immediately updates or withholds raw distances
     And blank, nonfinite, nonpositive and out-of-envelope lookup inputs stay blocked
     And the reviewed tables survive a browser reload and exchange download
     And the raw POH browser evidence is captured

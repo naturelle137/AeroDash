@@ -12,14 +12,13 @@ Feature: Explicit pressure-altitude method
     When the pilot enters pressure altitude "1000" ft directly
     Then the takeoff roll is "220.0 m" using pressure altitude "1000 ft, entered directly"
     When the pilot derives pressure altitude from QNH "1000" "hPa" and field elevation "457.2" "m"
-    Then no raw distances are shown
-    And the derived pressure altitude is "1855 ft" from field elevation "457.2 m (1500.0 ft)" entered by the pilot
+    Then the derived pressure altitude is "1855 ft" from field elevation "457.2 m (1500.0 ft)" entered by the pilot
     And the takeoff roll is "228.5 m" using pressure altitude "1855 ft, derived from QNH and field elevation"
     When the pilot changes the QNH to "1001"
-    Then no raw distances are shown
+    Then the QNH edit updates raw distances live
     When the pilot switches back to direct pressure-altitude entry
     Then the direct pressure altitude still reads "1000"
-    And no raw distances are shown
+    And the takeoff roll is "220.0 m" using pressure altitude "1000 ft, entered directly"
     And the pressure-altitude evidence is captured as "derived-<width>"
     When the pilot reloads the app
     Then no pressure-altitude method or derived value remains

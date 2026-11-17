@@ -135,11 +135,6 @@ export function presentPerformance(input: PresentationInput): PerformancePresent
     groupPresentation('takeoff', input.takeoff, assessment.takeoff),
     groupPresentation('landing', input.landing, assessment.landing),
   ]
-  for (const group of groups) {
-    if (group.status === 'success') {
-      for (const row of group.rows) Object.assign(row, { warnings: [...(input.warnings ?? [])] })
-    }
-  }
   const anySuccess = groups.some((group) => group.status === 'success')
   return {
     ...common,
@@ -149,6 +144,6 @@ export function presentPerformance(input: PresentationInput): PerformancePresent
       pressureAltitude: input.pressureAltitudeBasis,
       temperature: `${formatNumber(assessment.conditions.temperatureC)} °C`,
     },
-    groups,
+    groups: groups.map(group => ({ ...group, rows: group.rows.map(row => ({ ...row, warnings: [...(input.warnings ?? [])] })) })),
   }
 }

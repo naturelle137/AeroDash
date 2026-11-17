@@ -2,6 +2,7 @@ import type { PerformancePresentation } from '@/modules/performance/services/per
 import type { FuelPresentation } from '@/modules/fuel-endurance/services/use-fuel-planning'
 import type { AircraftProfile } from '@/core/adapters/aircraft.schema'
 import { normalizeMassToKg, normalizeArmToM, normalizeMomentToSI, parseSourceUnit } from '@/core/logic/unit-normalization'
+import { requiresOccupancy } from '@/core/logic/station-kind'
 import { evaluateVerificationFreshness } from '@/core/logic/profile-verification'
 import { formatArm, formatMassConservative, formatMassLimitConservative } from '@/core/logic/display-rounding'
 import type { AircraftContext, CategoryDefinition, EnvelopePoint, MathCoreResult, MassBalanceState, Notification, StationInput } from '@/modules/mass-balance/stores/mass-balance.types'
@@ -49,7 +50,7 @@ export function canPrintMb(source: MbPrintSource): boolean {
 function valueWarnings(source: MbPrintSource, contexts: readonly string[]): Notification[] {
   return source.notifications.filter(n => n.severity !== 'INFO' &&
     (contexts.includes(n.context ?? '') || n.context === 'Aircraft.Status' ||
-      n.context === 'MassBalance.Plausibility' || n.context === 'MassBalance.Validation'))
+      n.context === 'MassBalance.Validation'))
 }
 
 /** Presentation only: retain the store's results and notification text without recalculation. */
@@ -96,7 +97,9 @@ export function assembleMbPrint(source: MbPrintSource, now: Date) {
     sourceUnit: profile.sourceUnit,
     datum: profile.referenceDatumDescription,
     loading: source.stations.map(s => ({
-      warnings: valueWarnings(source, []).concat(source.notifications.filter(n => n.id === 'WARN-MB-005' && n.message === `Station ${s.index} limit exceeded`)),
+      warnings: valueWarnings(source, []).concat(source.notifications.filter(n =>
+        (n.id === 'WARN-MB-005' && n.message === `Station ${s.index} limit exceeded`) ||
+        (n.id === 'WARN-UQ-001' && s.weight === 0 && !!aircraft.loadPoints[s.index] && requiresOccupancy(aircraft.loadPoints[s.index]!)))),
       name: s.name, quantity: `${s.weight} ${aircraft.loadPoints[s.index]?.unit ?? ''}${marker}`,
     })),
     points: [

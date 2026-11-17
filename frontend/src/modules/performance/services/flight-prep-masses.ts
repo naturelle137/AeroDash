@@ -52,7 +52,7 @@ function landingSource(input: FlightPrepMassInput): MassSource {
   }
   const arrival = input.arrival
   if (!arrival) {
-    return { status: 'unavailable', reason: `No trip-arrival mass. ${input.fuelReason ?? 'Enter the trip in Fuel & Endurance (section 05).'} The all-usable-fuel-burned endpoint is not used for landing.` }
+    return { status: 'unavailable', reason: `No trip-arrival mass. ${input.fuelReason ?? 'Enter the trip in Fuel & Endurance (section 03).'} The all-usable-fuel-burned endpoint is not used for landing.` }
   }
   if (!arrival.ok) return { status: 'unavailable', reason: `Trip-arrival mass is invalid: ${arrival.reason}` }
   if (!Number.isFinite(arrival.arrivalMassKg) || arrival.arrivalMassKg <= 0) {

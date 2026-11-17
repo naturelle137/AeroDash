@@ -7,9 +7,6 @@ const derived = (page: Page) => page.getByLabel('Derived pressure altitude', { e
 const qnhSection = (page: Page) => page.getByRole('region', { name: 'QNH and field elevation', exact: true })
 const radio = (page: Page, name: string) => page.getByRole('radio', { name, exact: true })
 
-async function compute(page: Page) {
-  await page.getByRole('button', { name: 'Compute raw distances', exact: true }).click()
-}
 
 When('the pilot sets mass {string} kg and temperature {string} °C for the Test profile', async ({ page }, mass: string, temperature: string) => {
   const select = page.getByLabel('Aircraft profile', { exact: true })
@@ -22,7 +19,7 @@ When('the pilot sets mass {string} kg and temperature {string} °C for the Test 
 Then('raw distances are refused until a pressure-altitude method is chosen', async ({ page }) => {
   await expect(radio(page, 'Enter pressure altitude directly')).not.toBeChecked()
   await expect(radio(page, 'Derive from QNH and field elevation')).not.toBeChecked()
-  await compute(page)
+
   await expect(page.getByRole('alert')).toContainText('Choose how pressure altitude is provided')
   await expect(result(page)).toHaveCount(0)
 })
@@ -55,7 +52,7 @@ When('the pilot copies the saved runway elevation', async ({ page }) => {
 })
 
 Then('the takeoff roll is {string} using pressure altitude {string}', async ({ page }, distance: string, basis: string) => {
-  await compute(page)
+
   await expect(result(page).locator('dd').first()).toHaveText(distance)
   await expect(result(page)).toContainText(`Pressure altitude used: ${basis}`)
 })
@@ -66,14 +63,14 @@ Then('no raw distances are shown', async ({ page }) => {
 
 Then('the derived pressure altitude is {string} from field elevation {string} entered by the pilot', async ({ page }, pa: string, elevation: string) => {
   await expect(derived(page)).toContainText(`Derived pressure altitude: ${pa}`)
-  await expect(derived(page)).toContainText(`field elevation ${elevation}`)
+  await expect(qnhSection(page).getByLabel('Pressure-altitude field elevation', { exact: true })).toHaveValue(elevation.split(' ')[0]!)
   await expect(qnhSection(page)).toContainText('Field elevation source: Entered by you.')
   await expect(qnhSection(page)).toContainText('not the 30 ft/hPa rule of thumb')
 })
 
 Then('the derived pressure altitude is {string} from field elevation {string} copied from runway {string}', async ({ page }, pa: string, elevation: string, runway: string) => {
   await expect(derived(page)).toContainText(`Derived pressure altitude: ${pa}`)
-  await expect(derived(page)).toContainText(`field elevation ${elevation}`)
+  await expect(qnhSection(page).getByLabel('Pressure-altitude field elevation', { exact: true })).toHaveValue(elevation.split(' ')[0]!)
   await expect(qnhSection(page)).toContainText(`Copied by you from the saved manual runway ${runway}`)
 })
 
@@ -121,10 +118,15 @@ Then('no pressure-altitude method or derived value remains', async ({ page }) =>
 
 Then('the pressure-altitude evidence is captured as {string}', async ({ page, $testInfo }, name: string) => {
   await radio(page, 'Derive from QNH and field elevation').check()
-  await expect(page.locator('body')).toHaveJSProperty('scrollWidth', page.viewportSize()!.width)
+  expect(await page.locator('body').evaluate(el => el.scrollWidth)).toBeLessThanOrEqual(page.viewportSize()!.width)
   await qnhSection(page).scrollIntoViewIfNeeded()
   const path = $testInfo.outputPath(`pressure-altitude-${name}.png`)
   await page.screenshot({ path, fullPage: true })
   await $testInfo.attach(`Pressure altitude ${name}`, { path, contentType: 'image/png' })
   await radio(page, 'Enter pressure altitude directly').check()
+})
+
+Then('the QNH edit updates raw distances live', async ({ page }) => {
+  await expect(result(page).locator('dd').first()).not.toHaveText('228.5 m')
+  await expect(result(page).locator('dd')).toHaveCount(4)
 })

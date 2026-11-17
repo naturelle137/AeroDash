@@ -49,7 +49,7 @@ test('complete current briefing pack with chart, persistent action and native st
     await runway.getByLabel('Surface type', { exact: true }).selectOption('paved')
     await runway.getByLabel('Surface condition', { exact: true }).selectOption('dry')
     await runway.getByRole('button', { name: 'Save runway inputs', exact: true }).click()
-    await perf.getByRole('button', { name: 'Compute raw distances', exact: true }).click()
+
     for (const fraction of [0, .5, 1]) {
       await page.evaluate(f => window.scrollTo(0, document.documentElement.scrollHeight * f), fraction)
       await expect.poll(() => page.evaluate(() => window.scrollY > 0)).toBe(fraction > 0)
@@ -94,7 +94,7 @@ test('complete current briefing pack with chart, persistent action and native st
     await expect(preview).not.toContainText('220.0 m')
     await page.keyboard.press('Escape')
     await action.click()
-    await expect(preview).toContainText('Not computed for the current inputs')
+    await expect(preview).toContainText('221.0 m')
     await expect(preview).not.toContainText('220.0 m')
     await page.keyboard.press('Escape')
   }

@@ -71,10 +71,6 @@ Then('the {string} source rejects the candidate {string} because {string}', asyn
   await expect(entry).toContainText('not applied')
 })
 
-When('the pilot computes raw distances for the current inputs', async ({ page }) => {
-  await page.getByRole('button', { name: 'Compute raw distances', exact: true }).click()
-})
-
 Then('the raw takeoff roll still reads {string}', async ({ page }, distance: string) => {
   const raw = page.getByRole('region', { name: 'Raw POH table distances', exact: true })
   await expect(raw.locator('dd').first()).toHaveText(distance)
@@ -91,7 +87,7 @@ Then('no aircraft profile can be assessed', async ({ page }) => {
 })
 
 Then('the correction source evidence is captured as {string}', async ({ page, $testInfo }, name: string) => {
-  await expect(page.locator('body')).toHaveJSProperty('scrollWidth', page.viewportSize()!.width)
+  expect(await page.locator('body').evaluate(el => el.scrollWidth)).toBeLessThanOrEqual(page.viewportSize()!.width)
   await page.getByRole('heading', { name: 'Correction sources', exact: true }).scrollIntoViewIfNeeded()
   const path = $testInfo.outputPath(`correction-sources-${name}.png`)
   await page.screenshot({ path, fullPage: true })

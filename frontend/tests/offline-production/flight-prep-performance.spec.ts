@@ -41,8 +41,7 @@ test('Flight Prep shares current phase masses and converted units online and cac
   const preferences = performance.getByRole('group', { name: 'Unit preferences' })
   const runway = performance.getByRole('form', { name: 'Manual runway', exact: true })
   const pa = performance.getByLabel('Pressure altitude (ft)', { exact: true })
-  async function compute() { await performance.getByRole('button', { name: 'Compute raw distances', exact: true }).click() }
-  async function conditions() {
+    async function conditions() {
     await performance.getByRole('radio', { name: 'Enter pressure altitude directly', exact: true }).check()
     await pa.fill('1000')
     await performance.getByLabel('Temperature (°C)', { exact: true }).fill('10')
@@ -61,26 +60,26 @@ test('Flight Prep shares current phase masses and converted units online and cac
   await expect(preferences.getByLabel('Declared runway distances', { exact: true })).toHaveValue('m')
   await expect(runway.getByLabel('TORA unit', { exact: true })).toHaveValue('m')
   await expect(runway.getByLabel('Field elevation unit', { exact: true })).toHaveValue('ft')
-  await conditions(); await compute()
+  await conditions();
   await expect(takeoff.locator('dd')).toHaveText(['220.0 m', '320.0 m'])
   await expect(landing).toContainText('No trip-arrival mass')
-  await method.selectOption('direct'); await burn.fill('20'); await compute()
+  await method.selectOption('direct'); await burn.fill('20');
   await expect(landing.locator('dd')).toHaveText(['400.0 m', '500.0 m'])
   await expect(takeoff).toContainText('900.0 kg')
   await expect(landing).toContainText('880.0 kg')
   await shot('shared-masses-online')
   await burn.fill('999')
-  await expect(takeoff.locator('dd')).toHaveCount(0)
-  await compute()
+  await expect(takeoff.locator('dd')).toHaveCount(2)
+
   await expect(takeoff.locator('dd')).toHaveCount(2)
   await expect(landing.locator('dd')).toHaveCount(0)
-  await burn.fill('20'); await compute()
+  await burn.fill('20');
   await payload.fill('101'); await payload.blur()
-  await expect(takeoff.locator('dd')).toHaveCount(0)
+  await expect(takeoff.locator('dd').first()).toHaveText('221.0 m')
   await payload.fill('100'); await payload.blur()
   await page.getByLabel('Certification category', { exact: true }).selectOption('Utility')
-  await expect(takeoff.locator('dd')).toHaveCount(0)
-  await compute()
+  await expect(takeoff.locator('dd').first()).toHaveText('220.0 m')
+
   await expect(takeoff.locator('dd')).toHaveCount(2)
   await page.getByLabel('Certification category', { exact: true }).selectOption('Normal')
 
@@ -103,13 +102,12 @@ test('Flight Prep shares current phase masses and converted units online and cac
   await expect(performance.getByLabel('QNH unit', { exact: true })).toHaveValue('hPa')
   await performance.getByLabel('QNH', { exact: true }).fill('1013.25')
   await performance.getByRole('button', { name: 'Use saved manual runway elevation' }).click()
-  await compute()
+
   // 1000 ft elevation at 1013.25 hPa -> PA 991.267 ft, TOR 219.91267 m.
   await expect(takeoff.locator('dd')).toHaveText(['219.9 m', '319.9 m'])
   await performance.getByLabel('Pressure-altitude field elevation unit', { exact: true }).selectOption('ft')
   await expect(performance.getByLabel('Pressure-altitude field elevation', { exact: true })).toHaveValue('1000')
-  await expect(takeoff.locator('dd')).toHaveCount(0)
-  await compute(); await expect(takeoff.locator('dd')).toHaveText(['219.9 m', '319.9 m'])
+  await expect(takeoff.locator('dd')).toHaveText(['219.9 m', '319.9 m'])
   await runway.getByLabel('Runway designator', { exact: true }).fill('19')
   await expect(takeoff.locator('dd')).toHaveCount(0)
   await runway.getByRole('button', { name: /Discard/ }).click()
@@ -125,19 +123,19 @@ test('Flight Prep shares current phase masses and converted units online and cac
   await expect(performance.getByLabel('QNH', { exact: true })).toHaveValue('')
   await expect(performance.getByLabel('Pressure-altitude field elevation', { exact: true })).toHaveValue('')
   await expect(performance.getByLabel('Pressure-altitude field elevation unit', { exact: true })).toHaveValue('m')
-  await conditions(); await method.selectOption('direct'); await burn.fill('20'); await compute()
+  await conditions(); await method.selectOption('direct'); await burn.fill('20');
   await expect(takeoff.locator('dd')).toHaveText(['220.0 m', '320.0 m'])
   await expect(landing.locator('dd')).toHaveText(['400.0 m', '500.0 m'])
   await shot('shared-masses-offline')
   // Exact max, upper excursion, exact minimum and below-min benefit cap.
   for (const [load, expected] of [['200', '320.0 m'], ['201', null], ['0', '120.0 m']] as const) {
-    await payload.fill(load); await payload.blur(); await compute()
+    await payload.fill(load); await payload.blur();
     if (expected === null) await expect(takeoff).toContainText('above the table maximum')
     else await expect(takeoff.locator('dd').first()).toHaveText(expected)
   }
-  await tank.fill('0'); await tank.blur(); await burn.fill('0'); await compute()
+  await tank.fill('0'); await tank.blur(); await burn.fill('0');
   await expect(takeoff.locator('dd').first()).toContainText('120.0 m')
-  await expect(takeoff).toContainText('capped at the documented 800.0 kg distance')
+  await expect(takeoff).not.toContainText('capped at the documented')
   await performance.getByRole('button', { name: 'Assess correction sources' }).click()
   await expect(performance.getByRole('region', { name: 'Correction sources', exact: true })).toContainText('No wind, surface or slope correction can be applied')
   await shot('source-blocked-offline')
@@ -150,7 +148,7 @@ test('Flight Prep shares current phase masses and converted units online and cac
   await expect(takeoff.locator('dd')).toHaveCount(0)
   await page.getByRole('button', { name: 'Continue anyway', exact: true }).click()
   await expect(performance).toContainText('D-NEXT')
-  await compute()
+
   await expect(performance).toContainText('require exactly one table')
   await expect(takeoff.locator('dd')).toHaveCount(0)
   await expect(preferences.getByLabel('Field elevation', { exact: true })).toHaveValue('m')

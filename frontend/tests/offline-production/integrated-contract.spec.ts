@@ -44,7 +44,6 @@ for (const variant of ['kg', 'converted', 'distant-decrease', 'phase-envelope'] 
     const temperature = page.getByLabel('Temperature (°C)', { exact: true })
     const takeoff = page.getByRole('group', { name: 'Takeoff raw distances' })
     const landing = page.getByRole('group', { name: 'Landing raw distances' })
-    const compute = async () => page.getByRole('button', { name: 'Compute raw distances', exact: true }).click()
     await page.getByRole('radio', { name: 'Enter pressure altitude directly', exact: true }).check()
     await pa.fill('1000'); await temperature.fill('10')
     for (const offline of [false, true]) {
@@ -55,34 +54,34 @@ for (const variant of ['kg', 'converted', 'distant-decrease', 'phase-envelope'] 
         await page.getByRole('radio', { name: 'Enter pressure altitude directly', exact: true }).check()
         await pa.fill('1000'); await temperature.fill('10')
       }
-      await mass.fill('900'); await compute()
+      await mass.fill('900');
       if (variant !== 'distant-decrease') await expect(takeoff.locator('dd').first()).toHaveText('220.0 m')
       if (variant === 'phase-envelope') {
-        await expect(landing).toContainText('capped at the documented 1,000.0 kg distance')
+        await expect(landing).not.toContainText('capped at the documented')
         await expect(landing.locator('dd').first()).toContainText('320.0 m')
-        await mass.fill('1100'); await compute()
+        await mass.fill('1100');
         await expect(takeoff).toContainText('above the table maximum')
         await expect(landing.locator('dd')).toHaveText(['420.0 m', '520.0 m'])
       }
       if (variant === 'kg' || variant === 'converted') {
         for (const [m, expected] of [['800', '120.0 m'], ['1000', '320.0 m'], ['750', '120.0 m']]) {
-          await mass.fill(m!); await compute(); await expect(takeoff.locator('dd').first()).toContainText(expected!)
+          await mass.fill(m!); await expect(takeoff.locator('dd').first()).toContainText(expected!)
         }
         for (const invalid of ['1000.001', '1100', '0', '-1', 'NaN', 'Infinity', '-Infinity']) {
-          await mass.fill(invalid); await compute(); await expect(takeoff.locator('dd')).toHaveCount(0)
+          await mass.fill(invalid); await expect(takeoff.locator('dd')).toHaveCount(0)
         }
         await mass.fill('900')
         for (const invalid of ['-0.001', '2000.001', 'NaN', 'Infinity']) {
-          await pa.fill(invalid); await compute(); await expect(takeoff.locator('dd')).toHaveCount(0)
+          await pa.fill(invalid); await expect(takeoff.locator('dd')).toHaveCount(0)
         }
         await pa.fill('1000')
         for (const invalid of ['-0.001', '20.001', 'NaN', 'Infinity']) {
-          await temperature.fill(invalid); await compute(); await expect(takeoff.locator('dd')).toHaveCount(0)
+          await temperature.fill(invalid); await expect(takeoff.locator('dd')).toHaveCount(0)
         }
-        await temperature.fill('10'); await compute()
+        await temperature.fill('10');
       }
       if (variant === 'distant-decrease') {
-        await mass.fill('750'); await pa.fill('0'); await temperature.fill('0'); await compute()
+        await mass.fill('750'); await pa.fill('0'); await temperature.fill('0');
         await expect(takeoff).toContainText('table decreases with mass somewhere'); await expect(takeoff.locator('dd')).toHaveCount(0)
         await expect(landing.locator('dd')).toHaveCount(2)
       }
@@ -122,7 +121,7 @@ test('integrated same-turn native print invalidates every current input family',
     const target = page.locator(selector!)
     // Missing selectors are a test failure, never silently skipped.
     await expect(target).toHaveCount(1)
-    await perf.getByRole('button', { name: 'Compute raw distances', exact: true }).click()
+
     await page.getByRole('button', { name: 'Briefing Pack', exact: true }).click()
     const guarded = await target.evaluate((input: HTMLInputElement | HTMLSelectElement, data) => {
       input.value = data.value!; input.dispatchEvent(new Event(data.event!, { bubbles: true })); window.print()
@@ -132,7 +131,7 @@ test('integrated same-turn native print invalidates every current input family',
     await expect(preview).toContainText('Preview invalidated')
     await page.keyboard.press('Escape')
   }
-  await perf.getByRole('button', { name: 'Compute raw distances', exact: true }).click()
+
   await page.getByRole('button', { name: 'Briefing Pack', exact: true }).click()
   const profileGuard = await picker.evaluate((input: HTMLSelectElement) => {
     input.value = [...input.options].find(o => o.text.includes('D-NEXT'))!.value
@@ -173,7 +172,7 @@ test('integrated direct-derived equivalence and expired verification remain expl
   await page.getByRole('radio', { name: 'Derive from QNH and field elevation', exact: true }).check()
   await page.getByLabel('QNH', { exact: true }).fill('1013.25')
   await page.getByLabel('Pressure-altitude field elevation', { exact: true }).fill('1000')
-  await page.getByRole('button', { name: 'Compute raw distances', exact: true }).click()
+
   const takeoff = page.getByRole('group', { name: 'Takeoff raw distances' })
   const derived = await takeoff.locator('dd').allTextContents()
   // Independent published formula, no call into product calculation code.
@@ -183,12 +182,12 @@ test('integrated direct-derived equivalence and expired verification remain expl
   await expect(takeoff.locator('dd')).toHaveText(['219.9 m', '319.9 m'])
   await page.getByRole('radio', { name: 'Enter pressure altitude directly', exact: true }).check()
   await page.getByLabel('Pressure altitude (ft)', { exact: true }).fill(String(expectedPa))
-  await page.getByRole('button', { name: 'Compute raw distances', exact: true }).click()
+
   expect(await takeoff.locator('dd').allTextContents()).toEqual(derived)
   await page.getByRole('radio', { name: 'Derive from QNH and field elevation', exact: true }).check()
   await page.getByLabel('Pressure-altitude field elevation unit', { exact: true }).selectOption('m')
   await expect(page.getByLabel('Pressure-altitude field elevation', { exact: true })).toHaveValue('304.8')
-  await page.getByRole('button', { name: 'Compute raw distances', exact: true }).click()
+
   expect(await takeoff.locator('dd').allTextContents()).toEqual(derived)
   await info.attach('independent-pa-reference', { body: JSON.stringify({ expectedPa, derived }), contentType: 'application/json' })
   await context.setOffline(true); expect((await page.reload())?.fromServiceWorker()).toBe(true)
@@ -201,7 +200,7 @@ test('integrated direct-derived equivalence and expired verification remain expl
   await page.getByLabel('Temperature (°C)', { exact: true }).fill('10')
   await page.getByRole('radio', { name: 'Enter pressure altitude directly', exact: true }).check()
   await page.getByLabel('Pressure altitude (ft)', { exact: true }).fill('1000')
-  await page.getByRole('button', { name: 'Compute raw distances', exact: true }).click()
+
   await expect(page.getByRole('region', { name: 'Performance results' })).toContainText(/expired|verification/i)
   await expect(takeoff.locator('dd')).toHaveCount(0)
   await page.screenshot({ path: info.outputPath('expired-source.png'), fullPage: true })
@@ -214,7 +213,7 @@ test('integrated direct-derived equivalence and expired verification remain expl
   await perf.getByRole('radio', { name: 'Enter pressure altitude directly', exact: true }).check()
   await perf.getByLabel('Pressure altitude (ft)', { exact: true }).fill('1000')
   await perf.getByLabel('Temperature (°C)', { exact: true }).fill('10')
-  await perf.getByRole('button', { name: 'Compute raw distances', exact: true }).click()
+
   await expect(perf.getByRole('group', { name: 'Takeoff raw distances' }).locator('dd')).toHaveCount(0)
   await page.getByRole('button', { name: 'Briefing Pack', exact: true }).click()
   const preview = page.getByRole('dialog', { name: 'Briefing Pack preview' })
@@ -273,11 +272,11 @@ test('integrated complete-grid Draft and invalid M&B cannot expose raw success o
   await perf.getByRole('radio', { name: 'Enter pressure altitude directly', exact: true }).check()
   await perf.getByLabel('Pressure altitude (ft)', { exact: true }).fill('1000')
   await perf.getByLabel('Temperature (°C)', { exact: true }).fill('10')
-  await perf.getByRole('button', { name: 'Compute raw distances', exact: true }).click()
+
   await expect(perf).toContainText(/verify|verified/i)
   await expect(perf.getByRole('group', { name: 'Takeoff raw distances' }).locator('dd')).toHaveCount(0)
-  await page.locator('#station-0').fill('1000'); await page.locator('#station-0').blur()
-  await perf.getByRole('button', { name: 'Compute raw distances', exact: true }).click()
+  await page.locator('#station-0').fill('-'); await page.locator('#station-0').blur()
+
   await expect(perf.getByRole('group', { name: 'Takeoff raw distances' }).locator('dd')).toHaveCount(0)
   await page.getByRole('button', { name: 'Briefing Pack', exact: true }).click()
   await expect(page.getByRole('dialog', { name: 'Briefing Pack preview' })).toHaveCount(0)

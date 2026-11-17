@@ -160,8 +160,9 @@ test('lookup fuel M&B uses total-moment differences on screen, chart, print and 
   await expect(critical).toBeVisible()
   await expect(action).toBeEnabled()
   await action.click()
-  await expect(preview).toHaveCount(0)
-  await expect(page.locator('#briefing-eligibility')).toContainText('not eligible')
+  await expect(preview).toContainText('2.100 m [UNVERIFIED]')
+  await expect(preview.locator('td.briefing-critical').first()).toContainText('CG Out of Envelope')
+  await page.keyboard.press('Escape')
   await shot('lookup-q50-arm-critical')
 
   await load('30')

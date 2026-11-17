@@ -78,8 +78,11 @@ function paError(field: PressureAltitudeField): string | undefined {
 .pa-method { border: 1px solid var(--color-border); border-radius: 8px; padding: 1rem; margin: 1rem 0; display: grid; gap: .5rem; min-width: 0; }
 .fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 1rem; }
 label { display: grid; gap: .5rem; }
+.value-unit > * { min-width: 0; }
+.value-unit input, .value-unit select { width: 100%; box-sizing: border-box; }
+.value-unit label { overflow-wrap: anywhere; }
 .value-unit { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .5rem; align-items: end; }
-.unit-field { max-width: 8rem; }
+.unit-field { max-width: 6rem; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 .field { display: grid; gap: .5rem; align-content: start; }
 input, select, button { font: inherit; padding: .75rem; min-height: 44px; border-radius: 6px; border: 1px solid var(--color-border); background: var(--color-surface); color: inherit; min-width: 0; }
@@ -89,6 +92,7 @@ input, select, button { font: inherit; padding: .75rem; min-height: 44px; border
 button:disabled { opacity: .5; cursor: default; }
 .field-error { color: var(--color-error, #b3261e); margin: 0; }
 .derived strong { font-size: 1.25rem; }
+summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; }
 .method-limits { font-size: .9rem; overflow-wrap: anywhere; }
 p { line-height: 1.6; }
 [role="alert"] { padding: .75rem; border-left: 4px solid var(--color-warning, #ba7b24); }
