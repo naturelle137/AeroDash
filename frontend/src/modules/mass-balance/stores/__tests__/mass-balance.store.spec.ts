@@ -281,9 +281,11 @@ describe('MassBalance Store', () => {
     expect(store.uiState).toBe('ERROR_CRITICAL')
     expect(store.aircraft).not.toBeNull()
     expect(store.lastResult).toBeNull()
-    expect(store.notifications).toHaveLength(1)
-    expect(store.notifications[0]!.severity).toBe('CRITICAL')
-    expect(store.notifications[0]!.message).toContain('Calculation failed')
+    expect(store.notifications).toContainEqual(expect.objectContaining({
+      id: 'CRIT-SYS-002',
+      severity: 'CRITICAL',
+      message: expect.stringContaining('Calculation failed'),
+    }))
   })
 
   it('runs initial calculation on profile load', () => {
