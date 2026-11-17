@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Engineering
 
+- Replace unsupported missing-distance formulas and fixed CAA attribution with source eligibility and per-value provenance requirements (#301).
+
 - Add a complete German privacy notice and align the English technical inventory and erasure caveats with current local storage (#290).
 
 - Install the PDF text extractor in CI so cached-offline PDF content assertions run at both viewport widths.
