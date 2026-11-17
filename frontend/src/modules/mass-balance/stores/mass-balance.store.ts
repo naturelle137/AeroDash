@@ -424,6 +424,19 @@ export const useMassBalanceStore = defineStore('massBalance', {
         }
       }
 
+      // Fuel tanks are checked raw, before normalization can clamp
+      // negatives or fall back to a profile unit/density, and block the whole result.
+      const lookupBlocks: Notification[] = []
+      for (const s of this.stations) s.hasError = false
+      for (const s of this.availableStations) {
+        const def = this.aircraft.loadPoints[s.index]
+        const block = def && fuelInputReason(def, s.weight, this.aircraft.sourceUnit)
+        if (!def || !block) continue
+        const station = this.stations[s.index]
+        if (station) station.hasError = true
+        lookupBlocks.push(lookupFuelNotification(def.name, block.code, block.reason))
+      }
+
       // Find the active weighing report (most recent by validFrom)
       const reports = [...this.aircraft.weighingReports].sort((a, b) =>
         b.validFrom.localeCompare(a.validFrom),
@@ -441,6 +454,18 @@ export const useMassBalanceStore = defineStore('massBalance', {
         this.notifications = [
           ...(draftProfileWarning ? [draftProfileWarning] : []),
           crit,
+          ...lookupBlocks,
+          ...this._collectPlausibilityWarnings(),
+          ...stationLimitViolations.map((v) => stationLimitNotification(v.stationIndex)),
+        ]
+        this.lastResult = null
+        return
+      }
+
+      if (lookupBlocks.length > 0) {
+        this.notifications = [
+          ...(draftProfileWarning ? [draftProfileWarning] : []),
+          ...lookupBlocks,
           ...this._collectPlausibilityWarnings(),
           ...stationLimitViolations.map((v) => stationLimitNotification(v.stationIndex)),
         ]
@@ -456,29 +481,6 @@ export const useMassBalanceStore = defineStore('massBalance', {
       // arms in inches would otherwise yield a wrong CG and a false in-envelope
       // verdict (H-005 / H-006 class defect).
       const { massUnit: profileMassUnit, armUnit } = parseSourceUnit(this.aircraft!.sourceUnit)
-
-      // Fuel tanks are checked raw, before normalization can clamp
-      // negatives or fall back to a profile unit/density, and block the whole result.
-      const lookupBlocks: Notification[] = []
-      for (const s of this.stations) s.hasError = false
-      for (const s of this.availableStations) {
-        const def = this.aircraft.loadPoints[s.index]
-        const block = def && fuelInputReason(def, s.weight, this.aircraft.sourceUnit)
-        if (!def || !block) continue
-        const station = this.stations[s.index]
-        if (station) station.hasError = true
-        lookupBlocks.push(lookupFuelNotification(def.name, block.code, block.reason))
-      }
-      if (lookupBlocks.length > 0) {
-        this.notifications = [
-          ...(draftProfileWarning ? [draftProfileWarning] : []),
-          ...lookupBlocks,
-          ...this._collectPlausibilityWarnings(),
-          ...stationLimitViolations.map((v) => stationLimitNotification(v.stationIndex)),
-        ]
-        this.lastResult = null
-        return
-      }
 
       // Fail-closed on an unrecognized fuel type: surface a WARNING instead of
       // silently substituting the conservative fallback density. Collected here

@@ -22,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Show raw fuel input errors alongside a missing weighing report and clear each blocker independently (#534).
+
 - Retain independent occupant and station-limit warnings when the weighing report is missing or calculation throws (#534).
 
 - Preserve independent occupant and station-limit warnings when adapter validation blocks M&B calculation (#534).
