@@ -1,5 +1,21 @@
 # AeroDash Software Requirements - Airport Database (AP)
 
+## Scope and source prerequisite
+
+The shipped airport workflow is manual-only; no integrated airport source,
+adapter, dataset or airport-currentness CI exists. `savedAt` is local save
+metadata and does not verify an external source. REQ-AP-001, -002, -003, -005,
+-006 and -007 describe future database behaviour.
+
+The [AIRAC/source contract](../regulatory/airac-airport-data-contract.md) defines
+the prerequisite: an accepted named authorised dataset/provider, coverage,
+licence, delivery interface, source version/publication/effective/expiry and
+NOTAM policy, and an actual consumer before dataset-freshness CI. Missing source
+facts remain unknown; retrieved parameters remain `Unverified` independently of
+calendar position. No generic 28-day validity is assumed. #284 remains open on
+source hold owned by HQ terminal 1892, with event-based reassessment on a complete
+accepted source/consumer contract.
+
 ## Requirements
 
 ### REQ-AP-001: Airport Data Object Definition

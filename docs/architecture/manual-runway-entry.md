@@ -61,3 +61,16 @@ always states that no runway assessment is available. No surface/slope/wind
 correction, safety factor, margin or Go result is computed until source-backed
 correction selection and operational factors exist. Raw POH table distances are
 unchanged by runway entry.
+
+## Save time and source currency
+
+`savedAt` serializes the save date supplied by P2 (defaulting to the local clock).
+The store's `current` state means valid saved values equal the current form;
+it does not mean current source information. No external source is verified.
+Publication, effective date, expiry and NOTAM coverage remain unknown to AeroDash.
+Saving, re-saving, editing or offline recovery cannot establish source currency.
+The existing Performance and briefing consumers retain manual provenance.
+
+The [AIRAC/source contract](../regulatory/airac-airport-data-contract.md) defines
+the future source prerequisite and separate currency/verification boundaries.
+It introduces no schema migration or automatic expiry for manual records.
