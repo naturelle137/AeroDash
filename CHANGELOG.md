@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Engineering
+
+- Align the roadmap with delivered Flight Preparation, briefing print and bounded fuel-unit recovery (#565).
+
 ### Added
 
 - Complete current Flight Preparation briefing pack with printed load chart, current fuel/runway/Performance states and a persistent mobile action (#517).
