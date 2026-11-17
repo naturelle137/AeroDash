@@ -36,6 +36,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Report inaccessible Web Storage and enumeration errors as incomplete erasure while continuing other deletions (refs #289).
+
 - Show raw fuel input errors alongside a missing weighing report and clear each blocker independently (#534).
 
 - Retain independent occupant and station-limit warnings when the weighing report is missing or calculation throws (#534).

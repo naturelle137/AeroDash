@@ -162,87 +162,66 @@ export async function wipeAllLocalData(): Promise<WipeReport> {
     })
   }
 
-  const local = clearPrefixedKeys('local')
-  const session = clearPrefixedKeys('session')
-  for (const key of local.failedKeys) {
-    failures.push({ store: 'localStorage', key, detail: 'removeItem failed' })
-  }
-  for (const key of session.failedKeys) {
-    failures.push({ store: 'sessionStorage', key, detail: 'removeItem failed' })
-  }
+  const local = clearPrefixedKeys('localStorage', failures)
+  const session = clearPrefixedKeys('sessionStorage', failures)
 
   return {
     profilesDeleted,
     indexedDbCleared,
-    localStorageKeysCleared: local.cleared,
-    sessionStorageKeysCleared: session.cleared,
+    localStorageKeysCleared: local,
+    sessionStorageKeysCleared: session,
     failures,
     complete: failures.length === 0,
     clearedAt: new Date().toISOString(),
   }
 }
 
-/**
- * Remove every `aerodash`-prefixed key from the chosen Web Storage backend.
- *
- * Returns the sorted list of keys actually removed plus any keys whose
- * `removeItem` threw. A missing backend (private mode, sandboxed iframe)
- * yields empty lists and is **not** treated as a failure — there is nothing
- * to erase in that case.
- */
-function clearPrefixedKeys(kind: 'local' | 'session'): {
-  cleared: string[]
-  failedKeys: string[]
-} {
-  const storage = kind === 'local' ? safeLocalStorage() : safeSessionStorage()
-  if (storage === null) return { cleared: [], failedKeys: [] }
+/** Remove owned keys best-effort; inaccessible data may still exist. */
+function clearPrefixedKeys(
+  store: 'localStorage' | 'sessionStorage',
+  failures: WipeFailure[],
+): string[] {
   const cleared: string[] = []
-  const failedKeys: string[] = []
-  // Iterate by index, but read keys into an array first because removeItem
-  // shifts the indices of remaining entries (mutation during iteration).
   const keys: string[] = []
-  for (let i = 0; i < storage.length; i += 1) {
-    const k = storage.key(i)
-    if (k !== null && isAerodashKey(k)) keys.push(k)
+  let storage: Storage
+  try {
+    const backend = globalThis[store]
+    if (backend == null) return cleared
+    storage = backend
+  } catch (err) {
+    failures.push({ store, key: null, detail: err instanceof Error ? err.message : 'Storage access failed' })
+    return cleared
   }
-  for (const k of keys) {
+
+  // Snapshot keys before removal shifts indices. Keep discovered keys even
+  // when enumeration fails, without claiming the whole store was cleared.
+  try {
+    const length = storage.length
+    for (let i = 0; i < length; i += 1) {
+      try {
+        const key = storage.key(i)
+        if (key !== null && isAerodashKey(key)) keys.push(key)
+      } catch (err) {
+        failures.push({ store, key: null, detail: err instanceof Error ? err.message : 'Storage key enumeration failed' })
+      }
+    }
+  } catch (err) {
+    failures.push({ store, key: null, detail: err instanceof Error ? err.message : 'Storage length read failed' })
+  }
+  for (const key of keys) {
     try {
-      storage.removeItem(k)
-      cleared.push(k)
-    } catch {
-      // Record the residue so the caller can report an incomplete erasure.
-      failedKeys.push(k)
+      storage.removeItem(key)
+      cleared.push(key)
+    } catch (err) {
+      failures.push({ store, key, detail: err instanceof Error ? err.message : 'removeItem failed' })
     }
   }
-  cleared.sort()
-  failedKeys.sort()
-  return { cleared, failedKeys }
+  return cleared.sort()
 }
 
 function isAerodashKey(key: string): boolean {
   // Match `aerodash-`, `aerodash:`, `aerodash.`, or bare `aerodash`.
   return /^aerodash([-:.]|$)/i.test(key)
-}
-
-// A `null` backend (private mode / sandboxed iframe / throwing accessor) is
-// treated as "nothing to erase", not a failure: a storage facility that cannot
-// be opened now could never have persisted an `aerodash` key in the first
-// place. This invariant must be revisited if a future store can hold personal
-// data while being intermittently inaccessible.
-function safeLocalStorage(): Storage | null {
-  try {
-    return typeof localStorage !== 'undefined' ? localStorage : null
-  } catch {
-    return null
-  }
-}
-
-function safeSessionStorage(): Storage | null {
-  try {
-    return typeof sessionStorage !== 'undefined' ? sessionStorage : null
-  } catch {
-    return null
-  }
 }
 
 // ─── Bulk JSON Export (REQ-SYS-015) ───────────────────────────────────────
