@@ -17,7 +17,6 @@ Feature: Correction source assessment
     And the "Runway surface" source names the candidate "Supplement S4 (650 kg)" with the reason "already for grass"
     And the "Runway surface" source rejects the candidate "Section 5 (basic 630 kg)" because "Written for 630 kg"
     And the "Wind" source rejects the candidate "Supplement S4 (650 kg)" because "adds metres per knot"
-    When the pilot computes raw distances for the current inputs
     Then the raw takeoff roll still reads "220.0 m"
     And the correction source evidence is captured as "assessed-<width>"
     When the pilot changes the LDA to "500" "m"

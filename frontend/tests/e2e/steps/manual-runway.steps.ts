@@ -31,7 +31,8 @@ async function save(page: Page) {
 }
 async function openPerformance(page: Page) {
   // Client-side navigation keeps working without network once the shell is loaded.
-  await page.locator('nav a[href="/performance"]:visible').first().click()
+  await page.locator('nav a[href="/"]:visible').first().click()
+  await page.getByRole('link', { name: 'Open Performance', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'Manual runway', exact: true })).toBeVisible()
 }
 

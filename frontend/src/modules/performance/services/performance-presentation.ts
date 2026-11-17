@@ -62,7 +62,7 @@ export interface PerformanceGroupPresentation {
   readonly status: 'success' | 'blocked' | 'not-computed'
   /** Exact reason for a blocked or unavailable group. */
   readonly reason: string | null
-  readonly rows: readonly { readonly label: string; readonly value: string; readonly note: string | null }[]
+  readonly rows: readonly { readonly label: string; readonly value: string; readonly note: string | null; readonly warnings?: readonly string[] }[]
 }
 
 export type RunwayPresentation =
@@ -97,15 +97,14 @@ function groupPresentation(id: PerformanceGroupId, source: MassSource, group: Gr
     rows: group.distances.map((row) => ({
       label: row.label,
       value: `${formatNumber(row.distance)} m`,
-      note: row.massTreatment === 'benefit-capped'
-        ? `Mass below the table minimum ${formatNumber(row.massRange.min)} kg: capped at the documented ${formatNumber(row.lookupMass)} kg distance for these conditions (no shorter value; not an extrapolation).`
-        : null,
+      note: null,
     })),
   }
 }
 
 export type PresentationInput = {
   inputKey: string
+  warnings?: readonly string[]
   inputs: PerformancePresentation['inputs']
   aircraft: PerformancePresentation['aircraft']
   takeoff: MassSource
@@ -145,6 +144,6 @@ export function presentPerformance(input: PresentationInput): PerformancePresent
       pressureAltitude: input.pressureAltitudeBasis,
       temperature: `${formatNumber(assessment.conditions.temperatureC)} °C`,
     },
-    groups,
+    groups: groups.map(group => ({ ...group, rows: group.rows.map(row => ({ ...row, warnings: [...(input.warnings ?? [])] })) })),
   }
 }

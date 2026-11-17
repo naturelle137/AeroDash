@@ -9,7 +9,7 @@ conditions actually used, independent phase groups,
 runway declaration, operational unavailability with current source assessment/reasons,
 and scope. Consumers render current data without calculation.
 Read `step.presentation.value` through a live getter before snapshot or print;
-compare `inputKey` to invalidate an existing snapshot. Slice B owns print guards.
+compare `inputKey` to invalidate an existing snapshot. Native print guards also read live inputs.
 
 Takeoff uses the current valid M&B takeoff mass. Landing uses only the current
 valid fuel-planning trip arrival. Missing/invalid arrival blocks landing while
@@ -19,8 +19,10 @@ arrival mass. Invalid M&B blocks both. No second profile or mass entry is needed
 
 The input key includes profile content, category, loading, raw fuel-plan identity,
 both mass sources, PA method/values/provenance, temperature, runway draft/saved
-record and units. Changes synchronously remove computed results; equal resultant
-mass does not preserve a result after changing its underlying preparation.
+record and units. Changes synchronously recompute the current result, including blocked
+partial edits; equal resultant mass does not preserve an older input identity.
+Fuel/Endurance precedes Performance in DOM and sticky navigation. Both preparation
+and standalone controls calculate live without a submit trigger.
 
 ## Lower and upper bounds
 
@@ -31,8 +33,8 @@ trilinear interpolation; it is never rounded down to a breakpoint.
 Below-minimum positive mass uses the minimum-mass boundary at the same in-range
 PA/temperature only if **every** altitude/temperature row is nondecreasing in
 mass. Linear interpolation of such rows preserves this ordering. No extrapolated
-shorter distance is calculated. The display labels the capped mass and boundary;
-no extrapolation acknowledgement is required under the existing extrapolation
+shorter distance is calculated. The calculated-distance UI omits the explanatory
+cap notice and interpolation/unit boilerplate; no extrapolation acknowledgement is required under the existing extrapolation
 contract section 8.4. A decreasing row blocks capping, including when that row is
 not at the requested conditions. Single-mass tables have one boundary value.
 This is a software benefit cap, not proof of aircraft applicability below the
@@ -67,3 +69,9 @@ four decimal places (at most 0.00005 target units per conversion). Programmatic
 restore/copy suppresses conversion. Preferences fill empty fields; entered values
 keep their explicit units. Profile changes preserve preferences and invalidate
 results. Synthetic fixtures prove conversion and wiring, never operational data.
+
+Supported ranges use the existing display-rounding helpers (mass minimum up,
+maximum down to 0.1 kg, other axes at their unit precision). Raw bounds and lookup
+comparisons stay unrounded. Numeric/unit pairs stay inline at narrow widths;
+unit labels remain accessible. QNH method details start collapsed, while current
+QNH advisory warnings accompany every affected distance in the UI and print.

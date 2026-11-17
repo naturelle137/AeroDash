@@ -66,7 +66,7 @@ if (!runway.loaded) runway.load()
             :aria-invalid="!!error('tora')" :aria-describedby="describedBy('tora')" />
         </div>
         <div class="field">
-          <label for="manual-runway-tora-unit">TORA unit</label>
+          <label class="sr-only" for="manual-runway-tora-unit">TORA unit</label>
           <select id="manual-runway-tora-unit" v-model="runway.draft.toraUnit" :aria-invalid="!!error('toraUnit')" :aria-describedby="describedBy('toraUnit')">
             <option value="">Select unit</option><option value="m">m</option><option value="ft">ft</option>
           </select>
@@ -81,7 +81,7 @@ if (!runway.loaded) runway.load()
             :aria-invalid="!!error('lda')" :aria-describedby="describedBy('lda')" />
         </div>
         <div class="field">
-          <label for="manual-runway-lda-unit">LDA unit</label>
+          <label class="sr-only" for="manual-runway-lda-unit">LDA unit</label>
           <select id="manual-runway-lda-unit" v-model="runway.draft.ldaUnit" :aria-invalid="!!error('ldaUnit')" :aria-describedby="describedBy('ldaUnit')">
             <option value="">Select unit</option><option value="m">m</option><option value="ft">ft</option>
           </select>
@@ -100,7 +100,7 @@ if (!runway.loaded) runway.load()
             :aria-invalid="!!error('fieldElevation')" :aria-describedby="describedBy('fieldElevation')" />
         </div>
         <div class="field">
-          <label for="manual-runway-elevation-unit">Field elevation unit</label>
+          <label class="sr-only" for="manual-runway-elevation-unit">Field elevation unit</label>
           <select id="manual-runway-elevation-unit" v-model="runway.draft.fieldElevationUnit" :aria-invalid="!!error('fieldElevationUnit')" :aria-describedby="describedBy('fieldElevationUnit')">
             <option value="">Select unit</option><option value="m">m</option><option value="ft">ft</option>
           </select>
@@ -172,7 +172,13 @@ h2, h3 { margin: 0; }
 p { margin: 0; line-height: 1.6; }
 fieldset { border: 1px solid var(--color-border); border-radius: 8px; padding: .75rem 1rem 1rem; margin: 0; display: grid; gap: .5rem; min-width: 0; }
 legend { font-weight: 700; padding: 0 .25rem; }
-.fields, .value-unit { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 1rem; }
+.fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 1rem; }
+.value-unit > * { min-width: 0; }
+.value-unit input, .value-unit select { width: 100%; box-sizing: border-box; }
+.value-unit label { overflow-wrap: anywhere; }
+.value-unit { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .5rem; align-items: end; }
+.value-unit > :last-child { max-width: 6rem; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 .field { display: grid; gap: .5rem; align-content: start; }
 input, select, button { font: inherit; padding: .75rem; min-height: 44px; border-radius: 6px; border: 1px solid var(--color-border); background: var(--color-surface); color: inherit; min-width: 0; }
 select:disabled { opacity: .6; }

@@ -13,12 +13,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Calculate Flight Preparation distances live after Fuel/Endurance and retain value-specific warnings and M&B color/hatching in native Briefing Pack print (#568).
+
 - Complete current Flight Preparation briefing pack with printed load chart, current fuel/runway/Performance states and a persistent mobile action (#517).
 - Activate shared Flight Prep raw Performance with current takeoff/trip-arrival masses, labelled bounded mass benefit capping and persisted hPa/ft/m unit defaults with length conversion (#300, #420, #302).
 - Estimate trip arrival CG for exactly one lookup-table tank with zero unusable fuel from table moments at takeoff and remaining load; nonzero unusable fuel remains unsupported for trip arrival CG (#529).
 
 ### Fixed
 
+- Share the homepage CTA style with Briefing Pack, disable unavailable export without helper text, restore the homepage Performance icon and remove the separate Performance menu entry (refs #568).
 - Retain legacy lookup fuel profiles with an explicit missing unit for source-based editor correction; M&B stays blocked until corrected (Refs #535).
 - Preserve required-occupant zero-mass warnings while invalid raw fuel inputs block calculation (#534).
 

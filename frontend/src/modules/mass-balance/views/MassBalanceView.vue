@@ -255,11 +255,11 @@ interface CardMeta {
 const CARD_ORDER = computed<readonly CardMeta[]>(() => [
   { id: 'aircraft', badge: '01', title: 'Aircraft' },
   { id: 'mb', badge: '02', title: 'Mass & Balance' },
-  { id: 'performance', badge: '03', title: 'Performance' },
-  { id: 'weather', badge: '04', title: 'Weather', soon: true },
+  { id: 'fuel', badge: '03', title: energySectionTitle.value, soon: isElectric.value },
+  { id: 'performance', badge: '04', title: 'Performance' },
+  { id: 'weather', badge: '05', title: 'Weather', soon: true },
   // `title` follows the electric/combustion discriminator so the sticky
   // strip chip reads "Energy & Endurance" on a Velis Electro profile.
-  { id: 'fuel', badge: '05', title: energySectionTitle.value, soon: isElectric.value },
 ])
 
 /** Strip height in px — kept in sync with --prep-sticky-h (2.75rem @16px). */
@@ -890,7 +890,7 @@ function onCancelSelection(): void {
     <!-- ═══ Page header ════════════════════════════════════════════════════ -->
     <div class="fp-page-header">
       <h1 class="fp-page-title">Flight Preparation</h1>
-      <p class="fp-page-sub">Mass &amp; Balance · Performance · Weather · {{ isElectric ? 'Energy' : 'Fuel' }}</p>
+      <p class="fp-page-sub">Mass &amp; Balance · {{ isElectric ? 'Energy' : 'Fuel' }} · Performance · Weather</p>
     </div>
 
     <MbPrintPreview :source="printSource" :read-source="() => printSource" />
@@ -1219,10 +1219,26 @@ function onCancelSelection(): void {
       </template>
     </section>
 
+    <!-- Fuel planning / future electric energy planning -->
+    <section
+      id="prep-card-fuel"
+      class="prep-card"
+      :class="{ 'prep-card--soon': isElectric }"
+      :aria-label="energySectionTitle"
+    >
+      <div class="prep-card__header">
+        <span class="prep-card__badge" :class="{ 'prep-card__badge--soon': isElectric }">03</span>
+        <h2 class="prep-card__title" :class="{ 'prep-card__title--soon': isElectric }">{{ energySectionTitle }}</h2>
+        <span v-if="isElectric" class="soon-pill">Coming soon</span>
+      </div>
+      <p v-if="isElectric" class="soon-desc">{{ energySectionDescription }}</p>
+      <FuelEnduranceCard v-else :planning="fuelPlanning" />
+    </section>
+
     <!-- ═══ Performance ═══════════════════════════════════════════════════ -->
     <section id="prep-card-performance" class="prep-card" aria-labelledby="prep-performance-title">
       <div class="prep-card__header">
-        <span class="prep-card__badge">03</span>
+        <span class="prep-card__badge">04</span>
         <h2 id="prep-performance-title" class="prep-card__title">Performance</h2>
       </div>
       <FlightPrepPerformance :step="performanceStep" :context="performanceContext" />
@@ -1235,7 +1251,7 @@ function onCancelSelection(): void {
       aria-label="Weather — coming soon"
     >
       <div class="prep-card__header">
-        <span class="prep-card__badge prep-card__badge--soon">04</span>
+        <span class="prep-card__badge prep-card__badge--soon">05</span>
         <h2 class="prep-card__title prep-card__title--soon">Weather</h2>
         <span class="soon-pill">Coming soon</span>
       </div>
@@ -1245,21 +1261,7 @@ function onCancelSelection(): void {
       </p>
     </section>
 
-    <!-- Fuel planning / future electric energy planning -->
-    <section
-      id="prep-card-fuel"
-      class="prep-card"
-      :class="{ 'prep-card--soon': isElectric }"
-      :aria-label="energySectionTitle"
-    >
-      <div class="prep-card__header">
-        <span class="prep-card__badge" :class="{ 'prep-card__badge--soon': isElectric }">05</span>
-        <h2 class="prep-card__title" :class="{ 'prep-card__title--soon': isElectric }">{{ energySectionTitle }}</h2>
-        <span v-if="isElectric" class="soon-pill">Coming soon</span>
-      </div>
-      <p v-if="isElectric" class="soon-desc">{{ energySectionDescription }}</p>
-      <FuelEnduranceCard v-else :planning="fuelPlanning" />
-    </section>
+
 
     <!-- ═══ Operational disclaimer (bottom, non-blocking) ═════════════════ -->
     <div class="disclaimer" role="note" aria-label="Operational disclaimer">

@@ -130,6 +130,25 @@ describe('M&B print presentation with real store calculation', () => {
     input.state = state
     expect(assembleMbPrint(input, new Date())).toBeNull()
   })
+  it('exports only known computed exceedances and binds exact warnings to affected values', () => {
+    const input = source()
+    input.state = 'ERROR_CRITICAL'
+    input.result!.violations.push({ type: 'MTOM_EXCEEDED' }, { type: 'CG_OUT_OF_ENVELOPE' })
+    input.notifications.push(
+      { id: 'CRIT-MB-002', severity: 'CRITICAL', message: 'MTOM Exceeded', context: 'MassBalance.TotalMass', persistent: false, dismissible: true },
+      { id: 'CRIT-MB-001', severity: 'CRITICAL', message: 'CG Out of Envelope', context: 'MassBalance.CG', persistent: false, dismissible: true },
+    )
+    const pack = assembleMbPrint(input, new Date())!
+    expect(pack.chart.severity).toBe('critical')
+    expect(pack.points[0]!.massWarnings.map(n => n.message)).toContain('MTOM Exceeded')
+    expect(pack.points[1]!.massWarnings.map(n => n.message)).not.toContain('MTOM Exceeded')
+    expect(pack.points.every(p => p.cgWarnings.some(n => n.message === 'CG Out of Envelope'))).toBe(true)
+    input.result!.takeoffCenterOfGravityPoint.arm = NaN
+    expect(canPrintMb(input)).toBe(false)
+    input.result!.takeoffCenterOfGravityPoint.arm = 1
+    input.notifications.push({ id: 'CRIT-SYS-002', severity: 'CRITICAL', message: 'Adapter failed', persistent: false, dismissible: false })
+    expect(canPrintMb(input)).toBe(false)
+  })
   it('blocks error notifications, pending selection, failed result and incomplete loading', () => {
     const input = source()
     input.ready = false

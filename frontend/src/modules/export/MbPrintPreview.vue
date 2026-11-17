@@ -8,15 +8,11 @@ const props = defineProps<{ source: MbPrintSource; readSource?: () => MbPrintSou
 const currentSource = computed(() => props.readSource?.() ?? props.source)
 const snapshot = ref<MbPrintSnapshot | null>(null)
 const opened = ref(false)
-const showEligibility = ref(false)
 const closeButton = ref<HTMLButtonElement>()
 const printRoot = ref<HTMLElement>()
 let returnFocus: HTMLElement | null = null
 const fingerprint = ref('')
 const currentKey = computed(() => JSON.stringify(currentSource.value))
-const eligibilityReason = computed(() => canPrintMb(currentSource.value)
-  ? 'Current Mass & Balance is eligible. Unavailable preparation sections will show their reasons.'
-  : 'Current Mass & Balance is not eligible for printing; review aircraft, loading and notifications.')
 const eligible = computed(() => canPrintMb(currentSource.value))
 // The key check also protects print media before Vue's queued watcher runs.
 const currentSnapshot = computed(() => currentKey.value === fingerprint.value ? snapshot.value : null)
@@ -29,7 +25,7 @@ watch(currentKey, invalidate, { flush: 'sync' })
 
 async function open(): Promise<void> {
   const value = assembleMbPrint(currentSource.value, new Date())
-  if (!value) { showEligibility.value = true; return }
+  if (!value) return
   returnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null
   fingerprint.value = currentKey.value
   snapshot.value = value
@@ -79,9 +75,7 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="briefing-action">
-    <button type="button" class="mb-preview-action" aria-describedby="briefing-eligibility" @click="open">Briefing Pack</button>
-    <p v-if="showEligibility || !eligible" id="briefing-eligibility" role="status">{{ eligibilityReason }}</p>
-    <p v-else id="briefing-eligibility">Current preparation · Preview and print</p>
+    <button type="button" class="cta-btn" :disabled="!eligible" @click="open">Briefing Pack</button>
   </div>
   <Teleport to="body">
     <div ref="printRoot" class="mb-print-root" :class="{ 'mb-print-root--open': opened }">
@@ -97,11 +91,11 @@ onBeforeUnmount(() => {
           <p v-if="currentSnapshot.unverified"><strong>Calculation based on unverified external data. Pilot in Command assumes full responsibility.</strong></p>
           <h2>Current loading</h2>
           <table><thead><tr><th>Station</th><th>Quantity</th></tr></thead><tbody>
-            <tr v-for="(row, index) in currentSnapshot.loading" :key="index"><td>{{ row.name }}</td><td>{{ row.quantity }}</td></tr>
+            <tr v-for="(row, index) in currentSnapshot.loading" :key="index"><td>{{ row.name }}</td><td :class="{ 'briefing-warning': row.warnings.length }">{{ row.quantity }}<p v-for="(note, n) in row.warnings" :key="n">{{ note.severity }} · {{ note.id }}: {{ note.message }}</p></td></tr>
           </tbody></table>
           <h2>M&amp;B results</h2>
           <table><thead><tr><th>Endpoint</th><th>Mass</th><th>CG arm</th><th>Applicable limit</th></tr></thead><tbody>
-            <tr v-for="row in currentSnapshot.points" :key="row.label"><td>{{ row.label }}</td><td>{{ row.mass }}</td><td>{{ row.cg }}</td><td>{{ row.limit }}</td></tr>
+            <tr v-for="row in currentSnapshot.points" :key="row.label"><td>{{ row.label }}</td><td :class="{ 'briefing-warning': row.massWarnings.length, 'briefing-critical': row.massWarnings.some(n => n.severity === 'CRITICAL') }">{{ row.mass }}<p v-for="(note, n) in row.massWarnings" :key="n">{{ note.severity }} · {{ note.id }}: {{ note.message }}</p></td><td :class="{ 'briefing-warning': row.cgWarnings.length, 'briefing-critical': row.cgWarnings.some(n => n.severity === 'CRITICAL') }">{{ row.cg }}<p v-for="(note, n) in row.cgWarnings" :key="n">{{ note.severity }} · {{ note.id }}: {{ note.message }}</p></td><td>{{ row.limit }}</td></tr>
           </tbody></table>
           <figure class="briefing-chart">
             <h2>Loading envelope chart</h2>
@@ -117,7 +111,7 @@ onBeforeUnmount(() => {
             <p v-if="currentSnapshot.fuel.method">Manual method: {{ currentSnapshot.fuel.method === 'duration' ? 'Duration and consumption' : 'Direct Trip Fuel (kg)' }}.</p>
             <p v-if="currentSnapshot.fuelReason">Fuel plan / trip arrival unavailable: {{ currentSnapshot.fuelReason }}</p>
             <table v-if="currentSnapshot.fuel.rows.length"><thead><tr><th>Parameter</th><th>Value</th></tr></thead><tbody>
-              <tr v-for="row in currentSnapshot.fuel.rows" :key="row.label"><td>{{ row.label }}</td><td>{{ row.value }}</td></tr>
+              <tr v-for="row in currentSnapshot.fuel.rows" :key="row.label"><td>{{ row.label }}</td><td :class="{ 'briefing-warning': row.warnings?.length }">{{ row.value }}<p v-for="warning in row.warnings" :key="warning">{{ warning }}</p></td></tr>
             </tbody></table>
             <p v-if="currentSnapshot.fuel.sequence">Selected arrival CG burn sequence: {{ currentSnapshot.fuel.sequence }}</p>
             <p v-if="currentSnapshot.fuel.cgReason">Estimated arrival CG unavailable: {{ currentSnapshot.fuel.cgReason }}</p>
@@ -146,7 +140,7 @@ onBeforeUnmount(() => {
                 <p v-if="group.mass">{{ group.mass }}{{ currentSnapshot.marker }}</p>
                 <p v-if="group.reason">{{ group.reason }}</p>
                 <p v-else-if="group.status !== 'success'">No current {{ group.title.toLowerCase() }} distances computed.</p>
-                <table v-if="group.rows.length"><tbody><tr v-for="row in group.rows" :key="row.label"><th>{{ row.label }}</th><td>{{ row.value }}{{ currentSnapshot.marker }}<p v-if="row.note">{{ row.note }}</p></td></tr></tbody></table>
+                <table v-if="group.rows.length"><tbody><tr v-for="row in group.rows" :key="row.label"><th>{{ row.label }}</th><td :class="{ 'briefing-warning': row.warnings?.length }">{{ row.value }}{{ currentSnapshot.marker }}<p v-for="warning in row.warnings" :key="warning">{{ warning }}</p><p v-if="row.note">{{ row.note }}</p></td></tr></tbody></table>
               </section>
               <h3>Operational assessment unavailable</h3>
               <p>{{ currentSnapshot.performance.operational.reason }}</p>
@@ -166,14 +160,12 @@ onBeforeUnmount(() => {
 
 <style>
  .briefing-action { position: fixed; bottom: 1rem; right: 1.5rem; z-index: 210; max-width: min(30rem, calc(100vw - 2rem)); padding: .5rem 1rem; border: 1px solid var(--color-divider, #888); border-radius: .5rem; background: var(--color-surface, white); box-shadow: 0 2px 12px #0003; }
-.briefing-action p { margin: 0; font-size: .8rem; }
-.mb-preview-action { width: 100%; }
 .briefing-chart { margin: 1rem 0; break-inside: avoid; --chart-grid: #ddd; --chart-axis: #555; --chart-tick-text: #333; --chart-label: #222; }
 .briefing-chart figcaption { font-size: .85em; }
 @media (max-width: 767.98px) {
   .briefing-action { bottom: calc(var(--nav-bottom-height, 56px) + env(safe-area-inset-bottom, 0px)); right: 0; left: 0; max-width: none; border-radius: 0; padding: .5rem 1rem; }
 }
-.mb-preview-action, .mb-print-controls button { padding: .75rem; margin: .5rem 0; font: inherit; }
+.mb-print-controls button { padding: .75rem; margin: .5rem 0; font: inherit; }
 .mb-print-root { display: none; }
 .mb-print-root--open { display: block; position: fixed; inset: 0; z-index: 10000; overflow: auto; background: #eef1f4; color: #111; padding: 1rem; }
 .mb-print-sheet { max-width: 52rem; margin: auto; padding: 1.5rem; background: white; overflow-wrap: anywhere; }
@@ -181,6 +173,10 @@ onBeforeUnmount(() => {
 .mb-print-sheet h2 { font-size: 1.125rem; margin-top: 1.5rem; }
 .mb-print-sheet table { width: 100%; border-collapse: collapse; table-layout: fixed; }
 .mb-print-sheet th, .mb-print-sheet td { text-align: left; border-bottom: 1px solid #888; padding: .4rem; vertical-align: top; }
+.briefing-warning { color: #a34500; border-left: 4px solid #ef6c00; background: #fff3e0; }
+.briefing-critical { color: #b71c1c; border-left-color: #d32f2f; background: #ffebee; }
+.briefing-warning p { font-size: .85em; font-weight: 600; margin: .4rem 0; }
+.mb-print-sheet, .briefing-chart svg { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
 .mb-print-sheet dd { margin: 0 0 .5rem; }
 .mb-print-controls { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .5rem; }
 .mb-print-blocked, .mb-print-guard { display: none; }

@@ -46,9 +46,9 @@ describe('shared current fuel print presentation', () => {
     p.consumption.value = '10'; p.trip.value = '120'; p.reserve.value = '300'
     const fuel = assembleMbPrint(source.value, new Date())!.fuel!
     expect(fuel.warnings).toEqual(['WARN-FE-001 — Insufficient fuel for the entered trip plus reserve.', 'Usable fuel is insufficient even for the reserve alone.'])
-    expect(fuel.rows).toContainEqual({ label: 'Fuel shortfall', value: '30 kg [UNVERIFIED]' })
-    expect(fuel.rows).toContainEqual({ label: 'Estimated arrival mass', value: '520 kg [UNVERIFIED]' })
-    expect(fuel.rows).toContainEqual({ label: 'Usable fuel remaining on arrival', value: '20 kg [UNVERIFIED]' })
+    expect(fuel.rows).toContainEqual(expect.objectContaining({ label: 'Fuel shortfall', value: '30 kg [UNVERIFIED]', warnings: fuel.warnings }))
+    expect(fuel.rows).toContainEqual(expect.objectContaining({ label: 'Estimated arrival mass', value: '520 kg [UNVERIFIED]' }))
+    expect(fuel.rows).toContainEqual(expect.objectContaining({ label: 'Usable fuel remaining on arrival', value: '20 kg [UNVERIFIED]' }))
     await wrapper.get('button').trigger('click')
     expect(document.body.textContent).toContain('WARN-FE-001')
     document.querySelector<HTMLButtonElement>('.mb-print-controls button')!.click()
@@ -67,7 +67,7 @@ describe('shared current fuel print presentation', () => {
     store.aircraft!.loadPoints[0]!.armLookup = [{ massOrVolume: 0, moment: 0 }, { massOrVolume: 100, moment: 100 }]
     const fuel = assembleMbPrint(source.value, new Date())!.fuel!
     expect(fuel.cgReason).toContain('exactly zero unusable fuel')
-    expect(fuel.rows).toContainEqual({ label: 'Estimated arrival mass', value: '520 kg [UNVERIFIED]' })
+    expect(fuel.rows).toContainEqual(expect.objectContaining({ label: 'Estimated arrival mass', value: '520 kg [UNVERIFIED]' }))
     expect(fuel.rows.map(r => r.label)).not.toContain('Total endurance')
     expect(fuel.warnings).toEqual([])
     for (const raw of ['', '-1', 'NaN', '1e2', '40.001']) {
@@ -90,14 +90,14 @@ describe('shared current fuel print presentation', () => {
     expect(screen.value).toBe(`${p.format(result.arrivalCgM)} m`)
     const fuel = assembleMbPrint(source.value, new Date())!.fuel!
     expect(fuel.cgReason).toBeNull()
-    expect(fuel.rows).toContainEqual({ label: 'Estimated arrival CG', value: `${screen.value} [UNVERIFIED]` })
+    expect(fuel.rows).toContainEqual(expect.objectContaining({ label: 'Estimated arrival CG', value: `${screen.value} [UNVERIFIED]` }))
     // A load beyond the table blocks M&B, so neither screen CG nor print remains.
     store.updateStationWeight(0, 60)
     expect(store.lastResult).toBeNull()
     expect(p.arrivalCg.value?.ok).not.toBe(true)
     expect(assembleMbPrint(source.value, new Date())).toBeNull()
     store.updateStationWeight(0, 50)
-    expect(assembleMbPrint(source.value, new Date())!.fuel!.rows).toContainEqual({ label: 'Estimated arrival CG', value: `${screen.value} [UNVERIFIED]` })
+    expect(assembleMbPrint(source.value, new Date())!.fuel!.rows).toContainEqual(expect.objectContaining({ label: 'Estimated arrival CG', value: `${screen.value} [UNVERIFIED]` }))
     wrapper.unmount()
   })
   it.each(['input', 'method', 'sequence', 'loading', 'below-unusable'] as const)('synchronously blocks native print on %s before parent render, never silently falls back', async change => {
@@ -119,8 +119,11 @@ describe('shared current fuel print presentation', () => {
     expect(document.querySelectorAll<HTMLButtonElement>('.mb-print-controls button')[1]!.disabled).toBe(true)
     document.querySelector<HTMLButtonElement>('.mb-print-controls button')!.click()
     await nextTick()
-    expect(wrapper.get<HTMLButtonElement>('button').element.disabled).toBe(false)
+    expect(wrapper.get<HTMLButtonElement>('button').element.disabled).toBe(change === 'below-unusable')
+    expect(wrapper.find('[aria-describedby]').exists()).toBe(false)
     if (change === 'below-unusable') store.updateStationWeight(0, 10)
+    await nextTick()
+    expect(wrapper.get<HTMLButtonElement>('button').element.disabled).toBe(false)
     await wrapper.get('button').trigger('click')
     expect(document.body.textContent).toContain('Flight Preparation Briefing Pack')
     expect(document.body.textContent?.includes('Fuel plan / trip arrival unavailable')).toBe(change === 'method' || change === 'below-unusable')

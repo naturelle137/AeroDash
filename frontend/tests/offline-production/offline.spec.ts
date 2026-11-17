@@ -18,7 +18,7 @@ async function rawLookup(page: Page) {
   await page.getByRole('radio', { name: 'Enter pressure altitude directly', exact: true }).check()
   await page.getByLabel('Pressure altitude (ft)', { exact: true }).fill('1000')
   await page.getByLabel('Temperature (°C)', { exact: true }).fill('10')
-  await page.getByRole('button', { name: 'Compute raw distances', exact: true }).click()
+
   await expect(distances(page).locator('dd')).toHaveText(['220.0 m', '320.0 m', '420.0 m', '520.0 m'])
 }
 
@@ -89,7 +89,7 @@ test('cached preparation reopens offline with persisted synthetic data and live 
   await distances(page).scrollIntoViewIfNeeded()
   await capture(page, info, 'offline-raw-distances')
   await page.getByLabel('Mass (kg)', { exact: true }).fill('901')
-  await expect(distances(page)).toHaveCount(0)
+  await expect(distances(page).locator('dd')).toHaveText(['221.0 m', '321.0 m', '421.0 m', '521.0 m'])
   await runway.getByLabel('LDA — landing distance available', { exact: true }).fill('850')
   await expect(saved).toHaveCount(0)
   await expect(runway).toContainText('Runway assessment unavailable')

@@ -169,3 +169,23 @@ The system shall overlay the landing CG point on the loading chart.
 ## Design References
 
 - **<a name="notificationScheme"></a>Notification Scheme:** [`docs/architecture/notification_schema.md`](../architecture/notification_schema.md)
+
+### REQ-UI-042: Preparation order
+
+When displaying Flight Preparation, the system shall place Fuel/Endurance before Performance in visual, DOM, keyboard and sticky navigation order.
+
+### REQ-UI-043: Inline units
+
+When displaying QNH, pressure-altitude field elevation or manual runway quantities, the system shall place the accessibly named unit selector directly right of its numeric field without a separate visible unit heading.
+
+### REQ-UI-044: Pressure-altitude method details
+
+When displaying QNH-derived pressure-altitude inputs, the system shall initially collapse the expandable NOAA/NWS method explanation.
+
+### REQ-UI-046: Performance navigation
+
+The system shall expose Performance through the homepage Flight Preparation section and its standalone route without a separate top-level navigation entry.
+
+### REQ-UI-047: Performance icon
+
+When displaying the homepage Performance entry, the system shall show its icon with the same size, alignment and visual treatment as Mass & Balance.
