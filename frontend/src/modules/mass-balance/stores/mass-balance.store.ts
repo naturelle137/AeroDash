@@ -468,6 +468,7 @@ export const useMassBalanceStore = defineStore('massBalance', {
         this.notifications = [
           ...(draftProfileWarning ? [draftProfileWarning] : []),
           ...lookupBlocks,
+          ...this._collectPlausibilityWarnings(),
           ...stationLimitViolations.map((v) => stationLimitNotification(v.stationIndex)),
         ]
         this.lastResult = null
