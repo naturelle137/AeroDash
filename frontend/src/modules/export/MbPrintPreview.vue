@@ -97,11 +97,11 @@ onBeforeUnmount(() => {
           <p v-if="currentSnapshot.unverified"><strong>Calculation based on unverified external data. Pilot in Command assumes full responsibility.</strong></p>
           <h2>Current loading</h2>
           <table><thead><tr><th>Station</th><th>Quantity</th></tr></thead><tbody>
-            <tr v-for="(row, index) in currentSnapshot.loading" :key="index"><td>{{ row.name }}</td><td>{{ row.quantity }}</td></tr>
+            <tr v-for="(row, index) in currentSnapshot.loading" :key="index"><td>{{ row.name }}</td><td :class="{ 'briefing-warning': row.warnings.length }">{{ row.quantity }}<p v-for="(note, n) in row.warnings" :key="n">{{ note.severity }} · {{ note.id }}: {{ note.message }}</p></td></tr>
           </tbody></table>
           <h2>M&amp;B results</h2>
           <table><thead><tr><th>Endpoint</th><th>Mass</th><th>CG arm</th><th>Applicable limit</th></tr></thead><tbody>
-            <tr v-for="row in currentSnapshot.points" :key="row.label"><td>{{ row.label }}</td><td>{{ row.mass }}</td><td>{{ row.cg }}</td><td>{{ row.limit }}</td></tr>
+            <tr v-for="row in currentSnapshot.points" :key="row.label"><td>{{ row.label }}</td><td :class="{ 'briefing-warning': row.massWarnings.length, 'briefing-critical': row.massWarnings.some(n => n.severity === 'CRITICAL') }">{{ row.mass }}<p v-for="(note, n) in row.massWarnings" :key="n">{{ note.severity }} · {{ note.id }}: {{ note.message }}</p></td><td :class="{ 'briefing-warning': row.cgWarnings.length, 'briefing-critical': row.cgWarnings.some(n => n.severity === 'CRITICAL') }">{{ row.cg }}<p v-for="(note, n) in row.cgWarnings" :key="n">{{ note.severity }} · {{ note.id }}: {{ note.message }}</p></td><td>{{ row.limit }}</td></tr>
           </tbody></table>
           <figure class="briefing-chart">
             <h2>Loading envelope chart</h2>
@@ -117,7 +117,7 @@ onBeforeUnmount(() => {
             <p v-if="currentSnapshot.fuel.method">Manual method: {{ currentSnapshot.fuel.method === 'duration' ? 'Duration and consumption' : 'Direct Trip Fuel (kg)' }}.</p>
             <p v-if="currentSnapshot.fuelReason">Fuel plan / trip arrival unavailable: {{ currentSnapshot.fuelReason }}</p>
             <table v-if="currentSnapshot.fuel.rows.length"><thead><tr><th>Parameter</th><th>Value</th></tr></thead><tbody>
-              <tr v-for="row in currentSnapshot.fuel.rows" :key="row.label"><td>{{ row.label }}</td><td>{{ row.value }}</td></tr>
+              <tr v-for="row in currentSnapshot.fuel.rows" :key="row.label"><td>{{ row.label }}</td><td :class="{ 'briefing-warning': row.warnings?.length }">{{ row.value }}<p v-for="warning in row.warnings" :key="warning">{{ warning }}</p></td></tr>
             </tbody></table>
             <p v-if="currentSnapshot.fuel.sequence">Selected arrival CG burn sequence: {{ currentSnapshot.fuel.sequence }}</p>
             <p v-if="currentSnapshot.fuel.cgReason">Estimated arrival CG unavailable: {{ currentSnapshot.fuel.cgReason }}</p>
@@ -146,7 +146,7 @@ onBeforeUnmount(() => {
                 <p v-if="group.mass">{{ group.mass }}{{ currentSnapshot.marker }}</p>
                 <p v-if="group.reason">{{ group.reason }}</p>
                 <p v-else-if="group.status !== 'success'">No current {{ group.title.toLowerCase() }} distances computed.</p>
-                <table v-if="group.rows.length"><tbody><tr v-for="row in group.rows" :key="row.label"><th>{{ row.label }}</th><td>{{ row.value }}{{ currentSnapshot.marker }}<p v-if="row.note">{{ row.note }}</p></td></tr></tbody></table>
+                <table v-if="group.rows.length"><tbody><tr v-for="row in group.rows" :key="row.label"><th>{{ row.label }}</th><td :class="{ 'briefing-warning': row.warnings?.length }">{{ row.value }}{{ currentSnapshot.marker }}<p v-for="warning in row.warnings" :key="warning">{{ warning }}</p><p v-if="row.note">{{ row.note }}</p></td></tr></tbody></table>
               </section>
               <h3>Operational assessment unavailable</h3>
               <p>{{ currentSnapshot.performance.operational.reason }}</p>
@@ -181,6 +181,10 @@ onBeforeUnmount(() => {
 .mb-print-sheet h2 { font-size: 1.125rem; margin-top: 1.5rem; }
 .mb-print-sheet table { width: 100%; border-collapse: collapse; table-layout: fixed; }
 .mb-print-sheet th, .mb-print-sheet td { text-align: left; border-bottom: 1px solid #888; padding: .4rem; vertical-align: top; }
+.briefing-warning { color: #a34500; border-left: 4px solid #ef6c00; background: #fff3e0; }
+.briefing-critical { color: #b71c1c; border-left-color: #d32f2f; background: #ffebee; }
+.briefing-warning p { font-size: .85em; font-weight: 600; margin: .4rem 0; }
+.mb-print-sheet, .briefing-chart svg { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
 .mb-print-sheet dd { margin: 0 0 .5rem; }
 .mb-print-controls { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .5rem; }
 .mb-print-blocked, .mb-print-guard { display: none; }

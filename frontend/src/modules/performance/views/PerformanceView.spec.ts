@@ -31,20 +31,16 @@ it('uses persisted profiles and immediately clears results on numeric, selection
   await flushPromises()
   await view.get('select').setValue(fleet.profiles[0]!.id)
   await fillLookup(view, '900', '1000', '10')
-  await view.get('form').trigger('submit')
   expect(view.get('[aria-label="Raw POH table distances"]').text()).toContain('220.0 m')
   expect(results(view).text()).toContain('1000 ft, entered directly')
   await field(view, 'Mass (kg)').setValue('')
   expect(view.find('[aria-label="Raw POH table distances"]').exists()).toBe(false)
-  await view.get('form').trigger('submit')
   expect(view.text()).toContain('finite mass')
   await field(view, 'Mass (kg)').setValue('900')
-  await view.get('form').trigger('submit')
   fleet.profiles[0]!.performanceProfiles = []
   await flushPromises()
-  expect(view.find('[aria-label="Raw POH table distances"]').exists()).toBe(false)
+  expect(results(view).exists()).toBe(false)
   await view.get('select').setValue(fleet.profiles[1]!.id)
-  await view.get('form').trigger('submit')
   expect(view.get('[role="alert"]').text()).toContain('Draft')
   expect(view.find('[aria-label="Raw POH table distances"]').exists()).toBe(false)
 })
@@ -57,7 +53,7 @@ it('reports storage error with retry and blocks computation', async () => {
   const view = mount(PerformanceView, { global: { stubs: { RouterLink: true } } })
   await flushPromises()
   expect(view.get('[role="alert"]').text()).toContain('Test read failure')
-  expect(view.get('button[type="submit"]').attributes('disabled')).toBeDefined()
+  expect(view.find('form[aria-label="Performance lookup conditions"] button[type="submit"]').exists()).toBe(false)
   await view.get('[role="alert"] button').trigger('click')
   expect(fleet.loadAll).toHaveBeenCalledTimes(2)
 })
@@ -71,17 +67,15 @@ it('clears results on source-unit and provenance edits and visibly blocks invali
   await flushPromises()
   await view.get('select').setValue(fleet.profiles[0]!.id)
   await fillLookup(view, '900', '1000', '10')
-  await view.get('form').trigger('submit')
   expect(view.find('[aria-label="Raw POH table distances"]').exists()).toBe(true)
   fleet.profiles[0]!.performanceProfiles![0]!.sourceUnits = { mass: 'kg', pressureAltitude: 'ft', temperature: '°C', distance: 'm' }
   await flushPromises()
-  expect(view.find('[aria-label="Raw POH table distances"]').exists()).toBe(false)
-  await view.get('form').trigger('submit')
+  expect(results(view).text()).toContain('220.0 m')
   fleet.profiles[0]!.performanceProfiles![0]!.sourceReference = 'Changed manual reference'
   await flushPromises()
-  expect(view.find('[aria-label="Raw POH table distances"]').exists()).toBe(false)
+  expect(results(view).exists()).toBe(true)
   Object.assign(fleet.profiles[0]!.performanceProfiles![0]!.sourceUnits!, { distance: 'yd' })
-  await view.get('form').trigger('submit')
+  await flushPromises()
   expect(view.findAll('[role="alert"]')[0]!.text()).toContain('source-unit declarations')
   expect(view.find('[aria-label="Raw POH table distances"]').exists()).toBe(false)
 })
@@ -132,7 +126,6 @@ async function fillDerived(view: VueWrapper, qnh: string, qnhUnit: string, eleva
 
 it('blocks computation until a pressure-altitude method is chosen', async () => {
   const view = await mountReady()
-  await view.get('form').trigger('submit')
   expect(view.get('[role="alert"]').text()).toContain('Choose how pressure altitude is provided')
   expect(results(view).exists()).toBe(false)
 })
@@ -142,9 +135,8 @@ it('derives pressure altitude from QNH and elevation and uses the unrounded valu
   await fillDerived(view, '1000', 'hPa', '457.2', 'm')
   // Independent reference: 1854.993736 ft (Python decimal); TOR = 200 + 100 + PA/100 + 10.
   expect(view.get('[aria-label="Derived pressure altitude"]').text()).toContain('1855 ft')
-  expect(view.text()).toContain('1500.0 ft')
+  expect(view.text()).not.toContain('The lookup uses the unrounded value.')
   expect(view.text()).toContain('Field elevation source: Entered by you.')
-  await view.get('form').trigger('submit')
   expect(results(view).text()).toContain('228.5 m')
   expect(results(view).text()).toContain('1855 ft, derived from QNH and field elevation')
 })
@@ -154,19 +146,15 @@ it('keeps the direct entry untouched across method changes and clears results on
   await fillLookup(view, '900', '1000', '10')
   // QNH 1013.25 hPa at 100 ft gives 91.787216 ft (Python decimal), TOR 210.9 m.
   await fillDerived(view, '1013.25', 'hPa', '100', 'ft')
-  await view.get('form').trigger('submit')
   expect(results(view).text()).toContain('210.9 m')
   for (const [caption, value] of [['QNH', '1013'], ['QNH unit', ''], ['Pressure-altitude field elevation', '1'], ['Pressure-altitude field elevation unit', 'm']] as const) {
-    await view.get('form').trigger('submit')
-    await field(view, caption).setValue(value)
-    expect(results(view).exists()).toBe(false)
+      await field(view, caption).setValue(value)
+    expect(results(view).exists()).toBe(caption === 'QNH')
   }
   await fillDerived(view, '1013.25', 'hPa', '100', 'ft')
-  await view.get('form').trigger('submit')
   await field(view, 'Enter pressure altitude directly').setValue(true)
-  expect(results(view).exists()).toBe(false)
+  expect(results(view).exists()).toBe(true)
   expect((field(view, 'Pressure altitude (ft)').element as HTMLInputElement).value).toBe('1000')
-  await view.get('form').trigger('submit')
   expect(results(view).text()).toContain('220.0 m')
 })
 
@@ -180,7 +168,6 @@ it.each([
 ])('blocks invalid derived input QNH %j %s elevation %j %s', async (qnh, qnhUnit, elevation, elevationUnit, message) => {
   const view = await mountReady()
   await fillDerived(view, qnh, qnhUnit, elevation, elevationUnit)
-  await view.get('form').trigger('submit')
   expect(view.text()).toContain(message)
   expect(view.get('[role="alert"]').text()).toContain('Derived pressure altitude is unavailable')
   expect(view.find('[aria-label="Derived pressure altitude"]').exists()).toBe(false)
@@ -191,7 +178,6 @@ it('warns outside the standard QNH band without blocking inside the model range'
   const view = await mountReady()
   await fillDerived(view, '940', 'hPa', '-30.48', 'm')
   expect(view.text()).toContain('WARN-UI-001')
-  await view.get('form').trigger('submit')
   expect(results(view).exists()).toBe(true)
 })
 
@@ -216,7 +202,6 @@ it('copies the saved runway elevation only on request and drops it when the runw
   expect(view.text()).toContain('Copied by you from the saved manual runway TEST 27')
   // QNH 1013.25 hPa at 1000 ft gives 991.567192 ft (Python decimal), TOR 219.9 m.
   expect(view.get('[aria-label="Derived pressure altitude"]').text()).toContain('992 ft')
-  await view.get('form').trigger('submit')
   expect(results(view).text()).toContain('219.9 m')
   // Editing the runway invalidates the copied elevation, its derived PA and the distances.
   await view.get('#manual-runway-elevation').setValue('0')

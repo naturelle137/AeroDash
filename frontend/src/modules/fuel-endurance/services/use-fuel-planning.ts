@@ -167,7 +167,8 @@ export function useFuelPlanning() {
       reason,
       method: method.value,
       sequence: sequence.value,
-      rows,
+      rows: rows.map(row => ({ ...row, warnings: ['Trip + reserve fuel', 'Fuel shortfall', 'Remaining after trip + reserve', 'Required reserve fuel'].includes(row.label)
+        ? warnings.filter(w => row.label !== 'Required reserve fuel' || w.includes('reserve alone')) : [] })),
       warnings,
       cgReason: arrivalCg.value && !arrivalCg.value.ok ? arrivalCg.value.reason : null,
     }
@@ -195,7 +196,7 @@ export interface FuelPresentation {
   readonly reason: string | null
   readonly method: string
   readonly sequence: string
-  readonly rows: readonly { readonly label: string; readonly value: string }[]
+  readonly rows: readonly { readonly label: string; readonly value: string; readonly warnings?: readonly string[] }[]
   readonly warnings: readonly string[]
   readonly cgReason: string | null
 }

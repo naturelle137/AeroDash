@@ -23,7 +23,7 @@ export type PerformanceStepContext = {
 type ComputedResult = { key: string; assessment: PerformanceAssessment; basis: string }
 
 /**
- * One Performance step: session-only conditions, explicit compute and a typed
+ * One Performance step: session-only conditions, live calculation and a typed
  * presentation. A result is shown only while its input key equals the current
  * key, so a changed profile, category, mass, runway, condition or unit preference
  * can never display an older result.
@@ -43,7 +43,6 @@ export function usePerformanceStep(context: () => PerformanceStepContext) {
     runway.saved, runway.draft, runway.storageError, runway.hasUnsavedChanges,
   ]))
   const result = shallowRef<ComputedResult | null>(null)
-  watch(inputKey, () => { result.value = null }, { flush: 'sync' })
   const current = computed(() => result.value?.key === inputKey.value ? result.value : null)
   const tables = computed(() => ctx.value.profile ? inspectTables(ctx.value.profile) : null)
 
@@ -64,6 +63,9 @@ export function usePerformanceStep(context: () => PerformanceStepContext) {
       : `${resolved.displayFt} ft, derived from QNH and field elevation (unrounded value used)`
     result.value = { key, assessment, basis }
   }
+
+  // Synchronous recomputation also covers incomplete edits before a native print event.
+  watch(inputKey, compute, { flush: 'sync', immediate: true })
 
   const runwayPresentation = computed<RunwayPresentation>(() => {
     if (runway.storageError) return { status: 'unavailable', reason: runway.storageError }
@@ -90,6 +92,7 @@ export function usePerformanceStep(context: () => PerformanceStepContext) {
     const { ready, notReadyReason, profile, category, takeoff, landing } = ctx.value
     return presentPerformance({
       inputKey: inputKey.value,
+      warnings: pa.warnings.value,
       inputs: [
         { label: 'Pressure altitude method', value: pa.method.value === 'direct' ? 'Direct entry' : pa.method.value === 'qnh-elevation' ? 'Derived from QNH and field elevation' : 'Not selected' },
         ...(pa.method.value === 'direct' ? [{ label: 'Entered pressure altitude', value: `${pa.direct.value.trim() || 'Not entered'} ft` }]
@@ -107,7 +110,7 @@ export function usePerformanceStep(context: () => PerformanceStepContext) {
       pressureAltitudeBasis: current.value?.basis ?? '',
       pendingReason: !ready ? notReadyReason
         : !profile ? 'Select an aircraft profile.'
-          : 'Not computed for the current inputs. Choose the pressure-altitude method, enter the temperature and compute.',
+          : 'Choose the pressure-altitude method and enter the current conditions.',
       runway: runwayPresentation.value,
       operational: presentOperationalAssessment(ready && profile
         ? assessCorrectionSources(profileFacts(profile, tables.value?.status === 'ready'), runway.current ? {

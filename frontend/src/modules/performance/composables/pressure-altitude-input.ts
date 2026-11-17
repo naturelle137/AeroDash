@@ -1,5 +1,5 @@
 import { computed, reactive, ref, watch } from 'vue'
-import { derivePressureAltitude, type PressureAltitudeDraft } from '@/core/logic/pressure-altitude'
+import { QNH_ADVISORY_HPA, derivePressureAltitude, type PressureAltitudeDraft } from '@/core/logic/pressure-altitude'
 import { useManualRunwayStore } from '@/modules/airport/stores/manual-runway.store'
 import { useLoadedUnitPreferences } from '@/modules/performance/stores/unit-preferences.store'
 import { convertLengthText, isLengthUnit } from '@/core/logic/unit-preferences'
@@ -95,8 +95,14 @@ export function usePressureAltitudeInput() {
     return { status: 'ready', method: 'qnh-elevation', value: result.pressureAltitudeFt, displayFt: result.displayPressureAltitudeFt }
   })
 
+  const warnings = computed(() => {
+    const result = derivation.value
+    return method.value === 'qnh-elevation' && result.status === 'valid' && result.warnings.qnhOutsideAdvisoryRange
+      ? [`WARNING WARN-UI-001: QNH ${result.qnh.value} hPa is outside the standard ${QNH_ADVISORY_HPA.min}–${QNH_ADVISORY_HPA.max} hPa range. Check the value.`] : []
+  })
+
   /** Any change of method, source text, unit or provenance makes prior results stale. */
   const revision = computed(() => JSON.stringify([method.value, direct.value, draft, copiedFromRunway.value]))
 
-  return { method, direct, draft, notice, derivation, savedRunway, copiedFromRunway, elevationProvenance, resolution, revision, useRunwayElevation }
+  return { warnings, method, direct, draft, notice, derivation, savedRunway, copiedFromRunway, elevationProvenance, resolution, revision, useRunwayElevation }
 }

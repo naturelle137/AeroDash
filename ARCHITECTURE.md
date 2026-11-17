@@ -120,6 +120,14 @@ unavailable landing result does not erase independently valid takeoff results.
 The persistent action explains blocked M&B eligibility and reserves content
 space above mobile navigation and its safe area.
 
+Export eligibility checks successful finite computation, current profile/input identity
+and hard failures separately from advisory severity. Only known computed M&B
+limit exceedances cross the critical-state gate; errors, unknown criticals and
+invalid computation remain blocked. This replaces the previous severity-only
+restriction. Exact warnings accompany affected mass/CG, station, fuel-budget and
+QNH-derived distance values. Printed SVG preserves critical color and crosshatching,
+including when browser print backgrounds are disabled.
+
 Opening, Print click and beforeprint check live eligibility. Source changes
 synchronously invalidate the snapshot and set a DOM/CSS guard before queued Vue
 renders can expose stale numbers to native printing. The snapshot fingerprint

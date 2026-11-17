@@ -20,12 +20,36 @@ export interface MbPrintSource {
   notifications: Notification[]
 }
 
+const computedExceedances: Readonly<Record<string, string>> = {
+  'CRIT-MB-001': 'CG_OUT_OF_ENVELOPE',
+  'CRIT-MB-002': 'MTOM_EXCEEDED',
+  'CRIT-MB-003': 'CG_MIGRATION_EXCEEDED',
+  'CRIT-MB-004': 'MZFM_EXCEEDED',
+}
+
 export function canPrintMb(source: MbPrintSource): boolean {
-  return source.ready && (source.state === 'WARNING' || source.state === 'VERIFIED_SAFE') &&
-    !!source.result?.success && !!source.aircraft && !!source.category &&
+  const result = source.result
+  const computedCritical = (note: Notification) => note.severity === 'CRITICAL' &&
+    result?.violations.some(v => v.type === computedExceedances[note.id])
+  // Only known, successfully computed exceedances may cross the critical-state gate.
+  // System/adapter errors and unknown future criticals remain blocked.
+  return source.ready && (source.state === 'WARNING' || source.state === 'VERIFIED_SAFE' ||
+    (source.state === 'ERROR_CRITICAL' && source.notifications.some(computedCritical))) &&
+    !!result?.success && !!source.aircraft && !!source.category &&
     source.profile?.id === source.aircraft.id &&
-    !source.notifications.some(n => n.severity === 'ERROR' || n.severity === 'CRITICAL') &&
+    [result.takeoffCenterOfGravityPoint, result.zeroFuelCenterOfGravityPoint,
+      result.landingCenterOfGravityPoint, ...result.migrationPath].every(p =>
+      Number.isFinite(p.mass) && p.mass > 0 && Number.isFinite(p.arm) && Number.isFinite(p.moment)) &&
+    !result.violations.some(v => v.type === 'INVALID_INPUT' && v.code !== 'OUT_OF_RANGE') &&
+    !source.notifications.some(n => n.severity === 'ERROR' || (n.severity === 'CRITICAL' && !computedCritical(n))) &&
     source.stations.every(s => !s.hasError && Number.isFinite(s.weight) && s.weight >= 0 && (!s.mandatory || s.touched))
+}
+
+/** Associate exact source notifications with the values they qualify. */
+function valueWarnings(source: MbPrintSource, contexts: readonly string[]): Notification[] {
+  return source.notifications.filter(n => n.severity !== 'INFO' &&
+    (contexts.includes(n.context ?? '') || n.context === 'Aircraft.Status' ||
+      n.context === 'MassBalance.Plausibility' || n.context === 'MassBalance.Validation'))
 }
 
 /** Presentation only: retain the store's results and notification text without recalculation. */
@@ -44,7 +68,8 @@ export function assembleMbPrint(source: MbPrintSource, now: Date) {
     chart: {
       result: JSON.parse(JSON.stringify(result)) as MathCoreResult,
       envelope: source.chartEnvelope.map(point => ({ ...point })),
-      severity: source.state === 'WARNING' ? 'warning' as const : 'success' as const,
+      severity: source.notifications.some(n => n.severity === 'CRITICAL') ? 'critical' as const
+        : source.state === 'WARNING' ? 'warning' as const : 'success' as const,
     },
     fuel: source.fuel ? {
       ...source.fuel,
@@ -71,13 +96,17 @@ export function assembleMbPrint(source: MbPrintSource, now: Date) {
     sourceUnit: profile.sourceUnit,
     datum: profile.referenceDatumDescription,
     loading: source.stations.map(s => ({
+      warnings: valueWarnings(source, []).concat(source.notifications.filter(n => n.id === 'WARN-MB-005' && n.message === `Station ${s.index} limit exceeded`)),
       name: s.name, quantity: `${s.weight} ${aircraft.loadPoints[s.index]?.unit ?? ''}${marker}`,
     })),
     points: [
       { label: 'Takeoff', point: result.takeoffCenterOfGravityPoint },
       { label: 'Zero fuel', point: result.zeroFuelCenterOfGravityPoint },
       { label: 'All usable fuel burned', point: result.landingCenterOfGravityPoint },
-    ].map(({ label, point }) => ({ label, mass: mass(point.mass), cg: arm(point.arm), limit: label === 'Takeoff' ? `MTOM: ${massLimit(normalizeMassToKg(category.maxTakeoffMass, massUnit))}` : label === 'Zero fuel' && category.maxZeroFuelMass !== null ? `MZFM: ${massLimit(normalizeMassToKg(category.maxZeroFuelMass, massUnit))}` : 'Not specified' })),
+    ].map(({ label, point }) => ({ label, mass: mass(point.mass), cg: arm(point.arm),
+      massWarnings: valueWarnings(source, label === 'Takeoff' ? ['MassBalance.TotalMass', 'FuelEndurance.Density'] : label === 'Zero fuel' ? ['MassBalance.ZFM'] : ['FuelEndurance.Density']),
+      cgWarnings: valueWarnings(source, ['MassBalance.CG', 'FuelEndurance.Density']),
+      limit: label === 'Takeoff' ? `MTOM: ${massLimit(normalizeMassToKg(category.maxTakeoffMass, massUnit))}` : label === 'Zero fuel' && category.maxZeroFuelMass !== null ? `MZFM: ${massLimit(normalizeMassToKg(category.maxZeroFuelMass, massUnit))}` : 'Not specified' })),
     mtom: massLimit(normalizeMassToKg(category.maxTakeoffMass, massUnit)),
     mzfm: category.maxZeroFuelMass === null ? 'Not specified' : massLimit(normalizeMassToKg(category.maxZeroFuelMass, massUnit)),
     graphType: category.graphType,

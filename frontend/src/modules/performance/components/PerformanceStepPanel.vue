@@ -3,18 +3,16 @@ import PressureAltitudeFieldset from './PressureAltitudeFieldset.vue'
 import type { PerformanceStep } from '../composables/performance-step'
 
 const props = defineProps<{ step: PerformanceStep; canCompute: boolean }>()
-const { temperature, showPaErrors, presentation, compute } = props.step
+const { temperature, showPaErrors, presentation } = props.step
 </script>
 
 <template>
-  <form class="performance-step" novalidate aria-label="Performance lookup conditions" @submit.prevent="compute">
+  <form class="performance-step" novalidate aria-label="Performance lookup conditions" @submit.prevent>
     <slot name="masses" />
     <div class="fields">
       <label>Temperature (°C)<input id="performance-temperature" v-model="temperature" type="text" inputmode="decimal" /></label>
     </div>
     <PressureAltitudeFieldset :pa="step.pa" :show-errors="showPaErrors" />
-    <p>Lookup units: mass kg, pressure altitude ft, temperature °C. Source tables are converted to these units.</p>
-    <button type="submit" :disabled="!canCompute">Compute raw distances</button>
 
     <section class="results" :aria-label="presentation.status === 'assessed' ? 'Raw POH table distances' : 'Performance results'" :data-status="presentation.status" aria-live="polite">
       <p v-if="presentation.status !== 'assessed'" :role="presentation.status === 'blocked' ? 'alert' : 'status'">
@@ -30,7 +28,7 @@ const { temperature, showPaErrors, presentation, compute } = props.step
         <dl v-else class="distances">
           <div v-for="row in group.rows" :key="row.label">
             <dt>{{ row.label }}</dt>
-            <dd>{{ row.value }}<small v-if="row.note" class="note">{{ row.note }}</small></dd>
+            <dd :class="{ warned: row.warnings?.length }">{{ row.value }}<small v-for="warning in row.warnings" :key="warning" class="note">{{ warning }}</small><small v-if="row.note" class="note">{{ row.note }}</small></dd>
           </div>
         </dl>
       </div>
@@ -55,6 +53,7 @@ h3 { margin: 0; }
 .distances { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: .75rem; margin: 0; }
 dt { font-weight: 600; }
 dd { margin: .25rem 0; font-size: 1.4rem; font-weight: 700; }
+.warned { border-left: 4px solid #ef6c00; padding-left: .5rem; color: #a34500; }
 .note { display: block; font-size: .9rem; font-weight: 400; }
 .scope { margin: 0; padding-left: 1.25rem; font-size: .95rem; }
 [role="alert"] { padding: .75rem; border-left: 4px solid var(--color-warning, #ba7b24); }

@@ -20,7 +20,7 @@ If the calculation uses a user-selected Operational Safety Factor that is lower 
 
 ### REQ-DOC-005: Notification Rendering in Export
 
-When generating the export, the system shall place every active WARNING or CRITICAL notification in the section identified by its notification context (for example, `MassBalance.CG` at the start of Mass & Balance).
+When generating the export, the system shall highlight each affected available value with its precise active warning or computed-exceedance notification.
 
 ### REQ-DOC-006: Performance briefing
 
@@ -32,7 +32,7 @@ When opening the M&B print preview, the system shall assemble the current aircra
 
 ### REQ-DOC-008: Print Eligibility
 
-While M&B has no successful result, incomplete or invalid inputs, a pending profile selection, loading, ERROR or CRITICAL state, the system shall block M&B printing.
+While M&B has no successful current result, incomplete or invalid inputs, a pending profile selection, loading or a hard computation error, the system shall block M&B printing.
 
 ### REQ-DOC-009: Snapshot Invalidation
 
@@ -98,7 +98,7 @@ When opening the briefing pack, the system shall include the shared current runw
 
 ### REQ-DOC-024: Printed chart
 
-When printing the briefing pack, the system shall render the existing normalized loading chart with readable axes, units and endpoint legend.
+When printing the briefing pack, the system shall preserve the normalized loading chart's severity color, hatching, readable axes, units and endpoint legend.
 
 ### REQ-DOC-025: Limits beside results
 
@@ -111,6 +111,12 @@ While no M&B notifications exist, the system shall omit the M&B notification sec
 ### REQ-DOC-027: Removed source section
 
 When displaying the briefing pack, the system shall omit the separate profile/source-status and category-limits chapters.
+
+### REQ-DOC-028: Computed exceedance export
+
+While current M&B values contain only advisory warnings or valid computed limit exceedances, the system shall permit their warned export.
+
+This supersedes the former severity-only print restriction in REQ-DOC-008; system/adapter failures remain blocked.
 
 ## Design References
 

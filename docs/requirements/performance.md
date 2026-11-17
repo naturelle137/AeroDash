@@ -148,7 +148,7 @@ If mass in kg, pressure altitude in ft or temperature in °C is empty, nonfinite
 
 ### REQ-PF-045: Result invalidation
 
-When a lookup input or the selected profile changes, the system shall immediately clear the prior raw distances.
+When a lookup input or the selected profile changes, the system shall synchronously recompute raw distances for the current inputs.
 
 ### REQ-PF-046: Raw distance scope
 
@@ -294,3 +294,11 @@ When saved preferences or runway declarations reopen, the system shall preserve 
 ### REQ-PF-078: Session numeric conditions
 
 When the page reloads, the system shall start numeric pressure-altitude and QNH inputs empty.
+
+### REQ-PF-079: Live calculation
+
+While lookup inputs are complete and supported, the system shall display current phase distances without a calculation trigger.
+
+### REQ-PF-080: Supported range presentation
+
+When displaying supported table ranges, the system shall apply REQ-UQ-003/004 presentation precision without rounding calculation bounds.

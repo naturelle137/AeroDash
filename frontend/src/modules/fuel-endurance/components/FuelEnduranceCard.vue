@@ -6,10 +6,7 @@ const { method, directTripFuel, consumption, trip, reserve, sequence, sequences,
 
 <template>
   <div class="fuel-planner">
-    <p>
-      Use the tank loads entered in Mass &amp; Balance. Unusable fuel is excluded; unavailable tanks
-      are not counted.
-    </p>
+
     <p v-if="fuel.ok" data-testid="usable-fuel">
       Usable fuel: {{ format(fuel.usableFuelKg) }} kg. Excluded unusable fuel:
       {{ format(fuel.excludedUnusableKg) }} kg.
@@ -68,16 +65,10 @@ const { method, directTripFuel, consumption, trip, reserve, sequence, sequences,
       aria-live="polite"
     >
       <dl v-if="plan">
-        <dt>Total endurance</dt>
-        <dd>{{ format(plan.enduranceMinutes) }} min</dd>
-        <dt>Trip fuel</dt>
-        <dd>{{ format(plan.tripFuelKg) }} kg</dd>
-        <dt>Required reserve fuel</dt>
-        <dd>{{ format(plan.reserveFuelKg) }} kg</dd>
-        <dt>Trip + reserve fuel</dt>
-        <dd>{{ format(plan.requiredFuelKg) }} kg</dd>
-        <dt>{{ plan.marginKg < 0 ? 'Fuel shortfall' : 'Remaining after trip + reserve' }}</dt>
-        <dd>{{ format(Math.abs(plan.marginKg)) }} kg</dd>
+        <template v-for="row in presentation.rows.filter(r => ['Total endurance', 'Trip fuel', 'Required reserve fuel', 'Trip + reserve fuel', 'Fuel shortfall', 'Remaining after trip + reserve'].includes(r.label))" :key="row.label">
+          <dt>{{ row.label }}</dt>
+          <dd :class="{ warned: row.warnings?.length }">{{ row.value }}<p v-for="warning in row.warnings" :key="warning">{{ warning }}</p></dd>
+        </template>
       </dl>
       <section v-if="arrival?.ok" aria-label="Estimated trip arrival" aria-live="polite">
         <h3>Estimated trip arrival</h3>
@@ -137,6 +128,7 @@ const { method, directTripFuel, consumption, trip, reserve, sequence, sequences,
 </template>
 
 <style scoped>
+.warned { border-left: 4px solid #ef6c00; padding-left: .5rem; }
 .fuel-planner {
   padding: var(--space-4);
 }

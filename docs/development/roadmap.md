@@ -31,8 +31,9 @@ Every delivery includes relevant core/component tests, a real browser flow with 
 ## Further capabilities
 
 - **Offline preparation:** remaining variable-arm trip-specific CG (nonzero unusable fuel, multiple lookup tanks) and full-flight fuel-burn path assessment, obstacle constraints and a consolidated Go/No-Go advisory; native electric-aircraft energy/endurance support.
-- **Weather and airports:** METAR/TAF, time/location forecasts, source/timestamp display, manual overrides, runway conditions and wind-limit warnings; graceful offline behavior.
+- **Weather and airports:** later move temperature, wind and QNH inputs into Weather before Performance. METAR/TAF, time/location forecasts, source/timestamp display, manual overrides, runway conditions and wind-limit warnings; graceful offline behavior.
 - **Decision summary:** Flight Preparation shows current takeoff/zero-fuel mass differences to entered MTOM/MZFM as an arithmetic comparison (#521), with neutral within-limit styling and a raw exact-limit cross-check (#527); it adds no margin threshold, payload advice or suitability verdict, and #110 remains open.
+- **User profiles:** when user profiles become available, move Performance unit preferences into them; retain current preferences until then. Aircraft profiles do not provide user accounts.
 - **Briefing pack:** the complete current assembly is available through native browser print, including current Performance and its unavailable states. A dedicated downloadable PDF feature remains open. The all-usable-fuel-burned endpoint is not trip arrival or a suitability verdict. Controlled Performance sources (#305/#300), remaining runway work (#302), estimation (#301) and #420 remain open.
 - **Connected pilot:** OIDC authentication, personal/organization workspaces, role-based permissions, sharing and offline-first synchronization. No backend is shipped by the current frontend-only app.
 - **Usability:** dark mode, touch-friendly controls, small-screen layouts, contextual help and cross-device offline verification.

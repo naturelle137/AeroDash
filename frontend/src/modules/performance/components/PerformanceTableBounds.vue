@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { formatMassConservative, formatMassLimitConservative, formatArm, getDecimalPrecision } from '@/core/logic/display-rounding'
 import { PHASES, PHASE_INFO, type InspectionFailure, type TableInspection } from '../services/poh-inspection'
 
 defineProps<{ tables: TableInspection | InspectionFailure | null }>()
@@ -14,16 +15,14 @@ defineProps<{ tables: TableInspection | InspectionFailure | null }>()
         <tbody>
           <tr v-for="phase in PHASES" :key="phase">
             <th scope="row">{{ PHASE_INFO[phase].label }}</th>
-            <td>{{ tables.bounds[phase].mass.min }} to {{ tables.bounds[phase].mass.max }} kg</td>
-            <td>{{ tables.bounds[phase].pressureAltitude.min }} to {{ tables.bounds[phase].pressureAltitude.max }} ft</td>
-            <td>{{ tables.bounds[phase].temperature.min }} to {{ tables.bounds[phase].temperature.max }} °C</td>
+            <td>{{ formatMassConservative(tables.bounds[phase].mass.min) }} to {{ formatMassLimitConservative(tables.bounds[phase].mass.max) }} kg</td>
+            <td>{{ formatArm(tables.bounds[phase].pressureAltitude.min, getDecimalPrecision('ft')) }} to {{ formatArm(tables.bounds[phase].pressureAltitude.max, getDecimalPrecision('ft')) }} ft</td>
+            <td>{{ formatArm(tables.bounds[phase].temperature.min, getDecimalPrecision('°C')) }} to {{ formatArm(tables.bounds[phase].temperature.max, getDecimalPrecision('°C')) }} °C</td>
           </tr>
         </tbody>
       </table>
     </div>
-    <p>Inside a table: interpolated. Mass below its minimum: capped at the minimum-mass distance (never shorter),
-      only if the table never decreases with mass. Mass above its maximum, and pressure altitude or temperature
-      outside it: blocked, with no clamping or extrapolation.</p>
+
   </div>
 </template>
 
