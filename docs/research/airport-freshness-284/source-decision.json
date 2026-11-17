@@ -1,0 +1,216 @@
+{
+  "schemaVersion": 1,
+  "issue": 284,
+  "research_job": 1891,
+  "checked_date": "2026-11-17",
+  "decision": "missing-source-prerequisite; deliver scoped requirements/source-contract disposition",
+  "feature_complete": false,
+  "runtime_change_justified": false,
+  "calendar_only_completes_issue": false,
+  "base_ref": "origin/develop",
+  "base_commit": "45a04abd9de9c3b2176f8517a2ea268116c9a38c",
+  "checked_input": {
+    "local_job": 1889,
+    "checker": 1890,
+    "original_verdict": "rework",
+    "cloud_corrections": 1,
+    "artifact": "var/jobs/1890/airport-freshness-input-corrected.json",
+    "sha256": "d98a58befb47c3f160ba3abd8e77db34dc25b29878fe24aff2a530fc5e606403",
+    "rows_consumed": 3,
+    "exact_citations_verified": 41,
+    "files": [
+      {
+        "path": "docs/requirements/airport_database.md",
+        "sha256": "7e5f6f5694b4704af6c1eed94294f3068636662967bc87165e8def64baddb53e",
+        "exact_citations": 3
+      },
+      {
+        "path": "frontend/src/core/logic/manual-runway.ts",
+        "sha256": "b7eea3af16d0e3bc3bfb03b09065da73ab9ba09a5e59811b0ecc03cf7b270f23",
+        "exact_citations": 25
+      },
+      {
+        "path": "docs/architecture/manual-runway-entry.md",
+        "sha256": "bcba713a94692b8463688fa63bc04b02f5371916b51d50b01aebae6d439c489a",
+        "exact_citations": 13
+      }
+    ]
+  },
+  "primary_sources": [
+    {
+      "id": "EC-AIRAC",
+      "publisher": "EUROCONTROL",
+      "title": "Aeronautical information regulation and control (AIRAC) dates",
+      "url": "https://www.eurocontrol.int/publication/aeronautical-information-regulation-and-control-airac-dates",
+      "section": "Introductory AIRAC publication procedure",
+      "published": "2020-07-02",
+      "checked": "2026-11-17",
+      "type": "official explanatory publication, not law or airport dataset",
+      "finding": "Dispatch 42 days ahead; target receipt 28 days ahead; major-change notice 56 days where desirable/practicable. Advance notice, not record expiry.",
+      "calendar_download_consumed": false
+    },
+    {
+      "id": "ES-GEN-3.1",
+      "publisher": "ENAIRE AIS",
+      "title": "AIP España GEN 3.1",
+      "url": "https://aip.enaire.es/aip/contenido_AIP/GEN/LE_GEN_3_1_en.html",
+      "sections": [
+        "2",
+        "3.1",
+        "3.2",
+        "3.4",
+        "3.4.2",
+        "3.5",
+        "4",
+        "6.1",
+        "6.1.2"
+      ],
+      "checked": "2026-11-17",
+      "displayed_header_dates": [
+        "09-JUL-26",
+        "22-JAN-26"
+      ],
+      "displayed_amendments": [
+        "408/26",
+        "402/26"
+      ],
+      "latest_full_consolidation_verified": false,
+      "type": "official Spanish AIS publication; not German/EU legal applicability",
+      "finding": "Amendment, supplement, NOTAM and calendar semantics differ. Digital aerodrome datasets are described, but none is selected or integrated in AeroDash.",
+      "record_effective_at": null,
+      "record_expires_at": null
+    }
+  ],
+  "calendar": {
+    "source": "ES-GEN-3.1 section 4",
+    "pairs": [
+      {
+        "publication_date": "2026-09-17",
+        "effective_date": "2026-10-29"
+      },
+      {
+        "publication_date": "2026-10-15",
+        "effective_date": "2026-11-26"
+      },
+      {
+        "publication_date": "2026-11-12",
+        "effective_date": "2026-12-24"
+      },
+      {
+        "publication_date": "2026-12-10",
+        "effective_date": "2027-01-21"
+      }
+    ],
+    "granularity": "date only; effective time/timezone not established by the table",
+    "check_date_previous_effective": "2026-10-29",
+    "check_date_next_effective": "2026-11-26",
+    "record_expiry_inference_allowed": false
+  },
+  "current_external_dataset": null,
+  "current_external_airport_consumer": null,
+  "manual_record": {
+    "path": "frontend/src/core/logic/manual-runway.ts",
+    "symbols": [
+      "ManualRunwaySchema",
+      "ManualRunwayRecordSchema",
+      "createManualRunwayRecord",
+      "recoverManualRunwayRecord"
+    ],
+    "record_fields": [
+      "schemaVersion:1",
+      "savedAt:ISO datetime",
+      "runway"
+    ],
+    "runway_fields": [
+      "aerodrome",
+      "designator",
+      "tora:{value,unit}",
+      "lda:{value,unit}",
+      "fieldElevation:{value,unit}",
+      "surface:{type,condition}"
+    ],
+    "source_metadata_fields": [],
+    "savedAt_semantics": "save Date serialized by helper; store save(now = new Date()) supplies the default wall clock; not source-effective, expiry, retrieval or verification time",
+    "persistence": "localStorage",
+    "storage_key": "aerodash.performance.manual-runway.v1",
+    "current_semantics": "valid saved declaration equal to current form, with finite normalization; not source currency"
+  },
+  "callers": [
+    "frontend/src/modules/airport/services/manual-runway.repository.ts",
+    "frontend/src/modules/airport/stores/manual-runway.store.ts",
+    "frontend/src/modules/airport/components/ManualRunwayPanel.vue",
+    "frontend/src/modules/performance/views/PerformanceView.vue",
+    "frontend/src/modules/performance/components/FlightPrepPerformance.vue",
+    "frontend/src/modules/performance/composables/performance-step.ts",
+    "frontend/src/modules/performance/composables/pressure-altitude-input.ts",
+    "frontend/src/modules/performance/components/CorrectionSourcePanel.vue",
+    "frontend/src/views/PrivacyView.vue"
+  ],
+  "policy": {
+    "manual_source_currency": "unknown",
+    "manual_marker": "user-entered, not airport-validated",
+    "external_initial_parameter_verification": "Unverified (REQ-AP-005)",
+    "freshness_can_set_verified": false,
+    "freshness_can_approve_operations": false,
+    "stale_requires": "source-supported expiry/supersession or accepted provider-specific update/completeness contract",
+    "missing_metadata": "unknown, not fresh and not automatically stale",
+    "future_effect": "not-yet-effective; do not apply early",
+    "notam_coverage": "unknown; separate from AIRAC applicability",
+    "override": "manual provenance retained separately; never renews source currency",
+    "offline": "preserve existing manual workflow and limitations",
+    "generic_28_day_or_savedAt_expiry": false,
+    "ci_staleness_gate_today": "not executable: no real integrated dataset/manifest/consumer"
+  },
+  "disposition_files": [
+    "docs/requirements/airport_database.md",
+    "docs/architecture/manual-runway-entry.md",
+    "docs/risk_management/safety_hazards.md",
+    "docs/development/roadmap.md"
+  ],
+  "scope_correction": "Retain REQ-AP-005 and manual requirements; add explicit external-source prerequisite, timestamp/verification separation and unimplemented freshness status. Original #284 stays open. Exact prose and acceptance in executable-contract.md.",
+  "runtime_evidence_required_if_later_implemented": {
+    "widths_px": [
+      390,
+      1440
+    ],
+    "production_cached_offline": true,
+    "visible_briefing_consistency": true,
+    "synthetic_cases": "See executable-contract.md; software-only, no operational data invented",
+    "physical_device_acceptance_claimed": false
+  },
+  "verification": {
+    "input_hashes_and_41_citations": true,
+    "live_primary_sources": true,
+    "json_parse": true,
+    "lint": "pending delivery owner on actual integration candidate",
+    "unit": "pending delivery owner on actual integration candidate",
+    "e2e": "not run; research-only, no runtime change",
+    "fresh_independent_review": "one combined disposition/delivery review owned by terminal1892",
+    "fix_round_limit": 1,
+    "protected_signed_integration": "required; not claimed complete by research",
+    "research_artifact_markdownlint": "PASS markdownlint-cli2 0.24.1, 0 issues",
+    "finite_contract_consistency": "PASS JSON parse, source count, 3 files/41 citations, absent dataset and no automatic approval"
+  },
+  "open_uncertainties": [
+    "Eligible provider/record and reuse permission",
+    "Real dataset coverage, version and effective metadata",
+    "Provider-specific expiry/supersession/update semantics",
+    "Dynamic restriction coverage",
+    "Latest full ENAIRE consolidation and German applicability not established"
+  ],
+  "owner": {
+    "terminal_delivery_and_next_aero_supply": 1892,
+    "product_acceptance": "CPO",
+    "aviation_accuracy": "aviation subject owner",
+    "technical_integration": "CTO"
+  },
+  "resume_event": "Accepted integration of named eligible airport source, actual consumer, source-specific metadata and limitations; no timed AIRAC restart",
+  "preserved_holds": [
+    "305/HQ638 controlled source",
+    "300/302 sourced composition",
+    "420 genuine-device evidence",
+    "301 established new-primary-source event",
+    "581 established fix-or-expiry exception removal"
+  ],
+  "external_notifications_or_uploads": false
+}
