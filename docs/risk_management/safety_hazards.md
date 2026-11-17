@@ -116,9 +116,11 @@ These hazards guide calculation and UX checks; listing a requirement does not pr
 
 ### H-015: Runway data errors
 
-**Hazard:** Real available runway lengths might be significantly shorter than DB states.
+**Hazard:** Available runway lengths may be shorter than entered or externally supplied values.
 **Severity:** S1
-**Cause:** Inaccurate runway data from unverified Open-Source DBs.
+**Cause:** Incorrect manual transcription, outdated source information or unverified external data.
+**Current boundary:** Manual provenance distinguishes pilot entries from airport-validated data; automatic outdated-airport-data detection is not implemented. Local save time does not establish source currency.
+**Source prerequisite:** See the [AIRAC/source contract](../regulatory/airac-airport-data-contract.md); H-015 remains open, without new residual-risk acceptance.
 **Relevant requirements:** REQ-AP-005, REQ-DOC-002, REQ-DOC-003, REQ-UI-015
 
 ### H-016: Operational Safety Factors errors
