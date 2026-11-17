@@ -148,7 +148,10 @@ test('Flight Prep shares current phase masses and converted units online and cac
   const originalViewport = page.viewportSize()!
   for (const viewport of [{ width: 1440, height: 1000 }, { width: 440, height: 894 }, { width: 320, height: 894 }]) {
     await page.setViewportSize(viewport)
-    await derived.scrollIntoViewIfNeeded()
+    await derived.evaluate(node => node.scrollIntoView({ block: 'center' }))
+    await expect(derived).toBeInViewport({ ratio: 1 })
+    // Let Chromium paint the resized viewport before capturing offline evidence.
+    await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))))
     expect(await page.evaluate(() => document.body.scrollWidth)).toBeLessThanOrEqual(viewport.width)
     const path = info.outputPath(`qnh-${viewport.width}.png`)
     await page.screenshot({ path, animations: 'disabled' }); await info.attach(`qnh-${viewport.width}`, { path, contentType: 'image/png' })
@@ -182,7 +185,10 @@ test('Flight Prep shares current phase masses and converted units online and cac
   await expect(takeoff.locator('dd')).toHaveText(['210.1 m', '310.1 m'])
   for (const viewport of [{ width: 1440, height: 1000 }, { width: 440, height: 894 }, { width: 320, height: 894 }]) {
     await page.setViewportSize(viewport)
-    await derived.scrollIntoViewIfNeeded()
+    await derived.evaluate(node => node.scrollIntoView({ block: 'center' }))
+    await expect(derived).toBeInViewport({ ratio: 1 })
+    // Let Chromium paint the resized viewport before capturing offline evidence.
+    await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))))
     expect(await page.evaluate(() => document.body.scrollWidth)).toBeLessThanOrEqual(viewport.width)
     const path = info.outputPath(`qnh-warmed-offline-${viewport.width}.png`)
     await page.screenshot({ path, animations: 'disabled' }); await info.attach(`qnh-warmed-offline-${viewport.width}`, { path, contentType: 'image/png' })
