@@ -1,17 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import {
-  ALTIMETER_SETTING_LAPSE_RATE_K_PER_M,
-  ALTIMETER_SETTING_OFFSET_HPA,
-  ALTIMETER_SETTING_TEMPERATURE_K,
   ELEVATION_SUPPORTED_FT,
-  PRESSURE_ALTITUDE_COEFFICIENT_FT,
-  PRESSURE_ALTITUDE_EXPONENT,
+  QNH_PRESSURE_EXPONENT,
   QNH_SUPPORTED_HPA,
+  STANDARD_LAPSE_RATE_K_PER_M,
   STANDARD_PRESSURE_HPA,
+  STANDARD_TEMPERATURE_K,
   derivePressureAltitude,
   pressureAltitudeFromQnh,
-  pressureAltitudeFromStationPressure,
-  stationPressureFromQnh,
   type PressureAltitudeDraft,
 } from './pressure-altitude'
 
@@ -30,72 +26,73 @@ const errorsOf = (patch: Partial<PressureAltitudeDraft>) => {
 }
 
 describe('pressure altitude from QNH and field elevation', () => {
-  it('uses the published NWS constants', () => {
-    expect(PRESSURE_ALTITUDE_COEFFICIENT_FT).toBe(145366.45)
-    expect(PRESSURE_ALTITUDE_EXPONENT).toBe(0.190284)
+  it('uses consistent ICAO QNH constants', () => {
     expect(STANDARD_PRESSURE_HPA).toBe(1013.25)
-    expect(ALTIMETER_SETTING_OFFSET_HPA).toBe(0.3)
-    expect(ALTIMETER_SETTING_LAPSE_RATE_K_PER_M).toBe(0.0065)
-    expect(ALTIMETER_SETTING_TEMPERATURE_K).toBe(288)
+    expect(STANDARD_TEMPERATURE_K).toBe(288.15)
+    expect(STANDARD_LAPSE_RATE_K_PER_M).toBe(0.0065)
+    expect(QNH_PRESSURE_EXPONENT).toBe(5.25588)
   })
 
-  // Expected values computed independently with Python decimal (40 digits), not with this module:
-  // P = (QNH^n − 1013.25^n · 0.0065/288 · h_m)^(1/n) + 0.3, PA = 145366.45 · (1 − (P/1013.25)^n).
+  // Independent Python Decimal(50) oracle of the inverse ICAO QNH equation;
+  // expected values are frozen, never computed with product functions/constants.
   it.each([
-    ['1013.25', '0', -8.188777],
-    ['1013', '0', -1.364932],
-    ['1000', '0', 355.368070],
-    ['950', '0', 1763.402729],
-    ['1050', '0', -996.784081],
-    ['850', '0', 4769.753243],
-    ['1100', '0', -2297.780099],
-    ['983', '1500', 2327.192520],
-    ['1013.25', '1000', 991.567192],
-    ['1030', '-1240', -1702.026273],
-    ['940', '-100', 1952.205967],
-    ['850', '15000', 19763.937842],
-    ['1100', '-1500', -3797.457643],
-  ])('QNH %s hPa at %s ft gives %f ft', (qnh, elevation, expected) => {
-    expect(derived({ qnh, elevation }).pressureAltitudeFt).toBeCloseTo(expected, 5)
+    ['850', '-1500', '-457.2000', 3281.166011941, 3282],
+    ['950', '-1500', '-457.2000', 272.759455078, 273],
+    ['1000', '-1500', '-457.2000', -1136.205956780, -1136],
+    ['1013', '-1500', '-457.2000', -1493.171714877, -1493],
+    ['1013.25', '-1500', '-457.2000', -1500.000000000, -1500],
+    ['1050', '-1500', '-457.2000', -2489.234046137, -2489],
+    ['1100', '-1500', '-457.2000', -3791.057207050, -3791],
+    ['850', '0', '0.0000', 4781.166011941, 4782],
+    ['950', '0', '0.0000', 1772.759455078, 1773],
+    ['1000', '0', '0.0000', 363.794043220, 364],
+    ['1013', '0', '0.0000', 6.828285123, 7],
+    ['1013.25', '0', '0.0000', 0.000000000, 0],
+    ['1050', '0', '0.0000', -989.234046137, -989],
+    ['1100', '0', '0.0000', -2291.057207050, -2291],
+    ['850', '1000', '304.8000', 5781.166011941, 5782],
+    ['950', '1000', '304.8000', 2772.759455078, 2773],
+    ['1000', '1000', '304.8000', 1363.794043220, 1364],
+    ['1013', '1000', '304.8000', 1006.828285123, 1007],
+    ['1013.25', '1000', '304.8000', 1000.000000000, 1000],
+    ['1050', '1000', '304.8000', 10.765953863, 11],
+    ['1100', '1000', '304.8000', -1291.057207050, -1291],
+    ['850', '15000', '4572.0000', 19781.166011941, 19782],
+    ['950', '15000', '4572.0000', 16772.759455078, 16773],
+    ['1000', '15000', '4572.0000', 15363.794043220, 15364],
+    ['1013', '15000', '4572.0000', 15006.828285123, 15007],
+    ['1013.25', '15000', '4572.0000', 15000.000000000, 15000],
+    ['1050', '15000', '4572.0000', 14010.765953863, 14011],
+    ['1100', '15000', '4572.0000', 12708.942792950, 12709],
+  ])('QNH %s hPa at %s ft (%s m) gives %f ft, displayed %i', (qnh, elevation, elevationM, expected, display) => {
+    for (const input of [{ elevation, elevationUnit: 'ft' }, { elevation: elevationM, elevationUnit: 'm' }]) {
+      const result = derived({ qnh, ...input })
+      expect(Math.abs(result.pressureAltitudeFt - expected)).toBeLessThan(0.001)
+      expect(result.displayPressureAltitudeFt).toBe(display)
+    }
   })
 
-  it('converts metre elevation exactly through FT_TO_M', () => {
-    const result = derived({ qnh: '1000', elevation: '457.2', elevationUnit: 'm' })
-    expect(result.elevationFt).toBeCloseTo(1500, 9)
-    expect(result.pressureAltitudeFt).toBeCloseTo(1854.993736, 5)
-    expect(result.elevation).toEqual({ value: 457.2, unit: 'm' })
-    expect(result.displayPressureAltitudeFt).toBe(1855)
+  it.each([-1500, 0, 1000, 15000])('equals elevation %i only at exact standard QNH', (elevation) => {
+    expect(pressureAltitudeFromQnh(1013.25, elevation)).toBe(elevation)
+    expect(pressureAltitudeFromQnh(1013, elevation)).toBeGreaterThan(elevation)
   })
 
-  // Same-P round trip through both cited NWS sheets: station pressure P and elevation give the
-  // altimeter setting A (with P − 0.3 as published); the model must recover P itself and the NWS
-  // pressure altitude of that same P. Settings and PA from the independent Python computation.
-  it.each([
-    // Review PA-01 reproduction.
-    [950.3, 1800, 1014.274988094126, 1763.402729357421],
-    [1000, 0, 999.7, 363.644578556939],
-    [1013.25, 400, 1027.684959077727, 0],
-    [980, 4500, 1151.105203218686, 920.001823507912],
-    [1030, -1240, 984.506223674033, -454.231376885259],
-    [1050, -1500, 994.377629805917, -988.828124275084],
-  ])('recovers station pressure %f hPa at %i ft from its NWS altimeter setting', (stationHpa, elevationFt, qnh, stationPa) => {
-    expect(stationPressureFromQnh(qnh, elevationFt)).toBeCloseTo(stationHpa, 9)
-    expect(pressureAltitudeFromStationPressure(stationHpa)).toBeCloseTo(stationPa, 6)
-    expect(pressureAltitudeFromQnh(qnh, elevationFt)).toBeCloseTo(stationPa, 6)
-  })
-
-  it('stays within the documented bound of the idealized elevation + PA(QNH) relation', () => {
-    const idealized = (qnh: number, elevationFt: number) => elevationFt
-      + PRESSURE_ALTITUDE_COEFFICIENT_FT * (1 - Math.pow(qnh / STANDARD_PRESSURE_HPA, PRESSURE_ALTITUDE_EXPONENT))
-    for (const qnh of [850, 950, 1013.25, 1100]) {
-      for (const elevationFt of [-1500, 0, 1800, 15000]) {
-        const difference = pressureAltitudeFromQnh(qnh, elevationFt) - idealized(qnh, elevationFt)
-        expect(difference).toBeLessThan(-7.3)
-        expect(difference).toBeGreaterThan(-15.3)
+  it('increases with elevation and decreases with QNH throughout the input domain', () => {
+    for (const elevation of [-1500, 0, 1000, 14999]) {
+      for (let qnh = 850; qnh < 1100; qnh += 1) {
+        const pa = pressureAltitudeFromQnh(qnh, elevation)
+        expect(pressureAltitudeFromQnh(qnh + 1, elevation)).toBeLessThan(pa)
+        expect(pressureAltitudeFromQnh(qnh, elevation + 1)).toBeCloseTo(pa + 1, 9)
       }
     }
-    // PA-01 case: the idealized relation gives 1772.030103 ft instead of 1763.402729 ft.
-    expect(idealized(1014.274988094126, 1800)).toBeCloseTo(1772.030103, 5)
+  })
+
+  it('rounds toward positive infinity on both sides of zero without rounding lookup PA', () => {
+    for (const [elevation, display] of [['1.01', 2], ['-1.99', -1], ['-0.1', 0], ['0', 0], ['1', 1]] as const) {
+      const result = derived({ elevation })
+      expect(result.pressureAltitudeFt).toBe(Number(elevation))
+      expect(Object.is(result.displayPressureAltitudeFt, display)).toBe(true)
+    }
   })
 
   it('differs from the linear 30 ft/hPa rule, which understates PA above standard pressure', () => {
@@ -115,7 +112,7 @@ describe('pressure altitude from QNH and field elevation', () => {
   })
 
   it('never displays negative zero', () => {
-    expect(Object.is(derived({ qnh: '1012.96' }).displayPressureAltitudeFt, 0)).toBe(true)
+    expect(Object.is(derived({ qnh: '1013.26' }).displayPressureAltitudeFt, 0)).toBe(true)
   })
 
   it.each(['', '  ', 'abc', 'NaN', 'Infinity', '0x3F5', '1e400', '1,013'])('rejects QNH text %j', (qnh) => {

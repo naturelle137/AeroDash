@@ -63,11 +63,13 @@ function paError(field: PressureAltitudeField): string | undefined {
 
       </div>
       <p v-else>No derived pressure altitude. Enter QNH and field elevation with units.</p>
-      <details class="method-limits"><summary>Method: NOAA/NWS altimeter-setting and pressure-altitude formulas</summary><p>Solved for
-        the station pressure P whose altimeter setting at this elevation equals the QNH (including the
-        published 0.3 hPa term); PA = 145366.45 × (1 − (P / 1013.25)^0.190284) ft. With QNH 1013.25 hPa this
-        gives about 8 ft below the elevation. It assumes the QNH is the current altimeter setting for this
-        aerodrome and the elevation is where you need pressure altitude.
+      <details class="method-limits"><summary>Method: ICAO/WMO standard-atmosphere QNH relationship</summary><p>
+        Pressure altitude equals field elevation plus the standard-atmosphere pressure altitude of QNH,
+        using 1013.25 hPa, 288.15 K, 0.0065 K/m and pressure exponent 5.25588.
+        At exactly 1013.25 hPa, pressure altitude equals elevation; 1013 hPa is a different setting.
+        Display rounds toward positive infinity to whole ft; table lookup uses the unrounded value.
+        It assumes current QNH for this aerodrome and elevation at the point where pressure altitude is needed;
+        it does not correct for non-standard temperature or observation rounding.
         It is not the 30 ft/hPa rule of thumb, not an aircraft model and not validated against your POH/AFM.
         These inputs are not stored.</p></details>
     </section>

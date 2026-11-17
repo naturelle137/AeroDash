@@ -176,10 +176,9 @@ test('integrated direct-derived equivalence and expired verification remain expl
   const takeoff = page.getByRole('group', { name: 'Takeoff raw distances' })
   const derived = await takeoff.locator('dd').allTextContents()
   // Independent published formula, no call into product calculation code.
-  const pressure = (1013.25 ** 0.190284 - 1013.25 ** 0.190284 * 0.0065 / 288 * 304.8) ** (1 / 0.190284) + 0.3
-  const expectedPa = 145366.45 * (1 - (pressure / 1013.25) ** 0.190284)
-  expect(expectedPa).toBeCloseTo(991.567192096912, 9)
-  await expect(takeoff.locator('dd')).toHaveText(['219.9 m', '319.9 m'])
+  // Exact standard QNH preserves the 1000 ft elevation.
+  const expectedPa = 1000
+  await expect(takeoff.locator('dd')).toHaveText(['220.0 m', '320.0 m'])
   await page.getByRole('radio', { name: 'Enter pressure altitude directly', exact: true }).check()
   await page.getByLabel('Pressure altitude (ft)', { exact: true }).fill(String(expectedPa))
 

@@ -133,20 +133,25 @@ it('blocks computation until a pressure-altitude method is chosen', async () => 
 it('derives pressure altitude from QNH and elevation and uses the unrounded value', async () => {
   const view = await mountReady()
   await fillDerived(view, '1000', 'hPa', '457.2', 'm')
-  // Independent reference: 1854.993736 ft (Python decimal); TOR = 200 + 100 + PA/100 + 10.
-  expect(view.get('[aria-label="Derived pressure altitude"]').text()).toContain('1855 ft')
+  // Independent reference: 1863.794043 ft (Python decimal); TOR = 200 + 100 + PA/100 + 10.
+  expect(view.get('[aria-label="Derived pressure altitude"]').text()).toContain('1864 ft')
   expect(view.text()).not.toContain('The lookup uses the unrounded value.')
   expect(view.text()).toContain('Field elevation source: Entered by you.')
+  expect(results(view).text()).toContain('228.6 m')
+  expect(results(view).text()).toContain('1864 ft, derived from QNH and field elevation')
+  // Raw PA 1854.494043 ft gives 228.544940 m; using displayed 1855 ft would give 228.6 m.
+  await field(view, 'Pressure-altitude field elevation').setValue('454.36536')
+  expect(view.get('[aria-label="Derived pressure altitude"]').text()).toContain('1855 ft')
   expect(results(view).text()).toContain('228.5 m')
-  expect(results(view).text()).toContain('1855 ft, derived from QNH and field elevation')
+
 })
 
 it('keeps the direct entry untouched across method changes and clears results on every change', async () => {
   const view = await mountReady()
   await fillLookup(view, '900', '1000', '10')
-  // QNH 1013.25 hPa at 100 ft gives 91.787216 ft (Python decimal), TOR 210.9 m.
+  // Exact standard QNH at 100 ft gives 100 ft, TOR 211.0 m.
   await fillDerived(view, '1013.25', 'hPa', '100', 'ft')
-  expect(results(view).text()).toContain('210.9 m')
+  expect(results(view).text()).toContain('211.0 m')
   for (const [caption, value] of [['QNH', '1013'], ['QNH unit', ''], ['Pressure-altitude field elevation', '1'], ['Pressure-altitude field elevation unit', 'm']] as const) {
       await field(view, caption).setValue(value)
     expect(results(view).exists()).toBe(caption === 'QNH')
@@ -200,9 +205,9 @@ it('copies the saved runway elevation only on request and drops it when the runw
   expect((field(view, 'Pressure-altitude field elevation').element as HTMLInputElement).value).toBe('304.8')
   expect((field(view, 'Pressure-altitude field elevation unit').element as HTMLSelectElement).value).toBe('m')
   expect(view.text()).toContain('Copied by you from the saved manual runway TEST 27')
-  // QNH 1013.25 hPa at 1000 ft gives 991.567192 ft (Python decimal), TOR 219.9 m.
-  expect(view.get('[aria-label="Derived pressure altitude"]').text()).toContain('992 ft')
-  expect(results(view).text()).toContain('219.9 m')
+  // Exact standard QNH at 1000 ft gives 1000 ft, TOR 220.0 m.
+  expect(view.get('[aria-label="Derived pressure altitude"]').text()).toContain('1000 ft')
+  expect(results(view).text()).toContain('220.0 m')
   // Editing the runway invalidates the copied elevation, its derived PA and the distances.
   await view.get('#manual-runway-elevation').setValue('0')
   expect(results(view).exists()).toBe(false)

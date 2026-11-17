@@ -52,7 +52,7 @@ While a result uses extrapolated data, the system shall withhold acceptance of t
 
 ### REQ-PF-013: Pressure Altitude Formula
 
-When deriving pressure altitude from QNH and field elevation, the system shall use `PA(ft) = 145366.45 × (1 − (P / 1013.25)^0.190284)` with station pressure `P(hPa) = (QNH^0.190284 − 1013.25^0.190284 × 0.0065 / 288 × Elevation(m))^(1/0.190284) + 0.3` per the [pressure-altitude contract](../architecture/pressure-altitude.md).
+When deriving pressure altitude from QNH and field elevation, the system shall use `PA(ft) = Elevation(ft) + [288.15 / (0.0065 × 0.3048)] × [1 − (QNH(hPa) / 1013.25)^(1 / 5.25588)]` per the [pressure-altitude contract](../architecture/pressure-altitude.md).
 
 ### REQ-PF-014
 
@@ -201,7 +201,7 @@ If QNH is not a finite hPa value from 850 through 1100 or field elevation is not
 
 ### REQ-PF-057: Derived pressure-altitude display
 
-When pressure altitude is derived, the system shall display the result in ft together with the entered QNH, elevation, units, elevation source and method limits.
+When pressure altitude is derived, the system shall display the result rounded toward positive infinity to whole ft with negative zero normalized, together with the entered QNH, elevation, units, elevation source and method limits.
 
 ### REQ-PF-058: Runway elevation reuse
 

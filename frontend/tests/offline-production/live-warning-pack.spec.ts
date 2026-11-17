@@ -70,9 +70,9 @@ test('live partial edits recover, warnings follow their values and inline units 
     await temperature.fill('10')
     await expect(takeoff.locator('dd')).toHaveCount(2)
     await expect(perf.locator('details.method-limits')).not.toHaveAttribute('open')
-    await perf.getByText('Method: NOAA/NWS altimeter-setting and pressure-altitude formulas', { exact: true }).click()
+    await perf.getByText('Method: ICAO/WMO standard-atmosphere QNH relationship', { exact: true }).click()
     await expect(perf.locator('details.method-limits')).toHaveAttribute('open', '')
-    await perf.getByText('Method: NOAA/NWS altimeter-setting and pressure-altitude formulas', { exact: true }).click()
+    await perf.getByText('Method: ICAO/WMO standard-atmosphere QNH relationship', { exact: true }).click()
     const originalViewport = page.viewportSize()!
     for (const width of [originalViewport.width, 320]) {
       await page.setViewportSize({ width, height: 1000 })

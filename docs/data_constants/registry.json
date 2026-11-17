@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "description": "Source-cited registry of safety-relevant hardcoded data constants. Single source of truth for the value-provenance metadata of constants whose silent revision could distort a Go/No-Go advisory (fuel densities, occupant masses). The runtime values themselves live in code (see each entry's `code` block); this registry records WHERE each value came from and WHEN it must be re-verified. Enforced by the data-constants gate (frontend/scripts/data-constants) — see README.md.",
+  "description": "Source-cited registry of safety-relevant hardcoded data constants. Single source of truth for the value-provenance metadata of constants whose silent revision could distort a Go/No-Go advisory (fuel densities, occupant masses). The runtime values themselves live in code (see each entry's `code` block); this registry records WHERE each value came from and WHEN it must be re-verified. Enforced by the data-constants gate (frontend/scripts/data-constants) \u2014 see README.md.",
   "reviewPolicy": {
     "defaultIntervalMonths": 24,
     "note": "`reviewBy` is the date by which the cited source MUST be re-checked against the live value. Once `reviewBy` is in the past the entry is STALE and the gate fails CI, forcing a human to re-verify the source and bump `effectiveDate`/`reviewBy`."
@@ -58,7 +58,11 @@
       "id": "occupant-preset-masses-kg",
       "category": "occupant-mass",
       "description": "One-tap occupant-mass preset chips (light / medium / heavy adult) for metric (kg) mass-station entry. Convenience shortcuts only; the pilot enters the actual or applicable standard mass.",
-      "value": [55, 70, 85],
+      "value": [
+        55,
+        70,
+        85
+      ],
       "unit": "kg",
       "source": "Representative adult occupant masses for turbulence-tolerant one-tap entry (AeroDash REQ-UQ-001). NOT a regulatory standard mass. EASA standard-mass reference for context: AMC1 CAT.POL.MAB.105 / CS-23.",
       "effectiveDate": "2026-05-28",
@@ -74,7 +78,11 @@
       "id": "occupant-preset-masses-lb",
       "category": "occupant-mass",
       "description": "One-tap occupant-mass preset chips (light / medium / heavy adult) for imperial (lb) mass-station entry. Convenience shortcuts only; the pilot enters the actual or applicable standard mass.",
-      "value": [120, 160, 200],
+      "value": [
+        120,
+        160,
+        200
+      ],
       "unit": "lb",
       "source": "Representative adult occupant masses for turbulence-tolerant one-tap entry (AeroDash REQ-UQ-001). NOT a regulatory standard mass. EASA standard-mass reference for context: AMC1 CAT.POL.MAB.105 / CS-23.",
       "effectiveDate": "2026-05-28",
@@ -87,46 +95,14 @@
       }
     },
     {
-      "id": "pressure-altitude-coefficient-ft",
-      "category": "pressure-altitude",
-      "description": "NWS pressure-altitude coefficient used for QNH/elevation derivation.",
-      "value": 145366.45,
-      "unit": "ft",
-      "source": "NOAA/NWS El Paso formula sheets 'Pressure Altitude' (PA = 145366.45 (1 - (P/1013.25)^0.190284) ft) and 'Altimeter Setting' (A = (P - 0.3) (1 + (1013.25^0.190284 x 0.0065 / 288) h / (P - 0.3)^0.190284)^(1/0.190284), h in m) (https://www.weather.gov/media/epz/wxcalc/pressureAltitude.pdf, https://www.weather.gov/media/epz/wxcalc/altimeterSetting.pdf); both applied to the same station pressure P, solved for P from QNH and elevation.",
-      "effectiveDate": "2026-11-12",
-      "reviewBy": "2028-11-12",
-      "requirement": "REQ-PF-013",
-      "hazard": "H-007",
-      "code": {
-        "file": "frontend/src/core/logic/pressure-altitude.ts",
-        "symbol": "PRESSURE_ALTITUDE_COEFFICIENT_FT"
-      }
-    },
-    {
-      "id": "pressure-altitude-exponent",
-      "category": "pressure-altitude",
-      "description": "NWS standard-atmosphere exponent used for QNH/elevation derivation.",
-      "value": 0.190284,
-      "unit": "1",
-      "source": "NOAA/NWS El Paso formula sheets 'Pressure Altitude' (PA = 145366.45 (1 - (P/1013.25)^0.190284) ft) and 'Altimeter Setting' (A = (P - 0.3) (1 + (1013.25^0.190284 x 0.0065 / 288) h / (P - 0.3)^0.190284)^(1/0.190284), h in m) (https://www.weather.gov/media/epz/wxcalc/pressureAltitude.pdf, https://www.weather.gov/media/epz/wxcalc/altimeterSetting.pdf); both applied to the same station pressure P, solved for P from QNH and elevation.",
-      "effectiveDate": "2026-11-12",
-      "reviewBy": "2028-11-12",
-      "requirement": "REQ-PF-013",
-      "hazard": "H-007",
-      "code": {
-        "file": "frontend/src/core/logic/pressure-altitude.ts",
-        "symbol": "PRESSURE_ALTITUDE_EXPONENT"
-      }
-    },
-    {
       "id": "standard-pressure-hpa",
       "category": "pressure-altitude",
-      "description": "Standard sea-level pressure used for QNH/elevation derivation.",
+      "description": "Standard sea-level pressure.",
       "value": 1013.25,
       "unit": "hPa",
-      "source": "NOAA/NWS El Paso formula sheets 'Pressure Altitude' (PA = 145366.45 (1 - (P/1013.25)^0.190284) ft) and 'Altimeter Setting' (A = (P - 0.3) (1 + (1013.25^0.190284 x 0.0065 / 288) h / (P - 0.3)^0.190284)^(1/0.190284), h in m) (https://www.weather.gov/media/epz/wxcalc/pressureAltitude.pdf, https://www.weather.gov/media/epz/wxcalc/altimeterSetting.pdf); both applied to the same station pressure P, solved for P from QNH and elevation.",
-      "effectiveDate": "2026-11-12",
-      "reviewBy": "2028-11-12",
+      "source": "ICAO Doc 9837, second edition 2011, amendment 2 (23 June 2017), section 9.2.2, p.9-2: QNH = 1013.25 [1 - 0.0065 (H - Href) / 288.15]^5.25588 (https://amc.namem.gov.mn/wp-content/uploads/ICAO/31.%209837_cons_en_2017.pdf). Consistent with WMO-No.8, seventh edition 2008, Part II section 2.9.1 (https://www.weather.gov/media/epz/mesonet/CWOP-WMO8.pdf).",
+      "effectiveDate": "2026-11-17",
+      "reviewBy": "2028-11-17",
       "requirement": "REQ-PF-013",
       "hazard": "H-007",
       "code": {
@@ -135,51 +111,51 @@
       }
     },
     {
-      "id": "altimeter-setting-offset-hpa",
+      "id": "standard-temperature-k",
       "category": "pressure-altitude",
-      "description": "NWS altimeter-setting pressure term subtracted from station pressure, used for QNH/elevation derivation.",
-      "value": 0.3,
-      "unit": "hPa",
-      "source": "NOAA/NWS El Paso formula sheets 'Pressure Altitude' (PA = 145366.45 (1 - (P/1013.25)^0.190284) ft) and 'Altimeter Setting' (A = (P - 0.3) (1 + (1013.25^0.190284 x 0.0065 / 288) h / (P - 0.3)^0.190284)^(1/0.190284), h in m) (https://www.weather.gov/media/epz/wxcalc/pressureAltitude.pdf, https://www.weather.gov/media/epz/wxcalc/altimeterSetting.pdf); both applied to the same station pressure P, solved for P from QNH and elevation.",
-      "effectiveDate": "2026-11-12",
-      "reviewBy": "2028-11-12",
+      "description": "Standard-atmosphere reference temperature.",
+      "value": 288.15,
+      "unit": "K",
+      "source": "ICAO Doc 9837, second edition 2011, amendment 2 (23 June 2017), section 9.2.2, p.9-2: QNH = 1013.25 [1 - 0.0065 (H - Href) / 288.15]^5.25588 (https://amc.namem.gov.mn/wp-content/uploads/ICAO/31.%209837_cons_en_2017.pdf). Consistent with WMO-No.8, seventh edition 2008, Part II section 2.9.1 (https://www.weather.gov/media/epz/mesonet/CWOP-WMO8.pdf).",
+      "effectiveDate": "2026-11-17",
+      "reviewBy": "2028-11-17",
       "requirement": "REQ-PF-013",
       "hazard": "H-007",
       "code": {
         "file": "frontend/src/core/logic/pressure-altitude.ts",
-        "symbol": "ALTIMETER_SETTING_OFFSET_HPA"
+        "symbol": "STANDARD_TEMPERATURE_K"
       }
     },
     {
-      "id": "altimeter-setting-lapse-rate-k-per-m",
+      "id": "standard-lapse-rate-k-per-m",
       "category": "pressure-altitude",
-      "description": "NWS altimeter-setting lapse rate used for QNH/elevation derivation.",
+      "description": "Standard-atmosphere tropospheric lapse rate.",
       "value": 0.0065,
       "unit": "K/m",
-      "source": "NOAA/NWS El Paso formula sheets 'Pressure Altitude' (PA = 145366.45 (1 - (P/1013.25)^0.190284) ft) and 'Altimeter Setting' (A = (P - 0.3) (1 + (1013.25^0.190284 x 0.0065 / 288) h / (P - 0.3)^0.190284)^(1/0.190284), h in m) (https://www.weather.gov/media/epz/wxcalc/pressureAltitude.pdf, https://www.weather.gov/media/epz/wxcalc/altimeterSetting.pdf); both applied to the same station pressure P, solved for P from QNH and elevation.",
-      "effectiveDate": "2026-11-12",
-      "reviewBy": "2028-11-12",
+      "source": "ICAO Doc 9837, second edition 2011, amendment 2 (23 June 2017), section 9.2.2, p.9-2: QNH = 1013.25 [1 - 0.0065 (H - Href) / 288.15]^5.25588 (https://amc.namem.gov.mn/wp-content/uploads/ICAO/31.%209837_cons_en_2017.pdf). Consistent with WMO-No.8, seventh edition 2008, Part II section 2.9.1 (https://www.weather.gov/media/epz/mesonet/CWOP-WMO8.pdf).",
+      "effectiveDate": "2026-11-17",
+      "reviewBy": "2028-11-17",
       "requirement": "REQ-PF-013",
       "hazard": "H-007",
       "code": {
         "file": "frontend/src/core/logic/pressure-altitude.ts",
-        "symbol": "ALTIMETER_SETTING_LAPSE_RATE_K_PER_M"
+        "symbol": "STANDARD_LAPSE_RATE_K_PER_M"
       }
     },
     {
-      "id": "altimeter-setting-temperature-k",
+      "id": "qnh-pressure-exponent",
       "category": "pressure-altitude",
-      "description": "NWS altimeter-setting reference temperature used for QNH/elevation derivation.",
-      "value": 288,
-      "unit": "K",
-      "source": "NOAA/NWS El Paso formula sheets 'Pressure Altitude' (PA = 145366.45 (1 - (P/1013.25)^0.190284) ft) and 'Altimeter Setting' (A = (P - 0.3) (1 + (1013.25^0.190284 x 0.0065 / 288) h / (P - 0.3)^0.190284)^(1/0.190284), h in m) (https://www.weather.gov/media/epz/wxcalc/pressureAltitude.pdf, https://www.weather.gov/media/epz/wxcalc/altimeterSetting.pdf); both applied to the same station pressure P, solved for P from QNH and elevation.",
-      "effectiveDate": "2026-11-12",
-      "reviewBy": "2028-11-12",
+      "description": "Pressure exponent in the QNH relationship.",
+      "value": 5.25588,
+      "unit": "1",
+      "source": "ICAO Doc 9837, second edition 2011, amendment 2 (23 June 2017), section 9.2.2, p.9-2: QNH = 1013.25 [1 - 0.0065 (H - Href) / 288.15]^5.25588 (https://amc.namem.gov.mn/wp-content/uploads/ICAO/31.%209837_cons_en_2017.pdf). Consistent with WMO-No.8, seventh edition 2008, Part II section 2.9.1 (https://www.weather.gov/media/epz/mesonet/CWOP-WMO8.pdf).",
+      "effectiveDate": "2026-11-17",
+      "reviewBy": "2028-11-17",
       "requirement": "REQ-PF-013",
       "hazard": "H-007",
       "code": {
         "file": "frontend/src/core/logic/pressure-altitude.ts",
-        "symbol": "ALTIMETER_SETTING_TEMPERATURE_K"
+        "symbol": "QNH_PRESSURE_EXPONENT"
       }
     }
   ]

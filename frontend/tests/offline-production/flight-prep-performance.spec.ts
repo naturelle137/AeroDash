@@ -103,11 +103,60 @@ test('Flight Prep shares current phase masses and converted units online and cac
   await performance.getByLabel('QNH', { exact: true }).fill('1013.25')
   await performance.getByRole('button', { name: 'Use saved manual runway elevation' }).click()
 
-  // 1000 ft elevation at 1013.25 hPa -> PA 991.267 ft, TOR 219.91267 m.
-  await expect(takeoff.locator('dd')).toHaveText(['219.9 m', '319.9 m'])
+  // Exact standard QNH preserves the copied 1000 ft elevation.
+  await expect(takeoff.locator('dd')).toHaveText(['220.0 m', '320.0 m'])
+  await performance.getByLabel('Derived pressure altitude', { exact: true }).scrollIntoViewIfNeeded()
+  await page.screenshot({ path: info.outputPath('qnh-standard.png') })
   await performance.getByLabel('Pressure-altitude field elevation unit', { exact: true }).selectOption('ft')
   await expect(performance.getByLabel('Pressure-altitude field elevation', { exact: true })).toHaveValue('1000')
-  await expect(takeoff.locator('dd')).toHaveText(['219.9 m', '319.9 m'])
+  await expect(takeoff.locator('dd')).toHaveText(['220.0 m', '320.0 m'])
+  // Ordinary Flight Prep, no store injection: negative/zero/positive elevations,
+  // exact standard versus rounded setting, and a case exposing display-before-lookup rounding.
+  const qnh = performance.getByLabel('QNH', { exact: true })
+  const elevation = performance.getByLabel('Pressure-altitude field elevation', { exact: true })
+  const derived = performance.getByLabel('Derived pressure altitude', { exact: true })
+  const evidence = []
+  for (const [pressure, height, display] of [
+    ['1013.25', '-100', '-100'], ['1013.25', '0', '0'], ['1013', '0', '7'],
+    ['1013.25', '1000', '1000'], ['1000', '1490.7', '1855'],
+  ]) {
+    await qnh.fill(pressure!); await elevation.fill(height!)
+    await expect(derived).toContainText(`Derived pressure altitude: ${display} ft`)
+    evidence.push({ qnh: pressure, elevationFt: height, displayedPa: await derived.innerText(), distances: await takeoff.locator('dd').allTextContents() })
+  }
+  // Independent Decimal reference PA 1854.494043220 ft, TOR 228.544940432 m.
+  await expect(takeoff.locator('dd')).toHaveText(['228.5 m', '328.5 m'])
+  await performance.getByRole('radio', { name: 'Enter pressure altitude directly', exact: true }).check()
+  await expect(pa).toHaveValue('1000')
+  await pa.fill('1855')
+  await expect(takeoff.locator('dd')).toHaveText(['228.6 m', '328.6 m'])
+  await performance.getByRole('radio', { name: 'Derive from QNH and field elevation', exact: true }).check()
+  await expect(takeoff.locator('dd')).toHaveText(['228.5 m', '328.5 m'])
+  await performance.getByLabel('Pressure-altitude field elevation unit', { exact: true }).selectOption('m')
+  await expect(elevation).toHaveValue('454.36536')
+  await expect(takeoff.locator('dd')).toHaveText(['228.5 m', '328.5 m'])
+  for (const invalid of ['', '849.99', '1100.01', 'Infinity']) {
+    await qnh.fill(invalid)
+    await expect(takeoff.locator('dd')).toHaveCount(0)
+    await expect(derived).toHaveCount(0)
+  }
+  await qnh.fill('940')
+  await expect(performance.getByRole('alert').filter({ hasText: '950' })).toBeVisible()
+  await qnh.fill('1000')
+  await expect(takeoff.locator('dd')).toHaveCount(2)
+  await info.attach('qnh-independent-reference-and-browser-results', { body: JSON.stringify({ rawPaFt: 1854.494043220, rawTorM: 228.544940432, roundedPaTorM: 228.55, evidence }, null, 2), contentType: 'application/json' })
+  const originalViewport = page.viewportSize()!
+  for (const viewport of [{ width: 1440, height: 1000 }, { width: 440, height: 894 }, { width: 320, height: 894 }]) {
+    await page.setViewportSize(viewport)
+    await derived.scrollIntoViewIfNeeded()
+    expect(await page.evaluate(() => document.body.scrollWidth)).toBeLessThanOrEqual(viewport.width)
+    const path = info.outputPath(`qnh-${viewport.width}.png`)
+    await page.screenshot({ path }); await info.attach(`qnh-${viewport.width}`, { path, contentType: 'image/png' })
+  }
+  await page.setViewportSize(originalViewport)
+  // Restore the copied elevation before checking saved-runway invalidation.
+  await qnh.fill('1013.25')
+  await performance.getByRole('button', { name: 'Use saved manual runway elevation' }).click()
   await runway.getByLabel('Runway designator', { exact: true }).fill('19')
   await expect(takeoff.locator('dd')).toHaveCount(0)
   await runway.getByRole('button', { name: /Discard/ }).click()
@@ -127,6 +176,15 @@ test('Flight Prep shares current phase masses and converted units online and cac
   await expect(takeoff.locator('dd')).toHaveText(['220.0 m', '320.0 m'])
   await expect(landing.locator('dd')).toHaveText(['400.0 m', '500.0 m'])
   await shot('shared-masses-offline')
+  await performance.getByRole('radio', { name: 'Derive from QNH and field elevation', exact: true }).check()
+  await qnh.fill('1013'); await elevation.fill('0')
+  await expect(derived).toContainText('Derived pressure altitude: 7 ft')
+  await expect(takeoff.locator('dd')).toHaveText(['210.1 m', '310.1 m'])
+  await derived.scrollIntoViewIfNeeded()
+  const offlinePath = info.outputPath('qnh-warmed-offline.png')
+  await page.screenshot({ path: offlinePath }); await info.attach('qnh-warmed-offline', { path: offlinePath, contentType: 'image/png' })
+  await conditions()
+
   // Exact max, upper excursion, exact minimum and below-min benefit cap.
   for (const [load, expected] of [['200', '320.0 m'], ['201', null], ['0', '120.0 m']] as const) {
     await payload.fill(load); await payload.blur();
