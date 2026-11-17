@@ -1,0 +1,11 @@
+[WebServer] (!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+[WebServer]   - import "./scripts/build/telemetry-guard" without a file extension (vite.config.ts:9:52). Add the file extension
+[WebServer]   - import "./scripts/build/copy-legal-docs" without a file extension (vite.config.ts:10:31). Add the file extension
+[WebServer] Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+
+Running 2 tests using 1 worker
+
+  ✓  1 [chromium-390] › tests/offline-production/fixed-arm-fuel.spec.ts:20:1 › fixed-arm lower boundary retains input, invalidates open print and recovers online/offline (2.6s)
+  ✓  2 [chromium-1440] › tests/offline-production/fixed-arm-fuel.spec.ts:20:1 › fixed-arm lower boundary retains input, invalidates open print and recovers online/offline (3.1s)
+
+  2 passed (8.3s)

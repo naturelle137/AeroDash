@@ -34,7 +34,7 @@ import { normalizeFuelQuantityToKg, isFuelQuantityUnit } from '@/core/logic/fuel
 import { isKnownFuelType } from '@/core/logic/fuel-density'
 import { requiresOccupancy, resolveStationKind } from '@/core/logic/station-kind'
 import {
-  lookupFuelInputReason,
+  fuelInputReason,
   lookupFuelViolationMessage,
 } from '@/modules/mass-balance/services/lookup-fuel-input'
 import type { MassUnit } from '@/core/domain/units'
@@ -452,13 +452,13 @@ export const useMassBalanceStore = defineStore('massBalance', {
         }
       }
 
-      // Variable-geometry fuel tanks are checked raw, before normalization can clamp
+      // Fuel tanks are checked raw, before normalization can clamp
       // negatives or fall back to a profile unit/density, and block the whole result.
       const lookupBlocks: Notification[] = []
       for (const s of this.stations) s.hasError = false
       for (const s of this.availableStations) {
         const def = this.aircraft.loadPoints[s.index]
-        const block = def && lookupFuelInputReason(def, s.weight, this.aircraft.sourceUnit)
+        const block = def && fuelInputReason(def, s.weight, this.aircraft.sourceUnit)
         if (!def || !block) continue
         const station = this.stations[s.index]
         if (station) station.hasError = true

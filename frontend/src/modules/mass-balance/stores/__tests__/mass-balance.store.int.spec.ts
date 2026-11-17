@@ -137,7 +137,7 @@ describe('MassBalance store ↔ real adapter — imperial unit normalization (BU
       loadPoints: imperialProfile.loadPoints.map((lp) => {
         if (lp.name === 'Pilot') return { ...lp, arm: 10, defaultQuantity: 800 }
         // drain fuel so MTOM is not the trigger
-        return { ...lp, defaultQuantity: lp.fuelTank ? 0 : lp.defaultQuantity }
+        return { ...lp, defaultQuantity: lp.fuelTank ? lp.fuelTank.unusableFuel : lp.defaultQuantity }
       }),
     }
 

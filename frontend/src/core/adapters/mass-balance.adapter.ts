@@ -143,6 +143,13 @@ export const MathCoreInputSchema = z
     data.stations.forEach((s, i) => validateArmXor(s, 'stations', i))
     data.fuelStations.forEach((fs, i) => validateArmXor(fs, 'fuelStations', i))
 
+    // Fixed arms share the total-load boundary, without duplicating lookup errors.
+    data.fuelStations.forEach((fs, i) => {
+      if (fs.arm !== null && fs.armLookup.length === 0 && fs.mass < fs.unusableFuel) {
+        ctx.addIssue({ code: 'custom', message: 'BELOW_UNUSABLE', path: ['fuelStations', i, 'mass'] })
+      }
+    })
+
     // Lookup tanks hold total tank moments; the usable contribution F(q) − F(u)
     // needs strict geometry covering both u and q. Ambiguous arm+lookup is already
     // NOT_ALLOWED above and is not evaluated here.

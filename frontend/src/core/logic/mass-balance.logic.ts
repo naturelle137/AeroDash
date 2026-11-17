@@ -78,7 +78,10 @@ export function computeMassBalanceCore(input: MathCoreInput): MathCoreResult {
       }
       return { ...fs, usableMass: lookup.usableMassKg, usableMoment: lookup.usableMomentKgM }
     }
-    const usableMass = Math.max(0, fs.mass - fs.unusableFuel)
+    if (!Number.isFinite(fs.mass) || !Number.isFinite(fs.unusableFuel) || fs.unusableFuel < 0 || fs.mass < fs.unusableFuel) {
+      throw new Error(`CRITICAL DOMAIN ERROR: Fuel Station ${fs.index} has invalid total or unusable fuel.`)
+    }
+    const usableMass = fs.mass - fs.unusableFuel
     return { ...fs, usableMass, usableMoment: usableMass * fs.arm! }
   })
 

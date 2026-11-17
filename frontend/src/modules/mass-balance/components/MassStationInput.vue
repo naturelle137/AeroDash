@@ -12,9 +12,8 @@ const props = defineProps<{
   unit?: string
   /**
    * Unusable fuel for fuel stations, in the same `unit` as the station. For
-   * non-fuel stations pass 0 (default). The pilot can never set the loaded
-   * quantity below the unusable amount — the tank always carries unusable
-   * fuel, so entering less would model a dry tank and contradict the POH.
+   * non-fuel stations pass 0 (default). Typed values below this boundary stay
+   * available for correction while the store blocks calculation results.
    */
   unusableFuel?: number
   /**
@@ -197,7 +196,7 @@ function applyPreset(value: number): void {
         :model-value="Number.isFinite(station.weight) ? station.weight : null"
         allow-null
         preserve-invalid
-        :min="minWeight"
+        :min="0"
         :max="fieldMax"
         :disabled="disabled"
         :aria-invalid="station.hasError || isRejected || undefined"
@@ -272,7 +271,7 @@ function applyPreset(value: number): void {
         class="mass-station-input__slider"
         :aria-label="`${station.name} fuel load slider`"
         :value="station.weight"
-        :min="minWeight"
+        :min="0"
         :max="maxCapacity ?? undefined"
         :disabled="disabled"
         step="1"

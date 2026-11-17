@@ -61,7 +61,7 @@ const mockProfile: AircraftContext = {
       arm: 2.209,
       armLookup: [],
       operationalLimit: 75,
-      defaultQuantity: 0,
+      defaultQuantity: 3,
       unit: 'kg',
       allowableCategories: ['Normal'],
       fuelTank: {
@@ -155,7 +155,7 @@ const multiCatProfile: AircraftContext = {
       arm: 1.9,
       armLookup: [],
       operationalLimit: 60,
-      defaultQuantity: 0,
+      defaultQuantity: 2,
       unit: 'kg',
       allowableCategories: null,
       fuelTank: {
@@ -243,10 +243,10 @@ describe('MassBalance Store', () => {
     expect(store.stations[1]).toEqual({
       index: 1,
       name: 'Fuel',
-      weight: 0,
+      weight: 3,
       verified: false,
       mandatory: false,
-      touched: false,
+      touched: true,
       hasError: false,
     })
   })
@@ -445,7 +445,7 @@ describe('MassBalance Store', () => {
 
     // Pilot station: defaultQuantity=0, no fuelTank → reset to 0
     expect(store.stations[0]?.weight).toBe(0)
-    // Fuel station: defaultQuantity=0, unusableFuel=3 → reset to 3 (the minimum legal load)
+    // Fuel station: defaultQuantity=3, unusableFuel=3 → reset to 3 (the minimum legal load)
     expect(store.stations[1]?.weight).toBe(3)
     expect(store.stations.every((s) => !s.verified)).toBe(true)
     expect(store.stations.every((s) => s.touched)).toBe(true)
@@ -1163,7 +1163,7 @@ describe('Mass Balance Store - applyRestoredSession', () => {
 
   it('does NOT emit WARN-UQ-001 for a fuel station at zero (zero fuel is a legitimate planning state)', () => {
     const store = useMassBalanceStore()
-    store.loadProfile(mockProfile)
+    store.loadProfile({ ...mockProfile, loadPoints: mockProfile.loadPoints.map(lp => lp.fuelTank ? { ...lp, defaultQuantity: 0, fuelTank: { ...lp.fuelTank, unusableFuel: 0 } } : lp) })
     // Guard the precondition explicitly: if a future loadProfile change auto-applies
     // the unusable-fuel floor at load time (resetPayload already does) this would
     // silently turn the test into a non-test.

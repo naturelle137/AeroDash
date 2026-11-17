@@ -136,7 +136,7 @@ const mockProfile: AircraftContext = {
       arm: 2.209,
       armLookup: [],
       operationalLimit: 75,
-      defaultQuantity: 0,
+      defaultQuantity: 3,
       unit: 'kg',
       allowableCategories: ['Normal'],
       fuelTank: {
@@ -459,8 +459,8 @@ describe('MassBalanceView — Reset Payload confirm + undo', () => {
     expect(resetSpy).not.toHaveBeenCalled()
     const dialog = document.querySelector('.confirm-dialog')
     expect(dialog).not.toBeNull()
-    // One station carries an entered weight → "discard 1 ... weight".
-    expect(dialog?.textContent).toContain('Discard 1')
+    // The pilot input and nonzero fuel default are both counted.
+    expect(dialog?.textContent).toContain('Discard 2')
   })
 
   it('cancelling the confirmation leaves weights untouched', async () => {

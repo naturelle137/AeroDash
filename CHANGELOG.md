@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Block fixed-arm fuel loads below unusable fuel with tank-specific correction and stale result/print protection (REQ-MB-033/035/036).
 - Round printed MTOM/MZFM limits down while retaining kg and verification markers; keep actual masses rounded up (#556).
 
 - Keep Fleet verification open until persistence completes; protect pending sign-offs and allow retry after failure.

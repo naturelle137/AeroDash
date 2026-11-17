@@ -65,7 +65,7 @@ const cgScenarios: MassBalanceScenario[] = [
   {
     name: 'empty aircraft',
     payload: [0, 0],
-    fuel: [0],
+    fuel: [3],
     unusableFuel: [3],
 
     expectedZeroFuelMass: 433,
@@ -83,7 +83,7 @@ const cgScenarios: MassBalanceScenario[] = [
   {
     name: 'forward aircraft loading',
     payload: [180, 0],
-    fuel: [0],
+    fuel: [3],
     unusableFuel: [3],
 
     expectedZeroFuelMass: 433 + 180,
@@ -101,7 +101,7 @@ const cgScenarios: MassBalanceScenario[] = [
   {
     name: 'aft aircraft loading',
     payload: [0, 180],
-    fuel: [0],
+    fuel: [3],
     unusableFuel: [3],
 
     expectedZeroFuelMass: 433 + 180,
@@ -141,21 +141,21 @@ const limitViolationScenarios: LimitViolationScenario[] = [
   {
     name: 'TOM exceeds MTOM limit',
     payload: [250, 0],
-    fuel: [0],
+    fuel: [3],
     expectedMtomViolation: true,
     expectedViolationType: 'MTOM_EXCEEDED',
   },
   {
     name: 'TOM is exactly at MTOM limit',
     payload: [217, 0],
-    fuel: [0],
+    fuel: [3],
     expectedMtomViolation: false,
     expectedViolationType: 'MTOM_EXCEEDED',
   },
   {
     name: 'ZFM exceeds MZFM limit',
     payload: [250, 0],
-    fuel: [0],
+    fuel: [3],
     maximumZeroFuelMass: 600,
     expectedMzfmViolation: true,
     expectedViolationType: 'MZFM_EXCEEDED',
@@ -163,7 +163,7 @@ const limitViolationScenarios: LimitViolationScenario[] = [
   {
     name: 'ZFM is exactly at MZFM limit',
     payload: [167, 0],
-    fuel: [0],
+    fuel: [3],
     maximumZeroFuelMass: 600,
     expectedMzfmViolation: false,
     expectedViolationType: 'MZFM_EXCEEDED',
@@ -171,7 +171,7 @@ const limitViolationScenarios: LimitViolationScenario[] = [
   {
     name: 'CG exceeds forward envelope limit',
     payload: [150, 0],
-    fuel: [0],
+    fuel: [3],
     envelope: [
       { armOrMoment: 1.9, mass: 433 },
       { armOrMoment: 1.978, mass: 433 },
@@ -184,7 +184,7 @@ const limitViolationScenarios: LimitViolationScenario[] = [
   {
     name: 'CG is exactly at forward envelope limit',
     payload: [150, 0],
-    fuel: [0],
+    fuel: [3],
     envelope: [
       { armOrMoment: 1.857188679245283, mass: 433 },
       { armOrMoment: 1.978, mass: 433 },
@@ -197,14 +197,14 @@ const limitViolationScenarios: LimitViolationScenario[] = [
   {
     name: 'CG exceeds aft envelope limit',
     payload: [0, 200],
-    fuel: [0],
+    fuel: [3],
     expectedCgViolation: true,
     expectedViolationType: 'CG_OUT_OF_ENVELOPE',
   },
   {
     name: 'CG is exactly at aft envelope limit',
     payload: [0, 200],
-    fuel: [0],
+    fuel: [3],
     envelope: [
       { armOrMoment: 1.877, mass: 433 },
       { armOrMoment: 2.0476161137440765, mass: 433 },
@@ -237,7 +237,7 @@ const cgMigrationScenarios: CgMigrationScenario[] = [
   {
     name: 'empty aircraft (no CG shift)',
     payload: [0, 0],
-    fuel: [0],
+    fuel: [3],
     expectedPath: [
       { arm: 1.877, mass: 433, label: 'Takeoff' },
       { arm: 1.877, mass: 433, label: 'Landing' },
@@ -286,15 +286,7 @@ const edgeCaseScenarios: EdgeCaseScenario[] = [
     expectedLandingMass: 433,
     expectedLandingArm: 1.877,
   },
-  {
-    name: 'unusable fuel exceeds total fuel clamps to zero',
-    fuel: [20],
-    fuelUnusableFuel: [30],
-    expectedTakeoffMass: 433,
-    expectedTakeoffArm: 1.877,
-    expectedLandingMass: 433,
-    expectedLandingArm: 1.877,
-  },
+
   {
     name: 'empty stations array computes BEM-only CG',
     overrides: { stations: [] },
@@ -471,7 +463,7 @@ describe('Mass & Balance Math-Core Logic', () => {
       const input = createMathCoreInput()
       // payload[0] = 250 → TOM = 433+250 = 683 > 650 MTOM, arm ≈ 1.84 (within 1.841–1.978)
       input.stations[0]!.mass = 250
-      input.fuelStations[0]!.mass = 0
+      input.fuelStations[0]!.mass = 3
 
       const result = computeMassBalanceCore(input)
 
@@ -483,7 +475,7 @@ describe('Mass & Balance Math-Core Logic', () => {
       const input = createMathCoreInput()
       // payload[0] = 217 → TOM = 433+217 = 650 = MTOM exactly, arm within envelope
       input.stations[0]!.mass = 217
-      input.fuelStations[0]!.mass = 0
+      input.fuelStations[0]!.mass = 3
 
       const result = computeMassBalanceCore(input)
 
@@ -502,7 +494,7 @@ describe('Mass & Balance Math-Core Logic', () => {
       })
       // payload[0] arm = 1.8 (forward of envelope left = 1.9), large enough to exceed MTOM
       input.stations[0]!.mass = 300
-      input.fuelStations[0]!.mass = 0
+      input.fuelStations[0]!.mass = 3
 
       const result = computeMassBalanceCore(input)
 
@@ -739,9 +731,9 @@ describe('Mass & Balance Math-Core Logic', () => {
         { armOrMoment: 1285.7, mass: 650 },
         { armOrMoment: 1196.65, mass: 650 },
       ]
-      input.fuelStations[0]!.mass = 0
+      input.fuelStations[0]!.mass = 3
 
-      let expectedZeroFuelMass = input.basicEmptyMass + input.fuelStations[0]!.mass
+      let expectedZeroFuelMass = input.basicEmptyMass
       let expectedTakeoffMass = expectedZeroFuelMass
       let expectedTakeoffCg =
         (input.basicEmptyMass * input.emptyCenterOfGravity +
@@ -788,9 +780,9 @@ describe('Mass & Balance Math-Core Logic', () => {
         { armOrMoment: 1285.7, mass: 650 },
         { armOrMoment: 1196.65, mass: 650 },
       ]
-      input.fuelStations[0]!.mass = 0
+      input.fuelStations[0]!.mass = 3
 
-      let expectedZeroFuelMass = input.basicEmptyMass + input.fuelStations[0]!.mass
+      let expectedZeroFuelMass = input.basicEmptyMass
       let expectedLandingMass = expectedZeroFuelMass
       let expectedLandingCg =
         (input.basicEmptyMass * input.emptyCenterOfGravity +

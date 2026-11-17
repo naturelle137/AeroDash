@@ -130,13 +130,21 @@ When a fuel tank has a lookup table and no fixed arm, the system shall add the t
 
 If a fuel lookup table has fewer than two finite points, quantities that are negative or not strictly ascending, moments outside the SI bounds, or does not cover both the unusable fuel quantity and the current tank load, then the system shall block the M&B result with a visible validation error without sorting, clamping or extrapolating.
 
-### REQ-MB-033: Lookup fuel load below unusable fuel
+### REQ-MB-033: Fuel load below unusable fuel
 
-If the current load of a fuel lookup tank is below its unusable fuel quantity, then the system shall block the M&B result with a visible validation error instead of treating usable fuel as zero.
+If the current total load of any category-available fuel tank is below its unusable fuel quantity, then the system shall block the M&B result with a visible validation error identifying the tank instead of treating usable fuel as zero.
 
 ### REQ-MB-034: Lookup fuel units
 
 If a fuel lookup tank lacks an explicit supported source unit, tank unit or known fuel type, or declares both a fixed arm and a lookup table, then the system shall block the M&B result with a visible validation error.
+
+### REQ-MB-035: Fixed-arm fuel at unusable quantity
+
+When a valid fixed-arm fuel tank's current total load equals its unusable fuel quantity, the system shall add zero fuel mass and zero fuel moment to BEM.
+
+### REQ-MB-036: Fuel boundary correction and output suppression
+
+While a tank load is below its unusable fuel quantity, the system shall retain the entered quantity for correction, identify the tank and minimum total load in its entered unit, and withhold current M&B summary, CG result markers, trip arrival outputs and printable briefing results until the input is corrected.
 
 ## Design References
 

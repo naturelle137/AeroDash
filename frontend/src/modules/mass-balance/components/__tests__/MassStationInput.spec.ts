@@ -398,7 +398,7 @@ describe('MassStationInput — "e"/out-of-range rejection feedback', () => {
     expect(weightEmissions(wrapper)).not.toContain(150)
   })
 
-  it('rejects a value below the unusable-fuel floor with a "Minimum is …" hint and no emit', async () => {
+  it('retains typed fuel below unusable for store validation and shows its minimum hint', async () => {
     const wrapper = mount(MassStationInput, {
       props: {
         station: makeStation({ weight: 50 }),
@@ -411,9 +411,9 @@ describe('MassStationInput — "e"/out-of-range rejection feedback', () => {
     await field(wrapper).setValue('2')
 
     const hint = wrapper.find('.mass-station-input__reject-hint')
-    expect(hint.exists()).toBe(true)
-    expect(hint.text()).toContain('Minimum is 5 L')
-    expect(weightEmissions(wrapper)).not.toContain(2)
+    expect(hint.exists()).toBe(false)
+    expect(wrapper.get('.mass-station-input__unusable').text()).toContain('5 L unusable — minimum load')
+    expect(weightEmissions(wrapper)).toContain(2)
   })
 
   it('clears the rejection hint as soon as a valid value is entered', async () => {

@@ -1,0 +1,20 @@
+[
+  {
+    "errors": [],
+    "previewWarnings": [
+      "The Content Security Policy directive 'frame-ancestors' is ignored when delivered via a <meta> element.",
+      "The Content Security Policy directive 'frame-ancestors' is ignored when delivered via a <meta> element.",
+      "The Content Security Policy directive 'frame-ancestors' is ignored when delivered via a <meta> element.",
+      "The Content Security Policy directive 'frame-ancestors' is ignored when delivered via a <meta> element."
+    ]
+  },
+  {
+    "errors": [],
+    "previewWarnings": [
+      "The Content Security Policy directive 'frame-ancestors' is ignored when delivered via a <meta> element.",
+      "The Content Security Policy directive 'frame-ancestors' is ignored when delivered via a <meta> element.",
+      "The Content Security Policy directive 'frame-ancestors' is ignored when delivered via a <meta> element.",
+      "The Content Security Policy directive 'frame-ancestors' is ignored when delivered via a <meta> element."
+    ]
+  }
+]
