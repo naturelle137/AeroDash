@@ -104,7 +104,7 @@ test('current M&B native print, cancellation, guarded transitions and cached off
   await page.keyboard.press('Escape')
   await input.fill('-')
   await input.blur()
-  await action.click()
+  await expect(action).toBeDisabled()
   await expect(preview).toHaveCount(0)
   await page.emulateMedia({ media: 'print' })
   await expect(page.locator('.mb-print-guard')).toBeVisible()

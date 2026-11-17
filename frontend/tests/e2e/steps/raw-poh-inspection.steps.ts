@@ -73,7 +73,8 @@ Then('raw POH computation is blocked for the Draft', async ({ page }) => {
 })
 When('I explicitly verify the Test POH profile in Fleet', async ({ page }) => { await verify(page) })
 Then('the Performance navigation opens a usable table lookup', async ({ page }) => {
-  await page.locator('nav a[href="/performance"]:visible').first().click()
+  await page.locator('nav a[href="/"]:visible').first().click()
+  await page.getByRole('link', { name: 'Open Performance', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'Performance', exact: true })).toBeVisible()
   await selectOnlyProfile(page)
   await expect(page.locator('.source-info')).toContainText('Test wiring only - no real POH')
