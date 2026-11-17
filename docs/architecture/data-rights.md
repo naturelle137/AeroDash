@@ -62,8 +62,10 @@ A `WipeFailure` is `{ store: 'indexeddb' \| 'localStorage' \| 'sessionStorage', 
 ### 3.3 Failure handling
 
 - The function never throws; `complete` is `false` when `failures` is non-empty.
-- Web Storage unavailable (private mode, sandboxed iframe): empty cleared-key
-  lists, not recorded as a failure.
+- A genuinely absent Web Storage API is a successful no-op. A throwing accessor
+  or failed enumeration records a whole-store failure (`key: null`); previously
+  saved data may remain. Discovered keys are still removed best-effort, and
+  other stores are attempted. Restoring access permits a fresh deletion attempt.
 - A rejected IndexedDB `clear()`, or a `removeItem` that throws, is recorded as a
   `WipeFailure`; the remaining steps still run.
 - When `complete` is `false`, the `/privacy` view shows a CRITICAL notice, not

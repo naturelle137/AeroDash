@@ -46,6 +46,7 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.restoreAllMocks()
+  vi.unstubAllGlobals()
 })
 
 /**
@@ -215,6 +216,98 @@ describe('wipeAllLocalData — Repository-Wide Wipe (REQ-SYS-014)', () => {
     expect(localFailure).toBeDefined()
     expect(localFailure!.key).toBe('aerodash-theme')
   })
+
+  for (const store of ['localStorage', 'sessionStorage'] as const) {
+    it(`reports denied ${store} access, retains saved data and clears it on retry`, async () => {
+      const backing = globalThis[store]
+      const other = store === 'localStorage' ? sessionStorage : localStorage
+      backing.setItem('aerodash:retained', 'saved data')
+      other.setItem('aerodash:reachable', 'remove me')
+      await create(buildProfile())
+      const getter = vi.spyOn(globalThis, store, 'get').mockImplementation(() => {
+        throw new Error('Storage temporarily denied')
+      })
+
+      const report = await wipeAllLocalData()
+
+      expect(report.complete).toBe(false)
+      expect(report.failures).toEqual([
+        { store, key: null, detail: 'Storage temporarily denied' },
+      ])
+      expect(report.indexedDbCleared).toBe(true)
+      expect(await findAll()).toEqual([])
+      expect(other.getItem('aerodash:reachable')).toBeNull()
+      getter.mockRestore()
+      expect(globalThis[store].getItem('aerodash:retained')).toBe('saved data')
+
+      const retry = await wipeAllLocalData()
+      expect(retry.complete).toBe(true)
+      expect(retry.failures).toEqual([])
+      expect(globalThis[store].getItem('aerodash:retained')).toBeNull()
+    })
+
+    it(`treats an absent ${store} API as a successful no-op`, async () => {
+      vi.stubGlobal(store, undefined)
+      const report = await wipeAllLocalData()
+      expect(report.complete).toBe(true)
+      expect(report.failures).toEqual([])
+    })
+
+    it(`continues other stores when ${store}.length throws`, async () => {
+      const backing = globalThis[store]
+      const other = store === 'localStorage' ? sessionStorage : localStorage
+      backing.setItem('aerodash:retained', 'saved data')
+      other.setItem('aerodash:reachable', 'remove me')
+      await create(buildProfile())
+      const realLength = Object.getOwnPropertyDescriptor(Storage.prototype, 'length')!.get!
+      const length = vi.spyOn(Storage.prototype, 'length', 'get')
+      length.mockImplementation(function (this: Storage) {
+        if (this === backing) throw new Error('Length denied')
+        return realLength.call(this)
+      })
+
+      const report = await wipeAllLocalData()
+
+      expect(report.complete).toBe(false)
+      expect(report.failures).toEqual([{ store, key: null, detail: 'Length denied' }])
+      expect(report.indexedDbCleared).toBe(true)
+      expect(await findAll()).toEqual([])
+      expect(other.getItem('aerodash:reachable')).toBeNull()
+      expect(backing.getItem('aerodash:retained')).toBe('saved data')
+    })
+
+    it(`removes discovered ${store} keys despite enumeration and per-key failures`, async () => {
+      const backing = globalThis[store]
+      const other = store === 'localStorage' ? sessionStorage : localStorage
+      for (const key of ['aerodash:first', 'aerodash:hidden', 'aerodash:blocked', 'aerodash:last']) {
+        backing.setItem(key, 'saved data')
+      }
+      other.setItem('aerodash:reachable', 'remove me')
+      const realKey = Storage.prototype.key
+      vi.spyOn(Storage.prototype, 'key').mockImplementation(function (this: Storage, index: number) {
+        if (this === backing && index === 1) throw new Error('Key denied')
+        return realKey.call(this, index)
+      })
+      const realRemove = Storage.prototype.removeItem
+      vi.spyOn(Storage.prototype, 'removeItem').mockImplementation(function (this: Storage, key: string) {
+        if (this === backing && key === 'aerodash:blocked') throw new Error('Remove denied')
+        realRemove.call(this, key)
+      })
+
+      const report = await wipeAllLocalData()
+
+      expect(report.complete).toBe(false)
+      expect(report.failures).toEqual([
+        { store, key: null, detail: 'Key denied' },
+        { store, key: 'aerodash:blocked', detail: 'Remove denied' },
+      ])
+      expect(report[`${store}KeysCleared`]).toEqual(['aerodash:first', 'aerodash:last'])
+      expect(backing.getItem('aerodash:hidden')).toBe('saved data')
+      expect(backing.getItem('aerodash:blocked')).toBe('saved data')
+      expect(other.getItem('aerodash:reachable')).toBeNull()
+      expect(report.indexedDbCleared).toBe(true)
+    })
+  }
 
   it('removes every aerodash-prefixed key from localStorage and sessionStorage', async () => {
     localStorage.setItem('aerodash:session:payload', '{"version":1}')
