@@ -1,5 +1,19 @@
 # AeroDash Software Requirements - Cloud, Sync & Collaboration (SC)
 
+## Implementation boundary
+
+The shipped app is frontend-only. REQ-SC-007/008/015 cover existing local
+aircraft JSON export, validated import and invalid-file rejection. REQ-SC-014
+remains unimplemented: the current briefing pack uses browser printing, not
+flight-plan JSON export. The remaining remote identity, cloud, Share-Code and
+organization requirements describe future behavior; schema `ownerId`/`shareCode`
+fields do not implement identity or network sharing.
+
+Future remote changes are subject to the [pre-sync engineering gate](../architecture/adr/014-pre-sync-privacy-gate.md).
+That prerequisite is not a completed DPIA or approval of a lawful basis; #285
+remains open. Existing offline/manual preparation, local storage, local JSON
+export/import and local data erasure remain available without cloud or accounts.
+
 ## Requirements
 
 ### REQ-SC-001: OIDC Authentication
@@ -81,3 +95,11 @@ While the user is a Fleet Admin, the system shall permit aircraft profile deleti
 ### REQ-SC-020: Member plan editing
 
 While the user is a Member, the system shall permit editing of their own flight plans using organization aircraft profiles.
+
+### REQ-SC-021: Remote processing prerequisite
+
+Before OIDC, cloud synchronization, network Share-Code or organization synchronization code is integrated, the project shall record CTO release of the operation-specific gate in ADR-014.
+
+### REQ-SC-022: Existing local data publication
+
+When connectivity returns or the app is upgraded, the system shall retain existing local records without automatically uploading them.
