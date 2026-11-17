@@ -28,6 +28,13 @@ Delivered: raw table inspection [#311](https://github.com/naturelle137/AeroDash/
 
 Every delivery includes relevant core/component tests, a real browser flow with mobile/desktop evidence, local gates, one independent review and green CI. A core-only PR does not complete a pilot workflow. Synthetic fixtures prove software behavior, not aviation accuracy; actual aircraft support requires applicable POH/AFM references and cases. The CEO evaluates usability, not aviation correctness.
 
+Issue #284 remains **OPEN on source hold**: this [source-contract disposition](../regulatory/airac-airport-data-contract.md)
+corrects the acceptance boundary; it does not deliver automatic airport freshness.
+HQ terminal owner 1892 owns review/integration and reassessment when a complete
+named authorised source/consumer contract is actually accepted, including coverage,
+licence/interface, version/publication/effect/expiry and NOTAM limitations.
+There is no timer-based restart or calendar-only completion.
+
 ## Further capabilities
 
 - **Offline preparation:** remaining variable-arm trip-specific CG (nonzero unusable fuel, multiple lookup tanks) and full-flight fuel-burn path assessment, obstacle constraints and a consolidated Go/No-Go advisory; native electric-aircraft energy/endurance support.
