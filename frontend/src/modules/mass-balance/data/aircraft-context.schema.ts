@@ -47,10 +47,16 @@ const LoadPointSchema = z.object({
   armLookup: z.array(ArmLookupEntrySchema),
   operationalLimit: z.number().nonnegative().nullable(),
   defaultQuantity: z.number().nonnegative(),
-  unit: z.string().min(1),
+  unit: z.string(),
   allowableCategories: z.array(z.enum(['Normal', 'Utility', 'Aerobatic'])).nullable(),
   fuelTank: FuelTankSchema.nullable(),
-})
+}).refine(
+  (lp) => lp.unit !== '' || (
+    lp.fuelTank !== null && lp.arm === null && lp.armLookup.length > 0 &&
+    (lp.kind === undefined || lp.kind === 'fuel')
+  ),
+  { message: 'REQUIRED', path: ['unit'] },
+)
 
 const EnvelopePointSchema = z.object({
   armOrMoment: z.number(),

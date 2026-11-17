@@ -1162,3 +1162,57 @@ describe('configured occupancy', () => {
     expect(AircraftProfileSchema.safeParse(input).success).toBe(false)
   })
 })
+
+describe('AircraftProfileSchema — incomplete lookup fuel unit', () => {
+  function legacyTank() {
+    return {
+      ...AircraftProfileSchema.parse(createValidProfile()).loadPoints[0]!,
+      kind: 'fuel' as const,
+      arm: null,
+      armLookup: [{ massOrVolume: 0, moment: 0 }, { massOrVolume: 50, moment: 150 }],
+      unit: '',
+      fuelTank: { unusableFuel: 10, permissibleFuelTypes: ['AvGas 100LL'], burnSequences: [] },
+    }
+  }
+  function parseTank(changes: Record<string, unknown> = {}) {
+    return AircraftProfileSchema.safeParse({
+      ...AircraftProfileSchema.parse(createValidProfile()),
+      loadPoints: [{ ...legacyTank(), ...changes }],
+    })
+  }
+
+  it('retains an explicit blank without changing lookup quantities or moments', () => {
+    const tank = legacyTank()
+    const parsed = parseTank()
+    expect(parsed.success).toBe(true)
+    if (!parsed.success) return
+    expect(parsed.data.loadPoints).toEqual([tank])
+    // Historical tanks need not have an explicit kind discriminator.
+    expect(parseTank({ kind: undefined }).success).toBe(true)
+  })
+
+  it.each([undefined, null, 42, false])('rejects missing/null/nonstring unit %s', (unit) => {
+    expect(parseTank({ unit }).success).toBe(false)
+  })
+
+  it.each([
+    { arm: 1, armLookup: [] },
+    { arm: null, armLookup: [], fuelTank: null, kind: 'baggage' },
+    { arm: null, fuelTank: null, kind: 'occupant' },
+    { arm: 1 },
+    { armLookup: [] },
+    { kind: 'occupant' },
+    { armLookup: [{ massOrVolume: -1, moment: 0 }] },
+    { armLookup: [{ massOrVolume: 0, moment: Infinity }] },
+    { fuelTank: { unusableFuel: 0, permissibleFuelTypes: ['unknown'], burnSequences: [] } },
+  ])('does not relax geometry, station or fuel validation: %j', (changes) => {
+    expect(parseTank(changes).success).toBe(false)
+  })
+
+  it.each(['kg', 'lb', 'L', 'USG', 'IMPgal'])('retains the existing declared unit %s', (unit) => {
+    const parsed = parseTank({ unit })
+    expect(parsed.success).toBe(true)
+    if (!parsed.success) return
+    expect(parsed.data.loadPoints[0]!.unit).toBe(unit)
+  })
+})

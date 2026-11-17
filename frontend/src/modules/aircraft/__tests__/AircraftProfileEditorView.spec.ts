@@ -325,3 +325,24 @@ describe('AircraftProfileEditorView — wind limits', () => {
     ])
   })
 })
+
+describe('AircraftProfileEditorView — incomplete lookup source preservation', () => {
+  it.each([false, true])('preserves lookup quantities during unrelated save or unit correction (%s)', async (correctUnit) => {
+    const tank = {
+      name: 'Legacy tank', arm: null,
+      armLookup: [{ massOrVolume: 0, moment: 0 }, { massOrVolume: 50, moment: 150 }],
+      operationalLimit: null, defaultQuantity: 0, unit: '', allowableCategories: null,
+      fuelTank: { unusableFuel: 10, permissibleFuelTypes: ['AvGas 100LL' as const], burnSequences: [] },
+    }
+    const profile = makeProfile({ loadPoints: [tank] })
+    const updateProfile = vi.fn<() => Promise<AircraftProfile>>().mockResolvedValue(profile)
+    const { wrapper } = await mountEditor({ profile, fleetOverrides: { updateProfile } })
+    await wrapper.get('input[id$="refDatumDesc"]').setValue('Changed synthetic datum')
+    if (correctUnit) await wrapper.get('select[id$="unit-0"]').setValue('kg')
+    const save = wrapper.findAll('button').find((button) => button.text() === 'Save Draft')!
+    await save.trigger('click')
+    await flushPromises()
+    expect(updateProfile).toHaveBeenCalledWith(profile.id, expect.objectContaining({ loadPoints: [{ ...tank, unit: correctUnit ? 'kg' : '' }] }))
+    expect(profile.loadPoints).toEqual([tank])
+  })
+})

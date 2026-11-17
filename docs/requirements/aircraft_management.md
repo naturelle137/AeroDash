@@ -130,6 +130,18 @@ If a restore is cancelled or fails, then the system shall preserve the active pr
 
 When Fleet reopens after a cached offline reload, the system shall expose the committed restored profiles.
 
+### REQ-AC-033: Incomplete lookup fuel retention
+
+When a persisted fuel tank has a null fixed arm, a nonempty lookup table and an explicit empty-string unit, the system shall retain the profile for deliberate correction without changing its source values.
+
+### REQ-AC-034: Missing fuel unit guidance
+
+While a lookup fuel tank has an empty-string unit, the editor shall display a missing-unit option with guidance to select the unit from the aircraft's approved source data.
+
+### REQ-AC-035: Deliberate fuel unit correction
+
+When the user explicitly selects a supported fuel quantity unit and saves the profile, the system shall persist that unit without converting the tank's quantities or lookup values.
+
 ## Design References
 
 - **<a name="notificationScheme"></a>Notification Scheme:** [`docs/architecture/notification_schema.md`](../architecture/notification_schema.md)

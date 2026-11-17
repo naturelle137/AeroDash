@@ -91,8 +91,10 @@
           <select
             :id="`${sectionId}-unit-${idx}`"
             :value="lp.unit"
+            :aria-describedby="lp.unit === '' ? `${sectionId}-unit-guidance-${idx}` : undefined"
             @change="patchRow(idx, { unit: ($event.target as HTMLSelectElement).value })"
           >
+            <option v-if="lp.unit === ''" value="" disabled>Missing unit — select from source</option>
             <optgroup label="Mass">
               <option value="kg">kg (kilograms)</option>
               <option value="lb">lb (pounds)</option>
@@ -103,6 +105,11 @@
               <option value="IMPgal">IMP gal (imperial gallons)</option>
             </optgroup>
           </select>
+          <p v-if="lp.unit === ''" :id="`${sectionId}-unit-guidance-${idx}`" class="field-hint" role="alert">
+            Missing fuel quantity unit. Check the aircraft's approved POH/AFM or tank source
+            data, then select its declared unit and save. M&amp;B remains blocked until corrected;
+            quantities and lookup values are not converted by this selection.
+          </p>
         </div>
 
         <div v-if="!lp.fuelTank" class="field-group">
@@ -388,6 +395,7 @@ function patchFuelTank(idx: number, changes: Partial<AircraftProfileFuelTankExte
 
 function willPromoteToUnusable(lp: AircraftProfileLoadPoint): boolean {
   return (
+    lp.armLookup.length === 0 &&
     lp.fuelTank !== null &&
     lp.fuelTank.unusableFuel > 0 &&
     lp.defaultQuantity < lp.fuelTank.unusableFuel
