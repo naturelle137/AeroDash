@@ -1,0 +1,44 @@
+Ran 7.79 tests per mutant on average.
+----------------------------------------|------------------|----------|-----------|------------|----------|----------|
+                                        | % Mutation score |          |           |            |          |          |
+File                                    |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+----------------------------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files                               |  80.07 |   80.53 |     1814 |        10 |        441 |       13 |     1138 |
+ adapters                               |  80.55 |   80.73 |      352 |         0 |         84 |        1 |      157 |
+  aircraft.schema.ts                    |  80.40 |   80.40 |      160 |         0 |         39 |        0 |       56 |
+  mass-balance.adapter.ts               |  76.39 |   76.92 |      110 |         0 |         33 |        1 |       42 |
+  mb.zod-violation-mapping.ts           |  83.33 |   83.33 |       35 |         0 |          7 |        0 |       19 |
+  performance-source-units.ts           |  92.59 |   92.59 |       25 |         0 |          2 |        0 |       18 |
+  performance.safety-factor.adapter.ts  |  88.00 |   88.00 |       22 |         0 |          3 |        0 |       22 |
+ domain                                 | 100.00 |  100.00 |        9 |         0 |          0 |        0 |        4 |
+  notification.schema.ts                | 100.00 |  100.00 |        5 |         0 |          0 |        0 |        4 |
+  session.schema.ts                     | 100.00 |  100.00 |        4 |         0 |          0 |        0 |        0 |
+ logic                                  |  79.86 |   80.38 |     1453 |        10 |        357 |       12 |      977 |
+  display-rounding.ts                   |  64.71 |   64.71 |       11 |         0 |          6 |        0 |        6 |
+  envelope-sort.ts                      |  84.62 |   84.62 |       11 |         0 |          2 |        0 |        6 |
+  fuel-density.ts                       |  80.00 |   80.00 |        4 |         0 |          1 |        0 |        5 |
+  fuel-endurance.ts                     |  95.45 |   95.45 |       21 |         0 |          1 |        0 |       15 |
+  fuel-mass.ts                          |  94.12 |   94.12 |       32 |         0 |          2 |        0 |       24 |
+  github-issue-url.ts                   |  61.18 |   61.18 |       45 |         7 |         33 |        0 |       32 |
+  manual-runway.ts                      |  44.88 |   45.54 |       92 |         0 |        110 |        3 |       78 |
+  mass-balance.logic.ts                 |  92.52 |   92.52 |      136 |         0 |         11 |        0 |       37 |
+  mb.arm-lookup.ts                      |  91.24 |   91.24 |      125 |         0 |         12 |        0 |       36 |
+  mb.envelope.ts                        |  86.96 |   86.96 |       80 |         0 |         12 |        0 |        2 |
+  performance.bilinear-interpolation.ts |  90.59 |   92.77 |       76 |         1 |          6 |        2 |        9 |
+  performance.correction-sources.ts     |  67.03 |   67.03 |      124 |         0 |         61 |        0 |      197 |
+  performance.extrapolation.ts          |  93.02 |   93.02 |       80 |         0 |          6 |        0 |       42 |
+  performance.phase-lookup.ts           |  92.42 |   92.42 |       61 |         0 |          5 |        0 |       27 |
+  performance.poh-distance.ts           |  78.68 |   80.31 |      153 |         2 |         38 |        4 |       80 |
+  performance.safety-factor.ts          |  98.31 |   98.31 |       58 |         0 |          1 |        0 |       63 |
+  pressure-altitude.ts                  |  87.50 |   87.50 |       70 |         0 |         10 |        0 |       43 |
+  profile-migrations.ts                 |  84.09 |   86.05 |       37 |         0 |          6 |        1 |       40 |
+  profile-verification.ts               |  91.67 |   91.67 |       55 |         0 |          5 |        0 |       39 |
+  session-migrations.ts                 |  69.77 |   71.43 |       30 |         0 |         12 |        1 |       38 |
+  station-kind.ts                       | 100.00 |  100.00 |       13 |         0 |          0 |        0 |        8 |
+  trip-arrival.ts                       |  85.39 |   85.39 |       76 |         0 |         13 |        0 |      100 |
+  unit-normalization.ts                 |  97.22 |  100.00 |       35 |         0 |          0 |        1 |       25 |
+  unit-preferences.ts                   |  87.50 |   87.50 |       28 |         0 |          4 |        0 |       25 |
+----------------------------------------|--------|---------|----------|-----------|------------|----------|----------|
+01:32:59 (1472470) INFO MutationTestReportHelper Final mutation score of 80.07 is greater than or equal to break threshold 70
+01:32:59 (1472470) INFO HtmlReporter Your report can be found at: file:///var/home/critter/lokal/dev/.hq-worktrees/aerodash/job-1647/frontend/reports/mutation/mutation.html
+01:32:59 (1472470) INFO MutationTestExecutor Done in 5 minutes and 24 seconds.

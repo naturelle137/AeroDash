@@ -1,0 +1,81 @@
+lint-final
+
+> @aerodash/frontend@0.3.0-alpha lint:eslint /var/home/critter/lokal/dev/.hq-worktrees/aerodash/job-1647/frontend
+> eslint --fix --cache
+
+
+> aerodash-root@0.3.0-alpha lint:md /var/home/critter/lokal/dev/.hq-worktrees/aerodash/job-1647
+> markdownlint-cli2 "**/*.md"
+
+markdownlint-cli2 v0.24.1 (markdownlint v0.42.1)
+Finding: **/*.md !node_modules/** !.logs/** !reports/** !frontend/node_modules/** !.agent/** !.agents/** !.codex/** !frontend/playwright-report/** !frontend/test-results/** !frontend/.stryker-tmp/** !.cursor/** !.tmp/** !.claude/** !.claude-pr/** !.claire/** !.claude/worktrees/** !CHANGELOG.md
+Linting: 113 files
+Summary: 0 issues in 0 files
+
+unit
+ ✓ src/stores/__tests__/app-version.deployment.spec.ts (3 tests) 4ms
+ ✓ src/core/logic/unit-conversion-constants.spec.ts (5 tests) 3ms
+ ✓ src/core/logic/fuel-mass.spec.ts (24 tests) 8ms
+ ✓ src/shared/utils/__tests__/contribution-environment.spec.ts (4 tests) 3ms
+ ✓ src/router/index.spec.ts (6 tests) 5ms
+ ✓ src/modules/aircraft/__tests__/data-rights.service.spec.ts (2 tests) 3ms
+
+ Test Files  109 passed (109)
+      Tests  2275 passed (2275)
+   Start at  01:27:03
+   Duration  10.48s (transform 15.19s, setup 0ms, import 34.29s, tests 16.06s, environment 103.69s)
+
+
+integration
+ ✓ src/modules/export/mb-print.int.spec.ts (20 tests) 287ms
+ ✓ src/core/logic/__tests__/mass-balance.int.spec.ts (8 tests) 6ms
+ ✓ src/core/logic/__tests__/performance.poh-distance.int.spec.ts (3 tests) 12ms
+ ✓ src/core/logic/__tests__/performance.safety-factor.int.spec.ts (3 tests) 14ms
+ ✓ src/core/logic/__tests__/performance.extrapolation.int.spec.ts (9 tests) 5ms
+ ✓ src/modules/fuel-endurance/components/FuelEnduranceCard.int.spec.ts (31 tests) 626ms
+
+ Test Files  23 passed (23)
+      Tests  218 passed (218)
+   Start at  01:27:15
+   Duration  2.79s (transform 7.35s, setup 0ms, import 13.81s, tests 2.49s, environment 20.97s)
+
+
+build
+dist/assets/_plugin-vue_export-helper-FV6_UWAd.js    66.50 kB │ gzip: 25.99 kB
+dist/assets/fleet.store-Cclo2lfd.js                 132.18 kB │ gzip: 39.44 kB
+dist/assets/index-BfNVCUbQ.js                       244.58 kB │ gzip: 78.39 kB
+
+✓ built in 553ms
+
+PWA v1.3.0
+mode      generateSW
+precache  37 entries (2844.99 KiB)
+files generated
+  dist/sw.js
+  dist/workbox-40bdc2f7.js
+
+p1-coverage
+  ...rification.ts |     100 |      100 |     100 |     100 |                   
+  ...migrations.ts |   97.22 |     91.3 |     100 |     100 | 76,134            
+  si-bounds.ts     |     100 |      100 |     100 |     100 |                   
+  station-kind.ts  |     100 |      100 |     100 |     100 |                   
+  trip-arrival.ts  |     100 |      100 |     100 |     100 |                   
+  ...-constants.ts |     100 |      100 |     100 |     100 |                   
+  ...malization.ts |     100 |    95.83 |     100 |     100 | 40                
+  ...references.ts |     100 |      100 |     100 |     100 |                   
+ ...c/__fixtures__ |     100 |      100 |     100 |     100 |                   
+  ...ors.schema.ts |     100 |      100 |     100 |     100 |                   
+  ...e.fixtures.ts |     100 |      100 |     100 |     100 |                   
+-------------------|---------|----------|---------|---------|-------------------
+
+source-checks
+
+> @aerodash/frontend@0.3.0-alpha check:data-constants /var/home/critter/lokal/dev/.hq-worktrees/aerodash/job-1647/frontend
+> node scripts/data-constants/index.mjs
+
+data-constants: OK — 11 entries cited, in-schema, and current.
+
+> @aerodash/frontend@0.3.0-alpha comment:check /var/home/critter/lokal/dev/.hq-worktrees/aerodash/job-1647/frontend
+> node scripts/comment-discipline/index.mjs
+
+comment-discipline: no new forbidden references beyond baseline (4 grandfathered).
