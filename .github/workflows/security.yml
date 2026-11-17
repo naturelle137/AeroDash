@@ -78,6 +78,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Test dependency audit enforcement
+        run: node --test .github/scripts/dependency-audit.test.mjs
+
       - name: Run dependency audit
         # PR and push paths block on `high` (preserves the existing PR
         # gate from ADR-315-DEV). The Monday weekly cron tightens the
@@ -85,7 +88,7 @@ jobs:
         # weekly failure that we triage, without churning every PR with
         # CVE-database lag against the bleeding-edge majors retained in
         # ADR-318-DEV. See ADR-318-DEV §"Supply-chain scan in CI".
-        run: pnpm audit --audit-level=${{ github.event_name == 'schedule' && 'moderate' || 'high' }}
+        run: node .github/scripts/dependency-audit.mjs ${{ github.event_name == 'schedule' && 'moderate' || 'high' }}
 
   osv-scanner:
     name: OSV-Scanner
