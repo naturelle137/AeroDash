@@ -1,0 +1,93 @@
+[
+  {
+    "type": "console",
+    "messageType": "error",
+    "text": "The Content Security Policy directive 'frame-ancestors' is ignored when delivered via a <meta> element.",
+    "args": [],
+    "location": {
+      "url": "http://localhost:4278/fleet",
+      "lineNumber": 41,
+      "columnNumber": 0
+    },
+    "time": 2013.521,
+    "pageId": "page@5e3c62d8fc8bd0cb8d4bbf6b52d62d9a"
+  },
+  {
+    "type": "console",
+    "messageType": "error",
+    "text": "The Content Security Policy directive 'frame-ancestors' is ignored when delivered via a <meta> element.",
+    "args": [],
+    "location": {
+      "url": "http://localhost:4278/fleet",
+      "lineNumber": 41,
+      "columnNumber": 0
+    },
+    "time": 2259.479,
+    "pageId": "page@5e3c62d8fc8bd0cb8d4bbf6b52d62d9a"
+  },
+  {
+    "type": "console",
+    "messageType": "error",
+    "text": "The Content Security Policy directive 'frame-ancestors' is ignored when delivered via a <meta> element.",
+    "args": [],
+    "location": {
+      "url": "http://localhost:4278/fleet",
+      "lineNumber": 41,
+      "columnNumber": 0
+    },
+    "time": 2335.743,
+    "pageId": "page@5e3c62d8fc8bd0cb8d4bbf6b52d62d9a"
+  },
+  {
+    "type": "console",
+    "messageType": "error",
+    "text": "The Content Security Policy directive 'frame-ancestors' is ignored when delivered via a <meta> element.",
+    "args": [],
+    "location": {
+      "url": "http://localhost:4278/fleet",
+      "lineNumber": 41,
+      "columnNumber": 0
+    },
+    "time": 3002.677,
+    "pageId": "page@5e3c62d8fc8bd0cb8d4bbf6b52d62d9a"
+  },
+  {
+    "type": "console",
+    "messageType": "error",
+    "text": "The Content Security Policy directive 'frame-ancestors' is ignored when delivered via a <meta> element.",
+    "args": [],
+    "location": {
+      "url": "http://localhost:4278/privacy",
+      "lineNumber": 41,
+      "columnNumber": 0
+    },
+    "time": 3130.998,
+    "pageId": "page@5e3c62d8fc8bd0cb8d4bbf6b52d62d9a"
+  },
+  {
+    "type": "console",
+    "messageType": "error",
+    "text": "The Content Security Policy directive 'frame-ancestors' is ignored when delivered via a <meta> element.",
+    "args": [],
+    "location": {
+      "url": "http://localhost:4278/fleet",
+      "lineNumber": 41,
+      "columnNumber": 0
+    },
+    "time": 3387.003,
+    "pageId": "page@5e3c62d8fc8bd0cb8d4bbf6b52d62d9a"
+  },
+  {
+    "type": "console",
+    "messageType": "error",
+    "text": "The Content Security Policy directive 'frame-ancestors' is ignored when delivered via a <meta> element.",
+    "args": [],
+    "location": {
+      "url": "http://localhost:4278/fleet",
+      "lineNumber": 41,
+      "columnNumber": 0
+    },
+    "time": 3591.356,
+    "pageId": "page@5e3c62d8fc8bd0cb8d4bbf6b52d62d9a"
+  }
+]

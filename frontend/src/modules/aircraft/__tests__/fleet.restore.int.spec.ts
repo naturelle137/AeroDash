@@ -4,6 +4,7 @@ import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 import { testPohAircraft } from '../../../../tests/fixtures/poh-aircraft'
 import { exportAllProfiles, serializeBulkExport } from '../services/data-rights.service'
+import { CURRENT_PROFILE_SCHEMA_VERSION } from '@/core/logic/profile-migrations'
 import { previewFleetRestore } from '../services/fleet.import'
 import { fleetRepository as repo, _resetFleetDbHandleForTest } from '../services/fleet.repository'
 import { useFleetStore } from '../stores/fleet.store'
@@ -41,7 +42,7 @@ describe('atomic fleet restore', () => {
 
   it('rejects conflicts added after preview, preserving fleet and active preparation', async () => {
     const profiles = await batch()
-    const existing = { ...testPohAircraft(), schemaVersion: 2, registration: 'd-next' }
+    const existing = { ...testPohAircraft(), schemaVersion: CURRENT_PROFILE_SCHEMA_VERSION, registration: 'd-next' }
     await repo.create(existing)
     const fleet = useFleetStore()
     await fleet.loadAll()
@@ -57,7 +58,7 @@ describe('atomic fleet restore', () => {
 
   it('rolls back an earlier successful add when a later add fails, and supports retry', async () => {
     const profiles = await batch()
-    const existing = { ...testPohAircraft(), schemaVersion: 2, registration: 'D-KEEP' }
+    const existing = { ...testPohAircraft(), schemaVersion: CURRENT_PROFILE_SCHEMA_VERSION, registration: 'D-KEEP' }
     await repo.create(existing)
     const fleet = useFleetStore()
     await fleet.loadAll()
@@ -102,7 +103,7 @@ describe('atomic fleet restore', () => {
 
   it('rejects a key collision on the second record without committing the first', async () => {
     const profiles = await batch()
-    const existing = { ...testPohAircraft(), schemaVersion: 2, id: profiles[1]!.id, registration: 'D-KEEP' }
+    const existing = { ...testPohAircraft(), schemaVersion: CURRENT_PROFILE_SCHEMA_VERSION, id: profiles[1]!.id, registration: 'D-KEEP' }
     await repo.create(existing)
     await expect(repo.restoreBatch(profiles)).rejects.toThrow('ConstraintError')
     expect(await repo.findAll()).toEqual([existing])
