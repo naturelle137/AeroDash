@@ -44,7 +44,8 @@ test('current M&B native print, cancellation, guarded transitions and cached off
   await action.click()
   const preview = page.getByRole('dialog', { name: 'Briefing Pack preview', exact: true })
   await expect(preview).toContainText('550.0 kg [UNVERIFIED]')
-  await expect(preview).toContainText('WARN-UQ-001')
+  await expect(preview).toContainText('WARNING: Implausible mass on required stations:')
+  await expect(preview).not.toContainText('WARN-UQ-001')
   await expect(preview).not.toContainText('Profile and source status')
   await expect(preview).not.toContainText('Applicable category limits')
   await expect(preview).toContainText('Pilot in Command assumes full responsibility.')
@@ -138,7 +139,8 @@ test('current M&B native print, cancellation, guarded transitions and cached off
   await expect(action).toBeEnabled()
   await action.click()
   await expect(preview).toContainText('D-NEXT')
-  await expect(preview).toContainText('WARN-UQ-001')
+  await expect(preview).toContainText('WARNING: Implausible mass on required stations:')
+  await expect(preview).not.toContainText('WARN-UQ-001')
   await page.evaluate(() => {
     document.documentElement.dataset.offlinePrint = 'pending'
     window.addEventListener('beforeprint', () => { document.documentElement.dataset.offlinePrint = 'invoked' })
