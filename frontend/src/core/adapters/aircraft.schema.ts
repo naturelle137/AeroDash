@@ -210,7 +210,7 @@ const VerificationProvenanceSchema = z.object({
 export const AircraftProfileSchema = z
   .object({
     id: z.string().uuid(),
-    ownerId: z.string().min(1),
+    ownerId: z.string().nullable().default(null),
     registration: z.string().min(1),
     manufacturer: z.string().min(1),
     model: z.string().min(1),
@@ -230,7 +230,7 @@ export const AircraftProfileSchema = z
       ])
       .default('draft'),
     // M3: Schema version for structured migration safety
-    schemaVersion: z.number().int().positive().finite().default(2),
+    schemaVersion: z.number().int().positive().finite().default(3),
     // v0.4: Verification provenance (REQ-AC-007, H-011). Present only on a
     // Verified snapshot recorded via the sign-off flow; legacy/imported Verified
     // profiles and all Drafts omit it. Optional so pre-provenance Verified

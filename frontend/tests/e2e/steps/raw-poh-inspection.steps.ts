@@ -249,7 +249,7 @@ Then('the declared source reference vector computes after reload and export for 
   for await (const chunk of stream!) chunks.push(chunk)
   const exported = JSON.parse(Buffer.concat(chunks).toString())
   expect(exported.version).toBe(2)
-  expect(exported.profile.schemaVersion).toBe(2)
+  expect(exported.profile.schemaVersion).toBe(3)
   expect(exported.profile.performanceProfiles).toEqual(sourceAircraft(mode).performanceProfiles)
   await page.goto('/performance')
   await selectOnlyProfile(page)

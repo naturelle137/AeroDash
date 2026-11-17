@@ -250,7 +250,6 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
-import { v4 as uuidv4 } from 'uuid'
 import type {
   AircraftProfile,
   AircraftProfileBatteryPack,
@@ -682,7 +681,6 @@ async function persistProfile(): Promise<AircraftProfile | null> {
     })
 
     const created = await fleetStore.createProfile({
-      ownerId: uuidv4(),
       registration: identityFields.value.registration.toUpperCase(),
       manufacturer: identityFields.value.manufacturer || 'Unknown',
       model: identityFields.value.model || 'Unknown',

@@ -145,3 +145,13 @@ Extension points as the personal-data surface grows:
   them, export includes them.
 - **Cloud synchronisation:** erasure and export extend to server-side data after
   opt-in/authentication.
+
+## Local owner values
+
+Profile schema v3 defaults omitted owners to null; ordinary creation no longer
+invents an owner UUID. Existing strings survive local migration, export and import
+unchanged and establish no identity or access right. Exports can still contain
+legacy owners and other personal data; owner minimisation is not anonymization.
+The [data model](aircraft_data_model.md#local-owner-minimisation) defines migration
+and database compatibility. The [secrets policy](../security/secrets.md) applies
+before any future identity work; the pre-sync gate and #285 hold remain unchanged.

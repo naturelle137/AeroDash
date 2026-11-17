@@ -33,7 +33,7 @@ The top-level aggregate root. One IndexedDB record = one `AircraftProfile`.
 | Field                       | Type                      | Required | Description                                       |
 | :-------------------------- | :------------------------ | :------: | :------------------------------------------------ |
 | `id`                        | `string`                  |   Yes    | Unique profile identifier (UUID v4).              |
-| `ownerId`                   | `string`                  |   Yes    | Identifier of the owning user.                    |
+| `ownerId`                   | `string \| null`          |    No    | Opaque legacy value; defaults to null locally.    |
 | `registration`              | `string`                  |   Yes    | Aircraft registration (e.g., `D-EBPF`).           |
 | `manufacturer`              | `string`                  |   Yes    | Aircraft manufacturer.                            |
 | `model`                     | `string`                  |   Yes    | Aircraft model designation.                       |
@@ -54,7 +54,7 @@ The top-level aggregate root. One IndexedDB record = one `AircraftProfile`.
 | `checklistScaffold`         | `ChecklistScaffoldItem[]` |    No    | See Section 3.10.                                 |
 | `passengerProfiles`         | `PassengerProfile[]`      |    No    | Standard passenger weight profiles (M3).          |
 | `status`                    | `'draft' \| 'verified'`   |    No    | Profile verification state (defaults to `draft`). |
-| `schemaVersion`             | `number`                  |    No    | Schema version, currently `2` (defaults to `2`).  |
+| `schemaVersion`             | `number`                  |    No    | Schema version, currently `3` (defaults to `3`).  |
 
 ### 3.2 WeighingReport
 
@@ -215,6 +215,22 @@ UI interaction is not included in M3. The canonical field name on the root is
 ## 4. Implementation Notes
 
 1. **Zod Schema:** The authoritative runtime schema will be defined as a Zod object in `src/core/validation/`. Field constraints (array lengths, enum values, min/max points) shall mirror the limits stated in this document and the source requirements.
-2. **IndexedDB Storage:** Each `AircraftProfile` is stored as a single JSON document keyed by `id`. The `ownerId` + `registration` pair shall have a compound index to support the uniqueness check required by.
+2. **IndexedDB Storage:** Each `AircraftProfile` is stored as a single JSON document keyed by `id`. Database version 2 retains nonunique `ownerId` and `registration` indexes. No runtime query reads the owner index; registration warnings inspect the local fleet. Null is not an IndexedDB key, so ownerless records remain in the object store without an owner-index entry. No database upgrade, record rewrite or index deletion is required.
 3. **Unit Handling:** All numeric values within a profile are stored in the manufacturer's original unit. The Safety Core's unit adapters converts to SI at calculation time — never at storage time.
 4. **JSON Export/Import:** Use the validated [exchange pipeline](aircraft-exchange-file-format.md); export excludes operating-cost data by default and import creates a draft copy.
+
+### Local owner minimisation
+
+Profile schema v3 accepts omitted/null owners and normalizes omission to null.
+New local profiles use the current version without generating an owner UUID.
+The pure on-read v0 → v1 → v2 → v3 walker retains existing owner strings exactly
+(including blank/whitespace values), raw performance points, source-unit declarations,
+status and provenance; it never binds these strings to authenticated subjects.
+Non-string, non-null owners fail validation. Future versions remain unreadable;
+records rejected on read remain stored for recovery. A normal later save persists
+v3; reads alone do not rewrite existing v2 database records.
+
+Single and fleet imports retain nullable/legacy owners, assign new profile IDs,
+force draft status and discard old verification as before. Export/reload retains
+owners without asserting identity or authorization. See the [pre-sync gate](adr/014-pre-sync-privacy-gate.md)
+and [secrets policy](../security/secrets.md); accounts and synchronization remain future scope.

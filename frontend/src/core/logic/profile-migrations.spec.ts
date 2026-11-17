@@ -97,7 +97,7 @@ describe('migrateProfileDocument — legacy v0 → v1 stamping', () => {
     expect(result.kind).toBe('migrated')
     if (result.kind !== 'migrated') return
     expect(result.profile.schemaVersion).toBe(CURRENT_PROFILE_SCHEMA_VERSION)
-    expect(result.versionsApplied).toEqual([0, 1])
+    expect(result.versionsApplied).toEqual([0, 1, 2])
   })
 
   it('stamps schemaVersion when the field is the wrong type (string)', () => {
@@ -106,7 +106,7 @@ describe('migrateProfileDocument — legacy v0 → v1 stamping', () => {
     expect(result.kind).toBe('migrated')
     if (result.kind !== 'migrated') return
     expect(result.profile.schemaVersion).toBe(CURRENT_PROFILE_SCHEMA_VERSION)
-    expect(result.versionsApplied).toEqual([0, 1])
+    expect(result.versionsApplied).toEqual([0, 1, 2])
   })
 
   it('stamps schemaVersion when stored value is NaN (corrupt numeric)', () => {
@@ -415,5 +415,41 @@ describe('migrateProfileDocument — missing lookup fuel unit recovery', () => {
     expect(reloaded.kind).toBe('migrated')
     if (reloaded.kind !== 'migrated') return
     expect(reloaded.profile.loadPoints).toEqual(corrected.loadPoints)
+  })
+})
+
+
+describe('nullable local owner migration', () => {
+  it.each([0, 1, 2, 3])('preserves complete source data from version %s', (schemaVersion) => {
+    for (const ownerId of [undefined, null, '', '  legacy-owner  ']) {
+      for (const status of ['draft', 'verified']) {
+        const raw = buildV1Document({
+          schemaVersion, ownerId, status,
+          verification: status === 'verified' ? {
+            verifiedOn: '2026-01-10', verifiedBy: 'TEST', pohRevision: 'Synthetic revision', sourceWeighingDate: '2025-01-01',
+          } : undefined,
+          performanceProfiles: [{
+            flightPhase: 'TakeoffRoll',
+            sourceUnits: { mass: 'lb', pressureAltitude: 'm', temperature: '°F', distance: 'ft' },
+            sourceReference: 'Synthetic migration fixture; not operational data',
+            dataPoints: [{ mass: 1800, pressureAltitude: 300, temperature: 59, distance: 700 }],
+          }],
+        })
+        if (ownerId === undefined) delete raw.ownerId
+        const before = structuredClone(raw)
+        const result = migrateProfileDocument(raw)
+        expect(result.kind).toBe('migrated')
+        if (result.kind !== 'migrated') throw new Error('Valid local profile rejected')
+        expect(result.profile).toEqual({ ...raw, ownerId: ownerId ?? null, schemaVersion: 3 })
+        expect(result.versionsApplied).toEqual(Array.from({ length: 3 - schemaVersion }, (_, i) => schemaVersion + i))
+        expect(raw).toEqual(before)
+      }
+    }
+  })
+
+  it.each([0, 1, 2, 3])('rejects invalid owner types at version %s', (schemaVersion) => {
+    for (const ownerId of [42, false, {}, [], ['owner']]) {
+      expect(migrateProfileDocument(buildV1Document({ schemaVersion, ownerId })).kind).toBe('corrupt')
+    }
   })
 })

@@ -17,6 +17,7 @@ import {
 } from '../stores/fleet.store'
 import { useActiveAircraftStore } from '../stores/active-aircraft.store'
 import type { AircraftProfile } from '@/core/adapters/aircraft.schema'
+import { CURRENT_PROFILE_SCHEMA_VERSION } from '@/core/logic/profile-migrations'
 import { fleetRepository } from '../services/fleet.repository'
 
 /** A complete verification sign-off for tests that just need to reach Verified. */
@@ -89,6 +90,22 @@ function minimalProfileData(): Omit<AircraftProfile, 'id' | 'status' | 'schemaVe
 }
 
 describe('useFleetStore', () => {
+  it.each([undefined, null, '', '  supplied-owner  '])('creates a local profile preserving owner %s', async (ownerId) => {
+    const data = { ...minimalProfileData(), ownerId }
+    const created = await useFleetStore().createProfile(data)
+    expect(created.ownerId).toBe(ownerId ?? null)
+    expect(created.schemaVersion).toBe(CURRENT_PROFILE_SCHEMA_VERSION)
+    expect(created.status).toBe('draft')
+    expect(fleetRepository.create).toHaveBeenCalledWith(created)
+  })
+
+  it('rejects a runtime non-string owner without persisting a record', async () => {
+    vi.mocked(fleetRepository.create).mockClear()
+    const data = { ...minimalProfileData(), ownerId: 42 as unknown as string }
+    await expect(useFleetStore().createProfile(data)).rejects.toThrow(/ownerId/)
+    expect(fleetRepository.create).not.toHaveBeenCalled()
+  })
+
   beforeEach(() => {
     setActivePinia(createPinia())
     vi.mocked(fleetRepository.findAll).mockResolvedValue([])
@@ -102,7 +119,7 @@ describe('useFleetStore', () => {
     const store = useFleetStore()
     const profile = await store.createProfile(minimalProfileData())
     expect(profile.status).toBe('draft')
-    expect(profile.schemaVersion).toBe(2)
+    expect(profile.schemaVersion).toBe(CURRENT_PROFILE_SCHEMA_VERSION)
     expect(store.profiles).toHaveLength(1)
     expect(store.profiles[0]!.status).toBe('draft')
   })

@@ -44,7 +44,7 @@ import { AircraftProfileSchema, type AircraftProfile } from '../adapters/aircraf
  * up-function below MUST raise this constant by exactly one so the migration
  * walker has a target to converge on.
  */
-export const CURRENT_PROFILE_SCHEMA_VERSION = 2 as const
+export const CURRENT_PROFILE_SCHEMA_VERSION = 3 as const
 
 /** Up-function: transform a document from version `fromVersion` to `fromVersion + 1`. */
 export type ProfileMigration = (doc: Record<string, unknown>) => Record<string, unknown>
@@ -57,11 +57,13 @@ export type ProfileMigration = (doc: Record<string, unknown>) => Record<string, 
  *   2. Registering `n` here with the pure transform.
  *   3. Updating `AircraftProfileSchema.schemaVersion` default to `n + 1`.
  *
- * The registry stamps legacy documents through v1 to v2 without changing source
+ * The registry stamps legacy documents through v1 to v3 without changing source
  * points. Missing performance unit declarations retain their explicit legacy
  * kg/ft/°C/m contract.
  */
 const migrations: ReadonlyMap<number, ProfileMigration> = new Map<number, ProfileMigration>([
+  // An omitted local owner becomes null; supplied strings remain opaque source data.
+  [2, (doc) => ({ ...doc, ownerId: doc.ownerId === undefined ? null : doc.ownerId, schemaVersion: 3 })],
   // Preserve undeclared source values under the legacy kg/ft/°C/m contract.
   // Never infer table units from M&B or convert stored points during migration.
   [1, (doc) => ({ ...doc, schemaVersion: 2 })],

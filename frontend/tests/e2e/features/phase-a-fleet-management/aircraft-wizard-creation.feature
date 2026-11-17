@@ -63,7 +63,7 @@ Feature: Aircraft creation wizard
     And the "Continue" button is enabled
 
   @phase-A @e2e
-  Scenario: Owner ID field is not present anywhere in the wizard — system generates it automatically (REQ-AD-019)
+  Scenario: Owner ID field is not present anywhere in the wizard — local owner stays unset (REQ-AD-019)
     Given the pilot navigates to the Fleet page
     When the pilot clicks "Add New Aircraft"
     Then the wizard opens at Step 1 — Identity

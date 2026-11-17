@@ -364,3 +364,58 @@ describe('persisted legacy lookup fuel correction', () => {
     expect(original.loadPoints).toEqual([tank])
   })
 })
+
+
+describe('nullable owner persistence and exchange', () => {
+  it.each([0, 1, 2, 3])('reads version %s without writeback and round-trips owners through exchange', async (schemaVersion) => {
+    const { importProfileFromJson, exportProfileToJson } = await import('../services/profile.import')
+    for (const ownerId of [undefined, null, '  legacy-owner  ']) {
+      const raw = { ...buildProfile(), schemaVersion, ownerId }
+      await seedRaw(raw)
+      const loaded = await findByIdWithDiagnostics(raw.id)
+      expect(loaded.diagnostics).toEqual([])
+      expect(loaded.profile?.ownerId).toBe(ownerId ?? null)
+      expect(loaded.profile?.schemaVersion).toBe(3)
+      const stored = await new Promise<unknown>((resolve, reject) => {
+        const request = indexedDB.open('aerodash-fleet', 2)
+        request.onsuccess = () => {
+          const db = request.result
+          const get = db.transaction('aircraft_profiles').objectStore('aircraft_profiles').get(raw.id)
+          get.onsuccess = () => { resolve(get.result); db.close() }
+          get.onerror = () => reject(get.error)
+        }
+        request.onerror = () => reject(request.error)
+      })
+      expect(stored).toEqual(raw)
+      if (!loaded.profile) throw new Error('Profile missing')
+      const exported = exportProfileToJson(loaded.profile)
+      expect(JSON.parse(exported).profile.ownerId).toBe(ownerId ?? null)
+      const imported = importProfileFromJson(exported)
+      expect(imported).toEqual({ ...loaded.profile, id: imported.id, status: 'draft', verification: undefined })
+      await create(imported)
+      const reloaded = await findById(imported.id)
+      expect(reloaded).toEqual(imported)
+      expect(reloaded?.ownerId).toBe(ownerId ?? null)
+    }
+  })
+
+  it('writes null owners into a newly created database with the legacy index retained', async () => {
+    const profile = buildProfile({ schemaVersion: 3, ownerId: null })
+    await create(profile)
+    expect(await findById(profile.id)).toEqual(profile)
+    const db = await new Promise<IDBDatabase>((resolve, reject) => {
+      const request = indexedDB.open('aerodash-fleet', 2)
+      request.onsuccess = () => resolve(request.result)
+      request.onerror = () => reject(request.error)
+    })
+    const store = db.transaction('aircraft_profiles').objectStore('aircraft_profiles')
+    expect(Array.from(store.indexNames)).toEqual(['ownerId', 'registration'])
+    const keys = await new Promise<IDBValidKey[]>((resolve, reject) => {
+      const request = store.index('ownerId').getAllKeys()
+      request.onsuccess = () => resolve(request.result)
+      request.onerror = () => reject(request.error)
+    })
+    expect(keys).toEqual([])
+    db.close()
+  })
+})

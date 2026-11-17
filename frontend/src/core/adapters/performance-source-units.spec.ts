@@ -72,8 +72,8 @@ describe('performance source units', () => {
     const legacy = testPohAircraft()
     legacy.sourceUnit = 'lb'
     const result = migrateProfileDocument(legacy)
-    expect(result).toMatchObject({ kind: 'migrated', versionsApplied: [1], profile: {
-      schemaVersion: 2, performanceProfiles: legacy.performanceProfiles,
+    expect(result).toMatchObject({ kind: 'migrated', versionsApplied: [1, 2], profile: {
+      schemaVersion: 3, performanceProfiles: legacy.performanceProfiles,
     } })
     const bad = { ...legacy, performanceProfiles: [{ ...raw, sourceUnits: { mass: 'kg' } }] }
     expect(migrateProfileDocument(bad).kind).toBe('corrupt')

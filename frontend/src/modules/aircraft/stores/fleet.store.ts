@@ -182,11 +182,11 @@ export const useFleetStore = defineStore('fleet', () => {
   /**
    * Create a new aircraft profile (always starts as Draft).
    * Validates ICAO registration format and emits duplicate warning if needed.
-   * If `ownerId` is absent or empty, a UUID is auto-generated.
+   * An omitted owner stays null until an actual identity/sync design exists.
    */
   async function createProfile(
     data: Omit<AircraftProfile, 'id' | 'status' | 'schemaVersion' | 'ownerId'> & {
-      ownerId?: string
+      ownerId?: string | null
     },
   ): Promise<AircraftProfile> {
     if (!validateIcaoRegistration(data.registration)) {
@@ -199,7 +199,6 @@ export const useFleetStore = defineStore('fleet', () => {
 
     const newProfile: AircraftProfile = AircraftProfileSchema.parse({
       ...data,
-      ownerId: data.ownerId && data.ownerId.trim() !== '' ? data.ownerId : uuidv4(),
       id: uuidv4(),
       status: 'draft',
       schemaVersion: CURRENT_PROFILE_SCHEMA_VERSION,

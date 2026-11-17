@@ -76,7 +76,7 @@ When the user creates a share code for an aircraft, the system shall store the s
 
 ### REQ-AD-019: Owner Identifier Storage
 
-The system shall store an owner identifier in each aircraft profile.
+While synchronization is unimplemented, the system shall persist `ownerId: null` for a new local profile without a supplied owner value.
 
 ### REQ-AD-020: Powertrain Discriminator
 
@@ -105,6 +105,14 @@ If an existing aircraft record has no powertrain value, then the system shall tr
 ### REQ-AD-026: Combustion battery exclusion
 
 If a combustion aircraft profile contains a battery pack, then the system shall reject the profile.
+
+### REQ-AD-027: Legacy owner preservation
+
+When loading or importing a profile with a string owner value, the system shall preserve that value exactly.
+
+### REQ-AD-028: Invalid owner rejection
+
+If a profile owner value is neither omitted, null nor a string, then the system shall reject the profile.
 
 ## Design References
 
