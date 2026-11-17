@@ -26,6 +26,12 @@ export function lookupFuelInputReason(
       code: 'UNSUPPORTED_UNIT',
       reason: 'A supported explicit source unit is required for the fuel moment table.',
     }
+  if (def.unit === '')
+    return {
+      code: 'UNSUPPORTED_UNIT',
+      reason:
+        "The tank unit is missing. In the aircraft editor, open Load Stations → Unit and select the unit using the aircraft's approved source data.",
+    }
   if (
     !isFuelQuantityUnit(def.unit) ||
     fuel.permissibleFuelTypes.length === 0 ||
