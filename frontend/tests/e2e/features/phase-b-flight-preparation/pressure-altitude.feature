@@ -12,8 +12,8 @@ Feature: Explicit pressure-altitude method
     When the pilot enters pressure altitude "1000" ft directly
     Then the takeoff roll is "220.0 m" using pressure altitude "1000 ft, entered directly"
     When the pilot derives pressure altitude from QNH "1000" "hPa" and field elevation "457.2" "m"
-    Then the derived pressure altitude is "1855 ft" from field elevation "457.2 m (1500.0 ft)" entered by the pilot
-    And the takeoff roll is "228.5 m" using pressure altitude "1855 ft, derived from QNH and field elevation"
+    Then the derived pressure altitude is "1864 ft" from field elevation "457.2 m (1500.0 ft)" entered by the pilot
+    And the takeoff roll is "228.6 m" using pressure altitude "1864 ft, derived from QNH and field elevation"
     When the pilot changes the QNH to "1001"
     Then the QNH edit updates raw distances live
     When the pilot switches back to direct pressure-altitude entry
@@ -50,7 +50,7 @@ Feature: Explicit pressure-altitude method
     And the pilot opens Performance
     When the pilot derives pressure altitude from QNH "940" "hPa" and field elevation "-30.48" "m"
     Then the pilot is warned "WARN-UI-001"
-    And the derived pressure altitude is "1952 ft" from field elevation "-30.48 m (-100.0 ft)" entered by the pilot
+    And the derived pressure altitude is "1962 ft" from field elevation "-30.48 m (-100.0 ft)" entered by the pilot
 
   Scenario Outline: A saved runway elevation is used only on request and never outlives its runway
     Given the manual runway viewport is <width> by <height>
@@ -59,7 +59,7 @@ Feature: Explicit pressure-altitude method
     And the pilot derives pressure altitude from QNH "1013.25" "hPa" and field elevation "" ""
     Then no derived pressure altitude is shown
     When the pilot copies the saved runway elevation
-    Then the derived pressure altitude is "-20 ft" from field elevation "-12 ft (-12.0 ft)" copied from runway "TEST 09"
+    Then the derived pressure altitude is "-12 ft" from field elevation "-12 ft (-12.0 ft)" copied from runway "TEST 09"
     When the pilot changes the LDA to "1800" "ft"
     Then the copied field elevation has been removed
     When the pilot saves the runway inputs

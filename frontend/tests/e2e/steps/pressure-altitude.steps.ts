@@ -127,6 +127,6 @@ Then('the pressure-altitude evidence is captured as {string}', async ({ page, $t
 })
 
 Then('the QNH edit updates raw distances live', async ({ page }) => {
-  await expect(result(page).locator('dd').first()).not.toHaveText('228.5 m')
+  await expect(result(page).locator('dd').first()).not.toHaveText('228.6 m')
   await expect(result(page).locator('dd')).toHaveCount(4)
 })
