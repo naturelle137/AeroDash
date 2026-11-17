@@ -1,3 +1,4 @@
+import { execFileSync } from 'node:child_process'
 import { expect, test } from '@playwright/test'
 import { testPohAircraft } from '../fixtures/poh-aircraft'
 
@@ -157,6 +158,64 @@ test('complete current briefing pack with chart, persistent action and native st
     await action.click()
     await expect(preview).toContainText('221.0 m')
     await expect(preview).not.toContainText('220.0 m')
+    await page.keyboard.press('Escape')
+  }
+})
+
+test('M&B warning meaning survives preview and PDF online and after offline reload', async ({ page, context }, info) => {
+  await page.goto('/fleet')
+  await page.getByTestId('disclaimer-gate-accept').click()
+  await page.evaluate(async () => { await navigator.serviceWorker.ready })
+  await page.reload()
+  await expect.poll(() => page.evaluate(() => !!navigator.serviceWorker.controller)).toBe(true)
+  const profile = testPohAircraft()
+  profile.weighingReports[0]!.bem = 750
+  profile.certificationCategories[0]!.mtom = 850
+  profile.certificationCategories[0]!.envelope[2]!.armOrMoment = 1.05
+  profile.certificationCategories[0]!.envelope[3]!.armOrMoment = 1.05
+  profile.loadPoints = [
+    { name: 'Synthetic payload', kind: 'occupant', occupancy: 'required', arm: 2, armLookup: [], operationalLimit: 50, defaultQuantity: 100, unit: 'kg', allowableCategories: null, fuelTank: null },
+    { name: 'Synthetic empty seat', kind: 'occupant', occupancy: 'required', arm: 1, armLookup: [], operationalLimit: 100, defaultQuantity: 0, unit: 'kg', allowableCategories: null, fuelTank: null },
+    { name: 'Synthetic tank', kind: 'fuel', arm: 1, armLookup: [], operationalLimit: 100, defaultQuantity: 50, unit: 'kg', allowableCategories: null, fuelTank: { unusableFuel: 0, permissibleFuelTypes: ['AvGas 100LL'], burnSequences: [] } },
+  ]
+  await page.getByLabel('Or import from Exchange File (.json)').setInputFiles({ name: 'synthetic-warnings.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify({ format: 'aerodash-aircraft', version: 1, profile })) })
+  await page.getByRole('button', { name: 'Verify D-TEST', exact: true }).click()
+  const verify = page.getByRole('dialog')
+  await verify.getByLabel('Verifier initials').fill('QA')
+  await verify.getByLabel('POH revision').fill('Synthetic wiring only')
+  await verify.getByRole('button', { name: 'Verify', exact: true }).click()
+  await expect(verify).toBeHidden()
+  await page.goto('/mass-balance')
+  const picker = page.getByLabel('Select aircraft', { exact: true })
+  await picker.selectOption((await picker.locator('option').filter({ hasText: 'D-TEST' }).first().getAttribute('value'))!)
+  const action = page.getByRole('button', { name: 'Briefing Pack', exact: true })
+  const preview = page.getByRole('dialog', { name: 'Briefing Pack preview' })
+  for (const offline of [false, true]) {
+    if (offline) { await context.setOffline(true); expect((await page.reload())?.fromServiceWorker()).toBe(true) }
+    await page.getByRole('textbox', { name: 'Synthetic empty seat', exact: true }).fill('0')
+    await page.getByRole('textbox', { name: 'Synthetic empty seat', exact: true }).blur()
+    await expect(action).toBeEnabled()
+    await action.click()
+    for (const message of ['MTOM Exceeded', 'CG Out of Envelope', 'Station 0 limit exceeded', 'Implausible mass on required station', '900.0 kg']) await expect(preview).toContainText(message)
+    await expect(preview.locator('.briefing-critical').filter({ hasText: 'MTOM Exceeded' })).toContainText('900.0 kg')
+    await expect(preview.locator('.briefing-critical').filter({ hasText: 'CG Out of Envelope' }).first()).toContainText('1.111 m')
+    const ids = ['CRIT-MB-001', 'CRIT-MB-002', 'WARN-MB-005', 'WARN-UQ-001']
+    const accessible = await preview.ariaSnapshot()
+    for (const id of ids) { await expect(preview).not.toContainText(id); expect(accessible).not.toContain(id) }
+    for (const message of ['MTOM Exceeded', 'CG Out of Envelope', 'Station 0 limit exceeded', 'Implausible mass on required station']) expect(accessible).toContain(message)
+    for (const width of [1440, 440, 320]) {
+      await page.setViewportSize({ width, height: 894 })
+      expect(await preview.evaluate(e => e.scrollWidth <= e.clientWidth)).toBe(true)
+      await page.screenshot({ path: info.outputPath(`warning-${offline}-${width}.png`), fullPage: true })
+    }
+    await page.emulateMedia({ media: 'print' })
+    const pdf = info.outputPath(`warning-${offline}.pdf`)
+    await page.pdf({ path: pdf, preferCSSPageSize: true, printBackground: true })
+    const pdfText = execFileSync('pdftotext', ['-layout', pdf, '-'], { encoding: 'utf8' }).replace(/\s+/g, ' ')
+    for (const id of ids) expect(pdfText).not.toContain(id)
+    for (const message of ['CRITICAL', 'MTOM Exceeded', 'CG Out of Envelope', 'Station 0 limit exceeded', 'Implausible mass on required station', '900.0 kg']) expect(pdfText).toContain(message)
+    await info.attach(`warning-${offline}`, { path: pdf, contentType: 'application/pdf' })
+    await page.emulateMedia({ media: 'screen' })
     await page.keyboard.press('Escape')
   }
 })

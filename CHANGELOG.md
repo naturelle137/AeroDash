@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Correct QNH-derived pressure altitude before table lookup and round its displayed whole feet toward positive infinity (#572).
+- Hide internal warning identifiers in the Briefing Pack while retaining warning details (#573).
 
 - Share the homepage CTA style with Briefing Pack, disable unavailable export without helper text, restore the homepage Performance icon and remove the separate Performance menu entry (refs #568).
 - Retain legacy lookup fuel profiles with an explicit missing unit for source-based editor correction; M&B stays blocked until corrected (Refs #535).
