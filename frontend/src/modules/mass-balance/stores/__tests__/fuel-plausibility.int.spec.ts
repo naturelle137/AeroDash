@@ -137,6 +137,8 @@ describe('adapter validation failure and independent warnings', () => {
   it('retains and independently clears warnings through failure and recovery', () => {
     const store = useMassBalanceStore()
     const fixture = profile(false)
+    fixture.loadPoints[3]!.operationalLimit = 1
+    fixture.loadPoints[3]!.defaultQuantity = 2
     store.loadProfile(fixture)
     expect(store.lastResult?.success).toBe(true)
     const calculate = vi.spyOn(mathAdapter, 'calculateMassBalance')
