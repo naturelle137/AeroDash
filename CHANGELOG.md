@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Preserve required-occupant zero-mass warnings while invalid raw fuel inputs block calculation (#534).
+
 - Block fixed-arm fuel loads below unusable fuel with tank-specific correction and stale result/print protection (REQ-MB-033/035/036).
 - Round printed MTOM/MZFM limits down while retaining kg and verification markers; keep actual masses rounded up (#556).
 
