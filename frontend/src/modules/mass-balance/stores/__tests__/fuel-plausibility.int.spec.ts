@@ -128,3 +128,43 @@ describe.each([true, false])('raw fuel rejection and occupant warnings (lookup: 
     notices()
   })
 })
+
+
+describe('adapter validation failure and independent warnings', () => {
+  beforeEach(() => setActivePinia(createPinia()))
+  afterEach(() => vi.restoreAllMocks())
+
+  it('retains and independently clears warnings through failure and recovery', () => {
+    const store = useMassBalanceStore()
+    const fixture = profile(false)
+    fixture.loadPoints[3]!.operationalLimit = 1
+    fixture.loadPoints[3]!.defaultQuantity = 2
+    store.loadProfile(fixture)
+    expect(store.lastResult?.success).toBe(true)
+    const calculate = vi.spyOn(mathAdapter, 'calculateMassBalance')
+    store.aircraft!.weighingReports[0]!.emptyCg = Infinity
+    store.changeCertificationCategory('Normal')
+    expect(calculate).toHaveBeenCalled()
+    expect(store.lastResult).toBeNull()
+    expect(store.uiState).toBe('ERROR_CRITICAL')
+    expect(store.notifications).toContainEqual(expect.objectContaining({ id: 'ERR-SYS-001', severity: 'ERROR', message: expect.stringContaining('EMPTY_CG') }))
+    const warnings = (id: string) => store.notifications.filter((n) => n.id === id)
+    expect(warnings('WARN-UQ-001')).toEqual([expect.objectContaining({ message: expect.stringContaining('Pilot') })])
+    expect(warnings('WARN-UQ-001')[0]!.message).not.toContain('Optional passenger')
+    expect(warnings('WARN-UQ-001')[0]!.message).not.toContain('Excluded occupant')
+    expect(warnings('WARN-MB-005')).toEqual([expect.objectContaining({ message: 'Station 4 limit exceeded' })])
+    store.updateStationWeight(1, 80)
+    expect(warnings('WARN-UQ-001')).toHaveLength(0)
+    expect(warnings('WARN-MB-005')).toHaveLength(1)
+    store.updateStationWeight(4, 100)
+    expect(warnings('WARN-MB-005')).toHaveLength(0)
+    expect(store.lastResult).toBeNull()
+    store.updateStationWeight(1, 0)
+    store.updateStationWeight(4, 120)
+    store.aircraft!.weighingReports[0]!.emptyCg = 2
+    store.changeCertificationCategory('Normal')
+    expect(store.lastResult?.success).toBe(true)
+    expect(warnings('WARN-UQ-001')).toHaveLength(1)
+    expect(warnings('WARN-MB-005')).toHaveLength(1)
+  })
+})

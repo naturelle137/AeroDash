@@ -22,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Preserve independent occupant and station-limit warnings when adapter validation blocks M&B calculation (#534).
+
 - Correct QNH-derived pressure altitude before table lookup and round its displayed whole feet toward positive infinity (#572).
 - Hide internal warning identifiers in the Briefing Pack while retaining warning details (#573).
 
