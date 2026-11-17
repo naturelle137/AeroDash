@@ -283,7 +283,7 @@ describe('lookup fuel tank total-moment M&B in the store', () => {
     )
   })
 
-  it('leaves a fixed-arm tank with q < u on its existing behaviour', () => {
+  it('keeps valid fixed-arm arithmetic unchanged', () => {
     const store = useMassBalanceStore()
     const p = profile(row('nonzero-u-burn-0'))
     p.loadPoints[0]!.arm = 1

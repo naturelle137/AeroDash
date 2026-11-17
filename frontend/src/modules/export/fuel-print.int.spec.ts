@@ -100,7 +100,7 @@ describe('shared current fuel print presentation', () => {
     expect(assembleMbPrint(source.value, new Date())!.fuel!.rows).toContainEqual({ label: 'Estimated arrival CG', value: `${screen.value} [UNVERIFIED]` })
     wrapper.unmount()
   })
-  it.each(['input', 'method', 'sequence', 'loading'] as const)('synchronously blocks native print on %s before parent render, never silently falls back', async change => {
+  it.each(['input', 'method', 'sequence', 'loading', 'below-unusable'] as const)('synchronously blocks native print on %s before parent render, never silently falls back', async change => {
     const { planning: p, wrapper, store } = setup()
     p.method.value = 'direct'; p.directTripFuel.value = '20'
     await wrapper.get('button').trigger('click')
@@ -109,6 +109,9 @@ describe('shared current fuel print presentation', () => {
     if (change === 'method') p.method.value = 'duration'
     if (change === 'sequence') p.sequence.value = 'New sequence'
     if (change === 'loading') store.updateStationWeight(0, 55)
+    if (change === 'below-unusable') {
+      store.updateStationWeight(0, 9)
+    }
     window.dispatchEvent(new Event('beforeprint'))
     expect(document.querySelector('.mb-print-root')!.getAttribute('data-print-invalid')).toBe('true')
     await nextTick()
@@ -117,9 +120,10 @@ describe('shared current fuel print presentation', () => {
     document.querySelector<HTMLButtonElement>('.mb-print-controls button')!.click()
     await nextTick()
     expect(wrapper.get<HTMLButtonElement>('button').element.disabled).toBe(false)
+    if (change === 'below-unusable') store.updateStationWeight(0, 10)
     await wrapper.get('button').trigger('click')
     expect(document.body.textContent).toContain('Flight Preparation Briefing Pack')
-    expect(document.body.textContent?.includes('Fuel plan / trip arrival unavailable')).toBe(change === 'method')
+    expect(document.body.textContent?.includes('Fuel plan / trip arrival unavailable')).toBe(change === 'method' || change === 'below-unusable')
     wrapper.unmount()
   })
 })

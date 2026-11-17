@@ -52,6 +52,28 @@ export function lookupFuelInputReason(
   return null
 }
 
+/** Shared raw lower boundary; fixed-arm unit conversion keeps its existing policy. */
+export function fuelInputReason(
+  def: LoadPointDefinition,
+  quantity: number,
+  sourceUnit: string,
+): { code: string; reason: string } | null {
+  const fuel = def.fuelTank
+  if (!fuel) return null
+  const lookup = lookupFuelInputReason(def, quantity, sourceUnit)
+  // Preserve lookup unit/geometry precedence and its strict validation contract.
+  if (lookup && lookup.code !== 'BELOW_UNUSABLE') return lookup
+  if (def.armLookup.length > 0 && def.arm !== null) return lookup
+  if (!Number.isFinite(quantity) || !Number.isFinite(fuel.unusableFuel) || fuel.unusableFuel < 0 || quantity < 0)
+    return { code: 'NOT_A_NUMBER', reason: 'Tank load and unusable fuel must be finite and nonnegative.' }
+  if (quantity < fuel.unusableFuel)
+    return {
+      code: 'BELOW_UNUSABLE',
+      reason: `${LOOKUP_FUEL_MESSAGES.BELOW_UNUSABLE} Minimum total load is ${fuel.unusableFuel} ${def.unit}.`,
+    }
+  return lookup
+}
+
 type LookupFuelCode =
   'BELOW_UNUSABLE' | 'INVALID_GEOMETRY' | 'LOOKUP_OUT_OF_RANGE' | 'NUMERIC_OVERFLOW'
 

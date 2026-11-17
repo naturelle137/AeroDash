@@ -15,6 +15,7 @@ describe('optional occupancy through the real input and math adapter', () => {
     const profile = structuredClone(AIRCRAFT_CATALOGUE.find(p => p.registration === 'D-ECSM')!)
     store.loadProfile(AircraftContextSchema.parse(profile))
     store.updateStationWeight(0, 80)
+    store.updateStationWeight(4, 6)
     const wrapper = mount(MassStationInput, {
       props: { station: store.stations[1]!, 'onUpdate:weight': (value: number) => store.updateStationWeight(1, value) },
     })

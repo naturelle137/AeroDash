@@ -75,6 +75,16 @@ from the all-usable-burned M&B endpoint and does not assess landing suitability 
 the full burn path/envelope. Synthetic arithmetic and browser tests establish
 software wiring only.
 
+## Fuel lower boundary
+
+All category-available fuel tanks require finite nonnegative total load q and
+unusable quantity u, with q ≥ u checked in the entered tank unit before normalization.
+Invalid raw input clears the current result and marks the tank with a reason and
+minimum quantity. Typed q < u is retained for correction; q = u contributes no
+usable mass or moment, since BEM already includes unusable fuel. Correction never
+changes BEM, source units or profile geometry. The same result boundary suppresses
+summary, chart markers, trip arrival and an already open print snapshot.
+
 ## Lookup fuel tanks in M&B
 
 A fuel lookup table holds the total tank moment F at each total tank load. Unusable

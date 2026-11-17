@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Block fixed-arm fuel loads below unusable fuel with tank-specific correction and stale result/print protection (REQ-MB-033/035/036).
+
 ### Added
 
 - Complete current Flight Preparation briefing pack with printed load chart, current fuel/runway/Performance states and a persistent mobile action (#517).
