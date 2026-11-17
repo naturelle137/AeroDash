@@ -34,6 +34,10 @@ Stryker mutates P1 executable code using `vitest.config.p1.ts`; its fail floor i
 ## Cached offline preparation
 
 Run `pnpm test:offline` to build production and run Chromium at 390px and 1440px.
+The PDF assertions require Poppler's `pdftotext` on the test runner's `PATH`.
+Install `poppler-utils` in the test environment (Ubuntu: `sudo apt-get install poppler-utils`;
+Fedora `web-dev` toolbox: `sudo dnf install poppler-utils`). CI installs it explicitly
+and checks availability before running the browser suites.
 The suite accepts the disclaimer, imports and explicitly verifies a synthetic profile,
 saves a manual runway, waits for service-worker control and the Workbox precache,
 then disconnects and reloads real routes. It checks persisted Fleet/runway/M&B input,
