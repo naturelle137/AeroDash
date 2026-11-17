@@ -520,3 +520,21 @@ describe('AircraftContextSchema', () => {
     })
   })
 })
+
+describe('AircraftContextSchema — missing lookup unit calculation boundary', () => {
+  const tank = buildValidLoadPoint({
+    arm: null, armLookup: [{ massOrVolume: 0, moment: 0 }, { massOrVolume: 50, moment: 150 }],
+    unit: '', fuelTank: { unusableFuel: 10, permissibleFuelTypes: ['AvGas 100LL'], burnSequences: [] },
+  })
+  it('passes an explicit blank to raw fuel validation without inferring a unit', () => {
+    const parsed = AircraftContextSchema.parse(buildValidContext({ loadPoints: [tank] }))
+    expect(parsed.loadPoints).toEqual([tank])
+  })
+  it.each([
+    { unit: undefined }, { unit: null }, { unit: 1 }, { arm: 1 },
+    { armLookup: [] }, { fuelTank: null }, { kind: 'baggage' },
+    { fuelTank: { unusableFuel: 0, permissibleFuelTypes: ['unknown'], burnSequences: [] } },
+  ])('rejects other incomplete station shapes %j', (changes) => {
+    expect(AircraftContextSchema.safeParse(buildValidContext({ loadPoints: [{ ...tank, ...changes }] })).success).toBe(false)
+  })
+})

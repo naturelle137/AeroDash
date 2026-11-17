@@ -82,3 +82,24 @@ describe('LoadPointsSection — electric powertrain', () => {
     expect(wrapper.text()).toContain('battery-electric')
   })
 })
+
+describe('LoadPointsSection — explicit missing unit correction', () => {
+  it('shows the missing option without emitting a default and preserves all supported choices', async () => {
+    const tank = makeLoadPoint({
+      arm: null, armLookup: [{ massOrVolume: 0, moment: 0 }, { massOrVolume: 50, moment: 150 }],
+      unit: '', defaultQuantity: 30,
+      fuelTank: { unusableFuel: 10, permissibleFuelTypes: ['AvGas 100LL'], burnSequences: [] },
+    })
+    const original = structuredClone(tank)
+    const wrapper = mount(LoadPointsSection, { props: { modelValue: [tank], sectionId: 'legacy' } })
+    const select = wrapper.get<HTMLSelectElement>('#legacy-unit-0')
+    expect(select.element.value).toBe('')
+    expect(select.findAll('option').map((o) => o.attributes('value'))).toEqual(['', 'kg', 'lb', 'L', 'USG', 'IMPgal'])
+    expect(wrapper.get('#legacy-unit-guidance-0').text()).toContain('approved POH/AFM')
+    expect(select.attributes('aria-describedby')).toBe('legacy-unit-guidance-0')
+    expect(wrapper.emitted('update:modelValue')).toBeUndefined()
+    await select.setValue('kg')
+    expect(wrapper.emitted('update:modelValue')![0]![0]).toEqual([{ ...original, unit: 'kg' }])
+    expect(tank).toEqual(original)
+  })
+})

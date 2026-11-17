@@ -91,7 +91,7 @@ const LoadPointSchema = z.object({
   armLookup: z.array(ArmLookupEntrySchema).default([]),
   operationalLimit: finiteMass().nonnegative().nullable(),
   defaultQuantity: finiteMass().nonnegative(),
-  unit: z.string().min(1),
+  unit: z.string(),
   allowableCategories: z.array(z.enum(['Normal', 'Utility', 'Aerobatic'])).nullable(),
   fuelTank: FuelTankExtensionSchema.nullable(),
 })
@@ -276,6 +276,16 @@ export const AircraftProfileSchema = z
     data.loadPoints.forEach((lp, i) => {
       const hasArm = lp.arm !== null
       const hasLookup = lp.armLookup.length > 0
+
+      // Retain an explicit missing lookup-fuel unit for source-based correction.
+      // Calculation validation still requires a supported unit before using this tank.
+      if (lp.unit === '' && !(lp.fuelTank !== null && !hasArm && hasLookup)) {
+        ctx.addIssue({
+          code: 'custom',
+          message: 'REQUIRED',
+          path: ['loadPoints', i, 'unit'],
+        })
+      }
 
       if (!hasArm && !hasLookup) {
         ctx.addIssue({

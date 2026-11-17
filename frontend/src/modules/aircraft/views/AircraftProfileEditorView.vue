@@ -431,9 +431,10 @@ async function onSave(): Promise<void> {
     // it below the unusable floor. A fuel tank that is physically incapable of
     // being drained below its unusable quantity must never be saved with a
     // lower default — it would contradict the POH and the M&B input clamp.
+    // A missing-unit tank must retain its raw quantities for source correction.
     if (changes.loadPoints) {
       changes.loadPoints = changes.loadPoints.map((lp) =>
-        lp.fuelTank && lp.fuelTank.unusableFuel > 0 && lp.defaultQuantity < lp.fuelTank.unusableFuel
+        lp.unit !== '' && lp.fuelTank && lp.fuelTank.unusableFuel > 0 && lp.defaultQuantity < lp.fuelTank.unusableFuel
           ? { ...lp, defaultQuantity: lp.fuelTank.unusableFuel }
           : lp,
       )

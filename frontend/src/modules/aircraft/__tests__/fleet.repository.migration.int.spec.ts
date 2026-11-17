@@ -21,6 +21,7 @@ import { IDBFactory } from 'fake-indexeddb'
 import {
   _resetFleetDbHandleForTest,
   create,
+  update,
   findById,
   findAll,
   findAllWithDiagnostics,
@@ -334,5 +335,32 @@ describe('fleetRepository — exchange envelope import back-compat', () => {
     expect(found).toBeDefined()
     expect(found!.registration).toBe('D-LEG1')
     expect(found!.schemaVersion).toBe(CURRENT_PROFILE_SCHEMA_VERSION)
+  })
+})
+
+
+describe('persisted legacy lookup fuel correction', () => {
+  it('loads, saves unrelated data, then persists an explicit unit without rewriting source values', async () => {
+    const tank = {
+      name: 'Synthetic lookup tank', arm: null,
+      armLookup: [{ massOrVolume: 0, moment: 0 }, { massOrVolume: 50, moment: 150 }],
+      operationalLimit: null, defaultQuantity: 30, unit: '', allowableCategories: null,
+      fuelTank: { unusableFuel: 10, permissibleFuelTypes: ['AvGas 100LL' as const], burnSequences: [] },
+    }
+    const original = buildProfile({ loadPoints: [tank] })
+    await seedRaw(original)
+    const loaded = await findByIdWithDiagnostics(original.id)
+    expect(loaded.diagnostics).toEqual([])
+    expect(loaded.profile?.loadPoints).toEqual([tank])
+    if (!loaded.profile) throw new Error('Legacy profile was dropped')
+    await update({ ...loaded.profile, referenceDatumDescription: 'Unrelated synthetic edit' })
+    const unchanged = await findById(original.id)
+    expect(unchanged?.loadPoints).toEqual([tank])
+    if (!unchanged) throw new Error('Saved profile was dropped')
+    await update({ ...unchanged, loadPoints: [{ ...tank, unit: 'kg' }] })
+    const corrected = await findByIdWithDiagnostics(original.id)
+    expect(corrected.diagnostics).toEqual([])
+    expect(corrected.profile?.loadPoints).toEqual([{ ...tank, unit: 'kg' }])
+    expect(original.loadPoints).toEqual([tank])
   })
 })

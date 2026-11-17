@@ -394,3 +394,26 @@ describe('migrateProfileDocument — M4 round-trip (REQ-AD-008/009/015/016/017)'
     expect(result.kind).toBe('corrupt')
   })
 })
+
+describe('migrateProfileDocument — missing lookup fuel unit recovery', () => {
+  it.each([0, 1, CURRENT_PROFILE_SCHEMA_VERSION])('preserves explicit blank and source data from version %s', (schemaVersion) => {
+    const tank = {
+      name: 'Synthetic lookup tank', arm: null,
+      armLookup: [{ massOrVolume: 0, moment: 0 }, { massOrVolume: 50, moment: 150 }],
+      operationalLimit: null, defaultQuantity: 30, unit: '', allowableCategories: null,
+      fuelTank: { unusableFuel: 10, permissibleFuelTypes: ['AvGas 100LL'], burnSequences: [] },
+    }
+    const raw = buildV1Document({ schemaVersion, loadPoints: [tank] })
+    const before = structuredClone(raw)
+    const result = migrateProfileDocument(raw)
+    expect(result.kind).toBe('migrated')
+    if (result.kind !== 'migrated') return
+    expect(result.profile.loadPoints).toEqual([tank])
+    expect(raw).toEqual(before)
+    const corrected = { ...result.profile, loadPoints: [{ ...tank, unit: 'kg' }] }
+    const reloaded = migrateProfileDocument(corrected)
+    expect(reloaded.kind).toBe('migrated')
+    if (reloaded.kind !== 'migrated') return
+    expect(reloaded.profile.loadPoints).toEqual(corrected.loadPoints)
+  })
+})
