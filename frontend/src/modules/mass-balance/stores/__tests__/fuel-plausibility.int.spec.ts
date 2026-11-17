@@ -168,3 +168,54 @@ describe('adapter validation failure and independent warnings', () => {
     expect(warnings('WARN-MB-005')).toHaveLength(1)
   })
 })
+
+describe.each(['missing report', 'injected adapter throw'] as const)('%s and independent warnings', (failure) => {
+  beforeEach(() => setActivePinia(createPinia()))
+  afterEach(() => vi.restoreAllMocks())
+
+  it('retains, independently clears, and recovers warnings without stale notices', () => {
+    const store = useMassBalanceStore()
+    const fixture = profile(false)
+    fixture.loadPoints[3]!.operationalLimit = 1
+    fixture.loadPoints[3]!.defaultQuantity = 2
+    fixture.loadPoints[0]!.fuelTank!.permissibleFuelTypes = ['unknown']
+    store.loadProfile(fixture)
+    const reports = [...store.aircraft!.weighingReports]
+    const calculate = vi.spyOn(mathAdapter, 'calculateMassBalance')
+    if (failure === 'missing report') store.aircraft!.weighingReports = []
+    else calculate.mockImplementation(() => { throw new Error('injected adapter failure') })
+    const warnings = (id: string) => store.notifications.filter((n) => n.id === id)
+    const blocked = () => {
+      expect(store.lastResult).toBeNull()
+      expect(store.uiState).toBe('ERROR_CRITICAL')
+      expect(warnings(failure === 'missing report' ? 'CRIT-SYS-001' : 'CRIT-SYS-002')).toHaveLength(1)
+      expect(warnings('WARN-AC-002')).toHaveLength(1)
+      expect(warnings('WARN-FE-002')).toHaveLength(failure === 'missing report' ? 0 : 1)
+    }
+    store.changeCertificationCategory('Normal')
+    blocked()
+    expect(warnings('WARN-UQ-001')).toEqual([expect.objectContaining({ message: 'Implausible mass on required station: Pilot — verify input' })])
+    expect(warnings('WARN-MB-005')).toEqual([expect.objectContaining({ message: 'Station 4 limit exceeded' })])
+    store.updateStationWeight(1, 80)
+    blocked()
+    expect(warnings('WARN-UQ-001')).toHaveLength(0)
+    expect(warnings('WARN-MB-005')).toHaveLength(1)
+    store.updateStationWeight(4, 100)
+    blocked()
+    expect(warnings('WARN-MB-005')).toHaveLength(0)
+    store.updateStationWeight(1, 0)
+    store.updateStationWeight(4, 120)
+    if (failure === 'missing report') store.aircraft!.weighingReports = reports
+    else calculate.mockRestore()
+    store.changeCertificationCategory('Normal')
+    expect(store.lastResult?.success).toBe(true)
+    expect(warnings('CRIT-SYS-001')).toHaveLength(0)
+    expect(warnings('CRIT-SYS-002')).toHaveLength(0)
+    expect(warnings('WARN-UQ-001')).toHaveLength(1)
+    expect(warnings('WARN-MB-005')).toHaveLength(1)
+    store.updateStationWeight(1, 80)
+    store.updateStationWeight(4, 100)
+    expect(warnings('WARN-UQ-001')).toHaveLength(0)
+    expect(warnings('WARN-MB-005')).toHaveLength(0)
+  })
+})

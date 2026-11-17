@@ -415,6 +415,15 @@ export const useMassBalanceStore = defineStore('massBalance', {
             }
           : null
 
+      // Station limits are independent of calculation validity and use the original source quantities.
+      const stationLimitViolations: MathCoreResult['violations'] = []
+      for (const s of this.availableStations) {
+        const def = this.aircraft.loadPoints[s.index]
+        if (def?.operationalLimit != null && s.weight > def.operationalLimit) {
+          stationLimitViolations.push({ type: 'STATION_LIMIT_EXCEEDED', stationIndex: s.index })
+        }
+      }
+
       // Find the active weighing report (most recent by validFrom)
       const reports = [...this.aircraft.weighingReports].sort((a, b) =>
         b.validFrom.localeCompare(a.validFrom),
@@ -429,7 +438,12 @@ export const useMassBalanceStore = defineStore('massBalance', {
           persistent: false,
           dismissible: true,
         }
-        this.notifications = draftProfileWarning ? [draftProfileWarning, crit] : [crit]
+        this.notifications = [
+          ...(draftProfileWarning ? [draftProfileWarning] : []),
+          crit,
+          ...this._collectPlausibilityWarnings(),
+          ...stationLimitViolations.map((v) => stationLimitNotification(v.stationIndex)),
+        ]
         this.lastResult = null
         return
       }
@@ -442,15 +456,6 @@ export const useMassBalanceStore = defineStore('massBalance', {
       // arms in inches would otherwise yield a wrong CG and a false in-envelope
       // verdict (H-005 / H-006 class defect).
       const { massUnit: profileMassUnit, armUnit } = parseSourceUnit(this.aircraft!.sourceUnit)
-
-      // Station limits are independent of lookup validity and use the original source quantities.
-      const stationLimitViolations: MathCoreResult['violations'] = []
-      for (const s of this.availableStations) {
-        const def = this.aircraft.loadPoints[s.index]
-        if (def?.operationalLimit != null && s.weight > def.operationalLimit) {
-          stationLimitViolations.push({ type: 'STATION_LIMIT_EXCEEDED', stationIndex: s.index })
-        }
-      }
 
       // Fuel tanks are checked raw, before normalization can clamp
       // negatives or fall back to a profile unit/density, and block the whole result.
@@ -573,7 +578,13 @@ export const useMassBalanceStore = defineStore('massBalance', {
           persistent: false,
           dismissible: true,
         }
-        this.notifications = draftProfileWarning ? [draftProfileWarning, crit] : [crit]
+        this.notifications = [
+          ...(draftProfileWarning ? [draftProfileWarning] : []),
+          ...fuelFallbackNotes,
+          crit,
+          ...this._collectPlausibilityWarnings(),
+          ...stationLimitViolations.map((v) => stationLimitNotification(v.stationIndex)),
+        ]
         this.lastResult = null
         return
       }
