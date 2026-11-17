@@ -32,6 +32,7 @@ import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 
 import './assets/theme.css'
+import './assets/cta.css'
 import App from './App.vue'
 import router from './router'
 import { createLogger } from './shared/utils/logger'

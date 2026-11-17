@@ -1,0 +1,45 @@
+.cta-btn {
+  display: inline-flex;
+  border: 0;
+  font-family: inherit;
+  line-height: 1.5;
+  cursor: pointer;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-6);
+  background: var(--color-primary);
+  color: var(--color-primary-text);
+  font-weight: 600;
+  font-size: var(--text-base);
+  border-radius: var(--radius-lg);
+  text-decoration: none;
+  box-shadow: var(--shadow-md), var(--glow-primary);
+  transition:
+    background var(--transition-fast),
+    box-shadow var(--transition-fast),
+    transform var(--transition-fast);
+  align-self: flex-start;
+  min-height: 44px;
+}
+
+.cta-btn:not(:disabled):hover {
+  background: var(--color-primary-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-lg), var(--glow-primary);
+}
+
+.cta-btn:not(:disabled):active {
+  transform: translateY(0);
+}
+
+.cta-btn:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 3px;
+}
+
+.cta-btn:disabled {
+  background: var(--color-surface-muted, #e5e7eb);
+  color: var(--color-text-secondary);
+  box-shadow: none;
+  cursor: default;
+}

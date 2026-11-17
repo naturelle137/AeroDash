@@ -117,8 +117,11 @@ or unconfigured fuel retains current inventory and an explicit reason while
 suppressing successful trip/endurance outputs. Performance inputKey changes
 invalidate the whole snapshot, including unsaved runway/condition changes. An
 unavailable landing result does not erase independently valid takeoff results.
-The persistent action explains blocked M&B eligibility and reserves content
-space above mobile navigation and its safe area.
+The persistent action shares the homepage primary CTA styles and reserves content
+space above mobile navigation and its safe area. It is natively disabled and grey
+when M&B is ineligible, with no associated helper text or tooltip. Calculation
+warnings remain at affected values. Performance remains a homepage and internal
+Flight Preparation entry with a standalone deep link, outside top-level navigation.
 
 Export eligibility checks successful finite computation, current profile/input identity
 and hard failures separately from advisory severity. Only known computed M&B

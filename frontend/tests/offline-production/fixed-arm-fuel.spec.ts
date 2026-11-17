@@ -96,9 +96,9 @@ test('fixed-arm lower boundary retains input, invalidates open print and recover
   await shot('open-print-invalidated')
   await page.keyboard.press('Escape')
   await blocked()
-  await action.click()
+  await expect(action).toBeDisabled()
   await expect(preview).toHaveCount(0)
-  await expect(page.locator('#briefing-eligibility')).toContainText('not eligible')
+  await expect(page.locator('#briefing-eligibility')).toHaveCount(0)
   await error.scrollIntoViewIfNeeded()
   await shot('below-minimum')
   // Correct in the same session: q=u cannot supply the chosen trip burn;

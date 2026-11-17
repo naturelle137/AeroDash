@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Share the homepage CTA style with Briefing Pack, disable unavailable export without helper text, restore the homepage Performance icon and remove the separate Performance menu entry (refs #568).
+
 ### Engineering
 
 - Align the roadmap with delivered Flight Preparation, briefing print and bounded fuel-unit recovery (#565).

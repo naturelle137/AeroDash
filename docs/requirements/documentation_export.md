@@ -62,7 +62,7 @@ Preview data is session-only. Browser-generated PDFs in QA demonstrate browser p
 
 ### REQ-DOC-015: Persistent action
 
-While Flight Preparation is mounted, the system shall keep a keyboard-reachable Briefing Pack action visible above mobile navigation with safe-area and content clearance.
+While Flight Preparation is mounted, the system shall keep a Briefing Pack action visible above mobile navigation with safe-area and content clearance.
 
 ### REQ-DOC-016: Current fuel output
 
@@ -117,6 +117,18 @@ When displaying the briefing pack, the system shall omit the separate profile/so
 While current M&B values contain only advisory warnings or valid computed limit exceedances, the system shall permit their warned export.
 
 This supersedes the former severity-only print restriction in REQ-DOC-008; system/adapter failures remain blocked.
+
+### REQ-DOC-029: Unavailable action
+
+While no eligible current Briefing Pack can be generated, the system shall disable its action with a grey appearance.
+
+### REQ-DOC-030: Action presentation
+
+The system shall present the Briefing Pack action using the homepage Start Flight Preparation CTA style.
+
+### REQ-DOC-031: Action help
+
+The system shall omit helper text and tooltips associated with the Briefing Pack action.
 
 ## Design References
 

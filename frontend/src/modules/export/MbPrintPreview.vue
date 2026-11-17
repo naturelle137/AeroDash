@@ -8,15 +8,11 @@ const props = defineProps<{ source: MbPrintSource; readSource?: () => MbPrintSou
 const currentSource = computed(() => props.readSource?.() ?? props.source)
 const snapshot = ref<MbPrintSnapshot | null>(null)
 const opened = ref(false)
-const showEligibility = ref(false)
 const closeButton = ref<HTMLButtonElement>()
 const printRoot = ref<HTMLElement>()
 let returnFocus: HTMLElement | null = null
 const fingerprint = ref('')
 const currentKey = computed(() => JSON.stringify(currentSource.value))
-const eligibilityReason = computed(() => canPrintMb(currentSource.value)
-  ? 'Current Mass & Balance is eligible. Unavailable preparation sections will show their reasons.'
-  : 'Current Mass & Balance is not eligible for printing; review aircraft, loading and notifications.')
 const eligible = computed(() => canPrintMb(currentSource.value))
 // The key check also protects print media before Vue's queued watcher runs.
 const currentSnapshot = computed(() => currentKey.value === fingerprint.value ? snapshot.value : null)
@@ -29,7 +25,7 @@ watch(currentKey, invalidate, { flush: 'sync' })
 
 async function open(): Promise<void> {
   const value = assembleMbPrint(currentSource.value, new Date())
-  if (!value) { showEligibility.value = true; return }
+  if (!value) return
   returnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null
   fingerprint.value = currentKey.value
   snapshot.value = value
@@ -79,9 +75,7 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="briefing-action">
-    <button type="button" class="mb-preview-action" aria-describedby="briefing-eligibility" @click="open">Briefing Pack</button>
-    <p v-if="showEligibility || !eligible" id="briefing-eligibility" role="status">{{ eligibilityReason }}</p>
-    <p v-else id="briefing-eligibility">Current preparation · Preview and print</p>
+    <button type="button" class="cta-btn" :disabled="!eligible" @click="open">Briefing Pack</button>
   </div>
   <Teleport to="body">
     <div ref="printRoot" class="mb-print-root" :class="{ 'mb-print-root--open': opened }">
@@ -166,14 +160,12 @@ onBeforeUnmount(() => {
 
 <style>
  .briefing-action { position: fixed; bottom: 1rem; right: 1.5rem; z-index: 210; max-width: min(30rem, calc(100vw - 2rem)); padding: .5rem 1rem; border: 1px solid var(--color-divider, #888); border-radius: .5rem; background: var(--color-surface, white); box-shadow: 0 2px 12px #0003; }
-.briefing-action p { margin: 0; font-size: .8rem; }
-.mb-preview-action { width: 100%; }
 .briefing-chart { margin: 1rem 0; break-inside: avoid; --chart-grid: #ddd; --chart-axis: #555; --chart-tick-text: #333; --chart-label: #222; }
 .briefing-chart figcaption { font-size: .85em; }
 @media (max-width: 767.98px) {
   .briefing-action { bottom: calc(var(--nav-bottom-height, 56px) + env(safe-area-inset-bottom, 0px)); right: 0; left: 0; max-width: none; border-radius: 0; padding: .5rem 1rem; }
 }
-.mb-preview-action, .mb-print-controls button { padding: .75rem; margin: .5rem 0; font: inherit; }
+.mb-print-controls button { padding: .75rem; margin: .5rem 0; font: inherit; }
 .mb-print-root { display: none; }
 .mb-print-root--open { display: block; position: fixed; inset: 0; z-index: 10000; overflow: auto; background: #eef1f4; color: #111; padding: 1rem; }
 .mb-print-sheet { max-width: 52rem; margin: auto; padding: 1.5rem; background: white; overflow-wrap: anywhere; }

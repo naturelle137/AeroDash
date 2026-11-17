@@ -113,9 +113,9 @@ for (const lookup of [true, false]) {
       await expect(summary).toHaveCount(0)
       for (const key of ['tom', 'lm', 'zfm'])
         await expect(page.getByTestId(`cg-point-label-${key}`)).toHaveCount(0)
-      await action.click()
+      await expect(action).toBeDisabled()
       await expect(preview).toHaveCount(0)
-      await expect(page.locator('#briefing-eligibility')).toContainText('not eligible')
+      await expect(page.locator('#briefing-eligibility')).toHaveCount(0)
       await notices()
     }
     const shot = async (name: string) => {

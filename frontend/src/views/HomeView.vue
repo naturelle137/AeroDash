@@ -130,6 +130,11 @@ const soonModules = modules.filter((m) => m.soon)
               <circle cx="12" cy="4" r="2" stroke="currentColor" stroke-width="1.5" />
               <path d="M12 6v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
             </svg>
+            <!-- Performance -->
+            <svg v-else-if="mod.icon === 'pf'" width="28" height="28" viewBox="0 0 24 24" fill="none">
+              <path d="M3 17l4-6 4 3 4-8 4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M3 21h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+            </svg>
             <!-- Fleet icon -->
             <svg v-else-if="mod.icon === 'fleet'" width="28" height="28" viewBox="0 0 24 24" fill="none">
               <path d="M21 7.5L10 12l5 3 2 6 4-13.5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" />
@@ -183,13 +188,8 @@ const soonModules = modules.filter((m) => m.soon)
           :aria-label="`${mod.label} — coming soon`"
         >
           <div class="module-card__icon" aria-hidden="true">
-            <!-- Performance -->
-            <svg v-if="mod.icon === 'pf'" width="28" height="28" viewBox="0 0 24 24" fill="none">
-              <path d="M3 17l4-6 4 3 4-8 4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-              <path d="M3 21h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-            </svg>
             <!-- Weather -->
-            <svg v-else-if="mod.icon === 'wx'" width="28" height="28" viewBox="0 0 24 24" fill="none">
+            <svg v-if="mod.icon === 'wx'" width="28" height="28" viewBox="0 0 24 24" fill="none">
               <path d="M18 15a5 5 0 10-9.5-.5A4 4 0 107 20h11a4 4 0 000-8h-.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
             <!-- Fuel -->
@@ -298,43 +298,6 @@ const soonModules = modules.filter((m) => m.soon)
   color: var(--color-text-secondary);
   margin: 0;
   font-style: italic;
-}
-
-/* ─── CTA button ─────────────────────────────────────────────────────────── */
-
-.cta-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-3) var(--space-6);
-  background: var(--color-primary);
-  color: var(--color-primary-text);
-  font-weight: 600;
-  font-size: var(--text-base);
-  border-radius: var(--radius-lg);
-  text-decoration: none;
-  box-shadow: var(--shadow-md), var(--glow-primary);
-  transition:
-    background var(--transition-fast),
-    box-shadow var(--transition-fast),
-    transform var(--transition-fast);
-  align-self: flex-start;
-  min-height: 44px;
-}
-
-.cta-btn:hover {
-  background: var(--color-primary-hover);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-lg), var(--glow-primary);
-}
-
-.cta-btn:active {
-  transform: translateY(0);
-}
-
-.cta-btn:focus-visible {
-  outline: 2px solid var(--color-focus);
-  outline-offset: 3px;
 }
 
 .hero__disclaimer {

@@ -181,3 +181,11 @@ When displaying QNH, pressure-altitude field elevation or manual runway quantiti
 ### REQ-UI-044: Pressure-altitude method details
 
 When displaying QNH-derived pressure-altitude inputs, the system shall initially collapse the expandable NOAA/NWS method explanation.
+
+### REQ-UI-046: Performance navigation
+
+The system shall expose Performance through the homepage Flight Preparation section and its standalone route without a separate top-level navigation entry.
+
+### REQ-UI-047: Performance icon
+
+When displaying the homepage Performance entry, the system shall show its icon with the same size, alignment and visual treatment as Mass & Balance.
