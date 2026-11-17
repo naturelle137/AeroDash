@@ -79,6 +79,9 @@ software wiring only.
 
 All category-available fuel tanks require finite nonnegative total load q and
 unusable quantity u, with q ≥ u checked in the entered tank unit before normalization.
+Raw tank checks run even when the weighing report is missing, retaining both blockers
+and independent draft, occupant and station notices. Reportless states do not normalize
+inputs or invoke calculation; adapter-dependent geometry and computed limits remain excluded.
 Invalid raw input clears the current result and marks the tank with a reason and
 minimum quantity. Typed q < u is retained for correction; q = u contributes no
 usable mass or moment, since BEM already includes unusable fuel. Correction never

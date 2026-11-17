@@ -219,3 +219,96 @@ describe.each(['missing report', 'injected adapter throw'] as const)('%s and ind
     expect(warnings('WARN-MB-005')).toHaveLength(0)
   })
 })
+
+describe.each([true, false])('missing report and raw fuel blockers (lookup: %s)', (lookup) => {
+  beforeEach(() => setActivePinia(createPinia()))
+  afterEach(() => vi.restoreAllMocks())
+
+  it.each([
+    ['BELOW_UNUSABLE', 9],
+    ['NOT_A_NUMBER', NaN],
+  ] as const)('retains %s through independent corrections in both orders', (code, quantity) => {
+    const store = useMassBalanceStore()
+    const fixture = profile(lookup)
+    // The excluded tank makes the available tank's original index noncontiguous.
+    fixture.loadPoints.unshift({ ...fixture.loadPoints[0]!, name: 'Excluded tank', allowableCategories: ['Utility'] })
+    store.loadProfile(fixture)
+    expect(store.lastResult?.success).toBe(true)
+    store.stations[0]!.weight = NaN
+    const reports = [...store.aircraft!.weighingReports]
+    const calculate = vi.spyOn(mathAdapter, 'calculateMassBalance')
+    const notices = (id: string) => store.notifications.filter((n) => n.id === id)
+    const check = (reportMissing: boolean, rawInvalid: boolean) => {
+      expect(store.lastResult).toBeNull()
+      expect(store.uiState).toBe('ERROR_CRITICAL')
+      expect(calculate).not.toHaveBeenCalled()
+      expect(notices('CRIT-SYS-001')).toHaveLength(reportMissing ? 1 : 0)
+      expect(notices('CRIT-SYS-001').map((n) => n.severity)).toEqual(reportMissing ? ['CRITICAL'] : [])
+      expect(notices('ERR-SYS-001')).toHaveLength(rawInvalid ? 1 : 0)
+      const rawNotice = expect.objectContaining({
+        severity: 'ERROR', message: expect.stringContaining(`Tank (${code})`),
+      })
+      expect(notices('ERR-SYS-001')).toEqual(rawInvalid ? [rawNotice] : [])
+      expect(store.stations[1]!.hasError).toBe(rawInvalid)
+      expect(store.stations[0]!.hasError).toBe(false)
+      expect(notices('WARN-AC-002')).toHaveLength(1)
+      expect(notices('WARN-UQ-001')).toEqual([expect.objectContaining({ message: 'Implausible mass on required station: Pilot — verify input' })])
+      expect(notices('WARN-MB-005')).toEqual([expect.objectContaining({ message: 'Station 5 limit exceeded' })])
+      expect(notices('WARN-FE-002')).toHaveLength(0)
+      expect(store.notifications.map((n) => n.id).sort()).toEqual([
+        'WARN-AC-002', 'WARN-UQ-001', 'WARN-MB-005',
+        ...(reportMissing ? ['CRIT-SYS-001'] : []),
+        ...(rawInvalid ? ['ERR-SYS-001'] : []),
+      ].sort())
+    }
+    for (const firstCorrection of ['fuel', 'report']) {
+      store.aircraft!.weighingReports = []
+      store.updateStationWeight(1, quantity)
+      check(true, true)
+      if (firstCorrection === 'fuel') {
+        store.updateStationWeight(1, 30)
+        check(true, false)
+        store.aircraft!.weighingReports = reports
+      } else {
+        store.aircraft!.weighingReports = reports
+        store.changeCertificationCategory('Normal')
+        check(false, true)
+        store.updateStationWeight(1, 30)
+      }
+      if (firstCorrection === 'fuel') store.changeCertificationCategory('Normal')
+      expect(calculate).toHaveBeenCalledTimes(1)
+      expect(store.lastResult?.success).toBe(true)
+      expect(notices('CRIT-SYS-001')).toHaveLength(0)
+      expect(notices('ERR-SYS-001')).toHaveLength(0)
+      expect(store.stations.every((s) => !s.hasError)).toBe(true)
+      expect(notices('WARN-AC-002')).toHaveLength(1)
+      expect(notices('WARN-UQ-001')).toHaveLength(1)
+      expect(notices('WARN-MB-005')).toHaveLength(1)
+      calculate.mockClear()
+    }
+  })
+})
+
+describe('missing report and raw lookup geometry', () => {
+  beforeEach(() => setActivePinia(createPinia()))
+  afterEach(() => vi.restoreAllMocks())
+
+  it('retains helper-detectable geometry errors without normalization or adapter math', () => {
+    const store = useMassBalanceStore()
+    store.loadProfile(profile(true))
+    expect(store.lastResult?.success).toBe(true)
+    const calculate = vi.spyOn(mathAdapter, 'calculateMassBalance')
+    store.aircraft!.weighingReports = []
+    store.aircraft!.loadPoints[0]!.armLookup[0]!.massOrVolume = -1
+    store.changeCertificationCategory('Normal')
+    expect(store.lastResult).toBeNull()
+    expect(store.uiState).toBe('ERROR_CRITICAL')
+    expect(calculate).not.toHaveBeenCalled()
+    expect(store.notifications.filter((n) => n.id === 'CRIT-SYS-001')).toHaveLength(1)
+    expect(store.notifications.filter((n) => n.id === 'ERR-SYS-001')).toEqual([
+      expect.objectContaining({ severity: 'ERROR', message: expect.stringContaining('Tank (INVALID_GEOMETRY)') }),
+    ])
+    expect(store.stations[0]!.hasError).toBe(true)
+    expect(store.aircraft!.loadPoints[0]!.armLookup[0]!.massOrVolume).toBe(-1)
+  })
+})
