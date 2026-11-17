@@ -54,6 +54,7 @@ When('loads four heavy adults and maximum baggage', async ({ page }) => {
   await fillStation(page, 'Rear Seats', '180')
   await fillStation(page, 'Baggage Area 1', '54')
   await fillStation(page, 'Baggage Area 2', '23')
+  await fillStation(page, 'Fuel Tanks', '6')
 })
 
 When('loads four heavy adults with reduced baggage', async ({ page }) => {
@@ -61,6 +62,7 @@ When('loads four heavy adults with reduced baggage', async ({ page }) => {
   await fillStation(page, 'Rear Seats', '180')
   await fillStation(page, 'Baggage Area 1', '54')
   await fillStation(page, 'Baggage Area 2', '0')
+  await fillStation(page, 'Fuel Tanks', '6')
 })
 
 // ─── When steps — Burn-sequence polygon (UJ-B-004) ─────────────────────────
