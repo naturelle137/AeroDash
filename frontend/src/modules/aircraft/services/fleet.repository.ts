@@ -69,7 +69,8 @@ function openDBOnce(): Promise<IDBDatabase> {
       // Create the object store if it doesn't exist
       if (!db.objectStoreNames.contains(STORE_NAME)) {
         const store = db.createObjectStore(STORE_NAME, { keyPath: 'id' })
-        // Index by ownerId for efficient owner-scoped queries
+        // Retained for database compatibility; null owners are not indexed.
+        // Current local queries use the object store, never this legacy index.
         store.createIndex('ownerId', 'ownerId', { unique: false })
         // Index by registration for duplicate detection
         store.createIndex('registration', 'registration', { unique: false })

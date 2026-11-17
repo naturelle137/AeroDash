@@ -13,7 +13,7 @@ describe('fleet backup validation', () => {
     source.verification = { verifiedOn: '2026-01-01', verifiedBy: 'TS', pohRevision: 'Synthetic', sourceWeighingDate: '2026-01-01' }
     const [profile] = previewFleetRestore(backup({ profiles: [source] }))
     expect(profile!.id).not.toBe(source.id)
-    expect(profile).toEqual({ ...source, schemaVersion: 2, id: profile!.id, status: 'draft', verification: undefined })
+    expect(profile).toEqual({ ...source, schemaVersion: 3, id: profile!.id, status: 'draft', verification: undefined })
   })
 
   it.each([

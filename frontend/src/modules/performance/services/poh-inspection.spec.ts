@@ -90,7 +90,7 @@ describe('raw table inspection service', () => {
 
   it('rejects unsupported versions', () => {
     const future = testPohAircraft()
-    future.schemaVersion = 3
+    future.schemaVersion = 4
     expect(inspectTables(future)).toMatchObject({ status: 'blocked', reason: 'profile' })
   })
 

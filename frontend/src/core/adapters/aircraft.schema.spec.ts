@@ -227,11 +227,11 @@ describe('AircraftProfileSchema — valid profiles', () => {
     expect(result.success).toBe(false)
   })
 
-  it('defaults schemaVersion to 2 when omitted', () => {
+  it('defaults schemaVersion to 3 when omitted', () => {
     const result = AircraftProfileSchema.safeParse(createValidProfile())
     expect(result.success).toBe(true)
     if (!result.success) return
-    expect(result.data.schemaVersion).toBe(2)
+    expect(result.data.schemaVersion).toBe(3)
   })
 
   it('rejects schemaVersion = 0 (must be positive integer)', () => {
@@ -334,7 +334,6 @@ describe('AircraftProfileSchema — valid profiles', () => {
 describe('AircraftProfileSchema — missing required root fields', () => {
   const requiredRootFields = [
     'id',
-    'ownerId',
     'registration',
     'manufacturer',
     'model',

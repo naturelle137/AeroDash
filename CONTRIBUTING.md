@@ -28,6 +28,8 @@ Put algorithm contracts and necessary design choices in `docs/architecture/`; us
 ## 4. Code and tests
 
 Keep P1 math pure and isolated from Vue/Pinia and feature/shell code. Validate inputs before invoking calculations. Explain non-obvious reasons in comments; put issue/PR/audit references in commits and PR bodies.
+Follow the [secrets policy](docs/security/secrets.md) before adding frontend configuration or future identity integrations.
+
 Use deterministic fixtures, reject invalid inputs and test meaningful boundaries. Never call live aviation APIs in tests. Synthetic aircraft/vector success does not validate real POH/AFM data.
 
 Run `pnpm lint && pnpm test:unit` for every change. Run build, integration and Chromium E2E for affected wiring or browser behavior. For P1 changes also run isolated P1 coverage and mutation checks. See [Testing](docs/testing/TESTING.md).

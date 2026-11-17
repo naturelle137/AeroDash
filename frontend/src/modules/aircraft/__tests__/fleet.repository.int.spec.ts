@@ -303,7 +303,7 @@ describe('fleetRepository — schemaVersion persistence', () => {
 
     const found = await findById(profile.id)
     expect(found).toBeDefined()
-    expect(found!.schemaVersion).toBe(2)
+    expect(found!.schemaVersion).toBe(3)
   })
 
   it('schemaVersion is preserved across update operations at the current version', async () => {
@@ -323,7 +323,7 @@ describe('fleetRepository — schemaVersion persistence', () => {
 
     const found = await findById(profile.id)
     expect(found).toBeDefined()
-    expect(found!.schemaVersion).toBe(2)
+    expect(found!.schemaVersion).toBe(3)
     expect(found!.registration).toBe('G-UPDT')
   })
 

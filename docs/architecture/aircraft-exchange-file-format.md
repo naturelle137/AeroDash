@@ -35,7 +35,7 @@ The format is defined by and validated against the canonical
 
 New exports use `{ "format": "aerodash-aircraft", "version": 2, "profile": { ... } }`.
 Import also accepts envelope v1 and legacy bare-profile JSON. Future versions fail
-before parsing. The inner profile uses schemaVersion 2; v0/v1 records migrate on
+before parsing. The inner profile uses schemaVersion 3; v0/v1/v2 records migrate on
 read without changing source values. Table and point objects reject unknown keys.
 See [performance source units](performance-source-units.md) for per-axis declarations,
 original-value preservation, conversion definitions and reference vectors.
@@ -47,8 +47,8 @@ The executable format is `AircraftProfileSchema` in `frontend/src/core/adapters/
 | Field | Type | Constraint |
 | :---- | :--- | :--------- |
 | `id` | `string` | UUID v4 format |
-| `schemaVersion` | `integer` | Positive integer (currently `2`) |
-| `ownerId` | `string` | Non-empty |
+| `schemaVersion` | `integer` | Positive integer (currently `3`) |
+| `ownerId` | `string \| null` | Omission becomes null; existing strings preserved exactly, with no identity binding |
 | `registration` | `string` | Non-empty |
 | `manufacturer` | `string` | Non-empty |
 | `model` | `string` | Non-empty |
