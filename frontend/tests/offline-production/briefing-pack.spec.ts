@@ -200,7 +200,9 @@ test('M&B warning meaning survives preview and PDF online and after offline relo
     await expect(preview.locator('.briefing-critical').filter({ hasText: 'MTOM Exceeded' })).toContainText('900.0 kg')
     await expect(preview.locator('.briefing-critical').filter({ hasText: 'CG Out of Envelope' }).first()).toContainText('1.111 m')
     const ids = ['CRIT-MB-001', 'CRIT-MB-002', 'WARN-MB-005', 'WARN-UQ-001']
-    for (const id of ids) await expect(preview).not.toContainText(id)
+    const accessible = await preview.ariaSnapshot()
+    for (const id of ids) { await expect(preview).not.toContainText(id); expect(accessible).not.toContain(id) }
+    for (const message of ['MTOM Exceeded', 'CG Out of Envelope', 'Station 0 limit exceeded', 'Implausible mass on required station']) expect(accessible).toContain(message)
     for (const width of [1440, 440, 320]) {
       await page.setViewportSize({ width, height: 894 })
       expect(await preview.evaluate(e => e.scrollWidth <= e.clientWidth)).toBe(true)
