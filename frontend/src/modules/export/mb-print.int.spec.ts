@@ -149,6 +149,31 @@ describe('M&B print presentation with real store calculation', () => {
     input.notifications.push({ id: 'CRIT-SYS-002', severity: 'CRITICAL', message: 'Adapter failed', persistent: false, dismissible: false })
     expect(canPrintMb(input)).toBe(false)
   })
+  it('presents actionable warnings without exposing their internal IDs', async () => {
+    const input = source()
+    input.state = 'ERROR_CRITICAL'
+    input.result!.violations.push({ type: 'MTOM_EXCEEDED' }, { type: 'CG_OUT_OF_ENVELOPE' })
+    input.stations.push({ index: 0, name: 'Synthetic load', weight: 10, mandatory: false, touched: true, verified: false, hasError: false })
+    input.notifications.push(
+      { id: 'CRIT-MB-002', severity: 'CRITICAL', message: 'MTOM Exceeded', context: 'MassBalance.TotalMass', persistent: false, dismissible: true },
+      { id: 'CRIT-MB-001', severity: 'CRITICAL', message: 'CG Out of Envelope', context: 'MassBalance.CG', persistent: false, dismissible: true },
+      { id: 'WARN-MB-005', severity: 'WARNING', message: 'Station 0 limit exceeded', context: 'MassBalance.Loading', persistent: false, dismissible: true },
+      { id: 'INFO-TEST-001', severity: 'INFO', message: 'Advisory details', context: 'MassBalance', persistent: false, dismissible: true },
+    )
+    const pack = assembleMbPrint(input, new Date())!
+    expect(pack.notifications.map(n => n.id)).toContain('CRIT-MB-002')
+    const wrapper = mount(MbPrintPreview, { props: { source: input }, attachTo: document.body })
+    await wrapper.get('button').trigger('click')
+    const preview = document.querySelector('[role="dialog"]')!
+    const text = preview.textContent!
+    for (const id of ['CRIT-MB-002', 'CRIT-MB-001', 'WARN-MB-005', 'INFO-TEST-001']) expect(text).not.toContain(id)
+    for (const message of ['MTOM Exceeded', 'CG Out of Envelope', 'Station 0 limit exceeded', 'Advisory details']) expect(text).toContain(message)
+    expect(preview.querySelectorAll('.briefing-critical').length).toBeGreaterThan(1)
+    expect([...preview.querySelectorAll('.briefing-warning')].some(e => e.textContent?.includes('Station 0 limit exceeded'))).toBe(true)
+    expect(text).toContain('500.0 kg')
+    expect(text).toContain('CRITICAL')
+    wrapper.unmount()
+  })
   it('blocks error notifications, pending selection, failed result and incomplete loading', () => {
     const input = source()
     input.ready = false

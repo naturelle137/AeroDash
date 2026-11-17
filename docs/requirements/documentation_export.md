@@ -130,6 +130,10 @@ The system shall present the Briefing Pack action using the homepage Start Fligh
 
 The system shall omit helper text and tooltips associated with the Briefing Pack action.
 
+### REQ-DOC-032: Internal warning identifiers
+
+When displaying or printing the briefing pack, the system shall omit internal warning identifiers from presented warning text.
+
 ## Design References
 
 - **<a name="notificationScheme"></a>Notification Scheme:** [`docs/architecture/notification_schema.md`](../architecture/notification_schema.md)

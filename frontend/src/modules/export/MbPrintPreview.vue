@@ -91,11 +91,11 @@ onBeforeUnmount(() => {
           <p v-if="currentSnapshot.unverified"><strong>Calculation based on unverified external data. Pilot in Command assumes full responsibility.</strong></p>
           <h2>Current loading</h2>
           <table><thead><tr><th>Station</th><th>Quantity</th></tr></thead><tbody>
-            <tr v-for="(row, index) in currentSnapshot.loading" :key="index"><td>{{ row.name }}</td><td :class="{ 'briefing-warning': row.warnings.length }">{{ row.quantity }}<p v-for="(note, n) in row.warnings" :key="n">{{ note.severity }} · {{ note.id }}: {{ note.message }}</p></td></tr>
+            <tr v-for="(row, index) in currentSnapshot.loading" :key="index"><td>{{ row.name }}</td><td :class="{ 'briefing-warning': row.warnings.length }">{{ row.quantity }}<p v-for="(note, n) in row.warnings" :key="n">{{ note.severity }}: {{ note.message }}</p></td></tr>
           </tbody></table>
           <h2>M&amp;B results</h2>
           <table><thead><tr><th>Endpoint</th><th>Mass</th><th>CG arm</th><th>Applicable limit</th></tr></thead><tbody>
-            <tr v-for="row in currentSnapshot.points" :key="row.label"><td>{{ row.label }}</td><td :class="{ 'briefing-warning': row.massWarnings.length, 'briefing-critical': row.massWarnings.some(n => n.severity === 'CRITICAL') }">{{ row.mass }}<p v-for="(note, n) in row.massWarnings" :key="n">{{ note.severity }} · {{ note.id }}: {{ note.message }}</p></td><td :class="{ 'briefing-warning': row.cgWarnings.length, 'briefing-critical': row.cgWarnings.some(n => n.severity === 'CRITICAL') }">{{ row.cg }}<p v-for="(note, n) in row.cgWarnings" :key="n">{{ note.severity }} · {{ note.id }}: {{ note.message }}</p></td><td>{{ row.limit }}</td></tr>
+            <tr v-for="row in currentSnapshot.points" :key="row.label"><td>{{ row.label }}</td><td :class="{ 'briefing-warning': row.massWarnings.length, 'briefing-critical': row.massWarnings.some(n => n.severity === 'CRITICAL') }">{{ row.mass }}<p v-for="(note, n) in row.massWarnings" :key="n">{{ note.severity }}: {{ note.message }}</p></td><td :class="{ 'briefing-warning': row.cgWarnings.length, 'briefing-critical': row.cgWarnings.some(n => n.severity === 'CRITICAL') }">{{ row.cg }}<p v-for="(note, n) in row.cgWarnings" :key="n">{{ note.severity }}: {{ note.message }}</p></td><td>{{ row.limit }}</td></tr>
           </tbody></table>
           <figure class="briefing-chart">
             <h2>Loading envelope chart</h2>
@@ -104,7 +104,7 @@ onBeforeUnmount(() => {
           </figure>
           <section v-if="currentSnapshot.notifications.length" aria-label="Current M&B notifications">
             <h2>Current M&amp;B notifications</h2>
-            <ul><li v-for="(note, index) in currentSnapshot.notifications" :key="index"><strong>{{ note.severity }} · {{ note.id }} · {{ note.context ?? 'MassBalance' }}</strong>: {{ note.message }}</li></ul>
+            <ul><li v-for="(note, index) in currentSnapshot.notifications" :key="index"><strong>{{ note.severity }} · {{ note.context ?? 'MassBalance' }}</strong>: {{ note.message }}</li></ul>
           </section>
           <section v-if="currentSnapshot.fuel" aria-label="Current fuel plan and estimated trip arrival">
             <h2>Current fuel plan and estimated trip arrival</h2>
