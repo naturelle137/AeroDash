@@ -283,6 +283,45 @@ describe('lookup fuel tank total-moment M&B in the store', () => {
     )
   })
 
+  it('preserves a legacy blank-unit profile and quantities until explicit unit correction', () => {
+    const store = useMassBalanceStore()
+    const r = row('nonzero-u-burn-20')
+    const legacy = profile(r)
+    legacy.loadPoints[0]!.unit = ''
+    const original = structuredClone(legacy)
+    const calculate = vi.spyOn(mathAdapter, 'calculateMassBalance')
+
+    store.loadProfile(legacy)
+    expect(calculate).not.toHaveBeenCalled()
+    expect(store.lastResult).toBeNull()
+    expect(store.uiState).toBe('ERROR_CRITICAL')
+    expect(store.stations[0]!.hasError).toBe(true)
+    expect(store.stations[0]!.weight).toBe(r.currentQuantity)
+    expect(store.aircraft).toEqual(original)
+    expect(legacy).toEqual(original)
+    expect(store.notifications).toContainEqual(
+      expect.objectContaining({
+        id: 'ERR-SYS-001',
+        severity: 'ERROR',
+        message:
+          "Invalid input: Lookup tank (UNSUPPORTED_UNIT) — The tank unit is missing. In the aircraft editor, open Load Stations → Unit and select the unit using the aircraft's approved source data.",
+      }),
+    )
+
+    const corrected = structuredClone(original)
+    corrected.loadPoints[0]!.unit = r.tankUnit
+    store.loadProfile(corrected)
+    expect(calculate).toHaveBeenCalled()
+    expect(store.lastResult!.success).toBe(true)
+    expect(store.lastResult!.takeoffCenterOfGravityPoint.mass).toBeCloseTo(r.expectedMassKg, 9)
+    expect(store.lastResult!.takeoffCenterOfGravityPoint.moment).toBeCloseTo(r.expectedMomentKgM, 9)
+    expect(store.notifications.filter((n) => n.severity === 'ERROR')).toEqual([])
+    expect(store.stations[0]!.weight).toBe(r.currentQuantity)
+    expect(store.stations[0]!.hasError).toBe(false)
+    expect(store.aircraft).toEqual(corrected)
+    expect(legacy).toEqual(original)
+  })
+
   it('keeps valid fixed-arm arithmetic unchanged', () => {
     const store = useMassBalanceStore()
     const p = profile(row('nonzero-u-burn-0'))
