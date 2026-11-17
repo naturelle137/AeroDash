@@ -126,7 +126,7 @@ const navItems: NavItem[] = [
 // primary task destinations plus Privacy, so the GDPR data-rights surface
 // (REQ-SYS-014/015) stays reachable on phones. The icon-rail sidebar already
 // exposes every destination, including Privacy, at >= 768px.
-const BOTTOM_NAV_IDS = ['home', 'flight-prep', 'performance', 'fleet', 'privacy'] as const
+const BOTTOM_NAV_IDS = ['home', 'flight-prep', 'fleet', 'privacy'] as const
 const bottomNavItems = BOTTOM_NAV_IDS.map((id) => navItems.find((item) => item.id === id)).filter(
   (item): item is NavItem => item !== undefined,
 )

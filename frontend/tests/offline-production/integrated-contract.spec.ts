@@ -278,7 +278,7 @@ test('integrated complete-grid Draft and invalid M&B cannot expose raw success o
   await page.locator('#station-0').fill('-'); await page.locator('#station-0').blur()
 
   await expect(perf.getByRole('group', { name: 'Takeoff raw distances' }).locator('dd')).toHaveCount(0)
-  await page.getByRole('button', { name: 'Briefing Pack', exact: true }).click()
+  await expect(page.getByRole('button', { name: 'Briefing Pack', exact: true })).toBeDisabled()
   await expect(page.getByRole('dialog', { name: 'Briefing Pack preview' })).toHaveCount(0)
   await page.evaluate(() => window.print()); await page.emulateMedia({ media: 'print' })
   await expect(page.locator('.mb-print-sheet')).toBeHidden(); await expect(page.locator('.mb-print-guard')).toBeVisible()

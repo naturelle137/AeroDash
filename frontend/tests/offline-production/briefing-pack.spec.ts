@@ -25,7 +25,7 @@ test('complete current briefing pack with chart, persistent action and native st
       return Math.abs(icon.y + icon.height / 2 - card.y - card.height / 2)
     })
     expect(aligned).toBeLessThan(1)
-    await expect(page.locator('.app-header, .app-bottom-nav').getByRole('link', { name: 'Performance', exact: true })).toHaveCount(0)
+    await expect(page.locator('.app-sidebar, .app-bottom-nav').getByRole('link', { name: 'Performance', exact: true })).toHaveCount(0)
     await page.screenshot({ path: info.outputPath(`home-${width}.png`), fullPage: true })
     await performance.focus()
     await page.keyboard.press('Enter')
@@ -42,6 +42,7 @@ test('complete current briefing pack with chart, persistent action and native st
     const box = (await unavailable.boundingBox())!
     await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2)
     await unavailable.evaluate(e => e.focus())
+    await expect(unavailable).not.toBeFocused()
     await page.keyboard.press('Enter')
     await page.keyboard.press('Space')
     await expect(page.getByRole('dialog', { name: 'Briefing Pack preview' })).toHaveCount(0)

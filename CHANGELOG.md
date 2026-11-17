@@ -7,10 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Fixed
-
-- Share the homepage CTA style with Briefing Pack, disable unavailable export without helper text, restore the homepage Performance icon and remove the separate Performance menu entry (refs #568).
-
 ### Engineering
 
 - Align the roadmap with delivered Flight Preparation, briefing print and bounded fuel-unit recovery (#565).
@@ -25,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Share the homepage CTA style with Briefing Pack, disable unavailable export without helper text, restore the homepage Performance icon and remove the separate Performance menu entry (refs #568).
 - Retain legacy lookup fuel profiles with an explicit missing unit for source-based editor correction; M&B stays blocked until corrected (Refs #535).
 - Preserve required-occupant zero-mass warnings while invalid raw fuel inputs block calculation (#534).
 
