@@ -395,6 +395,7 @@ function patchFuelTank(idx: number, changes: Partial<AircraftProfileFuelTankExte
 
 function willPromoteToUnusable(lp: AircraftProfileLoadPoint): boolean {
   return (
+    lp.armLookup.length === 0 &&
     lp.fuelTank !== null &&
     lp.fuelTank.unusableFuel > 0 &&
     lp.defaultQuantity < lp.fuelTank.unusableFuel

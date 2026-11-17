@@ -327,7 +327,7 @@ describe('AircraftProfileEditorView — wind limits', () => {
 })
 
 describe('AircraftProfileEditorView — incomplete lookup source preservation', () => {
-  it('does not promote a missing-unit tank quantity while saving an unrelated change', async () => {
+  it.each([false, true])('preserves lookup quantities during unrelated save or unit correction (%s)', async (correctUnit) => {
     const tank = {
       name: 'Legacy tank', arm: null,
       armLookup: [{ massOrVolume: 0, moment: 0 }, { massOrVolume: 50, moment: 150 }],
@@ -338,10 +338,11 @@ describe('AircraftProfileEditorView — incomplete lookup source preservation', 
     const updateProfile = vi.fn<() => Promise<AircraftProfile>>().mockResolvedValue(profile)
     const { wrapper } = await mountEditor({ profile, fleetOverrides: { updateProfile } })
     await wrapper.get('input[id$="refDatumDesc"]').setValue('Changed synthetic datum')
+    if (correctUnit) await wrapper.get('select[id$="unit-0"]').setValue('kg')
     const save = wrapper.findAll('button').find((button) => button.text() === 'Save Draft')!
     await save.trigger('click')
     await flushPromises()
-    expect(updateProfile).toHaveBeenCalledWith(profile.id, expect.objectContaining({ loadPoints: [tank] }))
+    expect(updateProfile).toHaveBeenCalledWith(profile.id, expect.objectContaining({ loadPoints: [{ ...tank, unit: correctUnit ? 'kg' : '' }] }))
     expect(profile.loadPoints).toEqual([tank])
   })
 })
