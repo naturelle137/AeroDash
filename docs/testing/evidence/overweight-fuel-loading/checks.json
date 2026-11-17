@@ -1,0 +1,138 @@
+{
+  "tested_revision": "0bf7c2959afaf688063b5c28fdcbeeaed4e8b68b",
+  "checks": [
+    {
+      "check": "lint",
+      "exit_code": 0,
+      "seconds": 7.1,
+      "command": [
+        "pnpm",
+        "lint"
+      ]
+    },
+    {
+      "check": "unit",
+      "exit_code": 0,
+      "seconds": 12.3,
+      "command": [
+        "pnpm",
+        "test:unit"
+      ]
+    },
+    {
+      "check": "integration",
+      "exit_code": 0,
+      "seconds": 4.2,
+      "command": [
+        "pnpm",
+        "test:integration"
+      ]
+    },
+    {
+      "check": "build",
+      "exit_code": 0,
+      "seconds": 9.9,
+      "command": [
+        "pnpm",
+        "build"
+      ]
+    },
+    {
+      "check": "targeted",
+      "exit_code": 0,
+      "seconds": 6.7,
+      "command": [
+        "env",
+        "CI=1",
+        "pnpm",
+        "test:e2e",
+        "--project=chromium",
+        "--grep",
+        "Full passenger and baggage|Reducing baggage"
+      ]
+    },
+    {
+      "check": "chromium",
+      "exit_code": 0,
+      "seconds": 69.6,
+      "command": [
+        "env",
+        "CI=1",
+        "pnpm",
+        "test:e2e",
+        "--project=chromium"
+      ]
+    },
+    {
+      "check": "offline",
+      "exit_code": 0,
+      "seconds": 9.9,
+      "command": [
+        "pnpm",
+        "--filter",
+        "frontend",
+        "exec",
+        "playwright",
+        "test",
+        "--config",
+        "playwright.offline.config.ts",
+        "fixed-arm-fuel.spec.ts"
+      ]
+    },
+    {
+      "check": "offline-related",
+      "exit_code": 0,
+      "command": [
+        "pnpm",
+        "--filter",
+        "frontend",
+        "exec",
+        "playwright",
+        "test",
+        "--config",
+        "playwright.offline.config.ts",
+        "lookup-fuel-mb.spec.ts",
+        "briefing-pack.spec.ts",
+        "fuel-print.spec.ts",
+        "fuel-endurance.spec.ts",
+        "--output",
+        "/var/home/critter/lokal/dev/agent-hq/var/jobs/1657/offline-related"
+      ]
+    },
+    {
+      "check": "source-constants",
+      "exit_code": 0,
+      "command": [
+        "pnpm",
+        "--filter",
+        "frontend",
+        "check:data-constants"
+      ]
+    },
+    {
+      "check": "comments",
+      "exit_code": 0,
+      "command": [
+        "pnpm",
+        "--filter",
+        "frontend",
+        "comment:check"
+      ]
+    },
+    {
+      "check": "overweight-screenshots",
+      "exit_code": 0,
+      "passed": 4,
+      "widths": [
+        390,
+        1440
+      ]
+    }
+  ],
+  "screenshots_sha256": {
+    "1440-full.png": "ffbb0efd0bbcfd9314758f23360a1d1236e407cd44419dd081c6f7b1bdcc380d",
+    "1440-reduced.png": "8099c694b43bf33a6bd0d06c3331c342bfb1e890b8eef82caaec9839e6917d0d",
+    "390-full.png": "092edf227eb487d346cbd0bfde4bb20b052c937de0b0755b0f614848b27ef17a",
+    "390-reduced.png": "f5a8401ac6cf21565000d5d0771c6b0e2365fb3e0f1aae15f348b8ada1219891"
+  }
+}
