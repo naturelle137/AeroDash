@@ -101,6 +101,19 @@ test('fixed-arm lower boundary retains input, invalidates open print and recover
   await expect(page.locator('#briefing-eligibility')).toContainText('not eligible')
   await error.scrollIntoViewIfNeeded()
   await shot('below-minimum')
+  // Correct in the same session: q=u cannot supply the chosen trip burn;
+  // q>u restores the original trip arrival as well as current M&B arithmetic.
+  await load('10')
+  await expect(mass).toContainText('560.0')
+  await expect(cg).toContainText('2.000')
+  await expect(fuel.getByRole('region', { name: 'Estimated trip arrival', exact: true })).toHaveCount(0)
+  await load('30')
+  await expect(mass).toContainText('580.0')
+  await expect(cg).toContainText('2.034')
+  await expect(fuel.getByRole('region', { name: 'Estimated trip arrival', exact: true })).toContainText('570 kg')
+  await expect(fuel.getByTestId('arrival-cg')).toContainText('2.018')
+  await load('9')
+  await blocked()
   // Keep an invalid current load across a cached offline reload.
   await expect.poll(() => page.evaluate(() => localStorage.getItem('aerodash:session:payload'))).toContain('"weight":9')
   await context.setOffline(true)

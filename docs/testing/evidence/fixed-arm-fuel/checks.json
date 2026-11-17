@@ -1,0 +1,52 @@
+{
+  "lint": 0,
+  "unit": {
+    "exit": 0,
+    "files": 109,
+    "tests": 2275
+  },
+  "integration": {
+    "exit": 0,
+    "files": 23,
+    "tests": 218
+  },
+  "build": 0,
+  "p1_coverage": {
+    "exit": 0,
+    "files": 34,
+    "tests": 1062,
+    "statements": 98.88,
+    "branches": 97.43,
+    "functions": 100,
+    "lines": 99.36
+  },
+  "source_checks": 0,
+  "production_offline": {
+    "exit": 0,
+    "tests": 10,
+    "widths": [
+      390,
+      1440
+    ],
+    "strengthened_recovery_tests": 2
+  },
+  "mutation": {
+    "exit": 0,
+    "score": 80.07,
+    "threshold": 70,
+    "killed": 1814,
+    "timeout": 10,
+    "survived": 441,
+    "no_coverage": 13,
+    "errors": 1138,
+    "total": 3416
+  },
+  "application_revision": "cede2584fa573de77c0a33ecbbcb6f02be540861",
+  "browser_spec_sha256": "b51fcb5cffa44c48c2edd693c005904e0ca85478cfa8042611d04d08b836b05e",
+  "signature": {
+    "format": "ssh",
+    "github_verified": false,
+    "github_reason": "no_user",
+    "available_key_registered_as_signing_key": false
+  }
+}

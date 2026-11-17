@@ -445,7 +445,7 @@ describe('MassBalance Store', () => {
 
     // Pilot station: defaultQuantity=0, no fuelTank → reset to 0
     expect(store.stations[0]?.weight).toBe(0)
-    // Fuel station: defaultQuantity=0, unusableFuel=3 → reset to 3 (the minimum legal load)
+    // Fuel station: defaultQuantity=3, unusableFuel=3 → reset to 3 (the minimum legal load)
     expect(store.stations[1]?.weight).toBe(3)
     expect(store.stations.every((s) => !s.verified)).toBe(true)
     expect(store.stations.every((s) => s.touched)).toBe(true)
