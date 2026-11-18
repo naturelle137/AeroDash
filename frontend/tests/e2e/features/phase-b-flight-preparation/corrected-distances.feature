@@ -20,3 +20,18 @@ Feature: Corrected takeoff and landing distances
       | 1440  | 1000   | D-EBPN       | "unavailable: Enter the headwind component" | "final 267 m for the ground roll"        |
       | 390   | 844    | D-EBPN       | "unavailable: Enter the headwind component" | "final 267 m for the ground roll"        |
       | 1440  | 1000   | D-TEST       | "unavailable: No accepted correction source"| "unavailable: No accepted correction source" |
+
+  Scenario Outline: The pilot sees whether the corrected distance fits the declared runway
+    Given the raw POH workflow viewport is 1440 by 1000
+    When I import and verify a synthetic POH profile for registration "D-EBPN" declaring type "P208" and maximum mass 650 kg
+    And the pilot opens Performance
+    And the pilot sets mass "900" kg and temperature "10" °C for the Test profile
+    And the pilot enters pressure altitude "1000" ft directly
+    And the pilot saves runway "TEST" "27" with TORA "<tora>" "m", LDA "550" "m", elevation "300" "ft" and surface "Paved" "Dry"
+    And the pilot enters takeoff headwind "0" kt and slope "0" %
+    Then the takeoff runway comparison is "<verdict>"
+
+    Examples:
+      | tora | verdict             |
+      | 2000 | Fits declared runway |
+      | 100  | Insufficient runway  |

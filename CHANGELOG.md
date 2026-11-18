@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Compare the S9-corrected distance over 50 ft with the declared TORA/LDA, with metre and percentage margin and an insufficient-runway alert (refs #300, #302, #305).
+
 ### Engineering
 
 - Document the local fleet export, erasure/retry and Draft restore journey with download, offline and shared-browser limits (refs #289).
