@@ -1,7 +1,7 @@
 # Performance correction source assessment
 
 **Module:** Performance (P1 `core/logic/performance.correction-sources.ts`, P2 `CorrectionSourcePanel`)
-**Status:** Partial. Source selection, unsupported reasons, one accepted source-specific rule set (Tecnam P2008 JC S9, D-EBPN) and its corrected distances in the Performance step with wind and slope input; the operational runway comparison (#300) remains open.
+**Status:** Partial. Source selection, unsupported reasons, one accepted source-specific rule set (Tecnam P2008 JC S9, D-EBPN) and its corrected distances in the Performance step with wind and slope input; the runway comparison and margins follow below.
 
 ## Purpose
 
@@ -79,7 +79,15 @@ operation and both inputs are entered (empty is never zero; |slope| < 100). Othe
 and only the uncorrected raw distance. Results are rounded up to whole metres, show raw, corrected and final values
 with the source revision, and appear in the briefing pack. Any input change invalidates them with the raw result.
 
+## Runway comparison
+
+The final distance over 50 ft (after the source in-service factor, rounded up) is compared with the declared TORA
+(take-off; no TODA is entered, so TORA is the conservative bound) or LDA (landing), both rounded down to 0.1 m.
+Margin is `available - required` in metres and as `100 × margin / required` (REQ-PF-026). Insufficient length is
+shown as an alert; sufficient length is a comparison, not an operational approval. The in-service factor is fixed by the
+source, so no user-selected factor or low-factor warning applies.
+
 ## Remaining work
 
-Operational runway comparison and margins (#300, #302). Any further source needs configuration evidence, a source-specific numeric contract
+Any source needs configuration evidence, a source-specific numeric contract
 and reuse permission.

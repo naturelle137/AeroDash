@@ -107,4 +107,38 @@ describe('corrected distances in the performance step', () => {
     })
     effect.stop()
   })
+
+  it('compares the final distance over 50 ft with the declared runway and reports margins', () => {
+    const effect = effectScope()
+    effect.run(() => {
+      const { step, runway } = setup()
+      Object.assign(step.corrections.takeoff, { headwind: '0', slope: '0' })
+      const fits = corrected(step, 0)
+      if (fits.status !== 'applied') throw new Error('expected applied')
+      expect(fits.comparison).toMatchObject({ status: 'sufficient', availableLabel: 'TORA', available: '1,000.0 m' })
+      expect(fits.comparison.margin).toMatch(/^\+.* m \(\+.* %\)$/)
+      // Shortening the declared runway below the requirement flips the result after saving.
+      runway.draft.tora = '100'; runway.save()
+      const short = corrected(step, 0)
+      if (short.status !== 'applied') throw new Error('expected applied')
+      expect(short.comparison.status).toBe('insufficient')
+      expect(short.comparison.summary).toContain('Runway insufficient')
+      expect(short.comparison.margin.startsWith('−')).toBe(true)
+    })
+    effect.stop()
+  })
+
+  it('compares landing with LDA and treats feet as converted and rounded down', () => {
+    const effect = effectScope()
+    effect.run(() => {
+      const { step, runway } = setup()
+      runway.draft.ldaUnit = 'ft'; runway.draft.lda = '3000'; runway.save()
+      Object.assign(step.corrections.landing, { headwind: '0', slope: '0' })
+      const landing = corrected(step, 1)
+      if (landing.status !== 'applied') throw new Error('expected applied')
+      expect(landing.comparison.availableLabel).toBe('LDA')
+      expect(landing.comparison.available).toBe('914.4 m')
+    })
+    effect.stop()
+  })
 })

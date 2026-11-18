@@ -1,7 +1,7 @@
 import { computed, reactive, ref, shallowRef, watch } from 'vue'
 import type { AircraftProfile } from '@/core/adapters/aircraft.schema'
 import { assessCorrectionSources, OPERATIONS, profileFacts, type Operation, type RunwayFacts } from '@/core/logic/performance.correction-sources'
-import { SURFACE_CONDITIONS } from '@/core/logic/manual-runway'
+import { normalizeManualRunway, SURFACE_CONDITIONS } from '@/core/logic/manual-runway'
 import { useManualRunwayStore } from '@/modules/airport/stores/manual-runway.store'
 import { useLoadedUnitPreferences } from '@/modules/performance/stores/unit-preferences.store'
 import { usePressureAltitudeInput } from './pressure-altitude-input'
@@ -95,6 +95,12 @@ export function usePerformanceStep(context: () => PerformanceStepContext) {
     label: `${runway.current.record.runway.aerodrome} ${runway.current.record.runway.designator}`,
     surface: runway.current.record.runway.surface,
   } : null)
+  /** Same 0.1 m round-down as the runway display, so margins match what the pilot sees. */
+  const availableM = computed(() => {
+    const normalized = runway.current ? normalizeManualRunway(runway.current.record.runway) : null
+    const down = (value: number) => Math.floor(value * 10 + 1e-9) / 10
+    return normalized ? { tora: down(normalized.toraM), lda: down(normalized.ldaM) } : null
+  })
   const sources = computed(() => ctx.value.ready && ctx.value.profile
     ? assessCorrectionSources(profileFacts(ctx.value.profile, tables.value?.status === 'ready'), runwayFacts.value) : null)
   const groupOf = (operation: Operation) => {
@@ -132,7 +138,7 @@ export function usePerformanceStep(context: () => PerformanceStepContext) {
       runway: runwayPresentation.value,
       operational: presentOperationalAssessment(sources.value, !ready ? notReadyReason : 'Select an aircraft profile.'),
       corrected: current.value ? OPERATIONS.map((operation) => presentCorrectedOperation(
-        operation, groupOf(operation), sources.value, runwayFacts.value, corrections[operation])) : [],
+        operation, groupOf(operation), sources.value, runwayFacts.value, corrections[operation], availableM.value)) : [],
     })
   })
 

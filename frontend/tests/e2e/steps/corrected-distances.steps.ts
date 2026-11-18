@@ -46,3 +46,7 @@ Then('the corrected distance evidence is captured as {string}', async ({ page, $
   await page.screenshot({ path, fullPage: true })
   await $testInfo.attach(`Corrected distances ${name}`, { path, contentType: 'image/png' })
 })
+
+Then('the takeoff runway comparison is {string}', async ({ page }, verdict: string) => {
+  await expect(takeoff(page).locator('.comparison')).toContainText(verdict)
+})
