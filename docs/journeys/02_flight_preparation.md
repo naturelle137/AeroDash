@@ -86,6 +86,8 @@ Focus: Standard operational workflows for Mass & Balance and Hybrid Performance.
 
 **Outcome:** The pilot discovers that a simple single-line CG trend (Standard sequence only) would have shown a safe forward migration — hiding the danger of the Alternative path. When the forward tank drains first, the remaining aft fuel and heavy rear loading push the CG beyond the aft limit. The shaded polygon reveals the full range of risk, and the pilot mitigates it before engine start.
 
+**CRI familiarisation variant (P-CRI):** A Class Rating Instructor walks a newly type-rated pilot through the two burn sequences, contrasting the Standard path with the Alternative path exiting the aft limit. The instructor uses that aircraft-specific trap to teach CG migration rather than relying on a single Go/No-Go result. The discussion needs no in-app instructor annotations.
+
 ## <a name="UJ-B-005"></a>UJ-B-005: The "Textbook" Flight Prep (Happy Path)
 
 **Persona:** Pilot
