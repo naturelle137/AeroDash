@@ -19,7 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Engineering
 
-- Remove the remaining Cursor-specific path from the manual strip-stack test.
+- Remove the Cursor-specific artifact path and acknowledge the disclaimer in the manual strip-stack test.
 
 - Add CRI type-familiarisation framing to the category-switch and multi-tank CG migration journeys (refs #333).
 

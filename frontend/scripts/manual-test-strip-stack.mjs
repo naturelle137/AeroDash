@@ -40,6 +40,7 @@ async function resolvePlaywright() {
 }
 const chromium = await resolvePlaywright()
 
+const BASE_URL = process.env.BASE_URL ?? 'http://localhost:5173'
 const ARTIFACT_DIR = path.join(REPO_ROOT, 'test-results', 'manual-strip-stack')
 mkdirSync(ARTIFACT_DIR, { recursive: true })
 
@@ -124,11 +125,12 @@ async function main() {
   })
 
   console.log('1. nav home & seed aircraft …')
-  await page.goto('http://localhost:5173/', { waitUntil: 'networkidle' })
+  await page.goto(BASE_URL, { waitUntil: 'networkidle' })
+  await page.getByTestId('disclaimer-gate-accept').click()
   await page.evaluate(SEED)
 
   console.log('2. nav to /mass-balance …')
-  await page.goto('http://localhost:5173/mass-balance', { waitUntil: 'networkidle' })
+  await page.goto(`${BASE_URL}/mass-balance`, { waitUntil: 'networkidle' })
 
   // Wait briefly then debug what's on screen
   await page.waitForTimeout(2000)
