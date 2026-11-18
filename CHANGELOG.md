@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Engineering
 
+- Document the ab-initio student variant of the flight-preparation journey (closes #331).
+
 - Document the local fleet export, erasure/retry and Draft restore journey with download, offline and shared-browser limits (refs #289).
 
 - Record the local at-rest threat model and bounded CTO acceptance of plaintext persistence, with encryption alternatives and reopening conditions (refs #287).
