@@ -60,3 +60,23 @@ Then('the takeoff safety factor warning is {string}', async ({ page }, state: st
   if (state === 'shown') await expect(warning).toContainText('WARN-PF-002')
   else await expect(warning).toHaveCount(0)
 })
+
+When('the pilot enters landing headwind {string} kt and slope {string} %', async ({ page }, headwind: string, slope: string) => {
+  await page.getByLabel('Headwind component (kt, negative = tailwind)').last().fill(headwind)
+  await page.getByLabel('Runway slope (%, positive = uphill)').last().fill(slope)
+})
+
+Then('the landing correction shows its source and final ground roll {string}', async ({ page }, value: string) => {
+  const region = page.getByRole('region', { name: 'Landing corrected distances', exact: true })
+  await expect(region).toContainText('Tecnam P2008 JC Aircraft Flight Manual')
+  await expect(region.locator('dd').first()).toContainText(value)
+  await expect(takeoff(page)).toContainText('Not corrected: Enter the headwind component')
+})
+
+Then('the landing correction evidence is captured as {string}', async ({ page, $testInfo }, width: string) => {
+  expect(await page.locator('body').evaluate(el => el.scrollWidth)).toBeLessThanOrEqual(page.viewportSize()!.width)
+  await page.getByRole('region', { name: 'Landing corrected distances', exact: true }).scrollIntoViewIfNeeded()
+  const path = $testInfo.outputPath(`landing-correction-${width}.png`)
+  await page.screenshot({ path, fullPage: true })
+  await $testInfo.attach(`Landing correction ${width}`, { path, contentType: 'image/png' })
+})
