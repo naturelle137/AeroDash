@@ -2,8 +2,8 @@ import { execFileSync } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
 
 const branch = execFileSync('git', ['branch', '--show-current'], { encoding: 'utf8' }).trim();
-const match = /^(?:release|hotfix)\/v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9]\d*|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*))*))?$/.exec(branch);
-if (!match) {
+const match = /^(?:release|hotfix)\/v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?$/.exec(branch);
+if (!match || match[4]?.split('.').some((part) => /^0\d+$/.test(part))) {
   throw new Error('Expected a release/v<semver> or hotfix/v<semver> branch without build metadata');
 }
 const version = branch.slice(branch.indexOf('/v') + 2);

@@ -10,6 +10,8 @@ for (const [branch, expected] of [
   ['release/v0.4.0-alpha.1', '0.4.0-alpha.1'],
   ['hotfix/v1.2.3', '1.2.3'],
   ['release/v0.4.0-rc.01', null],
+  ['release/v1.2.3-0.01a.123-foo', '1.2.3-0.01a.123-foo'],
+  [`release/v1.2.3-${'a'.repeat(200)}!`, null],
   ['release/v01.2.3', null],
   ['feature/v1.2.3', null],
 ]) {
