@@ -45,6 +45,9 @@ export type ManualRunwayDraft = {
   toraUnit: string
   lda: string
   ldaUnit: string
+  /** Optional; blank means no TODA is declared. */
+  toda: string
+  todaUnit: string
   fieldElevation: string
   fieldElevationUnit: string
   surfaceType: string
@@ -53,7 +56,7 @@ export type ManualRunwayDraft = {
 export type ManualRunwayField = keyof ManualRunwayDraft
 
 export const EMPTY_MANUAL_RUNWAY_DRAFT: Readonly<ManualRunwayDraft> = Object.freeze({
-  aerodrome: '', designator: '', tora: '', toraUnit: '', lda: '', ldaUnit: '',
+  aerodrome: '', designator: '', tora: '', toraUnit: '', lda: '', ldaUnit: '', toda: '', todaUnit: '',
   fieldElevation: '', fieldElevationUnit: '', surfaceType: '', surfaceCondition: '',
 })
 
@@ -78,6 +81,7 @@ export const ManualRunwaySchema = z.object({
   designator: identity(MAX_DESIGNATOR_LENGTH),
   tora: positiveDistance,
   lda: positiveDistance,
+  toda: positiveDistance.optional(),
   fieldElevation: z.object({
     value: z.number().finite(),
     unit: z.enum(FIELD_ELEVATION_UNITS),
@@ -95,6 +99,8 @@ export type ManualRunway = {
   designator: string
   tora: { value: number; unit: RunwayLengthUnit }
   lda: { value: number; unit: RunwayLengthUnit }
+  /** Declared take-off distance available (clearway included); absent when not declared. */
+  toda?: { value: number; unit: RunwayLengthUnit }
   fieldElevation: { value: number; unit: FieldElevationUnit }
   surface: { type: SurfaceType; condition: SurfaceCondition }
 }
@@ -144,7 +150,7 @@ export function validateManualRunway(draft: ManualRunwayDraft): ManualRunwayVali
   if (!isIdentity(designator, MAX_DESIGNATOR_LENGTH)) {
     errors.designator = `Enter a runway designator (1–${MAX_DESIGNATOR_LENGTH} characters).`
   }
-  const distance = (field: 'tora' | 'lda', unitField: 'toraUnit' | 'ldaUnit', label: string) => {
+  const distance = (field: 'tora' | 'lda' | 'toda', unitField: 'toraUnit' | 'ldaUnit' | 'todaUnit', label: string) => {
     const value = parseDecimal(draft[field])
     if (value === null) errors[field] = `Enter ${label} as a finite decimal number.`
     else if (value <= 0) errors[field] = `${label} must be greater than zero.`
@@ -153,6 +159,10 @@ export function validateManualRunway(draft: ManualRunwayDraft): ManualRunwayVali
   }
   const tora = distance('tora', 'toraUnit', 'TORA')
   const lda = distance('lda', 'ldaUnit', 'LDA')
+  let toda: number | null = null
+  if (draft.toda.trim() !== '') {
+    toda = distance('toda', 'todaUnit', 'TODA')
+  }
   const elevation = parseDecimal(draft.fieldElevation)
   if (elevation === null) errors.fieldElevation = 'Enter field elevation as a finite decimal number (zero and negative values are allowed).'
   if (!isUnit(FIELD_ELEVATION_UNITS, draft.fieldElevationUnit)) errors.fieldElevationUnit = 'Select the field elevation unit (m or ft).'
@@ -163,12 +173,17 @@ export function validateManualRunway(draft: ManualRunwayDraft): ManualRunwayVali
   } else if (!SURFACE_CONDITIONS[surfaceType].some((option) => option.value === draft.surfaceCondition)) {
     errors.surfaceCondition = 'Select the surface condition.'
   }
+  if (toda !== null && tora !== null && !errors.toda && !errors.todaUnit && !errors.toraUnit) {
+    const metres = (value: number, unit: string) => unit === 'ft' ? value * FT_TO_M : value
+    if (metres(toda, draft.todaUnit) < metres(tora, draft.toraUnit) - 1e-9) errors.toda = 'TODA cannot be shorter than TORA.'
+  }
   if (Object.keys(errors).length) return { status: 'invalid', errors }
   const runway = {
     aerodrome,
     designator,
     tora: { value: tora!, unit: draft.toraUnit },
     lda: { value: lda!, unit: draft.ldaUnit },
+    ...(toda !== null ? { toda: { value: toda, unit: draft.todaUnit } } : {}),
     fieldElevation: { value: elevation!, unit: draft.fieldElevationUnit },
     surface: { type: surfaceType, condition: draft.surfaceCondition },
   }
@@ -187,6 +202,8 @@ export function draftFromManualRunway(runway: ManualRunway): ManualRunwayDraft {
     toraUnit: runway.tora.unit,
     lda: String(runway.lda.value),
     ldaUnit: runway.lda.unit,
+    toda: runway.toda ? String(runway.toda.value) : '',
+    todaUnit: runway.toda?.unit ?? '',
     fieldElevation: String(runway.fieldElevation.value),
     fieldElevationUnit: runway.fieldElevation.unit,
     surfaceType: runway.surface.type,
@@ -198,6 +215,7 @@ export function sameManualRunway(a: ManualRunway, b: ManualRunway): boolean {
   return a.aerodrome === b.aerodrome && a.designator === b.designator
     && a.tora.value === b.tora.value && a.tora.unit === b.tora.unit
     && a.lda.value === b.lda.value && a.lda.unit === b.lda.unit
+    && a.toda?.value === b.toda?.value && a.toda?.unit === b.toda?.unit
     && a.fieldElevation.value === b.fieldElevation.value && a.fieldElevation.unit === b.fieldElevation.unit
     && a.surface.type === b.surface.type && a.surface.condition === b.surface.condition
 }
@@ -205,6 +223,8 @@ export function sameManualRunway(a: ManualRunway, b: ManualRunway): boolean {
 export type NormalizedManualRunway = {
   toraM: number
   ldaM: number
+  /** Present only when a TODA was declared. */
+  todaM?: number
   fieldElevationM: number
   fieldElevationFt: number
 }
@@ -220,6 +240,7 @@ export function normalizeManualRunway(runway: ManualRunway): NormalizedManualRun
   const normalized = {
     toraM: metres(runway.tora.value, runway.tora.unit),
     ldaM: metres(runway.lda.value, runway.lda.unit),
+    ...(runway.toda ? { todaM: metres(runway.toda.value, runway.toda.unit) } : {}),
     fieldElevationM: elevationM,
     fieldElevationFt: runway.fieldElevation.unit === 'ft' ? runway.fieldElevation.value : elevationM / FT_TO_M,
   }
@@ -258,7 +279,7 @@ export function recoverManualRunwayRecord(raw: string | null): ManualRunwayRecov
   return { status: 'loaded', record: parsed.data as ManualRunwayRecord }
 }
 
-export type ManualRunwayDisplay = { toraM: string; ldaM: string; fieldElevationM: string; fieldElevationFt: string }
+export type ManualRunwayDisplay = { toraM: string; ldaM: string; todaM?: string; fieldElevationM: string; fieldElevationFt: string }
 
 /**
  * Available distances round down to 0.1 m so display never overstates them; a tiny
@@ -274,6 +295,7 @@ export function formatNormalizedManualRunway(normalized: NormalizedManualRunway)
   return {
     toraM: down(normalized.toraM),
     ldaM: down(normalized.ldaM),
+    ...(normalized.todaM !== undefined ? { todaM: down(normalized.todaM) } : {}),
     fieldElevationM: nearest(normalized.fieldElevationM),
     fieldElevationFt: nearest(normalized.fieldElevationFt),
   }

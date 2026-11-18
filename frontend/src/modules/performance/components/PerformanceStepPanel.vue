@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import PressureAltitudeFieldset from './PressureAltitudeFieldset.vue'
+import { SAFETY_FACTOR_PRESETS } from '../services/corrected-distances'
 import type { PerformanceStep } from '../composables/performance-step'
 
 const props = defineProps<{ step: PerformanceStep; canCompute: boolean }>()
-const { temperature, corrections, showPaErrors, presentation } = props.step
+const { temperature, corrections, safetyFactors, showPaErrors, presentation } = props.step
 </script>
 
 <template>
@@ -17,6 +18,11 @@ const { temperature, corrections, showPaErrors, presentation } = props.step
       <legend>{{ operation === 'takeoff' ? 'Takeoff' : 'Landing' }} wind and slope</legend>
       <label>Headwind component (kt, negative = tailwind)<input v-model="corrections[operation].headwind" :id="`performance-${operation}-headwind`" type="text" inputmode="decimal" /></label>
       <label>Runway slope (%, positive = uphill)<input v-model="corrections[operation].slope" :id="`performance-${operation}-slope`" type="text" inputmode="decimal" /></label>
+      <label>Safety factor
+        <select v-model="safetyFactors[operation].preset" :id="`performance-${operation}-safety-factor`">
+          <option v-for="preset in SAFETY_FACTOR_PRESETS" :key="preset.value" :value="preset.value">{{ preset.label }}</option>
+        </select></label>
+      <label v-if="safetyFactors[operation].preset === 'custom'">Custom safety factor (1.00–3.00)<input v-model="safetyFactors[operation].custom" :id="`performance-${operation}-safety-factor-custom`" type="text" inputmode="decimal" /></label>
     </fieldset>
 
     <section class="results" :aria-label="presentation.status === 'assessed' ? 'Raw POH table distances' : 'Performance results'" :data-status="presentation.status" aria-live="polite">
@@ -46,9 +52,11 @@ const { temperature, corrections, showPaErrors, presentation } = props.step
           <dl class="distances">
             <div v-for="row in item.rows" :key="row.label">
               <dt>{{ row.label }}</dt>
-              <dd>{{ row.factored }}<small class="note">Raw {{ row.raw }} · corrected {{ row.corrected }} · final incl. in-service factor</small></dd>
+              <dd>{{ row.factored }}<small class="note">Raw {{ row.raw }} · corrected {{ row.corrected }} · final incl. safety factor</small></dd>
             </div>
           </dl>
+          <p>Safety factor: {{ item.safetyFactor }}</p>
+          <p v-if="item.safetyFactorWarning" data-warning="WARN-PF-002" role="alert">{{ item.safetyFactorWarning }}</p>
           <p class="comparison" :data-comparison="item.comparison.status" :role="item.comparison.status === 'insufficient' ? 'alert' : 'status'">
             <strong>{{ item.comparison.status === 'insufficient' ? 'Insufficient runway' : 'Fits declared runway' }}</strong>:
             {{ item.comparison.summary }} Required {{ item.comparison.required }} · {{ item.comparison.availableLabel }}

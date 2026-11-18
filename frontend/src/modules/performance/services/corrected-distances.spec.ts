@@ -141,4 +141,53 @@ describe('corrected distances in the performance step', () => {
     })
     effect.stop()
   })
+
+  it('applies the selected safety factor and raises WARN-PF-002 below the recommended minimum', () => {
+    const effect = effectScope()
+    effect.run(() => {
+      const { step } = setup()
+      Object.assign(step.corrections.takeoff, { headwind: '0', slope: '0' })
+      Object.assign(step.corrections.landing, { headwind: '0', slope: '0' })
+      const at = (index: number) => { const item = corrected(step, index); if (item.status !== 'applied') throw new Error('expected applied'); return item }
+      // Manual default: take-off 1.10 is below the 1.25 baseline, landing 1.67 is above 1.43.
+      expect(at(0).safetyFactorWarning).toContain('WARN-PF-002')
+      expect(at(0).safetyFactorWarning).toContain('1.25')
+      expect(at(1).safetyFactorWarning).toBeNull()
+      const roll = at(0).rows[0]!.corrected
+      step.safetyFactors.takeoff.preset = 'easa-standard'
+      expect(at(0).safetyFactorWarning).toBeNull()
+      expect(at(0).rows[0]!.factored).toBe(`${Math.ceil(Number(roll.replace(/[^\d]/g, '')) * 1.25)} m`)
+      // The EASA landing baseline is below the manual's 1.67, so choosing it warns.
+      step.safetyFactors.landing.preset = 'easa-standard'
+      expect(at(1).safetyFactorWarning).toContain('1.67')
+      step.safetyFactors.landing.preset = 'custom'
+      expect(corrected(step, 1)).toMatchObject({ status: 'unavailable' })
+      step.safetyFactors.landing.custom = '3.01'
+      expect(corrected(step, 1).status).toBe('unavailable')
+      step.safetyFactors.landing.custom = '1.7'
+      expect(at(1).safetyFactorWarning).toBeNull()
+      expect(at(1).safetyFactor).toContain('1.70')
+    })
+    effect.stop()
+  })
+
+  it('compares the 50 ft distance with TODA and the ground roll with TORA when TODA is declared', () => {
+    const effect = effectScope()
+    effect.run(() => {
+      const { step, runway } = setup()
+      Object.assign(step.corrections.takeoff, { headwind: '0', slope: '0' })
+      Object.assign(runway.draft, { toda: '2000', todaUnit: 'm' }); runway.save()
+      const item = corrected(step, 0)
+      if (item.status !== 'applied') throw new Error('expected applied')
+      expect(item.comparison).toMatchObject({ status: 'sufficient', availableLabel: 'TODA', available: '2,000.0 m' })
+      expect(step.presentation.value.runway).toMatchObject({ status: 'declared' })
+      // A ground roll beyond TORA is insufficient even when TODA is long.
+      runway.draft.tora = '100'; runway.draft.toda = '5000'; runway.save()
+      const short = corrected(step, 0)
+      if (short.status !== 'applied') throw new Error('expected applied')
+      expect(short.comparison.status).toBe('insufficient')
+      expect(short.comparison.summary).toContain('ground roll')
+    })
+    effect.stop()
+  })
 })

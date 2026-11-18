@@ -43,13 +43,14 @@ export const useManualRunwayStore = defineStore('manualRunway', () => {
     if (!options.some((option) => option.value === draft.surfaceCondition)) draft.surfaceCondition = ''
   }, { flush: 'sync' })
   watch(draft, () => { notice.value = null }, { flush: 'sync' })
-  for (const [value, unit] of [['tora', 'toraUnit'], ['lda', 'ldaUnit'], ['fieldElevation', 'fieldElevationUnit']] as const) {
+  for (const [value, unit] of [['tora', 'toraUnit'], ['lda', 'ldaUnit'], ['toda', 'todaUnit'], ['fieldElevation', 'fieldElevationUnit']] as const) {
     convertOnLengthUnitChange(draft, value, unit, () => filling)
   }
   function applyPreferences(): void {
     const { runwayDistance, fieldElevation } = units.preferences
     applyPreferredUnit(draft, 'tora', 'toraUnit', runwayDistance)
     applyPreferredUnit(draft, 'lda', 'ldaUnit', runwayDistance)
+    applyPreferredUnit(draft, 'toda', 'todaUnit', runwayDistance)
     applyPreferredUnit(draft, 'fieldElevation', 'fieldElevationUnit', fieldElevation)
   }
   watch(() => units.preferences, applyPreferences, { flush: 'sync' })
