@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Engineering
 
+- Add CRI type-familiarisation framing to the category-switch and multi-tank CG migration journeys (refs #333).
+
 - Add an advanced-student variant to the night (UJ-D-001) and hot-and-high (UJ-C-001) journeys without assuming an instructor-review capability (refs #332).
 
 - Document the ab-initio student variant of the flight-preparation journey (closes #331).
