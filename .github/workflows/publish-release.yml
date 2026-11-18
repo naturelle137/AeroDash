@@ -39,24 +39,22 @@ jobs:
             echo "exists=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Create and push tag
-        if: steps.check-tag.outputs.exists == 'false'
-        run: |
-          git tag -a "v${{ steps.version.outputs.version }}" -m "Release v${{ steps.version.outputs.version }}"
-          git push origin "v${{ steps.version.outputs.version }}"
-
       - name: Resolve release notes
         if: steps.check-tag.outputs.exists == 'false'
         id: notes
         run: |
           NOTES_FILE=".github/release-notes/v${{ steps.version.outputs.version }}.md"
-          if [ -f "$NOTES_FILE" ]; then
-            echo "file=$NOTES_FILE" >> $GITHUB_OUTPUT
-            echo "Release notes found: $NOTES_FILE"
-          else
-            echo "file=" >> $GITHUB_OUTPUT
-            echo "No release notes file found at $NOTES_FILE — release body will be empty."
+          if [ ! -s "$NOTES_FILE" ]; then
+            echo "Missing or empty curated release notes: $NOTES_FILE" >&2
+            exit 1
           fi
+          echo "file=$NOTES_FILE" >> "$GITHUB_OUTPUT"
+
+      - name: Create and push tag
+        if: steps.check-tag.outputs.exists == 'false'
+        run: |
+          git tag -a "v${{ steps.version.outputs.version }}" -m "Release v${{ steps.version.outputs.version }}"
+          git push origin "v${{ steps.version.outputs.version }}"
 
       - name: Create GitHub Release
         if: steps.check-tag.outputs.exists == 'false'
@@ -72,14 +70,7 @@ jobs:
           else
             RELEASE_FLAG="--latest"
           fi
-          if [ -n "${{ steps.notes.outputs.file }}" ]; then
-            gh release create "v$VERSION" \
-              --title "v$VERSION" \
-              --notes-file "${{ steps.notes.outputs.file }}" \
-              "$RELEASE_FLAG"
-          else
-            gh release create "v$VERSION" \
-              --title "v$VERSION" \
-              --generate-notes \
-              "$RELEASE_FLAG"
-          fi
+          gh release create "v$VERSION" \
+            --title "v$VERSION" \
+            --notes-file "${{ steps.notes.outputs.file }}" \
+            "$RELEASE_FLAG"

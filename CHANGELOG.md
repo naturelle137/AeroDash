@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add an advanced-student variant to the night (UJ-D-001) and hot-and-high (UJ-C-001) journeys without assuming an instructor-review capability (refs #332).
 
 - Document the ab-initio student variant of the flight-preparation journey (closes #331).
+- Prepare release versions from explicit Gitflow branch names while retaining curated changelogs.
 
 - Document the local fleet export, erasure/retry and Draft restore journey with download, offline and shared-browser limits (refs #289).
 

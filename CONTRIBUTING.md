@@ -41,7 +41,9 @@ One independent fresh-session reviewer reviews the complete change. Only real de
 
 ## 6. Changelog
 
-Each PR adds a concise bullet under `## [Unreleased]` in `CHANGELOG.md`, using `### Added`, `### Changed`, `### Fixed`, or `### Engineering` for non-user-facing work. Describe the outcome; useful issue/requirement references are welcome but no trace attestation is required. Move entries into the release section when releasing.
+Each PR adds a concise bullet under `## [Unreleased]` in `CHANGELOG.md`, using `### Added`, `### Changed`, `### Fixed`, or `### Engineering` for non-user-facing work. Describe the outcome; useful issue/requirement references are welcome but no trace attestation is required. Move entries into the dated release section when releasing. On `release/v<semver>` or `hotfix/v<semver>`, run `pnpm release` to copy the branch version into the root `package.json` before review. Use a SemVer prerelease such as `0.4.0-alpha.1`; build metadata is unsupported. Curate `.github/release-notes/v<version>.md` from the changelog for pilots. The existing main-branch publish workflow tags and creates the GitHub Release after the reviewed release PR merges. Verify the version and notes before publishing.
+
+Release strategy: branch-derived versions and manual curation reuse the existing publish workflow without commit-based inference. An explicit `release-it` increment would still depend on an operator choosing the version; its branch bumper, a replacement publisher, or changesets would add tooling without improving this workflow. The dormant `release-it` configuration is not used by `pnpm release`.
 
 ## 7. Issues and releases
 
