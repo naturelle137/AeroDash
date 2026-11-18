@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Estimate a missing performance base distance with per-value provenance in performance results and the briefing pack.
 
+### Fixed
+
+- Keep Flight Preparation navigation strips current for tall cards and jumps back to the top on mobile and desktop.
+
 ### Added
 
 - Select environmental corrections from the supplied P2008 JC manuals only after choosing the applicable configuration, with visible source references.
@@ -22,6 +26,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Compare the S9-corrected distance over 50 ft with the declared TORA/LDA, with metre and percentage margin and an insufficient-runway alert (refs #300, #302, #305).
 
 ### Engineering
+
+- Remove the Cursor-specific artifact path and acknowledge the disclaimer in the manual strip-stack test.
 
 - Add CRI type-familiarisation framing to the category-switch and multi-tank CG migration journeys (refs #333).
 - Document the future training review and non-destructive demo journeys (refs #334).
