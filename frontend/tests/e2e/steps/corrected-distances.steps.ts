@@ -50,3 +50,13 @@ Then('the corrected distance evidence is captured as {string}', async ({ page, $
 Then('the takeoff runway comparison is {string}', async ({ page }, verdict: string) => {
   await expect(takeoff(page).locator('.comparison')).toContainText(verdict)
 })
+
+When('the pilot selects the takeoff safety factor {string}', async ({ page }, preset: string) => {
+  await page.getByLabel('Safety factor').first().selectOption({ label: preset })
+})
+
+Then('the takeoff safety factor warning is {string}', async ({ page }, state: string) => {
+  const warning = takeoff(page).locator('[data-warning="WARN-PF-002"]')
+  if (state === 'shown') await expect(warning).toContainText('WARN-PF-002')
+  else await expect(warning).toHaveCount(0)
+})

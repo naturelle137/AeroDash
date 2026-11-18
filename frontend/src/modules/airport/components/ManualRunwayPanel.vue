@@ -89,6 +89,21 @@ if (!runway.loaded) runway.load()
       </div>
       <p v-if="error('lda')" :id="describedBy('lda')" class="field-error">{{ error('lda') }}</p>
       <p v-if="error('ldaUnit')" :id="describedBy('ldaUnit')" class="field-error">{{ error('ldaUnit') }}</p>
+      <div class="value-unit">
+        <div class="field">
+          <label for="manual-runway-toda">TODA — takeoff distance available (optional)</label>
+          <input id="manual-runway-toda" v-model="runway.draft.toda" type="text" inputmode="decimal"
+            :aria-invalid="!!error('toda')" :aria-describedby="describedBy('toda')" />
+        </div>
+        <div class="field">
+          <label class="sr-only" for="manual-runway-toda-unit">TODA unit</label>
+          <select id="manual-runway-toda-unit" v-model="runway.draft.todaUnit" :aria-invalid="!!error('todaUnit')" :aria-describedby="describedBy('todaUnit')">
+            <option value="">Select unit</option><option value="m">m</option><option value="ft">ft</option>
+          </select>
+        </div>
+      </div>
+      <p v-if="error('toda')" :id="describedBy('toda')" class="field-error">{{ error('toda') }}</p>
+      <p v-if="error('todaUnit')" :id="describedBy('todaUnit')" class="field-error">{{ error('todaUnit') }}</p>
     </fieldset>
 
     <fieldset>
@@ -154,6 +169,8 @@ if (!runway.loaded) runway.load()
           <span class="normalized">({{ runway.current.display.toraM }} m)</span></dd></div>
         <div><dt>LDA</dt><dd>{{ runway.current.record.runway.lda.value }} {{ runway.current.record.runway.lda.unit }}
           <span class="normalized">({{ runway.current.display.ldaM }} m)</span></dd></div>
+        <div v-if="runway.current.record.runway.toda"><dt>TODA</dt><dd>{{ runway.current.record.runway.toda.value }} {{ runway.current.record.runway.toda.unit }}
+          <span class="normalized">({{ runway.current.display.todaM }} m)</span></dd></div>
         <div><dt>Field elevation</dt><dd>{{ runway.current.record.runway.fieldElevation.value }} {{ runway.current.record.runway.fieldElevation.unit }}
           <span class="normalized">({{ runway.current.record.runway.fieldElevation.unit === 'ft' ? `${runway.current.display.fieldElevationM} m` : `${runway.current.display.fieldElevationFt} ft` }})</span></dd></div>
         <div><dt>Surface</dt><dd>{{ surfaceTypeLabels[runway.current.record.runway.surface.type] }} · {{ conditionLabel }}</dd></div>

@@ -1,6 +1,7 @@
 import type { Operation, RunwayFacts, SourceAssessment } from '@/core/logic/performance.correction-sources'
-import { safetyMargin } from '@/core/logic/performance.safety-factor'
-import { applyTecnamS9Corrections, TECNAM_S9_SOURCE_IDS, type S9NotCredited } from '@/core/logic/performance.tecnam-s9-corrections'
+import { isOsfBelowMinimum, osfThreshold, OSF_MAX, OSF_MIN, resolveOsf, safetyMargin } from '@/core/logic/performance.safety-factor'
+import type { OperationalSafetyFactorInput, OsfPreset } from '@/core/domain/performance.math-types'
+import { applyTecnamS9Corrections, TECNAM_S9_RULES, TECNAM_S9_SOURCE_IDS, type S9NotCredited } from '@/core/logic/performance.tecnam-s9-corrections'
 import { OPERATION_LABELS } from './correction-source-messages'
 import { formatNumber } from './performance-presentation'
 import { parseLookupNumber, type GroupAssessment } from './poh-inspection'
@@ -12,6 +13,19 @@ export const emptyCorrectionInputs = (): CorrectionInputs => ({
   takeoff: { headwind: '', slope: '' }, landing: { headwind: '', slope: '' },
 })
 
+/** Pilot-selected safety factor for one operation; `poh-afm` is the factor stated by the accepted manual. */
+export type SafetyFactorSelection = { preset: OsfPreset; custom: string }
+export type SafetyFactorSelections = Record<Operation, SafetyFactorSelection>
+export const defaultSafetyFactors = (): SafetyFactorSelections => ({
+  takeoff: { preset: 'poh-afm', custom: '' }, landing: { preset: 'poh-afm', custom: '' },
+})
+export const SAFETY_FACTOR_PRESETS: readonly { value: OsfPreset; label: string }[] = [
+  { value: 'poh-afm', label: 'Manual (in-service factor)' },
+  { value: 'easa-standard', label: 'EASA standard (1.25 take-off, 1.43 landing)' },
+  { value: 'short-field', label: 'Short field (1.25 take-off, 1.15 landing)' },
+  { value: 'custom', label: 'Custom (1.00–3.00)' },
+]
+
 export type CorrectedOperationPresentation =
   | {
     readonly operation: Operation
@@ -21,6 +35,10 @@ export type CorrectedOperationPresentation =
     readonly source: string
     readonly rows: readonly { readonly label: string; readonly raw: string; readonly corrected: string; readonly factored: string }[]
     readonly notes: readonly string[]
+    /** Applied safety factor with its origin, shown beside the final values. */
+    readonly safetyFactor: string
+    /** WARN-PF-002 text when the selected factor is below the recommended minimum; advisory only. */
+    readonly safetyFactorWarning: string | null
     /** Final distance over 50 ft against the declared runway length; never a go/no-go decision. */
     readonly comparison: RunwayComparison
   }
@@ -36,7 +54,7 @@ export type RunwayComparison = {
 }
 
 /** Declared available distances in metres, already rounded down so a margin is never overstated. */
-export type AvailableDistancesM = { readonly tora: number; readonly lda: number }
+export type AvailableDistancesM = { readonly tora: number; readonly lda: number; readonly toda?: number }
 
 const NOT_CREDITED: Record<S9NotCredited, string> = {
   headwind: 'Headwind is not credited: the manual states no range for it.',
@@ -56,6 +74,7 @@ export function presentCorrectedOperation(
   runway: RunwayFacts | null,
   inputs: CorrectionConditions,
   available: AvailableDistancesM | null,
+  safetyFactor: SafetyFactorSelection = { preset: 'poh-afm', custom: '' },
 ): CorrectedOperationPresentation {
   const title = OPERATION_LABELS[operation]
   const unavailable = (reason: string): CorrectedOperationPresentation => ({ operation, title, status: 'unavailable', reason })
@@ -78,19 +97,32 @@ export function presentCorrectedOperation(
     operation, groundRoll: roll.distance, distanceOver50ft: over50.distance,
     surface: runway.surface.type === 'paved' ? 'paved' : 'grass', headwindKt, slopePercent,
   })
+  const manualFactor = TECNAM_S9_RULES[operation].inServiceFactor
+  const osf: OperationalSafetyFactorInput = { preset: safetyFactor.preset, pohMandatedFactor: { [operation]: manualFactor } }
+  if (safetyFactor.preset === 'custom') {
+    const custom = parseLookupNumber(safetyFactor.custom)
+    if (custom === null || custom < OSF_MIN || custom > OSF_MAX) return unavailable(`Enter the custom safety factor between ${OSF_MIN.toFixed(2)} and ${OSF_MAX.toFixed(2)}.`)
+    osf.customMultiplier = custom
+  }
+  const factor = resolveOsf(osf, operation)
+  const threshold = osfThreshold(osf, operation)
   const up = (value: number) => `${formatNumber(Math.ceil(value), 0)} m`
   const { document } = selected[0]
-  const comparison = compareWithRunway(operation, Math.ceil(result.factoredDistanceOver50ft), available)
+  const comparison = compareWithRunway(operation, Math.ceil(result.distanceOver50ft * factor), Math.ceil(result.groundRoll * factor), available)
   return {
     operation, title, status: 'applied',
     source: `${document.title}, ${document.identifier}, ${document.revision}`,
     rows: [
-      { label: roll.label, raw: `${formatNumber(roll.distance)} m`, corrected: up(result.groundRoll), factored: up(result.factoredGroundRoll) },
-      { label: over50.label, raw: `${formatNumber(over50.distance)} m`, corrected: up(result.distanceOver50ft), factored: up(result.factoredDistanceOver50ft) },
+      { label: roll.label, raw: `${formatNumber(roll.distance)} m`, corrected: up(result.groundRoll), factored: up(result.groundRoll * factor) },
+      { label: over50.label, raw: `${formatNumber(over50.distance)} m`, corrected: up(result.distanceOver50ft), factored: up(result.distanceOver50ft * factor) },
     ],
     comparison,
+    safetyFactor: `${factor.toFixed(2)} (${SAFETY_FACTOR_PRESETS.find((p) => p.value === safetyFactor.preset)!.label})`,
+    safetyFactorWarning: isOsfBelowMinimum(osf, operation)
+      ? `WARN-PF-002: safety factor ${factor.toFixed(2)} is below the recommended minimum ${threshold.toFixed(2)} (greater of the manual factor ${manualFactor} and the regulatory baseline). Advisory; the result is not blocked.`
+      : null,
     notes: [
-      `Final value = corrected distance × ${result.inServiceFactor} (in-service factor stated by the manual), rounded up to whole metres.`,
+      `Final value = corrected distance × safety factor ${factor.toFixed(2)}, rounded up to whole metres. The manual states ${manualFactor} as its in-service factor.`,
       ...result.notCredited.map((item) => NOT_CREDITED[item]),
       ...(operation === 'landing' ? ['The manual landing table exists for 650 kg only; lower masses use it unchanged.'] : []),
       'Operator-supplied manual excerpt for D-EBPN, not manufacturer-confirmed. Not an operational approval or go/no-go decision.',
@@ -99,20 +131,22 @@ export function presentCorrectedOperation(
 }
 
 /**
- * Compares the final distance over 50 ft with TORA (take-off) or LDA (landing). No TODA is
- * entered, so TORA is the conservative take-off bound. Equal distances are sufficient with zero margin.
+ * Compares the final distance over 50 ft with TORA (take-off) or LDA (landing). Equal distances are sufficient with zero margin.
  */
-function compareWithRunway(operation: Operation, requiredM: number, available: AvailableDistancesM | null): RunwayComparison {
+function compareWithRunway(operation: Operation, requiredM: number, rollM: number, available: AvailableDistancesM | null): RunwayComparison {
   const takeoff = operation === 'takeoff'
-  const availableLabel = takeoff ? 'TORA' : 'LDA'
-  const availableM = available ? (takeoff ? available.tora : available.lda) : null
+  const useToda = takeoff && available?.toda !== undefined
+  const availableLabel = takeoff ? (useToda ? 'TODA' : 'TORA') : 'LDA'
+  const availableM = available ? (takeoff ? (available.toda ?? available.tora) : available.lda) : null
   const required = `${formatNumber(requiredM, 0)} m`
   if (availableM === null || !Number.isFinite(availableM) || availableM <= 0) {
     return { status: 'insufficient', availableLabel, required, available: 'Not available', margin: 'Not available',
       summary: `Runway ${availableLabel} is not available, so the distance cannot be compared.` }
   }
   const { absolute, percent } = safetyMargin(availableM, requiredM)
-  const sufficient = absolute >= 0
+  // With a clearway the 50 ft distance may use TODA, but the ground roll must still fit TORA.
+  const rollFits = !useToda || rollM <= available!.tora
+  const sufficient = absolute >= 0 && rollFits
   const signed = `${absolute >= 0 ? '+' : '−'}${formatNumber(Math.abs(absolute), 1)} m`
   const pct = percent === null ? '' : ` (${percent >= 0 ? '+' : '−'}${formatNumber(Math.abs(percent), 1)} %)`
   return {
@@ -120,6 +154,7 @@ function compareWithRunway(operation: Operation, requiredM: number, available: A
     available: `${formatNumber(availableM, 1)} m`, margin: `${signed}${pct}`,
     summary: sufficient
       ? `Final distance over 50 ft fits the declared ${availableLabel}.`
+      : !rollFits ? `Runway insufficient: the final ground roll of ${formatNumber(rollM, 0)} m exceeds the declared TORA of ${formatNumber(available!.tora, 1)} m.`
       : `Runway insufficient: the final distance over 50 ft exceeds the declared ${availableLabel}.`,
   }
 }

@@ -148,6 +148,8 @@ onBeforeUnmount(() => {
                 <template v-else>
                   <p>Source: {{ item.source }}</p>
                   <table><tbody><tr v-for="row in item.rows" :key="row.label"><th>{{ row.label }}</th><td>{{ row.factored }} (raw {{ row.raw }}, corrected {{ row.corrected }})</td></tr></tbody></table>
+                  <p>Safety factor: {{ item.safetyFactor }}</p>
+                  <p v-if="item.safetyFactorWarning" class="briefing-warning">{{ item.safetyFactorWarning }}</p>
                   <p :class="{ 'briefing-warning': item.comparison.status === 'insufficient' }">{{ item.comparison.summary }} Required {{ item.comparison.required }}; {{ item.comparison.availableLabel }} {{ item.comparison.available }}; margin {{ item.comparison.margin }}.</p>
                   <p v-for="note in item.notes" :key="note">{{ note }}</p>
                 </template>

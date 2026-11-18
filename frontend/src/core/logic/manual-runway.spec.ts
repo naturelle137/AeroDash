@@ -16,7 +16,7 @@ import { FT_TO_M } from './unit-conversion-constants'
 
 // Synthetic runway; not a real aerodrome or published declaration.
 const draft = (patch: Partial<ManualRunwayDraft> = {}): ManualRunwayDraft => ({
-  aerodrome: 'TEST', designator: '09L', tora: '1000', toraUnit: 'ft', lda: '600', ldaUnit: 'm',
+  aerodrome: 'TEST', designator: '09L', tora: '1000', toraUnit: 'ft', lda: '600', ldaUnit: 'm', toda: '', todaUnit: '',
   fieldElevation: '-30.48', fieldElevationUnit: 'm', surfaceType: 'unpaved', surfaceCondition: 'long-grass', ...patch,
 })
 function valid(input: ManualRunwayDraft): ManualRunway {
@@ -89,6 +89,23 @@ describe('validateManualRunway', () => {
     for (const patch of [{ aerodrome: 'x'.repeat(41) }, { designator: 'x'.repeat(21) }, { designator: '09\nL' }]) {
       expect(validateManualRunway(draft(patch)).status).toBe('invalid')
     }
+  })
+})
+
+describe('optional TODA', () => {
+  const base = { ...EMPTY_MANUAL_RUNWAY_DRAFT, aerodrome: 'EDXX', designator: '09', tora: '1000', toraUnit: 'm', lda: '900', ldaUnit: 'm',
+    fieldElevation: '10', fieldElevationUnit: 'm', surfaceType: 'paved', surfaceCondition: 'dry' }
+  it('is optional, stored with its unit and normalized', () => {
+    expect(validateManualRunway({ ...base, todaUnit: 'ft' })).toMatchObject({ status: 'valid' })
+    const result = validateManualRunway({ ...base, toda: '4000', todaUnit: 'ft' })
+    if (result.status !== 'valid') throw new Error('expected valid')
+    expect(result.runway.toda).toEqual({ value: 4000, unit: 'ft' })
+    expect(normalizeManualRunway(result.runway)!.todaM).toBeCloseTo(1219.2)
+  })
+  it('rejects a TODA shorter than TORA, a missing unit and a non-positive value', () => {
+    expect(validateManualRunway({ ...base, toda: '999', todaUnit: 'm' })).toMatchObject({ status: 'invalid', errors: { toda: 'TODA cannot be shorter than TORA.' } })
+    expect(validateManualRunway({ ...base, toda: '1200', todaUnit: '' })).toMatchObject({ status: 'invalid', errors: { todaUnit: expect.any(String) } })
+    expect(validateManualRunway({ ...base, toda: '0', todaUnit: 'm' })).toMatchObject({ status: 'invalid' })
   })
 })
 

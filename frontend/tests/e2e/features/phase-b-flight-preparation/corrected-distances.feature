@@ -35,3 +35,19 @@ Feature: Corrected takeoff and landing distances
       | tora | verdict             |
       | 2000 | Fits declared runway |
       | 100  | Insufficient runway  |
+
+  Scenario Outline: The pilot is warned when the selected safety factor is below the recommended minimum
+    Given the raw POH workflow viewport is 1440 by 1000
+    When I import and verify a synthetic POH profile for registration "D-EBPN" declaring type "P208" and maximum mass 650 kg
+    And the pilot opens Performance
+    And the pilot sets mass "900" kg and temperature "10" °C for the Test profile
+    And the pilot enters pressure altitude "1000" ft directly
+    And the pilot saves runway "TEST" "27" with TORA "2000" "m", LDA "550" "m", elevation "300" "ft" and surface "Paved" "Dry"
+    And the pilot enters takeoff headwind "0" kt and slope "0" %
+    And the pilot selects the takeoff safety factor "<preset>"
+    Then the takeoff safety factor warning is "<warning>"
+
+    Examples:
+      | preset                                        | warning |
+      | Manual (in-service factor)                    | shown   |
+      | EASA standard (1.25 take-off, 1.43 landing)   | absent  |
