@@ -20,9 +20,12 @@ export const OPERATIONS = ['takeoff', 'landing'] as const
 export type Operation = (typeof OPERATIONS)[number]
 
 /** Which part of a distance a source correction acts on. */
-export type CorrectionTarget = 'ground-roll' | 'distance-over-obstacle' | 'unspecified'
-/** How a source states its correction; only a dimensionless multiplier fits the current pipeline. */
-export type CorrectionContract = 'multiplier' | 'additive-per-knot' | 'relative-to-lift-off-speed'
+export type CorrectionTarget = 'ground-roll' | 'distance-over-obstacle' | 'ground-roll-and-distance' | 'unspecified'
+/**
+ * How a source states its correction. A dimensionless multiplier fits the shared pipeline; `source-rule`
+ * is an accepted source-specific rule implemented in its own module; the other two are unsupported.
+ */
+export type CorrectionContract = 'multiplier' | 'source-rule' | 'additive-per-knot' | 'relative-to-lift-off-speed'
 /** Runway surface on which the source's base distances were established. */
 export type SourceBaseline = 'grass' | 'unspecified'
 
@@ -42,6 +45,8 @@ export type AircraftApplicability = {
   mtomKg: number
   /** Configuration evidence a stored profile would need before this section may be used. */
   configuration: string
+  /** Accepted airframes; when present only these registrations match. */
+  registrations?: readonly string[]
 }
 
 export type SourceCandidate = {
@@ -79,6 +84,7 @@ export type UnsupportedReason =
   | EvidenceGap
   | { code: 'mass-configuration-mismatch'; profileMtomKg: number; sourceMtomKg: number }
   | { code: 'profile-mass-unknown' }
+  | { code: 'registration-not-covered'; registration: string }
   | { code: 'operation-not-covered'; operation: Operation }
   | { code: 'condition-not-covered'; condition: string }
   | { code: 'condition-mapping-ambiguous'; condition: SurfaceCondition }
@@ -186,6 +192,10 @@ function assessCandidate(
 ): UnsupportedReason[] {
   const reasons: UnsupportedReason[] = []
   if (candidate.aircraft) {
+    const registrations = candidate.aircraft.registrations
+    if (registrations && !registrations.includes(profile.registration.trim().toUpperCase())) {
+      reasons.push({ code: 'registration-not-covered', registration: profile.registration })
+    }
     if (profile.mtomKg === null) reasons.push({ code: 'profile-mass-unknown' })
     else if (Math.abs(profile.mtomKg - candidate.aircraft.mtomKg) > MASS_MATCH_KG) {
       reasons.push({ code: 'mass-configuration-mismatch', profileMtomKg: profile.mtomKg, sourceMtomKg: candidate.aircraft.mtomKg })
@@ -287,6 +297,14 @@ const TECNAM_AFM: SourceDocument = {
   kind: 'aircraft-manual',
   origin: 'Manufacturer-authored manual obtained from a third-party mirror; no manufacturer-controlled current copy.',
 }
+const TECNAM_AFM_S9: SourceDocument = {
+  id: 'tecnam-p2008jc-afm-2008-100-s9',
+  title: 'Tecnam P2008 JC Aircraft Flight Manual, Supplement S9 (MTV-34 propeller, 650 kg)',
+  identifier: 'Doc. 2008/100',
+  revision: 'Edition 2, Revision 18 (19 May 2026); S9 pages MT5-7 to MT5-15',
+  kind: 'aircraft-manual',
+  origin: 'Excerpt supplied by the aircraft operator for D-EBPN; manufacturer-controlled copy not independently confirmed.',
+}
 const FSM_3_75: SourceDocument = {
   id: 'lba-fsm-3-75',
   title: 'LBA Flugsicherheitsmitteilung FSM 3/75 (take-off distance)',
@@ -329,10 +347,34 @@ function tecnamEntries(variant: 'basic' | 's4'): SourceCandidate[] {
   ]
 }
 
+/**
+ * Accepted for D-EBPN only: operator-supplied S9 excerpt (650 kg, MTV-34, Rotax 912 S2) whose mass and CG
+ * limits match the stored profile. Rules are implemented in `performance.tecnam-s9-corrections.ts`.
+ */
+const TECNAM_S9_AIRCRAFT: AircraftApplicability = {
+  icaoTypeDesignator: 'P208', mtomKg: 650, registrations: ['D-EBPN'],
+  configuration: 'P2008 JC with Supplement S9 (MTV-34 propeller, 650 kg) in force',
+}
+function tecnamS9Entries(): SourceCandidate[] {
+  const common = {
+    document: TECNAM_AFM_S9, operations: OPERATIONS, baseline: 'grass' as const,
+    aircraft: TECNAM_S9_AIRCRAFT, contract: 'source-rule' as const, evidenceGaps: [] as EvidenceGap[],
+  }
+  return [
+    { ...common, id: 'tecnam-s9-wind', section: 'Take-off p. MT5-7 to MT5-9, landing p. MT5-14 (wind)', correction: 'wind', target: 'ground-roll-and-distance' },
+    {
+      ...common, id: 'tecnam-s9-surface', section: 'Take-off p. MT5-7 to MT5-9, landing p. MT5-14 (paved runway)', correction: 'surface', target: 'ground-roll',
+      conditions: { takeoff: ['dry-short-grass', 'dry'], landing: ['dry-short-grass', 'dry'] },
+    },
+    { ...common, id: 'tecnam-s9-slope', section: 'Take-off p. MT5-7 to MT5-9, landing p. MT5-14 (runway slope)', correction: 'slope', target: 'ground-roll' },
+  ]
+}
+
 const FSM_GAPS: EvidenceGap[] = [{ code: 'authenticity-unconfirmed' }, { code: 'numeric-contract-unaccepted' }]
 const CAA_GAPS: EvidenceGap[] = [{ code: 'scope-not-accepted', scope: 'UK general-aviation guidance' }, { code: 'numeric-contract-unaccepted' }]
 
 export const CORRECTION_SOURCE_REGISTER: readonly SourceCandidate[] = Object.freeze([
+  ...tecnamS9Entries(),
   ...tecnamEntries('basic'),
   ...tecnamEntries('s4'),
   {

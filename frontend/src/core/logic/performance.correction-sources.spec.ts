@@ -34,23 +34,38 @@ function reasonsOf(entry: CorrectionAssessment, candidateId: string): Unsupporte
 const codes = (reasons: UnsupportedReason[]) => reasons.map((reason) => reason.code)
 
 describe('built-in source register', () => {
-  it('holds no numeric correction value and no entry free of evidence gaps', () => {
+  const s9 = CORRECTION_SOURCE_REGISTER.filter((candidate) => candidate.id.startsWith('tecnam-s9-'))
+
+  it('holds no numeric correction value; only the S9 entries are free of evidence gaps', () => {
     for (const candidate of CORRECTION_SOURCE_REGISTER) {
-      expect(candidate.evidenceGaps.length).toBeGreaterThan(0)
+      expect(s9.includes(candidate) || candidate.evidenceGaps.length > 0).toBe(true)
       expect(Object.keys(candidate)).not.toEqual(expect.arrayContaining(['factor']))
     }
+    expect(s9).toHaveLength(3)
   })
 
-  it('selects nothing for any profile, runway condition or operation', () => {
+  it('selects nothing outside the accepted D-EBPN S9 configuration', () => {
     for (const icaoTypeDesignator of ['P208', 'C172', 'TEST']) {
-      for (const mtomKg of [630, 650, 1200, null]) {
-        for (const surface of [runway('paved', 'dry'), runway('unpaved', 'dry-short-grass'), runway('paved', 'wet'), null]) {
-          const result = assessed(assessCorrectionSources(facts({ icaoTypeDesignator, mtomKg }), surface))
-          expect(result.corrections).toHaveLength(6)
-          expect(result.corrections.every((entry) => entry.status === 'unsupported' && entry.selected === null)).toBe(true)
+      for (const registration of ['D-TEST', 'D-EBPN ']) {
+        for (const mtomKg of [630, 650, 1200, null]) {
+          for (const surface of [runway('paved', 'dry'), runway('unpaved', 'dry-short-grass'), runway('paved', 'wet'), null]) {
+            const accepted = icaoTypeDesignator === 'P208' && registration.trim() === 'D-EBPN' && mtomKg === 650
+            const result = assessed(assessCorrectionSources(facts({ icaoTypeDesignator, registration, mtomKg }), surface))
+            expect(result.corrections).toHaveLength(6)
+            for (const entry of result.corrections) {
+              const covered = accepted && (entry.correction !== 'surface' || surface?.surface.condition === 'dry' || surface?.surface.condition === 'dry-short-grass')
+              expect(entry.status === 'source-identified').toBe(covered)
+              expect(entry.selected?.id).toBe(covered ? `tecnam-s9-${entry.correction}` : undefined)
+            }
+          }
         }
       }
     }
+  })
+
+  it('refuses S9 for another P208 airframe with the registration reason', () => {
+    const entry = item(assessCorrectionSources(facts({ icaoTypeDesignator: 'P208', registration: 'D-XXXX', mtomKg: 650 }), runway('paved', 'dry')), 'wind', 'takeoff')
+    expect(codes(reasonsOf(entry, 'tecnam-s9-wind'))).toContain('registration-not-covered')
   })
 })
 

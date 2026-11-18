@@ -1,7 +1,7 @@
 # Performance correction source assessment
 
 **Module:** Performance (P1 `core/logic/performance.correction-sources.ts`, P2 `CorrectionSourcePanel`)
-**Status:** Partial. Source selection and unsupported reasons only; no correction value is applied.
+**Status:** Partial. Source selection, unsupported reasons and one accepted source-specific rule set (Tecnam P2008 JC S9, D-EBPN); UI input for wind and slope and the operational composition (#300) remain open.
 
 ## Purpose
 
@@ -47,20 +47,23 @@ Rules:
 
 The register is injectable so resolver behaviour can be tested with synthetic complete entries.
 
-## Inspected sources (2026-11-13)
+## Accepted source: Tecnam P2008 JC Supplement S9, D-EBPN only
 
-The register holds identity and contract shape only, no coefficients. Copies are kept privately; no
-redistribution permission is claimed. Every entry carries at least one evidence gap.
+AFM Doc. 2008/100 Ed. 2 Rev. 18 (19 May 2026), S9 pages MT5-7 to MT5-9 (take-off, 650/600/550 kg) and MT5-14
+(landing, 650 kg): MTV-34 propeller, Rotax 912 S2, 650 kg. Operator-supplied excerpt; serial number blank;
+manufacturer-controlled copy not confirmed. Accepted for registration D-EBPN with a 650 kg profile whose mass
+and CG limits match page MT6-9. No other airframe matches (`registration-not-covered`).
 
-| Source | Version, location | Status |
-| :-- | :-- | :-- |
-| Tecnam P2008 JC AFM, Doc. 2008/100 | Ed. 2 Rev. 7 (30 July 2020); Section 5 (630 kg) and Supplement S4 (650 kg) pp. 5W-7, 5W-15 | Candidate. Third-party mirror; currency and airframe configuration unverified. Grass baseline; additive wind; roll-only paved and slope rules. |
-| LBA FSM 3/75 | 1 July 1975, 1995 reprint; Tables C.4, C.5 | Candidate. Authenticity unconfirmed; takeoff only; corrects distance over 15 m, not ground roll. |
-| UK CAA Safety Sense 09 | August 2024; pp. 13, 15 | Candidate. UK guidance scope not accepted; distance indicators; tailwind and adverse slope only; missing cells. |
+Rules live in `core/logic/performance.tecnam-s9-corrections.ts` (values in `TECNAM_S9_RULES`):
 
-No other aircraft type has an inspected source. Reference arithmetic transcribed from these pages is
-used in unit tests only to show contract shape (for example, that an additive tailwind gives different
-implied multipliers for roll and distance). It validates no operational result.
+- Base distances: grass. Paved dry: -10% ground roll. Other surface conditions are unsupported.
+- Wind: additive metres per knot on both distance rows; slope: percent of ground roll per percent.
+- Applied conservatively: tailwind, uphill take-off slope and downhill landing slope only. Headwind and favourable
+  slope are returned as not credited (the page states no range or order).
+- Source in-service factor (take-off 1.10, landing 1.67) multiplies the corrected distances.
+- Landing table exists for 650 kg only; lower masses use it unchanged.
+
+Not accepted (evidence gaps remain): Tecnam Ed. 2 Rev. 7 Section 5/S4 mirror, LBA FSM 3/75, UK CAA Safety Sense 09.
 
 ## Invalidation
 
@@ -69,6 +72,6 @@ input set. Any change, a runway clear, a reload or local-data erasure removes it
 
 ## Remaining work
 
-Accepting a source needs current configuration evidence, a source-specific numeric contract (target,
-order, range, baseline, additive wind) and reuse permission. Only then can corrections and the
-operational composition be implemented.
+Wind and slope input, composition of raw POH distance, saved runway, S9 corrections, operational factor, margins
+and invalidation (#300, #302). Any further source needs configuration evidence, a source-specific numeric contract
+and reuse permission.
