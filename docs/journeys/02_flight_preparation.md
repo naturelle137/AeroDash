@@ -108,6 +108,15 @@ Focus: Standard operational workflows for Mass & Balance and Hybrid Performance.
 
 **Outcome:** The pilot completes a textbook flight preparation in under five minutes. No warnings, no critical notifications — just a clean, methodical workflow that produces a reliable briefing pack. This is the standard flow for the majority of flights.
 
+**Ab-initio student variant (P-STU-AB):** A PPL phase 1–2 student prepares
+their first supervised solo navigation using a club-verified trainer profile
+treated as read-only. Following the same preparation steps, the student reads
+every active flag and marker and confirms each applicable limit as a learning
+exercise, including verification against the aircraft's official documentation.
+The student takes the completed plan to an instructor for review. Instructor
+counter-sign is outside this journey and belongs to the future UJ-H phase; this
+variant assumes no in-app instructor or read-only access capability.
+
 **Solo-loading variant:** With explicit optional passenger positions, the pilot
 enters a positive mass for the required crew aggregate and leaves optional
 passenger stations at numeric zero. No empty-seat warning or missing-mass
