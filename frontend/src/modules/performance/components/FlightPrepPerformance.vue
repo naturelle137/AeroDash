@@ -8,7 +8,7 @@ import type { PerformanceStep, PerformanceStepContext } from '../composables/per
 import { formatNumber } from '../services/performance-presentation'
 
 const props = defineProps<{ step: PerformanceStep; context: PerformanceStepContext }>()
-const { tables, inputKey } = props.step
+const { tables, inputKey, manualConfiguration } = props.step
 </script>
 
 <template>
@@ -23,7 +23,7 @@ const { tables, inputKey } = props.step
       <PerformanceTableBounds :tables="tables" />
     </template>
     <section class="panel" aria-labelledby="fp-performance-lookup">
-      <h3 id="fp-performance-lookup">Raw POH distances</h3>
+      <h3 id="fp-performance-lookup">Performance lookup</h3>
       <PerformanceStepPanel :step="step" :can-compute="context.ready && !!context.profile">
         <template #masses>
           <dl class="masses" aria-label="Masses used">
@@ -43,7 +43,7 @@ const { tables, inputKey } = props.step
     </section>
     <UnitPreferencesFieldset />
     <ManualRunwayPanel />
-    <CorrectionSourcePanel :profile="context.profile ?? undefined" :tables-complete="tables?.status === 'ready'"
+    <CorrectionSourcePanel v-model:configuration="manualConfiguration" :profile="context.profile ?? undefined" :tables-complete="tables?.status === 'ready'"
       :ready="context.ready" :inputs-revision="inputKey" />
   </div>
 </template>

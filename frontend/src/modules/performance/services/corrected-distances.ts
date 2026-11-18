@@ -78,7 +78,7 @@ export function presentCorrectedOperation(
 ): CorrectedOperationPresentation {
   const title = OPERATION_LABELS[operation]
   const unavailable = (reason: string): CorrectedOperationPresentation => ({ operation, title, status: 'unavailable', reason })
-  if (group?.status !== 'success') return unavailable('No raw POH distance for this operation, so nothing can be corrected.')
+  if (group?.status !== 'success') return unavailable('No base distance for this operation, so nothing can be corrected.')
   if (sources?.status !== 'assessed') return unavailable('Correction sources cannot be assessed for this profile. Distances stay uncorrected.')
   const rows = sources.corrections.filter((row) => row.operation === operation)
   const selected = rows.map((row) => row.selected)
@@ -109,14 +109,19 @@ export function presentCorrectedOperation(
   const up = (value: number) => `${formatNumber(Math.ceil(value), 0)} m`
   const { document } = selected[0]
   const comparison = compareWithRunway(operation, Math.ceil(result.distanceOver50ft * factor), Math.ceil(result.groundRoll * factor), available)
+  const marker = ' ESTIMATED (CAA SSL 07)'
+  const rollMarker = roll.provenance === 'estimated' ? marker : ''
+  const over50Marker = over50.provenance === 'estimated' ? marker : ''
+  const correctedOver50Marker = rollMarker || over50Marker
   return {
     operation, title, status: 'applied',
-    source: `${document.title}, ${document.identifier}, ${document.revision}`,
+    source: `${document.title}, ${document.identifier}, ${document.revision}; ${selected[0].section}`,
     rows: [
-      { label: roll.label, raw: `${formatNumber(roll.distance)} m`, corrected: up(result.groundRoll), factored: up(result.groundRoll * factor) },
-      { label: over50.label, raw: `${formatNumber(over50.distance)} m`, corrected: up(result.distanceOver50ft), factored: up(result.distanceOver50ft * factor) },
+      { label: roll.label, raw: `${formatNumber(roll.distance)} m${rollMarker}`, corrected: up(result.groundRoll) + rollMarker, factored: up(result.groundRoll * factor) + rollMarker },
+      { label: over50.label, raw: `${formatNumber(over50.distance)} m${over50Marker}`, corrected: up(result.distanceOver50ft) + correctedOver50Marker, factored: up(result.distanceOver50ft * factor) + correctedOver50Marker },
     ],
-    comparison,
+    comparison: { ...comparison, required: comparison.required + correctedOver50Marker, margin: comparison.margin === 'Not available' ? comparison.margin : comparison.margin + correctedOver50Marker,
+      summary: rollMarker ? comparison.summary.replace(/(final ground roll of [\d,]+ m)/, `$1${rollMarker}`) : comparison.summary },
     safetyFactor: `${factor.toFixed(2)} (${SAFETY_FACTOR_PRESETS.find((p) => p.value === safetyFactor.preset)!.label})`,
     safetyFactorWarning: isOsfBelowMinimum(osf, operation)
       ? `WARN-PF-002: safety factor ${factor.toFixed(2)} is below the recommended minimum ${threshold.toFixed(2)} (greater of the manual factor ${manualFactor} and the regulatory baseline). Advisory; the result is not blocked.`
@@ -124,8 +129,8 @@ export function presentCorrectedOperation(
     notes: [
       `Final value = corrected distance × safety factor ${factor.toFixed(2)}, rounded up to whole metres. The manual states ${manualFactor} as its in-service factor.`,
       ...result.notCredited.map((item) => NOT_CREDITED[item]),
-      ...(operation === 'landing' ? ['The manual landing table exists for 650 kg only; lower masses use it unchanged.'] : []),
-      'Operator-supplied manual excerpt for D-EBPN, not manufacturer-confirmed. Not an operational approval or go/no-go decision.',
+      ...(operation === 'landing' && selected[0].id.startsWith('tecnam-s9-') ? ['The manual landing table exists for 650 kg only; lower masses use it unchanged.'] : []),
+      'Check the applicable aircraft manual. This is not an operational approval or go/no-go decision.',
     ],
   }
 }

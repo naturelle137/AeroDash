@@ -7,13 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Estimate a missing performance base distance with per-value provenance in performance results and the briefing pack.
+
 ### Added
+
+- Select environmental corrections from the supplied P2008 JC manuals only after choosing the applicable configuration, with visible source references.
 
 - Select the operational safety factor per operation (manual factor, EASA, short field, custom) with advisory WARN-PF-002 below the recommended minimum (refs #305).
 - Declare an optional TODA on the manual runway; take-off distance over 50 ft is compared with TODA and the ground roll with TORA (refs #305).
 - Compare the S9-corrected distance over 50 ft with the declared TORA/LDA, with metre and percentage margin and an insufficient-runway alert (refs #300, #302, #305).
 
 ### Engineering
+
+- Add CRI type-familiarisation framing to the category-switch and multi-tank CG migration journeys (refs #333).
 
 - Add an advanced-student variant to the night (UJ-D-001) and hot-and-high (UJ-C-001) journeys without assuming an instructor-review capability (refs #332).
 

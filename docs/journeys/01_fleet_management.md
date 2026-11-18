@@ -64,6 +64,8 @@ Focus: Creating, validating, and managing aircraft profiles.
 
 **Outcome:** The pilot understands that switching certification category fundamentally changes the aircraft's operational limits. The system enforces category-specific rules automatically — different MTOM, different envelope, and restricted loading stations — preventing the pilot from accidentally planning an aerobatic flight with Normal-category limits.
 
+**CRI familiarisation variant (P-CRI):** A Class Rating Instructor walks a newly type-rated pilot through the same category switch, comparing the Normal and tighter Utility envelopes and the changed station availability. The teaching goal is to recognise this aircraft-specific trap, not just reach a Go/No-Go decision. The instructor discusses the result with the pilot; no in-app instructor annotations are assumed.
+
 ## <a name="UJ-A-004"></a>UJ-A-004: Adding a Battery-Electric Aircraft (Pipistrel Velis Electro)
 
 **Persona:** Pilot / Flight-School Instructor

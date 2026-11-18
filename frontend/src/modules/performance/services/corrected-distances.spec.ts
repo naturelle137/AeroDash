@@ -24,12 +24,26 @@ function setup(registration?: string, surface: 'paved' | 'unpaved' = 'paved', sa
     surfaceType: surface, surfaceCondition: surface === 'paved' ? 'dry' : 'dry-short-grass' })
   if (save) runway.save()
   const step = usePerformanceStep(() => context)
+  step.manualConfiguration.value = 's9'
   step.pa.method.value = 'direct'; step.pa.direct.value = '1000'; step.temperature.value = '10'
-  return { step, runway }
+  return { step, runway, context }
 }
 const corrected = (step: ReturnType<typeof setup>['step'], index: number) => step.presentation.value.corrected[index]!
 
 describe('corrected distances in the performance step', () => {
+  it('clears the manual selection when the profile changes', () => {
+    const effect = effectScope()
+    effect.run(() => {
+      const { step, context } = setup()
+      Object.assign(step.corrections.takeoff, { headwind: '0', slope: '0' })
+      expect(corrected(step, 0).status).toBe('applied')
+      context.profile = s9Profile('D-OTHER')
+      expect(step.manualConfiguration.value).toBe('')
+      expect(corrected(step, 0).status).toBe('unavailable')
+    })
+    effect.stop()
+  })
+
   it('stays uncorrected until wind and slope are entered; empty is never zero', () => {
     const effect = effectScope()
     effect.run(() => {
@@ -82,7 +96,6 @@ describe('corrected distances in the performance step', () => {
   })
 
   it.each([
-    ['another registration', () => setup('D-TEST'), 'No accepted correction source'],
     ['an unsaved runway', () => setup('D-EBPN', 'paved', false), 'No accepted correction source'],
   ])('refuses correction for %s', (_name, build, message) => {
     const effect = effectScope()
@@ -167,6 +180,34 @@ describe('corrected distances in the performance step', () => {
       step.safetyFactors.landing.custom = '1.7'
       expect(at(1).safetyFactorWarning).toBeNull()
       expect(at(1).safetyFactor).toContain('1.70')
+    })
+    effect.stop()
+  })
+
+  it.each([
+    ['TakeoffDistance50ft', false, true],
+    ['TakeoffRoll', true, false],
+  ] as const)('marks each value according to its inputs when %s is missing', (phase, rollEstimated, over50Estimated) => {
+    const effect = effectScope()
+    effect.run(() => {
+      const { step, runway, context } = setup()
+      context.profile!.performanceProfiles = context.profile!.performanceProfiles!.filter(table => table.flightPhase !== phase)
+      step.manualConfiguration.value = 's9'
+      Object.assign(step.corrections.takeoff, { headwind: '0', slope: '0' })
+      Object.assign(runway.draft, { tora: '100', toda: '5000', todaUnit: 'm' }); runway.save()
+      const item = corrected(step, 0)
+      if (item.status !== 'applied') throw new Error('expected applied')
+      const marked = (value: string) => value.includes('ESTIMATED (CAA SSL 07)')
+      expect(marked(item.rows[0]!.raw)).toBe(rollEstimated)
+      expect(marked(item.rows[0]!.corrected)).toBe(rollEstimated)
+      expect(marked(item.rows[0]!.factored)).toBe(rollEstimated)
+      expect(marked(item.rows[1]!.raw)).toBe(over50Estimated)
+      expect(marked(item.rows[1]!.corrected)).toBe(true)
+      expect(marked(item.rows[1]!.factored)).toBe(true)
+      expect(marked(item.comparison.required)).toBe(true)
+      expect(marked(item.comparison.margin)).toBe(true)
+      expect(item.comparison.summary).toContain('ground roll')
+      expect(marked(item.comparison.summary)).toBe(rollEstimated)
     })
     effect.stop()
   })

@@ -6,6 +6,7 @@ import {
   assessCorrectionSources,
   assessmentBasisKey,
   profileFacts,
+  type ManualConfiguration,
   type CorrectionAssessment,
   type RunwayFacts,
   type SourceAssessment,
@@ -23,6 +24,7 @@ import {
 } from '../services/correction-source-messages'
 
 const props = defineProps<{
+  configuration: ManualConfiguration
   profile: AircraftProfile | undefined
   /** All four POH base tables are complete and valid. */
   tablesComplete: boolean
@@ -30,6 +32,8 @@ const props = defineProps<{
   /** Lookup inputs; any change makes a shown assessment stale. */
   inputsRevision: string
 }>()
+
+const emit = defineEmits<{ 'update:configuration': [value: ManualConfiguration] }>()
 
 const runway = useManualRunwayStore()
 if (!runway.loaded) runway.load()
@@ -41,7 +45,7 @@ const runwayFacts = computed<RunwayFacts | null>(() => {
   return { label: `${record.runway.aerodrome} ${record.runway.designator}`, surface: record.runway.surface }
 })
 const basisKey = computed(() => assessmentBasisKey(props.profile, runwayFacts.value,
-  [props.inputsRevision, props.ready, props.tablesComplete, runway.saved?.savedAt ?? null, { ...runway.draft }]))
+  [props.inputsRevision, props.configuration, props.ready, props.tablesComplete, runway.saved?.savedAt ?? null, { ...runway.draft }]))
 const assessment = ref<SourceAssessment | null>(null)
 
 // An assessment belongs to one profile snapshot, runway declaration and input set.
@@ -49,7 +53,7 @@ watch(basisKey, () => { assessment.value = null }, { flush: 'sync' })
 
 function assess(): void {
   if (!props.profile || !props.ready) return
-  assessment.value = assessCorrectionSources(profileFacts(props.profile, props.tablesComplete), runwayFacts.value)
+  assessment.value = assessCorrectionSources({ ...profileFacts(props.profile, props.tablesComplete), manualConfiguration: props.configuration }, runwayFacts.value)
 }
 
 const groups = computed(() => {
@@ -98,6 +102,14 @@ function candidatesOf(rows: CorrectionAssessment[]) {
       {{ conditionLabel(runwayFacts.surface.condition) }} (user-entered).</p>
     <p v-else-if="runway.hasUnsavedChanges">The manual runway has unsaved changes. Save it to include its surface condition.</p>
     <p v-else>No saved manual runway. The surface source cannot be matched without a runway condition.</p>
+    <label v-if="profile?.icaoTypeDesignator.trim().toUpperCase() === 'P208'">Applicable manual configuration
+      <select :value="configuration" @change="emit('update:configuration', ($event.target as HTMLSelectElement).value as ManualConfiguration)">
+        <option value="">Unknown or other configuration</option>
+        <option value="basic">P2008 JC basic (630 kg)</option>
+        <option value="s4">P2008 JC Supplement S4 (650 kg)</option>
+        <option value="s9">P2008 JC Supplement S9 (650 kg, D-EBPN)</option>
+      </select>
+    </label>
     <button type="button" :disabled="!profile || !ready" @click="assess">Assess correction sources</button>
 
     <section v-if="assessment" aria-label="Correction source assessment" aria-live="polite">
@@ -127,13 +139,13 @@ function candidatesOf(rows: CorrectionAssessment[]) {
               <p>Section: {{ candidate.section }}</p>
               <p>{{ candidate.origin }}</p>
               <div v-for="operation in candidate.perOperation" :key="operation.operation">
-                <p>{{ operation.operation }} — why it cannot be used:</p>
+                <p>{{ operation.operation }} — {{ operation.reasons.length ? "why it cannot be used:" : "source identified." }}</p>
                 <ul><li v-for="reason in operation.reasons" :key="reason">{{ reason }}</li></ul>
               </div>
             </div>
           </details>
         </article>
-        <p>No source above is selected or approved. Use your aircraft's official POH/AFM for corrections.</p>
+        <p>Verify these sources against your aircraft’s official POH/AFM.</p>
       </template>
     </section>
   </section>
@@ -143,6 +155,8 @@ function candidatesOf(rows: CorrectionAssessment[]) {
 .panel { padding: 1.25rem; border: 1px solid var(--color-border); border-radius: 12px; background: var(--color-surface-card); min-width: 0; overflow-wrap: anywhere; }
 h2, h3 { margin: 0 0 .75rem; }
 p { line-height: 1.6; }
+label { display: grid; grid-template-columns: minmax(0, 1fr); gap: .5rem; margin-bottom: .75rem; }
+select { box-sizing: border-box; font: inherit; padding: .75rem; min-height: 44px; width: 100%; min-width: 0; }
 button { font: inherit; padding: .75rem; min-height: 44px; border-radius: 6px; border: 1px solid var(--color-border); background: var(--color-surface); color: inherit; cursor: pointer; font-weight: 600; }
 button:disabled { opacity: .5; cursor: default; }
 .correction { border-top: 1px solid var(--color-border); padding-top: 1rem; margin-top: 1rem; }

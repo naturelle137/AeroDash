@@ -34,33 +34,47 @@ function reasonsOf(entry: CorrectionAssessment, candidateId: string): Unsupporte
 const codes = (reasons: UnsupportedReason[]) => reasons.map((reason) => reason.code)
 
 describe('built-in source register', () => {
-  const s9 = CORRECTION_SOURCE_REGISTER.filter((candidate) => candidate.id.startsWith('tecnam-s9-'))
+  const tecnam = CORRECTION_SOURCE_REGISTER.filter((candidate) => candidate.id.startsWith('tecnam-'))
 
-  it('holds no numeric correction value; only the S9 entries are free of evidence gaps', () => {
+  it('holds no numeric correction value; the supplied Tecnam entries are free of evidence gaps', () => {
     for (const candidate of CORRECTION_SOURCE_REGISTER) {
-      expect(s9.includes(candidate) || candidate.evidenceGaps.length > 0).toBe(true)
+      expect(tecnam.includes(candidate) || candidate.evidenceGaps.length > 0).toBe(true)
       expect(Object.keys(candidate)).not.toEqual(expect.arrayContaining(['factor']))
     }
-    expect(s9).toHaveLength(3)
+    expect(tecnam).toHaveLength(9)
   })
 
-  it('selects nothing outside the accepted D-EBPN S9 configuration', () => {
+  it('selects the matching manual section and rejects unsupported conditions', () => {
     for (const icaoTypeDesignator of ['P208', 'C172', 'TEST']) {
       for (const registration of ['D-TEST', 'D-EBPN ']) {
         for (const mtomKg of [630, 650, 1200, null]) {
           for (const surface of [runway('paved', 'dry'), runway('unpaved', 'dry-short-grass'), runway('paved', 'wet'), null]) {
-            const accepted = icaoTypeDesignator === 'P208' && registration.trim() === 'D-EBPN' && mtomKg === 650
-            const result = assessed(assessCorrectionSources(facts({ icaoTypeDesignator, registration, mtomKg }), surface))
+            const accepted = icaoTypeDesignator === 'P208' && (mtomKg === 630 || mtomKg === 650)
+            const variant = mtomKg === 630 ? 'basic' : registration.trim() === 'D-EBPN' ? 's9' : 's4'
+            const result = assessed(assessCorrectionSources(facts({ icaoTypeDesignator, registration, mtomKg, manualConfiguration: variant }), surface))
             expect(result.corrections).toHaveLength(6)
             for (const entry of result.corrections) {
               const covered = accepted && (entry.correction !== 'surface' || surface?.surface.condition === 'dry' || surface?.surface.condition === 'dry-short-grass')
               expect(entry.status === 'source-identified').toBe(covered)
-              expect(entry.selected?.id).toBe(covered ? `tecnam-s9-${entry.correction}` : undefined)
+              expect(entry.selected?.id).toBe(covered ? `tecnam-${variant}-${entry.correction}` : undefined)
             }
           }
         }
       }
     }
+  })
+
+  it.each([
+    ['basic', 630, 'D-TEST', 'tecnam-basic-wind'],
+    ['s4', 650, 'D-TEST', 'tecnam-s4-wind'],
+    ['s9', 650, 'D-EBPN', 'tecnam-s9-wind'],
+    ['', 650, 'D-TEST', undefined],
+    ['', 650, 'D-EBPN', undefined],
+    ['s9', 650, 'D-TEST', undefined],
+  ] as const)('requires the declared manual configuration %s for %s kg', (manualConfiguration, mtomKg, registration, expected) => {
+    // AFM Doc. 2008/100 Ed. 2 Rev. 7 basic / S4 and Rev. 18 S9 identify distinct sections.
+    const result = item(assessCorrectionSources(facts({ icaoTypeDesignator: 'P208', registration, mtomKg, manualConfiguration }), null), 'wind', 'takeoff')
+    expect(result.selected?.id).toBe(expected)
   })
 
   it('refuses S9 for another P208 airframe with the registration reason', () => {
@@ -89,14 +103,10 @@ describe('assessCorrectionSources', () => {
     expect(item(result, 'slope', 'landing').inputGap).toBe('runway-slope')
   })
 
-  it('identifies a type-designator candidate without treating the match as configuration evidence', () => {
-    const entry = item(assessCorrectionSources(facts({ icaoTypeDesignator: 'p208 ', mtomKg: 650 }), runway('paved', 'dry')), 'surface', 'takeoff')
-    expect(entry.summary).toBe('aircraft-candidate-not-applicable')
-    expect(reasonsOf(entry, 'tecnam-s4-surface')).toEqual([
-      { code: 'configuration-unverified', required: expect.stringContaining('Supplement S4') },
-      { code: 'revision-not-current', revision: 'Edition 2, Revision 7 (30 July 2020)' },
-      { code: 'numeric-contract-unaccepted' },
-    ])
+  it('selects the supplied S4 manual for a matching 650 kg profile', () => {
+    const entry = item(assessCorrectionSources(facts({ icaoTypeDesignator: 'p208 ', mtomKg: 650, manualConfiguration: 's4' }), runway('paved', 'dry')), 'surface', 'takeoff')
+    expect(entry.selected?.id).toBe('tecnam-s4-surface')
+    expect(entry.selected?.section).toContain('5W-7')
   })
 
   it('rejects the basic 630 kg chapter for a 650 kg profile and the reverse', () => {
@@ -110,12 +120,11 @@ describe('assessCorrectionSources', () => {
   })
 
   it('refuses a generic grass uplift on top of a manual whose base distances are already on grass', () => {
-    const entry = item(assessCorrectionSources(facts({ icaoTypeDesignator: 'P208', mtomKg: 650 }), runway('unpaved', 'dry-short-grass')), 'surface', 'takeoff')
+    const entry = item(assessCorrectionSources(facts({ icaoTypeDesignator: 'P208', mtomKg: 650, manualConfiguration: 's4' }), runway('unpaved', 'dry-short-grass')), 'surface', 'takeoff')
     expect(reasonsOf(entry, 'caa-surface')).toEqual(expect.arrayContaining([
       { code: 'aircraft-source-precedence' }, { code: 'baseline-conflict', aircraftBaseline: 'grass' },
     ]))
-    // The manual has no defined grass condition cell either; nothing fills that gap.
-    expect(reasonsOf(entry, 'tecnam-s4-surface')).toContainEqual({ code: 'condition-not-covered', condition: 'dry-short-grass' })
+    expect(reasonsOf(entry, 'tecnam-s4-surface')).toEqual([])
     const generic = item(assessCorrectionSources(facts(), runway('unpaved', 'dry-short-grass')), 'surface', 'takeoff')
     expect(codes(reasonsOf(generic, 'caa-surface'))).toContain('baseline-unknown')
   })
@@ -164,9 +173,9 @@ describe('additive wind versus a shared multiplier (inspected reference arithmet
     expect(torRatio).not.toBeCloseTo(todRatio, 2)
   })
 
-  it('is therefore rejected as an unsupported contract', () => {
-    const entry = item(assessCorrectionSources(facts({ icaoTypeDesignator: 'P208', mtomKg: 650 }), null), 'wind', 'takeoff')
-    expect(codes(reasonsOf(entry, 'tecnam-s4-wind'))).toEqual(expect.arrayContaining(['additive-contract-unsupported', 'target-unresolved', 'range-undefined']))
+  it('uses the source-specific additive contract', () => {
+    const entry = item(assessCorrectionSources(facts({ icaoTypeDesignator: 'P208', mtomKg: 650, manualConfiguration: 's4' }), null), 'wind', 'takeoff')
+    expect(entry.selected?.contract).toBe('source-rule')
   })
 
   it('reproduces isolated roll corrections without stacking them', () => {
