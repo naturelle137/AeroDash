@@ -92,7 +92,7 @@ test('cached preparation reopens offline with persisted synthetic data and live 
   await expect(distances(page).locator('dd')).toHaveText(['221.0 m', '321.0 m', '421.0 m', '521.0 m'])
   await runway.getByLabel('LDA — landing distance available', { exact: true }).fill('850')
   await expect(saved).toHaveCount(0)
-  await expect(runway).toContainText('Runway assessment unavailable')
+  await expect(runway).toContainText('Manual runway declaration')
   await page.reload()
   await expect(saved).toContainText('900')
   await saved.scrollIntoViewIfNeeded()

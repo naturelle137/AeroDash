@@ -135,9 +135,9 @@ Then('the saved runway shows TORA {string}, LDA {string} and elevation {string}'
   await expect(values.nth(2)).toHaveText(elevation)
 })
 
-Then('the runway is labelled user-entered and the runway assessment is unavailable', async ({ page }) => {
+Then('the runway is labelled as a user-entered declaration', async ({ page }) => {
   await expect(summary(page)).toContainText('User-entered, not airport-validated')
-  await expect(panel(page)).toContainText('Runway assessment unavailable.')
+  await expect(panel(page)).toContainText('Manual runway declaration.')
   await expect(page.getByText(/\bGo\b result available|runway sufficient/i)).toHaveCount(0)
 })
 
@@ -173,7 +173,7 @@ Then('the manual runway evidence is captured as {string}', async ({ page, $testI
 
 Then('no saved runway is shown', async ({ page }) => {
   await expect(summary(page)).toHaveCount(0)
-  await expect(panel(page)).toContainText('Runway assessment unavailable.')
+  await expect(panel(page)).toContainText('Manual runway declaration.')
 })
 
 Then('the runway form is empty', async ({ page }) => {

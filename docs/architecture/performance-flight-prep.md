@@ -53,6 +53,8 @@ source applicability and is not activated here. No acknowledgement can bypass
 these blocks. #420 remains open for unsupported lower PA/temperature and upper
 extrapolation. Accepted Tecnam configurations support source-specific corrections and runway comparisons; other sources remain unsupported. No implicit factor 1 or operational approval is enabled.
 
+The current shared Performance presentation carries deduplicated critical runway and low-factor notifications. Flight Prep and the briefing pack render these from the same current comparisons and warnings; invalidated inputs remove the corresponding notifications.
+
 ## Units and persistence
 
 No locale/region source exists in the application. The commissioned fallback is

@@ -121,6 +121,19 @@ describe('corrected distances in the performance step', () => {
     effect.stop()
   })
 
+  it('blocks a previously saved runway if storage reports an error', () => {
+    const effect = effectScope()
+    effect.run(() => {
+      const { step, runway } = setup()
+      Object.assign(step.corrections.takeoff, { headwind: '0', slope: '0' })
+      expect(corrected(step, 0).status).toBe('applied')
+      runway.storageError = 'Storage unavailable'
+      expect(corrected(step, 0).status).toBe('unavailable')
+      expect(step.presentation.value.runway.status).toBe('unavailable')
+    })
+    effect.stop()
+  })
+
   it('compares the final distance over 50 ft with the declared runway and reports margins', () => {
     const effect = effectScope()
     effect.run(() => {
@@ -137,6 +150,22 @@ describe('corrected distances in the performance step', () => {
       expect(short.comparison.status).toBe('insufficient')
       expect(short.comparison.summary).toContain('Runway insufficient')
       expect(short.comparison.margin.startsWith('−')).toBe(true)
+    })
+    effect.stop()
+  })
+
+  it('keeps shared notifications aligned with current results and clears them when inputs become invalid', () => {
+    const effect = effectScope()
+    effect.run(() => {
+      const { step, runway } = setup()
+      Object.assign(step.corrections.takeoff, { headwind: '0', slope: '0' })
+      expect(step.presentation.value.notifications.map(n => n.id)).toEqual(['WARN-PF-002'])
+      runway.draft.tora = '100'; runway.save()
+      expect(step.presentation.value.notifications.map(n => n.id)).toEqual(['CRIT-PF-002', 'WARN-PF-002'])
+      expect(step.presentation.value.notifications[0]).toMatchObject({ severity: 'CRITICAL', context: 'Performance.RunwayLength', persistent: true })
+      runway.draft.surfaceCondition = ''
+      expect(corrected(step, 0).status).toBe('unavailable')
+      expect(step.presentation.value.notifications).toEqual([])
     })
     effect.stop()
   })

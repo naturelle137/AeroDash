@@ -73,3 +73,29 @@ Feature: Corrected takeoff and landing distances
       | preset                                        | warning |
       | Manual (in-service factor)                    | shown   |
       | EASA standard (1.25 take-off, 1.43 landing)   | absent  |
+
+  Scenario Outline: Offline runway changes invalidate the current comparison
+    Given the raw POH workflow viewport is <width> by <height>
+    And the production app is cached for offline performance
+    When I import and verify a synthetic POH profile for registration "D-EBPN" declaring type "P208" and maximum mass 650 kg
+    And the pilot opens Performance
+    And the pilot sets mass "900" kg and temperature "10" °C for the Test profile
+    And the pilot enters pressure altitude "1000" ft directly
+    And the pilot selects manual configuration "s9"
+    And the pilot goes offline
+    And the pilot saves runway "TEST" "27" with TORA "2000" "m", LDA "550" "m", elevation "300" "ft" and surface "Paved" "Dry"
+    And the pilot enters takeoff headwind "0" kt and slope "0" %
+    Then the takeoff runway comparison is "Fits declared runway"
+    And the takeoff safety factor warning is "shown"
+    When the pilot saves runway "TEST" "27" with TORA "100" "m", LDA "550" "m", elevation "300" "ft" and surface "Paved" "Dry"
+    Then the takeoff runway comparison is "Insufficient runway"
+    And the corrected distance evidence is captured as "offline-<width>"
+    When the pilot clears the runway surface condition
+    Then the corrected takeoff distances are "unavailable: No accepted correction source"
+    When the pilot enters takeoff headwind "" kt and slope "0" %
+    Then the takeoff safety factor warning is "absent"
+
+    Examples:
+      | width | height |
+      | 1440  | 1000   |
+      | 390   | 844    |

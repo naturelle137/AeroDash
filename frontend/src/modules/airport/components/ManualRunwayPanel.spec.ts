@@ -39,7 +39,7 @@ describe('ManualRunwayPanel', () => {
     expect(view.findAll('.field-error')).toHaveLength(7)
     expect(localStorage.getItem(MANUAL_RUNWAY_STORAGE_KEY)).toBeNull()
     expect(summary(view).exists()).toBe(false)
-    expect(view.text()).toContain('Runway assessment unavailable')
+    expect(view.text()).toContain('Manual runway declaration')
     expect(view.text()).toContain('not validated against airport data')
   })
 

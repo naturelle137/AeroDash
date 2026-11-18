@@ -91,17 +91,17 @@ export function usePerformanceStep(context: () => PerformanceStepContext) {
         { label: 'Field elevation', value: `${fieldElevation.value} ${fieldElevation.unit} (${elevationOther})` },
         { label: 'Surface', value: `${surface.type === 'paved' ? 'Paved' : 'Grass / unpaved'} · ${condition}` },
       ],
-      note: 'User-entered, not airport-validated. Not compared with the distances; converted available distances are rounded down.',
+      note: 'User-entered, not airport-validated. Converted available distances are rounded down.',
     }
   })
 
-  const runwayFacts = computed<RunwayFacts | null>(() => runway.current ? {
+  const runwayFacts = computed<RunwayFacts | null>(() => !runway.storageError && runway.current ? {
     label: `${runway.current.record.runway.aerodrome} ${runway.current.record.runway.designator}`,
     surface: runway.current.record.runway.surface,
   } : null)
   /** Same 0.1 m round-down as the runway display, so margins match what the pilot sees. */
   const availableM = computed(() => {
-    const normalized = runway.current ? normalizeManualRunway(runway.current.record.runway) : null
+    const normalized = !runway.storageError && runway.current ? normalizeManualRunway(runway.current.record.runway) : null
     const down = (value: number) => Math.floor(value * 10 + 1e-9) / 10
     return normalized ? { tora: down(normalized.toraM), lda: down(normalized.ldaM), ...(normalized.todaM !== undefined ? { toda: down(normalized.todaM) } : {}) } : null
   })

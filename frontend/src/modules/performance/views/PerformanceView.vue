@@ -34,7 +34,7 @@ onMounted(() => fleet.loadAll())
       <h1>Performance</h1>
       <p class="eyebrow">RAW POH TABLE DISTANCES</p>
       <p>Inspect base distances from your aircraft tables. The raw distances are uncorrected;
-        corrected distances appear separately where an accepted source applies. No runway assessment or flight approval is provided.
+        corrected distances and runway comparisons appear separately where an accepted source applies. No flight approval is provided.
         Flight Prep uses the same lookup with your current takeoff and trip-arrival masses.</p>
     </header>
     <section class="panel" aria-labelledby="aircraft-heading">
