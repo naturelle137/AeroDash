@@ -48,7 +48,7 @@ export const INPUT_GAP_MESSAGES: Record<NonNullable<CorrectionAssessment['inputG
   'runway-slope': 'AeroDash does not collect a runway slope yet.',
 }
 
-const TARGET_LABELS = { 'ground-roll': 'ground roll', 'distance-over-obstacle': 'distance over an obstacle', unspecified: 'unspecified part' } as const
+const TARGET_LABELS = { 'ground-roll': 'ground roll', 'distance-over-obstacle': 'distance over an obstacle', 'ground-roll-and-distance': 'ground roll and distance', unspecified: 'unspecified part' } as const
 
 export function reasonMessage(reason: UnsupportedReason): string {
   switch (reason.code) {
@@ -61,6 +61,7 @@ export function reasonMessage(reason: UnsupportedReason): string {
     case 'numeric-contract-unaccepted': return 'Its correction values have not been accepted for use in AeroDash.'
     case 'mass-configuration-mismatch': return `Written for ${reason.sourceMtomKg} kg; this profile's maximum mass is ${Number(reason.profileMtomKg.toFixed(1))} kg.`
     case 'profile-mass-unknown': return "The profile's maximum mass could not be read in kg, so the mass configuration cannot be matched."
+    case 'registration-not-covered': return `Accepted only for specific airframes; ${reason.registration || 'this profile'} is not one of them.`
     case 'operation-not-covered': return `It contains no ${OPERATION_LABELS[reason.operation].toLowerCase()} correction.`
     case 'condition-not-covered': return `It has no entry for ${conditionLabel(reason.condition)}; a missing entry is never treated as “no correction”.`
     case 'condition-mapping-ambiguous': return `${conditionLabel(reason.condition)} matches more than one source row; it cannot be chosen automatically.`
