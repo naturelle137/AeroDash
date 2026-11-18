@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Engineering
 
 - Add CRI type-familiarisation framing to the category-switch and multi-tank CG migration journeys (refs #333).
+- Document the future training review and non-destructive demo journeys (refs #334).
 
 - Add an advanced-student variant to the night (UJ-D-001) and hot-and-high (UJ-C-001) journeys without assuming an instructor-review capability (refs #332).
 
