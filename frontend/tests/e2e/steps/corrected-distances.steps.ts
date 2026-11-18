@@ -35,7 +35,7 @@ Then('the corrected takeoff distances are {string}', async ({ page }, expected: 
     return
   }
   const [, value] = /final (\d+ m)/.exec(expected)!
-  await expect(region).toContainText('Supplement S9')
+  await expect(region).toContainText('Tecnam P2008 JC Aircraft Flight Manual')
   await expect(region.locator('dd').first()).toContainText(value!)
 })
 

@@ -111,7 +111,7 @@ export function presentCorrectedOperation(
   const comparison = compareWithRunway(operation, Math.ceil(result.distanceOver50ft * factor), Math.ceil(result.groundRoll * factor), available)
   return {
     operation, title, status: 'applied',
-    source: `${document.title}, ${document.identifier}, ${document.revision}`,
+    source: `${document.title}, ${document.identifier}, ${document.revision}; ${selected[0].section}`,
     rows: [
       { label: roll.label, raw: `${formatNumber(roll.distance)} m`, corrected: up(result.groundRoll), factored: up(result.groundRoll * factor) },
       { label: over50.label, raw: `${formatNumber(over50.distance)} m`, corrected: up(result.distanceOver50ft), factored: up(result.distanceOver50ft * factor) },
@@ -124,8 +124,8 @@ export function presentCorrectedOperation(
     notes: [
       `Final value = corrected distance × safety factor ${factor.toFixed(2)}, rounded up to whole metres. The manual states ${manualFactor} as its in-service factor.`,
       ...result.notCredited.map((item) => NOT_CREDITED[item]),
-      ...(operation === 'landing' ? ['The manual landing table exists for 650 kg only; lower masses use it unchanged.'] : []),
-      'Operator-supplied manual excerpt for D-EBPN, not manufacturer-confirmed. Not an operational approval or go/no-go decision.',
+      ...(operation === 'landing' && selected[0].id.startsWith('tecnam-s9-') ? ['The manual landing table exists for 650 kg only; lower masses use it unchanged.'] : []),
+      'Check the applicable aircraft manual. This is not an operational approval or go/no-go decision.',
     ],
   }
 }

@@ -127,13 +127,13 @@ function candidatesOf(rows: CorrectionAssessment[]) {
               <p>Section: {{ candidate.section }}</p>
               <p>{{ candidate.origin }}</p>
               <div v-for="operation in candidate.perOperation" :key="operation.operation">
-                <p>{{ operation.operation }} — why it cannot be used:</p>
+                <p>{{ operation.operation }} — {{ operation.reasons.length ? "why it cannot be used:" : "source identified." }}</p>
                 <ul><li v-for="reason in operation.reasons" :key="reason">{{ reason }}</li></ul>
               </div>
             </div>
           </details>
         </article>
-        <p>No source above is selected or approved. Use your aircraft's official POH/AFM for corrections.</p>
+        <p>Verify these sources against your aircraft’s official POH/AFM.</p>
       </template>
     </section>
   </section>

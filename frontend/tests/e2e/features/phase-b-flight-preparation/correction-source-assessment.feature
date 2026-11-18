@@ -1,9 +1,9 @@
 @performance
 Feature: Correction source assessment
   Synthetic Test aircraft and runway values prove browser wiring only. The type designator and
-  mass match an inspected manual only to show that such a match is never accepted as applicability.
+  mass match the supplied S4 manual; the data are not operational validation.
 
-  Scenario Outline: The pilot sees which source each correction needs and why none applies
+  Scenario Outline: The pilot sees identified sources and unsupported candidates
     Given the raw POH workflow viewport is <width> by <height>
     When I import a synthetic Test POH exchange file declaring type "P208", maximum mass 650 kg and stored surface factors
     And I explicitly verify the Test POH profile in Fleet
@@ -13,10 +13,9 @@ Feature: Correction source assessment
     Then the takeoff roll is "220.0 m" using pressure altitude "1000 ft, entered directly"
     When the pilot saves runway "TEST" "27" with TORA "600" "m", LDA "550" "m", elevation "300" "ft" and surface "Grass / unpaved" "Dry (short grass ≤3 cm)"
     And the pilot assesses correction sources
-    Then no correction source is available and the stored surface factors are not used
-    And the "Runway surface" source names the candidate "Supplement S4 (650 kg)" with the reason "already for grass"
+    Then the S4 correction sources are identified and stored surface factors are not used
+    And the "Runway surface" source identifies the candidate "Supplement S4 (650 kg)"
     And the "Runway surface" source rejects the candidate "Section 5 (basic 630 kg)" because "Written for 630 kg"
-    And the "Wind" source rejects the candidate "Supplement S4 (650 kg)" because "adds metres per knot"
     Then the raw takeoff roll still reads "220.0 m"
     And the correction source evidence is captured as "assessed-<width>"
     When the pilot changes the LDA to "500" "m"
@@ -26,7 +25,7 @@ Feature: Correction source assessment
     And the pilot clears the runway inputs
     Then the correction source assessment has been cleared
     When the pilot assesses correction sources
-    Then the "Runway surface" source names the candidate "Supplement S4 (650 kg)" with the reason "surface condition is unknown"
+    Then the "Runway surface" source rejects the candidate "Supplement S4 (650 kg)" because "surface condition is unknown"
     When the pilot sets mass "950" kg and temperature "10" °C for the Test profile
     Then the correction source assessment has been cleared
     When the pilot assesses correction sources

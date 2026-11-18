@@ -251,12 +251,11 @@ it('assesses correction sources on request and clears the assessment when any ba
   await view.get('#performance-aircraft').setValue(tecnamLike.id)
   await assessButton(view).trigger('click')
   const text = assessment(view).text()
-  expect(text).toContain('No correction source is available for D-TEST')
+  expect(text).toContain('A source is identified for some corrections')
   expect(text).toContain('stores surface factors without source, target or range evidence. They are not used.')
   expect(text).toContain('Supplement S4 (650 kg)')
   expect(text).toContain('Written for 630 kg; this profile\'s maximum mass is 650 kg.')
   expect(text).toContain('No saved, unchanged manual runway')
-  expect(text).toContain('adds metres per knot')
   expect(text).not.toMatch(/selected source|approved source|×\s?\d/)
   expect(view.find('[aria-label="Raw POH table distances"]').exists()).toBe(false)
 

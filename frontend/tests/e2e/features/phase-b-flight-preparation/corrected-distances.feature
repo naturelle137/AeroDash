@@ -5,7 +5,7 @@ Feature: Corrected takeoff and landing distances
 
   Scenario Outline: The pilot sees corrected distances with their source, and none for other aircraft
     Given the raw POH workflow viewport is <width> by <height>
-    When I import and verify a synthetic POH profile for registration "<registration>" declaring type "P208" and maximum mass 650 kg
+    When I import and verify a synthetic POH profile for registration "<registration>" declaring type "<type>" and maximum mass <mass> kg
     And the pilot opens Performance
     And the pilot sets mass "900" kg and temperature "10" °C for the Test profile
     And the pilot enters pressure altitude "1000" ft directly
@@ -16,10 +16,12 @@ Feature: Corrected takeoff and landing distances
     And the corrected distance evidence is captured as "<registration>-<width>"
 
     Examples:
-      | width | height | registration | state                                       | outcome                                  |
-      | 1440  | 1000   | D-EBPN       | "unavailable: Enter the headwind component" | "final 267 m for the ground roll"        |
-      | 390   | 844    | D-EBPN       | "unavailable: Enter the headwind component" | "final 267 m for the ground roll"        |
-      | 1440  | 1000   | D-TEST       | "unavailable: No accepted correction source"| "unavailable: No accepted correction source" |
+      | width | height | registration | type | mass | state                                       | outcome                                  |
+      | 1440  | 1000   | D-EBPN       | P208 | 650  | "unavailable: Enter the headwind component" | "final 267 m for the ground roll"        |
+      | 390   | 844    | D-EBPN       | P208 | 650  | "unavailable: Enter the headwind component" | "final 267 m for the ground roll"        |
+      | 1440  | 1000   | D-TEST       | P208 | 630  | "unavailable: Enter the headwind component" | "final 267 m for the ground roll"        |
+      | 390   | 844    | D-TEST       | P208 | 650  | "unavailable: Enter the headwind component" | "final 267 m for the ground roll"        |
+      | 1440  | 1000   | D-TEST       | C172 | 650  | "unavailable: No accepted correction source" | "unavailable: No accepted correction source" |
 
   Scenario Outline: The pilot sees whether the corrected distance fits the declared runway
     Given the raw POH workflow viewport is 1440 by 1000

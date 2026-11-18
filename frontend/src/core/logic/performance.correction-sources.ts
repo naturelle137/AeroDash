@@ -6,10 +6,8 @@ import { LB_TO_KG } from './unit-conversion-constants'
  * Environmental correction source selection and applicability.
  *
  * Pure assessment of WHICH source would have to supply a wind, surface or slope
- * correction and WHY no inspected source is applicable yet. It never returns a
- * factor or a corrected distance: the register carries document identity and
- * contract shape only, no numeric coefficients. A candidate is selectable only
- * when it has no applicability gap; no built-in entry meets that bar.
+ * correction and why a source is applicable or unsupported. The register carries
+ * document identity and contract shape; numeric rules live in the core calculator.
  *
  * @see docs/architecture/performance-correction-sources.md
  */
@@ -233,7 +231,7 @@ function assessCandidate(
 /**
  * Assess every wind/surface/slope correction for takeoff and landing.
  * The register is injectable so resolver behaviour can be proven with
- * synthetic entries; the default register contains no accepted source.
+ * synthetic entries; the default register includes the supplied Tecnam manuals.
  */
 export function assessCorrectionSources(
   profile: ProfileFacts,
@@ -244,7 +242,7 @@ export function assessCorrectionSources(
   if (!profile.verified) return { status: 'blocked', reason: 'profile-draft', profile }
 
   const designator = profile.icaoTypeDesignator.trim().toUpperCase()
-  // A designator match only surfaces a candidate; configuration evidence remains a gap.
+  // A designator match surfaces candidates; mass and any registration scope still apply.
   const forAircraft = (candidate: SourceCandidate) =>
     !candidate.aircraft || candidate.aircraft.icaoTypeDesignator === designator
   const relevant = register.filter(forAircraft)
@@ -286,7 +284,7 @@ export function assessmentBasisKey(profile: AircraftProfile | undefined, runway:
 
 // ---------------------------------------------------------------------------
 // Inspected source register. Identity, section and contract shape only; it holds
-// no correction values and no entry is accepted for operational use.
+// no correction values; accepted numeric rules live in the Tecnam calculator.
 // ---------------------------------------------------------------------------
 
 const TECNAM_AFM: SourceDocument = {
@@ -324,11 +322,6 @@ const CAA_SSL_09: SourceDocument = {
 
 const TECNAM_BASIC_CONFIGURATION = 'P2008 JC (not NG) basic 630 kg aircraft: Rotax 912 S2 engine, GT-2/173/VRR-FW101 SRTC propeller, no Section 5 supplement in force, and the airframe serial number'
 const TECNAM_S4_CONFIGURATION = 'P2008 JC (not NG) with the 650 kg modification and Supplement S4 in force, its engine/propeller supplements, and the airframe serial number'
-const TECNAM_GAPS = (required: string): EvidenceGap[] => [
-  { code: 'configuration-unverified', required },
-  { code: 'revision-not-current', revision: TECNAM_AFM.revision },
-  { code: 'numeric-contract-unaccepted' },
-]
 
 function tecnamEntries(variant: 'basic' | 's4'): SourceCandidate[] {
   const aircraft: AircraftApplicability = variant === 'basic'
@@ -338,12 +331,11 @@ function tecnamEntries(variant: 'basic' | 's4'): SourceCandidate[] {
     ? 'Section 5 (basic 630 kg), performance pages 5-7 to 5-14'
     : 'Supplement S4 (650 kg), take-off p. 5W-7 and landing p. 5W-15'
   const common = { document: TECNAM_AFM, section, operations: OPERATIONS, baseline: 'grass' as const, aircraft }
-  const gaps = TECNAM_GAPS(aircraft.configuration)
   return [
-    { ...common, id: `tecnam-${variant}-wind`, correction: 'wind', target: 'unspecified', contract: 'additive-per-knot', evidenceGaps: [...gaps, { code: 'target-unresolved' }, { code: 'range-undefined' }] },
-    // Base tables are for grass; the paved correction acts on ground roll. Grass and wet conditions have no cell.
-    { ...common, id: `tecnam-${variant}-surface`, correction: 'surface', target: 'ground-roll', contract: 'multiplier', conditions: { takeoff: ['dry'], landing: ['dry'] }, evidenceGaps: gaps },
-    { ...common, id: `tecnam-${variant}-slope`, correction: 'slope', target: 'ground-roll', contract: 'multiplier', evidenceGaps: [...gaps, { code: 'range-undefined' }] },
+    { ...common, id: `tecnam-${variant}-wind`, correction: 'wind', target: 'unspecified', contract: 'source-rule', evidenceGaps: [] },
+    // Base tables are for grass; the paved correction acts on ground roll.
+    { ...common, id: `tecnam-${variant}-surface`, correction: 'surface', target: 'ground-roll', contract: 'source-rule', conditions: { takeoff: ['dry', 'dry-short-grass'], landing: ['dry', 'dry-short-grass'] }, evidenceGaps: [] },
+    { ...common, id: `tecnam-${variant}-slope`, correction: 'slope', target: 'ground-roll', contract: 'source-rule', evidenceGaps: [] },
   ]
 }
 

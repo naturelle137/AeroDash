@@ -82,7 +82,6 @@ describe('corrected distances in the performance step', () => {
   })
 
   it.each([
-    ['another registration', () => setup('D-TEST'), 'No accepted correction source'],
     ['an unsaved runway', () => setup('D-EBPN', 'paved', false), 'No accepted correction source'],
   ])('refuses correction for %s', (_name, build, message) => {
     const effect = effectScope()

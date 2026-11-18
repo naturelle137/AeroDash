@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Select environmental corrections from the supplied P2008 JC basic and S4 manuals with visible source references.
+
 - Select the operational safety factor per operation (manual factor, EASA, short field, custom) with advisory WARN-PF-002 below the recommended minimum (refs #305).
 - Declare an optional TODA on the manual runway; take-off distance over 50 ft is compared with TODA and the ground roll with TORA (refs #305).
 - Compare the S9-corrected distance over 50 ft with the declared TORA/LDA, with metre and percentage margin and an insufficient-runway alert (refs #300, #302, #305).

@@ -18,7 +18,7 @@
  */
 
 /** Register candidate ids whose numeric rules this module implements. */
-export const TECNAM_S9_SOURCE_IDS: readonly string[] = ['tecnam-s9-wind', 'tecnam-s9-surface', 'tecnam-s9-slope']
+export const TECNAM_S9_SOURCE_IDS: readonly string[] = ['s9', 'basic', 's4'].flatMap((variant) => ['wind', 'surface', 'slope'].map((kind) => `tecnam-${variant}-${kind}`))
 
 export type S9Operation = 'takeoff' | 'landing'
 

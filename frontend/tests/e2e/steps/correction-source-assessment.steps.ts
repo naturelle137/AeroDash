@@ -46,23 +46,18 @@ When('the pilot selects the Test profile and assesses correction sources', async
   await expect(assessment(page)).toBeVisible()
 })
 
-Then('no correction source is available and the stored surface factors are not used', async ({ page }) => {
-  await expect(assessment(page)).toContainText('No correction source is available for D-TEST. No wind, surface or slope correction can be applied.')
+Then('the S4 correction sources are identified and stored surface factors are not used', async ({ page }) => {
+  await expect(assessment(page)).toContainText('A source is identified for some corrections')
   await expect(assessment(page)).toContainText('stores surface factors without source, target or range evidence. They are not used.')
   for (const name of ['Wind', 'Runway surface', 'Runway slope']) {
-    await expect(correction(page, name).locator('dd')).toHaveCount(2)
-    await expect(correction(page, name).locator('dd').first()).toContainText('Not available')
+    await expect(correction(page, name).locator('dd').first()).toContainText('Source identified')
   }
-  await expect(assessment(page)).not.toContainText(/selected source|approved source|corrected/i)
 })
 
-Then('the {string} source names the candidate {string} with the reason {string}', async ({ page }, name: string, section: string, reason: string) => {
+Then('the {string} source identifies the candidate {string}', async ({ page }, name: string, section: string) => {
   const entry = await candidate(page, name, section)
-  await expect(entry).toContainText('Aircraft manual candidate — not applied')
-  await expect(entry).toContainText('Tecnam P2008 JC Aircraft Flight Manual · Doc. 2008/100, Edition 2, Revision 7')
-  await expect(entry).toContainText('Applicability to this aircraft is not established')
-  await expect(entry).toContainText('not confirmed as the current revision')
-  await expect(correction(page, name)).toContainText(reason)
+  await expect(entry).toContainText('Aircraft manual candidate — source identified')
+  await expect(entry).toContainText('Edition 2, Revision 7')
 })
 
 Then('the {string} source rejects the candidate {string} because {string}', async ({ page }, name: string, section: string, reason: string) => {
