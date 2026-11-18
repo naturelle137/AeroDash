@@ -51,9 +51,7 @@ PA/temperature excursions in either direction and **all** above-maximum masses
 remain blocked. The generic P1 +10%/+20% extrapolation contract does not establish
 source applicability and is not activated here. No acknowledgement can bypass
 these blocks. #420 remains open for unsupported lower PA/temperature and upper
-extrapolation; #305 remains held for controlled source evidence. No implicit
-factor 1, fallback correction, runway verdict or operational approval is enabled.
-CorrectionSourcePanel continues to expose the existing source-specific blockers.
+extrapolation. Accepted Tecnam configurations support source-specific corrections and runway comparisons; other sources remain unsupported. No implicit factor 1 or operational approval is enabled.
 
 ## Units and persistence
 

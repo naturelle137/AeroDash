@@ -247,9 +247,7 @@ While a profile stores surface factors without source evidence, the system shall
 
 When the profile, a runway input, the saved runway or a lookup input changes, the system shall immediately clear the prior source assessment.
 
-The source assessment applies no correction. REQ-PF-003, REQ-PF-004, REQ-PF-021 and REQ-PF-022 remain
-unimplemented: no inspected source is accepted, and FSM 3/75 is not an accepted fallback. See the
-[source assessment contract](../architecture/performance-correction-sources.md).
+Accepted Tecnam manual configurations supply source-specific corrections. Other configurations and FSM 3/75 remain unsupported. See the [source assessment contract](../architecture/performance-correction-sources.md).
 
 ## Design References
 
