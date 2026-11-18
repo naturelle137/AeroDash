@@ -3,7 +3,7 @@ import PressureAltitudeFieldset from './PressureAltitudeFieldset.vue'
 import type { PerformanceStep } from '../composables/performance-step'
 
 const props = defineProps<{ step: PerformanceStep; canCompute: boolean }>()
-const { temperature, showPaErrors, presentation } = props.step
+const { temperature, corrections, showPaErrors, presentation } = props.step
 </script>
 
 <template>
@@ -13,6 +13,11 @@ const { temperature, showPaErrors, presentation } = props.step
       <label>Temperature (°C)<input id="performance-temperature" v-model="temperature" type="text" inputmode="decimal" /></label>
     </div>
     <PressureAltitudeFieldset :pa="step.pa" :show-errors="showPaErrors" />
+    <fieldset v-for="operation in (['takeoff', 'landing'] as const)" :key="operation" class="fields correction-inputs">
+      <legend>{{ operation === 'takeoff' ? 'Takeoff' : 'Landing' }} wind and slope</legend>
+      <label>Headwind component (kt, negative = tailwind)<input v-model="corrections[operation].headwind" :id="`performance-${operation}-headwind`" type="text" inputmode="decimal" /></label>
+      <label>Runway slope (%, positive = uphill)<input v-model="corrections[operation].slope" :id="`performance-${operation}-slope`" type="text" inputmode="decimal" /></label>
+    </fieldset>
 
     <section class="results" :aria-label="presentation.status === 'assessed' ? 'Raw POH table distances' : 'Performance results'" :data-status="presentation.status" aria-live="polite">
       <p v-if="presentation.status !== 'assessed'" :role="presentation.status === 'blocked' ? 'alert' : 'status'">
@@ -32,6 +37,21 @@ const { temperature, showPaErrors, presentation } = props.step
           </div>
         </dl>
       </div>
+      <section v-for="item in presentation.corrected" :key="item.operation" class="group corrected" :data-corrected="item.operation"
+        :aria-label="`${item.title} corrected distances`">
+        <h3>{{ item.title }} corrected distances</h3>
+        <p v-if="item.status === 'unavailable'" role="status">Not corrected: {{ item.reason }}</p>
+        <template v-else>
+          <p>Source: {{ item.source }}</p>
+          <dl class="distances">
+            <div v-for="row in item.rows" :key="row.label">
+              <dt>{{ row.label }}</dt>
+              <dd>{{ row.factored }}<small class="note">Raw {{ row.raw }} · corrected {{ row.corrected }} · final incl. in-service factor</small></dd>
+            </div>
+          </dl>
+          <ul class="scope"><li v-for="note in item.notes" :key="note">{{ note }}</li></ul>
+        </template>
+      </section>
       <ul class="scope">
         <li v-for="line in presentation.scope" :key="line">{{ line }}</li>
       </ul>
@@ -42,6 +62,7 @@ const { temperature, showPaErrors, presentation } = props.step
 <style scoped>
 .performance-step { display: grid; gap: .75rem; min-width: 0; }
 .fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 1rem; }
+fieldset { border: 1px solid var(--color-border); border-radius: 8px; margin: 0; min-width: 0; }
 label { display: grid; gap: .5rem; }
 input, button { font: inherit; padding: .75rem; min-height: 44px; border-radius: 6px; border: 1px solid var(--color-border); background: var(--color-surface); color: inherit; min-width: 0; }
 button { cursor: pointer; font-weight: 600; justify-self: start; }

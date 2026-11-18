@@ -142,6 +142,15 @@ onBeforeUnmount(() => {
                 <p v-else-if="group.status !== 'success'">No current {{ group.title.toLowerCase() }} distances computed.</p>
                 <table v-if="group.rows.length"><tbody><tr v-for="row in group.rows" :key="row.label"><th>{{ row.label }}</th><td :class="{ 'briefing-warning': row.warnings?.length }">{{ row.value }}{{ currentSnapshot.marker }}<p v-for="warning in row.warnings" :key="warning">{{ warning }}</p><p v-if="row.note">{{ row.note }}</p></td></tr></tbody></table>
               </section>
+              <section v-for="item in currentSnapshot.performance.corrected" :key="item.operation">
+                <h3>{{ item.title }} corrected distances</h3>
+                <p v-if="item.status === 'unavailable'">Not corrected: {{ item.reason }}</p>
+                <template v-else>
+                  <p>Source: {{ item.source }}</p>
+                  <table><tbody><tr v-for="row in item.rows" :key="row.label"><th>{{ row.label }}</th><td>{{ row.factored }} (raw {{ row.raw }}, corrected {{ row.corrected }})</td></tr></tbody></table>
+                  <p v-for="note in item.notes" :key="note">{{ note }}</p>
+                </template>
+              </section>
               <h3>Operational assessment unavailable</h3>
               <p>{{ currentSnapshot.performance.operational.reason }}</p>
               <ul v-if="currentSnapshot.performance.operational.rows.length"><li v-for="(row, index) in currentSnapshot.performance.operational.rows" :key="index">{{ row.label }}: {{ row.value }}<ul><li v-for="(reason, n) in row.reasons" :key="n">{{ reason }}</li></ul></li></ul>

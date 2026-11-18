@@ -17,6 +17,9 @@
  * @see docs/architecture/performance-correction-sources.md
  */
 
+/** Register candidate ids whose numeric rules this module implements. */
+export const TECNAM_S9_SOURCE_IDS: readonly string[] = ['tecnam-s9-wind', 'tecnam-s9-surface', 'tecnam-s9-slope']
+
 export type S9Operation = 'takeoff' | 'landing'
 
 /** AFM rules per operation. Wind in m per kt, slope in % of ground roll per +1 % uphill. */

@@ -1,5 +1,6 @@
 import type { SourceAssessment } from '@/core/logic/performance.correction-sources'
 import { BLOCKER_MESSAGES, CORRECTION_LABELS, INPUT_GAP_MESSAGES, OPERATION_LABELS, SUMMARY_MESSAGES, reasonMessage } from './correction-source-messages'
+import type { CorrectedOperationPresentation } from './corrected-distances'
 import type { GroupAssessment, MassSource, PerformanceAssessment, PerformanceGroupId } from './poh-inspection'
 
 /**
@@ -21,6 +22,8 @@ export interface PerformancePresentation {
   readonly conditions: { readonly pressureAltitude: string; readonly temperature: string } | null
   readonly groups: readonly PerformanceGroupPresentation[]
   readonly operational: OperationalPresentation
+  /** Corrected distances per operation; empty until a result exists. Raw groups stay uncorrected. */
+  readonly corrected: readonly CorrectedOperationPresentation[]
   readonly runway: RunwayPresentation
   /** Scope statements that must accompany any displayed distance. */
   readonly scope: readonly string[]
@@ -38,7 +41,7 @@ export function presentOperationalAssessment(sources: SourceAssessment | null, u
   return {
     status: 'unavailable',
     reason: !sources ? unavailableReason : sources.status === 'blocked' ? BLOCKER_MESSAGES[sources.reason]
-      : 'Corrections and operational runway comparison are unavailable. No correction is applied, including where a source is identified.',
+      : 'Operational runway comparison is unavailable. Corrected distances appear only where an accepted aircraft-manual source covers wind, surface and slope.',
     sources,
     rows: sources?.status === 'assessed' ? sources.corrections.map((row) => ({
       label: `${OPERATION_LABELS[row.operation]} — ${CORRECTION_LABELS[row.correction]}`,
@@ -72,7 +75,7 @@ export type RunwayPresentation =
 const TITLES: Record<PerformanceGroupId, string> = { takeoff: 'Takeoff', landing: 'Landing' }
 
 export const PERFORMANCE_SCOPE = [
-  'Raw POH/AFM table distances only. No wind, surface, slope, density-altitude or operational safety factor is applied.',
+  'Raw POH/AFM table distances are uncorrected: no wind, surface, slope or density-altitude correction is applied to them. Corrected distances are shown separately and only where an accepted source covers the aircraft.',
   'No runway comparison, Go/No-Go advisory or operational approval is provided.',
 ] as const
 
@@ -116,11 +119,12 @@ export type PresentationInput = {
   pendingReason: string
   runway: RunwayPresentation
   operational: OperationalPresentation
+  corrected?: readonly CorrectedOperationPresentation[]
 }
 
 export function presentPerformance(input: PresentationInput): PerformancePresentation {
   const { assessment } = input
-  const common = { inputKey: input.inputKey, inputs: input.inputs, aircraft: input.aircraft, runway: input.runway, operational: input.operational, scope: PERFORMANCE_SCOPE }
+  const common = { inputKey: input.inputKey, inputs: input.inputs, aircraft: input.aircraft, runway: input.runway, operational: input.operational, corrected: input.corrected ?? [], scope: PERFORMANCE_SCOPE }
   if (!assessment || assessment.status === 'blocked') {
     return {
       ...common,

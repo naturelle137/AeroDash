@@ -32,7 +32,7 @@ export const SUMMARY_MESSAGES: Record<CorrectionAssessment['summary'], string> =
   'no-source': 'No source available.',
   'aircraft-candidate-not-applicable': 'Not available: a manual for this aircraft type was found, but it is not established as applicable.',
   'generic-candidate-not-applicable': 'Not available: only generic guidance was found, and it is not accepted for this use.',
-  'source-identified': 'Source identified; no correction value is applied in this version.',
+  'source-identified': 'Source identified; applied to the corrected distances once its inputs are entered.',
 }
 
 export function requirementMessage(required: CorrectionRequirement, correction: CorrectionKind): string {
@@ -44,8 +44,8 @@ export function requirementMessage(required: CorrectionRequirement, correction: 
 }
 
 export const INPUT_GAP_MESSAGES: Record<NonNullable<CorrectionAssessment['inputGap']>, string> = {
-  'wind-component': 'AeroDash does not collect a wind component yet.',
-  'runway-slope': 'AeroDash does not collect a runway slope yet.',
+  'wind-component': 'Needs your wind component in knots for each operation.',
+  'runway-slope': 'Needs your runway slope in percent for each operation.',
 }
 
 const TARGET_LABELS = { 'ground-roll': 'ground roll', 'distance-over-obstacle': 'distance over an obstacle', 'ground-roll-and-distance': 'ground roll and distance', unspecified: 'unspecified part' } as const
