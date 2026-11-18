@@ -4,7 +4,7 @@
  * the Mass & Balance / Flight Preparation view.
  *
  * Not part of the regular E2E suite — this is a scripted manual-style test
- * driven from a Cursor cloud agent, used to capture artifacts proving the
+ * used to capture artifacts proving the
  * UI fix works at iPhone-portrait viewport. Skipped from CI.
  *
  * Console output is intentional (it's the script's only reporting
@@ -40,7 +40,7 @@ async function resolvePlaywright() {
 }
 const chromium = await resolvePlaywright()
 
-const ARTIFACT_DIR = '/opt/cursor/artifacts'
+const ARTIFACT_DIR = path.join(REPO_ROOT, 'test-results', 'manual-strip-stack')
 mkdirSync(ARTIFACT_DIR, { recursive: true })
 
 const SEED = `(async () => {

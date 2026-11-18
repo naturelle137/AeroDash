@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Engineering
 
+- Remove the remaining Cursor-specific path from the manual strip-stack test.
+
 - Add CRI type-familiarisation framing to the category-switch and multi-tank CG migration journeys (refs #333).
 
 - Add an advanced-student variant to the night (UJ-D-001) and hot-and-high (UJ-C-001) journeys without assuming an instructor-review capability (refs #332).
