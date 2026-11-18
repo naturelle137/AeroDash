@@ -231,14 +231,6 @@ const pendingAck = computed(() => {
 // with a custom eased animation so it feels natural — not the snap-fast
 // `scrollIntoView({behavior: 'smooth'})` that Safari produces.
 //
-// Why IntersectionObserver instead of a scroll/RAF listener?
-// - The scroll handler fired ~30–60×/s on iOS Momentum-scroll, and the
-//   short-circuit comparison ran on every tick. On low-end iPads that drove
-//   visible strip flicker as the boundary jittered around the threshold.
-// - IntersectionObserver fires only on threshold crossings, so each strip
-//   appears/disappears exactly once per cross. No more per-frame work, no
-//   more jitter at the threshold.
-//
 // Each strip is `--prep-sticky-h` tall. The stack pins below the app header
 // (`--nav-header-height`). Card N (0-indexed) docks at the strip line
 // `navHeader + (N+1) × STRIP_HEIGHT_PX` — that's where its strip's *bottom*
@@ -284,70 +276,43 @@ function getNavHeaderHeightPx(): number {
   return Number.isFinite(n) ? n : 56
 }
 
-let stickyObservers: IntersectionObserver[] = []
-let stickyResizeListener: (() => void) | null = null
 let stickyCleanup: (() => void) | null = null
-
-/**
- * Rebuild one IntersectionObserver per card. Each observer's `rootMargin`
- * shrinks the viewport so its "intersection" zone begins at the strip
- * docking line for that card (`navHeader + (idx+1) × STRIP_HEIGHT_PX`).
- * When the card's top crosses above that line the entry's
- * `boundingClientRect.top` becomes less than `rootBounds.top` — that is the
- * authoritative "stuck" signal.
- */
-function rebuildStickyObservers(): void {
-  if (typeof IntersectionObserver === 'undefined') return
-  for (const o of stickyObservers) o.disconnect()
-  stickyObservers = []
-  const navHeader = getNavHeaderHeightPx()
-
-  CARD_ORDER.value.forEach((meta, idx) => {
-    const el = document.getElementById(`prep-card-${meta.id}`)
-    if (!el) return
-    const stripDockBottom = navHeader + (idx + 1) * STRIP_HEIGHT_PX
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          const rootTop = entry.rootBounds?.top ?? 0
-          const isStuck = entry.boundingClientRect.top < rootTop
-          if (stuckMap.value[meta.id] !== isStuck) {
-            stuckMap.value = { ...stuckMap.value, [meta.id]: isStuck }
-          }
-        }
-      },
-      { rootMargin: `-${stripDockBottom}px 0px 0px 0px`, threshold: [0, 1] },
-    )
-    observer.observe(el)
-    stickyObservers.push(observer)
-  })
-}
 
 function setupStickyStackObserver(): void {
   if (typeof window === 'undefined') return
-  // Defer to next tick so all `prep-card-*` elements are guaranteed in the DOM.
   void nextTick(() => {
-    rebuildStickyObservers()
+    const cards = CARD_ORDER.value.map((meta, idx) => ({
+      id: meta.id,
+      el: document.getElementById(`prep-card-${meta.id}`),
+      offset: (idx + 1) * STRIP_HEIGHT_PX,
+    }))
+    let frame = 0
+    const update = (): void => {
+      frame = 0
+      const navHeader = getNavHeaderHeightPx()
+      const next: Record<string, boolean> = {}
+      for (const card of cards) {
+        next[card.id] = !!card.el && card.el.getBoundingClientRect().top < navHeader + card.offset
+      }
+      if (cards.some(card => next[card.id] !== stuckMap.value[card.id])) stuckMap.value = next
+    }
+    // Intersection thresholds miss tall cards and jumps across the whole viewport.
+    const schedule = (): void => {
+      if (!frame) frame = window.requestAnimationFrame(update)
+    }
+    window.addEventListener('scroll', schedule, { passive: true })
+    window.addEventListener('resize', schedule, { passive: true })
+    const resize = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(schedule)
+    for (const card of cards) if (card.el) resize?.observe(card.el)
+    update()
+    stickyCleanup = (): void => {
+      window.removeEventListener('scroll', schedule)
+      window.removeEventListener('resize', schedule)
+      resize?.disconnect()
+      window.cancelAnimationFrame(frame)
+      stuckMap.value = {}
+    }
   })
-
-  if (!stickyResizeListener) {
-    stickyResizeListener = (): void => {
-      // navHeader can change on rotation / viewport resize; rebuild observers
-      // with refreshed rootMargin values.
-      rebuildStickyObservers()
-    }
-    window.addEventListener('resize', stickyResizeListener, { passive: true })
-  }
-
-  stickyCleanup = (): void => {
-    for (const o of stickyObservers) o.disconnect()
-    stickyObservers = []
-    if (stickyResizeListener) {
-      window.removeEventListener('resize', stickyResizeListener)
-      stickyResizeListener = null
-    }
-    stuckMap.value = {}
-  }
 }
 
 /**
