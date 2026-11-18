@@ -177,9 +177,9 @@ if (!runway.loaded) runway.load()
       </dl>
       <p class="hint">Converted values use 1 ft = 0.3048 m; available distances are rounded down.</p>
     </section>
-    <p role="status" class="assessment"><strong>Runway assessment unavailable.</strong>
-      Surface, slope, wind and operational safety factors are not yet applied, so AeroDash does not compare
-      distances or give a Go result. Compare the corrected POH/AFM distances with the declared runway yourself.</p>
+    <p role="status" class="assessment"><strong>Manual runway declaration.</strong>
+      Comparisons appear in Performance only when the source and current inputs support them.
+      Verify the declared distances and applicable aircraft manual; no Go/No-Go decision is provided.</p>
   </form>
 </template>
 

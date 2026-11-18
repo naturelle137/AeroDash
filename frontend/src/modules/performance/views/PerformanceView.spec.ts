@@ -97,7 +97,7 @@ it('composes the manual runway panel without letting runway entry create raw dis
   await panel.trigger('submit')
   expect(view.get('[aria-label="Saved manual runway"]').text()).toContain('1000 ft (304.8 m)')
   expect(view.find('[aria-label="Base performance distances"]').exists()).toBe(false)
-  expect(view.text()).toContain('Runway assessment unavailable')
+  expect(view.text()).toContain('Manual runway declaration')
   // Field elevation is never copied into pressure altitude, and no method is preselected.
   expect(view.text()).toContain('No method selected')
   await field(view, 'Enter pressure altitude directly').setValue(true)

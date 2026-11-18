@@ -7,7 +7,7 @@ Feature: Offline manual runway entry
     And the pilot opens Performance and then loses connectivity
     When the pilot saves runway "TEST" "09" with TORA "2000" "ft", LDA "550" "m", elevation "-12" "ft" and surface "Paved" "Wet"
     Then the saved runway shows TORA "2000 ft (609.6 m)", LDA "550 m (550.0 m)" and elevation "-12 ft (-3.7 m)"
-    And the runway is labelled user-entered and the runway assessment is unavailable
+    And the runway is labelled as a user-entered declaration
     When the pilot changes the LDA to "1800" "ft"
     Then the saved runway is no longer shown as current
     When the pilot saves the runway inputs
