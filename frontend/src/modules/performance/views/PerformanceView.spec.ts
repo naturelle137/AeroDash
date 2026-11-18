@@ -20,7 +20,7 @@ async function fillLookup(view: VueWrapper, mass: string, pressureAltitude: stri
   await field(view, 'Pressure altitude (ft)').setValue(pressureAltitude)
   await field(view, 'Temperature (°C)').setValue(temperature)
 }
-const results = (view: VueWrapper) => view.find('[aria-label="Raw POH table distances"]')
+const results = (view: VueWrapper) => view.find('[aria-label="Base performance distances"]')
 
 it('uses persisted profiles and immediately clears results on numeric, selection and profile changes', async () => {
   const fleet = useFleetStore()
@@ -31,10 +31,10 @@ it('uses persisted profiles and immediately clears results on numeric, selection
   await flushPromises()
   await view.get('select').setValue(fleet.profiles[0]!.id)
   await fillLookup(view, '900', '1000', '10')
-  expect(view.get('[aria-label="Raw POH table distances"]').text()).toContain('220.0 m')
+  expect(view.get('[aria-label="Base performance distances"]').text()).toContain('220.0 m')
   expect(results(view).text()).toContain('1000 ft, entered directly')
   await field(view, 'Mass (kg)').setValue('')
-  expect(view.find('[aria-label="Raw POH table distances"]').exists()).toBe(false)
+  expect(view.find('[aria-label="Base performance distances"]').exists()).toBe(false)
   expect(view.text()).toContain('finite mass')
   await field(view, 'Mass (kg)').setValue('900')
   fleet.profiles[0]!.performanceProfiles = []
@@ -42,7 +42,7 @@ it('uses persisted profiles and immediately clears results on numeric, selection
   expect(results(view).exists()).toBe(false)
   await view.get('select').setValue(fleet.profiles[1]!.id)
   expect(view.get('[role="alert"]').text()).toContain('Draft')
-  expect(view.find('[aria-label="Raw POH table distances"]').exists()).toBe(false)
+  expect(view.find('[aria-label="Base performance distances"]').exists()).toBe(false)
 })
 
 it('reports storage error with retry and blocks computation', async () => {
@@ -67,7 +67,7 @@ it('clears results on source-unit and provenance edits and visibly blocks invali
   await flushPromises()
   await view.get('select').setValue(fleet.profiles[0]!.id)
   await fillLookup(view, '900', '1000', '10')
-  expect(view.find('[aria-label="Raw POH table distances"]').exists()).toBe(true)
+  expect(view.find('[aria-label="Base performance distances"]').exists()).toBe(true)
   fleet.profiles[0]!.performanceProfiles![0]!.sourceUnits = { mass: 'kg', pressureAltitude: 'ft', temperature: '°C', distance: 'm' }
   await flushPromises()
   expect(results(view).text()).toContain('220.0 m')
@@ -77,7 +77,7 @@ it('clears results on source-unit and provenance edits and visibly blocks invali
   Object.assign(fleet.profiles[0]!.performanceProfiles![0]!.sourceUnits!, { distance: 'yd' })
   await flushPromises()
   expect(view.findAll('[role="alert"]')[0]!.text()).toContain('source-unit declarations')
-  expect(view.find('[aria-label="Raw POH table distances"]').exists()).toBe(false)
+  expect(view.find('[aria-label="Base performance distances"]').exists()).toBe(false)
 })
 
 it('composes the manual runway panel without letting runway entry create raw distances or an assessment', async () => {
@@ -96,7 +96,7 @@ it('composes the manual runway panel without letting runway entry create raw dis
   ] as const) await view.get(selector).setValue(value)
   await panel.trigger('submit')
   expect(view.get('[aria-label="Saved manual runway"]').text()).toContain('1000 ft (304.8 m)')
-  expect(view.find('[aria-label="Raw POH table distances"]').exists()).toBe(false)
+  expect(view.find('[aria-label="Base performance distances"]').exists()).toBe(false)
   expect(view.text()).toContain('Runway assessment unavailable')
   // Field elevation is never copied into pressure altitude, and no method is preselected.
   expect(view.text()).toContain('No method selected')
@@ -258,7 +258,7 @@ it('assesses correction sources on request and clears the assessment when any ba
   expect(text).toContain('No saved, unchanged manual runway')
   expect(text).toContain('adds metres per knot')
   expect(text).not.toMatch(/selected source|approved source|×\s?\d/)
-  expect(view.find('[aria-label="Raw POH table distances"]').exists()).toBe(false)
+  expect(view.find('[aria-label="Base performance distances"]').exists()).toBe(false)
 
   await field(view, 'Mass (kg)').setValue('900')
   expect(assessment(view).exists()).toBe(false)

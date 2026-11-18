@@ -25,7 +25,7 @@ const { temperature, corrections, safetyFactors, showPaErrors, presentation } = 
       <label v-if="safetyFactors[operation].preset === 'custom'">Custom safety factor (1.00–3.00)<input v-model="safetyFactors[operation].custom" :id="`performance-${operation}-safety-factor-custom`" type="text" inputmode="decimal" /></label>
     </fieldset>
 
-    <section class="results" :aria-label="presentation.status === 'assessed' ? 'Raw POH table distances' : 'Performance results'" :data-status="presentation.status" aria-live="polite">
+    <section class="results" :aria-label="presentation.status === 'assessed' ? 'Base performance distances' : 'Performance results'" :data-status="presentation.status" aria-live="polite">
       <p v-if="presentation.status !== 'assessed'" :role="presentation.status === 'blocked' ? 'alert' : 'status'">
         {{ presentation.reason }}</p>
       <p v-if="presentation.conditions">Pressure altitude used: {{ presentation.conditions.pressureAltitude }} ·

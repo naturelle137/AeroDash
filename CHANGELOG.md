@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Estimate a missing performance base distance with per-value provenance in performance results and the briefing pack.
+
 ### Added
 
 - Select the operational safety factor per operation (manual factor, EASA, short field, custom) with advisory WARN-PF-002 below the recommended minimum (refs #305).

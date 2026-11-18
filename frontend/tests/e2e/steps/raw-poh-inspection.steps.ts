@@ -3,7 +3,7 @@ import { createBdd } from 'playwright-bdd'
 import { testPohAircraft } from '../../fixtures/poh-aircraft'
 
 const { Given, When, Then } = createBdd()
-const result = (page: Page) => page.getByRole('region', { name: 'Raw POH table distances', exact: true })
+const result = (page: Page) => page.getByRole('region', { name: 'Base performance distances', exact: true })
 async function importFile(page: Page, profile: unknown) {
   await page.goto('/fleet')
   await page.getByLabel('Or import from Exchange File (.json)').setInputFiles({
@@ -148,7 +148,7 @@ Then('the raw POH browser evidence is captured', async ({ page, $testInfo }) => 
 })
 When('I import a Test POH profile with {string}', async ({ page }, problem: string) => {
   const p = testPohAircraft()
-  if (problem === 'missing phase') p.performanceProfiles!.pop()
+  if (problem === 'missing phase') p.performanceProfiles!.splice(2, 2)
   if (problem === 'duplicate phase') p.performanceProfiles!.push(p.performanceProfiles![0]!)
   if (problem === 'zero distance') p.performanceProfiles![0]!.dataPoints[0]!.distance = 0
   if (problem === 'incomplete grid') p.performanceProfiles![0]!.dataPoints.pop()

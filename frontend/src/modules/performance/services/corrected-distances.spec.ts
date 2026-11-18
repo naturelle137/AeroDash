@@ -25,7 +25,7 @@ function setup(registration?: string, surface: 'paved' | 'unpaved' = 'paved', sa
   if (save) runway.save()
   const step = usePerformanceStep(() => context)
   step.pa.method.value = 'direct'; step.pa.direct.value = '1000'; step.temperature.value = '10'
-  return { step, runway }
+  return { step, runway, context }
 }
 const corrected = (step: ReturnType<typeof setup>['step'], index: number) => step.presentation.value.corrected[index]!
 
@@ -167,6 +167,33 @@ describe('corrected distances in the performance step', () => {
       step.safetyFactors.landing.custom = '1.7'
       expect(at(1).safetyFactorWarning).toBeNull()
       expect(at(1).safetyFactor).toContain('1.70')
+    })
+    effect.stop()
+  })
+
+  it.each([
+    ['TakeoffDistance50ft', false, true],
+    ['TakeoffRoll', true, false],
+  ] as const)('marks each value according to its inputs when %s is missing', (phase, rollEstimated, over50Estimated) => {
+    const effect = effectScope()
+    effect.run(() => {
+      const { step, runway, context } = setup()
+      context.profile!.performanceProfiles = context.profile!.performanceProfiles!.filter(table => table.flightPhase !== phase)
+      Object.assign(step.corrections.takeoff, { headwind: '0', slope: '0' })
+      Object.assign(runway.draft, { tora: '100', toda: '5000', todaUnit: 'm' }); runway.save()
+      const item = corrected(step, 0)
+      if (item.status !== 'applied') throw new Error('expected applied')
+      const marked = (value: string) => value.includes('ESTIMATED (CAA SSL 07)')
+      expect(marked(item.rows[0]!.raw)).toBe(rollEstimated)
+      expect(marked(item.rows[0]!.corrected)).toBe(rollEstimated)
+      expect(marked(item.rows[0]!.factored)).toBe(rollEstimated)
+      expect(marked(item.rows[1]!.raw)).toBe(over50Estimated)
+      expect(marked(item.rows[1]!.corrected)).toBe(true)
+      expect(marked(item.rows[1]!.factored)).toBe(true)
+      expect(marked(item.comparison.required)).toBe(true)
+      expect(marked(item.comparison.margin)).toBe(true)
+      expect(item.comparison.summary).toContain('ground roll')
+      expect(marked(item.comparison.summary)).toBe(rollEstimated)
     })
     effect.stop()
   })
