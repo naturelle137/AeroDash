@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Engineering
 
+- Document the local fleet export, erasure/retry and Draft restore journey with download, offline and shared-browser limits (refs #289).
+
 - Record the local at-rest threat model and bounded CTO acceptance of plaintext persistence, with encryption alternatives and reopening conditions (refs #287).
 
 - Keep new local profile owners null with lossless v3 migration and document the pre-OIDC secrets policy (refs #288).
