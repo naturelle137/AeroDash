@@ -76,7 +76,7 @@ const { temperature, corrections, safetyFactors, showPaErrors, presentation } = 
 .fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 1rem; }
 fieldset { border: 1px solid var(--color-border); border-radius: 8px; margin: 0; min-width: 0; }
 label { display: grid; gap: .5rem; }
-input, button { font: inherit; padding: .75rem; min-height: 44px; border-radius: 6px; border: 1px solid var(--color-border); background: var(--color-surface); color: inherit; min-width: 0; }
+input, select, button { font: inherit; padding: .75rem; min-height: 44px; border-radius: 6px; border: 1px solid var(--color-border); background: var(--color-surface); color: inherit; min-width: 0; }
 button { cursor: pointer; font-weight: 600; justify-self: start; }
 button:disabled { opacity: .5; cursor: default; }
 p { margin: 0; line-height: 1.6; overflow-wrap: anywhere; }
