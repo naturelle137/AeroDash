@@ -75,7 +75,7 @@ export type RunwayPresentation =
 const TITLES: Record<PerformanceGroupId, string> = { takeoff: 'Takeoff', landing: 'Landing' }
 
 export const PERFORMANCE_SCOPE = [
-  'Raw POH/AFM table distances are uncorrected: no wind, surface, slope or density-altitude correction is applied to them. Corrected distances are shown separately and only where an accepted source covers the aircraft.',
+  'Base distances from POH/AFM tables or marked estimates are uncorrected: no wind, surface, slope or density-altitude correction is applied to them. Corrected distances are shown separately and only where an accepted source covers the aircraft.',
   'No runway comparison, Go/No-Go advisory or operational approval is provided.',
 ] as const
 
@@ -100,7 +100,7 @@ function groupPresentation(id: PerformanceGroupId, source: MassSource, group: Gr
     rows: group.distances.map((row) => ({
       label: row.label,
       value: `${formatNumber(row.distance)} m`,
-      note: null,
+      note: row.provenance === 'estimated' ? 'ESTIMATED (CAA SSL 07)' : null,
     })),
   }
 }

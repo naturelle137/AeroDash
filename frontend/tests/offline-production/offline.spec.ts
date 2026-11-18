@@ -2,7 +2,7 @@ import { expect, test, type Page, type TestInfo } from '@playwright/test'
 import { testPohAircraft } from '../fixtures/poh-aircraft'
 
 const connectivity = (page: Page) => page.getByRole('banner').getByRole('status')
-const distances = (page: Page) => page.getByRole('region', { name: 'Raw POH table distances', exact: true })
+const distances = (page: Page) => page.getByRole('region', { name: 'Base performance distances', exact: true })
 async function capture(page: Page, info: TestInfo, name: string) {
   const path = info.outputPath(`${name}.png`)
   await page.screenshot({ path, fullPage: false })

@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Estimate a missing performance base distance with per-value provenance in performance results and the briefing pack.
+
 ### Added
 
 - Select environmental corrections from the supplied P2008 JC basic and S4 manuals with visible source references.
@@ -16,6 +18,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Compare the S9-corrected distance over 50 ft with the declared TORA/LDA, with metre and percentage margin and an insufficient-runway alert (refs #300, #302, #305).
 
 ### Engineering
+
+- Add an advanced-student variant to the night (UJ-D-001) and hot-and-high (UJ-C-001) journeys without assuming an instructor-review capability (refs #332).
+
+- Document the ab-initio student variant of the flight-preparation journey (closes #331).
 
 - Document the local fleet export, erasure/retry and Draft restore journey with download, offline and shared-browser limits (refs #289).
 

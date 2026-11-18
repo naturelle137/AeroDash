@@ -1,3 +1,4 @@
+import { resolveDistance } from '@/core/logic/performance.estimation'
 import { AircraftProfileSchema, type AircraftProfile } from '@/core/adapters/aircraft.schema'
 import {
   pivotDataPointsToCube,
@@ -38,6 +39,7 @@ export type TableInspection = {
   /** Normalized kg/ft/°C/m grids. */
   cubes: Record<Phase, PerformanceCube3D>
   bounds: Record<Phase, Record<typeof AXES[number], Range>>
+  provenance: Record<Phase, 'poh' | 'estimated'>
 }
 
 /** A mass offered to one phase group; unavailable masses carry the exact reason. */
@@ -56,6 +58,7 @@ export type PhaseDistance = {
   label: string
   /** Metres; unrounded. */
   distance: number
+  provenance: 'poh' | 'estimated'
   massTreatment: MassTreatment
   lookupMass: number
   massRange: Range
@@ -91,6 +94,7 @@ export function inspectTables(raw: unknown): TableInspection | InspectionFailure
   const bounds = {} as TableInspection['bounds']
   for (const phase of PHASES) {
     const matches = tables.filter((table) => table.flightPhase === phase)
+    if (matches.length === 0) continue
     if (matches.length !== 1) return blocked('tables', `${phase}: require exactly one table (missing or duplicate phase). Update the Fleet exchange file and import it as a Draft.`)
     const normalized = normalizePerformanceTable(matches[0])
     if (normalized.status === 'failure') return blocked('tables', normalized.message)
@@ -104,7 +108,20 @@ export function inspectTables(raw: unknown): TableInspection | InspectionFailure
     const cube = cubes[phase]
     bounds[phase] = { mass: range(cube.massAxis), pressureAltitude: range(cube.altitudeAxis), temperature: range(cube.temperatureAxis) }
   }
-  return { status: 'ready', profile, cubes, bounds }
+  const provenance = {} as TableInspection['provenance']
+  for (const group of ['takeoff', 'landing'] as const) {
+    const [roll, distance] = GROUP_PHASES[group]
+    if (!cubes[roll] && !cubes[distance]) return blocked('tables', `${roll}: require exactly one table in each phase pair. Update the Fleet exchange file and import it as a Draft.`)
+    for (const phase of [roll, distance]) {
+      provenance[phase] = cubes[phase] ? 'poh' : 'estimated'
+      if (!cubes[phase]) {
+        const source = cubes[phase === roll ? distance : roll]
+        cubes[phase] = source
+        bounds[phase] = bounds[phase === roll ? distance : roll]
+      }
+    }
+  }
+  return { status: 'ready', profile, cubes, bounds, provenance }
 }
 
 const DECIMAL = /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?$/i
@@ -153,13 +170,15 @@ function assessGroup(tables: TableInspection, group: PerformanceGroupId, mass: M
     const { label } = PHASE_INFO[phase]
     const result = lookupPhaseDistance(tables.cubes[phase], { mass: mass.massKg, pressureAltitude: conditions.pressureAltitudeFt, temperature: conditions.temperatureC })
     if (result.status === 'blocked') return { status: 'blocked', massKg: mass.massKg, ...lookupMessage(label, mass.massKg, mass.origin, result, conditions) }
-    distances.push({ phase, label, distance: result.distance, massTreatment: result.massTreatment, lookupMass: result.lookupMass, massRange: result.massRange })
+    const { distance, provenance } = resolveDistance(tables.provenance[phase] === 'poh' ? result.distance : null, result.distance, group, phase === GROUP_PHASES[group][0] ? 'roll' : 'distance')
+    if (!Number.isFinite(distance) || distance <= 0) return { status: 'blocked', massKg: mass.massKg, reason: 'tables', message: `${label}: estimated distance is invalid.` }
+    distances.push({ phase, label, distance, provenance, massTreatment: result.massTreatment, lookupMass: result.lookupMass, massRange: result.massRange })
   }
   return { status: 'success', massKg: mass.massKg, origin: mass.origin, distances }
 }
 
 /**
- * Raw POH distances for takeoff and landing, each with its own mass. One group's
+ * Base performance distances for takeoff and landing, each with its own mass. One group's
  * missing mass or envelope failure never removes the other group's valid result.
  */
 export function assessPerformance(raw: unknown, inputs: AssessmentInputs, now: Date): PerformanceAssessment {

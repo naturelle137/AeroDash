@@ -20,7 +20,7 @@ When applying surface friction or runway slope corrections, the system shall app
 
 ### REQ-PF-005: Missing Data Estimation
 
-If a missing takeoff base distance has no accepted source rule eligible for the requested direction and conditions under the [estimation contract](../architecture/performance-missing-distance-estimation.md), then the system shall report that distance as unavailable with a reason.
+If one takeoff base distance is missing, then the system shall derive it using `TOD = TOR × 1.9` before applying the Operational Safety Factor.
 
 ### REQ-PF-006: Operational Required Distance
 
@@ -68,7 +68,7 @@ If the user-selected Operational Safety Factor is lower than the greater of the 
 
 ### REQ-PF-017: Estimated Value Marking
 
-When an accepted eligible rule produces an estimated performance value, the system shall display `ESTIMATED` with that value’s actual source, version, section, derivation direction and applicability conditions in the UI.
+When a performance value is derived using REQ-PF-005 or its landing counterpart, the system shall label it `ESTIMATED (CAA SSL 07)` in the UI.
 
 ### REQ-PF-018: Takeoff distance
 
@@ -92,7 +92,7 @@ When applying density-altitude or wind corrections, the system shall apply them 
 
 ### REQ-PF-023: Landing estimation
 
-If a missing landing base distance has no accepted source rule eligible for the requested direction and conditions under the [estimation contract](../architecture/performance-missing-distance-estimation.md), then the system shall report that distance as unavailable with a reason.
+If one landing base distance is missing, then the system shall derive it using `LD = LR × 1.67` before applying the Operational Safety Factor.
 
 ### REQ-PF-024: Factor presets
 
@@ -128,7 +128,7 @@ When an input change triggers a new extrapolation assessment, the system shall c
 
 ### REQ-PF-032: Estimated export marker
 
-When an estimated performance value passes through supported persistence, import, export or briefing output, the system shall preserve its per-value `ESTIMATED` marker and actual source, version, section, derivation direction and applicability conditions under the [estimation contract](../architecture/performance-missing-distance-estimation.md).
+When an estimated performance value is exported, the system shall label it `ESTIMATED (CAA SSL 07)` in the export.
 
 ### REQ-PF-041: Raw table inspection
 
@@ -136,7 +136,7 @@ When the pilot opens Performance, the system shall offer persisted Fleet profile
 
 ### REQ-PF-042: Complete reviewed source
 
-If a selected profile is Draft, invalid or lacks exactly one complete positive-distance rectangular grid for each of TOR, TOD, LR and LD, then the system shall block raw distance output.
+If a selected profile is Draft, invalid or lacks a complete positive-distance rectangular grid for both members of either TOR/TOD or LR/LD, or has duplicate or corrupt grids, then the system shall block raw distance output.
 
 ### REQ-PF-043: Supported application lookup
 

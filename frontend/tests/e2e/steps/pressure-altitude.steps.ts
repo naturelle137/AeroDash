@@ -2,7 +2,7 @@ import { expect, type Page } from '@playwright/test'
 import { createBdd } from 'playwright-bdd'
 
 const { When, Then } = createBdd()
-const result = (page: Page) => page.getByRole('region', { name: 'Raw POH table distances', exact: true })
+const result = (page: Page) => page.getByRole('region', { name: 'Base performance distances', exact: true })
 const derived = (page: Page) => page.getByLabel('Derived pressure altitude', { exact: true })
 const qnhSection = (page: Page) => page.getByRole('region', { name: 'QNH and field elevation', exact: true })
 const radio = (page: Page, name: string) => page.getByRole('radio', { name, exact: true })

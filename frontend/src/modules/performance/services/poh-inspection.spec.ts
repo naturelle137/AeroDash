@@ -209,3 +209,31 @@ describe('takeoff and landing assessment with separate masses', () => {
       .toMatchObject({ status: 'blocked', reason: 'input' })
   })
 })
+
+describe('missing distance estimates', () => {
+  const inputs = {
+    takeoff: { status: 'ready' as const, massKg: 900, origin: 'test' },
+    landing: { status: 'ready' as const, massKg: 900, origin: 'test' },
+    pressureAltitude: '1000', temperature: '10',
+  }
+  it.each([
+    ['TakeoffDistance50ft', 'takeoff', 1, 220 * 1.9],
+    ['TakeoffRoll', 'takeoff', 0, 320 / 1.9],
+    ['LandingDistance50ft', 'landing', 1, 420 * 1.67],
+    ['LandingRoll', 'landing', 0, 520 / 1.67],
+  ] as const)('derives missing %s and preserves provenance', (phase, group, index, expected) => {
+    const profile = testPohAircraft()
+    profile.performanceProfiles = profile.performanceProfiles!.filter(table => table.flightPhase !== phase)
+    const result = assessPerformance(profile, inputs, now)
+    expect(result.status).toBe('assessed')
+    if (result.status !== 'assessed' || result[group].status !== 'success') throw new Error('Expected result')
+    expect(result[group].distances[index]).toMatchObject({ provenance: 'estimated' })
+    expect(result[group].distances[index]!.distance).toBeCloseTo(expected)
+    expect(result[group].distances[1 - index]!.provenance).toBe('poh')
+  })
+  it('prefers all published values', () => {
+    const result = assessPerformance(testPohAircraft(), inputs, now)
+    if (result.status !== 'assessed' || result.takeoff.status !== 'success') throw new Error('Expected result')
+    expect(result.takeoff.distances.map(row => [row.distance, row.provenance])).toEqual([[220, 'poh'], [320, 'poh']])
+  })
+})

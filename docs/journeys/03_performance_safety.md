@@ -23,6 +23,18 @@ Focus: Behaviour at the limits of the performance envelope — extrapolation, ov
 
 **Outcome:** The pilot avoids taking an uncalculated risk in extreme conditions. Within the 10% extrapolation band, the system provides a highly conservative estimate with a penalty and requires acknowledgment. Beyond that, it refuses to calculate entirely.
 
+### Variant: Advanced student (`P-STU-ADV`)
+
+**Persona:** Advanced student (PPL phase 3+) preparing a supervised hot-and-high or mountain sortie for a new endorsement.
+
+**Context:** Same aircraft, conditions and POH limits as above, in the pre-solo authorisation context. The student plans to discuss the result with the instructor.
+
+**Goal:** Recognise the edge of the envelope: extrapolated results carry a penalty and need acknowledgment, and conditions beyond the 10% band are refused.
+
+**Differences from the base journey:** The student treats the penalised extrapolation at 54 °C, its flag and acknowledgment gate, and the refusals at 57 °C and 11,100 ft as learning points, and does not read an extrapolated result as a comfortable margin. Extrapolation, acknowledgment and pressure-altitude behaviour are unchanged.
+
+**Out of scope:** The application does not model instructor review, approval or authorisation. The student and instructor handle that outside the application.
+
 ## <a name="UJ-C-002"></a>UJ-C-002: The "Unknown Airfield" (Manual Override)
 
 **Persona:** Pilot
