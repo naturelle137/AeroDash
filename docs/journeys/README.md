@@ -9,6 +9,7 @@ Journeys describe intended pilot workflows and their observable outcomes. They h
 - [Weather and environment](05_weather_environment.md)
 - [Fuel and endurance](06_fuel_endurance.md)
 - [Onboarding and sync](07_onboarding_sync.md)
+- [Training and supervision](08_training_supervision.md)
 
 Extend a focused existing journey when possible. Include a happy path and relevant warning/recovery paths. Keep ordinary UJ/REQ references useful for discussion; no registry or mandatory tag chain. Preserve real Playwright scenario tags in tests.
 
