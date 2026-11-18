@@ -136,7 +136,7 @@ When the pilot opens Performance, the system shall offer persisted Fleet profile
 
 ### REQ-PF-042: Complete reviewed source
 
-If a selected profile is Draft, invalid or lacks exactly one complete positive-distance rectangular grid for each of TOR, TOD, LR and LD, then the system shall block raw distance output.
+If a selected profile is Draft, invalid or lacks a complete positive-distance rectangular grid for both members of either TOR/TOD or LR/LD, or has duplicate or corrupt grids, then the system shall block raw distance output.
 
 ### REQ-PF-043: Supported application lookup
 

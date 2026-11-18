@@ -23,7 +23,7 @@ const { tables, inputKey } = props.step
       <PerformanceTableBounds :tables="tables" />
     </template>
     <section class="panel" aria-labelledby="fp-performance-lookup">
-      <h3 id="fp-performance-lookup">Raw POH distances</h3>
+      <h3 id="fp-performance-lookup">Base performance distances</h3>
       <PerformanceStepPanel :step="step" :can-compute="context.ready && !!context.profile">
         <template #masses>
           <dl class="masses" aria-label="Masses used">

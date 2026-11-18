@@ -78,7 +78,7 @@ export function presentCorrectedOperation(
 ): CorrectedOperationPresentation {
   const title = OPERATION_LABELS[operation]
   const unavailable = (reason: string): CorrectedOperationPresentation => ({ operation, title, status: 'unavailable', reason })
-  if (group?.status !== 'success') return unavailable('No raw POH distance for this operation, so nothing can be corrected.')
+  if (group?.status !== 'success') return unavailable('No base distance for this operation, so nothing can be corrected.')
   if (sources?.status !== 'assessed') return unavailable('Correction sources cannot be assessed for this profile. Distances stay uncorrected.')
   const rows = sources.corrections.filter((row) => row.operation === operation)
   const selected = rows.map((row) => row.selected)
@@ -109,14 +109,15 @@ export function presentCorrectedOperation(
   const up = (value: number) => `${formatNumber(Math.ceil(value), 0)} m`
   const { document } = selected[0]
   const comparison = compareWithRunway(operation, Math.ceil(result.distanceOver50ft * factor), Math.ceil(result.groundRoll * factor), available)
+  const estimated = group.distances.some((row) => row.provenance === 'estimated') ? ' ESTIMATED (CAA SSL 07)' : ''
   return {
     operation, title, status: 'applied',
     source: `${document.title}, ${document.identifier}, ${document.revision}`,
     rows: [
-      { label: roll.label, raw: `${formatNumber(roll.distance)} m`, corrected: up(result.groundRoll), factored: up(result.groundRoll * factor) },
-      { label: over50.label, raw: `${formatNumber(over50.distance)} m`, corrected: up(result.distanceOver50ft), factored: up(result.distanceOver50ft * factor) },
+      { label: roll.label + estimated, raw: `${formatNumber(roll.distance)} m`, corrected: up(result.groundRoll), factored: up(result.groundRoll * factor) },
+      { label: over50.label + estimated, raw: `${formatNumber(over50.distance)} m`, corrected: up(result.distanceOver50ft), factored: up(result.distanceOver50ft * factor) },
     ],
-    comparison,
+    comparison: { ...comparison, required: comparison.required + estimated, margin: comparison.margin + estimated },
     safetyFactor: `${factor.toFixed(2)} (${SAFETY_FACTOR_PRESETS.find((p) => p.value === safetyFactor.preset)!.label})`,
     safetyFactorWarning: isOsfBelowMinimum(osf, operation)
       ? `WARN-PF-002: safety factor ${factor.toFixed(2)} is below the recommended minimum ${threshold.toFixed(2)} (greater of the manual factor ${manualFactor} and the regulatory baseline). Advisory; the result is not blocked.`

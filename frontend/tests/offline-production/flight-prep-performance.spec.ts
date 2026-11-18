@@ -47,7 +47,7 @@ test('Flight Prep shares current phase masses and converted units online and cac
     await performance.getByLabel('Temperature (°C)', { exact: true }).fill('10')
   }
   async function shot(name: string) {
-    await performance.getByRole('region', { name: 'Raw POH table distances', exact: true }).scrollIntoViewIfNeeded()
+    await performance.getByRole('region', { name: 'Base performance distances', exact: true }).scrollIntoViewIfNeeded()
     const path = info.outputPath(`${name}.png`)
     await page.screenshot({ path, animations: 'disabled' })
     await info.attach(name, { path, contentType: 'image/png' })
