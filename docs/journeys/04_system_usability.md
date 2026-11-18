@@ -26,6 +26,18 @@ Focus: UI resilience and environmental factors.
 
 **Outcome:** The pilot comfortably uses the application under adverse conditions — dark cockpit, no connectivity. Typos are caught but pilot authority is preserved. The PA calculation gives the pilot situational awareness about the actual performance environment. The exported PDF clearly flags any externally-sourced data that the pilot hasn't personally verified, and renders all active safety notifications so the paper copy is self-contained.
 
+### Variant: Advanced student (`P-STU-ADV`)
+
+**Persona:** Advanced student (PPL phase 3+) preparing a supervised night cross-country for a new night endorsement.
+
+**Context:** Same dark cockpit, connectivity and unverified destination profile as above. The student intends to take the briefing pack to the instructor before the sortie.
+
+**Goal:** Prepare the demanding night sortie correctly and understand every flag well enough to explain it to the instructor.
+
+**Differences from the base journey:** The student reads each warning and the `[UNVERIFIED]` marker as a learning point and keeps the exported PDF as the document to discuss with the instructor. The mechanics, thresholds and system reactions are identical to the base journey.
+
+**Out of scope:** The application does not model instructor review, approval or authorisation. The student and instructor handle that outside the application.
+
 ## <a name="UJ-D-002"></a>UJ-D-002: Unverified Data Verification Flow
 
 **Persona:** Pilot
