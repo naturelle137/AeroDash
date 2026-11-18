@@ -58,7 +58,7 @@ const { temperature, corrections, safetyFactors, showPaErrors, presentation } = 
           <p>Safety factor: {{ item.safetyFactor }}</p>
           <p v-if="item.safetyFactorWarning" data-warning="WARN-PF-002" role="alert">{{ item.safetyFactorWarning }}</p>
           <p class="comparison" :data-comparison="item.comparison.status" :role="item.comparison.status === 'insufficient' ? 'alert' : 'status'">
-            <strong>{{ item.comparison.status === 'insufficient' ? 'CRIT-PF-002: Insufficient runway' : 'Fits declared runway' }}</strong>:
+            <strong>{{ item.comparison.status === 'insufficient' ? 'CRIT-PF-002: Insufficient runway' : item.comparison.status === 'sufficient' ? 'Fits declared runway' : 'Runway comparison unavailable' }}</strong>:
             {{ item.comparison.summary }} Required {{ item.comparison.required }} · {{ item.comparison.availableLabel }}
             {{ item.comparison.available }} · margin {{ item.comparison.margin }}.</p>
           <ul class="scope"><li v-for="note in item.notes" :key="note">{{ note }}</li></ul>

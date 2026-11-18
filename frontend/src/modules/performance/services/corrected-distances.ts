@@ -45,7 +45,7 @@ export type CorrectedOperationPresentation =
   | { readonly operation: Operation; readonly title: string; readonly status: 'unavailable'; readonly reason: string }
 
 export type RunwayComparison = {
-  readonly status: 'sufficient' | 'insufficient'
+  readonly status: 'sufficient' | 'insufficient' | 'unavailable'
   readonly availableLabel: string
   readonly required: string
   readonly available: string
@@ -145,7 +145,7 @@ function compareWithRunway(operation: Operation, requiredM: number, rollM: numbe
   const availableM = available ? (takeoff ? (available.toda ?? available.tora) : available.lda) : null
   const required = `${formatNumber(requiredM, 0)} m`
   if (availableM === null || !Number.isFinite(availableM) || availableM <= 0) {
-    return { status: 'insufficient', availableLabel, required, available: 'Not available', margin: 'Not available',
+    return { status: 'unavailable', availableLabel, required, available: 'Not available', margin: 'Not available',
       summary: `Runway ${availableLabel} is not available, so the distance cannot be compared.` }
   }
   const { absolute, percent } = safetyMargin(availableM, requiredM)

@@ -2,8 +2,19 @@ import { expect, type Page } from '@playwright/test'
 import { createBdd } from 'playwright-bdd'
 import { testPohAircraft } from '../../fixtures/poh-aircraft'
 
-const { When, Then } = createBdd()
+const { Given, When, Then } = createBdd()
 const takeoff = (page: Page) => page.getByRole('region', { name: 'Takeoff corrected distances', exact: true })
+
+Given('the production app is cached for offline performance', async ({ page }) => {
+  await page.goto('/')
+  await page.evaluate(() => navigator.serviceWorker.ready)
+  await page.reload()
+  expect(await page.evaluate(() => navigator.serviceWorker.controller !== null)).toBe(true)
+})
+
+When('the pilot clears the runway surface condition', async ({ page }) => {
+  await page.getByLabel('Surface condition', { exact: true }).selectOption('')
+})
 
 When('I import and verify a synthetic POH profile for registration {string} declaring type {string} and maximum mass {int} kg',
   async ({ page }, registration: string, icaoTypeDesignator: string, mtom: number) => {

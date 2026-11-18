@@ -1,4 +1,5 @@
 import type { SourceAssessment } from '@/core/logic/performance.correction-sources'
+import type { Notification } from '@/core/domain/notification.schema'
 import { BLOCKER_MESSAGES, CORRECTION_LABELS, INPUT_GAP_MESSAGES, OPERATION_LABELS, SUMMARY_MESSAGES, reasonMessage } from './correction-source-messages'
 import type { CorrectedOperationPresentation } from './corrected-distances'
 import type { GroupAssessment, MassSource, PerformanceAssessment, PerformanceGroupId } from './poh-inspection'
@@ -24,6 +25,7 @@ export interface PerformancePresentation {
   readonly operational: OperationalPresentation
   /** Corrected distances per operation; empty until a result exists. Raw groups stay uncorrected. */
   readonly corrected: readonly CorrectedOperationPresentation[]
+  readonly notifications: readonly Notification[]
   readonly runway: RunwayPresentation
   /** Scope statements that must accompany any displayed distance. */
   readonly scope: readonly string[]
@@ -124,7 +126,21 @@ export type PresentationInput = {
 
 export function presentPerformance(input: PresentationInput): PerformancePresentation {
   const { assessment } = input
-  const common = { inputKey: input.inputKey, inputs: input.inputs, aircraft: input.aircraft, runway: input.runway, operational: input.operational, corrected: input.corrected ?? [], scope: PERFORMANCE_SCOPE }
+  const corrected = input.corrected ?? []
+  const perOperation: Notification[] = corrected.flatMap((item) => {
+    if (item.status !== 'applied') return []
+    return [
+      ...(item.comparison.status === 'insufficient' ? [{ id: 'CRIT-PF-002', severity: 'CRITICAL' as const, message: `${item.title}: ${item.comparison.summary}`, context: 'Performance.RunwayLength', persistent: true, dismissible: false }] : []),
+      ...(item.safetyFactorWarning ? [{ id: 'WARN-PF-002', severity: 'WARNING' as const, message: `${item.title}: ${item.safetyFactorWarning}`, context: 'Performance.SafetyFactor', persistent: true, dismissible: true }] : []),
+    ]
+  })
+  const notifications = perOperation.reduce<Notification[]>((all, item) => {
+    const existing = all.find(n => n.id === item.id)
+    if (existing) existing.message += ` ${item.message}`
+    else all.push({ ...item })
+    return all
+  }, [])
+  const common = { inputKey: input.inputKey, inputs: input.inputs, aircraft: input.aircraft, runway: input.runway, operational: input.operational, corrected, notifications, scope: PERFORMANCE_SCOPE }
   if (!assessment || assessment.status === 'blocked') {
     return {
       ...common,
