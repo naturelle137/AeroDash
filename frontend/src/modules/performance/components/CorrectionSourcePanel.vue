@@ -122,7 +122,7 @@ function candidatesOf(rows: CorrectionAssessment[]) {
             <summary>Source details</summary>
             <p v-if="!group.rows.some((row) => row.candidates.length)">No inspected source covers this correction.</p>
             <div v-for="candidate in candidatesOf(group.rows)" :key="candidate.id" class="candidate">
-              <p><strong>{{ candidate.kind }}</strong></p>
+              <p><strong>{{ candidate.kind }} — {{ candidate.perOperation.every((item) => !item.reasons.length) ? 'source identified' : 'not applied' }}</strong></p>
               <p>{{ candidate.title }} · {{ candidate.revision }}</p>
               <p>Section: {{ candidate.section }}</p>
               <p>{{ candidate.origin }}</p>
