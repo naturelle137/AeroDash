@@ -1,6 +1,6 @@
 # ADR-015: Bounded local at-rest risk acceptance
 
-- **Status:** Technical decision recorded; independent review and merge pending.
+- **Status:** Accepted; independently reviewed and merged in [PR #587](https://github.com/naturelle137/AeroDash/pull/587) (`cc575ceaef72a726d52fd809103be5bc34ff0694`).
 - **Date:** 2026-11-17
 - **Accountable owner:** CTO (technical residual risk and reopening).
 
@@ -28,6 +28,13 @@ Inspected tree: `873809e28f14cbc3da03828138140c721993fd1a` (`develop`),
 2026-11-17. Reuse the existing [privacy surface](../../../PRIVACY.md) and
 [data-rights contract](../data-rights.md); this is not a new inventory.
 
+Factual correction, 2026-11-18: checked revision
+`a34408a2338ed41d3693564d2a5424ef1f304d85` (`develop`), including merged
+[PR #588](https://github.com/naturelle137/AeroDash/pull/588). The inspected tree
+and date above remain the historical baseline. This update corrects the ADR's
+merge status and current erasure description only; broader
+[issue #289](https://github.com/naturelle137/AeroDash/issues/289) remains **OPEN**.
+
 - [Fleet repository](../../../frontend/src/modules/aircraft/services/fleet.repository.ts)
   validates profiles and stores objects directly in IndexedDB; [session persistence](../../../frontend/src/stores/session-persistence.store.ts)
   stores JSON in localStorage. Neither path encrypts data or authenticates its author.
@@ -35,8 +42,13 @@ Inspected tree: `873809e28f14cbc3da03828138140c721993fd1a` (`develop`),
   defaults to stripping costs on single export and resets imported verification
   and status to draft. [Bulk export/erase](../../../frontend/src/modules/aircraft/services/data-rights.service.ts)
   serializes readable full profiles, reports omitted rows, clears fleet and
-  namespaced Web Storage and reports observed failures. An unavailable Web
-  Storage accessor is treated as empty, not proof that inaccessible data is gone.
+  namespaced Web Storage and reports observed failures. A genuinely absent Web
+  Storage API is a successful no-op. A throwing accessor or failed enumeration
+  records a whole-store failure and incomplete erasure; previously saved data
+  may remain. Discovered keys and other stores are still cleared best-effort.
+  Restoring access permits a fresh deletion attempt. Existing service integration
+  tests and [browser fixtures](../../../frontend/tests/e2e/features/phase-sys-pwa/privacy-erasure.feature)
+  cover failure reporting and retry, not physical-device security or forensic erasure.
 - [PWA configuration](../../../frontend/vite.config.ts) precaches app assets and
   legal text, not a fleet backup. [Lifecycle ADR](316-pwa-update-lifecycle.md)
   describes update consent and the offline limit on fresh version checks.
