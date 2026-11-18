@@ -109,15 +109,19 @@ export function presentCorrectedOperation(
   const up = (value: number) => `${formatNumber(Math.ceil(value), 0)} m`
   const { document } = selected[0]
   const comparison = compareWithRunway(operation, Math.ceil(result.distanceOver50ft * factor), Math.ceil(result.groundRoll * factor), available)
-  const estimated = group.distances.some((row) => row.provenance === 'estimated') ? ' ESTIMATED (CAA SSL 07)' : ''
+  const marker = ' ESTIMATED (CAA SSL 07)'
+  const rollMarker = roll.provenance === 'estimated' ? marker : ''
+  const over50Marker = over50.provenance === 'estimated' ? marker : ''
+  const correctedOver50Marker = rollMarker || over50Marker
   return {
     operation, title, status: 'applied',
     source: `${document.title}, ${document.identifier}, ${document.revision}`,
     rows: [
-      { label: roll.label + estimated, raw: `${formatNumber(roll.distance)} m`, corrected: up(result.groundRoll), factored: up(result.groundRoll * factor) },
-      { label: over50.label + estimated, raw: `${formatNumber(over50.distance)} m`, corrected: up(result.distanceOver50ft), factored: up(result.distanceOver50ft * factor) },
+      { label: roll.label, raw: `${formatNumber(roll.distance)} m${rollMarker}`, corrected: up(result.groundRoll) + rollMarker, factored: up(result.groundRoll * factor) + rollMarker },
+      { label: over50.label, raw: `${formatNumber(over50.distance)} m${over50Marker}`, corrected: up(result.distanceOver50ft) + correctedOver50Marker, factored: up(result.distanceOver50ft * factor) + correctedOver50Marker },
     ],
-    comparison: { ...comparison, required: comparison.required + estimated, margin: comparison.margin + estimated },
+    comparison: { ...comparison, required: comparison.required + correctedOver50Marker, margin: comparison.margin === 'Not available' ? comparison.margin : comparison.margin + correctedOver50Marker,
+      summary: rollMarker ? comparison.summary.replace(/(final ground roll of [\d,]+ m)/, `$1${rollMarker}`) : comparison.summary },
     safetyFactor: `${factor.toFixed(2)} (${SAFETY_FACTOR_PRESETS.find((p) => p.value === safetyFactor.preset)!.label})`,
     safetyFactorWarning: isOsfBelowMinimum(osf, operation)
       ? `WARN-PF-002: safety factor ${factor.toFixed(2)} is below the recommended minimum ${threshold.toFixed(2)} (greater of the manual factor ${manualFactor} and the regulatory baseline). Advisory; the result is not blocked.`
