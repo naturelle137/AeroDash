@@ -31,7 +31,7 @@ Focus: Behaviour at the limits of the performance envelope — extrapolation, ov
 
 **Goal:** Recognise the edge of the envelope: extrapolated results carry a penalty and need acknowledgment, and conditions beyond the 10% band are refused.
 
-**Differences from the base journey:** The student treats the extrapolation flag, the acknowledgment gate and the 54 °C, 57 °C and 11,100 ft refusals as learning points, and does not read an extrapolated result as a comfortable margin. Extrapolation, acknowledgment and pressure-altitude behaviour are unchanged.
+**Differences from the base journey:** The student treats the penalised extrapolation at 54 °C, its flag and acknowledgment gate, and the refusals at 57 °C and 11,100 ft as learning points, and does not read an extrapolated result as a comfortable margin. Extrapolation, acknowledgment and pressure-altitude behaviour are unchanged.
 
 **Out of scope:** The application does not model instructor review, approval or authorisation. The student and instructor handle that outside the application.
 
