@@ -41,7 +41,7 @@ export function presentOperationalAssessment(sources: SourceAssessment | null, u
   return {
     status: 'unavailable',
     reason: !sources ? unavailableReason : sources.status === 'blocked' ? BLOCKER_MESSAGES[sources.reason]
-      : 'Operational runway comparison is unavailable. Corrected distances appear only where an accepted aircraft-manual source covers wind, surface and slope.',
+      : 'Corrected distances and runway comparisons appear only where an accepted aircraft-manual source covers wind, surface and slope.',
     sources,
     rows: sources?.status === 'assessed' ? sources.corrections.map((row) => ({
       label: `${OPERATION_LABELS[row.operation]} — ${CORRECTION_LABELS[row.correction]}`,
@@ -76,7 +76,7 @@ const TITLES: Record<PerformanceGroupId, string> = { takeoff: 'Takeoff', landing
 
 export const PERFORMANCE_SCOPE = [
   'Base distances from POH/AFM tables or marked estimates are uncorrected: no wind, surface, slope or density-altitude correction is applied to them. Corrected distances are shown separately and only where an accepted source covers the aircraft.',
-  'No runway comparison, Go/No-Go advisory or operational approval is provided.',
+  'Runway comparisons use declared distances and do not constitute a Go/No-Go decision or operational approval.',
 ] as const
 
 export function formatNumber(value: number, digits = 1): string {

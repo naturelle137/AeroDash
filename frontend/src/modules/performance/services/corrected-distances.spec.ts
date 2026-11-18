@@ -121,6 +121,19 @@ describe('corrected distances in the performance step', () => {
     effect.stop()
   })
 
+  it('blocks a previously saved runway if storage reports an error', () => {
+    const effect = effectScope()
+    effect.run(() => {
+      const { step, runway } = setup()
+      Object.assign(step.corrections.takeoff, { headwind: '0', slope: '0' })
+      expect(corrected(step, 0).status).toBe('applied')
+      runway.storageError = 'Storage unavailable'
+      expect(corrected(step, 0).status).toBe('unavailable')
+      expect(step.presentation.value.runway.status).toBe('unavailable')
+    })
+    effect.stop()
+  })
+
   it('compares the final distance over 50 ft with the declared runway and reports margins', () => {
     const effect = effectScope()
     effect.run(() => {
