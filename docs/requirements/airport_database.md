@@ -56,7 +56,7 @@ The system shall let the pilot enter an aerodrome identifier, runway designator,
 
 ### REQ-AP-010: Explicit runway units
 
-The system shall require an explicit m or ft unit for each of TORA, LDA and field elevation without a default.
+The system shall use an explicit m or ft unit for each of TORA, LDA and field elevation.
 
 ### REQ-AP-011: Available distance validation
 
@@ -90,8 +90,8 @@ While saved manual runway inputs are displayed, the system shall label them user
 
 When a manual runway input changes, the system shall immediately stop displaying the saved runway as current.
 
-### REQ-AP-019: No manual runway assessment
+### REQ-AP-019: Unavailable manual runway assessment
 
-While runway corrections and comparison are unimplemented, the system shall state that a runway assessment is unavailable.
+If the saved runway or an applicable correction source is unavailable, then the system shall not display a runway comparison.
 
 The [manual runway contract](../architecture/manual-runway-entry.md) defines units, conversion and storage. REQ-AP-001, -002, -005 and -007 (airport database) remain future scope.

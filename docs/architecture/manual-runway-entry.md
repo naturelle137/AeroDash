@@ -8,11 +8,11 @@ airport-validated**.
 | Field | Contract |
 | :--- | :--- |
 | Aerodrome, runway designator | Required trimmed text, 1–40 and 1–20 characters, no control characters |
-| TORA, LDA | Separate required decimal values, finite and > 0, each with explicit `m` or `ft` |
+| TORA, LDA | Separate required decimal values, finite and > 0, each with explicit `m` or `ft`; optional TODA uses the same validation |
 | Field elevation | Required finite decimal, zero/negative allowed, explicit `m` or `ft` |
 | Surface | Required type (paved, grass/unpaved) and a condition from REQ-AP-004/REQ-AP-008 |
 
-Nothing has a default: no unit, surface, distance or elevation is inferred. Field
+Fresh units follow the pilot's preferences; no surface, distance or elevation is inferred. Field
 elevation is geometric and is never used as pressure altitude. The pilot may
 explicitly copy it into the [QNH derivation](pressure-altitude.md); the stored
 declaration is unchanged.
@@ -56,11 +56,12 @@ for IEEE-754 artefacts); elevation rounds to the nearest 0.1. Arithmetic vectors
 ## Assessment boundary
 
 The saved summary appears only while the form is valid and identical to the
-saved record; any edit hides it immediately until save or discard. The panel
-always states that no runway assessment is available. No surface/slope/wind
-correction, safety factor, margin or Go result is computed until source-backed
-correction selection and operational factors exist. Raw POH table distances are
-unchanged by runway entry.
+saved record; any edit hides it immediately until save or discard. Performance
+uses the saved surface only where an accepted source covers the aircraft and
+condition. It compares corrected, factored distances with declared TORA or LDA;
+when TODA is supplied, takeoff ground roll must also fit TORA. Missing inputs,
+unsupported sources and storage errors block the comparison. Raw table values
+remain unchanged. A comparison is not operational approval or a go/no-go decision.
 
 ## Save time and source currency
 
