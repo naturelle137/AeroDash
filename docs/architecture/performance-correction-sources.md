@@ -30,7 +30,7 @@ Rules:
 
 - Missing or invalid base tables block the assessment. No source replaces aircraft distance tables.
 - Draft profiles are blocked, as for raw lookup.
-- P208 and maximum mass select the basic 630 kg or S4 650 kg section; D-EBPN at 650 kg selects S9. The pilot must verify the applicable manual and configuration.
+- The pilot selects the applicable P208 manual configuration for each profile session; unknown or other configurations have no supported source. Mass and the D-EBPN registration scope for S9 must also match.
 - Mass configuration must match the section (for example 630 kg basic versus 650 kg supplement).
 - A missing table cell is `condition-not-covered`, never a unit factor. An AeroDash condition that
   maps to several source rows is `condition-mapping-ambiguous`.

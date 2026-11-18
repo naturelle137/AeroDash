@@ -1,6 +1,6 @@
 import { computed, reactive, ref, shallowRef, watch } from 'vue'
 import type { AircraftProfile } from '@/core/adapters/aircraft.schema'
-import { assessCorrectionSources, OPERATIONS, profileFacts, type Operation, type RunwayFacts } from '@/core/logic/performance.correction-sources'
+import { assessCorrectionSources, OPERATIONS, profileFacts, type ManualConfiguration, type Operation, type RunwayFacts } from '@/core/logic/performance.correction-sources'
 import { normalizeManualRunway, SURFACE_CONDITIONS } from '@/core/logic/manual-runway'
 import { useManualRunwayStore } from '@/modules/airport/stores/manual-runway.store'
 import { useLoadedUnitPreferences } from '@/modules/performance/stores/unit-preferences.store'
@@ -39,11 +39,13 @@ export function usePerformanceStep(context: () => PerformanceStepContext) {
   const corrections = reactive(emptyCorrectionInputs())
   const safetyFactors = reactive(defaultSafetyFactors())
   const ctx = computed(context)
+  const manualConfiguration = ref<ManualConfiguration>('')
+  watch(() => JSON.stringify(ctx.value.profile), () => { manualConfiguration.value = '' }, { flush: 'sync' })
 
   const profileKey = computed(() => JSON.stringify(ctx.value.profile))
   const inputKey = computed(() => JSON.stringify([
     ctx.value.revision, ctx.value.ready, profileKey.value, ctx.value.category, ctx.value.takeoff, ctx.value.landing,
-    pa.revision.value, temperature.value, corrections, safetyFactors, units.preferences,
+    pa.revision.value, temperature.value, corrections, safetyFactors, units.preferences, manualConfiguration.value,
     runway.saved, runway.draft, runway.storageError, runway.hasUnsavedChanges,
   ]))
   const result = shallowRef<ComputedResult | null>(null)
@@ -104,7 +106,7 @@ export function usePerformanceStep(context: () => PerformanceStepContext) {
     return normalized ? { tora: down(normalized.toraM), lda: down(normalized.ldaM), ...(normalized.todaM !== undefined ? { toda: down(normalized.todaM) } : {}) } : null
   })
   const sources = computed(() => ctx.value.ready && ctx.value.profile
-    ? assessCorrectionSources(profileFacts(ctx.value.profile, tables.value?.status === 'ready'), runwayFacts.value) : null)
+    ? assessCorrectionSources({ ...profileFacts(ctx.value.profile, tables.value?.status === 'ready'), manualConfiguration: manualConfiguration.value }, runwayFacts.value) : null)
   const groupOf = (operation: Operation) => {
     const assessment = current.value?.assessment
     return assessment?.status === 'assessed' ? assessment[operation] : null
@@ -145,6 +147,6 @@ export function usePerformanceStep(context: () => PerformanceStepContext) {
     })
   })
 
-  return { pa, temperature, corrections, safetyFactors, showPaErrors, tables, inputKey, compute, presentation }
+  return { pa, temperature, corrections, safetyFactors, manualConfiguration, showPaErrors, tables, inputKey, compute, presentation }
 }
 export type PerformanceStep = ReturnType<typeof usePerformanceStep>

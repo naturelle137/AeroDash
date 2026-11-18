@@ -116,11 +116,14 @@ export type CorrectionAssessment = {
   | { status: 'source-identified'; selected: SourceCandidate; summary: 'source-identified' }
 )
 
+export type ManualConfiguration = 'basic' | 's4' | 's9' | ''
+
 export type ProfileFacts = {
   id: string
   registration: string
   icaoTypeDesignator: string
   mtomKg: number | null
+  manualConfiguration?: ManualConfiguration
   verified: boolean
   baseTablesComplete: boolean
   /** Count of stored legacy surface factors; never accepted as correction provenance. */
@@ -190,6 +193,10 @@ function assessCandidate(
 ): UnsupportedReason[] {
   const reasons: UnsupportedReason[] = []
   if (candidate.aircraft) {
+    const variant = candidate.id.match(/^tecnam-(basic|s4|s9)-/)?.[1]
+    if (variant && profile.manualConfiguration !== variant) {
+      reasons.push({ code: 'configuration-unverified', required: candidate.aircraft.configuration })
+    }
     const registrations = candidate.aircraft.registrations
     if (registrations && !registrations.includes(profile.registration.trim().toUpperCase())) {
       reasons.push({ code: 'registration-not-covered', registration: profile.registration })

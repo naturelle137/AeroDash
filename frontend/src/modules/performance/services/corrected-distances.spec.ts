@@ -24,12 +24,26 @@ function setup(registration?: string, surface: 'paved' | 'unpaved' = 'paved', sa
     surfaceType: surface, surfaceCondition: surface === 'paved' ? 'dry' : 'dry-short-grass' })
   if (save) runway.save()
   const step = usePerformanceStep(() => context)
+  step.manualConfiguration.value = 's9'
   step.pa.method.value = 'direct'; step.pa.direct.value = '1000'; step.temperature.value = '10'
   return { step, runway, context }
 }
 const corrected = (step: ReturnType<typeof setup>['step'], index: number) => step.presentation.value.corrected[index]!
 
 describe('corrected distances in the performance step', () => {
+  it('clears the manual selection when the profile changes', () => {
+    const effect = effectScope()
+    effect.run(() => {
+      const { step, context } = setup()
+      Object.assign(step.corrections.takeoff, { headwind: '0', slope: '0' })
+      expect(corrected(step, 0).status).toBe('applied')
+      context.profile = s9Profile('D-OTHER')
+      expect(step.manualConfiguration.value).toBe('')
+      expect(corrected(step, 0).status).toBe('unavailable')
+    })
+    effect.stop()
+  })
+
   it('stays uncorrected until wind and slope are entered; empty is never zero', () => {
     const effect = effectScope()
     effect.run(() => {
@@ -178,6 +192,7 @@ describe('corrected distances in the performance step', () => {
     effect.run(() => {
       const { step, runway, context } = setup()
       context.profile!.performanceProfiles = context.profile!.performanceProfiles!.filter(table => table.flightPhase !== phase)
+      step.manualConfiguration.value = 's9'
       Object.assign(step.corrections.takeoff, { headwind: '0', slope: '0' })
       Object.assign(runway.draft, { tora: '100', toda: '5000', todaUnit: 'm' }); runway.save()
       const item = corrected(step, 0)

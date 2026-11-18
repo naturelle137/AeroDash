@@ -9,6 +9,7 @@ Feature: Corrected takeoff and landing distances
     And the pilot opens Performance
     And the pilot sets mass "900" kg and temperature "10" °C for the Test profile
     And the pilot enters pressure altitude "1000" ft directly
+    And the pilot selects manual configuration "<configuration>"
     And the pilot saves runway "TEST" "27" with TORA "600" "m", LDA "550" "m", elevation "300" "ft" and surface "Paved" "Dry"
     Then the corrected takeoff distances are <state>
     When the pilot enters takeoff headwind "-2" kt and slope "1" %
@@ -16,12 +17,12 @@ Feature: Corrected takeoff and landing distances
     And the corrected distance evidence is captured as "<registration>-<width>"
 
     Examples:
-      | width | height | registration | type | mass | state                                       | outcome                                  |
-      | 1440  | 1000   | D-EBPN       | P208 | 650  | "unavailable: Enter the headwind component" | "final 267 m for the ground roll"        |
-      | 390   | 844    | D-EBPN       | P208 | 650  | "unavailable: Enter the headwind component" | "final 267 m for the ground roll"        |
-      | 1440  | 1000   | D-TEST       | P208 | 630  | "unavailable: Enter the headwind component" | "final 267 m for the ground roll"        |
-      | 390   | 844    | D-TEST       | P208 | 650  | "unavailable: Enter the headwind component" | "final 267 m for the ground roll"        |
-      | 1440  | 1000   | D-TEST       | C172 | 650  | "unavailable: No accepted correction source" | "unavailable: No accepted correction source" |
+      | width | height | registration | type | mass | configuration | state                                       | outcome                                  |
+      | 1440  | 1000   | D-EBPN       | P208 | 650  | s9 | "unavailable: Enter the headwind component" | "final 267 m for the ground roll"        |
+      | 390   | 844    | D-EBPN       | P208 | 650  | s9 | "unavailable: Enter the headwind component" | "final 267 m for the ground roll"        |
+      | 1440  | 1000   | D-TEST       | P208 | 630  | basic | "unavailable: Enter the headwind component" | "final 267 m for the ground roll"        |
+      | 390   | 844    | D-TEST       | P208 | 650  | s4 | "unavailable: Enter the headwind component" | "final 267 m for the ground roll"        |
+      | 1440  | 1000   | D-TEST       | C172 | 650  |  | "unavailable: No accepted correction source" | "unavailable: No accepted correction source" |
 
   Scenario Outline: The pilot sees whether the corrected distance fits the declared runway
     Given the raw POH workflow viewport is 1440 by 1000
@@ -29,6 +30,7 @@ Feature: Corrected takeoff and landing distances
     And the pilot opens Performance
     And the pilot sets mass "900" kg and temperature "10" °C for the Test profile
     And the pilot enters pressure altitude "1000" ft directly
+    And the pilot selects manual configuration "s9"
     And the pilot saves runway "TEST" "27" with TORA "<tora>" "m", LDA "550" "m", elevation "300" "ft" and surface "Paved" "Dry"
     And the pilot enters takeoff headwind "0" kt and slope "0" %
     Then the takeoff runway comparison is "<verdict>"
@@ -44,6 +46,7 @@ Feature: Corrected takeoff and landing distances
     And the pilot opens Performance
     And the pilot sets mass "900" kg and temperature "10" °C for the Test profile
     And the pilot enters pressure altitude "1000" ft directly
+    And the pilot selects manual configuration "s9"
     And the pilot saves runway "TEST" "27" with TORA "2000" "m", LDA "550" "m", elevation "300" "ft" and surface "Paved" "Dry"
     And the pilot enters takeoff headwind "0" kt and slope "0" %
     And the pilot selects the takeoff safety factor "<preset>"

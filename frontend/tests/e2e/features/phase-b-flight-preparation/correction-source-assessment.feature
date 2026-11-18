@@ -13,6 +13,9 @@ Feature: Correction source assessment
     Then the takeoff roll is "220.0 m" using pressure altitude "1000 ft, entered directly"
     When the pilot saves runway "TEST" "27" with TORA "600" "m", LDA "550" "m", elevation "300" "ft" and surface "Grass / unpaved" "Dry (short grass ≤3 cm)"
     And the pilot assesses correction sources
+    Then no correction source is available
+    When the pilot selects manual configuration "s4"
+    And the pilot assesses correction sources
     Then the S4 correction sources are identified and stored surface factors are not used
     And the "Runway surface" source identifies the candidate "Supplement S4 (650 kg)"
     And the "Runway surface" source rejects the candidate "Section 5 (basic 630 kg)" because "Written for 630 kg"

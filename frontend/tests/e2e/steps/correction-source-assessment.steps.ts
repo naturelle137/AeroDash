@@ -33,6 +33,16 @@ When('I import a synthetic Test POH exchange file declaring type {string}, maxim
     await expect(page.locator('.profile-item').filter({ hasText: 'D-TEST' })).toContainText('Draft')
   })
 
+When('the pilot selects manual configuration {string}', async ({ page }, configuration: string) => {
+  const selector = page.getByLabel('Applicable manual configuration')
+  if (configuration) await selector.selectOption(configuration)
+  else await expect(selector).toHaveCount(0)
+})
+
+Then('no correction source is available', async ({ page }) => {
+  await expect(assessment(page)).toContainText('No correction source is available')
+})
+
 When('the pilot assesses correction sources', async ({ page }) => {
   await assessButton(page).click()
   await expect(assessment(page)).toBeVisible()

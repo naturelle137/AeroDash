@@ -51,7 +51,7 @@ describe('built-in source register', () => {
           for (const surface of [runway('paved', 'dry'), runway('unpaved', 'dry-short-grass'), runway('paved', 'wet'), null]) {
             const accepted = icaoTypeDesignator === 'P208' && (mtomKg === 630 || mtomKg === 650)
             const variant = mtomKg === 630 ? 'basic' : registration.trim() === 'D-EBPN' ? 's9' : 's4'
-            const result = assessed(assessCorrectionSources(facts({ icaoTypeDesignator, registration, mtomKg }), surface))
+            const result = assessed(assessCorrectionSources(facts({ icaoTypeDesignator, registration, mtomKg, manualConfiguration: variant }), surface))
             expect(result.corrections).toHaveLength(6)
             for (const entry of result.corrections) {
               const covered = accepted && (entry.correction !== 'surface' || surface?.surface.condition === 'dry' || surface?.surface.condition === 'dry-short-grass')
@@ -62,6 +62,19 @@ describe('built-in source register', () => {
         }
       }
     }
+  })
+
+  it.each([
+    ['basic', 630, 'D-TEST', 'tecnam-basic-wind'],
+    ['s4', 650, 'D-TEST', 'tecnam-s4-wind'],
+    ['s9', 650, 'D-EBPN', 'tecnam-s9-wind'],
+    ['', 650, 'D-TEST', undefined],
+    ['', 650, 'D-EBPN', undefined],
+    ['s9', 650, 'D-TEST', undefined],
+  ] as const)('requires the declared manual configuration %s for %s kg', (manualConfiguration, mtomKg, registration, expected) => {
+    // AFM Doc. 2008/100 Ed. 2 Rev. 7 basic / S4 and Rev. 18 S9 identify distinct sections.
+    const result = item(assessCorrectionSources(facts({ icaoTypeDesignator: 'P208', registration, mtomKg, manualConfiguration }), null), 'wind', 'takeoff')
+    expect(result.selected?.id).toBe(expected)
   })
 
   it('refuses S9 for another P208 airframe with the registration reason', () => {
@@ -91,7 +104,7 @@ describe('assessCorrectionSources', () => {
   })
 
   it('selects the supplied S4 manual for a matching 650 kg profile', () => {
-    const entry = item(assessCorrectionSources(facts({ icaoTypeDesignator: 'p208 ', mtomKg: 650 }), runway('paved', 'dry')), 'surface', 'takeoff')
+    const entry = item(assessCorrectionSources(facts({ icaoTypeDesignator: 'p208 ', mtomKg: 650, manualConfiguration: 's4' }), runway('paved', 'dry')), 'surface', 'takeoff')
     expect(entry.selected?.id).toBe('tecnam-s4-surface')
     expect(entry.selected?.section).toContain('5W-7')
   })
@@ -107,7 +120,7 @@ describe('assessCorrectionSources', () => {
   })
 
   it('refuses a generic grass uplift on top of a manual whose base distances are already on grass', () => {
-    const entry = item(assessCorrectionSources(facts({ icaoTypeDesignator: 'P208', mtomKg: 650 }), runway('unpaved', 'dry-short-grass')), 'surface', 'takeoff')
+    const entry = item(assessCorrectionSources(facts({ icaoTypeDesignator: 'P208', mtomKg: 650, manualConfiguration: 's4' }), runway('unpaved', 'dry-short-grass')), 'surface', 'takeoff')
     expect(reasonsOf(entry, 'caa-surface')).toEqual(expect.arrayContaining([
       { code: 'aircraft-source-precedence' }, { code: 'baseline-conflict', aircraftBaseline: 'grass' },
     ]))
@@ -161,7 +174,7 @@ describe('additive wind versus a shared multiplier (inspected reference arithmet
   })
 
   it('uses the source-specific additive contract', () => {
-    const entry = item(assessCorrectionSources(facts({ icaoTypeDesignator: 'P208', mtomKg: 650 }), null), 'wind', 'takeoff')
+    const entry = item(assessCorrectionSources(facts({ icaoTypeDesignator: 'P208', mtomKg: 650, manualConfiguration: 's4' }), null), 'wind', 'takeoff')
     expect(entry.selected?.contract).toBe('source-rule')
   })
 

@@ -302,3 +302,7 @@ While lookup inputs are complete and supported, the system shall display current
 ### REQ-PF-080: Supported range presentation
 
 When displaying supported table ranges, the system shall apply REQ-UQ-003/004 presentation precision without rounding calculation bounds.
+
+### REQ-PF-081: Explicit P208 manual configuration
+
+If the pilot has not selected an applicable P208 manual configuration, then the system shall leave its correction sources unsupported.

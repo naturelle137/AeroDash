@@ -83,7 +83,7 @@ onMounted(() => fleet.loadAll())
     </section>
     <UnitPreferencesFieldset />
     <ManualRunwayPanel />
-    <CorrectionSourcePanel :profile="profile ?? undefined" :tables-complete="step.tables.value?.status === 'ready'"
+    <CorrectionSourcePanel v-model:configuration="step.manualConfiguration.value" :profile="profile ?? undefined" :tables-complete="step.tables.value?.status === 'ready'"
       :ready="fleet.fleetLoadState === 'READY'" :inputs-revision="step.inputKey.value" />
   </main>
 </template>
