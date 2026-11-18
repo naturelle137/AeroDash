@@ -8,7 +8,7 @@ import type { PerformanceStep, PerformanceStepContext } from '../composables/per
 import { formatNumber } from '../services/performance-presentation'
 
 const props = defineProps<{ step: PerformanceStep; context: PerformanceStepContext }>()
-const { tables, inputKey } = props.step
+const { tables, inputKey, manualConfiguration } = props.step
 </script>
 
 <template>
@@ -43,7 +43,7 @@ const { tables, inputKey } = props.step
     </section>
     <UnitPreferencesFieldset />
     <ManualRunwayPanel />
-    <CorrectionSourcePanel :profile="context.profile ?? undefined" :tables-complete="tables?.status === 'ready'"
+    <CorrectionSourcePanel v-model:configuration="manualConfiguration" :profile="context.profile ?? undefined" :tables-complete="tables?.status === 'ready'"
       :ready="context.ready" :inputs-revision="inputKey" />
   </div>
 </template>

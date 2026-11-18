@@ -52,6 +52,17 @@ describe('Tecnam P2008 JC S9 corrections', () => {
     expect(t.factoredDistanceOver50ft).toBeCloseTo((roll + 170) * TECNAM_S9_RULES.takeoff.inServiceFactor, 9)
   })
 
+  it('reproduces Rev. 7 basic and S4 table vectors with adverse corrections', () => {
+    // Rev. 7 p. 5-7: 630 kg, SL 25 °C, roll 244 m and 50 ft 406 m.
+    const basic = applyTecnamS9Corrections({ ...TO, groundRoll: 244, distanceOver50ft: 406, headwindKt: -2, slopePercent: 1 })
+    expect(basic.groundRoll).toBeCloseTo(244 * 1.07 + 30)
+    // Rev. 7 S4 p. 5W-7: 650 kg, SL 25 °C, roll 264 m and 50 ft 436 m.
+    const s4 = applyTecnamS9Corrections({ ...TO, groundRoll: 264, distanceOver50ft: 436, surface: 'paved', headwindKt: -3 })
+    expect(s4.distanceOver50ft).toBeCloseTo(264 * 0.9 + 172 + 45)
+    // Rev. 7 p. 5-14 and S4 p. 5W-15: landing SL 25 °C, roll 179 m.
+    expect(applyTecnamS9Corrections({ ...LD, headwindKt: -2, slopePercent: -1 }).groundRoll).toBeCloseTo(179 * 1.03 + 26)
+  })
+
   it('rejects non-finite or inconsistent input', () => {
     expect(() => applyTecnamS9Corrections({ ...TO, headwindKt: Number.NaN })).toThrow(RangeError)
     expect(() => applyTecnamS9Corrections({ ...TO, distanceOver50ft: 100 })).toThrow(RangeError)

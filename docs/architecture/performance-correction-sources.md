@@ -1,7 +1,7 @@
 # Performance correction source assessment
 
 **Module:** Performance (P1 `core/logic/performance.correction-sources.ts`, P2 `CorrectionSourcePanel`)
-**Status:** Partial. Source selection, unsupported reasons, one accepted source-specific rule set (Tecnam P2008 JC S9, D-EBPN) and its corrected distances in the Performance step with wind and slope input; the runway comparison, TODA and the selectable safety factor follow below.
+**Status:** Partial. Source selection, unsupported reasons, accepted source-specific rule sets (Tecnam P2008 JC basic, S4 and D-EBPN S9) and its corrected distances in the Performance step with wind and slope input; the runway comparison, TODA and the selectable safety factor follow below.
 
 ## Purpose
 
@@ -30,8 +30,7 @@ Rules:
 
 - Missing or invalid base tables block the assessment. No source replaces aircraft distance tables.
 - Draft profiles are blocked, as for raw lookup.
-- A type-designator match only surfaces a candidate. Configuration (variant, engine, propeller,
-  supplements, serial number) and current revision remain explicit gaps; there is no model-name match.
+- The pilot selects the applicable P208 manual configuration for each profile session; unknown or other configurations have no supported source. Mass and the D-EBPN registration scope for S9 must also match.
 - Mass configuration must match the section (for example 630 kg basic versus 650 kg supplement).
 - A missing table cell is `condition-not-covered`, never a unit factor. An AeroDash condition that
   maps to several source rows is `condition-mapping-ambiguous`.
@@ -63,7 +62,7 @@ Rules live in `core/logic/performance.tecnam-s9-corrections.ts` (values in `TECN
 - Source in-service factor (take-off 1.10, landing 1.67) multiplies the corrected distances.
 - Landing table exists for 650 kg only; lower masses use it unchanged.
 
-Not accepted (evidence gaps remain): Tecnam Ed. 2 Rev. 7 Section 5/S4 mirror, LBA FSM 3/75, UK CAA Safety Sense 09.
+The supplied Ed. 2 Rev. 7 basic pages 5-7 to 5-14 and S4 pages 5W-7 to 5W-15 state the same corrections and in-service factors as S9. LBA FSM 3/75 and UK CAA Safety Sense 09 remain unsupported.
 
 ## Invalidation
 
@@ -73,8 +72,8 @@ input set. Any change, a runway clear, a reload or local-data erasure removes it
 ## Corrected distances in the Performance step
 
 `services/corrected-distances.ts` composes the raw POH distance, the saved runway surface, the pilot's headwind
-component (kt, negative tailwind) and runway slope (%, positive uphill) per operation, and calls the S9 rules.
-A corrected distance appears only when wind, surface and slope are all identified from the S9 source for that
+component (kt, negative tailwind) and runway slope (%, positive uphill) per operation, and calls the shared Tecnam rules.
+A corrected distance appears only when wind, surface and slope are all identified from the same applicable Tecnam manual for that
 operation and both inputs are entered (empty is never zero; |slope| < 100). Otherwise the operation shows the reason
 and only the uncorrected raw distance. Results are rounded up to whole metres, show raw, corrected and final values
 with the source revision, and appear in the briefing pack. Any input change invalidates them with the raw result.
@@ -96,5 +95,4 @@ the result carries an advisory WARN-PF-002 (`osfThreshold`); it never blocks. Th
 
 ## Remaining work
 
-Any source needs configuration evidence, a source-specific numeric contract
-and reuse permission.
+Other aircraft and unlisted runway conditions remain unsupported.

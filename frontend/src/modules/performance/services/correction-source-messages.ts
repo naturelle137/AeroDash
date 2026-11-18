@@ -40,7 +40,7 @@ export function requirementMessage(required: CorrectionRequirement, correction: 
   const condition = correction === 'surface'
     ? required.condition ? ` for ${conditionLabel(required.condition)}` : ' for the saved runway condition'
     : ''
-  return `Needs your aircraft's applicable POH/AFM ${CORRECTION_LABELS[correction].toLowerCase()} correction${condition}, ${target}, as a single factor with its valid range.`
+  return `Needs your aircraft's applicable POH/AFM ${CORRECTION_LABELS[correction].toLowerCase()} correction${condition}, ${target}, using the applicable source rule.`
 }
 
 export const INPUT_GAP_MESSAGES: Record<NonNullable<CorrectionAssessment['inputGap']>, string> = {
