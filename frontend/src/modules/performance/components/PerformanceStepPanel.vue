@@ -26,6 +26,9 @@ const { temperature, corrections, safetyFactors, showPaErrors, presentation } = 
     </fieldset>
 
     <section class="results" :aria-label="presentation.status === 'assessed' ? 'Base performance distances' : 'Performance results'" :data-status="presentation.status" aria-live="polite">
+      <section v-if="presentation.notifications.length" aria-label="Performance notifications">
+        <p v-for="note in presentation.notifications" :key="note.id" role="alert" :data-notification="note.id"><strong>{{ note.severity }} · {{ note.id }}</strong>: {{ note.message }}</p>
+      </section>
       <p v-if="presentation.status !== 'assessed'" :role="presentation.status === 'blocked' ? 'alert' : 'status'">
         {{ presentation.reason }}</p>
       <p v-if="presentation.conditions">Pressure altitude used: {{ presentation.conditions.pressureAltitude }} ·

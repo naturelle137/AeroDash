@@ -133,6 +133,10 @@ onBeforeUnmount(() => {
             <h2>Current Performance</h2>
             <template v-if="currentSnapshot.performance">
               <p v-if="currentSnapshot.performance.reason">{{ currentSnapshot.performance.reason }}</p>
+              <section v-if="currentSnapshot.performance.notifications.length" aria-label="Performance notifications">
+                <h3>Performance notifications</h3>
+                <p v-for="note in currentSnapshot.performance.notifications" :key="note.id" class="briefing-warning"><strong>{{ note.severity }} · {{ note.id }}</strong>: {{ note.message }}</p>
+              </section>
               <table><tbody><tr v-for="row in currentSnapshot.performance.inputs" :key="row.label"><th>{{ row.label }}</th><td>{{ row.value }}</td></tr></tbody></table>
               <p v-if="currentSnapshot.performance.conditions">Calculation basis: {{ currentSnapshot.performance.conditions.pressureAltitude }} · {{ currentSnapshot.performance.conditions.temperature }}</p>
               <section v-for="group in currentSnapshot.performance.groups" :key="group.id">
