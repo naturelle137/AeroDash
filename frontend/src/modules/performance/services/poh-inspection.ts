@@ -1,4 +1,4 @@
-import { estimateDistance } from '@/core/logic/performance.estimation'
+import { resolveDistance } from '@/core/logic/performance.estimation'
 import { AircraftProfileSchema, type AircraftProfile } from '@/core/adapters/aircraft.schema'
 import {
   pivotDataPointsToCube,
@@ -170,8 +170,7 @@ function assessGroup(tables: TableInspection, group: PerformanceGroupId, mass: M
     const { label } = PHASE_INFO[phase]
     const result = lookupPhaseDistance(tables.cubes[phase], { mass: mass.massKg, pressureAltitude: conditions.pressureAltitudeFt, temperature: conditions.temperatureC })
     if (result.status === 'blocked') return { status: 'blocked', massKg: mass.massKg, ...lookupMessage(label, mass.massKg, mass.origin, result, conditions) }
-    const provenance = tables.provenance[phase]
-    const distance = provenance === 'estimated' ? estimateDistance(result.distance, group, phase === GROUP_PHASES[group][0] ? 'roll' : 'distance') : result.distance
+    const { distance, provenance } = resolveDistance(tables.provenance[phase] === 'poh' ? result.distance : null, result.distance, group, phase === GROUP_PHASES[group][0] ? 'roll' : 'distance')
     if (!Number.isFinite(distance) || distance <= 0) return { status: 'blocked', massKg: mass.massKg, reason: 'tables', message: `${label}: estimated distance is invalid.` }
     distances.push({ phase, label, distance, provenance, massTreatment: result.massTreatment, lookupMass: result.lookupMass, massRange: result.massRange })
   }
