@@ -62,6 +62,7 @@ test('Flight Prep shares current phase masses and converted units online and cac
   await expect(runway.getByLabel('Field elevation unit', { exact: true })).toHaveValue('ft')
   await conditions();
   await expect(takeoff.locator('dd')).toHaveText(['220.0 m', '320.0 m'])
+  await expect(takeoff).not.toContainText('ESTIMATED (CAA SSL 07)')
   await expect(landing).toContainText('No trip-arrival mass')
   await method.selectOption('direct'); await burn.fill('20');
   await expect(landing.locator('dd')).toHaveText(['400.0 m', '500.0 m'])
