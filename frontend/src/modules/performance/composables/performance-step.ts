@@ -1,11 +1,13 @@
-import { computed, ref, shallowRef, watch } from 'vue'
+import { computed, reactive, ref, shallowRef, watch } from 'vue'
 import type { AircraftProfile } from '@/core/adapters/aircraft.schema'
-import { assessCorrectionSources, profileFacts } from '@/core/logic/performance.correction-sources'
+import { assessCorrectionSources, OPERATIONS, profileFacts, type Operation, type RunwayFacts } from '@/core/logic/performance.correction-sources'
 import { SURFACE_CONDITIONS } from '@/core/logic/manual-runway'
 import { useManualRunwayStore } from '@/modules/airport/stores/manual-runway.store'
 import { useLoadedUnitPreferences } from '@/modules/performance/stores/unit-preferences.store'
 import { usePressureAltitudeInput } from './pressure-altitude-input'
 import { assessPerformance, inspectTables, type MassSource, type PerformanceAssessment } from '../services/poh-inspection'
+import { OPERATION_LABELS } from '../services/correction-source-messages'
+import { emptyCorrectionInputs, presentCorrectedOperation } from '../services/corrected-distances'
 import { presentOperationalAssessment, presentPerformance, type PerformancePresentation, type RunwayPresentation } from '../services/performance-presentation'
 
 /** Everything outside this step that a result depends on. */
@@ -34,12 +36,13 @@ export function usePerformanceStep(context: () => PerformanceStepContext) {
   const units = useLoadedUnitPreferences()
   const temperature = ref('')
   const showPaErrors = ref(false)
+  const corrections = reactive(emptyCorrectionInputs())
   const ctx = computed(context)
 
   const profileKey = computed(() => JSON.stringify(ctx.value.profile))
   const inputKey = computed(() => JSON.stringify([
     ctx.value.revision, ctx.value.ready, profileKey.value, ctx.value.category, ctx.value.takeoff, ctx.value.landing,
-    pa.revision.value, temperature.value, units.preferences,
+    pa.revision.value, temperature.value, corrections, units.preferences,
     runway.saved, runway.draft, runway.storageError, runway.hasUnsavedChanges,
   ]))
   const result = shallowRef<ComputedResult | null>(null)
@@ -88,6 +91,17 @@ export function usePerformanceStep(context: () => PerformanceStepContext) {
     }
   })
 
+  const runwayFacts = computed<RunwayFacts | null>(() => runway.current ? {
+    label: `${runway.current.record.runway.aerodrome} ${runway.current.record.runway.designator}`,
+    surface: runway.current.record.runway.surface,
+  } : null)
+  const sources = computed(() => ctx.value.ready && ctx.value.profile
+    ? assessCorrectionSources(profileFacts(ctx.value.profile, tables.value?.status === 'ready'), runwayFacts.value) : null)
+  const groupOf = (operation: Operation) => {
+    const assessment = current.value?.assessment
+    return assessment?.status === 'assessed' ? assessment[operation] : null
+  }
+
   const presentation = computed<PerformancePresentation>(() => {
     const { ready, notReadyReason, profile, category, takeoff, landing } = ctx.value
     return presentPerformance({
@@ -102,6 +116,10 @@ export function usePerformanceStep(context: () => PerformanceStepContext) {
             { label: 'Field elevation source', value: pa.elevationProvenance.value },
           ] : []),
         { label: 'Outside air temperature', value: `${temperature.value.trim() || 'Not entered'} °C` },
+        ...OPERATIONS.flatMap((operation) => [
+          { label: `${OPERATION_LABELS[operation]} headwind component`, value: `${corrections[operation].headwind.trim() || 'Not entered'} kt` },
+          { label: `${OPERATION_LABELS[operation]} runway slope`, value: `${corrections[operation].slope.trim() || 'Not entered'} %` },
+        ]),
       ],
       aircraft: profile ? { registration: profile.registration, model: `${profile.manufacturer} ${profile.model}`, category } : null,
       takeoff,
@@ -112,14 +130,12 @@ export function usePerformanceStep(context: () => PerformanceStepContext) {
         : !profile ? 'Select an aircraft profile.'
           : 'Choose the pressure-altitude method and enter the current conditions.',
       runway: runwayPresentation.value,
-      operational: presentOperationalAssessment(ready && profile
-        ? assessCorrectionSources(profileFacts(profile, tables.value?.status === 'ready'), runway.current ? {
-          label: `${runway.current.record.runway.aerodrome} ${runway.current.record.runway.designator}`,
-          surface: runway.current.record.runway.surface,
-        } : null) : null, !ready ? notReadyReason : 'Select an aircraft profile.'),
+      operational: presentOperationalAssessment(sources.value, !ready ? notReadyReason : 'Select an aircraft profile.'),
+      corrected: current.value ? OPERATIONS.map((operation) => presentCorrectedOperation(
+        operation, groupOf(operation), sources.value, runwayFacts.value, corrections[operation])) : [],
     })
   })
 
-  return { pa, temperature, showPaErrors, tables, inputKey, compute, presentation }
+  return { pa, temperature, corrections, showPaErrors, tables, inputKey, compute, presentation }
 }
 export type PerformanceStep = ReturnType<typeof usePerformanceStep>

@@ -1,7 +1,7 @@
 # Performance correction source assessment
 
 **Module:** Performance (P1 `core/logic/performance.correction-sources.ts`, P2 `CorrectionSourcePanel`)
-**Status:** Partial. Source selection, unsupported reasons and one accepted source-specific rule set (Tecnam P2008 JC S9, D-EBPN); UI input for wind and slope and the operational composition (#300) remain open.
+**Status:** Partial. Source selection, unsupported reasons, one accepted source-specific rule set (Tecnam P2008 JC S9, D-EBPN) and its corrected distances in the Performance step with wind and slope input; the operational runway comparison (#300) remains open.
 
 ## Purpose
 
@@ -70,8 +70,16 @@ Not accepted (evidence gaps remain): Tecnam Ed. 2 Rev. 7 Section 5/S4 mirror, LB
 The displayed assessment belongs to one profile snapshot, runway draft and saved record, and lookup
 input set. Any change, a runway clear, a reload or local-data erasure removes it. Nothing is persisted.
 
+## Corrected distances in the Performance step
+
+`services/corrected-distances.ts` composes the raw POH distance, the saved runway surface, the pilot's headwind
+component (kt, negative tailwind) and runway slope (%, positive uphill) per operation, and calls the S9 rules.
+A corrected distance appears only when wind, surface and slope are all identified from the S9 source for that
+operation and both inputs are entered (empty is never zero; |slope| < 100). Otherwise the operation shows the reason
+and only the uncorrected raw distance. Results are rounded up to whole metres, show raw, corrected and final values
+with the source revision, and appear in the briefing pack. Any input change invalidates them with the raw result.
+
 ## Remaining work
 
-Wind and slope input, composition of raw POH distance, saved runway, S9 corrections, operational factor, margins
-and invalidation (#300, #302). Any further source needs configuration evidence, a source-specific numeric contract
+Operational runway comparison and margins (#300, #302). Any further source needs configuration evidence, a source-specific numeric contract
 and reuse permission.

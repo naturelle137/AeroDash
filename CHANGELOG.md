@@ -30,6 +30,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Show takeoff and landing distances corrected for wind, runway surface and slope from the accepted Tecnam P2008 JC S9 manual rules (D-EBPN only), with visible source, wind and slope entered per operation, and explicit refusal elsewhere (refs #305).
+
 - Calculate Flight Preparation distances live after Fuel/Endurance and retain value-specific warnings and M&B color/hatching in native Briefing Pack print (#568).
 
 - Complete current Flight Preparation briefing pack with printed load chart, current fuel/runway/Performance states and a persistent mobile action (#517).

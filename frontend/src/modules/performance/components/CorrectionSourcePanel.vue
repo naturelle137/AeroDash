@@ -93,7 +93,7 @@ function candidatesOf(rows: CorrectionAssessment[]) {
   <section class="panel correction-sources" aria-labelledby="correction-sources-heading">
     <h2 id="correction-sources-heading">Correction sources</h2>
     <p>Check which source would have to supply the wind, surface and slope corrections for the selected
-      profile and saved runway. Nothing is corrected: the raw distances stay uncorrected table values.</p>
+      profile and saved runway. Raw distances stay uncorrected table values; corrected distances appear in the results above only where a source is identified.</p>
     <p v-if="runwayFacts">Runway: {{ runwayFacts.label }} — {{ runwayFacts.surface.type === 'paved' ? 'Paved' : 'Grass / unpaved' }},
       {{ conditionLabel(runwayFacts.surface.condition) }} (user-entered).</p>
     <p v-else-if="runway.hasUnsavedChanges">The manual runway has unsaved changes. Save it to include its surface condition.</p>
@@ -105,7 +105,7 @@ function candidatesOf(rows: CorrectionAssessment[]) {
       <template v-else>
         <p v-if="!anyIdentified" class="verdict" role="alert">No correction source is available for
           {{ assessment.profile.registration }}. No wind, surface or slope correction can be applied.</p>
-        <p v-else class="verdict" role="alert">Corrections are not applied in this version, even where a source is identified.</p>
+        <p v-else class="verdict" role="alert">A source is identified for some corrections. A corrected distance needs every wind, surface and slope source for that operation and your wind and slope inputs.</p>
         <p v-if="assessment.legacyFactorsIgnored">This profile stores surface factors without source, target or range
           evidence. They are not used.</p>
         <article v-for="group in groups" :key="group.correction" class="correction" :aria-label="`${CORRECTION_LABELS[group.correction]} source`">
@@ -122,7 +122,7 @@ function candidatesOf(rows: CorrectionAssessment[]) {
             <summary>Source details</summary>
             <p v-if="!group.rows.some((row) => row.candidates.length)">No inspected source covers this correction.</p>
             <div v-for="candidate in candidatesOf(group.rows)" :key="candidate.id" class="candidate">
-              <p><strong>{{ candidate.kind }} — not applied</strong></p>
+              <p><strong>{{ candidate.kind }}</strong></p>
               <p>{{ candidate.title }} · {{ candidate.revision }}</p>
               <p>Section: {{ candidate.section }}</p>
               <p>{{ candidate.origin }}</p>
