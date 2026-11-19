@@ -186,6 +186,31 @@ it('warns outside the standard QNH band without blocking inside the model range'
   expect(results(view).exists()).toBe(true)
 })
 
+const tempWarning = (view: VueWrapper) => view.find('[data-warning="WARN-UI-001"]')
+it.each([['-40'], ['50'], ['', ], ['abc'], ['NaN'], ['0x10']])('no temperature advisory for %j', async (value) => {
+  const view = await mountReady()
+  await field(view, 'Temperature (°C)').setValue(value)
+  expect(tempWarning(view).exists()).toBe(false)
+})
+it.each([['-40.1'], ['50.1'], ['-60']])('temperature advisory for %j names value and unit', async (value) => {
+  const view = await mountReady()
+  await field(view, 'Temperature (°C)').setValue(value)
+  expect(tempWarning(view).text()).toContain(`WARNING WARN-UI-001: Temperature ${Number(value)} °C`)
+})
+
+it('recomputes the temperature advisory on every edit and clears it with the value', async () => {
+  const view = await mountReady()
+  const input = field(view, 'Temperature (°C)')
+  await input.setValue('55')
+  expect(tempWarning(view).text()).toContain('55 °C')
+  await input.setValue('20')
+  expect(tempWarning(view).exists()).toBe(false)
+  await input.setValue('-45')
+  expect(tempWarning(view).text()).toContain('-45 °C')
+  await input.setValue('')
+  expect(tempWarning(view).exists()).toBe(false)
+})
+
 it('copies the saved runway elevation only on request and drops it when the runway changes', async () => {
   const view = await mountReady()
   const runwayFields = [
