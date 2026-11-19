@@ -500,7 +500,7 @@ test('persisted fleet tank inputs feed the session-only fuel plan online and cac
   // (1270 − (150 − 105)) / 600 kg·m/kg
   await expect(masses()).toHaveText(['610 kg', '10 kg', '600 kg', '40 kg'])
   await expect(card.getByTestId('arrival-cg')).toHaveText('2.042 m')
-  await expect(arrival).toContainText('A lookup table is supported only for exactly one')
+  await expect(arrival).toContainText('A lookup table is supported only for tanks with zero unusable fuel')
   await expect(results).toContainText('table moment at the takeoff load minus the table moment')
   await expect(page.getByRole('alert').filter({ hasText: 'CG Out of Envelope' })).toBeVisible()
   await shot('lookup-duration-partial-offline')
@@ -552,7 +552,7 @@ test('persisted fleet tank inputs feed the session-only fuel plan online and cac
   await expect(card).toContainText('Valid current Mass & Balance loading is required')
   await blockedShot('D-BADT-lookup-blocked-offline')
   for (const [registration, reason, mass] of [
-    ['D-LOOK2', 'exactly one category-available tank', '600 kg'],
+    ['D-LOOK2', 'explicit named burn sequence', '600 kg'],
   ]) {
     await choose(registration!)
     await expect(method).toHaveValue('')
