@@ -124,12 +124,15 @@ export function buildPdf(blocks: PdfBlock[], images: Array<PdfImage | null>, tit
       const colW = CONTENT_W / block.cells.length
       const wrapped = block.cells.map(c => wrap(c, 9, colW - 8))
       const rows = Math.max(1, ...wrapped.map(w => w.length))
-      ensure(rows * 11.5 + 4)
+      // Rows are split line by line so a row taller than a page continues on the next page.
+      ensure(Math.min(rows, 3) * 11.5 + 4)
       for (let r = 0; r < rows; r++) {
+        ensure(11.5)
         y -= 11
         wrapped.forEach((cell, i) => { if (cell[r]) line(cell[r]!, MARGIN + i * colW, 9, false) })
         y -= 0.5
       }
+      ensure(6)
       page().push(`0.6 G 0.5 w ${MARGIN} ${(y - 2).toFixed(2)} m ${(MARGIN + CONTENT_W).toFixed(2)} ${(y - 2).toFixed(2)} l S`)
       y -= 4
     } else {

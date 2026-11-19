@@ -7,6 +7,7 @@ import { mapFleetProfileToContext } from '@/modules/mass-balance/services/fleet-
 import { useMassBalanceStore } from '@/modules/mass-balance/stores/mass-balance.store'
 import MbPrintPreview from './MbPrintPreview.vue'
 import type { MbPrintSource } from './mb-print'
+import { disclaimerBlocks } from './disclaimer-text'
 import { buildPdf, toLatin1, wrap, textWidth } from './briefing-pdf'
 
 function source(verified = false): MbPrintSource {
@@ -79,8 +80,13 @@ describe('Briefing Pack PDF download', () => {
     expect(words(text)).toEqual([...expectedText(), ...words(note)].sort())
     expect(text).toContain('[UNVERIFIED]')
     expect(strip(text)).toContain(strip('Calculation based on unverified external data. Pilot in Command assumes full responsibility.'))
-    expect(strip(text)).toContain(strip('not a certified aviation device'))
+    expect(strip(text)).toContain(strip('NO CERTIFIED AVIATION DEVICE'))
     expect(strip(text)).toContain(strip('Loading envelope chart could not be embedded'))
+    const blocks = disclaimerBlocks()
+    expect(blocks.length).toBeGreaterThan(10)
+    for (const b of blocks) expect(strip(text)).toContain(strip(toLatin1(b.text)))
+    expect(strip(text)).toContain(strip('The official handbook always takes precedence.'))
+    expect(strip(text)).toContain(strip('Keine Gewährleistung'))
     wrapper.unmount()
   })
 
@@ -133,6 +139,18 @@ describe('PDF writer', () => {
     expect(lines.length).toBeGreaterThan(1)
     expect(lines.every(l => textWidth(l, 10) <= 200)).toBe(true)
     expect(wrap('x'.repeat(200), 10, 100).every(l => textWidth(l, 10) <= 100)).toBe(true)
+  })
+  it('splits a row taller than a page without losing any line', () => {
+    const long = Array.from({ length: 500 }, (_, i) => `Station${i}`).join(' ')
+    const bytes = buildPdf([{ kind: 'row', cells: [long, 'WARN-END'] }], [], 'T')
+    const raw = [...bytes].map(b => String.fromCharCode(b)).join('')
+    expect(raw).toMatch(/\/Count [2-9]/)
+    const ys = [...raw.matchAll(/ Td \(/g)].length
+    expect(ys).toBeGreaterThan(50)
+    for (const m of raw.matchAll(/BT \/F\d [\d.]+ Tf [\d.]+ (-?[\d.]+) Td/g)) expect(Number(m[1])).toBeGreaterThanOrEqual(42)
+    const text = pdfText(bytes)
+    for (let i = 0; i < 500; i++) expect(text).toContain(`Station${i}`)
+    expect(text).toContain('WARN-END')
   })
   it('paginates, escapes parentheses and writes a consistent xref', () => {
     const blocks = Array.from({ length: 120 }, (_, i) => ({ kind: 'text' as const, text: `Line (${i}) \\ end` }))

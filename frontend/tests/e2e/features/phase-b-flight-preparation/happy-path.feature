@@ -25,7 +25,7 @@ Feature: Complete a textbook flight preparation within all limits
     And the pilot opens the briefing pack
     Then the briefing pack states "[UNVERIFIED]"
     And the briefing pack states "Calculation based on unverified external data. Pilot in Command assumes full responsibility."
-    And the briefing pack states "not a certified aviation device"
+    And the briefing pack states "NO CERTIFIED AVIATION DEVICE"
     When the pilot requests printing of the briefing pack
     Then printing is blocked pending acknowledgment of unverified data
     And the briefing pack evidence is captured as "<width>"
@@ -50,7 +50,7 @@ Feature: Complete a textbook flight preparation within all limits
     When the pilot acknowledges the unverified data for the PDF download
     Then the downloaded PDF states "[UNVERIFIED]"
     And the downloaded PDF states "Calculation based on unverified external data. Pilot in Command assumes full responsibility."
-    And the downloaded PDF states "not a certified aviation device"
+    And the downloaded PDF states "NO CERTIFIED AVIATION DEVICE"
 
     Examples:
       | width |

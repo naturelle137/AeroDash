@@ -2,8 +2,10 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import CGEnvelopeChart from '@/modules/mass-balance/components/CGEnvelopeChart.vue'
 import { renderBriefingPdf } from './briefing-pdf'
+import { disclaimerBlocks } from './disclaimer-text'
 import { assembleMbPrint, canPrintMb, unverifiedGate, type MbPrintSnapshot, type MbPrintSource } from './mb-print'
 
+const disclaimerContent = disclaimerBlocks()
 const props = defineProps<{ source: MbPrintSource; readSource?: () => MbPrintSource }>()
 // Read live dependencies even when the parent render has not flushed before native print.
 const currentSource = computed(() => props.readSource?.() ?? props.source)
@@ -222,7 +224,10 @@ onBeforeUnmount(() => {
           </section>
           <section aria-label="Disclaimer">
             <h2>Disclaimer</h2>
-            <p>AeroDash is not a certified aviation device. Verify all calculations against the official AFM/POH of the specific aircraft; the official handbook takes precedence. The Pilot in Command bears sole responsibility for the safe conduct of the flight. See DISCLAIMER.md.</p>
+            <template v-for="(block, index) in disclaimerContent" :key="index">
+              <h3 v-if="block.kind === 'heading'">{{ block.text }}</h3>
+              <p v-else>{{ block.text }}</p>
+            </template>
           </section>
         </template>
         <p v-else role="status">Preview invalidated. Return to preparation, review the current inputs and open a new Briefing Pack preview.</p>
