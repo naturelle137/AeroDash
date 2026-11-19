@@ -4,7 +4,7 @@ import { SAFETY_FACTOR_PRESETS } from '../services/corrected-distances'
 import type { PerformanceStep } from '../composables/performance-step'
 
 const props = defineProps<{ step: PerformanceStep; canCompute: boolean }>()
-const { temperature, corrections, safetyFactors, showPaErrors, presentation, extrapolationAcknowledged } = props.step
+const { temperature, temperatureWarnings, corrections, safetyFactors, showPaErrors, presentation, extrapolationAcknowledged } = props.step
 </script>
 
 <template>
@@ -13,6 +13,7 @@ const { temperature, corrections, safetyFactors, showPaErrors, presentation, ext
     <div class="fields">
       <label>Temperature (°C)<input id="performance-temperature" v-model="temperature" type="text" inputmode="decimal" /></label>
     </div>
+    <p v-for="warning in temperatureWarnings" :key="warning" role="alert" data-warning="WARN-UI-001">{{ warning }}</p>
     <PressureAltitudeFieldset :pa="step.pa" :show-errors="showPaErrors" />
     <fieldset v-for="operation in (['takeoff', 'landing'] as const)" :key="operation" class="fields correction-inputs">
       <legend>{{ operation === 'takeoff' ? 'Takeoff' : 'Landing' }} wind and slope</legend>
