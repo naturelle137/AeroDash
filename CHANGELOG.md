@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Document the source-limited manual runway comparison and test surface-change invalidation.
+
 - Block stale runway comparisons, show current performance notifications in Flight Prep and briefing packs, and align comparison notices with displayed results.
 
 - Verify sourced landing corrections in desktop and mobile browser flows and align the performance documentation.

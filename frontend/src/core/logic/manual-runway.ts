@@ -3,7 +3,7 @@ import { FT_TO_M } from './unit-conversion-constants'
 
 /**
  * Pilot-declared runway inputs. Pure validation, normalization and storage-record
- * recovery; no runway assessment, correction factor or airport-data lookup.
+ * recovery; runway assessment and airport-data lookup are separate concerns.
  */
 
 export const RUNWAY_LENGTH_UNITS = ['m', 'ft'] as const

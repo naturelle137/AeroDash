@@ -134,6 +134,20 @@ describe('corrected distances in the performance step', () => {
     effect.stop()
   })
 
+  it('invalidates the comparison on a surface edit and blocks an unsupported saved condition', () => {
+    const effect = effectScope()
+    effect.run(() => {
+      const { step, runway } = setup()
+      Object.assign(step.corrections.takeoff, { headwind: '0', slope: '0' })
+      expect(corrected(step, 0).status).toBe('applied')
+      runway.draft.surfaceCondition = 'ice'
+      expect(corrected(step, 0).status).toBe('unavailable')
+      expect(runway.save()).toBe(true)
+      expect(corrected(step, 0).status).toBe('unavailable')
+    })
+    effect.stop()
+  })
+
   it('compares the final distance over 50 ft with the declared runway and reports margins', () => {
     const effect = effectScope()
     effect.run(() => {
