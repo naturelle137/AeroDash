@@ -266,6 +266,10 @@ safety-critical defect discovered after release block an unsafe build (a remote
 - Offline-first architecture minimises network-based attack surface; the sole
   outbound request (§7) is a same-origin, credential-less `GET` that never
   reads more than a small bounded response body.
+- An optional app lock (Privacy page) hides the app behind a passcode checked
+  locally with a salted PBKDF2 verifier. It does not encrypt stored data or
+  exports, and a forgotten passcode can only be cleared by deleting all local
+  data (see ADR-016).
 - Input validation via Zod schemas at the adapter boundary.
 - No credentials, tokens, or secrets are stored in the application.
 - CI pipeline enforces frozen lockfiles and dependency auditing.
