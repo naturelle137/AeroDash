@@ -76,6 +76,21 @@ integrate this candidate into that consumer under the current contract.
   Offline snapshots cannot establish later changes or restrictions. These remain
   unknown, not fresh or stale by assumption.
 
+### Candidate decision: openAIP
+
+Evaluated 2026-11-19 from public pages only. Do not integrate.
+
+- The [openAIP home page](https://www.openaip.net/) states CC BY-NC 4.0 and permits
+  shipping the data in paid applications only if the data is not sold on its own.
+  Whether AeroDash's distribution and any future hosting fit that term is not
+  established; the terms and legal pages were unreadable.
+- The [export page](https://www.openaip.net/data/exports) offers per-country
+  airport files in several formats via pre-signed links that expire after 24 hours.
+  There is no stable delivery URL for a reproducible, CI-checkable manifest.
+- Runway declared distances (TORA/TODA/ASDA/LDA), record-level effective/expiry
+  or AIRAC metadata, accuracy/fitness terms and NOTAM coverage were not found.
+  They remain unknown, not assumed.
+
 Reconsider a source when its declared-distance fields, reuse and delivery terms,
 record-level temporal semantics and restriction limitations satisfy the gate
 below. Until then, retain offline manual input and its unverified provenance.
