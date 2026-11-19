@@ -54,6 +54,32 @@ No airport record's effective interval, expiry or restriction coverage was verif
 
 ## Source-first acceptance gate
 
+### Candidate decision: OurAirports
+
+Evaluated 2026-11-19 for the existing manual runway comparison consumer. Do not
+integrate this candidate into that consumer under the current contract.
+
+- [OurAirports downloads](https://ourairports.com/data/) state that the data is
+  public domain without accuracy or fitness guarantees. The global airport and
+  runway CSVs cover records on the site, not a guaranteed complete jurisdiction.
+- The [data dictionary](https://ourairports.com/help/data-dictionary.html) defines
+  persistent internal record IDs, airport references and runway dimensions in
+  feet. `length_ft` is the whole physical surface, including displaced thresholds
+  and overruns; it is not TORA, TODA, ASDA or LDA. The current consumer requires
+  independently declared TORA and LDA. Substituting length would invent them.
+- The [provider's download repository](https://github.com/davidmegginson/ourairports-data)
+  provides CSV snapshots generated daily. GitHub file dates change only when
+  contents change. A commit identifies a snapshot, not the effective date or
+  expiry of every record; daily generation does not establish record currency.
+- Record effective/expiry and supersession semantics, completeness, and NOTAM/SUP
+  coverage for this consumer were not established in those provider documents.
+  Offline snapshots cannot establish later changes or restrictions. These remain
+  unknown, not fresh or stale by assumption.
+
+Reconsider a source when its declared-distance fields, reuse and delivery terms,
+record-level temporal semantics and restriction limitations satisfy the gate
+below. Until then, retain offline manual input and its unverified provenance.
+
 Before implementing airport freshness, accept a named authorised provider/dataset
 and an actual AeroDash consumer, with all of the following documented:
 
