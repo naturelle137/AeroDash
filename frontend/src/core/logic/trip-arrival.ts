@@ -126,26 +126,22 @@ export function calculateSequencedTripArrivalCg(input: unknown): TripArrivalCgRe
 const LookupArrivalInputSchema = ArrivalInputSchema.extend({
   takeoffMassKg: z.number().finite().positive().max(MAX_MASS_KG),
   takeoffMomentKgM: z.number().finite().min(-MAX_MOMENT_KGM).max(MAX_MOMENT_KGM),
+  unusableFuelKg: z.number().finite().nonnegative(),
   lookup: z.array(z.object({ massOrVolume: z.number(), moment: z.number() })),
 })
 
-/**
- * Single variable-geometry tank with zero unusable fuel. The table holds the total
- * tank moment at each tank mass (kg, kg·m), so F(0) = 0 and the burned contribution is
- * F(q) − F(q − b). Arms are never interpolated and the departure arm is never frozen.
- * Nonzero unusable fuel arrival CG remains outside this supported subset.
- */
+// Lookup moments describe total tank contents; unusable fuel remains aboard.
 export function calculateLookupTripArrivalCg(input: unknown): TripArrivalCgResult {
   const parsed = LookupArrivalInputSchema.safeParse(input)
   if (!parsed.success) return { ok: false, reason: 'INVALID_INPUT' }
-  const { lookup, takeoffMomentKgM, usableFuelKg, tripFuelKg } = parsed.data
+  const { lookup, takeoffMomentKgM, usableFuelKg, unusableFuelKg, tripFuelKg } = parsed.data
   const validGeometry =
     isStrictMomentLookup(lookup) && lookup[0]!.massOrVolume === 0 && lookup[0]!.moment === 0
   if (!validGeometry) return { ok: false, reason: 'INVALID_GEOMETRY' }
   const mass = calculateTripArrival(parsed.data)
   if (!mass.ok) return mass
-  const departureTankMomentKgM = interpolateMomentStrict(usableFuelKg, lookup)
-  const remainingTankMomentKgM = interpolateMomentStrict(usableFuelKg - tripFuelKg, lookup)
+  const departureTankMomentKgM = interpolateMomentStrict(unusableFuelKg + usableFuelKg, lookup)
+  const remainingTankMomentKgM = interpolateMomentStrict(unusableFuelKg + (usableFuelKg - tripFuelKg), lookup)
   if (departureTankMomentKgM === null || remainingTankMomentKgM === null)
     return { ok: false, reason: 'LOOKUP_OUT_OF_RANGE' }
   const burnedMomentKgM = departureTankMomentKgM - remainingTankMomentKgM

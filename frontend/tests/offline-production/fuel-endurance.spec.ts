@@ -69,7 +69,9 @@ test('persisted fleet tank inputs feed the session-only fuel plan online and cac
       profile.loadPoints[0]!.arm = null
       profile.loadPoints[0]!.armLookup = [
         { massOrVolume: 0, moment: 0 },
-        { massOrVolume: 100, moment: 100 },
+        { massOrVolume: 10, moment: 10 },
+        { massOrVolume: 30, moment: 60 },
+        { massOrVolume: 50, moment: 150 },
       ]
     }
     if (registration!.startsWith('D-LOOK') || registration === 'D-BADT') {
@@ -370,7 +372,7 @@ test('persisted fleet tank inputs feed the session-only fuel plan online and cac
   await page.goto('/mass-balance')
   await expect(method).toHaveValue('')
   await expect(arrival).toHaveCount(0)
-  for (const [registration, reason] of [['D-VARY', 'exactly zero unusable fuel']]) {
+  for (const registration of ['D-VARY']) {
     const unsupported = picker.locator('option').filter({ hasText: registration }).first()
     await picker.selectOption((await unsupported.getAttribute('value'))!)
     for (const planning of ['duration', 'direct']) {
@@ -381,13 +383,12 @@ test('persisted fleet tank inputs feed the session-only fuel plan online and cac
         await reserve.fill('30')
       } else await direct.fill('20')
       await expect(arrival).toContainText('580 kg')
-      await expect(card.getByTestId('arrival-cg')).toHaveCount(0)
-      await expect(arrival).toContainText(reason)
+      await expect(card.getByTestId('arrival-cg')).toHaveText('2.017 m')
     }
     await arrival.evaluate((element) => element.scrollIntoView({ block: 'center' }))
-    const imagePath = info.outputPath(`${registration}-unsupported-offline.png`)
+    const imagePath = info.outputPath(`${registration}-arrival-offline.png`)
     await page.screenshot({ path: imagePath })
-    await info.attach(`${registration}-unsupported-offline`, {
+    await info.attach(`${registration}-arrival-offline`, {
       path: imagePath,
       contentType: 'image/png',
     })
@@ -552,8 +553,6 @@ test('persisted fleet tank inputs feed the session-only fuel plan online and cac
   await blockedShot('D-BADT-lookup-blocked-offline')
   for (const [registration, reason, mass] of [
     ['D-LOOK2', 'exactly one category-available tank', '600 kg'],
-    // Unusable 10 kg stays in BEM: takeoff 600 kg, arrival 590 kg.
-    ['D-VARY', 'exactly zero unusable fuel', '590 kg'],
   ]) {
     await choose(registration!)
     await expect(method).toHaveValue('')
@@ -570,6 +569,12 @@ test('persisted fleet tank inputs feed the session-only fuel plan online and cac
     }
     await shot(`${registration}-lookup-unsupported-offline`)
   }
+  await choose('D-VARY')
+  await method.selectOption('direct')
+  await direct.fill('10')
+  await expect(arrival).toContainText('590 kg')
+  await expect(card.getByTestId('arrival-cg')).toHaveText('2.059 m')
+  await shot('lookup-unusable-offline')
   expect((await page.reload())?.fromServiceWorker()).toBe(true)
   await choose('D-LOOK')
   await expect(method).toHaveValue('')

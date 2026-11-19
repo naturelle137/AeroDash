@@ -44,7 +44,7 @@ export function arrivalCgForPlanning(
         reason:
           'Variable-arm arrival CG requires exactly one category-available tank; multiple available tanks with lookup geometry are unsupported.',
       }
-    return lookupArrivalCg(profile, tanks[0]!, mb, fuel.usableFuelKg, tripFuelKg)
+    return lookupArrivalCg(profile, tanks[0]!, mb, fuel.usableFuelKg, fuel.excludedUnusableKg, tripFuelKg)
   }
   if (tanks.length > 1 && !sequenceName.trim())
     return {
@@ -119,13 +119,13 @@ const LOOKUP_REASONS: Partial<
 }
 
 // The table's moment at each load is the total tank moment. Arrival subtracts
-// F(q) − F(q − b) from the current M&B takeoff moment. M&B adds F(q) − F(u), but
-// arrival CG remains limited to u = 0 with an exact (0, 0) origin knot.
+// F(q) − F(q − b) from the current M&B takeoff moment.
 function lookupArrivalCg(
   profile: Profile,
   tank: Profile['loadPoints'][number],
   mb: MathCoreResult | null,
   usableFuelKg: number,
+  unusableFuelKg: number,
   tripFuelKg: number,
 ): ArrivalCgResult {
   const fuelTank = tank.fuelTank!
@@ -134,12 +134,6 @@ function lookupArrivalCg(
       ok: false,
       reason:
         'Variable-arm arrival CG is unsupported when a tank declares both a fixed arm and a lookup table.',
-    }
-  if (fuelTank.unusableFuel !== 0)
-    return {
-      ok: false,
-      reason:
-        'Variable-arm arrival CG requires exactly zero unusable fuel; tanks with unusable fuel are unsupported.',
     }
   const blocked = sourceUnitReason(profile.sourceUnit) ?? mbReason(mb)
   if (blocked || !mb) return { ok: false, reason: blocked ?? MB_REQUIRED }
@@ -167,6 +161,7 @@ function lookupArrivalCg(
     takeoffMassKg: mb.takeoffCenterOfGravityPoint.mass,
     takeoffMomentKgM: mb.takeoffCenterOfGravityPoint.moment,
     usableFuelKg,
+    unusableFuelKg,
     tripFuelKg,
     lookup,
   })

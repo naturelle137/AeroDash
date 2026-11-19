@@ -465,9 +465,8 @@ describe('fuel plan with live M&B store', () => {
       expect(cg().text()).toBe('2.042 m')
       store.aircraft!.loadPoints[0]!.fuelTank!.unusableFuel = 10
       await reload()
-      expect(cg().exists()).toBe(false)
+      expect(cg().text()).toBe('2.059 m')
       expect(arrival()).toContain('590 kg')
-      expect(arrival()).toContain('exactly zero unusable fuel')
       store.aircraft!.loadPoints[0]!.fuelTank!.unusableFuel = 0
       store.aircraft!.loadPoints[0]!.armLookup.reverse()
       await reload()
