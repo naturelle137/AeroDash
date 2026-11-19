@@ -90,7 +90,13 @@ describe('lookupPhaseDistance mass policy', () => {
 
 describe('lookupPhaseDistanceWithExtrapolation', () => {
   const ext = (mass: number, pressureAltitude = 1000, temperature = 10, table = cube) =>
-    lookupPhaseDistanceWithExtrapolation(table, { mass, pressureAltitude, temperature })
+    lookupPhaseDistanceWithExtrapolation(table, { mass, pressureAltitude, temperature }, true)
+
+  it('blocks every upper excursion unless the source supports extrapolation', () => {
+    const conditions = { mass: 1050, pressureAltitude: 1000, temperature: 10 }
+    expect(lookupPhaseDistanceWithExtrapolation(cube, conditions)).toEqual(lookupPhaseDistance(cube, conditions))
+    expect(lookupPhaseDistanceWithExtrapolation(cube, conditions).status).toBe('blocked')
+  })
 
   it('matches the raw lookup for every in-envelope or below-minimum-mass point', () => {
     for (const [m, pa, t] of [[900, 1000, 10], [1000, 2000, 20], [800, 0, 0], [650, 1000, 10]] as const) {

@@ -47,7 +47,10 @@ its tests are not evidence for this new policy. No new aircraft manual or accept
 source version has been obtained. Existing profile verification and source-unit
 validation remain prerequisites; all four complete positive grids are required.
 
-Lower PA/temperature remain blocked. Above-maximum mass, PA and temperature use
+Lower PA/temperature remain blocked. Above-maximum mass, PA and temperature stay blocked
+unless an applicable source documents extrapolation for the aircraft (`extrapolationSourceSupported`,
+default off; no profile field records such a source yet, so the app never enables it and
+issue #420 stays open for that). Where enabled, they use
 `lookupPhaseDistanceWithExtrapolation` (P1), which composes the extrapolation
 control (`performance-extrapolation-control.md`) between the table lookup and
 the operational corrections: at most 10 % above the axis maximum, the clamped

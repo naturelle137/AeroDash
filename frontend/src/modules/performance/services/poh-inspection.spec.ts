@@ -5,7 +5,7 @@ import { assessPerformance, inspectTables, massSourceFromText, type PerformanceA
 /** Standalone shape: one entered mass for both groups. */
 function inspectPohDistances(profile: unknown, values: { mass: string; pressureAltitude: string; temperature: string }, at: Date) {
   const mass = massSourceFromText(values.mass, 'entered lookup mass')
-  return flatten(assessPerformance(profile, { takeoff: mass, landing: mass, pressureAltitude: values.pressureAltitude, temperature: values.temperature }, at))
+  return flatten(assessPerformance(profile, { takeoff: mass, landing: mass, pressureAltitude: values.pressureAltitude, temperature: values.temperature, extrapolationSourceSupported: true }, at))
 }
 function flatten(result: PerformanceAssessment) {
   if (result.status === 'blocked') return result
@@ -131,7 +131,7 @@ it('interpolates the same grid when each phase declares different source units',
 describe('takeoff and landing assessment with separate masses', () => {
   const ready = (massKg: number, origin = 'test mass') => ({ status: 'ready' as const, massKg, origin })
   const assess = (takeoff: Parameters<typeof assessPerformance>[1]['takeoff'], landing: Parameters<typeof assessPerformance>[1]['landing'], profile: unknown = testPohAircraft()) =>
-    assessPerformance(profile, { takeoff, landing, pressureAltitude: 1000, temperature: '10' }, now)
+    assessPerformance(profile, { takeoff, landing, pressureAltitude: 1000, temperature: '10', extrapolationSourceSupported: true }, now)
   // Fixture distance = 100 + phase × 100 + (mass − 800) + PA / 100 + temperature.
   const expected = (phase: number, mass: number) => 100 + phase * 100 + (mass - 800) + 10 + 10
 
@@ -175,9 +175,17 @@ describe('takeoff and landing assessment with separate masses', () => {
     expect(result.takeoff.message).toContain('exceeds the table maximum 1000 kg by more than the fixed 10 % extrapolation limit')
   })
 
+  it('blocks an upper excursion of a verified monotonic profile when no source supports extrapolation', () => {
+    const result = assessPerformance(testPohAircraft(), { takeoff: ready(1100), landing: ready(900), pressureAltitude: 1000, temperature: '10' }, now)
+    if (result.status !== 'assessed') throw new Error('Expected assessed')
+    expect(result.takeoff.status).toBe('blocked')
+    expect(result.takeoff).not.toHaveProperty('distances')
+    expect(result.landing.status).toBe('success')
+  })
+
   it('applies the fixed 20 % penalty to the boundary distance for each upper axis within 10 %', () => {
     const at = (mass: number, pressureAltitude: number, temperature: string) =>
-      assessPerformance(testPohAircraft(), { takeoff: ready(mass), landing: ready(900), pressureAltitude, temperature }, now)
+      assessPerformance(testPohAircraft(), { takeoff: ready(mass), landing: ready(900), pressureAltitude, temperature, extrapolationSourceSupported: true }, now)
     for (const [mass, pa, temperature, boundary] of [
       [1100, 1000, '10', { m: 1000, pa: 1000, t: 10 }],
       [900, 2200, '10', { m: 900, pa: 2000, t: 10 }],
@@ -215,7 +223,7 @@ describe('takeoff and landing assessment with separate masses', () => {
   })
 
   it('keeps below-minimum mass benefit-capped while extrapolating another axis conservatively', () => {
-    const result = assessPerformance(testPohAircraft(), { takeoff: ready(700), landing: ready(900), pressureAltitude: 2100, temperature: '10' }, now)
+    const result = assessPerformance(testPohAircraft(), { takeoff: ready(700), landing: ready(900), pressureAltitude: 2100, temperature: '10', extrapolationSourceSupported: true }, now)
     if (result.status !== 'assessed' || result.takeoff.status !== 'success') throw new Error('Expected takeoff')
     expect(result.takeoff.distances[0]).toMatchObject({ massTreatment: 'benefit-capped', lookupMass: 800 })
     expect(result.takeoff.distances[0]!.distance).toBe((100 + 0 + 20 + 10) * 1.2)

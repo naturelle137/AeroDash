@@ -106,9 +106,10 @@ export type ExtrapolatedLookupResult =
  * Look up one table and extrapolate above the maximum of mass, pressure altitude or temperature by at most
  * the fixed 10 % band, applying the fixed 20 % penalty to the boundary distance. Lower pressure altitude
  * and temperature stay blocked, below-minimum mass keeps the benefit cap, and extrapolation is refused
- * unless the table never decreases along any axis (the assumption that makes the penalty conservative).
+ * unless the caller documents an applicable source (default: none, so the plain blocked lookup applies)
+ * and the table never decreases along any axis (the assumption that makes the penalty conservative).
  */
-export function lookupPhaseDistanceWithExtrapolation(cube: PerformanceCube3D, conditions: PohDistanceConditions): ExtrapolatedLookupResult {
+export function lookupPhaseDistanceWithExtrapolation(cube: PerformanceCube3D, conditions: PohDistanceConditions, sourceSupportsExtrapolation = false): ExtrapolatedLookupResult {
   const { mass, pressureAltitude, temperature } = conditions
   if (![mass, pressureAltitude, temperature].every(Number.isFinite) || mass <= 0) return lookupPhaseDistance(cube, conditions)
   const ranges = cubeEnvelopeRanges(cube)
@@ -117,7 +118,7 @@ export function lookupPhaseDistanceWithExtrapolation(cube: PerformanceCube3D, co
     const { direction, worseFraction } = assessment.axes[axis]
     return direction === 'worse' ? [{ axis, value: conditions[axis], max: ranges[axis].max, fraction: worseFraction }] : []
   })
-  if (axes.length === 0) return lookupPhaseDistance(cube, conditions)
+  if (axes.length === 0 || !sourceSupportsExtrapolation) return lookupPhaseDistance(cube, conditions)
   const beyond = axes.find((item) => item.fraction > EXTRAPOLATION_CAP_FRACTION)
   if (beyond) return { status: 'blocked', reason: 'extrapolation-beyond-cap', range: ranges[beyond.axis], axis: beyond.axis }
   if (!isNonDecreasingInMass(cube) || !isNonDecreasingAlong(cube, 'temperature') || !isNonDecreasingAlong(cube, 'altitude')) {
