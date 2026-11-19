@@ -47,11 +47,24 @@ its tests are not evidence for this new policy. No new aircraft manual or accept
 source version has been obtained. Existing profile verification and source-unit
 validation remain prerequisites; all four complete positive grids are required.
 
-PA/temperature excursions in either direction and **all** above-maximum masses
-remain blocked. The generic P1 +10%/+20% extrapolation contract does not establish
-source applicability and is not activated here. No acknowledgement can bypass
-these blocks. #420 remains open for unsupported lower PA/temperature and upper
-extrapolation. Accepted Tecnam configurations support source-specific corrections and runway comparisons; other sources remain unsupported. No implicit factor 1 or operational approval is enabled.
+Lower PA/temperature remain blocked. Above-maximum mass, PA and temperature use
+`lookupPhaseDistanceWithExtrapolation` (P1), which composes the extrapolation
+control (`performance-extrapolation-control.md`) between the table lookup and
+the operational corrections: at most 10 % above the axis maximum, the clamped
+boundary distance times the fixed 1.2 penalty, never shorter. It is refused (blocked,
+no distance) when any axis passes the 10 % band, the maximum is not positive, or the
+table decreases along mass, PA or temperature anywhere, because the penalty is only
+conservative for a nondecreasing table. A below-minimum mass still uses the benefit
+cap in the same lookup. The constants are software limits: they do not establish that
+the aircraft may be operated there, and no POH value is invented. A missing sibling
+table is estimated from the penalised distance, so the value carries both markers.
+
+An extrapolated group requires explicit pilot-in-command acknowledgment. Until then the
+group shows no distance, correction or runway comparison (so nothing can be exported or
+printed); the notice names each extrapolated axis, its value and the table maximum. The
+acknowledgment is bound to the exact input key, so any change of input, profile,
+mass, runway or units revokes it and it never carries over to another operating
+point. Accepted Tecnam configurations support source-specific corrections and runway comparisons; other sources remain unsupported. No implicit factor 1 or operational approval is enabled.
 
 The current shared Performance presentation carries deduplicated critical runway and low-factor notifications. Flight Prep and the briefing pack render these from the same current comparisons and warnings; invalidated inputs remove the corresponding notifications.
 

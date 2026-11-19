@@ -140,7 +140,7 @@ If a selected profile is Draft, invalid or lacks a complete positive-distance re
 
 ### REQ-PF-043: Supported application lookup
 
-If a requested condition lies outside a required table's axes and does not meet REQ-PF-073, then the system shall block that phase group.
+If a requested condition lies outside a required table's axes and does not meet REQ-PF-073 or REQ-PF-082, then the system shall block that phase group.
 
 ### REQ-PF-044: Required lookup inputs
 
@@ -304,3 +304,15 @@ When displaying supported table ranges, the system shall apply REQ-UQ-003/004 pr
 ### REQ-PF-081: Explicit P208 manual configuration
 
 If the pilot has not selected an applicable P208 manual configuration, then the system shall leave its correction sources unsupported.
+
+### REQ-PF-082: Upper-axis extrapolation lookup
+
+If a requested mass, pressure altitude or temperature exceeds a required table maximum by at most 10% and the table never decreases along any axis, then the system shall return the boundary distance with the REQ-PF-027 penalty marked as extrapolated.
+
+### REQ-PF-083: Unacknowledged extrapolated lookup
+
+While an extrapolated lookup result is unacknowledged, the system shall withhold its distances and every correction or runway comparison derived from them.
+
+### REQ-PF-084: Acknowledgement binding
+
+When any input, profile, mass or runway changes, the system shall revoke the extrapolation acknowledgement.

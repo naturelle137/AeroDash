@@ -59,23 +59,43 @@ for (const variant of ['kg', 'converted', 'distant-decrease', 'phase-envelope'] 
       if (variant === 'phase-envelope') {
         await expect(landing).not.toContainText('capped at the documented')
         await expect(landing.locator('dd').first()).toContainText('320.0 m')
+        // Exactly +10 % is extrapolated: withheld until acknowledged, then penalised +20 %.
         await mass.fill('1100');
-        await expect(takeoff).toContainText('above the table maximum')
+        await expect(takeoff).toContainText('withheld')
+        await expect(takeoff.locator('dd')).toHaveCount(0)
         await expect(landing.locator('dd')).toHaveText(['420.0 m', '520.0 m'])
+        await page.getByLabel('Pilot-in-Command acknowledges extrapolated data').check()
+        await expect(takeoff.locator('dd')).toHaveCount(2)
+        await expect(takeoff.locator('dd').first()).toContainText('384.0 m')
+        await mass.fill('1101');
+        await expect(takeoff).toContainText('more than the fixed 10 % extrapolation limit')
+        await expect(takeoff.locator('dd')).toHaveCount(0)
+        await expect(landing.locator('dd')).toHaveText(['421.0 m', '521.0 m'])
       }
       if (variant === 'kg' || variant === 'converted') {
         for (const [m, expected] of [['800', '120.0 m'], ['1000', '320.0 m'], ['750', '120.0 m']]) {
           await mass.fill(m!); await expect(takeoff.locator('dd').first()).toContainText(expected!)
         }
-        for (const invalid of ['1000.001', '1100', '0', '-1', 'NaN', 'Infinity', '-Infinity']) {
+        for (const invalid of ['1101', '0', '-1', 'NaN', 'Infinity', '-Infinity']) {
           await mass.fill(invalid); await expect(takeoff.locator('dd')).toHaveCount(0)
         }
+        // Extrapolated figures are withheld until acknowledged, shown with the penalty, and revoked by any input change.
+        await mass.fill('1050')
+        await expect(takeoff).toContainText('withheld'); await expect(takeoff.locator('dd')).toHaveCount(0)
+        const shot = async (name: string) => { const path = info.outputPath(`${name}-${offline ? 'offline' : 'online'}.png`); await page.screenshot({ path, fullPage: true }); await info.attach(name + (offline ? '-offline' : '-online'), { path, contentType: 'image/png' }) }
+        await shot('extrapolation-withheld')
+        const acknowledge = page.getByLabel('Pilot-in-Command acknowledges extrapolated data')
+        await acknowledge.check()
+        await expect(takeoff.locator('dd').first()).toContainText('384.0 m'); await expect(takeoff).toContainText('EXTRAPOLATED')
+        await shot('extrapolation-acknowledged')
+        await temperature.fill('11'); await expect(acknowledge).not.toBeChecked(); await expect(takeoff.locator('dd')).toHaveCount(0)
+        await temperature.fill('10'); await expect(acknowledge).not.toBeChecked()
         await mass.fill('900')
-        for (const invalid of ['-0.001', '2000.001', 'NaN', 'Infinity']) {
+        for (const invalid of ['-0.001', '2201', 'NaN', 'Infinity']) {
           await pa.fill(invalid); await expect(takeoff.locator('dd')).toHaveCount(0)
         }
         await pa.fill('1000')
-        for (const invalid of ['-0.001', '20.001', 'NaN', 'Infinity']) {
+        for (const invalid of ['-0.001', '22.001', 'NaN', 'Infinity']) {
           await temperature.fill(invalid); await expect(takeoff.locator('dd')).toHaveCount(0)
         }
         await temperature.fill('10');

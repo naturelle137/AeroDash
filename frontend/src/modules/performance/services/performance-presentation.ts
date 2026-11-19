@@ -26,10 +26,22 @@ export interface PerformancePresentation {
   /** Corrected distances per operation; empty until a result exists. Raw groups stay uncorrected. */
   readonly corrected: readonly CorrectedOperationPresentation[]
   readonly notifications: readonly Notification[]
+  /** Upper-axis extrapolation awaiting or holding pilot acknowledgment; null when no group is extrapolated. */
+  readonly extrapolation: ExtrapolationPresentation | null
   readonly runway: RunwayPresentation
   /** Scope statements that must accompany any displayed distance. */
   readonly scope: readonly string[]
 }
+
+export interface ExtrapolationPresentation {
+  readonly acknowledged: boolean
+  /** What was extrapolated, per distance; shown before and after acknowledgment. */
+  readonly details: readonly string[]
+  readonly warning: string
+}
+
+export const EXTRAPOLATION_WARNING = 'Performance data is extrapolated beyond the table limits: the boundary distance carries a fixed +20 % penalty. Treat the figures as estimates, not as POH/AFM values.'
+const AXIS_LABELS = { mass: ['mass', 'kg'], pressureAltitude: ['pressure altitude', 'ft'], temperature: ['temperature', '°C'] } as const
 
 export interface OperationalPresentation {
   readonly status: 'unavailable'
@@ -89,12 +101,19 @@ function massLabel(source: MassSource): string | null {
   return source.status === 'ready' ? `${formatNumber(source.massKg)} kg — ${source.origin}` : null
 }
 
-function groupPresentation(id: PerformanceGroupId, source: MassSource, group: GroupAssessment | null): PerformanceGroupPresentation {
+function extrapolationDetails(group: Extract<GroupAssessment, { status: 'success' }>, title: string): string[] {
+  return group.distances.flatMap((row) => row.extrapolation ? [`${title} ${row.label}: ${row.extrapolation.axes.map(({ axis, value, max, fraction }) => `${AXIS_LABELS[axis][0]} ${formatNumber(value)} ${AXIS_LABELS[axis][1]} is ${formatNumber(fraction * 100)} % above the table maximum ${formatNumber(max)} ${AXIS_LABELS[axis][1]}`).join(', ')}`] : [])
+}
+
+function groupPresentation(id: PerformanceGroupId, source: MassSource, group: GroupAssessment | null, acknowledged = true): PerformanceGroupPresentation {
   const base = { id, title: TITLES[id], mass: massLabel(source) }
   if (!group) {
     return { ...base, status: source.status === 'ready' ? 'not-computed' : 'blocked', reason: source.status === 'ready' ? null : source.reason, rows: [] }
   }
   if (group.status === 'blocked') return { ...base, status: 'blocked', reason: group.message, rows: [] }
+  if (group.extrapolated && !acknowledged) {
+    return { ...base, status: 'blocked', reason: 'Extrapolated result withheld until the pilot in command acknowledges the extrapolated data below.', rows: [] }
+  }
   return {
     ...base,
     status: 'success',
@@ -102,7 +121,7 @@ function groupPresentation(id: PerformanceGroupId, source: MassSource, group: Gr
     rows: group.distances.map((row) => ({
       label: row.label,
       value: `${formatNumber(row.distance)} m`,
-      note: row.provenance === 'estimated' ? 'ESTIMATED (CAA SSL 07)' : null,
+      note: [row.extrapolation ? 'EXTRAPOLATED (+20 % penalty)' : '', row.provenance === 'estimated' ? 'ESTIMATED (CAA SSL 07)' : ''].filter(Boolean).join(' · ') || null,
     })),
   }
 }
@@ -122,6 +141,8 @@ export type PresentationInput = {
   runway: RunwayPresentation
   operational: OperationalPresentation
   corrected?: readonly CorrectedOperationPresentation[]
+  /** Pilot acknowledgment of exactly `inputKey`'s extrapolated data. */
+  extrapolationAcknowledged?: boolean
 }
 
 export function presentPerformance(input: PresentationInput): PerformancePresentation {
@@ -141,25 +162,32 @@ export function presentPerformance(input: PresentationInput): PerformancePresent
     return all
   }, [])
   const common = { inputKey: input.inputKey, inputs: input.inputs, aircraft: input.aircraft, runway: input.runway, operational: input.operational, corrected, notifications, scope: PERFORMANCE_SCOPE }
+  const acknowledged = input.extrapolationAcknowledged ?? false
   if (!assessment || assessment.status === 'blocked') {
     return {
       ...common,
       status: assessment ? 'blocked' : 'not-computed',
       reason: assessment ? assessment.message : input.pendingReason,
       conditions: null,
+      extrapolation: null,
       groups: [groupPresentation('takeoff', input.takeoff, null), groupPresentation('landing', input.landing, null)]
         .map((group) => assessment && group.status === 'not-computed' ? { ...group, status: 'blocked' as const, reason: assessment.message } : group),
     }
   }
   const groups = [
-    groupPresentation('takeoff', input.takeoff, assessment.takeoff),
-    groupPresentation('landing', input.landing, assessment.landing),
+    groupPresentation('takeoff', input.takeoff, assessment.takeoff, acknowledged),
+    groupPresentation('landing', input.landing, assessment.landing, acknowledged),
   ]
+  const details = (['takeoff', 'landing'] as const).flatMap((id) => {
+    const group = assessment[id]
+    return group.status === 'success' ? extrapolationDetails(group, TITLES[id]) : []
+  })
   const anySuccess = groups.some((group) => group.status === 'success')
   return {
     ...common,
     status: anySuccess ? 'assessed' : 'blocked',
     reason: anySuccess ? null : 'No takeoff or landing distance is available; see each reason.',
+    extrapolation: details.length ? { acknowledged, details, warning: EXTRAPOLATION_WARNING } : null,
     conditions: {
       pressureAltitude: input.pressureAltitudeBasis,
       temperature: `${formatNumber(assessment.conditions.temperatureC)} °C`,

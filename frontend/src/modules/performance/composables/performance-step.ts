@@ -49,6 +49,14 @@ export function usePerformanceStep(context: () => PerformanceStepContext) {
     runway.saved, runway.draft, runway.storageError, runway.hasUnsavedChanges,
   ]))
   const result = shallowRef<ComputedResult | null>(null)
+  // Bound to the exact input key: any later input, profile, mass or runway change leaves the key behind.
+  const acknowledgedKey = ref<string | null>(null)
+  // Forget it on any change, so returning to an earlier input never restores an old acknowledgment.
+  watch(inputKey, () => { acknowledgedKey.value = null }, { flush: 'sync' })
+  const extrapolationAcknowledged = computed({
+    get: () => acknowledgedKey.value === inputKey.value,
+    set: (value: boolean) => { acknowledgedKey.value = value ? inputKey.value : null },
+  })
   const current = computed(() => result.value?.key === inputKey.value ? result.value : null)
   const tables = computed(() => ctx.value.profile ? inspectTables(ctx.value.profile) : null)
 
@@ -109,7 +117,9 @@ export function usePerformanceStep(context: () => PerformanceStepContext) {
     ? assessCorrectionSources({ ...profileFacts(ctx.value.profile, tables.value?.status === 'ready'), manualConfiguration: manualConfiguration.value }, runwayFacts.value) : null)
   const groupOf = (operation: Operation) => {
     const assessment = current.value?.assessment
-    return assessment?.status === 'assessed' ? assessment[operation] : null
+    const group = assessment?.status === 'assessed' ? assessment[operation] : null
+    // An unacknowledged extrapolated result is not accepted, so no correction or comparison may build on it.
+    return group?.status === 'success' && group.extrapolated && !extrapolationAcknowledged.value ? null : group
   }
 
   const presentation = computed<PerformancePresentation>(() => {
@@ -136,6 +146,7 @@ export function usePerformanceStep(context: () => PerformanceStepContext) {
       takeoff,
       landing,
       assessment: current.value?.assessment ?? null,
+      extrapolationAcknowledged: extrapolationAcknowledged.value,
       pressureAltitudeBasis: current.value?.basis ?? '',
       pendingReason: !ready ? notReadyReason
         : !profile ? 'Select an aircraft profile.'
@@ -147,6 +158,6 @@ export function usePerformanceStep(context: () => PerformanceStepContext) {
     })
   })
 
-  return { pa, temperature, corrections, safetyFactors, manualConfiguration, showPaErrors, tables, inputKey, compute, presentation }
+  return { pa, temperature, extrapolationAcknowledged, corrections, safetyFactors, manualConfiguration, showPaErrors, tables, inputKey, compute, presentation }
 }
 export type PerformanceStep = ReturnType<typeof usePerformanceStep>

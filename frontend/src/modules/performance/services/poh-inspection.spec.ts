@@ -43,15 +43,16 @@ describe('raw table inspection service', () => {
     expect(inspectPohDistances(testPohAircraft(), { ...inputs, mass }, now)).toMatchObject({ status: 'blocked', reason: 'input' })
   })
 
-  it('blocks outside either edge of every axis of every phase, even when other grids support it', () => {
+  it('blocks below the lower edge, and above the extrapolation band, of every axis of every phase', () => {
     for (let phase = 0; phase < 4; phase++) {
       for (const axis of ['mass', 'pressureAltitude', 'temperature'] as const) {
         const p = testPohAircraft()
         const range = axis === 'mass' ? [850, 950] : axis === 'pressureAltitude' ? [500, 1500] : [5, 15]
         const original = axis === 'mass' ? 800 : 0
         p.performanceProfiles![phase]!.dataPoints.forEach((point) => { point[axis] = point[axis] === original ? range[0]! : range[1]! })
-        // Below the mass minimum is benefit-capped; every other excursion blocks.
-        const values = axis === 'mass' ? [range[1]! + 1] : [range[0]! - 1, range[1]! + 1]
+        // Below the mass minimum is benefit-capped; upper values past the 10 % band block.
+        const beyond = Math.ceil(range[1]! * 1.1) + 1
+        const values = axis === 'mass' ? [beyond] : [range[0]! - 1, beyond]
         for (const value of values) {
           expect(inspectPohDistances(p, { ...inputs, [axis]: String(value) }, now)).toMatchObject({ status: 'blocked', reason: 'envelope' })
         }
@@ -150,7 +151,7 @@ describe('takeoff and landing assessment with separate masses', () => {
     for (const landing of [
       { status: 'unavailable' as const, reason: 'No trip-arrival mass.' },
       massSourceFromText('abc', 'x'),
-      ready(1000.5),
+      ready(1101),
     ]) {
       const result = assess(ready(900), landing)
       expect(result).toMatchObject({ status: 'assessed', takeoff: { status: 'success' }, landing: { status: 'blocked' } })
@@ -167,12 +168,67 @@ describe('takeoff and landing assessment with separate masses', () => {
     ])
   })
 
-  it('blocks a mass above the table maximum with the upper-bound reason, even by a fraction', () => {
-    const result = assess(ready(1000.01), ready(900))
-    expect(result).toMatchObject({ takeoff: { status: 'blocked', reason: 'envelope', massKg: 1000.01 }, landing: { status: 'success' } })
+  it('blocks a mass more than 10 % above the table maximum and names the limit', () => {
+    const result = assess(ready(1100.01), ready(900))
+    expect(result).toMatchObject({ takeoff: { status: 'blocked', reason: 'envelope', massKg: 1100.01 }, landing: { status: 'success' } })
     if (result.status !== 'assessed' || result.takeoff.status !== 'blocked') throw new Error('Expected blocked takeoff')
-    expect(result.takeoff.message).toContain('above the table maximum 1000 kg')
-    expect(result.takeoff.message).toContain('Upper-bound extrapolation is unsupported')
+    expect(result.takeoff.message).toContain('exceeds the table maximum 1000 kg by more than the fixed 10 % extrapolation limit')
+  })
+
+  it('applies the fixed 20 % penalty to the boundary distance for each upper axis within 10 %', () => {
+    const at = (mass: number, pressureAltitude: number, temperature: string) =>
+      assessPerformance(testPohAircraft(), { takeoff: ready(mass), landing: ready(900), pressureAltitude, temperature }, now)
+    for (const [mass, pa, temperature, boundary] of [
+      [1100, 1000, '10', { m: 1000, pa: 1000, t: 10 }],
+      [900, 2200, '10', { m: 900, pa: 2000, t: 10 }],
+      [900, 1000, '22', { m: 900, pa: 1000, t: 20 }],
+      [1100, 2200, '22', { m: 1000, pa: 2000, t: 20 }],
+    ] as const) {
+      const result = at(mass, pa, temperature)
+      if (result.status !== 'assessed' || result.takeoff.status !== 'success') throw new Error('Expected takeoff')
+      const base = (phase: number) => 100 + phase * 100 + (boundary.m - 800) + boundary.pa / 100 + boundary.t
+      expect(result.takeoff.extrapolated).toBe(true)
+      expect(result.takeoff.distances.map((row) => row.distance)).toEqual([base(0) * 1.2, base(1) * 1.2])
+      expect(result.takeoff.distances.every((row) => row.extrapolation !== null && row.distance > base(0))).toBe(true)
+      // The other group stays an ordinary lookup, except where its own axes are also extrapolated.
+    }
+    const plain = at(900, 1000, '10')
+    if (plain.status !== 'assessed' || plain.takeoff.status !== 'success') throw new Error('Expected takeoff')
+    expect(plain.takeoff.extrapolated).toBe(false)
+  })
+
+  it('accepts exactly 10 % above the maximum and blocks the first value past it', () => {
+    expect(assess(ready(1100), ready(900))).toMatchObject({ takeoff: { status: 'success', extrapolated: true } })
+    expect(assess(ready(1100.0001), ready(900))).toMatchObject({ takeoff: { status: 'blocked', reason: 'envelope' } })
+  })
+
+  it('blocks extrapolation when the table decreases along any axis', () => {
+    for (const axis of ['mass', 'pressureAltitude', 'temperature'] as const) {
+      const profile = testPohAircraft()
+      // Make the highest point on this axis shorter than its neighbour.
+      const table = profile.performanceProfiles![0]!
+      const top = Math.max(...table.dataPoints.map((point) => point[axis]))
+      table.dataPoints.forEach((point) => { if (point[axis] === top) point.distance -= axis === 'mass' ? 250 : 25 })
+      const result = assess(ready(1050), ready(900), profile)
+      expect({ axis, ...result }).toMatchObject({ takeoff: { status: 'blocked', reason: 'tables' } })
+    }
+  })
+
+  it('keeps below-minimum mass benefit-capped while extrapolating another axis conservatively', () => {
+    const result = assessPerformance(testPohAircraft(), { takeoff: ready(700), landing: ready(900), pressureAltitude: 2100, temperature: '10' }, now)
+    if (result.status !== 'assessed' || result.takeoff.status !== 'success') throw new Error('Expected takeoff')
+    expect(result.takeoff.distances[0]).toMatchObject({ massTreatment: 'benefit-capped', lookupMass: 800 })
+    expect(result.takeoff.distances[0]!.distance).toBe((100 + 0 + 20 + 10) * 1.2)
+  })
+
+  it('marks an estimated distance derived from an extrapolated sibling as both', () => {
+    const profile = testPohAircraft()
+    profile.performanceProfiles = profile.performanceProfiles!.filter((table) => table.flightPhase !== 'TakeoffDistance50ft')
+    const result = assess(ready(1050), ready(900), profile)
+    if (result.status !== 'assessed' || result.takeoff.status !== 'success') throw new Error('Expected takeoff')
+    expect(result.takeoff.distances[1]).toMatchObject({ provenance: 'estimated' })
+    expect(result.takeoff.distances[1]!.extrapolation).not.toBeNull()
+    expect(result.takeoff.distances[1]!.distance).toBeCloseTo((expected(0, 1000)) * 1.2 * 1.9, 9)
   })
 
   it('evaluates each phase against its own envelope when tables differ', () => {
@@ -181,7 +237,7 @@ describe('takeoff and landing assessment with separate masses', () => {
     for (const index of [2, 3]) profile.performanceProfiles![index]!.dataPoints.forEach((point) => { point.mass -= 100 })
     const tables = inspectTables(profile)
     expect(tables).toMatchObject({ status: 'ready', bounds: { TakeoffRoll: { mass: { min: 800, max: 1000 } }, LandingRoll: { mass: { min: 700, max: 900 } } } })
-    expect(assess(ready(950), ready(950), profile)).toMatchObject({ takeoff: { status: 'success' }, landing: { status: 'blocked', reason: 'envelope' } })
+    expect(assess(ready(950), ready(1000), profile)).toMatchObject({ takeoff: { status: 'success' }, landing: { status: 'blocked', reason: 'envelope' } })
     const capped = assess(ready(750), ready(750), profile)
     if (capped.status !== 'assessed' || capped.takeoff.status !== 'success' || capped.landing.status !== 'success') throw new Error('expected both')
     expect(capped.takeoff.distances[0]).toMatchObject({ massTreatment: 'benefit-capped', lookupMass: 800 })
@@ -199,7 +255,7 @@ describe('takeoff and landing assessment with separate masses', () => {
     expect(result.takeoff.distances[0]!.distance).toBeCloseTo(expected(0, 900), 9)
     expect(result.landing.distances[0]!.massTreatment).toBe('benefit-capped')
     expect(result.landing.distances[0]!.lookupMass).toBeCloseTo(800, 9)
-    expect(assess(ready(1000.001), ready(900), profile)).toMatchObject({ takeoff: { status: 'blocked', reason: 'envelope' }, landing: { status: 'success' } })
+    expect(assess(ready(1101), ready(900), profile)).toMatchObject({ takeoff: { status: 'blocked', reason: 'envelope' }, landing: { status: 'success' } })
   })
 
   it('blocks both groups for nonfinite conditions without a distance', () => {
