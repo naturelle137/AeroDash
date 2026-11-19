@@ -200,8 +200,10 @@ jobs:
 
       - name: Install PDF text extractor
         run: |
-          sudo apt-get update
-          sudo apt-get install --no-install-recommends -y poppler-utils
+          if ! command -v pdftotext >/dev/null; then
+            sudo apt-get update
+            sudo apt-get install --no-install-recommends -y poppler-utils
+          fi
           pdftotext -v
 
       - name: Build frontend
