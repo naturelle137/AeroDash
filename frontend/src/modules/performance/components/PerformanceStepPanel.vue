@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import PressureAltitudeFieldset from './PressureAltitudeFieldset.vue'
+import InputHelp from './InputHelp.vue'
 import { SAFETY_FACTOR_PRESETS } from '../services/corrected-distances'
 import type { PerformanceStep } from '../composables/performance-step'
 
 const props = defineProps<{ step: PerformanceStep; canCompute: boolean }>()
-const { temperature, temperatureWarnings, corrections, safetyFactors, showPaErrors, presentation } = props.step
+const { temperature, temperatureWarnings, corrections, safetyFactors, showPaErrors, presentation, extrapolationAcknowledged } = props.step
 </script>
 
 <template>
@@ -17,8 +18,10 @@ const { temperature, temperatureWarnings, corrections, safetyFactors, showPaErro
     <PressureAltitudeFieldset :pa="step.pa" :show-errors="showPaErrors" />
     <fieldset v-for="operation in (['takeoff', 'landing'] as const)" :key="operation" class="fields correction-inputs">
       <legend>{{ operation === 'takeoff' ? 'Takeoff' : 'Landing' }} wind and slope</legend>
-      <label>Headwind component (kt, negative = tailwind)<input v-model="corrections[operation].headwind" :id="`performance-${operation}-headwind`" type="text" inputmode="decimal" /></label>
-      <label>Runway slope (%, positive = uphill)<input v-model="corrections[operation].slope" :id="`performance-${operation}-slope`" type="text" inputmode="decimal" /></label>
+      <div><label>Headwind component (kt, negative = tailwind)<input v-model="corrections[operation].headwind" :id="`performance-${operation}-headwind`" type="text" inputmode="decimal" /></label>
+        <InputHelp :label="`${operation === 'takeoff' ? 'Takeoff' : 'Landing'} headwind`">Enter the wind component along the runway in knots: positive for headwind, negative for tailwind, and zero for calm.</InputHelp></div>
+      <div><label>Runway slope (%, positive = uphill)<input v-model="corrections[operation].slope" :id="`performance-${operation}-slope`" type="text" inputmode="decimal" /></label>
+        <InputHelp :label="`${operation === 'takeoff' ? 'Takeoff' : 'Landing'} runway slope`">Enter runway slope in percent in the direction of use: positive uphill, negative downhill, and zero for level.</InputHelp></div>
       <label>Safety factor
         <select v-model="safetyFactors[operation].preset" :id="`performance-${operation}-safety-factor`">
           <option v-for="preset in SAFETY_FACTOR_PRESETS" :key="preset.value" :value="preset.value">{{ preset.label }}</option>
@@ -32,6 +35,12 @@ const { temperature, temperatureWarnings, corrections, safetyFactors, showPaErro
       </section>
       <p v-if="presentation.status !== 'assessed'" :role="presentation.status === 'blocked' ? 'alert' : 'status'">
         {{ presentation.reason }}</p>
+      <section v-if="presentation.extrapolation" class="extrapolation" aria-label="Extrapolated data" data-extrapolation>
+        <p role="alert"><strong>EXTRAPOLATED DATA</strong>: {{ presentation.extrapolation.warning }}</p>
+        <ul class="scope"><li v-for="line in presentation.extrapolation.details" :key="line">{{ line }}</li></ul>
+        <label class="acknowledge"><input id="performance-extrapolation-ack" v-model="extrapolationAcknowledged" type="checkbox" />
+          Pilot-in-Command acknowledges extrapolated data</label>
+      </section>
       <p v-if="presentation.conditions">Pressure altitude used: {{ presentation.conditions.pressureAltitude }} ·
         Temperature: {{ presentation.conditions.temperature }}</p>
       <div v-for="group in presentation.groups" :key="group.id" class="group" :data-group="group.id"
@@ -90,6 +99,9 @@ h3 { margin: 0; }
 .distances { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: .75rem; margin: 0; }
 dt { font-weight: 600; }
 dd { margin: .25rem 0; font-size: 1.4rem; font-weight: 700; }
+.extrapolation { border: 2px solid #ef6c00; border-radius: 8px; padding: .75rem 1rem; display: grid; gap: .5rem; }
+.acknowledge { display: flex; align-items: center; gap: .75rem; }
+.acknowledge input { min-width: 24px; min-height: 24px; }
 .comparison { border-left: 4px solid var(--color-border); padding-left: .5rem; }
 .comparison[data-comparison="insufficient"] { border-left-color: #c62828; font-weight: 600; }
 .warned { border-left: 4px solid #ef6c00; padding-left: .5rem; color: #a34500; }
