@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { isNonDecreasingInMass, lookupPhaseDistance } from './performance.phase-lookup'
+import { isNonDecreasingInMass, lookupPhaseDistance, lookupPhaseDistanceWithExtrapolation } from './performance.phase-lookup'
 import type { PerformanceCube3D } from './performance.poh-distance'
 
 // Synthetic grid: proves software behaviour only, never aircraft performance.
@@ -85,5 +85,73 @@ describe('lookupPhaseDistance mass policy', () => {
     expect(lookupPhaseDistance(single, { mass: 900, pressureAltitude: 0, temperature: 15 })).toMatchObject({ distance: 310, massTreatment: 'tabulated' })
     expect(lookupPhaseDistance(single, { mass: 850, pressureAltitude: 0, temperature: 15 })).toMatchObject({ distance: 310, massTreatment: 'benefit-capped' })
     expect(lookupPhaseDistance(single, { mass: 901, pressureAltitude: 0, temperature: 15 })).toMatchObject({ reason: 'mass-above-table' })
+  })
+})
+
+describe('lookupPhaseDistanceWithExtrapolation', () => {
+  const ext = (mass: number, pressureAltitude = 1000, temperature = 10, table = cube) =>
+    lookupPhaseDistanceWithExtrapolation(table, { mass, pressureAltitude, temperature }, true)
+
+  it('blocks every upper excursion unless the source supports extrapolation', () => {
+    const conditions = { mass: 1050, pressureAltitude: 1000, temperature: 10 }
+    expect(lookupPhaseDistanceWithExtrapolation(cube, conditions)).toEqual(lookupPhaseDistance(cube, conditions))
+    expect(lookupPhaseDistanceWithExtrapolation(cube, conditions).status).toBe('blocked')
+  })
+
+  it('matches the raw lookup for every in-envelope or below-minimum-mass point', () => {
+    for (const [m, pa, t] of [[900, 1000, 10], [1000, 2000, 20], [800, 0, 0], [650, 1000, 10]] as const) {
+      expect(ext(m, pa, t)).toEqual(at(m, pa, t))
+    }
+  })
+
+  it('penalises the clamped boundary distance by exactly 20 % for each upper axis', () => {
+    // Independent expectation: boundary corner means taken by hand from the grid above.
+    expect(ext(1100, 2000, 20)).toMatchObject({ status: 'success', distance: 396 * 1.2, extrapolation: { penaltyFactor: 1.2, axes: [{ axis: 'mass', value: 1100, max: 1000, fraction: expect.closeTo(0.1, 12) }] } })
+    expect(ext(1000, 2200, 20)).toMatchObject({ distance: 396 * 1.2, extrapolation: { axes: [{ axis: 'pressureAltitude' }] } })
+    expect(ext(1000, 2000, 22)).toMatchObject({ distance: 396 * 1.2, extrapolation: { axes: [{ axis: 'temperature' }] } })
+    const all = ext(1050, 2100, 21)
+    expect(all).toMatchObject({ distance: 396 * 1.2 })
+    expect(all.status === 'success' && all.extrapolation?.axes.map((a) => a.axis)).toEqual(['mass', 'pressureAltitude', 'temperature'])
+  })
+
+  it('never returns a distance shorter than the unpenalised boundary', () => {
+    for (const mass of [1000.001, 1050, 1100]) {
+      const result = ext(mass, 2000, 20)
+      if (result.status !== 'success') throw new Error('Expected success')
+      expect(result.distance).toBeGreaterThan(396)
+    }
+  })
+
+  it('blocks the first value past 10 % on any axis with the offending axis named', () => {
+    expect(ext(1100.001)).toMatchObject({ status: 'blocked', reason: 'extrapolation-beyond-cap', axis: 'mass', range: { min: 800, max: 1000 } })
+    expect(ext(900, 2200.001)).toMatchObject({ status: 'blocked', reason: 'extrapolation-beyond-cap', axis: 'pressureAltitude' })
+    expect(ext(900, 1000, 22.001)).toMatchObject({ status: 'blocked', reason: 'extrapolation-beyond-cap', axis: 'temperature' })
+    // One axis beyond the band blocks even when another is acceptably extrapolated.
+    expect(ext(1050, 2300)).toMatchObject({ status: 'blocked', reason: 'extrapolation-beyond-cap' })
+  })
+
+  it('keeps lower pressure altitude and temperature blocked, also beside an upper extrapolation', () => {
+    expect(ext(900, -1)).toMatchObject({ status: 'blocked', reason: 'pressure-altitude-outside' })
+    expect(ext(900, 1000, -1)).toMatchObject({ status: 'blocked', reason: 'temperature-outside' })
+    expect(ext(1050, -1)).toMatchObject({ status: 'blocked', reason: 'pressure-altitude-outside' })
+  })
+
+  it('blocks a nonpositive axis maximum, where no 10 % band exists', () => {
+    const cold: PerformanceCube3D = { ...cube, temperatureAxis: [-20, 0] }
+    expect(ext(900, 1000, 0.5, cold)).toMatchObject({ status: 'blocked', reason: 'extrapolation-beyond-cap', axis: 'temperature' })
+  })
+
+  it.each([
+    ['mass', [[[200, 150], [240, 360]], [[220, 330], [264, 396]]]],
+    ['altitude', [[[200, 300], [240, 360]], [[220, 330], [200, 396]]]],
+    ['temperature', [[[200, 300], [240, 360]], [[190, 330], [264, 396]]]],
+  ] as const)('refuses extrapolation for a table decreasing along %s', (_axis, values) => {
+    const table: PerformanceCube3D = { ...cube, values: values.map((a) => a.map((r) => [...r])) }
+    expect(ext(1050, 1000, 10, table)).toMatchObject({ status: 'blocked', reason: 'extrapolation-unsupported-table' })
+  })
+
+  it('blocks invalid input through the raw policy', () => {
+    expect(ext(Number.NaN)).toMatchObject({ status: 'blocked', reason: 'invalid-input' })
+    expect(ext(0)).toMatchObject({ status: 'blocked', reason: 'invalid-input' })
   })
 })

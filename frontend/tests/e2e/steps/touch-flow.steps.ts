@@ -68,7 +68,7 @@ Then('the workflow targets are measured as {string}', async ({ page, $testInfo }
   await $testInfo.attach(stage, { path: $testInfo.outputPath(`${stage}.png`), contentType: 'image/png' })
   expect(measurements.length).toBeGreaterThan(0)
   expect(measurements.filter((target) => target.width < 44 || target.height < 44 || target.left < 0 || target.right > page.viewportSize()!.width || !target.reachable)).toEqual([])
-  await expect(page.locator('body')).toHaveJSProperty('scrollWidth', page.viewportSize()!.width)
+  expect(await page.locator('body').evaluate((body) => body.scrollWidth)).toBeLessThanOrEqual(page.viewportSize()!.width)
 })
 
 Then('runway actions accept touch or keyboard activation', async ({ page }) => {

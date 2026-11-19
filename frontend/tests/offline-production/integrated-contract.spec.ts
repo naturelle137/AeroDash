@@ -59,9 +59,12 @@ for (const variant of ['kg', 'converted', 'distant-decrease', 'phase-envelope'] 
       if (variant === 'phase-envelope') {
         await expect(landing).not.toContainText('capped at the documented')
         await expect(landing.locator('dd').first()).toContainText('320.0 m')
+        // No source supports extrapolation, so even +10 % stays blocked.
         await mass.fill('1100');
         await expect(takeoff).toContainText('above the table maximum')
+        await expect(takeoff.locator('dd')).toHaveCount(0)
         await expect(landing.locator('dd')).toHaveText(['420.0 m', '520.0 m'])
+        await expect(page.getByLabel('Pilot-in-Command acknowledges extrapolated data')).toHaveCount(0)
       }
       if (variant === 'kg' || variant === 'converted') {
         for (const [m, expected] of [['800', '120.0 m'], ['1000', '320.0 m'], ['750', '120.0 m']]) {
@@ -70,6 +73,10 @@ for (const variant of ['kg', 'converted', 'distant-decrease', 'phase-envelope'] 
         for (const invalid of ['1000.001', '1100', '0', '-1', 'NaN', 'Infinity', '-Infinity']) {
           await mass.fill(invalid); await expect(takeoff.locator('dd')).toHaveCount(0)
         }
+        // Upper excursions stay blocked without a supporting source; no acknowledgment is offered.
+        await mass.fill('1050')
+        await expect(takeoff).toContainText('above the table maximum'); await expect(takeoff.locator('dd')).toHaveCount(0)
+        await expect(page.getByLabel('Pilot-in-Command acknowledges extrapolated data')).toHaveCount(0)
         await mass.fill('900')
         for (const invalid of ['-0.001', '2000.001', 'NaN', 'Infinity']) {
           await pa.fill(invalid); await expect(takeoff.locator('dd')).toHaveCount(0)

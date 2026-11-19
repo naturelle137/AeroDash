@@ -5,9 +5,10 @@ import {
   type PerformanceCube3D,
   type PohDistances,
 } from '@/core/logic/performance.poh-distance'
-import { lookupPhaseDistance, type MassTreatment, type PhaseLookupResult } from '@/core/logic/performance.phase-lookup'
+import { lookupPhaseDistanceWithExtrapolation, type AxisExtrapolation, type ExtrapolatedLookupResult, type MassTreatment } from '@/core/logic/performance.phase-lookup'
 import { normalizePerformanceTable } from '@/core/adapters/performance-source-units'
 import { CURRENT_PROFILE_SCHEMA_VERSION } from '@/core/logic/profile-migrations'
+import { EXTRAPOLATION_CAP_FRACTION } from '@/core/logic/performance.extrapolation'
 import { evaluateVerificationFreshness } from '@/core/logic/profile-verification'
 
 export const PHASES = [
@@ -52,6 +53,11 @@ export type AssessmentInputs = {
   /** Raw text (direct entry) or an already validated derived number (ft). */
   pressureAltitude: string | number
   temperature: string
+  /**
+   * Set only when an applicable source documents extrapolation for this aircraft. No profile
+   * field records that yet, so the app leaves it unset and upper excursions stay blocked.
+   */
+  extrapolationSourceSupported?: boolean
 }
 export type PhaseDistance = {
   phase: Phase
@@ -62,9 +68,11 @@ export type PhaseDistance = {
   massTreatment: MassTreatment
   lookupMass: number
   massRange: Range
+  /** Set when an upper axis was extrapolated; `distance` already carries the fixed penalty. */
+  extrapolation: { penaltyFactor: number; axes: readonly AxisExtrapolation[] } | null
 }
 export type GroupAssessment =
-  | { status: 'success'; massKg: number; origin: string; distances: PhaseDistance[] }
+  | { status: 'success'; massKg: number; origin: string; distances: PhaseDistance[]; extrapolated: boolean }
   | { status: 'blocked'; massKg: number | null; reason: 'mass' | 'envelope' | 'tables'; message: string }
 export type PerformanceAssessment =
   | InspectionFailure
@@ -145,7 +153,13 @@ export function massSourceFromText(text: string, origin: string): MassSource {
 
 const fmt = (value: number) => Number(value.toFixed(3)).toString()
 
-function lookupMessage(label: string, massKg: number, origin: string, result: Extract<PhaseLookupResult, { status: 'blocked' }>, conditions: { pressureAltitudeFt: number; temperatureC: number }): { reason: 'envelope' | 'tables' | 'mass'; message: string } {
+const AXIS_TEXT = {
+  mass: { name: 'mass', unit: 'kg' },
+  pressureAltitude: { name: 'pressure altitude', unit: 'ft' },
+  temperature: { name: 'temperature', unit: '°C' },
+} as const
+
+function lookupMessage(label: string, massKg: number, origin: string, result: Extract<ExtrapolatedLookupResult, { status: 'blocked' }>, conditions: { pressureAltitudeFt: number; temperatureC: number }): { reason: 'envelope' | 'tables' | 'mass'; message: string } {
   const r = result.range
   switch (result.reason) {
     case 'pressure-altitude-outside':
@@ -153,7 +167,14 @@ function lookupMessage(label: string, massKg: number, origin: string, result: Ex
     case 'temperature-outside':
       return { reason: 'envelope', message: `${label}: temperature ${fmt(conditions.temperatureC)} °C is outside the table (${r!.min} to ${r!.max} °C). No clamping or extrapolation is available.` }
     case 'mass-above-table':
-      return { reason: 'envelope', message: `${label}: ${origin} ${fmt(massKg)} kg is above the table maximum ${fmt(r!.max)} kg. Upper-bound extrapolation is unsupported because no accepted source limit exists.` }
+      return { reason: 'envelope', message: `${label}: ${origin} ${fmt(massKg)} kg is above the table maximum ${fmt(r!.max)} kg.` }
+    case 'extrapolation-beyond-cap': {
+      const axis = AXIS_TEXT[result.axis!]
+      const value = result.axis === 'mass' ? massKg : result.axis === 'pressureAltitude' ? conditions.pressureAltitudeFt : conditions.temperatureC
+      return { reason: 'envelope', message: `${label}: ${axis.name} ${fmt(value)} ${axis.unit} exceeds the table maximum ${fmt(r!.max)} ${axis.unit} by more than the fixed ${EXTRAPOLATION_CAP_FRACTION * 100} % extrapolation limit. No distance is calculated.` }
+    }
+    case 'extrapolation-unsupported-table':
+      return { reason: 'tables', message: `${label}: the requested conditions exceed the table maximum, but the table decreases along at least one axis, so a conservative extrapolation is not defined. Review the source table.` }
     case 'mass-below-table-unsupported':
       return { reason: 'tables', message: `${label}: ${origin} ${fmt(massKg)} kg is below the table minimum ${fmt(r!.min)} kg, and the table decreases with mass somewhere, so no documented best case can be capped. Review the source table.` }
     case 'invalid-input':
@@ -163,18 +184,18 @@ function lookupMessage(label: string, massKg: number, origin: string, result: Ex
   }
 }
 
-function assessGroup(tables: TableInspection, group: PerformanceGroupId, mass: MassSource, conditions: { pressureAltitudeFt: number; temperatureC: number }): GroupAssessment {
+function assessGroup(tables: TableInspection, group: PerformanceGroupId, mass: MassSource, conditions: { pressureAltitudeFt: number; temperatureC: number }, extrapolationSupported: boolean): GroupAssessment {
   if (mass.status === 'unavailable') return { status: 'blocked', massKg: null, reason: 'mass', message: mass.reason }
   const distances: PhaseDistance[] = []
   for (const phase of GROUP_PHASES[group]) {
     const { label } = PHASE_INFO[phase]
-    const result = lookupPhaseDistance(tables.cubes[phase], { mass: mass.massKg, pressureAltitude: conditions.pressureAltitudeFt, temperature: conditions.temperatureC })
+    const result = lookupPhaseDistanceWithExtrapolation(tables.cubes[phase], { mass: mass.massKg, pressureAltitude: conditions.pressureAltitudeFt, temperature: conditions.temperatureC }, extrapolationSupported)
     if (result.status === 'blocked') return { status: 'blocked', massKg: mass.massKg, ...lookupMessage(label, mass.massKg, mass.origin, result, conditions) }
     const { distance, provenance } = resolveDistance(tables.provenance[phase] === 'poh' ? result.distance : null, result.distance, group, phase === GROUP_PHASES[group][0] ? 'roll' : 'distance')
     if (!Number.isFinite(distance) || distance <= 0) return { status: 'blocked', massKg: mass.massKg, reason: 'tables', message: `${label}: estimated distance is invalid.` }
-    distances.push({ phase, label, distance, provenance, massTreatment: result.massTreatment, lookupMass: result.lookupMass, massRange: result.massRange })
+    distances.push({ phase, label, distance, provenance, massTreatment: result.massTreatment, lookupMass: result.lookupMass, massRange: result.massRange, extrapolation: result.extrapolation ?? null })
   }
-  return { status: 'success', massKg: mass.massKg, origin: mass.origin, distances }
+  return { status: 'success', massKg: mass.massKg, origin: mass.origin, distances, extrapolated: distances.some((row) => row.extrapolation) }
 }
 
 /**
@@ -195,7 +216,7 @@ export function assessPerformance(raw: unknown, inputs: AssessmentInputs, now: D
   return {
     status: 'assessed',
     conditions,
-    takeoff: assessGroup(tables, 'takeoff', inputs.takeoff, conditions),
-    landing: assessGroup(tables, 'landing', inputs.landing, conditions),
+    takeoff: assessGroup(tables, 'takeoff', inputs.takeoff, conditions, inputs.extrapolationSourceSupported === true),
+    landing: assessGroup(tables, 'landing', inputs.landing, conditions, inputs.extrapolationSourceSupported === true),
   }
 }

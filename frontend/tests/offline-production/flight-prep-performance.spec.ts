@@ -197,10 +197,10 @@ test('Flight Prep shares current phase masses and converted units online and cac
   await page.setViewportSize(originalViewport)
   await conditions()
 
-  // Exact max, upper excursion, exact minimum and below-min benefit cap.
+  // Exact max, upper excursion (blocked: no source supports extrapolation), exact minimum and below-min benefit cap.
   for (const [load, expected] of [['200', '320.0 m'], ['201', null], ['0', '120.0 m']] as const) {
     await payload.fill(load); await payload.blur();
-    if (expected === null) await expect(takeoff).toContainText('above the table maximum')
+    if (expected === null) { await expect(takeoff).toContainText('above the table maximum'); await expect(takeoff.locator('dd')).toHaveCount(0) }
     else await expect(takeoff.locator('dd').first()).toHaveText(expected)
   }
   await tank.fill('0'); await tank.blur(); await burn.fill('0');
