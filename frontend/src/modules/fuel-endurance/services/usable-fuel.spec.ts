@@ -11,7 +11,7 @@ describe('existing tank inventory for fuel planning', () => {
       ok: true,
       usableFuelKg: 40,
       excludedUnusableKg: 10,
-      tanks: [{ index: 0, usableFuelKg: 40 }],
+      tanks: [{ index: 0, usableFuelKg: 40, unusableFuelKg: 10 }],
     })
     aircraft.loadPoints[0]!.unit = 'L'
     const converted = usableFuelForPlanning(

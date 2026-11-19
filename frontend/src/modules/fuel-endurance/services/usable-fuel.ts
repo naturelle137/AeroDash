@@ -8,7 +8,7 @@ export type UsableFuelResult =
       ok: true
       usableFuelKg: number
       excludedUnusableKg: number
-      tanks: { index: number; usableFuelKg: number }[]
+      tanks: { index: number; usableFuelKg: number; unusableFuelKg: number }[]
     }
   | { ok: false; reason: string }
 
@@ -30,7 +30,7 @@ export function usableFuelForPlanning(
   if (!profile.certificationCategories.some((c) => c.category === category)) {
     return { ok: false, reason: 'Select a valid aircraft category.' }
   }
-  const tanks: { index: number; usableFuelKg: number }[] = []
+  const tanks: { index: number; usableFuelKg: number; unusableFuelKg: number }[] = []
   let usableFuelKg = 0
   let excludedUnusableKg = 0
   let tankCount = 0
@@ -74,7 +74,7 @@ export function usableFuelForPlanning(
       tank.unit,
       fuel.permissibleFuelTypes,
     )
-    tanks.push({ index, usableFuelKg: tankUsableKg })
+    tanks.push({ index, usableFuelKg: tankUsableKg, unusableFuelKg: unusableKg })
     usableFuelKg += tankUsableKg
     excludedUnusableKg += unusableKg
   }
