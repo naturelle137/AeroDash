@@ -69,6 +69,21 @@ test('Flight Prep shares current phase masses and converted units online and cac
   await expect(takeoff).toContainText('900.0 kg')
   await expect(landing).toContainText('880.0 kg')
   await shot('shared-masses-online')
+  async function checkEstimate(name: string) {
+    await payload.fill('201'); await payload.blur()
+    await expect(takeoff).toContainText('withheld')
+    await expect(takeoff.locator('dd')).toHaveCount(0)
+    const ack = performance.getByLabel('Pilot-in-Command acknowledges extrapolated data')
+    await ack.check()
+    await expect(takeoff).toContainText('ESTIMATED')
+    await shot(name)
+    await payload.fill('202'); await payload.blur()
+    await expect(ack).not.toBeChecked()
+    await expect(takeoff.locator('dd')).toHaveCount(0)
+    await payload.fill('100'); await payload.blur()
+  }
+  await checkEstimate('estimate-online')
+
   await burn.fill('999')
   await expect(takeoff.locator('dd')).toHaveCount(2)
 
@@ -197,10 +212,12 @@ test('Flight Prep shares current phase masses and converted units online and cac
   await page.setViewportSize(originalViewport)
   await conditions()
 
-  // Exact max, upper excursion (blocked: no source supports extrapolation), exact minimum and below-min benefit cap.
-  for (const [load, expected] of [['200', '320.0 m'], ['201', null], ['0', '120.0 m']] as const) {
+  await checkEstimate('estimate-offline')
+
+  // Exact max, acknowledged upper estimate, over-limit block and below-min benefit cap.
+  for (const [load, expected] of [['200', '320.0 m'], ['400', null], ['0', '120.0 m']] as const) {
     await payload.fill(load); await payload.blur();
-    if (expected === null) { await expect(takeoff).toContainText('above the table maximum'); await expect(takeoff.locator('dd')).toHaveCount(0) }
+    if (expected === null) { await expect(takeoff).toContainText('10 % extrapolation limit'); await expect(takeoff.locator('dd')).toHaveCount(0) }
     else await expect(takeoff.locator('dd').first()).toHaveText(expected)
   }
   await tank.fill('0'); await tank.blur(); await burn.fill('0');
