@@ -47,8 +47,6 @@ export function arrivalCgForPlanning(
     }
   const lookupTanks = tanks.filter((tank) => tank.armLookup.length > 0)
   if (lookupTanks.some((tank) => tank.arm !== null)) return { ok: false, reason: BOTH_GEOMETRIES }
-  if (lookupTanks.some((tank) => tank.fuelTank!.unusableFuel !== 0))
-    return { ok: false, reason: NONZERO_UNUSABLE }
   if (
     tanks.some(
       (tank) => tank.armLookup.length === 0 && (tank.arm === null || !Number.isFinite(tank.arm)),
@@ -74,17 +72,17 @@ export function arrivalCgForPlanning(
     tripFuelKg,
   }
   const geometry: SequencedTank[] = []
-  for (const { index, usableFuelKg } of fuel.tanks) {
+  for (const { index, usableFuelKg, unusableFuelKg } of fuel.tanks) {
     const tank = profile.loadPoints[index]!
     const burnSequences = tank.fuelTank!.burnSequences
     if (tank.armLookup.length === 0) {
       const tankArmM = normalizeArmToM(tank.arm!, parseSourceUnit(profile.sourceUnit).armUnit)
-      geometry.push({ usableFuelKg, tankArmM, burnSequences })
+      geometry.push({ usableFuelKg, unusableFuelKg, tankArmM, burnSequences })
       continue
     }
     const lookup = normalizedLookup(profile, tank)
     if (typeof lookup === 'string') return { ok: false, reason: lookup }
-    geometry.push({ usableFuelKg, lookup, burnSequences })
+    geometry.push({ usableFuelKg, unusableFuelKg, lookup, burnSequences })
   }
   // Same step as the single-tank path: confirms M&B was computed for this inventory.
   if (
@@ -113,14 +111,13 @@ export function arrivalCgForPlanning(
 type Profile = ReturnType<typeof AircraftContextSchema.parse>
 type SequencedTank = {
   usableFuelKg: number
+  unusableFuelKg: number
   tankArmM?: number
   lookup?: { massOrVolume: number; moment: number }[]
   burnSequences: { sequenceName: string; ordinalPosition: number }[]
 }
 const BOTH_GEOMETRIES =
   'Variable-arm arrival CG is unsupported when a tank declares both a fixed arm and a lookup table.'
-const NONZERO_UNUSABLE =
-  'Variable-arm arrival CG requires exactly zero unusable fuel; tanks with unusable fuel are unsupported.'
 // Absorbs float summation-order drift only; a real stale-state gap is far larger.
 const MASS_TOLERANCE_KG = 1e-6
 const MB_REQUIRED = 'Valid current Mass & Balance loading is required.'
