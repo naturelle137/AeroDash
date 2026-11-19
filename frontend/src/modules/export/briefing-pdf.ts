@@ -17,7 +17,7 @@ const CONTENT_W = PAGE_W - 2 * MARGIN
 const HELV = [278, 278, 355, 556, 556, 889, 667, 191, 333, 333, 389, 584, 278, 333, 278, 278, 556, 556, 556, 556, 556, 556, 556, 556, 556, 556, 278, 278, 584, 584, 584, 556,
   1015, 667, 667, 722, 722, 667, 611, 778, 722, 278, 500, 667, 556, 833, 722, 778, 667, 778, 722, 667, 611, 722, 667, 944, 667, 667, 611, 278, 278, 278, 469, 556,
   333, 556, 556, 500, 556, 556, 278, 556, 556, 222, 222, 500, 222, 833, 556, 556, 556, 556, 333, 500, 278, 556, 500, 722, 500, 500, 500, 334, 260, 334, 584]
-const REPLACEMENTS: Record<string, string> = { '≤': '<=', '≥': '>=', '→': '->', '−': '-', '≈': '~', '’': "'", '‘': "'", '“': '"', '”': '"', ' ': ' ', ' ': ' ' }
+const REPLACEMENTS: Record<string, string> = { '≤': '<=', '≥': '>=', '→': '->', '−': '-', '≈': '~', '–': '-', '—': '-', '…': '...', '•': '*', '’': "'", '‘': "'", '“': '"', '”': '"', ' ': ' ', ' ': ' ' }
 
 // Latin-1 passes through unchanged; anything else is replaced visibly so no glyph is silently dropped.
 export function toLatin1(text: string): string {
@@ -68,7 +68,7 @@ export function collectBlocks(root: Element): { blocks: PdfBlock[]; svgs: SVGSVG
   // Nested blocks (warnings inside table cells) are separated by whitespace in print but not in textContent.
   const textOf = (el: Element): string => {
     const copy = el.cloneNode(true) as Element
-    copy.querySelectorAll('p, li, div, h1, h2, h3, ul').forEach(n => n.append(' '))
+    copy.querySelectorAll('p, li, div, h1, h2, h3, ul').forEach(n => { n.before(' '); n.append(' ') })
     return clean(copy.textContent)
   }
   const visit = (el: Element): void => {

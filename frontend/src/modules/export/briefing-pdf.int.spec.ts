@@ -36,10 +36,10 @@ function pdfText(bytes: Uint8Array): string {
   const raw = [...bytes].map(b => String.fromCharCode(b)).join('')
   return [...raw.matchAll(/\((.*)\) Tj ET/g)].map(m => m[1]!.replace(/\\([\\()])/g, '$1')).join(' ')
 }
-const expectedText = (): string => {
+const expectedText = (): string[] => {
   const sheet = document.querySelector('.mb-print-sheet')!.cloneNode(true) as HTMLElement
   sheet.querySelectorAll('nav, svg, .briefing-gate').forEach(n => n.remove())
-  sheet.querySelectorAll('p, li, h1, h2, h3, td, th, figcaption').forEach(n => n.append(' '))
+  sheet.querySelectorAll('p, li, h1, h2, h3, td, th, figcaption').forEach(n => { n.before(' '); n.append(' ') })
   return words(sheet.textContent ?? '')
 }
 
