@@ -7,7 +7,7 @@ import { mapFleetProfileToContext } from '@/modules/mass-balance/services/fleet-
 import { useMassBalanceStore } from '@/modules/mass-balance/stores/mass-balance.store'
 import { presentPerformance, presentOperationalAssessment } from '@/modules/performance/services/performance-presentation'
 import MbPrintPreview from './MbPrintPreview.vue'
-import { assembleMbPrint, canPrintMb, type MbPrintSource } from './mb-print'
+import { assembleMbPrint, canPrintMb, unverifiedGate, type MbPrintSource } from './mb-print'
 
 function source(): MbPrintSource {
   setActivePinia(createPinia())
@@ -283,5 +283,48 @@ describe('M&B print presentation with real store calculation', () => {
     const clean = source()
     clean.performance = { ...performance, corrected: [{ ...applied, safetyFactorWarning: null }] } as never
     expect(assembleMbPrint(clean, new Date('2026-11-14'))!.lowSafetyMargin).toBe(false)
+  })
+  describe('CRIT-UI-001 export gate', () => {
+    const buttonByText = (t: string) => [...document.querySelectorAll('button')].find(b => b.textContent === t)!
+    it('blocks print with unverified data, lists fields, and prints after acknowledgment', async () => {
+      const wrapper = mount(MbPrintPreview, { props: { source: source() }, attachTo: document.body })
+      const print = vi.spyOn(window, 'print').mockImplementation(() => {})
+      await wrapper.get('button').trigger('click')
+      buttonByText('Print Briefing Pack').click()
+      await nextTick()
+      expect(print).not.toHaveBeenCalled()
+      const gate = document.querySelector('[role="alertdialog"]')!
+      expect(gate.textContent).toContain('CRIT-UI-001')
+      expect(gate.textContent).toContain('aircraft.profile.status')
+      buttonByText('Acknowledge unverified data and print').click()
+      await nextTick()
+      expect(print).toHaveBeenCalledOnce()
+      expect(document.querySelector('[role="alertdialog"]')).toBeNull()
+      expect(document.body.textContent).toContain('500.0 kg [UNVERIFIED]')
+      wrapper.unmount()
+    })
+    it('blocks native print until acknowledged and keeps the preview closed to cancel', async () => {
+      const wrapper = mount(MbPrintPreview, { props: { source: source() }, attachTo: document.body })
+      await wrapper.get('button').trigger('click')
+      window.dispatchEvent(new Event('beforeprint'))
+      expect(document.querySelector('.mb-print-root')?.getAttribute('data-print-invalid')).toBe('true')
+      wrapper.unmount()
+    })
+    it('passes without a gate when nothing is unverified', async () => {
+      vi.useFakeTimers()
+      vi.setSystemTime(new Date('2026-01-02'))
+      const input = source()
+      input.profile!.status = 'verified'
+      input.profile!.verification = { verifiedOn: '2026-01-01', verifiedBy: 'T', pohRevision: 'Test', sourceWeighingDate: '2026-01-01' }
+      expect(unverifiedGate(assembleMbPrint(input, new Date())!)).toBeNull()
+      const wrapper = mount(MbPrintPreview, { props: { source: input }, attachTo: document.body })
+      const print = vi.spyOn(window, 'print').mockImplementation(() => {})
+      await wrapper.get('button').trigger('click')
+      buttonByText('Print Briefing Pack').click()
+      expect(print).toHaveBeenCalledOnce()
+      expect(document.querySelector('[role="alertdialog"]')).toBeNull()
+      wrapper.unmount()
+      vi.useRealTimers()
+    })
   })
 })

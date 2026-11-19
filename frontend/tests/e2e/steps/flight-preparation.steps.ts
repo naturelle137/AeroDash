@@ -181,3 +181,29 @@ Then('the briefing pack evidence is captured as {string}', async ({ page, $testI
   await page.screenshot({ path, fullPage: true })
   await $testInfo.attach(`Briefing pack ${width}`, { path, contentType: 'image/png' })
 })
+
+When('the pilot requests printing of the briefing pack', async ({ page }) => {
+  await page.evaluate(() => {
+    const w = window as unknown as { __printCalls: number }
+    w.__printCalls = 0
+    window.print = () => { w.__printCalls += 1 }
+  })
+  await page.getByRole('button', { name: 'Print Briefing Pack' }).click()
+})
+
+Then('printing is blocked pending acknowledgment of unverified data', async ({ page }) => {
+  const gate = page.getByRole('alertdialog')
+  await expect(gate).toContainText('CRIT-UI-001')
+  await expect(gate.getByRole('list', { name: 'Unverified fields' })).toContainText('aircraft.profile.status')
+  expect(await page.evaluate(() => (window as unknown as { __printCalls: number }).__printCalls)).toBe(0)
+})
+
+When('the pilot acknowledges the unverified data', async ({ page }) => {
+  await page.getByRole('button', { name: 'Acknowledge unverified data and print' }).click()
+})
+
+Then('the briefing pack is sent to print with unverified values marked', async ({ page }) => {
+  await expect(page.getByRole('alertdialog')).toHaveCount(0)
+  expect(await page.evaluate(() => (window as unknown as { __printCalls: number }).__printCalls)).toBe(1)
+  await expect(page.getByRole('dialog', { name: 'Briefing Pack preview' })).toContainText('[UNVERIFIED]')
+})
