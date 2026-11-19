@@ -53,7 +53,7 @@ export function unverifiedGate(snapshot: MbPrintSnapshot) {
     ...(snapshot.fuel?.rows.length ? ['fuel.plan'] : []),
     ...(snapshot.performance?.groups.length ? ['performance.results'] : [])]
   const notification: Notification = { id: 'CRIT-UI-001', severity: 'CRITICAL', message: 'Unverified Data Present',
-    context: 'UI.Validation', dismissible: false,
+    context: 'UI.Validation', persistent: true, dismissible: false,
     action: { label: 'Review', event: 'ui.review_unverified', payload: { parameters, canForceSave: true } } }
   return { notification, parameters, status: snapshot.status }
 }
