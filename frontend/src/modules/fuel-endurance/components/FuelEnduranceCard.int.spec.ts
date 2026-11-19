@@ -487,7 +487,7 @@ describe('fuel plan with live M&B store', () => {
       store.aircraft!.loadPoints[1]!.allowableCategories = ['Normal']
       await reload()
       expect(cg().exists()).toBe(false)
-      expect(arrival()).toContain('exactly one category-available tank')
+      expect(arrival()).toContain('explicit named burn sequence')
       store.aircraft!.loadPoints[1]!.allowableCategories = ['Utility']
       await reload()
       expect(cg().text()).toBe('2.042 m')

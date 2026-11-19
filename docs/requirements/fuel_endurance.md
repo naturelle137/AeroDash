@@ -126,7 +126,7 @@ If a selected multi-tank sequence includes a category-excluded tank, then the sy
 
 ### REQ-FE-031: Ordered arrival moment
 
-When a valid multi-tank sequence has finite fixed arms without lookup geometry, the system shall calculate trip arrival moment by subtracting the usable fuel burned from each tank in sequence order from takeoff moment in SI.
+When a valid multi-tank sequence has category-available tanks that each have either a finite fixed arm or a lookup table, the system shall calculate trip arrival moment by subtracting the moment of the usable fuel burned from each tank in sequence order from takeoff moment in SI, using mass × arm for fixed-arm tanks and F(before) − F(after) for lookup tanks.
 
 ### REQ-FE-032: Sequence context reset
 
@@ -146,4 +146,8 @@ If the lookup table has fewer than two finite points, quantities that are not st
 
 ### REQ-FE-036: Unsupported lookup configurations
 
-If a category-available lookup tank has nonzero unusable fuel, a fixed arm, or another category-available tank, then the system shall suppress trip arrival CG with a visible reason.
+If a category-available lookup tank has nonzero unusable fuel or a fixed arm, then the system shall suppress trip arrival CG with a visible reason.
+
+### REQ-FE-037: Mixed-geometry sequence validation
+
+If a multi-tank sequence with a lookup tank lacks a complete selected sequence, or a lookup tank fails REQ-FE-035 or cannot supply its burn, then the system shall suppress trip arrival CG with a visible reason without clamping, sorting or extrapolating.

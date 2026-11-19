@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Estimate trip arrival CG for explicit burn sequences that mix fixed-arm and zero-unusable lookup tanks.
+
 - Gate briefing-pack printing behind an explicit CRIT-UI-001 acknowledgment when unverified data is present.
 
 - Verify in the browser that the briefing pack shows the low-safety-margin disclaimer after the combined Flight Prep performance flow.
