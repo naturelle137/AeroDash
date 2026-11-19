@@ -268,9 +268,10 @@ describe('M&B print presentation with real store calculation', () => {
     const input = source()
     const applied = { operation: 'takeoff', title: 'Takeoff', status: 'applied', source: 'Synthetic', rows: [], safetyFactor: '1.00',
       safetyFactorWarning: 'WARN-PF-002: low', comparison: { status: 'sufficient', summary: '', required: '', availableLabel: '', available: '', margin: '' }, notes: [] }
-    input.performance = { ...presentPerformance({ inputKey: 'k', inputs: [], aircraft: null, takeoff: { status: 'unavailable', reason: 'x' }, landing: { status: 'unavailable', reason: 'x' },
+    const performance = { ...presentPerformance({ inputKey: 'k', inputs: [], aircraft: null, takeoff: { status: 'unavailable', reason: 'x' }, landing: { status: 'unavailable', reason: 'x' },
       assessment: null, pressureAltitudeBasis: '', pendingReason: 'x', runway: { status: 'unavailable', reason: 'x' }, operational: presentOperationalAssessment(null, 'x') }),
-      corrected: [applied] } as never
+      corrected: [applied] }
+    input.performance = performance as never
     expect(assembleMbPrint(input, new Date('2026-11-14'))!.lowSafetyMargin).toBe(true)
     const wrapper = mount(MbPrintPreview, { props: { source: input }, attachTo: document.body })
     await wrapper.get('button').trigger('click')
@@ -280,7 +281,7 @@ describe('M&B print presentation with real store calculation', () => {
     expect(text).toContain('not a certified aviation device')
     wrapper.unmount()
     const clean = source()
-    clean.performance = { ...input.performance!, corrected: [{ ...applied, safetyFactorWarning: null }] } as never
+    clean.performance = { ...performance, corrected: [{ ...applied, safetyFactorWarning: null }] } as never
     expect(assembleMbPrint(clean, new Date('2026-11-14'))!.lowSafetyMargin).toBe(false)
   })
 })
