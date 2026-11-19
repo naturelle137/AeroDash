@@ -173,6 +173,10 @@ When('the pilot opens the briefing pack', async ({ page }) => {
   await page.getByRole('button', { name: 'Briefing Pack' }).click()
 })
 
+When('the pilot prepares an unapproved handover copy', async ({ page }) => {
+  await page.getByRole('button', { name: 'Prepare unapproved handover copy' }).click()
+})
+
 Then('the briefing pack states {string}', async ({ page }, text: string) => {
   await expect(page.getByRole('dialog', { name: 'Briefing Pack preview' })).toContainText(text)
 })

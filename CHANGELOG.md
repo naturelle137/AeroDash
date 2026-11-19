@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Label a locally printed or downloaded briefing pack as an unapproved student handover copy.
 - Check pilot-declared runway source dates and display the AIRAC calendar cycle.
 - Verify estimated briefing-pack results after offline reload at desktop and mobile widths.
 - Show WARNING WARN-UI-001 in Flight Preparation when the entered temperature is outside −40 to 50 °C, without blocking or clamping.
