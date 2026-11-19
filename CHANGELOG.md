@@ -7,11 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Check pilot-declared runway source dates and display the AIRAC calendar cycle.
 - Verify estimated briefing-pack results after offline reload at desktop and mobile widths.
 - Show WARNING WARN-UI-001 in Flight Preparation when the entered temperature is outside −40 to 50 °C, without blocking or clamping.
 - Evaluate OurAirports for the runway consumer and document the source-contract gaps.
 - Evaluate openAIP as a second airport source and document why it fails the source gate.
 - Calculate trip-arrival CG for one lookup tank with unusable fuel.
+- Estimate trip arrival CG for explicit burn sequences that mix fixed-arm and zero-unusable lookup tanks.
 - Add a client-side PDF download of the current briefing pack next to print, with the same invalidation and CRIT-UI-001 gate.
 
 - Gate briefing-pack printing behind an explicit CRIT-UI-001 acknowledgment when unverified data is present.
