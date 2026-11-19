@@ -234,21 +234,20 @@ test('lookup fuel M&B uses total-moment differences on screen, chart, print and 
   await expect(tank).toHaveValue('50')
   await expect(takeoffCg).toContainText('2.100')
 
-  // Fuel planning keeps nonzero-unusable trip arrival CG unsupported but shows arrival mass.
+  // Arrival moment: 1120 + F(20) − F(10) = 1145 kg·m; 1145 / 570 = 2.009 m.
   await load('30')
   const card = page.getByRole('region', { name: 'Fuel & Endurance', exact: true })
   await card.getByLabel('Planning method').selectOption('direct')
   await card.getByLabel('Trip Fuel (kg)', { exact: true }).fill('10')
   const arrival = page.getByRole('region', { name: 'Estimated trip arrival', exact: true })
   await expect(arrival).toContainText('570 kg')
-  await expect(card.getByTestId('arrival-cg')).toHaveCount(0)
-  await expect(card).toContainText('exactly zero unusable fuel')
+  await expect(card.getByTestId('arrival-cg')).toHaveText('2.009 m')
   await action.click()
   const section = preview.getByRole('region', {
     name: 'Current fuel plan and estimated trip arrival',
   })
   await expect(section).toContainText('Estimated arrival mass')
-  await expect(section).toContainText('exactly zero unusable fuel')
+  await expect(section).toContainText('2.009 m [UNVERIFIED]')
   await expect(preview).toContainText('2.017 m [UNVERIFIED]')
   await shot('lookup-print-fuel-section')
   await preview.getByRole('button', { name: 'Back to preparation' }).click()
