@@ -1,9 +1,12 @@
 import { expect, test } from '@playwright/test'
 import { testPohAircraft } from '../fixtures/poh-aircraft'
 
-test('estimated distances survive profile reload and appear in the briefing', async ({ page }, info) => {
+test('estimated distances appear in the briefing online and offline', async ({ page, context }, info) => {
   await page.goto('/fleet')
   await page.getByTestId('disclaimer-gate-accept').click()
+  await page.evaluate(async () => { await navigator.serviceWorker.ready })
+  await page.reload()
+  await expect.poll(() => page.evaluate(() => !!navigator.serviceWorker.controller)).toBe(true)
   const profile = testPohAircraft()
   profile.weighingReports[0]!.bem = 900
   profile.performanceProfiles = profile.performanceProfiles!.filter(table => table.flightPhase !== 'TakeoffDistance50ft')
@@ -24,14 +27,20 @@ test('estimated distances survive profile reload and appear in the briefing', as
     await perf.getByLabel('Temperature (°C)', { exact: true }).fill('10')
     await expect(perf.getByRole('group', { name: 'Takeoff raw distances' })).toContainText('418.0 mESTIMATED (CAA SSL 07)')
   }
-  await calculate()
-  await page.reload()
-  await picker.selectOption((await picker.locator('option').filter({ hasText: 'D-TEST' }).first().getAttribute('value'))!)
-  await calculate()
-  await perf.getByRole('group', { name: 'Takeoff raw distances' }).scrollIntoViewIfNeeded()
-  const path = info.outputPath(`estimated-${info.project.name}.png`)
-  await page.screenshot({ path, animations: 'disabled' })
-  await info.attach('estimated-performance', { path, contentType: 'image/png' })
-  await page.getByRole('button', { name: 'Briefing Pack', exact: true }).click()
-  await expect(page.getByRole('dialog', { name: 'Briefing Pack preview' })).toContainText('ESTIMATED (CAA SSL 07)')
+  for (const offline of [false, true]) {
+    if (offline) {
+      await context.setOffline(true)
+      expect((await page.reload())?.fromServiceWorker()).toBe(true)
+      await picker.selectOption((await picker.locator('option').filter({ hasText: 'D-TEST' }).first().getAttribute('value'))!)
+    }
+    await calculate()
+    await page.getByRole('button', { name: 'Briefing Pack', exact: true }).click()
+    const preview = page.getByRole('dialog', { name: 'Briefing Pack preview' })
+    await expect(preview).toContainText('418.0 m')
+    await expect(preview).toContainText('ESTIMATED (CAA SSL 07)')
+    const path = info.outputPath(`estimated-${offline ? 'offline' : 'online'}-${info.project.name}.png`)
+    await page.screenshot({ path, animations: 'disabled', fullPage: true })
+    await info.attach(`estimated-${offline ? 'offline' : 'online'}`, { path, contentType: 'image/png' })
+    await page.keyboard.press('Escape')
+  }
 })

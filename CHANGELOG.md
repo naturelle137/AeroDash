@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Verify estimated briefing-pack results after offline reload at desktop and mobile widths.
 - Show WARNING WARN-UI-001 in Flight Preparation when the entered temperature is outside −40 to 50 °C, without blocking or clamping.
 - Evaluate OurAirports for the runway consumer and document the source-contract gaps.
 - Evaluate openAIP as a second airport source and document why it fails the source gate.
