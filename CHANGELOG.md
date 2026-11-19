@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Verify in the browser that the briefing pack shows the low-safety-margin disclaimer after the combined Flight Prep performance flow.
+
 - Add the low-safety-margin disclaimer and the legal disclaimer to the briefing pack and verify unverified markers and disclaimers in the browser.
 
 - Document the source-limited manual runway comparison and test surface-change invalidation.
