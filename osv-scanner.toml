@@ -1,7 +1,0 @@
-# Temporary residual tooling-risk proposal; CTO acceptance and security review required.
-# Remove on a supported complete upstream repair or expiry, whichever comes first.
-# See docs/security/picomatch-redos-disposition.md.
-[[IgnoredVulns]]
-id = "GHSA-fc5q-39xc-vjpf"
-ignoreUntil = 2026-11-24T00:00:00Z
-reason = "Temporary acceptance proposal for CVE-2026-112366: no application-controlled glob pattern path in inspected production build; vulnerable Node tooling remains. Owner: HQ1866/project CTO and weekly security rotation. Remove on supported complete upstream fix or expiry. See docs/security/picomatch-redos-disposition.md."
