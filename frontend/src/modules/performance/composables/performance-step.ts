@@ -93,7 +93,7 @@ export function usePerformanceStep(context: () => PerformanceStepContext) {
     if (runway.hasUnsavedChanges) return { status: 'unavailable', reason: 'Manual runway has unsaved changes. Save or discard them to use a current declaration.' }
     const declared = runway.current
     if (!declared) return { status: 'unavailable', reason: 'No saved manual runway declaration.' }
-    const { aerodrome, designator, tora, lda, toda, fieldElevation, surface } = declared.record.runway
+    const { aerodrome, designator, tora, lda, toda, fieldElevation, surface, effectiveDate, expiryDate } = declared.record.runway
     const condition = SURFACE_CONDITIONS[surface.type].find((option) => option.value === surface.condition)?.label ?? surface.condition
     const elevationOther = fieldElevation.unit === 'ft' ? `${declared.display.fieldElevationM} m` : `${declared.display.fieldElevationFt} ft`
     return {
@@ -104,9 +104,11 @@ export function usePerformanceStep(context: () => PerformanceStepContext) {
         { label: 'LDA', value: `${lda.value} ${lda.unit} (${declared.display.ldaM} m)` },
         ...(toda ? [{ label: 'TODA', value: `${toda.value} ${toda.unit} (${declared.display.todaM} m)` }] : []),
         { label: 'Field elevation', value: `${fieldElevation.value} ${fieldElevation.unit} (${elevationOther})` },
+        { label: 'Declared effective date', value: effectiveDate ?? 'Unknown' },
+        { label: 'Declared expiry date (inclusive)', value: expiryDate ?? 'Unknown' },
         { label: 'Surface', value: `${surface.type === 'paved' ? 'Paved' : 'Grass / unpaved'} · ${condition}` },
       ],
-      note: 'User-entered, not airport-validated. Converted available distances are rounded down.',
+      note: 'User-entered, not airport-validated. Check declared dates and NOTAM/SUP against official sources. Converted available distances are rounded down.',
     }
   })
 

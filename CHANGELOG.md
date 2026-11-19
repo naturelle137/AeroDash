@@ -7,7 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
 - Extrapolate Performance lookups up to 10 % above a table maximum with the fixed 20 % penalty, withheld until the pilot acknowledges; block beyond that. The path stays disabled until an applicable source is recorded; upper excursions remain blocked.
+- Check pilot-declared runway source dates and display the AIRAC calendar cycle.
 - Show WARNING WARN-UI-001 in Flight Preparation when the entered temperature is outside −40 to 50 °C, without blocking or clamping.
 - Evaluate OurAirports for the runway consumer and document the source-contract gaps.
 - Evaluate openAIP as a second airport source and document why it fails the source gate.

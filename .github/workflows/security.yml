@@ -85,9 +85,7 @@ jobs:
         # weekly failure that we triage, without churning every PR with
         # CVE-database lag against the bleeding-edge majors retained in
         # ADR-318-DEV. See ADR-318-DEV §"Supply-chain scan in CI".
-        run: |
-          node --test scripts/security/pnpm-audit.test.mjs
-          node scripts/security/pnpm-audit.mjs ${{ github.event_name == 'schedule' && 'moderate' || 'high' }}
+        run: pnpm audit --audit-level=${{ github.event_name == 'schedule' && 'moderate' || 'high' }}
 
   osv-scanner:
     name: OSV-Scanner

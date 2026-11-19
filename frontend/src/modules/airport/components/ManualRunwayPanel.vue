@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import {
+  airacCycleStart,
+  runwayFreshness,
   MAX_AERODROME_LENGTH,
   MAX_DESIGNATOR_LENGTH,
   SURFACE_CONDITIONS,
@@ -10,6 +12,11 @@ import {
 import { useManualRunwayStore } from '../stores/manual-runway.store'
 
 const runway = useManualRunwayStore()
+const now = new Date()
+const assessmentDate = ref(`${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`)
+const freshness = computed(() => runway.current ? runwayFreshness(runway.current.record.runway, assessmentDate.value) : 'unknown')
+const cycle = computed(() => airacCycleStart(assessmentDate.value))
+const freshnessLabels = { unknown: 'Unknown: declared dates are incomplete or the assessment date is invalid.', 'not-yet-effective': 'Not yet effective according to the declared date.', expired: 'Expired according to the declared date.', 'within-declared-dates': 'Within the declared dates; source currency remains unverified.' }
 const surfaceTypeLabels = { paved: 'Paved', unpaved: 'Grass / unpaved' } as const
 const conditionOptions = computed(() => {
   const type = runway.draft.surfaceType
@@ -150,6 +157,15 @@ if (!runway.loaded) runway.load()
       <p v-if="error('surfaceCondition')" :id="describedBy('surfaceCondition')" class="field-error">{{ error('surfaceCondition') }}</p>
     </fieldset>
 
+    <fieldset>
+      <legend>Source dates (optional)</legend>
+      <p>Enter dates only when stated by your source. The expiry date is inclusive.</p>
+      <div class="fields">
+        <div class="field"><label for="runway-effective">Effective date</label><input id="runway-effective" v-model="runway.draft.effectiveDate" type="date" :aria-invalid="!!error('effectiveDate')" :aria-describedby="describedBy('effectiveDate')" /><p v-if="error('effectiveDate')" :id="describedBy('effectiveDate')" class="field-error">{{ error('effectiveDate') }}</p></div>
+        <div class="field"><label for="runway-expiry">Expiry date</label><input id="runway-expiry" v-model="runway.draft.expiryDate" type="date" :aria-invalid="!!error('expiryDate')" :aria-describedby="describedBy('expiryDate')" /><p v-if="error('expiryDate')" :id="describedBy('expiryDate')" class="field-error">{{ error('expiryDate') }}</p></div>
+      </div>
+    </fieldset>
+
     <p v-if="runway.showErrors && errorCount" role="alert">Runway inputs not saved: correct {{ errorCount }}
       {{ errorCount === 1 ? 'field' : 'fields' }}.</p>
     <div class="actions">
@@ -175,6 +191,10 @@ if (!runway.loaded) runway.load()
           <span class="normalized">({{ runway.current.record.runway.fieldElevation.unit === 'ft' ? `${runway.current.display.fieldElevationM} m` : `${runway.current.display.fieldElevationFt} ft` }})</span></dd></div>
         <div><dt>Surface</dt><dd>{{ surfaceTypeLabels[runway.current.record.runway.surface.type] }} · {{ conditionLabel }}</dd></div>
       </dl>
+      <div class="field"><label for="runway-assessment-date">Check date</label><input id="runway-assessment-date" v-model="assessmentDate" type="date" /></div>
+      <p role="status"><strong>Source date check:</strong> {{ freshnessLabels[freshness] }}</p>
+      <p v-if="cycle">AIRAC cycle starting {{ cycle }} (calendar date only).</p>
+      <p class="hint">A cycle change does not expire or verify a record. Dates and NOTAM/SUP coverage must be checked against official sources.</p>
       <p class="hint">Converted values use 1 ft = 0.3048 m; available distances are rounded down.</p>
     </section>
     <p role="status" class="assessment"><strong>Manual runway declaration.</strong>

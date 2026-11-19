@@ -1,12 +1,20 @@
 import { createPinia, setActivePinia } from 'pinia'
 import { effectScope, reactive } from 'vue'
-import { beforeEach, expect, it } from 'vitest'
+import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { testPohAircraft } from '../../../../tests/fixtures/poh-aircraft'
 import { useManualRunwayStore } from '@/modules/airport/stores/manual-runway.store'
 import { useUnitPreferencesStore } from '../stores/unit-preferences.store'
 import { usePerformanceStep, type PerformanceStepContext } from './performance-step'
+import * as inspection from '../services/poh-inspection'
 
 beforeEach(() => { localStorage.clear(); setActivePinia(createPinia()) })
+afterEach(() => { vi.restoreAllMocks() })
+
+function supportExtrapolationInFixture() {
+  const assess = inspection.assessPerformance
+  vi.spyOn(inspection, 'assessPerformance').mockImplementation((profile, inputs, now) =>
+    assess(profile, { ...inputs, extrapolationSourceSupported: true }, now))
+}
 
 it('keeps phase masses independent and invalidates synchronously on all source changes', () => {
   const scope = effectScope()
@@ -73,6 +81,7 @@ it('persists preferences while new sessions clear numeric PA/QNH and preserves r
 })
 
 it('withholds extrapolated results until acknowledged and revokes the acknowledgment on every input change', () => {
+  supportExtrapolationInFixture()
   const scope = effectScope()
   scope.run(() => {
     const context = reactive<PerformanceStepContext>({
@@ -129,6 +138,7 @@ it('withholds extrapolated results until acknowledged and revokes the acknowledg
 })
 
 it('blocks beyond the extrapolation limit with no acknowledgment path', () => {
+  supportExtrapolationInFixture()
   const scope = effectScope()
   scope.run(() => {
     const context = reactive<PerformanceStepContext>({
@@ -140,6 +150,26 @@ it('blocks beyond the extrapolation limit with no acknowledgment path', () => {
     step.pa.method.value = 'direct'; step.pa.direct.value = '1000'; step.temperature.value = '10'
     expect(step.presentation.value.groups[0]).toMatchObject({ status: 'blocked', rows: [] })
     expect(step.presentation.value.groups[0]!.reason).toContain('fixed 10 % extrapolation limit')
+    expect(step.presentation.value.extrapolation).toBeNull()
+    step.extrapolationAcknowledged.value = true
+    expect(step.presentation.value.groups[0]).toMatchObject({ status: 'blocked', rows: [] })
+  })
+  scope.stop()
+})
+
+it('blocks upper excursions in the application without a documented source', () => {
+  const scope = effectScope()
+  scope.run(() => {
+    const context = reactive<PerformanceStepContext>({
+      ready: true, notReadyReason: '', profile: testPohAircraft(), category: 'Normal', revision: '',
+      takeoff: { status: 'ready', massKg: 1050, origin: 'M&B' },
+      landing: { status: 'ready', massKg: 850, origin: 'trip arrival' },
+    })
+    const step = usePerformanceStep(() => context)
+    step.pa.method.value = 'direct'; step.pa.direct.value = '1000'; step.temperature.value = '10'
+    expect(step.presentation.value.groups[0]).toMatchObject({ status: 'blocked', rows: [] })
+    expect(step.presentation.value.groups[0]!.reason).toContain('above the table maximum')
+    expect(step.presentation.value.groups[1]!.status).toBe('success')
     expect(step.presentation.value.extrapolation).toBeNull()
     step.extrapolationAcknowledged.value = true
     expect(step.presentation.value.groups[0]).toMatchObject({ status: 'blocked', rows: [] })
