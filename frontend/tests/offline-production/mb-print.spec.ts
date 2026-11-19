@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test'
+import { printBriefingPack } from './print-gate'
 import { testPohAircraft } from '../fixtures/poh-aircraft'
 
 // Synthetic UI/pagination vectors only; no operational aircraft validation.
@@ -61,7 +62,7 @@ test('current M&B native print, cancellation, guarded transitions and cached off
       document.documentElement.dataset.printEvents = String(Number(document.documentElement.dataset.printEvents) + 1)
     })
   })
-  await preview.getByRole('button', { name: 'Print Briefing Pack', exact: true }).click()
+  await printBriefingPack(page)
   await expect(page.locator('html')).toHaveAttribute('data-print-events', '1')
   await page.emulateMedia({ media: 'print' })
   await expect(page.locator('#app')).toBeHidden()
@@ -93,7 +94,7 @@ test('current M&B native print, cancellation, guarded transitions and cached off
   await expect(preview).toContainText('1500.0 kg')
   await expect(preview.locator('td.briefing-critical').first()).toContainText('MTOM Exceeded')
   await expect(preview.locator('polygon[fill="url(#print-cg-crosshatch)"]')).toHaveCount(1)
-  await preview.getByRole('button', { name: 'Print Briefing Pack', exact: true }).click()
+  await printBriefingPack(page)
   for (const backgrounds of [false, true]) {
     await page.emulateMedia({ media: 'print' })
     const path = info.outputPath(`critical-backgrounds-${backgrounds}.pdf`)
@@ -145,7 +146,7 @@ test('current M&B native print, cancellation, guarded transitions and cached off
     document.documentElement.dataset.offlinePrint = 'pending'
     window.addEventListener('beforeprint', () => { document.documentElement.dataset.offlinePrint = 'invoked' })
   })
-  await preview.getByRole('button', { name: 'Print Briefing Pack', exact: true }).click()
+  await printBriefingPack(page)
   await expect(page.locator('html')).toHaveAttribute('data-offline-print', 'invoked')
   await page.emulateMedia({ media: 'print' })
   await expect(page.locator('#app')).toBeHidden()

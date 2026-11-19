@@ -46,6 +46,18 @@ export function canPrintMb(source: MbPrintSource): boolean {
     source.stations.every(s => !s.hasError && Number.isFinite(s.weight) && s.weight >= 0 && (!s.mandatory || s.touched))
 }
 
+/** CRIT-UI-001 payload; fields name the sections whose values carry the inline [UNVERIFIED] marker. */
+export function unverifiedGate(snapshot: MbPrintSnapshot) {
+  if (!snapshot.unverified) return null
+  const parameters = ['aircraft.profile.status', 'massBalance.loading', 'massBalance.results', 'massBalance.envelope',
+    ...(snapshot.fuel?.rows.length ? ['fuel.plan'] : []),
+    ...(snapshot.performance?.groups.length ? ['performance.results'] : [])]
+  const notification: Notification = { id: 'CRIT-UI-001', severity: 'CRITICAL', message: 'Unverified Data Present',
+    context: 'UI.Validation', persistent: true, dismissible: false,
+    action: { label: 'Review', event: 'ui.review_unverified', payload: { parameters, canForceSave: true } } }
+  return { notification, parameters, status: snapshot.status }
+}
+
 /** Associate exact source notifications with the values they qualify. */
 function valueWarnings(source: MbPrintSource, contexts: readonly string[]): Notification[] {
   return source.notifications.filter(n => n.severity !== 'INFO' &&

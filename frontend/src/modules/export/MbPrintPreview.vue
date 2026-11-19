@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import CGEnvelopeChart from '@/modules/mass-balance/components/CGEnvelopeChart.vue'
-import { assembleMbPrint, canPrintMb, type MbPrintSnapshot, type MbPrintSource } from './mb-print'
+import { assembleMbPrint, canPrintMb, unverifiedGate, type MbPrintSnapshot, type MbPrintSource } from './mb-print'
 
 const props = defineProps<{ source: MbPrintSource; readSource?: () => MbPrintSource }>()
 // Read live dependencies even when the parent render has not flushed before native print.
@@ -12,12 +12,17 @@ const closeButton = ref<HTMLButtonElement>()
 const printRoot = ref<HTMLElement>()
 let returnFocus: HTMLElement | null = null
 const fingerprint = ref('')
+const acknowledged = ref(false)
+const gating = ref(false)
+const gate = computed(() => currentSnapshot.value ? unverifiedGate(currentSnapshot.value) : null)
 const currentKey = computed(() => JSON.stringify(currentSource.value))
 const eligible = computed(() => canPrintMb(currentSource.value))
 // The key check also protects print media before Vue's queued watcher runs.
 const currentSnapshot = computed(() => currentKey.value === fingerprint.value ? snapshot.value : null)
 function invalidate(): void {
   snapshot.value = null
+  acknowledged.value = false
+  gating.value = false
   // Native printing can capture the DOM before Vue flushes its pending render.
   printRoot.value?.setAttribute('data-print-invalid', 'true')
 }
@@ -29,6 +34,8 @@ async function open(): Promise<void> {
   returnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null
   fingerprint.value = currentKey.value
   snapshot.value = value
+  acknowledged.value = false
+  gating.value = false
   printRoot.value?.removeAttribute('data-print-invalid')
   opened.value = true
   await nextTick()
@@ -37,6 +44,8 @@ async function open(): Promise<void> {
 function close(): void {
   opened.value = false
   snapshot.value = null
+  acknowledged.value = false
+  gating.value = false
   returnFocus?.focus()
 }
 function recheck(): boolean {
@@ -45,10 +54,18 @@ function recheck(): boolean {
     invalidate()
     return false
   }
+  // Native print (Ctrl+P) must not bypass the acknowledgment.
+  if (gate.value && !acknowledged.value) { invalidate(); return false }
   return true
 }
 function print(): void {
+  if (gate.value && !acknowledged.value) { gating.value = true; return }
   if (recheck()) window.print()
+}
+function acknowledge(): void {
+  acknowledged.value = true
+  gating.value = false
+  print()
 }
 function keydown(event: KeyboardEvent): void {
   if (!opened.value) return
@@ -84,6 +101,13 @@ onBeforeUnmount(() => {
           <button ref="closeButton" type="button" @click="close">Back to preparation</button>
           <button type="button" :disabled="!currentSnapshot || !eligible" @click="print">Print Briefing Pack</button>
         </nav>
+        <section v-if="gating && gate" role="alertdialog" aria-modal="true" aria-labelledby="crit-ui-001-title" class="briefing-gate">
+          <h2 id="crit-ui-001-title">{{ gate.notification.id }} · {{ gate.notification.message }}</h2>
+          <p>The Briefing Pack contains unverified data ({{ gate.status }}). Printing proceeds only after acknowledgment; every unverified value is then marked [UNVERIFIED] inline.</p>
+          <ul aria-label="Unverified fields"><li v-for="field in gate.parameters" :key="field"><code>{{ field }}</code></li></ul>
+          <button type="button" @click="acknowledge">Acknowledge unverified data and print</button>
+          <button type="button" @click="gating = false">Cancel</button>
+        </section>
         <template v-if="currentSnapshot">
           <h1>Flight Preparation Briefing Pack</h1>
           <p>{{ currentSnapshot.identity }}{{ currentSnapshot.marker }} · {{ currentSnapshot.category }}</p>
@@ -194,6 +218,9 @@ onBeforeUnmount(() => {
 .mb-print-sheet h2 { font-size: 1.125rem; margin-top: 1.5rem; }
 .mb-print-sheet table { width: 100%; border-collapse: collapse; table-layout: fixed; }
 .mb-print-sheet th, .mb-print-sheet td { text-align: left; border-bottom: 1px solid #888; padding: .4rem; vertical-align: top; }
+.briefing-gate { margin: 1rem 0; padding: .75rem; border: 2px solid #b71c1c; background: #ffebee; }
+.briefing-gate button { padding: .75rem; margin: .5rem .5rem 0 0; font: inherit; }
+@media print { .briefing-gate { display: none; } }
 .briefing-warning { color: #a34500; border-left: 4px solid #ef6c00; background: #fff3e0; }
 .briefing-critical { color: #b71c1c; border-left-color: #d32f2f; background: #ffebee; }
 .briefing-warning p { font-size: .85em; font-weight: 600; margin: .4rem 0; }

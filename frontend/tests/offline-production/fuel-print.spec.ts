@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test'
+import { printBriefingPack } from './print-gate'
 import { testPohAircraft } from '../fixtures/poh-aircraft'
 
 // Synthetic software vectors only; browser PDFs are internal pagination evidence.
@@ -101,7 +102,7 @@ test('complete current fuel in cached offline native print with synchronous stal
     await section.evaluate(element => element.scrollIntoView({ block: 'center' }))
     expect(await page.evaluate(() => document.body.scrollWidth)).toBe(page.viewportSize()!.width)
     await page.screenshot({ path: info.outputPath(`${name}-fuel-screen.png`) })
-    await preview.getByRole('button', { name: 'Print Briefing Pack' }).click()
+    await printBriefingPack(page)
     await expect.poll(() => page.locator('html').getAttribute('data-print-events').then(Number)).toBeGreaterThan(0)
     await page.emulateMedia({ media: 'print' })
     await expect(page.locator('#app')).toBeHidden()

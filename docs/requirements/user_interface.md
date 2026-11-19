@@ -62,6 +62,8 @@ The system shall provide a toggle control adjacent to each Unverified data field
 
 When Save or Export is triggered with unverified calculation parameters, the system shall emit CRITICAL `CRIT-UI-001` identifying the presence of unverified data.
 
+Until the pilot explicitly acknowledges `CRIT-UI-001`, the system shall block Briefing Pack printing.
+
 ### REQ-UI-016: Mark All as Verified Option
 
 While the [unverified-data confirmation dialog](#req-ui-015-unverified-data-export-warning) is displayed, the system shall offer a "Mark all as Verified" action that sets all current airport parameters to `Verified` in the local database.
