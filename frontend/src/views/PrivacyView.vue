@@ -10,12 +10,67 @@ import {
 import { useFleetStore } from '@/modules/aircraft/stores/fleet.store'
 import { useManualRunwayStore } from '@/modules/airport/stores/manual-runway.store'
 import { useSessionPersistenceStore } from '@/stores/session-persistence.store'
+import { MIN_PASSCODE_LENGTH, useAppLockStore } from '@/stores/app-lock.store'
 
 type Dialog = 'none' | 'wipe'
 
 const fleetStore = useFleetStore()
 const sessionStore = useSessionPersistenceStore()
 const manualRunwayStore = useManualRunwayStore()
+
+const lockStore = useAppLockStore()
+const lockPasscode = ref('')
+const lockConfirm = ref('')
+const lockMessage = ref<{ kind: 'ok' | 'error'; text: string } | null>(null)
+
+async function onEnableLock(): Promise<void> {
+  lockMessage.value = null
+  if (lockPasscode.value !== lockConfirm.value) {
+    lockMessage.value = { kind: 'error', text: 'The two passcodes do not match.' }
+    return
+  }
+  busy.value = true
+  try {
+    const result = await lockStore.enable(lockPasscode.value)
+    lockMessage.value =
+      result === 'ok'
+        ? { kind: 'ok', text: 'App lock enabled. Other open tabs are not locked until you lock them.' }
+        : {
+            kind: 'error',
+            text:
+              result === 'invalid-length'
+                ? `Use a passcode of at least ${MIN_PASSCODE_LENGTH} characters.`
+                : result === 'unsupported'
+                  ? 'This browser cannot create the passcode check, so no lock was set.'
+                  : 'The browser refused to save the lock; no lock was set.',
+          }
+    if (result === 'ok') {
+      lockPasscode.value = ''
+      lockConfirm.value = ''
+    }
+  } finally {
+    busy.value = false
+  }
+}
+
+async function onDisableLock(): Promise<void> {
+  lockMessage.value = null
+  busy.value = true
+  try {
+    const result = await lockStore.disable(lockPasscode.value)
+    if (result === 'ok') {
+      lockMessage.value = { kind: 'ok', text: 'App lock removed.' }
+      lockPasscode.value = ''
+    } else {
+      lockMessage.value = {
+        kind: 'error',
+        text: result === 'wrong' ? 'Wrong passcode.' : 'The lock could not be removed in this browser.',
+      }
+    }
+  } finally {
+    busy.value = false
+  }
+}
 
 const dialog = ref<Dialog>('none')
 const busy = ref(false)
@@ -140,6 +195,7 @@ async function onConfirmWipe(): Promise<void> {
     // runway as saved/current. Re-reading (not blanking) keeps a partial
     // failure accurate: a record whose key could not be removed is still shown.
     manualRunwayStore.load()
+    lockStore.reload()
     busy.value = false
   }
 }
@@ -256,6 +312,44 @@ function onCancelWipe(): void {
       </button>
     </section>
 
+    <!-- ─── Optional app lock ───────────────────────────────────────── -->
+    <section class="card" aria-labelledby="lock-heading">
+      <h2 id="lock-heading">App Lock (optional)</h2>
+      <p>
+        Hides AeroDash behind a passcode on this device, also offline. It is
+        <strong>not encryption</strong>: profiles stay readable in browser storage and in
+        exports, and anyone with browser developer tools or copied browser files can read
+        them. Use your device's own lock and disk encryption for real protection.
+      </p>
+      <ul class="privacy-view__limits">
+        <li>Every new tab or reload asks for the passcode; “Lock AeroDash” locks all open tabs.</li>
+        <li>Export and restore need an unlocked app. Export before locking if you may need a copy.</li>
+        <li>
+          A forgotten passcode cannot be recovered: there is no account or backup copy. The only
+          way back is deleting all local data from the lock screen.
+        </li>
+      </ul>
+      <p v-if="lockMessage" :class="['privacy-view__notice', lockMessage.kind === 'ok' ? 'privacy-view__notice--ok' : 'privacy-view__notice--warn']" role="status" data-testid="app-lock-message">
+        {{ lockMessage.text }}
+      </p>
+      <form class="privacy-view__lock-form" @submit.prevent="lockStore.enabled ? onDisableLock() : onEnableLock()">
+        <label>
+          <span>{{ lockStore.enabled ? 'Current passcode' : 'New passcode' }}</span>
+          <input v-model="lockPasscode" type="password" autocomplete="off" data-testid="lock-passcode" />
+        </label>
+        <label v-if="!lockStore.enabled">
+          <span>Repeat passcode</span>
+          <input v-model="lockConfirm" type="password" autocomplete="off" data-testid="lock-passcode-confirm" />
+        </label>
+        <button type="submit" class="btn btn-primary" :disabled="busy || lockPasscode === ''" data-testid="lock-submit">
+          {{ lockStore.enabled ? 'Remove app lock' : 'Enable app lock' }}
+        </button>
+        <button v-if="lockStore.enabled" type="button" class="btn" data-testid="lock-now-btn" @click="lockStore.lock()">
+          Lock now
+        </button>
+      </form>
+    </section>
+
     <!-- ─── Delete-All-Data card ────────────────────────────────────── -->
     <section class="card card--danger" aria-labelledby="wipe-heading">
       <h2 id="wipe-heading">Delete All Local Data (Art. 17)</h2>
@@ -362,6 +456,21 @@ function onCancelWipe(): void {
 </template>
 
 <style scoped>
+.privacy-view__lock-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-width: 24rem;
+}
+.privacy-view__lock-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.privacy-view__lock-form input {
+  min-height: 44px;
+  padding: 0.5rem;
+}
 .privacy-view {
   max-width: 760px;
   margin: 0 auto;
