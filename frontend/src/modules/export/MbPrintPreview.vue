@@ -89,6 +89,7 @@ onBeforeUnmount(() => {
           <p>{{ currentSnapshot.identity }}{{ currentSnapshot.marker }} · {{ currentSnapshot.category }}</p>
           <p>Generated: {{ currentSnapshot.generated }}</p>
           <p v-if="currentSnapshot.unverified"><strong>Calculation based on unverified external data. Pilot in Command assumes full responsibility.</strong></p>
+          <p v-if="currentSnapshot.lowSafetyMargin"><strong>Calculation based on low safety margin. Pilot in Command assumes full responsibility.</strong></p>
           <h2>Current loading</h2>
           <table><thead><tr><th>Station</th><th>Quantity</th></tr></thead><tbody>
             <tr v-for="(row, index) in currentSnapshot.loading" :key="index"><td>{{ row.name }}</td><td :class="{ 'briefing-warning': row.warnings.length }">{{ row.quantity }}<p v-for="(note, n) in row.warnings" :key="n">{{ note.severity }}: {{ note.message }}</p></td></tr>
@@ -164,6 +165,10 @@ onBeforeUnmount(() => {
               <p v-for="scope in currentSnapshot.performance.scope" :key="scope">{{ scope }}</p>
             </template>
             <p v-else>Current Performance inputs and results are unavailable.</p>
+          </section>
+          <section aria-label="Disclaimer">
+            <h2>Disclaimer</h2>
+            <p>AeroDash is not a certified aviation device. Verify all calculations against the official AFM/POH of the specific aircraft; the official handbook takes precedence. The Pilot in Command bears sole responsibility for the safe conduct of the flight. See DISCLAIMER.md.</p>
           </section>
         </template>
         <p v-else role="status">Preview invalidated. Return to preparation, review the current inputs and open a new Briefing Pack preview.</p>

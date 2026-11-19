@@ -16,6 +16,23 @@ Feature: Complete a textbook flight preparation within all limits
     And the center of gravity remains within the envelope during the flight
     And the only warning is the unverified draft-profile notice
 
+  @e2e @flight-prep @briefing-pack
+  Scenario Outline: The briefing pack marks unverified data and carries the disclaimers
+    When the viewport for occupancy is <width> pixels wide
+    And the pilot selects aircraft "D-EBPN"
+    And loads two passengers and light baggage
+    And adds sufficient fuel for the trip
+    And the pilot opens the briefing pack
+    Then the briefing pack states "[UNVERIFIED]"
+    And the briefing pack states "Calculation based on unverified external data. Pilot in Command assumes full responsibility."
+    And the briefing pack states "not a certified aviation device"
+    And the briefing pack evidence is captured as "<width>"
+
+    Examples:
+      | width |
+      | 1440  |
+      | 390   |
+
   @e2e @flight-prep @optional-occupancy
   Scenario Outline: Solo loading retains required crew checks
     When the viewport for occupancy is <width> pixels wide
