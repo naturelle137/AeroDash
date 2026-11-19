@@ -500,7 +500,7 @@ test('persisted fleet tank inputs feed the session-only fuel plan online and cac
   // (1270 − (150 − 105)) / 600 kg·m/kg
   await expect(masses()).toHaveText(['610 kg', '10 kg', '600 kg', '40 kg'])
   await expect(card.getByTestId('arrival-cg')).toHaveText('2.042 m')
-  await expect(arrival).toContainText('A lookup table is supported only for tanks with zero unusable fuel')
+  await expect(arrival).toContainText('with several tanks, lookup tanks need zero unusable fuel')
   await expect(results).toContainText('table moment at the takeoff load minus the table moment')
   await expect(page.getByRole('alert').filter({ hasText: 'CG Out of Envelope' })).toBeVisible()
   await shot('lookup-duration-partial-offline')
