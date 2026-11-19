@@ -27,7 +27,7 @@ declaration is unchanged.
 
 ## Storage and recovery
 
-The record `{schemaVersion: 1, savedAt, runway}` keeps the pilot's original
+The record `{schemaVersion: 2, savedAt, runway}` keeps the pilot's original
 values and units; normalized values are never persisted. Damaged JSON, any
 contract violation or a higher `schemaVersion` is not used and is reported
 visibly; saving or clearing replaces it. Write/clear failures are displayed and
@@ -68,10 +68,14 @@ remain unchanged. A comparison is not operational approval or a go/no-go decisio
 `savedAt` serializes the save date supplied by P2 (defaulting to the local clock).
 The store's `current` state means valid saved values equal the current form;
 it does not mean current source information. No external source is verified.
-Publication, effective date, expiry and NOTAM coverage remain unknown to AeroDash.
+Publication and NOTAM coverage remain unknown; effective and expiry dates are optional pilot declarations.
 Saving, re-saving, editing or offline recovery cannot establish source currency.
 The existing Performance and briefing consumers retain manual provenance.
 
 The [AIRAC/source contract](../regulatory/airac-airport-data-contract.md) defines
 the future source prerequisite and separate currency/verification boundaries.
-It introduces no schema migration or automatic expiry for manual records.
+It does not infer expiry from AIRAC or the local save date.
+
+## Declared date check
+
+Optional pilot-entered effective and inclusive expiry dates are stored with the runway. The check date defaults to the local date when the panel opens and can be changed; reopen the panel to refresh it. Missing dates leave currency unknown. Dates are user declarations, not source verification. A calendar cycle starts every 28 days from 2026-10-29; this date-only indication does not expire a runway or establish NOTAM/SUP coverage. Version 1 records without dates are recovered into version 2 in memory and remain usable.

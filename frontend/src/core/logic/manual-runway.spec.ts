@@ -3,6 +3,8 @@ import {
   EMPTY_MANUAL_RUNWAY_DRAFT,
   MANUAL_RUNWAY_RECORD_VERSION,
   createManualRunwayRecord,
+  airacCycleStart,
+  runwayFreshness,
   draftFromManualRunway,
   formatNormalizedManualRunway,
   normalizeManualRunway,
@@ -17,7 +19,7 @@ import { FT_TO_M } from './unit-conversion-constants'
 // Synthetic runway; not a real aerodrome or published declaration.
 const draft = (patch: Partial<ManualRunwayDraft> = {}): ManualRunwayDraft => ({
   aerodrome: 'TEST', designator: '09L', tora: '1000', toraUnit: 'ft', lda: '600', ldaUnit: 'm', toda: '', todaUnit: '',
-  fieldElevation: '-30.48', fieldElevationUnit: 'm', surfaceType: 'unpaved', surfaceCondition: 'long-grass', ...patch,
+  fieldElevation: '-30.48', fieldElevationUnit: 'm', surfaceType: 'unpaved', surfaceCondition: 'long-grass', effectiveDate: '', expiryDate: '', ...patch,
 })
 function valid(input: ManualRunwayDraft): ManualRunway {
   const result = validateManualRunway(input)
@@ -153,7 +155,7 @@ describe('storage record recovery', () => {
     expect(recoverManualRunwayRecord(null)).toEqual({ status: 'empty' })
     expect(recoverManualRunwayRecord('{not json')).toEqual({ status: 'corrupt' })
     expect(recoverManualRunwayRecord('null')).toEqual({ status: 'corrupt' })
-    expect(recoverManualRunwayRecord(JSON.stringify({ ...record, schemaVersion: 2 }))).toEqual({ status: 'unsupported-version', schemaVersion: 2 })
+    expect(recoverManualRunwayRecord(JSON.stringify({ ...record, schemaVersion: 3 }))).toEqual({ status: 'unsupported-version', schemaVersion: 3 })
     expect(recoverManualRunwayRecord(JSON.stringify({ ...record, schemaVersion: 0 }))).toEqual({ status: 'corrupt' })
   })
 
@@ -173,5 +175,22 @@ describe('storage record recovery', () => {
 
   it('rejects invalid timestamps', () => {
     expect(recoverManualRunwayRecord(JSON.stringify({ ...record, savedAt: 'yesterday' }))).toEqual({ status: 'corrupt' })
+  })
+})
+
+describe('declared dates', () => {
+  it('checks inclusive boundaries without inferring expiry from AIRAC', () => {
+    const runway = valid(draft({ effectiveDate: '2026-10-29', expiryDate: '2026-12-24' }))
+    expect(runwayFreshness(runway, '2026-10-28')).toBe('not-yet-effective')
+    expect(runwayFreshness(runway, '2026-11-26')).toBe('within-declared-dates')
+    expect(runwayFreshness(runway, '2026-12-24')).toBe('within-declared-dates')
+    expect(runwayFreshness(runway, '2026-12-25')).toBe('expired')
+    expect(runwayFreshness(valid(draft()), '2026-11-26')).toBe('unknown')
+    expect(runwayFreshness(runway, '')).toBe('unknown')
+    expect(airacCycleStart('2026-11-25')).toBe('2026-10-29')
+    expect(airacCycleStart('2026-11-26')).toBe('2026-11-26')
+    expect(airacCycleStart('invalid')).toBeNull()
+    expect(validateManualRunway(draft({ effectiveDate: '2026-12-25', expiryDate: '2026-12-24' })).status).toBe('invalid')
+    expect(draftFromManualRunway(runway).expiryDate).toBe('2026-12-24')
   })
 })
