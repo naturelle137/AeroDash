@@ -122,8 +122,7 @@ This is future engineering acceptance, not shipped behaviour:
 
 After that gate, deterministic classification/validation belongs in P1 with
 explicit inputs and typed failures; P2 owns fetching/adaptation, clock inputs,
-repository/store and presentation. No speculative schema or runtime change is
-introduced here. Later persistence/import/export needs versioned provenance and
+repository/store and presentation. The separate manual date check uses pilot declarations and does not implement this external-source contract. Later persistence/import/export needs versioned provenance and
 backward recovery. Performance and briefing must carry the same source limits
 and invalidation state. Preserve the usable manual offline path.
 

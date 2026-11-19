@@ -95,3 +95,15 @@ When a manual runway input changes, the system shall immediately stop displaying
 If the saved runway or an applicable correction source is unavailable, then the system shall not display a runway comparison.
 
 The [manual runway contract](../architecture/manual-runway-entry.md) defines units, conversion and storage. REQ-AP-001, -002, -005 and -007 (airport database) remain future scope.
+
+### REQ-AP-020: Manual source dates
+
+When the pilot supplies effective or expiry dates, the system shall retain them with the manual runway.
+
+### REQ-AP-021: Declared date check
+
+When displaying a saved runway, the system shall compare its declared dates with a pilot-selectable date.
+
+### REQ-AP-022: AIRAC calendar
+
+When displaying a saved runway, the system shall display the AIRAC cycle start for the selected date.
