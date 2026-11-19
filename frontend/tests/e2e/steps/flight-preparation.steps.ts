@@ -167,3 +167,17 @@ Then('a missing optional input blocks calculation until explicit zero', async ({
   await expect(page.locator('.notification--error')).toHaveCount(0)
   await expect(page.locator('.notification--warning')).toHaveText('Draft Profile Active')
 })
+
+When('the pilot opens the briefing pack', async ({ page }) => {
+  await page.getByRole('button', { name: 'Briefing Pack' }).click()
+})
+
+Then('the briefing pack states {string}', async ({ page }, text: string) => {
+  await expect(page.getByRole('dialog', { name: 'Briefing Pack preview' })).toContainText(text)
+})
+
+Then('the briefing pack evidence is captured as {string}', async ({ page, $testInfo }, width: string) => {
+  const path = $testInfo.outputPath(`briefing-pack-${width}.png`)
+  await page.screenshot({ path, fullPage: true })
+  await $testInfo.attach(`Briefing pack ${width}`, { path, contentType: 'image/png' })
+})

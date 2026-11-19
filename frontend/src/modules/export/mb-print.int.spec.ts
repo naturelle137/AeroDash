@@ -264,4 +264,24 @@ describe('M&B print presentation with real store calculation', () => {
     wrapper.unmount()
     vi.useRealTimers()
   })
+  it('renders the unverified, low-margin and legal disclaimers with their exact wording', async () => {
+    const input = source()
+    const applied = { operation: 'takeoff', title: 'Takeoff', status: 'applied', source: 'Synthetic', rows: [], safetyFactor: '1.00',
+      safetyFactorWarning: 'WARN-PF-002: low', comparison: { status: 'sufficient', summary: '', required: '', availableLabel: '', available: '', margin: '' }, notes: [] }
+    const performance = { ...presentPerformance({ inputKey: 'k', inputs: [], aircraft: null, takeoff: { status: 'unavailable', reason: 'x' }, landing: { status: 'unavailable', reason: 'x' },
+      assessment: null, pressureAltitudeBasis: '', pendingReason: 'x', runway: { status: 'unavailable', reason: 'x' }, operational: presentOperationalAssessment(null, 'x') }),
+      corrected: [applied] }
+    input.performance = performance as never
+    expect(assembleMbPrint(input, new Date('2026-11-14'))!.lowSafetyMargin).toBe(true)
+    const wrapper = mount(MbPrintPreview, { props: { source: input }, attachTo: document.body })
+    await wrapper.get('button').trigger('click')
+    const text = document.body.textContent!
+    expect(text).toContain('Calculation based on unverified external data. Pilot in Command assumes full responsibility.')
+    expect(text).toContain('Calculation based on low safety margin. Pilot in Command assumes full responsibility.')
+    expect(text).toContain('not a certified aviation device')
+    wrapper.unmount()
+    const clean = source()
+    clean.performance = { ...performance, corrected: [{ ...applied, safetyFactorWarning: null }] } as never
+    expect(assembleMbPrint(clean, new Date('2026-11-14'))!.lowSafetyMargin).toBe(false)
+  })
 })

@@ -83,6 +83,7 @@ export function assembleMbPrint(source: MbPrintSource, now: Date) {
     category: category.category,
     marker,
     unverified,
+    lowSafetyMargin: !!source.performance?.corrected.some(item => item.status === 'applied' && item.safetyFactorWarning),
     status: `${profile.status}; ${freshness.state}${marker}`,
     provenance: freshness.provenance ? {
       revision: freshness.provenance.pohRevision,
