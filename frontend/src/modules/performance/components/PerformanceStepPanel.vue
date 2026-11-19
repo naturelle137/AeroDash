@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import PressureAltitudeFieldset from './PressureAltitudeFieldset.vue'
+import InputHelp from './InputHelp.vue'
 import { SAFETY_FACTOR_PRESETS } from '../services/corrected-distances'
 import type { PerformanceStep } from '../composables/performance-step'
 
@@ -16,8 +17,10 @@ const { temperature, corrections, safetyFactors, showPaErrors, presentation } = 
     <PressureAltitudeFieldset :pa="step.pa" :show-errors="showPaErrors" />
     <fieldset v-for="operation in (['takeoff', 'landing'] as const)" :key="operation" class="fields correction-inputs">
       <legend>{{ operation === 'takeoff' ? 'Takeoff' : 'Landing' }} wind and slope</legend>
-      <label>Headwind component (kt, negative = tailwind)<input v-model="corrections[operation].headwind" :id="`performance-${operation}-headwind`" type="text" inputmode="decimal" /></label>
-      <label>Runway slope (%, positive = uphill)<input v-model="corrections[operation].slope" :id="`performance-${operation}-slope`" type="text" inputmode="decimal" /></label>
+      <div><label>Headwind component (kt, negative = tailwind)<input v-model="corrections[operation].headwind" :id="`performance-${operation}-headwind`" type="text" inputmode="decimal" /></label>
+        <InputHelp :label="`${operation === 'takeoff' ? 'Takeoff' : 'Landing'} headwind`">Enter the wind component along the runway in knots: positive for headwind, negative for tailwind, and zero for calm.</InputHelp></div>
+      <div><label>Runway slope (%, positive = uphill)<input v-model="corrections[operation].slope" :id="`performance-${operation}-slope`" type="text" inputmode="decimal" /></label>
+        <InputHelp :label="`${operation === 'takeoff' ? 'Takeoff' : 'Landing'} runway slope`">Enter runway slope in percent in the direction of use: positive uphill, negative downhill, and zero for level.</InputHelp></div>
       <label>Safety factor
         <select v-model="safetyFactors[operation].preset" :id="`performance-${operation}-safety-factor`">
           <option v-for="preset in SAFETY_FACTOR_PRESETS" :key="preset.value" :value="preset.value">{{ preset.label }}</option>

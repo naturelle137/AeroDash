@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Add accessible contextual help for performance pressure altitude, QNH, wind and slope inputs.
+
 - Gate briefing-pack printing behind an explicit CRIT-UI-001 acknowledgment when unverified data is present.
 
 - Verify in the browser that the briefing pack shows the low-safety-margin disclaimer after the combined Flight Prep performance flow.
