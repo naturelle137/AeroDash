@@ -184,6 +184,18 @@ The system shall describe browser connectivity as distinct from Internet reachab
 
 When a previously cached application is reopened offline, the system shall restore valid locally persisted aircraft and manual runway data.
 
+### REQ-SYS-056: Optional app lock
+
+Where the user has enabled the app lock, the system shall require the passcode in each new or reloaded tab before showing aircraft or preparation data, including offline.
+
+### REQ-SYS-057: App lock limits
+
+The system shall state wherever the app lock is offered or shown that it does not encrypt stored data.
+
+### REQ-SYS-058: Forgotten app lock passcode
+
+If the user has forgotten the passcode, then the system shall offer deletion of all local data as the only way to remove the lock.
+
 ## Design References
 
 - **<a name="notificationScheme"></a>Notification Scheme:** [`docs/architecture/notification_schema.md`](../architecture/notification_schema.md)

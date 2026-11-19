@@ -5,7 +5,10 @@ import { useTheme } from '@/shared/composables/useTheme'
 import AppLogo from '@/shared/components/AppLogo.vue'
 import AppVersion from '@/shared/components/AppVersion.vue'
 import ConnectivityStatus from '@/shared/components/ConnectivityStatus.vue'
+import AppLockScreen from '@/shared/components/AppLockScreen.vue'
 import DisclaimerAcknowledgementModal from '@/shared/components/DisclaimerAcknowledgementModal.vue'
+import { wipeAllLocalData } from '@/modules/aircraft/services/data-rights.service'
+import { useAppLockStore } from '@/stores/app-lock.store'
 import { usePwaUpdateStore } from '@/stores/pwa-update.store'
 import { useAppVersionStore, attachConnectivityRefresh } from '@/stores/app-version.store'
 import { useDisclaimerAcknowledgementStore } from '@/stores/disclaimer-acknowledgement.store'
@@ -14,9 +17,33 @@ const pwaStore = usePwaUpdateStore()
 const appVersionStore = useAppVersionStore()
 const disclaimerStore = useDisclaimerAcknowledgementStore()
 const disclaimerStorageWriteFailed = ref(false)
+const lockStore = useAppLockStore()
 onMounted(() => {
+  lockStore.load()
   disclaimerStore.loadFromStorage()
 })
+
+const erasingForLock = ref(false)
+const lockEraseError = ref<string | null>(null)
+async function onLockErase(): Promise<void> {
+  erasingForLock.value = true
+  lockEraseError.value = null
+  try {
+    const report = await wipeAllLocalData()
+    if (report.complete) {
+      lockStore.reload()
+    } else {
+      // Stay locked so the warning remains visible and Retry is possible, even
+      // when the verifier itself was already removed (REQ-SYS-014).
+      lockEraseError.value =
+        'Deletion was incomplete; some data may remain on this device. Retry, then use the browser\u2019s \u201cClear site data\u201d for this site.'
+    }
+  } catch {
+    lockEraseError.value = 'Deletion failed. Retry, then use the browser\u2019s \u201cClear site data\u201d for this site.'
+  } finally {
+    erasingForLock.value = false
+  }
+}
 async function onDisclaimerAccept(): Promise<void> {
   const ok = disclaimerStore.acknowledge()
   disclaimerStorageWriteFailed.value = !ok
@@ -35,6 +62,9 @@ async function onDisclaimerAccept(): Promise<void> {
 const disclaimerGateActive = computed(
   () => disclaimerStore.gateOpen && !appVersionStore.versionBlocked,
 )
+// The access lock stands down for the version block for the same reason.
+const appLockActive = computed(() => lockStore.locked && !appVersionStore.versionBlocked)
+const shellGated = computed(() => disclaimerGateActive.value || appLockActive.value)
 
 // REQ-SYS-006 / H-019: check minimum safe version on every
 // mount. The check itself works offline — it reads the last-known
@@ -145,8 +175,8 @@ const themeLabel = computed(() =>
   <div
     class="app-shell"
     :class="{ 'sidebar--collapsed': sidebarCollapsed }"
-    :inert="disclaimerGateActive || undefined"
-    :aria-hidden="disclaimerGateActive ? 'true' : undefined"
+    :inert="shellGated || undefined"
+    :aria-hidden="shellGated ? 'true' : undefined"
   >
 
     <!-- ═══ Top header ══════════════════════════════════════════════════════ -->
@@ -286,6 +316,15 @@ const themeLabel = computed(() =>
           </span>
           <span class="sidebar-contribute__label">Help / contribute</span>
         </RouterLink>
+        <button
+          v-if="lockStore.enabled"
+          type="button"
+          class="sidebar-contribute"
+          data-testid="app-lock-now"
+          @click="lockStore.lock()"
+        >
+          <span class="sidebar-contribute__label">Lock AeroDash</span>
+        </button>
         <p class="sidebar-footer__text">Advisory only. Verify against POH/AFM.</p>
         <AppVersion />
       </div>
@@ -351,15 +390,21 @@ const themeLabel = computed(() =>
           </p>
         </div>
       </div>
-      <RouterView v-else-if="!disclaimerGateActive" :key="bfcacheNonce" />
+      <RouterView v-else-if="!shellGated" :key="bfcacheNonce" />
       <p v-else class="app-main__gate-placeholder">
         Acknowledge the disclaimer to continue.
       </p>
     </main>
 
     <!-- Teleports to <body>, outside the inert .app-shell, so it stays interactive while the gate is open. -->
+    <AppLockScreen
+      :open="appLockActive"
+      :erasing="erasingForLock"
+      :erase-error="lockEraseError"
+      @erase="onLockErase"
+    />
     <DisclaimerAcknowledgementModal
-      :open="disclaimerGateActive"
+      :open="disclaimerGateActive && !appLockActive"
       :storage-unavailable="disclaimerStore.storageUnavailable"
       :write-failed="disclaimerStorageWriteFailed"
       @accept="onDisclaimerAccept"
