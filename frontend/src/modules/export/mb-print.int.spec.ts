@@ -278,7 +278,7 @@ describe('M&B print presentation with real store calculation', () => {
     const text = document.body.textContent!
     expect(text).toContain('Calculation based on unverified external data. Pilot in Command assumes full responsibility.')
     expect(text).toContain('Calculation based on low safety margin. Pilot in Command assumes full responsibility.')
-    expect(text).toContain('not a certified aviation device')
+    expect(text).toContain('NO CERTIFIED AVIATION DEVICE')
     wrapper.unmount()
     const clean = source()
     clean.performance = { ...performance, corrected: [{ ...applied, safetyFactorWarning: null }] } as never

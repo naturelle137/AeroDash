@@ -25,12 +25,32 @@ Feature: Complete a textbook flight preparation within all limits
     And the pilot opens the briefing pack
     Then the briefing pack states "[UNVERIFIED]"
     And the briefing pack states "Calculation based on unverified external data. Pilot in Command assumes full responsibility."
-    And the briefing pack states "not a certified aviation device"
+    And the briefing pack states "NO CERTIFIED AVIATION DEVICE"
     When the pilot requests printing of the briefing pack
     Then printing is blocked pending acknowledgment of unverified data
     And the briefing pack evidence is captured as "<width>"
     When the pilot acknowledges the unverified data
     Then the briefing pack is sent to print with unverified values marked
+
+    Examples:
+      | width |
+      | 1440  |
+      | 390   |
+
+  @e2e @flight-prep @briefing-pack
+  Scenario Outline: The briefing pack downloads as a PDF with the same safety content
+    When the viewport for occupancy is <width> pixels wide
+    And the pilot selects aircraft "D-EBPN"
+    And loads two passengers and light baggage
+    And adds sufficient fuel for the trip
+    And the pilot opens the briefing pack
+    And the pilot requests the PDF download of the briefing pack
+    Then the PDF download is blocked pending acknowledgment of unverified data
+    And the briefing pack evidence is captured as "pdf-<width>"
+    When the pilot acknowledges the unverified data for the PDF download
+    Then the downloaded PDF states "[UNVERIFIED]"
+    And the downloaded PDF states "Calculation based on unverified external data. Pilot in Command assumes full responsibility."
+    And the downloaded PDF states "NO CERTIFIED AVIATION DEVICE"
 
     Examples:
       | width |
