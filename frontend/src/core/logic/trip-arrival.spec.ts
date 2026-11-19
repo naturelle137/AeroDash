@@ -261,12 +261,26 @@ const knots = [
   { massOrVolume: 50, moment: 150 },
 ]
 const lookupInput = {
+  unusableFuelKg: 0,
   takeoffMassKg: 610,
   takeoffMomentKgM: 1270,
   usableFuelKg: 50,
   tripFuelKg: 0,
   lookup: knots,
 }
+describe('lookup arrival with unusable fuel', () => {
+  it.each([[0, 1260, 600], [20, 1170, 580], [40, 1120, 560]])(
+    'burns %s kg from the total tank moment', (tripFuelKg, moment, mass) => {
+      expect(calculateLookupTripArrivalCg({ ...lookupInput, takeoffMassKg: 600,
+        takeoffMomentKgM: 1260, usableFuelKg: 40, unusableFuelKg: 10, tripFuelKg,
+      })).toEqual({ ok: true, arrivalMomentKgM: moment, arrivalCgM: moment / mass })
+    },
+  )
+  it('rejects a burn below unusable fuel', () => {
+    expect(calculateLookupTripArrivalCg({ ...lookupInput, usableFuelKg: 40,
+      unusableFuelKg: 10, tripFuelKg: 41 })).toEqual({ ok: false, reason: 'TRIP_EXCEEDS_USABLE_FUEL' })
+  })
+})
 describe('single lookup-tank arrival CG with zero unusable fuel', () => {
   it.each([
     [0, 1270, 610],
@@ -388,6 +402,7 @@ describe('single lookup-tank arrival CG with zero unusable fuel', () => {
     expect(
       calculateLookupTripArrivalCg({
         takeoffMassKg: 2,
+        unusableFuelKg: 0,
         takeoffMomentKgM: 1,
         usableFuelKg: 1,
         tripFuelKg: 1,
@@ -397,6 +412,7 @@ describe('single lookup-tank arrival CG with zero unusable fuel', () => {
     expect(
       calculateLookupTripArrivalCg({
         takeoffMassKg: 2,
+        unusableFuelKg: 0,
         takeoffMomentKgM: 201,
         usableFuelKg: 1,
         tripFuelKg: 1,

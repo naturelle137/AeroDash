@@ -184,6 +184,7 @@ function variable(
   table = KG_KNOTS,
   quantity = 50,
   mbQuantity = quantity,
+  unusable = 0,
 ) {
   const aircraft = syntheticFuelContext()
   const tank = aircraft.loadPoints[0]!
@@ -191,7 +192,7 @@ function variable(
   tank.arm = null
   tank.unit = unit
   tank.operationalLimit = null
-  tank.fuelTank!.unusableFuel = 0
+  tank.fuelTank!.unusableFuel = unusable
   tank.armLookup = table.map(([massOrVolume, moment]) => ({ massOrVolume, moment }))
   const loads = [{ ...stations[0]!, weight: quantity }]
   // Mirrors the store's existing SI boundary for the M&B input.
@@ -215,7 +216,7 @@ function variable(
       {
         index: 0,
         mass: toKg(mbQuantity),
-        unusableFuel: 0,
+        unusableFuel: toKg(unusable),
         arm: null,
         armLookup: tank.armLookup.map((e) => ({
           massOrVolume: toKg(e.massOrVolume),
@@ -271,6 +272,16 @@ describe('single variable-arm tank adapter (zero unusable fuel)', () => {
     expect(result.arrivalMomentKgM).toBeCloseTo(1180, 9)
     expect(result.arrivalCgM).toBeCloseTo(1180 / 590, 12)
   })
+  it.each([
+    ['lb', 'lb-in', LB, LB_IN],
+    ['L', 'kg-m', 0.72, 1],
+  ])('normalizes nonzero unusable fuel in %s', (unit, sourceUnit, axis, moment) => {
+    const table = KG_KNOTS.map(([x, m]) => [x / axis, m / moment] as [number, number])
+    const { aircraft, mb, loads } = variable(unit, sourceUnit, table, 50 / axis, 50 / axis, 10 / axis)
+    const result = cg(arrivalCgForPlanning(aircraft, 'Normal', loads, mb, 20))
+    expect(result.arrivalMomentKgM).toBeCloseTo(1170, 8)
+    expect(result.arrivalCgM).toBeCloseTo(1170 / 580, 10)
+  })
   it('supports an empty current tank only at zero burn', () => {
     const { aircraft, mb, loads } = variable('kg', 'kg-m', KG_KNOTS, 0)
     expect(cg(arrivalCgForPlanning(aircraft, 'Normal', loads, mb, 0)).arrivalCgM).toBe(2)
@@ -283,44 +294,21 @@ describe('single variable-arm tank adapter (zero unusable fuel)', () => {
       cg(arrivalCgForPlanning(aircraft, 'Normal', loads, mb, 20)).arrivalMomentKgM,
     ).toBeCloseTo(1060, 9)
   })
-  it.each([0, 20, 40])('keeps nonzero unusable fuel unsupported at %s kg burn', (burn) => {
-    const { aircraft, loads } = variable()
-    aircraft.loadPoints[0]!.fuelTank!.unusableFuel = 10
-    // Even a constant-arm-shaped lookup stays outside the zero-unusable contract.
-    for (const table of [
-      KG_KNOTS,
-      [
-        [0, 0],
-        [50, 50],
-      ],
-    ])
-      for (const [i, [x, m]] of table.entries())
-        aircraft.loadPoints[0]!.armLookup[i] = { massOrVolume: x!, moment: m! }
-    const legacy = calculateMassBalance({
-      ...setupInput(),
-      fuelStations: [
-        {
-          index: 0,
-          mass: 50,
-          unusableFuel: 10,
-          arm: null,
-          armLookup: [
-            { massOrVolume: 0, moment: 0 },
-            { massOrVolume: 10, moment: 10 },
-            { massOrVolume: 30, moment: 60 },
-            { massOrVolume: 50, moment: 150 },
-          ],
-          burnSequences: [],
-        },
-      ],
-    })
-    // M&B now adds the total-load contribution F(q) − F(u) = 140, not (q − u)·F(q)/q = 120.
-    expect(legacy.takeoffCenterOfGravityPoint.moment).toBe(1260)
-    expect(arrivalCgForPlanning(aircraft, 'Normal', loads, legacy, burn)).toEqual({
-      ok: false,
-      reason: expect.stringContaining('exactly zero unusable fuel'),
-    })
-  })
+  it.each([[0, 1260, 600], [20, 1170, 580], [40, 1120, 560]])(
+    'retains unusable fuel for %s kg burn', (burn, moment, mass) => {
+      const { aircraft, loads } = variable()
+      aircraft.loadPoints[0]!.fuelTank!.unusableFuel = 10
+      const mb = calculateMassBalance({
+        ...setupInput(),
+        fuelStations: [{ index: 0, mass: 50, unusableFuel: 10, arm: null,
+          armLookup: KG_KNOTS.map(([massOrVolume, moment]) => ({ massOrVolume, moment })),
+          burnSequences: [] }],
+      })
+      const result = cg(arrivalCgForPlanning(aircraft, 'Normal', loads, mb, burn))
+      expect(result.arrivalMomentKgM).toBeCloseTo(moment)
+      expect(result.arrivalCgM).toBeCloseTo(moment / mass)
+    },
+  )
   it('rejects a fixed arm combined with a lookup table', () => {
     const { aircraft, mb, loads } = variable()
     aircraft.loadPoints[0]!.arm = 3

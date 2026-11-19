@@ -90,7 +90,7 @@ While direct Trip Fuel mode is selected, the system shall omit duration-based en
 
 If direct Trip Fuel is blank, negative, malformed or nonfinite, then the system shall block the arrival estimate with a visible reason.
 
-Current scope: REQ-FE-002/003 and manual arithmetic are available in Flight Preparation. Consumption is assumed constant; reserve is user chosen without a regulatory default. Zero margin is arithmetic equality, not a safety verdict. REQ-FE-005 estimated trip arrival mass retains reserve and does not assess landing suitability, the full burn path/envelope or operational suitability. REQ-FE-009 direct Trip Fuel entry is available without duration, consumption or reserve inputs. Reserve remains aboard and unusable fuel is not subtracted again. Fixed-arm trip arrival CG supports one tank or an explicitly selected complete named multi-tank sequence, including empty available tanks. Variable-arm trip CG is partial: only REQ-FE-034 with exactly zero unusable fuel. M&B adds lookup contributions as total-load moment differences (REQ-MB-031), but nonzero-unusable trip arrival CG remains unsupported; its arrival mass is still shown. Multiple variable tanks and full-flight burn-path assessment remain unsupported. Electric endurance remains future work; the existing M&B zero-fuel landing output is separate.
+Current scope: REQ-FE-002/003 and manual arithmetic are available in Flight Preparation. Consumption is assumed constant; reserve is user chosen without a regulatory default. Zero margin is arithmetic equality, not a safety verdict. REQ-FE-005 estimated trip arrival mass retains reserve and does not assess landing suitability, the full burn path/envelope or operational suitability. REQ-FE-009 direct Trip Fuel entry is available without duration, consumption or reserve inputs. Reserve remains aboard and unusable fuel is not subtracted again. Fixed-arm trip arrival CG supports one tank or an explicitly selected complete named multi-tank sequence, including empty available tanks. Variable-arm trip CG supports one lookup tank using total-load moment differences (REQ-MB-031 and REQ-FE-034). Multiple variable tanks and full-flight burn-path assessment remain unsupported. Electric endurance remains future work; the existing M&B zero-fuel landing output is separate.
 
 ### REQ-FE-023: Fixed-arm trip arrival CG
 
@@ -138,7 +138,7 @@ When the preparation view opens or the planning method changes, the system shall
 
 ### REQ-FE-034: Single lookup-tank arrival moment
 
-When either manual planning mode has valid current M&B and exactly one category-available tank with a lookup table, no fixed arm and exactly zero unusable fuel, the system shall calculate trip arrival moment as takeoff moment minus the table moment at the takeoff tank load plus the table moment at the remaining tank load, in SI.
+When either manual planning mode has valid current M&B and exactly one category-available tank with a lookup table, no fixed arm, the system shall calculate trip arrival moment as takeoff moment minus the table moment at the takeoff tank load plus the table moment at the remaining tank load, in SI.
 
 ### REQ-FE-035: Lookup geometry validation
 
@@ -146,4 +146,4 @@ If the lookup table has fewer than two finite points, quantities that are not st
 
 ### REQ-FE-036: Unsupported lookup configurations
 
-If a category-available lookup tank has nonzero unusable fuel, a fixed arm, or another category-available tank, then the system shall suppress trip arrival CG with a visible reason.
+If a category-available lookup tank has a fixed arm or another category-available tank, then the system shall suppress trip arrival CG with a visible reason.

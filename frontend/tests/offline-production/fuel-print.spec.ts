@@ -171,10 +171,10 @@ test('complete current fuel in cached offline native print with synchronous stal
       if (planning === 'duration') {
         await rate.fill('10'); await trip.fill('120'); await reserve.fill('30')
       } else await direct.fill('20')
-          await action.click()
+      await action.click()
       await expect(section).toContainText('Estimated arrival mass')
-      await expect(section).toContainText(registration === 'D-VARY' ? 'exactly zero unusable fuel' : 'Choose an explicit named burn sequence')
-      await capture(`${registration}-${planning}-unsupported`)
+      await expect(section).toContainText(registration === 'D-VARY' ? '1 m [UNVERIFIED]' : 'Choose an explicit named burn sequence')
+      await capture(`${registration}-${planning}-arrival`)
       await back.click()
     }
   }
