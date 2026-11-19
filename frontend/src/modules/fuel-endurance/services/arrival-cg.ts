@@ -37,21 +37,23 @@ export function arrivalCgForPlanning(
       point.fuelTank &&
       (point.allowableCategories === null || point.allowableCategories.some((c) => c === category)),
   )
-  if (tanks.some((tank) => tank.armLookup.length > 0)) {
-    if (tanks.length !== 1)
-      return {
-        ok: false,
-        reason:
-          'Variable-arm arrival CG requires exactly one category-available tank; multiple available tanks with lookup geometry are unsupported.',
-      }
+  const hasLookup = tanks.some((tank) => tank.armLookup.length > 0)
+  if (hasLookup && tanks.length === 1)
     return lookupArrivalCg(profile, tanks[0]!, mb, fuel.usableFuelKg, fuel.excludedUnusableKg, tripFuelKg)
-  }
   if (tanks.length > 1 && !sequenceName.trim())
     return {
       ok: false,
       reason: 'Choose an explicit named burn sequence for all category-available tanks.',
     }
-  if (tanks.some((tank) => tank.arm === null || !Number.isFinite(tank.arm)))
+  const lookupTanks = tanks.filter((tank) => tank.armLookup.length > 0)
+  if (lookupTanks.some((tank) => tank.arm !== null)) return { ok: false, reason: BOTH_GEOMETRIES }
+  if (lookupTanks.some((tank) => tank.fuelTank!.unusableFuel !== 0))
+    return { ok: false, reason: NONZERO_UNUSABLE }
+  if (
+    tanks.some(
+      (tank) => tank.armLookup.length === 0 && (tank.arm === null || !Number.isFinite(tank.arm)),
+    )
+  )
     return { ok: false, reason: 'An explicit finite fixed tank arm is required.' }
   if (
     tanks.length > 1 &&
@@ -71,18 +73,34 @@ export function arrivalCgForPlanning(
     usableFuelKg: fuel.usableFuelKg,
     tripFuelKg,
   }
-  const geometry = fuel.tanks.map(({ index, usableFuelKg }) => {
+  const geometry: SequencedTank[] = []
+  for (const { index, usableFuelKg } of fuel.tanks) {
     const tank = profile.loadPoints[index]!
-    return {
-      usableFuelKg,
-      tankArmM: normalizeArmToM(tank.arm!, parseSourceUnit(profile.sourceUnit).armUnit),
-      burnSequences: tank.fuelTank!.burnSequences,
+    const burnSequences = tank.fuelTank!.burnSequences
+    if (tank.armLookup.length === 0) {
+      const tankArmM = normalizeArmToM(tank.arm!, parseSourceUnit(profile.sourceUnit).armUnit)
+      geometry.push({ usableFuelKg, tankArmM, burnSequences })
+      continue
     }
-  })
+    const lookup = normalizedLookup(profile, tank)
+    if (typeof lookup === 'string') return { ok: false, reason: lookup }
+    geometry.push({ usableFuelKg, lookup, burnSequences })
+  }
+  // Same step as the single-tank path: confirms M&B was computed for this inventory.
+  if (
+    lookupTanks.length > 0 &&
+    Math.abs(
+      mb.takeoffCenterOfGravityPoint.mass -
+        (mb.zeroFuelCenterOfGravityPoint.mass + fuel.usableFuelKg),
+    ) > MASS_TOLERANCE_KG
+  )
+    return { ok: false, reason: MB_REQUIRED }
   const result =
     tanks.length === 1
       ? calculateTripArrivalCg({ ...common, tankArmM: geometry[0]!.tankArmM })
       : calculateSequencedTripArrivalCg({ ...common, tanks: geometry, sequenceName })
+  if (!result.ok && result.reason in LOOKUP_REASONS)
+    return { ok: false, reason: LOOKUP_REASONS[result.reason]! }
   return result.ok
     ? result
     : {
@@ -93,6 +111,18 @@ export function arrivalCgForPlanning(
 }
 
 type Profile = ReturnType<typeof AircraftContextSchema.parse>
+type SequencedTank = {
+  usableFuelKg: number
+  tankArmM?: number
+  lookup?: { massOrVolume: number; moment: number }[]
+  burnSequences: { sequenceName: string; ordinalPosition: number }[]
+}
+const BOTH_GEOMETRIES =
+  'Variable-arm arrival CG is unsupported when a tank declares both a fixed arm and a lookup table.'
+const NONZERO_UNUSABLE =
+  'Variable-arm arrival CG requires exactly zero unusable fuel; tanks with unusable fuel are unsupported.'
+// Absorbs float summation-order drift only; a real stale-state gap is far larger.
+const MASS_TOLERANCE_KG = 1e-6
 const MB_REQUIRED = 'Valid current Mass & Balance loading is required.'
 
 function sourceUnitReason(sourceUnit: string): string | null {
@@ -119,7 +149,35 @@ const LOOKUP_REASONS: Partial<
 }
 
 // The table's moment at each load is the total tank moment. Arrival subtracts
-// F(q) − F(q − b) from the current M&B takeoff moment.
+// F(u+q) − F(u+q−b) from the current M&B takeoff moment. Unusable fuel stays aboard,
+// so the table needs an exact (0, 0) origin knot.
+function normalizedLookup(
+  profile: Profile,
+  tank: Profile['loadPoints'][number],
+): { massOrVolume: number; moment: number }[] | string {
+  // Checked before normalization, which clamps negative quantities to zero.
+  if (
+    !isFuelQuantityUnit(tank.unit) ||
+    !tank.armLookup.every(
+      (e) => Number.isFinite(e.massOrVolume) && e.massOrVolume >= 0 && Number.isFinite(e.moment),
+    )
+  )
+    return LOOKUP_REASONS.INVALID_GEOMETRY!
+  const { massUnit, armUnit } = parseSourceUnit(profile.sourceUnit)
+  const unit = tank.unit
+  const lookup = tank.armLookup.map((e) => ({
+    massOrVolume: normalizeFuelQuantityToKg(
+      e.massOrVolume,
+      unit,
+      tank.fuelTank!.permissibleFuelTypes,
+    ),
+    moment: normalizeMomentToSI(e.moment, massUnit, armUnit),
+  }))
+  return lookup.every((e) => Number.isFinite(e.massOrVolume) && Number.isFinite(e.moment))
+    ? lookup
+    : LOOKUP_REASONS.NUMERIC_OVERFLOW!
+}
+
 function lookupArrivalCg(
   profile: Profile,
   tank: Profile['loadPoints'][number],
@@ -128,34 +186,18 @@ function lookupArrivalCg(
   unusableFuelKg: number,
   tripFuelKg: number,
 ): ArrivalCgResult {
-  const fuelTank = tank.fuelTank!
-  if (tank.arm !== null)
-    return {
-      ok: false,
-      reason:
-        'Variable-arm arrival CG is unsupported when a tank declares both a fixed arm and a lookup table.',
-    }
+  if (tank.arm !== null) return { ok: false, reason: BOTH_GEOMETRIES }
   const blocked = sourceUnitReason(profile.sourceUnit) ?? mbReason(mb)
   if (blocked || !mb) return { ok: false, reason: blocked ?? MB_REQUIRED }
-  // Checked before normalization, which clamps negative quantities to zero.
-  if (
-    !isFuelQuantityUnit(tank.unit) ||
-    !tank.armLookup.every(
-      (e) => Number.isFinite(e.massOrVolume) && e.massOrVolume >= 0 && Number.isFinite(e.moment),
-    )
-  )
-    return { ok: false, reason: LOOKUP_REASONS.INVALID_GEOMETRY! }
-  const { massUnit, armUnit } = parseSourceUnit(profile.sourceUnit)
-  const unit = tank.unit
-  const lookup = tank.armLookup.map((e) => ({
-    massOrVolume: normalizeFuelQuantityToKg(e.massOrVolume, unit, fuelTank.permissibleFuelTypes),
-    moment: normalizeMomentToSI(e.moment, massUnit, armUnit),
-  }))
-  if (!lookup.every((e) => Number.isFinite(e.massOrVolume) && Number.isFinite(e.moment)))
-    return { ok: false, reason: LOOKUP_REASONS.NUMERIC_OVERFLOW! }
+  const lookup = normalizedLookup(profile, tank)
+  if (typeof lookup === 'string') return { ok: false, reason: lookup }
   // Usable inventory and M&B share the same tank normalization, so a current
   // result for this loading has exactly this zero-fuel-to-takeoff mass step.
-  if (mb.takeoffCenterOfGravityPoint.mass !== mb.zeroFuelCenterOfGravityPoint.mass + usableFuelKg)
+  if (
+    Math.abs(
+      mb.takeoffCenterOfGravityPoint.mass - (mb.zeroFuelCenterOfGravityPoint.mass + usableFuelKg),
+    ) > MASS_TOLERANCE_KG
+  )
     return { ok: false, reason: MB_REQUIRED }
   const result = calculateLookupTripArrivalCg({
     takeoffMassKg: mb.takeoffCenterOfGravityPoint.mass,
