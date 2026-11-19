@@ -91,3 +91,13 @@ Then('the landing correction evidence is captured as {string}', async ({ page, $
   await page.screenshot({ path, fullPage: true })
   await $testInfo.attach(`Landing correction ${width}`, { path, contentType: 'image/png' })
 })
+
+When('the pilot selects the imported aircraft {string} in Flight Prep', async ({ page }, registration: string) => {
+  await page.locator('nav a[href="/mass-balance"]:visible').first().click()
+  const select = page.getByLabel('Select aircraft')
+  await select.selectOption({ label: (await select.locator('option', { hasText: registration }).textContent())!.trim() })
+})
+
+When('the pilot sets temperature {string} °C in Flight Prep', async ({ page }, temperature: string) => {
+  await page.getByLabel('Temperature (°C)', { exact: true }).fill(temperature)
+})
