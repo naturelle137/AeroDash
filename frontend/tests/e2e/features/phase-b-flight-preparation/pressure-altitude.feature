@@ -73,3 +73,28 @@ Feature: Explicit pressure-altitude method
       | width | height |
       | 1440  | 1000   |
       | 390   | 844    |
+
+  Scenario Outline: Temperature outside the standard range is advised without blocking while offline
+    Given the raw POH workflow viewport is <width> by <height>
+    When I import the synthetic Test POH exchange file
+    And I explicitly verify the Test POH profile in Fleet
+    And the pilot opens Performance and then loses connectivity
+    And the pilot sets mass "900" kg and temperature "10" °C for the Test profile
+    And the pilot enters pressure altitude "1000" ft directly
+    Then no temperature advisory is shown
+    When the pilot enters temperature "50" °C
+    Then no temperature advisory is shown
+    When the pilot enters temperature "50.5" °C
+    Then the temperature advisory names "50.5" °C
+    And the temperature advisory evidence is captured as "above-<width>"
+    When the pilot enters temperature "-40" °C
+    Then no temperature advisory is shown
+    When the pilot enters temperature "-41" °C
+    Then the temperature advisory names "-41" °C
+    When the pilot clears the temperature
+    Then no temperature advisory is shown
+
+    Examples:
+      | width | height |
+      | 1440  | 1000   |
+      | 390   | 844    |
