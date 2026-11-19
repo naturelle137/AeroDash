@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Evaluate OurAirports for the runway consumer and document the source-contract gaps.
 - Evaluate openAIP as a second airport source and document why it fails the source gate.
 - Calculate trip-arrival CG for one lookup tank with unusable fuel.
+- Estimate trip arrival CG for explicit burn sequences that mix fixed-arm and zero-unusable lookup tanks.
 - Add a client-side PDF download of the current briefing pack next to print, with the same invalidation and CRIT-UI-001 gate.
 
 - Gate briefing-pack printing behind an explicit CRIT-UI-001 acknowledgment when unverified data is present.

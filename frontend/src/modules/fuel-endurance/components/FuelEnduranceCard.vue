@@ -90,11 +90,11 @@ const { method, directTripFuel, consumption, trip, reserve, sequence, sequences,
           Estimated arrival CG unavailable: {{ arrivalCg.reason }}
         </p>
         <p>
-          Arrival CG supports fixed-arm tanks without lookup tables; multiple tanks require an
-          explicit complete named burn sequence. A lookup table is supported only for exactly one
-          available tank with no fixed arm and a strictly ascending table from
-          zero quantity and zero moment that covers the current load. Empty available tanks count
-          too.
+          Arrival CG supports fixed-arm tanks and lookup tanks; multiple tanks require an
+          explicit complete named burn sequence. A lookup table is supported only for tanks with
+          no fixed arm and a strictly ascending table from zero quantity and zero moment that
+          covers the current load; with several tanks, lookup tanks need zero unusable fuel.
+          Empty available tanks count too.
         </p>
       </section>
       <p v-else-if="arrival" role="status">Arrival estimate unavailable: {{ arrival.reason }}</p>

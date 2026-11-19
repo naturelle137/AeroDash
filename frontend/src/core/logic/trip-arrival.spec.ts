@@ -421,3 +421,56 @@ describe('single lookup-tank arrival CG with zero unusable fuel', () => {
     ).toEqual({ ok: false, reason: 'NUMERIC_OVERFLOW' })
   })
 })
+
+// Independent synthetic reference: lookup tank total moment F(0)=0, F(10)=10, F(30)=60.
+describe('mixed fixed-arm and lookup sequence', () => {
+  const lookup = [
+    { massOrVolume: 0, moment: 0 },
+    { massOrVolume: 10, moment: 10 },
+    { massOrVolume: 30, moment: 60 },
+  ]
+  const entry = (sequenceName: string, ordinalPosition: number) => ({
+    sequenceName,
+    ordinalPosition,
+  })
+  const tanks = [
+    { usableFuelKg: 30, lookup, burnSequences: [entry('L first', 1), entry('F first', 2)] },
+    { usableFuelKg: 20, tankArmM: 1, burnSequences: [entry('L first', 2), entry('F first', 1)] },
+  ]
+  // 560 kg BEM at 2 m + F(30) + 20 kg at 1 m
+  const base = { takeoffMassKg: 610, takeoffMomentKgM: 1200, sequenceName: 'L first', tanks }
+  it.each([
+    ['L first', 0, 1200, 610],
+    ['L first', 10, 1175, 600],
+    ['L first', 30, 1140, 580],
+    ['L first', 40, 1130, 570],
+    ['F first', 10, 1190, 600],
+    ['F first', 40, 1130, 570],
+    ['F first', 50, 1120, 560],
+  ])('%s burning %s kg', (sequenceName, tripFuelKg, moment, mass) => {
+    const r = calculateSequencedTripArrivalCg({ ...base, sequenceName, tripFuelKg })
+    expect(r).toEqual({ ok: true, arrivalMomentKgM: moment, arrivalCgM: moment / mass })
+  })
+  it('rejects ambiguous, malformed and uncovered geometry without clamping', () => {
+    const t = (patch: object) => [{ ...tanks[0]!, ...patch }, tanks[1]!]
+    const run = (list: unknown, tripFuelKg = 20) =>
+      calculateSequencedTripArrivalCg({ ...base, tripFuelKg, tanks: list })
+    expect(run(t({ tankArmM: 1 }))).toEqual({ ok: false, reason: 'INVALID_GEOMETRY' })
+    expect(run([tanks[0], { ...tanks[1], tankArmM: undefined }])).toEqual({
+      ok: false,
+      reason: 'INVALID_GEOMETRY',
+    })
+    for (const bad of [
+      [lookup[2], lookup[0]],
+      lookup.slice(1),
+      [lookup[0], lookup[0], lookup[2]],
+      [{ massOrVolume: 0, moment: 1 }, lookup[2]],
+    ])
+      expect(run(t({ lookup: bad }))).toEqual({ ok: false, reason: 'INVALID_GEOMETRY' })
+    expect(run(t({ lookup: lookup.slice(0, 2) }))).toEqual({
+      ok: false,
+      reason: 'LOOKUP_OUT_OF_RANGE',
+    })
+    expect(run(tanks, 51)).toEqual({ ok: false, reason: 'TRIP_EXCEEDS_USABLE_FUEL' })
+  })
+})

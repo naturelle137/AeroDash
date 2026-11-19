@@ -73,7 +73,8 @@ const SequencedArrivalInputSchema = ArrivalInputSchema.omit({ usableFuelKg: true
     .array(
       z.object({
         usableFuelKg: z.number().finite().nonnegative(),
-        tankArmM: z.number().finite(),
+        tankArmM: z.number().finite().optional(),
+        lookup: z.array(z.object({ massOrVolume: z.number(), moment: z.number() })).optional(),
         burnSequences: z.array(
           z.object({
             sequenceName: z.string(),
@@ -86,10 +87,14 @@ const SequencedArrivalInputSchema = ArrivalInputSchema.omit({ usableFuelKg: true
 })
 
 // The legacy contract attaches named ordinal entries to tanks, rather than referencing tank IDs.
+// Each tank has either a fixed arm or a lookup table of total tank moment (kg, kg·m) with
+// zero unusable fuel, so its current load equals usableFuelKg and F(0) = 0.
 export function calculateSequencedTripArrivalCg(input: unknown): TripArrivalCgResult {
   const parsed = SequencedArrivalInputSchema.safeParse(input)
   if (!parsed.success) return { ok: false, reason: 'INVALID_INPUT' }
   const { tanks, sequenceName, takeoffMomentKgM, tripFuelKg } = parsed.data
+  if (tanks.some((tank) => (tank.tankArmM === undefined) === (tank.lookup === undefined)))
+    return { ok: false, reason: 'INVALID_GEOMETRY' }
   const ordered = []
   const positions = new Set<number>()
   for (const tank of tanks) {
@@ -113,12 +118,24 @@ export function calculateSequencedTripArrivalCg(input: unknown): TripArrivalCgRe
   let burnedMomentKgM = 0
   for (const tank of ordered.sort((a, b) => a.position - b.position)) {
     const burnedKg = Math.min(remainingBurnKg, tank.usableFuelKg)
-    burnedMomentKgM += burnedKg * tank.tankArmM
+    if (tank.lookup) {
+      const { lookup } = tank
+      if (!isStrictMomentLookup(lookup) || lookup[0]!.massOrVolume !== 0 || lookup[0]!.moment !== 0)
+        return { ok: false, reason: 'INVALID_GEOMETRY' }
+      const before = interpolateMomentStrict(tank.usableFuelKg, lookup)
+      const after = interpolateMomentStrict(tank.usableFuelKg - burnedKg, lookup)
+      if (before === null || after === null) return { ok: false, reason: 'LOOKUP_OUT_OF_RANGE' }
+      burnedMomentKgM += before - after
+    } else burnedMomentKgM += burnedKg * tank.tankArmM!
     remainingBurnKg -= burnedKg
   }
   const arrivalMomentKgM = takeoffMomentKgM - burnedMomentKgM
   const arrivalCgM = arrivalMomentKgM / mass.arrivalMassKg
-  if (![arrivalMomentKgM, arrivalCgM].every(Number.isFinite))
+  if (
+    ![burnedMomentKgM, arrivalMomentKgM, arrivalCgM].every(Number.isFinite) ||
+    (tanks.some((tank) => tank.lookup) &&
+      (Math.abs(arrivalMomentKgM) > MAX_MOMENT_KGM || Math.abs(arrivalCgM) > MAX_ARM_M))
+  )
     return { ok: false, reason: 'NUMERIC_OVERFLOW' }
   return { ok: true, arrivalMomentKgM, arrivalCgM }
 }
