@@ -37,6 +37,26 @@ Feature: Complete a textbook flight preparation within all limits
       | 1440  |
       | 390   |
 
+  @e2e @flight-prep @briefing-pack
+  Scenario Outline: The briefing pack downloads as a PDF with the same safety content
+    When the viewport for occupancy is <width> pixels wide
+    And the pilot selects aircraft "D-EBPN"
+    And loads two passengers and light baggage
+    And adds sufficient fuel for the trip
+    And the pilot opens the briefing pack
+    And the pilot requests the PDF download of the briefing pack
+    Then the PDF download is blocked pending acknowledgment of unverified data
+    And the briefing pack evidence is captured as "pdf-<width>"
+    When the pilot acknowledges the unverified data for the PDF download
+    Then the downloaded PDF states "[UNVERIFIED]"
+    And the downloaded PDF states "Calculation based on unverified external data. Pilot in Command assumes full responsibility."
+    And the downloaded PDF states "not a certified aviation device"
+
+    Examples:
+      | width |
+      | 1440  |
+      | 390   |
+
   @e2e @flight-prep @optional-occupancy
   Scenario Outline: Solo loading retains required crew checks
     When the viewport for occupancy is <width> pixels wide

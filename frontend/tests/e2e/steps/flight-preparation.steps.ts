@@ -1,3 +1,4 @@
+import { execFileSync } from 'node:child_process'
 import { expect } from '@playwright/test'
 import { createBdd } from 'playwright-bdd'
 
@@ -206,4 +207,29 @@ Then('the briefing pack is sent to print with unverified values marked', async (
   await expect(page.getByRole('alertdialog')).toHaveCount(0)
   expect(await page.evaluate(() => (window as unknown as { __printCalls: number }).__printCalls)).toBe(1)
   await expect(page.getByRole('dialog', { name: 'Briefing Pack preview' })).toContainText('[UNVERIFIED]')
+})
+
+When('the pilot requests the PDF download of the briefing pack', async ({ page }) => {
+  await page.getByRole('button', { name: 'Download PDF' }).click()
+})
+
+Then('the PDF download is blocked pending acknowledgment of unverified data', async ({ page }) => {
+  const gate = page.getByRole('alertdialog')
+  await expect(gate).toContainText('CRIT-UI-001')
+  await expect(gate).toContainText('The PDF download proceeds only after acknowledgment')
+})
+
+let downloadedPdfText = ''
+When('the pilot acknowledges the unverified data for the PDF download', async ({ page, $testInfo }) => {
+  const download = page.waitForEvent('download')
+  await page.getByRole('button', { name: 'Acknowledge unverified data and download PDF' }).click()
+  const file = await download
+  const path = $testInfo.outputPath(file.suggestedFilename())
+  await file.saveAs(path)
+  await $testInfo.attach('Briefing pack PDF', { path, contentType: 'application/pdf' })
+  downloadedPdfText = execFileSync('pdftotext', ['-layout', path, '-'], { encoding: 'utf8' }).replace(/\s+/g, ' ')
+})
+
+Then('the downloaded PDF states {string}', async ({ page: _page }, text: string) => {
+  expect(downloadedPdfText).toContain(text)
 })

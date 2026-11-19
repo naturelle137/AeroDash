@@ -58,7 +58,7 @@ When the user closes M&B print preview, the system shall retain the current prep
 
 While the production app and aircraft are cached locally, the system shall support M&B print preview and native browser Print after an offline reload.
 
-Preview data is session-only. Browser-generated PDFs in QA demonstrate browser pagination, not physical printer execution or a downloadable PDF product.
+Preview data is session-only. Browser-generated PDFs in QA demonstrate browser pagination, not physical printer execution.
 
 ### REQ-DOC-015: Persistent action
 
@@ -133,6 +133,22 @@ The system shall omit helper text and tooltips associated with the Briefing Pack
 ### REQ-DOC-032: Internal warning identifiers
 
 When displaying or printing the briefing pack, the system shall omit internal warning identifiers from presented warning text.
+
+### REQ-DOC-033: PDF download
+
+When the user requests a PDF download of an eligible current Briefing Pack preview, the system shall generate a PDF file on the device containing the text, markers, warnings and disclaimers of the current print snapshot.
+
+### REQ-DOC-034: PDF download gating
+
+If the print snapshot is invalidated or the CRIT-UI-001 acknowledgment is outstanding, the system shall not generate a PDF file.
+
+### REQ-DOC-035: Offline PDF download
+
+While the production app and aircraft are cached locally, the system shall support the PDF download after an offline reload.
+
+### REQ-DOC-036: PDF chart fallback
+
+If the loading envelope chart cannot be rendered into the PDF, the system shall state the omission in the PDF text.
 
 ## Design References
 

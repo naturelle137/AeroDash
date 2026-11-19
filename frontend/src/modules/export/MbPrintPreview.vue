@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import CGEnvelopeChart from '@/modules/mass-balance/components/CGEnvelopeChart.vue'
+import { renderBriefingPdf } from './briefing-pdf'
 import { assembleMbPrint, canPrintMb, unverifiedGate, type MbPrintSnapshot, type MbPrintSource } from './mb-print'
 
 const props = defineProps<{ source: MbPrintSource; readSource?: () => MbPrintSource }>()
@@ -14,6 +15,8 @@ let returnFocus: HTMLElement | null = null
 const fingerprint = ref('')
 const acknowledged = ref(false)
 const gating = ref(false)
+const pendingAction = ref<'print' | 'pdf'>('print')
+const exporting = ref(false)
 const gate = computed(() => currentSnapshot.value ? unverifiedGate(currentSnapshot.value) : null)
 const currentKey = computed(() => JSON.stringify(currentSource.value))
 const eligible = computed(() => canPrintMb(currentSource.value))
@@ -59,13 +62,39 @@ function recheck(): boolean {
   return true
 }
 function print(): void {
-  if (gate.value && !acknowledged.value) { gating.value = true; return }
+  if (gate.value && !acknowledged.value) { pendingAction.value = 'print'; gating.value = true; return }
   if (recheck()) window.print()
+}
+async function downloadPdf(): Promise<void> {
+  if (exporting.value) return
+  if (gate.value && !acknowledged.value) { pendingAction.value = 'pdf'; gating.value = true; return }
+  if (!recheck() || !printRoot.value) return
+  const sheet = printRoot.value.querySelector('.mb-print-sheet')
+  const key = currentKey.value
+  if (!sheet || !snapshot.value) return
+  exporting.value = true
+  try {
+    const bytes = await renderBriefingPdf(sheet, 'Flight Preparation Briefing Pack')
+    // Inputs may change while the chart is rasterized; a stale snapshot must not be saved.
+    if (key !== currentKey.value || !currentSnapshot.value) { invalidate(); return }
+    const stamp = snapshot.value.generated.replace(/\D/g, '').slice(0, 12)
+    const url = URL.createObjectURL(new Blob([bytes as BlobPart], { type: 'application/pdf' }))
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `aerodash-briefing-pack-${stamp}.pdf`
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+    setTimeout(() => URL.revokeObjectURL(url), 1000)
+  } finally {
+    exporting.value = false
+  }
 }
 function acknowledge(): void {
   acknowledged.value = true
   gating.value = false
-  print()
+  if (pendingAction.value === 'pdf') void downloadPdf()
+  else print()
 }
 function keydown(event: KeyboardEvent): void {
   if (!opened.value) return
@@ -100,12 +129,13 @@ onBeforeUnmount(() => {
         <nav class="mb-print-controls" aria-label="Print controls">
           <button ref="closeButton" type="button" @click="close">Back to preparation</button>
           <button type="button" :disabled="!currentSnapshot || !eligible" @click="print">Print Briefing Pack</button>
+          <button type="button" :disabled="!currentSnapshot || !eligible || exporting" @click="downloadPdf">Download PDF</button>
         </nav>
         <section v-if="gating && gate" role="alertdialog" aria-modal="true" aria-labelledby="crit-ui-001-title" class="briefing-gate">
           <h2 id="crit-ui-001-title">{{ gate.notification.id }} · {{ gate.notification.message }}</h2>
-          <p>The Briefing Pack contains unverified data ({{ gate.status }}). Printing proceeds only after acknowledgment; every unverified value is then marked [UNVERIFIED] inline.</p>
+          <p>The Briefing Pack contains unverified data ({{ gate.status }}). {{ pendingAction === 'pdf' ? 'The PDF download' : 'Printing' }} proceeds only after acknowledgment; every unverified value is then marked [UNVERIFIED] inline.</p>
           <ul aria-label="Unverified fields"><li v-for="field in gate.parameters" :key="field"><code>{{ field }}</code></li></ul>
-          <button type="button" @click="acknowledge">Acknowledge unverified data and print</button>
+          <button type="button" @click="acknowledge">{{ pendingAction === 'pdf' ? 'Acknowledge unverified data and download PDF' : 'Acknowledge unverified data and print' }}</button>
           <button type="button" @click="gating = false">Cancel</button>
         </section>
         <template v-if="currentSnapshot">

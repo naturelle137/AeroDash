@@ -208,6 +208,17 @@ test('M&B warning meaning survives preview and PDF online and after offline relo
       expect(await preview.evaluate(e => e.scrollWidth <= e.clientWidth)).toBe(true)
       await page.screenshot({ path: info.outputPath(`warning-${offline}-${width}.png`), fullPage: true })
     }
+    await page.setViewportSize({ width: 1440, height: 894 })
+    const download = page.waitForEvent('download')
+    await preview.getByRole('button', { name: 'Download PDF', exact: true }).click()
+    const file = await download
+    const downloaded = info.outputPath(`download-${offline}.pdf`)
+    await file.saveAs(downloaded)
+    const downloadedText = execFileSync('pdftotext', ['-layout', downloaded, '-'], { encoding: 'utf8' }).replace(/\s+/g, ' ')
+    for (const id of ids) expect(downloadedText).not.toContain(id)
+    for (const message of ['CRITICAL', 'MTOM Exceeded', 'CG Out of Envelope', 'Station 0 limit exceeded', 'Implausible mass on required station', '900.0 kg', 'not a certified aviation device']) expect(downloadedText).toContain(message)
+    expect(execFileSync('pdfimages', ['-list', downloaded], { encoding: 'utf8' })).toContain('jpeg')
+    await info.attach(`download-${offline}`, { path: downloaded, contentType: 'application/pdf' })
     await page.emulateMedia({ media: 'print' })
     const pdf = info.outputPath(`warning-${offline}.pdf`)
     await page.pdf({ path: pdf, preferCSSPageSize: true, printBackground: true })
