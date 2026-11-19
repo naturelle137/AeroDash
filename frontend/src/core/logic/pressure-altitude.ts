@@ -28,6 +28,9 @@ export const ELEVATION_SUPPORTED_FT = { min: -1500, max: 15000 } as const
 /** REQ-UI-008 warning band; inside the supported domain this warns and never blocks. */
 export const QNH_ADVISORY_HPA = { min: 950, max: 1100 } as const
 
+/** Outside air temperature advisory band (°C); the bounds themselves are not warned. */
+export const TEMPERATURE_ADVISORY_C = { min: -40, max: 50 } as const
+
 export type PressureAltitudeDraft = {
   qnh: string
   qnhUnit: string

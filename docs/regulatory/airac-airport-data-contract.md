@@ -54,6 +54,47 @@ No airport record's effective interval, expiry or restriction coverage was verif
 
 ## Source-first acceptance gate
 
+### Candidate decision: OurAirports
+
+Evaluated 2026-11-19 for the existing manual runway comparison consumer. Do not
+integrate this candidate into that consumer under the current contract.
+
+- [OurAirports downloads](https://ourairports.com/data/) state that the data is
+  public domain without accuracy or fitness guarantees. The global airport and
+  runway CSVs cover records on the site, not a guaranteed complete jurisdiction.
+- The [data dictionary](https://ourairports.com/help/data-dictionary.html) defines
+  persistent internal record IDs, airport references and runway dimensions in
+  feet. `length_ft` is the whole physical surface, including displaced thresholds
+  and overruns; it is not TORA, TODA, ASDA or LDA. The current consumer requires
+  independently declared TORA and LDA. Substituting length would invent them.
+- The [provider's download repository](https://github.com/davidmegginson/ourairports-data)
+  provides CSV snapshots generated daily. GitHub file dates change only when
+  contents change. A commit identifies a snapshot, not the effective date or
+  expiry of every record; daily generation does not establish record currency.
+- Record effective/expiry and supersession semantics, completeness, and NOTAM/SUP
+  coverage for this consumer were not established in those provider documents.
+  Offline snapshots cannot establish later changes or restrictions. These remain
+  unknown, not fresh or stale by assumption.
+
+### Candidate decision: openAIP
+
+Evaluated 2026-11-19 from public pages only. Do not integrate.
+
+- The [openAIP home page](https://www.openaip.net/) states CC BY-NC 4.0 and permits
+  shipping the data in paid applications only if the data is not sold on its own.
+  Whether AeroDash's distribution and any future hosting fit that term is not
+  established; the terms and legal pages were unreadable.
+- The [export page](https://www.openaip.net/data/exports) offers per-country
+  airport files in several formats via pre-signed links that expire after 24 hours.
+  There is no stable delivery URL for a reproducible, CI-checkable manifest.
+- Runway declared distances (TORA/TODA/ASDA/LDA), record-level effective/expiry
+  or AIRAC metadata, accuracy/fitness terms and NOTAM coverage were not found.
+  They remain unknown, not assumed.
+
+Reconsider a source when its declared-distance fields, reuse and delivery terms,
+record-level temporal semantics and restriction limitations satisfy the gate
+below. Until then, retain offline manual input and its unverified provenance.
+
 Before implementing airport freshness, accept a named authorised provider/dataset
 and an actual AeroDash consumer, with all of the following documented:
 
@@ -81,8 +122,7 @@ This is future engineering acceptance, not shipped behaviour:
 
 After that gate, deterministic classification/validation belongs in P1 with
 explicit inputs and typed failures; P2 owns fetching/adaptation, clock inputs,
-repository/store and presentation. No speculative schema or runtime change is
-introduced here. Later persistence/import/export needs versioned provenance and
+repository/store and presentation. The separate manual date check uses pilot declarations and does not implement this external-source contract. Later persistence/import/export needs versioned provenance and
 backward recovery. Performance and briefing must carry the same source limits
 and invalidation state. Preserve the usable manual offline path.
 

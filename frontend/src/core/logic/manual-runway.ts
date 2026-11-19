@@ -52,12 +52,14 @@ export type ManualRunwayDraft = {
   fieldElevationUnit: string
   surfaceType: string
   surfaceCondition: string
+  effectiveDate: string
+  expiryDate: string
 }
 export type ManualRunwayField = keyof ManualRunwayDraft
 
 export const EMPTY_MANUAL_RUNWAY_DRAFT: Readonly<ManualRunwayDraft> = Object.freeze({
   aerodrome: '', designator: '', tora: '', toraUnit: '', lda: '', ldaUnit: '', toda: '', todaUnit: '',
-  fieldElevation: '', fieldElevationUnit: '', surfaceType: '', surfaceCondition: '',
+  fieldElevation: '', fieldElevationUnit: '', surfaceType: '', surfaceCondition: '', effectiveDate: '', expiryDate: '',
 })
 
 /** Control characters are never part of a runway or aerodrome identity. */
@@ -76,6 +78,8 @@ const positiveDistance = z.object({
   unit: z.enum(RUNWAY_LENGTH_UNITS),
 }).strict()
 
+const date = z.iso.date()
+
 export const ManualRunwaySchema = z.object({
   aerodrome: identity(MAX_AERODROME_LENGTH),
   designator: identity(MAX_DESIGNATOR_LENGTH),
@@ -86,6 +90,8 @@ export const ManualRunwaySchema = z.object({
     value: z.number().finite(),
     unit: z.enum(FIELD_ELEVATION_UNITS),
   }).strict(),
+  effectiveDate: date.optional(),
+  expiryDate: date.optional(),
   surface: z.object({
     type: z.enum(SURFACE_TYPES),
     condition: z.string(),
@@ -97,6 +103,8 @@ export const ManualRunwaySchema = z.object({
 export type ManualRunway = {
   aerodrome: string
   designator: string
+  effectiveDate?: string
+  expiryDate?: string
   tora: { value: number; unit: RunwayLengthUnit }
   lda: { value: number; unit: RunwayLengthUnit }
   /** Declared take-off distance available (clearway included); absent when not declared. */
@@ -105,7 +113,7 @@ export type ManualRunway = {
   surface: { type: SurfaceType; condition: SurfaceCondition }
 }
 
-export const MANUAL_RUNWAY_RECORD_VERSION = 1 as const
+export const MANUAL_RUNWAY_RECORD_VERSION = 2 as const
 export const ManualRunwayRecordSchema = z.object({
   schemaVersion: z.literal(MANUAL_RUNWAY_RECORD_VERSION),
   savedAt: z.iso.datetime(),
@@ -177,10 +185,16 @@ export function validateManualRunway(draft: ManualRunwayDraft): ManualRunwayVali
     const metres = (value: number, unit: string) => unit === 'ft' ? value * FT_TO_M : value
     if (metres(toda, draft.todaUnit) < metres(tora, draft.toraUnit) - 1e-9) errors.toda = 'TODA cannot be shorter than TORA.'
   }
+  for (const field of ['effectiveDate', 'expiryDate'] as const) {
+    if (draft[field] && !date.safeParse(draft[field]).success) errors[field] = 'Enter a valid date.'
+  }
+  if (draft.effectiveDate && draft.expiryDate && draft.effectiveDate > draft.expiryDate) errors.expiryDate = 'Expiry must not precede the effective date.'
   if (Object.keys(errors).length) return { status: 'invalid', errors }
   const runway = {
     aerodrome,
     designator,
+    ...(draft.effectiveDate ? { effectiveDate: draft.effectiveDate } : {}),
+    ...(draft.expiryDate ? { expiryDate: draft.expiryDate } : {}),
     tora: { value: tora!, unit: draft.toraUnit },
     lda: { value: lda!, unit: draft.ldaUnit },
     ...(toda !== null ? { toda: { value: toda, unit: draft.todaUnit } } : {}),
@@ -198,6 +212,8 @@ export function draftFromManualRunway(runway: ManualRunway): ManualRunwayDraft {
   return {
     aerodrome: runway.aerodrome,
     designator: runway.designator,
+    effectiveDate: runway.effectiveDate ?? '',
+    expiryDate: runway.expiryDate ?? '',
     tora: String(runway.tora.value),
     toraUnit: runway.tora.unit,
     lda: String(runway.lda.value),
@@ -213,6 +229,7 @@ export function draftFromManualRunway(runway: ManualRunway): ManualRunwayDraft {
 
 export function sameManualRunway(a: ManualRunway, b: ManualRunway): boolean {
   return a.aerodrome === b.aerodrome && a.designator === b.designator
+    && a.effectiveDate === b.effectiveDate && a.expiryDate === b.expiryDate
     && a.tora.value === b.tora.value && a.tora.unit === b.tora.unit
     && a.lda.value === b.lda.value && a.lda.unit === b.lda.unit
     && a.toda?.value === b.toda?.value && a.toda?.unit === b.toda?.unit
@@ -274,8 +291,13 @@ export function recoverManualRunwayRecord(raw: string | null): ManualRunwayRecov
       return { status: 'unsupported-version', schemaVersion: version }
     }
   }
+  if (typeof value === 'object' && value !== null && 'schemaVersion' in value && value.schemaVersion === 1) {
+    const legacy = z.object({ schemaVersion: z.literal(1), savedAt: z.iso.datetime(), runway: ManualRunwaySchema.omit({ effectiveDate: true, expiryDate: true }) }).strict().safeParse(value)
+    if (!legacy.success) return { status: 'corrupt' }
+    value = { ...legacy.data, schemaVersion: MANUAL_RUNWAY_RECORD_VERSION }
+  }
   const parsed = ManualRunwayRecordSchema.safeParse(value)
-  if (!parsed.success) return { status: 'corrupt' }
+  if (!parsed.success || (parsed.data.runway.effectiveDate && parsed.data.runway.expiryDate && parsed.data.runway.effectiveDate > parsed.data.runway.expiryDate)) return { status: 'corrupt' }
   return { status: 'loaded', record: parsed.data as ManualRunwayRecord }
 }
 
@@ -299,4 +321,21 @@ export function formatNormalizedManualRunway(normalized: NormalizedManualRunway)
     fieldElevationM: nearest(normalized.fieldElevationM),
     fieldElevationFt: nearest(normalized.fieldElevationFt),
   }
+}
+
+/** Date-only assessment; an AIRAC boundary does not expire a record. */
+export function runwayFreshness(runway: ManualRunway, today: string): 'unknown' | 'not-yet-effective' | 'expired' | 'within-declared-dates' {
+  if (!date.safeParse(today).success) return 'unknown'
+  if (runway.effectiveDate && today < runway.effectiveDate) return 'not-yet-effective'
+  if (runway.expiryDate && today > runway.expiryDate) return 'expired'
+  if (runway.effectiveDate && runway.expiryDate) return 'within-declared-dates'
+  return 'unknown'
+}
+
+/** Calendar date of the current 28-day AIRAC cycle, based on EUROCONTROL's 2026 schedule. */
+export function airacCycleStart(today: string): string | null {
+  if (!date.safeParse(today).success) return null
+  const anchor = Date.UTC(2026, 9, 29)
+  const day = Date.parse(`${today}T00:00:00Z`)
+  return new Date(anchor + Math.floor((day - anchor) / (28 * 86400000)) * 28 * 86400000).toISOString().slice(0, 10)
 }

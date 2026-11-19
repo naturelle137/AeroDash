@@ -5,7 +5,8 @@ import { normalizeManualRunway, SURFACE_CONDITIONS } from '@/core/logic/manual-r
 import { useManualRunwayStore } from '@/modules/airport/stores/manual-runway.store'
 import { useLoadedUnitPreferences } from '@/modules/performance/stores/unit-preferences.store'
 import { usePressureAltitudeInput } from './pressure-altitude-input'
-import { assessPerformance, inspectTables, type MassSource, type PerformanceAssessment } from '../services/poh-inspection'
+import { TEMPERATURE_ADVISORY_C } from '@/core/logic/pressure-altitude'
+import { assessPerformance, inspectTables, parseLookupNumber, type MassSource, type PerformanceAssessment } from '../services/poh-inspection'
 import { OPERATION_LABELS } from '../services/correction-source-messages'
 import { defaultSafetyFactors, emptyCorrectionInputs, presentCorrectedOperation } from '../services/corrected-distances'
 import { presentOperationalAssessment, presentPerformance, type PerformancePresentation, type RunwayPresentation } from '../services/performance-presentation'
@@ -36,6 +37,12 @@ export function usePerformanceStep(context: () => PerformanceStepContext) {
   const units = useLoadedUnitPreferences()
   const temperature = ref('')
   const showPaErrors = ref(false)
+  // Only a valid, explicitly entered value is judged; blank or invalid text keeps the existing input validation.
+  const temperatureWarnings = computed(() => {
+    const value = parseLookupNumber(temperature.value)
+    return value !== null && (value < TEMPERATURE_ADVISORY_C.min || value > TEMPERATURE_ADVISORY_C.max)
+      ? [`WARNING WARN-UI-001: Temperature ${value} °C is outside the standard ${TEMPERATURE_ADVISORY_C.min}–${TEMPERATURE_ADVISORY_C.max} °C range. Check the value.`] : []
+  })
   const corrections = reactive(emptyCorrectionInputs())
   const safetyFactors = reactive(defaultSafetyFactors())
   const ctx = computed(context)
@@ -78,7 +85,7 @@ export function usePerformanceStep(context: () => PerformanceStepContext) {
     if (runway.hasUnsavedChanges) return { status: 'unavailable', reason: 'Manual runway has unsaved changes. Save or discard them to use a current declaration.' }
     const declared = runway.current
     if (!declared) return { status: 'unavailable', reason: 'No saved manual runway declaration.' }
-    const { aerodrome, designator, tora, lda, toda, fieldElevation, surface } = declared.record.runway
+    const { aerodrome, designator, tora, lda, toda, fieldElevation, surface, effectiveDate, expiryDate } = declared.record.runway
     const condition = SURFACE_CONDITIONS[surface.type].find((option) => option.value === surface.condition)?.label ?? surface.condition
     const elevationOther = fieldElevation.unit === 'ft' ? `${declared.display.fieldElevationM} m` : `${declared.display.fieldElevationFt} ft`
     return {
@@ -89,9 +96,11 @@ export function usePerformanceStep(context: () => PerformanceStepContext) {
         { label: 'LDA', value: `${lda.value} ${lda.unit} (${declared.display.ldaM} m)` },
         ...(toda ? [{ label: 'TODA', value: `${toda.value} ${toda.unit} (${declared.display.todaM} m)` }] : []),
         { label: 'Field elevation', value: `${fieldElevation.value} ${fieldElevation.unit} (${elevationOther})` },
+        { label: 'Declared effective date', value: effectiveDate ?? 'Unknown' },
+        { label: 'Declared expiry date (inclusive)', value: expiryDate ?? 'Unknown' },
         { label: 'Surface', value: `${surface.type === 'paved' ? 'Paved' : 'Grass / unpaved'} · ${condition}` },
       ],
-      note: 'User-entered, not airport-validated. Converted available distances are rounded down.',
+      note: 'User-entered, not airport-validated. Check declared dates and NOTAM/SUP against official sources. Converted available distances are rounded down.',
     }
   })
 
@@ -116,7 +125,7 @@ export function usePerformanceStep(context: () => PerformanceStepContext) {
     const { ready, notReadyReason, profile, category, takeoff, landing } = ctx.value
     return presentPerformance({
       inputKey: inputKey.value,
-      warnings: pa.warnings.value,
+      warnings: [...pa.warnings.value, ...temperatureWarnings.value],
       inputs: [
         { label: 'Pressure altitude method', value: pa.method.value === 'direct' ? 'Direct entry' : pa.method.value === 'qnh-elevation' ? 'Derived from QNH and field elevation' : 'Not selected' },
         ...(pa.method.value === 'direct' ? [{ label: 'Entered pressure altitude', value: `${pa.direct.value.trim() || 'Not entered'} ft` }]
@@ -147,6 +156,6 @@ export function usePerformanceStep(context: () => PerformanceStepContext) {
     })
   })
 
-  return { pa, temperature, corrections, safetyFactors, manualConfiguration, showPaErrors, tables, inputKey, compute, presentation }
+  return { pa, temperature, temperatureWarnings, corrections, safetyFactors, manualConfiguration, showPaErrors, tables, inputKey, compute, presentation }
 }
 export type PerformanceStep = ReturnType<typeof usePerformanceStep>

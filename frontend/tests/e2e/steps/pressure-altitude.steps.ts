@@ -130,3 +130,27 @@ Then('the QNH edit updates raw distances live', async ({ page }) => {
   await expect(result(page).locator('dd').first()).not.toHaveText('228.6 m')
   await expect(result(page).locator('dd')).toHaveCount(4)
 })
+
+const temperatureAdvisory = (page: Page) => page.locator('[data-warning="WARN-UI-001"]')
+
+When('the pilot enters temperature {string} °C', async ({ page }, temperature: string) => {
+  await page.getByLabel('Temperature (°C)', { exact: true }).fill(temperature)
+})
+
+Then('the temperature advisory names {string} °C', async ({ page }, temperature: string) => {
+  await expect(temperatureAdvisory(page)).toContainText(`WARNING WARN-UI-001: Temperature ${temperature} °C`)
+})
+
+Then('no temperature advisory is shown', async ({ page }) => {
+  await expect(temperatureAdvisory(page)).toHaveCount(0)
+})
+
+Then('the temperature advisory evidence is captured as {string}', async ({ page, $testInfo }, name: string) => {
+  const path = $testInfo.outputPath(`temperature-advisory-${name}.png`)
+  await page.screenshot({ path, fullPage: true })
+  await $testInfo.attach(`Temperature advisory ${name}`, { path, contentType: 'image/png' })
+})
+
+When('the pilot clears the temperature', async ({ page }) => {
+  await page.getByLabel('Temperature (°C)', { exact: true }).clear()
+})
