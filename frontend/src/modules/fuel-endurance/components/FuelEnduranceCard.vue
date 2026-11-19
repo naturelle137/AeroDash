@@ -92,7 +92,7 @@ const { method, directTripFuel, consumption, trip, reserve, sequence, sequences,
         <p>
           Arrival CG supports fixed-arm tanks without lookup tables; multiple tanks require an
           explicit complete named burn sequence. A lookup table is supported only for exactly one
-          available tank with zero unusable fuel, no fixed arm and a strictly ascending table from
+          available tank with no fixed arm and a strictly ascending table from
           zero quantity and zero moment that covers the current load. Empty available tanks count
           too.
         </p>

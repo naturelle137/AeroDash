@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Calculate trip-arrival CG for one lookup tank with unusable fuel.
 - Add a client-side PDF download of the current briefing pack next to print, with the same invalidation and CRIT-UI-001 gate.
 
 - Gate briefing-pack printing behind an explicit CRIT-UI-001 acknowledgment when unverified data is present.
