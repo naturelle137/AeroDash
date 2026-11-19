@@ -435,6 +435,13 @@ describe('single variable-arm tank adapter (zero unusable fuel)', () => {
         expect(arrivalCgForPlanning(aircraft, 'Normal', loads, mb, 20, 'A first').ok).toBe(false)
       }
     })
+    it('accepts fractional loads despite float summation order, still rejecting stale M&B', () => {
+      const { aircraft, mb, loads } = mixed(0.1, 0.2)
+      expect(arrivalCgForPlanning(aircraft, 'Normal', loads, mb, 0.1, 'A first').ok).toBe(true)
+      const stale = structuredClone(mb)
+      stale.takeoffCenterOfGravityPoint.mass += 0.001
+      expect(arrivalCgForPlanning(aircraft, 'Normal', loads, stale, 0.1, 'A first').ok).toBe(false)
+    })
     it('rejects burns beyond inventory and stale M&B without clamping', () => {
       const { aircraft, mb, loads } = mixed()
       expect(arrivalCgForPlanning(aircraft, 'Normal', loads, mb, 51, 'A first').ok).toBe(false)

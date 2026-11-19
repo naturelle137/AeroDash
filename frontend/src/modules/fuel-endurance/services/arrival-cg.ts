@@ -89,7 +89,10 @@ export function arrivalCgForPlanning(
   // Same step as the single-tank path: confirms M&B was computed for this inventory.
   if (
     lookupTanks.length > 0 &&
-    mb.takeoffCenterOfGravityPoint.mass !== mb.zeroFuelCenterOfGravityPoint.mass + fuel.usableFuelKg
+    Math.abs(
+      mb.takeoffCenterOfGravityPoint.mass -
+        (mb.zeroFuelCenterOfGravityPoint.mass + fuel.usableFuelKg),
+    ) > MASS_TOLERANCE_KG
   )
     return { ok: false, reason: MB_REQUIRED }
   const result =
@@ -118,6 +121,8 @@ const BOTH_GEOMETRIES =
   'Variable-arm arrival CG is unsupported when a tank declares both a fixed arm and a lookup table.'
 const NONZERO_UNUSABLE =
   'Variable-arm arrival CG requires exactly zero unusable fuel; tanks with unusable fuel are unsupported.'
+// Absorbs float summation-order drift only; a real stale-state gap is far larger.
+const MASS_TOLERANCE_KG = 1e-6
 const MB_REQUIRED = 'Valid current Mass & Balance loading is required.'
 
 function sourceUnitReason(sourceUnit: string): string | null {
