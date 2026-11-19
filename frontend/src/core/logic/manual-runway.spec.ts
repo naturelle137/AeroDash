@@ -152,6 +152,7 @@ describe('storage record recovery', () => {
   })
 
   it('distinguishes empty, corrupt and future records', () => {
+    expect(recoverManualRunwayRecord(JSON.stringify({ ...record, schemaVersion: 1 }))).toEqual({ status: 'loaded', record })
     expect(recoverManualRunwayRecord(null)).toEqual({ status: 'empty' })
     expect(recoverManualRunwayRecord('{not json')).toEqual({ status: 'corrupt' })
     expect(recoverManualRunwayRecord('null')).toEqual({ status: 'corrupt' })
