@@ -626,6 +626,7 @@ function onConfirmClearDraft(): void {
   showClearDraftConfirm.value = false
   flightPrepDraft.clearDraft()
   sessionPersistenceStore.clearSession()
+  sessionPersistenceStore.clearStash()
   store.resetPayload()
   massBalanceRestored.value = false
 }
@@ -776,8 +777,14 @@ function loadSelectedProfile(fleetProfile: AircraftProfile): void {
     return
   }
 
+  // Entries belong to their aircraft: keep these, bring back the target's own.
+  // Stash first — activating the new profile resets the loaded aircraft.
+  sessionPersistenceStore.stashCurrent()
   activeAircraftStore.setActiveProfile(fleetProfile)
   store.loadProfile(validation.data)
+  const stashed = sessionPersistenceStore.takeStashed(fleetProfile.id)
+  if (stashed) store.applyRestoredSession(stashed)
+  massBalanceRestored.value = !!stashed
 }
 
 /** Pilot confirmed the acknowledgement — load the gated (draft/expired) profile. */
