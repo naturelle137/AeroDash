@@ -6,37 +6,55 @@
 
 When a fuel type is selected, the system shall automatically calculate mass using the specific density of that fuel type: AvGas, MoGas = 0.72 kg/L, Jet A-1, Diesel = 0.84 kg/L.
 
+**Status:** Implemented. Tests: `frontend/src/core/logic/fuel-density.spec.ts`, `frontend/src/modules/fuel-endurance/services/usable-fuel.spec.ts`.
+
 ### REQ-FE-002: Endurance Calculation
 
 The system shall calculate maximum flight time (Endurance) based on usable fuel quantity and planned fuel flow rate.
+
+**Status:** Implemented. Tests: `frontend/src/core/logic/fuel-endurance.spec.ts`, `frontend/src/modules/fuel-endurance/components/FuelEnduranceCard.int.spec.ts`.
 
 ### REQ-FE-003: Endurance Exceedance Warning
 
 If the planned flight time (including reserves) exceeds the calculated maximum flight time (Endurance), then the system shall emit a WARNING notification (`WARN-FE-001`) alerting the pilot about insufficient fuel for the planned mission.
 
+**Status:** Implemented. Tests: `frontend/src/modules/fuel-endurance/components/FuelEnduranceCard.int.spec.ts`.
+
 ### REQ-FE-004: Fuel Burn Sequence
 
 When calculating fuel consumption for a named burn sequence, the system shall drain tanks in the configured order.
+
+**Status:** Implemented. Tests: `frontend/src/modules/fuel-endurance/services/arrival-cg.spec.ts`.
 
 ### REQ-FE-005: Estimated trip arrival mass
 
 When the user enters a valid explicit consumption and trip duration, the system shall calculate estimated arrival mass as validated M&B takeoff mass minus trip fuel burned.
 
+**Status:** Implemented. Tests: `frontend/src/modules/fuel-endurance/components/FuelEnduranceCard.int.spec.ts`.
+
 ### REQ-FE-006: Electric Endurance Card
 
 While the selected aircraft is electric, the system shall label the Mass & Balance endurance card `Energy & Endurance`.
+
+**Status:** Deferred. Electric energy and endurance are not implemented.
 
 ### REQ-FE-007: Independent sequences
 
 While an aircraft has multiple named burn sequences, the system shall calculate fuel-state progression independently for each sequence.
 
+**Status:** Approved. Independent M&B sequence progression needs separate end-to-end evidence.
+
 ### REQ-FE-008: Electric fuel controls
 
 While the selected aircraft is electric, the system shall hide fuel-tank rows, burn-sequence selectors and fuel-type controls.
 
+**Status:** Approved. Electric-specific hiding of all named controls needs integrated evidence.
+
 ### REQ-FE-009: Direct trip arrival mass
 
 When direct Trip Fuel mode has explicit finite nonnegative fuel mass in kg and valid current M&B and usable inventory, the system shall calculate estimated arrival mass as takeoff mass minus that trip fuel.
+
+**Status:** Implemented. Tests: `frontend/src/modules/fuel-endurance/components/FuelEnduranceCard.int.spec.ts`.
 
 ### REQ-FE-010: Explicit manual plan
 

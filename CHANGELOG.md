@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Reconcile selected briefing, performance and fuel requirements with current evidence and update roadmap limits.
+
 ### Engineering
 
 - Cover signed Performance keyboard entry in both phases.

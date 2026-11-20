@@ -14,45 +14,67 @@ When the requested mass, pressure altitude and temperature are within the aircra
 
 When a POH correction exists for wind, surface or slope, the system shall use that correction for that parameter.
 
+**Status:** Approved. Correction selection supports accepted configurations; general POH correction coverage is incomplete.
+
 ### REQ-PF-004: Correction Application Isolation
 
 When applying surface friction or runway slope corrections, the system shall apply them only to TOR and LR.
+
+**Status:** Implemented. Tests: `frontend/src/core/logic/performance.safety-factor.spec.ts`.
 
 ### REQ-PF-005: Missing Data Estimation
 
 If one takeoff base distance is missing, then the system shall derive it using `TOD = TOR × 1.9` before applying the Operational Safety Factor.
 
+**Status:** Implemented. Tests: `frontend/src/core/logic/performance.estimation.spec.ts`, `frontend/src/modules/performance/services/poh-inspection.spec.ts`.
+
 ### REQ-PF-006: Operational Required Distance
 
 When calculating performance, the system shall multiply the corrected distance by the selected Operational Safety Factor to obtain Operational Required Distance.
+
+**Status:** Implemented. Tests: `frontend/src/modules/performance/services/corrected-distances.spec.ts`.
 
 ### REQ-PF-007: Safety Margin Calculation
 
 When calculating performance, the system shall report Available Runway minus Operational Required Distance as the absolute safety margin.
 
+**Status:** Implemented. Tests: `frontend/src/modules/performance/services/corrected-distances.spec.ts`.
+
 ### REQ-PF-008: Custom Obstacle Constraints
 
 The system shall allow the pilot to define custom obstacle constraints (Target Height at a specific Distance) to verify climb gradients over off-airport obstacles.
+
+**Status:** Approved. Obstacle entry is recorded; climb gradient and clearance are not calculated.
 
 ### REQ-PF-009: Unverified Obstacle Notification
 
 While a pilot-defined obstacle is active, the system shall emit a persistent WARNING notification (`WARN-PF-001`) alerting the pilot that unverified obstacle data is in use.
 
+**Status:** Implemented. Tests: `frontend/src/modules/performance/services/obstacle-constraint.spec.ts`, `frontend/src/modules/performance/composables/performance-step.int.spec.ts`.
+
 ### REQ-PF-010: Extrapolation Limits and Penalties
 
 If a requested condition exceeds a POH axis maximum by more than 10% of that maximum, then the system shall block performance-distance output.
+
+**Status:** Implemented. Tests: `frontend/src/modules/performance/services/poh-inspection.spec.ts`.
 
 ### REQ-PF-011: Performance Benefit Capping
 
 When conditions are better than the POH table minimum, the system shall return no distance shorter than the documented best-case POH value.
 
+**Status:** Approved. The application blocks unsupported lower-axis excursions; it does not return a capped value for every better condition.
+
 ### REQ-PF-012: Extrapolation Acknowledgment
 
 While a result uses extrapolated data, the system shall withhold acceptance of that result until explicit pilot acknowledgement.
 
+**Status:** Implemented. Tests: `frontend/src/modules/performance/composables/performance-step.int.spec.ts`.
+
 ### REQ-PF-013: Pressure Altitude Formula
 
 When deriving pressure altitude from QNH and field elevation, the system shall use `PA(ft) = Elevation(ft) + [288.15 / (0.0065 × 0.3048)] × [1 − (QNH(hPa) / 1013.25)^(1 / 5.25588)]` per the [pressure-altitude contract](../architecture/pressure-altitude.md).
+
+**Status:** Implemented. Tests: `frontend/src/core/logic/pressure-altitude.spec.ts`, `frontend/src/modules/performance/composables/pressure-altitude-input.int.spec.ts`.
 
 ### REQ-PF-014
 
@@ -62,13 +84,19 @@ Retired ID; reserved for historical references.
 
 If the Operational Required Distance exceeds the published Available Distance (TORA/LDA), the system shall emit a CRITICAL notification (`CRIT-PF-002`) alerting the pilot that the runway is insufficient for the required distance.
 
+**Status:** Implemented. Tests: `frontend/src/modules/performance/services/corrected-distances.spec.ts`.
+
 ### REQ-PF-016: Low Safety Factor Warning
 
 If the user-selected Operational Safety Factor is lower than the greater of the POH-mandated factor and the regulatory baseline (Takeoff: 1.25, Landing: 1.43), then the system shall emit a WARNING notification (`WARN-PF-002`) alerting the pilot that the safety factor is below the recommended minimum.
 
+**Status:** Implemented. Tests: `frontend/src/modules/performance/services/corrected-distances.spec.ts`.
+
 ### REQ-PF-017: Estimated Value Marking
 
 When a performance value is derived using REQ-PF-005 or its landing counterpart, the system shall label it `ESTIMATED (CAA SSL 07)` in the UI.
+
+**Status:** Implemented. Tests: `frontend/src/modules/performance/services/corrected-distances.spec.ts`, `frontend/src/modules/export/briefing-pdf.int.spec.ts`.
 
 ### REQ-PF-018: Takeoff distance
 

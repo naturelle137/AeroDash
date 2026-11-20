@@ -6,21 +6,31 @@
 
 When the user requests an eligible Briefing Pack preview in Flight Preparation, the system shall display a client-only current Flight Preparation briefing pack.
 
+**Status:** Implemented. Tests: `frontend/src/modules/export/mb-print.int.spec.ts`.
+
 ### REQ-DOC-002: Unverified Data Marker
 
 The system shall append the text marker `[UNVERIFIED]` to any parameter value in the generated output (PDF/Print) that has the status `Unverified`.
+
+**Status:** Implemented. Tests: `frontend/src/modules/export/mb-print.int.spec.ts`, `frontend/src/modules/export/briefing-pdf.int.spec.ts`.
 
 ### REQ-DOC-003: Unverified Data Disclaimer
 
 If the calculation contains `Unverified` data, then the system shall include a disclaimer section in the export stating: "Calculation based on unverified external data. Pilot in Command assumes full responsibility."
 
+**Status:** Implemented. Tests: `frontend/src/modules/export/mb-print.int.spec.ts`.
+
 ### REQ-DOC-004: Low Safety Margin Disclaimer
 
 If the calculation uses a user-selected Operational Safety Factor that is lower than the greater of the POH-mandated factor and the regulatory baseline (Takeoff: 1.25, Landing: 1.43), then the system shall include a disclaimer section in the export stating: "Calculation based on low safety margin. Pilot in Command assumes full responsibility."
 
+**Status:** Implemented. Tests: `frontend/src/modules/export/mb-print.int.spec.ts`.
+
 ### REQ-DOC-005: Notification Rendering in Export
 
 When generating the export, the system shall highlight each affected available value with its precise active warning or computed-exceedance notification.
+
+**Status:** Approved. Affected-value coverage is not established for every warning and computed exceedance.
 
 ### REQ-DOC-006: Performance briefing
 
