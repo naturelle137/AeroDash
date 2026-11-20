@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Engineering
+
+- Cover signed Performance keyboard entry in both phases.
+
 ### Fixed
 
 - Use a keyboard with a minus key on mobile for signed Performance fields (headwind, slope, temperature, pressure altitude, elevation) so tailwind, downhill and negative values can be entered.
