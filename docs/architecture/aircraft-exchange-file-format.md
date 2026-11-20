@@ -73,7 +73,7 @@ The executable format is `AircraftProfileSchema` in `frontend/src/core/adapters/
 | `costPerHour` | `number` | Estimated operating cost per flight hour (non-negative). **Excluded from the default export** — see [Export](#export) (REQ-AD-023). |
 | `fuelCostIncluded` | `boolean` | Whether fuel cost is bundled into `costPerHour` (REQ-AD-006). **Excluded from the default export** alongside `costPerHour` (REQ-AD-023). |
 | `checklistScaffold` | `array` | Checklist section scaffold — structure only, no functional UI in M3 |
-| `performanceProfiles` | `array` | One entry per flight phase (`TakeoffRoll`, `TakeoffDistance50ft`, `LandingRoll`, `LandingDistance50ft`); each carries up to 1000 interpolation data points (REQ-AD-008, REQ-AD-009) |
+| `performanceProfiles` | `array` | Optional per-table `extrapolation: "prohibited"` records a source restriction; absent permits the bounded software estimate. One entry per flight phase (`TakeoffRoll`, `TakeoffDistance50ft`, `LandingRoll`, `LandingDistance50ft`); each carries up to 1000 interpolation data points (REQ-AD-008, REQ-AD-009) |
 
 ## Import Pipeline (`profile.import.ts`)
 

@@ -236,3 +236,5 @@ mode. No input, profile field, or setting may override either value.
   pilot-facing decision is made on the unrounded penalised value.
 
 ---
+
+The accepted software gap-filling method applies to user-provided monotonic tables unless the table declares `extrapolation: "prohibited"`. This declaration follows the source table when a sibling distance is estimated. It is not an assertion that the POH endorses the method; estimates remain subject to acknowledgement and source limits.
