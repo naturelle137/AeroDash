@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { effectScope } from 'vue'
 import { mount } from '@vue/test-utils'
 import { reactive, nextTick } from 'vue'
 import { createPinia, setActivePinia } from 'pinia'
@@ -8,6 +9,8 @@ import { useMassBalanceStore } from '@/modules/mass-balance/stores/mass-balance.
 import MbPrintPreview from './MbPrintPreview.vue'
 import type { MbPrintSource } from './mb-print'
 import { disclaimerBlocks } from './disclaimer-text'
+import { usePerformanceStep } from '@/modules/performance/composables/performance-step'
+import { presentOperationalAssessment, presentPerformance } from '@/modules/performance/services/performance-presentation'
 import { buildPdf, toLatin1, wrap, textWidth } from './briefing-pdf'
 
 function source(verified = false): MbPrintSource {
@@ -88,6 +91,52 @@ describe('Briefing Pack PDF download', () => {
     expect(strip(text)).toContain(strip('The official handbook always takes precedence.'))
     expect(strip(text)).toContain(strip('Keine Gewährleistung'))
     wrapper.unmount()
+  })
+
+  async function pdfFor(input: MbPrintSource): Promise<{ text: string; sheet: string }> {
+    const wrapper = mount(MbPrintPreview, { props: { source: input }, attachTo: document.body })
+    await wrapper.get('button').trigger('click')
+    buttonByText('Download PDF').click()
+    await nextTick()
+    buttonByText('Acknowledge unverified data and download PDF').click()
+    await vi.waitFor(() => expect(blobs).toHaveLength(1))
+    const text = pdfText(await readBlob(blobs[0]!))
+    const sheet = document.querySelector('.mb-print-sheet')!.textContent!
+    wrapper.unmount()
+    return { text, sheet }
+  }
+
+  it.each([false, true])('carries the extrapolation warning, details and estimate markers (acknowledged: %s)', async (acknowledged) => {
+    const input = source()
+    const scope = effectScope()
+    scope.run(() => {
+      const step = usePerformanceStep(() => ({ ready: true, notReadyReason: '', profile: testPohAircraft(), category: 'Normal', revision: '',
+        takeoff: { status: 'ready', massKg: 1050, origin: 'M&B' }, landing: { status: 'ready', massKg: 850, origin: 'trip arrival' } }))
+      step.pa.method.value = 'direct'; step.pa.direct.value = '1000'; step.temperature.value = '10'
+      step.extrapolationAcknowledged.value = acknowledged
+      input.performance = JSON.parse(JSON.stringify(step.presentation.value))
+    })
+    scope.stop()
+    const { text, sheet } = await pdfFor(input)
+    expect(sheet).toContain('Extrapolated performance data')
+    expect(strip(text)).toContain(strip('boundary distance carries a fixed +20 % penalty'))
+    expect(strip(text)).toContain(strip('mass 1,050.0 kg is 5.0 % above the table maximum 1,000.0 kg'))
+    expect(strip(text)).toContain(strip(acknowledged ? 'Acknowledged by the pilot in command.' : 'Not acknowledged by the pilot in command'))
+    expect(strip(text).includes(strip('ESTIMATED - EXTRAPOLATED (+20 % penalty)'))).toBe(acknowledged)
+    expect(text.includes('384.0 m')).toBe(acknowledged)
+  })
+
+  it('carries the runway-insufficient and low-safety-factor notifications', async () => {
+    const input = source()
+    input.performance = presentPerformance({ inputKey: 'k', inputs: [], aircraft: null, takeoff: { status: 'unavailable', reason: 'x' }, landing: { status: 'unavailable', reason: 'x' },
+      assessment: null, pressureAltitudeBasis: '', pendingReason: 'x', runway: { status: 'unavailable', reason: 'x' }, operational: presentOperationalAssessment(null, 'x'),
+      notifications: [
+        { id: 'CRIT-PF-002', severity: 'CRITICAL', message: 'Takeoff: runway insufficient.', context: 'Performance.RunwayLength', persistent: true, dismissible: false },
+        { id: 'WARN-PF-002', severity: 'WARNING', message: 'Takeoff: low safety factor.', context: 'Performance.SafetyFactor', persistent: true, dismissible: true },
+      ] })
+    const { text } = await pdfFor(input)
+    expect(strip(text)).toContain(strip('CRITICAL · CRIT-PF-002: Takeoff: runway insufficient.'))
+    expect(strip(text)).toContain(strip('WARNING · WARN-PF-002: Takeoff: low safety factor.'))
   })
 
   it('downloads directly when nothing is unverified', async () => {
