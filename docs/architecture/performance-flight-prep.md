@@ -68,20 +68,24 @@ point. Accepted Tecnam configurations support source-specific corrections and ru
 
 The current shared Performance presentation carries deduplicated critical runway and low-factor notifications. Flight Prep and the briefing pack render these from the same current comparisons and warnings; invalidated inputs remove the corresponding notifications.
 
-### Applicability beyond the software method (decision, #420)
+### Gap-filling limits as implemented (#420)
 
-Decision: AeroDash does not extend extrapolation past the accepted software method
-(at most 10 % above the table maximum, fixed 1.2 penalty, acknowledgement required).
-Beyond that band, below-minimum PA/temperature and any table that is non-monotonic
-or declares `extrapolation: "prohibited"` stay blocked with no distance. No
-aircraft-specific POH/AFM source has been obtained that endorses a wider or
-different extrapolation, and none is invented. Adding one needs that source and its
-revision recorded per profile first, then a separate requirement change; legal or
-safety claims about it need CEO authority.
+The gap-filling methods in `docs/requirements` (interpolation, extrapolation,
+rules of thumb) are CEO-accepted sources. They are used as specified, marked
+`ESTIMATED`, with manual values first; no further external source is required for
+them.
 
-Not executed: keyboard and notch safe-area behaviour on a real mobile device.
-Browser checks use zero insets only (see the evidence README); a hardware test
-remains an open verification item for #420 and must not be reported as passed.
+Current software limits, unchanged: extrapolation is at most 10 % above the table
+maximum with a fixed 1.2 penalty and acknowledgement required. Beyond that band,
+below-minimum PA/temperature and any table that is non-monotonic or declares
+`extrapolation: "prohibited"` stay blocked with no distance. Wider or different
+extrapolation is not implemented; changing these limits is a requirement change,
+not a source question.
+
+Verification status: keyboard and notch safe-area behaviour has not been run on a
+real mobile device. Browser checks use zero insets only (see the evidence
+README). This is recorded as open and must not be reported as passed; it does not
+block delivery of the implemented behaviour.
 
 ## Units and persistence
 
