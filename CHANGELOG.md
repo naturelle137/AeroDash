@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Engineering
+
+- Cover signed Performance keyboard entry in both phases.
+
 ### Fixed
 
 - Keep demo unit preferences and obstacle inputs separate from the student's plan.
