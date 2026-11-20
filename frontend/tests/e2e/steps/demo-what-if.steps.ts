@@ -31,3 +31,20 @@ Then('the saved plan still holds the reduced baggage', async ({ page }) => {
 Then('the Flight Prep temperature is {string} °C', async ({ page }, temperature: string) => {
   await expect(page.getByLabel('Temperature (°C)', { exact: true })).toHaveValue(temperature)
 })
+
+When('the instructor changes demo unit preferences', async ({ page }) => {
+  const units = page.getByRole('group', { name: 'Unit preferences' })
+  await units.getByLabel('Field elevation').selectOption('m')
+  await units.getByLabel('Declared runway distances').selectOption('ft')
+  await expect(units).toContainText('Demo unit choices are temporary')
+})
+
+Then('the saved unit preferences are unchanged', async ({ page }) => {
+  expect(await page.evaluate(() => localStorage.getItem('aerodash.preferences.units.v1'))).toBeNull()
+})
+
+Then('the original unit preferences are restored', async ({ page }) => {
+  const units = page.getByRole('group', { name: 'Unit preferences' })
+  await expect(units.getByLabel('Field elevation')).toHaveValue('ft')
+  await expect(units.getByLabel('Declared runway distances')).toHaveValue('m')
+})
