@@ -62,5 +62,6 @@ function save(): void {
 .annotation-panel__list { padding-left: 1rem; }
 .annotation-panel__form { display: grid; gap: 0.5rem; }
 .annotation-panel__form label { display: grid; gap: 0.25rem; }
+.annotation-panel__form input, .annotation-panel__form select { min-height: 44px; }
 .annotation-panel button { min-height: 44px; min-width: 44px; }
 </style>
