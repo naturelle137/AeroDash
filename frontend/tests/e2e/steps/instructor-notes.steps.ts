@@ -7,7 +7,7 @@ When('the instructor {string} adds the note {string} on the takeoff result', asy
   const panel = page.getByRole('region', { name: 'Mass and Balance' }).getByTestId('annotation-panel')
   await panel.scrollIntoViewIfNeeded()
   await panel.getByLabel('Author').fill(author)
-  await panel.getByLabel('Note').fill(text)
+  await panel.getByLabel('Note', { exact: true }).fill(text)
   await panel.getByRole('button', { name: 'Add note' }).click()
 })
 
@@ -25,10 +25,10 @@ Then('the note {string} is shown as an instructor note by {string}', async ({ pa
 When('the instructor adds performance notes', async ({ page }) => {
   const panel = page.getByTestId('annotation-panel')
   await panel.getByLabel('Author').fill('CRI Meyer')
-  await panel.getByLabel('Note').fill('Review takeoff distance')
+  await panel.getByLabel('Note', { exact: true }).fill('Review takeoff distance')
   await panel.getByRole('button', { name: 'Add note' }).click()
   await panel.getByLabel('Result').selectOption('landingDistance')
-  await panel.getByLabel('Note').fill('Review landing distance')
+  await panel.getByLabel('Note', { exact: true }).fill('Review landing distance')
   await panel.getByRole('button', { name: 'Add note' }).click()
 })
 
