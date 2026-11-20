@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add browser tests for bounded extrapolation: acknowledgment, revocation on input change, beyond-limit block and below-minimum floor at 1440 and 390 px.
 - Label a locally printed or downloaded briefing pack as an unapproved student handover copy.
 - Record an optional obstacle height and distance in Flight Prep Performance with persistent unverified-obstacle warning; clearance is not calculated.
 - Add a local, non-persisted demo / what-if copy for Mass & Balance loads; discarding restores the saved plan unchanged. It carries no instructor approval and covers neither fuel burn order nor Performance inputs.
