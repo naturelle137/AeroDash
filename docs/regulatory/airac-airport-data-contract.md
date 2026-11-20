@@ -16,7 +16,7 @@ operator, licence, aircraft or registration is assessed.
 
 ## Official evidence and calendar
 
-Only these three official sources were examined, retrieved on **2026-11-17**:
+The following calendar sources were retrieved on **2026-11-17**:
 
 | Source | Publication/edition | Sections and applicability |
 | :--- | :--- | :--- |
@@ -39,6 +39,8 @@ the effective dates:
 | 2026-11-12 | 2026-12-24 |
 | 2026-12-10 | 2027-01-21 |
 
+The app limits its cycle display to 2020-01-02 through 2028-12-21, the first and last dates printed in the referenced calendar. Dates outside that range are unavailable rather than extrapolated.
+
 The table establishes dates only, not a verified effective time or timezone.
 ENAIRE §§3.1–3.5 distinguish amendments, supplements and urgent NOTAM. A trigger
 NOTAM's 14-day reminder interval does not terminate its underlying amendment.
@@ -53,6 +55,14 @@ cannot establish completeness or absence of NOTAM/SUP restrictions.
 No airport record's effective interval, expiry or restriction coverage was verified.
 
 ## Source-first acceptance gate
+
+### Candidate decision: EUROCONTROL EAD Basic
+
+Evaluated 2026-11-20 for the manual runway consumer. Do not integrate.
+
+- [EAD Basic](https://www.ead.eurocontrol.int/cms-eadbasic/opencms/en/ead-solutions/ead-basic/) requires registration and states that it is not connected to the operational database, may not show the latest information, and must not be used for operational purposes.
+- [EAD service information](https://www.eurocontrol.int/service/european-ais-database) describes European coverage and periodic data downloads, but service and third-party royalty charges depend on client classification. Reuse rights, costs and an authorised reproducible delivery contract for AeroDash are not established.
+- Record-level declared-distance coverage, publication, effective and expiry semantics, update completeness and restrictions for a usable download were not established. NOTAM availability in EAD does not establish coverage in a downloaded snapshot. These remain unknown.
 
 ### Candidate decision: OurAirports
 
