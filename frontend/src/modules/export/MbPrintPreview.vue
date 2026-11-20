@@ -19,6 +19,7 @@ const acknowledged = ref(false)
 const gating = ref(false)
 const pendingAction = ref<'print' | 'pdf'>('print')
 const exporting = ref(false)
+const handover = ref(false)
 const gate = computed(() => currentSnapshot.value ? unverifiedGate(currentSnapshot.value) : null)
 const currentKey = computed(() => JSON.stringify(currentSource.value))
 const eligible = computed(() => canPrintMb(currentSource.value))
@@ -41,6 +42,7 @@ async function open(): Promise<void> {
   snapshot.value = value
   acknowledged.value = false
   gating.value = false
+  handover.value = false
   printRoot.value?.removeAttribute('data-print-invalid')
   opened.value = true
   await nextTick()
@@ -132,6 +134,7 @@ onBeforeUnmount(() => {
           <button ref="closeButton" type="button" @click="close">Back to preparation</button>
           <button type="button" :disabled="!currentSnapshot || !eligible" @click="print">Print Briefing Pack</button>
           <button type="button" :disabled="!currentSnapshot || !eligible || exporting" @click="downloadPdf">Download PDF</button>
+          <button type="button" :disabled="!currentSnapshot || exporting" :aria-pressed="handover" @click="handover = !handover">{{ handover ? 'Remove handover label' : 'Prepare unapproved handover copy' }}</button>
         </nav>
         <section v-if="gating && gate" role="alertdialog" aria-modal="true" aria-labelledby="crit-ui-001-title" class="briefing-gate">
           <h2 id="crit-ui-001-title">{{ gate.notification.id }} · {{ gate.notification.message }}</h2>
@@ -142,6 +145,7 @@ onBeforeUnmount(() => {
         </section>
         <template v-if="currentSnapshot">
           <h1>Flight Preparation Briefing Pack</h1>
+          <p v-if="handover"><strong>Student handover copy — UNAPPROVED. Instructor review and authenticated counter-signature are not recorded by AeroDash.</strong></p>
           <p>{{ currentSnapshot.identity }}{{ currentSnapshot.marker }} · {{ currentSnapshot.category }}</p>
           <p>Generated: {{ currentSnapshot.generated }}</p>
           <p v-if="currentSnapshot.unverified"><strong>Calculation based on unverified external data. Pilot in Command assumes full responsibility.</strong></p>
