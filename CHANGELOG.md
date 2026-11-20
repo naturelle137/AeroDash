@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Align roadmap and README text with the delivered briefing-pack PDF download.
 - Enable bounded performance estimates for applicable tables, respecting declared source prohibitions.
 
 ### Added
