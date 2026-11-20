@@ -34,3 +34,12 @@ Feature: Try an alternative load without changing the saved plan
     And the pilot sets temperature "35" °C in Flight Prep
     And the instructor discards the demo
     Then the Flight Prep temperature is "10" °C
+
+  @phase-B @e2e @demo @module-mb
+  Scenario: Demo unit preferences are temporary
+    When the pilot selects aircraft "D-ECSM"
+    And the instructor starts a demo
+    And the instructor changes demo unit preferences
+    Then the saved unit preferences are unchanged
+    When the instructor discards the demo
+    Then the original unit preferences are restored

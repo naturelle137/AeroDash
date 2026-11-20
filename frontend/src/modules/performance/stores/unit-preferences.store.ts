@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
+import { useMassBalanceStore } from '@/modules/mass-balance/stores/mass-balance.store'
 import {
   DEFAULT_UNIT_PREFERENCES,
   recoverUnitPreferences,
@@ -28,6 +29,20 @@ export const useUnitPreferencesStore = defineStore('unitPreferences', () => {
   const origin = ref<'default' | 'saved'>('default')
   const notice = ref<string | null>(null)
   const loaded = ref(false)
+  const massBalance = useMassBalanceStore()
+  let original: { preferences: UnitPreferences; origin: 'default' | 'saved'; notice: string | null } | null = null
+
+  watch(() => massBalance.isDemoActive, (active) => {
+    if (active) {
+      if (!loaded.value) load()
+      original = { preferences: { ...preferences.value }, origin: origin.value, notice: notice.value }
+    } else if (original) {
+      preferences.value = original.preferences
+      origin.value = original.origin
+      notice.value = original.notice
+      original = null
+    }
+  }, { flush: 'sync', immediate: true })
 
   function load(): void {
     loaded.value = true
@@ -55,6 +70,7 @@ export const useUnitPreferencesStore = defineStore('unitPreferences', () => {
 
   function set(field: 'fieldElevation' | 'runwayDistance', unit: LengthUnit): void {
     preferences.value = { ...preferences.value, [field]: unit }
+    if (massBalance.isDemoActive) return
     origin.value = 'saved'
     try {
       const store = storage()

@@ -54,12 +54,13 @@ export function usePerformanceStep(context: () => PerformanceStepContext) {
   watch(() => JSON.stringify(ctx.value.profile), () => { manualConfiguration.value = '' }, { flush: 'sync' })
 
   useDemoScratch(
-    () => plainCopy({ pa: pa.snapshot(), temperature: temperature.value, corrections, safetyFactors, manualConfiguration: manualConfiguration.value }),
+    () => plainCopy({ pa: pa.snapshot(), temperature: temperature.value, corrections, safetyFactors, obstacle, manualConfiguration: manualConfiguration.value }),
     (saved) => {
       pa.restore(saved.pa)
       temperature.value = saved.temperature
       Object.assign(corrections, saved.corrections)
       Object.assign(safetyFactors, saved.safetyFactors)
+      Object.assign(obstacle, saved.obstacle)
       manualConfiguration.value = saved.manualConfiguration
     },
   )

@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Keep demo unit preferences and obstacle inputs separate from the student's plan.
 - Show corrected performance distances before explicitly labelled uncorrected base distances.
 
 ### Changed
