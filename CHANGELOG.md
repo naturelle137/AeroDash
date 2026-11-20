@@ -9,7 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Label a locally printed or downloaded briefing pack as an unapproved student handover copy.
 - Add a local, non-persisted demo / what-if copy for Mass & Balance loads; discarding restores the saved plan unchanged. It carries no instructor approval and covers neither fuel burn order nor Performance inputs.
 - Add an offline manual wind-component aid in Flight Prep from pilot-entered runway heading, wind direction and speed; advisory only.
 - Extrapolate Performance lookups up to 10 % above a table maximum with the fixed 20 % penalty, withheld until the pilot acknowledges; block beyond that. The path stays disabled until an applicable source is recorded; upper excursions remain blocked.
