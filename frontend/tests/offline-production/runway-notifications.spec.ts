@@ -65,6 +65,36 @@ test('current phase notifications and runway comparisons survive cached offline 
     await inputs.getByLabel('Runway slope (%, positive = uphill)').fill('0')
     await expect(perf.getByRole('region', { name: `${phase} corrected distances` }).locator('.comparison')).toContainText('Fits declared runway')
   }
+  for (const [phase, slope] of [['Takeoff', '-1'], ['Landing', '1']] as const) {
+    const inputs = perf.getByRole('group', { name: `${phase} wind and slope` })
+    await inputs.getByLabel('Headwind component (kt, negative = tailwind)').fill('5')
+    await inputs.getByLabel('Runway slope (%, positive = uphill)').fill(slope)
+    const result = perf.getByRole('region', { name: `${phase} corrected distances` })
+    await expect(result).toContainText('partially corrected distances')
+    await expect(result).toContainText('Wind component 5 kt was not applied')
+    await expect(result).toContainText(`Runway slope ${slope} % was not applied`)
+  }
+  for (const width of [1440, 390]) {
+    await page.setViewportSize({ width, height: 900 })
+    const takeoff = perf.getByRole('region', { name: 'Takeoff corrected distances' })
+    await (width === 390 ? takeoff.getByText('Wind component 5 kt was not applied', { exact: false }) : takeoff).scrollIntoViewIfNeeded()
+    const path = info.outputPath(`unapplied-${width}.png`)
+    await page.screenshot({ path, animations: 'disabled' })
+    await info.attach(`unapplied-${width}`, { path, contentType: 'image/png' })
+  }
+  await page.getByRole('button', { name: 'Briefing Pack', exact: true }).click()
+  const partialPack = page.getByRole('dialog', { name: 'Briefing Pack preview' })
+  await expect(partialPack).toContainText('Takeoff partially corrected distances')
+  await expect(partialPack).toContainText('Landing partially corrected distances')
+  await expect(partialPack).toContainText('Wind component 5 kt was not applied')
+  await expect(partialPack).toContainText('Runway slope -1 % was not applied')
+  await expect(partialPack).toContainText('Runway slope 1 % was not applied')
+  await page.keyboard.press('Escape')
+  for (const phase of ['Takeoff', 'Landing']) {
+    const inputs = perf.getByRole('group', { name: `${phase} wind and slope` })
+    await inputs.getByLabel('Headwind component (kt, negative = tailwind)').fill('0')
+    await inputs.getByLabel('Runway slope (%, positive = uphill)').fill('0')
+  }
   const notes = perf.getByRole('region', { name: 'Performance notifications' })
   await expect(notes).toContainText('WARN-PF-002')
   await expect(notes).not.toContainText('CRIT-PF-002')
@@ -85,4 +115,15 @@ test('current phase notifications and runway comparisons survive cached offline 
   await runway.getByLabel('Surface condition', { exact: true }).selectOption('')
   await expect(notes).toHaveCount(0)
   await expect(perf.getByRole('region', { name: 'Takeoff corrected distances' })).toContainText('Not corrected')
+  for (const phase of ['Takeoff', 'Landing']) {
+    const inputs = perf.getByRole('group', { name: `${phase} wind and slope` })
+    await inputs.getByLabel('Headwind component (kt, negative = tailwind)').fill('-5')
+    await inputs.getByLabel('Runway slope (%, positive = uphill)').fill('2')
+    const result = perf.getByRole('region', { name: `${phase} corrected distances` })
+    await expect(result).toContainText('Wind component -5 kt was not applied')
+    await expect(result).toContainText('Runway slope 2 % was not applied')
+  }
+  await page.getByRole('button', { name: 'Briefing Pack', exact: true }).click()
+  await expect(page.getByRole('dialog', { name: 'Briefing Pack preview' })).toContainText('Wind component -5 kt was not applied')
+  await expect(page.getByRole('dialog', { name: 'Briefing Pack preview' })).toContainText('Runway slope 2 % was not applied')
 })

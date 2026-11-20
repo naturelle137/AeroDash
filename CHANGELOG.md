@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Restore Mass & Balance entries of an aircraft when switching back to it, instead of discarding them.
 - Keep demo unit preferences and obstacle inputs separate from the student's plan.
 - Leave the saved flight plan byte-for-byte unchanged when a demo is entered and discarded.
+- Identify unapplied wind and slope inputs in performance results and briefing packs.
 - Use a keyboard with a minus key on mobile for signed Performance fields (headwind, slope, temperature, pressure altitude, elevation) so tailwind, downhill and negative values can be entered.
 - Show corrected performance distances before explicitly labelled uncorrected base distances.
 
@@ -29,7 +30,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add local instructor notes anchored to Mass & Balance results (takeoff, zero fuel, fuel burned): attributed by self-declared author, editable, stored on this device, listed in the Briefing Pack and unable to alter system warnings.
 - Persist and restore fuel and performance entries per aircraft after reload or offline restart, with a restored-draft notice and a confirmed clear; acknowledgements are never restored.
+- Allow an optional unverified note on the local unapproved handover copy.
 - Add a local, non-persisted demo / what-if copy for Mass & Balance loads; discarding restores the saved plan unchanged. It carries no instructor approval.
 - Extend the demo to the fuel burn sequence, fuel planning inputs and Performance inputs; discarding restores them exactly.
 - Add browser tests for bounded extrapolation: acknowledgment, revocation on input change, beyond-limit block and below-minimum floor at 1440 and 390 px.

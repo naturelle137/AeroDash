@@ -3,10 +3,11 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import CGEnvelopeChart from '@/modules/mass-balance/components/CGEnvelopeChart.vue'
 import { renderBriefingPdf } from './briefing-pdf'
 import { disclaimerBlocks } from './disclaimer-text'
+import { anchorLabel, type Annotation } from '@/modules/annotations/annotations'
 import { assembleMbPrint, canPrintMb, unverifiedGate, type MbPrintSnapshot, type MbPrintSource } from './mb-print'
 
 const disclaimerContent = disclaimerBlocks()
-const props = defineProps<{ source: MbPrintSource; readSource?: () => MbPrintSource }>()
+const props = defineProps<{ source: MbPrintSource; readSource?: () => MbPrintSource; annotations?: Annotation[] }>()
 // Read live dependencies even when the parent render has not flushed before native print.
 const currentSource = computed(() => props.readSource?.() ?? props.source)
 const snapshot = ref<MbPrintSnapshot | null>(null)
@@ -22,6 +23,7 @@ const exporting = ref(false)
 const handover = ref(false)
 const studentName = ref('')
 const instructorName = ref('')
+const handoverNote = ref('')
 const gate = computed(() => currentSnapshot.value ? unverifiedGate(currentSnapshot.value) : null)
 const currentKey = computed(() => JSON.stringify(currentSource.value))
 const eligible = computed(() => canPrintMb(currentSource.value))
@@ -47,6 +49,7 @@ async function open(): Promise<void> {
   handover.value = false
   studentName.value = ''
   instructorName.value = ''
+  handoverNote.value = ''
   printRoot.value?.removeAttribute('data-print-invalid')
   opened.value = true
   await nextTick()
@@ -144,6 +147,7 @@ onBeforeUnmount(() => {
           <legend>Handover names (optional, printed as unverified, not stored)</legend>
           <label>Student name <input v-model.trim="studentName" type="text" maxlength="80" autocomplete="off"></label>
           <label>Instructor name <input v-model.trim="instructorName" type="text" maxlength="80" autocomplete="off"></label>
+          <label>Handover note (optional, unverified, not stored) <textarea v-model.trim="handoverNote" maxlength="500"></textarea></label>
         </fieldset>
         <section v-if="gating && gate" role="alertdialog" aria-modal="true" aria-labelledby="crit-ui-001-title" class="briefing-gate">
           <h2 id="crit-ui-001-title">{{ gate.notification.id }} · {{ gate.notification.message }}</h2>
@@ -158,6 +162,7 @@ onBeforeUnmount(() => {
           <template v-if="handover">
             <p>Prepared by (self-declared, unverified): {{ studentName || '________________' }}</p>
             <p>Instructor review outside AeroDash (self-declared, unverified): {{ instructorName || '________________' }} · Date: ________ · Signature: ________________</p>
+            <p v-if="handoverNote">Handover note (self-declared, unverified): {{ handoverNote }}</p>
           </template>
           <p>{{ currentSnapshot.identity }}{{ currentSnapshot.marker }} · {{ currentSnapshot.category }}</p>
           <p>Generated: {{ currentSnapshot.generated }}</p>
@@ -179,6 +184,11 @@ onBeforeUnmount(() => {
           <section v-if="currentSnapshot.notifications.length" aria-label="Current M&B notifications">
             <h2>Current M&amp;B notifications</h2>
             <ul><li v-for="(note, index) in currentSnapshot.notifications" :key="index"><strong>{{ note.severity }} · {{ note.context ?? 'MassBalance' }}</strong>: {{ note.message }}</li></ul>
+          </section>
+          <section v-if="annotations?.length" aria-label="Instructor notes">
+            <h2>Instructor notes (advisory; not system notifications)</h2>
+            <ul><li v-for="n in annotations" :key="n.id"><strong>Instructor note on {{ anchorLabel(n.anchor) }}</strong> · {{ n.author }} (self-declared, unverified): {{ n.text }}</li></ul>
+            <p>Instructor notes do not clear, replace or change any warning above.</p>
           </section>
           <section v-if="currentSnapshot.fuel" aria-label="Current fuel plan and estimated trip arrival">
             <h2>Current fuel plan and estimated trip arrival</h2>
@@ -227,7 +237,7 @@ onBeforeUnmount(() => {
                 <table v-if="group.rows.length"><tbody><tr v-for="row in group.rows" :key="row.label"><th>{{ row.label }}</th><td :class="{ 'briefing-warning': row.warnings?.length }">{{ row.value }}{{ currentSnapshot.marker }}<p v-for="warning in row.warnings" :key="warning">{{ warning }}</p><p v-if="row.note">{{ row.note }}</p></td></tr></tbody></table>
               </section>
               <section v-for="item in currentSnapshot.performance.corrected" :key="item.operation">
-                <h3>{{ item.title }} corrected distances</h3>
+                <h3>{{ item.title }} {{ item.status === 'applied' && item.partial ? 'partially corrected' : 'corrected' }} distances</h3>
                 <p v-if="item.status === 'unavailable'">Not corrected: {{ item.reason }}</p>
                 <template v-else>
                   <p>Source: {{ item.source }}</p>
