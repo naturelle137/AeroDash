@@ -9,7 +9,8 @@
  *
  * Invariants:
  *  - An invalid or missing payload → clean session (no pre-population).
- *  - Aircraft switch → prior payload immediately cleared.
+ *  - Aircraft switch → prior payload moved to a per-aircraft stash and
+ *    restored (validated again) when that aircraft is loaded next.
  *  - Saves are debounced to avoid writing on every keystroke.
  *  - Restored payloads are routed through the P1 migration registry. Payloads
  *    from a *future* build (PWA-cache rollback) are dropped with an INFO
@@ -30,6 +31,8 @@ import { migrateSessionPayload } from '@/core/logic/session-migrations'
 
 
 const STORAGE_KEY = 'aerodash:session:payload' as const
+/** Payloads of aircraft the pilot switched away from, by aircraft id, so switching back restores them. */
+const STASH_KEY = 'aerodash:session:by-aircraft' as const
 const DEBOUNCE_MS = 300
 
 /** Why a persisted session payload was discarded during `restoreSession()`. */
@@ -88,15 +91,12 @@ export const useSessionPersistenceStore = defineStore('sessionPersistence', () =
    * Immediately serialise the current M&B store state to `localStorage`.
    * No-op when no aircraft profile is loaded.
    */
-  function saveSession(): void {
+  function buildPayload(): SessionPayload | null {
     const mbStore = useMassBalanceStore()
-    if (!mbStore.aircraft || !mbStore.activeCategory) {
-      return
-    }
+    if (!mbStore.aircraft || !mbStore.activeCategory) return null
     // A demo copy must never overwrite the saved plan.
-    if (mbStore.isDemoActive) return
-
-    const payload: SessionPayload = {
+    if (mbStore.isDemoActive) return null
+    return {
       version: CURRENT_SESSION_PAYLOAD_VERSION,
       aircraftId: mbStore.aircraft.id,
       activeCategory: mbStore.activeCategory,
@@ -108,6 +108,11 @@ export const useSessionPersistenceStore = defineStore('sessionPersistence', () =
       })),
       savedAt: new Date().toISOString(),
     }
+  }
+
+  function saveSession(): void {
+    const payload = buildPayload()
+    if (!payload) return
 
     try {
       // Skip identical content so restoring an unchanged plan (e.g. leaving a
@@ -118,6 +123,77 @@ export const useSessionPersistenceStore = defineStore('sessionPersistence', () =
     } catch {
       // Storage quota exceeded or unavailable — fail silently; the pilot can
       // still operate, they just lose auto-save for this session.
+    }
+  }
+
+  function readStash(): Record<string, unknown> {
+    try {
+      const parsed: unknown = JSON.parse(localStorage.getItem(STASH_KEY) ?? '{}')
+      if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) return parsed as Record<string, unknown>
+    } catch {
+      // Unreadable stash: start without one.
+    }
+    return {}
+  }
+
+  function writeStash(stash: Record<string, unknown>): void {
+    try {
+      if (Object.keys(stash).length === 0) localStorage.removeItem(STASH_KEY)
+      else localStorage.setItem(STASH_KEY, JSON.stringify(stash))
+    } catch {
+      // Quota or unavailable storage: only the switch-back restore is lost.
+    }
+  }
+
+  /**
+   * Keep the loaded aircraft's entries before another aircraft replaces them.
+   * Call before loading the other profile. During a demo the saved plan is
+   * the stored payload, not the edited copy on screen.
+   */
+  function stashCurrent(): void {
+    const mbStore = useMassBalanceStore()
+    const id = mbStore.aircraft?.id
+    if (!id) return
+    let payload: unknown = buildPayload()
+    if (!payload && mbStore.isDemoActive) {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY)
+        payload = raw === null ? null : JSON.parse(raw)
+      } catch {
+        payload = null
+      }
+    }
+    if (!payload) return
+    // Entries equal to the reset baseline (e.g. just cleared) are nothing to bring back.
+    const loadPoints = mbStore.aircraft?.loadPoints ?? []
+    const baseline = (index: number): number =>
+      Math.max(loadPoints[index]?.defaultQuantity ?? 0, loadPoints[index]?.fuelTank?.unusableFuel ?? 0)
+    const stations = (payload as SessionPayload).stations
+    if (stations && stations.every((st) => st.weight === baseline(st.index))) return
+    cancelPendingSave()
+    writeStash({ ...readStash(), [id]: payload })
+  }
+
+  /**
+   * The stashed payload of one aircraft, removed from the stash. It passes the
+   * same migration and validation as a reloaded session; anything invalid is dropped.
+   */
+  function takeStashed(aircraftId: string): SessionPayload | null {
+    const stash = readStash()
+    if (!(aircraftId in stash)) return null
+    const entry = stash[aircraftId]
+    delete stash[aircraftId]
+    writeStash(stash)
+    const outcome = migrateSessionPayload(entry)
+    return outcome.kind === 'migrated' && outcome.payload.aircraftId === aircraftId ? outcome.payload : null
+  }
+
+  /** Drop every stashed aircraft payload (explicit "clear entries" action). */
+  function clearStash(): void {
+    try {
+      localStorage.removeItem(STASH_KEY)
+    } catch {
+      // Best-effort, like clearSession().
     }
   }
 
@@ -299,6 +375,9 @@ export const useSessionPersistenceStore = defineStore('sessionPersistence', () =
 
   return {
     saveSession,
+    stashCurrent,
+    takeStashed,
+    clearStash,
     cancelPendingSave,
     clearSession,
     restoreSession,
