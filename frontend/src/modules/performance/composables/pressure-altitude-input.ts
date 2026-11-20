@@ -14,9 +14,9 @@ export type PressureAltitudeResolution =
 type RunwayCopy = { text: string; unit: string; savedAt: string; label: string }
 
 /**
- * Orchestrates the pilot's explicit pressure-altitude method. State lives only in the
- * mounting view and is never persisted, so a derived value cannot survive a reload,
- * navigation or local-data erasure. The formula and validation stay in the core.
+ * Orchestrates the pilot's explicit pressure-altitude method. State lives in the
+ * mounting view; only the raw entries are stored as a per-aircraft draft, so a derived
+ * value is always recomputed from restored text and never restored itself. The formula and validation stay in the core.
  */
 export function usePressureAltitudeInput() {
   const runway = useManualRunwayStore()
