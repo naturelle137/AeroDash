@@ -227,7 +227,7 @@ onBeforeUnmount(() => {
                 <table v-if="group.rows.length"><tbody><tr v-for="row in group.rows" :key="row.label"><th>{{ row.label }}</th><td :class="{ 'briefing-warning': row.warnings?.length }">{{ row.value }}{{ currentSnapshot.marker }}<p v-for="warning in row.warnings" :key="warning">{{ warning }}</p><p v-if="row.note">{{ row.note }}</p></td></tr></tbody></table>
               </section>
               <section v-for="item in currentSnapshot.performance.corrected" :key="item.operation">
-                <h3>{{ item.title }} corrected distances</h3>
+                <h3>{{ item.title }} {{ item.status === 'applied' && item.partial ? 'partially corrected' : 'corrected' }} distances</h3>
                 <p v-if="item.status === 'unavailable'">Not corrected: {{ item.reason }}</p>
                 <template v-else>
                   <p>Source: {{ item.source }}</p>
