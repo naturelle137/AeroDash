@@ -170,3 +170,15 @@ describe('DecimalInput — external modelValue sync', () => {
     expect((input.element as HTMLInputElement).value).toBe('3.14')
   })
 })
+
+describe('DecimalInput — mobile keyboard', () => {
+  it('requests a keyboard with a minus key when negative values are allowed', () => {
+    const wrapper = mount(DecimalInput, { props: { modelValue: null } })
+    expect(wrapper.find('input').attributes('inputmode')).toBe('text')
+  })
+
+  it('keeps the decimal pad when the minimum is non-negative', () => {
+    const wrapper = mount(DecimalInput, { props: { modelValue: null, min: 0 } })
+    expect(wrapper.find('input').attributes('inputmode')).toBe('decimal')
+  })
+})
