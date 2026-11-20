@@ -126,6 +126,17 @@ describe('Briefing Pack PDF download', () => {
     expect(text.includes('384.0 m')).toBe(acknowledged)
   })
 
+  it('carries the ESTIMATED (CAA SSL 07) marker of a distance row', async () => {
+    const input = source()
+    const base = presentPerformance({ inputKey: 'k', inputs: [], aircraft: null, takeoff: { status: 'unavailable', reason: 'x' }, landing: { status: 'unavailable', reason: 'x' },
+      assessment: null, pressureAltitudeBasis: '', pendingReason: 'x', runway: { status: 'unavailable', reason: 'x' }, operational: presentOperationalAssessment(null, 'x'), notifications: [] })
+    input.performance = { ...base, groups: [{ id: base.groups[0]!.id, title: 'Take-off', mass: null, status: 'success', reason: null,
+      rows: [{ label: 'Ground roll', value: '300 m', note: 'ESTIMATED (CAA SSL 07)' }] }] }
+    const { text, sheet } = await pdfFor(input)
+    expect(sheet).toContain('ESTIMATED (CAA SSL 07)')
+    expect(strip(text)).toContain(strip('ESTIMATED (CAA SSL 07)'))
+  })
+
   it('carries the runway-insufficient and low-safety-factor notifications', async () => {
     const input = source()
     input.performance = presentPerformance({ inputKey: 'k', inputs: [], aircraft: null, takeoff: { status: 'unavailable', reason: 'x' }, landing: { status: 'unavailable', reason: 'x' },
