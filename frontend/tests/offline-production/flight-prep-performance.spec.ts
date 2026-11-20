@@ -4,6 +4,8 @@ import { testPohAircraft } from '../fixtures/poh-aircraft'
 // Synthetic 750 kg BEM + 100 kg payload + 50 kg fuel. Linear table formula:
 // 100 + phaseIndex*100 + mass-800 + PA/100 + temperature (metres).
 test('Flight Prep shares current phase masses and converted units online and cached offline', async ({ page, context }, info) => {
+  // These checks cover session-only entries; the saved draft is covered by flight-prep-draft.spec.ts.
+  await page.addInitScript(() => localStorage.removeItem('aerodash:flightprep:draft'))
   await page.goto('/fleet')
   await page.getByTestId('disclaimer-gate-accept').click()
   await page.evaluate(async () => { await navigator.serviceWorker.ready })

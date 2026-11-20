@@ -4,6 +4,8 @@ import { testPohAircraft } from '../fixtures/poh-aircraft'
 
 // Synthetic software vectors only; browser PDFs are internal pagination evidence.
 test('complete current fuel in cached offline native print with synchronous stale guards', async ({ page, context }, info) => {
+  // These checks cover session-only entries; the saved draft is covered by flight-prep-draft.spec.ts.
+  await page.addInitScript(() => localStorage.removeItem('aerodash:flightprep:draft'))
   test.setTimeout(120_000)
   await page.goto('/fleet')
   await page.getByTestId('disclaimer-gate-accept').click()

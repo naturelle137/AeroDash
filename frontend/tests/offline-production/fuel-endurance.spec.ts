@@ -6,6 +6,8 @@ test('persisted fleet tank inputs feed the session-only fuel plan online and cac
   page,
   context,
 }, info) => {
+  // These checks cover session-only entries; the saved draft is covered by flight-prep-draft.spec.ts.
+  await page.addInitScript(() => localStorage.removeItem('aerodash:flightprep:draft'))
   await page.goto('/fleet')
   await page.getByTestId('disclaimer-gate-accept').click()
   await page.evaluate(async () => {
@@ -307,7 +309,8 @@ test('persisted fleet tank inputs feed the session-only fuel plan online and cac
   await picker.selectOption((await other.getAttribute('value'))!)
   await expect(results).toHaveCount(0)
   await picker.selectOption((await option.getAttribute('value'))!)
-  await expect(method).toHaveValue('')
+  await expect(method).toHaveValue('direct')
+  await expect(direct).toHaveValue('')
   await tank.fill('50')
   await tank.blur()
   await expect
@@ -320,7 +323,8 @@ test('persisted fleet tank inputs feed the session-only fuel plan online and cac
   await expect(page.getByRole('alert').filter({ hasText: 'CG Out of Envelope' })).toBeVisible()
   await context.setOffline(true)
   expect((await page.reload())?.fromServiceWorker()).toBe(true)
-  await expect(method).toHaveValue('')
+  await expect(method).toHaveValue('direct')
+  await expect(direct).toHaveValue('')
   await expect(results).toHaveCount(0)
   await method.selectOption('duration')
   await rate.fill('10')
