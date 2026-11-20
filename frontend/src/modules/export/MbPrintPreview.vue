@@ -23,6 +23,7 @@ const exporting = ref(false)
 const handover = ref(false)
 const studentName = ref('')
 const instructorName = ref('')
+const handoverNote = ref('')
 const gate = computed(() => currentSnapshot.value ? unverifiedGate(currentSnapshot.value) : null)
 const currentKey = computed(() => JSON.stringify(currentSource.value))
 const eligible = computed(() => canPrintMb(currentSource.value))
@@ -48,6 +49,7 @@ async function open(): Promise<void> {
   handover.value = false
   studentName.value = ''
   instructorName.value = ''
+  handoverNote.value = ''
   printRoot.value?.removeAttribute('data-print-invalid')
   opened.value = true
   await nextTick()
@@ -145,6 +147,7 @@ onBeforeUnmount(() => {
           <legend>Handover names (optional, printed as unverified, not stored)</legend>
           <label>Student name <input v-model.trim="studentName" type="text" maxlength="80" autocomplete="off"></label>
           <label>Instructor name <input v-model.trim="instructorName" type="text" maxlength="80" autocomplete="off"></label>
+          <label>Handover note (optional, unverified, not stored) <textarea v-model.trim="handoverNote" maxlength="500"></textarea></label>
         </fieldset>
         <section v-if="gating && gate" role="alertdialog" aria-modal="true" aria-labelledby="crit-ui-001-title" class="briefing-gate">
           <h2 id="crit-ui-001-title">{{ gate.notification.id }} · {{ gate.notification.message }}</h2>
@@ -159,6 +162,7 @@ onBeforeUnmount(() => {
           <template v-if="handover">
             <p>Prepared by (self-declared, unverified): {{ studentName || '________________' }}</p>
             <p>Instructor review outside AeroDash (self-declared, unverified): {{ instructorName || '________________' }} · Date: ________ · Signature: ________________</p>
+            <p v-if="handoverNote">Handover note (self-declared, unverified): {{ handoverNote }}</p>
           </template>
           <p>{{ currentSnapshot.identity }}{{ currentSnapshot.marker }} · {{ currentSnapshot.category }}</p>
           <p>Generated: {{ currentSnapshot.generated }}</p>
