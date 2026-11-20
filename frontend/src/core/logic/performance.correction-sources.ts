@@ -64,6 +64,8 @@ export type SourceCandidate = {
   ambiguousConditions?: readonly SurfaceCondition[]
   /** Source cells limited to part of the input domain, e.g. tailwind only. */
   coverageLimits?: Partial<Record<Operation, readonly string[]>>
+  /** Generic estimate adapted to the required target; an unknown POH baseline is disclosed, not a hold. */
+  estimate?: true
   /** Unresolved evidence gaps recorded at source acceptance. */
   evidenceGaps: readonly EvidenceGap[]
 }
@@ -219,7 +221,7 @@ function assessCandidate(
       else if (!(candidate.conditions?.[operation] ?? []).includes(condition)) reasons.push({ code: 'condition-not-covered', condition })
     }
     // A generic uplift assumes a paved-dry baseline; adding it onto a grass baseline counts grass twice.
-    if (!candidate.aircraft) {
+    if (!candidate.aircraft && !candidate.estimate) {
       if (context.aircraftBaseline === 'grass') reasons.push({ code: 'baseline-conflict', aircraftBaseline: 'grass' })
       else reasons.push({ code: 'baseline-unknown' })
     }
@@ -369,7 +371,6 @@ function tecnamS9Entries(): SourceCandidate[] {
   ]
 }
 
-const FSM_GAPS: EvidenceGap[] = [{ code: 'authenticity-unconfirmed' }, { code: 'numeric-contract-unaccepted' }]
 const CAA_GAPS: EvidenceGap[] = [{ code: 'scope-not-accepted', scope: 'UK general-aviation guidance' }, { code: 'numeric-contract-unaccepted' }]
 
 export const CORRECTION_SOURCE_REGISTER: readonly SourceCandidate[] = Object.freeze([
@@ -378,13 +379,13 @@ export const CORRECTION_SOURCE_REGISTER: readonly SourceCandidate[] = Object.fre
   ...tecnamEntries('s4'),
   {
     id: 'fsm-surface', document: FSM_3_75, section: 'Table C.5 (surface), definitions A.4', correction: 'surface',
-    operations: ['takeoff'], target: 'distance-over-obstacle', contract: 'multiplier', baseline: 'unspecified',
-    conditions: { takeoff: ['dry-short-grass'] }, evidenceGaps: FSM_GAPS,
+    operations: ['takeoff'], target: 'ground-roll', contract: 'multiplier', baseline: 'unspecified', estimate: true,
+    conditions: { takeoff: ['dry', 'dry-short-grass'] }, evidenceGaps: [],
   },
   {
     id: 'fsm-slope', document: FSM_3_75, section: 'Table C.4 (slope)', correction: 'slope',
-    operations: ['takeoff'], target: 'distance-over-obstacle', contract: 'multiplier', baseline: 'unspecified',
-    evidenceGaps: [...FSM_GAPS, { code: 'range-undefined' }],
+    operations: ['takeoff'], target: 'ground-roll', contract: 'multiplier', baseline: 'unspecified', estimate: true,
+    evidenceGaps: [],
   },
   {
     id: 'caa-wind', document: CAA_SSL_09, section: 'Page 13, take-off and landing distance factors (tailwind row)', correction: 'wind',

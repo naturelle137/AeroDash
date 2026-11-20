@@ -108,6 +108,70 @@ describe('corrected distances in the performance step', () => {
     effect.stop()
   })
 
+  describe('FSM 3/75 estimate without an aircraft manual rule set', () => {
+    // Synthetic profile outside every manual scope; arithmetic wiring only.
+    function fsmSetup(surface: 'paved' | 'unpaved' = 'unpaved', condition = 'dry-short-grass') {
+      const { step, runway, context } = setup('D-TEST', surface)
+      context.profile = { ...testPohAircraft(), registration: 'D-TEST' }
+      Object.assign(runway.draft, { surfaceType: surface, surfaceCondition: condition }); runway.save()
+      return { step, runway }
+    }
+
+    it('estimates take-off slope and grass on the ground roll, marked ESTIMATED', () => {
+      const effect = effectScope()
+      effect.run(() => {
+        const { step } = fsmSetup()
+        Object.assign(step.corrections.takeoff, { headwind: '0', slope: '2' })
+        const item = corrected(step, 0)
+        if (item.status !== 'applied') throw new Error('expected applied')
+        // roll 220 → slope ×1.2 → grass ×1.2 → × regulatory baseline 1.25 (no manual factor).
+        expect(item.rows[0]!.corrected).toBe(`${Math.ceil(220 * 1.2 * 1.2)} m ESTIMATED (FSM 3/75)`)
+        expect(item.rows[0]!.factored).toBe(`${Math.ceil(220 * 1.2 * 1.2 * 1.25)} m ESTIMATED (FSM 3/75)`)
+        expect(item.rows[0]!.raw).toBe('220.0 m')
+        expect(item.comparison.required).toContain('ESTIMATED (FSM 3/75)')
+        expect(item.partial).toBe(false)
+        expect(item.safetyFactor).toContain('no manual factor')
+        expect(item.notes.join(' ')).toContain('not validated by it')
+        expect(item.notes.join(' ')).toContain('Wind is not corrected')
+      })
+      effect.stop()
+    })
+
+    it('keeps landing, tailwind and unmapped surfaces uncorrected with the unapplied inputs named', () => {
+      const effect = effectScope()
+      effect.run(() => {
+        const { step, runway } = fsmSetup()
+        Object.assign(step.corrections.landing, { headwind: '0', slope: '1' })
+        const landing = corrected(step, 1)
+        expect(landing.status).toBe('unavailable')
+        expect((landing as { reason: string }).reason).toContain('Runway slope 1 % was not applied')
+        Object.assign(step.corrections.takeoff, { headwind: '-3', slope: '1' })
+        const tail = corrected(step, 0)
+        expect((tail as { reason: string }).reason).toContain('no tailwind value')
+        expect((tail as { reason: string }).reason).toContain('Wind component -3 kt was not applied')
+        step.corrections.takeoff.headwind = '0'
+        runway.draft.surfaceCondition = 'wet-soft-ground'; runway.save()
+        expect((corrected(step, 0) as { reason: string }).reason).toContain('No accepted correction source')
+      })
+      effect.stop()
+    })
+
+    it('does not credit headwind or downhill slope and marks the result partial', () => {
+      const effect = effectScope()
+      effect.run(() => {
+        const { step } = fsmSetup('paved', 'dry')
+        Object.assign(step.corrections.takeoff, { headwind: '8', slope: '-1' })
+        const item = corrected(step, 0)
+        if (item.status !== 'applied') throw new Error('expected applied')
+        expect(item.partial).toBe(true)
+        expect(item.rows[0]!.corrected).toBe('220 m ESTIMATED (FSM 3/75)')
+        expect(item.notes.join(' ')).toContain('Headwind is not credited')
+        expect(item.notes.join(' ')).toContain('Favourable slope is not credited')
+      })
+      effect.stop()
+    })
+  })
+
   it('reports not-credited headwind and keeps landing independent of takeoff inputs', () => {
     const effect = effectScope()
     effect.run(() => {

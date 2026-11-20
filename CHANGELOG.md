@@ -22,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Estimate take-off slope and dry-grass surface from FSM 3/75 on the ground roll when no aircraft manual supplies them, marked ESTIMATED; wind, landing and other surfaces stay uncorrected and disclosed.
+
 - Align roadmap and README text with the delivered briefing-pack PDF download.
 - Limit the AIRAC calendar display to published dates and indicate when a date is unsupported.
 

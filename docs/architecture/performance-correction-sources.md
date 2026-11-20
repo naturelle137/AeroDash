@@ -62,7 +62,7 @@ Rules live in `core/logic/performance.tecnam-s9-corrections.ts` (values in `TECN
 - Source in-service factor (take-off 1.10, landing 1.67) multiplies the corrected distances.
 - Landing table exists for 650 kg only; lower masses use it unchanged.
 
-The supplied Ed. 2 Rev. 7 basic pages 5-7 to 5-14 and S4 pages 5W-7 to 5W-15 state the same corrections and in-service factors as S9. LBA FSM 3/75 and UK CAA Safety Sense 09 remain unsupported.
+The supplied Ed. 2 Rev. 7 basic pages 5-7 to 5-14 and S4 pages 5W-7 to 5W-15 state the same corrections and in-service factors as S9. UK CAA Safety Sense 09 remains unsupported; FSM 3/75 is an estimate only (see below).
 
 ## Invalidation
 
@@ -75,7 +75,7 @@ input set. Any change, a runway clear, a reload or local-data erasure removes it
 component (kt, negative tailwind) and runway slope (%, positive uphill) per operation, and calls the shared Tecnam rules.
 A corrected distance appears only when wind, surface and slope are all identified from the same applicable Tecnam manual for that
 operation and both inputs are entered (empty is never zero; |slope| < 100). Otherwise the operation shows the reason
-and only the uncorrected raw distance. Unapplied nonzero wind and slope inputs are identified in the result and briefing pack; favourable Tecnam inputs make the result explicitly partially corrected. FSM 3/75 has no numeric values or application domains in the documented factor contract, so no fallback is calculated. Results are rounded up to whole metres, show raw, corrected and final values
+and only the uncorrected raw distance. Unapplied nonzero wind and slope inputs are identified in the result and briefing pack; favourable Tecnam inputs make the result explicitly partially corrected. Without a manual rule set, the take-off surface and slope fall back to the marked FSM 3/75 estimate below; landing and tailwind stay uncorrected. Results are rounded up to whole metres, show raw, corrected and final values
 with the source revision, and appear in the briefing pack. Any input change invalidates them with the raw result.
 
 ## Runway comparison
@@ -93,17 +93,23 @@ Per operation the pilot selects the factor applied to the corrected distances: t
 the result carries an advisory WARN-PF-002 (`osfThreshold`); it never blocks. The manual's own take-off factor
 1.10 is therefore below the 1.25 baseline and warns by default.
 
-## FSM 3/75 reading (REQ-PF-021, not accepted)
+## FSM 3/75 estimate (REQ-PF-021)
 
-The LBA text (1 July 1975, 1995 reprint, `111 3-985.1/75`) was read from a third-party mirror (segelfliegenausbildung.de). Its findings, none implemented:
+The LBA text (1 July 1975, 1995 reprint, `111 3-985.1/75`) was read from a third-party mirror (segelfliegenausbildung.de); authenticity is unconfirmed. CEO directive 19 accepts the estimation method defined by REQ-PF-003/004/021, so the estimate is applied with visible `ESTIMATED (FSM 3/75)` marking. The source does **not** validate this use: it states take-off percentages for the whole distance to 15 m, not for the ground roll.
 
-- **Wind:** the table deliberately gives no headwind credit for take-off ("keine Gegenwindabzüge"), kept as a reserve. The only landing statement, about 10 % per 5 kt headwind, describes what small-aircraft manuals contain on average; it is not an FSM factor. An FSM wind fallback therefore applies nothing.
-- **Slope (take-off only):** ±10 % of "Summe 2" per 1 % slope, + uphill, − downhill. "Summe 2" is the whole distance to 15 m after altitude and temperature, not the ground roll. No slope range is stated.
-- **Surface (take-off only):** chained additions after slope: short dry grass +20 %, damp +10 %, soft +50 %, damaged turf +10 %, long grass +20 %; standing water/slush +30 %, wet snow +50 %, powder +25 %. The baseline is dry paved level at sea level, 15 °C, and the "15 m" height differs from the 50 ft base distances.
-- **Landing:** no table; only 1/3 of the altitude surcharge is mentioned.
+Used only when no aircraft manual rule set supplies the corrections (manual first). Implemented in `core/logic/performance.fsm-estimates.ts`; take-off only:
 
-Why no fallback is calculated: the factors act on the whole distance, but REQ-PF-004 limits slope and surface to the ground roll; the baseline and height differ from the POH tables; the authenticity remains unconfirmed (`FSM_GAPS`); and the slope range is undefined. Choosing an interpretation changes safety results, so it needs an owner decision (ground-roll-only reading vs. whole-distance reading, accepted range, height conversion).
+- **Slope:** +10 % of the ground roll per +1 % uphill.
+- **Surface:** dry paved adds nothing; dry short grass adds +20 %, chained after slope. The source's dry-paved baseline is not credited, so a POH table already flown on grass is never shortened. The POH surface baseline is unknown and stated in the result.
+- **Wind:** not corrected. The source gives no take-off headwind credit and no tailwind value; a tailwind input leaves the distances uncorrected.
+- Slope and surface act on the ground roll only (REQ-PF-004); the airborne part is unchanged. No 15 m to 50 ft conversion is made.
+- Downhill slope and headwind are not credited and make the result partially corrected. The source states no slope range; the input is applied as entered within the generic |slope| < 100 % validation.
+- No manual in-service factor exists, so the safety factor defaults to the regulatory baseline (take-off 1.25).
+
+Not estimated, with the existing unapplied-input disclosure kept: all landing corrections (the source has no landing table), tailwind, and surface conditions without one unambiguous source row (wet or soft ground, long grass, damaged turf, wet or contaminated paved, snow, ice).
+
+Because the source percentages apply to the whole distance, applying them to the ground roll yields a smaller surcharge than the source text; the estimate is therefore a lower bound of the source's own reading and must not be read as conservative against it.
 
 ## Remaining work
 
-Other aircraft and unlisted runway conditions remain unsupported. The FSM 3/75 fallback awaits the decision above.
+Other aircraft manuals and landing corrections remain unsupported; they need a validated source. Further FSM rows (damp, soft, damaged turf, long grass, contaminated surfaces) need a rule for combining the chained percentages before they can be estimated.

@@ -50,6 +50,14 @@ Then('the corrected takeoff distances are {string}', async ({ page }, expected: 
   await expect(region.locator('dd').first()).toContainText(value!)
 })
 
+Then('the corrected takeoff distances are marked as an estimate from the LBA advisory', async ({ page }) => {
+  const region = takeoff(page)
+  await expect(region).toContainText('LBA Flugsicherheitsmitteilung FSM 3/75')
+  await expect(region).toContainText('ESTIMATED (FSM 3/75)')
+  await expect(region).toContainText('not validated by it')
+  await expect(region).toContainText('Wind is not corrected')
+})
+
 Then('the corrected distance evidence is captured as {string}', async ({ page, $testInfo }, name: string) => {
   expect(await page.locator('body').evaluate(el => el.scrollWidth)).toBeLessThanOrEqual(page.viewportSize()!.width)
   await takeoff(page).scrollIntoViewIfNeeded()
