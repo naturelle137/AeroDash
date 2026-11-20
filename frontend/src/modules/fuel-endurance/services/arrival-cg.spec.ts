@@ -323,12 +323,14 @@ describe('single variable-arm tank adapter (zero unusable fuel)', () => {
   })
   describe('mixed fixed-arm and lookup sequence', () => {
     // Tank A: lookup (kg-m table above). Tank B: fixed arm 1 m. Both zero unusable fuel.
-    function mixed(loadA = 30, loadB = 20, unit = 'kg', sourceUnit = 'kg-m') {
+    function mixed(loadA = 30, loadB = 20, unit = 'kg', sourceUnit = 'kg-m', unusableA = 0) {
       const { aircraft, loads } = variable(
         unit,
         sourceUnit,
         unit === 'lb' ? KG_KNOTS.map(([q, m]) => [q / LB, m / LB_IN]) : KG_KNOTS,
         loadA,
+        loadA,
+        unusableA,
       )
       const fixed = structuredClone(aircraft.loadPoints[0]!)
       fixed.name = 'B'
@@ -355,7 +357,7 @@ describe('single variable-arm tank adapter (zero unusable fuel)', () => {
           {
             index: 0,
             mass: toKg(loadA),
-            unusableFuel: 0,
+            unusableFuel: toKg(unusableA),
             arm: null,
             armLookup: lookup,
             burnSequences: [],
@@ -390,6 +392,23 @@ describe('single variable-arm tank adapter (zero unusable fuel)', () => {
       expect(r.arrivalMomentKgM).toBeCloseTo(moment, 9)
       expect(r.arrivalCgM).toBeCloseTo(moment / mass, 12)
     })
+    // Tank A holds 10 kg unusable + 20 kg usable. M&B takeoff: 600 kg, 1120 + (F(30) − F(10)) + 20 = 1190 kg·m;
+    // unusable fuel is never burned, so arrival subtracts F(30) − F(30 − burn) from tank A.
+    it.each([
+      ['A first', 10, 1165, 590],
+      ['A first', 20, 1140, 580],
+      ['A first', 40, 1120, 560],
+      ['B first', 30, 1145, 570],
+    ] as const)('keeps unusable lookup fuel aboard: %s, %s kg', (name, burn, moment, mass) => {
+      const { aircraft, mb, loads } = mixed(30, 20, 'kg', 'kg-m', 10)
+      const r = cg(arrivalCgForPlanning(aircraft, 'Normal', loads, mb, burn, name))
+      expect(r.arrivalMomentKgM).toBeCloseTo(moment, 9)
+      expect(r.arrivalCgM).toBeCloseTo(moment / mass, 12)
+    })
+    it('rejects a nonzero-unusable burn beyond usable fuel', () => {
+      const { aircraft, mb, loads } = mixed(30, 20, 'kg', 'kg-m', 10)
+      expect(arrivalCgForPlanning(aircraft, 'Normal', loads, mb, 41, 'A first').ok).toBe(false)
+    })
     it('normalizes lb-in tables, arms and loads', () => {
       const { aircraft, mb, loads } = mixed(30 / LB, 20 / LB, 'lb', 'lb-in')
       const r = cg(arrivalCgForPlanning(aircraft, 'Normal', loads, mb, 40, 'A first'))
@@ -407,9 +426,8 @@ describe('single variable-arm tank adapter (zero unusable fuel)', () => {
       aircraft.loadPoints[1]!.fuelTank!.burnSequences[0]!.ordinalPosition = 1
       expect(arrivalCgForPlanning(aircraft, 'Normal', loads, mb, 20, 'A first').ok).toBe(false)
     })
-    it('rejects nonzero unusable lookup tanks, both geometries and bad tables', () => {
+    it('rejects both geometries and bad tables', () => {
       const bad = [
-        (a: ReturnType<typeof mixed>['aircraft']) => (a.loadPoints[0]!.fuelTank!.unusableFuel = 1),
         (a: ReturnType<typeof mixed>['aircraft']) => (a.loadPoints[0]!.arm = 3),
         (a: ReturnType<typeof mixed>['aircraft']) => (a.loadPoints[0]!.armLookup[0]!.moment = 1),
         (a: ReturnType<typeof mixed>['aircraft']) => a.loadPoints[0]!.armLookup.reverse(),

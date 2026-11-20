@@ -3,10 +3,17 @@ import { testPohAircraft } from '../fixtures/poh-aircraft'
 
 // Synthetic arithmetic only, not POH/AFM data and no aircraft validation. BEM 560 kg at 2 m
 // (1120 kg·m); lookup tank holds total moments F(0)=0, F(10)=10, F(30)=60, F(50)=150 kg·m at
-// 30 kg; fixed tank 20 kg at 1 m. Takeoff 610 kg, 1200 kg·m.
-function profile() {
+// 30 kg; fixed tank 20 kg at 1 m. Takeoff 610 kg, 1200 kg·m. With 10 kg unusable in the lookup
+// tank, M&B adds F(30) − F(10) = 50: takeoff 600 kg, 1190 kg·m.
+function profile(registration: string, unusable: number) {
   const p = testPohAircraft()
-  const tank = (name: string, arm: number | null, quantity: number, order: [number, number]) => ({
+  const tank = (
+    name: string,
+    arm: number | null,
+    quantity: number,
+    order: [number, number],
+    unusableFuel = 0,
+  ) => ({
     name,
     kind: 'fuel',
     arm,
@@ -24,7 +31,7 @@ function profile() {
     unit: 'kg',
     allowableCategories: null,
     fuelTank: {
-      unusableFuel: 0,
+      unusableFuel,
       permissibleFuelTypes: ['AvGas 100LL'],
       burnSequences: [
         { sequenceName: 'Lookup first', ordinalPosition: order[0] },
@@ -34,8 +41,8 @@ function profile() {
   })
   return {
     ...p,
-    id: '00000000-0000-4000-a000-000000006141',
-    registration: 'D-MIXED',
+    id: `00000000-0000-4000-a000-00000000614${unusable ? 2 : 1}`,
+    registration,
     sourceUnit: 'kg-m',
     performanceProfiles: [],
     weighingReports: [
@@ -55,19 +62,24 @@ function profile() {
         ],
       },
     ],
-    loadPoints: [tank('Lookup tank', null, 30, [1, 2]), tank('Fixed tank', 1, 20, [2, 1])],
+    loadPoints: [tank('Lookup tank', null, 30, [1, 2], unusable), tank('Fixed tank', 1, 20, [2, 1])],
   }
 }
 
 // Runs in both configured viewport projects (390 and 1440 px).
-{
-  test('mixed-geometry arrival CG online and cached offline', async ({ page, context }, info) => {
+// Expected CG strings are [lookup first 10 kg, fixed first 10 kg, fixed first 40 kg, 0 kg, empty lookup tank].
+const cases = [
+  { unusable: 0, registration: 'D-MIXED', cg: ['1.958', '1.983', '1.982', '1.967', '1.982'] },
+  { unusable: 10, registration: 'D-MIXU', cg: ['1.975', '2', '2', '1.983', '1.982'] },
+] as const
+for (const { unusable, registration, cg: expected } of cases) {
+  test(`mixed-geometry arrival CG with ${unusable} kg unusable online and cached offline`, async ({ page, context }, info) => {
     const width = page.viewportSize()!.width
     const label = String(width)
     const shot = async (name: string) => {
-      const path = info.outputPath(`${name}-${label}.png`)
+      const path = info.outputPath(`${name}-${unusable}-${label}.png`)
       await page.screenshot({ path, fullPage: true })
-      await info.attach(`${name}-${label}`, { path, contentType: 'image/png' })
+      await info.attach(`${name}-${unusable}-${label}`, { path, contentType: 'image/png' })
     }
     await page.goto('/fleet')
     await page.getByTestId('disclaimer-gate-accept').click()
@@ -79,16 +91,20 @@ function profile() {
       .poll(() => page.evaluate(() => navigator.serviceWorker.controller !== null))
       .toBe(true)
     await page.getByLabel('Or import from Exchange File (.json)').setInputFiles({
-      name: 'synthetic-mixed.json',
+      name: `synthetic-${registration}.json`,
       mimeType: 'application/json',
       buffer: Buffer.from(
-        JSON.stringify({ format: 'aerodash-aircraft', version: 1, profile: profile() }),
+        JSON.stringify({
+          format: 'aerodash-aircraft',
+          version: 1,
+          profile: profile(registration, unusable),
+        }),
       ),
     })
-    await expect(page.getByRole('button', { name: 'Verify D-MIXED', exact: true })).toBeVisible()
+    await expect(page.getByRole('button', { name: `Verify ${registration}`, exact: true })).toBeVisible()
     await page.goto('/mass-balance')
     const picker = page.getByLabel('Select aircraft', { exact: true })
-    const option = picker.locator('option').filter({ hasText: 'D-MIXED' }).first()
+    const option = picker.locator('option').filter({ hasText: registration }).first()
     await picker.selectOption((await option.getAttribute('value'))!)
     await page.getByRole('button', { name: 'Continue anyway', exact: true }).click()
 
@@ -103,19 +119,19 @@ function profile() {
       await expect(card).toContainText('Choose an explicit named burn sequence')
       await expect(cg).toHaveCount(0)
       await sequence.selectOption('Lookup first')
-      await expect(cg).toHaveText('1.958 m') // 1175 / 600
+      await expect(cg).toHaveText(`${expected[0]} m`)
       await sequence.selectOption('Fixed first')
-      await expect(cg).toHaveText('1.983 m') // 1190 / 600
+      await expect(cg).toHaveText(`${expected[1]} m`)
       await direct.fill('40')
-      await expect(cg).toHaveText('1.982 m') // 1130 / 570
+      await expect(cg).toHaveText(`${expected[2]} m`)
       await direct.fill('0')
-      await expect(cg).toHaveText('1.967 m') // 1200 / 610
+      await expect(cg).toHaveText(`${expected[3]} m`)
       await direct.fill('51')
       await expect(cg).toHaveCount(0)
       await direct.fill('10')
-      await lookupTank.fill('0')
+      await lookupTank.fill(String(unusable))
       await lookupTank.blur()
-      await expect(cg).toHaveText('1.982 m') // empty lookup tank, 20 kg fixed: 1130 / 570
+      await expect(cg).toHaveText(`${expected[4]} m`) // only the fixed tank has usable fuel
     }
     await run()
     await shot('mixed-arrival-cg')
@@ -136,7 +152,7 @@ function profile() {
     await expect(sequence).toHaveValue('')
     await expect(cg).toHaveCount(0)
     await sequence.selectOption('Lookup first')
-    await expect(cg).toHaveText('1.958 m')
+    await expect(cg).toHaveText(`${expected[0]} m`)
     expect(await page.evaluate(() => document.body.scrollWidth)).toBeLessThanOrEqual(width)
     await shot('mixed-arrival-cg-offline')
     await context.setOffline(false)

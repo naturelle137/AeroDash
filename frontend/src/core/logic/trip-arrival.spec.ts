@@ -474,3 +474,49 @@ describe('mixed fixed-arm and lookup sequence', () => {
     expect(run(tanks, 51)).toEqual({ ok: false, reason: 'TRIP_EXCEEDS_USABLE_FUEL' })
   })
 })
+
+describe('sequenced arrival with a lookup tank holding unusable fuel', () => {
+  const lookup = [
+    { massOrVolume: 0, moment: 0 },
+    { massOrVolume: 10, moment: 10 },
+    { massOrVolume: 30, moment: 60 },
+  ]
+  const entry = (sequenceName: string, ordinalPosition: number) => ({ sequenceName, ordinalPosition })
+  // Lookup tank: 10 kg unusable + 20 kg usable = F(30) = 60. Fixed tank: 20 kg at 1 m.
+  const tanks = [
+    { usableFuelKg: 20, unusableFuelKg: 10, lookup, burnSequences: [entry('L', 1), entry('F', 2)] },
+    { usableFuelKg: 20, tankArmM: 1, burnSequences: [entry('L', 2), entry('F', 1)] },
+  ]
+  const base = { takeoffMassKg: 610, takeoffMomentKgM: 1200, sequenceName: 'L', tanks }
+  it.each([
+    ['L', 0, 1200, 610],
+    ['L', 10, 1175, 600],
+    ['L', 20, 1150, 590],
+    ['L', 30, 1140, 580],
+    ['L', 40, 1130, 570],
+    ['F', 10, 1190, 600],
+    ['F', 20, 1180, 590],
+    ['F', 30, 1155, 580],
+    ['F', 40, 1130, 570],
+  ])('%s burning %s kg keeps unusable fuel aboard', (sequenceName, tripFuelKg, moment, mass) => {
+    expect(calculateSequencedTripArrivalCg({ ...base, sequenceName, tripFuelKg })).toEqual({
+      ok: true,
+      arrivalMomentKgM: moment,
+      arrivalCgM: moment / mass,
+    })
+  })
+  it('rejects burn beyond usable fuel, uncovered load and invalid unusable quantity', () => {
+    const run = (list: unknown, tripFuelKg = 20) =>
+      calculateSequencedTripArrivalCg({ ...base, tripFuelKg, tanks: list })
+    expect(run(tanks, 41)).toEqual({ ok: false, reason: 'TRIP_EXCEEDS_USABLE_FUEL' })
+    expect(run([{ ...tanks[0]!, lookup: lookup.slice(0, 2) }, tanks[1]])).toEqual({
+      ok: false,
+      reason: 'LOOKUP_OUT_OF_RANGE',
+    })
+    for (const bad of [-1, Number.NaN, Infinity])
+      expect(run([{ ...tanks[0]!, unusableFuelKg: bad }, tanks[1]])).toEqual({
+        ok: false,
+        reason: 'INVALID_INPUT',
+      })
+  })
+})
