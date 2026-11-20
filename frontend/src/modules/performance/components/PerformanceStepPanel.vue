@@ -59,7 +59,7 @@ const { temperature, temperatureWarnings, corrections, safetyFactors, showPaErro
         Temperature: {{ presentation.conditions.temperature }}</p>
       <section v-for="item in presentation.corrected" :key="item.operation" class="group corrected" :data-corrected="item.operation"
         :aria-label="`${item.title} corrected distances`">
-        <h3>{{ item.title }} corrected distances</h3>
+        <h3>{{ item.title }} {{ item.status === 'applied' && item.partial ? 'partially corrected' : 'corrected' }} distances</h3>
         <p v-if="item.status === 'unavailable'" role="status">Not corrected: {{ item.reason }}</p>
         <template v-else>
           <p>Source: {{ item.source }}</p>
