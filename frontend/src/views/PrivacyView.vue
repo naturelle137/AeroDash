@@ -10,12 +10,14 @@ import {
 import { useFleetStore } from '@/modules/aircraft/stores/fleet.store'
 import { useManualRunwayStore } from '@/modules/airport/stores/manual-runway.store'
 import { useSessionPersistenceStore } from '@/stores/session-persistence.store'
+import { useFlightPrepDraftStore } from '@/stores/flightprep-draft.store'
 import { MIN_PASSCODE_LENGTH, useAppLockStore } from '@/stores/app-lock.store'
 
 type Dialog = 'none' | 'wipe'
 
 const fleetStore = useFleetStore()
 const sessionStore = useSessionPersistenceStore()
+const draftStore = useFlightPrepDraftStore()
 const manualRunwayStore = useManualRunwayStore()
 
 const lockStore = useAppLockStore()
@@ -175,6 +177,7 @@ async function onConfirmWipe(): Promise<void> {
     // after the fact (REQ-SYS-014 — erasure must be irrecoverable). The key
     // itself is left for wipeAllLocalData()'s sweep to remove and count.
     sessionStore.cancelPendingSave()
+    draftStore.cancelPendingSave()
     const report = await wipeAllLocalData()
     dialog.value = 'none'
     wipeConfirmText.value = ''
