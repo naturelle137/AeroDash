@@ -783,6 +783,12 @@ function onCancelSelection(): void {
     sessionPersistenceStore.clearSession()
   }
 }
+
+/** Flush the debounced autosave first: it is suspended once the demo starts. */
+function onStartDemo(): void {
+  sessionPersistenceStore.saveSession()
+  store.enterDemo()
+}
 </script>
 
 <template>
@@ -858,7 +864,30 @@ function onCancelSelection(): void {
       <p class="fp-page-sub">Mass &amp; Balance · {{ isElectric ? 'Energy' : 'Fuel' }} · Performance · Weather</p>
     </div>
 
-    <MbPrintPreview :source="printSource" :read-source="() => printSource" />
+    <!-- Hidden during a demo so a what-if copy is never printed as the real plan. -->
+    <MbPrintPreview v-if="!store.isDemoActive" :source="printSource" :read-source="() => printSource" />
+
+    <!-- Demo / what-if: edits run on a scratch copy; autosave is suspended and
+         discarding restores the saved plan unchanged. Local only; no approval. -->
+    <div v-if="store.isDemoActive" class="demo-banner" role="status" data-testid="demo-banner">
+      <strong>DEMO — what-if copy.</strong>
+      <span class="demo-banner__message">
+        Changes are not saved. Discard to return to the saved plan.
+      </span>
+      <button
+        type="button"
+        class="demo-banner__discard"
+        data-testid="demo-discard"
+        @click="store.exitDemo()"
+      >
+        Discard demo
+      </button>
+    </div>
+    <div v-else-if="store.aircraft" class="demo-start">
+      <button type="button" class="demo-start__button" data-testid="demo-start" @click="onStartDemo">
+        Start demo (what-if)
+      </button>
+    </div>
 
     <!-- ═══ Session restore banner (INFO-SYS-001) ════════════════════════════
          Shown when the persisted preflight session could not be restored on
@@ -1592,6 +1621,44 @@ function onCancelSelection(): void {
   color: var(--color-info, #1e40af);
   font-size: var(--text-sm);
   flex-wrap: wrap;
+}
+
+.demo-banner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  padding: var(--space-3) var(--space-4);
+  margin-bottom: var(--space-4);
+  border-radius: var(--radius-md);
+  border: 2px dashed currentColor;
+  background: var(--color-warning-bg, #fef3c7);
+  color: var(--color-warning, #92400e);
+  font-size: var(--text-sm);
+}
+
+.demo-banner__message {
+  flex: 1 1 auto;
+}
+
+.demo-banner__discard,
+.demo-start__button {
+  padding: var(--space-2) var(--space-3);
+  min-height: 44px;
+  border: 1px solid currentColor;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.demo-start {
+  margin-bottom: var(--space-4);
 }
 
 .session-drop-banner__message {

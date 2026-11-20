@@ -23,6 +23,7 @@
  */
 
 import { defineStore } from 'pinia'
+import { toRaw } from 'vue'
 import { calculateMassBalance } from '@/core/adapters/mass-balance.adapter'
 import {
   normalizeMassToKg,
@@ -87,6 +88,14 @@ function deriveMandatory(lp: LoadPointDefinition, weight: number): boolean {
 // Store
 // ---------------------------------------------------------------------------
 
+interface DemoOriginal {
+  activeCategory: string | null
+  stations: StationInput[]
+  notifications: Notification[]
+  lastResult: MathCoreResult | null
+  uiState: MassBalanceState
+}
+
 export const useMassBalanceStore = defineStore('massBalance', {
   // ═══════════════════════════════════════════════════════════════════════════
   // Layer 1 — Raw Input State
@@ -110,6 +119,12 @@ export const useMassBalanceStore = defineStore('massBalance', {
 
     /** Last computed math result (null before first calculation). */
     lastResult: null as MathCoreResult | null,
+
+    /**
+     * In-memory copy of the saved plan while a demo is active (null otherwise).
+     * Demo edits run on the live fields; exit restores this copy unchanged.
+     */
+    demoOriginal: null as DemoOriginal | null,
   }),
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -117,6 +132,11 @@ export const useMassBalanceStore = defineStore('massBalance', {
   // ═══════════════════════════════════════════════════════════════════════════
 
   getters: {
+    /** True while a non-persisted demo / what-if copy is being edited. */
+    isDemoActive(): boolean {
+      return this.demoOriginal !== null
+    },
+
     activeCategoryDef(): CategoryDefinition | null {
       if (!this.aircraft || !this.activeCategory) return null
       return (
@@ -200,6 +220,8 @@ export const useMassBalanceStore = defineStore('massBalance', {
      *                   the store receives the resolved data.)
      */
     loadProfile(profile: AircraftContext): void {
+      // A saved-plan copy of another profile must not be restored onto this one.
+      this.demoOriginal = null
       this.uiState = 'LOADING'
 
       try {
@@ -339,6 +361,35 @@ export const useMassBalanceStore = defineStore('massBalance', {
     },
 
     /**
+     * Start a demo / what-if: keep a deep copy of the saved plan and let the
+     * pilot edit freely. Session autosave is suspended while the demo runs
+     * (see session-persistence store), so nothing edited here is stored.
+     * No-op without a loaded aircraft or when a demo is already active.
+     */
+    enterDemo(): void {
+      if (!this.aircraft || this.demoOriginal) return
+      this.demoOriginal = {
+        activeCategory: this.activeCategory,
+        stations: structuredClone(toRaw(this.stations)),
+        notifications: structuredClone(toRaw(this.notifications)),
+        lastResult: structuredClone(toRaw(this.lastResult)),
+        uiState: this.uiState,
+      }
+    },
+
+    /** Discard the demo and restore the saved plan and its results exactly. */
+    exitDemo(): void {
+      const original = this.demoOriginal
+      if (!original) return
+      this.activeCategory = original.activeCategory
+      this.stations = original.stations
+      this.notifications = original.notifications
+      this.lastResult = original.lastResult
+      this.uiState = original.uiState
+      this.demoOriginal = null
+    },
+
+    /**
      * Clear the entire M&B context on aircraft hot-swap.
      *
      * Unlike `resetPayload()` (which only zeroes weights for the current
@@ -348,6 +399,7 @@ export const useMassBalanceStore = defineStore('massBalance', {
      * Session-persistence clears itself via its watcher on `aircraft.id`.
      */
     clearProfile(): void {
+      this.demoOriginal = null
       this.aircraft = null
       this.activeCategory = null
       this.stations = []
