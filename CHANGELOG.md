@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Preserve extrapolation provenance on corrected distances and runway comparisons.
 - Keep demo unit preferences and obstacle inputs separate from the student's plan.
 - Leave the saved flight plan byte-for-byte unchanged when a demo is entered and discarded.
 - Identify unapplied wind and slope inputs in performance results and briefing packs.
