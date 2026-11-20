@@ -73,6 +73,7 @@ const SequencedArrivalInputSchema = ArrivalInputSchema.omit({ usableFuelKg: true
     .array(
       z.object({
         usableFuelKg: z.number().finite().nonnegative(),
+        unusableFuelKg: z.number().finite().nonnegative().default(0),
         tankArmM: z.number().finite().optional(),
         lookup: z.array(z.object({ massOrVolume: z.number(), moment: z.number() })).optional(),
         burnSequences: z.array(
@@ -88,7 +89,7 @@ const SequencedArrivalInputSchema = ArrivalInputSchema.omit({ usableFuelKg: true
 
 // The legacy contract attaches named ordinal entries to tanks, rather than referencing tank IDs.
 // Each tank has either a fixed arm or a lookup table of total tank moment (kg, kg·m) with
-// zero unusable fuel, so its current load equals usableFuelKg and F(0) = 0.
+// F(0) = 0. A lookup tank's current load is unusableFuelKg + usableFuelKg; only usable fuel burns.
 export function calculateSequencedTripArrivalCg(input: unknown): TripArrivalCgResult {
   const parsed = SequencedArrivalInputSchema.safeParse(input)
   if (!parsed.success) return { ok: false, reason: 'INVALID_INPUT' }
@@ -122,8 +123,9 @@ export function calculateSequencedTripArrivalCg(input: unknown): TripArrivalCgRe
       const { lookup } = tank
       if (!isStrictMomentLookup(lookup) || lookup[0]!.massOrVolume !== 0 || lookup[0]!.moment !== 0)
         return { ok: false, reason: 'INVALID_GEOMETRY' }
-      const before = interpolateMomentStrict(tank.usableFuelKg, lookup)
-      const after = interpolateMomentStrict(tank.usableFuelKg - burnedKg, lookup)
+      const loadKg = tank.unusableFuelKg + tank.usableFuelKg
+      const before = interpolateMomentStrict(loadKg, lookup)
+      const after = interpolateMomentStrict(loadKg - burnedKg, lookup)
       if (before === null || after === null) return { ok: false, reason: 'LOOKUP_OUT_OF_RANGE' }
       burnedMomentKgM += before - after
     } else burnedMomentKgM += burnedKg * tank.tankArmM!

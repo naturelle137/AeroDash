@@ -197,9 +197,11 @@ this contract so the REQ-PF-012 result-acceptance barrier is real and not adviso
    still flag that the figure is floored at the best documented AFM value
    (UJ-E-003).
 
-The acknowledgment UI, its E2E coverage (UJ-C-001, UJ-E-003), and the
-notification wiring are delivered by the Performance UI module task, **not** by
-this P1 contract.
+The raw table lookup consumes this control through `lookupPhaseDistanceWithExtrapolation`
+and the Performance step enforces items 1–3 (see
+[Flight Prep Performance](./performance-flight-prep.md)). The lookup verifies the
+§3 monotonicity assumption on the actual table and blocks extrapolation when it fails.
+The below-minimum floor of item 4 is the separate mass benefit cap.
 
 ---
 

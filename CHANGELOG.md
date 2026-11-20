@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Label a locally printed or downloaded briefing pack as an unapproved student handover copy.
+- Extrapolate Performance lookups up to 10 % above a table maximum with the fixed 20 % penalty, withheld until the pilot acknowledges; block beyond that. The path stays disabled until an applicable source is recorded; upper excursions remain blocked.
 - Check pilot-declared runway source dates and display the AIRAC calendar cycle.
 - Verify estimated briefing-pack results after offline reload at desktop and mobile widths.
 - Show WARNING WARN-UI-001 in Flight Preparation when the entered temperature is outside −40 to 50 °C, without blocking or clamping.
@@ -18,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add an optional offline app lock with multi-tab locking and forgotten-passcode erasure; it hides the app but does not encrypt data.
 - Calculate trip-arrival CG for one lookup tank with unusable fuel.
 - Estimate trip arrival CG for explicit burn sequences that mix fixed-arm and zero-unusable lookup tanks.
+- Estimate trip arrival CG for explicit burn sequences with lookup tanks that hold unusable fuel.
 - Add a client-side PDF download of the current briefing pack next to print, with the same invalidation and CRIT-UI-001 gate.
 - Add accessible contextual help for performance pressure altitude, QNH, wind and slope inputs.
 
