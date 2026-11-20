@@ -68,6 +68,21 @@ point. Accepted Tecnam configurations support source-specific corrections and ru
 
 The current shared Performance presentation carries deduplicated critical runway and low-factor notifications. Flight Prep and the briefing pack render these from the same current comparisons and warnings; invalidated inputs remove the corresponding notifications.
 
+### Applicability beyond the software method (decision, #420)
+
+Decision: AeroDash does not extend extrapolation past the accepted software method
+(at most 10 % above the table maximum, fixed 1.2 penalty, acknowledgement required).
+Beyond that band, below-minimum PA/temperature and any table that is non-monotonic
+or declares `extrapolation: "prohibited"` stay blocked with no distance. No
+aircraft-specific POH/AFM source has been obtained that endorses a wider or
+different extrapolation, and none is invented. Adding one needs that source and its
+revision recorded per profile first, then a separate requirement change; legal or
+safety claims about it need CEO authority.
+
+Not executed: keyboard and notch safe-area behaviour on a real mobile device.
+Browser checks use zero insets only (see the evidence README); a hardware test
+remains an open verification item for #420 and must not be reported as passed.
+
 ## Units and persistence
 
 No locale/region source exists in the application. The commissioned fallback is
