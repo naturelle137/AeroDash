@@ -1,10 +1,12 @@
-// Instructor-authored teaching notes anchored to M&B result endpoints. They are advisory human
+// Instructor-authored teaching notes anchored to result endpoints. They are advisory human
 // content stored on this device only; nothing here reads, clears or alters system notifications.
 
 export const ANNOTATION_ANCHORS = [
   { id: 'takeoff', label: 'Takeoff' },
   { id: 'zeroFuel', label: 'Zero fuel' },
   { id: 'fuelBurned', label: 'All usable fuel burned' },
+  { id: 'takeoffDistance', label: 'Takeoff distance' },
+  { id: 'landingDistance', label: 'Landing distance' },
 ] as const
 
 export type AnnotationAnchor = (typeof ANNOTATION_ANCHORS)[number]['id']

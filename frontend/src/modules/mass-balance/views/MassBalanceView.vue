@@ -1270,7 +1270,7 @@ function onStartDemo(): void {
         <span class="prep-card__badge">04</span>
         <h2 id="prep-performance-title" class="prep-card__title">Performance</h2>
       </div>
-      <FlightPrepPerformance :step="performanceStep" :context="performanceContext" />
+      <FlightPrepPerformance :step="performanceStep" :context="performanceContext" :notes-enabled="!store.isDemoActive" />
     </section>
 
     <!-- ═══ COMING SOON: Weather ════════════════════════════════════════════ -->

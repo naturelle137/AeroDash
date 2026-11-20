@@ -3,11 +3,12 @@ import { computed, ref } from 'vue'
 import { useAnnotationStore } from './annotation.store'
 import { ANNOTATION_ANCHORS, AUTHOR_MAX, TEXT_MAX, anchorLabel, type AnnotationAnchor } from './annotations'
 
-const props = defineProps<{ aircraftId: string }>()
+const props = withDefaults(defineProps<{ aircraftId: string; performance?: boolean }>(), { performance: false })
 const store = useAnnotationStore()
-const notes = computed(() => store.forAircraft(props.aircraftId))
+const anchors = computed(() => ANNOTATION_ANCHORS.filter(a => props.performance ? a.id.endsWith('Distance') : !a.id.endsWith('Distance')))
+const notes = computed(() => store.forAircraft(props.aircraftId).filter(n => anchors.value.some(a => a.id === n.anchor)))
 const editingId = ref<string | null>(null)
-const anchor = ref<AnnotationAnchor>('takeoff')
+const anchor = ref<AnnotationAnchor>(props.performance ? 'takeoffDistance' : 'takeoff')
 const author = ref('')
 const text = ref('')
 const error = ref<string | null>(null)
@@ -27,8 +28,8 @@ function save(): void {
 </script>
 
 <template>
-  <section class="annotation-panel" aria-labelledby="annotation-title" data-testid="annotation-panel">
-    <h3 id="annotation-title">Instructor notes</h3>
+  <section class="annotation-panel" aria-label="Instructor notes" data-testid="annotation-panel">
+    <h3>Instructor notes</h3>
     <p class="annotation-panel__hint">Advisory teaching notes, stored on this device only. The author name is self-declared and unverified. A note never clears or changes a system warning.</p>
     <ul v-if="notes.length" class="annotation-panel__list">
       <li v-for="n in notes" :key="n.id" data-testid="annotation-item">
@@ -42,7 +43,7 @@ function save(): void {
     <form class="annotation-panel__form" @submit.prevent="save">
       <label>Result
         <select v-model="anchor" :disabled="!!editingId">
-          <option v-for="a in ANNOTATION_ANCHORS" :key="a.id" :value="a.id">{{ a.label }}</option>
+          <option v-for="a in anchors" :key="a.id" :value="a.id">{{ a.label }}</option>
         </select>
       </label>
       <label>Author <input v-model="author" type="text" :maxlength="AUTHOR_MAX" autocomplete="off"></label>

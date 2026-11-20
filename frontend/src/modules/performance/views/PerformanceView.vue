@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useFleetStore } from '@/modules/aircraft/stores/fleet.store'
+import AnnotationPanel from '@/modules/annotations/AnnotationPanel.vue'
 import ManualRunwayPanel from '@/modules/airport/components/ManualRunwayPanel.vue'
 import CorrectionSourcePanel from '../components/CorrectionSourcePanel.vue'
 import ManualWindComponentPanel from '../components/ManualWindComponentPanel.vue'
@@ -81,6 +82,7 @@ onMounted(() => fleet.loadAll())
           <p>The entered mass is used for both takeoff and landing tables.</p>
         </template>
       </PerformanceStepPanel>
+      <AnnotationPanel v-if="profile && fleet.fleetLoadState === 'READY'" :key="profile.id" :aircraft-id="profile.id" performance />
     </section>
     <UnitPreferencesFieldset />
     <ManualRunwayPanel />
