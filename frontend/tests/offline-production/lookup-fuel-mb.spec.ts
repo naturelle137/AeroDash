@@ -275,10 +275,10 @@ test('lookup fuel M&B uses total-moment differences on screen, chart, print and 
   await load('30')
   await expect(takeoffCg).toContainText('2.017')
 
-  // Profile change resets the loading to the selected profile's default.
+  // Returning to a previously used profile restores that aircraft's own entries (30 kg).
   await select('D-LKG')
-  await expect(tank).toHaveValue('50')
-  await expect(takeoffCg).toContainText('2.100')
+  await expect(tank).toHaveValue('30')
+  await expect(takeoffCg).toContainText('2.017')
   await load('30')
   await expect
     .poll(() =>
