@@ -27,3 +27,7 @@ Then('the saved plan still holds the reduced baggage', async ({ page }) => {
   // Demo set 23 kg in the second baggage area; the saved plan holds 0.
   expect(weights).not.toContain(23)
 })
+
+Then('the Flight Prep temperature is {string} °C', async ({ page }, temperature: string) => {
+  await expect(page.getByLabel('Temperature (°C)', { exact: true })).toHaveValue(temperature)
+})

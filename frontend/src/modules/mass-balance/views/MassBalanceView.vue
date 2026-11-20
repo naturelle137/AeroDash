@@ -792,7 +792,7 @@ function onStartDemo(): void {
 </script>
 
 <template>
-  <div class="fp-view" :class="viewModel.stateClass">
+  <div class="fp-view" :class="[viewModel.stateClass, { 'fp-view--demo': store.isDemoActive }]">
 
     <!-- ═══ Sticky breadcrumb stack (REQ-UI-SCROLL) ════════════════════════ -->
     <!-- One row per card the pilot has scrolled past. Each strip mirrors  -->
@@ -1628,16 +1628,25 @@ function onStartDemo(): void {
   align-items: center;
   gap: var(--space-3);
   flex-wrap: wrap;
-  position: sticky;
-  top: 0;
-  z-index: 5;
+  /* Fixed to the viewport bottom: the top is occupied by the app header and the
+     fixed section stack, which would hide a sticky banner. */
+  position: fixed;
+  left: var(--space-3);
+  right: var(--space-3);
+  bottom: calc(var(--space-3) + env(safe-area-inset-bottom, 0px));
+  z-index: 160;
   padding: var(--space-3) var(--space-4);
-  margin-bottom: var(--space-4);
   border-radius: var(--radius-md);
   border: 2px dashed currentColor;
   background: var(--color-warning-bg, #fef3c7);
   color: var(--color-warning, #92400e);
   font-size: var(--text-sm);
+}
+
+@media (max-width: 767.98px) {
+  .demo-banner {
+    bottom: calc(var(--nav-bottom-height) + var(--space-3) + env(safe-area-inset-bottom, 0px));
+  }
 }
 
 .demo-banner__message {
@@ -1655,6 +1664,11 @@ function onStartDemo(): void {
   font: inherit;
   font-weight: 600;
   cursor: pointer;
+}
+
+.fp-view--demo {
+  /* Room for the fixed demo banner so it never covers the last content. */
+  padding-bottom: 8rem;
 }
 
 .demo-start {

@@ -25,3 +25,12 @@ Feature: Try an alternative load without changing the saved plan
     And the instructor starts a demo
     And loads four heavy adults and maximum baggage
     Then the saved plan still holds the reduced baggage
+
+  @phase-B @e2e @demo @module-mb
+  Scenario: Discarding a demo restores the entered Performance temperature
+    When the pilot selects aircraft "D-ECSM"
+    And the pilot sets temperature "10" °C in Flight Prep
+    And the instructor starts a demo
+    And the pilot sets temperature "35" °C in Flight Prep
+    And the instructor discards the demo
+    Then the Flight Prep temperature is "10" °C

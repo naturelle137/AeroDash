@@ -203,3 +203,7 @@ While a demo is active, the system shall not write the demo copy to local storag
 ### REQ-UI-050: Demo discard
 
 When the pilot discards the demo, the system shall restore the saved plan and its results unchanged.
+
+### REQ-UI-051: Demo session inputs
+
+When the pilot discards a demo, the system shall restore the fuel burn sequence, fuel planning inputs and Performance inputs to their values from before the demo started.
