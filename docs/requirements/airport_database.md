@@ -106,4 +106,8 @@ When displaying a saved runway, the system shall compare its declared dates with
 
 ### REQ-AP-022: AIRAC calendar
 
-When displaying a saved runway, the system shall display the AIRAC cycle start for the selected date.
+When displaying a saved runway, the system shall display the AIRAC cycle start for a selected date within the supported published calendar.
+
+### REQ-AP-023: Unsupported AIRAC date
+
+If the selected date is outside the supported published calendar or invalid, then the system shall indicate that the AIRAC cycle is unavailable.
