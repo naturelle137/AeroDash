@@ -137,6 +137,9 @@ synchronously invalidate the snapshot and set a DOM/CSS guard before queued Vue
 renders can expose stale numbers to native printing. The snapshot fingerprint
 is reactive so a new current snapshot can be opened after invalidation.
 Cancellation preserves inputs. Browser printing needs no upload or PDF library.
+An optional student handover label marks the printed or downloaded snapshot as
+unapproved and states that no instructor review or authenticated counter-signature
+is recorded. This local copy cannot be imported as an editable preparation.
 
 ## Application lifecycle
 
