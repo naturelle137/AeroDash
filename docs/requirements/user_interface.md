@@ -207,3 +207,7 @@ When the pilot discards the demo, the system shall restore the saved plan and it
 ### REQ-UI-051: Demo session inputs
 
 When the pilot discards a demo, the system shall restore the fuel burn sequence, fuel planning inputs and Performance inputs to their values from before the demo started.
+
+### REQ-UI-052: Demo unit preferences
+
+While a demo is active, the system shall keep unit preference changes in memory and restore the previous preferences when the demo ends.

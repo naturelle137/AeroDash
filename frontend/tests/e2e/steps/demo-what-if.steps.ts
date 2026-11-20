@@ -16,6 +16,22 @@ Then('the demo banner is not displayed', async ({ page }) => {
   await expect(page.getByTestId('demo-banner')).toHaveCount(0)
 })
 
+let recordedPlan: string | null = null
+const readPlan = (page: import('@playwright/test').Page) =>
+  page.evaluate(() => localStorage.getItem('aerodash:session:payload'))
+
+When('the saved plan is recorded', async ({ page }) => {
+  // Wait past the debounced autosave so the pre-demo edits are stored.
+  await page.waitForTimeout(1000)
+  recordedPlan = await readPlan(page)
+  expect(recordedPlan).not.toBeNull()
+})
+
+Then('the saved plan is byte-for-byte unchanged', async ({ page }) => {
+  await page.waitForTimeout(1000)
+  expect(await readPlan(page)).toBe(recordedPlan)
+})
+
 Then('the saved plan still holds the reduced baggage', async ({ page }) => {
   // Autosave is debounced; wait past it so a leaked demo write would be stored.
   await page.waitForTimeout(1000)
@@ -30,4 +46,21 @@ Then('the saved plan still holds the reduced baggage', async ({ page }) => {
 
 Then('the Flight Prep temperature is {string} °C', async ({ page }, temperature: string) => {
   await expect(page.getByLabel('Temperature (°C)', { exact: true })).toHaveValue(temperature)
+})
+
+When('the instructor changes demo unit preferences', async ({ page }) => {
+  const units = page.getByRole('group', { name: 'Unit preferences' })
+  await units.getByLabel('Field elevation').selectOption('m')
+  await units.getByLabel('Declared runway distances').selectOption('ft')
+  await expect(units).toContainText('Demo unit choices are temporary')
+})
+
+Then('the saved unit preferences are unchanged', async ({ page }) => {
+  expect(await page.evaluate(() => localStorage.getItem('aerodash.preferences.units.v1'))).toBeNull()
+})
+
+Then('the original unit preferences are restored', async ({ page }) => {
+  const units = page.getByRole('group', { name: 'Unit preferences' })
+  await expect(units.getByLabel('Field elevation')).toHaveValue('ft')
+  await expect(units.getByLabel('Declared runway distances')).toHaveValue('m')
 })

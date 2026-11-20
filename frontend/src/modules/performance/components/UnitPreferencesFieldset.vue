@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { LENGTH_UNITS, isLengthUnit } from '@/core/logic/unit-preferences'
 import { useLoadedUnitPreferences } from '@/modules/performance/stores/unit-preferences.store'
+import { useMassBalanceStore } from '@/modules/mass-balance/stores/mass-balance.store'
 
 const units = useLoadedUnitPreferences()
+const massBalance = useMassBalanceStore()
 
 function choose(field: 'fieldElevation' | 'runwayDistance', event: Event): void {
   const value = (event.target as HTMLSelectElement).value
@@ -31,7 +33,9 @@ function choose(field: 'fieldElevation' | 'runwayDistance', event: Event): void 
         </select>
       </div>
     </div>
-    <p id="unit-preferences-origin">{{ units.origin === 'saved'
+    <p id="unit-preferences-origin">{{ massBalance.isDemoActive
+      ? 'Demo unit choices are temporary and will be discarded.'
+      : units.origin === 'saved'
       ? 'Saved on this device. They set the units of empty fields; entered values and saved runways keep their own units.'
       : 'Defaults: AeroDash reads no locale or region, so it uses hPa, ft and m until you choose.' }}
       Numeric QNH and pressure altitude are never saved.</p>
