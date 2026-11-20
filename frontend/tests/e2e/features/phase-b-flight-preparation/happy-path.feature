@@ -47,6 +47,7 @@ Feature: Complete a textbook flight preparation within all limits
     And the pilot prepares an unapproved handover copy
     Then the briefing pack states "Student handover copy — UNAPPROVED"
     And the briefing pack states "Instructor review and authenticated counter-signature are not recorded by AeroDash."
+    And the briefing pack states "Handover note (self-declared, unverified): Check fuel reserve"
     And the briefing pack evidence is captured as "handover-<width>"
 
     Examples:
