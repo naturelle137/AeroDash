@@ -178,6 +178,31 @@ When('the pilot prepares an unapproved handover copy', async ({ page }) => {
   await page.getByLabel('Handover note (optional, unverified, not stored)').fill('Check fuel reserve')
 })
 
+let handoverFile = ''
+
+When('the pilot saves a handover file', async ({ page }) => {
+  const download = page.waitForEvent('download')
+  await page.getByRole('button', { name: 'Save handover file' }).click()
+  handoverFile = (await (await download).path()) ?? ''
+})
+
+When('the pilot changes the baggage load to {string}', async ({ page }, value: string) => {
+  await fillStation(page, 'Baggage', value)
+})
+
+When('the pilot opens the saved handover file', async ({ page }) => {
+  await page.getByTestId('handover-file').setInputFiles(handoverFile)
+})
+
+Then('the handover is marked unreviewed and not approved', async ({ page }) => {
+  await expect(page.getByTestId('handover-notice')).toContainText('unreviewed')
+  await expect(page.getByTestId('handover-notice')).toContainText('Not approved by any instructor')
+})
+
+Then('the baggage load is {string}', async ({ page }, value: string) => {
+  await expect(page.locator('.mass-station-input').getByLabel('Baggage', { exact: true })).toHaveValue(value)
+})
+
 Then('the briefing pack states {string}', async ({ page }, text: string) => {
   await expect(page.getByRole('dialog', { name: 'Briefing Pack preview' })).toContainText(text)
 })

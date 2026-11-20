@@ -10,8 +10,9 @@ organization requirements describe future behavior; schema `ownerId`/`shareCode`
 fields do not implement identity or network sharing.
 
 The briefing pack can be labelled as an unapproved student handover copy for
-local print or PDF. This is a read-only snapshot, not an editable plan transfer,
-role check, review record or authenticated counter-signature.
+local print or PDF. The printed copy is a read-only snapshot. A separate editable handover
+file moves typed entries between devices. Neither is a role check, review record
+or authenticated counter-signature.
 
 Future remote changes are subject to the [pre-sync engineering gate](../architecture/adr/014-pre-sync-privacy-gate.md).
 That prerequisite is not a completed DPIA or approval of a lawful basis; #285
@@ -119,3 +120,15 @@ Where the student handover label is selected, the briefing pack shall print opti
 ### REQ-SC-025: Handover note
 
 Where the student handover label is selected, the briefing pack shall include an optional entered note marked self-declared and unverified without storing it.
+
+### REQ-SC-026: Handover file export
+
+When the user saves a handover file, the system shall write the entered Mass & Balance, fuel and performance values, the aircraft registration and the export time as an unreviewed file without approval, signature or station verification fields.
+
+### REQ-SC-027: Handover file import
+
+When the user opens a handover file for the loaded aircraft, the system shall validate it, apply its entries as unverified edits and state that the preparation is unreviewed and not approved.
+
+### REQ-SC-028: Handover file refusal
+
+If a handover file is invalid, oversize, newer than this build, contains an approval field, or does not match the loaded aircraft's registration, stations and category, the system shall import nothing and state the reason.

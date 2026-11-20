@@ -145,5 +145,15 @@ export function useFlightPrepDraft(fuel: FuelPlanning, step: PerformanceStep) {
     reset()
   }
 
-  return { clearDraft }
+  /** The entries as typed now, for a handover file. */
+  function snapshotEntries(): Fields {
+    return collect(fuel, step)
+  }
+
+  /** Put received entries into the inputs; the autosave then keeps them as this device's own draft. */
+  function applyEntries(fields: Fields): void {
+    apply({ aircraftId: '', savedAt: '', ...fields })
+  }
+
+  return { clearDraft, snapshotEntries, applyEntries }
 }

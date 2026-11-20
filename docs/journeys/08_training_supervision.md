@@ -1,8 +1,9 @@
 # User Journeys - Phase H: Training & Supervision
 
 These future journeys describe intended outcomes, not implemented or tested
-features. AeroDash currently stores preparations locally and does not provide
-editable student/instructor handover, counter-signature or an isolated demo mode.
+features. AeroDash currently stores preparations locally. An unsigned handover
+file moves editable entries between devices; AeroDash does not provide
+student/instructor roles, counter-signature or an isolated demo mode.
 The briefing pack can be printed or saved locally as an explicitly unapproved
 student handover copy for an instructor to review outside the app. It does not
 record the review or establish either person's identity.
