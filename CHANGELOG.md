@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-- Reconcile selected briefing, performance and fuel requirements with current evidence and update roadmap limits.
+- Give every documentation/export, performance and fuel/endurance requirement an evidence-backed status or a stated gap, renumber the duplicate REQ-DOC-034 to REQ-DOC-037 and update roadmap limits.
 
 ### Engineering
 
