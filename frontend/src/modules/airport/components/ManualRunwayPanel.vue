@@ -118,7 +118,7 @@ if (!runway.loaded) runway.load()
       <div class="value-unit">
         <div class="field">
           <label for="manual-runway-elevation">Field elevation</label>
-          <input id="manual-runway-elevation" v-model="runway.draft.fieldElevation" type="text" inputmode="decimal"
+          <input id="manual-runway-elevation" v-model="runway.draft.fieldElevation" type="text" inputmode="text"
             :aria-invalid="!!error('fieldElevation')" :aria-describedby="describedBy('fieldElevation')" />
         </div>
         <div class="field">

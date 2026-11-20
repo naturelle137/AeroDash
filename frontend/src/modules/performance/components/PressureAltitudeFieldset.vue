@@ -30,7 +30,7 @@ function paError(field: PressureAltitudeField): string | undefined {
       Derive from QNH and field elevation</label>
     <p v-if="!method">No method selected. Choose one; nothing is assumed.</p>
     <div v-if="method === 'direct'" class="fields">
-      <label>Pressure altitude (ft)<input id="pa-direct" v-model="direct" type="text" inputmode="decimal" /></label>
+      <label>Pressure altitude (ft)<input id="pa-direct" v-model="direct" type="text" inputmode="text" /></label>
     </div>
     <p v-if="method === 'direct'">Used exactly as entered. Field elevation is never treated as pressure altitude.</p>
     <section v-if="method === 'qnh-elevation'" aria-label="QNH and field elevation">
@@ -44,7 +44,7 @@ function paError(field: PressureAltitudeField): string | undefined {
             <option v-for="unit in QNH_UNITS" :key="unit" :value="unit">{{ unit }}</option>
           </select>
         </div>
-        </div><div class="value-unit"><label for="pa-elevation">Pressure-altitude field elevation<input id="pa-elevation" v-model="draft.elevation" type="text" inputmode="decimal" :aria-invalid="!!paError('elevation')" /></label>
+        </div><div class="value-unit"><label for="pa-elevation">Pressure-altitude field elevation<input id="pa-elevation" v-model="draft.elevation" type="text" inputmode="text" :aria-invalid="!!paError('elevation')" /></label>
         <div class="field unit-field">
           <label class="sr-only" for="pa-elevation-unit">Pressure-altitude field elevation unit</label>
           <select id="pa-elevation-unit" v-model="draft.elevationUnit" :aria-invalid="!!paError('elevationUnit')">

@@ -13,15 +13,15 @@ const { temperature, temperatureWarnings, corrections, safetyFactors, showPaErro
   <form class="performance-step" novalidate aria-label="Performance lookup conditions" @submit.prevent>
     <slot name="masses" />
     <div class="fields">
-      <label>Temperature (°C)<input id="performance-temperature" v-model="temperature" type="text" inputmode="decimal" /></label>
+      <label>Temperature (°C)<input id="performance-temperature" v-model="temperature" type="text" inputmode="text" /></label>
     </div>
     <p v-for="warning in temperatureWarnings" :key="warning" role="alert" data-warning="WARN-UI-001">{{ warning }}</p>
     <PressureAltitudeFieldset :pa="step.pa" :show-errors="showPaErrors" />
     <fieldset v-for="operation in (['takeoff', 'landing'] as const)" :key="operation" class="fields correction-inputs">
       <legend>{{ operation === 'takeoff' ? 'Takeoff' : 'Landing' }} wind and slope</legend>
-      <div><label>Headwind component (kt, negative = tailwind)<input v-model="corrections[operation].headwind" :id="`performance-${operation}-headwind`" type="text" inputmode="decimal" /></label>
+      <div><label>Headwind component (kt, negative = tailwind)<input v-model="corrections[operation].headwind" :id="`performance-${operation}-headwind`" type="text" inputmode="text" /></label>
         <InputHelp :label="`${operation === 'takeoff' ? 'Takeoff' : 'Landing'} headwind`">Enter the wind component along the runway in knots: positive for headwind, negative for tailwind, and zero for calm.</InputHelp></div>
-      <div><label>Runway slope (%, positive = uphill)<input v-model="corrections[operation].slope" :id="`performance-${operation}-slope`" type="text" inputmode="decimal" /></label>
+      <div><label>Runway slope (%, positive = uphill)<input v-model="corrections[operation].slope" :id="`performance-${operation}-slope`" type="text" inputmode="text" /></label>
         <InputHelp :label="`${operation === 'takeoff' ? 'Takeoff' : 'Landing'} runway slope`">Enter runway slope in percent in the direction of use: positive uphill, negative downhill, and zero for level.</InputHelp></div>
       <label>Safety factor
         <select v-model="safetyFactors[operation].preset" :id="`performance-${operation}-safety-factor`">
