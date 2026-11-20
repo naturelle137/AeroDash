@@ -63,6 +63,16 @@ function buildDropNotification(
   return { severity: 'INFO', code: 'INFO-SYS-001', reason, message, storedVersion }
 }
 
+function sameContent(stored: string, next: SessionPayload): boolean {
+  try {
+    const { savedAt: _a, ...old } = JSON.parse(stored) as SessionPayload
+    const { savedAt: _b, ...fresh } = next
+    return JSON.stringify(old) === JSON.stringify(fresh)
+  } catch {
+    return false
+  }
+}
+
 export const useSessionPersistenceStore = defineStore('sessionPersistence', () => {
   // ── Private state ─────────────────────────────────────────────────────────
 
@@ -100,6 +110,10 @@ export const useSessionPersistenceStore = defineStore('sessionPersistence', () =
     }
 
     try {
+      // Skip identical content so restoring an unchanged plan (e.g. leaving a
+      // demo) keeps the stored bytes, including `savedAt`, untouched.
+      const stored = localStorage.getItem(STORAGE_KEY)
+      if (stored !== null && sameContent(stored, payload)) return
       localStorage.setItem(STORAGE_KEY, JSON.stringify(payload))
     } catch {
       // Storage quota exceeded or unavailable — fail silently; the pilot can
