@@ -9,6 +9,10 @@ flight-plan JSON export. The remaining remote identity, cloud, Share-Code and
 organization requirements describe future behavior; schema `ownerId`/`shareCode`
 fields do not implement identity or network sharing.
 
+The briefing pack can be labelled as an unapproved student handover copy for
+local print or PDF. This is a read-only snapshot, not an editable plan transfer,
+role check, review record or authenticated counter-signature.
+
 Future remote changes are subject to the [pre-sync engineering gate](../architecture/adr/014-pre-sync-privacy-gate.md).
 That prerequisite is not a completed DPIA or approval of a lawful basis; #285
 remains open. Existing offline/manual preparation, local storage, local JSON
@@ -103,3 +107,7 @@ Before OIDC, cloud synchronization, network Share-Code or organization synchroni
 ### REQ-SC-022: Existing local data publication
 
 When connectivity returns or the app is upgraded, the system shall retain existing local records without automatically uploading them.
+
+### REQ-SC-023: Unapproved local handover copy
+
+When the user selects the student handover label, the briefing pack shall identify the copy as unapproved and state that instructor review and authenticated counter-signature are not recorded by AeroDash.

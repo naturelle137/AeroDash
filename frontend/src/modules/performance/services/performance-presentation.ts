@@ -122,7 +122,7 @@ function groupPresentation(id: PerformanceGroupId, source: MassSource, group: Gr
     rows: group.distances.map((row) => ({
       label: row.label,
       value: `${formatNumber(row.distance)} m`,
-      note: [row.extrapolation ? 'EXTRAPOLATED (+20 % penalty)' : '', row.provenance === 'estimated' ? 'ESTIMATED (CAA SSL 07)' : ''].filter(Boolean).join(' · ') || null,
+      note: [row.extrapolation ? 'ESTIMATED — EXTRAPOLATED (+20 % penalty)' : '', row.provenance === 'estimated' ? 'ESTIMATED (CAA SSL 07)' : ''].filter(Boolean).join(' · ') || null,
     })),
   }
 }

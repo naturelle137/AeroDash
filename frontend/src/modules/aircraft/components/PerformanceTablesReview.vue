@@ -20,6 +20,7 @@ function normalizedPoints(table: NonNullable<AircraftProfile['performanceProfile
       <summary>{{ table.flightPhase }} — {{ table.dataPoints.length }} points</summary>
       <p v-if="!table.sourceUnits">Legacy undeclared table: explicit kg / ft / °C / m contract, independent of M&amp;B sourceUnit.</p>
       <p v-else>Declared source units: {{ table.sourceUnits.mass }} / {{ table.sourceUnits.pressureAltitude }} / {{ table.sourceUnits.temperature }} / {{ table.sourceUnits.distance }}.</p>
+      <p>Extrapolation: {{ table.extrapolation === 'prohibited' ? 'Prohibited by source; blocked.' : 'Software estimate permitted unless the source prohibits it.' }}</p>
       <p>Source reference: {{ table.sourceReference ?? 'Not supplied — check the applicable POH/AFM and record its revision at verification.' }}</p>
       <p v-if="normalizePerformanceTable(table).status === 'failure'" role="alert">Invalid source units or values; lookup unavailable.</p>
       <div class="table-scroll" tabindex="0" :aria-label="`${table.flightPhase} source points`">
