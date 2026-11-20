@@ -91,6 +91,28 @@ Evaluated 2026-11-19 from public pages only. Do not integrate.
   or AIRAC metadata, accuracy/fitness terms and NOTAM coverage were not found.
   They remain unknown, not assumed.
 
+### Candidate decision: FAA NASR
+
+Evaluated 2026-11-20 from the public
+[28 Day NASR Subscription page](https://www.faa.gov/air_traffic/flight_info/aeronav/aero_data/NASR_Subscription/2026-11-26)
+and the airport CSV group of the cycle effective 2026-11-26. Do not integrate.
+
+- Strong points: each cycle page states an effective date and the CSV rows carry
+  `EFF_DATE`; `APT_RWY_END` has `TKOF_RUN_AVBL`, `TKOF_DIST_AVBL`,
+  `ACLT_STOP_DIST_AVBL` and `LNDG_DIST_AVBL` (TORA/TODA/ASDA/LDA equivalents).
+  Stable per-cycle download URLs exist.
+- Coverage: `APT_BASE` holds about 19,300 US, 82 CA, 26 BS, 14 MH and 5 TC
+  records. No European airport is covered, but AeroDash targets EASA Part-NCO
+  pilots. A US-only dataset cannot serve the intended consumer jurisdiction.
+- Declared distances are populated for only about 2,800 of 39,866 runway ends
+  (about 7 %); absent values must stay unknown, never derived from `RWY_LEN`.
+- Units are feet. The cycle's `EFF_DATE` is the cycle effective date, not a
+  per-record effective or expiry date; whether a record is superseded before the
+  next cycle (NOTAMs, NASR amendments) is not established by the data.
+- A licence/reuse statement and an accuracy/fitness disclaimer were not found on
+  the cycle page or in the CSV README text; they remain unknown, not assumed.
+- NOTAM coverage is not part of the dataset and stays unknown.
+
 Reconsider a source when its declared-distance fields, reuse and delivery terms,
 record-level temporal semantics and restriction limitations satisfy the gate
 below. Until then, retain offline manual input and its unverified provenance.
