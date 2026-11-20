@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Align roadmap and README text with the delivered briefing-pack PDF download.
 - Limit the AIRAC calendar display to published dates and indicate when a date is unsupported.
 
 - Carry the extrapolation warning, details and acknowledgment state into the Briefing Pack preview, print and PDF.
