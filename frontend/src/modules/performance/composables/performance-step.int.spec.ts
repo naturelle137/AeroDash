@@ -5,16 +5,9 @@ import { testPohAircraft } from '../../../../tests/fixtures/poh-aircraft'
 import { useManualRunwayStore } from '@/modules/airport/stores/manual-runway.store'
 import { useUnitPreferencesStore } from '../stores/unit-preferences.store'
 import { usePerformanceStep, type PerformanceStepContext } from './performance-step'
-import * as inspection from '../services/poh-inspection'
 
 beforeEach(() => { localStorage.clear(); setActivePinia(createPinia()) })
 afterEach(() => { vi.restoreAllMocks() })
-
-function supportExtrapolationInFixture() {
-  const assess = inspection.assessPerformance
-  vi.spyOn(inspection, 'assessPerformance').mockImplementation((profile, inputs, now) =>
-    assess(profile, { ...inputs, extrapolationSourceSupported: true }, now))
-}
 
 it('keeps phase masses independent and invalidates synchronously on all source changes', () => {
   const scope = effectScope()
@@ -81,7 +74,6 @@ it('persists preferences while new sessions clear numeric PA/QNH and preserves r
 })
 
 it('withholds extrapolated results until acknowledged and revokes the acknowledgment on every input change', () => {
-  supportExtrapolationInFixture()
   const scope = effectScope()
   scope.run(() => {
     const context = reactive<PerformanceStepContext>({
@@ -104,7 +96,7 @@ it('withholds extrapolated results until acknowledged and revokes the acknowledg
     step.extrapolationAcknowledged.value = true
     expect(step.presentation.value.extrapolation).toMatchObject({ acknowledged: true })
     expect(groups()[0]!.rows.map((row) => [row.value, row.note])).toEqual([
-      ['384.0 m', 'EXTRAPOLATED (+20 % penalty)'], ['504.0 m', 'EXTRAPOLATED (+20 % penalty)'],
+      ['384.0 m', 'ESTIMATED — EXTRAPOLATED (+20 % penalty)'], ['504.0 m', 'ESTIMATED — EXTRAPOLATED (+20 % penalty)'],
     ])
 
     const changes = [
@@ -138,7 +130,6 @@ it('withholds extrapolated results until acknowledged and revokes the acknowledg
 })
 
 it('blocks beyond the extrapolation limit with no acknowledgment path', () => {
-  supportExtrapolationInFixture()
   const scope = effectScope()
   scope.run(() => {
     const context = reactive<PerformanceStepContext>({
@@ -157,7 +148,7 @@ it('blocks beyond the extrapolation limit with no acknowledgment path', () => {
   scope.stop()
 })
 
-it('blocks upper excursions in the application without a documented source', () => {
+it('blocks upper excursions when the source prohibits extrapolation', () => {
   const scope = effectScope()
   scope.run(() => {
     const context = reactive<PerformanceStepContext>({
@@ -165,6 +156,7 @@ it('blocks upper excursions in the application without a documented source', () 
       takeoff: { status: 'ready', massKg: 1050, origin: 'M&B' },
       landing: { status: 'ready', massKg: 850, origin: 'trip arrival' },
     })
+    context.profile!.performanceProfiles![0]!.extrapolation = 'prohibited'
     const step = usePerformanceStep(() => context)
     step.pa.method.value = 'direct'; step.pa.direct.value = '1000'; step.temperature.value = '10'
     expect(step.presentation.value.groups[0]).toMatchObject({ status: 'blocked', rows: [] })

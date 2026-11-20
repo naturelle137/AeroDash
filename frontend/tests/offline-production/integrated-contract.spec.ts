@@ -32,8 +32,11 @@ for (const variant of ['kg', 'converted', 'distant-decrease', 'phase-envelope'] 
       const point = profile.performanceProfiles[0]!.dataPoints.find(p => p.mass === 1000 && p.pressureAltitude === 2000 && p.temperature === 20)!
       point.distance = 1
     }
-    if (variant === 'phase-envelope') for (const table of profile.performanceProfiles.slice(2)) {
-      for (const point of table.dataPoints) point.mass += 200
+    if (variant === 'phase-envelope') {
+      for (const table of profile.performanceProfiles.slice(0, 2)) table.extrapolation = 'prohibited'
+      for (const table of profile.performanceProfiles.slice(2)) {
+        for (const point of table.dataPoints) point.mass += 200
+      }
     }
     await importReviewed(page, profile)
     await page.goto('/performance')
@@ -59,7 +62,7 @@ for (const variant of ['kg', 'converted', 'distant-decrease', 'phase-envelope'] 
       if (variant === 'phase-envelope') {
         await expect(landing).not.toContainText('capped at the documented')
         await expect(landing.locator('dd').first()).toContainText('320.0 m')
-        // No source supports extrapolation, so even +10 % stays blocked.
+        // The takeoff source explicitly prohibits extrapolation; landing remains in range.
         await mass.fill('1100');
         await expect(takeoff).toContainText('above the table maximum')
         await expect(takeoff.locator('dd')).toHaveCount(0)
@@ -70,19 +73,28 @@ for (const variant of ['kg', 'converted', 'distant-decrease', 'phase-envelope'] 
         for (const [m, expected] of [['800', '120.0 m'], ['1000', '320.0 m'], ['750', '120.0 m']]) {
           await mass.fill(m!); await expect(takeoff.locator('dd').first()).toContainText(expected!)
         }
-        for (const invalid of ['1000.001', '1100', '0', '-1', 'NaN', 'Infinity', '-Infinity']) {
+        for (const invalid of ['1100.001', '0', '-1', 'NaN', 'Infinity', '-Infinity']) {
           await mass.fill(invalid); await expect(takeoff.locator('dd')).toHaveCount(0)
         }
-        // Upper excursions stay blocked without a supporting source; no acknowledgment is offered.
-        await mass.fill('1050')
-        await expect(takeoff).toContainText('above the table maximum'); await expect(takeoff.locator('dd')).toHaveCount(0)
-        await expect(page.getByLabel('Pilot-in-Command acknowledges extrapolated data')).toHaveCount(0)
+        const ack = page.getByLabel('Pilot-in-Command acknowledges extrapolated data')
+        for (const value of ['1000.001', '1050', '1100']) {
+          await mass.fill(value)
+          await expect(takeoff).toContainText('withheld')
+          await expect(takeoff.locator('dd')).toHaveCount(0)
+          await ack.check()
+          await expect(takeoff).toContainText('ESTIMATED')
+          await expect(takeoff.locator('dd')).toHaveText([/384\.0 m.*ESTIMATED/, /504\.0 m.*ESTIMATED/])
+        }
+        await mass.fill('1051')
+        await expect(ack).not.toBeChecked()
+        await expect(takeoff.locator('dd')).toHaveCount(0)
+        await page.screenshot({ path: info.outputPath(`estimate-${offline ? 'offline' : 'online'}.png`), fullPage: true })
         await mass.fill('900')
-        for (const invalid of ['-0.001', '2000.001', 'NaN', 'Infinity']) {
+        for (const invalid of ['-0.001', '2200.001', 'NaN', 'Infinity']) {
           await pa.fill(invalid); await expect(takeoff.locator('dd')).toHaveCount(0)
         }
         await pa.fill('1000')
-        for (const invalid of ['-0.001', '20.001', 'NaN', 'Infinity']) {
+        for (const invalid of ['-0.001', '22.001', 'NaN', 'Infinity']) {
           await temperature.fill(invalid); await expect(takeoff.locator('dd')).toHaveCount(0)
         }
         await temperature.fill('10');

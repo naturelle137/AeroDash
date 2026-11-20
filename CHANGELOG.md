@@ -7,11 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Enable bounded performance estimates for applicable tables, respecting declared source prohibitions.
+
 ### Added
 
 - Add a local, non-persisted demo / what-if copy for Mass & Balance loads; discarding restores the saved plan unchanged. It carries no instructor approval and covers neither fuel burn order nor Performance inputs.
 - Add an offline manual wind-component aid in Flight Prep from pilot-entered runway heading, wind direction and speed; advisory only.
-- Extrapolate Performance lookups up to 10 % above a table maximum with the fixed 20 % penalty, withheld until the pilot acknowledges; block beyond that. The path stays disabled until an applicable source is recorded; upper excursions remain blocked.
+- Extrapolate Performance lookups up to 10 % above a table maximum with the fixed 20 % penalty, withheld until the pilot acknowledges; block beyond that.
 - Check pilot-declared runway source dates and display the AIRAC calendar cycle.
 - Verify estimated briefing-pack results after offline reload at desktop and mobile widths.
 - Show WARNING WARN-UI-001 in Flight Preparation when the entered temperature is outside −40 to 50 °C, without blocking or clamping.

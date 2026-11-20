@@ -41,6 +41,7 @@ export type TableInspection = {
   cubes: Record<Phase, PerformanceCube3D>
   bounds: Record<Phase, Record<typeof AXES[number], Range>>
   provenance: Record<Phase, 'poh' | 'estimated'>
+  extrapolationAllowed: Record<Phase, boolean>
 }
 
 /** A mass offered to one phase group; unavailable masses carry the exact reason. */
@@ -53,11 +54,6 @@ export type AssessmentInputs = {
   /** Raw text (direct entry) or an already validated derived number (ft). */
   pressureAltitude: string | number
   temperature: string
-  /**
-   * Set only when an applicable source documents extrapolation for this aircraft. No profile
-   * field records that yet, so the app leaves it unset and upper excursions stay blocked.
-   */
-  extrapolationSourceSupported?: boolean
 }
 export type PhaseDistance = {
   phase: Phase
@@ -100,10 +96,12 @@ export function inspectTables(raw: unknown): TableInspection | InspectionFailure
   const tables = profile.performanceProfiles ?? []
   const cubes = {} as Record<Phase, PerformanceCube3D>
   const bounds = {} as TableInspection['bounds']
+  const extrapolationAllowed = {} as TableInspection['extrapolationAllowed']
   for (const phase of PHASES) {
     const matches = tables.filter((table) => table.flightPhase === phase)
     if (matches.length === 0) continue
     if (matches.length !== 1) return blocked('tables', `${phase}: require exactly one table (missing or duplicate phase). Update the Fleet exchange file and import it as a Draft.`)
+    extrapolationAllowed[phase] = matches[0]!.extrapolation !== 'prohibited'
     const normalized = normalizePerformanceTable(matches[0])
     if (normalized.status === 'failure') return blocked('tables', normalized.message)
     const points = normalized.table.dataPoints
@@ -126,10 +124,11 @@ export function inspectTables(raw: unknown): TableInspection | InspectionFailure
         const source = cubes[phase === roll ? distance : roll]
         cubes[phase] = source
         bounds[phase] = bounds[phase === roll ? distance : roll]
+        extrapolationAllowed[phase] = extrapolationAllowed[phase === roll ? distance : roll]
       }
     }
   }
-  return { status: 'ready', profile, cubes, bounds, provenance }
+  return { status: 'ready', profile, cubes, bounds, provenance, extrapolationAllowed }
 }
 
 const DECIMAL = /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?$/i
@@ -184,12 +183,12 @@ function lookupMessage(label: string, massKg: number, origin: string, result: Ex
   }
 }
 
-function assessGroup(tables: TableInspection, group: PerformanceGroupId, mass: MassSource, conditions: { pressureAltitudeFt: number; temperatureC: number }, extrapolationSupported: boolean): GroupAssessment {
+function assessGroup(tables: TableInspection, group: PerformanceGroupId, mass: MassSource, conditions: { pressureAltitudeFt: number; temperatureC: number }): GroupAssessment {
   if (mass.status === 'unavailable') return { status: 'blocked', massKg: null, reason: 'mass', message: mass.reason }
   const distances: PhaseDistance[] = []
   for (const phase of GROUP_PHASES[group]) {
     const { label } = PHASE_INFO[phase]
-    const result = lookupPhaseDistanceWithExtrapolation(tables.cubes[phase], { mass: mass.massKg, pressureAltitude: conditions.pressureAltitudeFt, temperature: conditions.temperatureC }, extrapolationSupported)
+    const result = lookupPhaseDistanceWithExtrapolation(tables.cubes[phase], { mass: mass.massKg, pressureAltitude: conditions.pressureAltitudeFt, temperature: conditions.temperatureC }, tables.extrapolationAllowed[phase])
     if (result.status === 'blocked') return { status: 'blocked', massKg: mass.massKg, ...lookupMessage(label, mass.massKg, mass.origin, result, conditions) }
     const { distance, provenance } = resolveDistance(tables.provenance[phase] === 'poh' ? result.distance : null, result.distance, group, phase === GROUP_PHASES[group][0] ? 'roll' : 'distance')
     if (!Number.isFinite(distance) || distance <= 0) return { status: 'blocked', massKg: mass.massKg, reason: 'tables', message: `${label}: estimated distance is invalid.` }
@@ -216,7 +215,7 @@ export function assessPerformance(raw: unknown, inputs: AssessmentInputs, now: D
   return {
     status: 'assessed',
     conditions,
-    takeoff: assessGroup(tables, 'takeoff', inputs.takeoff, conditions, inputs.extrapolationSourceSupported === true),
-    landing: assessGroup(tables, 'landing', inputs.landing, conditions, inputs.extrapolationSourceSupported === true),
+    takeoff: assessGroup(tables, 'takeoff', inputs.takeoff, conditions),
+    landing: assessGroup(tables, 'landing', inputs.landing, conditions),
   }
 }
