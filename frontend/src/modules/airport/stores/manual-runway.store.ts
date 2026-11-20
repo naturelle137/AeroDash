@@ -12,6 +12,7 @@ import {
   type ManualRunwayRecord,
 } from '@/core/logic/manual-runway'
 import { clearManualRunway, loadManualRunway, saveManualRunway } from '../services/manual-runway.repository'
+import { useMassBalanceStore } from '@/modules/mass-balance/stores/mass-balance.store'
 import { useLoadedUnitPreferences } from '@/modules/performance/stores/unit-preferences.store'
 import { applyPreferredUnit, convertOnLengthUnitChange } from '@/modules/airport/composables/length-unit-conversion'
 
@@ -24,6 +25,7 @@ export const useManualRunwayStore = defineStore('manualRunway', () => {
   const showErrors = ref(false)
   const loaded = ref(false)
   const units = useLoadedUnitPreferences()
+  const massBalance = useMassBalanceStore()
   let filling = false
 
   const validation = computed(() => validateManualRunway(draft))
@@ -82,7 +84,15 @@ export const useManualRunwayStore = defineStore('manualRunway', () => {
     notice.value = null
   }
 
+  const DEMO_BLOCKED = 'Demo / what-if is active: the saved runway cannot be changed. Discard the demo first.'
+  // The saved runway is outside the demo; edits made during it are scratch and are dropped afterwards.
+  watch(() => massBalance.isDemoActive, (active) => { if (!active && loaded.value) load() }, { flush: 'sync' })
+
   function save(now = new Date()): boolean {
+    if (massBalance.isDemoActive) {
+      notice.value = DEMO_BLOCKED
+      return false
+    }
     showErrors.value = true
     const result = validation.value
     if (result.status !== 'valid') {
@@ -110,6 +120,10 @@ export const useManualRunwayStore = defineStore('manualRunway', () => {
   }
 
   function clear(): boolean {
+    if (massBalance.isDemoActive) {
+      notice.value = DEMO_BLOCKED
+      return false
+    }
     const written = clearManualRunway()
     if (written.status === 'error') {
       storageError.value = written.message
