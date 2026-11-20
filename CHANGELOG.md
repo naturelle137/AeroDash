@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Align roadmap and README text with the delivered briefing-pack PDF download.
 - Carry the extrapolation warning, details and acknowledgment state into the Briefing Pack preview, print and PDF.
 - Enable bounded performance estimates for applicable tables, respecting declared source prohibitions.
 
