@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Show corrected performance distances before explicitly labelled uncorrected base distances.
+
 ### Changed
 
 - Carry the extrapolation warning, details and acknowledgment state into the Briefing Pack preview, print and PDF.
