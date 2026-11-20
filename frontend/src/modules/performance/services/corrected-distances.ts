@@ -33,6 +33,7 @@ export type CorrectedOperationPresentation =
     readonly status: 'applied'
     /** Document, revision and section of the rule set that supplied every correction. */
     readonly source: string
+    readonly partial: boolean
     readonly rows: readonly { readonly label: string; readonly raw: string; readonly corrected: string; readonly factored: string }[]
     readonly notes: readonly string[]
     /** Applied safety factor with its origin, shown beside the final values. */
@@ -77,7 +78,15 @@ export function presentCorrectedOperation(
   safetyFactor: SafetyFactorSelection = { preset: 'poh-afm', custom: '' },
 ): CorrectedOperationPresentation {
   const title = OPERATION_LABELS[operation]
-  const unavailable = (reason: string): CorrectedOperationPresentation => ({ operation, title, status: 'unavailable', reason })
+  const unavailable = (reason: string): CorrectedOperationPresentation => {
+    const omissions = [
+      ['Wind component', inputs.headwind, 'kt'], ['Runway slope', inputs.slope, '%'],
+    ].flatMap(([label, value, unit]) => {
+      const parsed = parseLookupNumber(value!)
+      return parsed !== null && parsed !== 0 ? [`${label} ${value} ${unit} was not applied.`] : []
+    })
+    return { operation, title, status: 'unavailable', reason: [reason, ...omissions].join(' ') }
+  }
   if (group?.status !== 'success') return unavailable('No base distance for this operation, so nothing can be corrected.')
   if (sources?.status !== 'assessed') return unavailable('Correction sources cannot be assessed for this profile. Distances stay uncorrected.')
   const rows = sources.corrections.filter((row) => row.operation === operation)
@@ -114,7 +123,7 @@ export function presentCorrectedOperation(
   const over50Marker = over50.provenance === 'estimated' ? marker : ''
   const correctedOver50Marker = rollMarker || over50Marker
   return {
-    operation, title, status: 'applied',
+    operation, title, status: 'applied', partial: result.notCredited.length > 0,
     source: `${document.title}, ${document.identifier}, ${document.revision}; ${selected[0].section}`,
     rows: [
       { label: roll.label, raw: `${formatNumber(roll.distance)} m${rollMarker}`, corrected: up(result.groundRoll) + rollMarker, factored: up(result.groundRoll * factor) + rollMarker },
@@ -128,7 +137,7 @@ export function presentCorrectedOperation(
       : null,
     notes: [
       `Final value = corrected distance × safety factor ${factor.toFixed(2)}, rounded up to whole metres. The manual states ${manualFactor} as its in-service factor.`,
-      ...result.notCredited.map((item) => NOT_CREDITED[item]),
+      ...result.notCredited.map((item) => `${NOT_CREDITED[item]} ${item === 'headwind' ? `Wind component ${inputs.headwind} kt` : `Runway slope ${inputs.slope} %`} was not applied.`),
       ...(operation === 'landing' && selected[0].id.startsWith('tecnam-s9-') ? ['The manual landing table exists for 650 kg only; lower masses use it unchanged.'] : []),
       'Check the applicable aircraft manual. This is not an operational approval or go/no-go decision.',
     ],
