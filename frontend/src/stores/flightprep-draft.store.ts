@@ -18,8 +18,6 @@ import {
 
 const STORAGE_KEY = 'aerodash:flightprep:draft' as const
 const DEBOUNCE_MS = 300
-/** Bounds the stored size; the least recently saved aircraft is dropped first. */
-const MAX_DRAFTS = 50
 
 export const useFlightPrepDraftStore = defineStore('flightPrepDraft', () => {
   let timer: ReturnType<typeof setTimeout> | null = null
@@ -65,8 +63,6 @@ export const useFlightPrepDraftStore = defineStore('flightPrepDraft', () => {
     const drafts = readAll()
     delete drafts[draft.aircraftId]
     drafts[draft.aircraftId] = draft
-    const ids = Object.keys(drafts)
-    for (const id of ids.slice(0, Math.max(0, ids.length - MAX_DRAFTS))) delete drafts[id]
     writeAll(drafts)
   }
 

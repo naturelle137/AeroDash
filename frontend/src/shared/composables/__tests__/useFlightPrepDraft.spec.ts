@@ -84,6 +84,14 @@ describe('flight preparation draft', () => {
     expect(useFlightPrepDraftStore().restored?.aircraftId).toBe('plane-a')
   })
 
+  it('retains earlier aircraft drafts when more than 50 are saved', async () => {
+    await enterAndSave()
+    const store = useFlightPrepDraftStore()
+    const draft = store.load('plane-a')!
+    for (let i = 0; i < 50; i++) store.save({ ...draft, aircraftId: `plane-${i}` })
+    expect(store.load('plane-a')).toEqual(draft)
+  })
+
   it('does not restore another aircraft\'s draft', async () => {
     await enterAndSave()
     setActivePinia(createPinia())
