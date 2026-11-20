@@ -171,14 +171,19 @@ describe('Briefing Pack PDF download', () => {
     const input = document.querySelector<HTMLInputElement>('input[type=text]')!
     input.value = 'A. Student'
     input.dispatchEvent(new Event('input'))
+    const note = document.querySelector<HTMLTextAreaElement>('textarea')!
+    note.value = 'Check fuel reserve'
+    note.dispatchEvent(new Event('input'))
     await nextTick()
     expect(document.querySelector('.mb-print-sheet')?.textContent).toContain('Prepared by (self-declared, unverified): A. Student')
     expect(document.querySelector('.mb-print-sheet')?.textContent).toContain('Signature:')
+    expect(document.querySelector('.mb-print-sheet')?.textContent).toContain('Handover note (self-declared, unverified): Check fuel reserve')
     buttonByText('Download PDF').click()
     await nextTick()
     buttonByText('Acknowledge unverified data and download PDF').click()
     await vi.waitFor(() => expect(blobs).toHaveLength(1))
     expect(strip(pdfText(await readBlob(blobs[0]!)))).toContain(strip('Student handover copy - UNAPPROVED. Instructor review and authenticated counter-signature are not recorded by AeroDash.'))
+    expect(strip(pdfText(await readBlob(blobs[0]!)))).toContain(strip('Check fuel reserve'))
     wrapper.unmount()
   })
 
