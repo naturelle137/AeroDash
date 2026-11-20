@@ -157,4 +157,51 @@ describe('flight preparation draft', () => {
     vi.advanceTimersByTime(400)
     expect(localStorage.getItem(KEY)).toBeNull()
   })
+
+  it('does not copy the previous aircraft\'s entries into an aircraft without a draft', async () => {
+    const store = load('plane-a')
+    const { api } = harness()
+    await nextTick()
+    api.fuel.method.value = 'duration'
+    api.fuel.consumption.value = '10'
+    api.step.temperature.value = '15'
+    api.step.safetyFactors.landing.preset = 'custom'
+    api.step.obstacle.height = '50'
+    await nextTick()
+    vi.advanceTimersByTime(400)
+
+    store.loadProfile({ ...AircraftContextSchema.parse(syntheticFuelContext()), id: 'plane-b' })
+    await nextTick()
+    expect(api.fuel.method.value).toBe('')
+    expect(api.fuel.consumption.value).toBe('')
+    expect(api.step.temperature.value).toBe('')
+    expect(api.step.safetyFactors.landing.preset).toBe('poh-afm')
+    expect(api.step.obstacle.height).toBe('')
+    vi.advanceTimersByTime(400)
+    const stored = JSON.parse(localStorage.getItem(KEY)!)
+    expect(Object.keys(stored.drafts)).toEqual(['plane-a'])
+  })
+
+  it('keeps the saved draft when a demo starts, including edits still waiting to be saved', async () => {
+    const store = load('plane-a')
+    const { api } = harness()
+    await nextTick()
+    api.step.temperature.value = '15'
+    await nextTick()
+    // Demo starts inside the debounce window.
+    store.enterDemo()
+    api.step.temperature.value = '40'
+    api.fuel.consumption.value = '99'
+    await nextTick()
+    vi.advanceTimersByTime(400)
+    expect(JSON.parse(localStorage.getItem(KEY)!).drafts['plane-a'].performance.temperature).toBe('15')
+
+    store.exitDemo()
+    await nextTick()
+    vi.advanceTimersByTime(400)
+    const draft = JSON.parse(localStorage.getItem(KEY)!).drafts['plane-a']
+    expect(api.step.temperature.value).toBe('15')
+    expect(draft.performance.temperature).toBe('15')
+    expect(draft.fuel.consumption).toBe('')
+  })
 })

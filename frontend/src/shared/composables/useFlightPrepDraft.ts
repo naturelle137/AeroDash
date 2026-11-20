@@ -66,8 +66,8 @@ export function useFlightPrepDraft(fuel: FuelPlanning, step: PerformanceStep) {
   const drafts = useFlightPrepDraftStore()
 
   function current(): FlightPrepDraft | null {
-    // A demo copy must never overwrite the saved plan.
-    if (!mb.aircraft || mb.isDemoActive) return null
+    // Never called with demo inputs: nothing is scheduled while a demo runs and starting one flushes first.
+    if (!mb.aircraft) return null
     const fields = collect(fuel, step)
     return isBlank(fields) ? null : { aircraftId: mb.aircraft.id, savedAt: new Date().toISOString(), ...fields }
   }
@@ -118,14 +118,21 @@ export function useFlightPrepDraft(fuel: FuelPlanning, step: PerformanceStep) {
     drafts.restored = null
     if (!id) return
     const draft = drafts.load(id)
-    if (!draft) return
+    // Without a stored draft the previous aircraft's entries must not carry over.
+    if (!draft) {
+      reset()
+      return
+    }
     apply(draft)
     drafts.restored = { aircraftId: id, savedAt: draft.savedAt }
   }, { flush: 'post', immediate: true })
 
-  watch(() => JSON.stringify([mb.aircraft?.id, mb.isDemoActive, collect(fuel, step)]), () => {
+  // Keep what was typed before the demo copy replaces the inputs; nothing is scheduled while it runs.
+  watch(() => mb.isDemoActive, (active) => { if (active) drafts.flushPendingSave() }, { flush: 'sync' })
+
+  watch(() => JSON.stringify([mb.aircraft?.id, collect(fuel, step)]), () => {
     const id = mb.aircraft?.id
-    if (id) drafts.scheduleSave(id, current)
+    if (id && !mb.isDemoActive) drafts.scheduleSave(id, current)
   })
 
   /** Confirmed destructive clear: stored draft and the inputs it filled. */

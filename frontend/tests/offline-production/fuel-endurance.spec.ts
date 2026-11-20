@@ -6,6 +6,8 @@ test('persisted fleet tank inputs feed the session-only fuel plan online and cac
   page,
   context,
 }, info) => {
+  // These checks cover session-only entries; the saved draft is covered by flight-prep-draft.spec.ts.
+  await page.addInitScript(() => localStorage.removeItem('aerodash:flightprep:draft'))
   await page.goto('/fleet')
   await page.getByTestId('disclaimer-gate-accept').click()
   await page.evaluate(async () => {

@@ -23,6 +23,7 @@ const MAX_DRAFTS = 50
 
 export const useFlightPrepDraftStore = defineStore('flightPrepDraft', () => {
   let timer: ReturnType<typeof setTimeout> | null = null
+  let pendingWrite: (() => void) | null = null
   /** Set while the inputs on screen were restored from a stored draft. */
   const restored = ref<{ aircraftId: string; savedAt: string } | null>(null)
 
@@ -80,6 +81,14 @@ export const useFlightPrepDraftStore = defineStore('flightPrepDraft', () => {
   function cancelPendingSave(): void {
     if (timer !== null) clearTimeout(timer)
     timer = null
+    pendingWrite = null
+  }
+
+  /** Write a waiting debounced save now, so the latest entries are kept before the inputs are replaced. */
+  function flushPendingSave(): void {
+    const write = pendingWrite
+    cancelPendingSave()
+    write?.()
   }
 
   /**
@@ -88,11 +97,15 @@ export const useFlightPrepDraftStore = defineStore('flightPrepDraft', () => {
    */
   function scheduleSave(aircraftId: string, produce: () => FlightPrepDraft | null): void {
     cancelPendingSave()
-    timer = setTimeout(() => {
-      timer = null
+    pendingWrite = () => {
       const draft = produce()
       if (draft) save(draft)
       else remove(aircraftId)
+    }
+    timer = setTimeout(() => {
+      const write = pendingWrite
+      cancelPendingSave()
+      write?.()
     }, DEBOUNCE_MS)
   }
 
@@ -102,5 +115,5 @@ export const useFlightPrepDraftStore = defineStore('flightPrepDraft', () => {
     if (restored.value?.aircraftId === aircraftId) restored.value = null
   }
 
-  return { restored, load, save, scheduleSave, cancelPendingSave, clear }
+  return { restored, load, save, scheduleSave, cancelPendingSave, flushPendingSave, clear }
 })
