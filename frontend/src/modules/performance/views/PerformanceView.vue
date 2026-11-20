@@ -3,6 +3,7 @@ import { computed, onMounted, ref } from 'vue'
 import { useFleetStore } from '@/modules/aircraft/stores/fleet.store'
 import ManualRunwayPanel from '@/modules/airport/components/ManualRunwayPanel.vue'
 import CorrectionSourcePanel from '../components/CorrectionSourcePanel.vue'
+import ManualWindComponentPanel from '../components/ManualWindComponentPanel.vue'
 import PerformanceStepPanel from '../components/PerformanceStepPanel.vue'
 import UnitPreferencesFieldset from '../components/UnitPreferencesFieldset.vue'
 import PerformanceTableBounds from '../components/PerformanceTableBounds.vue'
@@ -83,6 +84,7 @@ onMounted(() => fleet.loadAll())
     </section>
     <UnitPreferencesFieldset />
     <ManualRunwayPanel />
+    <ManualWindComponentPanel />
     <CorrectionSourcePanel v-model:configuration="step.manualConfiguration.value" :profile="profile ?? undefined" :tables-complete="step.tables.value?.status === 'ready'"
       :ready="fleet.fleetLoadState === 'READY'" :inputs-revision="step.inputKey.value" />
   </main>
