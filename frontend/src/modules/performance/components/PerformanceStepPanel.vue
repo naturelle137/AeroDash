@@ -57,19 +57,6 @@ const { temperature, temperatureWarnings, corrections, safetyFactors, showPaErro
       </section>
       <p v-if="presentation.conditions">Pressure altitude used: {{ presentation.conditions.pressureAltitude }} ·
         Temperature: {{ presentation.conditions.temperature }}</p>
-      <div v-for="group in presentation.groups" :key="group.id" class="group" :data-group="group.id"
-        :aria-label="`${group.title} raw distances`" role="group">
-        <h3>{{ group.title }}</h3>
-        <p v-if="group.mass">Mass: {{ group.mass }}</p>
-        <p v-if="group.status === 'blocked'" :role="presentation.status === 'blocked' ? undefined : 'alert'">{{ group.title }} unavailable: {{ group.reason }}</p>
-        <p v-else-if="group.status === 'not-computed'">Not computed.</p>
-        <dl v-else class="distances">
-          <div v-for="row in group.rows" :key="row.label">
-            <dt>{{ row.label }}</dt>
-            <dd :class="{ warned: row.warnings?.length }">{{ row.value }}<small v-for="warning in row.warnings" :key="warning" class="note">{{ warning }}</small><small v-if="row.note" class="note">{{ row.note }}</small></dd>
-          </div>
-        </dl>
-      </div>
       <section v-for="item in presentation.corrected" :key="item.operation" class="group corrected" :data-corrected="item.operation"
         :aria-label="`${item.title} corrected distances`">
         <h3>{{ item.title }} corrected distances</h3>
@@ -91,6 +78,19 @@ const { temperature, temperatureWarnings, corrections, safetyFactors, showPaErro
           <ul class="scope"><li v-for="note in item.notes" :key="note">{{ note }}</li></ul>
         </template>
       </section>
+      <div v-for="group in presentation.groups" :key="group.id" class="group" :data-group="group.id"
+        :aria-label="`${group.title} raw distances`" role="group">
+        <h3>{{ group.title }} base distances (uncorrected)</h3>
+        <p v-if="group.mass">Mass: {{ group.mass }}</p>
+        <p v-if="group.status === 'blocked'" :role="presentation.status === 'blocked' ? undefined : 'alert'">{{ group.title }} unavailable: {{ group.reason }}</p>
+        <p v-else-if="group.status === 'not-computed'">Not computed.</p>
+        <dl v-else class="distances">
+          <div v-for="row in group.rows" :key="row.label">
+            <dt>{{ row.label }}</dt>
+            <dd :class="{ warned: row.warnings?.length }">{{ row.value }}<small v-for="warning in row.warnings" :key="warning" class="note">{{ warning }}</small><small v-if="row.note" class="note">{{ row.note }}</small></dd>
+          </div>
+        </dl>
+      </div>
       <ul class="scope">
         <li v-for="line in presentation.scope" :key="line">{{ line }}</li>
       </ul>
