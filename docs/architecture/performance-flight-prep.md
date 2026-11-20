@@ -22,7 +22,8 @@ both mass sources, PA method/values/provenance, temperature, runway draft/saved
 record and units. Changes synchronously recompute the current result, including blocked
 partial edits; equal resultant mass does not preserve an older input identity.
 Fuel/Endurance precedes Performance in DOM and sticky navigation. Both preparation
-and standalone controls calculate live without a submit trigger.
+and standalone controls calculate live without a submit trigger. Corrected phase results
+appear before the explicitly labelled uncorrected base table distances.
 
 ## Lower and upper bounds
 

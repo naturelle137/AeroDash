@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Show corrected performance distances before explicitly labelled uncorrected base distances.
+
 ### Added
 
 - Record an optional obstacle height and distance in Flight Prep Performance with persistent unverified-obstacle warning; clearance is not calculated.

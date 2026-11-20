@@ -101,3 +101,26 @@ When('the pilot selects the imported aircraft {string} in Flight Prep', async ({
 When('the pilot sets temperature {string} °C in Flight Prep', async ({ page }, temperature: string) => {
   await page.getByLabel('Temperature (°C)', { exact: true }).fill(temperature)
 })
+
+Then("changing each phase's conditions updates its final distance", async ({ page }) => {
+  for (const phase of ['Takeoff', 'Landing']) {
+    const inputs = page.getByRole('group', { name: `${phase} wind and slope` })
+    const result = page.getByRole('region', { name: `${phase} corrected distances`, exact: true })
+    const value = result.locator('dd').first()
+    await inputs.getByLabel('Headwind component (kt, negative = tailwind)').fill('0')
+    await inputs.getByLabel('Runway slope (%, positive = uphill)').fill('0')
+    const initial = await value.innerText()
+    await inputs.getByLabel('Headwind component (kt, negative = tailwind)').fill('-2')
+    await expect(value).not.toHaveText(initial)
+    const windy = await value.innerText()
+    await inputs.getByLabel('Runway slope (%, positive = uphill)').fill(phase === 'Takeoff' ? '1' : '-1')
+    await expect(value).not.toHaveText(windy)
+    const sloped = await value.innerText()
+    await inputs.getByLabel('Safety factor').selectOption('custom')
+    await inputs.getByLabel('Custom safety factor (1.00–3.00)').fill('2')
+    await expect(value).not.toHaveText(sloped)
+    const base = page.getByRole('group', { name: `${phase} raw distances` })
+    await expect(base.getByRole('heading')).toContainText('base distances (uncorrected)')
+    expect(await result.evaluate((el, other) => !!(el.compareDocumentPosition(other) & Node.DOCUMENT_POSITION_FOLLOWING), await base.elementHandle())).toBe(true)
+  }
+})
