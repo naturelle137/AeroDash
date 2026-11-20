@@ -211,3 +211,7 @@ When the pilot discards a demo, the system shall restore the fuel burn sequence,
 ### REQ-UI-052: Demo unit preferences
 
 While a demo is active, the system shall keep unit preference changes in memory and restore the previous preferences when the demo ends.
+
+### REQ-UI-053: Signed Performance inputs
+
+When entering headwind or runway slope for takeoff or landing, the system shall allow negative values with the device keyboard.
