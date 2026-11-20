@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import ManualRunwayPanel from '@/modules/airport/components/ManualRunwayPanel.vue'
 import CorrectionSourcePanel from './CorrectionSourcePanel.vue'
+import ManualWindComponentPanel from './ManualWindComponentPanel.vue'
 import PerformanceStepPanel from './PerformanceStepPanel.vue'
 import PerformanceTableBounds from './PerformanceTableBounds.vue'
 import UnitPreferencesFieldset from './UnitPreferencesFieldset.vue'
@@ -43,6 +44,7 @@ const { tables, inputKey, manualConfiguration } = props.step
     </section>
     <UnitPreferencesFieldset />
     <ManualRunwayPanel />
+    <ManualWindComponentPanel />
     <CorrectionSourcePanel v-model:configuration="manualConfiguration" :profile="context.profile ?? undefined" :tables-complete="tables?.status === 'ready'"
       :ready="context.ready" :inputs-revision="inputKey" />
   </div>

@@ -30,6 +30,14 @@ The system shall allow the user to manually override any weather-inferred surfac
 
 When a runway is selected, the system shall calculate the Wind Components (Headwind, Tailwind, Crosswind) based on the latest METAR wind data and the selected runway's heading.
 
+### REQ-WX-007a: Manual wind components
+
+When the pilot enters a runway heading, wind direction and wind speed, the system shall display the headwind or tailwind and the signed crosswind component as advisory, user-entered values.
+
+### REQ-WX-007b: Manual wind input rejection
+
+If a manual wind input is missing, outside 1–360° (speed 0–200) or variable, then the system shall show no wind components.
+
 ### REQ-WX-008: Weather Metadata Display
 
 When weather data is auto-populated, the system shall provide the metadata (Source, Timestamp) for all data points.
