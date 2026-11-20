@@ -14,12 +14,15 @@ Feature: Bounded extrapolation with acknowledgment
     And the extrapolation evidence is captured as "acknowledged-<width>"
     When the pilot changes the temperature to "11" °C
     Then the extrapolated distances are withheld until acknowledged
+    And the extrapolation evidence is captured as "revoked-<width>"
     When the pilot enters mass "1100" kg
     Then the extrapolated estimate is shown only after a fresh acknowledgment
     When the pilot enters mass "1101" kg
     Then the distances are blocked beyond the extrapolation limit
+    And the extrapolation evidence is captured as "blocked-<width>"
     When the pilot enters mass "700" kg
     Then the distance "121.0 m" is shown at the documented minimum without an acknowledgment
+    And the extrapolation evidence is captured as "benefit-capped-<width>"
 
     Examples:
       | width | height |

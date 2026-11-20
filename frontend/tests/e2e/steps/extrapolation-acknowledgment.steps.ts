@@ -57,6 +57,7 @@ Then('the distances are blocked beyond the extrapolation limit', async ({ page }
 })
 Then('the distance {string} is shown at the documented minimum without an acknowledgment', async ({ page }, value: string) => {
   await expect(result(page).locator('dd').first()).toContainText(value)
+  await expect(result(page)).not.toContainText('capped at the documented')
   await expect(ack(page)).toHaveCount(0)
 })
 Then('the extrapolation evidence is captured as {string}', async ({ page, $testInfo }, name: string) => {

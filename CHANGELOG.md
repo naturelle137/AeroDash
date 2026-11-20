@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Engineering
 
+- Capture browser evidence for extrapolation acknowledgment, revocation, blocking and the benefit cap at desktop and mobile widths.
 - Cover signed Performance keyboard entry in both phases.
 
 ### Fixed
