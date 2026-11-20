@@ -168,3 +168,29 @@ it('blocks upper excursions when the source prohibits extrapolation', () => {
   })
   scope.stop()
 })
+
+it('records an unverified obstacle, invalidates on edit and drops it when cleared', () => {
+  const scope = effectScope()
+  scope.run(() => {
+    const context = reactive<PerformanceStepContext>({
+      ready: true, notReadyReason: '', profile: testPohAircraft(), category: 'Normal', revision: '',
+      takeoff: { status: 'ready', massKg: 900, origin: 'M&B' }, landing: { status: 'ready', massKg: 850, origin: 'M&B' },
+    })
+    const step = usePerformanceStep(() => context)
+    step.pa.method.value = 'direct'; step.pa.direct.value = '1000'; step.temperature.value = '10'
+    const ids = () => step.presentation.value.notifications.map((n) => n.id)
+    expect(ids()).not.toContain('WARN-PF-001')
+    const keyBefore = step.presentation.value.inputKey
+    step.obstacle.height = '50'; step.obstacle.distance = '600'
+    expect(ids()).toContain('WARN-PF-001')
+    expect(step.presentation.value.inputKey).not.toBe(keyBefore)
+    expect(step.presentation.value.inputs).toContainEqual({ label: 'Unverified obstacle constraint', value: '50 ft above the runway at 600 ft from the runway' })
+    expect(step.presentation.value.scope.join(' ')).toContain('not calculated')
+    step.obstacle.distance = '-1'
+    expect(ids()).not.toContain('WARN-PF-001')
+    step.obstacle.height = ''; step.obstacle.distance = ''
+    expect(step.presentation.value.inputKey).toBe(keyBefore)
+    expect(step.presentation.value.inputs).toContainEqual({ label: 'Unverified obstacle constraint', value: 'None' })
+  })
+  scope.stop()
+})
