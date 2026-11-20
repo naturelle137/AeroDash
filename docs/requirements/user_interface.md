@@ -215,3 +215,11 @@ While a demo is active, the system shall keep unit preference changes in memory 
 ### REQ-UI-053: Signed Performance inputs
 
 When entering headwind or runway slope for takeoff or landing, the system shall allow negative values with the device keyboard.
+
+### REQ-UI-054: Instructor notes
+
+When the user adds, edits or deletes an instructor note anchored to a Mass & Balance result, the system shall store it on the device with its self-declared author and show it beside the results.
+
+### REQ-UI-055: Notes never mask warnings
+
+The system shall display instructor notes separately from system notifications and shall not let a note clear, hide or alter any system notification.

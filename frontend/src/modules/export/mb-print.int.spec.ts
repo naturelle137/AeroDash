@@ -174,6 +174,23 @@ describe('M&B print presentation with real store calculation', () => {
     expect(text).toContain('CRITICAL')
     wrapper.unmount()
   })
+  it('prints instructor notes separately and leaves system warnings untouched', async () => {
+    const input = source()
+    input.stations.push({ index: 0, name: 'Synthetic load', weight: 10, mandatory: false, touched: true, verified: false, hasError: false })
+    input.notifications.push({ id: 'WARN-MB-005', severity: 'WARNING', message: 'Station 0 limit exceeded', context: 'MassBalance.Loading', persistent: false, dismissible: true })
+    const annotations = [{ id: 'n1', aircraftId: input.aircraft!.id, anchor: 'takeoff' as const, author: 'CRI Meyer', text: 'Aft CG migration', createdAt: '2026-01-01T10:00:00.000Z', updatedAt: '2026-01-01T10:00:00.000Z' }]
+    const wrapper = mount(MbPrintPreview, { props: { source: input, annotations }, attachTo: document.body })
+    await wrapper.get('button').trigger('click')
+    const preview = document.querySelector('[role="dialog"]')!
+    const section = preview.querySelector('[aria-label="Instructor notes"]')!
+    expect(section.textContent).toContain('Instructor note on Takeoff')
+    expect(section.textContent).toContain('CRI Meyer (self-declared, unverified): Aft CG migration')
+    const notifications = [...preview.querySelectorAll('section')].find(e => e.getAttribute('aria-label') === 'Current M&B notifications')!
+    expect(notifications.textContent).toContain('Station 0 limit exceeded')
+    expect(notifications.textContent).not.toContain('Aft CG migration')
+    expect([...preview.querySelectorAll('.briefing-warning')].some(e => e.textContent?.includes('Station 0 limit exceeded'))).toBe(true)
+    wrapper.unmount()
+  })
   it('blocks error notifications, pending selection, failed result and incomplete loading', () => {
     const input = source()
     input.ready = false

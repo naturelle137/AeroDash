@@ -3,10 +3,11 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import CGEnvelopeChart from '@/modules/mass-balance/components/CGEnvelopeChart.vue'
 import { renderBriefingPdf } from './briefing-pdf'
 import { disclaimerBlocks } from './disclaimer-text'
+import { anchorLabel, type Annotation } from '@/modules/annotations/annotations'
 import { assembleMbPrint, canPrintMb, unverifiedGate, type MbPrintSnapshot, type MbPrintSource } from './mb-print'
 
 const disclaimerContent = disclaimerBlocks()
-const props = defineProps<{ source: MbPrintSource; readSource?: () => MbPrintSource }>()
+const props = defineProps<{ source: MbPrintSource; readSource?: () => MbPrintSource; annotations?: Annotation[] }>()
 // Read live dependencies even when the parent render has not flushed before native print.
 const currentSource = computed(() => props.readSource?.() ?? props.source)
 const snapshot = ref<MbPrintSnapshot | null>(null)
@@ -183,6 +184,11 @@ onBeforeUnmount(() => {
           <section v-if="currentSnapshot.notifications.length" aria-label="Current M&B notifications">
             <h2>Current M&amp;B notifications</h2>
             <ul><li v-for="(note, index) in currentSnapshot.notifications" :key="index"><strong>{{ note.severity }} · {{ note.context ?? 'MassBalance' }}</strong>: {{ note.message }}</li></ul>
+          </section>
+          <section v-if="annotations?.length" aria-label="Instructor notes">
+            <h2>Instructor notes (advisory; not system notifications)</h2>
+            <ul><li v-for="n in annotations" :key="n.id"><strong>Instructor note on {{ anchorLabel(n.anchor) }}</strong> · {{ n.author }} (self-declared, unverified): {{ n.text }}</li></ul>
+            <p>Instructor notes do not clear, replace or change any warning above.</p>
           </section>
           <section v-if="currentSnapshot.fuel" aria-label="Current fuel plan and estimated trip arrival">
             <h2>Current fuel plan and estimated trip arrival</h2>
