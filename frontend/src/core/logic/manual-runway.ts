@@ -332,9 +332,9 @@ export function runwayFreshness(runway: ManualRunway, today: string): 'unknown' 
   return 'unknown'
 }
 
-/** Calendar date of the current 28-day AIRAC cycle, based on EUROCONTROL's 2026 schedule. */
+/** Calendar dates within EUROCONTROL's published 2020–2028 schedule. */
 export function airacCycleStart(today: string): string | null {
-  if (!date.safeParse(today).success) return null
+  if (!date.safeParse(today).success || today < '2020-01-02' || today > '2028-12-21') return null
   const anchor = Date.UTC(2026, 9, 29)
   const day = Date.parse(`${today}T00:00:00Z`)
   return new Date(anchor + Math.floor((day - anchor) / (28 * 86400000)) * 28 * 86400000).toISOString().slice(0, 10)
