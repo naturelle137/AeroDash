@@ -102,6 +102,20 @@ describe('Briefing Pack PDF download', () => {
     vi.useRealTimers()
   })
 
+  it('includes the unapproved handover label in the local PDF', async () => {
+    const wrapper = mount(MbPrintPreview, { props: { source: source() }, attachTo: document.body })
+    await wrapper.get('button').trigger('click')
+    buttonByText('Prepare unapproved handover copy').click()
+    await nextTick()
+    expect(document.querySelector('.mb-print-sheet')?.textContent).toContain('Student handover copy — UNAPPROVED')
+    buttonByText('Download PDF').click()
+    await nextTick()
+    buttonByText('Acknowledge unverified data and download PDF').click()
+    await vi.waitFor(() => expect(blobs).toHaveLength(1))
+    expect(strip(pdfText(await readBlob(blobs[0]!)))).toContain(strip('Student handover copy - UNAPPROVED. Instructor review and authenticated counter-signature are not recorded by AeroDash.'))
+    wrapper.unmount()
+  })
+
   it('creates no file when the snapshot was invalidated', async () => {
     const input = source()
     const wrapper = mount(MbPrintPreview, { props: { source: input }, attachTo: document.body })

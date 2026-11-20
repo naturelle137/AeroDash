@@ -38,6 +38,23 @@ Feature: Complete a textbook flight preparation within all limits
       | 390   |
 
   @e2e @flight-prep @briefing-pack
+  Scenario Outline: A student prepares an unapproved handover copy
+    When the viewport for occupancy is <width> pixels wide
+    And the pilot selects aircraft "D-EBPN"
+    And loads two passengers and light baggage
+    And adds sufficient fuel for the trip
+    And the pilot opens the briefing pack
+    And the pilot prepares an unapproved handover copy
+    Then the briefing pack states "Student handover copy — UNAPPROVED"
+    And the briefing pack states "Instructor review and authenticated counter-signature are not recorded by AeroDash."
+    And the briefing pack evidence is captured as "handover-<width>"
+
+    Examples:
+      | width |
+      | 1440  |
+      | 390   |
+
+  @e2e @flight-prep @briefing-pack
   Scenario Outline: The briefing pack downloads as a PDF with the same safety content
     When the viewport for occupancy is <width> pixels wide
     And the pilot selects aircraft "D-EBPN"
