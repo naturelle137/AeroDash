@@ -20,6 +20,8 @@ const gating = ref(false)
 const pendingAction = ref<'print' | 'pdf'>('print')
 const exporting = ref(false)
 const handover = ref(false)
+const studentName = ref('')
+const instructorName = ref('')
 const gate = computed(() => currentSnapshot.value ? unverifiedGate(currentSnapshot.value) : null)
 const currentKey = computed(() => JSON.stringify(currentSource.value))
 const eligible = computed(() => canPrintMb(currentSource.value))
@@ -43,6 +45,8 @@ async function open(): Promise<void> {
   acknowledged.value = false
   gating.value = false
   handover.value = false
+  studentName.value = ''
+  instructorName.value = ''
   printRoot.value?.removeAttribute('data-print-invalid')
   opened.value = true
   await nextTick()
@@ -136,6 +140,11 @@ onBeforeUnmount(() => {
           <button type="button" :disabled="!currentSnapshot || !eligible || exporting" @click="downloadPdf">Download PDF</button>
           <button type="button" :disabled="!currentSnapshot || exporting" :aria-pressed="handover" @click="handover = !handover">{{ handover ? 'Remove handover label' : 'Prepare unapproved handover copy' }}</button>
         </nav>
+        <fieldset v-if="handover" class="mb-print-controls">
+          <legend>Handover names (optional, printed as unverified, not stored)</legend>
+          <label>Student name <input v-model.trim="studentName" type="text" maxlength="80" autocomplete="off"></label>
+          <label>Instructor name <input v-model.trim="instructorName" type="text" maxlength="80" autocomplete="off"></label>
+        </fieldset>
         <section v-if="gating && gate" role="alertdialog" aria-modal="true" aria-labelledby="crit-ui-001-title" class="briefing-gate">
           <h2 id="crit-ui-001-title">{{ gate.notification.id }} · {{ gate.notification.message }}</h2>
           <p>The Briefing Pack contains unverified data ({{ gate.status }}). {{ pendingAction === 'pdf' ? 'The PDF download' : 'Printing' }} proceeds only after acknowledgment; every unverified value is then marked [UNVERIFIED] inline.</p>
@@ -146,6 +155,10 @@ onBeforeUnmount(() => {
         <template v-if="currentSnapshot">
           <h1>Flight Preparation Briefing Pack</h1>
           <p v-if="handover"><strong>Student handover copy — UNAPPROVED. Instructor review and authenticated counter-signature are not recorded by AeroDash.</strong></p>
+          <template v-if="handover">
+            <p>Prepared by (self-declared, unverified): {{ studentName || '________________' }}</p>
+            <p>Instructor review outside AeroDash (self-declared, unverified): {{ instructorName || '________________' }} · Date: ________ · Signature: ________________</p>
+          </template>
           <p>{{ currentSnapshot.identity }}{{ currentSnapshot.marker }} · {{ currentSnapshot.category }}</p>
           <p>Generated: {{ currentSnapshot.generated }}</p>
           <p v-if="currentSnapshot.unverified"><strong>Calculation based on unverified external data. Pilot in Command assumes full responsibility.</strong></p>
