@@ -115,3 +115,7 @@ When the user selects the student handover label, the briefing pack shall identi
 ### REQ-SC-024: Handover names and review block
 
 Where the student handover label is selected, the briefing pack shall print optional entered student and instructor names marked self-declared and unverified, followed by a blank review block, without storing the names.
+
+### REQ-SC-025: Handover note
+
+Where the student handover label is selected, the briefing pack shall include an optional entered note marked self-declared and unverified without storing it.
