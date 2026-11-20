@@ -92,21 +92,17 @@ export const useFlightPrepDraftStore = defineStore('flightPrepDraft', () => {
   }
 
   /**
-   * Debounced save; `produce` runs when the timer fires so it sees the latest inputs.
-   * A null draft (every input back at its default) removes the stored entry.
+   * Debounced save of a snapshot taken now, so flushing it later still writes the
+   * aircraft it was taken for. A null draft (every input back at its default)
+   * removes the stored entry.
    */
-  function scheduleSave(aircraftId: string, produce: () => FlightPrepDraft | null): void {
+  function scheduleSave(aircraftId: string, draft: FlightPrepDraft | null): void {
     cancelPendingSave()
     pendingWrite = () => {
-      const draft = produce()
       if (draft) save(draft)
       else remove(aircraftId)
     }
-    timer = setTimeout(() => {
-      const write = pendingWrite
-      cancelPendingSave()
-      write?.()
-    }, DEBOUNCE_MS)
+    timer = setTimeout(flushPendingSave, DEBOUNCE_MS)
   }
 
   function clear(aircraftId: string): void {

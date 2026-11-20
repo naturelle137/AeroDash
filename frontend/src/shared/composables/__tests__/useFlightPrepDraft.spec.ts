@@ -204,4 +204,20 @@ describe('flight preparation draft', () => {
     expect(draft.performance.temperature).toBe('15')
     expect(draft.fuel.consumption).toBe('')
   })
+
+  it('saves entries typed just before switching aircraft for the aircraft they belong to', async () => {
+    const store = load('plane-a')
+    const { api } = harness()
+    await nextTick()
+    api.step.temperature.value = '15'
+    await nextTick()
+    store.loadProfile({ ...AircraftContextSchema.parse(syntheticFuelContext()), id: 'plane-b' })
+    await nextTick()
+    expect(api.step.temperature.value).toBe('')
+
+    store.loadProfile({ ...AircraftContextSchema.parse(syntheticFuelContext()), id: 'plane-a' })
+    await nextTick()
+    expect(api.step.temperature.value).toBe('15')
+    expect(Object.keys(JSON.parse(localStorage.getItem(KEY)!).drafts)).toEqual(['plane-a'])
+  })
 })

@@ -127,12 +127,15 @@ export function useFlightPrepDraft(fuel: FuelPlanning, step: PerformanceStep) {
     drafts.restored = { aircraftId: id, savedAt: draft.savedAt }
   }, { flush: 'post', immediate: true })
 
+  // Entries typed just before switching belong to the aircraft they were typed for.
+  watch(() => mb.aircraft?.id, () => drafts.flushPendingSave(), { flush: 'sync' })
+
   // Keep what was typed before the demo copy replaces the inputs; nothing is scheduled while it runs.
   watch(() => mb.isDemoActive, (active) => { if (active) drafts.flushPendingSave() }, { flush: 'sync' })
 
   watch(() => JSON.stringify([mb.aircraft?.id, collect(fuel, step)]), () => {
     const id = mb.aircraft?.id
-    if (id && !mb.isDemoActive) drafts.scheduleSave(id, current)
+    if (id && !mb.isDemoActive) drafts.scheduleSave(id, current())
   })
 
   /** Confirmed destructive clear: stored draft and the inputs it filled. */
