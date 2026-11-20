@@ -74,6 +74,8 @@ const cases = [
 ] as const
 for (const { unusable, registration, cg: expected } of cases) {
   test(`mixed-geometry arrival CG with ${unusable} kg unusable online and cached offline`, async ({ page, context }, info) => {
+    // These checks cover session-only entries; the saved draft is covered by flight-prep-draft.spec.ts.
+    await page.addInitScript(() => localStorage.removeItem('aerodash:flightprep:draft'))
     const width = page.viewportSize()!.width
     const label = String(width)
     const shot = async (name: string) => {

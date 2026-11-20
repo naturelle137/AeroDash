@@ -13,6 +13,8 @@ import { mapFleetProfileToContext } from '@/modules/mass-balance/services/fleet-
 import { useFleetStore } from '@/modules/aircraft/stores/fleet.store'
 import { useActiveAircraftStore } from '@/modules/aircraft/stores/active-aircraft.store'
 import { useSessionPersistenceStore } from '@/stores/session-persistence.store'
+import { useFlightPrepDraftStore } from '@/stores/flightprep-draft.store'
+import { useFlightPrepDraft } from '@/shared/composables/useFlightPrepDraft'
 import type { AircraftProfile } from '@/core/adapters/aircraft.schema'
 import type { SessionDropNotification } from '@/stores/session-persistence.store'
 import {
@@ -465,7 +467,7 @@ onMounted(async () => {
             pendingRestoredPayload.value = payload
           } else if (loadProfileIntoStore(fleetProfile)) {
             activeAircraftStore.setActiveProfile(fleetProfile)
-            store.applyRestoredSession(payload)
+            { store.applyRestoredSession(payload); massBalanceRestored.value = true }
           } else {
             sessionPersistenceStore.clearSession()
           }
@@ -610,6 +612,20 @@ const performanceContext = computed<PerformanceStepContext>(() => ({
   }),
 }))
 const performanceStep = usePerformanceStep(() => performanceContext.value)
+const draftStore = useFlightPrepDraftStore()
+const flightPrepDraft = useFlightPrepDraft(fuelPlanning, performanceStep)
+/** True when the Mass & Balance loading came back from the stored session. */
+const massBalanceRestored = ref(false)
+const showDraftBanner = computed(() => draftStore.restored !== null || massBalanceRestored.value)
+const showClearDraftConfirm = ref(false)
+
+function onConfirmClearDraft(): void {
+  showClearDraftConfirm.value = false
+  flightPrepDraft.clearDraft()
+  sessionPersistenceStore.clearSession()
+  store.resetPayload()
+  massBalanceRestored.value = false
+}
 const printSource = computed(() => ({ ...mbSource.value, performance: performanceStep.presentation.value }))
 
 // ---------------------------------------------------------------------------
@@ -770,7 +786,7 @@ function onConfirmSelection(): void {
   if (!pending) return
   loadSelectedProfile(pending.profile)
   // Restored station weights are re-applied only once the profile loads cleanly.
-  if (payload && store.aircraft) store.applyRestoredSession(payload)
+  if (payload && store.aircraft) { store.applyRestoredSession(payload); massBalanceRestored.value = true }
 }
 
 /** Pilot declined — leave the current aircraft loaded, drop the pending selection. */
@@ -887,6 +903,21 @@ function onStartDemo(): void {
       <button type="button" class="demo-start__button" data-testid="demo-start" @click="onStartDemo">
         Start demo (what-if)
       </button>
+    </div>
+
+    <div v-if="showDraftBanner" class="session-drop-banner" role="status" aria-live="polite" data-testid="restored-draft-banner">
+      <strong>Restored draft</strong>
+      <span class="session-drop-banner__message">
+        Mass &amp; Balance, fuel and performance entries were restored from this device<template v-if="draftStore.restored"> (saved {{ draftStore.restored.savedAt }})</template>.
+        Check every value; acknowledgements were not restored.
+      </span>
+      <button type="button" class="session-drop-banner__dismiss" @click="massBalanceRestored = false; draftStore.restored = null">Dismiss</button>
+      <button v-if="!showClearDraftConfirm" type="button" class="session-drop-banner__dismiss" data-testid="clear-draft" @click="showClearDraftConfirm = true">Clear draft</button>
+      <span v-else role="alertdialog" aria-label="Confirm clearing the draft">
+        Clear all restored entries? This cannot be undone.
+        <button type="button" class="session-drop-banner__dismiss" data-testid="confirm-clear-draft" @click="onConfirmClearDraft">Yes, clear draft</button>
+        <button type="button" class="session-drop-banner__dismiss" @click="showClearDraftConfirm = false">Keep</button>
+      </span>
     </div>
 
     <!-- ═══ Session restore banner (INFO-SYS-001) ════════════════════════════
