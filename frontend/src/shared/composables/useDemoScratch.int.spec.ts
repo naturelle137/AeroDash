@@ -7,6 +7,7 @@ import { useFuelPlanning } from '@/modules/fuel-endurance/services/use-fuel-plan
 import { useDemoScratch } from '@/shared/composables/useDemoScratch'
 import { saveManualRunway } from '@/modules/airport/services/manual-runway.repository'
 import { usePerformanceStep } from '@/modules/performance/composables/performance-step'
+import { UNIT_PREFERENCES_STORAGE_KEY, useLoadedUnitPreferences } from '@/modules/performance/stores/unit-preferences.store'
 
 beforeEach(() => {
   localStorage.clear()
@@ -59,6 +60,8 @@ it('restores performance inputs exactly when the demo is discarded', () => {
     step.pa.draft.elevationUnit = 'ft'
     step.temperature.value = '10'
     step.corrections.takeoff.headwind = '5'
+    step.obstacle.height = '50'
+    step.obstacle.distance = '600'
     const before = JSON.stringify(step.presentation.value.inputs)
     store.enterDemo()
     step.pa.method.value = 'direct'
@@ -67,6 +70,7 @@ it('restores performance inputs exactly when the demo is discarded', () => {
     step.temperature.value = '30'
     step.corrections.takeoff.headwind = '-10'
     step.safetyFactors.landing.preset = 'custom'
+    step.obstacle.height = '100'
     expect(JSON.stringify(step.presentation.value.inputs)).not.toBe(before)
     store.exitDemo()
     expect(JSON.stringify(step.presentation.value.inputs)).toBe(before)
@@ -74,6 +78,23 @@ it('restores performance inputs exactly when the demo is discarded', () => {
     expect(step.safetyFactors.landing.preset).toBe('poh-afm')
   })
   scope.stop()
+})
+
+it('keeps demo unit changes out of storage and restores them on discard, including when first opened in demo', () => {
+  const store = loadAircraft()
+  localStorage.setItem(UNIT_PREFERENCES_STORAGE_KEY, JSON.stringify({ schemaVersion: 1, qnh: 'hPa', pressureAltitude: 'ft', fieldElevation: 'ft', runwayDistance: 'm' }))
+  const saved = localStorage.getItem(UNIT_PREFERENCES_STORAGE_KEY)
+  store.enterDemo()
+  const units = useLoadedUnitPreferences()
+  units.set('fieldElevation', 'm')
+  units.set('runwayDistance', 'ft')
+  expect(units.preferences).toMatchObject({ fieldElevation: 'm', runwayDistance: 'ft' })
+  expect(localStorage.getItem(UNIT_PREFERENCES_STORAGE_KEY)).toBe(saved)
+  store.exitDemo()
+  expect(units.preferences).toMatchObject({ fieldElevation: 'ft', runwayDistance: 'm' })
+  expect(localStorage.getItem(UNIT_PREFERENCES_STORAGE_KEY)).toBe(saved)
+  units.set('runwayDistance', 'ft')
+  expect(localStorage.getItem(UNIT_PREFERENCES_STORAGE_KEY)).not.toBe(saved)
 })
 
 it('never restores a runway-copied elevation whose saved runway changed during the demo', async () => {
