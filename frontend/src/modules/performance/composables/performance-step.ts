@@ -10,6 +10,7 @@ import { TEMPERATURE_ADVISORY_C } from '@/core/logic/pressure-altitude'
 import { assessPerformance, inspectTables, parseLookupNumber, type MassSource, type PerformanceAssessment } from '../services/poh-inspection'
 import { OPERATION_LABELS } from '../services/correction-source-messages'
 import { defaultSafetyFactors, emptyCorrectionInputs, presentCorrectedOperation } from '../services/corrected-distances'
+import { assessObstacle, describeObstacle, emptyObstacleInput, obstacleNotification } from '../services/obstacle-constraint'
 import { presentOperationalAssessment, presentPerformance, type PerformancePresentation, type RunwayPresentation } from '../services/performance-presentation'
 
 /** Everything outside this step that a result depends on. */
@@ -46,6 +47,8 @@ export function usePerformanceStep(context: () => PerformanceStepContext) {
   })
   const corrections = reactive(emptyCorrectionInputs())
   const safetyFactors = reactive(defaultSafetyFactors())
+  const obstacle = reactive(emptyObstacleInput())
+  const obstacleAssessment = computed(() => assessObstacle(obstacle))
   const ctx = computed(context)
   const manualConfiguration = ref<ManualConfiguration>('')
   watch(() => JSON.stringify(ctx.value.profile), () => { manualConfiguration.value = '' }, { flush: 'sync' })
@@ -64,7 +67,7 @@ export function usePerformanceStep(context: () => PerformanceStepContext) {
   const profileKey = computed(() => JSON.stringify(ctx.value.profile))
   const inputKey = computed(() => JSON.stringify([
     ctx.value.revision, ctx.value.ready, profileKey.value, ctx.value.category, ctx.value.takeoff, ctx.value.landing,
-    pa.revision.value, temperature.value, corrections, safetyFactors, units.preferences, manualConfiguration.value,
+    pa.revision.value, temperature.value, corrections, safetyFactors, obstacle, units.preferences, manualConfiguration.value,
     runway.saved, runway.draft, runway.storageError, runway.hasUnsavedChanges,
   ]))
   const result = shallowRef<ComputedResult | null>(null)
@@ -162,7 +165,10 @@ export function usePerformanceStep(context: () => PerformanceStepContext) {
           { label: `${OPERATION_LABELS[operation]} runway slope`, value: `${corrections[operation].slope.trim() || 'Not entered'} %` },
           { label: `${OPERATION_LABELS[operation]} safety factor`, value: safetyFactors[operation].preset === 'custom' ? `Custom ${safetyFactors[operation].custom.trim() || 'not entered'}` : safetyFactors[operation].preset },
         ]),
+        { label: 'Unverified obstacle constraint', value: describeObstacle(obstacleAssessment.value) },
       ],
+      notifications: obstacleNotification(obstacleAssessment.value),
+      obstacleActive: obstacleAssessment.value.status === 'active',
       aircraft: profile ? { registration: profile.registration, model: `${profile.manufacturer} ${profile.model}`, category } : null,
       takeoff,
       landing,
@@ -179,6 +185,6 @@ export function usePerformanceStep(context: () => PerformanceStepContext) {
     })
   })
 
-  return { pa, temperature, temperatureWarnings, extrapolationAcknowledged, corrections, safetyFactors, manualConfiguration, showPaErrors, tables, inputKey, compute, presentation }
+  return { pa, temperature, temperatureWarnings, extrapolationAcknowledged, corrections, safetyFactors, obstacle, obstacleAssessment, manualConfiguration, showPaErrors, tables, inputKey, compute, presentation }
 }
 export type PerformanceStep = ReturnType<typeof usePerformanceStep>

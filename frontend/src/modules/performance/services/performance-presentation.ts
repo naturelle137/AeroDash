@@ -2,6 +2,7 @@ import type { SourceAssessment } from '@/core/logic/performance.correction-sourc
 import type { Notification } from '@/core/domain/notification.schema'
 import { BLOCKER_MESSAGES, CORRECTION_LABELS, INPUT_GAP_MESSAGES, OPERATION_LABELS, SUMMARY_MESSAGES, reasonMessage } from './correction-source-messages'
 import type { CorrectedOperationPresentation } from './corrected-distances'
+import { OBSTACLE_SCOPE } from './obstacle-constraint'
 import type { GroupAssessment, MassSource, PerformanceAssessment, PerformanceGroupId } from './poh-inspection'
 
 /**
@@ -141,6 +142,9 @@ export type PresentationInput = {
   runway: RunwayPresentation
   operational: OperationalPresentation
   corrected?: readonly CorrectedOperationPresentation[]
+  /** Extra notifications, such as the unverified-obstacle warning; an active obstacle also adds its scope limit. */
+  notifications?: readonly Notification[]
+  obstacleActive?: boolean
   /** Pilot acknowledgment of exactly `inputKey`'s extrapolated data. */
   extrapolationAcknowledged?: boolean
 }
@@ -155,13 +159,13 @@ export function presentPerformance(input: PresentationInput): PerformancePresent
       ...(item.safetyFactorWarning ? [{ id: 'WARN-PF-002', severity: 'WARNING' as const, message: `${item.title}: ${item.safetyFactorWarning}`, context: 'Performance.SafetyFactor', persistent: true, dismissible: true }] : []),
     ]
   })
-  const notifications = perOperation.reduce<Notification[]>((all, item) => {
+  const notifications = [...(input.notifications ?? []), ...perOperation].reduce<Notification[]>((all, item) => {
     const existing = all.find(n => n.id === item.id)
     if (existing) existing.message += ` ${item.message}`
     else all.push({ ...item })
     return all
   }, [])
-  const common = { inputKey: input.inputKey, inputs: input.inputs, aircraft: input.aircraft, runway: input.runway, operational: input.operational, corrected, notifications, scope: PERFORMANCE_SCOPE }
+  const common = { inputKey: input.inputKey, inputs: input.inputs, aircraft: input.aircraft, runway: input.runway, operational: input.operational, corrected, notifications, scope: input.obstacleActive ? [...PERFORMANCE_SCOPE, OBSTACLE_SCOPE] : PERFORMANCE_SCOPE }
   const acknowledged = input.extrapolationAcknowledged ?? false
   if (!assessment || assessment.status === 'blocked') {
     return {

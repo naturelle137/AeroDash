@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add a local, non-persisted demo / what-if copy for Mass & Balance loads; discarding restores the saved plan unchanged. It carries no instructor approval.
 - Extend the demo to the fuel burn sequence, fuel planning inputs and Performance inputs; discarding restores them exactly.
+- Record an optional obstacle height and distance in Flight Prep Performance with persistent unverified-obstacle warning; clearance is not calculated.
 - Add an offline manual wind-component aid in Flight Prep from pilot-entered runway heading, wind direction and speed; advisory only.
 - Extrapolate Performance lookups up to 10 % above a table maximum with the fixed 20 % penalty, withheld until the pilot acknowledges; block beyond that. The path stays disabled until an applicable source is recorded; upper excursions remain blocked.
 - Check pilot-declared runway source dates and display the AIRAC calendar cycle.
