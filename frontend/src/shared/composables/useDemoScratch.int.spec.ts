@@ -4,6 +4,8 @@ import { beforeEach, expect, it } from 'vitest'
 import { testPohAircraft } from '../../../tests/fixtures/poh-aircraft'
 import { useMassBalanceStore } from '@/modules/mass-balance/stores/mass-balance.store'
 import { useFuelPlanning } from '@/modules/fuel-endurance/services/use-fuel-planning'
+import { useDemoScratch } from '@/shared/composables/useDemoScratch'
+import { saveManualRunway } from '@/modules/airport/services/manual-runway.repository'
 import { usePerformanceStep } from '@/modules/performance/composables/performance-step'
 
 beforeEach(() => {
@@ -70,6 +72,32 @@ it('restores performance inputs exactly when the demo is discarded', () => {
     expect(JSON.stringify(step.presentation.value.inputs)).toBe(before)
     expect(step.pa.draft).toMatchObject({ qnh: '1013', elevation: '500', elevationUnit: 'ft' })
     expect(step.safetyFactors.landing.preset).toBe('poh-afm')
+  })
+  scope.stop()
+})
+
+it('never restores a runway-copied elevation whose saved runway changed during the demo', async () => {
+  const { useManualRunwayStore } = await import('@/modules/airport/stores/manual-runway.store')
+  const { usePressureAltitudeInput } = await import('@/modules/performance/composables/pressure-altitude-input')
+  const store = loadAircraft()
+  const runway = useManualRunwayStore()
+  runway.load()
+  Object.assign(runway.draft, {
+    aerodrome: 'TEST', designator: '18', toraUnit: 'm', tora: '1000', lda: '900', ldaUnit: 'm',
+    fieldElevation: '100', fieldElevationUnit: 'ft', surfaceType: 'paved', surfaceCondition: 'dry',
+  })
+  runway.save(new Date('2026-11-12T08:00:00.000Z'))
+  const scope = effectScope()
+  scope.run(() => {
+    const input = usePressureAltitudeInput()
+    useDemoScratch(input.snapshot, input.restore)
+    input.useRunwayElevation()
+    store.enterDemo()
+    // Defence in depth: a declaration changed behind the store while the demo is active.
+    saveManualRunway(runway.saved!.runway, new Date('2026-11-13T08:00:00.000Z'))
+    store.exitDemo()
+    expect(input.copiedFromRunway.value).toBe(false)
+    expect(input.draft.elevation).toBe('')
   })
   scope.stop()
 })

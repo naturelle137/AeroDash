@@ -116,8 +116,14 @@ export function usePressureAltitudeInput() {
       method.value = saved.method
       direct.value = saved.direct
       Object.assign(draft, saved.draft)
-      runwayCopy.value = saved.runwayCopy
-      notice.value = saved.notice
+      // Provenance is only valid while it still names the current saved runway declaration.
+      const stale = saved.runwayCopy !== null && saved.runwayCopy.savedAt !== savedRunway.value?.savedAt
+      if (stale && draft.elevation === saved.runwayCopy!.text && draft.elevationUnit === saved.runwayCopy!.unit) {
+        draft.elevation = ''
+        draft.elevationUnit = units.preferences.fieldElevation
+      }
+      runwayCopy.value = stale ? null : saved.runwayCopy
+      notice.value = stale ? 'The saved manual runway changed, so the copied field elevation was removed. Enter or copy it again.' : saved.notice
     } finally {
       copying = false
     }
