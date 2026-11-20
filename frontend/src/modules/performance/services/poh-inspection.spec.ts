@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { testPohAircraft } from '../../../../tests/fixtures/poh-aircraft'
+import { presentOperationalAssessment, presentPerformance } from './performance-presentation'
 import { assessPerformance, inspectTables, massSourceFromText, type PerformanceAssessment } from './poh-inspection'
 
 /** Standalone shape: one entered mass for both groups. */
@@ -237,6 +238,16 @@ describe('takeoff and landing assessment with separate masses', () => {
     if (result.status !== 'assessed' || result.takeoff.status !== 'success') throw new Error('Expected takeoff')
     expect(result.takeoff.distances[0]).toMatchObject({ massTreatment: 'benefit-capped', lookupMass: 800 })
     expect(result.takeoff.distances[0]!.distance).toBe((100 + 0 + 20 + 10) * 1.2)
+  })
+
+  it('presents a benefit-capped distance as the documented best case without notice or acknowledgment (REQ-PF-011, §8.4)', () => {
+    const assessment = assessPerformance(testPohAircraft(), { takeoff: ready(700), landing: ready(900), pressureAltitude: 1000, temperature: '10' }, now)
+    const presentation = presentPerformance({ inputKey: 'k', inputs: [], aircraft: null, takeoff: ready(700), landing: ready(900), assessment, pressureAltitudeBasis: '', pendingReason: 'x',
+      runway: { status: 'unavailable', reason: 'x' }, operational: presentOperationalAssessment(null, 'x') })
+    const takeoff = presentation.groups[0]!
+    expect(takeoff).toMatchObject({ status: 'success', rows: [{ value: '120.0 m', note: null }, expect.anything()] })
+    expect(presentation.extrapolation).toBeNull()
+    expect(JSON.stringify(presentation.groups)).not.toMatch(/capped|extrapolat/i)
   })
 
   it('marks an estimated distance derived from an extrapolated sibling as both', () => {
