@@ -111,3 +111,7 @@ When connectivity returns or the app is upgraded, the system shall retain existi
 ### REQ-SC-023: Unapproved local handover copy
 
 When the user selects the student handover label, the briefing pack shall identify the copy as unapproved and state that instructor review and authenticated counter-signature are not recorded by AeroDash.
+
+### REQ-SC-024: Handover names and review block
+
+Where the student handover label is selected, the briefing pack shall print optional entered student and instructor names marked self-declared and unverified, followed by a blank review block, without storing the names.
