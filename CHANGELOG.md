@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Allow an optional unverified note on the local unapproved handover copy.
 - Add a local, non-persisted demo / what-if copy for Mass & Balance loads; discarding restores the saved plan unchanged. It carries no instructor approval.
 - Extend the demo to the fuel burn sequence, fuel planning inputs and Performance inputs; discarding restores them exactly.
 - Add browser tests for bounded extrapolation: acknowledgment, revocation on input change, beyond-limit block and below-minimum floor at 1440 and 390 px.
