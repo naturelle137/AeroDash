@@ -211,6 +211,12 @@ onBeforeUnmount(() => {
                 <h3>Performance notifications</h3>
                 <p v-for="note in currentSnapshot.performance.notifications" :key="note.id" class="briefing-warning"><strong>{{ note.severity }} · {{ note.id }}</strong>: {{ note.message }}</p>
               </section>
+              <section v-if="currentSnapshot.performance.extrapolation" aria-label="Extrapolated performance data">
+                <h3>Extrapolated performance data</h3>
+                <p class="briefing-warning"><strong>{{ currentSnapshot.performance.extrapolation.warning }}</strong></p>
+                <p>{{ currentSnapshot.performance.extrapolation.acknowledged ? 'Acknowledged by the pilot in command.' : 'Not acknowledged by the pilot in command: extrapolated results are withheld.' }}</p>
+                <ul><li v-for="detail in currentSnapshot.performance.extrapolation.details" :key="detail">{{ detail }}</li></ul>
+              </section>
               <table><tbody><tr v-for="row in currentSnapshot.performance.inputs" :key="row.label"><th>{{ row.label }}</th><td>{{ row.value }}</td></tr></tbody></table>
               <p v-if="currentSnapshot.performance.conditions">Calculation basis: {{ currentSnapshot.performance.conditions.pressureAltitude }} · {{ currentSnapshot.performance.conditions.temperature }}</p>
               <section v-for="group in currentSnapshot.performance.groups" :key="group.id">
