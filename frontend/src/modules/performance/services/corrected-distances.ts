@@ -119,9 +119,12 @@ export function presentCorrectedOperation(
   const { document } = selected[0]
   const comparison = compareWithRunway(operation, Math.ceil(result.distanceOver50ft * factor), Math.ceil(result.groundRoll * factor), available)
   const marker = ' ESTIMATED (CAA SSL 07)'
-  const rollMarker = roll.provenance === 'estimated' ? marker : ''
-  const over50Marker = over50.provenance === 'estimated' ? marker : ''
-  const correctedOver50Marker = rollMarker || over50Marker
+  const extrapolated = ' ESTIMATED — EXTRAPOLATED (+20 % penalty)'
+  const markers = (rows: typeof group.distances) =>
+    (rows.some(row => row.extrapolation) ? extrapolated : '') + (rows.some(row => row.provenance === 'estimated') ? marker : '')
+  const rollMarker = markers([roll])
+  const over50Marker = markers([over50])
+  const correctedOver50Marker = markers([roll, over50])
   return {
     operation, title, status: 'applied', partial: result.notCredited.length > 0,
     source: `${document.title}, ${document.identifier}, ${document.revision}; ${selected[0].section}`,

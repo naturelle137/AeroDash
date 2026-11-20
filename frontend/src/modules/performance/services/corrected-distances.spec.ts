@@ -283,6 +283,28 @@ describe('corrected distances in the performance step', () => {
     effect.stop()
   })
 
+  it('retains extrapolation markers in corrected distances and runway comparisons after acknowledgement', () => {
+    const effect = effectScope()
+    effect.run(() => {
+      const { step, context, runway } = setup()
+      context.takeoff = { status: 'ready', massKg: 1050, origin: 'M&B' }
+      Object.assign(step.corrections.takeoff, { headwind: '0', slope: '0' })
+      Object.assign(runway.draft, { tora: '100', toda: '5000' }); runway.save()
+      expect(corrected(step, 0).status).toBe('unavailable')
+      step.extrapolationAcknowledged.value = true
+      const item = corrected(step, 0)
+      if (item.status !== 'applied') throw new Error('expected applied')
+      const marker = 'ESTIMATED — EXTRAPOLATED (+20 % penalty)'
+      for (const row of item.rows) for (const value of [row.raw, row.corrected, row.factored]) expect(value).toContain(marker)
+      expect(item.comparison.required).toContain(marker)
+      expect(item.comparison.margin).toContain(marker)
+      expect(item.comparison.summary).toContain(marker)
+      step.temperature.value = '11'
+      expect(corrected(step, 0).status).toBe('unavailable')
+    })
+    effect.stop()
+  })
+
   it('compares the 50 ft distance with TODA and the ground roll with TORA when TODA is declared', () => {
     const effect = effectScope()
     effect.run(() => {
