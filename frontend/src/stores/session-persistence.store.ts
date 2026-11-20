@@ -164,6 +164,12 @@ export const useSessionPersistenceStore = defineStore('sessionPersistence', () =
       }
     }
     if (!payload) return
+    // Entries equal to the reset baseline (e.g. just cleared) are nothing to bring back.
+    const loadPoints = mbStore.aircraft?.loadPoints ?? []
+    const baseline = (index: number): number =>
+      Math.max(loadPoints[index]?.defaultQuantity ?? 0, loadPoints[index]?.fuelTank?.unusableFuel ?? 0)
+    const stations = (payload as SessionPayload).stations
+    if (stations && stations.every((st) => st.weight === baseline(st.index))) return
     cancelPendingSave()
     writeStash({ ...readStash(), [id]: payload })
   }
@@ -180,6 +186,15 @@ export const useSessionPersistenceStore = defineStore('sessionPersistence', () =
     writeStash(stash)
     const outcome = migrateSessionPayload(entry)
     return outcome.kind === 'migrated' && outcome.payload.aircraftId === aircraftId ? outcome.payload : null
+  }
+
+  /** Drop every stashed aircraft payload (explicit "clear entries" action). */
+  function clearStash(): void {
+    try {
+      localStorage.removeItem(STASH_KEY)
+    } catch {
+      // Best-effort, like clearSession().
+    }
   }
 
   /**
@@ -362,6 +377,7 @@ export const useSessionPersistenceStore = defineStore('sessionPersistence', () =
     saveSession,
     stashCurrent,
     takeStashed,
+    clearStash,
     cancelPendingSave,
     clearSession,
     restoreSession,

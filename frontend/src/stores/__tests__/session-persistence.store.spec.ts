@@ -270,6 +270,14 @@ describe('useSessionPersistenceStore — clearSession()', () => {
   })
 })
 
+describe('useSessionPersistenceStore — clearStash()', () => {
+  it('removes stashed per-aircraft payloads so they are not restored later', () => {
+    localStorage.setItem('aerodash:session:by-aircraft', JSON.stringify({ a: {} }))
+    useSessionPersistenceStore().clearStash()
+    expect(localStorage.getItem('aerodash:session:by-aircraft')).toBeNull()
+  })
+})
+
 describe('useSessionPersistenceStore — cancelPendingSave()', () => {
   it('cancels a pending debounced save but leaves the persisted payload in place', async () => {
     loadProfile(MOCK_PROFILE_A)
