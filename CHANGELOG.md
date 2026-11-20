@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Preserve extrapolation provenance on corrected distances and runway comparisons.
 - Restore Mass & Balance entries of an aircraft when switching back to it, instead of discarding them.
 - Keep demo unit preferences and obstacle inputs separate from the student's plan.
 - Leave the saved flight plan byte-for-byte unchanged when a demo is entered and discarded.
