@@ -4,6 +4,7 @@ import { assessCorrectionSources, OPERATIONS, profileFacts, type ManualConfigura
 import { normalizeManualRunway, SURFACE_CONDITIONS } from '@/core/logic/manual-runway'
 import { useManualRunwayStore } from '@/modules/airport/stores/manual-runway.store'
 import { useLoadedUnitPreferences } from '@/modules/performance/stores/unit-preferences.store'
+import { plainCopy, useDemoScratch } from '@/shared/composables/useDemoScratch'
 import { usePressureAltitudeInput } from './pressure-altitude-input'
 import { TEMPERATURE_ADVISORY_C } from '@/core/logic/pressure-altitude'
 import { assessPerformance, inspectTables, parseLookupNumber, type MassSource, type PerformanceAssessment } from '../services/poh-inspection'
@@ -48,6 +49,17 @@ export function usePerformanceStep(context: () => PerformanceStepContext) {
   const ctx = computed(context)
   const manualConfiguration = ref<ManualConfiguration>('')
   watch(() => JSON.stringify(ctx.value.profile), () => { manualConfiguration.value = '' }, { flush: 'sync' })
+
+  useDemoScratch(
+    () => plainCopy({ pa: pa.snapshot(), temperature: temperature.value, corrections, safetyFactors, manualConfiguration: manualConfiguration.value }),
+    (saved) => {
+      pa.restore(saved.pa)
+      temperature.value = saved.temperature
+      Object.assign(corrections, saved.corrections)
+      Object.assign(safetyFactors, saved.safetyFactors)
+      manualConfiguration.value = saved.manualConfiguration
+    },
+  )
 
   const profileKey = computed(() => JSON.stringify(ctx.value.profile))
   const inputKey = computed(() => JSON.stringify([
