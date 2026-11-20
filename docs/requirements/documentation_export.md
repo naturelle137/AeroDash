@@ -153,3 +153,7 @@ If the loading envelope chart cannot be rendered into the PDF, the system shall 
 ## Design References
 
 - **<a name="notificationScheme"></a>Notification Scheme:** [`docs/architecture/notification_schema.md`](../architecture/notification_schema.md)
+
+### REQ-DOC-034: Instructor notes in pack
+
+While instructor notes exist for the selected aircraft, the system shall list them, with anchor, self-declared author and text, in a section of the Briefing Pack separate from system notifications.
