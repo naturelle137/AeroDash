@@ -76,7 +76,8 @@ test('current phase notifications and runway comparisons survive cached offline 
   }
   for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: 900 })
-    await perf.getByRole('region', { name: 'Takeoff corrected distances' }).scrollIntoViewIfNeeded()
+    const takeoff = perf.getByRole('region', { name: 'Takeoff corrected distances' })
+    await (width === 390 ? takeoff.getByText('Wind component 5 kt was not applied', { exact: false }) : takeoff).scrollIntoViewIfNeeded()
     const path = info.outputPath(`unapplied-${width}.png`)
     await page.screenshot({ path, animations: 'disabled' })
     await info.attach(`unapplied-${width}`, { path, contentType: 'image/png' })
