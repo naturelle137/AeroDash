@@ -163,6 +163,7 @@ const PerformanceDataPointSchema = z.strictObject({
 export const PerformanceProfileSchema = z.strictObject({
   sourceUnits: PerformanceSourceUnitsSchema.optional(),
   sourceReference: z.string().min(1).max(500).optional(),
+  extrapolation: z.enum(['prohibited']).optional(),
   flightPhase: z.enum([
     'TakeoffRoll',
     'TakeoffDistance50ft',

@@ -234,10 +234,10 @@ Then('the declared source reference vector computes after reload and export for 
 
     await expect(result(page).locator('dd')).toHaveText(['304.8 m', '304.8 m', '304.8 m', '304.8 m'])
     // A new input must immediately clear a previously converted result.
-    await page.getByLabel('Temperature (°C)', { exact: true }).fill('11')
+    await page.getByLabel('Temperature (°C)', { exact: true }).fill('12')
     await expect(result(page)).toHaveCount(0)
 
-    await expect(page.getByRole('group', { name: 'Takeoff raw distances', exact: true })).toContainText('outside')
+    await expect(page.getByRole('group', { name: 'Takeoff raw distances', exact: true })).toContainText('10 % extrapolation limit')
     await page.reload()
     await expect(result(page)).toHaveCount(0)
   }
