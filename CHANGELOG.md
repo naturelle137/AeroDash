@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Keep demo unit preferences and obstacle inputs separate from the student's plan.
 - Leave the saved flight plan byte-for-byte unchanged when a demo is entered and discarded.
+- Identify unapplied wind and slope inputs in performance results and briefing packs.
 - Use a keyboard with a minus key on mobile for signed Performance fields (headwind, slope, temperature, pressure altitude, elevation) so tailwind, downhill and negative values can be entered.
 - Show corrected performance distances before explicitly labelled uncorrected base distances.
 

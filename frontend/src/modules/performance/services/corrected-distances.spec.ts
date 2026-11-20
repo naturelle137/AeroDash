@@ -60,6 +60,34 @@ describe('corrected distances in the performance step', () => {
     effect.stop()
   })
 
+  it.each(['takeoff', 'landing'] as const)('identifies unapplied inputs for %s', (operation) => {
+    const effect = effectScope()
+    effect.run(() => {
+      const { step } = setup('D-OTHER')
+      Object.assign(step.corrections[operation], { headwind: '-5', slope: '2' })
+      const item = corrected(step, operation === 'takeoff' ? 0 : 1)
+      expect(item.status).toBe('unavailable')
+      if (item.status !== 'unavailable') throw new Error('expected unavailable')
+      expect(item.reason).toContain('Wind component -5 kt was not applied')
+      expect(item.reason).toContain('Runway slope 2 % was not applied')
+    })
+    effect.stop()
+  })
+
+  it.each([['takeoff', '-1'], ['landing', '1']] as const)('marks favourable %s inputs partially corrected', (operation, slope) => {
+    const effect = effectScope()
+    effect.run(() => {
+      const { step } = setup()
+      Object.assign(step.corrections[operation], { headwind: '5', slope })
+      const item = corrected(step, operation === 'takeoff' ? 0 : 1)
+      if (item.status !== 'applied') throw new Error('expected applied')
+      expect(item.partial).toBe(true)
+      expect(item.notes.join(' ')).toContain('Wind component 5 kt was not applied')
+      expect(item.notes.join(' ')).toContain(`Runway slope ${slope} % was not applied`)
+    })
+    effect.stop()
+  })
+
   it('applies the manual rules to the raw table distance with source provenance', () => {
     const effect = effectScope()
     effect.run(() => {
