@@ -24,6 +24,22 @@ Feature: Corrected takeoff and landing distances
       | 390   | 844    | D-TEST       | P208 | 650  | s4 | "unavailable: Enter the headwind component" | "final 267 m for the ground roll"        |
       | 1440  | 1000   | D-TEST       | C172 | 650  |  | "unavailable: No accepted correction source" | "unavailable: No accepted correction source" |
 
+  Scenario Outline: Changing conditions updates the final distances
+    Given the raw POH workflow viewport is <width> by <height>
+    When I import and verify a synthetic POH profile for registration "D-EBPN" declaring type "P208" and maximum mass 650 kg
+    And the pilot opens Performance
+    And the pilot sets mass "900" kg and temperature "10" °C for the Test profile
+    And the pilot enters pressure altitude "1000" ft directly
+    And the pilot selects manual configuration "s9"
+    And the pilot saves runway "TEST" "27" with TORA "2000" "m", LDA "2000" "m", elevation "300" "ft" and surface "Paved" "Dry"
+    Then changing each phase's conditions updates its final distance
+    And the corrected distance evidence is captured as "live-<width>"
+
+    Examples:
+      | width | height |
+      | 1440  | 1000   |
+      | 390   | 844    |
+
   Scenario Outline: Landing corrections show their source independently of takeoff
     Given the raw POH workflow viewport is <width> by <height>
     When I import and verify a synthetic POH profile for registration "D-EBPN" declaring type "P208" and maximum mass 650 kg
