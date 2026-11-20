@@ -108,6 +108,12 @@ describe('Briefing Pack PDF download', () => {
     buttonByText('Prepare unapproved handover copy').click()
     await nextTick()
     expect(document.querySelector('.mb-print-sheet')?.textContent).toContain('Student handover copy — UNAPPROVED')
+    const input = document.querySelector<HTMLInputElement>('input[type=text]')!
+    input.value = 'A. Student'
+    input.dispatchEvent(new Event('input'))
+    await nextTick()
+    expect(document.querySelector('.mb-print-sheet')?.textContent).toContain('Prepared by (self-declared, unverified): A. Student')
+    expect(document.querySelector('.mb-print-sheet')?.textContent).toContain('Signature:')
     buttonByText('Download PDF').click()
     await nextTick()
     buttonByText('Acknowledge unverified data and download PDF').click()
