@@ -194,6 +194,7 @@ if (!runway.loaded) runway.load()
       <div class="field"><label for="runway-assessment-date">Check date</label><input id="runway-assessment-date" v-model="assessmentDate" type="date" /></div>
       <p role="status"><strong>Source date check:</strong> {{ freshnessLabels[freshness] }}</p>
       <p v-if="cycle">AIRAC cycle starting {{ cycle }} (calendar date only).</p>
+      <p v-else>AIRAC cycle unavailable for this date; consult the published calendar.</p>
       <p class="hint">A cycle change does not expire or verify a record. Dates and NOTAM/SUP coverage must be checked against official sources.</p>
       <p class="hint">Converted values use 1 ft = 0.3048 m; available distances are rounded down.</p>
     </section>
