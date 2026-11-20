@@ -428,3 +428,44 @@ describe('useSessionPersistenceStore — round-trip save → restore', () => {
     })
   })
 })
+
+describe('useSessionPersistenceStore — demo', () => {
+  it('keeps the stored plan byte-for-byte unchanged when a demo is entered and discarded', async () => {
+    loadProfile(MOCK_PROFILE_A)
+    const store = useSessionPersistenceStore()
+    store.startWatching()
+    const mbStore = useMassBalanceStore()
+    store.saveSession()
+    const before = localStorage.getItem('aerodash:session:payload')
+    expect(before).not.toBeNull()
+
+    vi.setSystemTime(new Date(Date.now() + 60_000))
+    mbStore.enterDemo()
+    mbStore.stations[0]!.weight = 99
+    await nextTick()
+    vi.advanceTimersByTime(1000)
+    mbStore.exitDemo()
+    await nextTick()
+    vi.advanceTimersByTime(1000)
+
+    expect(localStorage.getItem('aerodash:session:payload')).toBe(before)
+  })
+
+  it('still saves a pending edit made before the demo started', async () => {
+    loadProfile(MOCK_PROFILE_A)
+    const store = useSessionPersistenceStore()
+    store.startWatching()
+    const mbStore = useMassBalanceStore()
+    store.saveSession()
+
+    mbStore.stations[0]!.weight = 77
+    await nextTick()
+    mbStore.enterDemo()
+    vi.advanceTimersByTime(1000)
+    mbStore.exitDemo()
+    await nextTick()
+    vi.advanceTimersByTime(1000)
+
+    expect(JSON.parse(localStorage.getItem('aerodash:session:payload')!).stations[0].weight).toBe(77)
+  })
+})
