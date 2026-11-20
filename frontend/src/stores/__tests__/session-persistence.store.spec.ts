@@ -270,6 +270,14 @@ describe('useSessionPersistenceStore — clearSession()', () => {
   })
 })
 
+describe('useSessionPersistenceStore — clearStash()', () => {
+  it('removes stashed per-aircraft payloads so they are not restored later', () => {
+    localStorage.setItem('aerodash:session:by-aircraft', JSON.stringify({ a: {} }))
+    useSessionPersistenceStore().clearStash()
+    expect(localStorage.getItem('aerodash:session:by-aircraft')).toBeNull()
+  })
+})
+
 describe('useSessionPersistenceStore — cancelPendingSave()', () => {
   it('cancels a pending debounced save but leaves the persisted payload in place', async () => {
     loadProfile(MOCK_PROFILE_A)
@@ -467,5 +475,40 @@ describe('useSessionPersistenceStore — demo', () => {
     vi.advanceTimersByTime(1000)
 
     expect(JSON.parse(localStorage.getItem('aerodash:session:payload')!).stations[0].weight).toBe(77)
+  })
+})
+
+describe('useSessionPersistenceStore — per-aircraft stash', () => {
+  it('keeps the switched-away aircraft entries and restores them once', () => {
+    const mb = useMassBalanceStore()
+    const store = useSessionPersistenceStore()
+    mb.loadProfile(MOCK_PROFILE_A)
+    mb.updateStationWeight(0, 80)
+    store.stashCurrent()
+    mb.loadProfile(MOCK_PROFILE_B)
+    expect(store.takeStashed('aircraft-uuid-B')).toBeNull()
+    mb.loadProfile(MOCK_PROFILE_A)
+    const payload = store.takeStashed('aircraft-uuid-A')
+    expect(payload?.stations[0]?.weight).toBe(80)
+    mb.applyRestoredSession(payload!)
+    expect(mb.stations[0]?.weight).toBe(80)
+    expect(store.takeStashed('aircraft-uuid-A')).toBeNull()
+    expect(localStorage.getItem('aerodash:session:by-aircraft')).toBeNull()
+  })
+
+  it('drops a stashed entry that is invalid or belongs to another aircraft', () => {
+    const store = useSessionPersistenceStore()
+    const valid = { version: 1, aircraftId: 'aircraft-uuid-A', activeCategory: 'Normal', stations: [], savedAt: new Date().toISOString() }
+    localStorage.setItem('aerodash:session:by-aircraft', JSON.stringify({
+      'aircraft-uuid-A': { ...valid, stations: [{ index: 0, weight: -5, touched: true, verified: false }] },
+      'aircraft-uuid-B': valid,
+    }))
+    expect(store.takeStashed('aircraft-uuid-A')).toBeNull()
+    expect(store.takeStashed('aircraft-uuid-B')).toBeNull()
+  })
+
+  it('ignores an unreadable stash', () => {
+    localStorage.setItem('aerodash:session:by-aircraft', '{nope')
+    expect(useSessionPersistenceStore().takeStashed('aircraft-uuid-A')).toBeNull()
   })
 })

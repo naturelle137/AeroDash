@@ -146,7 +146,8 @@ test('current mass-limit differences update without stale values, cached offline
   await expect(zeroFuel).toHaveCount(0)
   await shot('pending-confirmation')
   await page.getByRole('button', { name: 'Continue anyway', exact: true }).click()
-  await expect(takeoff).toHaveText('Below MTOM by 500.0 kg')
+  // Returning to D-LIMA restores its own stashed payload (450 kg, Utility): 900 − 950 = 50.0 above.
+  await expect(takeoff).toHaveText('Above MTOM by 50.0 kg')
 
   // Cached offline reload: session inputs are not persisted; re-enter them.
   await context.setOffline(true)
