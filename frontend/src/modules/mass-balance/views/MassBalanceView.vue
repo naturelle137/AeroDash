@@ -774,7 +774,12 @@ function loadSelectedProfile(fleetProfile: AircraftProfile): void {
   }
 
   activeAircraftStore.setActiveProfile(fleetProfile)
+  // Entries belong to their aircraft: keep these, bring back the target's own.
+  sessionPersistenceStore.stashCurrent()
   store.loadProfile(validation.data)
+  const stashed = sessionPersistenceStore.takeStashed(fleetProfile.id)
+  if (stashed) store.applyRestoredSession(stashed)
+  massBalanceRestored.value = !!stashed
 }
 
 /** Pilot confirmed the acknowledgement — load the gated (draft/expired) profile. */
