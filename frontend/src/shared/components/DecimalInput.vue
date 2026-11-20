@@ -2,8 +2,8 @@
   <input
     :id="id"
     type="text"
-    inputmode="decimal"
-    pattern="[0-9]*[.,]?[0-9]*"
+    :inputmode="min !== undefined && min >= 0 ? 'decimal' : 'text'"
+    pattern="-?[0-9]*[.,]?[0-9]*"
     autocomplete="off"
     :value="rawString"
     :placeholder="placeholder"
