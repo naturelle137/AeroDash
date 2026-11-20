@@ -93,6 +93,17 @@ Per operation the pilot selects the factor applied to the corrected distances: t
 the result carries an advisory WARN-PF-002 (`osfThreshold`); it never blocks. The manual's own take-off factor
 1.10 is therefore below the 1.25 baseline and warns by default.
 
+## FSM 3/75 reading (REQ-PF-021, not accepted)
+
+The LBA text (1 July 1975, 1995 reprint, `111 3-985.1/75`) was read from a third-party mirror (segelfliegenausbildung.de). Its findings, none implemented:
+
+- **Wind:** the table deliberately gives no headwind credit for take-off ("keine Gegenwindabzüge"), kept as a reserve. The only landing statement, about 10 % per 5 kt headwind, describes what small-aircraft manuals contain on average; it is not an FSM factor. An FSM wind fallback therefore applies nothing.
+- **Slope (take-off only):** ±10 % of "Summe 2" per 1 % slope, + uphill, − downhill. "Summe 2" is the whole distance to 15 m after altitude and temperature, not the ground roll. No slope range is stated.
+- **Surface (take-off only):** chained additions after slope: short dry grass +20 %, damp +10 %, soft +50 %, damaged turf +10 %, long grass +20 %; standing water/slush +30 %, wet snow +50 %, powder +25 %. The baseline is dry paved level at sea level, 15 °C, and the "15 m" height differs from the 50 ft base distances.
+- **Landing:** no table; only 1/3 of the altitude surcharge is mentioned.
+
+Why no fallback is calculated: the factors act on the whole distance, but REQ-PF-004 limits slope and surface to the ground roll; the baseline and height differ from the POH tables; the authenticity remains unconfirmed (`FSM_GAPS`); and the slope range is undefined. Choosing an interpretation changes safety results, so it needs an owner decision (ground-roll-only reading vs. whole-distance reading, accepted range, height conversion).
+
 ## Remaining work
 
-Other aircraft and unlisted runway conditions remain unsupported.
+Other aircraft and unlisted runway conditions remain unsupported. The FSM 3/75 fallback awaits the decision above.
