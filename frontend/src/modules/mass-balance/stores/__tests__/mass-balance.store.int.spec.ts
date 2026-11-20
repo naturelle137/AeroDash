@@ -18,6 +18,7 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import { useMassBalanceStore } from '../mass-balance.store'
+import { useSessionPersistenceStore } from '@/stores/session-persistence.store'
 import type { AircraftContext } from '@/core/domain/aircraft.types'
 
 // ── Conversion constants (mirror the P1 unit-normalization factors) ─────────────
@@ -342,5 +343,73 @@ describe('MassBalance store ↔ real adapter — unknown fuel fails closed (BUND
       store.loadProfile(profile)
       expect(store.notifications.some((n) => n.id === 'WARN-FE-002')).toBe(false)
     }
+  })
+})
+
+describe('MassBalance store — demo / what-if isolation', () => {
+  beforeEach(() => {
+    localStorage.clear()
+    setActivePinia(createPinia())
+  })
+
+  it('recomputes inside the demo and restores the saved plan and results exactly on discard', () => {
+    const store = useMassBalanceStore()
+    store.loadProfile(imperialProfile)
+    store.updateStationWeight(0, 350)
+    const before = JSON.stringify({
+      c: store.activeCategory,
+      s: store.stations,
+      n: store.notifications,
+      r: store.lastResult,
+      u: store.uiState,
+    })
+    const savedMass = store.lastResult!.takeoffCenterOfGravityPoint.mass
+
+    store.enterDemo()
+    expect(store.isDemoActive).toBe(true)
+    store.updateStationWeight(0, 450)
+    expect(store.lastResult!.takeoffCenterOfGravityPoint.mass).toBeCloseTo(
+      savedMass + 100 * LB_TO_KG,
+      6,
+    )
+
+    store.exitDemo()
+    expect(store.isDemoActive).toBe(false)
+    expect(
+      JSON.stringify({
+        c: store.activeCategory,
+        s: store.stations,
+        n: store.notifications,
+        r: store.lastResult,
+        u: store.uiState,
+      }),
+    ).toBe(before)
+  })
+
+  it('never writes demo edits to the persisted session', () => {
+    const store = useMassBalanceStore()
+    const persistence = useSessionPersistenceStore()
+    store.loadProfile(imperialProfile)
+    store.updateStationWeight(0, 350)
+    persistence.saveSession()
+    const saved = localStorage.getItem('aerodash:session:payload')
+    expect(saved).not.toBeNull()
+
+    store.enterDemo()
+    store.updateStationWeight(0, 450)
+    persistence.saveSession()
+
+    expect(localStorage.getItem('aerodash:session:payload')).toBe(saved)
+  })
+
+  it('is a no-op without a loaded aircraft and ends when another profile loads', () => {
+    const store = useMassBalanceStore()
+    store.enterDemo()
+    expect(store.isDemoActive).toBe(false)
+
+    store.loadProfile(imperialProfile)
+    store.enterDemo()
+    store.loadProfile(imperialProfile)
+    expect(store.isDemoActive).toBe(false)
   })
 })

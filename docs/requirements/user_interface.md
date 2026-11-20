@@ -191,3 +191,15 @@ The system shall expose Performance through the homepage Flight Preparation sect
 ### REQ-UI-047: Performance icon
 
 When displaying the homepage Performance entry, the system shall show its icon with the same size, alignment and visual treatment as Mass & Balance.
+
+### REQ-UI-048: Demo start
+
+When the pilot starts a demo on a loaded Mass & Balance plan, the system shall edit an in-memory copy of the plan and show a persistent "DEMO" indicator with a discard control.
+
+### REQ-UI-049: Demo isolation
+
+While a demo is active, the system shall not write the demo copy to local storage and shall not offer printing of the briefing pack.
+
+### REQ-UI-050: Demo discard
+
+When the pilot discards the demo, the system shall restore the saved plan and its results unchanged.

@@ -83,6 +83,8 @@ export const useSessionPersistenceStore = defineStore('sessionPersistence', () =
     if (!mbStore.aircraft || !mbStore.activeCategory) {
       return
     }
+    // A demo copy must never overwrite the saved plan.
+    if (mbStore.isDemoActive) return
 
     const payload: SessionPayload = {
       version: CURRENT_SESSION_PAYLOAD_VERSION,

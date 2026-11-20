@@ -35,7 +35,7 @@ it for changes or records an auditable approval of the reviewed plan.
 | Explore | The instructor changes a passenger load or fuel burn order. | Results are recalculated in the demo; the saved plan is not changed. |
 | Discard | The instructor discards the demo. | The original saved plan and its results remain unchanged. |
 
-**Dependency:** [Demo capability #336](https://github.com/naturelle137/AeroDash/issues/336) and its future requirements. E2E coverage and an isolation test await that capability.
+**Requirements:** [REQ-UI-048](../requirements/user_interface.md#req-ui-048-demo-start), [REQ-UI-049](../requirements/user_interface.md#req-ui-049-demo-isolation), [REQ-UI-050](../requirements/user_interface.md#req-ui-050-demo-discard). The offline-local increment covers Mass & Balance loads; fuel burn order and Performance inputs are not yet part of the demo. It involves no instructor identity or approval. Covered by `demo-what-if.feature` and the store isolation test ([#336](https://github.com/naturelle137/AeroDash/issues/336)).
 
 These journeys do not establish operational validation. Pilots must verify
 calculations against the aircraft's official documentation as described in the
