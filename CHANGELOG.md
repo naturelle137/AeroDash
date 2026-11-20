@@ -9,15 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Carry the extrapolation warning, details and acknowledgment state into the Briefing Pack preview, print and PDF.
 - Enable bounded performance estimates for applicable tables, respecting declared source prohibitions.
 
 ### Added
 
 - Persist and restore fuel and performance entries per aircraft after reload or offline restart, with a restored-draft notice and a confirmed clear; acknowledgements are never restored.
+- Add a local, non-persisted demo / what-if copy for Mass & Balance loads; discarding restores the saved plan unchanged. It carries no instructor approval.
+- Extend the demo to the fuel burn sequence, fuel planning inputs and Performance inputs; discarding restores them exactly.
 - Add browser tests for bounded extrapolation: acknowledgment, revocation on input change, beyond-limit block and below-minimum floor at 1440 and 390 px.
 - Label a locally printed or downloaded briefing pack as an unapproved student handover copy.
+- Add optional self-declared student and instructor names and a blank review block to the unapproved handover copy; names are not stored.
 - Record an optional obstacle height and distance in Flight Prep Performance with persistent unverified-obstacle warning; clearance is not calculated.
-- Add a local, non-persisted demo / what-if copy for Mass & Balance loads; discarding restores the saved plan unchanged. It carries no instructor approval and covers neither fuel burn order nor Performance inputs.
 - Add an offline manual wind-component aid in Flight Prep from pilot-entered runway heading, wind direction and speed; advisory only.
 - Extrapolate Performance lookups up to 10 % above a table maximum with the fixed 20 % penalty, withheld until the pilot acknowledges; block beyond that.
 - Check pilot-declared runway source dates and display the AIRAC calendar cycle.
