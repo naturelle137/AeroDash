@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Persist and restore fuel and performance entries per aircraft after reload or offline restart, with a restored-draft notice and a confirmed clear; acknowledgements are never restored.
 - Label a locally printed or downloaded briefing pack as an unapproved student handover copy.
 - Record an optional obstacle height and distance in Flight Prep Performance with persistent unverified-obstacle warning; clearance is not calculated.
 - Add a local, non-persisted demo / what-if copy for Mass & Balance loads; discarding restores the saved plan unchanged. It carries no instructor approval and covers neither fuel burn order nor Performance inputs.
