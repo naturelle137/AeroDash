@@ -28,6 +28,8 @@ import InputGroupCard from '@/modules/mass-balance/components/InputGroupCard.vue
 import MassStationInput from '@/modules/mass-balance/components/MassStationInput.vue'
 import CGEnvelopeChart from '@/modules/mass-balance/components/CGEnvelopeChart.vue'
 import MbPrintPreview from '@/modules/export/MbPrintPreview.vue'
+import AnnotationPanel from '@/modules/annotations/AnnotationPanel.vue'
+import { useAnnotationStore } from '@/modules/annotations/annotation.store'
 import ResultSummary from '@/modules/mass-balance/components/ResultSummary.vue'
 import WindLimitsSummary from '@/modules/aircraft/components/WindLimitsSummary.vue'
 import ConfirmDialog from '@/shared/components/ConfirmDialog.vue'
@@ -58,6 +60,7 @@ function dismissSessionDropBanner(): void {
 
 const store = useMassBalanceStore()
 const fuelPlanning = useFuelPlanning()
+const annotationStore = useAnnotationStore()
 const fleetStore = useFleetStore()
 const activeAircraftStore = useActiveAircraftStore()
 const sessionPersistenceStore = useSessionPersistenceStore()
@@ -881,7 +884,7 @@ function onStartDemo(): void {
     </div>
 
     <!-- Hidden during a demo so a what-if copy is never printed as the real plan. -->
-    <MbPrintPreview v-if="!store.isDemoActive" :source="printSource" :read-source="() => printSource" />
+    <MbPrintPreview v-if="!store.isDemoActive" :source="printSource" :read-source="() => printSource" :annotations="annotationStore.forAircraft(store.aircraft?.id)" />
 
     <!-- Demo / what-if: edits run on a scratch copy; autosave is suspended and
          discarding restores the saved plan unchanged. Local only; no approval. -->
@@ -1239,6 +1242,7 @@ function onStartDemo(): void {
               :show-limit-difference="!pendingSelection && !viewModel.isLoading"
               :export-requires-confirmation="viewModel.exportRequiresConfirmation"
             />
+            <AnnotationPanel v-if="store.aircraft && !store.isDemoActive" :aircraft-id="store.aircraft.id" />
           </aside>
         </div>
       </template>
