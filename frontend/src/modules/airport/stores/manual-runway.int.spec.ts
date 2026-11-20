@@ -69,3 +69,25 @@ it('is erased by the real Privacy wipe in the same Pinia instance, not only in a
   reloaded.load()
   expect(reloaded.saved).toBeNull()
 })
+
+it('keeps the saved runway untouched by save/clear attempts during a demo and drops scratch edits', async () => {
+  const { useMassBalanceStore } = await import('@/modules/mass-balance/stores/mass-balance.store')
+  const mb = useMassBalanceStore()
+  mb.$patch({ aircraft: { id: 'demo-test' } as never })
+  const store = useManualRunwayStore()
+  store.load()
+  enter(store)
+  expect(store.save(new Date('2026-11-12T08:00:00.000Z'))).toBe(true)
+  const stored = localStorage.getItem(MANUAL_RUNWAY_STORAGE_KEY)
+
+  mb.enterDemo()
+  store.draft.tora = '1'
+  expect(store.save()).toBe(false)
+  expect(store.clear()).toBe(false)
+  expect(localStorage.getItem(MANUAL_RUNWAY_STORAGE_KEY)).toBe(stored)
+  mb.exitDemo()
+
+  expect(localStorage.getItem(MANUAL_RUNWAY_STORAGE_KEY)).toBe(stored)
+  expect(store.draft.tora).toBe('3280')
+  expect(store.saved?.savedAt).toBe('2026-11-12T08:00:00.000Z')
+})

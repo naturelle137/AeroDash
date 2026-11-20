@@ -2,6 +2,7 @@ import { computed, reactive, ref, watch } from 'vue'
 import { QNH_ADVISORY_HPA, derivePressureAltitude, type PressureAltitudeDraft } from '@/core/logic/pressure-altitude'
 import { useManualRunwayStore } from '@/modules/airport/stores/manual-runway.store'
 import { useLoadedUnitPreferences } from '@/modules/performance/stores/unit-preferences.store'
+import { plainCopy } from '@/shared/composables/useDemoScratch'
 import { convertLengthText, isLengthUnit } from '@/core/logic/unit-preferences'
 
 export type PressureAltitudeMethod = '' | 'direct' | 'qnh-elevation'
@@ -104,5 +105,29 @@ export function usePressureAltitudeInput() {
   /** Any change of method, source text, unit or provenance makes prior results stale. */
   const revision = computed(() => JSON.stringify([method.value, direct.value, draft, copiedFromRunway.value]))
 
-  return { warnings, method, direct, draft, notice, derivation, savedRunway, copiedFromRunway, elevationProvenance, resolution, revision, useRunwayElevation }
+  /** Plain copy of every pilot-entered field, for demo scratch restore. */
+  function snapshot() {
+    return plainCopy({ method: method.value, direct: direct.value, draft: { ...draft }, runwayCopy: runwayCopy.value, notice: notice.value })
+  }
+  /** Writes the copy back without the unit-change conversion running on it. */
+  function restore(saved: ReturnType<typeof snapshot>): void {
+    copying = true
+    try {
+      method.value = saved.method
+      direct.value = saved.direct
+      Object.assign(draft, saved.draft)
+      // Provenance is only valid while it still names the current saved runway declaration.
+      const stale = saved.runwayCopy !== null && saved.runwayCopy.savedAt !== savedRunway.value?.savedAt
+      if (stale && draft.elevation === saved.runwayCopy!.text && draft.elevationUnit === saved.runwayCopy!.unit) {
+        draft.elevation = ''
+        draft.elevationUnit = units.preferences.fieldElevation
+      }
+      runwayCopy.value = stale ? null : saved.runwayCopy
+      notice.value = stale ? 'The saved manual runway changed, so the copied field elevation was removed. Enter or copy it again.' : saved.notice
+    } finally {
+      copying = false
+    }
+  }
+
+  return { warnings, method, direct, draft, notice, derivation, savedRunway, copiedFromRunway, elevationProvenance, resolution, revision, useRunwayElevation, snapshot, restore }
 }

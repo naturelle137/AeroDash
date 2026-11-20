@@ -1,4 +1,5 @@
 import { computed, ref, watch } from 'vue'
+import { plainCopy, useDemoScratch } from '@/shared/composables/useDemoScratch'
 import { useMassBalanceStore } from '@/modules/mass-balance/stores/mass-balance.store'
 import { arrivalCgForPlanning, arrivalSequenceChoices } from './arrival-cg'
 import { usableFuelForPlanning } from './usable-fuel'
@@ -42,6 +43,18 @@ export function useFuelPlanning() {
       reserve.value = ''
     },
     { flush: 'sync' },
+  )
+  useDemoScratch(
+    () => plainCopy({ method: method.value, directTripFuel: directTripFuel.value, consumption: consumption.value, trip: trip.value, reserve: reserve.value, sequence: sequence.value }),
+    (saved) => {
+      // Method first: changing it clears the dependent fields, which are then restored.
+      method.value = saved.method
+      directTripFuel.value = saved.directTripFuel
+      consumption.value = saved.consumption
+      trip.value = saved.trip
+      reserve.value = saved.reserve
+      sequence.value = saved.sequence
+    },
   )
   const fuel = computed(() =>
     usableFuelForPlanning(store.aircraft, store.activeCategory, store.stations),
