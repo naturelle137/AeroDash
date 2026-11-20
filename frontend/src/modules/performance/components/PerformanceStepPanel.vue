@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import PressureAltitudeFieldset from './PressureAltitudeFieldset.vue'
 import InputHelp from './InputHelp.vue'
+import { OBSTACLE_UNITS } from '../services/obstacle-constraint'
 import { SAFETY_FACTOR_PRESETS } from '../services/corrected-distances'
 import type { PerformanceStep } from '../composables/performance-step'
 
 const props = defineProps<{ step: PerformanceStep; canCompute: boolean }>()
-const { temperature, temperatureWarnings, corrections, safetyFactors, showPaErrors, presentation, extrapolationAcknowledged } = props.step
+const { temperature, temperatureWarnings, corrections, safetyFactors, showPaErrors, presentation, extrapolationAcknowledged, obstacle, obstacleAssessment } = props.step
 </script>
 
 <template>
@@ -27,6 +28,19 @@ const { temperature, temperatureWarnings, corrections, safetyFactors, showPaErro
           <option v-for="preset in SAFETY_FACTOR_PRESETS" :key="preset.value" :value="preset.value">{{ preset.label }}</option>
         </select></label>
       <label v-if="safetyFactors[operation].preset === 'custom'">Custom safety factor (1.00–3.00)<input v-model="safetyFactors[operation].custom" :id="`performance-${operation}-safety-factor-custom`" type="text" inputmode="decimal" /></label>
+    </fieldset>
+    <fieldset class="fields obstacle-inputs">
+      <legend>Obstacle constraint (optional, unverified)</legend>
+      <div><label>Obstacle height above runway<input v-model="obstacle.height" id="performance-obstacle-height" type="text" inputmode="decimal"
+        :aria-invalid="obstacleAssessment.status === 'invalid' && !!obstacleAssessment.errors.height" aria-describedby="performance-obstacle-height-error" /></label>
+        <label>Height unit<select v-model="obstacle.heightUnit" id="performance-obstacle-height-unit"><option v-for="unit in OBSTACLE_UNITS" :key="unit" :value="unit">{{ unit }}</option></select></label>
+        <p id="performance-obstacle-height-error" v-if="obstacleAssessment.status === 'invalid' && obstacleAssessment.errors.height" role="alert">{{ obstacleAssessment.errors.height }}</p></div>
+      <div><label>Obstacle distance from runway<input v-model="obstacle.distance" id="performance-obstacle-distance" type="text" inputmode="decimal"
+        :aria-invalid="obstacleAssessment.status === 'invalid' && !!obstacleAssessment.errors.distance" aria-describedby="performance-obstacle-distance-error" /></label>
+        <label>Distance unit<select v-model="obstacle.distanceUnit" id="performance-obstacle-distance-unit"><option v-for="unit in OBSTACLE_UNITS" :key="unit" :value="unit">{{ unit }}</option></select></label>
+        <p id="performance-obstacle-distance-error" v-if="obstacleAssessment.status === 'invalid' && obstacleAssessment.errors.distance" role="alert">{{ obstacleAssessment.errors.distance }}</p></div>
+      <button type="button" :disabled="!obstacle.height && !obstacle.distance" @click="obstacle.height = ''; obstacle.distance = ''">Clear obstacle</button>
+      <p v-if="obstacleAssessment.status === 'active'" class="obstacle-active" data-obstacle-active>Active obstacle: {{ obstacleAssessment.height }} {{ obstacleAssessment.heightUnit }} at {{ obstacleAssessment.distance }} {{ obstacleAssessment.distanceUnit }}. Unverified, not checked for clearance.</p>
     </fieldset>
 
     <section class="results" :aria-label="presentation.status === 'assessed' ? 'Base performance distances' : 'Performance results'" :data-status="presentation.status" aria-live="polite">
@@ -102,6 +116,7 @@ dd { margin: .25rem 0; font-size: 1.4rem; font-weight: 700; }
 .extrapolation { border: 2px solid #ef6c00; border-radius: 8px; padding: .75rem 1rem; display: grid; gap: .5rem; }
 .acknowledge { display: flex; align-items: center; gap: .75rem; }
 .acknowledge input { min-width: 24px; min-height: 24px; }
+.obstacle-active { border-left: 4px solid #ef6c00; padding-left: .5rem; font-weight: 600; }
 .comparison { border-left: 4px solid var(--color-border); padding-left: .5rem; }
 .comparison[data-comparison="insufficient"] { border-left-color: #c62828; font-weight: 600; }
 .warned { border-left: 4px solid #ef6c00; padding-left: .5rem; color: #a34500; }
