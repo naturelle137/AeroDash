@@ -28,6 +28,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Preserve extrapolation and CAA estimate markers alongside FSM correction estimates.
 
+- Include available manual wind components in the Briefing Pack.
+
 ### Added
 
 - Anchor local instructor notes to individual result warnings and include them in the Briefing Pack.

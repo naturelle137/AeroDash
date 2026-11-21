@@ -56,3 +56,11 @@ Then('the Flight Prep wind controls are reachable by keyboard at {string}', asyn
   await page.screenshot({ path })
   await $testInfo.attach(`Flight Prep wind ${width}`, { path, contentType: 'image/png' })
 })
+
+When('the pilot returns from the briefing pack', async ({ page }) => {
+  await page.getByRole('button', { name: 'Back to preparation' }).click()
+})
+
+Then('the briefing pack does not contain manual wind components', async ({ page }) => {
+  await expect(page.getByRole('dialog', { name: 'Briefing Pack preview' }).getByRole('region', { name: 'Manual wind components' })).toHaveCount(0)
+})

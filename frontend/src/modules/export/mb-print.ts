@@ -1,3 +1,4 @@
+import type { WindComponentInput, WindComponentResult } from '@/core/logic/wind-components'
 import type { PerformancePresentation } from '@/modules/performance/services/performance-presentation'
 import type { FuelPresentation } from '@/modules/fuel-endurance/services/use-fuel-planning'
 import type { AircraftProfile } from '@/core/adapters/aircraft.schema'
@@ -9,6 +10,7 @@ import type { AircraftContext, CategoryDefinition, EnvelopePoint, MathCoreResult
 
 export interface MbPrintSource {
   performance?: PerformancePresentation
+  wind?: { input: WindComponentInput; result: WindComponentResult }
   fuel?: FuelPresentation
   state: MassBalanceState
   ready: boolean
@@ -77,6 +79,7 @@ export function assembleMbPrint(source: MbPrintSource, now: Date) {
   const massLimit = (value: number) => `${formatMassLimitConservative(value, 1)} kg${marker}`
   const arm = (value: number) => `${formatArm(value, 3)} m${marker}`
   return {
+    wind: source.wind?.result.status === 'valid' ? { input: { ...source.wind.input }, result: { ...source.wind.result } } : null,
     performance: source.performance ? JSON.parse(JSON.stringify(source.performance)) as PerformancePresentation : null,
     chart: {
       result: JSON.parse(JSON.stringify(result)) as MathCoreResult,
