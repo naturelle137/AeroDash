@@ -135,7 +135,7 @@ const SafetyFactorsSchema = z.object({
   landing: finiteNum().positive(),
 })
 
-const PassengerProfileSchema = z.object({
+export const PassengerProfileSchema = z.object({
   name: z.string().min(1),
   standardWeight: finiteMass().positive(),
   unit: z.enum(['kg', 'lbs']),

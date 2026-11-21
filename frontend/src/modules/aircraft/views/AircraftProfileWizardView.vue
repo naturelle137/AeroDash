@@ -85,6 +85,8 @@
           :powertrain="identityFields.powertrain"
           section-id="wizard-loadpoints"
         />
+        <h3>Passenger Profiles</h3>
+        <PassengerProfilesSection v-model="passengerProfiles" section-id="wizard-passengers" />
       </section>
 
       <!-- Step: Battery Pack (electric only) -->
@@ -152,6 +154,10 @@
             </div>
           </div>
 
+          <div class="review-section">
+            <h3>Passenger Profiles</h3>
+            <div v-for="(profile, i) in passengerProfiles" :key="i" class="review-item">{{ profile.name }} — {{ profile.standardWeight }} {{ profile.unit }}</div>
+          </div>
           <div class="review-section">
             <h3>Wind Limits</h3>
             <div v-if="windLimits.length === 0" class="review-empty">None entered.</div>
@@ -255,6 +261,7 @@ import type {
   AircraftProfileBatteryPack,
   AircraftProfileCertificationCategory,
   AircraftProfileLoadPoint,
+  AircraftProfilePassengerProfile,
   AircraftProfileWeighingReport,
   AircraftProfileWindLimit,
 } from '@/core/adapters/aircraft.schema'
@@ -268,6 +275,8 @@ import WeighingReportsSection from '../components/WeighingReportsSection.vue'
 import LoadPointsSection from '../components/LoadPointsSection.vue'
 import BatteryPackSection from '../components/BatteryPackSection.vue'
 import WindLimitsSection from '../components/WindLimitsSection.vue'
+import PassengerProfilesSection from '../components/PassengerProfilesSection.vue'
+import { validPassengerProfile } from '../services/passenger-profile.validator'
 import ActionChoiceDialog, { type DialogAction } from '@/shared/components/ActionChoiceDialog.vue'
 
 const router = useRouter()
@@ -357,6 +366,7 @@ const weighingReports = ref<AircraftProfileWeighingReport[]>([
 const loadPoints = ref<AircraftProfileLoadPoint[]>([])
 
 const windLimits = ref<AircraftProfileWindLimit[]>([])
+const passengerProfiles = ref<AircraftProfilePassengerProfile[]>([])
 
 // Distinct certification category names (Normal / Utility / Aerobatic) feeding
 // the per-station category-restriction UI. Deduplicated in case the pilot adds
@@ -374,7 +384,8 @@ const isDirty = computed(() => {
     identityFields.value.manufacturer !== '' ||
     identityFields.value.model !== '' ||
     weighingReports.value.some((r) => r.bem > 0) ||
-    loadPoints.value.length > 0
+    loadPoints.value.length > 0 ||
+    passengerProfiles.value.length > 0
   )
 })
 
@@ -418,7 +429,7 @@ const weighingValid = computed(() => {
 })
 
 // Load stations is optional.
-const loadStationsValid = computed(() => true)
+const loadStationsValid = computed(() => passengerProfiles.value.every(validPassengerProfile))
 
 // Battery pack only needs to validate when present (electric). Usable energy
 // must be > 0 and reserve must be strictly below usable energy — mirrors the
@@ -486,6 +497,7 @@ const canSave = computed(
     identityValid.value &&
     envelopeValid.value &&
     weighingValid.value &&
+    loadStationsValid.value &&
     (!isElectric.value || batteryPackValid.value),
 )
 
@@ -694,7 +706,7 @@ async function persistProfile(): Promise<AircraftProfile | null> {
       weighingReports: weighingReports.value,
       loadPoints: normalizedLoadPoints,
       windLimits: windLimits.value,
-      passengerProfiles: [],
+      passengerProfiles: passengerProfiles.value,
       powertrain: identityFields.value.powertrain,
       ...(isElectric.value ? { batteryPack: { ...batteryPack.value } } : {}),
     })
