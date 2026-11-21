@@ -76,6 +76,15 @@ describe('corrected distances in the performance step', () => {
     effect.stop()
   })
 
+  it('identifies zero and invalid entries when the correction source is unavailable', () => {
+    const { step } = setup('D-OTHER')
+    Object.assign(step.corrections.landing, { headwind: '0', slope: 'abc' })
+    const item = corrected(step, 1)
+    if (item.status !== 'unavailable') throw new Error('expected unavailable')
+    expect(item.reason).toContain('Wind component 0 kt was not applied')
+    expect(item.reason).toContain('Runway slope abc % was not applied')
+  })
+
   it.each([['takeoff', '-1'], ['landing', '1']] as const)('marks favourable %s inputs partially corrected', (operation, slope) => {
     const effect = effectScope()
     effect.run(() => {
