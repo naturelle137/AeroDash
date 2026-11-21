@@ -41,9 +41,9 @@ const modules: Module[] = [
   {
     id: 'weather',
     label: 'Weather',
-    description: 'METAR, TAF, surface conditions, wind limits',
+    description: 'TAF forecast availability',
     path: '/weather',
-    soon: true,
+    soon: false,
     icon: 'wx',
   },
   {
@@ -135,6 +135,7 @@ const soonModules = modules.filter((m) => m.soon)
               <path d="M3 17l4-6 4 3 4-8 4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
               <path d="M3 21h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
             </svg>
+            <svg v-else-if="mod.icon === 'wx'" width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M18 15a5 5 0 10-9.5-.5A4 4 0 107 20h11a4 4 0 000-8h-.5" stroke="currentColor" stroke-width="1.5" /></svg>
             <!-- Fleet icon -->
             <svg v-else-if="mod.icon === 'fleet'" width="28" height="28" viewBox="0 0 24 24" fill="none">
               <path d="M21 7.5L10 12l5 3 2 6 4-13.5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" />
