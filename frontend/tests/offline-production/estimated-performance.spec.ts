@@ -59,6 +59,7 @@ test('landing estimate and its source appear in the briefing', async ({ page }, 
   await dialog.getByLabel('Verifier initials').fill('TS')
   await dialog.getByLabel('POH revision').fill('Synthetic wiring only')
   await dialog.getByRole('button', { name: 'Verify', exact: true }).click()
+  await expect(dialog).toBeHidden()
   await page.goto('/mass-balance')
   const picker = page.getByLabel('Select aircraft', { exact: true })
   await picker.selectOption((await picker.locator('option').filter({ hasText: 'D-TEST' }).first().getAttribute('value'))!)
