@@ -48,7 +48,7 @@ its tests are not evidence for this new policy. No new aircraft manual or accept
 source version has been obtained. Existing profile verification and source-unit
 validation remain prerequisites; all four complete positive grids are required.
 
-Lower PA/temperature remain blocked. Above-maximum mass, PA and temperature use the accepted software gap-filling method unless the source table declares `extrapolation: "prohibited"`. The method uses
+Below-minimum PA and temperature use their respective minimum boundaries only when the axis has at least two points and every row along that axis is nondecreasing. Otherwise the phase group is blocked. Mixed lower axes are capped before any applicable upper extrapolation and operational corrections. Affected base and derived values are marked ESTIMATED in Flight Prep and the briefing pack. These boundary values do not establish aircraft applicability outside the published range. Above-maximum mass, PA and temperature use the accepted software gap-filling method unless the source table declares `extrapolation: "prohibited"`. The method uses
 `lookupPhaseDistanceWithExtrapolation` (P1), which composes the extrapolation
 control (`performance-extrapolation-control.md`) between the table lookup and
 the operational corrections: at most 10 % above the axis maximum, the clamped
@@ -79,7 +79,7 @@ them.
 
 Current software limits, unchanged: extrapolation is at most 10 % above the table
 maximum with a fixed 1.2 penalty and acknowledgement required. Beyond that band,
-below-minimum PA/temperature and any table that is non-monotonic or declares
+unsupported lower-axis caps and upper extrapolation from any table that is non-monotonic or declares
 `extrapolation: "prohibited"` stay blocked with no distance. Wider or different
 extrapolation is not implemented; changing these limits is a requirement change,
 not a source question.

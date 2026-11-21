@@ -4,7 +4,7 @@ import type { OperationalSafetyFactorInput, OsfPreset } from '@/core/domain/perf
 import { applyTecnamS9Corrections, TECNAM_S9_RULES, TECNAM_S9_SOURCE_IDS, type S9NotCredited } from '@/core/logic/performance.tecnam-s9-corrections'
 import { estimateFsmTakeoff, type FsmNotCredited } from '@/core/logic/performance.fsm-estimates'
 import { OPERATION_LABELS } from './correction-source-messages'
-import { formatNumber } from './performance-presentation'
+import { formatNumber, LOWER_AXIS_ESTIMATE } from './performance-presentation'
 import { parseLookupNumber, type GroupAssessment } from './poh-inspection'
 
 /** Pilot-entered conditions for one operation; raw text so an empty field is never zero. */
@@ -148,7 +148,7 @@ export function presentCorrectedOperation(
   const marker = ' ESTIMATED (CAA SSL 07)'
   const extrapolated = ' ESTIMATED — EXTRAPOLATED (+20 % penalty)'
   const markers = (rows: typeof group.distances) =>
-    (rows.some(row => row.extrapolation) ? extrapolated : '') + (rows.some(row => row.provenance === 'estimated') ? marker : '')
+    (rows.some(row => row.lowerAxisCaps.length) ? ` ${LOWER_AXIS_ESTIMATE}` : '') + (rows.some(row => row.extrapolation) ? extrapolated : '') + (rows.some(row => row.provenance === 'estimated') ? marker : '')
   const baseRollMarker = markers([roll])
   const over50Marker = markers([over50])
   const rollMarker = baseRollMarker + (estimating ? FSM_ESTIMATE_MARKER : '')

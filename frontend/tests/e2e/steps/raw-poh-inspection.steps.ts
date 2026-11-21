@@ -105,14 +105,22 @@ Then('blank, nonfinite, nonpositive and out-of-envelope lookup inputs stay block
     ['Mass (kg)', 'NaN'], ['Pressure altitude (ft)', 'Infinity'], ['Temperature (°C)', 'abc'],
     ['Mass (kg)', '0'], ['Mass (kg)', '-1'],
     ['Mass (kg)', '1001'],
-    ['Pressure altitude (ft)', '-1'], ['Pressure altitude (ft)', '2001'],
-    ['Temperature (°C)', '-1'], ['Temperature (°C)', '21'],
+    ['Pressure altitude (ft)', '2001'], ['Temperature (°C)', '21'],
   ]) {
     await validInputs(page)
     await page.getByLabel(label!, { exact: true }).fill(value!)
 
     await expect(page.getByRole('alert').first()).toBeVisible()
     await expect(result(page)).toHaveCount(0)
+  }
+  for (const label of ['Pressure altitude (ft)', 'Temperature (°C)']) {
+    await validInputs(page)
+    await page.getByLabel(label, { exact: true }).fill('0')
+    const boundary = ['210.0 m', '310.0 m', '410.0 m', '510.0 m']
+    await expect(result(page).locator('dd')).toHaveText(boundary)
+    await page.getByLabel(label, { exact: true }).fill('-1')
+    await expect(result(page).locator('dd')).toHaveText(boundary.map(value => `${value}ESTIMATED (lower-axis table boundary)`))
+    await expect(page.getByRole('alert')).toHaveCount(0)
   }
 })
 Then('the reviewed tables survive a browser reload and exchange download', async ({ page }) => {

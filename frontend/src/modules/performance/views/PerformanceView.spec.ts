@@ -61,10 +61,10 @@ it('formats supported ranges without rounding lookup boundaries', async () => {
   await field(view, 'Mass (kg)').setValue('800.04')
   expect(results(view).exists()).toBe(true)
   await field(view, 'Pressure altitude (ft)').setValue('0.03')
-  expect(results(view).exists()).toBe(false)
+  expect(results(view).exists()).toBe(true)
   await field(view, 'Pressure altitude (ft)').setValue('0.04')
   await field(view, 'Temperature (°C)').setValue('0.03')
-  expect(results(view).exists()).toBe(false)
+  expect(results(view).exists()).toBe(true)
 })
 
 it('uses persisted profiles and immediately clears results on numeric, selection and profile changes', async () => {

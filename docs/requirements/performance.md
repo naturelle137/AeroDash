@@ -66,7 +66,13 @@ If a requested condition exceeds a POH axis maximum by more than 10% of that max
 
 When conditions are better than the POH table minimum, the system shall return no distance shorter than the documented best-case POH value.
 
-**Status:** Approved. The application blocks unsupported lower-axis excursions; it does not return a capped value for every better condition.
+**Status:** Implemented for nondecreasing lower axes; ambiguous or decreasing altitude and temperature axes remain blocked. Tests: `frontend/src/core/logic/performance.phase-lookup.spec.ts`, `frontend/src/modules/performance/services/poh-inspection.spec.ts`.
+
+### REQ-PF-085: Lower-axis estimate marking
+
+When a distance uses a below-minimum pressure-altitude or temperature boundary, the system shall mark that distance and its derived results as ESTIMATED in Flight Prep and the briefing pack.
+
+**Status:** Implemented. Tests: `frontend/src/modules/performance/services/corrected-distances.spec.ts`, `frontend/src/modules/export/briefing-pdf.int.spec.ts`, `frontend/tests/offline-production/flight-prep-performance.spec.ts`.
 
 ### REQ-PF-012: Extrapolation Acknowledgment
 

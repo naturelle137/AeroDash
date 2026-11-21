@@ -396,6 +396,22 @@ describe('corrected distances in the performance step', () => {
     effect.stop()
   })
 
+  it('retains lower-axis estimate markers in corrected distances and runway comparisons', () => {
+    const effect = effectScope()
+    effect.run(() => {
+      const { step, runway } = setup()
+      step.pa.direct.value = '-1'; step.temperature.value = '-1'
+      Object.assign(step.corrections.takeoff, { headwind: '0', slope: '0' })
+      Object.assign(runway.draft, { tora: '100', toda: '5000' }); runway.save()
+      const item = corrected(step, 0)
+      if (item.status !== 'applied') throw new Error('expected applied')
+      const marker = 'ESTIMATED (lower-axis table boundary)'
+      for (const row of item.rows) for (const value of [row.raw, row.corrected, row.factored]) expect(value).toContain(marker)
+      for (const value of [item.comparison.required, item.comparison.margin, item.comparison.summary]) expect(value).toContain(marker)
+    })
+    effect.stop()
+  })
+
   it('retains extrapolation markers in corrected distances and runway comparisons after acknowledgement', () => {
     const effect = effectScope()
     effect.run(() => {
