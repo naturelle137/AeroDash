@@ -236,7 +236,7 @@ explicitly **not** bundled into this discovery ticket.
 | :-- | :--------- | :-------------------- | :------------------- |
 | `CAP-1` | Multi-user **serial handover & counter-sign** (student → FI), incl. training-aware **roles** (Student / Instructor) | An FI must review and approve a student's plan with an auditable record; today the role model (`REQ-SC-004`) has only Org Admin / Fleet Admin / Member, and persistence (#229) is single-pilot | Extends RBAC + persistence; likely post-v0.8.0 (Sync & Auth). Indirect safety: prevents an unreviewed plan reading as approved. Unblocks `UJ-H-001` |
 | `CAP-2` | Instructor **non-destructive "demo / what-if"** mode (scratchpad that never overwrites the student's saved plan) | FI/CRI teach by contrast without corrupting the student's work | Unblocks `UJ-H-002`. May reuse existing recompute logic over a cloned in-memory plan |
-| `CAP-3` | **Didactic annotations / instructor review notes** on results | FI/CRI attach quirk call-outs and review comments to specific results | Related to but **distinct** from #110 (which concerns *system-generated* limit-indicator UX; `CAP-3` is *instructor-authored* content). Enhances `T-CRI` and `UJ-H` but is not required by them |
+| `CAP-3` | **Didactic annotations / instructor review notes** on results | Local, self-declared instructor notes attach teaching comments to M&B results and takeoff or landing distances | Related to but **distinct** from #110 (which concerns *system-generated* limit-indicator UX; `CAP-3` is *instructor-authored* content). Enhances `T-CRI` and `UJ-H` but is not required by them |
 
 ---
 
