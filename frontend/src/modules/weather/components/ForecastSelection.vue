@@ -1,9 +1,17 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { QNH_SUPPORTED_HPA } from '@/core/logic/pressure-altitude'
+import type { MetarValues } from '../metar-values'
 
+const emit = defineEmits<{ apply: [field: keyof MetarValues, values: MetarValues, source: string] }>()
 const phase = ref('departure')
 const location = ref('')
 const time = ref('')
+const temperature = ref('')
+const qnh = ref('')
+const direction = ref('')
+const speed = ref('')
+const unit = ref<'kt' | 'm/s'>('kt')
 const online = ref(navigator.onLine)
 const refresh = () => { online.value = navigator.onLine }
 onMounted(() => {
@@ -17,12 +25,30 @@ onBeforeUnmount(() => {
   window.removeEventListener('offline', refresh)
   window.removeEventListener('pageshow', refresh)
 })
+watch([phase, location, time], () => {
+  temperature.value = ''; qnh.value = ''; direction.value = ''; speed.value = ''
+}, { flush: 'sync' })
+const numberIn = (value: string, min: number, max: number) => value.trim() !== '' && Number.isFinite(Number(value)) && Number(value) >= min && Number(value) <= max
+const selectionValid = computed(() => location.value.trim() !== '' && time.value !== '' && Number.isFinite(Date.parse(time.value)) && Date.parse(time.value) > Date.now())
+const values = computed<MetarValues>(() => {
+  const result: MetarValues = {}
+  if (numberIn(temperature.value, -100, 100)) result.temperature = temperature.value
+  if (numberIn(qnh.value, QNH_SUPPORTED_HPA.min, QNH_SUPPORTED_HPA.max)) result.qnh = qnh.value
+  if (numberIn(speed.value, 0, 200) && (Number(speed.value) === 0 || numberIn(direction.value, 1, 360))) {
+    result.wind = { direction: Number(speed.value) === 0 ? '' : direction.value, speed: speed.value, unit: unit.value }
+  }
+  return result
+})
+function apply(field: keyof MetarValues): void {
+  if (!selectionValid.value || Date.parse(time.value) <= Date.now() || !values.value[field]) return
+  emit('apply', field, values.value, `Pilot-entered forecast for ${phase.value}, ${location.value.trim()}, ${time.value.replace('T', ' ')} local time`)
+}
 </script>
 
 <template>
   <section class="forecast" aria-labelledby="forecast-heading">
     <h3 id="forecast-heading">Time-specific forecast</h3>
-    <p>Select a flight phase, location and local time for your planning. These entries are not saved or sent anywhere.</p>
+    <p>Enter forecast values for the selected location and local time. They are pilot-entered, not retrieved, saved or sent. Changing the selection clears these entries.</p>
     <div class="fields">
       <label>Flight phase
         <select v-model="phase"><option value="departure">Departure</option><option value="arrival">Arrival</option></select>
@@ -35,8 +61,21 @@ onBeforeUnmount(() => {
       </label>
     </div>
     <p role="status" aria-live="polite"><strong>{{ online ? 'Forecast unavailable:' : 'Browser offline:' }}</strong>
-      {{ online ? 'No forecast source is configured.' : 'Forecast retrieval is unavailable.' }}
-      No forecast temperature, QNH or wind has been retrieved. Continue using your manual inputs and obtain the required weather briefing from official sources.</p>
+      {{ online ? 'No forecast source is configured.' : 'Forecast retrieval is unavailable.' }} Obtain the required weather briefing from official sources.</p>
+    <p>Enter QNH only, not sea-level pressure. Wind direction is true; gusts are not applied. Values require a future time and are applied only when selected.</p>
+    <div class="fields">
+      <label>Forecast temperature (°C)<input v-model="temperature" type="text" inputmode="decimal" min="-100" max="100" step="any" /></label>
+      <label>Forecast QNH (hPa)<input v-model="qnh" type="text" inputmode="decimal" min="850" max="1100" step="any" /></label>
+      <label>Forecast wind direction (° true)<input v-model="direction" type="text" inputmode="decimal" min="1" max="360" step="any" /></label>
+      <label>Forecast wind speed<input v-model="speed" type="text" inputmode="decimal" min="0" max="200" step="any" /></label>
+      <label>Forecast wind unit<select v-model="unit"><option value="kt">kt</option><option value="m/s">m/s</option></select></label>
+    </div>
+    <p v-if="!selectionValid">Choose a location and future local time to apply values.</p>
+    <div class="fields">
+      <button type="button" :disabled="!selectionValid || !values.temperature" @click="apply('temperature')">Apply forecast temperature</button>
+      <button type="button" :disabled="!selectionValid || !values.qnh" @click="apply('qnh')">Apply forecast QNH</button>
+      <button type="button" :disabled="!selectionValid || !values.wind" @click="apply('wind')">Apply forecast wind</button>
+    </div>
   </section>
 </template>
 
