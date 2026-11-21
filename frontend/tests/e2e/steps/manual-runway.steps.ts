@@ -129,10 +129,9 @@ When('the pilot clears the runway inputs', async ({ page }) => {
 })
 
 Then('the saved runway shows TORA {string}, LDA {string} and elevation {string}', async ({ page }, tora: string, lda: string, elevation: string) => {
-  const values = summary(page).locator('dd')
-  await expect(values.nth(0)).toHaveText(tora)
-  await expect(values.nth(1)).toHaveText(lda)
-  await expect(values.nth(2)).toHaveText(elevation)
+  for (const [label, value] of [['TORA', tora], ['LDA', lda], ['Field elevation', elevation]]) {
+    await expect(summary(page).locator('div').filter({ has: page.getByText(label!, { exact: true }) }).locator('dd')).toHaveText(value!)
+  }
 })
 
 Then('the runway is labelled as a user-entered declaration', async ({ page }) => {

@@ -150,6 +150,23 @@ describe('AircraftProfileEditorView — save dispatch', () => {
     setActivePinia(createPinia())
   })
 
+  it('validates and saves passenger edits through the verified draft path', async () => {
+    const verified = makeProfile({ status: 'verified', passengerProfiles: [{ name: 'Old', standardWeight: 80, unit: 'kg' }] })
+    const editVerifiedProfile = vi.fn<(id: string, changes: Partial<AircraftProfile>) => Promise<AircraftProfile>>().mockResolvedValue(verified)
+    const { wrapper } = await mountEditor({ profile: verified, fleetOverrides: { editVerifiedProfile } })
+    const section = wrapper.findAll('button').find((button) => button.text().includes('Passenger Profiles'))!
+    await section.trigger('click')
+    await wrapper.find(`[id="${verified.id}-passengers-name-0"]`).setValue('  ')
+    expect(wrapper.find('.btn-primary').attributes('disabled')).toBeDefined()
+    await wrapper.find(`[id="${verified.id}-passengers-name-0"]`).setValue('Adult')
+    await wrapper.find(`[id="${verified.id}-passengers-weight-0"]`).setValue('180')
+    await wrapper.find(`[id="${verified.id}-passengers-unit-0"]`).setValue('lbs')
+    expect(verified.passengerProfiles[0]).toEqual({ name: 'Old', standardWeight: 80, unit: 'kg' })
+    await wrapper.find('.btn-primary').trigger('click')
+    await flushPromises()
+    expect(editVerifiedProfile).toHaveBeenCalledWith(verified.id, expect.objectContaining({ passengerProfiles: [{ name: 'Adult', standardWeight: 180, unit: 'lbs' }] }))
+  })
+
   it('calls updateProfile when saving a Draft', async () => {
     const draft = makeProfile({ status: 'draft' })
     const updateProfile = vi.fn<(id: string, changes: Partial<AircraftProfile>) => Promise<AircraftProfile>>()

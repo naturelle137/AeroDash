@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Manage passenger standard-weight profiles in aircraft creation and editing.
 - Select an active aircraft passenger profile to copy its mass into an occupant station.
 - Retrieve read-only TAF forecasts with source, UTC validity and expiry warnings.
 - Suggest a wet runway condition from a fresh matching METAR, with pilot override.
@@ -46,6 +47,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Compare manual wind with stored aircraft limits in Flight Prep and the briefing.
+- Retain a pilot-declared runway source reference in Performance and briefing.
 - Allow local flight phase, location and time selection with an explicit forecast-unavailable or offline state.
 
 - Add a manual electric energy and reserve budget to Flight Preparation and briefing.

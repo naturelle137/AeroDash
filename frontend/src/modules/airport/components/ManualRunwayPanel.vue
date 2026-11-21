@@ -157,7 +157,8 @@ if (!runway.loaded) runway.load()
     </fieldset>
 
     <fieldset>
-      <legend>Source dates (optional)</legend>
+      <legend>Source details (optional)</legend>
+      <div class="field"><label for="runway-source">Source reference</label><input id="runway-source" v-model="runway.draft.source" maxlength="200" :aria-invalid="!!error('source')" :aria-describedby="describedBy('source')" /><p v-if="error('source')" :id="describedBy('source')" class="field-error">{{ error('source') }}</p></div>
       <p>Enter dates only when stated by your source. The expiry date is inclusive.</p>
       <div class="fields">
         <div class="field"><label for="runway-effective">Effective date</label><input id="runway-effective" v-model="runway.draft.effectiveDate" type="date" :aria-invalid="!!error('effectiveDate')" :aria-describedby="describedBy('effectiveDate')" /><p v-if="error('effectiveDate')" :id="describedBy('effectiveDate')" class="field-error">{{ error('effectiveDate') }}</p></div>
@@ -180,6 +181,7 @@ if (!runway.loaded) runway.load()
       <h3>{{ runway.current.record.runway.aerodrome }} — runway {{ runway.current.record.runway.designator }}</h3>
       <p class="provenance">User-entered, not airport-validated · saved {{ savedAt }}</p>
       <dl>
+        <div><dt>Source reference</dt><dd>{{ runway.current.record.runway.source || 'Unknown' }} (user-declared, unverified)</dd></div>
         <div><dt>TORA</dt><dd>{{ runway.current.record.runway.tora.value }} {{ runway.current.record.runway.tora.unit }}
           <span class="normalized">({{ runway.current.display.toraM }} m)</span></dd></div>
         <div><dt>LDA</dt><dd>{{ runway.current.record.runway.lda.value }} {{ runway.current.record.runway.lda.unit }}

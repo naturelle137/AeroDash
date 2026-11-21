@@ -93,6 +93,10 @@
         />
       </AccordionSection>
 
+      <AccordionSection title="Passenger Profiles" :section-id="`${profileId}-passengers`" :model-value="openSections.passengers" @update:model-value="openSections.passengers = $event">
+        <PassengerProfilesSection v-model="passengerProfiles" :section-id="`${profileId}-passengers`" />
+      </AccordionSection>
+
       <AccordionSection
         title="Wind Limits"
         :summary="windLimitsSummary"
@@ -139,6 +143,7 @@ import type {
   AircraftProfileBatteryPack,
   AircraftProfileCertificationCategory,
   AircraftProfileLoadPoint,
+  AircraftProfilePassengerProfile,
   AircraftProfileWeighingReport,
   AircraftProfileWindLimit,
 } from '@/core/adapters/aircraft.schema'
@@ -153,6 +158,8 @@ import LoadPointsSection from '../components/LoadPointsSection.vue'
 import WeighingReportsSection from '../components/WeighingReportsSection.vue'
 import BatteryPackSection from '../components/BatteryPackSection.vue'
 import WindLimitsSection from '../components/WindLimitsSection.vue'
+import PassengerProfilesSection from '../components/PassengerProfilesSection.vue'
+import { validPassengerProfile } from '../services/passenger-profile.validator'
 import ProfileStatusBadge from '../components/ProfileStatusBadge.vue'
 
 
@@ -177,6 +184,7 @@ const openSections = reactive({
   weighing: true,
   battery: true,
   windLimits: false,
+  passengers: false,
 })
 
 const identityFields = computed<IdentityFields>({
@@ -242,6 +250,11 @@ const loadPoints = computed<AircraftProfileLoadPoint[]>({
     if (!draft.value) return
     draft.value = { ...draft.value, loadPoints: next }
   },
+})
+
+const passengerProfiles = computed<AircraftProfilePassengerProfile[]>({
+  get: () => draft.value?.passengerProfiles ?? [],
+  set: (next) => { if (draft.value) draft.value = { ...draft.value, passengerProfiles: next } },
 })
 
 const isElectric = computed(() => draft.value?.powertrain === 'electric')
@@ -325,6 +338,7 @@ const isDirty = computed(() => {
 const canSave = computed(() => {
   const d = draft.value
   if (!d) return false
+  if (!d.passengerProfiles.every(validPassengerProfile)) return false
   if (!validateIcaoRegistration(d.registration)) return false
   if (d.weighingReports.length < 1) return false
   const weighingOk = d.weighingReports.every(

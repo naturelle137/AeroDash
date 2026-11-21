@@ -19,7 +19,7 @@ import { FT_TO_M } from './unit-conversion-constants'
 // Synthetic runway; not a real aerodrome or published declaration.
 const draft = (patch: Partial<ManualRunwayDraft> = {}): ManualRunwayDraft => ({
   aerodrome: 'TEST', designator: '09L', tora: '1000', toraUnit: 'ft', lda: '600', ldaUnit: 'm', toda: '', todaUnit: '',
-  fieldElevation: '-30.48', fieldElevationUnit: 'm', surfaceType: 'unpaved', surfaceCondition: 'long-grass', effectiveDate: '', expiryDate: '', ...patch,
+  fieldElevation: '-30.48', fieldElevationUnit: 'm', surfaceType: 'unpaved', surfaceCondition: 'long-grass', source: '', effectiveDate: '', expiryDate: '', ...patch,
 })
 function valid(input: ManualRunwayDraft): ManualRunway {
   const result = validateManualRunway(input)
@@ -199,4 +199,13 @@ describe('declared dates', () => {
     expect(validateManualRunway(draft({ effectiveDate: '2026-12-25', expiryDate: '2026-12-24' })).status).toBe('invalid')
     expect(draftFromManualRunway(runway).expiryDate).toBe('2026-12-24')
   })
+})
+
+it('preserves an unverified source reference and invalidates edits', () => {
+  const runway = valid(draft({ source: '  AIP TEST  ' }))
+  const record = createManualRunwayRecord(runway, new Date('2026-11-21T00:00:00Z'))
+  expect(recoverManualRunwayRecord(JSON.stringify(record))).toEqual({ status: 'loaded', record })
+  expect(draftFromManualRunway(runway).source).toBe('AIP TEST')
+  expect(sameManualRunway(runway, valid(draft({ source: 'Other' })))).toBe(false)
+  expect(validateManualRunway(draft({ source: 'bad\nsource' })).status).toBe('invalid')
 })
