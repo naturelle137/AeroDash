@@ -37,6 +37,7 @@ import AnnotationPanel from '@/modules/annotations/AnnotationPanel.vue'
 import { useAnnotationStore } from '@/modules/annotations/annotation.store'
 import ResultSummary from '@/modules/mass-balance/components/ResultSummary.vue'
 import WindLimitsSummary from '@/modules/aircraft/components/WindLimitsSummary.vue'
+import ForecastSelection from '@/modules/weather/components/ForecastSelection.vue'
 import ConfirmDialog from '@/shared/components/ConfirmDialog.vue'
 import UndoToast from '@/shared/components/UndoToast.vue'
 import { computeWindComponents } from '@/core/logic/wind-components'
@@ -262,7 +263,7 @@ const CARD_ORDER = computed<readonly CardMeta[]>(() => [
   { id: 'mb', badge: '02', title: 'Mass & Balance' },
   { id: 'fuel', badge: '03', title: energySectionTitle.value, soon: false },
   { id: 'performance', badge: '04', title: 'Performance' },
-  { id: 'weather', badge: '05', title: 'Weather', soon: true },
+  { id: 'weather', badge: '05', title: 'Weather' },
   // `title` follows the electric/combustion discriminator so the sticky
   // strip chip reads "Energy & Endurance" on a Velis Electro profile.
 ])
@@ -1340,24 +1341,13 @@ function onStartDemo(): void {
       <FlightPrepPerformance v-model:wind="windInput" :step="performanceStep" :context="performanceContext" :notes-enabled="!store.isDemoActive" />
     </section>
 
-    <!-- ═══ COMING SOON: Weather ════════════════════════════════════════════ -->
-    <section
-      id="prep-card-weather"
-      class="prep-card prep-card--soon"
-      aria-label="Weather — coming soon"
-    >
+    <section id="prep-card-weather" class="prep-card" aria-labelledby="prep-weather-title">
       <div class="prep-card__header">
-        <span class="prep-card__badge prep-card__badge--soon">05</span>
-        <h2 class="prep-card__title prep-card__title--soon">Weather</h2>
-        <span class="soon-pill">Coming soon</span>
+        <span class="prep-card__badge">05</span>
+        <h2 id="prep-weather-title" class="prep-card__title">Weather</h2>
       </div>
-      <p class="soon-desc">
-        METAR &amp; TAF integration, weather-derived wind components, runway surface conditions,
-        wind limit advisory.
-      </p>
+      <ForecastSelection />
     </section>
-
-
 
     <!-- ═══ Operational disclaimer (bottom, non-blocking) ═════════════════ -->
     <div class="disclaimer" role="note" aria-label="Operational disclaimer">
