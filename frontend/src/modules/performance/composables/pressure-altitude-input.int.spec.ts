@@ -29,6 +29,7 @@ function withInput() {
 
 it('resolves the persisted runway elevation only after an explicit copy', () => {
   saveRunway('-100', 'ft')
+  const storedBefore = { ...localStorage }
   const { input, stop } = withInput()
   input.method.value = 'qnh-elevation'
   Object.assign(input.draft, { qnh: '1013.25', qnhUnit: 'hPa' })
@@ -41,7 +42,7 @@ it('resolves the persisted runway elevation only after an explicit copy', () => 
   expect(resolution.value).toBe(-100)
   // The stored declaration keeps its original value; nothing about PA is written.
   expect(JSON.parse(localStorage.getItem(MANUAL_RUNWAY_STORAGE_KEY)!).runway.fieldElevation).toEqual({ value: -100, unit: 'ft' })
-  expect(Object.keys(localStorage)).toEqual([MANUAL_RUNWAY_STORAGE_KEY])
+  expect({ ...localStorage }).toEqual(storedBefore)
   stop()
 })
 
