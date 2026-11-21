@@ -10,7 +10,7 @@ it('keeps a synthetic selection when browser connectivity changes', async () => 
   await view.get('select').setValue('arrival')
   await view.get('input[type="text"]').setValue('Test airfield')
   await view.get('input[type="datetime-local"]').setValue('2030-06-01T12:30')
-  expect(view.get('[role="status"]').text()).toContain('No forecast source is configured')
+  expect(view.get('[role="status"]').text()).toContain('Selection changed; retrieve the forecast again')
   vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(false)
   window.dispatchEvent(new Event('offline'))
   await view.vm.$nextTick()

@@ -11,7 +11,7 @@ When('the pilot selects a forecast location and time', async ({ page }) => {
 })
 Then('the forecast is unavailable and manual wind remains unchanged', async ({ page }) => {
   await expect(page.getByRole('button', { name: 'Check METAR' })).toBeVisible()
-  await expect(page.getByRole('region', { name: 'Time-specific forecast' }).getByRole('status')).toContainText('No forecast source is configured')
+  await expect(page.getByRole('region', { name: 'Time-specific forecast' }).getByRole('status')).toContainText('Selection changed; retrieve the forecast again')
   await expect(page.getByLabel('Wind speed', { exact: true })).toHaveValue('20')
 })
 When('the browser goes offline for forecast planning', async ({ context }) => { await context.setOffline(true) })
@@ -51,4 +51,30 @@ When('the pilot applies synthetic forecast values offline', async ({ page }) => 
 Then('a manual override clears forecast provenance', async ({ page }) => {
   await page.locator('#performance-temperature').fill('26')
   await expect(page.locator('#prep-card-weather')).not.toContainText('temperature source: Pilot-entered forecast')
+})
+
+When('the pilot retrieves a synthetic hourly forecast', async ({ page }) => {
+  const forecast = page.getByRole('region', { name: 'Time-specific forecast' })
+  await page.route('https://wxdecoder.com/api/airports/kdfw/weather/forecast', route => route.fulfill({ json: { airportIdent: 'KDFW', freshness: { forecastFetchedAt: new Date().toISOString(), stale: false }, hourly: [{ time: '2030-06-01T12:00:00Z', tempF: 68, windDir: 'N', windSpeedKt: 10 }] }, headers: { 'access-control-allow-origin': '*' } }))
+  const local = new Date('2030-06-01T12:00:00Z')
+  const pad = (n: number) => String(n).padStart(2, '0')
+  const time = `${local.getFullYear()}-${pad(local.getMonth() + 1)}-${pad(local.getDate())}T${pad(local.getHours())}:00`
+  await forecast.getByLabel('Location').fill('KDFW')
+  await forecast.getByLabel('Local date and time').fill(time)
+  await forecast.getByRole('button', { name: 'Retrieve US forecast' }).click()
+  await expect(forecast).toContainText('Forecast QNH: unavailable')
+  await expect(forecast).toContainText('Temperature: 20 °C')
+  await expect(page.locator('#wind-speed')).toHaveValue('20')
+  await forecast.getByRole('button', { name: 'Replace wind with retrieved forecast' }).click()
+  await expect(page.locator('#wind-speed')).toHaveValue('10')
+})
+Then('the retrieved forecast evidence is captured as {string}', async ({ page, $testInfo }, width: string) => {
+  const path = $testInfo.outputPath(`retrieved-forecast-${width}.png`)
+  await page.getByRole('region', { name: 'Time-specific forecast' }).scrollIntoViewIfNeeded()
+  await page.screenshot({ path })
+  await $testInfo.attach(`retrieved-forecast-${width}`, { path, contentType: 'image/png' })
+  const forecast = page.getByRole('region', { name: 'Time-specific forecast' })
+  await forecast.getByLabel('Location').fill('Test airfield')
+  await forecast.getByLabel('Local date and time').fill('2030-06-01T12:30')
+  await page.locator('#wind-speed').fill('20')
 })
