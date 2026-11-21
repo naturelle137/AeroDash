@@ -48,7 +48,7 @@ describe('ManualRunwayPanel', () => {
     await fill(view)
     await view.get('form').trigger('submit')
     const stored = JSON.parse(localStorage.getItem(MANUAL_RUNWAY_STORAGE_KEY)!)
-    expect(stored.schemaVersion).toBe(2)
+    expect(stored.schemaVersion).toBe(3)
     expect(stored.runway.tora).toEqual({ value: 2000, unit: 'ft' })
     expect(stored.runway.lda).toEqual({ value: 550, unit: 'm' })
     expect(stored.runway.fieldElevation).toEqual({ value: -12, unit: 'ft' })
