@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import WeatherPanel from '@/modules/weather/WeatherPanel.vue'
+import type { MetarValues } from '@/modules/weather/metar-values'
 import { requiresOccupancy, resolveStationKind } from '@/core/logic/station-kind'
 import { normalizeMassToKg, parseSourceUnit } from '@/core/logic/unit-normalization'
-import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useMassBalanceStore } from '@/modules/mass-balance/stores/mass-balance.store'
 import { AircraftContextSchema } from '@/modules/mass-balance/data/aircraft-context.schema'
@@ -685,6 +686,24 @@ function onImportHandover(text: string): void {
   }
 }
 const windInput = ref({ runwayHeading: '', windDirection: '', windSpeed: '', unit: 'kt' })
+const weatherSources = ref<Partial<Record<keyof MetarValues, { source: string; value: string }>>>({})
+function weatherValue(field: keyof MetarValues): string {
+  if (field === 'wind') return JSON.stringify([windInput.value.windDirection, windInput.value.windSpeed, windInput.value.unit])
+  return field === 'temperature' ? performanceStep.temperature.value : JSON.stringify([performanceStep.pa.draft.qnh, performanceStep.pa.draft.qnhUnit])
+}
+watch(() => (['wind', 'temperature', 'qnh'] as const).map(weatherValue), (current) => {
+  (['wind', 'temperature', 'qnh'] as const).forEach((field, index) => {
+    if (weatherSources.value[field] && weatherSources.value[field].value !== current[index]) delete weatherSources.value[field]
+  })
+}, { flush: 'sync' })
+function applyWeather(field: keyof MetarValues, values: MetarValues, source: string): void {
+  if (field === 'wind' && values.wind) Object.assign(windInput.value, { windDirection: values.wind.direction, windSpeed: values.wind.speed, unit: values.wind.unit })
+  else if (field === 'temperature' && values.temperature !== undefined) performanceStep.temperature.value = values.temperature
+  else if (field === 'qnh' && values.qnh !== undefined) Object.assign(performanceStep.pa.draft, { qnh: values.qnh, qnhUnit: 'hPa' })
+  else return
+  weatherSources.value[field] = { source, value: weatherValue(field) }
+}
+
 const printSource = computed(() => ({ ...mbSource.value, performance: performanceStep.presentation.value,
   wind: { input: windInput.value, result: computeWindComponents(windInput.value) } }))
 
@@ -1347,7 +1366,10 @@ function onStartDemo(): void {
         <span class="prep-card__badge">05</span>
         <h2 id="prep-weather-title" class="prep-card__title">Weather</h2>
       </div>
-      <WeatherPanel />
+      <WeatherPanel @apply="applyWeather" />
+      <p v-for="field in (['wind', 'temperature', 'qnh'] as const)" :key="field">
+        <template v-if="weatherSources[field] && weatherSources[field].value === weatherValue(field)">{{ field }} source: {{ weatherSources[field].source }}</template>
+      </p>
       <ForecastSelection />
     </section>
 
