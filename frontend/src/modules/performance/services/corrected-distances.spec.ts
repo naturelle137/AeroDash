@@ -72,6 +72,7 @@ describe('corrected distances in the performance step', () => {
       expect(item.reason).toContain('Runway slope 2 % was not applied')
       expect(item.reason).toContain('The saved runway surface was not applied')
       expect(item.reason).toContain('The selected safety factor was not applied')
+      expect(item.reason).toContain('Do not use the uncorrected base distances for runway assessment')
     })
     effect.stop()
   })
