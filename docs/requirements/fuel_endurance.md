@@ -36,7 +36,7 @@ When the user enters a valid explicit consumption and trip duration, the system 
 
 While the selected aircraft is electric, the system shall label the Mass & Balance endurance card `Energy & Endurance`.
 
-**Status:** Deferred. Electric energy and endurance are not implemented.
+**Status:** Manual electric energy budget is available; endurance prediction remains unavailable.
 
 ### REQ-FE-007: Independent sequences
 
@@ -132,7 +132,7 @@ While direct Trip Fuel mode is selected, the system shall omit duration-based en
 
 If direct Trip Fuel is blank, negative, malformed or nonfinite, then the system shall block the arrival estimate with a visible reason.
 
-Current scope: REQ-FE-002/003 and manual arithmetic are available in Flight Preparation. Consumption is assumed constant; reserve is user chosen without a regulatory default. Zero margin is arithmetic equality, not a safety verdict. REQ-FE-005 estimated trip arrival mass retains reserve and does not assess landing suitability, the full burn path/envelope or operational suitability. REQ-FE-009 direct Trip Fuel entry is available without duration, consumption or reserve inputs. Reserve remains aboard and unusable fuel is not subtracted again. Fixed-arm trip arrival CG supports one tank or an explicitly selected complete named multi-tank sequence, including empty available tanks. Variable-arm trip CG supports one lookup tank using total-load moment differences (REQ-MB-031 and REQ-FE-034) and explicit sequences mixing fixed-arm and lookup tanks, including nonzero unusable fuel that is never burned (REQ-FE-037). Full-flight burn-path assessment remain unsupported. Electric endurance remains future work; the existing M&B zero-fuel landing output is separate.
+Current scope: REQ-FE-002/003 and manual arithmetic are available in Flight Preparation. Consumption is assumed constant; reserve is user chosen without a regulatory default. Zero margin is arithmetic equality, not a safety verdict. REQ-FE-005 estimated trip arrival mass retains reserve and does not assess landing suitability, the full burn path/envelope or operational suitability. REQ-FE-009 direct Trip Fuel entry is available without duration, consumption or reserve inputs. Reserve remains aboard and unusable fuel is not subtracted again. Fixed-arm trip arrival CG supports one tank or an explicitly selected complete named multi-tank sequence, including empty available tanks. Variable-arm trip CG supports one lookup tank using total-load moment differences (REQ-MB-031 and REQ-FE-034) and explicit sequences mixing fixed-arm and lookup tanks, including nonzero unusable fuel that is never burned (REQ-FE-037). Full-flight burn-path assessment remain unsupported. Electric endurance prediction remains future work; the existing M&B zero-fuel landing output is separate.
 
 **Status:** Implemented. Tests: `frontend/src/modules/fuel-endurance/components/FuelEnduranceCard.int.spec.ts`.
 
@@ -225,3 +225,15 @@ If a category-available lookup tank also declares a fixed arm, then the system s
 If a multi-tank sequence with a lookup tank (with any unusable fuel) lacks a complete selected sequence, or a lookup tank fails REQ-FE-035 or cannot supply its burn, then the system shall suppress trip arrival CG with a visible reason without clamping, sorting or extrapolating.
 
 **Status:** Implemented. Tests: `frontend/src/modules/fuel-endurance/services/arrival-cg.spec.ts`.
+
+### REQ-FE-038: Manual electric energy budget
+
+While a valid electric battery profile is selected, the system shall calculate estimated trip energy and reserve margin from explicit available energy, average power and trip duration.
+
+### REQ-FE-039: Electric reserve warning
+
+If estimated remaining energy is below the profile reserve floor, the system shall display a warning.
+
+### REQ-FE-040: Invalid electric budget
+
+If an electric budget input is missing or invalid, the system shall suppress the estimated budget.

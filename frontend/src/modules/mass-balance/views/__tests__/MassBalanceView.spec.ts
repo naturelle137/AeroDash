@@ -222,16 +222,15 @@ describe('MassBalanceView integration', () => {
     expect(store.stations[0]!.weight).toBe(OCCUPANT_PRESET_MASSES_KG[1])
   })
 
-  it('keeps electric endurance as a placeholder without combustion planning inputs', async () => {
+  it('shows manual electric planning without combustion inputs', async () => {
     const store = useMassBalanceStore()
     store.loadProfile({ ...mockProfile, id: 'synthetic-electric', powertrain: 'electric', loadPoints: [] })
     const wrapper = mountView()
     await wrapper.vm.$nextTick()
     const card = wrapper.get('#prep-card-fuel')
     expect(card.text()).toContain('Energy & Endurance')
-    expect(card.text()).toContain('Fuel-burn arrival estimates are unavailable for electric aircraft')
-    expect(card.text()).toContain('Coming soon')
-    expect(card.find('input').exists()).toBe(false)
+    expect(card.text()).toContain('Energy budget unavailable')
+    expect(card.findAll('input')).toHaveLength(3)
     expect(card.find('[aria-label="Fuel planning results"]').exists()).toBe(false)
     wrapper.unmount()
   })
