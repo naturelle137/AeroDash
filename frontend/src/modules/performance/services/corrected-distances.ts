@@ -89,8 +89,7 @@ export function presentCorrectedOperation(
     const omissions = [
       ['Wind component', inputs.headwind, 'kt'], ['Runway slope', inputs.slope, '%'],
     ].flatMap(([label, value, unit]) => {
-      const parsed = parseLookupNumber(value!)
-      return parsed !== null && parsed !== 0 ? [`${label} ${value} ${unit} was not applied.`] : []
+      return value!.trim() ? [`${label} ${value} ${unit} was not applied.`] : []
     })
     return { operation, title, status: 'unavailable', reason: [reason, ...omissions, ...(runway ? ['The saved runway surface was not applied.'] : []), 'The selected safety factor was not applied.'].join(' ') }
   }
