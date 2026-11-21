@@ -30,3 +30,16 @@ Feature: Offline manual wind components
       | width | height |
       | 1440  | 1000   |
       | 390   | 844    |
+
+  Scenario Outline: Wind controls remain reachable in Flight Prep
+    Given the raw POH workflow viewport is <width> by <height>
+    When I import and verify a synthetic POH profile for registration "D-EBPN" declaring type "P208" and maximum mass 650 kg
+    And the pilot selects the imported aircraft "D-EBPN" in Flight Prep
+    And the pilot enters runway heading "270", wind from "330" and speed "20" "kt"
+    Then the wind components show "Headwind" "10.0 kt" and crosswind "17.3 kt from the right"
+    And the Flight Prep wind controls are reachable by keyboard at "<width>"
+
+    Examples:
+      | width | height |
+      | 1440  | 1000   |
+      | 390   | 844    |

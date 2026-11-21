@@ -37,6 +37,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Keep keyboard-focused Flight Prep wind inputs above mobile controls.
+
 - Mark unverified corrected performance distances in briefing print and PDF.
 
 - Restore marked FSM uphill and short-grass estimates and disclose their source limitation.
