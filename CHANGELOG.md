@@ -9,7 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Include available manual wind components in the Briefing Pack.
 - Associate briefing CG warnings with supported points or the shared trajectory.
 - Disclose when the saved runway surface is not applied to uncorrected performance distances.
 - Clarify that base performance distances exclude operational factors and runway assessment.
@@ -24,6 +23,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Estimate missing takeoff distance from ground roll and retain its provenance.
 
 - Preserve extrapolation and CAA estimate markers alongside FSM correction estimates.
+
+- Include available manual wind components in the Briefing Pack.
 
 ### Added
 
