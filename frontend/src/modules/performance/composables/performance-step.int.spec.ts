@@ -185,7 +185,8 @@ it('records an unverified obstacle, invalidates on edit and drops it when cleare
     expect(ids()).toContain('WARN-PF-001')
     expect(step.presentation.value.inputKey).not.toBe(keyBefore)
     expect(step.presentation.value.inputs).toContainEqual({ label: 'Unverified obstacle constraint', value: '50 ft above the runway at 600 ft from the runway' })
-    expect(step.presentation.value.scope.join(' ')).toContain('not calculated')
+    expect(step.presentation.value.inputs).toContainEqual({ label: 'Required geometric gradient', value: 'Approximately 8.333%' })
+    expect(step.presentation.value.scope.join(' ')).toContain('clearance cannot be determined')
     step.obstacle.distance = '-1'
     expect(ids()).not.toContain('WARN-PF-001')
     step.obstacle.height = ''; step.obstacle.distance = ''

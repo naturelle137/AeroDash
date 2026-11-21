@@ -10,7 +10,7 @@ import { TEMPERATURE_ADVISORY_C } from '@/core/logic/pressure-altitude'
 import { assessPerformance, inspectTables, parseLookupNumber, type MassSource, type PerformanceAssessment } from '../services/poh-inspection'
 import { OPERATION_LABELS } from '../services/correction-source-messages'
 import { defaultSafetyFactors, emptyCorrectionInputs, presentCorrectedOperation } from '../services/corrected-distances'
-import { assessObstacle, describeObstacle, emptyObstacleInput, obstacleNotification } from '../services/obstacle-constraint'
+import { assessObstacle, describeGradient, describeObstacle, emptyObstacleInput, obstacleNotification } from '../services/obstacle-constraint'
 import { presentOperationalAssessment, presentPerformance, type PerformancePresentation, type RunwayPresentation } from '../services/performance-presentation'
 
 /** Everything outside this step that a result depends on. */
@@ -167,6 +167,7 @@ export function usePerformanceStep(context: () => PerformanceStepContext) {
           { label: `${OPERATION_LABELS[operation]} safety factor`, value: safetyFactors[operation].preset === 'custom' ? `Custom ${safetyFactors[operation].custom.trim() || 'not entered'}` : safetyFactors[operation].preset },
         ]),
         { label: 'Unverified obstacle constraint', value: describeObstacle(obstacleAssessment.value) },
+        ...(obstacleAssessment.value.status === 'active' ? [{ label: 'Required geometric gradient', value: describeGradient(obstacleAssessment.value) }] : []),
       ],
       notifications: obstacleNotification(obstacleAssessment.value),
       obstacleActive: obstacleAssessment.value.status === 'active',

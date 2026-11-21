@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import PressureAltitudeFieldset from './PressureAltitudeFieldset.vue'
 import InputHelp from './InputHelp.vue'
-import { OBSTACLE_UNITS } from '../services/obstacle-constraint'
+import { describeGradient, OBSTACLE_SCOPE, OBSTACLE_UNITS } from '../services/obstacle-constraint'
 import { SAFETY_FACTOR_PRESETS } from '../services/corrected-distances'
 import type { PerformanceStep } from '../composables/performance-step'
 
@@ -40,7 +40,7 @@ const { temperature, temperatureWarnings, corrections, safetyFactors, showPaErro
         <label>Distance unit<select v-model="obstacle.distanceUnit" id="performance-obstacle-distance-unit"><option v-for="unit in OBSTACLE_UNITS" :key="unit" :value="unit">{{ unit }}</option></select></label>
         <p id="performance-obstacle-distance-error" v-if="obstacleAssessment.status === 'invalid' && obstacleAssessment.errors.distance" role="alert">{{ obstacleAssessment.errors.distance }}</p></div>
       <button type="button" :disabled="!obstacle.height && !obstacle.distance" @click="obstacle.height = ''; obstacle.distance = ''">Clear obstacle</button>
-      <p v-if="obstacleAssessment.status === 'active'" class="obstacle-active" data-obstacle-active>Active obstacle: {{ obstacleAssessment.height }} {{ obstacleAssessment.heightUnit }} at {{ obstacleAssessment.distance }} {{ obstacleAssessment.distanceUnit }}. Unverified, not checked for clearance.</p>
+      <p v-if="obstacleAssessment.status === 'active'" class="obstacle-active" data-obstacle-active>Active obstacle: {{ obstacleAssessment.height }} {{ obstacleAssessment.heightUnit }} at {{ obstacleAssessment.distance }} {{ obstacleAssessment.distanceUnit }}. Unverified, not checked for clearance. Required geometric gradient: {{ describeGradient(obstacleAssessment) }}. {{ OBSTACLE_SCOPE }}</p>
     </fieldset>
 
     <section class="results" :aria-label="presentation.status === 'assessed' ? 'Base performance distances' : 'Performance results'" :data-status="presentation.status" aria-live="polite">

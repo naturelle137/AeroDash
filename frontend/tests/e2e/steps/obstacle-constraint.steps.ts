@@ -25,6 +25,8 @@ Then('the unverified obstacle warning is shown', async ({ page }) => {
   await expect(warning(page)).toContainText('WARN-PF-001')
   await expect(warning(page)).toContainText('Unverified obstacle data in use')
   await expect(page.locator('[data-obstacle-active]')).toContainText('Unverified, not checked for clearance')
+  await expect(page.locator('[data-obstacle-active]')).toContainText('Approximately 2.540%')
+  await expect(page.locator('[data-obstacle-active]')).toContainText('clearance cannot be determined')
 })
 
 Then('no unverified obstacle warning is shown', async ({ page }) => {
