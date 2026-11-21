@@ -30,7 +30,7 @@ When applying surface friction or runway slope corrections, the system shall app
 
 If one takeoff base distance is missing, then the system shall derive it using `TOD = TOR × 1.9` before applying the Operational Safety Factor.
 
-**Status:** Implemented. Tests: `frontend/src/core/logic/performance.estimation.spec.ts`, `frontend/src/modules/performance/services/poh-inspection.spec.ts`.
+**Status:** Implemented. Tests: `frontend/src/core/logic/performance.estimation.spec.ts`, `frontend/src/core/logic/performance.poh-distance.spec.ts`, `frontend/src/modules/performance/services/poh-inspection.spec.ts`.
 
 ### REQ-PF-006: Operational Required Distance
 
