@@ -218,7 +218,7 @@ When entering headwind or runway slope for takeoff or landing, the system shall 
 
 ### REQ-UI-054: Instructor notes
 
-When the user adds, edits or deletes an instructor note anchored to a Mass & Balance result, the system shall store it on the device with its self-declared author and show it beside the results.
+When the user adds, edits or deletes an instructor note anchored to a Mass & Balance result or takeoff or landing distance, the system shall store it on the device with its self-declared author and show it beside the results.
 
 ### REQ-UI-055: Notes never mask warnings
 

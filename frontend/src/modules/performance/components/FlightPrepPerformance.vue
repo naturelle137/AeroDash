@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AnnotationPanel from '@/modules/annotations/AnnotationPanel.vue'
 import ManualRunwayPanel from '@/modules/airport/components/ManualRunwayPanel.vue'
 import CorrectionSourcePanel from './CorrectionSourcePanel.vue'
 import ManualWindComponentPanel from './ManualWindComponentPanel.vue'
@@ -8,7 +9,7 @@ import UnitPreferencesFieldset from './UnitPreferencesFieldset.vue'
 import type { PerformanceStep, PerformanceStepContext } from '../composables/performance-step'
 import { formatNumber } from '../services/performance-presentation'
 
-const props = defineProps<{ step: PerformanceStep; context: PerformanceStepContext }>()
+const props = defineProps<{ step: PerformanceStep; context: PerformanceStepContext; notesEnabled: boolean }>()
 const { tables, inputKey, manualConfiguration } = props.step
 </script>
 
@@ -41,6 +42,7 @@ const { tables, inputKey, manualConfiguration } = props.step
           </dl>
         </template>
       </PerformanceStepPanel>
+      <AnnotationPanel v-if="notesEnabled && context.profile && context.ready" :key="context.profile.id" :aircraft-id="context.profile.id" performance />
     </section>
     <UnitPreferencesFieldset />
     <ManualRunwayPanel />
