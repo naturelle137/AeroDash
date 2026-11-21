@@ -9,11 +9,9 @@ describe('estimateFsmTakeoff', () => {
     expect(estimateFsmTakeoff(base)).toEqual({ status: 'estimated', groundRoll: 400, distanceOver50ft: 700, notCredited: [] })
   })
 
-  it('chains slope then grass on the ground roll and keeps the airborne part', () => {
-    const result = estimateFsmTakeoff({ ...base, surface: 'unpaved:dry-short-grass', slopePercent: 2 })
-    if (result.status !== 'estimated') throw new Error('expected estimate')
-    expect(result.groundRoll).toBeCloseTo(400 * 1.2 * 1.2)
-    expect(result.distanceOver50ft - result.groundRoll).toBeCloseTo(300)
+  it('withholds adverse slope and grass adaptations that could understate the total-distance surcharge', () => {
+    expect(estimateFsmTakeoff({ ...base, slopePercent: 2 })).toEqual({ status: 'unsupported', reason: 'adverse-slope' })
+    expect(estimateFsmTakeoff({ ...base, surface: 'unpaved:dry-short-grass' })).toEqual({ status: 'unsupported', reason: 'grass' })
   })
 
   it('never credits headwind or downhill slope and reports both', () => {

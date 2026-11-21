@@ -67,7 +67,7 @@ const FSM_NOT_CREDITED: Record<FsmNotCredited, string> = {
   'favourable-slope': 'Favourable slope is not credited: FSM 3/75 states no slope range.',
 }
 const FSM_ESTIMATE_MARKER = ' ESTIMATED (FSM 3/75)'
-const FSM_DISCLOSURE = 'Estimate from LBA FSM 3/75, not from the aircraft manual and not validated by it: the source gives slope and surface percentages for the whole distance to 15 m; AeroDash applies them to the ground roll only, with no 15 m to 50 ft conversion, and the POH surface baseline is unknown. Dry paved adds nothing; dry short grass adds 20 %; downhill slope and headwind are not credited. Wind is not corrected.'
+const FSM_DISCLOSURE = 'Estimate from LBA FSM 3/75, not from the aircraft manual and not validated by it. The POH surface baseline is unknown; dry paved adds nothing. Downhill slope and headwind are not credited. Wind is not corrected.'
 const SLOPE_LIMIT_PERCENT = 100
 
 /**
@@ -99,7 +99,7 @@ export function presentCorrectedOperation(
   const rows = sources.corrections.filter((row) => row.operation === operation)
   const selected = rows.map((row) => row.selected)
   const supplied = selected.every((candidate) => candidate && TECNAM_S9_SOURCE_IDS.includes(candidate.id))
-  // Without a manual rule set the FSM estimate covers surface and slope for take-off; it never covers wind.
+  // The FSM fallback is considered only when no complete manual rule set applies.
   const fsm = !supplied && operation === 'takeoff'
     ? rows.filter((row) => row.correction !== 'wind').map((row) => row.selected)
     : []
@@ -123,7 +123,9 @@ export function presentCorrectedOperation(
     if (estimate.status === 'unsupported') {
       return unavailable(estimate.reason === 'tailwind'
         ? 'FSM 3/75 gives no tailwind value, so no estimate is made. Distances stay uncorrected.'
-        : 'FSM 3/75 has no unambiguous row for this runway surface condition. Distances stay uncorrected.')
+        : estimate.reason === 'surface'
+          ? 'FSM 3/75 has no unambiguous row for this runway surface condition. Distances stay uncorrected.'
+          : 'FSM 3/75 states a total-distance surcharge; its ground-roll adaptation for uphill slope or dry short grass may understate it. No estimate is made. Distances stay uncorrected.')
     }
     result = estimate
   } else {

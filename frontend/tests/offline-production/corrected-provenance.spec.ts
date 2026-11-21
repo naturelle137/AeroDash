@@ -96,7 +96,7 @@ test('FSM corrections retain extrapolated and estimated provenance in the briefi
   await perf.getByLabel('Temperature (°C)', { exact: true }).fill('10')
   const inputs = perf.getByRole('group', { name: 'Takeoff wind and slope' })
   await inputs.getByLabel('Headwind component (kt, negative = tailwind)').fill('0')
-  await inputs.getByLabel('Runway slope (%, positive = uphill)').fill('2')
+  await inputs.getByLabel('Runway slope (%, positive = uphill)').fill('0')
   await perf.getByLabel('Pilot-in-Command acknowledges extrapolated data').check()
   const corrected = perf.getByRole('region', { name: 'Takeoff corrected distances' })
   const marker = 'ESTIMATED — EXTRAPOLATED (+20 % penalty)'

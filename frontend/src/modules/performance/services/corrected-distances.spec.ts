@@ -117,22 +117,14 @@ describe('corrected distances in the performance step', () => {
       return { step, runway, context }
     }
 
-    it('estimates take-off slope and grass on the ground roll, marked ESTIMATED', () => {
+    it.each([['paved', 'dry', '2'], ['unpaved', 'dry-short-grass', '0']] as const)('withholds unsupported adverse adaptations on %s', (surface, condition, slope) => {
       const effect = effectScope()
       effect.run(() => {
-        const { step } = fsmSetup()
-        Object.assign(step.corrections.takeoff, { headwind: '0', slope: '2' })
+        const { step } = fsmSetup(surface, condition)
+        Object.assign(step.corrections.takeoff, { headwind: '0', slope })
         const item = corrected(step, 0)
-        if (item.status !== 'applied') throw new Error('expected applied')
-        // roll 220 → slope ×1.2 → grass ×1.2 → × regulatory baseline 1.25 (no manual factor).
-        expect(item.rows[0]!.corrected).toBe(`${Math.ceil(220 * 1.2 * 1.2)} m ESTIMATED (FSM 3/75)`)
-        expect(item.rows[0]!.factored).toBe(`${Math.ceil(220 * 1.2 * 1.2 * 1.25)} m ESTIMATED (FSM 3/75)`)
-        expect(item.rows[0]!.raw).toBe('220.0 m')
-        expect(item.comparison.required).toContain('ESTIMATED (FSM 3/75)')
-        expect(item.partial).toBe(false)
-        expect(item.safetyFactor).toContain('no manual factor')
-        expect(item.notes.join(' ')).toContain('not validated by it')
-        expect(item.notes.join(' ')).toContain('Wind is not corrected')
+        expect(item.status).toBe('unavailable')
+        expect((item as { reason: string }).reason).toContain('may understate')
       })
       effect.stop()
     })
@@ -140,10 +132,10 @@ describe('corrected distances in the performance step', () => {
     it.each(['TakeoffRoll', 'TakeoffDistance50ft'] as const)('retains extrapolated and CAA-estimated provenance with FSM when %s is missing', (phase) => {
       const effect = effectScope()
       effect.run(() => {
-        const { step, runway, context } = fsmSetup()
+        const { step, runway, context } = fsmSetup('paved', 'dry')
         context.profile!.performanceProfiles = context.profile!.performanceProfiles!.filter(table => table.flightPhase !== phase)
         context.takeoff = { status: 'ready', massKg: 1050, origin: 'M&B' }
-        Object.assign(step.corrections.takeoff, { headwind: '0', slope: '2' })
+        Object.assign(step.corrections.takeoff, { headwind: '0', slope: '0' })
         Object.assign(runway.draft, { tora: '100', toda: '5000' }); runway.save()
         expect(corrected(step, 0).status).toBe('unavailable')
         step.extrapolationAcknowledged.value = true
