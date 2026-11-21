@@ -64,6 +64,7 @@ export type PhaseDistance = {
   massTreatment: MassTreatment
   lookupMass: number
   massRange: Range
+  lowerAxisCaps: readonly ('pressureAltitude' | 'temperature')[]
   /** Set when an upper axis was extrapolated; `distance` already carries the fixed penalty. */
   extrapolation: { penaltyFactor: number; axes: readonly AxisExtrapolation[] } | null
 }
@@ -162,9 +163,9 @@ function lookupMessage(label: string, massKg: number, origin: string, result: Ex
   const r = result.range
   switch (result.reason) {
     case 'pressure-altitude-outside':
-      return { reason: 'envelope', message: `${label}: pressure altitude ${fmt(conditions.pressureAltitudeFt)} ft is outside the table (${r!.min} to ${r!.max} ft). No clamping or extrapolation is available.` }
+      return { reason: 'envelope', message: `${label}: pressure altitude ${fmt(conditions.pressureAltitudeFt)} ft is outside the table (${r!.min} to ${r!.max} ft). The boundary cap is unsupported or upper extrapolation is unavailable.` }
     case 'temperature-outside':
-      return { reason: 'envelope', message: `${label}: temperature ${fmt(conditions.temperatureC)} °C is outside the table (${r!.min} to ${r!.max} °C). No clamping or extrapolation is available.` }
+      return { reason: 'envelope', message: `${label}: temperature ${fmt(conditions.temperatureC)} °C is outside the table (${r!.min} to ${r!.max} °C). The boundary cap is unsupported or upper extrapolation is unavailable.` }
     case 'mass-above-table':
       return { reason: 'envelope', message: `${label}: ${origin} ${fmt(massKg)} kg is above the table maximum ${fmt(r!.max)} kg.` }
     case 'extrapolation-beyond-cap': {
@@ -192,7 +193,7 @@ function assessGroup(tables: TableInspection, group: PerformanceGroupId, mass: M
     if (result.status === 'blocked') return { status: 'blocked', massKg: mass.massKg, ...lookupMessage(label, mass.massKg, mass.origin, result, conditions) }
     const { distance, provenance } = resolveDistance(tables.provenance[phase] === 'poh' ? result.distance : null, result.distance, group, phase === GROUP_PHASES[group][0] ? 'roll' : 'distance')
     if (!Number.isFinite(distance) || distance <= 0) return { status: 'blocked', massKg: mass.massKg, reason: 'tables', message: `${label}: estimated distance is invalid.` }
-    distances.push({ phase, label, distance, provenance, massTreatment: result.massTreatment, lookupMass: result.lookupMass, massRange: result.massRange, extrapolation: result.extrapolation ?? null })
+    distances.push({ phase, label, distance, provenance, massTreatment: result.massTreatment, lookupMass: result.lookupMass, massRange: result.massRange, lowerAxisCaps: result.lowerAxisCaps, extrapolation: result.extrapolation ?? null })
   }
   return { status: 'success', massKg: mass.massKg, origin: mass.origin, distances, extrapolated: distances.some((row) => row.extrapolation) }
 }
