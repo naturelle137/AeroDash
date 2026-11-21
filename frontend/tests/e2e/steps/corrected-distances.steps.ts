@@ -96,6 +96,14 @@ When('the pilot enters landing headwind {string} kt and slope {string} %', async
   await page.getByLabel('Runway slope (%, positive = uphill)').last().fill(slope)
 })
 
+Then('both unavailable corrections disclose their unapplied safety factors', async ({ page }) => {
+  for (const phase of ['Takeoff', 'Landing']) {
+    const region = page.getByRole('region', { name: `${phase} corrected distances`, exact: true })
+    await expect(region).toContainText('Wind component -2 kt was not applied')
+    await expect(region).toContainText('The selected safety factor was not applied')
+  }
+})
+
 Then('the landing correction shows its source and final ground roll {string}', async ({ page }, value: string) => {
   const region = page.getByRole('region', { name: 'Landing corrected distances', exact: true })
   await expect(region).toContainText('Tecnam P2008 JC Aircraft Flight Manual')

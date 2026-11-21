@@ -70,6 +70,7 @@ describe('corrected distances in the performance step', () => {
       if (item.status !== 'unavailable') throw new Error('expected unavailable')
       expect(item.reason).toContain('Wind component -5 kt was not applied')
       expect(item.reason).toContain('Runway slope 2 % was not applied')
+      expect(item.reason).toContain('The selected safety factor was not applied')
     })
     effect.stop()
   })
