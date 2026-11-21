@@ -79,6 +79,7 @@ it('uses persisted profiles and immediately clears results on numeric, selection
   await view.get('select').setValue(fleet.profiles[0]!.id)
   await fillLookup(view, '900', '1000', '10')
   expect(view.get('[aria-label="Base performance distances"]').text()).toContain('220.0 m')
+  expect(results(view).text()).toContain('Base distances are uncorrected table values without operational factors or runway assessment.')
   expect(results(view).text()).toContain('1000 ft, entered directly')
   await field(view, 'Mass (kg)').setValue('')
   expect(view.find('[aria-label="Base performance distances"]').exists()).toBe(false)

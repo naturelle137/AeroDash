@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Clarify that base performance distances exclude operational factors and runway assessment.
+
 - Identify corresponding source and normalized performance points during Fleet review.
 
 - Identify missing correction-source provenance and verify candidate details in the assessment.
