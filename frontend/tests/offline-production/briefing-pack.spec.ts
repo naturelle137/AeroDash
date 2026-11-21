@@ -110,7 +110,10 @@ test('complete current briefing pack with chart, persistent action and native st
     await runway.getByLabel('Field elevation', { exact: true }).fill('1000')
     await runway.getByLabel('Surface type', { exact: true }).selectOption('paved')
     await runway.getByLabel('Surface condition', { exact: true }).selectOption('dry')
+    await runway.getByLabel('Effective date', { exact: true }).fill('2026-01-01')
+    await runway.getByLabel('Expiry date', { exact: true }).fill('2026-12-31')
     await runway.getByRole('button', { name: 'Save runway inputs', exact: true }).click()
+    await runway.getByLabel('Check date', { exact: true }).fill('2027-01-01')
 
     for (const fraction of [0, .5, 1]) {
       await page.evaluate(f => window.scrollTo(0, document.documentElement.scrollHeight * f), fraction)
@@ -132,6 +135,11 @@ test('complete current briefing pack with chart, persistent action and native st
     await expect(preview).toContainText('220.0 m')
     await expect(preview).toContainText('400.0 m')
     await expect(preview).toContainText('Synthetic field')
+    await expect(preview).toContainText('2027-01-01: expired; source currency unverified')
+    await preview.getByText('Declared date check', { exact: true }).scrollIntoViewIfNeeded()
+    const dateScreenshot = info.outputPath(`${offline ? 'offline' : 'online'}-declared-date.png`)
+    await page.screenshot({ path: dateScreenshot })
+    await info.attach('declared-date-check', { path: dateScreenshot, contentType: 'image/png' })
     await expect(preview).toContainText('MTOM:')
     await expect(preview.getByRole('img')).toBeVisible()
     for (const removed of ['Profile and source status', 'Applicable category limits', 'No current M&B notifications.', 'The all-usable-fuel-burned endpoint is not the trip-specific arrival.']) {

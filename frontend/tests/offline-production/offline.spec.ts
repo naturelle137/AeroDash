@@ -68,6 +68,8 @@ test('cached preparation reopens offline with persisted synthetic data and live 
   }
   await runway.getByLabel('Surface type', { exact: true }).selectOption({ label: 'Paved' })
   await runway.getByLabel('Surface condition', { exact: true }).selectOption({ label: 'Dry' })
+  await runway.getByLabel('Effective date', { exact: true }).fill('2026-01-01')
+  await runway.getByLabel('Expiry date', { exact: true }).fill('2026-12-31')
   await runway.getByRole('button', { name: 'Save runway inputs', exact: true }).click()
   await expect(page.getByRole('region', { name: 'Saved manual runway', exact: true })).toContainText('Synthetic offline field')
 
@@ -84,10 +86,12 @@ test('cached preparation reopens offline with persisted synthetic data and live 
   await expect(saved).toContainText('User-entered, not airport-validated')
   await saved.getByLabel('Check date').fill('2029-01-01')
   await expect(saved).toContainText('AIRAC cycle unavailable for this date')
+  await expect(saved).toContainText('Expired according to the declared date')
   await saved.scrollIntoViewIfNeeded()
   await capture(page, info, 'offline-airac-unavailable')
   await saved.getByLabel('Check date').fill('2026-11-26')
   await expect(saved).toContainText('AIRAC cycle starting 2026-11-26')
+  await expect(saved).toContainText('source currency remains unverified')
   await capture(page, info, 'offline-airac-supported')
   await selectProfile(page)
   await rawLookup(page)

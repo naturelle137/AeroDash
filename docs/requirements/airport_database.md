@@ -111,3 +111,7 @@ When displaying a saved runway, the system shall display the AIRAC cycle start f
 ### REQ-AP-023: Unsupported AIRAC date
 
 If the selected date is outside the supported published calendar or invalid, then the system shall indicate that the AIRAC cycle is unavailable.
+
+### REQ-AP-024: Shared declared date check
+
+When displaying a saved runway in Performance or the briefing, the system shall include the selected date and declared date check with its unverified source status.

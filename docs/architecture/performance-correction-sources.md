@@ -112,4 +112,4 @@ Because the source percentages apply to the whole distance, applying them to the
 
 ## Remaining work
 
-Other aircraft manuals and landing corrections remain unsupported; they need a validated source. Further FSM rows (damp, soft, damaged turf, long grass, contaminated surfaces) need a rule for combining the chained percentages before they can be estimated.
+Other aircraft manuals and landing corrections remain unsupported. [CAA Safety Sense 12](https://www.caa.co.uk/publication/download/23582) gives landing slope and surface factors for the whole distance, incompatible with REQ-PF-004, and tailwind relative to lift-off speed, which is not modelled. It cannot supply these corrections under the current contract. Further FSM rows (damp, soft, damaged turf, long grass, contaminated surfaces) need a rule for combining the chained percentages before they can be estimated.

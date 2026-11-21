@@ -24,6 +24,8 @@ export const useManualRunwayStore = defineStore('manualRunway', () => {
   const notice = ref<string | null>(null)
   const showErrors = ref(false)
   const loaded = ref(false)
+  const now = new Date()
+  const assessmentDate = ref(`${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`)
   const units = useLoadedUnitPreferences()
   const massBalance = useMassBalanceStore()
   let filling = false
@@ -137,5 +139,5 @@ export const useManualRunwayStore = defineStore('manualRunway', () => {
     return true
   }
 
-  return { draft, saved, storageError, notice, showErrors, loaded, validation, errors, current, hasUnsavedChanges, load, save, revert, clear }
+  return { draft, saved, storageError, notice, showErrors, loaded, assessmentDate, validation, errors, current, hasUnsavedChanges, load, save, revert, clear }
 })

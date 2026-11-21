@@ -9,6 +9,26 @@ import { usePerformanceStep, type PerformanceStepContext } from './performance-s
 beforeEach(() => { localStorage.clear(); setActivePinia(createPinia()) })
 afterEach(() => { vi.restoreAllMocks() })
 
+it('carries the selected declared-date check into performance and invalidates its snapshot key', () => {
+  const scope = effectScope()
+  scope.run(() => {
+    const runway = useManualRunwayStore(); runway.load()
+    Object.assign(runway.draft, { aerodrome: 'TEST', designator: '18', tora: '1000', lda: '900', fieldElevation: '0', surfaceType: 'paved', surfaceCondition: 'dry', effectiveDate: '2026-01-01', expiryDate: '2026-12-31' })
+    expect(runway.save()).toBe(true)
+    const step = usePerformanceStep(() => ({ ready: true, notReadyReason: '', profile: null, category: null, takeoff: { status: 'unavailable', reason: '' }, landing: { status: 'unavailable', reason: '' } }))
+    runway.assessmentDate = '2027-01-01'
+    const presentation = step.presentation.value
+    expect(presentation.runway).toMatchObject({ status: 'declared' })
+    if (presentation.runway.status !== 'declared') throw new Error('missing runway')
+    expect(presentation.runway.rows).toContainEqual({ label: 'Declared date check', value: '2027-01-01: expired; source currency unverified' })
+    const key = presentation.inputKey
+    runway.assessmentDate = ''
+    expect(step.presentation.value.inputKey).not.toBe(key)
+    expect(step.presentation.value.runway).toMatchObject({ rows: expect.arrayContaining([{ label: 'Declared date check', value: 'Invalid date: unknown; source currency unverified' }]) })
+  })
+  scope.stop()
+})
+
 it('keeps phase masses independent and invalidates synchronously on all source changes', () => {
   const scope = effectScope()
   scope.run(() => {

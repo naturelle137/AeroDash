@@ -123,10 +123,14 @@ test('current phase notifications and runway comparisons survive cached offline 
   await perf.getByLabel('Applicable manual configuration').selectOption('')
   const unsupportedLanding = perf.getByRole('region', { name: 'Landing corrected distances' })
   await expect(unsupportedLanding).toContainText('The saved runway surface was not applied')
-  await unsupportedLanding.scrollIntoViewIfNeeded()
-  const surfacePath = info.outputPath(`unapplied-surface-${info.project.name}.png`)
-  await page.screenshot({ path: surfacePath, animations: 'disabled' })
-  await info.attach('unapplied-surface', { path: surfacePath, contentType: 'image/png' })
+  await expect(unsupportedLanding).toContainText('FSM 3/75 has no landing correction table')
+  for (const width of [1440, 390]) {
+    await page.setViewportSize({ width, height: 900 })
+    await unsupportedLanding.scrollIntoViewIfNeeded()
+    const surfacePath = info.outputPath(`unapplied-surface-${width}.png`)
+    await page.screenshot({ path: surfacePath, animations: 'disabled' })
+    await info.attach(`unapplied-surface-${width}`, { path: surfacePath, contentType: 'image/png' })
+  }
   await page.getByRole('button', { name: 'Briefing Pack', exact: true }).click()
   await expect(page.getByRole('dialog', { name: 'Briefing Pack preview' })).toContainText('The saved runway surface was not applied')
   await page.keyboard.press('Escape')
