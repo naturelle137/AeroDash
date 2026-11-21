@@ -25,9 +25,11 @@ describe('M&B print presentation with real store calculation', () => {
   it('snapshots valid manual wind and omits invalid results', () => {
     const input = source()
     const entries = { runwayHeading: '270', windDirection: '330', windSpeed: '20', unit: 'kt' }
+    input.profile!.windLimits = [{ component: 'MaxCrosswind', value: 10, classification: 'Limit' }]
     input.wind = { input: entries, result: computeWindComponents(entries) }
     const snapshot = assembleMbPrint(input, new Date())!
     expect(snapshot.wind?.result).toMatchObject({ headwind: 10, crosswind: 17.3 })
+    expect(snapshot.wind?.notifications[0]?.id).toBe('CRIT-WX-001')
     entries.windDirection = 'VRB'
     expect(snapshot.wind?.input.windDirection).toBe('330')
     input.wind.result = computeWindComponents(entries)

@@ -63,3 +63,23 @@ Feature: Offline manual wind components
       | width | height |
       | 1440  | 1000   |
       | 390   | 844    |
+
+  Scenario Outline: Compare synthetic aircraft wind limits in Flight Prep and briefing
+    Given the raw POH workflow viewport is <width> by <height>
+    When the pilot imports a synthetic aircraft with wind limits
+    And the pilot selects the imported aircraft "D-WIND" in Flight Prep
+    And the pilot enters runway heading "270", wind from "150" and speed "20" "kt"
+    Then the manual wind warnings show both exceedances
+    When the pilot opens the briefing pack
+    Then the briefing pack states "WARNING WARN-WX-001: Crosswind exceeds Demonstrated 10 kt"
+    And the briefing pack states "CRITICAL CRIT-WX-001: Tailwind exceeds Limit 5 kt"
+    When the pilot returns from the briefing pack
+    And the pilot enters runway heading "270", wind from "VRB" and speed "20" "kt"
+    Then no wind components are shown
+    When the pilot opens the briefing pack
+    Then the briefing pack does not contain manual wind components
+
+    Examples:
+      | width | height |
+      | 1440  | 1000   |
+      | 390   | 844    |

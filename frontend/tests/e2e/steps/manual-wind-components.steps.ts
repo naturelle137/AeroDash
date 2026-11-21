@@ -64,3 +64,28 @@ When('the pilot returns from the briefing pack', async ({ page }) => {
 Then('the briefing pack does not contain manual wind components', async ({ page }) => {
   await expect(page.getByRole('dialog', { name: 'Briefing Pack preview' }).getByRole('region', { name: 'Manual wind components' })).toHaveCount(0)
 })
+
+When('the pilot imports a synthetic aircraft with wind limits', async ({ page }) => {
+  const { testPohAircraft } = await import('../../fixtures/poh-aircraft')
+  const profile = { ...testPohAircraft(), registration: 'D-WIND', status: 'draft', windLimits: [
+    { component: 'MaxCrosswind', value: 10, classification: 'Demonstrated' },
+    { component: 'MaxTailwind', value: 5, classification: 'Limit' },
+  ] }
+  await page.goto('/fleet')
+  await page.getByLabel('Or import from Exchange File (.json)').setInputFiles({ name: 'synthetic.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify({ format: 'aerodash-aircraft', version: 1, profile })) })
+  await page.getByRole('button', { name: 'Verify D-WIND', exact: true }).click()
+  const dialog = page.getByRole('dialog')
+  await dialog.getByLabel('Verifier initials').fill('TS')
+  await dialog.getByLabel('POH revision').fill('Synthetic test only')
+  await dialog.getByRole('button', { name: 'Verify', exact: true }).click()
+  await expect(dialog).toBeHidden()
+})
+
+Then('the manual wind warnings show both exceedances', async ({ page, $testInfo }) => {
+  await expect(panel(page)).toContainText('WARNING WARN-WX-001: Crosswind exceeds Demonstrated 10 kt')
+  await expect(panel(page)).toContainText('CRITICAL CRIT-WX-001: Tailwind exceeds Limit 5 kt')
+  await panel(page).getByText('CRITICAL CRIT-WX-001:', { exact: false }).scrollIntoViewIfNeeded()
+  const path = $testInfo.outputPath(`wind-limits-${page.viewportSize()!.width}.png`)
+  await page.screenshot({ path })
+  await $testInfo.attach('Manual wind limits', { path, contentType: 'image/png' })
+})

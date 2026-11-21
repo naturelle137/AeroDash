@@ -50,6 +50,8 @@ When weather data is auto-populated, the system shall provide the metadata (Sour
 
 If a wind or gust component exceeds a stored Demonstrated limit, then the system shall emit WARNING `WARN-WX-001` identifying that exceedance.
 
+Manual steady wind is compared with stored total-wind, tailwind and crosswind values in knots. Equality is not an exceedance. Missing or invalid inputs do not imply safety; gust comparison remains outstanding.
+
 ### REQ-WX-010: TAF retrieval
 
 When a user enters an ICAO airport code, the system shall retrieve the current TAF from the configured aviation weather service.
