@@ -7,9 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-- Cap below-minimum pressure altitude and temperature at supported conservative table boundaries and mark affected values as estimates.
+### Changed
+
+- Identify corresponding source and normalized performance points during Fleet review.
 
 - Identify missing correction-source provenance and verify candidate details in the assessment.
+
 - Show the geometric gradient for pilot-defined obstacles and state when clearance cannot be determined.
 
 - Estimate missing takeoff distance from ground roll and retain its provenance.
