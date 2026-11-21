@@ -151,6 +151,7 @@ if (!runway.loaded) runway.load()
           </select>
         </div>
       </div>
+      <p v-if="runway.weatherSurface" role="status">Wet suggested by METAR {{ runway.weatherSurface.station }} · {{ runway.weatherSurface.time }}. Verify the actual surface and select another condition if needed. Saving confirms your surface declaration.</p>
       <p v-if="error('surfaceType')" :id="describedBy('surfaceType')" class="field-error">{{ error('surfaceType') }}</p>
       <p v-if="error('surfaceCondition')" :id="describedBy('surfaceCondition')" class="field-error">{{ error('surfaceCondition') }}</p>
     </fieldset>
@@ -187,7 +188,7 @@ if (!runway.loaded) runway.load()
           <span class="normalized">({{ runway.current.display.todaM }} m)</span></dd></div>
         <div><dt>Field elevation</dt><dd>{{ runway.current.record.runway.fieldElevation.value }} {{ runway.current.record.runway.fieldElevation.unit }}
           <span class="normalized">({{ runway.current.record.runway.fieldElevation.unit === 'ft' ? `${runway.current.display.fieldElevationM} m` : `${runway.current.display.fieldElevationFt} ft` }})</span></dd></div>
-        <div><dt>Surface</dt><dd>{{ surfaceTypeLabels[runway.current.record.runway.surface.type] }} · {{ conditionLabel }}</dd></div>
+        <div><dt>Surface</dt><dd>{{ surfaceTypeLabels[runway.current.record.runway.surface.type] }} · {{ conditionLabel }}<span v-if="runway.current.record.weatherSurface"> · METAR via wxdecoder.com {{ runway.current.record.weatherSurface.station }} · {{ runway.current.record.weatherSurface.time }} (saved observation; verify current conditions)</span></dd></div>
       </dl>
       <div class="field"><label for="runway-assessment-date">Check date</label><input id="runway-assessment-date" v-model="runway.assessmentDate" type="date" /></div>
       <p role="status"><strong>Source date check:</strong> {{ freshnessLabels[freshness] }}</p>
