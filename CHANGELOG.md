@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Identify missing correction-source provenance and verify candidate details in the assessment.
+
 - Show the geometric gradient for pilot-defined obstacles and state when clearance cannot be determined.
 
 - Estimate missing takeoff distance from ground roll and retain its provenance.

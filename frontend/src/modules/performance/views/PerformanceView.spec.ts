@@ -4,6 +4,8 @@ import { beforeEach, expect, it, vi } from 'vitest'
 import { testPohAircraft } from '../../../../tests/fixtures/poh-aircraft'
 import { useFleetStore } from '@/modules/aircraft/stores/fleet.store'
 import PerformanceView from './PerformanceView.vue'
+import { candidateProvenance } from '../services/correction-source-messages'
+import { CORRECTION_SOURCE_REGISTER } from '@/core/logic/performance.correction-sources'
 
 beforeEach(() => { setActivePinia(createPinia()); localStorage.clear() })
 
@@ -327,6 +329,15 @@ it('assesses correction sources on request and clears the assessment when any ba
   expect(text).toContain('A source is identified for some corrections')
   expect(text).toContain('stores surface factors without source, target or range evidence. They are not used.')
   expect(text).toContain('Supplement S4 (650 kg)')
+  const candidates = assessment(view).find('[aria-label="Runway surface source"]').findAll('.candidate')
+  const s4 = candidates.find((item) => item.text().includes('Supplement S4 (650 kg)'))!
+  const caa = candidates.find((item) => item.text().includes('UK CAA Safety Sense Leaflet 09'))!
+  expect(s4.text()).toContain('Document: Tecnam P2008 JC Aircraft Flight Manual · Doc. 2008/100, Edition 2, Revision 7 (30 July 2020)')
+  expect(s4.text()).toContain('Section: Supplement S4 (650 kg), take-off p. 5W-7 and landing p. 5W-15')
+  expect(s4.text()).toContain('Origin: Manufacturer-authored manual obtained from a third-party mirror')
+  expect(caa.text()).toContain('Safety Sense 09, August 2024')
+  expect(caa.text()).toContain('Section: Page 15, surface factors')
+  expect(caa.text()).toContain('Origin: Regulator-hosted UK general-aviation guidance.')
   expect(text).toContain('Written for 630 kg; this profile\'s maximum mass is 650 kg.')
   expect(text).toContain('No saved, unchanged manual runway')
   expect(text).not.toMatch(/selected source|approved source|×\s?\d/)
@@ -341,6 +352,31 @@ it('assesses correction sources on request and clears the assessment when any ba
   fleet.profiles = [{ ...tecnamLike, registration: 'D-TESU' }]
   await flushPromises()
   expect(assessment(view).exists()).toBe(false)
+})
+
+it('marks missing candidate provenance without inventing it', async () => {
+  const candidate = CORRECTION_SOURCE_REGISTER.find((item) => item.id === 'caa-wind')!
+  expect(candidateProvenance({ ...candidate, section: '', document: { ...candidate.document, title: ' ', identifier: '', revision: '', origin: '' } })).toEqual({
+    title: 'Not recorded', identifier: 'Not recorded', revision: 'Not recorded', section: 'Not recorded', origin: 'Not recorded',
+  })
+  const revision = candidate.document.revision
+  try {
+    candidate.document.revision = ''
+    const fleet = useFleetStore()
+    fleet.profiles = [testPohAircraft()]
+    fleet.fleetLoadState = 'READY'
+    vi.spyOn(fleet, 'loadAll').mockResolvedValue()
+    const view = mount(PerformanceView, { global: { stubs: { RouterLink: true } } })
+    await flushPromises()
+    await view.get('#performance-aircraft').setValue(fleet.profiles[0]!.id)
+    await assessButton(view).trigger('click')
+    const entry = assessment(view).findAll('.candidate').find((item) => item.text().includes('UK CAA Safety Sense Leaflet 09'))!
+    expect(entry.text()).toContain('Safety Sense 09, Not recorded')
+    expect(entry.text()).toContain('not applied')
+    view.unmount()
+  } finally {
+    candidate.document.revision = revision
+  }
 })
 
 it('refuses source assessment for a Draft or a profile without complete base tables', async () => {
