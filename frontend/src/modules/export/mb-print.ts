@@ -1,5 +1,6 @@
 import type { WindComponentInput, WindComponentResult } from '@/core/logic/wind-components'
 import type { PerformancePresentation } from '@/modules/performance/services/performance-presentation'
+import type { ElectricPresentation } from '@/modules/fuel-endurance/services/use-electric-planning'
 import type { FuelPresentation } from '@/modules/fuel-endurance/services/use-fuel-planning'
 import type { AircraftProfile } from '@/core/adapters/aircraft.schema'
 import { normalizeMassToKg, normalizeArmToM, normalizeMomentToSI, parseSourceUnit } from '@/core/logic/unit-normalization'
@@ -21,6 +22,7 @@ export interface MbPrintSource {
   chartEnvelope: EnvelopePoint[]
   result: MathCoreResult | null
   notifications: Notification[]
+  energy?: ElectricPresentation
 }
 
 const computedExceedances: Readonly<Record<string, string>> = {
@@ -53,6 +55,7 @@ export function unverifiedGate(snapshot: MbPrintSnapshot) {
   if (!snapshot.unverified) return null
   const parameters = ['aircraft.profile.status', 'massBalance.loading', 'massBalance.results', 'massBalance.envelope',
     ...(snapshot.fuel?.rows.length ? ['fuel.plan'] : []),
+    ...(snapshot.energy?.rows.length ? ['energy.plan'] : []),
     ...(snapshot.performance?.groups.length ? ['performance.results'] : [])]
   const notification: Notification = { id: 'CRIT-UI-001', severity: 'CRITICAL', message: 'Unverified Data Present',
     context: 'UI.Validation', persistent: true, dismissible: false,
@@ -87,6 +90,7 @@ export function assembleMbPrint(source: MbPrintSource, now: Date) {
       severity: source.notifications.some(n => n.severity === 'CRITICAL') ? 'critical' as const
         : source.state === 'WARNING' ? 'warning' as const : 'success' as const,
     },
+    energy: source.energy ? { ...source.energy, rows: source.energy.rows.map(row => ({ ...row, value: `${row.value} [UNVERIFIED]` })) } : null,
     fuel: source.fuel ? {
       ...source.fuel,
       rows: source.fuel.rows.filter(row => !source.fuel?.reason || ['Usable fuel', 'Excluded unusable fuel'].includes(row.label)).map(row => ({ ...row, value: `${row.value}${marker}` })),
