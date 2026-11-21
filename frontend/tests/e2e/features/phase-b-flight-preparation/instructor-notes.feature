@@ -22,3 +22,20 @@ Feature: Instructor notes on results
     And loads four heavy adults and maximum baggage
     And the instructor "CRI Meyer" adds the note "Overload is acceptable" on the takeoff result
     Then a critical notification "MTOM Exceeded" is displayed
+
+  @phase-B @e2e @module-mb
+  Scenario Outline: Warning notes retain the critical warning
+    Given the raw POH workflow viewport is <width> by <height>
+    When the pilot selects aircraft "D-ECSM"
+    And loads four heavy adults and maximum baggage
+    And the instructor adds a note on the MTOM warning
+    Then a critical notification "MTOM Exceeded" is displayed
+    And the warning note evidence is captured as "<width>"
+    When the pilot reloads the page
+    And the pilot selects aircraft "D-ECSM"
+    Then the warning note remains available
+
+    Examples:
+      | width | height |
+      | 1440  | 1000   |
+      | 390   | 844    |

@@ -221,7 +221,7 @@ test('complete current fuel in cached offline native print with synchronous stal
   await page.getByRole('textbox', { name: 'Synthetic tank', exact: true }).fill('60')
   await page.getByRole('textbox', { name: 'Synthetic tank', exact: true }).blur()
   // A load beyond the table blocks M&B, so combined print is unavailable until corrected.
-  await expect(page.getByText(/Invalid input: Synthetic tank \(LOOKUP_OUT_OF_RANGE\)/)).toBeVisible()
+  await expect(page.getByRole('alert').filter({ hasText: /Invalid input: Synthetic tank \(LOOKUP_OUT_OF_RANGE\)/ })).toBeVisible()
   await expect(action).toBeDisabled()
   await expect(preview).toHaveCount(0)
   await page.getByRole('textbox', { name: 'Synthetic tank', exact: true }).fill('50')
