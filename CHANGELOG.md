@@ -7,10 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-- Reject handover files with mismatched station units or unknown nested fields.
-
-- Give every documentation/export, performance and fuel/endurance requirement an evidence-backed status or a stated gap, renumber the duplicate REQ-DOC-034 to REQ-DOC-037 and update roadmap limits.
-
 ### Added
 
 - Extend local instructor notes to takeoff and landing distances in Performance and the Briefing Pack.
@@ -22,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Reject handover files with mismatched station units or unknown nested fields.
 - Preserve extrapolation provenance on corrected distances and runway comparisons.
 - Restore Mass & Balance entries of an aircraft when switching back to it, instead of discarding them.
 - Keep demo unit preferences and obstacle inputs separate from the student's plan.
