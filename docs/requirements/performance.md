@@ -443,7 +443,7 @@ While lookup inputs are complete and supported, the system shall display current
 
 When displaying supported table ranges, the system shall apply REQ-UQ-003/004 presentation precision without rounding calculation bounds.
 
-**Status:** Approved. Supported-range presentation precision is not asserted by a test.
+**Status:** Implemented. Test: `frontend/src/modules/performance/views/PerformanceView.spec.ts`.
 
 ### REQ-PF-081: Explicit P208 manual configuration
 

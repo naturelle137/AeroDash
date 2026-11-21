@@ -22,6 +22,51 @@ async function fillLookup(view: VueWrapper, mass: string, pressureAltitude: stri
 }
 const results = (view: VueWrapper) => view.find('[aria-label="Base performance distances"]')
 
+it('formats supported ranges without rounding lookup boundaries', async () => {
+  const profile = testPohAircraft()
+  for (const table of profile.performanceProfiles!) {
+    table.extrapolation = 'prohibited'
+    for (const point of table.dataPoints) {
+      point.mass = point.mass === 800 ? 800.04 : 999.96
+      point.pressureAltitude = point.pressureAltitude === 0 ? 0.04 : 1999.96
+      point.temperature = point.temperature === 0 ? 0.04 : 19.96
+    }
+  }
+  const fleet = useFleetStore()
+  fleet.profiles = [profile]
+  fleet.fleetLoadState = 'READY'
+  vi.spyOn(fleet, 'loadAll').mockResolvedValue()
+  const view = mount(PerformanceView, { global: { stubs: { RouterLink: true } } })
+  await flushPromises()
+  await view.get('select').setValue(profile.id)
+  const rows = view.findAll('.bounds tbody tr')
+  expect(rows).toHaveLength(4)
+  for (const row of rows) {
+    expect(row.findAll('td').map((cell) => cell.text())).toEqual([
+      '800.1 to 999.9 kg', '0.0 to 2000.0 ft', '0.0 to 20.0 °C',
+    ])
+  }
+  await fillLookup(view, '999.96', '1999.96', '19.96')
+  expect(results(view).exists()).toBe(true)
+  await field(view, 'Mass (kg)').setValue('999.97')
+  expect(results(view).exists()).toBe(false)
+  await field(view, 'Mass (kg)').setValue('999.96')
+  await field(view, 'Pressure altitude (ft)').setValue('2000')
+  expect(results(view).exists()).toBe(false)
+  await field(view, 'Pressure altitude (ft)').setValue('1999.96')
+  await field(view, 'Temperature (°C)').setValue('20')
+  expect(results(view).exists()).toBe(false)
+  await field(view, 'Temperature (°C)').setValue('0.04')
+  await field(view, 'Pressure altitude (ft)').setValue('0.04')
+  await field(view, 'Mass (kg)').setValue('800.04')
+  expect(results(view).exists()).toBe(true)
+  await field(view, 'Pressure altitude (ft)').setValue('0.03')
+  expect(results(view).exists()).toBe(false)
+  await field(view, 'Pressure altitude (ft)').setValue('0.04')
+  await field(view, 'Temperature (°C)').setValue('0.03')
+  expect(results(view).exists()).toBe(false)
+})
+
 it('uses persisted profiles and immediately clears results on numeric, selection and profile changes', async () => {
   const fleet = useFleetStore()
   fleet.profiles = [testPohAircraft(), { ...testPohAircraft(), id: '00000000-0000-4000-a000-000000000429', status: 'draft' }]
