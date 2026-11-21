@@ -136,6 +136,11 @@ it('persists weather provenance and removes it on a pilot surface override', () 
   const restored = useManualRunwayStore()
   restored.load()
   expect(restored.current?.record.weatherSurface).toEqual({ station: 'EDDF', time: '2026-11-21T16:30:00.000Z' })
+  const recent = restored.recent[0]!
+  restored.draft.aerodrome = 'TEST'
+  expect(restored.save()).toBe(true)
+  restored.selectRecent(recent)
+  expect(restored.current?.record.weatherSurface).toEqual({ station: 'EDDF', time: '2026-11-21T16:30:00.000Z' })
   restored.draft.surfaceCondition = 'dry'
   expect(restored.save()).toBe(true)
   expect(restored.saved?.weatherSurface).toBeUndefined()
