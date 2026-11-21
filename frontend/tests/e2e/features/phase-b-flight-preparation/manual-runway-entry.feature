@@ -93,3 +93,18 @@ Feature: Offline manual runway entry
       | stored  | message                                     |
       | damaged | damaged or invalid                          |
       | newer   | newer format version 4                      |
+
+  Scenario Outline: Recall recent manual airports without connectivity
+    Given the manual runway viewport is <width> by <height>
+    And the pilot opens Performance and then loses connectivity
+    When the pilot saves runway "TEST A" "09" with TORA "1000" "m", LDA "900" "m", elevation "0" "ft" and surface "Paved" "Dry"
+    And the pilot saves runway "TEST B" "27" with TORA "1200" "m", LDA "1100" "m", elevation "0" "ft" and surface "Paved" "Dry"
+    And the pilot reloads the app
+    And the pilot selects recent airport "TEST A"
+    Then the recent airport "TEST A" is first and its manual runway is restored
+    And the manual runway evidence is captured as "recent-<width>"
+
+    Examples:
+      | width | height |
+      | 1440  | 1000   |
+      | 390   | 844    |
