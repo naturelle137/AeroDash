@@ -46,7 +46,8 @@ test('sticky navigation tracks tall cards, scroll jumps and strip activation', a
     await expect(strips).toBeHidden()
   }
   // Incremental scrolling must retain earlier breadcrumbs as later ones dock.
-  for (let y = 300; y <= maximum + 300; y += 300) {
+  const aircraftTop = await page.locator('#prep-card-aircraft').evaluate(el => el.getBoundingClientRect().top + scrollY)
+  for (let y = aircraftTop; y <= maximum + 300; y += 300) {
     await page.evaluate(top => window.scrollTo(0, top), y)
     await expect(strips.getByRole('button', { name: 'Scroll to Aircraft', exact: true })).toBeVisible()
   }
