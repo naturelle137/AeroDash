@@ -6,7 +6,19 @@ import type {
   CorrectionRequirement,
   Operation,
   UnsupportedReason,
+  SourceCandidate,
 } from '@/core/logic/performance.correction-sources'
+
+export function candidateProvenance(candidate: SourceCandidate) {
+  const value = (text: string | undefined) => text?.trim() || 'Not recorded'
+  return {
+    title: value(candidate.document?.title),
+    identifier: value(candidate.document?.identifier),
+    revision: value(candidate.document?.revision),
+    section: value(candidate.section),
+    origin: value(candidate.document?.origin),
+  }
+}
 
 /** Pilot-facing wording for the pure source assessment; no decision logic lives here. */
 

@@ -70,6 +70,17 @@ Then('the {string} source identifies the candidate {string}', async ({ page }, n
   await expect(entry).toContainText('Edition 2, Revision 7')
 })
 
+Then('the {string} candidates show their document, revision, section and origin', async ({ page }, name: string) => {
+  const manual = await candidate(page, name, 'Supplement S4 (650 kg)')
+  await expect(manual).toContainText('Document: Tecnam P2008 JC Aircraft Flight Manual · Doc. 2008/100, Edition 2, Revision 7 (30 July 2020)')
+  await expect(manual).toContainText('Section: Supplement S4 (650 kg), take-off p. 5W-7 and landing p. 5W-15')
+  await expect(manual).toContainText('Origin: Manufacturer-authored manual obtained from a third-party mirror')
+  const guidance = await candidate(page, name, 'Page 15, surface factors')
+  await expect(guidance).toContainText('Document: UK CAA Safety Sense Leaflet 09: Weight, Balance and Performance · Safety Sense 09, August 2024')
+  await expect(guidance).toContainText('Section: Page 15, surface factors')
+  await expect(guidance).toContainText('Origin: Regulator-hosted UK general-aviation guidance.')
+})
+
 Then('the {string} source rejects the candidate {string} because {string}', async ({ page }, name: string, section: string, reason: string) => {
   const entry = await candidate(page, name, section)
   await expect(entry).toContainText(reason)

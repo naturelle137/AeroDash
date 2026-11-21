@@ -19,6 +19,7 @@ import {
   OPERATION_LABELS,
   SUMMARY_MESSAGES,
   conditionLabel,
+  candidateProvenance,
   reasonMessage,
   requirementMessage,
 } from '../services/correction-source-messages'
@@ -70,12 +71,11 @@ const anyIdentified = computed(() => assessment.value?.status === 'assessed'
 
 function candidatesOf(rows: CorrectionAssessment[]) {
   // One block per document section; reasons listed per operation.
-  const byId = new Map<string, { title: string; revision: string; section: string; origin: string; kind: string; perOperation: { operation: string; reasons: string[] }[] }>()
+  const byId = new Map<string, { title: string; identifier: string; revision: string; section: string; origin: string; kind: string; perOperation: { operation: string; reasons: string[] }[] }>()
   for (const row of rows) {
     for (const { candidate, reasons } of row.candidates) {
       const entry = byId.get(candidate.id) ?? {
-        title: candidate.document.title, revision: `${candidate.document.identifier}, ${candidate.document.revision}`,
-        section: candidate.section, origin: candidate.document.origin,
+        ...candidateProvenance(candidate),
         kind: candidate.document.kind === 'aircraft-manual' ? 'Aircraft manual candidate' : 'Generic guidance candidate',
         perOperation: [],
       }
@@ -135,9 +135,9 @@ function candidatesOf(rows: CorrectionAssessment[]) {
             <p v-if="!group.rows.some((row) => row.candidates.length)">No inspected source covers this correction.</p>
             <div v-for="candidate in candidatesOf(group.rows)" :key="candidate.id" class="candidate">
               <p><strong>{{ candidate.kind }} — {{ candidate.perOperation.every((item) => !item.reasons.length) ? 'source identified' : 'not applied' }}</strong></p>
-              <p>{{ candidate.title }} · {{ candidate.revision }}</p>
+              <p>Document: {{ candidate.title }} · {{ candidate.identifier }}, {{ candidate.revision }}</p>
               <p>Section: {{ candidate.section }}</p>
-              <p>{{ candidate.origin }}</p>
+              <p>Origin: {{ candidate.origin }}</p>
               <div v-for="operation in candidate.perOperation" :key="operation.operation">
                 <p>{{ operation.operation }} — {{ operation.reasons.length ? "why it cannot be used:" : "source identified." }}</p>
                 <ul><li v-for="reason in operation.reasons" :key="reason">{{ reason }}</li></ul>

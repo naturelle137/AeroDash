@@ -341,7 +341,7 @@ When the pilot requests it, the system shall assess wind, surface and slope corr
 
 When a source assessment is displayed, the system shall show each candidate's document, revision, section and origin.
 
-**Status:** Approved. Display of candidate document, revision, section and origin is not asserted by a test.
+**Status:** Implemented. Missing provenance is identified as not recorded. Tests: `frontend/src/modules/performance/views/PerformanceView.spec.ts`, `frontend/tests/e2e/features/phase-b-flight-preparation/correction-source-assessment.feature`.
 
 ### REQ-PF-064: Unsupported reasons
 
