@@ -11,7 +11,6 @@ import type { AircraftContext, CategoryDefinition, EnvelopePoint, MathCoreResult
 
 export interface MbPrintSource {
   performance?: PerformancePresentation
-  energy?: ElectricPresentation
   wind?: { input: WindComponentInput; result: WindComponentResult }
   fuel?: FuelPresentation
   state: MassBalanceState
@@ -23,6 +22,7 @@ export interface MbPrintSource {
   chartEnvelope: EnvelopePoint[]
   result: MathCoreResult | null
   notifications: Notification[]
+  energy?: ElectricPresentation
 }
 
 const computedExceedances: Readonly<Record<string, string>> = {
