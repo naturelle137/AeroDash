@@ -594,6 +594,25 @@ describe('useFleetStore', () => {
     expect(inFleet!.status).toBe('draft')
   })
 
+  it('edits passenger profiles on a verified draft without mutating the snapshot or loads', async () => {
+    const store = useFleetStore()
+    const original = [{ name: 'Adult', standardWeight: 80, unit: 'kg' as const }]
+    const draft = await store.createProfile({ ...minimalProfileData(), passengerProfiles: original })
+    const verified = await store.verifyProfile(draft.id, SIGNOFF)
+    const loads = structuredClone(verified.loadPoints)
+    const changed = [{ name: 'Adult', standardWeight: 180, unit: 'lbs' as const }]
+    const edited = await store.editVerifiedProfile(verified.id, { passengerProfiles: changed })
+    expect(verified.passengerProfiles).toEqual(original)
+    expect(edited.status).toBe('draft')
+    expect(edited.passengerProfiles).toEqual(changed)
+    expect(edited.loadPoints).toEqual(loads)
+    await store.loadAll()
+    expect(store.profiles.find((p) => p.id === edited.id)?.passengerProfiles).toEqual(changed)
+    const cleared = await store.updateProfile(edited.id, { passengerProfiles: [] })
+    expect(cleared.passengerProfiles).toEqual([])
+    expect(cleared.loadPoints).toEqual(loads)
+  })
+
   it('passenger standard weight application: profile weight matches schema value', async () => {
     const store = useFleetStore()
     const data = {
