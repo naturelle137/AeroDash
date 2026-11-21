@@ -106,6 +106,15 @@ describe('Briefing Pack PDF download', () => {
     return { text, sheet }
   }
 
+  it('preserves aggregate CG warnings at trajectory level in the PDF', async () => {
+    const input = source()
+    input.notifications.push({ id: 'CRIT-MB-003', severity: 'WARNING', message: 'CG Migration Limit Exceeded', context: 'MassBalance.CG', persistent: false, dismissible: true })
+    const { text } = await pdfFor(input)
+    const results = text.split('M&B results')[1]!.split('Loading envelope chart')[0]!
+    expect(results.split('CG trajectory warnings')[0]).not.toContain('CG Migration Limit Exceeded')
+    expect(results.split('CG trajectory warnings')[1]).toContain('CG Migration Limit Exceeded')
+  })
+
   it.each([false, true])('carries the extrapolation warning, details and estimate markers (acknowledged: %s)', async (acknowledged) => {
     const input = source()
     const scope = effectScope()
