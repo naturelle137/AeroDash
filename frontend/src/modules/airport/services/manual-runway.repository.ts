@@ -44,8 +44,8 @@ export function loadManualRunway(): ManualRunwayLoad {
   }
 }
 
-export function saveManualRunway(runway: ManualRunway, now: Date): ManualRunwayWrite {
-  const record = createManualRunwayRecord(runway, now)
+export function saveManualRunway(runway: ManualRunway, now: Date, weatherSurface?: ManualRunwayRecord['weatherSurface']): ManualRunwayWrite {
+  const record = { ...createManualRunwayRecord(runway, now), ...(weatherSurface ? { weatherSurface } : {}) }
   try {
     const store = storage()
     if (!store) throw new Error('unavailable')
