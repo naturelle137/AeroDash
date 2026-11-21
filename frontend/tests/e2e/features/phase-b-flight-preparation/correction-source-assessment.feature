@@ -18,6 +18,7 @@ Feature: Correction source assessment
     And the pilot assesses correction sources
     Then the S4 correction sources are identified and stored surface factors are not used
     And the "Runway surface" source identifies the candidate "Supplement S4 (650 kg)"
+    And the "Runway surface" candidates show their document, revision, section and origin
     And the "Runway surface" source rejects the candidate "Section 5 (basic 630 kg)" because "Written for 630 kg"
     Then the raw takeoff roll still reads "220.0 m"
     And the correction source evidence is captured as "assessed-<width>"
