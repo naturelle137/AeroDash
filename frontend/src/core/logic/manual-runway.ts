@@ -113,16 +113,18 @@ export type ManualRunway = {
   surface: { type: SurfaceType; condition: SurfaceCondition }
 }
 
-export const MANUAL_RUNWAY_RECORD_VERSION = 2 as const
+export const MANUAL_RUNWAY_RECORD_VERSION = 3 as const
 export const ManualRunwayRecordSchema = z.object({
   schemaVersion: z.literal(MANUAL_RUNWAY_RECORD_VERSION),
   savedAt: z.iso.datetime(),
   runway: ManualRunwaySchema,
+  weatherSurface: z.object({ station: z.string().regex(/^[A-Z]{4}$/), time: z.iso.datetime() }).strict().optional(),
 }).strict()
 export type ManualRunwayRecord = {
   schemaVersion: typeof MANUAL_RUNWAY_RECORD_VERSION
   savedAt: string
   runway: ManualRunway
+  weatherSurface?: { station: string; time: string }
 }
 
 export type ManualRunwayValidation =
@@ -293,6 +295,11 @@ export function recoverManualRunwayRecord(raw: string | null): ManualRunwayRecov
   }
   if (typeof value === 'object' && value !== null && 'schemaVersion' in value && value.schemaVersion === 1) {
     const legacy = z.object({ schemaVersion: z.literal(1), savedAt: z.iso.datetime(), runway: ManualRunwaySchema.omit({ effectiveDate: true, expiryDate: true }) }).strict().safeParse(value)
+    if (!legacy.success) return { status: 'corrupt' }
+    value = { ...legacy.data, schemaVersion: MANUAL_RUNWAY_RECORD_VERSION }
+  }
+  if (typeof value === 'object' && value !== null && 'schemaVersion' in value && value.schemaVersion === 2) {
+    const legacy = z.object({ schemaVersion: z.literal(2), savedAt: z.iso.datetime(), runway: ManualRunwaySchema }).strict().safeParse(value)
     if (!legacy.success) return { status: 'corrupt' }
     value = { ...legacy.data, schemaVersion: MANUAL_RUNWAY_RECORD_VERSION }
   }

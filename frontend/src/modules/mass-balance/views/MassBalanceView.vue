@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import WeatherPanel from '@/modules/weather/WeatherPanel.vue'
+import { useManualRunwayStore } from '@/modules/airport/stores/manual-runway.store'
 import { requiresOccupancy, resolveStationKind } from '@/core/logic/station-kind'
 import { normalizeMassToKg, parseSourceUnit } from '@/core/logic/unit-normalization'
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
@@ -1347,7 +1348,7 @@ function onStartDemo(): void {
         <span class="prep-card__badge">05</span>
         <h2 id="prep-weather-title" class="prep-card__title">Weather</h2>
       </div>
-      <WeatherPanel />
+      <WeatherPanel @observation="useManualRunwayStore().updateWeather($event)" />
       <ForecastSelection />
     </section>
 
