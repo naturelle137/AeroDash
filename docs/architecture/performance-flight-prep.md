@@ -109,3 +109,5 @@ maximum down to 0.1 kg, other axes at their unit precision). Raw bounds and look
 comparisons stay unrounded. Numeric/unit pairs stay inline at narrow widths;
 unit labels remain accessible. QNH method details start collapsed, while current
 QNH advisory warnings accompany every affected distance in the UI and print.
+
+Pilot-defined obstacles use the entered height and distance from the runway reference to show a geometric height/distance gradient. This is not an aircraft flight path: ground roll, terrain and margins are excluded. No applicable climb performance is available for comparison, so clearance cannot be determined. The warning, inputs and gradient also appear in the briefing pack.
