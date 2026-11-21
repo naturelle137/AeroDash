@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Preserve extrapolation and CAA estimate markers alongside FSM correction estimates.
+
 ### Added
 
 - Anchor local instructor notes to individual result warnings and include them in the Briefing Pack.
@@ -20,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Reject handover files with mismatched station units or unknown nested fields.
 - Preserve extrapolation provenance on corrected distances and runway comparisons.
 - Restore Mass & Balance entries of an aircraft when switching back to it, instead of discarding them.
 - Keep demo unit preferences and obstacle inputs separate from the student's plan.
@@ -36,9 +39,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Carry the extrapolation warning, details and acknowledgment state into the Briefing Pack preview, print and PDF.
 - Enable bounded performance estimates for applicable tables, respecting declared source prohibitions.
+- Estimate take-off slope and dry-grass surface from FSM 3/75 on the ground roll when no aircraft manual supplies them, marked ESTIMATED; wind, landing and other surfaces stay uncorrected and disclosed.
 
 ### Added
 
+- Save and open an unreviewed, unsigned handover file with the entered Mass & Balance, fuel and performance values; an opened file is applied only to the matching loaded aircraft, as unverified edits, and never as approved.
 - Add local instructor notes anchored to Mass & Balance results (takeoff, zero fuel, fuel burned): attributed by self-declared author, editable, stored on this device, listed in the Briefing Pack and unable to alter system warnings.
 - Persist and restore fuel and performance entries per aircraft after reload or offline restart, with a restored-draft notice and a confirmed clear; acknowledgements are never restored.
 - Allow an optional unverified note on the local unapproved handover copy.
