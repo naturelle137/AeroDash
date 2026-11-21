@@ -17,13 +17,13 @@
  *
  * This module is the single enforcement point of that contract — non-Verified
  * profiles are rejected before any math runs. Extrapolation cap, safety-
- * factor application, CAA SSL 07 estimation, and pilot-acknowledgement
- * handling are explicitly OUT of scope here and are implemented in sibling
- * modules so this facade can be composed with them.
+ * factor application and pilot-acknowledgement handling are implemented in
+ * sibling modules. A missing takeoff distance is marked as an estimate.
  *
  * @see docs/architecture/performance-bilinear-interpolation-contract.md
  */
 
+import { resolveDistance } from './performance.estimation'
 import { normalizePerformanceTable } from '../adapters/performance-source-units'
 import { bilinearInterpolate, type PerformanceTable } from './performance.bilinear-interpolation'
 import type {
@@ -105,7 +105,7 @@ export interface PohDistanceClampingFlags {
   temperatureClamped: boolean
 }
 
-/** The four certified distances returned by {@link computePohDistances}. */
+/** The four base distances returned by {@link computePohDistances}. */
 export interface PohDistances {
   /** Takeoff Roll (m). */
   takeoffRoll: number
@@ -121,6 +121,8 @@ export interface PohDistances {
 export interface PohDistanceSuccess {
   status: 'success'
   distances: PohDistances
+  /** Identifies a takeoff distance derived from the roll rather than the POH. */
+  takeoffDistance50ftProvenance: 'poh' | 'estimated'
   /** Per-phase clamping flags — caller must surface any `true` flag to the pilot. */
   clamping: {
     takeoffRoll: PohDistanceClampingFlags
@@ -379,7 +381,7 @@ export function pivotDataPointsToCube(dataPoints: readonly PerformanceDataPoint[
 // ── High-level facade (Verified-only) ────────────────────────────────────────
 
 /**
- * Compute the four certified POH distances (TOR, TOD, LR, LD) for the
+ * Compute the four base distances (TOR, TOD, LR, LD) for the
  * requested operating point.
  *
  * Preconditions enforced here (each yields a typed `failure`, never throws):
@@ -387,12 +389,8 @@ export function pivotDataPointsToCube(dataPoints: readonly PerformanceDataPoint[
  *    `profile_unverified`. This is the single architectural enforcement
  *    point of the milestone constraint and the H-004 / H-011 mitigation
  *    boundary.
- *  - All four `performanceProfiles` entries (`TakeoffRoll`,
- *    `TakeoffDistance50ft`, `LandingRoll`, `LandingDistance50ft`) must be
- *    present with at least one data point each. Missing phases yield
- *    `profile_incomplete` — CAA SSL 07 estimation (REQ-PF-005) covers the
- *    "missing TOR↔TOD or LR↔LD" case in a sibling module and is composed by
- *    P2 before invoking this facade.
+ *  - Roll and landing tables must be present. A missing takeoff distance
+ *    table is estimated from the takeoff roll and marked as such.
  *  - `conditions.{mass, pressureAltitude, temperature}` must all be finite —
  *    a non-finite value yields `invalid_input`.
  *  - Each phase's data points must form a regular 3-D grid (see
@@ -439,7 +437,6 @@ export function computePohDistances(
 
   const requiredPhases: FlightPhase[] = [
     'TakeoffRoll',
-    'TakeoffDistance50ft',
     'LandingRoll',
     'LandingDistance50ft',
   ]
@@ -466,7 +463,7 @@ export function computePohDistances(
         mass: conditions.mass,
         pressureAltitude: conditions.pressureAltitude,
         temperature: conditions.temperature,
-        cube: pivotDataPointsToCube(byPhase.get('TakeoffDistance50ft')!.dataPoints),
+        cube: pivotDataPointsToCube((byPhase.get('TakeoffDistance50ft') ?? byPhase.get('TakeoffRoll')!).dataPoints),
       }),
       LandingRoll: trilinearInterpolate({
         mass: conditions.mass,
@@ -482,11 +479,13 @@ export function computePohDistances(
       }),
     }
 
+    const takeoffDistance = resolveDistance(byPhase.has('TakeoffDistance50ft') ? phaseResults.TakeoffDistance50ft.distance : null, phaseResults.TakeoffRoll.distance, 'takeoff', 'distance')
     return {
       status: 'success',
+      takeoffDistance50ftProvenance: takeoffDistance.provenance,
       distances: {
         takeoffRoll: phaseResults.TakeoffRoll.distance,
-        takeoffDistance50ft: phaseResults.TakeoffDistance50ft.distance,
+        takeoffDistance50ft: takeoffDistance.distance,
         landingRoll: phaseResults.LandingRoll.distance,
         landingDistance50ft: phaseResults.LandingDistance50ft.distance,
       },

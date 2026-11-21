@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Estimate missing takeoff distance from ground roll and retain its provenance.
+
 - Preserve extrapolation and CAA estimate markers alongside FSM correction estimates.
 
 ### Added
