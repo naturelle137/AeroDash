@@ -90,6 +90,13 @@ test('cached preparation reopens offline with persisted synthetic data and live 
   await saved.getByLabel('Check date').fill('2029-01-01')
   await expect(saved).toContainText('AIRAC cycle unavailable for this date')
   await expect(saved).toContainText('Expired according to the declared date')
+  await saved.getByRole('button', { name: 'Use today’s local date' }).click()
+  const localDate = await page.evaluate(() => {
+    const now = new Date()
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+  })
+  await expect(saved.getByLabel('Check date')).toHaveValue(localDate)
+  await saved.getByLabel('Check date').fill('2029-01-01')
   await saved.scrollIntoViewIfNeeded()
   await capture(page, info, 'offline-airac-unavailable')
   await saved.getByLabel('Check date').fill('2026-11-26')
