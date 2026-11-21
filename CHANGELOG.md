@@ -40,6 +40,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Engineering
 
+- Verify obstacle persistence, warning and briefing output across reloads.
 - Verify manual wind, slope and safety-factor changes in Flight Prep and the Briefing Pack.
 - Assess LVNL and ENAIRE airport data against the runway source contract.
 - Qualify OurAirports against the runway consumer and document the unmet source and delivery conditions.

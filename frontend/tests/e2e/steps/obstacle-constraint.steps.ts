@@ -16,9 +16,25 @@ When('the pilot clears the obstacle', async ({ page }) => {
   await page.getByRole('button', { name: 'Clear obstacle' }).click()
 })
 
-// Obstacle input is session-only by design, so a reload must not resurrect it.
 When('the pilot reloads the obstacle entry', async ({ page }) => {
+  await page.waitForTimeout(500)
   await page.reload()
+})
+
+When('the pilot changes and reloads the Flight Prep obstacle', async ({ page }) => {
+  await page.locator('#performance-obstacle-height').fill('60')
+  await page.locator('#performance-obstacle-height').fill('50')
+  await expect.poll(async () => page.evaluate(() => localStorage.getItem('aerodash:flightprep:draft'))).toContain('"distance":"600"')
+  await page.reload()
+  await expect(page.locator('#performance-obstacle-height')).toHaveValue('50')
+  await expect(page.locator('#performance-obstacle-height-unit')).toHaveValue('ft')
+  await expect(page.locator('#performance-obstacle-distance')).toHaveValue('600')
+  await expect(page.locator('#performance-obstacle-distance-unit')).toHaveValue('m')
+})
+
+When('the pilot closes the briefing and clears the obstacle', async ({ page }) => {
+  await page.getByRole('dialog', { name: 'Briefing Pack preview' }).getByRole('button', { name: 'Back to preparation' }).click()
+  await page.getByRole('button', { name: 'Clear obstacle' }).click()
 })
 
 Then('the unverified obstacle warning is shown', async ({ page }) => {

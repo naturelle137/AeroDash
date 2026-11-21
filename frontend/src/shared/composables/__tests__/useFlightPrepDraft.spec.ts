@@ -56,6 +56,9 @@ describe('flight preparation draft', () => {
     api.step.safetyFactors.landing.preset = 'custom'
     api.step.safetyFactors.landing.custom = '1.5'
     api.step.obstacle.height = '50'
+    api.step.obstacle.heightUnit = 'm'
+    api.step.obstacle.distance = '600'
+    api.step.obstacle.distanceUnit = 'ft'
     api.step.manualConfiguration.value = 'basic'
     await nextTick()
     vi.advanceTimersByTime(400)
@@ -78,7 +81,8 @@ describe('flight preparation draft', () => {
     expect(api.step.pa.direct.value).toBe('1500')
     expect(api.step.corrections.takeoff.headwind).toBe('5')
     expect(api.step.safetyFactors.landing.custom).toBe('1.5')
-    expect(api.step.obstacle.height).toBe('50')
+    expect(api.step.obstacle).toEqual({ height: '50', heightUnit: 'm', distance: '600', distanceUnit: 'ft' })
+    expect(api.step.presentation.value.notifications.map(n => n.id)).toContain('WARN-PF-001')
     expect(api.step.manualConfiguration.value).toBe('')
     expect(api.step.extrapolationAcknowledged.value).toBe(false)
     expect(useFlightPrepDraftStore().restored?.aircraftId).toBe('plane-a')
