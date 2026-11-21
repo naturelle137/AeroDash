@@ -180,6 +180,7 @@ describe('M&B print presentation with real store calculation', () => {
     input.notifications.push({ id: 'WARN-MB-005', severity: 'WARNING', message: 'Station 0 limit exceeded', context: 'MassBalance.Loading', persistent: false, dismissible: true })
     const annotations = [{ id: 'n1', aircraftId: input.aircraft!.id, anchor: 'takeoff' as 'takeoff' | 'landingDistance', author: 'CRI Meyer', text: 'Aft CG migration', createdAt: '2026-01-01T10:00:00.000Z', updatedAt: '2026-01-01T10:00:00.000Z' }]
     annotations.push({ ...annotations[0]!, id: 'n2', anchor: 'landingDistance' as const, text: 'Check landing distance' })
+    annotations.push({ ...annotations[0]!, id: 'n3', anchor: 'warning:mb:CRIT-1%20%C2%B7%20MTOM%20Exceeded' as never, text: 'Review overload' })
     const wrapper = mount(MbPrintPreview, { props: { source: input, annotations }, attachTo: document.body })
     await wrapper.get('button').trigger('click')
     const preview = document.querySelector('[role="dialog"]')!
@@ -187,6 +188,8 @@ describe('M&B print presentation with real store calculation', () => {
     expect(section.textContent).toContain('Instructor note on Takeoff')
     expect(section.textContent).toContain('CRI Meyer (self-declared, unverified): Aft CG migration')
     expect(section.textContent).toContain('Instructor note on Landing distance')
+    expect(section.textContent).toContain('Warning: CRIT-1 · MTOM Exceeded')
+    expect(section.textContent).toContain('Review overload')
     expect(section.textContent).toContain('Check landing distance')
     const notifications = [...preview.querySelectorAll('section')].find(e => e.getAttribute('aria-label') === 'Current M&B notifications')!
     expect(notifications.textContent).toContain('Station 0 limit exceeded')
