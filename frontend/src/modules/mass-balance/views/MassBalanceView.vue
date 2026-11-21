@@ -28,6 +28,9 @@ import InputGroupCard from '@/modules/mass-balance/components/InputGroupCard.vue
 import MassStationInput from '@/modules/mass-balance/components/MassStationInput.vue'
 import CGEnvelopeChart from '@/modules/mass-balance/components/CGEnvelopeChart.vue'
 import MbPrintPreview from '@/modules/export/MbPrintPreview.vue'
+import HandoverExchange from '@/modules/export/HandoverExchange.vue'
+import { downloadHandoverFile } from '@/modules/export/handover-file'
+import { buildHandoverFile, handoverMismatch, parseHandoverFile } from '@/core/logic/handover'
 import AnnotationPanel from '@/modules/annotations/AnnotationPanel.vue'
 import { useAnnotationStore } from '@/modules/annotations/annotation.store'
 import ResultSummary from '@/modules/mass-balance/components/ResultSummary.vue'
@@ -630,6 +633,60 @@ function onConfirmClearDraft(): void {
   store.resetPayload()
   massBalanceRestored.value = false
 }
+
+const handoverNotice = ref<{ kind: 'error' | 'imported'; text: string } | null>(null)
+
+function onExportHandover(): void {
+  const aircraft = store.aircraft
+  if (!aircraft || !store.activeCategory) {
+    handoverNotice.value = { kind: 'error', text: 'Load an aircraft first.' }
+    return
+  }
+  downloadHandoverFile(buildHandoverFile({
+    aircraft: { registration: aircraft.registration },
+    massBalance: {
+      activeCategory: store.activeCategory,
+      stations: store.stations.map((s) => ({ name: s.name, unit: aircraft.loadPoints[s.index]?.unit || aircraft.sourceUnit, weight: s.weight, touched: s.touched })),
+    },
+    entries: flightPrepDraft.snapshotEntries(),
+  }, new Date()), aircraft.registration)
+  handoverNotice.value = null
+}
+
+/** Applies a received file to the loaded aircraft only; every value stays unverified. */
+function onImportHandover(text: string): void {
+  const aircraft = store.aircraft
+  if (!aircraft || store.isDemoActive) {
+    handoverNotice.value = { kind: 'error', text: 'Load the aircraft named in the file and leave the demo first.' }
+    return
+  }
+  const parsed = parseHandoverFile(text)
+  if (!parsed.ok) {
+    handoverNotice.value = { kind: 'error', text: `${parsed.error} Nothing was imported.` }
+    return
+  }
+  const mismatch = handoverMismatch(parsed.file, {
+    registration: aircraft.registration,
+    stations: store.stations.map((s) => ({ name: s.name, unit: aircraft.loadPoints[s.index]?.unit || aircraft.sourceUnit })),
+    categories: aircraft.certificationCategories.map((c) => c.category),
+  })
+  if (mismatch) {
+    handoverNotice.value = { kind: 'error', text: mismatch }
+    return
+  }
+  store.applyRestoredSession({
+    version: 1,
+    aircraftId: aircraft.id,
+    activeCategory: parsed.file.massBalance.activeCategory,
+    stations: parsed.file.massBalance.stations.map((st, index) => ({ index, weight: st.weight, touched: st.touched, verified: false })),
+    savedAt: new Date().toISOString(),
+  })
+  flightPrepDraft.applyEntries(parsed.file.entries)
+  handoverNotice.value = {
+    kind: 'imported',
+    text: 'Imported an unreviewed handover (saved ' + parsed.file.exportedAt + '). Not approved by any instructor. Check and verify every value; acknowledgements were not imported.',
+  }
+}
 const printSource = computed(() => ({ ...mbSource.value, performance: performanceStep.presentation.value }))
 
 // ---------------------------------------------------------------------------
@@ -929,6 +986,14 @@ function onStartDemo(): void {
         <button type="button" class="session-drop-banner__dismiss" @click="showClearDraftConfirm = false">Keep</button>
       </span>
     </div>
+
+    <HandoverExchange
+      v-if="store.aircraft && !store.isDemoActive"
+      :notice="handoverNotice"
+      @export="onExportHandover"
+      @import="onImportHandover"
+      @dismiss="handoverNotice = null"
+    />
 
     <!-- ═══ Session restore banner (INFO-SYS-001) ════════════════════════════
          Shown when the persisted preflight session could not be restored on

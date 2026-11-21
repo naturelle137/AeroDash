@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Reject handover files with mismatched station units or unknown nested fields.
 - Preserve extrapolation provenance on corrected distances and runway comparisons.
 - Restore Mass & Balance entries of an aircraft when switching back to it, instead of discarding them.
 - Keep demo unit preferences and obstacle inputs separate from the student's plan.
@@ -42,6 +43,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Save and open an unreviewed, unsigned handover file with the entered Mass & Balance, fuel and performance values; an opened file is applied only to the matching loaded aircraft, as unverified edits, and never as approved.
 - Add local instructor notes anchored to Mass & Balance results (takeoff, zero fuel, fuel burned): attributed by self-declared author, editable, stored on this device, listed in the Briefing Pack and unable to alter system warnings.
 - Persist and restore fuel and performance entries per aircraft after reload or offline restart, with a restored-draft notice and a confirmed clear; acknowledgements are never restored.
 - Allow an optional unverified note on the local unapproved handover copy.
