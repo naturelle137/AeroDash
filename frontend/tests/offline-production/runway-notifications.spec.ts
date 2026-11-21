@@ -103,13 +103,14 @@ test('current phase notifications and runway comparisons survive cached offline 
     await inputs.getByLabel('Runway slope (%, positive = uphill)').fill(slope)
     const result = perf.getByRole('region', { name: `${phase} corrected distances` })
     await expect(result).toContainText('partially corrected distances')
+    await expect(result.locator('.comparison')).toContainText('Comparison uses partially corrected distances')
     await expect(result).toContainText('Wind component 5 kt was not applied')
     await expect(result).toContainText(`Runway slope ${slope} % was not applied`)
   }
   for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: 900 })
     const takeoff = perf.getByRole('region', { name: 'Takeoff corrected distances' })
-    await (width === 390 ? takeoff.getByText('Wind component 5 kt was not applied', { exact: false }) : takeoff).scrollIntoViewIfNeeded()
+    await takeoff.locator('.comparison').evaluate((element) => element.scrollIntoView({ block: 'center' }))
     const path = info.outputPath(`unapplied-${width}.png`)
     await page.screenshot({ path, animations: 'disabled' })
     await info.attach(`unapplied-${width}`, { path, contentType: 'image/png' })
@@ -118,6 +119,7 @@ test('current phase notifications and runway comparisons survive cached offline 
   const partialPack = page.getByRole('dialog', { name: 'Briefing Pack preview' })
   await expect(partialPack).toContainText('Takeoff partially corrected distances')
   await expect(partialPack).toContainText('Landing partially corrected distances')
+  await expect(partialPack).toContainText('Comparison uses partially corrected distances')
   await expect(partialPack).toContainText('Wind component 5 kt was not applied')
   await expect(partialPack).toContainText('Runway slope -1 % was not applied')
   await expect(partialPack).toContainText('Runway slope 1 % was not applied')
