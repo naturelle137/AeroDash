@@ -24,6 +24,11 @@ const router = createRouter({
       component: MassBalanceView,
     },
     {
+      path: '/weather',
+      name: 'weather',
+      component: () => import('@/modules/weather/TafView.vue'),
+    },
+    {
       path: '/performance',
       name: 'performance',
       component: () => import('@/modules/performance/views/PerformanceView.vue'),
