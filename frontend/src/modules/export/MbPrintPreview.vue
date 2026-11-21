@@ -190,6 +190,13 @@ onBeforeUnmount(() => {
             <ul><li v-for="n in annotations" :key="n.id"><strong>Instructor note on {{ anchorLabel(n.anchor) }}</strong> · {{ n.author }} (self-declared, unverified): {{ n.text }}</li></ul>
             <p>Instructor notes do not clear, replace or change any warning above.</p>
           </section>
+          <section v-if="currentSnapshot.energy" aria-label="Estimated energy budget">
+            <h2>Estimated energy budget</h2>
+            <p>Manual estimate assumes constant pilot-entered consumption. Verify against the aircraft POH/AFM. Battery use does not change aircraft mass.</p>
+            <p v-if="currentSnapshot.energy.reason">Energy budget unavailable: {{ currentSnapshot.energy.reason }}</p>
+            <table v-else><tbody><tr v-for="row in currentSnapshot.energy.rows" :key="row.label"><td>{{ row.label }}</td><td>{{ row.value }}</td></tr></tbody></table>
+            <p v-if="currentSnapshot.energy.warning">{{ currentSnapshot.energy.warning }}</p>
+          </section>
           <section v-if="currentSnapshot.fuel" aria-label="Current fuel plan and estimated trip arrival">
             <h2>Current fuel plan and estimated trip arrival</h2>
             <p v-if="currentSnapshot.fuel.method">Manual method: {{ currentSnapshot.fuel.method === 'duration' ? 'Duration and consumption' : 'Direct Trip Fuel (kg)' }}.</p>
@@ -203,7 +210,7 @@ onBeforeUnmount(() => {
             <p v-if="currentSnapshot.fuel.method === 'duration'">User-supplied consumption is assumed constant. Reserve is user chosen; no regulatory minimum is supplied.</p>
             <p v-else-if="currentSnapshot.fuel.method === 'direct'">Direct Trip Fuel is the explicit mass expected to burn during the trip. No duration, consumption, endurance or reserve budget is calculated.</p>
           </section>
-          <p v-if="!currentSnapshot.fuel">Fuel plan / trip arrival unavailable: {{ currentSnapshot.fuelReason }}</p>
+          <p v-if="!currentSnapshot.fuel && !currentSnapshot.energy">Fuel plan / trip arrival unavailable: {{ currentSnapshot.fuelReason }}</p>
           <section aria-label="Current manual runway">
             <h2>Manual runway declarations</h2>
             <template v-if="currentSnapshot.performance?.runway.status === 'declared'">

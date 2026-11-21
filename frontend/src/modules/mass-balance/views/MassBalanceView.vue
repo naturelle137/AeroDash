@@ -23,6 +23,8 @@ import {
   type VerificationFreshness,
 } from '@/core/logic/profile-verification'
 import { useFuelPlanning } from '@/modules/fuel-endurance/services/use-fuel-planning'
+import { useElectricPlanning } from '@/modules/fuel-endurance/services/use-electric-planning'
+import ElectricEnergyCard from '@/modules/fuel-endurance/components/ElectricEnergyCard.vue'
 import FuelEnduranceCard from '@/modules/fuel-endurance/components/FuelEnduranceCard.vue'
 import InputGroupCard from '@/modules/mass-balance/components/InputGroupCard.vue'
 import MassStationInput from '@/modules/mass-balance/components/MassStationInput.vue'
@@ -63,6 +65,7 @@ function dismissSessionDropBanner(): void {
 
 const store = useMassBalanceStore()
 const fuelPlanning = useFuelPlanning()
+const electricPlanning = useElectricPlanning()
 const annotationStore = useAnnotationStore()
 const fleetStore = useFleetStore()
 const activeAircraftStore = useActiveAircraftStore()
@@ -82,7 +85,8 @@ const mbSource = computed(() => ({
       result: store.lastResult,
       chartEnvelope: store.activeEnvelopeSI,
       notifications: store.notifications,
-      fuel: fuelPlanning.presentation.value,
+      fuel: store.aircraft?.powertrain === 'electric' ? undefined : fuelPlanning.presentation.value,
+      energy: store.aircraft?.powertrain === 'electric' ? electricPlanning.presentation.value : undefined,
     }))
 
 const router = useRouter()
@@ -255,7 +259,7 @@ interface CardMeta {
 const CARD_ORDER = computed<readonly CardMeta[]>(() => [
   { id: 'aircraft', badge: '01', title: 'Aircraft' },
   { id: 'mb', badge: '02', title: 'Mass & Balance' },
-  { id: 'fuel', badge: '03', title: energySectionTitle.value, soon: isElectric.value },
+  { id: 'fuel', badge: '03', title: energySectionTitle.value, soon: false },
   { id: 'performance', badge: '04', title: 'Performance' },
   { id: 'weather', badge: '05', title: 'Weather', soon: true },
   // `title` follows the electric/combustion discriminator so the sticky
@@ -557,20 +561,10 @@ const aircraftLabel = computed(() => {
 // the active-aircraft store, which is set in lockstep with the loaded profile.
 const activeWindLimits = computed(() => activeAircraftStore.activeProfile?.windLimits ?? [])
 
-// Battery-electric airframes surface an "Energy & Endurance" placeholder
-// rather than the combustion "Fuel & Endurance" card. The page-header subtitle
-// and sticky-strip chip follow the same discriminator so the pilot never sees
-// fuel-centric language on an electric profile. Legacy profiles (missing
-// `powertrain`) fall through to the combustion default.
 const isElectric = computed(() => store.aircraft?.powertrain === 'electric')
 
 const energySectionTitle = computed(() => (isElectric.value ? 'Energy & Endurance' : 'Fuel & Endurance'))
 
-const energySectionDescription = computed(() =>
-  isElectric.value
-    ? 'Fuel-burn arrival estimates are unavailable for electric aircraft. Battery state-of-charge projection, energy reserve margin and motor-hour endurance are future work.'
-    : 'Fuel density correction, endurance vs planned flight time, reserve calculation.',
-)
 
 const categories = computed(
   () => store.aircraft?.certificationCategories.map((c) => c.category) ?? [],
@@ -1320,19 +1314,17 @@ function onStartDemo(): void {
       </template>
     </section>
 
-    <!-- Fuel planning / future electric energy planning -->
+    <!-- Fuel or electric energy planning -->
     <section
       id="prep-card-fuel"
       class="prep-card"
-      :class="{ 'prep-card--soon': isElectric }"
       :aria-label="energySectionTitle"
     >
       <div class="prep-card__header">
-        <span class="prep-card__badge" :class="{ 'prep-card__badge--soon': isElectric }">03</span>
-        <h2 class="prep-card__title" :class="{ 'prep-card__title--soon': isElectric }">{{ energySectionTitle }}</h2>
-        <span v-if="isElectric" class="soon-pill">Coming soon</span>
+        <span class="prep-card__badge">03</span>
+        <h2 class="prep-card__title">{{ energySectionTitle }}</h2>
       </div>
-      <p v-if="isElectric" class="soon-desc">{{ energySectionDescription }}</p>
+      <ElectricEnergyCard v-if="isElectric" :planning="electricPlanning" />
       <FuelEnduranceCard v-else :planning="fuelPlanning" />
     </section>
 

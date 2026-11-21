@@ -1,0 +1,8 @@
+export function calculateElectricEnergy(capacity: number, floor: number, available: number, power: number, minutes: number) {
+  if (![capacity, floor, available, power, minutes].every(Number.isFinite) || capacity <= 0 || floor < 0 || floor >= capacity || available < 0 || available > capacity || power <= 0 || minutes < 0) return null
+  const trip = power * minutes / 60
+  const remaining = available - trip
+  const margin = remaining - floor
+  if (![trip, remaining, margin].every(Number.isFinite)) return null
+  return { trip, remaining, margin }
+}
