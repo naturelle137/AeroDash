@@ -56,3 +56,27 @@ Then('performance notes remain available', async ({ page }) => {
   await expect(page.getByTestId('annotation-panel')).toContainText('Review takeoff distance')
   await expect(page.getByTestId('annotation-panel')).toContainText('Review landing distance')
 })
+
+When('the instructor adds a note on the MTOM warning', async ({ page }) => {
+  const panel = page.getByRole('region', { name: 'Mass and Balance' }).getByTestId('annotation-panel')
+  const option = panel.locator('option').filter({ hasText: 'MTOM Exceeded' }).first()
+  await panel.getByLabel('Result').selectOption((await option.getAttribute('value'))!)
+  await panel.getByLabel('Author').fill('CRI Meyer')
+  await panel.getByLabel('Note', { exact: true }).fill('Review the overload')
+  await panel.getByRole('button', { name: 'Add note' }).click()
+})
+
+Then('the warning note remains available', async ({ page }) => {
+  const item = page.getByRole('region', { name: 'Mass and Balance' }).getByTestId('annotation-item')
+  await expect(item).toContainText('MTOM Exceeded')
+  await expect(item).toContainText('Review the overload')
+  await expect(item).toContainText('self-declared')
+})
+
+Then('the warning note evidence is captured as {string}', async ({ page, $testInfo }, width: string) => {
+  await page.getByTestId('annotation-panel').first().scrollIntoViewIfNeeded()
+  const path = $testInfo.outputPath(`instructor-warning-${width}.png`)
+  await page.screenshot({ path })
+  await $testInfo.attach(`instructor-warning-${width}`, { path, contentType: 'image/png' })
+  expect(await page.evaluate(() => document.body.scrollWidth)).toBeLessThanOrEqual(page.viewportSize()!.width)
+})

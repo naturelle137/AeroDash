@@ -82,7 +82,7 @@ onMounted(() => fleet.loadAll())
           <p>The entered mass is used for both takeoff and landing tables.</p>
         </template>
       </PerformanceStepPanel>
-      <AnnotationPanel v-if="profile && fleet.fleetLoadState === 'READY'" :key="profile.id" :aircraft-id="profile.id" performance />
+      <AnnotationPanel v-if="profile && fleet.fleetLoadState === 'READY'" :key="profile.id" :aircraft-id="profile.id" :warnings="step.annotationWarnings.value" performance />
     </section>
     <UnitPreferencesFieldset />
     <ManualRunwayPanel />

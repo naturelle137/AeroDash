@@ -42,7 +42,7 @@ const { tables, inputKey, manualConfiguration } = props.step
           </dl>
         </template>
       </PerformanceStepPanel>
-      <AnnotationPanel v-if="notesEnabled && context.profile && context.ready" :key="context.profile.id" :aircraft-id="context.profile.id" performance />
+      <AnnotationPanel v-if="notesEnabled && context.profile && context.ready" :key="context.profile.id" :aircraft-id="context.profile.id" :warnings="step.annotationWarnings.value" performance />
     </section>
     <UnitPreferencesFieldset />
     <ManualRunwayPanel />

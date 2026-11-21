@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Anchor local instructor notes to individual result warnings and include them in the Briefing Pack.
+
 - Extend local instructor notes to takeoff and landing distances in Performance and the Briefing Pack.
 
 ### Engineering
