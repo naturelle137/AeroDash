@@ -7,8 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Give every documentation/export, performance and fuel/endurance requirement an evidence-backed status or a stated gap, renumber the duplicate REQ-DOC-034 to REQ-DOC-037 and update roadmap limits.
+
 ### Engineering
 
+- Capture browser evidence for extrapolation acknowledgment, revocation, blocking and the benefit cap at desktop and mobile widths.
 - Cover signed Performance keyboard entry in both phases.
 
 ### Fixed
@@ -120,7 +123,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Calculate Flight Preparation distances live after Fuel/Endurance and retain value-specific warnings and M&B color/hatching in native Briefing Pack print (#568).
 
 - Complete current Flight Preparation briefing pack with printed load chart, current fuel/runway/Performance states and a persistent mobile action (#517).
-- Activate shared Flight Prep raw Performance with current takeoff/trip-arrival masses, labelled bounded mass benefit capping and persisted hPa/ft/m unit defaults with length conversion (#300, #420, #302).
+- Activate shared Flight Prep raw Performance with current takeoff/trip-arrival masses, bounded mass benefit capping (documented best-case distance, no cap notice per #569) and persisted hPa/ft/m unit defaults with length conversion (#300, #420, #302).
 - Estimate trip arrival CG for exactly one lookup-table tank with zero unusable fuel from table moments at takeoff and remaining load; nonzero unusable fuel remains unsupported for trip arrival CG (#529).
 
 ### Fixed

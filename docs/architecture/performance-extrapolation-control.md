@@ -193,9 +193,13 @@ this contract so the REQ-PF-012 result-acceptance barrier is real and not adviso
    assessment clears a prior acknowledgment; a stale acknowledgment must never
    carry over to a different operating point.
 4. **The floor is invisible-but-safe.** A `benefitCapped` (below-minimum)
-   result needs no acknowledgment — it is already conservative — but the UI may
-   still flag that the figure is floored at the best documented AFM value
-   (UJ-E-003).
+   result needs no acknowledgment — it is already conservative — and, per the
+   Flight Prep decision (#568/#569, `performance-flight-prep.md`), is shown as
+   the plain documented best-case distance **without** a cap notice in the UI or
+   Briefing Pack. Provenance stays machine-readable (`massTreatment`,
+   `lookupMass`) and is covered by unit tests; only extrapolated and estimated
+   values carry visible markers. Upper-bound extrapolation is never silently
+   clamped: it blocks or requires acknowledgment.
 
 The raw table lookup consumes this control through `lookupPhaseDistanceWithExtrapolation`
 and the Performance step enforces items 1–3 (see
