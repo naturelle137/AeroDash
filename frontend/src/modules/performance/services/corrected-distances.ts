@@ -104,7 +104,9 @@ export function presentCorrectedOperation(
     ? rows.filter((row) => row.correction !== 'wind').map((row) => row.selected)
     : []
   const estimating = fsm.length === 2 && fsm.every((candidate) => candidate?.estimate)
-  if (!estimating && (!supplied || !selected[0])) return unavailable('No accepted correction source covers wind, surface and slope for this aircraft and runway. Distances stay uncorrected; see Correction sources.')
+  if (!estimating && (!supplied || !selected[0])) return unavailable(operation === 'landing'
+    ? 'No accepted correction source covers wind, surface and slope for this aircraft and runway. FSM 3/75 has no landing correction table. Distances stay uncorrected; see Correction sources.'
+    : 'No accepted correction source covers wind, surface and slope for this aircraft and runway. Distances stay uncorrected; see Correction sources.')
   if (!runway) return unavailable('Save the manual runway to select its surface correction.')
 
   const headwindKt = parseLookupNumber(inputs.headwind)

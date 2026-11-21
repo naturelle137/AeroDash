@@ -180,6 +180,7 @@ describe('corrected distances in the performance step', () => {
         Object.assign(step.corrections.landing, { headwind: '0', slope: '1' })
         const landing = corrected(step, 1)
         expect(landing.status).toBe('unavailable')
+        expect((landing as { reason: string }).reason).toContain('FSM 3/75 has no landing correction table')
         expect((landing as { reason: string }).reason).toContain('Runway slope 1 % was not applied')
         Object.assign(step.corrections.takeoff, { headwind: '-3', slope: '1' })
         const tail = corrected(step, 0)
