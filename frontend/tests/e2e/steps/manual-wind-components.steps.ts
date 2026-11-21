@@ -33,3 +33,26 @@ Then('the wind component evidence is captured as {string}', async ({ page, $test
   await panel(page).screenshot({ path })
   await $testInfo.attach(`wind-components-${name}`, { path, contentType: 'image/png' })
 })
+
+Then('the Flight Prep wind controls are reachable by keyboard at {string}', async ({ page, $testInfo }, width: string) => {
+  const controls = panel(page).locator('input, select')
+  if (width === '1440') await controls.first().evaluate(el => el.scrollIntoView({ block: 'center' }))
+  await controls.first().focus()
+  for (let i = 0; i < await controls.count(); i++) {
+    const control = controls.nth(i)
+    if (i > 0) await page.keyboard.press('Tab')
+    await expect(control).toBeFocused()
+    const box = await control.boundingBox()
+    const nav = await page.locator('.app-bottom-nav').boundingBox()
+    const action = await page.locator('.briefing-action').boundingBox()
+    expect(box).not.toBeNull()
+    const overlapsAction = action && box!.x < action.x + action.width && box!.x + box!.width > action.x
+    const bottom = Math.min(nav?.y ?? Infinity, overlapsAction ? action.y : Infinity, page.viewportSize()!.height)
+    expect(box!.y + box!.height).toBeLessThanOrEqual(bottom)
+    const hit = await page.evaluate(({ x, y }) => document.elementFromPoint(x, y)?.id, { x: box!.x + box!.width / 2, y: box!.y + box!.height / 2 })
+    expect(hit).toBe(await control.getAttribute('id'))
+  }
+  const path = $testInfo.outputPath(`flight-prep-wind-${width}.png`)
+  await page.screenshot({ path })
+  await $testInfo.attach(`Flight Prep wind ${width}`, { path, contentType: 'image/png' })
+})

@@ -86,3 +86,9 @@ dt { font-weight: 600; }
 dd { margin: .25rem 0 0; font-size: 1.25rem; font-weight: 700; }
 .hint { font-size: .95rem; }
 </style>
+
+<style scoped>
+@media (max-width: 767.98px) {
+  input, select { scroll-margin-bottom: calc(8rem + env(safe-area-inset-bottom, 0px)); }
+}
+</style>
