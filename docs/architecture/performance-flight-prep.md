@@ -23,7 +23,7 @@ record and units. Changes synchronously recompute the current result, including 
 partial edits; equal resultant mass does not preserve an older input identity.
 Fuel/Endurance precedes Performance in DOM and sticky navigation. Both preparation
 and standalone controls calculate live without a submit trigger. Corrected phase results
-appear before the explicitly labelled uncorrected base table distances.
+appear before the base table distances, which are identified as uncorrected and without operational factors or runway assessment.
 
 ## Lower and upper bounds
 
