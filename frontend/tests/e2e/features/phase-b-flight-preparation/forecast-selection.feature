@@ -9,7 +9,9 @@ Feature: Time-specific forecast selection without a configured source
     Then the forecast is unavailable and manual wind remains unchanged
     When the browser goes offline for forecast planning
     Then the forecast selection and manual wind remain available offline
-    And the forecast selection evidence is captured as "<width>"
+    When the pilot applies synthetic forecast values offline
+    Then the forecast selection evidence is captured as "<width>"
+    And a manual override clears forecast provenance
 
     Examples:
       | width | height |

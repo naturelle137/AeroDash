@@ -1370,7 +1370,7 @@ function onStartDemo(): void {
       <p v-for="field in (['wind', 'temperature', 'qnh'] as const)" :key="field">
         <template v-if="weatherSources[field] && weatherSources[field].value === weatherValue(field)">{{ field }} source: {{ weatherSources[field].source }}</template>
       </p>
-      <ForecastSelection />
+      <ForecastSelection @apply="applyWeather" />
     </section>
 
     <!-- ═══ Operational disclaimer (bottom, non-blocking) ═════════════════ -->

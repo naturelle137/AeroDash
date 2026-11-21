@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Apply pilot-entered time-specific forecast values to Flight Prep with manual provenance.
+
 - Retrieve read-only TAF forecasts with source, UTC validity and expiry warnings.
 - Allow pilots to explicitly apply valid current METAR wind, temperature and QNH to Flight Prep with provenance.
 

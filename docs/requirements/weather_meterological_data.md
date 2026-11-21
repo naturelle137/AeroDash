@@ -68,6 +68,14 @@ While forecast weather is unavailable, when the pilot selects a valid current ME
 
 While forecast weather is unavailable, when the pilot selects a valid current METAR QNH, the system shall apply it to the Flight Prep QNH input.
 
+### REQ-WX-014: Pilot-entered forecast application
+
+When the pilot selects a valid forecast value entered for a future local time and location, the system shall apply that value to Flight Prep with its manual provenance.
+
+### REQ-WX-015: Forecast selection changes
+
+When the pilot changes the forecast phase, location or time, the system shall clear the entered forecast values.
+
 ## Design References
 
 - **<a name="notificationScheme"></a>Notification Scheme:** [`docs/architecture/notification_schema.md`](../architecture/notification_schema.md)
