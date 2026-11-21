@@ -126,6 +126,7 @@ test('current phase notifications and runway comparisons survive cached offline 
   const unsupportedLanding = perf.getByRole('region', { name: 'Landing corrected distances' })
   await expect(unsupportedLanding).toContainText('The saved runway surface was not applied')
   await expect(unsupportedLanding).toContainText('FSM 3/75 has no landing correction table')
+  await expect(unsupportedLanding).toContainText('consult the aircraft manual for these corrections')
   for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: 900 })
     await unsupportedLanding.scrollIntoViewIfNeeded()

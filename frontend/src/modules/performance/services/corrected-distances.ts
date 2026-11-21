@@ -105,7 +105,7 @@ export function presentCorrectedOperation(
     : []
   const estimating = fsm.length === 2 && fsm.every((candidate) => candidate?.estimate)
   if (!estimating && (!supplied || !selected[0])) return unavailable(operation === 'landing'
-    ? 'No accepted correction source covers wind, surface and slope for this aircraft and runway. FSM 3/75 has no landing correction table. Distances stay uncorrected; see Correction sources.'
+    ? 'No accepted correction source covers wind, surface and slope for this aircraft and runway. FSM 3/75 has no landing correction table. Distances stay uncorrected; consult the aircraft manual for these corrections.'
     : 'No accepted correction source covers wind, surface and slope for this aircraft and runway. Distances stay uncorrected; see Correction sources.')
   if (!runway) return unavailable('Save the manual runway to select its surface correction.')
 
@@ -124,7 +124,7 @@ export function presentCorrectedOperation(
     })
     if (estimate.status === 'unsupported') {
       return unavailable(estimate.reason === 'tailwind'
-        ? 'FSM 3/75 gives no tailwind value, so no estimate is made. Distances stay uncorrected.'
+        ? 'FSM 3/75 gives no tailwind value, so no estimate is made. Distances stay uncorrected; consult the aircraft manual for tailwind corrections.'
         : 'FSM 3/75 has no unambiguous row for this runway surface condition. Distances stay uncorrected.')
     }
     result = estimate
