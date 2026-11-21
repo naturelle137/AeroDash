@@ -1578,6 +1578,11 @@ function onStartDemo(): void {
 }
 
 @media (max-width: 767.98px) {
+  :global(html:has(.fp-view)) {
+    scroll-padding-top: calc(var(--nav-header-height) + 5 * 2.75rem);
+    scroll-padding-bottom: calc(9rem + env(safe-area-inset-bottom, 0px));
+  }
+
   .prep-sticky-strip {
     padding: 0 var(--space-4);
     gap: var(--space-2);
