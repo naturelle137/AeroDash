@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Recall five recently used manual airports offline with their original runway declarations.
+
 - Manage passenger standard-weight profiles in aircraft creation and editing.
 - Apply pilot-entered time-specific forecast values to Flight Prep with manual provenance.
 - Select an active aircraft passenger profile to copy its mass into an occupant station.
