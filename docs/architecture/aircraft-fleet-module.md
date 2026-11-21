@@ -104,7 +104,7 @@ Manufacturer → model → ICAO rows live in `aircraft-model-catalogue.json` (ve
 | REQ-AC-005 (Draft/Verified FSM) | `fleet.store.ts`, `active-aircraft.store.ts` |
 | REQ-AC-006 (Passenger profiles) | `fleet.store.ts`, `FleetManagementView.vue` |
 | REQ-UI-001–004 (Model selector) | `AircraftModelSelector.vue`, `aircraft-model-catalogue.ts` |
-| REQ-UI-006 (Passenger selection) | `FleetManagementView.vue` |
+| REQ-UI-006 (Passenger selection) | `MassBalanceView.vue`, `MassStationInput.vue` |
 | REQ-AD-006 (Cost per hour) | `AircraftProfileSchema.costPerHour` |
 | REQ-AD-010 (Checklist scaffold) | `AircraftProfileSchema.checklistScaffold` |
 
