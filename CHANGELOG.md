@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Engineering
 
+- Qualify OurAirports against the runway consumer and document the unmet source and delivery conditions.
 - Verify supported performance-table display precision and unrounded lookup boundaries with synthetic data.
 - Capture browser evidence for extrapolation acknowledgment, revocation, blocking and the benefit cap at desktop and mobile widths.
 - Cover signed Performance keyboard entry in both phases.
