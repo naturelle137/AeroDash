@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Retrieve read-only TAF forecasts with source, UTC validity and expiry warnings.
+
 - Retrieve read-only METAR observations with source, observation time and availability warnings.
 
 ### Fixed
