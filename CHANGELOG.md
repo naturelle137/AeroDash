@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Keep Flight Prep inputs and obstacle warnings accessible around fixed mobile navigation.
+- Explain unavailable landing corrections and capture desktop and mobile evidence at their stated widths.
 
 ### Changed
 
