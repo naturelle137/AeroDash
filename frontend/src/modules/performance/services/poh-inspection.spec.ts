@@ -318,7 +318,8 @@ describe('missing distance estimates', () => {
   })
   it('prefers all published values', () => {
     const result = assessPerformance(testPohAircraft(), inputs, now)
-    if (result.status !== 'assessed' || result.takeoff.status !== 'success') throw new Error('Expected result')
+    if (result.status !== 'assessed' || result.takeoff.status !== 'success' || result.landing.status !== 'success') throw new Error('Expected result')
     expect(result.takeoff.distances.map(row => [row.distance, row.provenance])).toEqual([[220, 'poh'], [320, 'poh']])
+    expect(result.landing.distances.map(row => [row.distance, row.provenance])).toEqual([[420, 'poh'], [520, 'poh']])
   })
 })
