@@ -55,6 +55,22 @@ Feature: Complete a textbook flight preparation within all limits
       | 1440  |
       | 390   |
 
+  @e2e @flight-prep @handover
+  Scenario Outline: A handover file is received as an unreviewed, editable preparation
+    When the viewport for occupancy is <width> pixels wide
+    And the pilot selects aircraft "D-EBPN"
+    And loads two passengers and light baggage
+    And the pilot saves a handover file
+    And the pilot changes the baggage load to "0"
+    And the pilot opens the saved handover file
+    Then the handover is marked unreviewed and not approved
+    And the baggage load is "10"
+
+    Examples:
+      | width |
+      | 1440  |
+      | 390   |
+
   @e2e @flight-prep @briefing-pack
   Scenario Outline: The briefing pack downloads as a PDF with the same safety content
     When the viewport for occupancy is <width> pixels wide

@@ -139,7 +139,14 @@ is reactive so a new current snapshot can be opened after invalidation.
 Cancellation preserves inputs. Browser printing needs no upload or PDF library.
 An optional student handover label marks the printed or downloaded snapshot as
 unapproved and states that no instructor review or authenticated counter-signature
-is recorded. This local copy cannot be imported as an editable preparation.
+is recorded. This printed copy cannot be imported as an editable preparation.
+
+An unsigned handover file (`core/logic/handover.ts`, strict Zod schema) carries the
+typed entries for offline exchange. It is editable by anyone, has no approval or
+verification fields, and imports only into the already loaded aircraft with the
+same registration, stations and category. Import validates before applying,
+marks every value unverified and does not restore acknowledgements. Roles,
+authenticated counter-signature and remote sharing remain future scope (#285, #286).
 
 ## Application lifecycle
 
