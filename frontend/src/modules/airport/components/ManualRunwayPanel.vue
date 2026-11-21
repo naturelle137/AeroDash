@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import {
   airacCycleStart,
   runwayFreshness,
@@ -12,10 +12,8 @@ import {
 import { useManualRunwayStore } from '../stores/manual-runway.store'
 
 const runway = useManualRunwayStore()
-const now = new Date()
-const assessmentDate = ref(`${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`)
-const freshness = computed(() => runway.current ? runwayFreshness(runway.current.record.runway, assessmentDate.value) : 'unknown')
-const cycle = computed(() => airacCycleStart(assessmentDate.value))
+const freshness = computed(() => runway.current ? runwayFreshness(runway.current.record.runway, runway.assessmentDate) : 'unknown')
+const cycle = computed(() => airacCycleStart(runway.assessmentDate))
 const freshnessLabels = { unknown: 'Unknown: declared dates are incomplete or the assessment date is invalid.', 'not-yet-effective': 'Not yet effective according to the declared date.', expired: 'Expired according to the declared date.', 'within-declared-dates': 'Within the declared dates; source currency remains unverified.' }
 const surfaceTypeLabels = { paved: 'Paved', unpaved: 'Grass / unpaved' } as const
 const conditionOptions = computed(() => {
@@ -191,7 +189,7 @@ if (!runway.loaded) runway.load()
           <span class="normalized">({{ runway.current.record.runway.fieldElevation.unit === 'ft' ? `${runway.current.display.fieldElevationM} m` : `${runway.current.display.fieldElevationFt} ft` }})</span></dd></div>
         <div><dt>Surface</dt><dd>{{ surfaceTypeLabels[runway.current.record.runway.surface.type] }} · {{ conditionLabel }}</dd></div>
       </dl>
-      <div class="field"><label for="runway-assessment-date">Check date</label><input id="runway-assessment-date" v-model="assessmentDate" type="date" /></div>
+      <div class="field"><label for="runway-assessment-date">Check date</label><input id="runway-assessment-date" v-model="runway.assessmentDate" type="date" /></div>
       <p role="status"><strong>Source date check:</strong> {{ freshnessLabels[freshness] }}</p>
       <p v-if="cycle">AIRAC cycle starting {{ cycle }} (calendar date only).</p>
       <p v-else>AIRAC cycle unavailable for this date; consult the published calendar.</p>
