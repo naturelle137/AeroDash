@@ -1,3 +1,4 @@
+import { compareWindLimits } from '@/core/logic/wind-limits'
 import type { WindComponentInput, WindComponentResult } from '@/core/logic/wind-components'
 import type { PerformancePresentation } from '@/modules/performance/services/performance-presentation'
 import type { ElectricPresentation } from '@/modules/fuel-endurance/services/use-electric-planning'
@@ -82,7 +83,7 @@ export function assembleMbPrint(source: MbPrintSource, now: Date) {
   const massLimit = (value: number) => `${formatMassLimitConservative(value, 1)} kg${marker}`
   const arm = (value: number) => `${formatArm(value, 3)} m${marker}`
   return {
-    wind: source.wind?.result.status === 'valid' ? { input: { ...source.wind.input }, result: { ...source.wind.result } } : null,
+    wind: source.wind?.result.status === 'valid' ? { input: { ...source.wind.input }, result: { ...source.wind.result }, notifications: compareWindLimits(source.wind.input, profile.windLimits) } : null,
     performance: source.performance ? JSON.parse(JSON.stringify(source.performance)) as PerformancePresentation : null,
     chart: {
       result: JSON.parse(JSON.stringify(result)) as MathCoreResult,

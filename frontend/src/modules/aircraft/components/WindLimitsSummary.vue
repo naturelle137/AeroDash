@@ -24,8 +24,7 @@
     </p>
 
     <p class="wind-limits-summary__note">
-      Compare these against the reported wind by hand — automated wind classification is not yet
-      available.
+      Check these against the reported wind by hand. Manual wind comparisons appear in Flight Prep; gusts are not assessed.
     </p>
   </section>
 </template>
