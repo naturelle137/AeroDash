@@ -52,6 +52,7 @@ export type ManualRunwayDraft = {
   fieldElevationUnit: string
   surfaceType: string
   surfaceCondition: string
+  source: string
   effectiveDate: string
   expiryDate: string
 }
@@ -59,7 +60,7 @@ export type ManualRunwayField = keyof ManualRunwayDraft
 
 export const EMPTY_MANUAL_RUNWAY_DRAFT: Readonly<ManualRunwayDraft> = Object.freeze({
   aerodrome: '', designator: '', tora: '', toraUnit: '', lda: '', ldaUnit: '', toda: '', todaUnit: '',
-  fieldElevation: '', fieldElevationUnit: '', surfaceType: '', surfaceCondition: '', effectiveDate: '', expiryDate: '',
+  fieldElevation: '', fieldElevationUnit: '', surfaceType: '', surfaceCondition: '', source: '', effectiveDate: '', expiryDate: '',
 })
 
 /** Control characters are never part of a runway or aerodrome identity. */
@@ -90,6 +91,7 @@ export const ManualRunwaySchema = z.object({
     value: z.number().finite(),
     unit: z.enum(FIELD_ELEVATION_UNITS),
   }).strict(),
+  source: identity(200).optional(),
   effectiveDate: date.optional(),
   expiryDate: date.optional(),
   surface: z.object({
@@ -103,6 +105,7 @@ export const ManualRunwaySchema = z.object({
 export type ManualRunway = {
   aerodrome: string
   designator: string
+  source?: string
   effectiveDate?: string
   expiryDate?: string
   tora: { value: number; unit: RunwayLengthUnit }
@@ -113,7 +116,7 @@ export type ManualRunway = {
   surface: { type: SurfaceType; condition: SurfaceCondition }
 }
 
-export const MANUAL_RUNWAY_RECORD_VERSION = 2 as const
+export const MANUAL_RUNWAY_RECORD_VERSION = 3 as const
 export const ManualRunwayRecordSchema = z.object({
   schemaVersion: z.literal(MANUAL_RUNWAY_RECORD_VERSION),
   savedAt: z.iso.datetime(),
@@ -185,6 +188,8 @@ export function validateManualRunway(draft: ManualRunwayDraft): ManualRunwayVali
     const metres = (value: number, unit: string) => unit === 'ft' ? value * FT_TO_M : value
     if (metres(toda, draft.todaUnit) < metres(tora, draft.toraUnit) - 1e-9) errors.toda = 'TODA cannot be shorter than TORA.'
   }
+  const source = draft.source.trim()
+  if (source && !isIdentity(source, 200)) errors.source = 'Enter a source reference of at most 200 characters without control characters.'
   for (const field of ['effectiveDate', 'expiryDate'] as const) {
     if (draft[field] && !date.safeParse(draft[field]).success) errors[field] = 'Enter a valid date.'
   }
@@ -193,6 +198,7 @@ export function validateManualRunway(draft: ManualRunwayDraft): ManualRunwayVali
   const runway = {
     aerodrome,
     designator,
+    ...(source ? { source } : {}),
     ...(draft.effectiveDate ? { effectiveDate: draft.effectiveDate } : {}),
     ...(draft.expiryDate ? { expiryDate: draft.expiryDate } : {}),
     tora: { value: tora!, unit: draft.toraUnit },
@@ -212,6 +218,7 @@ export function draftFromManualRunway(runway: ManualRunway): ManualRunwayDraft {
   return {
     aerodrome: runway.aerodrome,
     designator: runway.designator,
+    source: runway.source ?? '',
     effectiveDate: runway.effectiveDate ?? '',
     expiryDate: runway.expiryDate ?? '',
     tora: String(runway.tora.value),
@@ -229,7 +236,7 @@ export function draftFromManualRunway(runway: ManualRunway): ManualRunwayDraft {
 
 export function sameManualRunway(a: ManualRunway, b: ManualRunway): boolean {
   return a.aerodrome === b.aerodrome && a.designator === b.designator
-    && a.effectiveDate === b.effectiveDate && a.expiryDate === b.expiryDate
+    && a.source === b.source && a.effectiveDate === b.effectiveDate && a.expiryDate === b.expiryDate
     && a.tora.value === b.tora.value && a.tora.unit === b.tora.unit
     && a.lda.value === b.lda.value && a.lda.unit === b.lda.unit
     && a.toda?.value === b.toda?.value && a.toda?.unit === b.toda?.unit
@@ -292,7 +299,12 @@ export function recoverManualRunwayRecord(raw: string | null): ManualRunwayRecov
     }
   }
   if (typeof value === 'object' && value !== null && 'schemaVersion' in value && value.schemaVersion === 1) {
-    const legacy = z.object({ schemaVersion: z.literal(1), savedAt: z.iso.datetime(), runway: ManualRunwaySchema.omit({ effectiveDate: true, expiryDate: true }) }).strict().safeParse(value)
+    const legacy = z.object({ schemaVersion: z.literal(1), savedAt: z.iso.datetime(), runway: ManualRunwaySchema.omit({ effectiveDate: true, expiryDate: true, source: true }) }).strict().safeParse(value)
+    if (!legacy.success) return { status: 'corrupt' }
+    value = { ...legacy.data, schemaVersion: MANUAL_RUNWAY_RECORD_VERSION }
+  }
+  if (typeof value === 'object' && value !== null && 'schemaVersion' in value && value.schemaVersion === 2) {
+    const legacy = z.object({ schemaVersion: z.literal(2), savedAt: z.iso.datetime(), runway: ManualRunwaySchema.omit({ source: true }) }).strict().safeParse(value)
     if (!legacy.success) return { status: 'corrupt' }
     value = { ...legacy.data, schemaVersion: MANUAL_RUNWAY_RECORD_VERSION }
   }
