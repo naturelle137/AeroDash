@@ -7,10 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added
-
-- Retrieve read-only METAR observations with source, observation time and availability warnings.
-
 ### Fixed
 
 - Keep Flight Prep inputs and obstacle warnings accessible around fixed mobile navigation.
@@ -39,9 +35,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Add a manual electric energy and reserve budget to Flight Preparation and briefing.
-- Show the METAR retrieval availability and ICAO entry in Flight Prep.
-
-- Retrieve read-only TAF forecasts with source, UTC validity and expiry warnings.
 
 - Anchor local instructor notes to individual result warnings and include them in the Briefing Pack.
 
