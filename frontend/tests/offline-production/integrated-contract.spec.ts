@@ -90,11 +90,15 @@ for (const variant of ['kg', 'converted', 'distant-decrease', 'phase-envelope'] 
         await expect(takeoff.locator('dd')).toHaveCount(0)
         await page.screenshot({ path: info.outputPath(`estimate-${offline ? 'offline' : 'online'}.png`), fullPage: true })
         await mass.fill('900')
-        for (const invalid of ['-0.001', '2200.001', 'NaN', 'Infinity']) {
+        await pa.fill('-0.001')
+        await expect(takeoff).toContainText('ESTIMATED (lower-axis table boundary)')
+        for (const invalid of ['2200.001', 'NaN', 'Infinity']) {
           await pa.fill(invalid); await expect(takeoff.locator('dd')).toHaveCount(0)
         }
         await pa.fill('1000')
-        for (const invalid of ['-0.001', '22.001', 'NaN', 'Infinity']) {
+        await temperature.fill('-0.001')
+        await expect(takeoff).toContainText('ESTIMATED (lower-axis table boundary)')
+        for (const invalid of ['22.001', 'NaN', 'Infinity']) {
           await temperature.fill(invalid); await expect(takeoff.locator('dd')).toHaveCount(0)
         }
         await temperature.fill('10');

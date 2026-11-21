@@ -42,6 +42,7 @@ export interface ExtrapolationPresentation {
 }
 
 export const EXTRAPOLATION_WARNING = 'Performance data is extrapolated beyond the table limits: the boundary distance carries a fixed +20 % penalty. Treat the figures as estimates, not as POH/AFM values.'
+export const LOWER_AXIS_ESTIMATE = 'ESTIMATED (lower-axis table boundary)'
 const AXIS_LABELS = { mass: ['mass', 'kg'], pressureAltitude: ['pressure altitude', 'ft'], temperature: ['temperature', '°C'] } as const
 
 export interface OperationalPresentation {
@@ -122,7 +123,7 @@ function groupPresentation(id: PerformanceGroupId, source: MassSource, group: Gr
     rows: group.distances.map((row) => ({
       label: row.label,
       value: `${formatNumber(row.distance)} m`,
-      note: [row.extrapolation ? 'ESTIMATED — EXTRAPOLATED (+20 % penalty)' : '', row.provenance === 'estimated' ? 'ESTIMATED (CAA SSL 07)' : ''].filter(Boolean).join(' · ') || null,
+      note: [row.lowerAxisCaps.length ? LOWER_AXIS_ESTIMATE : '', row.extrapolation ? 'ESTIMATED — EXTRAPOLATED (+20 % penalty)' : '', row.provenance === 'estimated' ? 'ESTIMATED (CAA SSL 07)' : ''].filter(Boolean).join(' · ') || null,
     })),
   }
 }
