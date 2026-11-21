@@ -84,7 +84,7 @@ When('the pilot imports a synthetic aircraft with wind limits', async ({ page })
 Then('the manual wind warnings show both exceedances', async ({ page, $testInfo }) => {
   await expect(panel(page)).toContainText('WARNING WARN-WX-001: Crosswind exceeds Demonstrated 10 kt')
   await expect(panel(page)).toContainText('CRITICAL CRIT-WX-001: Tailwind exceeds Limit 5 kt')
-  await panel(page).scrollIntoViewIfNeeded()
+  await panel(page).getByText('CRITICAL CRIT-WX-001:', { exact: false }).scrollIntoViewIfNeeded()
   const path = $testInfo.outputPath(`wind-limits-${page.viewportSize()!.width}.png`)
   await page.screenshot({ path })
   await $testInfo.attach('Manual wind limits', { path, contentType: 'image/png' })
