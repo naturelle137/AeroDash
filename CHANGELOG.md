@@ -48,6 +48,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Compare manual wind with stored aircraft limits in Flight Prep and the briefing.
+- Retain a pilot-declared runway source reference in Performance and briefing.
 - Allow local flight phase, location and time selection with an explicit forecast-unavailable or offline state.
 
 - Add a manual electric energy and reserve budget to Flight Preparation and briefing.
