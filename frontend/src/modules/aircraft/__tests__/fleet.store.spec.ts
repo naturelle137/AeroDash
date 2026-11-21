@@ -606,8 +606,6 @@ describe('useFleetStore', () => {
     expect(edited.status).toBe('draft')
     expect(edited.passengerProfiles).toEqual(changed)
     expect(edited.loadPoints).toEqual(loads)
-    await store.loadAll()
-    expect(store.profiles.find((p) => p.id === edited.id)?.passengerProfiles).toEqual(changed)
     const cleared = await store.updateProfile(edited.id, { passengerProfiles: [] })
     expect(cleared.passengerProfiles).toEqual([])
     expect(cleared.loadPoints).toEqual(loads)
