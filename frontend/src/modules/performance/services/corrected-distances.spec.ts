@@ -114,7 +114,7 @@ describe('corrected distances in the performance step', () => {
       const { step, runway, context } = setup('D-TEST', surface)
       context.profile = { ...testPohAircraft(), registration: 'D-TEST' }
       Object.assign(runway.draft, { surfaceType: surface, surfaceCondition: condition }); runway.save()
-      return { step, runway }
+      return { step, runway, context }
     }
 
     it('estimates take-off slope and grass on the ground roll, marked ESTIMATED', () => {
@@ -133,6 +133,39 @@ describe('corrected distances in the performance step', () => {
         expect(item.safetyFactor).toContain('no manual factor')
         expect(item.notes.join(' ')).toContain('not validated by it')
         expect(item.notes.join(' ')).toContain('Wind is not corrected')
+      })
+      effect.stop()
+    })
+
+    it.each(['TakeoffRoll', 'TakeoffDistance50ft'] as const)('retains extrapolated and CAA-estimated provenance with FSM when %s is missing', (phase) => {
+      const effect = effectScope()
+      effect.run(() => {
+        const { step, runway, context } = fsmSetup()
+        context.profile!.performanceProfiles = context.profile!.performanceProfiles!.filter(table => table.flightPhase !== phase)
+        context.takeoff = { status: 'ready', massKg: 1050, origin: 'M&B' }
+        Object.assign(step.corrections.takeoff, { headwind: '0', slope: '2' })
+        Object.assign(runway.draft, { tora: '100', toda: '5000' }); runway.save()
+        expect(corrected(step, 0).status).toBe('unavailable')
+        step.extrapolationAcknowledged.value = true
+        const item = corrected(step, 0)
+        if (item.status !== 'applied') throw new Error('expected applied')
+        const extrapolated = 'ESTIMATED — EXTRAPOLATED (+20 % penalty)'
+        const caa = 'ESTIMATED (CAA SSL 07)'
+        const fsm = 'ESTIMATED (FSM 3/75)'
+        for (const row of item.rows) for (const value of [row.corrected, row.factored]) {
+          expect(value).toContain(extrapolated)
+          expect(value).toContain(fsm)
+        }
+        for (const value of [item.rows[1]!.corrected, item.rows[1]!.factored, item.comparison.required, item.comparison.margin]) {
+          expect(value).toContain(extrapolated)
+          expect(value).toContain(caa)
+          expect(value).toContain(fsm)
+        }
+        for (const value of [item.rows[0]!.corrected, item.rows[0]!.factored, item.comparison.summary]) {
+          expect(value.includes(caa)).toBe(phase === 'TakeoffRoll')
+          expect(value).toContain(extrapolated)
+          expect(value).toContain(fsm)
+        }
       })
       effect.stop()
     })

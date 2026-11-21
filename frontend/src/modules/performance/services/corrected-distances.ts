@@ -151,8 +151,8 @@ export function presentCorrectedOperation(
     (rows.some(row => row.extrapolation) ? extrapolated : '') + (rows.some(row => row.provenance === 'estimated') ? marker : '')
   const baseRollMarker = markers([roll])
   const over50Marker = markers([over50])
-  const rollMarker = estimating ? FSM_ESTIMATE_MARKER : baseRollMarker
-  const correctedOver50Marker = estimating ? FSM_ESTIMATE_MARKER : markers([roll, over50])
+  const rollMarker = baseRollMarker + (estimating ? FSM_ESTIMATE_MARKER : '')
+  const correctedOver50Marker = markers([roll, over50]) + (estimating ? FSM_ESTIMATE_MARKER : '')
   return {
     operation, title, status: 'applied', partial: result.notCredited.length > 0,
     source: `${document.title}, ${document.identifier}, ${document.revision}; ${section}`,
