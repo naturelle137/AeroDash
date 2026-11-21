@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Identify missing correction-source provenance and verify candidate details in the assessment.
+
 - Show the geometric gradient for pilot-defined obstacles and state when clearance cannot be determined.
 
 - Estimate missing takeoff distance from ground roll and retain its provenance.
@@ -21,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Engineering
 
+- Verify manual wind, slope and safety-factor changes in Flight Prep and the Briefing Pack.
 - Assess LVNL and ENAIRE airport data against the runway source contract.
 - Qualify OurAirports against the runway consumer and document the unmet source and delivery conditions.
 - Verify supported performance-table display precision and unrounded lookup boundaries with synthetic data.
