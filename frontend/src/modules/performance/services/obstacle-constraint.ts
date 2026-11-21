@@ -1,3 +1,4 @@
+import { obstacleGradient } from '@/core/logic/obstacle-gradient'
 import type { Notification } from '@/core/domain/notification.schema'
 import { parseLookupNumber } from './poh-inspection'
 
@@ -37,7 +38,13 @@ export function describeObstacle(assessment: ObstacleAssessment): string {
     : assessment.status === 'invalid' ? 'Invalid entry, not used' : 'None'
 }
 
-export const OBSTACLE_SCOPE = 'Obstacle clearance and climb gradient are not calculated; the entered obstacle is a recorded constraint only. Verify clearance with the POH/AFM climb data.'
+export function describeGradient(assessment: ObstacleAssessment): string {
+  if (assessment.status !== 'active') return 'Not available'
+  const gradient = obstacleGradient(assessment.height, assessment.heightUnit, assessment.distance, assessment.distanceUnit)
+  return gradient === null ? 'Cannot calculate for these values.' : `Approximately ${gradient.toPrecision(4)}%`
+}
+
+export const OBSTACLE_SCOPE = 'The gradient is a straight-line height divided by distance from the runway reference; it does not account for ground roll, flight path, terrain or margins. Applicable climb performance is unavailable, so obstacle clearance cannot be determined. Verify using the POH/AFM and official sources.'
 
 export function obstacleNotification(assessment: ObstacleAssessment): Notification[] {
   return assessment.status === 'active' ? [{
