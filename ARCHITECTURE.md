@@ -153,3 +153,5 @@ authenticated counter-signature and remote sharing remain future scope (#285, #2
 [PWA lifecycle](docs/architecture/adr/316-pwa-update-lifecycle.md) permits silent updates only for a classified cold start; active-session updates need consent. A failed session-storage check uses the consent path. Online minimum-safe-version checking can block unsafe versions; offline use cannot obtain a fresh remote safety verdict.
 
 The app exposes local data erasure/export and a [contribution handoff](docs/architecture/adr/013-in-app-contribution-intake.md) to GitHub. Cloud/OIDC/organization sync is future scope and must pass the [pre-sync engineering gate](docs/architecture/adr/014-pre-sync-privacy-gate.md) before implementation. No fake API endpoint contract is published for unimplemented services.
+
+Editable handover files include each station unit and reject profiles with different station names or units before applying any entries. Exchange objects reject unknown fields at every level; older files without units are not accepted.

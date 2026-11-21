@@ -131,4 +131,4 @@ When the user opens a handover file for the loaded aircraft, the system shall va
 
 ### REQ-SC-028: Handover file refusal
 
-If a handover file is invalid, oversize, newer than this build, contains an approval field, or does not match the loaded aircraft's registration, stations and category, the system shall import nothing and state the reason.
+If a handover file is invalid, oversize, newer than this build, contains an approval field, or does not match the loaded aircraft's registration, station names and units, and category, the system shall import nothing and state the reason.

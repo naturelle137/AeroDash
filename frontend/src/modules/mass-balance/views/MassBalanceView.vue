@@ -646,7 +646,7 @@ function onExportHandover(): void {
     aircraft: { registration: aircraft.registration },
     massBalance: {
       activeCategory: store.activeCategory,
-      stations: store.stations.map((s) => ({ name: s.name, weight: s.weight, touched: s.touched })),
+      stations: store.stations.map((s) => ({ name: s.name, unit: aircraft.loadPoints[s.index]?.unit || aircraft.sourceUnit, weight: s.weight, touched: s.touched })),
     },
     entries: flightPrepDraft.snapshotEntries(),
   }, new Date()), aircraft.registration)
@@ -667,7 +667,7 @@ function onImportHandover(text: string): void {
   }
   const mismatch = handoverMismatch(parsed.file, {
     registration: aircraft.registration,
-    stationNames: store.stations.map((s) => s.name),
+    stations: store.stations.map((s) => ({ name: s.name, unit: aircraft.loadPoints[s.index]?.unit || aircraft.sourceUnit })),
     categories: aircraft.certificationCategories.map((c) => c.category),
   })
   if (mismatch) {

@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Reject handover files with mismatched station units or unknown nested fields.
+
 - Give every documentation/export, performance and fuel/endurance requirement an evidence-backed status or a stated gap, renumber the duplicate REQ-DOC-034 to REQ-DOC-037 and update roadmap limits.
 
 ### Engineering

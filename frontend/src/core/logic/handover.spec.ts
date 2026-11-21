@@ -20,7 +20,7 @@ const entries = {
 }
 const content = {
   aircraft: { registration: 'D-TEST' },
-  massBalance: { activeCategory: 'Normal', stations: [{ name: 'Pilot', weight: 80, touched: true }, { name: 'Fuel', weight: 40, touched: true }] },
+  massBalance: { activeCategory: 'Normal', stations: [{ name: 'Pilot', unit: 'kg', weight: 80, touched: true }, { name: 'Fuel', unit: 'L', weight: 40, touched: true }] },
   entries,
 }
 const at = new Date('2026-11-20T10:00:00Z')
@@ -41,26 +41,35 @@ describe('handover file', () => {
   it.each([
     ['approval field', { approval: { by: 'FI', at: '2026-11-20T10:00:00Z' } }],
     ['reviewed status', { review: 'approved' }],
-    ['verified station flag', { massBalance: { activeCategory: 'Normal', stations: [{ name: 'Pilot', weight: 80, touched: true, verified: true }] } }],
-    ['negative weight', { massBalance: { activeCategory: 'Normal', stations: [{ name: 'Pilot', weight: -1, touched: true }] } }],
+    ['verified station flag', { massBalance: { activeCategory: 'Normal', stations: [{ name: 'Pilot', unit: 'kg', weight: 80, touched: true, verified: true }] } }],
+    ['negative weight', { massBalance: { activeCategory: 'Normal', stations: [{ name: 'Pilot', unit: 'kg', weight: -1, touched: true }] } }],
     ['wrong format', { format: 'other' }],
   ])('rejects %s', (_label, patch) => {
     expect(parseHandoverFile(JSON.stringify({ ...raw(), ...patch })).ok).toBe(false)
   })
 
+  it.each(['fuel', 'performance', 'performance.pressureAltitude', 'performance.corrections', 'performance.corrections.takeoff', 'performance.corrections.landing', 'performance.safetyFactors', 'performance.safetyFactors.takeoff', 'performance.safetyFactors.landing', 'performance.obstacle'])('rejects nested approval in %s', (path) => {
+    const file = JSON.parse(buildHandoverFile(content, at))
+    const target = path.split('.').reduce((value, key) => value[key], file.entries)
+    target.approval = true
+    expect(parseHandoverFile(JSON.stringify(file)).ok).toBe(false)
+  })
+
   it('rejects invalid JSON, newer versions and oversize files', () => {
     expect(parseHandoverFile('{')).toMatchObject({ ok: false })
-    expect(parseHandoverFile(JSON.stringify({ ...raw(), version: 2 }))).toMatchObject({ ok: false, error: expect.stringContaining('version') })
+    expect(parseHandoverFile(JSON.stringify({ ...raw(), version: 3 }))).toMatchObject({ ok: false, error: expect.stringContaining('version') })
     expect(parseHandoverFile(' '.repeat(MAX_HANDOVER_BYTES + 1))).toMatchObject({ ok: false })
   })
 
   it('applies only to the same aircraft layout', () => {
     const file = (() => { const r = parseHandoverFile(buildHandoverFile(content, at)); if (!r.ok) throw new Error(); return r.file })()
-    const own = { registration: 'd-test', stationNames: ['Pilot', 'Fuel'], categories: ['Normal'] }
+    const own = { registration: 'd-test', stations: [{ name: 'Pilot', unit: 'kg' }, { name: 'Fuel', unit: 'L' }], categories: ['Normal'] }
     expect(handoverMismatch(file, own)).toBeNull()
     expect(handoverMismatch(file, { ...own, registration: 'D-ABCD' })).toContain('D-TEST')
-    expect(handoverMismatch(file, { ...own, stationNames: ['Pilot', 'Baggage'] })).toContain('stations')
-    expect(handoverMismatch(file, { ...own, stationNames: ['Pilot'] })).toContain('stations')
+    expect(handoverMismatch(file, { ...own, stations: [{ name: 'Pilot', unit: 'kg' }, { name: 'Baggage', unit: 'L' }] })).toContain('stations')
+    expect(handoverMismatch(file, { ...own, stations: [{ name: 'Pilot', unit: 'kg' }] })).toContain('stations')
+    expect(handoverMismatch(file, { ...own, stations: [{ name: 'Pilot', unit: 'lb' }, { name: 'Fuel', unit: 'L' }] })).toContain('stations')
+    expect(handoverMismatch(file, { ...own, stations: [{ name: 'Pilot', unit: 'kg' }, { name: 'Fuel', unit: 'gal' }] })).toContain('stations')
     expect(handoverMismatch(file, { ...own, categories: ['Utility'] })).toContain('category')
   })
 })

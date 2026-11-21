@@ -48,13 +48,13 @@ export function parseHandoverFile(text: string): HandoverParseResult {
  */
 export function handoverMismatch(
   file: HandoverFile,
-  aircraft: { registration: string; stationNames: readonly string[]; categories: readonly string[] },
+  aircraft: { registration: string; stations: readonly { name: string; unit: string }[]; categories: readonly string[] },
 ): string | null {
   if (file.aircraft.registration.trim().toUpperCase() !== aircraft.registration.trim().toUpperCase()) {
     return `The file is for ${file.aircraft.registration}. Load that aircraft first.`
   }
-  const names = file.massBalance.stations.map((s) => s.name)
-  if (names.length !== aircraft.stationNames.length || names.some((n, i) => n !== aircraft.stationNames[i])) {
+  const stations = file.massBalance.stations
+  if (stations.length !== aircraft.stations.length || stations.some((s, i) => s.name !== aircraft.stations[i]?.name || s.unit !== aircraft.stations[i]?.unit)) {
     return 'The loading stations differ from this device\'s profile of the aircraft; nothing was imported.'
   }
   if (!aircraft.categories.includes(file.massBalance.activeCategory)) {

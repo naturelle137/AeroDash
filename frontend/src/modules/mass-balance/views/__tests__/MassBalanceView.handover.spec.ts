@@ -139,6 +139,8 @@ describe('MassBalanceView — handover file', () => {
   it.each([
     ['another aircraft', (t: string) => t.replace('D-EBPN', 'D-OTHR'), 'D-OTHR'],
     ['another station layout', (t: string) => t.replace('Pilot & Passenger', 'Cargo'), 'stations'],
+    ['a different station unit', (t: string) => t.replace('"unit": "kg"', '"unit": "lb"'), 'stations'],
+    ['a nested approval field', (t: string) => t.replace('"method"', '"approval": true, "method"'), 'Nothing was imported'],
     ['an approval field', (t: string) => t.replace('"review"', '"approvedBy": "FI", "review"'), 'Nothing was imported'],
   ])('refuses a file for %s and leaves entries unchanged', async (_label, edit, expected) => {
     const { wrapper, profile } = mountWithAircraft()
