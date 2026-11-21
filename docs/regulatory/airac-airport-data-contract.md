@@ -56,6 +56,10 @@ No airport record's effective interval, expiry or restriction coverage was verif
 
 ## Source-first acceptance gate
 
+### Candidate investigation: FAA NASR
+
+Investigated 2026-11-21. The FAA [28-day subscription page](https://www.faa.gov/air_traffic/flight_info/aeronav/Aero_Data/NASR_Subscription/2026-11-26/) links an accessible airport CSV archive effective 2026-11-26. Its runway-end file contains `TKOF_RUN_AVBL`, `TKOF_DIST_AVBL` and `LNDG_DIST_AVBL` fields, many of which are empty. This US dataset is a candidate, not an accepted source: field units and blank semantics, redistribution terms, update and supersession rules, and NOTAM/restriction coverage for the actual records remain to be established before integration.
+
 ### Candidate decision: LVNL Aerodrome feature service
 
 Evaluated 2026-11-21 for the runway comparison. Do not integrate this service

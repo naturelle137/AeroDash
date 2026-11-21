@@ -115,3 +115,7 @@ If the selected date is outside the supported published calendar or invalid, the
 ### REQ-AP-024: Shared declared date check
 
 When displaying a saved runway in Performance or the briefing, the system shall include the selected date and declared date check with its unverified source status.
+
+### REQ-AP-025: Manual source reference
+
+When the pilot supplies a source reference, the system shall retain it with the manual runway and display it as unverified in Performance and the briefing.
