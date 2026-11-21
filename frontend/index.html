@@ -21,7 +21,7 @@
       - img-src 'self' data: blob: data:/blob: cover favicons and any generated
                                    image/object URLs without widening to remote origins.
       - font-src 'self'            fonts are bundled, none remote.
-      - connect-src                 same-origin and the weather data provider.
+      - connect-src 'self' https://wxdecoder.com  same-origin and read-only METAR source.
       - worker-src 'self'          the Workbox service worker is same-origin.
       - manifest-src 'self'        PWA web app manifest is same-origin.
       - object-src 'none'          no <object>/<embed>/<applet> plugins.
