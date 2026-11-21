@@ -36,7 +36,7 @@ onBeforeUnmount(() => {
     </div>
     <p role="status" aria-live="polite"><strong>{{ online ? 'Forecast unavailable:' : 'Browser offline:' }}</strong>
       {{ online ? 'No forecast source is configured.' : 'Forecast retrieval is unavailable.' }}
-      No temperature, QNH or wind has been retrieved. Continue using your manual inputs and obtain the required weather briefing from official sources.</p>
+      No forecast temperature, QNH or wind has been retrieved. Continue using your manual inputs and obtain the required weather briefing from official sources.</p>
   </section>
 </template>
 

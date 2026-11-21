@@ -18,7 +18,7 @@ const abs = (value: number) => Math.abs(value).toFixed(1)
   <section class="panel" aria-labelledby="manual-wind-heading">
     <h3 id="manual-wind-heading">Manual wind components</h3>
     <p><strong>User-entered — advisory only.</strong> Enter the runway heading and the wind you obtained from an
-      official source. Use the same reference (magnetic or true) for both. No weather is retrieved, the runway
+      official source. Use the same reference (magnetic or true) for both. The runway
       heading is not derived from the designator, and nothing here changes performance results.</p>
     <div class="fields">
       <div class="field">
