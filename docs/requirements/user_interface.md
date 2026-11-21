@@ -227,3 +227,7 @@ The system shall display instructor notes separately from system notifications a
 ### REQ-UI-056: Mobile Wind focus
 
 When a Flight Prep wind input receives keyboard focus on a mobile viewport, the system shall keep it visible above the fixed navigation and Briefing Pack action.
+
+### REQ-UI-057: Mobile Flight Prep visibility
+
+When a pilot scrolls or focuses Flight Prep fields and active obstacle warnings on a mobile viewport, the system shall allow them to appear fully clear of fixed navigation and actions.
