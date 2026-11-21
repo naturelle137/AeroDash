@@ -32,7 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Show TAF retrieval availability and ICAO entry in Weather.
+- Retrieve read-only TAF forecasts with source, UTC validity and expiry warnings.
 
 - Anchor local instructor notes to individual result warnings and include them in the Briefing Pack.
 
