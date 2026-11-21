@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Disclose when the selected safety factor is not applied to uncorrected performance distances.
+
 - Show the geometric gradient for pilot-defined obstacles and state when clearance cannot be determined.
 
 - Estimate missing takeoff distance from ground roll and retain its provenance.
