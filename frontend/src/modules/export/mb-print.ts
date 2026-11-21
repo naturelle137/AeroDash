@@ -82,6 +82,7 @@ export function assembleMbPrint(source: MbPrintSource, now: Date) {
   const massLimit = (value: number) => `${formatMassLimitConservative(value, 1)} kg${marker}`
   const arm = (value: number) => `${formatArm(value, 3)} m${marker}`
   return {
+    wind: source.wind?.result.status === 'valid' ? { input: { ...source.wind.input }, result: { ...source.wind.result } } : null,
     performance: source.performance ? JSON.parse(JSON.stringify(source.performance)) as PerformancePresentation : null,
     chart: {
       result: JSON.parse(JSON.stringify(result)) as MathCoreResult,

@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { computed, reactive } from 'vue'
-import { computeWindComponents, WIND_SPEED_UNITS, type WindComponentField } from '@/core/logic/wind-components'
+import { computeWindComponents, WIND_SPEED_UNITS, type WindComponentField, type WindComponentInput } from '@/core/logic/wind-components'
 
-const input = reactive({ runwayHeading: '', windDirection: '', windSpeed: '', unit: 'kt' })
+const input = defineModel<WindComponentInput>({ default: () => reactive({ runwayHeading: '', windDirection: '', windSpeed: '', unit: 'kt' }) })
 // Computed, so results recompute or clear synchronously with every edit.
-const result = computed(() => computeWindComponents(input))
+const result = computed(() => computeWindComponents(input.value))
 const errors = computed<Partial<Record<WindComponentField, string>>>(() => result.value.status === 'invalid' ? result.value.errors : {})
 const describedBy = (field: WindComponentField) => errors.value[field] ? `wind-${field}-error` : undefined
 const abs = (value: number) => Math.abs(value).toFixed(1)
@@ -47,6 +47,7 @@ const abs = (value: number) => Math.abs(value).toFixed(1)
     </div>
     <div role="status" aria-label="Wind components" class="result">
       <template v-if="result.status === 'valid'">
+        <p v-if="Number(input.windSpeed.replace(',', '.')) === 0">Calm wind (0 {{ result.unit }}).</p>
         <dl>
           <div>
             <dt>{{ result.headwind >= 0 ? 'Headwind' : 'Tailwind' }}</dt>

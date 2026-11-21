@@ -28,6 +28,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Preserve extrapolation and CAA estimate markers alongside FSM correction estimates.
 
+- Include available manual wind components in the Briefing Pack.
+
 ### Added
 
 - Add a manual electric energy and reserve budget to Flight Preparation and briefing.
