@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import { computed, reactive } from 'vue'
+import { compareWindLimits } from '@/core/logic/wind-limits'
+import type { AircraftProfileWindLimit } from '@/core/adapters/aircraft.schema'
 import { computeWindComponents, WIND_SPEED_UNITS, type WindComponentField, type WindComponentInput } from '@/core/logic/wind-components'
 
+const props = defineProps<{ windLimits?: AircraftProfileWindLimit[] }>()
+const notifications = computed(() => compareWindLimits(input.value, props.windLimits))
 const input = defineModel<WindComponentInput>({ default: () => reactive({ runwayHeading: '', windDirection: '', windSpeed: '', unit: 'kt' }) })
 // Computed, so results recompute or clear synchronously with every edit.
 const result = computed(() => computeWindComponents(input.value))
@@ -59,7 +63,8 @@ const abs = (value: number) => Math.abs(value).toFixed(1)
             <dd v-else>{{ abs(result.crosswind) }} {{ result.unit }} from the {{ result.crosswind > 0 ? 'right' : 'left' }}</dd>
           </div>
         </dl>
-        <p class="hint">Computed from your entries; rounded to 0.1. Compare with the aircraft's wind limits yourself — no suitability verdict is given.</p>
+        <p class="hint">Computed from your entries; rounded to 0.1. Check all limits yourself; gusts are not assessed and no suitability verdict is given. Pilot in command remains responsible.</p>
+        <p v-for="(note, index) in notifications" :key="index" :class="note.severity === 'CRITICAL' ? 'critical' : 'warning'">{{ note.severity }} {{ note.id }}: {{ note.message }}</p>
       </template>
       <p v-else-if="result.status === 'invalid'">No wind components: correct the highlighted entries.</p>
       <p v-else>Enter runway heading, wind direction and speed to see the components.</p>
@@ -85,6 +90,8 @@ input, select { font: inherit; padding: .75rem; min-height: 44px; border-radius:
 dl { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr)); gap: .75rem; margin: 0; }
 dt { font-weight: 600; }
 dd { margin: .25rem 0 0; font-size: 1.25rem; font-weight: 700; }
+.critical { color: var(--color-critical, #b91c1c); font-weight: 700; }
+.warning { color: var(--color-warning, #805000); font-weight: 700; }
 .hint { font-size: .95rem; }
 </style>
 

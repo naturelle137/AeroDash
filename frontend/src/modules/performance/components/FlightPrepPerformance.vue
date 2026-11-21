@@ -48,7 +48,7 @@ const { tables, inputKey, manualConfiguration } = props.step
     </section>
     <UnitPreferencesFieldset />
     <ManualRunwayPanel />
-    <ManualWindComponentPanel v-model="wind" />
+    <ManualWindComponentPanel v-model="wind" :wind-limits="context.profile?.windLimits" />
     <CorrectionSourcePanel v-model:configuration="manualConfiguration" :profile="context.profile ?? undefined" :tables-complete="tables?.status === 'ready'"
       :ready="context.ready" :inputs-revision="inputKey" />
   </div>
