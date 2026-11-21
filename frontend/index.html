@@ -21,7 +21,7 @@
       - img-src 'self' data: blob: data:/blob: cover favicons and any generated
                                    image/object URLs without widening to remote origins.
       - font-src 'self'            fonts are bundled, none remote.
-      - connect-src 'self'         no backend; offline-first. Same-origin XHR/fetch only.
+      - connect-src 'self' https://wxdecoder.com  same-origin and read-only METAR source.
       - worker-src 'self'          the Workbox service worker is same-origin.
       - manifest-src 'self'        PWA web app manifest is same-origin.
       - object-src 'none'          no <object>/<embed>/<applet> plugins.
@@ -39,7 +39,7 @@
     -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'">
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' https://wxdecoder.com; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#00796b" media="(prefers-color-scheme: light)">
     <meta name="theme-color" content="#1e1e1e" media="(prefers-color-scheme: dark)">
