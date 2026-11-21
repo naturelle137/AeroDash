@@ -32,6 +32,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Compare manual wind with stored aircraft limits in Flight Prep and the briefing.
+
 - Add a manual electric energy and reserve budget to Flight Preparation and briefing.
 
 - Anchor local instructor notes to individual result warnings and include them in the Briefing Pack.
