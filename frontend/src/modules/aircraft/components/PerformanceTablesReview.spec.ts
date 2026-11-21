@@ -8,13 +8,21 @@ it('shows original declarations, provenance and independently normalized values 
   profile.performanceProfiles = [{ flightPhase: 'TakeoffRoll',
     sourceUnits: { mass: 'lb', pressureAltitude: 'm', temperature: '°F', distance: 'ft' },
     sourceReference: 'Synthetic example only',
-    dataPoints: [{ mass: 2000, pressureAltitude: 304.8, temperature: 50, distance: 1000 }],
+    dataPoints: [{ mass: 2000, pressureAltitude: 304.8, temperature: 50, distance: 1000 },
+      { mass: 1, pressureAltitude: -30.48, temperature: -40, distance: 1 }],
   }]
   const view = mount(PerformanceTablesReview, { props: { profile } })
   expect(view.text()).toContain('Synthetic example only')
   expect(view.findAll('table')[0]!.text()).toContain('Temperature (°F)')
   expect(view.findAll('tbody tr')[0]!.findAll('td').map((cell) => cell.text())).toEqual(['2000', '304.8', '50', '1000'])
-  expect(view.findAll('tbody tr')[1]!.findAll('td').map((cell) => cell.text())).toEqual(['907.18474', '1000', '10', '304.8'])
+  expect(view.findAll('tbody tr')[2]!.findAll('td').map((cell) => cell.text())).toEqual(['907.18474', '1000', '10', '304.8'])
+  expect(view.findAll('tbody tr')[1]!.findAll('td').map((cell) => cell.text())).toEqual(['1', '-30.48', '-40', '1'])
+  expect(view.findAll('tbody tr')[3]!.findAll('td').map((cell) => cell.text())).toEqual(['0.45359237', '-100', '-40', '0.3048'])
+  expect(view.findAll('tbody th').map((cell) => cell.text())).toEqual(['1', '2', '1', '2'])
+  expect(view.findAll('table')[1]!.text()).toContain('Mass (kg)')
+  expect(view.findAll('table')[1]!.text()).toContain('Pressure altitude (ft)')
+  expect(view.findAll('table')[1]!.text()).toContain('Temperature (°C)')
+  expect(view.findAll('table')[1]!.text()).toContain('Distance (m)')
 })
 
 it('labels the undeclared legacy contract independently of M&B sourceUnit', () => {
