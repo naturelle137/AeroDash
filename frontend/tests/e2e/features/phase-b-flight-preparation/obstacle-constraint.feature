@@ -40,6 +40,8 @@ Feature: Unverified obstacle constraint
     And the pilot selects the imported aircraft "D-EBPN" in Flight Prep
     And the pilot enters an obstacle height "50" "ft" at distance "600" "m"
     Then the unverified obstacle warning is shown
+    When the pilot changes and reloads the Flight Prep obstacle
+    Then the unverified obstacle warning is shown
     And the obstacle evidence is captured as "briefing-input-<width>"
     When the pilot opens the briefing pack
     Then the briefing pack states "WARN-PF-001"
@@ -47,6 +49,9 @@ Feature: Unverified obstacle constraint
     And the briefing pack states "Approximately 2.540%"
     And the briefing pack states "clearance cannot be determined"
     And the briefing pack evidence is captured as "obstacle-<width>"
+    When the pilot closes the briefing and clears the obstacle
+    And the pilot reloads the obstacle entry
+    Then no unverified obstacle warning is shown
 
     Examples:
       | width | height |
