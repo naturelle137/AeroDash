@@ -115,13 +115,16 @@ export function assembleMbPrint(source: MbPrintSource, now: Date) {
         (n.id === 'WARN-UQ-001' && s.weight === 0 && !!aircraft.loadPoints[s.index] && requiresOccupancy(aircraft.loadPoints[s.index]!)))),
       name: s.name, quantity: `${s.weight} ${aircraft.loadPoints[s.index]?.unit ?? ''}${marker}`,
     })),
+    cgTrajectoryWarnings: source.notifications.filter(n => n.severity !== 'INFO' && n.context === 'MassBalance.CG' &&
+      !(n.id === 'CRIT-MB-001' && result.violations.some(v => v.type === 'CG_OUT_OF_ENVELOPE'))),
     points: [
       { label: 'Takeoff', point: result.takeoffCenterOfGravityPoint },
       { label: 'Zero fuel', point: result.zeroFuelCenterOfGravityPoint },
       { label: 'All usable fuel burned', point: result.landingCenterOfGravityPoint },
     ].map(({ label, point }) => ({ label, mass: mass(point.mass), cg: arm(point.arm),
       massWarnings: valueWarnings(source, label === 'Takeoff' ? ['MassBalance.TotalMass', 'FuelEndurance.Density'] : label === 'Zero fuel' ? ['MassBalance.ZFM'] : ['FuelEndurance.Density']),
-      cgWarnings: valueWarnings(source, ['MassBalance.CG', 'FuelEndurance.Density']),
+      cgWarnings: valueWarnings(source, ['FuelEndurance.Density']).concat(label === 'Takeoff' && result.violations.some(v => v.type === 'CG_OUT_OF_ENVELOPE')
+        ? source.notifications.filter(n => n.context === 'MassBalance.CG' && n.id === 'CRIT-MB-001' && n.severity !== 'INFO') : []),
       limit: label === 'Takeoff' ? `MTOM: ${massLimit(normalizeMassToKg(category.maxTakeoffMass, massUnit))}` : label === 'Zero fuel' && category.maxZeroFuelMass !== null ? `MZFM: ${massLimit(normalizeMassToKg(category.maxZeroFuelMass, massUnit))}` : 'Not specified' })),
     mtom: massLimit(normalizeMassToKg(category.maxTakeoffMass, massUnit)),
     mzfm: category.maxZeroFuelMass === null ? 'Not specified' : massLimit(normalizeMassToKg(category.maxZeroFuelMass, massUnit)),

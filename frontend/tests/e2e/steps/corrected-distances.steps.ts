@@ -100,6 +100,7 @@ Then('both unavailable corrections disclose their unapplied safety factors', asy
   for (const phase of ['Takeoff', 'Landing']) {
     const region = page.getByRole('region', { name: `${phase} corrected distances`, exact: true })
     await expect(region).toContainText('Wind component -2 kt was not applied')
+    await expect(region).toContainText('The saved runway surface was not applied')
     await expect(region).toContainText('The selected safety factor was not applied')
   }
 })
