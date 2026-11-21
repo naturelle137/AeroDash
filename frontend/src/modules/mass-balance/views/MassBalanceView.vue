@@ -39,6 +39,7 @@ import AnnotationPanel from '@/modules/annotations/AnnotationPanel.vue'
 import { useAnnotationStore } from '@/modules/annotations/annotation.store'
 import ResultSummary from '@/modules/mass-balance/components/ResultSummary.vue'
 import WindLimitsSummary from '@/modules/aircraft/components/WindLimitsSummary.vue'
+import ForecastSelection from '@/modules/weather/components/ForecastSelection.vue'
 import ConfirmDialog from '@/shared/components/ConfirmDialog.vue'
 import UndoToast from '@/shared/components/UndoToast.vue'
 import { computeWindComponents } from '@/core/logic/wind-components'
@@ -1348,6 +1349,7 @@ function onStartDemo(): void {
         <h2 id="prep-weather-title" class="prep-card__title">Weather</h2>
       </div>
       <WeatherPanel @observation="useManualRunwayStore().updateWeather($event)" />
+      <ForecastSelection />
     </section>
 
     <!-- ═══ Operational disclaimer (bottom, non-blocking) ═════════════════ -->
