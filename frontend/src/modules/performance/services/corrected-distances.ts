@@ -91,7 +91,7 @@ export function presentCorrectedOperation(
     ].flatMap(([label, value, unit]) => {
       return value!.trim() ? [`${label} ${value} ${unit} was not applied.`] : []
     })
-    return { operation, title, status: 'unavailable', reason: [reason, ...omissions, ...(runway ? ['The saved runway surface was not applied.'] : []), 'The selected safety factor was not applied.'].join(' ') }
+    return { operation, title, status: 'unavailable', reason: [reason, ...omissions, ...(runway ? ['The saved runway surface was not applied.'] : []), 'The selected safety factor was not applied. Do not use the uncorrected base distances for runway assessment; determine the applicable corrections and safety factor independently from the aircraft manual.'].join(' ') }
   }
   if (group?.status !== 'success') return unavailable('No base distance for this operation, so nothing can be corrected.')
   if (sources?.status !== 'assessed') return unavailable('Correction sources cannot be assessed for this profile. Distances stay uncorrected.')
