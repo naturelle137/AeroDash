@@ -13,8 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Apply pilot-entered time-specific forecast values to Flight Prep with manual provenance.
 - Select an active aircraft passenger profile to copy its mass into an occupant station.
 - Retrieve read-only TAF forecasts with source, UTC validity and expiry warnings.
+- Suggest a wet runway condition from a fresh matching METAR, with pilot override.
 - Allow pilots to explicitly apply valid current METAR wind, temperature and QNH to Flight Prep with provenance.
-
 - Retrieve read-only METAR observations with source, observation time and availability warnings.
 
 ### Fixed
