@@ -30,9 +30,10 @@ When('I switch pressure altitude methods using their labels and keyboard', async
 
 Then('the unsupported source details remain reachable', async ({ page }) => {
   const assessment = page.getByRole('region', { name: 'Correction source assessment', exact: true })
-  await expect(assessment).toContainText('No correction source is available')
+  await expect(assessment).toContainText('A source is identified for some corrections')
   for (const name of ['Wind', 'Runway surface', 'Runway slope']) {
     const article = assessment.getByRole('article', { name: `${name} source`, exact: true })
+    await expect(article).toContainText('Not available')
     await article.getByText('Source details', { exact: true }).click()
     await expect(article).toContainText('not applied')
   }

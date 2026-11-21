@@ -22,7 +22,23 @@ Feature: Corrected takeoff and landing distances
       | 390   | 844    | D-EBPN       | P208 | 650  | s9 | "unavailable: Enter the headwind component" | "final 267 m for the ground roll"        |
       | 1440  | 1000   | D-TEST       | P208 | 630  | basic | "unavailable: Enter the headwind component" | "final 267 m for the ground roll"        |
       | 390   | 844    | D-TEST       | P208 | 650  | s4 | "unavailable: Enter the headwind component" | "final 267 m for the ground roll"        |
-      | 1440  | 1000   | D-TEST       | C172 | 650  |  | "unavailable: No accepted correction source" | "unavailable: No accepted correction source" |
+      | 1440  | 1000   | D-TEST       | C172 | 650  |  | "unavailable: Enter the headwind component" | "unavailable: FSM 3/75 gives no tailwind value" |
+
+  Scenario Outline: Aircraft without a manual rule set get a marked FSM 3/75 take-off estimate
+    Given the raw POH workflow viewport is <width> by <height>
+    When I import and verify a synthetic POH profile for registration "D-TEST" declaring type "C172" and maximum mass 650 kg
+    And the pilot opens Performance
+    And the pilot sets mass "900" kg and temperature "10" °C for the Test profile
+    And the pilot enters pressure altitude "1000" ft directly
+    And the pilot saves runway "TEST" "27" with TORA "600" "m", LDA "550" "m", elevation "300" "ft" and surface "Grass / unpaved" "Dry (short grass ≤3 cm)"
+    And the pilot enters takeoff headwind "0" kt and slope "2" %
+    Then the corrected takeoff distances are marked as an estimate from the LBA advisory
+    And the corrected distance evidence is captured as "fsm-<width>"
+
+    Examples:
+      | width | height |
+      | 1440  | 1000   |
+      | 390   | 844    |
 
   Scenario Outline: Changing conditions updates the final distances
     Given the raw POH workflow viewport is <width> by <height>

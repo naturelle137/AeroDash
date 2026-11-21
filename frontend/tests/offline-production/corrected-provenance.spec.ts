@@ -66,16 +66,17 @@ for (const phase of ['TakeoffRoll', 'TakeoffDistance50ft'] as const) {
   })
 }
 
-test('extrapolated corrected distances retain provenance in the briefing pack', async ({ page }, info) => {
+test('FSM corrections retain extrapolated and estimated provenance in the briefing pack', async ({ page }, info) => {
   await page.goto('/fleet')
   await page.getByTestId('disclaimer-gate-accept').click()
   const profile = testPohAircraft()
-  profile.registration = 'D-EBPN'; profile.icaoTypeDesignator = 'P208'
+  profile.registration = 'D-TEST'
   profile.weighingReports[0]!.bem = 600
   profile.certificationCategories[0]!.mtom = 650
   for (const table of profile.performanceProfiles!) for (const point of table.dataPoints) point.mass = point.mass === 800 ? 500 : 650
+  profile.performanceProfiles = profile.performanceProfiles!.filter(table => table.flightPhase !== 'TakeoffDistance50ft')
   await page.getByLabel('Or import from Exchange File (.json)').setInputFiles({ name: 'synthetic.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify({ format: 'aerodash-aircraft', version: 1, profile })) })
-  await page.getByRole('button', { name: 'Verify D-EBPN', exact: true }).click()
+  await page.getByRole('button', { name: 'Verify D-TEST', exact: true }).click()
   const dialog = page.getByRole('dialog')
   await dialog.getByLabel('Verifier initials').fill('TS')
   await dialog.getByLabel('POH revision').fill('Synthetic wiring only')
@@ -83,24 +84,32 @@ test('extrapolated corrected distances retain provenance in the briefing pack', 
   await expect(dialog).toBeHidden()
   await page.goto('/mass-balance')
   const picker = page.getByLabel('Select aircraft', { exact: true })
-  await picker.selectOption((await picker.locator('option').filter({ hasText: 'D-EBPN' }).first().getAttribute('value'))!)
+  await picker.selectOption((await picker.locator('option').filter({ hasText: 'D-TEST' }).first().getAttribute('value'))!)
   const perf = page.getByRole('region', { name: 'Performance', exact: true })
   const runway = perf.getByRole('form', { name: 'Manual runway', exact: true })
-  for (const [label, value] of [['Aerodrome', 'TEST'], ['Runway designator', '18'], ['TORA — takeoff run available', '1000'], ['LDA — landing distance available', '900'], ['Field elevation', '100']]) await runway.getByLabel(label!, { exact: true }).fill(value!)
+  for (const [label, value] of [['Aerodrome', 'TEST'], ['Runway designator', '18'], ['TORA — takeoff run available', '100'], ['TODA — takeoff distance available (optional)', '5000'], ['LDA — landing distance available', '900'], ['Field elevation', '100']]) await runway.getByLabel(label!, { exact: true }).fill(value!)
   await runway.getByLabel('Surface type', { exact: true }).selectOption('paved')
   await runway.getByLabel('Surface condition', { exact: true }).selectOption('dry')
   await runway.getByRole('button', { name: 'Save runway inputs', exact: true }).click()
   await perf.getByRole('radio', { name: 'Enter pressure altitude directly', exact: true }).check()
   await perf.getByLabel('Pressure altitude (ft)', { exact: true }).fill('2100')
   await perf.getByLabel('Temperature (°C)', { exact: true }).fill('10')
-  await perf.getByLabel('Applicable manual configuration').selectOption('s9')
   const inputs = perf.getByRole('group', { name: 'Takeoff wind and slope' })
   await inputs.getByLabel('Headwind component (kt, negative = tailwind)').fill('0')
-  await inputs.getByLabel('Runway slope (%, positive = uphill)').fill('0')
+  await inputs.getByLabel('Runway slope (%, positive = uphill)').fill('2')
   await perf.getByLabel('Pilot-in-Command acknowledges extrapolated data').check()
   const corrected = perf.getByRole('region', { name: 'Takeoff corrected distances' })
   const marker = 'ESTIMATED — EXTRAPOLATED (+20 % penalty)'
-  await expect(corrected).toContainText(marker)
+  const rows = corrected.locator('dl > div')
+  for (const row of [rows.nth(0), rows.nth(1)]) {
+    await expect(row).toContainText(marker)
+    await expect(row).toContainText('ESTIMATED (FSM 3/75)')
+  }
+  await expect(rows.nth(1)).toContainText('ESTIMATED (CAA SSL 07)')
+  const comparison = corrected.locator('.comparison')
+  await expect(comparison).toContainText(marker)
+  await expect(comparison).toContainText('ESTIMATED (CAA SSL 07)')
+  await expect(comparison).toContainText('ESTIMATED (FSM 3/75)')
   await corrected.scrollIntoViewIfNeeded()
   const path = info.outputPath(`extrapolated-corrected-${info.project.name}.png`)
   await page.screenshot({ path, animations: 'disabled' })
@@ -110,4 +119,6 @@ test('extrapolated corrected distances retain provenance in the briefing pack', 
   const section = briefing.locator('section').filter({ has: page.getByRole('heading', { name: 'Takeoff corrected distances', exact: true }) }).last()
   await expect(section).toContainText(marker)
   await expect(section.locator('tr').first()).toContainText(marker)
+  await expect(section).toContainText('ESTIMATED (CAA SSL 07)')
+  await expect(section).toContainText('ESTIMATED (FSM 3/75)')
 })
