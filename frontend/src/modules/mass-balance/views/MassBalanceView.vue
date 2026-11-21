@@ -1249,7 +1249,7 @@ function onStartDemo(): void {
               :show-limit-difference="!pendingSelection && !viewModel.isLoading"
               :export-requires-confirmation="viewModel.exportRequiresConfirmation"
             />
-            <AnnotationPanel v-if="store.aircraft && !store.isDemoActive" :aircraft-id="store.aircraft.id" />
+            <AnnotationPanel v-if="store.aircraft && !store.isDemoActive" :aircraft-id="store.aircraft.id" :warnings="notifications.filter(n => n.severity !== 'INFO').map(n => `${n.id} · ${n.message}`)" />
           </aside>
         </div>
       </template>

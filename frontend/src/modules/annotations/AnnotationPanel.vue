@@ -1,12 +1,17 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useAnnotationStore } from './annotation.store'
-import { ANNOTATION_ANCHORS, AUTHOR_MAX, TEXT_MAX, anchorLabel, type AnnotationAnchor } from './annotations'
+import { ANNOTATION_ANCHORS, AUTHOR_MAX, TEXT_MAX, anchorLabel, warningAnchor, type AnnotationAnchor } from './annotations'
 
-const props = withDefaults(defineProps<{ aircraftId: string; performance?: boolean }>(), { performance: false })
+const props = withDefaults(defineProps<{ aircraftId: string; performance?: boolean; warnings?: string[] }>(), { performance: false })
 const store = useAnnotationStore()
-const anchors = computed(() => ANNOTATION_ANCHORS.filter(a => props.performance ? a.id.endsWith('Distance') : !a.id.endsWith('Distance')))
-const notes = computed(() => store.forAircraft(props.aircraftId).filter(n => anchors.value.some(a => a.id === n.anchor)))
+const scope = computed(() => props.performance ? 'performance' : 'mb')
+const notes = computed(() => store.forAircraft(props.aircraftId).filter(n => n.anchor.startsWith('warning:') ? n.anchor.startsWith(`warning:${scope.value}:`) : props.performance ? n.anchor.endsWith('Distance') : !n.anchor.endsWith('Distance')))
+const anchors = computed(() => {
+  const results: { id: AnnotationAnchor; label: string }[] = ANNOTATION_ANCHORS.filter(a => props.performance ? a.id.endsWith('Distance') : !a.id.endsWith('Distance'))
+  const warningIds = new Set([...(props.warnings ?? []).map(w => warningAnchor(scope.value, w)), ...notes.value.map(n => n.anchor).filter(a => a.startsWith('warning:'))])
+  return [...results, ...Array.from(warningIds, id => ({ id, label: anchorLabel(id) }))]
+})
 const editingId = ref<string | null>(null)
 const anchor = ref<AnnotationAnchor>(props.performance ? 'takeoffDistance' : 'takeoff')
 const author = ref('')
@@ -62,6 +67,6 @@ function save(): void {
 .annotation-panel__list { padding-left: 1rem; }
 .annotation-panel__form { display: grid; gap: 0.5rem; }
 .annotation-panel__form label { display: grid; gap: 0.25rem; }
-.annotation-panel__form input, .annotation-panel__form select { min-height: 44px; }
+.annotation-panel__form input, .annotation-panel__form select { min-height: 44px; min-width: 0; max-width: 100%; }
 .annotation-panel button { min-height: 44px; min-width: 44px; }
 </style>

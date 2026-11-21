@@ -9,7 +9,10 @@ export const ANNOTATION_ANCHORS = [
   { id: 'landingDistance', label: 'Landing distance' },
 ] as const
 
-export type AnnotationAnchor = (typeof ANNOTATION_ANCHORS)[number]['id']
+export type AnnotationAnchor = (typeof ANNOTATION_ANCHORS)[number]['id'] | `warning:${'mb' | 'performance'}:${string}`
+
+export const warningAnchor = (scope: 'mb' | 'performance', warning: string): AnnotationAnchor =>
+  `warning:${scope}:${encodeURIComponent(warning)}`
 
 export interface Annotation {
   id: string
@@ -27,7 +30,7 @@ export const TEXT_MAX = 500
 export const STORAGE_KEY = 'aerodash:annotations:v1'
 
 export const anchorLabel = (anchor: AnnotationAnchor): string =>
-  ANNOTATION_ANCHORS.find(a => a.id === anchor)?.label ?? anchor
+  ANNOTATION_ANCHORS.find(a => a.id === anchor)?.label ?? (anchor.startsWith('warning:') ? `Warning: ${decodeURIComponent(anchor.split(':').slice(2).join(':'))}` : anchor)
 
 export function validateDraft(author: string, text: string): string | null {
   if (!author.trim()) return 'Enter the author name.'
@@ -41,7 +44,7 @@ function isAnnotation(value: unknown): value is Annotation {
   if (typeof value !== 'object' || value === null) return false
   const v = value as Record<string, unknown>
   return ['id', 'aircraftId', 'author', 'text', 'createdAt', 'updatedAt'].every(k => typeof v[k] === 'string') &&
-    ANNOTATION_ANCHORS.some(a => a.id === v.anchor) &&
+    (ANNOTATION_ANCHORS.some(a => a.id === v.anchor) || (typeof v.anchor === 'string' && /^warning:(mb|performance):(?:[^%]|%[0-9A-Fa-f]{2})+$/.test(v.anchor) && (() => { try { decodeURIComponent(v.anchor as string); return true } catch { return false } })())) &&
     validateDraft(v.author as string, v.text as string) === null
 }
 

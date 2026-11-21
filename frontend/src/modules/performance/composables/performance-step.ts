@@ -186,6 +186,16 @@ export function usePerformanceStep(context: () => PerformanceStepContext) {
     })
   })
 
-  return { pa, temperature, temperatureWarnings, extrapolationAcknowledged, corrections, safetyFactors, obstacle, obstacleAssessment, manualConfiguration, showPaErrors, tables, inputKey, compute, presentation }
+  const annotationWarnings = computed(() => [...new Set([
+    ...pa.warnings.value, ...temperatureWarnings.value,
+    ...presentation.value.notifications.filter(n => n.severity !== 'INFO').map(n => `${n.id} · ${n.message}`),
+    ...(presentation.value.extrapolation ? [presentation.value.extrapolation.warning] : []),
+    ...presentation.value.corrected.flatMap(item => item.status === 'applied' ? [
+      ...(item.safetyFactorWarning ? [`${item.title}: ${item.safetyFactorWarning}`] : []),
+      ...(item.comparison.status === 'insufficient' ? [`${item.title}: ${item.comparison.summary}`] : []),
+    ] : []),
+  ])])
+
+  return { pa, temperature, temperatureWarnings, annotationWarnings, extrapolationAcknowledged, corrections, safetyFactors, obstacle, obstacleAssessment, manualConfiguration, showPaErrors, tables, inputKey, compute, presentation }
 }
 export type PerformanceStep = ReturnType<typeof usePerformanceStep>
