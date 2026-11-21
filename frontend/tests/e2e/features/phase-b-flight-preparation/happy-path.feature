@@ -65,6 +65,7 @@ Feature: Complete a textbook flight preparation within all limits
     And the pilot opens the saved handover file
     Then the handover is marked unreviewed and not approved
     And the baggage load is "10"
+    And the handover evidence is captured as "<width>"
 
     Examples:
       | width |

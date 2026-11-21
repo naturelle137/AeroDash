@@ -199,6 +199,10 @@ Then('the handover is marked unreviewed and not approved', async ({ page }) => {
   await expect(page.getByTestId('handover-notice')).toContainText('Not approved by any instructor')
 })
 
+Then('the handover evidence is captured as {string}', async ({ page, $testInfo }, width: string) => {
+  await $testInfo.attach(`Handover ${width}`, { body: await page.screenshot({ fullPage: true }), contentType: 'image/png' })
+})
+
 Then('the baggage load is {string}', async ({ page }, value: string) => {
   await expect(page.locator('.mass-station-input').getByLabel('Baggage', { exact: true })).toHaveValue(value)
 })
