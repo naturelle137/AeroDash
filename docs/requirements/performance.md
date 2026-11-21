@@ -126,7 +126,7 @@ When calculating performance, the system shall calculate Landing Distance from 5
 
 If the POH has no correction for a parameter, then the system shall use the applicable FSM 3/75 fallback defined in the [factor contract](../architecture/performance-safety-factor-pipeline.md).
 
-**Status:** Partial. Adverse FSM ground-roll adaptations are withheld because they can understate the source total-distance surcharge; neutral estimates remain marked. See the [source contract](../architecture/performance-correction-sources.md).
+**Status:** Partial. Take-off fallback is implemented for uphill slope and dry short grass; see the [source contract](../architecture/performance-correction-sources.md).
 
 ### REQ-PF-022: Whole-distance corrections
 

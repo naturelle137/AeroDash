@@ -20,7 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Withhold FSM uphill and grass estimates that can understate the source total-distance surcharge.
+- Restore marked FSM uphill and short-grass estimates and disclose their source limitation.
 
 - Reject handover files with mismatched station units or unknown nested fields.
 - Preserve extrapolation provenance on corrected distances and runway comparisons.

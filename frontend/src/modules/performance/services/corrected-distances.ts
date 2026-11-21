@@ -67,7 +67,7 @@ const FSM_NOT_CREDITED: Record<FsmNotCredited, string> = {
   'favourable-slope': 'Favourable slope is not credited: FSM 3/75 states no slope range.',
 }
 const FSM_ESTIMATE_MARKER = ' ESTIMATED (FSM 3/75)'
-const FSM_DISCLOSURE = 'Estimate from LBA FSM 3/75, not from the aircraft manual and not validated by it. The POH surface baseline is unknown; dry paved adds nothing. Downhill slope and headwind are not credited. Wind is not corrected.'
+const FSM_DISCLOSURE = 'Estimate from LBA FSM 3/75, not from the aircraft manual and not validated by it. The POH surface baseline is unknown; dry paved adds nothing. Downhill slope and headwind are not credited. Wind is not corrected. The source applies its percentages to total distance; this ground-roll adaptation can understate that surcharge and is not conservative against it.'
 const SLOPE_LIMIT_PERCENT = 100
 
 /**
@@ -123,9 +123,7 @@ export function presentCorrectedOperation(
     if (estimate.status === 'unsupported') {
       return unavailable(estimate.reason === 'tailwind'
         ? 'FSM 3/75 gives no tailwind value, so no estimate is made. Distances stay uncorrected.'
-        : estimate.reason === 'surface'
-          ? 'FSM 3/75 has no unambiguous row for this runway surface condition. Distances stay uncorrected.'
-          : 'FSM 3/75 states a total-distance surcharge; its ground-roll adaptation for uphill slope or dry short grass may understate it. No estimate is made. Distances stay uncorrected.')
+        : 'FSM 3/75 has no unambiguous row for this runway surface condition. Distances stay uncorrected.')
     }
     result = estimate
   } else {
