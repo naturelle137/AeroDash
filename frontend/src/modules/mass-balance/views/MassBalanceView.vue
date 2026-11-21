@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import WeatherPanel from '@/modules/weather/WeatherPanel.vue'
 import { requiresOccupancy, resolveStationKind } from '@/core/logic/station-kind'
 import { normalizeMassToKg, parseSourceUnit } from '@/core/logic/unit-normalization'
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
@@ -262,7 +263,7 @@ const CARD_ORDER = computed<readonly CardMeta[]>(() => [
   { id: 'mb', badge: '02', title: 'Mass & Balance' },
   { id: 'fuel', badge: '03', title: energySectionTitle.value, soon: false },
   { id: 'performance', badge: '04', title: 'Performance' },
-  { id: 'weather', badge: '05', title: 'Weather', soon: true },
+  { id: 'weather', badge: '05', title: 'Weather' },
   // `title` follows the electric/combustion discriminator so the sticky
   // strip chip reads "Energy & Endurance" on a Velis Electro profile.
 ])
@@ -1340,24 +1341,13 @@ function onStartDemo(): void {
       <FlightPrepPerformance v-model:wind="windInput" :step="performanceStep" :context="performanceContext" :notes-enabled="!store.isDemoActive" />
     </section>
 
-    <!-- ═══ COMING SOON: Weather ════════════════════════════════════════════ -->
-    <section
-      id="prep-card-weather"
-      class="prep-card prep-card--soon"
-      aria-label="Weather — coming soon"
-    >
+    <section id="prep-card-weather" class="prep-card" aria-labelledby="prep-weather-title">
       <div class="prep-card__header">
-        <span class="prep-card__badge prep-card__badge--soon">05</span>
-        <h2 class="prep-card__title prep-card__title--soon">Weather</h2>
-        <span class="soon-pill">Coming soon</span>
+        <span class="prep-card__badge">05</span>
+        <h2 id="prep-weather-title" class="prep-card__title">Weather</h2>
       </div>
-      <p class="soon-desc">
-        METAR &amp; TAF integration, weather-derived wind components, runway surface conditions,
-        wind limit advisory.
-      </p>
+      <WeatherPanel />
     </section>
-
-
 
     <!-- ═══ Operational disclaimer (bottom, non-blocking) ═════════════════ -->
     <div class="disclaimer" role="note" aria-label="Operational disclaimer">

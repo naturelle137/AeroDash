@@ -180,10 +180,13 @@ describe('corrected distances in the performance step', () => {
         Object.assign(step.corrections.landing, { headwind: '0', slope: '1' })
         const landing = corrected(step, 1)
         expect(landing.status).toBe('unavailable')
+        expect((landing as { reason: string }).reason).toContain('FSM 3/75 has no landing correction table')
+        expect((landing as { reason: string }).reason).toContain('consult the aircraft manual for these corrections')
         expect((landing as { reason: string }).reason).toContain('Runway slope 1 % was not applied')
         Object.assign(step.corrections.takeoff, { headwind: '-3', slope: '1' })
         const tail = corrected(step, 0)
         expect((tail as { reason: string }).reason).toContain('no tailwind value')
+        expect((tail as { reason: string }).reason).toContain('consult the aircraft manual for tailwind corrections')
         expect((tail as { reason: string }).reason).toContain('Wind component -3 kt was not applied')
         step.corrections.takeoff.headwind = '0'
         runway.draft.surfaceCondition = 'wet-soft-ground'; runway.save()

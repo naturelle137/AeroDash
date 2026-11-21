@@ -1,7 +1,7 @@
 import { computed, reactive, ref, shallowRef, watch } from 'vue'
 import type { AircraftProfile } from '@/core/adapters/aircraft.schema'
 import { assessCorrectionSources, OPERATIONS, profileFacts, type ManualConfiguration, type Operation, type RunwayFacts } from '@/core/logic/performance.correction-sources'
-import { normalizeManualRunway, SURFACE_CONDITIONS } from '@/core/logic/manual-runway'
+import { normalizeManualRunway, runwayFreshness, SURFACE_CONDITIONS } from '@/core/logic/manual-runway'
 import { useManualRunwayStore } from '@/modules/airport/stores/manual-runway.store'
 import { useLoadedUnitPreferences } from '@/modules/performance/stores/unit-preferences.store'
 import { plainCopy, useDemoScratch } from '@/shared/composables/useDemoScratch'
@@ -69,7 +69,7 @@ export function usePerformanceStep(context: () => PerformanceStepContext) {
   const inputKey = computed(() => JSON.stringify([
     ctx.value.revision, ctx.value.ready, profileKey.value, ctx.value.category, ctx.value.takeoff, ctx.value.landing,
     pa.revision.value, temperature.value, corrections, safetyFactors, obstacle, units.preferences, manualConfiguration.value,
-    runway.saved, runway.draft, runway.storageError, runway.hasUnsavedChanges,
+    runway.saved, runway.draft, runway.storageError, runway.hasUnsavedChanges, runway.assessmentDate,
   ]))
   const result = shallowRef<ComputedResult | null>(null)
   // Bound to the exact input key: any later input, profile, mass or runway change leaves the key behind.
@@ -122,6 +122,7 @@ export function usePerformanceStep(context: () => PerformanceStepContext) {
         { label: 'Field elevation', value: `${fieldElevation.value} ${fieldElevation.unit} (${elevationOther})` },
         { label: 'Declared effective date', value: effectiveDate ?? 'Unknown' },
         { label: 'Declared expiry date (inclusive)', value: expiryDate ?? 'Unknown' },
+        { label: 'Declared date check', value: `${runway.assessmentDate || 'Invalid date'}: ${runwayFreshness(declared.record.runway, runway.assessmentDate)}; source currency unverified` },
         { label: 'Surface', value: `${surface.type === 'paved' ? 'Paved' : 'Grass / unpaved'} · ${condition}` },
       ],
       note: 'User-entered, not airport-validated. Check declared dates and NOTAM/SUP against official sources. Converted available distances are rounded down.',

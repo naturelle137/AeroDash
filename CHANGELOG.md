@@ -7,12 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Retrieve read-only METAR observations with source, observation time and availability warnings.
+
 ### Fixed
 
+- Direct pilots to the aircraft manual when landing or tailwind corrections are unavailable.
 - Keep Flight Prep inputs and obstacle warnings accessible around fixed mobile navigation.
+- Explain unavailable landing corrections and capture desktop and mobile evidence at their stated widths.
 
 ### Changed
 
+- Carry the manual runway date check into the briefing and invalidate it when the check date changes.
 - Cap below-minimum pressure altitude and temperature at supported conservative table boundaries and mark affected values as estimates.
 - Associate briefing CG warnings with supported points or the shared trajectory.
 - Disclose when the saved runway surface is not applied to uncorrected performance distances.
@@ -35,6 +42,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Compare manual wind with stored aircraft limits in Flight Prep and the briefing.
 
 - Add a manual electric energy and reserve budget to Flight Preparation and briefing.
+- Show the METAR retrieval availability and ICAO entry in Flight Prep.
 
 - Anchor local instructor notes to individual result warnings and include them in the Briefing Pack.
 
