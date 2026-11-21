@@ -192,7 +192,7 @@ test('lookup fuel M&B uses total-moment differences on screen, chart, print and 
   // A typed load below unusable fuel is refused by the field and blocks the result
   // visibly: no summary, no CG markers, no print.
   await load('9')
-  await expect(page.getByText(/Invalid input: Lookup tank \(/)).toBeVisible()
+  await expect(page.getByRole('alert').filter({ hasText: /Invalid input: Lookup tank \(/ })).toBeVisible()
   await expect(summary).toHaveCount(0)
   await expect(page.getByTestId('cg-point-label-tom')).toHaveCount(0)
   await expect(action).toBeDisabled()
@@ -202,7 +202,7 @@ test('lookup fuel M&B uses total-moment differences on screen, chart, print and 
   await errorShot('lookup-below-unusable-blocked')
 
   await load('60')
-  await expect(page.getByText(/Invalid input: Lookup tank \(LOOKUP_OUT_OF_RANGE\)/)).toBeVisible()
+  await expect(page.getByRole('alert').filter({ hasText: /Invalid input: Lookup tank \(LOOKUP_OUT_OF_RANGE\)/ })).toBeVisible()
   await expect(summary).toHaveCount(0)
   await expect(page.getByTestId('cg-point-label-tom')).toHaveCount(0)
   await shot('lookup-out-of-range-blocked')
@@ -262,12 +262,12 @@ test('lookup fuel M&B uses total-moment differences on screen, chart, print and 
   expect(await chartPoint(page, 'tom')).toBeCloseTo(1170 / 4000, 2)
   await shot('lookup-usg-lb-in-moment')
   await load('1')
-  await expect(page.getByText(/Invalid input: Lookup tank \(/)).toBeVisible()
+  await expect(page.getByRole('alert').filter({ hasText: /Invalid input: Lookup tank \(/ })).toBeVisible()
   await expect(summary).toHaveCount(0)
 
   // A profile whose default load is below unusable fuel is blocked, never coerced to zero usable.
   await select('D-LOW')
-  await expect(page.getByText(/Invalid input: Lookup tank \(BELOW_UNUSABLE\)/)).toBeVisible()
+  await expect(page.getByRole('alert').filter({ hasText: /Invalid input: Lookup tank \(BELOW_UNUSABLE\)/ })).toBeVisible()
   await expect(summary).toHaveCount(0)
   await expect(page.getByTestId('cg-point-label-tom')).toHaveCount(0)
   await shot('lookup-default-below-unusable')
@@ -294,7 +294,7 @@ test('lookup fuel M&B uses total-moment differences on screen, chart, print and 
   await expect(page.getByText('Browser offline')).toBeVisible()
   await expect(takeoffCg).toContainText('2.017')
   await load('9')
-  await expect(page.getByText(/Invalid input: Lookup tank \(/)).toBeVisible()
+  await expect(page.getByRole('alert').filter({ hasText: /Invalid input: Lookup tank \(/ })).toBeVisible()
   await expect(summary).toHaveCount(0)
   await load('30')
   await expect(takeoffCg).toContainText('2.017')

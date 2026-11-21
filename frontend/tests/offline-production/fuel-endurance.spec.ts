@@ -530,7 +530,7 @@ test('persisted fleet tank inputs feed the session-only fuel plan online and cac
   await tank.fill('60')
   await tank.blur()
   await expect(
-    page.getByText(/Invalid input: Synthetic tank \(LOOKUP_OUT_OF_RANGE\)/),
+    page.getByRole('alert').filter({ hasText: /Invalid input: Synthetic tank \(LOOKUP_OUT_OF_RANGE\)/ }),
   ).toBeVisible()
   await expect(arrival).toHaveCount(0)
   await expect(card.getByTestId('arrival-cg')).toHaveCount(0)
@@ -547,7 +547,7 @@ test('persisted fleet tank inputs feed the session-only fuel plan online and cac
   // A table that does not cover u = 0 blocks M&B (no invented origin) and thus arrival.
   await choose('D-BADT')
   await expect(
-    page.getByText(/Invalid input: Synthetic tank \(LOOKUP_OUT_OF_RANGE\)/),
+    page.getByRole('alert').filter({ hasText: /Invalid input: Synthetic tank \(LOOKUP_OUT_OF_RANGE\)/ }),
   ).toBeVisible()
   await method.selectOption('direct')
   await direct.fill('10')
