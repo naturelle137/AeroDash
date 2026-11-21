@@ -1,31 +1,29 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from 'vue'
-import { metarLiquid } from './metar-surface'
+import { computed, onUnmounted, ref } from 'vue'
+import { metarValues, type MetarValues } from './metar-values'
 
-const emit = defineEmits<{ observation: [value: { station: string; time: string; liquid: boolean } | null] }>()
+const emit = defineEmits<{ apply: [field: keyof MetarValues, values: MetarValues, source: string] }>()
+const values = computed(() => report.value && !report.value.stale ? metarValues(report.value.raw) : {})
+function apply(field: keyof MetarValues): void {
+  const current = report.value
+  if (!current || current.stale || Date.now() - Date.parse(current.time) > 60 * 60 * 1000 || !values.value[field]) return
+  emit('apply', field, values.value, `METAR ${current.station} via wxdecoder.com, observed ${current.time}`)
+}
+
 const icao = ref('')
 const message = ref('Enter a station to retrieve a METAR.')
 const report = ref<{ raw: string; station: string; time: string; stale: boolean } | null>(null)
 const loading = ref(false)
 let expiry: ReturnType<typeof setTimeout> | undefined
-let request = 0
-function offline(): void {
-  clearReport()
-  message.value = 'Offline: METAR retrieval is unavailable.'
-}
-onMounted(() => window.addEventListener('offline', offline))
-onUnmounted(() => { clearTimeout(expiry); window.removeEventListener('offline', offline); emit('observation', null) })
+onUnmounted(() => clearTimeout(expiry))
 
 function clearReport(): void {
   clearTimeout(expiry)
-  request++
   report.value = null
-  emit('observation', null)
 }
 
 async function check(): Promise<void> {
   clearReport()
-  const currentRequest = request
   const station = icao.value.trim().toUpperCase()
   if (!/^[A-Z]{4}$/.test(station)) {
     message.value = 'Enter a four-letter ICAO station code.'
@@ -41,7 +39,6 @@ async function check(): Promise<void> {
     const response = await fetch(`https://wxdecoder.com/api/wx/${station}`, { credentials: 'omit' })
     if (!response.ok) throw new Error('unavailable')
     const data: unknown = await response.json()
-    if (currentRequest !== request || !navigator.onLine) return
     if (!data || typeof data !== 'object' || !('metar' in data)) throw new Error('malformed')
     const metar: unknown = data.metar
     if (metar === null) {
@@ -54,20 +51,14 @@ async function check(): Promise<void> {
     const observed = new Date(time)
     if (!Number.isFinite(time) || time > Date.now() || !rawMatch || rawMatch[1] !== station || Number(rawMatch[2]) !== observed.getUTCDate() || Number(rawMatch[3]) !== observed.getUTCHours() || Number(rawMatch[4]) !== observed.getUTCMinutes()) throw new Error('malformed')
     report.value = { raw: metar.raw, station, time: observed.toISOString(), stale: Date.now() - time > 60 * 60 * 1000 }
-    if (!report.value.stale) {
-      const liquid = metarLiquid(metar.raw.slice(rawMatch[0].length).trim())
-      emit('observation', liquid === null ? null : { station, time: observed.toISOString(), liquid })
-    }
     message.value = report.value.stale ? 'Outdated observation: verify current weather with an authorised source.' : 'Observation retrieved; verify with an authorised source.'
     if (!report.value.stale) {
       expiry = setTimeout(() => {
         if (report.value) report.value.stale = true
-        emit('observation', null)
         message.value = 'Outdated observation: verify current weather with an authorised source.'
       }, 60 * 60 * 1000 - (Date.now() - time) + 1)
     }
   } catch (error) {
-    if (currentRequest !== request) return
     message.value = error instanceof Error && error.message === 'malformed' ? 'Malformed METAR response; no report displayed.' : 'METAR retrieval failed or is unavailable.'
   } finally {
     loading.value = false
@@ -89,9 +80,14 @@ async function check(): Promise<void> {
     <div v-if="report">
       <p>Station: {{ report.station }} · Observed: {{ report.time }} UTC{{ report.stale ? ' · OUTDATED' : '' }}</p>
       <p>{{ report.raw }}</p>
+      <div v-if="!report.stale" class="entry" aria-label="Apply observation to Flight Prep">
+        <button v-if="values.wind" type="button" @click="apply('wind')">Replace wind with METAR ({{ values.wind.direction || 'calm' }} / {{ values.wind.speed }} {{ values.wind.unit }})</button>
+        <button v-if="values.temperature" type="button" @click="apply('temperature')">Replace temperature with METAR ({{ values.temperature }} °C)</button>
+        <button v-if="values.qnh" type="button" @click="apply('qnh')">Replace QNH with METAR ({{ values.qnh }} hPa)</button>
+      </div>
       <p>Weather data via <a href="https://wxdecoder.com">wxdecoder.com</a>. Sources: NOAA/NWS Aviation Weather Center, National Weather Service and FAA.</p>
     </div>
-    <p>Liquid precipitation may suggest a runway surface condition; verify the actual runway condition. Weather does not populate wind or performance inputs.</p>
+    <p>Values are only replaced when you choose an action. METAR wind direction is true; use a runway heading in the same reference. Gusts are not applied. Verify all values with an authorised source.</p>
   </div>
 </template>
 
