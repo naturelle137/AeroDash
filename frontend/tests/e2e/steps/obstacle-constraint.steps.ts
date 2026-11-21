@@ -49,6 +49,31 @@ Then('no unverified obstacle warning is shown', async ({ page }) => {
   await expect(warning(page)).toHaveCount(0)
 })
 
+Then('the obstacle fields and warning are accessible around mobile navigation', async ({ page, $testInfo }) => {
+  if (page.viewportSize()!.width >= 768) return
+  for (const selector of ['#performance-obstacle-height', '#performance-obstacle-height-unit',
+    '#performance-obstacle-distance', '#performance-obstacle-distance-unit', '[data-notification="WARN-PF-001"]']) {
+    const target = page.locator(selector)
+    if (selector.startsWith('#')) {
+      await page.evaluate(() => window.scrollTo(0, 0))
+      await target.focus()
+      await expect(target).toBeFocused()
+    } else {
+      await target.evaluate((el) => el.scrollIntoView({ block: 'center', behavior: 'instant' }))
+    }
+    await expect.poll(async () => target.evaluate((el) => {
+      const rect = el.getBoundingClientRect()
+      const stack = document.querySelector('.prep-sticky-stack')?.getBoundingClientRect()
+      const action = document.querySelector('.briefing-action')!.getBoundingClientRect()
+      return rect.top >= (stack?.bottom ?? 56) && rect.bottom <= action.top
+    })).toBe(true)
+    if (selector.startsWith('#')) await target.click()
+    await $testInfo.attach(`visible-${selector.replace(/\W/g, '-')}`, {
+      body: await page.screenshot(), contentType: 'image/png',
+    })
+  }
+})
+
 Then('the obstacle height error {string} is shown', async ({ page }, text: string) => {
   await expect(page.locator('#performance-obstacle-height-error')).toHaveText(text)
 })
