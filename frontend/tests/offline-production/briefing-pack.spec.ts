@@ -201,6 +201,10 @@ test('M&B warning meaning survives preview and PDF online and after offline relo
     await expect(preview.locator('.briefing-critical').filter({ hasText: 'CG Out of Envelope' }).first()).toContainText('1.111 m')
     const results = preview.getByRole('table').filter({ hasText: 'Applicable limit' })
     await expect(results.getByRole('row').filter({ hasText: 'Takeoff' })).toContainText('CG Out of Envelope')
+    // Both synthetic endpoint arms exceed the envelope's 1.05 m upper edge;
+    // the core's violation identifies takeoff, not the other points.
+    await expect(results.getByRole('row').filter({ hasText: 'Takeoff' })).toContainText('1.111 m')
+    await expect(results.getByRole('row').filter({ hasText: 'Zero fuel' })).toContainText('1.118 m')
     for (const label of ['Zero fuel', 'All usable fuel burned']) {
       await expect(results.getByRole('row').filter({ hasText: label })).not.toContainText('CG Out of Envelope')
     }
@@ -211,7 +215,9 @@ test('M&B warning meaning survives preview and PDF online and after offline relo
     for (const width of [1440, 390, 320]) {
       await page.setViewportSize({ width, height: 894 })
       expect(await preview.evaluate(e => e.scrollWidth <= e.clientWidth)).toBe(true)
-      await page.screenshot({ path: info.outputPath(`warning-${offline}-${width}.png`), fullPage: true })
+      const screenshot = info.outputPath(`warning-${offline}-${width}.png`)
+      await page.screenshot({ path: screenshot, fullPage: true })
+      if (!offline && (width === 390 || width === 1440)) await info.attach(`briefing-${width}px`, { path: screenshot, contentType: 'image/png' })
     }
     await page.setViewportSize({ width: 390, height: 844 })
     const download = page.waitForEvent('download')
@@ -220,6 +226,16 @@ test('M&B warning meaning survives preview and PDF online and after offline relo
     const downloaded = info.outputPath(`download-${offline}.pdf`)
     await file.saveAs(downloaded)
     const downloadedText = execFileSync('pdftotext', ['-layout', downloaded, '-'], { encoding: 'utf8' }).replace(/\s+/g, ' ')
+    const checkCgAssociation = (text: string) => {
+      const resultsText = text.split('M&B results')[1]!.split('Loading envelope chart')[0]!
+      const [takeoff, remaining] = resultsText.split('Zero fuel')
+      expect(takeoff).toContain('1.111 m')
+      expect(takeoff).toContain('CG Out')
+      expect(takeoff).toContain('Envelope')
+      expect(remaining).toContain('1.118 m')
+      expect(remaining).not.toContain('CG Out')
+    }
+    checkCgAssociation(downloadedText)
     for (const id of ids) expect(downloadedText).not.toContain(id)
     for (const message of ['CRITICAL', 'MTOM Exceeded', 'CG Out of Envelope', 'Station 0 limit exceeded', 'Implausible mass on required station', '900.0 kg', 'NO CERTIFIED AVIATION DEVICE', 'The official handbook always takes precedence.', 'Pilot in Command Responsibility']) expect(downloadedText).toContain(message)
     expect(execFileSync('pdfimages', ['-list', downloaded], { encoding: 'utf8' })).toContain('jpeg')
@@ -228,6 +244,7 @@ test('M&B warning meaning survives preview and PDF online and after offline relo
     const pdf = info.outputPath(`warning-${offline}.pdf`)
     await page.pdf({ path: pdf, preferCSSPageSize: true, printBackground: true })
     const pdfText = execFileSync('pdftotext', ['-layout', pdf, '-'], { encoding: 'utf8' }).replace(/\s+/g, ' ')
+    checkCgAssociation(pdfText)
     for (const id of ids) expect(pdfText).not.toContain(id)
     for (const message of ['CRITICAL', 'MTOM Exceeded', 'CG Out of Envelope', 'Station 0 limit exceeded', 'Implausible mass on required station', '900.0 kg']) expect(pdfText).toContain(message)
     await info.attach(`warning-${offline}`, { path: pdf, contentType: 'application/pdf' })

@@ -149,6 +149,25 @@ describe('M&B print presentation with real store calculation', () => {
     input.notifications.push({ id: 'CRIT-SYS-002', severity: 'CRITICAL', message: 'Adapter failed', persistent: false, dismissible: false })
     expect(canPrintMb(input)).toBe(false)
   })
+  it('associates a real synthetic takeoff-only exceedance with takeoff', () => {
+    setActivePinia(createPinia())
+    const profile = testPohAircraft()
+    profile.weighingReports[0]!.bem = 750
+    profile.certificationCategories[0]!.envelope[2]!.armOrMoment = 1.05
+    profile.certificationCategories[0]!.envelope[3]!.armOrMoment = 1.05
+    profile.loadPoints = [{ name: 'Synthetic tank', kind: 'fuel', arm: 2, armLookup: [], operationalLimit: 100,
+      defaultQuantity: 50, unit: 'kg', allowableCategories: null,
+      fuelTank: { unusableFuel: 0, permissibleFuelTypes: ['AvGas 100LL'], burnSequences: [] } }]
+    const store = useMassBalanceStore()
+    store.loadProfile(mapFleetProfileToContext(profile))
+    const input: MbPrintSource = { state: store.uiState, ready: true, profile, aircraft: store.aircraft,
+      category: store.activeCategoryDef, result: store.lastResult, chartEnvelope: store.activeEnvelopeSI,
+      stations: store.availableStations, notifications: store.notifications }
+    expect(input.result!.takeoffCenterOfGravityPoint.arm).toBeGreaterThan(1.05)
+    expect(input.result!.zeroFuelCenterOfGravityPoint.arm).toBe(1)
+    const pack = assembleMbPrint(input, new Date())!
+    expect(pack.points.map(p => p.cgWarnings.some(n => n.id === 'CRIT-MB-001'))).toEqual([true, false, false])
+  })
   it('keeps migration and unsubstantiated CG warnings at trajectory level', () => {
     const input = source()
     input.notifications.push(
