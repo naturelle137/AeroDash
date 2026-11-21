@@ -28,6 +28,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Restore marked FSM uphill and short-grass estimates and disclose their source limitation.
+
 - Reject handover files with mismatched station units or unknown nested fields.
 - Preserve extrapolation provenance on corrected distances and runway comparisons.
 - Restore Mass & Balance entries of an aircraft when switching back to it, instead of discarding them.

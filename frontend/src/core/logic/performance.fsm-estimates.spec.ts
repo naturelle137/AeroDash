@@ -9,6 +9,16 @@ describe('estimateFsmTakeoff', () => {
     expect(estimateFsmTakeoff(base)).toEqual({ status: 'estimated', groundRoll: 400, distanceOver50ft: 700, notCredited: [] })
   })
 
+  it.each([
+    [{ slopePercent: 2 }, 480],
+    [{ surface: 'unpaved:dry-short-grass' }, 480],
+  ])('applies each adverse correction to ground roll', (change, expected) => {
+    const result = estimateFsmTakeoff({ ...base, ...change })
+    if (result.status !== 'estimated') throw new Error('expected estimate')
+    expect(result.groundRoll).toBeCloseTo(expected)
+    expect(result.distanceOver50ft).toBeCloseTo(expected + 300)
+  })
+
   it('chains slope then grass on the ground roll and keeps the airborne part', () => {
     const result = estimateFsmTakeoff({ ...base, surface: 'unpaved:dry-short-grass', slopePercent: 2 })
     if (result.status !== 'estimated') throw new Error('expected estimate')
