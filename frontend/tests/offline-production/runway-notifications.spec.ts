@@ -120,6 +120,12 @@ test('current phase notifications and runway comparisons survive cached offline 
   await expect(partialPack).toContainText('Runway slope -1 % was not applied')
   await expect(partialPack).toContainText('Runway slope 1 % was not applied')
   await page.keyboard.press('Escape')
+  await perf.getByLabel('Applicable manual configuration').selectOption('')
+  await expect(perf.getByRole('region', { name: 'Landing corrected distances' })).toContainText('The saved runway surface was not applied')
+  await page.getByRole('button', { name: 'Briefing Pack', exact: true }).click()
+  await expect(page.getByRole('dialog', { name: 'Briefing Pack preview' })).toContainText('The saved runway surface was not applied')
+  await page.keyboard.press('Escape')
+  await perf.getByLabel('Applicable manual configuration').selectOption('s9')
   for (const phase of ['Takeoff', 'Landing']) {
     const inputs = perf.getByRole('group', { name: `${phase} wind and slope` })
     await inputs.getByLabel('Headwind component (kt, negative = tailwind)').fill('0')
