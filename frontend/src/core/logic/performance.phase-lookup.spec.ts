@@ -54,10 +54,13 @@ describe('lookupPhaseDistance mass policy', () => {
     expect(at(1100)).toMatchObject({ status: 'blocked', reason: 'mass-above-table' })
   })
 
-  it('blocks pressure altitude and temperature outside the table in both directions', () => {
-    expect(at(900, -1)).toMatchObject({ status: 'blocked', reason: 'pressure-altitude-outside' })
+  it('caps lower axes and blocks upper excursions', () => {
+    expect(at(900, 0, 0)).toMatchObject({ lowerAxisCaps: [] })
+    expect(at(900, -1)).toMatchObject({ status: 'success', distance: 250, lowerAxisCaps: ['pressureAltitude'] })
     expect(at(900, 2001)).toMatchObject({ status: 'blocked', reason: 'pressure-altitude-outside' })
-    expect(at(900, 0, -0.1)).toMatchObject({ status: 'blocked', reason: 'temperature-outside', range: { min: 0, max: 20 } })
+    expect(at(900, 0, -0.1)).toMatchObject({ status: 'success', distance: 250, lowerAxisCaps: ['temperature'] })
+    expect(at(900, -1, -0.1)).toMatchObject({ lowerAxisCaps: ['pressureAltitude', 'temperature'] })
+    expect(lookupPhaseDistanceWithExtrapolation(cube, { mass: 1050, pressureAltitude: -1, temperature: 0 }, true)).toMatchObject({ lowerAxisCaps: ['pressureAltitude'], extrapolation: { axes: [{ axis: 'mass' }] } })
     expect(at(900, 0, 21)).toMatchObject({ status: 'blocked', reason: 'temperature-outside' })
   })
 
@@ -130,10 +133,16 @@ describe('lookupPhaseDistanceWithExtrapolation', () => {
     expect(ext(1050, 2300)).toMatchObject({ status: 'blocked', reason: 'extrapolation-beyond-cap' })
   })
 
-  it('keeps lower pressure altitude and temperature blocked, also beside an upper extrapolation', () => {
-    expect(ext(900, -1)).toMatchObject({ status: 'blocked', reason: 'pressure-altitude-outside' })
-    expect(ext(900, 1000, -1)).toMatchObject({ status: 'blocked', reason: 'temperature-outside' })
-    expect(ext(1050, -1)).toMatchObject({ status: 'blocked', reason: 'pressure-altitude-outside' })
+  it('caps mixed lower axes before applying an upper-axis penalty', () => {
+    expect(ext(900, -1, -1)).toMatchObject({ status: 'success', distance: 250 })
+    expect(ext(1050, -1, -1)).toMatchObject({ status: 'success', distance: 360 })
+  })
+
+  it.each(['altitude', 'temperature'] as const)('blocks ambiguous or decreasing %s caps', (axis) => {
+    const single = axis === 'altitude' ? { ...cube, altitudeAxis: [0], values: cube.values.map(t => [t[0]!]) } : { ...cube, temperatureAxis: [0], values: [cube.values[0]!] }
+    const decreasing = axis === 'altitude' ? { ...cube, values: [[[200, 300], [190, 360]], cube.values[1]!] } : { ...cube, values: [cube.values[0]!, [[190, 330], [264, 396]]] }
+    const conditions = { mass: 900, pressureAltitude: axis === 'altitude' ? -1 : 0, temperature: axis === 'temperature' ? -1 : 0 }
+    for (const table of [single, decreasing]) expect(lookupPhaseDistance(table, conditions).status).toBe('blocked')
   })
 
   it('blocks a nonpositive axis maximum, where no 10 % band exists', () => {

@@ -44,7 +44,7 @@ describe('raw table inspection service', () => {
     expect(inspectPohDistances(testPohAircraft(), { ...inputs, mass }, now)).toMatchObject({ status: 'blocked', reason: 'input' })
   })
 
-  it('blocks below the lower edge, and above the extrapolation band, of every axis of every phase', () => {
+  it('blocks above the extrapolation band of every axis of every phase', () => {
     for (let phase = 0; phase < 4; phase++) {
       for (const axis of ['mass', 'pressureAltitude', 'temperature'] as const) {
         const p = testPohAircraft()
@@ -53,7 +53,7 @@ describe('raw table inspection service', () => {
         p.performanceProfiles![phase]!.dataPoints.forEach((point) => { point[axis] = point[axis] === original ? range[0]! : range[1]! })
         // Below the mass minimum is benefit-capped; upper values past the 10 % band block.
         const beyond = Math.ceil(range[1]! * 1.1) + 1
-        const values = axis === 'mass' ? [beyond] : [range[0]! - 1, beyond]
+        const values = [beyond]
         for (const value of values) {
           expect(inspectPohDistances(p, { ...inputs, [axis]: String(value) }, now)).toMatchObject({ status: 'blocked', reason: 'envelope' })
         }
@@ -136,6 +136,13 @@ describe('takeoff and landing assessment with separate masses', () => {
   // Fixture distance = 100 + phase × 100 + (mass − 800) + PA / 100 + temperature.
   const expected = (phase: number, mass: number) => 100 + phase * 100 + (mass - 800) + 10 + 10
 
+
+  it('caps lower altitude and temperature independently for both phase groups', () => {
+    const result = assessPerformance(testPohAircraft(), { takeoff: ready(900), landing: ready(900), pressureAltitude: -1, temperature: '-1' }, now)
+    if (result.status !== 'assessed' || result.takeoff.status !== 'success' || result.landing.status !== 'success') throw new Error('Expected both')
+    expect(result.takeoff.distances.map(row => [row.distance, row.provenance])).toEqual([[200, 'poh'], [300, 'poh']])
+    expect(result.landing.distances.map(row => [row.distance, row.provenance])).toEqual([[400, 'poh'], [500, 'poh']])
+  })
   it('looks up takeoff tables with the takeoff mass and landing tables with the landing mass', () => {
     const result = assess(ready(950), ready(870))
     expect(result.status).toBe('assessed')

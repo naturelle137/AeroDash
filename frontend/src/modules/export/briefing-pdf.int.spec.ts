@@ -106,6 +106,15 @@ describe('Briefing Pack PDF download', () => {
     return { text, sheet }
   }
 
+  it('preserves aggregate CG warnings at trajectory level in the PDF', async () => {
+    const input = source()
+    input.notifications.push({ id: 'CRIT-MB-003', severity: 'WARNING', message: 'CG Migration Limit Exceeded', context: 'MassBalance.CG', persistent: false, dismissible: true })
+    const { text } = await pdfFor(input)
+    const results = text.split('M&B results')[1]!.split('Loading envelope chart')[0]!
+    expect(results.split('CG trajectory warnings')[0]).not.toContain('CG Migration Limit Exceeded')
+    expect(results.split('CG trajectory warnings')[1]).toContain('CG Migration Limit Exceeded')
+  })
+
   it.each([false, true])('carries the extrapolation warning, details and estimate markers (acknowledged: %s)', async (acknowledged) => {
     const input = source()
     const scope = effectScope()
@@ -135,6 +144,21 @@ describe('Briefing Pack PDF download', () => {
     const { text, sheet } = await pdfFor(input)
     expect(sheet).toContain('ESTIMATED (CAA SSL 07)')
     expect(strip(text)).toContain(strip('ESTIMATED (CAA SSL 07)'))
+  })
+
+  it('carries lower-axis estimate markers from the live performance calculation into the PDF', async () => {
+    const input = source()
+    const scope = effectScope()
+    scope.run(() => {
+      const step = usePerformanceStep(() => ({ ready: true, notReadyReason: '', profile: testPohAircraft(), category: 'Normal', revision: '',
+        takeoff: { status: 'ready', massKg: 900, origin: 'M&B' }, landing: { status: 'ready', massKg: 850, origin: 'trip arrival' } }))
+      step.pa.method.value = 'direct'; step.pa.direct.value = '-1'; step.temperature.value = '-1'
+      input.performance = JSON.parse(JSON.stringify(step.presentation.value))
+    })
+    scope.stop()
+    const { text, sheet } = await pdfFor(input)
+    expect(sheet).toContain('ESTIMATED (lower-axis table boundary)')
+    expect(strip(text)).toContain(strip('ESTIMATED (lower-axis table boundary)'))
   })
 
   it('carries the runway-insufficient and low-safety-factor notifications', async () => {
