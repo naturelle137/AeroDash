@@ -92,7 +92,7 @@ export function presentCorrectedOperation(
       const parsed = parseLookupNumber(value!)
       return parsed !== null && parsed !== 0 ? [`${label} ${value} ${unit} was not applied.`] : []
     })
-    return { operation, title, status: 'unavailable', reason: [reason, ...omissions].join(' ') }
+    return { operation, title, status: 'unavailable', reason: [reason, ...omissions, 'The selected safety factor was not applied.'].join(' ') }
   }
   if (group?.status !== 'success') return unavailable('No base distance for this operation, so nothing can be corrected.')
   if (sources?.status !== 'assessed') return unavailable('Correction sources cannot be assessed for this profile. Distances stay uncorrected.')

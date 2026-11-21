@@ -3,6 +3,19 @@ Feature: Corrected takeoff and landing distances
   Synthetic distances prove browser wiring only. The registration and mass match the one accepted
   manual excerpt so the correction rules are reachable; the table values are not POH data.
 
+  Scenario Outline: Flight Prep identifies the scope of raw distances
+    Given the raw POH workflow viewport is <width> by <height>
+    When I import and verify a synthetic POH profile for registration "D-EBPN" declaring type "P208" and maximum mass 650 kg
+    And the pilot selects the imported aircraft "D-EBPN" in Flight Prep
+    And the pilot enters pressure altitude "1000" ft directly
+    And the pilot sets temperature "10" °C in Flight Prep
+    Then Flight Prep identifies the raw distance scope and captures evidence
+
+    Examples:
+      | width | height |
+      | 1440  | 1000   |
+      | 390   | 844    |
+
   Scenario Outline: The pilot sees corrected distances with their source, and none for other aircraft
     Given the raw POH workflow viewport is <width> by <height>
     When I import and verify a synthetic POH profile for registration "<registration>" declaring type "<type>" and maximum mass <mass> kg
@@ -34,6 +47,23 @@ Feature: Corrected takeoff and landing distances
     And the pilot enters takeoff headwind "0" kt and slope "2" %
     Then the corrected takeoff distances are marked as an estimate from the LBA advisory
     And the corrected distance evidence is captured as "fsm-<width>"
+
+    Examples:
+      | width | height |
+      | 1440  | 1000   |
+      | 390   | 844    |
+
+  Scenario Outline: Unsupported wind and landing inputs disclose the unapplied safety factor
+    Given the raw POH workflow viewport is <width> by <height>
+    When I import and verify a synthetic POH profile for registration "D-TEST" declaring type "C172" and maximum mass 650 kg
+    And the pilot opens Performance
+    And the pilot sets mass "900" kg and temperature "10" °C for the Test profile
+    And the pilot enters pressure altitude "1000" ft directly
+    And the pilot saves runway "TEST" "27" with TORA "600" "m", LDA "550" "m", elevation "300" "ft" and surface "Paved" "Dry"
+    And the pilot enters takeoff headwind "-2" kt and slope "1" %
+    And the pilot enters landing headwind "-2" kt and slope "-1" %
+    Then both unavailable corrections disclose their unapplied safety factors
+    And the landing correction evidence is captured as "unsupported-<width>"
 
     Examples:
       | width | height |
