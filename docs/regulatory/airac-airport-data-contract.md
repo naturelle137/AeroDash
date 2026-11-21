@@ -56,6 +56,34 @@ No airport record's effective interval, expiry or restriction coverage was verif
 
 ## Source-first acceptance gate
 
+### Candidate decision: LVNL Aerodrome feature service
+
+Evaluated 2026-11-21 for the runway comparison. Do not integrate this service
+into that consumer. Its [metadata](https://www.arcgis.com/sharing/rest/content/items/7ad940d6e15544fcbdb10b0348547a95/info/metadata/metadata.xml?format=default&output=html)
+describes Dutch FIR coverage, civil runway directions, an effective interval,
+CC BY 4.0 and the need to consult NOTAMs. Military coverage is incomplete.
+The published [runway-direction schema](https://services-eu1.arcgis.com/OtUwzhpKSdeXgRIB/arcgis/rest/services/Aerodrome/FeatureServer/3?f=pjson)
+contains designator and bearing but no TORA or LDA. The separate
+[runway schema](https://services-eu1.arcgis.com/OtUwzhpKSdeXgRIB/arcgis/rest/services/Aerodrome/FeatureServer/4?f=pjson)
+contains nominal length, not declared distances. It cannot populate the required
+comparison without inventing values. The metadata also lists other restrictions
+without specifying them; their effect on reuse is not established.
+
+### Candidate investigation: ENAIRE AIP datasets
+
+Investigated 2026-11-21; not accepted for integration. ENAIRE's
+[GEN 3.1](https://aip.enaire.es/aip/contenido_AMDT/LE_Amdt_2026_413_GEN_3_1_en.html)
+describes per-aerodrome AIXM datasets with declared distances when present and
+amendment-based updates. Its [dataset index](https://aip.enaire.es/aip/DatosDigitales-en.html)
+links versioned individual files and metadata. The
+[limitations](https://aip.enaire.es/aip/contenido_Datasets/LE_AIP_DS_Limitaciones.html)
+say AIP PDF or HTML prevails over inconsistent AIXM data. Reuse permission for
+redistribution, record-level temporal and supersession semantics, and restriction
+coverage were not established. The index and general description alone do not
+qualify an actual record or provider update check. These unknowns need resolution
+against the specific dataset and terms before acceptance; they are not evidence
+that no suitable ENAIRE dataset exists.
+
 ### Candidate decision: EUROCONTROL EAD Basic
 
 Evaluated 2026-11-20 for the manual runway consumer. Do not integrate.
