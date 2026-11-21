@@ -259,6 +259,14 @@ onBeforeUnmount(() => {
             </template>
             <p v-else>Current Performance inputs and results are unavailable.</p>
           </section>
+          <section v-if="currentSnapshot.wind" aria-label="Manual wind components">
+            <h2>Manual wind components</h2>
+            <p>User-entered — advisory only. No weather retrieved or performance correction applied. Heading and wind direction use the same magnetic or true reference.</p>
+            <p>Runway heading: {{ currentSnapshot.wind.input.runwayHeading }}°; wind from: {{ currentSnapshot.wind.input.windDirection || 'calm' }}; speed: {{ currentSnapshot.wind.input.windSpeed }} {{ currentSnapshot.wind.result.unit }}.</p>
+            <p v-if="Number(currentSnapshot.wind.input.windSpeed.replace(',', '.')) === 0">Calm wind.</p>
+            <p>{{ currentSnapshot.wind.result.headwind >= 0 ? 'Headwind' : 'Tailwind' }}: {{ Math.abs(currentSnapshot.wind.result.headwind).toFixed(1) }} {{ currentSnapshot.wind.result.unit }}; crosswind: {{ Math.abs(currentSnapshot.wind.result.crosswind).toFixed(1) }} {{ currentSnapshot.wind.result.unit }}<template v-if="currentSnapshot.wind.result.crosswind"> from the {{ currentSnapshot.wind.result.crosswind > 0 ? 'right' : 'left' }}</template>.</p>
+            <p>Rounded to 0.1. Compare with the aircraft's wind limits yourself; no suitability verdict is given.</p>
+          </section>
           <section aria-label="Disclaimer">
             <h2>Disclaimer</h2>
             <template v-for="(block, index) in disclaimerContent" :key="index">

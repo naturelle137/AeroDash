@@ -7,8 +7,10 @@ import PerformanceStepPanel from './PerformanceStepPanel.vue'
 import PerformanceTableBounds from './PerformanceTableBounds.vue'
 import UnitPreferencesFieldset from './UnitPreferencesFieldset.vue'
 import type { PerformanceStep, PerformanceStepContext } from '../composables/performance-step'
+import type { WindComponentInput } from '@/core/logic/wind-components'
 import { formatNumber } from '../services/performance-presentation'
 
+const wind = defineModel<WindComponentInput>('wind', { required: true })
 const props = defineProps<{ step: PerformanceStep; context: PerformanceStepContext; notesEnabled: boolean }>()
 const { tables, inputKey, manualConfiguration } = props.step
 </script>
@@ -46,7 +48,7 @@ const { tables, inputKey, manualConfiguration } = props.step
     </section>
     <UnitPreferencesFieldset />
     <ManualRunwayPanel />
-    <ManualWindComponentPanel />
+    <ManualWindComponentPanel v-model="wind" />
     <CorrectionSourcePanel v-model:configuration="manualConfiguration" :profile="context.profile ?? undefined" :tables-complete="tables?.status === 'ready'"
       :ready="context.ready" :inputs-revision="inputKey" />
   </div>
