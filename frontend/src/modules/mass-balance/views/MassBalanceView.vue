@@ -37,6 +37,7 @@ import ResultSummary from '@/modules/mass-balance/components/ResultSummary.vue'
 import WindLimitsSummary from '@/modules/aircraft/components/WindLimitsSummary.vue'
 import ConfirmDialog from '@/shared/components/ConfirmDialog.vue'
 import UndoToast from '@/shared/components/UndoToast.vue'
+import { computeWindComponents } from '@/core/logic/wind-components'
 import FlightPrepPerformance from '@/modules/performance/components/FlightPrepPerformance.vue'
 import { usePerformanceStep, type PerformanceStepContext } from '@/modules/performance/composables/performance-step'
 import { flightPrepMassSources } from '@/modules/performance/services/flight-prep-masses'
@@ -687,7 +688,9 @@ function onImportHandover(text: string): void {
     text: 'Imported an unreviewed handover (saved ' + parsed.file.exportedAt + '). Not approved by any instructor. Check and verify every value; acknowledgements were not imported.',
   }
 }
-const printSource = computed(() => ({ ...mbSource.value, performance: performanceStep.presentation.value }))
+const windInput = ref({ runwayHeading: '', windDirection: '', windSpeed: '', unit: 'kt' })
+const printSource = computed(() => ({ ...mbSource.value, performance: performanceStep.presentation.value,
+  wind: { input: windInput.value, result: computeWindComponents(windInput.value) } }))
 
 // ---------------------------------------------------------------------------
 // ViewModel — single deterministic mapping of uiState → presentational flags
@@ -1342,7 +1345,7 @@ function onStartDemo(): void {
         <span class="prep-card__badge">04</span>
         <h2 id="prep-performance-title" class="prep-card__title">Performance</h2>
       </div>
-      <FlightPrepPerformance :step="performanceStep" :context="performanceContext" :notes-enabled="!store.isDemoActive" />
+      <FlightPrepPerformance v-model:wind="windInput" :step="performanceStep" :context="performanceContext" :notes-enabled="!store.isDemoActive" />
     </section>
 
     <!-- ═══ COMING SOON: Weather ════════════════════════════════════════════ -->
@@ -1357,7 +1360,7 @@ function onStartDemo(): void {
         <span class="soon-pill">Coming soon</span>
       </div>
       <p class="soon-desc">
-        METAR &amp; TAF integration, crosswind component, runway surface conditions,
+        METAR &amp; TAF integration, weather-derived wind components, runway surface conditions,
         wind limit advisory.
       </p>
     </section>

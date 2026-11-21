@@ -43,3 +43,23 @@ Feature: Offline manual wind components
       | width | height |
       | 1440  | 1000   |
       | 390   | 844    |
+
+  Scenario Outline: Briefing includes current manual wind only
+    Given the raw POH workflow viewport is <width> by <height>
+    When I import and verify a synthetic POH profile for registration "D-EBPN" declaring type "P208" and maximum mass 650 kg
+    And the pilot selects the imported aircraft "D-EBPN" in Flight Prep
+    And the pilot enters runway heading "270", wind from "330" and speed "20" "kt"
+    And the pilot opens the briefing pack
+    Then the briefing pack states "Headwind: 10.0 kt; crosswind: 17.3 kt from the right"
+    And the briefing pack states "No weather retrieved or performance correction applied"
+    And the briefing pack evidence is captured as "wind-<width>"
+    When the pilot returns from the briefing pack
+    And the pilot enters runway heading "270", wind from "VRB" and speed "20" "kt"
+    Then no wind components are shown
+    When the pilot opens the briefing pack
+    Then the briefing pack does not contain manual wind components
+
+    Examples:
+      | width | height |
+      | 1440  | 1000   |
+      | 390   | 844    |

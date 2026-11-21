@@ -1,3 +1,4 @@
+import { computeWindComponents } from '@/core/logic/wind-components'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { reactive, nextTick } from 'vue'
@@ -21,6 +22,17 @@ function source(): MbPrintSource {
 }
 afterEach(() => { document.body.innerHTML = ''; vi.restoreAllMocks() })
 describe('M&B print presentation with real store calculation', () => {
+  it('snapshots valid manual wind and omits invalid results', () => {
+    const input = source()
+    const entries = { runwayHeading: '270', windDirection: '330', windSpeed: '20', unit: 'kt' }
+    input.wind = { input: entries, result: computeWindComponents(entries) }
+    const snapshot = assembleMbPrint(input, new Date())!
+    expect(snapshot.wind?.result).toMatchObject({ headwind: 10, crosswind: 17.3 })
+    entries.windDirection = 'VRB'
+    expect(snapshot.wind?.input.windDirection).toBe('330')
+    input.wind.result = computeWindComponents(entries)
+    expect(assembleMbPrint(input, new Date())!.wind).toBeNull()
+  })
   it('retains warnings, honest endpoints, units and draft markers without mutating verification', () => {
     const input = source()
     const before = JSON.stringify(input)

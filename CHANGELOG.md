@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Include available manual wind components in the Briefing Pack.
 - Disclose when the saved runway surface is not applied to uncorrected performance distances.
 - Clarify that base performance distances exclude operational factors and runway assessment.
 

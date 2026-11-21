@@ -36,7 +36,11 @@ When the pilot enters a runway heading, wind direction and wind speed, the syste
 
 ### REQ-WX-007b: Manual wind input rejection
 
-If a manual wind input is missing, outside 1–360° (speed 0–200) or variable, then the system shall show no wind components.
+If a required manual wind input is missing, outside 1–360° (speed 0–200) or variable, then the system shall show no wind components. Calm wind requires no direction.
+
+### REQ-WX-007c: Manual wind in briefing
+
+When valid manual wind components are available, the system shall include them and their inputs in the briefing.
 
 ### REQ-WX-008: Weather Metadata Display
 
