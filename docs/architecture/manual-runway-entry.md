@@ -27,7 +27,7 @@ declaration is unchanged.
 
 ## Storage and recovery
 
-The record `{schemaVersion: 2, savedAt, runway}` keeps the pilot's original
+The record `{schemaVersion: 3, savedAt, runway}` keeps the pilot's original
 values and units; normalized values are never persisted. Damaged JSON, any
 contract violation or a higher `schemaVersion` is not used and is reported
 visibly; saving or clearing replaces it. Write/clear failures are displayed and
@@ -78,4 +78,4 @@ It does not infer expiry from AIRAC or the local save date.
 
 ## Declared date check
 
-Optional pilot-entered effective and inclusive expiry dates are stored with the runway. The session-only check date defaults to the local date when the runway store is created and can be changed. Performance and briefing carry the same date and check, and a change invalidates the briefing snapshot. Missing dates leave currency unknown. Dates are user declarations, not source verification. A calendar cycle starts every 28 days from 2026-10-29 within the supported published calendar; this date-only indication does not expire a runway or establish NOTAM/SUP coverage. Version 1 records without dates are recovered into version 2 in memory and remain usable.
+Optional pilot-entered effective and inclusive expiry dates are stored with the runway. The session-only check date defaults to the local date when the runway store is created and can be changed. Performance and briefing carry the same date and check, and a change invalidates the briefing snapshot. Missing dates leave currency unknown. Dates are user declarations, not source verification. A calendar cycle starts every 28 days from 2026-10-29 within the supported published calendar; this date-only indication does not expire a runway or establish NOTAM/SUP coverage. Version 1 and 2 records are recovered into version 3 in memory and remain usable. An optional pilot-declared source reference persists with the runway and appears in Performance and briefing; it is unverified and changes invalidate the saved display.

@@ -39,6 +39,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Retain a pilot-declared runway source reference in Performance and briefing.
+
 - Add a manual electric energy and reserve budget to Flight Preparation and briefing.
 - Show the METAR retrieval availability and ICAO entry in Flight Prep.
 
