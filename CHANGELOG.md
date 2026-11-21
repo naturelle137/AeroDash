@@ -38,6 +38,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Allow local flight phase, location and time selection with an explicit forecast-unavailable or offline state.
+
 - Add a manual electric energy and reserve budget to Flight Preparation and briefing.
 - Show the METAR retrieval availability and ICAO entry in Flight Prep.
 
