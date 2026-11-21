@@ -151,7 +151,7 @@ if (!runway.loaded) runway.load()
           </select>
         </div>
       </div>
-      <p v-if="runway.weatherSurface" role="status">Wet suggested by METAR {{ runway.weatherSurface }}. Verify the actual surface; you can select another condition.</p>
+      <p v-if="runway.weatherSurface" role="status">Wet suggested by METAR {{ runway.weatherSurface }}. Verify the actual surface and select another condition if needed. Saving confirms your surface declaration.</p>
       <p v-if="error('surfaceType')" :id="describedBy('surfaceType')" class="field-error">{{ error('surfaceType') }}</p>
       <p v-if="error('surfaceCondition')" :id="describedBy('surfaceCondition')" class="field-error">{{ error('surfaceCondition') }}</p>
     </fieldset>

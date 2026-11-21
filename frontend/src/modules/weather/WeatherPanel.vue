@@ -56,7 +56,7 @@ async function check(): Promise<void> {
     if (!report.value.stale) {
       const body = metar.raw.split(/\s+(?:RMK|TEMPO|BECMG|NOSIG|PROB\d{2})\b/)[0] ?? ''
       const tokens = body.split(/\s+/)
-      const liquid = tokens.some((token) => /^(?:-|\+|VC)?(?:MI|PR|BC|DR|BL|SH|TS|FZ)?(?:(?:DZ|RA|SN|SG|IC|PL|GR|GS|UP)){1,3}$/.test(token) && /RA|DZ/.test(token))
+      const liquid = tokens.some((token) => /^(?:-|\+)?(?:MI|PR|BC|DR|BL|SH|TS|FZ)?(?:(?:DZ|RA|SN|SG|IC|PL|GR|GS|UP)){1,3}$/.test(token) && /RA|DZ/.test(token))
       const validBody = !(liquid && tokens.includes('CAVOK')) && tokens.some((token) => /^(?:\d{3}|VRB)\d{2,3}(?:G\d{2,3})?(?:KT|MPS|KMH)$/.test(token)) && tokens.some((token) => /^(?:CAVOK|\d{4}|(?:M|P)?\d+(?:\/\d+)?SM)$/.test(token))
       emit('observation', validBody ? { station, time: observed.toISOString(), liquid } : null)
     }
