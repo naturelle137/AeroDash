@@ -380,6 +380,21 @@ describe('corrected distances in the performance step', () => {
     effect.stop()
   })
 
+  it('applies the landing safety factor after estimating the 50 ft distance', () => {
+    const effect = effectScope()
+    effect.run(() => {
+      const { step, context } = setup()
+      context.profile!.performanceProfiles = context.profile!.performanceProfiles!.filter(table => table.flightPhase !== 'LandingDistance50ft')
+      step.manualConfiguration.value = 's9'
+      Object.assign(step.corrections.landing, { headwind: '0', slope: '0' })
+      const item = corrected(step, 1)
+      if (item.status !== 'applied') throw new Error('expected applied')
+      expect(item.rows[1]!.raw).toBe('701.4 m ESTIMATED (CAA SSL 07)')
+      expect(item.rows[1]!.factored).toBe('1,102 m ESTIMATED (CAA SSL 07)')
+    })
+    effect.stop()
+  })
+
   it('retains extrapolation markers in corrected distances and runway comparisons after acknowledgement', () => {
     const effect = effectScope()
     effect.run(() => {
