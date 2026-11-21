@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Direct pilots to the aircraft manual when landing or tailwind corrections are unavailable.
 - Keep Flight Prep inputs and obstacle warnings accessible around fixed mobile navigation.
 - Explain unavailable landing corrections and capture desktop and mobile evidence at their stated widths.
 
