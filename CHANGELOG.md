@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Clarify that uncorrected performance distances cannot be used for runway assessment when corrections are unavailable.
 - Identify zero and invalid wind and slope entries when corrections are unavailable.
 - Prevent applying METAR wind when a variable directional range is reported.
 - Identify partially corrected distances beside runway comparisons.
