@@ -1,3 +1,4 @@
+import type { WindComponentInput, WindComponentResult } from '@/core/logic/wind-components'
 import type { PerformancePresentation } from '@/modules/performance/services/performance-presentation'
 import type { ElectricPresentation } from '@/modules/fuel-endurance/services/use-electric-planning'
 import type { FuelPresentation } from '@/modules/fuel-endurance/services/use-fuel-planning'
@@ -11,6 +12,7 @@ import type { AircraftContext, CategoryDefinition, EnvelopePoint, MathCoreResult
 export interface MbPrintSource {
   performance?: PerformancePresentation
   energy?: ElectricPresentation
+  wind?: { input: WindComponentInput; result: WindComponentResult }
   fuel?: FuelPresentation
   state: MassBalanceState
   ready: boolean
