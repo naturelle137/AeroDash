@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { ElectricPlanning } from '../services/use-electric-planning'
-const { available, power, minutes, presentation } = defineProps<{ planning: ElectricPlanning }>().planning
+const props = defineProps<{ planning: ElectricPlanning }>()
+const { available, power, minutes, presentation } = props.planning
 </script>
 
 <template>
