@@ -29,6 +29,31 @@ export const useManualRunwayStore = defineStore('manualRunway', () => {
   const units = useLoadedUnitPreferences()
   const massBalance = useMassBalanceStore()
   let filling = false
+  let applyingWeather = false
+  let pilotSurfaceChoice = false
+  const weather = ref<{ station: string; time: string; liquid: boolean } | null>(null)
+  const weatherSurface = ref<string | null>(null)
+
+  function updateWeather(value: typeof weather.value): void { weather.value = value }
+  watch([weather, () => draft.aerodrome, () => draft.surfaceType], () => {
+    if (weatherSurface.value) {
+      applyingWeather = true
+      draft.surfaceCondition = ''
+      applyingWeather = false
+      weatherSurface.value = null
+    }
+    const observation = weather.value
+    if (!observation?.liquid || draft.aerodrome.trim().toUpperCase() !== observation.station || draft.surfaceCondition || pilotSurfaceChoice || saved.value) return
+    const condition = draft.surfaceType === 'paved' ? 'wet' : draft.surfaceType === 'unpaved' ? 'wet-soft-ground' : ''
+    if (!condition) return
+    applyingWeather = true
+    draft.surfaceCondition = condition
+    applyingWeather = false
+    weatherSurface.value = `${observation.station} · ${observation.time}`
+  }, { flush: 'sync' })
+  watch(() => draft.surfaceCondition, () => {
+    if (!applyingWeather && !filling) { pilotSurfaceChoice = true; weatherSurface.value = null }
+  }, { flush: 'sync' })
 
   const validation = computed(() => validateManualRunway(draft))
   const errors = computed(() => validation.value.status === 'invalid' ? validation.value.errors : {})
@@ -62,6 +87,7 @@ export const useManualRunwayStore = defineStore('manualRunway', () => {
   /** A saved record keeps its own explicit units; only a fresh form takes the preferences. */
   function fill(next: ManualRunwayDraft): void {
     filling = true
+    pilotSurfaceChoice = false
     try {
       Object.assign(draft, next)
       applyPreferences()
@@ -106,6 +132,7 @@ export const useManualRunwayStore = defineStore('manualRunway', () => {
       storageError.value = written.message
       return false
     }
+    weatherSurface.value = null
     saved.value = written.record
     storageError.value = null
     showErrors.value = false
@@ -139,5 +166,5 @@ export const useManualRunwayStore = defineStore('manualRunway', () => {
     return true
   }
 
-  return { draft, saved, storageError, notice, showErrors, loaded, assessmentDate, validation, errors, current, hasUnsavedChanges, load, save, revert, clear }
+  return { draft, saved, weatherSurface, updateWeather, storageError, notice, showErrors, loaded, assessmentDate, validation, errors, current, hasUnsavedChanges, load, save, revert, clear }
 })

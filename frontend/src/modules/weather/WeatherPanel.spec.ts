@@ -61,3 +61,24 @@ describe('WeatherPanel', () => {
     vi.useRealTimers()
   })
 })
+
+it('emits only fresh, structurally plausible present liquid precipitation', async () => {
+  vi.useFakeTimers().setSystemTime(new Date('2026-11-21T17:00:00Z'))
+  let raw = ''
+  vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, json: async () => ({ metar: { raw, station: 'EDDF', reportTime: '2026-11-21T16:30:00Z', reportTimeKnown: true } }) })))
+  const view = mount(WeatherPanel)
+  await view.get('input').setValue('EDDF')
+  for (const [body, expected] of [['17004KT 9999 -RA BKN020', true], ['17004KT 9999 +SHRADZ BKN020', true], ['17004KT CAVOK', false], ['17004KT 9999 VCSHRA', false], ['17004KT 9999 RMK RA', false], ['garbage RA', null]] as const) {
+    raw = `EDDF 211630Z ${body}`
+    await view.get('form').trigger('submit')
+    await flushPromises()
+    const events = view.emitted('observation')!
+    const value = events.at(-1)![0] as { liquid: boolean } | null
+    expect(value?.liquid ?? null).toBe(expected)
+  }
+  vi.advanceTimersByTime(30 * 60 * 1000 + 1)
+  await view.vm.$nextTick()
+  expect(view.emitted('observation')!.at(-1)![0]).toBeNull()
+  view.unmount()
+  vi.useRealTimers()
+})

@@ -1,20 +1,30 @@
 <script setup lang="ts">
-import { onUnmounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 
+const emit = defineEmits<{ observation: [value: { station: string; time: string; liquid: boolean } | null] }>()
 const icao = ref('')
 const message = ref('Enter a station to retrieve a METAR.')
 const report = ref<{ raw: string; station: string; time: string; stale: boolean } | null>(null)
 const loading = ref(false)
 let expiry: ReturnType<typeof setTimeout> | undefined
-onUnmounted(() => clearTimeout(expiry))
+let request = 0
+function offline(): void {
+  clearReport()
+  message.value = 'Offline: METAR retrieval is unavailable.'
+}
+onMounted(() => window.addEventListener('offline', offline))
+onUnmounted(() => { clearTimeout(expiry); window.removeEventListener('offline', offline); emit('observation', null) })
 
 function clearReport(): void {
   clearTimeout(expiry)
+  request++
   report.value = null
+  emit('observation', null)
 }
 
 async function check(): Promise<void> {
   clearReport()
+  const currentRequest = request
   const station = icao.value.trim().toUpperCase()
   if (!/^[A-Z]{4}$/.test(station)) {
     message.value = 'Enter a four-letter ICAO station code.'
@@ -30,6 +40,7 @@ async function check(): Promise<void> {
     const response = await fetch(`https://wxdecoder.com/api/wx/${station}`, { credentials: 'omit' })
     if (!response.ok) throw new Error('unavailable')
     const data: unknown = await response.json()
+    if (currentRequest !== request || !navigator.onLine) return
     if (!data || typeof data !== 'object' || !('metar' in data)) throw new Error('malformed')
     const metar: unknown = data.metar
     if (metar === null) {
@@ -42,14 +53,23 @@ async function check(): Promise<void> {
     const observed = new Date(time)
     if (!Number.isFinite(time) || time > Date.now() || !rawMatch || rawMatch[1] !== station || Number(rawMatch[2]) !== observed.getUTCDate() || Number(rawMatch[3]) !== observed.getUTCHours() || Number(rawMatch[4]) !== observed.getUTCMinutes()) throw new Error('malformed')
     report.value = { raw: metar.raw, station, time: observed.toISOString(), stale: Date.now() - time > 60 * 60 * 1000 }
+    if (!report.value.stale) {
+      const body = metar.raw.split(/\s+(?:RMK|TEMPO|BECMG|NOSIG|PROB\d{2})\b/)[0] ?? ''
+      const tokens = body.split(/\s+/)
+      const liquid = tokens.some((token) => /^(?:-|\+)?(?:MI|PR|BC|DR|BL|SH|TS|FZ)?(?:(?:DZ|RA|SN|SG|IC|PL|GR|GS|UP)){1,3}$/.test(token) && /RA|DZ/.test(token))
+      const validBody = !(liquid && tokens.includes('CAVOK')) && tokens.some((token) => /^(?:\d{3}|VRB)\d{2,3}(?:G\d{2,3})?(?:KT|MPS|KMH)$/.test(token)) && tokens.some((token) => /^(?:CAVOK|\d{4}|(?:M|P)?\d+(?:\/\d+)?SM)$/.test(token))
+      emit('observation', validBody ? { station, time: observed.toISOString(), liquid } : null)
+    }
     message.value = report.value.stale ? 'Outdated observation: verify current weather with an authorised source.' : 'Observation retrieved; verify with an authorised source.'
     if (!report.value.stale) {
       expiry = setTimeout(() => {
         if (report.value) report.value.stale = true
+        emit('observation', null)
         message.value = 'Outdated observation: verify current weather with an authorised source.'
       }, 60 * 60 * 1000 - (Date.now() - time) + 1)
     }
   } catch (error) {
+    if (currentRequest !== request) return
     message.value = error instanceof Error && error.message === 'malformed' ? 'Malformed METAR response; no report displayed.' : 'METAR retrieval failed or is unavailable.'
   } finally {
     loading.value = false
@@ -73,7 +93,7 @@ async function check(): Promise<void> {
       <p>{{ report.raw }}</p>
       <p>Weather data via <a href="https://wxdecoder.com">wxdecoder.com</a>. Sources: NOAA/NWS Aviation Weather Center, National Weather Service and FAA.</p>
     </div>
-    <p>Weather is not applied to performance, wind or runway inputs.</p>
+    <p>Liquid precipitation may suggest a runway surface condition; verify the actual runway condition. Weather does not populate wind or performance inputs.</p>
   </div>
 </template>
 
