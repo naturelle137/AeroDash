@@ -92,4 +92,4 @@ Feature: Offline manual runway entry
     Examples:
       | stored  | message                                     |
       | damaged | damaged or invalid                          |
-      | newer   | newer format version 3                      |
+      | newer   | newer format version 4                      |
