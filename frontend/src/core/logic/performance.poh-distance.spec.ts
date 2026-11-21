@@ -516,6 +516,22 @@ describe('computePohDistances — Verified-status gate', () => {
   })
 })
 
+describe('computePohDistances — missing takeoff distance', () => {
+  it('estimates from roll and preserves clamping, while preferring a published distance', () => {
+    const profile = buildVerifiedProfile()
+    const complete = computePohDistances(profile, conditions(2000, 12000, 80))
+    const missing = computePohDistances({ ...profile, performanceProfiles: profile.performanceProfiles!.filter(p => p.flightPhase !== 'TakeoffDistance50ft') }, conditions(2000, 12000, 80))
+    expect(complete.status).toBe('success')
+    expect(missing.status).toBe('success')
+    if (complete.status !== 'success' || missing.status !== 'success') return
+    expect(complete.takeoffDistance50ftProvenance).toBe('poh')
+    expect(complete.distances.takeoffDistance50ft).not.toBeCloseTo(complete.distances.takeoffRoll * 1.9)
+    expect(missing.takeoffDistance50ftProvenance).toBe('estimated')
+    expect(missing.distances.takeoffDistance50ft).toBeCloseTo(missing.distances.takeoffRoll * 1.9)
+    expect(missing.clamping.takeoffDistance50ft).toEqual(missing.clamping.takeoffRoll)
+  })
+})
+
 describe('computePohDistances — profile_incomplete', () => {
   it('returns "profile_incomplete" when performanceProfiles is undefined', () => {
     const profile = buildVerifiedProfile()
