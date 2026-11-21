@@ -91,3 +91,27 @@ it('keeps the saved runway untouched by save/clear attempts during a demo and dr
   expect(store.draft.tora).toBe('3280')
   expect(store.saved?.savedAt).toBe('2026-11-12T08:00:00.000Z')
 })
+
+it('defaults only an empty matching runway and preserves a pilot override', () => {
+  const store = useManualRunwayStore()
+  store.load()
+  store.draft.aerodrome = 'EDDF'
+  store.draft.surfaceType = 'paved'
+  const report = { station: 'EDDF', time: '2026-11-21T16:30:00Z', liquid: true }
+  store.updateWeather(report)
+  expect(store.draft.surfaceCondition).toBe('wet')
+  expect(store.weatherSurface).toContain('EDDF')
+  store.draft.surfaceCondition = 'dry'
+  store.updateWeather(null)
+  store.updateWeather(report)
+  expect(store.draft.surfaceCondition).toBe('dry')
+  expect(store.weatherSurface).toBeNull()
+  store.draft.surfaceCondition = ''
+  store.updateWeather(null)
+  store.updateWeather(report)
+  store.updateWeather(null)
+  expect(store.draft.surfaceCondition).toBe('')
+  store.draft.aerodrome = 'EDDM'
+  store.updateWeather(report)
+  expect(store.draft.surfaceCondition).toBe('')
+})
