@@ -1,5 +1,14 @@
 <script setup lang="ts">
-import { onUnmounted, ref } from 'vue'
+import { computed, onUnmounted, ref } from 'vue'
+import { metarValues, type MetarValues } from './metar-values'
+
+const emit = defineEmits<{ apply: [field: keyof MetarValues, values: MetarValues, source: string] }>()
+const values = computed(() => report.value && !report.value.stale ? metarValues(report.value.raw) : {})
+function apply(field: keyof MetarValues): void {
+  const current = report.value
+  if (!current || current.stale || Date.now() - Date.parse(current.time) > 60 * 60 * 1000 || !values.value[field]) return
+  emit('apply', field, values.value, `METAR ${current.station} via wxdecoder.com, observed ${current.time}`)
+}
 
 const icao = ref('')
 const message = ref('Enter a station to retrieve a METAR.')
@@ -71,9 +80,14 @@ async function check(): Promise<void> {
     <div v-if="report">
       <p>Station: {{ report.station }} · Observed: {{ report.time }} UTC{{ report.stale ? ' · OUTDATED' : '' }}</p>
       <p>{{ report.raw }}</p>
+      <div v-if="!report.stale" class="entry" aria-label="Apply observation to Flight Prep">
+        <button v-if="values.wind" type="button" @click="apply('wind')">Replace wind with METAR ({{ values.wind.direction || 'calm' }} / {{ values.wind.speed }} {{ values.wind.unit }})</button>
+        <button v-if="values.temperature" type="button" @click="apply('temperature')">Replace temperature with METAR ({{ values.temperature }} °C)</button>
+        <button v-if="values.qnh" type="button" @click="apply('qnh')">Replace QNH with METAR ({{ values.qnh }} hPa)</button>
+      </div>
       <p>Weather data via <a href="https://wxdecoder.com">wxdecoder.com</a>. Sources: NOAA/NWS Aviation Weather Center, National Weather Service and FAA.</p>
     </div>
-    <p>Weather is not applied to performance, wind or runway inputs.</p>
+    <p>Values are only replaced when you choose an action. METAR wind direction is true; use a runway heading in the same reference. Gusts are not applied. Verify all values with an authorised source.</p>
   </div>
 </template>
 
