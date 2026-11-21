@@ -12,6 +12,7 @@ import {
   type ManualRunwayRecord,
 } from '@/core/logic/manual-runway'
 import { clearManualRunway, loadManualRunway, saveManualRunway } from '../services/manual-runway.repository'
+import { loadRecentAirports, saveRecentAirport } from '../services/recent-airports.repository'
 import { useMassBalanceStore } from '@/modules/mass-balance/stores/mass-balance.store'
 import { useLoadedUnitPreferences } from '@/modules/performance/stores/unit-preferences.store'
 import { applyPreferredUnit, convertOnLengthUnitChange } from '@/modules/airport/composables/length-unit-conversion'
@@ -20,6 +21,7 @@ import { applyPreferredUnit, convertOnLengthUnitChange } from '@/modules/airport
 export const useManualRunwayStore = defineStore('manualRunway', () => {
   const draft = reactive<ManualRunwayDraft>({ ...EMPTY_MANUAL_RUNWAY_DRAFT })
   const saved = ref<ManualRunwayRecord | null>(null)
+  const recent = ref<ManualRunwayRecord[]>([])
   const storageError = ref<string | null>(null)
   const notice = ref<string | null>(null)
   const showErrors = ref(false)
@@ -98,6 +100,7 @@ export const useManualRunwayStore = defineStore('manualRunway', () => {
 
   function load(): void {
     const result = loadManualRunway()
+    recent.value = loadRecentAirports()
     loaded.value = true
     showErrors.value = false
     if (result.status === 'loaded') {
@@ -139,8 +142,30 @@ export const useManualRunwayStore = defineStore('manualRunway', () => {
     storageError.value = null
     showErrors.value = false
     fill(draftFromManualRunway(result.runway))
-    notice.value = 'Manual runway inputs saved on this device.'
+    const history = saveRecentAirport(written.record!)
+    if (history) recent.value = history
+    notice.value = history ? 'Manual runway inputs saved on this device.' : 'Manual runway inputs saved, but recent airports could not be saved.'
     return true
+  }
+
+  function selectRecent(record: ManualRunwayRecord): void {
+    if (massBalance.isDemoActive) {
+      notice.value = DEMO_BLOCKED
+      return
+    }
+    const written = saveManualRunway(record.runway, new Date(record.savedAt), record.weatherSurface)
+    if (written.status === 'error') {
+      storageError.value = written.message
+      return
+    }
+    weatherSurface.value = null
+    saved.value = written.record
+    const history = saveRecentAirport(record)
+    if (history) recent.value = history
+    storageError.value = null
+    showErrors.value = false
+    fill(draftFromManualRunway(record.runway))
+    notice.value = history ? 'Saved manual runway selected. Verify its source and current conditions.' : 'Runway selected, but recent airports could not be saved. Verify its source and current conditions.'
   }
 
   function revert(): void {
@@ -168,5 +193,5 @@ export const useManualRunwayStore = defineStore('manualRunway', () => {
     return true
   }
 
-  return { draft, saved, weatherSurface, updateWeather, storageError, notice, showErrors, loaded, assessmentDate, validation, errors, current, hasUnsavedChanges, load, save, revert, clear }
+  return { draft, saved, recent, selectRecent, weatherSurface, updateWeather, storageError, notice, showErrors, loaded, assessmentDate, validation, errors, current, hasUnsavedChanges, load, save, revert, clear }
 })
