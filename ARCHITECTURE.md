@@ -123,6 +123,8 @@ space above mobile navigation and its safe area. It is natively disabled and gre
 when M&B is ineligible, with no associated helper text or tooltip. Calculation
 warnings remain at affected values. Performance remains a homepage and internal
 Flight Preparation entry with a standalone deep link, outside top-level navigation.
+The computed CG exceedance identifies takeoff; migration and CG warnings without
+point-specific evidence appear at the shared trajectory level.
 
 Export eligibility checks successful finite computation, current profile/input identity
 and hard failures separately from advisory severity. Only known computed M&B
