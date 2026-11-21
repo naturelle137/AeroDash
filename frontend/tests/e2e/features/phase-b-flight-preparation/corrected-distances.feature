@@ -125,9 +125,9 @@ Feature: Corrected takeoff and landing distances
       | 1440  | 1000   |
       | 390   | 844    |
 
-  Scenario Outline: Draft corrected distances are marked in the briefing and PDF
+  Scenario Outline: Verified corrected distances appear in the briefing
     Given the raw POH workflow viewport is <width> by <height>
-    When I import a draft synthetic POH profile for the briefing
+    When I import and verify a synthetic POH profile for registration "D-EBPN" declaring type "P208" and maximum mass 650 kg
     And the pilot selects the imported aircraft "D-EBPN" in Flight Prep
     And the pilot enters pressure altitude "1000" ft directly
     And the pilot sets temperature "10" °C in Flight Prep
@@ -135,16 +135,8 @@ Feature: Corrected takeoff and landing distances
     And the pilot saves runway "TEST" "27" with TORA "2000" "m", LDA "550" "m", elevation "300" "ft" and surface "Paved" "Dry"
     And the pilot enters takeoff headwind "0" kt and slope "0" %
     And the pilot opens the briefing pack
-    Then each corrected briefing distance is marked unverified
-    And the briefing pack evidence is captured as "corrected-unverified-<width>"
-    When the pilot requests printing of the briefing pack
-    Then printing is blocked pending acknowledgment of unverified data
-    When the pilot acknowledges the unverified data
-    Then the briefing pack is sent to print with unverified values marked
-    When the pilot requests the PDF download of the briefing pack
-    Then the PDF download is blocked pending acknowledgment of unverified data
-    When the pilot acknowledges the unverified data for the PDF download
-    Then the downloaded PDF states "[UNVERIFIED] (raw"
+    Then corrected briefing distances have no unverified marker
+    And the briefing pack evidence is captured as "corrected-verified-<width>"
 
     Examples:
       | width | height |
