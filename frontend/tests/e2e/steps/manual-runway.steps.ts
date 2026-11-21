@@ -69,7 +69,7 @@ Given('the pilot opens Performance', async ({ page }) => {
 Given('the browser holds {word} manual runway data', async ({ page }, kind: string) => {
   const raw = kind === 'damaged'
     ? '{"schemaVersion":1,"runway":'
-    : JSON.stringify({ schemaVersion: 3, savedAt: '2026-11-12T10:00:00.000Z', runway: { aerodrome: 'TEST' } })
+    : JSON.stringify({ schemaVersion: 4, savedAt: '2026-11-12T10:00:00.000Z', runway: { aerodrome: 'TEST' } })
   await page.goto('/')
   await page.evaluate(([key, value]) => localStorage.setItem(key!, value!), [STORAGE_KEY, raw])
 })
