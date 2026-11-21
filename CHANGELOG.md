@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Manage passenger standard-weight profiles in aircraft creation and editing.
-
+- Select an active aircraft passenger profile to copy its mass into an occupant station.
 - Retrieve read-only TAF forecasts with source, UTC validity and expiry warnings.
 - Allow pilots to explicitly apply valid current METAR wind, temperature and QNH to Flight Prep with provenance.
 

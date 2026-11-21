@@ -24,7 +24,11 @@ The system shall display the 5 most recently used airports at the top of the air
 
 ### REQ-UI-006: Passenger Profile Selection
 
-The system shall display available Passenger Profiles for quick selection within the load station input fields.
+The system shall offer the active aircraft's passenger profiles at occupant station inputs.
+
+When a passenger profile is selected, the system shall copy its mass into that station in the station's unit.
+
+When a station mass is edited manually, the system shall retain the entered mass until another explicit change.
 
 ### REQ-UI-007
 

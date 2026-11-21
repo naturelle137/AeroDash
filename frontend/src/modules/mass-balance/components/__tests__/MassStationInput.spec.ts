@@ -27,6 +27,23 @@ function makeStation(overrides: Partial<StationInput> = {}): StationInput {
 }
 
 describe('MassStationInput', () => {
+  it('copies selected passenger mass in station units and permits manual replacement', async () => {
+    const wrapper = mount(MassStationInput, {
+      props: { station: makeStation(), unit: 'kg', passengerProfiles: [
+        { name: 'Passenger', standardWeight: 100, unit: 'lbs' },
+      ] },
+    })
+    await wrapper.get('select').setValue('0')
+    expect(weightEmissions(wrapper)[0]).toBeCloseTo(45.359237)
+    expect((wrapper.get('select').element as HTMLSelectElement).value).toBe('')
+    await field(wrapper).setValue('70')
+    expect(weightEmissions(wrapper)[1]).toBe(70)
+    await wrapper.setProps({ unit: 'lb', passengerProfiles: [{ name: 'Other', standardWeight: 45.359237, unit: 'kg' }] })
+    await wrapper.get('select').setValue('0')
+    expect(weightEmissions(wrapper)[2]).toBeCloseTo(100)
+    await wrapper.setProps({ passengerProfiles: [] })
+    expect(wrapper.find('select').exists()).toBe(false)
+  })
   // ─── Rendering ──────────────────────────────────────────────────────────
 
   it('renders the station name as a label', () => {
