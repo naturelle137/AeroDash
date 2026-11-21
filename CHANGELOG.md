@@ -19,10 +19,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Engineering
 
-- Verify landing-distance estimation and published-value precedence through unit and browser tests.
-
 - Capture browser evidence for extrapolation acknowledgment, revocation, blocking and the benefit cap at desktop and mobile widths.
 - Cover signed Performance keyboard entry in both phases.
+- Verify landing-distance estimation and published-value precedence through unit and browser tests.
 
 ### Fixed
 
