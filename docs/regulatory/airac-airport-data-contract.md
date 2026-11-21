@@ -86,6 +86,44 @@ integrate this candidate into that consumer under the current contract.
   Offline snapshots cannot establish later changes or restrictions. These remain
   unknown, not fresh or stale by assumption.
 
+#### Consumer qualification and delivery decision
+
+Rechecked 2026-11-21 against the provider's [downloads](https://ourairports.com/data/),
+[dictionary](https://ourairports.com/help/data-dictionary.html) and
+[repository](https://github.com/davidmegginson/ourairports-data). The current
+consumer is the manual runway panel feeding Performance and the briefing pack;
+it requires positive TORA and LDA, accepts optional TODA, field elevation and
+pilot-selected surface/condition. The takeoff comparison uses TODA when supplied
+and still checks ground roll against TORA. This is not an accepted integration:
+
+| Consumer input | Candidate field and qualification |
+| :--- | :--- |
+| Airport identity | `airports.csv` has persistent `id` and optional `icao_code`; `ident` is not always ICAO. Match `runways.csv` by its airport reference, reject ambiguous or missing matches. Global site coverage is not a completeness guarantee for any jurisdiction. |
+| Runway end | A runway row has persistent `id` and separate `le_ident`/`he_ident`; select an end explicitly. An ID persisting through renumbering does not prove unchanged values. |
+| TORA, LDA, optional TODA | No declared-distance fields are documented. `length_ft` includes displaced thresholds and overruns. Neither it nor threshold subtraction establishes a declared distance; the comparison cannot be populated from this source. |
+| Field elevation | `elevation_ft` is airport elevation above MSL in feet, not runway-end elevation. Its presence or use does not establish currency or verification. |
+| Surface and condition | `surface` is an uncontrolled code vocabulary; a safe mapping and handling of unknown codes would be needed. It supplies no current pilot-observed surface condition. |
+
+The provider calls the data public domain and offers downloads without a stated
+data charge, but disclaims accuracy and fitness. The repository offers UTF-8 CSV
+files and daily snapshots; a consumer could pin both files to the same repository
+commit and retain that commit and retrieval time. A commit is an artifact version,
+not a record publication, effective or expiry date. No provider-supported record
+validity, supersession or completeness policy was found, and a successful download
+does not establish NOTAM or AIP SUP coverage. Network failure alone does not prove
+expiry; an offline copy cannot know subsequent changes. Those facts stay unknown.
+
+To unblock this consumer, an authorised source must provide separately identified
+declared distances for each runway end, applicable coverage, reuse and cost terms,
+and a reproducible delivery and temporal/update contract meeting the gate below.
+It must also document restriction coverage or explicitly leave it unknown. A future
+adapter must validate the source before use, preserve original values, units and
+provenance separately from manual overrides, mark retrieved values unverified, and
+invalidate dependent comparisons on replacement. Missing or ambiguous data leaves
+the manual workflow available. No legal or financial decision is currently needed
+for this rejected candidate; any paid or restricted alternative needs its actual
+terms and required decision established before acquisition or distribution.
+
 ### Candidate decision: openAIP
 
 Evaluated 2026-11-19 from public pages only. Do not integrate.
