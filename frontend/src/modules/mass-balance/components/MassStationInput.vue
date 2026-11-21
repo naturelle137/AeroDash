@@ -2,6 +2,8 @@
 import { computed, onBeforeUnmount, ref } from 'vue'
 import DecimalInput, { type DecimalRejection } from '@/shared/components/DecimalInput.vue'
 import type { StationInput } from '@/modules/mass-balance/stores/mass-balance.types'
+import type { AircraftProfilePassengerProfile } from '@/core/adapters/aircraft.schema'
+import { massKgToUnit, normalizeMassToKg } from '@/core/logic/unit-normalization'
 
 /** How long the transient inline rejection hint stays visible (ms). */
 const REJECTION_HINT_MS = 2500
@@ -36,6 +38,7 @@ const props = defineProps<{
    */
   presets?: readonly number[]
   optionalOccupant?: boolean
+  passengerProfiles?: readonly AircraftProfilePassengerProfile[]
 }>()
 
 const emit = defineEmits<{
@@ -147,6 +150,16 @@ function decrementCoarse(): void {
 function applyPreset(value: number): void {
   emit('update:weight', clamp(value))
 }
+
+function applyPassengerProfile(event: Event): void {
+  const select = event.target as HTMLSelectElement
+  const profile = props.passengerProfiles?.[Number(select.value)]
+  if (select.value !== '' && profile) {
+    const kg = normalizeMassToKg(profile.standardWeight, profile.unit === 'lbs' ? 'lb' : 'kg')
+    emit('update:weight', massKgToUnit(kg, props.unit === 'lb' ? 'lb' : 'kg'))
+  }
+  select.value = ''
+}
 </script>
 
 <template>
@@ -166,6 +179,20 @@ function applyPreset(value: number): void {
     </div>
 
     <p v-if="optionalOccupant" class="mass-station-input__unusable">Optional passenger — enter 0 when empty</p>
+
+    <label v-if="passengerProfiles?.length" :for="`passenger-profile-${station.index}`">Passenger profile</label>
+    <select
+      v-if="passengerProfiles?.length"
+      :id="`passenger-profile-${station.index}`"
+      :disabled="disabled"
+      :aria-label="`Passenger profile for ${station.name}`"
+      @change="applyPassengerProfile"
+    >
+      <option value="">Select a passenger profile</option>
+      <option v-for="(profile, index) in passengerProfiles" :key="index" :value="index">
+        {{ profile.name }} ({{ profile.standardWeight }} {{ profile.unit }})
+      </option>
+    </select>
 
     <!-- coarse (±N) controls flank the fine (±1) control so a 75 kg
          passenger is a handful of taps, not 75. The fine control is retained. -->
