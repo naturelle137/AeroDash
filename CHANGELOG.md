@@ -27,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Show saved runway date boundaries and unknown restriction coverage in the offline workflow.
 - Carry the manual runway date check into the briefing and invalidate it when the check date changes.
 - Cap below-minimum pressure altitude and temperature at supported conservative table boundaries and mark affected values as estimates.
 - Associate briefing CG warnings with supported points or the shared trajectory.

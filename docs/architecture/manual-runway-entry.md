@@ -5,6 +5,9 @@ values from official sources (AIP/aerodrome chart, NOTAM); AeroDash consults no
 airport database or online service and labels the entry **user-entered, not
 airport-validated**.
 
+The saved summary displays both declared date boundaries, including unknown
+dates. The summary, Performance and briefing identify NOTAM/SUP coverage as unknown.
+
 | Field | Contract |
 | :--- | :--- |
 | Aerodrome, runway designator | Required trimmed text, 1–40 and 1–20 characters, no control characters |

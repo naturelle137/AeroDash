@@ -181,6 +181,8 @@ if (!runway.loaded) runway.load()
       <p class="provenance">User-entered, not airport-validated · saved {{ savedAt }}</p>
       <dl>
         <div><dt>Source reference</dt><dd>{{ runway.current.record.runway.source || 'Unknown' }} (user-declared, unverified)</dd></div>
+        <div><dt>Declared effective date</dt><dd>{{ runway.current.record.runway.effectiveDate || 'Unknown' }}</dd></div>
+        <div><dt>Declared expiry date (inclusive)</dt><dd>{{ runway.current.record.runway.expiryDate || 'Unknown' }}</dd></div>
         <div><dt>TORA</dt><dd>{{ runway.current.record.runway.tora.value }} {{ runway.current.record.runway.tora.unit }}
           <span class="normalized">({{ runway.current.display.toraM }} m)</span></dd></div>
         <div><dt>LDA</dt><dd>{{ runway.current.record.runway.lda.value }} {{ runway.current.record.runway.lda.unit }}
@@ -195,7 +197,7 @@ if (!runway.loaded) runway.load()
       <p role="status"><strong>Source date check:</strong> {{ freshnessLabels[freshness] }}</p>
       <p v-if="cycle">AIRAC cycle starting {{ cycle }} (calendar date only).</p>
       <p v-else>AIRAC cycle unavailable for this date; consult the published calendar.</p>
-      <p class="hint">A cycle change does not expire or verify a record. Dates and NOTAM/SUP coverage must be checked against official sources.</p>
+      <p class="hint">A cycle change does not expire or verify a record. NOTAM/SUP coverage is unknown; check dates and restrictions against official sources.</p>
       <p class="hint">Converted values use 1 ft = 0.3048 m; available distances are rounded down.</p>
     </section>
     <p role="status" class="assessment"><strong>Manual runway declaration.</strong>
