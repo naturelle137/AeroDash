@@ -119,3 +119,7 @@ When displaying a saved runway in Performance or the briefing, the system shall 
 ### REQ-AP-025: Manual source reference
 
 When the pilot supplies a source reference, the system shall retain it with the manual runway and display it as unverified in Performance and the briefing.
+
+### REQ-AP-026: Saved declaration dates
+
+When displaying a saved manual runway, the system shall display its declared effective and expiry dates or indicate when either is unknown.
