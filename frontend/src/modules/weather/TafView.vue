@@ -39,12 +39,12 @@ async function check(): Promise<void> {
     const issued = timestamp(taf.issueTime), from = timestamp(taf.validFrom), to = timestamp(taf.validTo)
     const raw = taf.raw.match(/^TAF\s+(?:(?:AMD|COR)\s+)?([A-Z]{4})\s+(\d{2})(\d{2})(\d{2})Z\s+(\d{2})(\d{2})\/(\d{2})(\d{2})\b/)
     const issueDate = new Date(issued)
-    if (!raw || raw[1] !== station || !Number.isFinite(issued) || !Number.isFinite(from) || !Number.isFinite(to) || issued > Date.now() || issued > from || from >= to || Number(raw[2]) !== issueDate.getUTCDate() || Number(raw[3]) !== issueDate.getUTCHours() || Number(raw[4]) !== issueDate.getUTCMinutes() || issueDate.getUTCSeconds() !== 0 || Number(raw[6]) > 24 || Number(raw[8]) > 24 || !matchesPeriod(from, raw[5]!, raw[6]!) || !matchesPeriod(to, raw[7]!, raw[8]!)) throw new Error('malformed')
+    if (!raw || raw[1] !== station || !Number.isFinite(issued) || !Number.isFinite(from) || !Number.isFinite(to) || issued > Date.now() || issued >= to || from >= to || Number(raw[2]) !== issueDate.getUTCDate() || Number(raw[3]) !== issueDate.getUTCHours() || Number(raw[4]) !== issueDate.getUTCMinutes() || issueDate.getUTCSeconds() !== 0 || Number(raw[6]) > 24 || Number(raw[8]) > 24 || !matchesPeriod(from, raw[5]!, raw[6]!) || !matchesPeriod(to, raw[7]!, raw[8]!)) throw new Error('malformed')
     now.value = Date.now()
     report.value = { raw: taf.raw, station, issued: new Date(issued).toISOString(), from: new Date(from).toISOString(), to: new Date(to).toISOString(), start: from, end: to }
     message.value = 'Forecast retrieved; verify with an authorised source.'
   } catch (error) {
-    message.value = error instanceof Error && error.message === 'malformed' ? 'Malformed TAF response; no forecast displayed.' : 'TAF retrieval failed or is unavailable.'
+    message.value = error instanceof SyntaxError || (error instanceof Error && error.message === 'malformed') ? 'Malformed TAF response; no forecast displayed.' : 'TAF retrieval failed or is unavailable.'
   } finally { loading.value = false }
 }
 </script>

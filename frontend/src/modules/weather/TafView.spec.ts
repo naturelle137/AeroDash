@@ -40,6 +40,16 @@ describe('TAF forecast', () => {
     view.unmount()
   })
 
+  it('accepts amended forecasts issued during their validity', async () => {
+    vi.useFakeTimers(); vi.setSystemTime(new Date('2026-11-21T13:30:00Z'))
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => ({ taf: { ...forecast, raw: 'TAF AMD EDDF 211300Z 2112/2218 21005KT 9999', issueTime: '2026-11-21T13:00:00.000Z' } }) }))
+    const view = mount(TafView)
+    await view.get('#taf-icao').setValue('EDDF')
+    await view.get('form').trigger('submit'); await flushPromises()
+    expect(view.text()).toContain('TAF AMD EDDF')
+    view.unmount()
+  })
+
   it('validates input and handles network failure', async () => {
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('network')))
     const view = mount(TafView)
