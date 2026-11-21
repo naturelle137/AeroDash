@@ -33,6 +33,17 @@ When('I import and verify a synthetic POH profile for registration {string} decl
     await expect(dialog).toBeHidden()
   })
 
+Then('corrected briefing distances have no unverified marker', async ({ page }) => {
+  const section = page.getByRole('dialog', { name: 'Briefing Pack preview' }).getByRole('heading', { name: 'Takeoff corrected distances', exact: true }).locator('..')
+  const rows = section.locator('tbody tr')
+  expect(await rows.count()).toBeGreaterThan(0)
+  for (const row of await rows.all()) {
+    await expect(row.locator('td')).toContainText('(raw ' )
+    await expect(row.locator('td')).not.toContainText('[UNVERIFIED]')
+  }
+  await section.scrollIntoViewIfNeeded()
+})
+
 When('the pilot enters takeoff headwind {string} kt and slope {string} %', async ({ page }, headwind: string, slope: string) => {
   await page.getByLabel('Headwind component (kt, negative = tailwind)').first().fill(headwind)
   await page.getByLabel('Runway slope (%, positive = uphill)').first().fill(slope)

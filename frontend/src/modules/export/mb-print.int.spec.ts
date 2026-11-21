@@ -287,6 +287,25 @@ describe('M&B print presentation with real store calculation', () => {
     wrapper.unmount()
     vi.useRealTimers()
   })
+  it.each([['draft', ' [UNVERIFIED]'], ['verified', '']] as const)('marks corrected distances for %s profiles', async (status, marker) => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-01-02'))
+    const input = source()
+    input.profile!.status = status
+    input.profile!.verification = { verifiedOn: '2026-01-01', verifiedBy: 'T', pohRevision: 'Synthetic', sourceWeighingDate: '2026-01-01' }
+    const performance = presentPerformance({ inputKey: 'k', inputs: [], aircraft: null, takeoff: { status: 'unavailable', reason: 'x' }, landing: { status: 'unavailable', reason: 'x' },
+      assessment: null, pressureAltitudeBasis: '', pendingReason: 'x', runway: { status: 'unavailable', reason: 'x' }, operational: presentOperationalAssessment(null, 'x') })
+    input.performance = { ...performance, corrected: [{ operation: 'takeoff', title: 'Takeoff', status: 'applied', source: 'Synthetic',
+      rows: [{ label: 'Ground roll', factored: '300 m ESTIMATED', raw: '200 m', corrected: '250 m ESTIMATED' }],
+      safetyFactor: '1.20', safetyFactorWarning: 'Warning', comparison: { status: 'unavailable', reason: 'No runway' }, notes: ['Estimate source'] }] } as never
+    const wrapper = mount(MbPrintPreview, { props: { source: input }, attachTo: document.body })
+    await wrapper.get('button').trigger('click')
+    expect(document.body.textContent).toContain(`300 m ESTIMATED${marker} (raw 200 m${marker}, corrected 250 m ESTIMATED${marker})`)
+    expect(document.body.textContent).toContain('Estimate source')
+    expect(document.body.textContent).toContain('Warning')
+    wrapper.unmount()
+    vi.useRealTimers()
+  })
   it('renders the unverified, low-margin and legal disclaimers with their exact wording', async () => {
     const input = source()
     const applied = { operation: 'takeoff', title: 'Takeoff', status: 'applied', source: 'Synthetic', rows: [], safetyFactor: '1.00',
