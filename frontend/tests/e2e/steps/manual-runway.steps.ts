@@ -203,3 +203,15 @@ Then('no storage problem is reported', async ({ page }) => {
   await expect(panel(page).getByRole('alert')).toHaveCount(0)
   expect(await page.evaluate((key) => localStorage.getItem(key), STORAGE_KEY)).toBeNull()
 })
+
+When('the pilot selects recent airport {string}', async ({ page }, airport: string) => {
+  page.once('dialog', (dialog) => dialog.accept())
+  await page.getByRole('region', { name: 'Recently used airports' }).getByRole('button', { name: new RegExp(airport) }).click()
+})
+
+Then('the recent airport {string} is first and its manual runway is restored', async ({ page }, airport: string) => {
+  await expect(page.getByRole('region', { name: 'Recently used airports' }).getByRole('button').first()).toContainText(airport)
+  await expect(summary(page)).toContainText(`${airport} — runway 09`)
+  await expect(summary(page)).toContainText('User-entered, not airport-validated')
+  await expect(summary(page)).toContainText('1000 m')
+})

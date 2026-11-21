@@ -28,6 +28,10 @@ const conditionLabel = computed(() => {
 const savedAt = computed(() => runway.saved ? new Date(runway.saved.savedAt).toLocaleString() : '')
 const errorCount = computed(() => Object.keys(runway.errors).length)
 
+function selectRecent(record: (typeof runway.recent)[number]): void {
+  if (window.confirm('Replace the current runway form with this saved declaration? Unsaved changes will be lost.')) runway.selectRecent(record)
+}
+
 function error(field: ManualRunwayField): string | undefined {
   return runway.showErrors ? runway.errors[field] : undefined
 }
@@ -47,6 +51,11 @@ if (!runway.loaded) runway.load()
       (AIP/aerodrome chart, NOTAM). No airport database or online lookup is used.</p>
     <p v-if="runway.storageError" role="alert" class="storage-error">{{ runway.storageError }}</p>
 
+    <section v-if="runway.recent.length" aria-label="Recently used airports">
+      <h3>Recently used airports</h3>
+      <p>Saved manual declarations; source and currency remain unverified.</p>
+      <div class="actions"><button v-for="record in runway.recent" :key="record.runway.aerodrome" type="button" @click="selectRecent(record)">{{ record.runway.aerodrome }} — {{ record.runway.designator }}</button></div>
+    </section>
     <div class="fields">
       <div class="field">
         <label for="manual-runway-aerodrome">Aerodrome</label>

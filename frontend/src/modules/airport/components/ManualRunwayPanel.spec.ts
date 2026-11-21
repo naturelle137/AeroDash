@@ -79,9 +79,24 @@ describe('ManualRunwayPanel', () => {
       await view.get(selector).setValue(value)
       expect(summary(view).exists()).toBe(false)
       expect(view.text()).toContain('Unsaved changes')
-      await view.get('button[type="button"]').trigger('click')
+      await view.findAll('button').find((button) => button.text() === 'Discard changes')!.trigger('click')
       expect(summary(view).exists()).toBe(true)
     }
+  })
+
+  it('restores a recent declaration after confirmation without changing its source or save time', async () => {
+    vi.spyOn(window, 'confirm').mockReturnValue(true)
+    const view = mount(ManualRunwayPanel)
+    await fill(view)
+    await view.get('#runway-source').setValue('Test source')
+    await view.get('form').trigger('submit')
+    const original = JSON.parse(localStorage.getItem(MANUAL_RUNWAY_STORAGE_KEY)!)
+    await view.get('#manual-runway-aerodrome').setValue('OTHER')
+    await view.get('form').trigger('submit')
+    await view.get('[aria-label="Recently used airports"]').findAll('button')[1]!.trigger('click')
+    expect(summary(view).text()).toContain('Test source (user-declared, unverified)')
+    expect(JSON.parse(localStorage.getItem(MANUAL_RUNWAY_STORAGE_KEY)!).savedAt).toBe(original.savedAt)
+    expect(view.get('[aria-label="Recently used airports"]').findAll('button')[0]!.text()).toContain('TEST')
   })
 
   it('clears a condition from another surface family when the type changes', async () => {
