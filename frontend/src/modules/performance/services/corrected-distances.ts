@@ -67,7 +67,7 @@ const FSM_NOT_CREDITED: Record<FsmNotCredited, string> = {
   'favourable-slope': 'Favourable slope is not credited: FSM 3/75 states no slope range.',
 }
 const FSM_ESTIMATE_MARKER = ' ESTIMATED (FSM 3/75)'
-const FSM_DISCLOSURE = 'Estimate from LBA FSM 3/75, not from the aircraft manual and not validated by it: the source gives slope and surface percentages for the whole distance to 15 m; AeroDash applies them to the ground roll only, with no 15 m to 50 ft conversion, and the POH surface baseline is unknown. Dry paved adds nothing; dry short grass adds 20 %; downhill slope and headwind are not credited. Wind is not corrected.'
+const FSM_DISCLOSURE = 'Estimate from LBA FSM 3/75, not from the aircraft manual and not validated by it. The POH surface baseline is unknown; dry paved adds nothing. Downhill slope and headwind are not credited. Wind is not corrected. The source applies its percentages to total distance; this ground-roll adaptation can understate that surcharge and is not conservative against it.'
 const SLOPE_LIMIT_PERCENT = 100
 
 /**
@@ -99,7 +99,7 @@ export function presentCorrectedOperation(
   const rows = sources.corrections.filter((row) => row.operation === operation)
   const selected = rows.map((row) => row.selected)
   const supplied = selected.every((candidate) => candidate && TECNAM_S9_SOURCE_IDS.includes(candidate.id))
-  // Without a manual rule set the FSM estimate covers surface and slope for take-off; it never covers wind.
+  // The FSM fallback is considered only when no complete manual rule set applies.
   const fsm = !supplied && operation === 'takeoff'
     ? rows.filter((row) => row.correction !== 'wind').map((row) => row.selected)
     : []
