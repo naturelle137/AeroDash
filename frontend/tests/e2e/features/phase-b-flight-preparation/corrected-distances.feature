@@ -125,6 +125,24 @@ Feature: Corrected takeoff and landing distances
       | 1440  | 1000   |
       | 390   | 844    |
 
+  Scenario Outline: Verified corrected distances appear in the briefing
+    Given the raw POH workflow viewport is <width> by <height>
+    When I import and verify a synthetic POH profile for registration "D-EBPN" declaring type "P208" and maximum mass 650 kg
+    And the pilot selects the imported aircraft "D-EBPN" in Flight Prep
+    And the pilot enters pressure altitude "1000" ft directly
+    And the pilot sets temperature "10" °C in Flight Prep
+    And the pilot selects manual configuration "s9"
+    And the pilot saves runway "TEST" "27" with TORA "2000" "m", LDA "550" "m", elevation "300" "ft" and surface "Paved" "Dry"
+    And the pilot enters takeoff headwind "0" kt and slope "0" %
+    And the pilot opens the briefing pack
+    Then corrected briefing distances have no unverified marker
+    And the briefing pack evidence is captured as "corrected-verified-<width>"
+
+    Examples:
+      | width | height |
+      | 1440  | 1000   |
+      | 390   | 844    |
+
   Scenario Outline: Offline runway changes invalidate the current comparison
     Given the raw POH workflow viewport is <width> by <height>
     And the production app is cached for offline performance
