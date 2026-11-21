@@ -78,6 +78,7 @@ const { temperature, temperatureWarnings, corrections, safetyFactors, showPaErro
           <ul class="scope"><li v-for="note in item.notes" :key="note">{{ note }}</li></ul>
         </template>
       </section>
+      <p v-if="presentation.groups.some(group => group.status === 'success')">Base distances are uncorrected table values without operational factors or runway assessment.</p>
       <div v-for="group in presentation.groups" :key="group.id" class="group" :data-group="group.id"
         :aria-label="`${group.title} raw distances`" role="group">
         <h3>{{ group.title }} base distances (uncorrected)</h3>
