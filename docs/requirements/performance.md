@@ -257,7 +257,7 @@ When performance tables are imported, the system shall preserve each table's dec
 
 When a Fleet performance table is reviewed, the system shall display its original points alongside normalized kg/ft/°C/m lookup points.
 
-**Status:** Approved. Original-beside-normalized table display is not asserted by a test.
+**Status:** Implemented.
 
 ### REQ-PF-050: Invalid source declarations
 
