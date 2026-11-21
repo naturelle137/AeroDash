@@ -111,3 +111,5 @@ unit labels remain accessible. QNH method details start collapsed, while current
 QNH advisory warnings accompany every affected distance in the UI and print.
 
 Pilot-defined obstacles use the entered height and distance from the runway reference to show a geometric height/distance gradient. This is not an aircraft flight path: ground roll, terrain and margins are excluded. No applicable climb performance is available for comparison, so clearance cannot be determined. The warning, inputs and gradient also appear in the briefing pack.
+
+Weather allows a temporary flight phase, location and local time selection. No forecast source is configured; the panel reports unavailable or browser offline and does not change manual inputs. Entries are not persisted or transmitted.

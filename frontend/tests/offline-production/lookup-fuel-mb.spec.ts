@@ -291,7 +291,7 @@ test('lookup fuel M&B uses total-moment differences on screen, chart, print and 
   await context.setOffline(true)
   expect((await page.reload())?.fromServiceWorker()).toBe(true)
   await page.getByRole('button', { name: 'Continue anyway', exact: true }).click()
-  await expect(page.getByText('Browser offline')).toBeVisible()
+  await expect(page.getByText('Browser offline', { exact: true })).toBeVisible()
   await expect(takeoffCg).toContainText('2.017')
   await load('9')
   await expect(page.getByRole('alert').filter({ hasText: /Invalid input: Lookup tank \(/ })).toBeVisible()
