@@ -555,6 +555,14 @@ function presetsForStation(stationIndex: number): readonly number[] {
   return isImperial ? OCCUPANT_PRESET_MASSES_LB : OCCUPANT_PRESET_MASSES_KG
 }
 
+function passengerProfilesForStation(stationIndex: number) {
+  const lp = store.aircraft?.loadPoints[stationIndex]
+  const profile = activeAircraftStore.activeProfile
+  return lp && profile && resolveStationKind(lp) === 'occupant' && profile.id === store.aircraft?.id
+    ? profile.passengerProfiles
+    : []
+}
+
 const aircraftLabel = computed(() => {
   if (!store.aircraft) return ''
   return `${store.aircraft.registration} — ${store.aircraft.manufacturer} ${store.aircraft.model}`
@@ -1279,12 +1287,13 @@ function onStartDemo(): void {
                 v-for="station in stations"
                 :key="station.index"
                 :station="station"
-                :unit="store.aircraft?.loadPoints[station.index]?.unit"
+                :unit="store.aircraft?.loadPoints[station.index]?.unit || parseSourceUnit(store.aircraft?.sourceUnit ?? '').massUnit"
                 :unusable-fuel="store.aircraft?.loadPoints[station.index]?.fuelTank?.unusableFuel ?? 0"
                 :max-capacity="store.aircraft?.loadPoints[station.index]?.fuelTank
                   ? (store.aircraft?.loadPoints[station.index]?.operationalLimit ?? null)
                   : null"
                 :presets="presetsForStation(station.index)"
+                :passenger-profiles="passengerProfilesForStation(station.index)"
                 :optional-occupant="isOptionalOccupant(station.index)"
                 :disabled="viewModel.inputsDisabled"
                 @update:weight="onStationWeightChange(station.index, $event)"
