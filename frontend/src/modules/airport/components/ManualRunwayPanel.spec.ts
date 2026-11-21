@@ -166,6 +166,19 @@ describe('ManualRunwayPanel', () => {
 })
 
 describe('manual source dates', () => {
+  it('returns the check to the current local date without changing the saved declaration', async () => {
+    const view = mount(ManualRunwayPanel)
+    await fill(view)
+    await view.get('form').trigger('submit')
+    const saved = localStorage.getItem(MANUAL_RUNWAY_STORAGE_KEY)
+    await view.get('#runway-assessment-date').setValue('2020-01-01')
+    const now = new Date()
+    const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+    await view.findAll('button').find((button) => button.text() === 'Use today’s local date')!.trigger('click')
+    expect((view.get('#runway-assessment-date').element as HTMLInputElement).value).toBe(today)
+    expect(localStorage.getItem(MANUAL_RUNWAY_STORAGE_KEY)).toBe(saved)
+    expect(summary(view).exists()).toBe(true)
+  })
   it('persists dates, reports expiry and invalidates edited declarations', async () => {
     const view = mount(ManualRunwayPanel)
     await fill(view)
