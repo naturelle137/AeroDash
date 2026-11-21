@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Carry the manual runway date check into the briefing and invalidate it when the check date changes.
 - Cap below-minimum pressure altitude and temperature at supported conservative table boundaries and mark affected values as estimates.
 - Associate briefing CG warnings with supported points or the shared trajectory.
 - Disclose when the saved runway surface is not applied to uncorrected performance distances.
