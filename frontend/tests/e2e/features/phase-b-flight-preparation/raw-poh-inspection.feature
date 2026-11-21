@@ -45,6 +45,16 @@ Feature: Raw POH table inspection
       | nonfinite point   |
       | unsupported phase |
 
+  Scenario Outline: Source and lookup points remain associated during Fleet review
+    Given the raw POH workflow viewport is <width> by 1000
+    When I import synthetic imperial tables with two distinct points
+    Then Fleet associates each source point with its normalized lookup point
+
+    Examples:
+      | width |
+      | 1440  |
+      | 390   |
+
   Scenario Outline: Source units survive visible review, lookup, reload and export
     Given the raw POH workflow viewport is <width> by 1000
     When I import a synthetic table declared in "<units>" source units

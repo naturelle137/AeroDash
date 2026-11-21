@@ -13,7 +13,7 @@ function normalizedPoints(table: NonNullable<AircraftProfile['performanceProfile
     <summary>Review imported performance tables</summary>
     <p>Compare every point and table condition against the applicable POH/AFM before verifying.
       Original source values are preserved. Compare them with normalized lookup values in kg, ft pressure altitude, °C and m distance.
-      Verification records your review; it does not certify the data. Scroll tables horizontally on small screens.</p>
+      Verification records your review; it does not certify the data. Matching point numbers identify the same source and lookup point. Scroll tables horizontally on small screens.</p>
     <p v-if="!profile.performanceProfiles?.length">No performance tables supplied. Export this profile,
       add sourced performanceProfiles to the JSON and import it as a new Draft.</p>
     <details v-for="(table, index) in profile.performanceProfiles" :key="index">
@@ -27,13 +27,14 @@ function normalizedPoints(table: NonNullable<AircraftProfile['performanceProfile
         <table>
           <caption>Original source values</caption>
           <thead><tr>
+            <th scope="col">Point</th>
             <th>Mass ({{ (table.sourceUnits ?? LEGACY_PERFORMANCE_UNITS).mass }})</th>
             <th>Pressure altitude ({{ (table.sourceUnits ?? LEGACY_PERFORMANCE_UNITS).pressureAltitude }})</th>
             <th>Temperature ({{ (table.sourceUnits ?? LEGACY_PERFORMANCE_UNITS).temperature }})</th>
             <th>Distance ({{ (table.sourceUnits ?? LEGACY_PERFORMANCE_UNITS).distance }})</th>
           </tr></thead>
           <tbody><tr v-for="(point, row) in table.dataPoints" :key="row">
-            <td>{{ point.mass }}</td><td>{{ point.pressureAltitude }}</td>
+            <th scope="row">{{ row + 1 }}</th><td>{{ point.mass }}</td><td>{{ point.pressureAltitude }}</td>
             <td>{{ point.temperature }}</td><td>{{ point.distance }}</td>
           </tr></tbody>
         </table>
@@ -41,9 +42,9 @@ function normalizedPoints(table: NonNullable<AircraftProfile['performanceProfile
       <div class="table-scroll" tabindex="0" :aria-label="`${table.flightPhase} normalized points`">
         <table>
           <caption>Normalized lookup values</caption>
-          <thead><tr><th>Mass (kg)</th><th>Pressure altitude (ft)</th><th>Temperature (°C)</th><th>Distance (m)</th></tr></thead>
+          <thead><tr><th scope="col">Point</th><th>Mass (kg)</th><th>Pressure altitude (ft)</th><th>Temperature (°C)</th><th>Distance (m)</th></tr></thead>
           <tbody><tr v-for="(point, row) in normalizedPoints(table)" :key="row">
-            <td>{{ point.mass }}</td><td>{{ point.pressureAltitude }}</td>
+            <th scope="row">{{ row + 1 }}</th><td>{{ point.mass }}</td><td>{{ point.pressureAltitude }}</td>
             <td>{{ point.temperature }}</td><td>{{ point.distance }}</td>
           </tr></tbody>
         </table>
