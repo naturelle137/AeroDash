@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Give every documentation/export, performance and fuel/endurance requirement an evidence-backed status or a stated gap, renumber the duplicate REQ-DOC-034 to REQ-DOC-037 and update roadmap limits.
 
+### Added
+
+- Extend local instructor notes to takeoff and landing distances in Performance and the Briefing Pack.
+
 ### Engineering
 
 - Capture browser evidence for extrapolation acknowledgment, revocation, blocking and the benefit cap at desktop and mobile widths.
@@ -28,6 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Give every documentation/export, performance and fuel/endurance requirement an evidence-backed status or a stated gap, renumber the duplicate REQ-DOC-034 to REQ-DOC-037 and update roadmap limits.
 - Align roadmap and README text with the delivered briefing-pack PDF download.
 - Limit the AIRAC calendar display to published dates and indicate when a date is unsupported.
 
