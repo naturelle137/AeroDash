@@ -121,6 +121,17 @@ When('the pilot sets temperature {string} °C in Flight Prep', async ({ page }, 
   await page.getByLabel('Temperature (°C)', { exact: true }).fill(temperature)
 })
 
+Then('Flight Prep identifies the raw distance scope and captures evidence', async ({ page, $testInfo }) => {
+  const results = page.getByRole('region', { name: 'Base performance distances', exact: true })
+  await expect(results.getByRole('group', { name: 'Takeoff raw distances' }).locator('dd').first()).toBeVisible()
+  await expect(results).toContainText('Base distances are uncorrected table values without operational factors or runway assessment.')
+  expect(await page.locator('body').evaluate(el => el.scrollWidth)).toBeLessThanOrEqual(page.viewportSize()!.width)
+  await results.scrollIntoViewIfNeeded()
+  const path = $testInfo.outputPath(`raw-scope-${page.viewportSize()!.width}.png`)
+  await page.screenshot({ path, fullPage: true })
+  await $testInfo.attach('Flight Prep raw distance scope', { path, contentType: 'image/png' })
+})
+
 Then("changing each phase's conditions updates its final distance", async ({ page }) => {
   for (const phase of ['Takeoff', 'Landing']) {
     const inputs = page.getByRole('group', { name: `${phase} wind and slope` })

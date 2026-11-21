@@ -234,7 +234,7 @@ When a lookup input or the selected profile changes, the system shall synchronou
 
 While raw table distances are displayed, the system shall identify them as uncorrected table values without operational factors or runway assessment.
 
-**Status:** Approved. Uncorrected-scope wording for raw table distances is not asserted by a test.
+**Status:** Implemented. Tests: `frontend/src/modules/performance/views/PerformanceView.spec.ts`, Flight Prep Chromium scenario.
 
 ### REQ-PF-047: Import table review
 

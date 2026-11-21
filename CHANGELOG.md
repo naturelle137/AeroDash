@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Cap below-minimum pressure altitude and temperature at supported conservative table boundaries and mark affected values as estimates.
+- Clarify that base performance distances exclude operational factors and runway assessment.
+
 - Identify corresponding source and normalized performance points during Fleet review.
 
 - Identify missing correction-source provenance and verify candidate details in the assessment.
