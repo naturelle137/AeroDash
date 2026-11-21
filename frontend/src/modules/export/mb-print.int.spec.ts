@@ -142,12 +142,22 @@ describe('M&B print presentation with real store calculation', () => {
     expect(pack.chart.severity).toBe('critical')
     expect(pack.points[0]!.massWarnings.map(n => n.message)).toContain('MTOM Exceeded')
     expect(pack.points[1]!.massWarnings.map(n => n.message)).not.toContain('MTOM Exceeded')
-    expect(pack.points.every(p => p.cgWarnings.some(n => n.message === 'CG Out of Envelope'))).toBe(true)
+    expect(pack.points.map(p => p.cgWarnings.some(n => n.message === 'CG Out of Envelope'))).toEqual([true, false, false])
     input.result!.takeoffCenterOfGravityPoint.arm = NaN
     expect(canPrintMb(input)).toBe(false)
     input.result!.takeoffCenterOfGravityPoint.arm = 1
     input.notifications.push({ id: 'CRIT-SYS-002', severity: 'CRITICAL', message: 'Adapter failed', persistent: false, dismissible: false })
     expect(canPrintMb(input)).toBe(false)
+  })
+  it('keeps migration and unsubstantiated CG warnings at trajectory level', () => {
+    const input = source()
+    input.notifications.push(
+      { id: 'CRIT-MB-001', severity: 'WARNING', message: 'CG evidence unavailable', context: 'MassBalance.CG', persistent: false, dismissible: true },
+      { id: 'CRIT-MB-003', severity: 'WARNING', message: 'CG Migration Limit Exceeded', context: 'MassBalance.CG', persistent: false, dismissible: true },
+    )
+    const pack = assembleMbPrint(input, new Date())!
+    expect(pack.cgTrajectoryWarnings.map(n => n.message)).toEqual(['CG evidence unavailable', 'CG Migration Limit Exceeded'])
+    expect(pack.points.every(p => p.cgWarnings.every(n => n.context !== 'MassBalance.CG'))).toBe(true)
   })
   it('presents actionable warnings without exposing their internal IDs', async () => {
     const input = source()

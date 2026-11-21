@@ -176,6 +176,10 @@ onBeforeUnmount(() => {
           <table><thead><tr><th>Endpoint</th><th>Mass</th><th>CG arm</th><th>Applicable limit</th></tr></thead><tbody>
             <tr v-for="row in currentSnapshot.points" :key="row.label"><td>{{ row.label }}</td><td :class="{ 'briefing-warning': row.massWarnings.length, 'briefing-critical': row.massWarnings.some(n => n.severity === 'CRITICAL') }">{{ row.mass }}<p v-for="(note, n) in row.massWarnings" :key="n">{{ note.severity }}: {{ note.message }}</p></td><td :class="{ 'briefing-warning': row.cgWarnings.length, 'briefing-critical': row.cgWarnings.some(n => n.severity === 'CRITICAL') }">{{ row.cg }}<p v-for="(note, n) in row.cgWarnings" :key="n">{{ note.severity }}: {{ note.message }}</p></td><td>{{ row.limit }}</td></tr>
           </tbody></table>
+          <section v-if="currentSnapshot.cgTrajectoryWarnings.length" aria-label="CG trajectory warnings">
+            <h3>CG trajectory warnings</h3>
+            <p v-for="(note, index) in currentSnapshot.cgTrajectoryWarnings" :key="index" class="briefing-warning" :class="{ 'briefing-critical': note.severity === 'CRITICAL' }">{{ note.severity }}: {{ note.message }}</p>
+          </section>
           <figure class="briefing-chart">
             <h2>Loading envelope chart</h2>
             <CGEnvelopeChart :result="currentSnapshot.chart.result" :envelope="currentSnapshot.chart.envelope" :graph-type="currentSnapshot.graphType" :severity="currentSnapshot.chart.severity" print />
