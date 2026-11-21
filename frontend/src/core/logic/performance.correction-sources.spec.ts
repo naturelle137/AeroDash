@@ -38,7 +38,7 @@ describe('built-in source register', () => {
 
   it('holds no numeric correction value; the supplied Tecnam entries are free of evidence gaps', () => {
     for (const candidate of CORRECTION_SOURCE_REGISTER) {
-      expect(tecnam.includes(candidate) || candidate.evidenceGaps.length > 0).toBe(true)
+      expect(tecnam.includes(candidate) || candidate.estimate === true || candidate.evidenceGaps.length > 0).toBe(true)
       expect(Object.keys(candidate)).not.toEqual(expect.arrayContaining(['factor']))
     }
     expect(tecnam).toHaveLength(9)
@@ -55,8 +55,11 @@ describe('built-in source register', () => {
             expect(result.corrections).toHaveLength(6)
             for (const entry of result.corrections) {
               const covered = accepted && (entry.correction !== 'surface' || surface?.surface.condition === 'dry' || surface?.surface.condition === 'dry-short-grass')
-              expect(entry.status === 'source-identified').toBe(covered)
-              expect(entry.selected?.id).toBe(covered ? `tecnam-${variant}-${entry.correction}` : undefined)
+              // Without a manual rule set, the generic estimate covers take-off surface and slope only.
+              const fsm = !accepted && icaoTypeDesignator !== 'P208' && entry.operation === 'takeoff' && entry.correction !== 'wind'
+                && (entry.correction === 'slope' || surface?.surface.condition === 'dry' || surface?.surface.condition === 'dry-short-grass')
+              expect(entry.status === 'source-identified').toBe(covered || fsm)
+              expect(entry.selected?.id).toBe(covered ? `tecnam-${variant}-${entry.correction}` : fsm ? `fsm-${entry.correction}` : undefined)
             }
           }
         }
@@ -143,7 +146,9 @@ describe('assessCorrectionSources', () => {
 
   it('keeps a full-distance source out of the ground-roll surface and slope corrections', () => {
     const entry = item(assessCorrectionSources(facts(), runway('unpaved', 'dry-short-grass')), 'surface', 'takeoff')
-    expect(reasonsOf(entry, 'fsm-surface')).toContainEqual({ code: 'target-mismatch', sourceTarget: 'distance-over-obstacle', requiredTarget: 'ground-roll' })
+    expect(reasonsOf(entry, 'caa-surface')).toContainEqual({ code: 'target-mismatch', sourceTarget: 'distance-over-obstacle', requiredTarget: 'ground-roll' })
+    // The FSM percentages are adapted to the ground roll, so that candidate carries no target mismatch.
+    expect(reasonsOf(entry, 'fsm-surface')).toEqual([])
   })
 
   it('needs the saved runway condition before a surface source can be matched', () => {

@@ -2,6 +2,7 @@ import type { Operation, RunwayFacts, SourceAssessment } from '@/core/logic/perf
 import { isOsfBelowMinimum, osfThreshold, OSF_MAX, OSF_MIN, resolveOsf, safetyMargin } from '@/core/logic/performance.safety-factor'
 import type { OperationalSafetyFactorInput, OsfPreset } from '@/core/domain/performance.math-types'
 import { applyTecnamS9Corrections, TECNAM_S9_RULES, TECNAM_S9_SOURCE_IDS, type S9NotCredited } from '@/core/logic/performance.tecnam-s9-corrections'
+import { estimateFsmTakeoff, type FsmNotCredited } from '@/core/logic/performance.fsm-estimates'
 import { OPERATION_LABELS } from './correction-source-messages'
 import { formatNumber } from './performance-presentation'
 import { parseLookupNumber, type GroupAssessment } from './poh-inspection'
@@ -61,6 +62,12 @@ const NOT_CREDITED: Record<S9NotCredited, string> = {
   headwind: 'Headwind is not credited: the manual states no range for it.',
   'favourable-slope': 'Favourable slope is not credited: the manual states no range for it.',
 }
+const FSM_NOT_CREDITED: Record<FsmNotCredited, string> = {
+  headwind: 'Headwind is not credited: FSM 3/75 gives no take-off headwind credit.',
+  'favourable-slope': 'Favourable slope is not credited: FSM 3/75 states no slope range.',
+}
+const FSM_ESTIMATE_MARKER = ' ESTIMATED (FSM 3/75)'
+const FSM_DISCLOSURE = 'Estimate from LBA FSM 3/75, not from the aircraft manual and not validated by it: the source gives slope and surface percentages for the whole distance to 15 m; AeroDash applies them to the ground roll only, with no 15 m to 50 ft conversion, and the POH surface baseline is unknown. Dry paved adds nothing; dry short grass adds 20 %; downhill slope and headwind are not credited. Wind is not corrected.'
 const SLOPE_LIMIT_PERCENT = 100
 
 /**
@@ -92,7 +99,12 @@ export function presentCorrectedOperation(
   const rows = sources.corrections.filter((row) => row.operation === operation)
   const selected = rows.map((row) => row.selected)
   const supplied = selected.every((candidate) => candidate && TECNAM_S9_SOURCE_IDS.includes(candidate.id))
-  if (!supplied || !selected[0]) return unavailable('No accepted correction source covers wind, surface and slope for this aircraft and runway. Distances stay uncorrected; see Correction sources.')
+  // Without a manual rule set the FSM estimate covers surface and slope for take-off; it never covers wind.
+  const fsm = !supplied && operation === 'takeoff'
+    ? rows.filter((row) => row.correction !== 'wind').map((row) => row.selected)
+    : []
+  const estimating = fsm.length === 2 && fsm.every((candidate) => candidate?.estimate)
+  if (!estimating && (!supplied || !selected[0])) return unavailable('No accepted correction source covers wind, surface and slope for this aircraft and runway. Distances stay uncorrected; see Correction sources.')
   if (!runway) return unavailable('Save the manual runway to select its surface correction.')
 
   const headwindKt = parseLookupNumber(inputs.headwind)
@@ -102,12 +114,26 @@ export function presentCorrectedOperation(
 
   const [roll, over50] = group.distances
   if (!roll || !over50) return unavailable('Raw distance rows are incomplete.')
-  const result = applyTecnamS9Corrections({
-    operation, groundRoll: roll.distance, distanceOver50ft: over50.distance,
-    surface: runway.surface.type === 'paved' ? 'paved' : 'grass', headwindKt, slopePercent,
-  })
-  const manualFactor = TECNAM_S9_RULES[operation].inServiceFactor
-  const osf: OperationalSafetyFactorInput = { preset: safetyFactor.preset, pohMandatedFactor: { [operation]: manualFactor } }
+  let result: { groundRoll: number; distanceOver50ft: number; notCredited: readonly string[] }
+  if (estimating) {
+    const estimate = estimateFsmTakeoff({
+      groundRoll: roll.distance, distanceOver50ft: over50.distance,
+      surface: `${runway.surface.type}:${runway.surface.condition}`, headwindKt, slopePercent,
+    })
+    if (estimate.status === 'unsupported') {
+      return unavailable(estimate.reason === 'tailwind'
+        ? 'FSM 3/75 gives no tailwind value, so no estimate is made. Distances stay uncorrected.'
+        : 'FSM 3/75 has no unambiguous row for this runway surface condition. Distances stay uncorrected.')
+    }
+    result = estimate
+  } else {
+    result = applyTecnamS9Corrections({
+      operation, groundRoll: roll.distance, distanceOver50ft: over50.distance,
+      surface: runway.surface.type === 'paved' ? 'paved' : 'grass', headwindKt, slopePercent,
+    })
+  }
+  const manualFactor = estimating ? null : TECNAM_S9_RULES[operation].inServiceFactor
+  const osf: OperationalSafetyFactorInput = { preset: safetyFactor.preset, pohMandatedFactor: manualFactor === null ? {} : { [operation]: manualFactor } }
   if (safetyFactor.preset === 'custom') {
     const custom = parseLookupNumber(safetyFactor.custom)
     if (custom === null || custom < OSF_MIN || custom > OSF_MAX) return unavailable(`Enter the custom safety factor between ${OSF_MIN.toFixed(2)} and ${OSF_MAX.toFixed(2)}.`)
@@ -116,32 +142,35 @@ export function presentCorrectedOperation(
   const factor = resolveOsf(osf, operation)
   const threshold = osfThreshold(osf, operation)
   const up = (value: number) => `${formatNumber(Math.ceil(value), 0)} m`
-  const { document } = selected[0]
+  const { document, section } = estimating ? fsm[0]! : selected[0]!
+  const sourceId = estimating ? 'fsm' : selected[0]!.id
   const comparison = compareWithRunway(operation, Math.ceil(result.distanceOver50ft * factor), Math.ceil(result.groundRoll * factor), available)
   const marker = ' ESTIMATED (CAA SSL 07)'
   const extrapolated = ' ESTIMATED — EXTRAPOLATED (+20 % penalty)'
   const markers = (rows: typeof group.distances) =>
     (rows.some(row => row.extrapolation) ? extrapolated : '') + (rows.some(row => row.provenance === 'estimated') ? marker : '')
-  const rollMarker = markers([roll])
+  const baseRollMarker = markers([roll])
   const over50Marker = markers([over50])
-  const correctedOver50Marker = markers([roll, over50])
+  const rollMarker = baseRollMarker + (estimating ? FSM_ESTIMATE_MARKER : '')
+  const correctedOver50Marker = markers([roll, over50]) + (estimating ? FSM_ESTIMATE_MARKER : '')
   return {
     operation, title, status: 'applied', partial: result.notCredited.length > 0,
-    source: `${document.title}, ${document.identifier}, ${document.revision}; ${selected[0].section}`,
+    source: `${document.title}, ${document.identifier}, ${document.revision}; ${section}`,
     rows: [
-      { label: roll.label, raw: `${formatNumber(roll.distance)} m${rollMarker}`, corrected: up(result.groundRoll) + rollMarker, factored: up(result.groundRoll * factor) + rollMarker },
+      { label: roll.label, raw: `${formatNumber(roll.distance)} m${baseRollMarker}`, corrected: up(result.groundRoll) + rollMarker, factored: up(result.groundRoll * factor) + rollMarker },
       { label: over50.label, raw: `${formatNumber(over50.distance)} m${over50Marker}`, corrected: up(result.distanceOver50ft) + correctedOver50Marker, factored: up(result.distanceOver50ft * factor) + correctedOver50Marker },
     ],
     comparison: { ...comparison, required: comparison.required + correctedOver50Marker, margin: comparison.margin === 'Not available' ? comparison.margin : comparison.margin + correctedOver50Marker,
       summary: rollMarker ? comparison.summary.replace(/(final ground roll of [\d,]+ m)/, `$1${rollMarker}`) : comparison.summary },
-    safetyFactor: `${factor.toFixed(2)} (${SAFETY_FACTOR_PRESETS.find((p) => p.value === safetyFactor.preset)!.label})`,
+    safetyFactor: `${factor.toFixed(2)} (${estimating && safetyFactor.preset === 'poh-afm' ? 'Regulatory baseline; no manual factor' : SAFETY_FACTOR_PRESETS.find((p) => p.value === safetyFactor.preset)!.label})`,
     safetyFactorWarning: isOsfBelowMinimum(osf, operation)
-      ? `WARN-PF-002: safety factor ${factor.toFixed(2)} is below the recommended minimum ${threshold.toFixed(2)} (greater of the manual factor ${manualFactor} and the regulatory baseline). Advisory; the result is not blocked.`
+      ? `WARN-PF-002: safety factor ${factor.toFixed(2)} is below the recommended minimum ${threshold.toFixed(2)} (${manualFactor === null ? 'regulatory baseline' : `greater of the manual factor ${manualFactor} and the regulatory baseline`}). Advisory; the result is not blocked.`
       : null,
     notes: [
-      `Final value = corrected distance × safety factor ${factor.toFixed(2)}, rounded up to whole metres. The manual states ${manualFactor} as its in-service factor.`,
-      ...result.notCredited.map((item) => `${NOT_CREDITED[item]} ${item === 'headwind' ? `Wind component ${inputs.headwind} kt` : `Runway slope ${inputs.slope} %`} was not applied.`),
-      ...(operation === 'landing' && selected[0].id.startsWith('tecnam-s9-') ? ['The manual landing table exists for 650 kg only; lower masses use it unchanged.'] : []),
+      `Final value = corrected distance × safety factor ${factor.toFixed(2)}, rounded up to whole metres.${manualFactor === null ? '' : ` The manual states ${manualFactor} as its in-service factor.`}`,
+      ...(estimating ? [FSM_DISCLOSURE] : []),
+      ...result.notCredited.map((item) => `${estimating ? FSM_NOT_CREDITED[item as FsmNotCredited] : NOT_CREDITED[item as S9NotCredited]} ${item === 'headwind' ? `Wind component ${inputs.headwind} kt` : `Runway slope ${inputs.slope} %`} was not applied.`),
+      ...(operation === 'landing' && sourceId.startsWith('tecnam-s9-') ? ['The manual landing table exists for 650 kg only; lower masses use it unchanged.'] : []),
       'Check the applicable aircraft manual. This is not an operational approval or go/no-go decision.',
     ],
   }
