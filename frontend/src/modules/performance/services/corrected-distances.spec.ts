@@ -133,6 +133,7 @@ describe('corrected distances in the performance step', () => {
         expect(item.safetyFactor).toContain('no manual factor')
         expect(item.notes.join(' ')).toContain('not validated by it')
         expect(item.notes.join(' ')).toContain('Wind is not corrected')
+        expect(item.notes.join(' ')).toContain('can understate that surcharge')
       })
       effect.stop()
     })

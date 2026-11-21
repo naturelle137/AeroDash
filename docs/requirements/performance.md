@@ -126,7 +126,7 @@ When calculating performance, the system shall calculate Landing Distance from 5
 
 If the POH has no correction for a parameter, then the system shall use the applicable FSM 3/75 fallback defined in the [factor contract](../architecture/performance-safety-factor-pipeline.md).
 
-**Status:** Approved. No test covers an FSM 3/75 fallback; corrections apply only from accepted manual sources (`frontend/src/core/logic/performance.correction-sources.spec.ts`, `frontend/src/modules/performance/services/corrected-distances.spec.ts`).
+**Status:** Partial. Take-off fallback is implemented for uphill slope and dry short grass; see the [source contract](../architecture/performance-correction-sources.md).
 
 ### REQ-PF-022: Whole-distance corrections
 
@@ -365,7 +365,7 @@ While a profile stores surface factors without source evidence, the system shall
 
 When the profile, a runway input, the saved runway or a lookup input changes, the system shall immediately clear the prior source assessment.
 
-Accepted Tecnam manual configurations supply source-specific corrections. Other configurations and FSM 3/75 remain unsupported. See the [source assessment contract](../architecture/performance-correction-sources.md).
+Accepted Tecnam manual configurations supply source-specific corrections. The limited FSM fallback is described below. See the [source assessment contract](../architecture/performance-correction-sources.md).
 
 ## Design References
 
