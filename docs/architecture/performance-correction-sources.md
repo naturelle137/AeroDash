@@ -84,6 +84,7 @@ The final distance over 50 ft (corrected distance × the selected safety factor,
 declared TODA when entered, otherwise TORA (take-off), or LDA (landing), all rounded down to 0.1 m. With a TODA
 the final ground roll must also fit TORA. Margin is `available - required` in metres and as `100 × margin / required`
 (REQ-PF-026). Insufficient length is shown as an alert; sufficient length is a comparison, not an operational approval.
+The comparison states when it uses partially corrected distances.
 
 ## Safety factor selection
 
