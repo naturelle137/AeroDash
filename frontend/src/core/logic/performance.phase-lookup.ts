@@ -1,7 +1,7 @@
 /**
  * Raw per-table lookup; see docs/architecture/performance-flight-prep.md.
  * Below-minimum mass retains the boundary distance only for nondecreasing rows.
- * Unsupported altitude, temperature and upper mass excursions remain blocked.
+ * Lower altitude and temperature require a nondecreasing axis with at least two points.
  */
 
 import { trilinearInterpolate, type PerformanceCube3D, type PohDistanceConditions } from './performance.poh-distance'
@@ -42,6 +42,7 @@ export type PhaseLookupResult =
     /** Mass actually used for the table lookup (kg). */
     readonly lookupMass: number
     readonly massRange: { readonly min: number; readonly max: number }
+    readonly lowerAxisCaps: readonly ('pressureAltitude' | 'temperature')[]
   }
   | {
     readonly status: 'blocked'
@@ -66,11 +67,11 @@ export function lookupPhaseDistance(cube: PerformanceCube3D, conditions: PohDist
     return { status: 'blocked', reason: 'invalid-input', range: null }
   }
   const altitude = axisRange(cube.altitudeAxis)
-  if (pressureAltitude < altitude.min || pressureAltitude > altitude.max) {
+  if (pressureAltitude > altitude.max || (pressureAltitude < altitude.min && (cube.altitudeAxis.length < 2 || !isNonDecreasingAlong(cube, 'altitude')))) {
     return { status: 'blocked', reason: 'pressure-altitude-outside', range: altitude }
   }
   const temperatures = axisRange(cube.temperatureAxis)
-  if (temperature < temperatures.min || temperature > temperatures.max) {
+  if (temperature > temperatures.max || (temperature < temperatures.min && (cube.temperatureAxis.length < 2 || !isNonDecreasingAlong(cube, 'temperature')))) {
     return { status: 'blocked', reason: 'temperature-outside', range: temperatures }
   }
   const massRange = axisRange(cube.massAxis)
@@ -80,9 +81,13 @@ export function lookupPhaseDistance(cube: PerformanceCube3D, conditions: PohDist
     return { status: 'blocked', reason: 'mass-below-table-unsupported', range: massRange }
   }
   const lookupMass = capped ? massRange.min : mass
-  const { distance } = trilinearInterpolate({ mass: lookupMass, pressureAltitude, temperature, cube })
+  const { distance } = trilinearInterpolate({ mass: lookupMass, pressureAltitude: Math.max(pressureAltitude, altitude.min), temperature: Math.max(temperature, temperatures.min), cube })
   if (!Number.isFinite(distance) || distance <= 0) return { status: 'blocked', reason: 'invalid-distance', range: null }
-  return { status: 'success', distance, massTreatment: capped ? 'benefit-capped' : 'tabulated', lookupMass, massRange }
+  const lowerAxisCaps = [
+    ...(pressureAltitude < altitude.min ? ['pressureAltitude' as const] : []),
+    ...(temperature < temperatures.min ? ['temperature' as const] : []),
+  ]
+  return { status: 'success', distance, massTreatment: capped ? 'benefit-capped' : 'tabulated', lookupMass, massRange, lowerAxisCaps }
 }
 
 function isNonDecreasingAlong(cube: PerformanceCube3D, axis: 'temperature' | 'altitude'): boolean {
@@ -105,7 +110,7 @@ export type ExtrapolatedLookupResult =
 /**
  * Look up one table and extrapolate above the maximum of mass, pressure altitude or temperature by at most
  * the fixed 10 % band, applying the fixed 20 % penalty to the boundary distance. Lower pressure altitude
- * and temperature stay blocked, below-minimum mass keeps the benefit cap, and extrapolation is refused
+ * and temperature use supported boundary caps, below-minimum mass keeps the benefit cap, and extrapolation is refused
  * unless the caller documents an applicable source (default: none, so the plain blocked lookup applies)
  * and the table never decreases along any axis (the assumption that makes the penalty conservative).
  */

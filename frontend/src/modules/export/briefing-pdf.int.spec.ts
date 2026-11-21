@@ -146,6 +146,21 @@ describe('Briefing Pack PDF download', () => {
     expect(strip(text)).toContain(strip('ESTIMATED (CAA SSL 07)'))
   })
 
+  it('carries lower-axis estimate markers from the live performance calculation into the PDF', async () => {
+    const input = source()
+    const scope = effectScope()
+    scope.run(() => {
+      const step = usePerformanceStep(() => ({ ready: true, notReadyReason: '', profile: testPohAircraft(), category: 'Normal', revision: '',
+        takeoff: { status: 'ready', massKg: 900, origin: 'M&B' }, landing: { status: 'ready', massKg: 850, origin: 'trip arrival' } }))
+      step.pa.method.value = 'direct'; step.pa.direct.value = '-1'; step.temperature.value = '-1'
+      input.performance = JSON.parse(JSON.stringify(step.presentation.value))
+    })
+    scope.stop()
+    const { text, sheet } = await pdfFor(input)
+    expect(sheet).toContain('ESTIMATED (lower-axis table boundary)')
+    expect(strip(text)).toContain(strip('ESTIMATED (lower-axis table boundary)'))
+  })
+
   it('carries the runway-insufficient and low-safety-factor notifications', async () => {
     const input = source()
     input.performance = presentPerformance({ inputKey: 'k', inputs: [], aircraft: null, takeoff: { status: 'unavailable', reason: 'x' }, landing: { status: 'unavailable', reason: 'x' },

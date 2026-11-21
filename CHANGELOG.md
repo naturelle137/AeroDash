@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Cap below-minimum pressure altitude and temperature at supported conservative table boundaries and mark affected values as estimates.
 - Associate briefing CG warnings with supported points or the shared trajectory.
 - Disclose when the saved runway surface is not applied to uncorrected performance distances.
 - Clarify that base performance distances exclude operational factors and runway assessment.
@@ -17,7 +18,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Disclose when the selected safety factor is not applied to uncorrected performance distances.
 - Identify missing correction-source provenance and verify candidate details in the assessment.
-
 - Show the geometric gradient for pilot-defined obstacles and state when clearance cannot be determined.
 
 - Estimate missing takeoff distance from ground roll and retain its provenance.
