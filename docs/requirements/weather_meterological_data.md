@@ -12,7 +12,7 @@ When a departure or arrival time is defined, the system shall retrieve forecast 
 
 ### REQ-WX-003: Weather Auto-population
 
-While forecast weather is unavailable, when METAR/TAF data is received, the system shall populate wind direction/speed from the latest report.
+While forecast weather is unavailable, when the pilot selects a valid current METAR wind, the system shall apply it to Flight Prep wind inputs.
 
 ### REQ-WX-004: Precipitation Surface Default
 
@@ -44,7 +44,7 @@ When valid manual wind components are available, the system shall include them a
 
 ### REQ-WX-008: Weather Metadata Display
 
-When weather data is auto-populated, the system shall provide the metadata (Source, Timestamp) for all data points.
+While an applied METAR value remains unchanged, the system shall display its source and observation time.
 
 ### REQ-WX-009: Wind Limit Exceedance Notification
 
@@ -62,11 +62,11 @@ If a wind or gust component exceeds a stored Limit value, then the system shall 
 
 ### REQ-WX-012: Weather temperature population
 
-While forecast weather is unavailable, when METAR/TAF data is received, the system shall populate temperature from the latest report.
+While forecast weather is unavailable, when the pilot selects a valid current METAR temperature, the system shall apply it to the Flight Prep temperature input.
 
 ### REQ-WX-013: Weather QNH population
 
-While forecast weather is unavailable, when METAR/TAF data is received, the system shall populate QNH from the latest report.
+While forecast weather is unavailable, when the pilot selects a valid current METAR QNH, the system shall apply it to the Flight Prep QNH input.
 
 ## Design References
 
