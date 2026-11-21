@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Suggest a wet runway condition from a fresh matching METAR, with pilot override.
 - Retrieve read-only METAR observations with source, observation time and availability warnings.
 
 ### Fixed
