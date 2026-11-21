@@ -100,7 +100,7 @@ it('defaults only an empty matching runway and preserves a pilot override', () =
   const report = { station: 'EDDF', time: '2026-11-21T16:30:00Z', liquid: true }
   store.updateWeather(report)
   expect(store.draft.surfaceCondition).toBe('wet')
-  expect(store.weatherSurface).toContain('EDDF')
+  expect(store.weatherSurface?.station).toBe('EDDF')
   store.draft.surfaceCondition = 'dry'
   store.updateWeather(null)
   store.updateWeather(report)
@@ -120,4 +120,23 @@ it('defaults only an empty matching runway and preserves a pilot override', () =
   store.draft.aerodrome = 'EDDM'
   store.updateWeather(report)
   expect(store.draft.surfaceCondition).toBe('')
+})
+
+
+it('persists weather provenance and removes it on a pilot surface override', () => {
+  const store = useManualRunwayStore()
+  store.load()
+  enter(store)
+  store.draft.surfaceCondition = ''
+  store.load()
+  Object.assign(store.draft, { aerodrome: 'EDDF', designator: '18', tora: '1000', toraUnit: 'm', lda: '1000', ldaUnit: 'm', fieldElevation: '0', fieldElevationUnit: 'm', surfaceType: 'paved' })
+  store.updateWeather({ station: 'EDDF', time: '2026-11-21T16:30:00.000Z', liquid: true })
+  expect(store.save()).toBe(true)
+  setActivePinia(createPinia())
+  const restored = useManualRunwayStore()
+  restored.load()
+  expect(restored.current?.record.weatherSurface).toEqual({ station: 'EDDF', time: '2026-11-21T16:30:00.000Z' })
+  restored.draft.surfaceCondition = 'dry'
+  expect(restored.save()).toBe(true)
+  expect(restored.saved?.weatherSurface).toBeUndefined()
 })

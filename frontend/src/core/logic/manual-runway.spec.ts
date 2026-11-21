@@ -153,10 +153,11 @@ describe('storage record recovery', () => {
 
   it('distinguishes empty, corrupt and future records', () => {
     expect(recoverManualRunwayRecord(JSON.stringify({ ...record, schemaVersion: 1 }))).toEqual({ status: 'loaded', record })
+    expect(recoverManualRunwayRecord(JSON.stringify({ ...record, schemaVersion: 2 }))).toEqual({ status: 'loaded', record })
     expect(recoverManualRunwayRecord(null)).toEqual({ status: 'empty' })
     expect(recoverManualRunwayRecord('{not json')).toEqual({ status: 'corrupt' })
     expect(recoverManualRunwayRecord('null')).toEqual({ status: 'corrupt' })
-    expect(recoverManualRunwayRecord(JSON.stringify({ ...record, schemaVersion: 3 }))).toEqual({ status: 'unsupported-version', schemaVersion: 3 })
+    expect(recoverManualRunwayRecord(JSON.stringify({ ...record, schemaVersion: 4 }))).toEqual({ status: 'unsupported-version', schemaVersion: 4 })
     expect(recoverManualRunwayRecord(JSON.stringify({ ...record, schemaVersion: 0 }))).toEqual({ status: 'corrupt' })
   })
 

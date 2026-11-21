@@ -54,10 +54,15 @@ async function check(): Promise<void> {
     if (!Number.isFinite(time) || time > Date.now() || !rawMatch || rawMatch[1] !== station || Number(rawMatch[2]) !== observed.getUTCDate() || Number(rawMatch[3]) !== observed.getUTCHours() || Number(rawMatch[4]) !== observed.getUTCMinutes()) throw new Error('malformed')
     report.value = { raw: metar.raw, station, time: observed.toISOString(), stale: Date.now() - time > 60 * 60 * 1000 }
     if (!report.value.stale) {
-      const body = metar.raw.split(/\s+(?:RMK|TEMPO|BECMG|NOSIG|PROB\d{2})\b/)[0] ?? ''
-      const tokens = body.split(/\s+/)
-      const liquid = tokens.some((token) => /^(?:-|\+)?(?:MI|PR|BC|DR|BL|SH|TS|FZ)?(?:(?:DZ|RA|SN|SG|IC|PL|GR|GS|UP)){1,3}$/.test(token) && /RA|DZ/.test(token))
-      const validBody = !(liquid && tokens.includes('CAVOK')) && tokens.some((token) => /^(?:\d{3}|VRB)\d{2,3}(?:G\d{2,3})?(?:KT|MPS|KMH)$/.test(token)) && tokens.some((token) => /^(?:CAVOK|\d{4}|(?:M|P)?\d+(?:\/\d+)?SM)$/.test(token))
+      // Unsupported report groups are rejected rather than interpreted as present weather.
+      const body = metar.raw.slice(rawMatch[0].length).trim()
+      const match = body.match(/^(?:AUTO )?(?:\d{3}|VRB)\d{2,3}(?:G\d{2,3})?(?:KT|MPS|KMH) (?:\d{3}V\d{3} )?(CAVOK|\d{4}|(?:M|P)?\d+(?:\/\d+)?SM)(?: ((?:-|\+)?(?:RA|DZ|RADZ|DZRA|RASN|SNRA|SHRA|SHRADZ|TSRA)|-?FZ(?:RA|DZ)))?(?: (?:FEW|SCT|BKN|OVC)\d{3}(?:CB|TCU)?)+ (?:M?\d{2}|\/\/)\/(?:M?\d{2}|\/\/) (?:Q\d{4}|A\d{4})=?$/)
+      const liquid = !!match?.[2] && /RA|DZ/.test(match[2])
+      const windDirection = body.match(/^(?:AUTO )?(\d{3}|VRB)/)?.[1]
+      const pressure = body.match(/ (Q|A)(\d{4})=?$/)
+      const validBody = !!match && !(match[1] === 'CAVOK' && match[2])
+        && (windDirection === 'VRB' || (windDirection !== undefined && Number(windDirection) <= 360))
+        && !!pressure && (pressure[1] === 'Q' ? Number(pressure[2]) >= 800 && Number(pressure[2]) <= 1100 : Number(pressure[2]) >= 2350 && Number(pressure[2]) <= 3250)
       emit('observation', validBody ? { station, time: observed.toISOString(), liquid } : null)
     }
     message.value = report.value.stale ? 'Outdated observation: verify current weather with an authorised source.' : 'Observation retrieved; verify with an authorised source.'

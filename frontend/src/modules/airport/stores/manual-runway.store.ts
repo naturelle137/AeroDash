@@ -32,7 +32,7 @@ export const useManualRunwayStore = defineStore('manualRunway', () => {
   let applyingWeather = false
   let pilotSurfaceChoice = false
   const weather = ref<{ station: string; time: string; liquid: boolean } | null>(null)
-  const weatherSurface = ref<string | null>(null)
+  const weatherSurface = ref<NonNullable<ManualRunwayRecord['weatherSurface']> | null>(null)
 
   function updateWeather(value: typeof weather.value): void { weather.value = value }
   watch([weather, () => draft.aerodrome, () => draft.surfaceType], () => {
@@ -49,7 +49,7 @@ export const useManualRunwayStore = defineStore('manualRunway', () => {
     applyingWeather = true
     draft.surfaceCondition = condition
     applyingWeather = false
-    weatherSurface.value = `${observation.station} · ${observation.time}`
+    weatherSurface.value = { station: observation.station, time: observation.time }
   }, { flush: 'sync' })
   watch(() => draft.surfaceCondition, () => {
     if (!applyingWeather && !filling) { pilotSurfaceChoice = true; weatherSurface.value = null }
@@ -127,7 +127,9 @@ export const useManualRunwayStore = defineStore('manualRunway', () => {
       notice.value = null
       return false
     }
-    const written = saveManualRunway(result.runway, now)
+    const previous = saved.value
+    const provenance = weatherSurface.value ?? (!pilotSurfaceChoice && previous?.runway.aerodrome === result.runway.aerodrome && previous.runway.surface.type === result.runway.surface.type && previous.runway.surface.condition === result.runway.surface.condition ? previous.weatherSurface : undefined)
+    const written = saveManualRunway(result.runway, now, provenance)
     if (written.status === 'error') {
       storageError.value = written.message
       return false
