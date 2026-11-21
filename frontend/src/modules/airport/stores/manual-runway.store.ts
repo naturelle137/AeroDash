@@ -163,5 +163,5 @@ export const useManualRunwayStore = defineStore('manualRunway', () => {
     return true
   }
 
-  return { draft, saved, recent, selectRecent, storageError, notice, showErrors, loaded, assessmentDate, validation, errors, current, hasUnsavedChanges, load, save, revert, clear }
+  return { draft, saved, recent, selectRecent, weatherSurface, updateWeather, storageError, notice, showErrors, loaded, assessmentDate, validation, errors, current, hasUnsavedChanges, load, save, revert, clear }
 })
