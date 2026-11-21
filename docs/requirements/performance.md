@@ -48,7 +48,7 @@ When calculating performance, the system shall report Available Runway minus Ope
 
 The system shall allow the pilot to define custom obstacle constraints (Target Height at a specific Distance) to verify climb gradients over off-airport obstacles.
 
-**Status:** Approved. Obstacle entry is recorded; climb gradient and clearance are not calculated.
+**Status:** Implemented. The geometric height/distance gradient is shown; available data does not support a clearance determination.
 
 ### REQ-PF-009: Unverified Obstacle Notification
 

@@ -33,3 +33,22 @@ Feature: Unverified obstacle constraint
       | width | height |
       | 1440  | 1000   |
       | 390   | 844    |
+
+  Scenario Outline: The briefing carries the obstacle gradient and unknown clearance
+    Given the raw POH workflow viewport is <width> by <height>
+    When I import and verify a synthetic POH profile for registration "D-EBPN" declaring type "P208" and maximum mass 650 kg
+    And the pilot selects the imported aircraft "D-EBPN" in Flight Prep
+    And the pilot enters an obstacle height "50" "ft" at distance "600" "m"
+    Then the unverified obstacle warning is shown
+    And the obstacle evidence is captured as "briefing-input-<width>"
+    When the pilot opens the briefing pack
+    Then the briefing pack states "WARN-PF-001"
+    And the briefing pack states "50 ft above the runway at 600 m from the runway"
+    And the briefing pack states "Approximately 2.540%"
+    And the briefing pack states "clearance cannot be determined"
+    And the briefing pack evidence is captured as "obstacle-<width>"
+
+    Examples:
+      | width | height |
+      | 1440  | 1000   |
+      | 390   | 844    |
