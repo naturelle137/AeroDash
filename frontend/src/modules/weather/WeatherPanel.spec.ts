@@ -46,6 +46,22 @@ describe('WeatherPanel', () => {
     vi.useRealTimers()
   })
 
+  it('does not offer variable-direction wind while keeping other values available', async () => {
+    vi.useFakeTimers().setSystemTime(new Date('2026-11-21T17:00:00Z'))
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => ({ metar: { raw: 'EDDF 211620Z 18010KT 140V220 12/08 Q1013', station: 'EDDF', reportTime: '2026-11-21T16:20:00Z', reportTimeKnown: true } }) }))
+    const view = mount(WeatherPanel)
+    await view.get('input').setValue('EDDF')
+    await view.get('form').trigger('submit')
+    await flushPromises()
+    expect(view.text()).toContain('18010KT 140V220')
+    expect(view.text()).not.toContain('Replace wind with METAR')
+    expect(view.text()).toContain('Replace temperature with METAR')
+    expect(view.text()).toContain('Replace QNH with METAR')
+    expect(view.emitted('apply')).toBeUndefined()
+    view.unmount()
+    vi.useRealTimers()
+  })
+
   it('does not request weather while offline', async () => {
     vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(false)
     const fetchMock = vi.fn<() => Promise<unknown>>()

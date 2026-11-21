@@ -6,7 +6,7 @@ export function metarValues(raw: string): MetarValues {
   const parts = raw.split(/\s+RMK(?:\s|$)/, 1)[0]!.split(/\s+/)
   const values: MetarValues = {}
   const winds = parts.filter(part => /^(?:\d{3}|VRB)\d{2,3}(?:G\d{2,3})?(?:KT|MPS)$/.test(part))
-  if (winds.length === 1) {
+  if (winds.length === 1 && !parts.some(part => /^\d{3}V\d{3}$/.test(part))) {
     const match = /^(\d{3})(\d{2,3})(?:G\d{2,3})?(KT|MPS)$/.exec(winds[0]!)
     if (match) {
       const direction = Number(match[1]); const speed = Number(match[2])
