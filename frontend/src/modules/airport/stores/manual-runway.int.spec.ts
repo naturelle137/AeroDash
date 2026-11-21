@@ -109,6 +109,12 @@ it('defaults only an empty matching runway and preserves a pilot override', () =
   store.draft.surfaceCondition = ''
   store.updateWeather(null)
   store.updateWeather(report)
+  expect(store.draft.surfaceCondition).toBe('')
+  store.load()
+  store.draft.aerodrome = 'EDDF'
+  store.draft.surfaceType = 'paved'
+  store.updateWeather(null)
+  store.updateWeather(report)
   store.updateWeather(null)
   expect(store.draft.surfaceCondition).toBe('')
   store.draft.aerodrome = 'EDDM'
