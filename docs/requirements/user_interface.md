@@ -223,3 +223,7 @@ When the user adds, edits or deletes an instructor note anchored to a Mass & Bal
 ### REQ-UI-055: Notes never mask warnings
 
 The system shall display instructor notes separately from system notifications and shall not let a note clear, hide or alter any system notification.
+
+### REQ-UI-056: Mobile Wind focus
+
+When a Flight Prep wind input receives keyboard focus on a mobile viewport, the system shall keep it visible above the fixed navigation and Briefing Pack action.
