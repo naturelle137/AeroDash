@@ -125,6 +125,32 @@ Feature: Corrected takeoff and landing distances
       | 1440  | 1000   |
       | 390   | 844    |
 
+  Scenario Outline: Draft corrected distances are marked in the briefing and PDF
+    Given the raw POH workflow viewport is <width> by <height>
+    When I import a draft synthetic POH profile for the briefing
+    And the pilot selects the imported aircraft "D-EBPN" in Flight Prep
+    And the pilot enters pressure altitude "1000" ft directly
+    And the pilot sets temperature "10" °C in Flight Prep
+    And the pilot selects manual configuration "s9"
+    And the pilot saves runway "TEST" "27" with TORA "2000" "m", LDA "550" "m", elevation "300" "ft" and surface "Paved" "Dry"
+    And the pilot enters takeoff headwind "0" kt and slope "0" %
+    And the pilot opens the briefing pack
+    Then each corrected briefing distance is marked unverified
+    And the briefing pack evidence is captured as "corrected-unverified-<width>"
+    When the pilot requests printing of the briefing pack
+    Then printing is blocked pending acknowledgment of unverified data
+    When the pilot acknowledges the unverified data
+    Then the briefing pack is sent to print with unverified values marked
+    When the pilot requests the PDF download of the briefing pack
+    Then the PDF download is blocked pending acknowledgment of unverified data
+    When the pilot acknowledges the unverified data for the PDF download
+    Then the downloaded PDF states "[UNVERIFIED] (raw"
+
+    Examples:
+      | width | height |
+      | 1440  | 1000   |
+      | 390   | 844    |
+
   Scenario Outline: Offline runway changes invalidate the current comparison
     Given the raw POH workflow viewport is <width> by <height>
     And the production app is cached for offline performance

@@ -33,6 +33,26 @@ When('I import and verify a synthetic POH profile for registration {string} decl
     await expect(dialog).toBeHidden()
   })
 
+When('I import a draft synthetic POH profile for the briefing', async ({ page }) => {
+  const base = testPohAircraft()
+  const profile = { ...base, registration: 'D-EBPN', icaoTypeDesignator: 'P208', certificationCategories: [{ ...base.certificationCategories[0]!, mtom: 650 }], status: 'draft' }
+  await page.goto('/fleet')
+  await page.getByLabel('Or import from Exchange File (.json)').setInputFiles({
+    name: 'Test-wiring-only.aerodash.json', mimeType: 'application/json',
+    buffer: Buffer.from(JSON.stringify({ format: 'aerodash-aircraft', version: 1, profile })),
+  })
+})
+
+Then('each corrected briefing distance is marked unverified', async ({ page }) => {
+  const section = page.getByRole('dialog', { name: 'Briefing Pack preview' }).locator('section').filter({ has: page.getByRole('heading', { name: 'Takeoff corrected distances' }) })
+  const rows = section.locator('tbody tr')
+  expect(await rows.count()).toBeGreaterThan(0)
+  for (const row of await rows.all()) {
+    await expect(row.locator('td')).toHaveText(/\[UNVERIFIED\] \(raw .*\[UNVERIFIED\], corrected .*\[UNVERIFIED\]\)/)
+  }
+  await section.scrollIntoViewIfNeeded()
+})
+
 When('the pilot enters takeoff headwind {string} kt and slope {string} %', async ({ page }, headwind: string, slope: string) => {
   await page.getByLabel('Headwind component (kt, negative = tailwind)').first().fill(headwind)
   await page.getByLabel('Runway slope (%, positive = uphill)').first().fill(slope)
