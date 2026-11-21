@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Keep Flight Prep inputs and obstacle warnings accessible around fixed mobile navigation.
+
 ### Changed
 
 - Cap below-minimum pressure altitude and temperature at supported conservative table boundaries and mark affected values as estimates.
