@@ -76,6 +76,10 @@ When the pilot selects a valid forecast value entered for a future local time an
 
 When the pilot changes the forecast phase, location or time, the system shall clear the entered forecast values.
 
+### REQ-WX-016: Pilot-declared QNH validity
+
+When the pilot declares a QNH validity interval, the system shall allow application only when the selected flight time is within its start-inclusive, end-exclusive interval.
+
 ## Design References
 
 - **<a name="notificationScheme"></a>Notification Scheme:** [`docs/architecture/notification_schema.md`](../architecture/notification_schema.md)
