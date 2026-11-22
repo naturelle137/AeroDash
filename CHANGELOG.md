@@ -7,12 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-- Identify missing wind and slope inputs together for each performance phase.
 - Preserve optional source references when recovering version 2 manual runway declarations.
 - Apply the selected performance safety factor even when runway correction sources are unavailable, while identifying the incomplete result.
 - Preview the converted manual forecast QNH and explain invalid entries before replacing Flight Prep QNH.
 - Verify unavailable arrival CG, runway and performance reasons in briefing preview and PDF.
 - Verify independent fuel sequences and electric planning controls in integrated and browser tests.
+- Identify missing wind and slope inputs together for each performance phase.
 - Preserve an optional pilot-declared source time for manually entered forecast QNH.
 
 - Support pilot-sourced forecast QNH in hPa or inHg with explicit unavailability guidance.
