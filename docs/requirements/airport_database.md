@@ -127,3 +127,7 @@ When displaying a saved manual runway, the system shall display its declared eff
 ### REQ-AP-027: Reset check date
 
 When the pilot selects today for the declared date check, the system shall use the device's current local date.
+
+### REQ-AP-028: Selected date limitation
+
+When displaying the declared date check in Performance or the briefing, the system shall indicate that the selected date does not advance automatically.

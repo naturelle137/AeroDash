@@ -32,6 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Explain the selected runway check date limitation in Performance and the briefing.
 - Allow the manual runway check date to be reset to the current local date offline.
 - Show saved runway date boundaries and unknown restriction coverage in the offline workflow.
 - Carry the manual runway date check into the briefing and invalidate it when the check date changes.
