@@ -7,6 +7,7 @@ import { anchorLabel, type Annotation } from '@/modules/annotations/annotations'
 import { assembleMbPrint, canPrintMb, unverifiedGate, type MbPrintSnapshot, type MbPrintSource } from './mb-print'
 
 const disclaimerContent = disclaimerBlocks()
+const warningText = (text: string) => text.replace(/\bWARN-PF-002:\s*/g, '')
 const props = defineProps<{ source: MbPrintSource; readSource?: () => MbPrintSource; annotations?: Annotation[] }>()
 // Read live dependencies even when the parent render has not flushed before native print.
 const currentSource = computed(() => props.readSource?.() ?? props.source)
@@ -230,7 +231,7 @@ onBeforeUnmount(() => {
               <p v-if="currentSnapshot.performance.reason">{{ currentSnapshot.performance.reason }}</p>
               <section v-if="currentSnapshot.performance.notifications.length" aria-label="Performance notifications">
                 <h3>Performance notifications</h3>
-                <p v-for="note in currentSnapshot.performance.notifications" :key="note.id" class="briefing-warning"><strong>{{ note.severity }} · {{ note.id }}</strong>: {{ note.message }}</p>
+                <p v-for="note in currentSnapshot.performance.notifications" :key="note.id" class="briefing-warning"><strong>{{ note.severity }}</strong>: {{ warningText(note.message) }}</p>
               </section>
               <section v-if="currentSnapshot.performance.extrapolation" aria-label="Extrapolated performance data">
                 <h3>Extrapolated performance data</h3>
@@ -254,7 +255,7 @@ onBeforeUnmount(() => {
                   <p>Source: {{ item.source }}</p>
                   <table><tbody><tr v-for="row in item.rows" :key="row.label"><th>{{ row.label }}</th><td>{{ row.factored }}{{ currentSnapshot.marker }} (raw {{ row.raw }}{{ currentSnapshot.marker }}, corrected {{ row.corrected }}{{ currentSnapshot.marker }})</td></tr></tbody></table>
                   <p>Safety factor: {{ item.safetyFactor }}</p>
-                  <p v-if="item.safetyFactorWarning" class="briefing-warning">{{ item.safetyFactorWarning }}</p>
+                  <p v-if="item.safetyFactorWarning" class="briefing-warning">{{ warningText(item.safetyFactorWarning) }}</p>
                   <p :class="{ 'briefing-warning': item.comparison.status === 'insufficient' }">{{ item.comparison.summary }} Required {{ item.comparison.required }}; {{ item.comparison.availableLabel }} {{ item.comparison.available }}; margin {{ item.comparison.margin }}.</p>
                   <p v-for="note in item.notes" :key="note">{{ note }}</p>
                 </template>
@@ -274,7 +275,7 @@ onBeforeUnmount(() => {
             <p v-if="Number(currentSnapshot.wind.input.windSpeed.replace(',', '.')) === 0">Calm wind.</p>
             <p>{{ currentSnapshot.wind.result.headwind >= 0 ? 'Headwind' : 'Tailwind' }}: {{ Math.abs(currentSnapshot.wind.result.headwind).toFixed(1) }} {{ currentSnapshot.wind.result.unit }}; crosswind: {{ Math.abs(currentSnapshot.wind.result.crosswind).toFixed(1) }} {{ currentSnapshot.wind.result.unit }}<template v-if="currentSnapshot.wind.result.crosswind"> from the {{ currentSnapshot.wind.result.crosswind > 0 ? 'right' : 'left' }}</template>.</p>
             <p>Rounded to 0.1. Check all limits yourself; missing or invalid gusts are not assessed and no suitability verdict is given. Pilot in command remains responsible.</p>
-            <p v-for="(note, index) in currentSnapshot.wind.notifications" :key="index" :class="note.severity === 'CRITICAL' ? 'briefing-critical' : 'briefing-warning'">{{ note.severity }} {{ note.id }}: {{ note.message }}</p>
+            <p v-for="(note, index) in currentSnapshot.wind.notifications" :key="index" :class="note.severity === 'CRITICAL' ? 'briefing-critical' : 'briefing-warning'">{{ note.severity }}: {{ note.message }}</p>
           </section>
           <section aria-label="Disclaimer">
             <h2>Disclaimer</h2>
