@@ -42,13 +42,13 @@ While the selected aircraft is electric, the system shall label the Mass & Balan
 
 While an aircraft has multiple named burn sequences, the system shall calculate fuel-state progression independently for each sequence.
 
-**Status:** Approved. Independent M&B sequence progression needs separate end-to-end evidence.
+**Status:** Implemented. Synthetic integrated and Chromium tests cover independent M&B waypoints and arrival sequence selection: `frontend/src/modules/fuel-endurance/components/FuelEnduranceCard.int.spec.ts`, `frontend/tests/offline-production/fuel-sequences.spec.ts`.
 
 ### REQ-FE-008: Electric fuel controls
 
 While the selected aircraft is electric, the system shall hide fuel-tank rows, burn-sequence selectors and fuel-type controls.
 
-**Status:** Approved. Electric-specific hiding of all named controls needs integrated evidence.
+**Status:** Implemented. Synthetic Chromium coverage checks electric planning and absent fuel controls: `frontend/tests/offline-production/electric-energy.spec.ts`.
 
 ### REQ-FE-009: Direct trip arrival mass
 
