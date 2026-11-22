@@ -66,7 +66,7 @@ Then('the corrected takeoff distances are marked as an estimate from the LBA adv
   await expect(region).toContainText('LBA Flugsicherheitsmitteilung FSM 3/75')
   await expect(region).toContainText('ESTIMATED (FSM 3/75)')
   await expect(region).toContainText('not validated by it')
-  await expect(region).toContainText('Wind is not corrected')
+  await expect(region).toContainText('supplies no wind correction')
 })
 
 Then('the corrected distance evidence is captured as {string}', async ({ page, $testInfo }, name: string) => {
@@ -96,14 +96,16 @@ When('the pilot enters landing headwind {string} kt and slope {string} %', async
   await page.getByLabel('Runway slope (%, positive = uphill)').last().fill(slope)
 })
 
-Then('both unavailable corrections disclose their unapplied safety factors', async ({ page }) => {
-  for (const phase of ['Takeoff', 'Landing']) {
-    const region = page.getByRole('region', { name: `${phase} corrected distances`, exact: true })
-    await expect(region).toContainText('Wind component -2 kt was not applied')
-    await expect(region).toContainText('The saved runway surface was not applied')
-    await expect(region).toContainText('The selected safety factor was not applied')
-  }
-  await expect(page.getByRole('region', { name: 'Landing corrected distances', exact: true })).toContainText('No applicable source identified for: wind, surface, slope.')
+Then('the partial takeoff and unavailable landing disclose missing corrections', async ({ page }) => {
+  const result = takeoff(page)
+  await expect(result).toContainText('ESTIMATED (FSM 3/75)')
+  await expect(result).toContainText('no applicable correction applied for wind')
+  await expect(result).toContainText('partially corrected distances')
+  await expect(result.locator('.comparison')).toContainText('Do not use this comparison for runway assessment')
+  const landing = page.getByRole('region', { name: 'Landing corrected distances', exact: true })
+  await expect(landing).toContainText('Wind component -2 kt was not applied')
+  await expect(landing).toContainText('The selected safety factor was not applied')
+  await expect(landing).toContainText('No applicable source identified for: wind, surface, slope.')
 })
 
 Then('the landing correction shows its source and final ground roll {string}', async ({ page }, value: string) => {
