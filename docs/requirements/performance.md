@@ -245,7 +245,7 @@ correction selection or operational runway comparison. Those requirements remain
 Synthetic Test fixtures establish wiring only; applicable aircraft POH/AFM citations and
 independent reference cases are required for aircraft-specific validation.
 
-**Status:** Approved. Read-only inspection of every imported point is not asserted by a test; `frontend/src/modules/performance/services/poh-inspection.int.spec.ts` covers the exchange and verification round trip.
+**Status:** Implemented. Tests: `frontend/src/modules/performance/services/poh-inspection.int.spec.ts`, `frontend/tests/offline-production/fleet-table-review.spec.ts`.
 
 ### REQ-PF-048: Source-unit preservation
 
