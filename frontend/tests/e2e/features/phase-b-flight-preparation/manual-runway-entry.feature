@@ -45,7 +45,7 @@ Feature: Offline manual runway entry
   Scenario Outline: Metre and foot declarations are retained independently
     Given the manual runway viewport is <width> by 1000
     And the pilot opens Performance
-    When the pilot saves runway "TEST" "<rwy>" with TORA "<tora>" "<toraUnit>", LDA "<lda>" "<ldaUnit>", elevation "<elev>" "<elevUnit>" and surface "Grass / unpaved" "Damaged turf"
+    When the pilot saves runway "TEST" "<rwy>" with TORA "<tora>" "<toraUnit>", LDA "<lda>" "<ldaUnit>", elevation "<elev>" "<elevUnit>" and surface "Grass" "Damaged turf"
     And the pilot reloads the app
     Then the saved runway shows TORA "<toraShown>", LDA "<ldaShown>" and elevation "<elevShown>"
 

@@ -107,6 +107,15 @@ describe('Briefing Pack PDF download', () => {
     return { text, sheet }
   }
 
+  it('carries the density warning beside dependent fuel values in the PDF', async () => {
+    const input = source()
+    input.notifications.push({ id: 'WARN-FE-002', severity: 'WARNING', message: 'Verify fuel mass', context: 'FuelEndurance.Density', persistent: false, dismissible: true })
+    input.fuel = { inputKey: 'synthetic', reason: null, method: 'duration', sequence: '', cgReason: null, warnings: [], rows: [{ label: 'Usable fuel', value: '40 kg' }, { label: 'Trip fuel', value: '20 kg' }] }
+    const { text } = await pdfFor(input)
+    expect(strip(text)).toContain(strip('Usable fuel 40 kg [UNVERIFIED] Verify fuel mass'))
+    expect(strip(text)).not.toContain(strip('Trip fuel 20 kg [UNVERIFIED] Verify fuel mass'))
+  })
+
   it('preserves aggregate CG warnings at trajectory level in the PDF', async () => {
     const input = source()
     input.notifications.push({ id: 'CRIT-MB-003', severity: 'WARNING', message: 'CG Migration Limit Exceeded', context: 'MassBalance.CG', persistent: false, dismissible: true })
