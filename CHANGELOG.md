@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Applicable TAF rain/drizzle now suggests Wet in Flight Prep with saved forecast provenance, expiry handling and preserved pilot overrides (#742).
 - Warn against runway assessment when a comparison omits entered corrections.
 - Clarify that uncorrected performance distances cannot be used for runway assessment when corrections are unavailable.
 - Identify zero and invalid wind and slope entries when corrections are unavailable.
