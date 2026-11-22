@@ -84,7 +84,7 @@ The final distance over 50 ft (corrected distance × the selected safety factor,
 declared TODA when entered, otherwise TORA (take-off), or LDA (landing), all rounded down to 0.1 m. With a TODA
 the final ground roll must also fit TORA. Margin is `available - required` in metres and as `100 × margin / required`
 (REQ-PF-026). Insufficient length is shown as an alert; sufficient length is a comparison, not an operational approval.
-The comparison states when it uses partially corrected distances.
+When a correction is omitted, a partially corrected result cannot assert a fit or a margin; an insufficient comparison remains critical.
 
 ## Safety factor selection
 
@@ -114,3 +114,5 @@ Because the source percentages apply to the whole distance, applying them to the
 ## Remaining work
 
 Other aircraft manuals and landing corrections remain unsupported. [CAA Safety Sense 12](https://www.caa.co.uk/publication/download/23582) gives landing slope and surface factors for the whole distance, incompatible with REQ-PF-004, and tailwind relative to lift-off speed, which is not modelled. [FAA AC 91-79B](https://www.faa.gov/documentLibrary/media/Advisory_Circular/AC_91-79B_FAA.pdf), sections 5.2.7 and 5.2.9, describes landing distance rather than ground-roll slope corrections and gives different tailwind corrections for specific aircraft; it does not establish a general aircraft-independent correction. These sources cannot supply the missing corrections under the current contract. Further FSM rows (damp, soft, damaged turf, long grass, contaminated surfaces) need a rule for combining the chained percentages before they can be estimated.
+
+[CAA Safety Sense 09](https://www.caa.co.uk/media/wcebqozv/ssl09-caa-safety-sense-weight-balance-and-performance.pdf), page 13, likewise gives landing-distance slope guidance and tailwind relative to lift-off speed. [FAA AC 91-79A Change 2](https://www.faa.gov/documentLibrary/media/Advisory_Circular/AC_91-79A_Chg_2.pdf), appendix 1, gives a whole-landing-distance slope example and wind relative to landing speed. Neither supplies a ground-roll-only landing factor or wind calculation using the currently modelled inputs.
