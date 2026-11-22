@@ -158,11 +158,11 @@ export function usePerformanceStep(context: () => PerformanceStepContext) {
         { label: 'Pressure altitude method', value: pa.method.value === 'direct' ? 'Direct entry' : pa.method.value === 'qnh-elevation' ? 'Derived from QNH and field elevation' : 'Not selected' },
         ...(pa.method.value === 'direct' ? [{ label: 'Entered pressure altitude', value: `${pa.direct.value.trim() || 'Not entered'} ft` }]
           : pa.method.value === 'qnh-elevation' ? [
-            { label: 'QNH', value: `${pa.draft.qnh.trim() || 'Not entered'} ${pa.draft.qnhUnit}` },
+            { label: 'QNH', value: `${pa.draft.qnh.trim() || 'Not entered'} ${pa.draft.qnhUnit}`, warnings: pa.warnings.value },
             { label: 'Field elevation', value: `${pa.draft.elevation.trim() || 'Not entered'} ${pa.draft.elevationUnit}` },
             { label: 'Field elevation source', value: pa.elevationProvenance.value },
           ] : []),
-        { label: 'Outside air temperature', value: `${temperature.value.trim() || 'Not entered'} °C` },
+        { label: 'Outside air temperature', value: `${temperature.value.trim() || 'Not entered'} °C`, warnings: temperatureWarnings.value },
         ...OPERATIONS.flatMap((operation) => [
           { label: `${OPERATION_LABELS[operation]} headwind component`, value: `${corrections[operation].headwind.trim() || 'Not entered'} kt` },
           { label: `${OPERATION_LABELS[operation]} runway slope`, value: `${corrections[operation].slope.trim() || 'Not entered'} %` },
