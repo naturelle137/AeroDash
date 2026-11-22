@@ -96,20 +96,18 @@ export function presentCorrectedOperation(
   if (group?.status !== 'success') return unavailable('No base distance for this operation, so nothing can be corrected.')
   if (sources?.status !== 'assessed') return unavailable('Correction sources cannot be assessed for this profile. Distances stay uncorrected.')
   const rows = sources.corrections.filter((row) => row.operation === operation)
-  const selected = rows.map((row) => row.selected)
-  const supplied = selected.every((candidate) => candidate && TECNAM_S9_SOURCE_IDS.includes(candidate.id))
+  const manual = rows.filter((row) => row.selected && TECNAM_S9_SOURCE_IDS.includes(row.selected.id))
+  const supplied = manual.length === rows.length
   // The FSM fallback is considered only when no complete manual rule set applies.
   const fsm = !supplied && operation === 'takeoff'
     ? rows.filter((row) => row.correction !== 'wind').map((row) => row.selected)
     : []
   const estimating = fsm.length === 2 && fsm.every((candidate) => candidate?.estimate)
-  if (!estimating && (!supplied || !selected[0])) {
+  if (!estimating && manual.length === 0) {
     const missing = rows.filter((row) => !row.selected).map((row) => row.correction)
-    const identified = rows.filter((row) => row.selected?.document.kind === 'aircraft-manual').map((row) => row.correction)
     return unavailable([
       'No accepted correction source covers wind, surface and slope for this aircraft and runway.',
       ...(missing.length ? [`No applicable source identified for: ${missing.join(', ')}.`] : []),
-      ...(identified.length ? [`Manual sources identified for ${identified.join(', ')} are not applied separately; the complete correction set is required.`] : []),
       operation === 'landing' ? 'FSM 3/75 has no landing correction table. Distances stay uncorrected; consult the aircraft manual for these corrections.' : 'Distances stay uncorrected; see Correction sources.',
     ].join(' '))
   }
@@ -137,7 +135,9 @@ export function presentCorrectedOperation(
   } else {
     result = applyTecnamS9Corrections({
       operation, groundRoll: roll.distance, distanceOver50ft: over50.distance,
-      surface: runway.surface.type === 'paved' ? 'paved' : 'grass', headwindKt, slopePercent,
+      surface: manual.some((row) => row.correction === 'surface') && runway.surface.type === 'paved' ? 'paved' : 'grass',
+      headwindKt: manual.some((row) => row.correction === 'wind') ? headwindKt : 0,
+      slopePercent: manual.some((row) => row.correction === 'slope') ? slopePercent : 0,
     })
   }
   const manualFactor = estimating ? null : TECNAM_S9_RULES[operation].inServiceFactor
@@ -150,10 +150,11 @@ export function presentCorrectedOperation(
   const factor = resolveOsf(osf, operation)
   const threshold = osfThreshold(osf, operation)
   const up = (value: number) => `${formatNumber(Math.ceil(value), 0)} m`
-  const { document, section } = estimating ? fsm[0]! : selected[0]!
-  const sourceId = estimating ? 'fsm' : selected[0]!.id
+  const { document, section } = estimating ? fsm[0]! : manual[0]!.selected!
+  const sourceId = estimating ? 'fsm' : manual[0]!.selected!.id
   const comparison = compareWithRunway(operation, Math.ceil(result.distanceOver50ft * factor), Math.ceil(result.groundRoll * factor), available)
-  const partial = result.notCredited.length > 0
+  const missing = estimating ? [] : rows.filter((row) => !manual.includes(row)).map((row) => row.correction)
+  const partial = result.notCredited.length > 0 || missing.length > 0
   const marker = ' ESTIMATED (CAA SSL 07)'
   const extrapolated = ' ESTIMATED — EXTRAPOLATED (+20 % penalty)'
   const markers = (rows: typeof group.distances) =>
@@ -180,6 +181,7 @@ export function presentCorrectedOperation(
     notes: [
       `Final value = corrected distance × safety factor ${factor.toFixed(2)}, rounded up to whole metres.${manualFactor === null ? '' : ` The manual states ${manualFactor} as its in-service factor.`}`,
       ...(estimating ? [FSM_DISCLOSURE] : []),
+      ...(missing.length ? [`Incomplete: no applicable correction applied for ${missing.join(', ')}. Determine missing corrections independently from the aircraft manual.`] : []),
       ...result.notCredited.map((item) => `${estimating ? FSM_NOT_CREDITED[item as FsmNotCredited] : NOT_CREDITED[item as S9NotCredited]} ${item === 'headwind' ? `Wind component ${inputs.headwind} kt` : `Runway slope ${inputs.slope} %`} was not applied.`),
       ...(operation === 'landing' && sourceId.startsWith('tecnam-s9-') ? ['The manual landing table exists for 650 kg only; lower masses use it unchanged.'] : []),
       'Check the applicable aircraft manual. This is not an operational approval or go/no-go decision.',

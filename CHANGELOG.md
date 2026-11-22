@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Apply available manual wind and slope corrections when another correction is missing, and mark the result incomplete.
+
 - Identify unavailable correction sources and manual corrections withheld when a complete set is unavailable.
 - Show missing and expired pilot forecast entries and update forecast freshness while Flight Prep stays open.
 
