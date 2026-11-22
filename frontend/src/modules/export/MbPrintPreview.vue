@@ -275,7 +275,6 @@ onBeforeUnmount(() => {
             <p v-if="Number(currentSnapshot.wind.input.windSpeed.replace(',', '.')) === 0">Calm wind.</p>
             <p>{{ currentSnapshot.wind.result.headwind >= 0 ? 'Headwind' : 'Tailwind' }}: {{ Math.abs(currentSnapshot.wind.result.headwind).toFixed(1) }} {{ currentSnapshot.wind.result.unit }}; crosswind: {{ Math.abs(currentSnapshot.wind.result.crosswind).toFixed(1) }} {{ currentSnapshot.wind.result.unit }}<template v-if="currentSnapshot.wind.result.crosswind"> from the {{ currentSnapshot.wind.result.crosswind > 0 ? 'right' : 'left' }}</template>.</p>
             <p>Rounded to 0.1. Check all limits yourself; missing or invalid gusts are not assessed and no suitability verdict is given. Pilot in command remains responsible.</p>
-            <p v-for="(note, index) in currentSnapshot.wind.notifications" :key="index" :class="note.severity === 'CRITICAL' ? 'briefing-critical' : 'briefing-warning'">{{ note.severity }}: {{ note.message }}</p>
           </section>
           <section aria-label="Disclaimer">
             <h2>Disclaimer</h2>
