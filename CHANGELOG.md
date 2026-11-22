@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 - Check an optional pilot-declared forecast QNH validity interval before application.
+- Attach M&B, fuel, condition, safety-factor, wind-limit, obstacle, extrapolation and energy-reserve warnings to affected briefing pack values without internal UI warning identifiers.
 - Show manual forecast QNH selection context and allow clearing its entry and source.
 - Preserve optional source references when recovering version 2 manual runway declarations.
 

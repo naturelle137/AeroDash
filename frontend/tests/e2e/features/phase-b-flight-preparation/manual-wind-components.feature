@@ -50,7 +50,8 @@ Feature: Offline manual wind components
     And the pilot selects the imported aircraft "D-EBPN" in Flight Prep
     And the pilot enters runway heading "270", wind from "330" and speed "20" "kt"
     And the pilot opens the briefing pack
-    Then the briefing pack states "Headwind: 10.0 kt; crosswind: 17.3 kt from the right"
+    Then the briefing pack states "Headwind: 10.0 kt."
+    And the briefing pack states "Crosswind: 17.3 kt from the right"
     And the briefing pack states "No weather retrieved or performance correction applied"
     And the briefing pack evidence is captured as "wind-<width>"
     When the pilot returns from the briefing pack
@@ -71,8 +72,8 @@ Feature: Offline manual wind components
     And the pilot enters runway heading "270", wind from "150" and speed "20" "kt"
     Then the manual wind warnings show both exceedances
     When the pilot opens the briefing pack
-    Then the briefing pack states "WARNING WARN-WX-001: Crosswind exceeds Demonstrated 10 kt"
-    And the briefing pack states "CRITICAL CRIT-WX-001: Tailwind exceeds Limit 5 kt"
+    Then the briefing pack states "WARNING: Crosswind exceeds Demonstrated 10 kt"
+    And the briefing pack states "CRITICAL: Tailwind exceeds Limit 5 kt"
     When the pilot returns from the briefing pack
     And the pilot enters runway heading "270", wind from "VRB" and speed "20" "kt"
     Then no wind components are shown

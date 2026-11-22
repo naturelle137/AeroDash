@@ -141,7 +141,7 @@ test('complete current fuel in cached offline native print with synchronous stal
   await direct.fill('20')
   await action.click()
   await expect(section).toContainText('Direct Trip Fuel (kg)')
-  await expect(section).not.toContainText('WARN-FE-001')
+  await expect(section).not.toContainText('Insufficient fuel for the entered trip plus reserve.')
   await expect(section.getByRole('cell', { name: 'Total endurance', exact: true })).toHaveCount(0)
   await capture('offline-direct')
   // Dispatch input and invoke REAL native print in the same JavaScript turn.
