@@ -40,7 +40,7 @@ store from storage, so the same tab never keeps showing an erased runway as
 saved/current, while a key that could not be removed stays visible next to the
 "Erasure incomplete" alert.
 
-The five most recently saved or selected aerodromes are stored locally as complete
+The five most recently saved or selected aerodrome and runway combinations are stored locally as complete
 manual declarations. Selecting one replaces the form after confirmation and retains
 the original save time, source and declared dates. Recency does not verify currency.
 Malformed history is ignored; local-data erasure removes it.

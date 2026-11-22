@@ -147,3 +147,7 @@ When displaying a recent manual runway declaration, the system shall show its de
 ### REQ-AP-031: Recent runway date selection
 
 While recent runway declarations are displayed, the system shall allow the pilot to change their check date.
+
+### REQ-AP-032: Recent runway directions
+
+When saving a manual runway declaration, the system shall retain recent declarations for other runway directions at the same aerodrome.
