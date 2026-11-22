@@ -19,7 +19,7 @@ test('pilot enters forecast QNH offline with its source', async ({ page, context
   await forecast.getByLabel('QNH valid until (optional, local)').fill('2099-06-01T12:30')
   await expect(forecast.getByRole('button', { name: 'Apply forecast QNH' })).toBeDisabled()
   await forecast.getByLabel('QNH valid until (optional, local)').fill('2099-06-01T13:00')
-  await forecast.getByText('QNH to apply:', { exact: false }).scrollIntoViewIfNeeded()
+  await forecast.getByLabel('QNH valid from (optional, local)').scrollIntoViewIfNeeded()
   const path = info.outputPath(`forecast-qnh-${info.project.name}.png`)
   await page.screenshot({ path, animations: 'disabled' })
   await info.attach('forecast-qnh', { path, contentType: 'image/png' })
