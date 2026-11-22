@@ -44,6 +44,8 @@ The five most recently saved or selected aerodromes are stored locally as comple
 manual declarations. Selecting one replaces the form after confirmation and retains
 the original save time, source and declared dates. Recency does not verify currency.
 Malformed history is ignored; local-data erasure removes it.
+Version 2 recovery retains an optional source reference and declared dates;
+invalid references are rejected rather than silently discarded.
 
 ## Conversion and display
 

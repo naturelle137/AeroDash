@@ -117,6 +117,11 @@ test('complete current briefing pack with chart, persistent action and native st
     await runway.getByLabel('Effective date', { exact: true }).fill('2026-01-01')
     await runway.getByLabel('Expiry date', { exact: true }).fill('2026-12-31')
     await runway.getByRole('button', { name: 'Save runway inputs', exact: true }).click()
+    await runway.getByLabel('Runway designator', { exact: true }).fill('27')
+    await runway.getByLabel('Check date', { exact: true }).fill('2027-01-01')
+    await expect(runway.getByRole('region', { name: 'Recently used airports' })).toContainText('Expired according to the declared date')
+    await runway.screenshot({ path: info.outputPath(`recent-date-${offline ? 'offline' : 'online'}.png`) })
+    await runway.getByRole('button', { name: 'Discard changes', exact: true }).click()
     await runway.getByLabel('Check date', { exact: true }).fill('2027-01-01')
 
     for (const fraction of [0, .5, 1]) {
