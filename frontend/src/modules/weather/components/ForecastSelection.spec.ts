@@ -68,6 +68,7 @@ it('applies a pilot-sourced QNH in inHg after conversion and retains it offline'
   await label('QNH unit').get('select').setValue('inHg')
   expect((label('Forecast QNH').get('input').element as HTMLInputElement).value).toBe('')
   await label('Forecast QNH').get('input').setValue('29.92')
+  expect(view.text()).toContain('QNH to apply: 1013.21 hPa. Applying replaces the current Flight Prep QNH.')
   await label('QNH source').get('input').setValue('Pilot briefing')
   await label('QNH source time').get('input').setValue('2030-01-02T00:00')
   const apply = view.findAll('button').find(button => button.text() === 'Apply forecast QNH')!
@@ -76,6 +77,7 @@ it('applies a pilot-sourced QNH in inHg after conversion and retains it offline'
   await apply.trigger('click')
   expect(view.emitted('apply')![0]).toEqual(['qnh', { qnh: '1013.21' }, 'Pilot-entered forecast for departure, Test airfield, 2030-06-01 12:30 local time; pilot-declared QNH source: Pilot briefing; pilot-declared QNH source time: 2029-12-31 23:00 local time'])
   await label('Forecast QNH').get('input').setValue('40')
+  expect(view.text()).toContain('QNH is outside the supported range or is not a valid number')
   expect(view.findAll('button').find(button => button.text() === 'Apply forecast QNH')!.attributes('disabled')).toBeDefined()
   view.unmount()
   vi.useRealTimers()
