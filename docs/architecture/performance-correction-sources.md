@@ -100,16 +100,16 @@ the result carries an advisory WARN-PF-002 (`osfThreshold`); it never blocks. Th
 
 The LBA text (1 July 1975, 1995 reprint, `111 3-985.1/75`) was read from a third-party mirror (segelfliegenausbildung.de); authenticity is unconfirmed. CEO directive 19 accepts the estimation method defined by REQ-PF-003/004/021, so the estimate is applied with visible `ESTIMATED (FSM 3/75)` marking. The source does **not** validate this use: it states take-off percentages for the whole distance to 15 m, not for the ground roll.
 
-Used only when no aircraft manual rule set supplies the corrections (manual first). Implemented in `core/logic/performance.fsm-estimates.ts`; take-off only:
+Selected independently for each parameter without an applicable aircraft manual correction (manual first). Implemented in `core/logic/performance.fsm-estimates.ts`; take-off only:
 
 - **Slope:** +10 % of the ground roll per +1 % uphill.
 - **Surface:** dry paved adds nothing; dry short grass adds +20 %, chained after slope. The source's dry-paved baseline is not credited, so a POH table already flown on grass is never shortened. The POH surface baseline is unknown and stated in the result.
-- **Wind:** not corrected. The source gives no take-off headwind credit and no tailwind value; a tailwind input leaves the distances uncorrected.
+- **Wind:** not corrected. The source gives no take-off headwind credit and no tailwind value; tailwind remains unapplied and makes the result incomplete.
 - Slope and surface act on the ground roll only (REQ-PF-004); the airborne part is unchanged. No 15 m to 50 ft conversion is made.
 - Downhill slope and headwind are not credited and make the result partially corrected. The source states no slope range; the input is applied as entered within the generic |slope| < 100 % validation.
-- No manual in-service factor exists, so the safety factor defaults to the regulatory baseline (take-off 1.25).
+- When no manual in-service factor exists, the safety factor defaults to the regulatory baseline (take-off 1.25).
 
-Not estimated, with the existing unapplied-input disclosure kept: all landing corrections (the source has no landing table), tailwind, and surface conditions without one unambiguous source row (wet or soft ground, long grass, damaged turf, wet or contaminated paved, snow, ice).
+Not estimated, with the unapplied-input disclosure kept: all landing corrections (the source has no landing table), tailwind, and surface conditions without one unambiguous source row (wet or soft ground, long grass, damaged turf, wet or contaminated paved, snow, ice).
 
 Because the source percentages apply to the whole distance, applying them to the ground roll yields a smaller surcharge than the source text; the estimate is therefore a lower bound of the source's own reading and must not be read as conservative against it.
 
