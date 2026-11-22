@@ -16,7 +16,7 @@
  */
 
 export const FSM_SLOPE_PCT_PER_PCT = 10
-export const FSM_SURFACE_SURCHARGE_PCT = { 'paved:dry': 0, 'unpaved:dry-short-grass': 20 } as const
+export const FSM_SURFACE_SURCHARGE_PCT = { 'paved:dry': 0, 'unpaved:dry-short-grass': 20, 'grass:dry-short-grass': 20 } as const
 
 export type FsmTakeoffInput = {
   groundRoll: number
