@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Show the running version and its release date in an offline About view.
 - Recall five recently used manual airports offline with their original runway declarations.
+- Compare pilot-entered gust components with stored aircraft wind limits in Flight Prep and briefing.
 
 - Manage passenger standard-weight profiles in aircraft creation and editing.
 - Apply pilot-entered time-specific forecast values to Flight Prep with manual provenance.

@@ -35,6 +35,17 @@ describe('M&B print presentation with real store calculation', () => {
     input.wind.result = computeWindComponents(entries)
     expect(assembleMbPrint(input, new Date())!.wind).toBeNull()
   })
+  it('snapshots gust warnings and removes them after the gust changes', () => {
+    const input = source()
+    const entries = { runwayHeading: '270', windDirection: '330', windSpeed: '5', unit: 'kt', gustSpeed: '20' }
+    input.profile!.windLimits = [{ component: 'MaxCrosswind', value: 10, classification: 'Demonstrated' }]
+    input.wind = { input: entries, result: computeWindComponents(entries) }
+    const snapshot = assembleMbPrint(input, new Date())!
+    expect(snapshot.wind?.notifications[0]?.message).toContain('manual gust')
+    entries.gustSpeed = ''
+    expect(snapshot.wind?.input.gustSpeed).toBe('20')
+    expect(assembleMbPrint(input, new Date())!.wind?.notifications).toEqual([])
+  })
   it('retains warnings, honest endpoints, units and draft markers without mutating verification', () => {
     const input = source()
     const before = JSON.stringify(input)
