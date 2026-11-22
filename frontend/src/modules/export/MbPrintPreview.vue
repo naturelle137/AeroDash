@@ -242,7 +242,7 @@ onBeforeUnmount(() => {
               <p v-if="currentSnapshot.performance.conditions">Calculation basis: {{ currentSnapshot.performance.conditions.pressureAltitude }} · {{ currentSnapshot.performance.conditions.temperature }}</p>
               <section v-for="group in currentSnapshot.performance.groups" :key="group.id">
                 <h3>{{ group.title }}</h3>
-                <p v-if="group.mass">{{ group.mass }}{{ currentSnapshot.marker }}</p>
+                <p v-if="group.mass" :class="{ 'briefing-warning': currentSnapshot.notifications.some(n => n.context === 'FuelEndurance.Density' && n.severity !== 'INFO') }">{{ group.mass }}{{ currentSnapshot.marker }}<span v-for="note in currentSnapshot.notifications.filter(n => n.context === 'FuelEndurance.Density' && n.severity !== 'INFO')" :key="note.message"> · {{ note.message }}</span></p>
                 <p v-if="group.reason">{{ group.reason }}</p>
                 <p v-else-if="group.status !== 'success'">No current {{ group.title.toLowerCase() }} distances computed.</p>
                 <table v-if="group.rows.length"><tbody><tr v-for="row in group.rows" :key="row.label"><th>{{ row.label }}</th><td :class="{ 'briefing-warning': row.warnings?.length || row.note?.includes('EXTRAPOLATED') }">{{ row.value }}{{ currentSnapshot.marker }}<p v-for="warning in row.warnings" :key="warning">{{ warning }}</p><p v-if="row.note">{{ row.note }}</p><p v-if="row.note?.includes('EXTRAPOLATED') && currentSnapshot.performance.extrapolation">{{ currentSnapshot.performance.extrapolation.warning }}</p></td></tr></tbody></table>

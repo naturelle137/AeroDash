@@ -116,6 +116,15 @@ describe('Briefing Pack PDF download', () => {
     expect(strip(text)).not.toContain(strip('Trip fuel 20 kg [UNVERIFIED] Verify fuel mass'))
   })
 
+  it('keeps density warnings on the takeoff point and away from zero-fuel endpoints in the PDF', async () => {
+    const input = source()
+    input.notifications.push({ id: 'WARN-FE-002', severity: 'WARNING', message: 'Verify fuel mass', context: 'FuelEndurance.Density', persistent: false, dismissible: true })
+    const { text } = await pdfFor(input)
+    const results = text.split('M&B results')[1]!.split('Loading envelope chart')[0]!
+    expect(results.split('Zero fuel')[0]!.match(/Verify fuel mass/g)).toHaveLength(2)
+    expect(results.split('Zero fuel')[1]).not.toContain('Verify fuel mass')
+  })
+
   it('preserves aggregate CG warnings at trajectory level in the PDF', async () => {
     const input = source()
     input.notifications.push({ id: 'CRIT-MB-003', severity: 'WARNING', message: 'CG Migration Limit Exceeded', context: 'MassBalance.CG', persistent: false, dismissible: true })

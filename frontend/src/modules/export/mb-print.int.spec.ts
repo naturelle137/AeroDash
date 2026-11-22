@@ -22,6 +22,25 @@ function source(): MbPrintSource {
 }
 afterEach(() => { document.body.innerHTML = ''; vi.restoreAllMocks() })
 describe('M&B print presentation with real store calculation', () => {
+  it('limits fuel-density warnings to the affected M&B point', () => {
+    const input = source()
+    input.notifications.push({ id: 'WARN-FE-002', severity: 'WARNING', message: 'Verify fuel mass', context: 'FuelEndurance.Density', persistent: false, dismissible: true })
+    const points = assembleMbPrint(input, new Date())!.points
+    expect(points.map(p => p.massWarnings.some(n => n.message === 'Verify fuel mass'))).toEqual([true, false, false])
+    expect(points.map(p => p.cgWarnings.some(n => n.message === 'Verify fuel mass'))).toEqual([true, false, false])
+  })
+  it('carries density warnings to distances using current fuel-dependent masses', () => {
+    const input = source()
+    input.notifications.push({ id: 'WARN-FE-002', severity: 'WARNING', message: 'Verify fuel mass', context: 'FuelEndurance.Density', persistent: false, dismissible: true })
+    const base = presentPerformance({ inputKey: 'k', inputs: [], aircraft: null, takeoff: { status: 'unavailable', reason: 'x' }, landing: { status: 'unavailable', reason: 'x' }, assessment: null, pressureAltitudeBasis: '', pendingReason: 'x', runway: { status: 'unavailable', reason: 'x' }, operational: presentOperationalAssessment(null, 'x') })
+    input.performance = { ...base, groups: [
+      { id: 'takeoff', title: 'Takeoff', mass: '900 kg — M&B', status: 'success', reason: null, rows: [{ label: 'Ground roll', value: '100 m', note: null }] },
+      { id: 'landing', title: 'Landing', mass: '800 kg — trip arrival', status: 'success', reason: null, rows: [{ label: 'Ground roll', value: '90 m', note: null }] },
+    ] }
+    const snapshot = assembleMbPrint(input, new Date())!
+    expect(snapshot.performance!.groups.map(g => g.rows[0]!.warnings)).toEqual([['Verify fuel mass'], ['Verify fuel mass']])
+    expect(input.performance.groups[0]!.rows[0]!.warnings).toBeUndefined()
+  })
   it('snapshots valid manual wind and omits invalid results', () => {
     const input = source()
     const entries = { runwayHeading: '270', windDirection: '330', windSpeed: '20', unit: 'kt' }
