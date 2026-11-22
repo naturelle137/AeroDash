@@ -17,15 +17,19 @@ const online = ref(navigator.onLine)
 const forecast = ref<ReturnType<typeof parseForecast>>(null)
 const forecastMessage = ref('Select a US ICAO station and an exact hour to retrieve a forecast.')
 const retrieved = ref('')
+const now = ref(Date.now())
 let request = 0
-const refresh = () => { online.value = navigator.onLine; if (!online.value) { request++; forecast.value = null } }
+const refresh = () => { now.value = Date.now(); online.value = navigator.onLine; if (!online.value) { request++; forecast.value = null } }
+let timer: ReturnType<typeof setInterval>
 onMounted(() => {
+  timer = setInterval(refresh, 1000)
   window.addEventListener('online', refresh)
   window.addEventListener('offline', refresh)
   window.addEventListener('pageshow', refresh)
   refresh()
 })
 onBeforeUnmount(() => {
+  clearInterval(timer)
   window.removeEventListener('online', refresh)
   window.removeEventListener('offline', refresh)
   window.removeEventListener('pageshow', refresh)
@@ -35,7 +39,8 @@ watch([phase, location, time], () => {
   request++; forecast.value = null; forecastMessage.value = 'Selection changed; retrieve the forecast again.'
 }, { flush: 'sync' })
 const numberIn = (value: string, min: number, max: number) => value.trim() !== '' && Number.isFinite(Number(value)) && Number(value) >= min && Number(value) <= max
-const selectionValid = computed(() => location.value.trim() !== '' && time.value !== '' && Number.isFinite(Date.parse(time.value)) && Date.parse(time.value) > Date.now())
+const selectionValid = computed(() => location.value.trim() !== '' && time.value !== '' && Number.isFinite(Date.parse(time.value)) && Date.parse(time.value) > now.value)
+const stale = computed(() => !!forecast.value && (forecast.value.stale || Date.parse(forecast.value.valid) <= now.value || now.value - Date.parse(forecast.value.fetched) > 4 * 60 * 60 * 1000))
 const values = computed<MetarValues>(() => {
   const result: MetarValues = {}
   if (numberIn(temperature.value, -100, 100)) result.temperature = temperature.value
@@ -83,7 +88,7 @@ function apply(field: keyof MetarValues): void {
 <template>
   <section class="forecast" aria-labelledby="forecast-heading">
     <h3 id="forecast-heading">Time-specific forecast</h3>
-    <p>Enter your own forecast values for the selected location and device local time. These entries are not saved or sent. Changing the selection clears these entries.</p>
+    <p>Enter your own forecast values for the selected location and device local time. These pilot-entered values are not an official forecast. Entries are not saved or sent. Changing the selection clears these entries.</p>
     <div class="fields">
       <label>Flight phase
         <select v-model="phase"><option value="departure">Departure</option><option value="arrival">Arrival</option></select>
@@ -99,10 +104,10 @@ function apply(field: keyof MetarValues): void {
     <p role="status" aria-live="polite">{{ online ? forecastMessage : 'Browser offline: forecast retrieval is unavailable.' }}</p>
     <div v-if="forecast">
       <p>US airport coverage · NWS via <a href="https://wxdecoder.com">wxdecoder.com</a> · Sources: NOAA/NWS Aviation Weather Center, National Weather Service and FAA.</p>
-      <p>Forecast hour: {{ forecast.valid }} · Source fetched: {{ forecast.fetched }} · Retrieved: {{ retrieved }}{{ forecast.stale ? ' · OUTDATED' : '' }}</p>
+      <p>Forecast hour: {{ forecast.valid }} · Source fetched: {{ forecast.fetched }} · Retrieved: {{ retrieved }}{{ stale ? ' · OUTDATED' : '' }}</p>
       <p>Temperature: {{ forecast.values.temperature ?? 'unavailable' }} °C · Wind: {{ forecast.values.wind ? `${forecast.values.wind.direction || 'calm'}° true / ${forecast.values.wind.speed} kt` : 'unavailable' }} · Forecast QNH: unavailable.</p>
-      <button type="button" :disabled="forecast.stale || !forecast.values.temperature" @click="applyRetrieved('temperature')">Replace temperature with retrieved forecast</button>
-      <button type="button" :disabled="forecast.stale || !forecast.values.wind" @click="applyRetrieved('wind')">Replace wind with retrieved forecast</button>
+      <button type="button" :disabled="stale || !forecast.values.temperature" @click="applyRetrieved('temperature')">Replace temperature with retrieved forecast</button>
+      <button type="button" :disabled="stale || !forecast.values.wind" @click="applyRetrieved('wind')">Replace wind with retrieved forecast</button>
     </div>
     <p>For education and situational awareness only, not an official briefing or go/no-go authority. Obtain required weather from an authorised source.</p>
     <p>Enter QNH only, not sea-level pressure. Wind direction is true; gusts are not applied. Values require a future time and are applied only when selected.</p>
@@ -113,7 +118,9 @@ function apply(field: keyof MetarValues): void {
       <label>Forecast wind speed<input v-model="speed" type="text" inputmode="decimal" min="0" max="200" step="any" /></label>
       <label>Forecast wind unit<select v-model="unit"><option value="kt">kt</option><option value="m/s">m/s</option></select></label>
     </div>
-    <p v-if="!selectionValid">Choose a location and future local time to apply values.</p>
+    <p v-if="time && Number.isFinite(Date.parse(time)) && Date.parse(time) <= now">Selected time has passed; pilot-entered forecast values are outdated.</p>
+    <p v-else-if="!selectionValid">Choose a location and future local time to apply values.</p>
+    <p>Available pilot entries: temperature {{ values.temperature ? 'entered' : 'missing or invalid' }}, QNH {{ values.qnh ? 'entered' : 'missing or invalid' }}, wind {{ values.wind ? 'entered' : 'missing or invalid' }}.</p>
     <div class="fields">
       <button type="button" :disabled="!selectionValid || !values.temperature" @click="apply('temperature')">Apply forecast temperature</button>
       <button type="button" :disabled="!selectionValid || !values.qnh" @click="apply('qnh')">Apply forecast QNH</button>

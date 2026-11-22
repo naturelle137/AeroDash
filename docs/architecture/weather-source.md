@@ -16,4 +16,6 @@ A matching fresh liquid METAR takes precedence over a matching liquid TAF. Forec
 
 ## Hourly forecast
 
+Pilot-entered temperature, aviation QNH and wind can be applied separately offline for a selected phase, location and future device-local time. The entries are not an official forecast or saved; changing the selection clears them. Missing or invalid fields and a passed selected time are shown, and expired entries cannot be applied. Explicitly applied values retain pilot-entered provenance until edited.
+
 [wxdecoder](https://wxdecoder.com/api/) provides free, keyless hourly NWS forecasts for US airports under the attribution and non-commercial terms above. On 21 November 2026 KDFW and KJFK returned CORS-enabled responses; EDDF returned no hourly coverage. The [NWS API](https://www.weather.gov/documentation/services-web-api) describes hourly periods. The selection matches only the exact timestamp provided, interpreted from device local time, with no interpolation. Temperature is converted from °F to °C; compass direction and knots are displayed as supplied. The source's forecast fetch timestamp is not an issue time. Source stale flags or fetch age over four hours suppress application; this threshold is an application warning. Browser caching follows the source headers. Forecast QNH is unavailable; sea-level pressure is never substituted.
