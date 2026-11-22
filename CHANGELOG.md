@@ -7,7 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-- Match the enabled Briefing Pack action to the homepage CTA, including hover treatment.
 - Preserve optional source references when recovering version 2 manual runway declarations.
 
 - Apply the selected performance safety factor even when runway correction sources are unavailable, while identifying the incomplete result.
