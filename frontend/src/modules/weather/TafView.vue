@@ -3,7 +3,7 @@ import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { tafLiquid } from './taf-surface'
 
 defineProps<{ embedded?: boolean }>()
-const emit = defineEmits<{ forecast: [value: { station: string; time: string; source: 'TAF'; validFrom: string; validTo: string; liquid: boolean; heavy?: boolean } | null] }>()
+const emit = defineEmits<{ forecast: [value: { station: string; time: string; source: 'TAF'; validFrom: string; validTo: string; liquid: boolean } | null] }>()
 let request = 0
 function clearReport(): void { request++; report.value = null }
 function offline(): void { clearReport(); message.value = 'Offline: TAF retrieval is unavailable.' }
@@ -20,7 +20,7 @@ const applicable = computed(() => {
   const r = report.value
   if (!r) return null
   const liquid = tafLiquid(r.body, r.start, r.end, now.value)
-  return liquid === null ? null : { station: r.station, time: r.issued, source: 'TAF' as const, validFrom: r.from, validTo: r.to, liquid, heavy: tafLiquid(r.body, r.start, r.end, now.value, 'soft') === true }
+  return liquid === null ? null : { station: r.station, time: r.issued, source: 'TAF' as const, validFrom: r.from, validTo: r.to, liquid }
 })
 watch(applicable, value => emit('forecast', value), { flush: 'sync' })
 

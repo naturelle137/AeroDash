@@ -55,10 +55,10 @@ export const useManualRunwayStore = defineStore('manualRunway', () => {
   let filling = false
   let applyingWeather = false
   let pilotSurfaceChoice = false
-  const weather = ref<{ station: string; time: string; liquid: boolean; heavy?: boolean } | null>(null)
+  const weather = ref<{ station: string; time: string; liquid: boolean } | null>(null)
   const weatherSurface = ref<NonNullable<ManualRunwayRecord['weatherSurface']> | null>(null)
 
-  const forecast = ref<(NonNullable<ManualRunwayRecord['weatherSurface']> & { liquid: boolean; heavy?: boolean }) | null>(null)
+  const forecast = ref<(NonNullable<ManualRunwayRecord['weatherSurface']> & { liquid: boolean }) | null>(null)
   function updateForecast(value: typeof forecast.value): void { forecast.value = value }
 
   function updateWeather(value: typeof weather.value): void { weather.value = value }
@@ -70,15 +70,14 @@ export const useManualRunwayStore = defineStore('manualRunway', () => {
       weatherSurface.value = null
     }
     const station = draft.aerodrome.trim().toUpperCase()
-    const candidates = [weather.value, forecast.value].filter(value => value?.station === station)
-    const observation = (draft.surfaceType === 'grass' ? candidates.find(value => value?.heavy) : undefined) ?? candidates.find(value => value?.liquid)
-    if (!observation || (!observation.liquid && !observation.heavy) || draft.aerodrome.trim().toUpperCase() !== observation.station || draft.surfaceCondition || pilotSurfaceChoice || saved.value) return
-    const condition = draft.surfaceType === 'paved' ? 'wet' : draft.surfaceType === 'grass' ? (observation.heavy ? 'soft-ground' : 'wet-grass') : draft.surfaceType === 'unpaved' ? 'wet-unpaved' : ''
+    const observation = [weather.value, forecast.value].find(value => value?.liquid && value.station === station)
+    if (!observation?.liquid || draft.aerodrome.trim().toUpperCase() !== observation.station || draft.surfaceCondition || pilotSurfaceChoice || saved.value) return
+    const condition = draft.surfaceType === 'paved' ? 'wet' : draft.surfaceType === 'unpaved' ? 'wet-soft-ground' : ''
     if (!condition) return
     applyingWeather = true
     draft.surfaceCondition = condition
     applyingWeather = false
-    const { liquid: _liquid, heavy: _heavy, ...provenance } = observation
+    const { liquid: _liquid, ...provenance } = observation
     weatherSurface.value = provenance
   }, { flush: 'sync' })
   function chooseSurface(): void { pilotSurfaceChoice = true; weatherSurface.value = null }
@@ -99,7 +98,7 @@ export const useManualRunwayStore = defineStore('manualRunway', () => {
 
   // A condition from the other surface family must never survive a type change.
   watch(() => draft.surfaceType, (type) => {
-    const options = type === 'paved' || type === 'unpaved' || type === 'grass' ? SURFACE_CONDITIONS[type] : []
+    const options = type === 'paved' || type === 'unpaved' ? SURFACE_CONDITIONS[type] : []
     if (!options.some((option) => option.value === draft.surfaceCondition)) draft.surfaceCondition = ''
   }, { flush: 'sync' })
   watch(draft, () => { notice.value = null }, { flush: 'sync' })

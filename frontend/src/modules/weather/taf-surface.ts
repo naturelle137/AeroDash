@@ -1,10 +1,10 @@
 import { liquidWeatherToken } from './metar-surface'
 
 /** Current-time TAF interpretation; unsupported groups never become runway evidence. */
-export function tafLiquid(body: string, start: number, end: number, now: number, mode: 'liquid' | 'soft' = 'liquid'): boolean | null {
+export function tafLiquid(body: string, start: number, end: number, now: number): boolean | null {
   if (![start, end, now].every(Number.isFinite) || start >= end || end - start > 48 * 3600000 || now < start || now >= end) return null
   const tokens = body.trim().replace(/=$/, '').split(/\s+/)
-  const groups: { kind: string; from: number; to: number; liquid: boolean | undefined; precip: boolean | undefined }[] = []
+  const groups: { kind: string; from: number; to: number; liquid: boolean | undefined }[] = []
   function time(day: string, hour: string, minute = '00'): number {
     if (+hour > 24 || +minute > 59 || (+hour === 24 && +minute !== 0)) return NaN
     for (let date = start; date <= end; date += 60000) {
@@ -37,7 +37,6 @@ export function tafLiquid(body: string, start: number, end: number, now: number,
     const first = i
     let wind = false, visibility = false, sky = false, weather = 0
     let liquid: boolean | undefined
-    let precip: boolean | undefined
     const windMatch = /^(\d{3}|VRB)(\d{2,3})(?:G\d{2,3})?(KT|MPS|KMH)$/.exec(tokens[i] ?? '')
     if (windMatch) {
       if ((windMatch[1] !== 'VRB' && +windMatch[1]! > 360) || (windMatch[1] === '000' && +windMatch[2]! !== 0)) return null
@@ -46,22 +45,21 @@ export function tafLiquid(body: string, start: number, end: number, now: number,
     if (/^\d+$/.test(tokens[i] ?? '') && /^\d+\/\d+SM$/.test(tokens[i + 1] ?? '')) i++
     const cavok = tokens[i] === 'CAVOK'
     if (cavok || /^(?:\d{4}|(?:M|P)?\d+(?:\/\d+)?SM)$/.test(tokens[i] ?? '')) { visibility = true; i++ }
-    if (cavok) { sky = true; liquid = false; precip = false }
+    if (cavok) { sky = true; liquid = false }
     while (i < tokens.length && !/^(?:FM|TEMPO$|BECMG$|PROB|FEW|SCT|BKN|OVC|VV|SKC$|CLR$|NSC$|NCD$)/.test(tokens[i]!)) {
       const token = tokens[i++]!
       if (cavok || ++weather > 3) return null
       const value = token === 'NSW' ? false : liquidWeatherToken(token)
       if (value === null || (token === 'NSW' && weather !== 1) || (weather > 1 && tokens[i - 2] === 'NSW')) return null
       liquid = (liquid ?? false) || value
-      precip = (precip ?? false) || (token !== 'NSW' && /^(?:\+|-)?(?:SH|TS|FZ)?(?:DZ|RA|SN|SG|IC|PL|GR|GS|UP)+$/.test(token))
     }
     while (/^(?:(?:FEW|SCT|BKN|OVC)\d{3}(?:CB|TCU)?|VV(?:\d{3}|\/\/\/)|SKC|CLR|NSC|NCD)$/.test(tokens[i] ?? '')) {
       if (cavok) return null
       sky = true; i++
     }
     if (i === first || ((kind === 'base' || kind === 'FM') && (!wind || !visibility || !sky))) return null
-    if (kind === 'base' || kind === 'FM') { liquid ??= false; precip ??= false }
-    groups.push({ kind, from, to, liquid, precip })
+    if (kind === 'base' || kind === 'FM') liquid ??= false
+    groups.push({ kind, from, to, liquid })
   }
   let prevailing: boolean | undefined
   let boundary = start
@@ -79,22 +77,6 @@ export function tafLiquid(body: string, start: number, end: number, now: number,
       if (now >= group.from && now < group.to) return null
       if (now >= group.to && group.liquid !== undefined) prevailing = group.liquid
     }
-  }
-  if (mode === 'soft') {
-    let currentPrecip = false, since = start
-    for (const group of groups) {
-      if ((group.kind === 'base' || group.kind === 'FM' || group.kind === 'BECMG') && (group.kind === 'base' || now >= (group.kind === 'BECMG' ? group.to : group.from))) {
-        const effective = group.kind === 'BECMG' ? group.to : group.from
-        if (group.precip !== undefined) {
-          if (!currentPrecip || !group.precip) since = effective
-          currentPrecip = group.precip
-        }
-      }
-    }
-    const nextChange = groups.filter(g => (g.kind === 'FM' || g.kind === 'BECMG') && g.from > now && g.precip === false).map(g => g.from)
-    const until = Math.min(end, ...nextChange)
-    if (currentPrecip && until - since > 2 * 3600000) return true
-    return false
   }
   return prevailing === true || groups.some((g, index) => g.kind === 'TEMPO' && now >= g.from && now < g.to && g.liquid === true && !groups.slice(index + 1).some(next => next.kind === 'FM' && now >= next.from))
 }

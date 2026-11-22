@@ -114,37 +114,3 @@ test('TAF applicability, unsupported groups, saved provenance and pilot override
   await context.setOffline(true)
   await expect(condition).toHaveValue('dry')
 })
-
-
-test('grass soft ground suggestions use current synthetic METAR and TAF', async ({ page }, info) => {
-  await page.clock.install({ time: new Date('2026-11-21T13:00:00Z') })
-  await page.route('https://wxdecoder.com/api/wx/EDDF', route => route.fulfill({ json: {
-    metar: { raw: 'EDDF 211250Z 17004KT 9999 +RA BKN020 10/08 Q1013', station: 'EDDF', reportTime: '2026-11-21T12:50:00.000Z', reportTimeKnown: true },
-    taf: { raw: 'TAF EDDF 211100Z 2112/2118 21005KT 9999 RA BKN020 FM211400 21005KT 9999 RA BKN020', station: 'EDDF', issueTime: '2026-11-21T11:00:00.000Z', validFrom: '2026-11-21T12:00:00.000Z', validTo: '2026-11-21T18:00:00.000Z' },
-  } }))
-  await page.goto('/mass-balance')
-  const accept = page.getByTestId('disclaimer-gate-accept')
-  if (await accept.isVisible()) await accept.click()
-  const runway = page.getByRole('form', { name: 'Manual runway', exact: true })
-  await runway.getByLabel('Aerodrome', { exact: true }).fill('EDDF')
-  await runway.getByLabel('Surface type', { exact: true }).selectOption('grass')
-  await page.locator('#taf-icao').fill('EDDF')
-  await page.getByRole('button', { name: 'Check TAF' }).click()
-  const condition = runway.getByLabel('Surface condition', { exact: true })
-  await expect(condition).toHaveValue('soft-ground')
-  await expect(runway).toContainText('Soft ground suggested by TAF')
-  await runway.getByText('Soft ground suggested by TAF', { exact: false }).scrollIntoViewIfNeeded()
-  const tafPath = info.outputPath(`soft-ground-taf-${info.project.name}.png`)
-  await page.screenshot({ path: tafPath, animations: 'disabled' })
-  await info.attach('Soft ground TAF suggestion', { path: tafPath, contentType: 'image/png' })
-  await page.locator('#weather-icao').fill('EDDF')
-  await page.getByRole('button', { name: 'Check METAR' }).click()
-  await expect(runway).toContainText('Soft ground suggested by METAR')
-  await runway.getByText('Soft ground suggested by METAR', { exact: false }).scrollIntoViewIfNeeded()
-  const path = info.outputPath(`soft-ground-${info.project.name}.png`)
-  await page.screenshot({ path, animations: 'disabled' })
-  await info.attach('Soft ground suggestion', { path, contentType: 'image/png' })
-  await condition.selectOption('wet-grass')
-  await page.getByRole('button', { name: 'Check METAR' }).click()
-  await expect(condition).toHaveValue('wet-grass')
-})
