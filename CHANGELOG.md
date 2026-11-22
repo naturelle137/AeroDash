@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-- Identify unavailable correction sources and manual corrections withheld when a complete set is unavailable.
+- Show missing and expired pilot forecast entries and update forecast freshness while Flight Prep stays open.
 
 - Suppress runway fit and margin claims when wind or slope inputs were not applied.
 
@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Recall five recently used manual airports offline with their original runway declarations.
+- Compare pilot-entered gust components with stored aircraft wind limits in Flight Prep and briefing.
 
 - Manage passenger standard-weight profiles in aircraft creation and editing.
 - Apply pilot-entered time-specific forecast values to Flight Prep with manual provenance.
