@@ -18,6 +18,8 @@ When('the browser goes offline for forecast planning', async ({ context }) => { 
 Then('the forecast selection and manual wind remain available offline', async ({ page }) => {
   const forecast = page.getByRole('region', { name: 'Time-specific forecast' })
   await expect(forecast.getByRole('status')).toContainText('Browser offline')
+  await expect(forecast).toContainText('pilot-entered values are not an official forecast')
+  await expect(forecast).toContainText('temperature missing or invalid, QNH missing or invalid, wind missing or invalid')
   await expect(forecast.getByLabel('Flight phase')).toHaveValue('arrival')
   await expect(forecast.getByLabel('Location')).toHaveValue('Test airfield')
   await expect(forecast.getByLabel('Local date and time')).toHaveValue('2030-06-01T12:30')
@@ -37,6 +39,7 @@ When('the pilot applies synthetic forecast values offline', async ({ page }) => 
   await forecast.getByLabel('Forecast wind direction').fill('180')
   await forecast.getByLabel('Forecast wind speed').fill('10')
   await forecast.getByLabel('Forecast wind unit').selectOption('m/s')
+  await expect(forecast).toContainText('temperature entered, QNH entered, wind entered')
   await expect(page.locator('#wind-speed')).toHaveValue('20')
   await forecast.getByRole('button', { name: 'Apply forecast temperature' }).click()
   await forecast.getByRole('button', { name: 'Apply forecast QNH' }).click()
