@@ -29,3 +29,18 @@ describe('manual wind limit comparison', () => {
     expect(compareWindLimits(input('180'), [{ ...limits[0]!, value: NaN }, limits[3]!])).toEqual([])
   })
 })
+
+describe('manual gust limit comparison', () => {
+  it('compares total, tailwind and crosswind with unrounded boundaries and units', () => {
+    const gust = { ...input('225', '5'), gustSpeed: '25' }
+    expect(compareWindLimits(gust, limits).map(n => n.id)).toEqual(['WARN-WX-001', 'CRIT-WX-001', 'CRIT-WX-001'])
+    expect(compareWindLimits({ ...input('180', '1', 'km/h'), gustSpeed: '18.52' }, limits)).toEqual([])
+    expect(compareWindLimits({ ...input('180', '1', 'm/s'), gustSpeed: '6' }, limits)[0]?.message).toContain('manual gust')
+  })
+  it('does not compare missing or malformed gusts or missing direction, heading or limits', () => {
+    for (const gustSpeed of ['', 'VRB', '-1', '201']) expect(compareWindLimits({ ...input('180', '1'), gustSpeed }, limits)).toEqual([])
+    expect(compareWindLimits({ ...input('', '0'), gustSpeed: '25' }, limits)).toEqual([])
+    expect(compareWindLimits({ ...input('180', '1'), runwayHeading: '', gustSpeed: '25' }, limits)).toEqual([])
+    expect(compareWindLimits({ ...input('180', '1'), gustSpeed: '25' })).toEqual([])
+  })
+})
