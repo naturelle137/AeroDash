@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Verify independent fuel sequences and electric planning controls in integrated and browser tests.
+
 - Apply available manual wind and slope corrections when another correction is missing, and mark the result incomplete.
 - Retrieve a global hourly model temperature and wind forecast by coordinates, with explicit QNH unavailability.
 - Verify read-only inspection of every imported performance point before pilot sign-off.
