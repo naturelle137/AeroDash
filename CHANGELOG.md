@@ -27,6 +27,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Allow date checks for recent runway declarations while editing the current runway.
+
 - Suggest soft ground for grass from applicable heavy METAR rain or prolonged TAF precipitation, with pilot override.
 - Show declared date checks for recent manual runway declarations before selection.
 - Show the running version and its release date in an offline About view.
