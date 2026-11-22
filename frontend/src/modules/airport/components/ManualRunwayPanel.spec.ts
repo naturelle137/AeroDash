@@ -101,6 +101,25 @@ describe('ManualRunwayPanel', () => {
     expect(view.get('[aria-label="Recently used airports"]').findAll('button')[0]!.text()).toContain('TEST')
   })
 
+  it('checks recent declarations against the selected date without changing saved data', async () => {
+    const view = mount(ManualRunwayPanel)
+    await fill(view)
+    await view.get('#runway-effective').setValue('2026-01-01')
+    await view.get('#runway-expiry').setValue('2026-12-31')
+    await view.get('form').trigger('submit')
+    const saved = localStorage.getItem(MANUAL_RUNWAY_STORAGE_KEY)
+    await view.get('#runway-assessment-date').setValue('2027-01-01')
+    const recent = view.get('[aria-label="Recently used airports"]')
+    expect(recent.text()).toContain('2027-01-01')
+    expect(recent.text()).toContain('Expired according to the declared date')
+    expect(recent.text()).toContain('NOTAM/SUP coverage is unknown')
+    await view.get('#runway-assessment-date').setValue('2026-06-01')
+    expect(recent.text()).toContain('Within the declared dates; source currency remains unverified')
+    await view.get('#runway-assessment-date').setValue('')
+    expect(recent.text()).toContain('Unknown: declared dates are incomplete or the assessment date is invalid')
+    expect(localStorage.getItem(MANUAL_RUNWAY_STORAGE_KEY)).toBe(saved)
+  })
+
   it('clears a condition from another surface family when the type changes', async () => {
     const view = mount(ManualRunwayPanel)
     await fill(view)
