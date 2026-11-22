@@ -11,12 +11,10 @@
  * @see docs/testing/TESTING.md (P1 Safety Core: 90% line/branch/function coverage)
  */
 import { fileURLToPath } from 'node:url'
-import { mergeConfig, defineConfig, configDefaults } from 'vitest/config'
-import viteConfig from './vite.config'
+import { defineConfig, configDefaults } from 'vitest/config'
 
-export default mergeConfig(
-  viteConfig,
-  defineConfig({
+export default defineConfig({
+    resolve: { alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) } },
     test: {
       // Pure Node.js environment — no browser globals injected.
       // If a P1 test ever fails here due to missing browser APIs it signals
@@ -52,5 +50,4 @@ export default mergeConfig(
       },
       root: fileURLToPath(new URL('./', import.meta.url)),
     },
-  }),
-)
+})
