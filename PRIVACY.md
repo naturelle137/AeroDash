@@ -10,7 +10,7 @@
 
 ## 1. Overview
 
-AeroDash is an offline-first, client-side single-page application (SPA) for flight preparation. It runs entirely in the user's browser. **No personal, aircraft, or session data is transmitted to any server, backend, or third-party service.** There is no telemetry, analytics, tracking, advertising, or remote logging. Beyond loading and updating the app itself (same-origin requests for the app shell and the service-worker update lifecycle), the application makes exactly **one** application-level network request — an online safety-version check (`GET /version.json`) described in [§7](#7-network-activity-version-safety-check) — which carries no personal data and exists only as a safety "kill switch" (REQ-SYS-006 / H-019).
+AeroDash is an offline-first, client-side flight-preparation application. Aircraft profiles and planning inputs stay in the browser. The app checks a same-origin safety version and, at the pilot's request, contacts weather providers: wxdecoder receives an airport identifier, and Open-Meteo receives coordinates. These providers can also observe network metadata such as the IP address. There is no AeroDash telemetry, analytics or advertising.
 
 ## 2. Data Collected
 
@@ -255,17 +255,13 @@ safety-critical defect discovered after release block an unsafe build (a remote
 ## 8. Third-Party Dependencies
 
 - No third-party analytics, advertising, or tracking libraries are included.
-- Beyond loading and updating the app itself, the only network request the app
-  makes is the first-party, same-origin version-safety check described in §7; no
-  third-party service is contacted.
+- On request, wxdecoder receives the selected airport identifier and Open-Meteo receives the entered coordinates. See [weather sources](docs/architecture/weather-source.md) and the providers’ privacy terms.
 - Runtime dependencies are limited to Vue.js, Pinia, Vue Router, Zod, and `uuid`.
 - Dependency security is monitored via Dependabot and `pnpm audit` in CI.
 
 ## 9. Security Measures
 
-- Offline-first architecture minimises network-based attack surface; the sole
-  outbound request (§7) is a same-origin, credential-less `GET` that never
-  reads more than a small bounded response body.
+- Offline-first architecture minimises network activity. The version check (§7) is same-origin; optional weather requests contact the selected external provider without credentials.
 - An optional app lock (Privacy page) hides the app behind a passcode checked
   locally with a salted PBKDF2 verifier. It does not encrypt stored data or
   exports, and a forgotten passcode can only be cleared by deleting all local
