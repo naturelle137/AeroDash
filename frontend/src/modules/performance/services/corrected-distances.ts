@@ -146,6 +146,7 @@ export function presentCorrectedOperation(
   const { document, section } = estimating ? fsm[0]! : selected[0]!
   const sourceId = estimating ? 'fsm' : selected[0]!.id
   const comparison = compareWithRunway(operation, Math.ceil(result.distanceOver50ft * factor), Math.ceil(result.groundRoll * factor), available)
+  const partial = result.notCredited.length > 0
   const marker = ' ESTIMATED (CAA SSL 07)'
   const extrapolated = ' ESTIMATED — EXTRAPOLATED (+20 % penalty)'
   const markers = (rows: typeof group.distances) =>
@@ -155,15 +156,16 @@ export function presentCorrectedOperation(
   const rollMarker = baseRollMarker + (estimating ? FSM_ESTIMATE_MARKER : '')
   const correctedOver50Marker = markers([roll, over50]) + (estimating ? FSM_ESTIMATE_MARKER : '')
   return {
-    operation, title, status: 'applied', partial: result.notCredited.length > 0,
+    operation, title, status: 'applied', partial,
     source: `${document.title}, ${document.identifier}, ${document.revision}; ${section}`,
     rows: [
       { label: roll.label, raw: `${formatNumber(roll.distance)} m${baseRollMarker}`, corrected: up(result.groundRoll) + rollMarker, factored: up(result.groundRoll * factor) + rollMarker },
       { label: over50.label, raw: `${formatNumber(over50.distance)} m${over50Marker}`, corrected: up(result.distanceOver50ft) + correctedOver50Marker, factored: up(result.distanceOver50ft * factor) + correctedOver50Marker },
     ],
-    comparison: { ...comparison, required: comparison.required + correctedOver50Marker, margin: comparison.margin === 'Not available' ? comparison.margin : comparison.margin + correctedOver50Marker,
-      summary: (rollMarker ? comparison.summary.replace(/(final ground roll of [\d,]+ m)/, `$1${rollMarker}`) : comparison.summary)
-        + (result.notCredited.length ? ' Comparison uses partially corrected distances; see unapplied inputs below. Do not use this comparison for runway assessment; determine the applicable corrections independently from the aircraft manual.' : '') },
+    comparison: { ...comparison, status: partial && comparison.status === 'sufficient' ? 'unavailable' : comparison.status,
+      required: comparison.required + correctedOver50Marker, margin: partial ? 'Not available' : comparison.margin === 'Not available' ? comparison.margin : comparison.margin + correctedOver50Marker,
+      summary: (partial && comparison.status === 'sufficient' ? 'Runway comparison unavailable.' : rollMarker ? comparison.summary.replace(/(final ground roll of [\d,]+ m)/, `$1${rollMarker}`) : comparison.summary)
+        + (partial ? ' Comparison uses partially corrected distances; see unapplied inputs below. Do not use this comparison for runway assessment; determine the applicable corrections independently from the aircraft manual.' : '') },
     safetyFactor: `${factor.toFixed(2)} (${estimating && safetyFactor.preset === 'poh-afm' ? 'Regulatory baseline; no manual factor' : SAFETY_FACTOR_PRESETS.find((p) => p.value === safetyFactor.preset)!.label})`,
     safetyFactorWarning: isOsfBelowMinimum(osf, operation)
       ? `WARN-PF-002: safety factor ${factor.toFixed(2)} is below the recommended minimum ${threshold.toFixed(2)} (${manualFactor === null ? 'regulatory baseline' : `greater of the manual factor ${manualFactor} and the regulatory baseline`}). Advisory; the result is not blocked.`
