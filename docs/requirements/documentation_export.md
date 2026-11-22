@@ -30,7 +30,7 @@ If the calculation uses a user-selected Operational Safety Factor that is lower 
 
 When generating the export, the system shall highlight each affected available value with its precise active warning or computed-exceedance notification.
 
-**Status:** Approved. Affected-value coverage is not established for every warning and computed exceedance.
+**Status:** Approved. Corrected-distance condition and safety-factor, manual wind-limit, obstacle and electric-energy warnings are covered by `frontend/src/modules/export/mb-print.int.spec.ts` and `frontend/src/modules/export/briefing-pdf.int.spec.ts`; coverage for every affected value remains to be established.
 
 ### REQ-DOC-006: Performance briefing
 

@@ -84,7 +84,13 @@ export function assembleMbPrint(source: MbPrintSource, now: Date) {
   const arm = (value: number) => `${formatArm(value, 3)} m${marker}`
   return {
     wind: source.wind?.result.status === 'valid' ? { input: { ...source.wind.input }, result: { ...source.wind.result }, notifications: compareWindLimits(source.wind.input, profile.windLimits) } : null,
-    performance: source.performance ? JSON.parse(JSON.stringify(source.performance)) as PerformancePresentation : null,
+    performance: source.performance ? {
+      ...JSON.parse(JSON.stringify(source.performance)) as PerformancePresentation,
+      groups: source.performance.groups.map(group => ({ ...group, rows: group.rows.map(row => ({ ...row,
+        warnings: [...(row.warnings ?? []), ...(group.mass
+          ? source.notifications.filter(n => n.context === 'FuelEndurance.Density' && n.severity !== 'INFO').map(n => n.message) : [])],
+      })) })),
+    } : null,
     chart: {
       result: JSON.parse(JSON.stringify(result)) as MathCoreResult,
       envelope: source.chartEnvelope.map(point => ({ ...point })),
@@ -94,8 +100,10 @@ export function assembleMbPrint(source: MbPrintSource, now: Date) {
     energy: source.energy ? { ...source.energy, rows: source.energy.rows.map(row => ({ ...row, value: `${row.value} [UNVERIFIED]` })) } : null,
     fuel: source.fuel ? {
       ...source.fuel,
-      rows: source.fuel.rows.filter(row => !source.fuel?.reason || ['Usable fuel', 'Excluded unusable fuel'].includes(row.label)).map(row => ({ ...row, value: `${row.value}${marker}` })),
-      warnings: [...source.fuel.warnings],
+      rows: source.fuel.rows.filter(row => !source.fuel?.reason || ['Usable fuel', 'Excluded unusable fuel'].includes(row.label)).map(row => ({ ...row, value: `${row.value}${marker}`,
+        warnings: [...(row.warnings ?? []).map(w => w.replace(/^WARN-FE-001 — /, '')), ...(['Usable fuel', 'Excluded unusable fuel', 'Total endurance', 'Fuel shortfall', 'Remaining after trip + reserve', 'Takeoff mass', 'Estimated arrival mass', 'Usable fuel remaining on arrival', 'Estimated arrival CG'].includes(row.label)
+          ? source.notifications.filter(n => n.context === 'FuelEndurance.Density' && n.severity !== 'INFO').map(n => n.message) : [])] })),
+      warnings: source.fuel.warnings.map(w => w.replace(/^WARN-FE-001 — /, '')),
     } : null,
     fuelReason: source.fuel?.reason ?? (!source.fuel ? 'Current fuel plan is unavailable.' : null),
     generated: `${now.toISOString()} (UTC)`,
@@ -130,8 +138,8 @@ export function assembleMbPrint(source: MbPrintSource, now: Date) {
       { label: 'Zero fuel', point: result.zeroFuelCenterOfGravityPoint },
       { label: 'All usable fuel burned', point: result.landingCenterOfGravityPoint },
     ].map(({ label, point }) => ({ label, mass: mass(point.mass), cg: arm(point.arm),
-      massWarnings: valueWarnings(source, label === 'Takeoff' ? ['MassBalance.TotalMass', 'FuelEndurance.Density'] : label === 'Zero fuel' ? ['MassBalance.ZFM'] : ['FuelEndurance.Density']),
-      cgWarnings: valueWarnings(source, ['FuelEndurance.Density']).concat(label === 'Takeoff' && result.violations.some(v => v.type === 'CG_OUT_OF_ENVELOPE')
+      massWarnings: valueWarnings(source, label === 'Takeoff' ? ['MassBalance.TotalMass', 'FuelEndurance.Density'] : label === 'Zero fuel' ? ['MassBalance.ZFM'] : []),
+      cgWarnings: valueWarnings(source, label === 'Takeoff' ? ['FuelEndurance.Density'] : []).concat(label === 'Takeoff' && result.violations.some(v => v.type === 'CG_OUT_OF_ENVELOPE')
         ? source.notifications.filter(n => n.context === 'MassBalance.CG' && n.id === 'CRIT-MB-001' && n.severity !== 'INFO') : []),
       limit: label === 'Takeoff' ? `MTOM: ${massLimit(normalizeMassToKg(category.maxTakeoffMass, massUnit))}` : label === 'Zero fuel' && category.maxZeroFuelMass !== null ? `MZFM: ${massLimit(normalizeMassToKg(category.maxZeroFuelMass, massUnit))}` : 'Not specified' })),
     mtom: massLimit(normalizeMassToKg(category.maxTakeoffMass, massUnit)),
