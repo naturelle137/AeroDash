@@ -694,7 +694,7 @@ function onImportHandover(text: string): void {
     text: 'Imported an unreviewed handover (saved ' + parsed.file.exportedAt + '). Not approved by any instructor. Check and verify every value; acknowledgements were not imported.',
   }
 }
-const windInput = ref({ runwayHeading: '', windDirection: '', windSpeed: '', unit: 'kt' })
+const windInput = ref({ runwayHeading: '', windDirection: '', windSpeed: '', unit: 'kt', gustSpeed: '' })
 const weatherSources = ref<Partial<Record<keyof MetarValues, { source: string; value: string }>>>({})
 function weatherValue(field: keyof MetarValues): string {
   if (field === 'wind') return JSON.stringify([windInput.value.windDirection, windInput.value.windSpeed, windInput.value.unit])
@@ -706,7 +706,7 @@ watch(() => (['wind', 'temperature', 'qnh'] as const).map(weatherValue), (curren
   })
 }, { flush: 'sync' })
 function applyWeather(field: keyof MetarValues, values: MetarValues, source: string): void {
-  if (field === 'wind' && values.wind) Object.assign(windInput.value, { windDirection: values.wind.direction, windSpeed: values.wind.speed, unit: values.wind.unit })
+  if (field === 'wind' && values.wind) Object.assign(windInput.value, { windDirection: values.wind.direction, windSpeed: values.wind.speed, unit: values.wind.unit, gustSpeed: '' })
   else if (field === 'temperature' && values.temperature !== undefined) performanceStep.temperature.value = values.temperature
   else if (field === 'qnh' && values.qnh !== undefined) Object.assign(performanceStep.pa.draft, { qnh: values.qnh, qnhUnit: 'hPa' })
   else return

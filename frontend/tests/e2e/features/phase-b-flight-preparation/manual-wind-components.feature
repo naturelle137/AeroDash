@@ -83,3 +83,22 @@ Feature: Offline manual wind components
       | width | height |
       | 1440  | 1000   |
       | 390   | 844    |
+
+  Scenario Outline: Compare manual gusts and clear stale warnings
+    Given the raw POH workflow viewport is <width> by <height>
+    When the pilot imports a synthetic aircraft with wind limits
+    And the pilot selects the imported aircraft "D-WIND" in Flight Prep
+    And the pilot enters runway heading "270", wind from "150" and speed "5" "kt"
+    And the pilot enters a gust of "20"
+    Then the gust warnings appear and evidence is captured
+    When the pilot opens the briefing pack
+    Then the briefing pack states "Crosswind exceeds Demonstrated 10 kt (manual gust)"
+    And the briefing pack states "Tailwind exceeds Limit 5 kt (manual gust)"
+    When the pilot returns from the briefing pack
+    And the pilot enters runway heading "270", wind from "VRB" and speed "5" "kt"
+    Then the gust is cleared
+
+    Examples:
+      | width | height |
+      | 1440  | 1000   |
+      | 390   | 844    |
