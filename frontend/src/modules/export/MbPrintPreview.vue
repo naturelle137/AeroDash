@@ -198,7 +198,7 @@ onBeforeUnmount(() => {
             <h2>Estimated energy budget</h2>
             <p>Manual estimate assumes constant pilot-entered consumption. Verify against the aircraft POH/AFM. Battery use does not change aircraft mass.</p>
             <p v-if="currentSnapshot.energy.reason">Energy budget unavailable: {{ currentSnapshot.energy.reason }}</p>
-            <table v-else><tbody><tr v-for="row in currentSnapshot.energy.rows" :key="row.label"><td>{{ row.label }}</td><td>{{ row.value }}</td></tr></tbody></table>
+            <table v-else><tbody><tr v-for="row in currentSnapshot.energy.rows" :key="row.label"><td>{{ row.label }}</td><td :class="{ 'briefing-warning': currentSnapshot.energy.warning && ['Estimated remaining energy', 'Difference to reserve floor'].includes(row.label) }">{{ row.value }}<p v-if="currentSnapshot.energy.warning && ['Estimated remaining energy', 'Difference to reserve floor'].includes(row.label)">{{ currentSnapshot.energy.warning }}</p></td></tr></tbody></table>
             <p v-if="currentSnapshot.energy.warning">{{ currentSnapshot.energy.warning }}</p>
           </section>
           <section v-if="currentSnapshot.fuel" aria-label="Current fuel plan and estimated trip arrival">
@@ -238,24 +238,28 @@ onBeforeUnmount(() => {
                 <p>{{ currentSnapshot.performance.extrapolation.acknowledged ? 'Acknowledged by the pilot in command.' : 'Not acknowledged by the pilot in command: extrapolated results are withheld.' }}</p>
                 <ul><li v-for="detail in currentSnapshot.performance.extrapolation.details" :key="detail">{{ detail }}</li></ul>
               </section>
-              <table><tbody><tr v-for="row in currentSnapshot.performance.inputs" :key="row.label"><th>{{ row.label }}</th><td>{{ row.value }}</td></tr></tbody></table>
-              <p v-if="currentSnapshot.performance.conditions">Calculation basis: {{ currentSnapshot.performance.conditions.pressureAltitude }} · {{ currentSnapshot.performance.conditions.temperature }}</p>
+              <table><tbody><tr v-for="row in currentSnapshot.performance.inputs" :key="row.label"><th>{{ row.label }}</th><td :class="{ 'briefing-warning': row.warnings?.length || currentSnapshot.performance.corrected.some(item => item.status === 'applied' && row.label === `${item.title} safety factor` && item.safetyFactorWarning) || (['Unverified obstacle constraint', 'Required geometric gradient'].includes(row.label) && currentSnapshot.performance.notifications.some(n => n.context === 'Performance.Obstacles')) }">{{ row.value }}<p v-for="warning in row.warnings" :key="warning">{{ warning }}</p><template v-if="['Unverified obstacle constraint', 'Required geometric gradient'].includes(row.label)"><p v-for="note in currentSnapshot.performance.notifications.filter(n => n.context === 'Performance.Obstacles')" :key="note.id">{{ note.severity }}: {{ note.message }}</p></template><p v-for="item in currentSnapshot.performance.corrected.filter(item => item.status === 'applied' && row.label === `${item.title} safety factor` && item.safetyFactorWarning)" :key="item.operation">{{ item.status === 'applied' ? item.safetyFactorWarning : '' }}</p></td></tr></tbody></table>
+              <p v-if="currentSnapshot.performance.conditions" :class="{ 'briefing-warning': currentSnapshot.performance.inputs.some(row => row.warnings?.length) }">Calculation basis: {{ currentSnapshot.performance.conditions.pressureAltitude }} · {{ currentSnapshot.performance.conditions.temperature }}<span v-for="warning in currentSnapshot.performance.inputs.flatMap(row => row.warnings ?? [])" :key="warning"> · {{ warning }}</span></p>
               <section v-for="group in currentSnapshot.performance.groups" :key="group.id">
                 <h3>{{ group.title }}</h3>
-                <p v-if="group.mass">{{ group.mass }}{{ currentSnapshot.marker }}</p>
+                <p v-if="group.mass" :class="{ 'briefing-warning': currentSnapshot.notifications.some(n => n.context === 'FuelEndurance.Density' && n.severity !== 'INFO') }">{{ group.mass }}{{ currentSnapshot.marker }}<span v-for="note in currentSnapshot.notifications.filter(n => n.context === 'FuelEndurance.Density' && n.severity !== 'INFO')" :key="note.message"> · {{ note.message }}</span></p>
                 <p v-if="group.reason">{{ group.reason }}</p>
                 <p v-else-if="group.status !== 'success'">No current {{ group.title.toLowerCase() }} distances computed.</p>
-                <table v-if="group.rows.length"><tbody><tr v-for="row in group.rows" :key="row.label"><th>{{ row.label }}</th><td :class="{ 'briefing-warning': row.warnings?.length }">{{ row.value }}{{ currentSnapshot.marker }}<p v-for="warning in row.warnings" :key="warning">{{ warning }}</p><p v-if="row.note">{{ row.note }}</p></td></tr></tbody></table>
+                <table v-if="group.rows.length"><tbody><tr v-for="row in group.rows" :key="row.label"><th>{{ row.label }}</th><td :class="{ 'briefing-warning': row.warnings?.length || row.note?.includes('EXTRAPOLATED') }">{{ row.value }}{{ currentSnapshot.marker }}<p v-for="warning in row.warnings" :key="warning">{{ warning }}</p><p v-if="row.note">{{ row.note }}</p><p v-if="row.note?.includes('EXTRAPOLATED') && currentSnapshot.performance.extrapolation">{{ currentSnapshot.performance.extrapolation.warning }}</p></td></tr></tbody></table>
               </section>
               <section v-for="item in currentSnapshot.performance.corrected" :key="item.operation">
                 <h3>{{ item.title }} {{ item.status === 'applied' && item.partial ? 'partially corrected' : 'corrected' }} distances</h3>
                 <p v-if="item.status === 'unavailable'">Not corrected: {{ item.reason }}</p>
                 <template v-else>
                   <p>Source: {{ item.source }}</p>
-                  <table><tbody><tr v-for="row in item.rows" :key="row.label"><th>{{ row.label }}</th><td>{{ row.factored }}{{ currentSnapshot.marker }} (raw {{ row.raw }}{{ currentSnapshot.marker }}, corrected {{ row.corrected }}{{ currentSnapshot.marker }})</td></tr></tbody></table>
+                  <table><tbody><tr v-for="row in item.rows" :key="row.label"><th>{{ row.label }}</th><td :class="{ 'briefing-warning': item.safetyFactorWarning || currentSnapshot.performance.groups.find(group => group.id === item.operation)?.rows.find(base => base.label === row.label)?.warnings?.length || currentSnapshot.performance.groups.find(group => group.id === item.operation)?.rows.find(base => base.label === row.label)?.note }">{{ row.factored }}{{ currentSnapshot.marker }} (raw {{ row.raw }}{{ currentSnapshot.marker }}, corrected {{ row.corrected }}{{ currentSnapshot.marker }})<p v-for="warning in currentSnapshot.performance.groups.find(group => group.id === item.operation)?.rows.find(base => base.label === row.label)?.warnings" :key="warning">{{ warning }}</p><p v-if="currentSnapshot.performance.groups.find(group => group.id === item.operation)?.rows.find(base => base.label === row.label)?.note">{{ currentSnapshot.performance.groups.find(group => group.id === item.operation)?.rows.find(base => base.label === row.label)?.note }}</p><p v-if="currentSnapshot.performance.groups.find(group => group.id === item.operation)?.rows.find(base => base.label === row.label)?.note?.includes('EXTRAPOLATED') && currentSnapshot.performance.extrapolation">{{ currentSnapshot.performance.extrapolation.warning }}</p><p v-if="item.safetyFactorWarning">{{ item.safetyFactorWarning }}</p></td></tr></tbody></table>
                   <p>Safety factor: {{ item.safetyFactor }}</p>
                   <p v-if="item.safetyFactorWarning" class="briefing-warning">{{ item.safetyFactorWarning }}</p>
                   <p :class="{ 'briefing-warning': item.comparison.status === 'insufficient' }">{{ item.comparison.summary }} Required {{ item.comparison.required }}; {{ item.comparison.availableLabel }} {{ item.comparison.available }}; margin {{ item.comparison.margin }}.</p>
+                  <template v-for="group in currentSnapshot.performance.groups.filter(group => group.id === item.operation)" :key="group.id">
+                    <p v-for="warning in [...new Set(group.rows.flatMap(row => row.warnings ?? []))]" :key="warning" class="briefing-warning">{{ warning }}</p>
+                    <p v-if="group.rows.some(row => row.note?.includes('EXTRAPOLATED')) && currentSnapshot.performance.extrapolation" class="briefing-warning">{{ currentSnapshot.performance.extrapolation.warning }}</p>
+                  </template>
                   <p v-for="note in item.notes" :key="note">{{ note }}</p>
                 </template>
               </section>
@@ -270,11 +274,15 @@ onBeforeUnmount(() => {
             <h2>Manual wind components</h2>
             <p>User-entered — advisory only. No weather retrieved or performance correction applied. Heading and wind direction use the same magnetic or true reference.</p>
             <p>Runway heading: {{ currentSnapshot.wind.input.runwayHeading }}°; wind from: {{ currentSnapshot.wind.input.windDirection || 'calm' }}; speed: {{ currentSnapshot.wind.input.windSpeed }} {{ currentSnapshot.wind.result.unit }}.</p>
+            <p v-for="(note, index) in currentSnapshot.wind.notifications.filter(n => n.provenance === 'manual wind' && n.component === 'MaxTotalWind')" :key="index" class="briefing-warning" :class="{ 'briefing-critical': note.severity === 'CRITICAL' }">{{ note.severity }}: {{ note.message }}</p>
             <p v-if="currentSnapshot.wind.input.gustSpeed">Pilot-entered gust: {{ currentSnapshot.wind.input.gustSpeed }} {{ currentSnapshot.wind.result.unit }}.</p>
+            <p v-for="(note, index) in currentSnapshot.wind.notifications.filter(n => n.provenance === 'manual gust')" :key="index" class="briefing-warning" :class="{ 'briefing-critical': note.severity === 'CRITICAL' }">{{ note.severity }}: {{ note.message }}</p>
             <p v-if="Number(currentSnapshot.wind.input.windSpeed.replace(',', '.')) === 0">Calm wind.</p>
-            <p>{{ currentSnapshot.wind.result.headwind >= 0 ? 'Headwind' : 'Tailwind' }}: {{ Math.abs(currentSnapshot.wind.result.headwind).toFixed(1) }} {{ currentSnapshot.wind.result.unit }}; crosswind: {{ Math.abs(currentSnapshot.wind.result.crosswind).toFixed(1) }} {{ currentSnapshot.wind.result.unit }}<template v-if="currentSnapshot.wind.result.crosswind"> from the {{ currentSnapshot.wind.result.crosswind > 0 ? 'right' : 'left' }}</template>.</p>
+            <p>{{ currentSnapshot.wind.result.headwind >= 0 ? 'Headwind' : 'Tailwind' }}: {{ Math.abs(currentSnapshot.wind.result.headwind).toFixed(1) }} {{ currentSnapshot.wind.result.unit }}.</p>
+            <p v-for="(note, index) in currentSnapshot.wind.notifications.filter(n => n.provenance === 'manual wind' && n.component === 'MaxTailwind')" :key="index" class="briefing-warning" :class="{ 'briefing-critical': note.severity === 'CRITICAL' }">{{ note.severity }}: {{ note.message }}</p>
+            <p>Crosswind: {{ Math.abs(currentSnapshot.wind.result.crosswind).toFixed(1) }} {{ currentSnapshot.wind.result.unit }}<template v-if="currentSnapshot.wind.result.crosswind"> from the {{ currentSnapshot.wind.result.crosswind > 0 ? 'right' : 'left' }}</template>.</p>
+            <p v-for="(note, index) in currentSnapshot.wind.notifications.filter(n => n.provenance === 'manual wind' && n.component === 'MaxCrosswind')" :key="index" class="briefing-warning" :class="{ 'briefing-critical': note.severity === 'CRITICAL' }">{{ note.severity }}: {{ note.message }}</p>
             <p>Rounded to 0.1. Check all limits yourself; missing or invalid gusts are not assessed and no suitability verdict is given. Pilot in command remains responsible.</p>
-            <p v-for="(note, index) in currentSnapshot.wind.notifications" :key="index" :class="note.severity === 'CRITICAL' ? 'briefing-critical' : 'briefing-warning'">{{ note.severity }} {{ note.id }}: {{ note.message }}</p>
           </section>
           <section aria-label="Disclaimer">
             <h2>Disclaimer</h2>
