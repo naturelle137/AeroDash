@@ -121,13 +121,16 @@ export const ManualRunwayRecordSchema = z.object({
   schemaVersion: z.literal(MANUAL_RUNWAY_RECORD_VERSION),
   savedAt: z.iso.datetime(),
   runway: ManualRunwaySchema,
-  weatherSurface: z.object({ station: z.string().regex(/^[A-Z]{4}$/), time: z.iso.datetime() }).strict().optional(),
+  weatherSurface: z.union([
+    z.object({ station: z.string().regex(/^[A-Z]{4}$/), time: z.iso.datetime() }).strict(),
+    z.object({ station: z.string().regex(/^[A-Z]{4}$/), time: z.iso.datetime(), source: z.literal('TAF'), validFrom: z.iso.datetime(), validTo: z.iso.datetime() }).strict(),
+  ]).optional(),
 }).strict()
 export type ManualRunwayRecord = {
   schemaVersion: typeof MANUAL_RUNWAY_RECORD_VERSION
   savedAt: string
   runway: ManualRunway
-  weatherSurface?: { station: string; time: string }
+  weatherSurface?: { station: string; time: string; source?: 'TAF'; validFrom?: string; validTo?: string }
 }
 
 export type ManualRunwayValidation =

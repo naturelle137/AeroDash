@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Applicable TAF rain/drizzle now suggests Wet in Flight Prep with saved forecast provenance, expiry handling and preserved pilot overrides (#742).
 - Refresh the automatic runway check date while the app remains open; preserve explicitly selected dates.
 
 - Warn against runway assessment when a comparison omits entered corrections.

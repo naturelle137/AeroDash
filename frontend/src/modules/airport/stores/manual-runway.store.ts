@@ -58,23 +58,29 @@ export const useManualRunwayStore = defineStore('manualRunway', () => {
   const weather = ref<{ station: string; time: string; liquid: boolean } | null>(null)
   const weatherSurface = ref<NonNullable<ManualRunwayRecord['weatherSurface']> | null>(null)
 
+  const forecast = ref<(NonNullable<ManualRunwayRecord['weatherSurface']> & { liquid: boolean }) | null>(null)
+  function updateForecast(value: typeof forecast.value): void { forecast.value = value }
+
   function updateWeather(value: typeof weather.value): void { weather.value = value }
-  watch([weather, () => draft.aerodrome, () => draft.surfaceType], () => {
+  watch([weather, forecast, () => draft.aerodrome, () => draft.surfaceType], () => {
     if (weatherSurface.value) {
       applyingWeather = true
       draft.surfaceCondition = ''
       applyingWeather = false
       weatherSurface.value = null
     }
-    const observation = weather.value
+    const station = draft.aerodrome.trim().toUpperCase()
+    const observation = [weather.value, forecast.value].find(value => value?.liquid && value.station === station)
     if (!observation?.liquid || draft.aerodrome.trim().toUpperCase() !== observation.station || draft.surfaceCondition || pilotSurfaceChoice || saved.value) return
     const condition = draft.surfaceType === 'paved' ? 'wet' : draft.surfaceType === 'unpaved' ? 'wet-soft-ground' : ''
     if (!condition) return
     applyingWeather = true
     draft.surfaceCondition = condition
     applyingWeather = false
-    weatherSurface.value = { station: observation.station, time: observation.time }
+    const { liquid: _liquid, ...provenance } = observation
+    weatherSurface.value = provenance
   }, { flush: 'sync' })
+  function chooseSurface(): void { pilotSurfaceChoice = true; weatherSurface.value = null }
   watch(() => draft.surfaceCondition, () => {
     if (!applyingWeather && !filling) { pilotSurfaceChoice = true; weatherSurface.value = null }
   }, { flush: 'sync' })
@@ -215,5 +221,5 @@ export const useManualRunwayStore = defineStore('manualRunway', () => {
     return true
   }
 
-  return { draft, saved, recent, selectRecent, weatherSurface, updateWeather, storageError, notice, showErrors, loaded, assessmentDate, automaticDate, selectAssessmentDate, useToday, validation, errors, current, hasUnsavedChanges, load, save, revert, clear }
+  return { draft, saved, recent, selectRecent, weatherSurface, updateWeather, updateForecast, chooseSurface, storageError, notice, showErrors, loaded, assessmentDate, automaticDate, selectAssessmentDate, useToday, validation, errors, current, hasUnsavedChanges, load, save, revert, clear }
 })
