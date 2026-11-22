@@ -120,6 +120,10 @@ function applyRetrieved(field: 'temperature' | 'wind'): void {
   emit('apply', field, current.values, `NWS forecast via wxdecoder.com for ${location.value.trim().toUpperCase()}, valid ${current.valid}, retrieved ${retrieved.value}`)
 }
 
+function clearQnh(): void {
+  qnh.value = ''; qnhSource.value = ''; qnhSourceTime.value = ''
+}
+
 function apply(field: keyof MetarValues): void {
   if (!selectionValid.value || Date.parse(time.value) <= Date.now() || !values.value[field] || (field === 'qnh' && qnhSourceTime.value && (!qnhSourceTimeValid.value || Date.parse(qnhSourceTime.value) > Date.now()))) return
   const source = field === 'qnh' && qnhSource.value.trim() ? `; pilot-declared QNH source: ${qnhSource.value.trim()}` : ''
@@ -180,6 +184,8 @@ function apply(field: keyof MetarValues): void {
     </div>
     <p v-if="qnh.trim() && values.qnh">QNH to apply: {{ values.qnh }} hPa. Applying replaces the current Flight Prep QNH.</p>
     <p v-else-if="qnh.trim()" role="alert">QNH is outside the supported range or is not a valid number; check the value and unit.</p>
+    <p v-if="qnh.trim() && selectionValid">QNH selection: {{ phase }} · {{ location.trim() }} · {{ time.replace('T', ' ') }} device local time. Verify that the source applies to this location and time.</p>
+    <button type="button" :disabled="!qnh && !qnhSource && !qnhSourceTime" @click="clearQnh">Clear QNH entry and source</button>
     <p v-if="!qnhSourceTimeValid" role="alert">QNH source time must not be in the future.</p>
     <p v-if="time && Number.isFinite(Date.parse(time)) && Date.parse(time) <= now">Selected time has passed; pilot-entered forecast values are outdated.</p>
     <p v-else-if="!selectionValid">Choose a location and future local time to apply values.</p>
