@@ -103,8 +103,11 @@ export function presentCorrectedOperation(
 
   const headwindKt = parseLookupNumber(inputs.headwind)
   const slopePercent = parseLookupNumber(inputs.slope)
-  if (headwindKt === null) return unavailable('Enter the headwind component in knots (negative for tailwind; 0 for calm).')
-  if (slopePercent === null || Math.abs(slopePercent) >= SLOPE_LIMIT_PERCENT) return unavailable('Enter the runway slope in percent (positive uphill in the direction of use; 0 for level), between -100 and 100.')
+  const inputErrors = [
+    ...(headwindKt === null ? ['Enter the headwind component in knots (negative for tailwind; 0 for calm).'] : []),
+    ...(slopePercent === null || Math.abs(slopePercent) >= SLOPE_LIMIT_PERCENT ? ['Enter the runway slope in percent (positive uphill in the direction of use; 0 for level), between -100 and 100.'] : []),
+  ]
+  if (headwindKt === null || slopePercent === null || inputErrors.length) return unavailable(inputErrors.join(' '))
 
   const [roll, over50] = group.distances
   if (!roll || !over50) return unavailable('Raw distance rows are incomplete.')

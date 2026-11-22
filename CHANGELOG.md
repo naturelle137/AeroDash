@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Identify missing wind and slope inputs together for each performance phase.
 - Apply the selected performance safety factor even when runway correction sources are unavailable, while identifying the incomplete result.
 - Preview the converted manual forecast QNH and explain invalid entries before replacing Flight Prep QNH.
 - Verify unavailable arrival CG, runway and performance reasons in briefing preview and PDF.

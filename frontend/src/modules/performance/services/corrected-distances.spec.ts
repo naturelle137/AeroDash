@@ -50,6 +50,7 @@ describe('corrected distances in the performance step', () => {
       const { step } = setup()
       expect(corrected(step, 0)).toMatchObject({ operation: 'takeoff', status: 'unavailable' })
       expect((corrected(step, 0) as { reason: string }).reason).toContain('headwind component')
+      expect((corrected(step, 0) as { reason: string }).reason).toContain('runway slope')
       step.corrections.takeoff.headwind = '0'
       expect((corrected(step, 0) as { reason: string }).reason).toContain('runway slope')
       step.corrections.takeoff.slope = 'abc'
