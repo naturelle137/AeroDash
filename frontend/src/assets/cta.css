@@ -24,6 +24,7 @@
 
 .cta-btn:not(:disabled):hover {
   background: var(--color-primary-hover);
+  color: var(--color-primary-text);
   transform: translateY(-1px);
   box-shadow: var(--shadow-lg), var(--glow-primary);
 }
