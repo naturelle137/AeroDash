@@ -115,6 +115,16 @@ describe('Briefing Pack PDF download', () => {
     expect(results.split('CG trajectory warnings')[1]).toContain('CG Migration Limit Exceeded')
   })
 
+  it('exports condition and factor warnings beside corrected distances', async () => {
+    const input = source()
+    const base = presentPerformance({ inputKey: 'k', inputs: [], aircraft: null, takeoff: { status: 'unavailable', reason: 'x' }, landing: { status: 'unavailable', reason: 'x' }, assessment: null, pressureAltitudeBasis: '', pendingReason: 'x', runway: { status: 'unavailable', reason: 'x' }, operational: presentOperationalAssessment(null, 'x') })
+    input.performance = { ...base, groups: [{ id: 'takeoff', title: 'Takeoff', mass: null, status: 'success', reason: null, rows: [{ label: 'Ground roll', value: '100 m', note: null, warnings: ['QNH advisory', 'Temperature advisory'] }] }], corrected: [{ operation: 'takeoff', title: 'Takeoff', status: 'applied', source: 'Synthetic', partial: false, rows: [{ label: 'Ground roll', raw: '100 m', corrected: '110 m', factored: '120 m' }], safetyFactor: '1.10', safetyFactorWarning: 'Low factor', comparison: { status: 'unavailable', summary: '', required: '', availableLabel: '', available: '', margin: '' }, notes: [] }] }
+    const { text } = await pdfFor(input)
+    const corrected = text.split('Takeoff corrected distances')[1]!.split('Safety factor:')[0]!
+    for (const warning of ['QNH advisory', 'Temperature advisory', 'Low factor']) expect(corrected).toContain(warning)
+    expect(corrected).toContain('120 m')
+  })
+
   it.each([false, true])('carries the extrapolation warning, details and estimate markers (acknowledged: %s)', async (acknowledged) => {
     const input = source()
     const scope = effectScope()

@@ -252,7 +252,7 @@ onBeforeUnmount(() => {
                 <p v-if="item.status === 'unavailable'">Not corrected: {{ item.reason }}</p>
                 <template v-else>
                   <p>Source: {{ item.source }}</p>
-                  <table><tbody><tr v-for="row in item.rows" :key="row.label"><th>{{ row.label }}</th><td>{{ row.factored }}{{ currentSnapshot.marker }} (raw {{ row.raw }}{{ currentSnapshot.marker }}, corrected {{ row.corrected }}{{ currentSnapshot.marker }})</td></tr></tbody></table>
+                  <table><tbody><tr v-for="row in item.rows" :key="row.label"><th>{{ row.label }}</th><td :class="{ 'briefing-warning': item.safetyFactorWarning || currentSnapshot.performance.groups.find(group => group.id === item.operation)?.rows.find(base => base.label === row.label)?.warnings?.length }">{{ row.factored }}{{ currentSnapshot.marker }} (raw {{ row.raw }}{{ currentSnapshot.marker }}, corrected {{ row.corrected }}{{ currentSnapshot.marker }})<p v-for="warning in currentSnapshot.performance.groups.find(group => group.id === item.operation)?.rows.find(base => base.label === row.label)?.warnings" :key="warning">{{ warning }}</p><p v-if="item.safetyFactorWarning">{{ item.safetyFactorWarning }}</p></td></tr></tbody></table>
                   <p>Safety factor: {{ item.safetyFactor }}</p>
                   <p v-if="item.safetyFactorWarning" class="briefing-warning">{{ item.safetyFactorWarning }}</p>
                   <p :class="{ 'briefing-warning': item.comparison.status === 'insufficient' }">{{ item.comparison.summary }} Required {{ item.comparison.required }}; {{ item.comparison.availableLabel }} {{ item.comparison.available }}; margin {{ item.comparison.margin }}.</p>
