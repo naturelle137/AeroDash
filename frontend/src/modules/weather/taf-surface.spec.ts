@@ -58,3 +58,16 @@ it.each([
 ])('detects applicable long or heavy precipitation: %s', (body, expected) => {
   expect(tafLiquid(body, start, end, at('2026-11-30T14:30:00Z'), 'soft')).toBe(expected)
 })
+
+it.each([
+  [`${rain} FM301400 ${rain}`, '2026-11-30T13:00:00Z', true],
+  [`${rain} FM301400 ${rain} FM301600 ${base}`, '2026-11-30T13:00:00Z', true],
+  [`${rain} FM301400 ${rain} FM301600 ${base}`, '2026-11-30T16:00:00Z', false],
+  [`${rain} FM301400 ${base}`, '2026-11-30T13:00:00Z', false],
+  [`${rain} FM301400 ${rain} FM301401 ${base}`, '2026-11-30T13:00:00Z', true],
+  [`${rain} FM301400 ${rain} FM301400 ${base}`, '2026-11-30T13:00:00Z', null],
+  [`${rain} BECMG 3014/3015 RA FM301600 ${base}`, '2026-11-30T13:00:00Z', true],
+  [`${rain} BECMG 3014/3015 NSW`, '2026-11-30T13:00:00Z', false],
+] as const)('keeps continuous precipitation across changes: %s at %s', (body, now, expected) => {
+  expect(tafLiquid(body, start, end, at(now), 'soft')).toBe(expected)
+})

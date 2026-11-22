@@ -91,7 +91,7 @@ export function tafLiquid(body: string, start: number, end: number, now: number,
         }
       }
     }
-    const nextChange = groups.filter(g => (g.kind === 'FM' || g.kind === 'BECMG') && g.from > now && g.precip !== undefined).map(g => g.from)
+    const nextChange = groups.filter(g => (g.kind === 'FM' || g.kind === 'BECMG') && g.from > now && g.precip === false).map(g => g.from)
     const until = Math.min(end, ...nextChange)
     if (currentPrecip && until - since > 2 * 3600000) return true
     return false
