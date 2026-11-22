@@ -10,6 +10,8 @@ const location = ref('')
 const time = ref('')
 const temperature = ref('')
 const qnh = ref('')
+const qnhUnit = ref<'hPa' | 'inHg'>('hPa')
+const qnhSource = ref('')
 const direction = ref('')
 const speed = ref('')
 const unit = ref<'kt' | 'm/s'>('kt')
@@ -40,18 +42,20 @@ onBeforeUnmount(() => {
   window.removeEventListener('pageshow', refresh)
 })
 watch([phase, location, time], () => {
-  temperature.value = ''; qnh.value = ''; direction.value = ''; speed.value = ''
+  temperature.value = ''; qnh.value = ''; qnhSource.value = ''; direction.value = ''; speed.value = ''
   request++; forecast.value = null; forecastMessage.value = 'Selection changed; retrieve the forecast again.'
   globalForecast.value = null; globalMessage.value = 'Selection changed; retrieve the forecast again.'
 }, { flush: 'sync' })
 watch([latitude, longitude], () => { request++; globalForecast.value = null; globalMessage.value = 'Coordinates changed; retrieve the forecast again.' }, { flush: 'sync' })
+watch(qnhUnit, () => { qnh.value = '' }, { flush: 'sync' })
 const numberIn = (value: string, min: number, max: number) => value.trim() !== '' && Number.isFinite(Number(value)) && Number(value) >= min && Number(value) <= max
 const selectionValid = computed(() => location.value.trim() !== '' && time.value !== '' && Number.isFinite(Date.parse(time.value)) && Date.parse(time.value) > now.value)
 const stale = computed(() => !!forecast.value && (forecast.value.stale || Date.parse(forecast.value.valid) <= now.value || now.value - Date.parse(forecast.value.fetched) > 4 * 60 * 60 * 1000))
 const values = computed<MetarValues>(() => {
   const result: MetarValues = {}
   if (numberIn(temperature.value, -100, 100)) result.temperature = temperature.value
-  if (numberIn(qnh.value, QNH_SUPPORTED_HPA.min, QNH_SUPPORTED_HPA.max)) result.qnh = qnh.value
+  const pressure = qnhUnit.value === 'inHg' ? Number(qnh.value) * 33.86389 : Number(qnh.value)
+  if (qnh.value.trim() && Number.isFinite(pressure) && pressure >= QNH_SUPPORTED_HPA.min && pressure <= QNH_SUPPORTED_HPA.max) result.qnh = qnhUnit.value === 'inHg' ? String(Number(pressure.toFixed(2))) : qnh.value
   if (numberIn(speed.value, 0, 200) && (Number(speed.value) === 0 || numberIn(direction.value, 1, 360))) {
     result.wind = { direction: Number(speed.value) === 0 ? '' : direction.value, speed: speed.value, unit: unit.value }
   }
@@ -116,7 +120,8 @@ function applyRetrieved(field: 'temperature' | 'wind'): void {
 
 function apply(field: keyof MetarValues): void {
   if (!selectionValid.value || Date.parse(time.value) <= Date.now() || !values.value[field]) return
-  emit('apply', field, values.value, `Pilot-entered forecast for ${phase.value}, ${location.value.trim()}, ${time.value.replace('T', ' ')} local time`)
+  const source = field === 'qnh' && qnhSource.value.trim() ? `; pilot-declared QNH source: ${qnhSource.value.trim()}` : ''
+  emit('apply', field, values.value, `Pilot-entered forecast for ${phase.value}, ${location.value.trim()}, ${time.value.replace('T', ' ')} local time${source}`)
 }
 </script>
 
@@ -159,10 +164,12 @@ function apply(field: keyof MetarValues): void {
       <button type="button" :disabled="globalStale || !globalForecast.wind" @click="applyGlobal('wind')">Replace wind with global forecast</button>
     </div>
     <p>For education and situational awareness only, not an official briefing or go/no-go authority. Obtain required weather from an authorised source.</p>
-    <p>Enter QNH only, not sea-level pressure. Wind direction is true; gusts are not applied. Values require a future time and are applied only when selected.</p>
+    <p>Forecast QNH is unavailable from these services. Obtain aviation QNH from an authorised source and enter it below; do not substitute model sea-level pressure. Wind direction is true; gusts are not applied. Values require a future time and are applied only when selected.</p>
     <div class="fields">
       <label>Forecast temperature (°C)<input v-model="temperature" type="text" inputmode="decimal" min="-100" max="100" step="any" /></label>
-      <label>Forecast QNH (hPa)<input v-model="qnh" type="text" inputmode="decimal" min="850" max="1100" step="any" /></label>
+      <label>Forecast QNH ({{ qnhUnit }})<input v-model="qnh" type="text" inputmode="decimal" /></label>
+      <label>QNH unit<select v-model="qnhUnit"><option value="hPa">hPa</option><option value="inHg">inHg</option></select></label>
+      <label>QNH source (optional)<input v-model="qnhSource" type="text" autocomplete="off" /></label>
       <label>Forecast wind direction (° true)<input v-model="direction" type="text" inputmode="decimal" min="1" max="360" step="any" /></label>
       <label>Forecast wind speed<input v-model="speed" type="text" inputmode="decimal" min="0" max="200" step="any" /></label>
       <label>Forecast wind unit<select v-model="unit"><option value="kt">kt</option><option value="m/s">m/s</option></select></label>
