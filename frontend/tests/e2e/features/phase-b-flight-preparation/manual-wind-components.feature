@@ -71,8 +71,8 @@ Feature: Offline manual wind components
     And the pilot enters runway heading "270", wind from "150" and speed "20" "kt"
     Then the manual wind warnings show both exceedances
     When the pilot opens the briefing pack
-    Then the briefing pack states "WARNING WARN-WX-001: Crosswind exceeds Demonstrated 10 kt"
-    And the briefing pack states "CRITICAL CRIT-WX-001: Tailwind exceeds Limit 5 kt"
+    Then the briefing pack states "WARNING: Crosswind exceeds Demonstrated 10 kt"
+    And the briefing pack states "CRITICAL: Tailwind exceeds Limit 5 kt"
     When the pilot returns from the briefing pack
     And the pilot enters runway heading "270", wind from "VRB" and speed "20" "kt"
     Then no wind components are shown

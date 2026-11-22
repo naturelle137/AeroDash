@@ -146,7 +146,8 @@ Feature: Corrected takeoff and landing distances
     And the pilot enters takeoff headwind "0" kt and slope "0" %
     And the pilot selects the takeoff safety factor "Manual (in-service factor)"
     And the pilot opens the briefing pack
-    Then the briefing pack states "Calculation based on low safety margin. Pilot in Command assumes full responsibility."
+    Then the briefing pack states "safety factor"
+    And the briefing pack states "Calculation based on low safety margin. Pilot in Command assumes full responsibility."
     And the briefing pack evidence is captured as "low-margin-<width>"
 
     Examples:
