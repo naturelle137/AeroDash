@@ -7,7 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-- Show manual forecast QNH selection context and allow clearing its entry and source.
+- Preserve optional source references when recovering version 2 manual runway declarations.
+
 - Apply the selected performance safety factor even when runway correction sources are unavailable, while identifying the incomplete result.
 - Preview the converted manual forecast QNH and explain invalid entries before replacing Flight Prep QNH.
 - Verify unavailable arrival CG, runway and performance reasons in briefing preview and PDF.
@@ -27,6 +28,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add US hourly temperature and wind forecasts with source and freshness; forecast QNH remains unavailable.
 
 ### Added
+
+- Allow date checks for recent runway declarations while editing the current runway.
 
 - Suggest soft ground for grass from applicable heavy METAR rain or prolonged TAF precipitation, with pilot override.
 - Show declared date checks for recent manual runway declarations before selection.
