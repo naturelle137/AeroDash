@@ -70,6 +70,7 @@ When('the pilot imports a synthetic aircraft with wind limits', async ({ page })
   const profile = { ...testPohAircraft(), registration: 'D-WIND', status: 'draft', windLimits: [
     { component: 'MaxCrosswind', value: 10, classification: 'Demonstrated' },
     { component: 'MaxTailwind', value: 5, classification: 'Limit' },
+    { component: 'MaxGust', value: 15, classification: 'Limit' },
   ] }
   await page.goto('/fleet')
   await page.getByLabel('Or import from Exchange File (.json)').setInputFiles({ name: 'synthetic.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify({ format: 'aerodash-aircraft', version: 1, profile })) })
@@ -97,6 +98,7 @@ When('the pilot enters a gust of {string}', async ({ page }, value: string) => {
 Then('the gust warnings appear and evidence is captured', async ({ page, $testInfo }) => {
   await expect(panel(page)).toContainText('Crosswind exceeds Demonstrated 10 kt (manual gust)')
   await expect(panel(page)).toContainText('Tailwind exceeds Limit 5 kt (manual gust)')
+  await expect(panel(page)).toContainText('Gust exceeds Limit 15 kt (manual gust)')
   await page.locator('#wind-gust').scrollIntoViewIfNeeded()
   const path = $testInfo.outputPath(`gust-${page.viewportSize()!.width}.png`)
   await page.screenshot({ path })
