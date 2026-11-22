@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Retrieve a global hourly model temperature and wind forecast by coordinates, with explicit QNH unavailability.
 - Identify unavailable correction sources and manual corrections withheld when a complete set is unavailable.
 - Show missing and expired pilot forecast entries and update forecast freshness while Flight Prep stays open.
 
@@ -83,6 +84,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Extend local instructor notes to takeoff and landing distances in Performance and the Briefing Pack.
 
 ### Engineering
+
+- Verify legacy performance table units independently of imperial M&B units through import and lookup.
 
 - Verify obstacle persistence, warning and briefing output across reloads.
 - Verify manual wind, slope and safety-factor changes in Flight Prep and the Briefing Pack.

@@ -27,3 +27,27 @@ export function parseForecast(data: unknown, station: string, selected: number, 
   }
   return { values, valid: new Date(row.timestamp).toISOString(), fetched: new Date(fetched).toISOString(), stale: freshness.stale || now - fetched > 4 * 60 * 60 * 1000 }
 }
+
+export function parseGlobalForecast(data: unknown, selected: number): MetarValues | null {
+  if (!data || typeof data !== 'object') throw new Error('malformed')
+  const d = data as Record<string, unknown>
+  if (d.utc_offset_seconds !== 0 || !d.hourly || typeof d.hourly !== 'object' || !d.hourly_units || typeof d.hourly_units !== 'object') throw new Error('malformed')
+  const units = d.hourly_units as Record<string, unknown>
+  if (units.time !== 'iso8601' || units.temperature_2m !== '°C' || units.wind_speed_10m !== 'kn' || units.wind_direction_10m !== '°') throw new Error('malformed')
+  const h = d.hourly as Record<string, unknown>
+  const times = h.time
+  const temperatures = h.temperature_2m
+  const speeds = h.wind_speed_10m
+  const directions = h.wind_direction_10m
+  if (!Array.isArray(times) || !Array.isArray(temperatures) || !Array.isArray(speeds) || !Array.isArray(directions) || [temperatures, speeds, directions].some(a => a.length !== times.length)) throw new Error('malformed')
+  if (times.some(t => typeof t !== 'string' || !/^\d{4}-\d\d-\d\dT\d\d:00$/.test(t) || !Number.isFinite(Date.parse(`${t}Z`)))) throw new Error('malformed')
+  const index = times.findIndex(t => Date.parse(`${t}Z`) === selected)
+  if (index < 0) return null
+  const values: MetarValues = {}
+  const temp: unknown = temperatures[index], speed: unknown = speeds[index], direction: unknown = directions[index]
+  if (typeof temp === 'number' && Number.isFinite(temp) && temp >= -100 && temp <= 100) values.temperature = String(temp)
+  if (typeof speed === 'number' && Number.isFinite(speed) && speed >= 0 && speed <= 200 && (speed === 0 || (typeof direction === 'number' && Number.isFinite(direction) && direction >= 0 && direction <= 360))) {
+    values.wind = { speed: String(speed), direction: speed === 0 ? '' : String(direction === 0 ? 360 : direction), unit: 'kt' }
+  }
+  return values
+}
