@@ -26,6 +26,13 @@ it('carries the selected declared-date check into performance and invalidates it
     runway.assessmentDate = ''
     expect(step.presentation.value.inputKey).not.toBe(key)
     expect(step.presentation.value.runway).toMatchObject({ rows: expect.arrayContaining([{ label: 'Declared date check', value: 'Invalid date: unknown; source currency unverified' }]) })
+    const invalidKey = step.presentation.value.inputKey
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date(2026, 10, 26, 12))
+    runway.useToday()
+    expect(step.presentation.value.inputKey).not.toBe(invalidKey)
+    expect(step.presentation.value.runway).toMatchObject({ rows: expect.arrayContaining([{ label: 'Declared date check', value: '2026-11-26: within-declared-dates; source currency unverified' }]) })
+    vi.useRealTimers()
   })
   scope.stop()
 })

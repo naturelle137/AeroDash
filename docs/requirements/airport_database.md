@@ -123,3 +123,7 @@ When the pilot supplies a source reference, the system shall retain it with the 
 ### REQ-AP-026: Saved declaration dates
 
 When displaying a saved manual runway, the system shall display its declared effective and expiry dates or indicate when either is unknown.
+
+### REQ-AP-027: Reset check date
+
+When the pilot selects today for the declared date check, the system shall use the device's current local date.
