@@ -21,6 +21,6 @@ function compare(input: WindComponentInput, limits: AircraftProfileWindLimit[] |
     const value = values[component]
     if (value === undefined || value <= limit.value + 1e-10) return []
     const severity = limit.classification === 'Limit' ? 'CRITICAL' : 'WARNING'
-    return [{ id: severity === 'CRITICAL' ? 'CRIT-WX-001' : 'WARN-WX-001', severity, message: `${labels[component]} exceeds ${limit.classification} ${limit.value} kt (${provenance}).` }]
+    return [{ id: severity === 'CRITICAL' ? 'CRIT-WX-001' : 'WARN-WX-001', severity, component, provenance, message: `${labels[component]} exceeds ${limit.classification} ${limit.value} kt (${provenance}).` }]
   })
 }

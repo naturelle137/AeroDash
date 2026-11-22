@@ -12,6 +12,7 @@ import { disclaimerBlocks } from './disclaimer-text'
 import { usePerformanceStep } from '@/modules/performance/composables/performance-step'
 import { presentOperationalAssessment, presentPerformance } from '@/modules/performance/services/performance-presentation'
 import { buildPdf, toLatin1, wrap, textWidth } from './briefing-pdf'
+import { computeWindComponents } from '@/core/logic/wind-components'
 
 function source(verified = false): MbPrintSource {
   setActivePinia(createPinia())
@@ -123,6 +124,15 @@ describe('Briefing Pack PDF download', () => {
     const corrected = text.split('Takeoff corrected distances')[1]!.split('Safety factor:')[0]!
     for (const warning of ['QNH advisory', 'Temperature advisory', 'Low factor']) expect(corrected).toContain(warning)
     expect(corrected).toContain('120 m')
+  })
+  it('exports the wind-limit warning with its affected crosswind', async () => {
+    const input = source()
+    const entries = { runwayHeading: '270', windDirection: '330', windSpeed: '20', unit: 'kt' }
+    input.profile!.windLimits = [{ component: 'MaxCrosswind', value: 10, classification: 'Limit' }]
+    input.wind = { input: entries, result: computeWindComponents(entries) }
+    const { text } = await pdfFor(input)
+    const wind = text.split('Manual wind components')[1]!.split('Disclaimer')[0]!
+    expect(strip(wind)).toContain(strip('Crosswind: 17.3 kt from the right. CRITICAL: Crosswind exceeds Limit 10 kt (manual wind).'))
   })
 
   it.each([false, true])('carries the extrapolation warning, details and estimate markers (acknowledged: %s)', async (acknowledged) => {

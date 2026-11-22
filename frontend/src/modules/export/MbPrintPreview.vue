@@ -270,11 +270,15 @@ onBeforeUnmount(() => {
             <h2>Manual wind components</h2>
             <p>User-entered — advisory only. No weather retrieved or performance correction applied. Heading and wind direction use the same magnetic or true reference.</p>
             <p>Runway heading: {{ currentSnapshot.wind.input.runwayHeading }}°; wind from: {{ currentSnapshot.wind.input.windDirection || 'calm' }}; speed: {{ currentSnapshot.wind.input.windSpeed }} {{ currentSnapshot.wind.result.unit }}.</p>
+            <p v-for="(note, index) in currentSnapshot.wind.notifications.filter(n => n.provenance === 'manual wind' && n.component === 'MaxTotalWind')" :key="index" class="briefing-warning" :class="{ 'briefing-critical': note.severity === 'CRITICAL' }">{{ note.severity }}: {{ note.message }}</p>
             <p v-if="currentSnapshot.wind.input.gustSpeed">Pilot-entered gust: {{ currentSnapshot.wind.input.gustSpeed }} {{ currentSnapshot.wind.result.unit }}.</p>
+            <p v-for="(note, index) in currentSnapshot.wind.notifications.filter(n => n.provenance === 'manual gust')" :key="index" class="briefing-warning" :class="{ 'briefing-critical': note.severity === 'CRITICAL' }">{{ note.severity }}: {{ note.message }}</p>
             <p v-if="Number(currentSnapshot.wind.input.windSpeed.replace(',', '.')) === 0">Calm wind.</p>
-            <p>{{ currentSnapshot.wind.result.headwind >= 0 ? 'Headwind' : 'Tailwind' }}: {{ Math.abs(currentSnapshot.wind.result.headwind).toFixed(1) }} {{ currentSnapshot.wind.result.unit }}; crosswind: {{ Math.abs(currentSnapshot.wind.result.crosswind).toFixed(1) }} {{ currentSnapshot.wind.result.unit }}<template v-if="currentSnapshot.wind.result.crosswind"> from the {{ currentSnapshot.wind.result.crosswind > 0 ? 'right' : 'left' }}</template>.</p>
+            <p>{{ currentSnapshot.wind.result.headwind >= 0 ? 'Headwind' : 'Tailwind' }}: {{ Math.abs(currentSnapshot.wind.result.headwind).toFixed(1) }} {{ currentSnapshot.wind.result.unit }}.</p>
+            <p v-for="(note, index) in currentSnapshot.wind.notifications.filter(n => n.provenance === 'manual wind' && n.component === 'MaxTailwind')" :key="index" class="briefing-warning" :class="{ 'briefing-critical': note.severity === 'CRITICAL' }">{{ note.severity }}: {{ note.message }}</p>
+            <p>Crosswind: {{ Math.abs(currentSnapshot.wind.result.crosswind).toFixed(1) }} {{ currentSnapshot.wind.result.unit }}<template v-if="currentSnapshot.wind.result.crosswind"> from the {{ currentSnapshot.wind.result.crosswind > 0 ? 'right' : 'left' }}</template>.</p>
+            <p v-for="(note, index) in currentSnapshot.wind.notifications.filter(n => n.provenance === 'manual wind' && n.component === 'MaxCrosswind')" :key="index" class="briefing-warning" :class="{ 'briefing-critical': note.severity === 'CRITICAL' }">{{ note.severity }}: {{ note.message }}</p>
             <p>Rounded to 0.1. Check all limits yourself; missing or invalid gusts are not assessed and no suitability verdict is given. Pilot in command remains responsible.</p>
-            <p v-for="(note, index) in currentSnapshot.wind.notifications" :key="index" :class="note.severity === 'CRITICAL' ? 'briefing-critical' : 'briefing-warning'">{{ note.severity }} {{ note.id }}: {{ note.message }}</p>
           </section>
           <section aria-label="Disclaimer">
             <h2>Disclaimer</h2>

@@ -46,6 +46,20 @@ describe('M&B print presentation with real store calculation', () => {
     expect(snapshot.wind?.input.gustSpeed).toBe('20')
     expect(assembleMbPrint(input, new Date())!.wind?.notifications).toEqual([])
   })
+  it('places steady and gust limit warnings beside the affected wind values', async () => {
+    const input = source()
+    const entries = { runwayHeading: '270', windDirection: '330', windSpeed: '20', gustSpeed: '30', unit: 'kt' }
+    input.profile!.windLimits = [{ component: 'MaxCrosswind', value: 10, classification: 'Limit' }, { component: 'MaxGust', value: 25, classification: 'Demonstrated' }]
+    input.wind = { input: entries, result: computeWindComponents(entries) }
+    const wrapper = mount(MbPrintPreview, { props: { source: input }, attachTo: document.body })
+    await wrapper.get('button').trigger('click')
+    const section = document.querySelector('[aria-label="Manual wind components"]')!
+    const paragraphs = [...section.querySelectorAll('p')].map(p => p.textContent!)
+    expect(paragraphs.findIndex(p => p.includes('manual gust'))).toBeGreaterThan(paragraphs.findIndex(p => p.includes('Pilot-entered gust')))
+    expect(paragraphs.findIndex(p => p.includes('manual wind'))).toBe(paragraphs.findIndex(p => p.startsWith('Crosswind:')) + 1)
+    expect(paragraphs.find(p => p.startsWith('Headwind:'))).not.toContain('exceeds')
+    wrapper.unmount()
+  })
   it('retains warnings, honest endpoints, units and draft markers without mutating verification', () => {
     const input = source()
     const before = JSON.stringify(input)
