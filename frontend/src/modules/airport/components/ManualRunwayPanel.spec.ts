@@ -209,6 +209,20 @@ describe('manual source dates', () => {
     vi.useRealTimers()
   })
 
+  it('keeps the date check available for recent runways while editing', async () => {
+    const view = mount(ManualRunwayPanel)
+    await fill(view)
+    await view.get('#runway-effective').setValue('2026-01-01')
+    await view.get('#runway-expiry').setValue('2026-12-31')
+    await view.get('form').trigger('submit')
+    await view.get('#manual-runway-designator').setValue('09')
+    expect(summary(view).exists()).toBe(false)
+    await view.get('#runway-assessment-date').setValue('2027-01-01')
+    expect(view.get('[aria-label="Recently used airports"]').text()).toContain('Expired according to the declared date')
+    await view.get('#runway-assessment-date').setValue('2026-06-01')
+    expect(view.get('[aria-label="Recently used airports"]').text()).toContain('Within the declared dates')
+  })
+
   it('returns the check to the current local date without changing the saved declaration', async () => {
     const view = mount(ManualRunwayPanel)
     await fill(view)
