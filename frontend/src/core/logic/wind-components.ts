@@ -9,7 +9,7 @@ export const WIND_SPEED_UNITS = ['kt', 'km/h', 'm/s'] as const
 export type WindSpeedUnit = (typeof WIND_SPEED_UNITS)[number]
 
 export type WindComponentField = 'runwayHeading' | 'windDirection' | 'windSpeed' | 'unit'
-export interface WindComponentInput { runwayHeading: string; windDirection: string; windSpeed: string; unit: string }
+export interface WindComponentInput { runwayHeading: string; windDirection: string; windSpeed: string; unit: string; gustSpeed?: string }
 export type WindComponentResult =
   | { status: 'incomplete' }
   | { status: 'invalid'; errors: Partial<Record<WindComponentField, string>> }
