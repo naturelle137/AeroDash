@@ -24,6 +24,26 @@ beforeEach(() => {
   setActivePinia(createPinia())
 })
 
+it('imports legacy kg/ft/°C/m tables independently of imperial M&B units', async () => {
+  const original = testPohAircraft()
+  original.sourceUnit = 'lb'
+  const imported = importProfileFromJson(exportProfileToJson(original))
+  expect(imported.sourceUnit).toBe('lb')
+  expect(imported.performanceProfiles).toEqual(original.performanceProfiles)
+  expect(imported.performanceProfiles!.every((table) => table.sourceUnits === undefined)).toBe(true)
+
+  const fleet = useFleetStore()
+  const draft = await fleet.createProfile(imported)
+  await fleet.verifyProfile(draft.id, { verifiedBy: 'TS', pohRevision: 'Synthetic wiring only' })
+  await fleet.loadAll()
+  const persisted = fleet.profiles[0]!
+  expect(inspectPohDistances(persisted, { mass: '850', pressureAltitude: '500', temperature: '5' }, new Date()))
+    .toEqual({ status: 'success', distances: { takeoffRoll: 160, takeoffDistance50ft: 260, landingRoll: 360, landingDistance50ft: 460 } })
+  expect(inspectPohDistances(persisted, { mass: '950', pressureAltitude: '1500', temperature: '15' }, new Date()))
+    .toEqual({ status: 'success', distances: { takeoffRoll: 280, takeoffDistance50ft: 380, landingRoll: 480, landingDistance50ft: 580 } })
+  expect(persisted.performanceProfiles).toEqual(original.performanceProfiles)
+})
+
 it('preserves four tables through exchange, Draft creation, signoff, IndexedDB reload and re-export', async () => {
   const original = testPohAircraft()
   const imported = importProfileFromJson(exportProfileToJson(original))
