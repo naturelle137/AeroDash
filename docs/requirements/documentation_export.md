@@ -116,7 +116,7 @@ While a duration plan has a possible trip, the system shall retain active budget
 
 If arrival CG is unsupported, then the system shall retain valid printed arrival mass with the current unsupported-CG reason.
 
-**Status:** Approved. Printed arrival CG is covered for supported lookup-tank cases (`frontend/src/modules/export/fuel-print.int.spec.ts`); the printed unsupported-CG reason is not asserted.
+**Status:** Implemented. Tests: `frontend/src/modules/export/fuel-print.int.spec.ts`, `frontend/src/modules/export/briefing-pdf.int.spec.ts`.
 
 ### REQ-DOC-020: Current fuel snapshot
 
@@ -140,7 +140,7 @@ While the production app and aircraft are cached locally, the system shall suppo
 
 When opening the briefing pack, the system shall include the shared current runway and Performance input, result and unavailable-reason presentation.
 
-**Status:** Approved. Runway and Performance presentation is tested (`frontend/src/modules/export/mb-print.int.spec.ts`); the printed unavailable-reason presentation is not asserted.
+**Status:** Implemented. Tests: `frontend/src/modules/export/mb-print.int.spec.ts`, `frontend/src/modules/export/briefing-pdf.int.spec.ts`.
 
 ### REQ-DOC-024: Printed chart
 

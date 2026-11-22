@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Verify unavailable arrival CG, runway and performance reasons in briefing preview and PDF.
 - Apply available FSM take-off estimates independently and identify missing corrections.
 
 - Apply available manual wind and slope corrections when another correction is missing, and mark the result incomplete.
