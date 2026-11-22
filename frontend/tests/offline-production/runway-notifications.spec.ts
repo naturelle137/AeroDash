@@ -141,10 +141,9 @@ test('current phase notifications and runway comparisons survive cached offline 
   await landingInputs.getByLabel('Headwind component (kt, negative = tailwind)').fill('0')
   const unsupportedLanding = perf.getByRole('region', { name: 'Landing corrected distances' })
   await expect(unsupportedLanding).toContainText('Wind component 0 kt was not applied')
-  await expect(unsupportedLanding).toContainText('The saved runway surface was not applied')
-  await expect(unsupportedLanding).toContainText('FSM 3/75 has no landing correction table')
-  await expect(unsupportedLanding).toContainText('consult the aircraft manual for these corrections')
-  await expect(unsupportedLanding).toContainText('Do not use the uncorrected base distances for runway assessment')
+  await expect(unsupportedLanding).toContainText('no applicable correction applied for wind, surface, slope')
+  await expect(unsupportedLanding).toContainText('Safety factor: 1.43')
+  await expect(unsupportedLanding).toContainText('Do not use this comparison for runway assessment')
   for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: 900 })
     await unsupportedLanding.scrollIntoViewIfNeeded()
@@ -153,9 +152,9 @@ test('current phase notifications and runway comparisons survive cached offline 
     await info.attach(`unapplied-surface-${width}`, { path: surfacePath, contentType: 'image/png' })
   }
   await page.getByRole('button', { name: 'Briefing Pack', exact: true }).click()
-  await expect(page.getByRole('dialog', { name: 'Briefing Pack preview' })).toContainText('The saved runway surface was not applied')
+  await expect(page.getByRole('dialog', { name: 'Briefing Pack preview' })).toContainText('no applicable correction applied for wind, surface, slope')
   await expect(page.getByRole('dialog', { name: 'Briefing Pack preview' })).toContainText('Wind component 0 kt was not applied')
-  await expect(page.getByRole('dialog', { name: 'Briefing Pack preview' })).toContainText('Do not use the uncorrected base distances for runway assessment')
+  await expect(page.getByRole('dialog', { name: 'Briefing Pack preview' })).toContainText('Do not use this comparison for runway assessment')
   await page.keyboard.press('Escape')
   await perf.getByLabel('Applicable manual configuration').selectOption('s9')
   for (const phase of ['Takeoff', 'Landing']) {

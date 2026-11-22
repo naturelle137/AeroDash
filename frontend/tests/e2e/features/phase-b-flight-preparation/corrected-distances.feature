@@ -52,7 +52,7 @@ Feature: Corrected takeoff and landing distances
       | 1440  | 1000   |
       | 390   | 844    |
 
-  Scenario Outline: Unsupported wind and landing inputs disclose the unapplied safety factor
+  Scenario Outline: Unsupported corrections retain the selected safety factor
     Given the raw POH workflow viewport is <width> by <height>
     When I import and verify a synthetic POH profile for registration "D-TEST" declaring type "C172" and maximum mass 650 kg
     And the pilot opens Performance
