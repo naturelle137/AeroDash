@@ -6,7 +6,7 @@ const limits: AircraftProfileWindLimit[] = [
   { component: 'MaxCrosswind', value: 10, classification: 'Demonstrated' },
   { component: 'MaxTailwind', value: 5, classification: 'Limit' },
   { component: 'MaxTotalWind', value: 20, classification: 'Limit' },
-  { component: 'MaxGust', value: 0, classification: 'Limit' },
+  { component: 'MaxGust', value: 30, classification: 'Limit' },
 ]
 const input = (direction: string, windSpeed = '20', unit = 'kt') => ({ runwayHeading: '90', windDirection: direction, windSpeed, unit })
 
@@ -31,6 +31,17 @@ describe('manual wind limit comparison', () => {
 })
 
 describe('manual gust limit comparison', () => {
+  it('compares gust speed with stored gust limits only for valid gusts', () => {
+    const gustLimits: AircraftProfileWindLimit[] = [
+      { component: 'MaxGust', value: 10, classification: 'Demonstrated' },
+      { component: 'MaxGust', value: 20, classification: 'Limit' },
+    ]
+    expect(compareWindLimits(input('180', '25'), gustLimits)).toEqual([])
+    expect(compareWindLimits({ ...input('180', '1', 'km/h'), gustSpeed: '18.52' }, gustLimits)).toEqual([])
+    expect(compareWindLimits({ ...input('180', '1'), gustSpeed: '20' }, gustLimits).map(n => n.id)).toEqual(['WARN-WX-001'])
+    expect(compareWindLimits({ ...input('180', '1', 'm/s'), gustSpeed: '11' }, gustLimits).map(n => n.id)).toEqual(['WARN-WX-001', 'CRIT-WX-001'])
+    expect(compareWindLimits({ ...input('180', '1'), gustSpeed: 'invalid' }, gustLimits)).toEqual([])
+  })
   it('compares total, tailwind and crosswind with unrounded boundaries and units', () => {
     const gust = { ...input('225', '5'), gustSpeed: '25' }
     expect(compareWindLimits(gust, limits).map(n => n.id)).toEqual(['WARN-WX-001', 'CRIT-WX-001', 'CRIT-WX-001'])
