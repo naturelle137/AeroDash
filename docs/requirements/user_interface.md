@@ -58,6 +58,8 @@ When the user activates the dedicated information icon adjacent to a complex dat
 
 The system shall display its current semantic version in the About view.
 
+The system shall display the release date of the current version in the About view, or “unknown” when unavailable.
+
 ### REQ-UI-014: Unverified Data Toggle
 
 The system shall provide a toggle control adjacent to each Unverified data field that transitions the status to Verified upon user activation.

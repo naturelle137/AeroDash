@@ -204,6 +204,7 @@ const themeLabel = computed(() =>
       </div>
 
       <div class="app-header__end">
+        <RouterLink to="/about" class="about-link">About</RouterLink>
         <ConnectivityStatus />
         <!-- Theme toggle -->
         <button
@@ -619,6 +620,12 @@ const themeLabel = computed(() =>
   display: flex;
   align-items: center;
   gap: var(--space-2);
+}
+
+.about-link {
+  color: var(--color-text-primary);
+  font-size: var(--text-sm);
+  padding: var(--space-2);
 }
 
 .header-logo-link {
