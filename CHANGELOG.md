@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Apply the selected performance safety factor even when runway correction sources are unavailable, while identifying the incomplete result.
 - Preserve an optional pilot-declared source time for manually entered forecast QNH.
 
 - Support pilot-sourced forecast QNH in hPa or inHg with explicit unavailability guidance.

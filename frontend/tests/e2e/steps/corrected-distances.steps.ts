@@ -104,8 +104,14 @@ Then('the partial takeoff and unavailable landing disclose missing corrections',
   await expect(result.locator('.comparison')).toContainText('Do not use this comparison for runway assessment')
   const landing = page.getByRole('region', { name: 'Landing corrected distances', exact: true })
   await expect(landing).toContainText('Wind component -2 kt was not applied')
-  await expect(landing).toContainText('The selected safety factor was not applied')
-  await expect(landing).toContainText('No applicable source identified for: wind, surface, slope.')
+  await expect(landing).toContainText('No applicable wind, surface or slope correction source')
+  await expect(landing).toContainText('no applicable correction applied for wind, surface, slope')
+  const value = landing.locator('dd').first()
+  const initial = await value.innerText()
+  const inputs = page.getByRole('group', { name: 'Landing wind and slope' })
+  await inputs.getByLabel('Safety factor').selectOption('custom')
+  await inputs.getByLabel('Custom safety factor (1.00–3.00)').fill('2')
+  await expect(value).not.toHaveText(initial)
 })
 
 Then('the landing correction shows its source and final ground roll {string}', async ({ page }, value: string) => {

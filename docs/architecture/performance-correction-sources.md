@@ -73,10 +73,7 @@ input set. Any change, a runway clear, a reload or local-data erasure removes it
 
 `services/corrected-distances.ts` composes the raw POH distance, the saved runway surface, the pilot's headwind
 component (kt, negative tailwind) and runway slope (%, positive uphill) per operation, and calls the shared Tecnam rules.
-A corrected distance appears only when wind, surface and slope are all identified from the same applicable Tecnam manual for that
-operation and both inputs are entered (empty is never zero; |slope| < 100). Otherwise the operation shows the reason
-and only the uncorrected raw distance. Entered wind and slope inputs, including zero and invalid entries, and the saved runway surface and safety factor are identified as unapplied in the result and briefing pack; favourable Tecnam inputs make the result explicitly partially corrected. Without a manual rule set, the take-off surface and slope fall back to the marked FSM 3/75 estimate below; landing and tailwind stay uncorrected. Results are rounded up to whole metres, show raw, corrected and final values
-with the source revision, and appear in the briefing pack. Any input change invalidates them with the raw result.
+The pilot must enter wind and slope (empty is never zero; |slope| < 100). Available corrections are applied independently; absent corrections are disclosed and make the result partial. When no correction source applies, the selected safety factor still applies to the base distances and the result identifies all missing corrections. Partial results cannot establish runway fit. Without a manual rule set, the take-off surface and slope may fall back to the marked FSM 3/75 estimate below; landing and tailwind remain uncorrected. Results are rounded up to whole metres and appear in the briefing pack. Any input change invalidates them with the raw result.
 
 ## Runway comparison
 
