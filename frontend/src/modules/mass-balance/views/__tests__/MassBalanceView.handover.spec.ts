@@ -12,6 +12,10 @@ import type { AircraftProfile } from '@/core/adapters/aircraft.schema'
 // ─── Mocks ──────────────────────────────────────────────────────────────────
 
 const downloaded = vi.hoisted(() => ({ text: '' }))
+vi.mock('@/modules/export/flight-prep-json', async (original) => ({
+  ...await original<typeof import('@/modules/export/flight-prep-json')>(),
+  downloadFlightPrepJson: (text: string) => { downloaded.text = text },
+}))
 vi.mock('@/modules/export/handover-file', () => ({
   downloadHandoverFile: (text: string) => { downloaded.text = text },
 }))
@@ -105,6 +109,18 @@ describe('MassBalanceView — handover file', () => {
     setActivePinia(createPinia())
     localStorage.clear()
     downloaded.text = ''
+  })
+
+  it('exports current entries and unavailable values without verification claims', async () => {
+    const { wrapper, profile } = mountWithAircraft()
+    await wrapper.find('select#aircraft-select').setValue(profile.id)
+    const mb = useMassBalanceStore()
+    mb.stations[0]!.weight = 120
+    await wrapper.find('[data-testid="flight-prep-export"]').trigger('click')
+    const file = JSON.parse(downloaded.text)
+    expect(file).toMatchObject({ format: 'aerodash-flight-preparation', version: 1, aircraft: { registration: 'D-EBPN' }, massBalance: { stations: [{ weight: 120, unit: 'kg' }] }, entries: { fuel: { directTripFuel: '' }, performance: { temperature: '' } }, runway: { saved: null } })
+    expect(file.notice).toContain('Unverified')
+    expect(downloaded.text).not.toContain('ownerId')
   })
 
   it('is offered only with a loaded aircraft', () => {

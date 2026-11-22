@@ -34,6 +34,7 @@ import MassStationInput from '@/modules/mass-balance/components/MassStationInput
 import CGEnvelopeChart from '@/modules/mass-balance/components/CGEnvelopeChart.vue'
 import MbPrintPreview from '@/modules/export/MbPrintPreview.vue'
 import HandoverExchange from '@/modules/export/HandoverExchange.vue'
+import { buildFlightPrepJson, downloadFlightPrepJson } from '@/modules/export/flight-prep-json'
 import { downloadHandoverFile } from '@/modules/export/handover-file'
 import { buildHandoverFile, handoverMismatch, parseHandoverFile } from '@/core/logic/handover'
 import AnnotationPanel from '@/modules/annotations/AnnotationPanel.vue'
@@ -713,6 +714,25 @@ function applyWeather(field: keyof MetarValues, values: MetarValues, source: str
   weatherSources.value[field] = { source, value: weatherValue(field) }
 }
 
+function exportFlightPreparation(): void {
+  const aircraft = store.aircraft
+  const profile = mbSource.value.profile
+  const runway = useManualRunwayStore()
+  downloadFlightPrepJson(buildFlightPrepJson({
+    aircraft: aircraft ? { id: aircraft.id, registration: aircraft.registration, manufacturer: profile?.manufacturer ?? '', model: profile?.model ?? '' } : null,
+    massBalance: {
+      category: store.activeCategory,
+      stations: store.stations.map(s => ({ name: s.name, unit: aircraft?.loadPoints[s.index]?.unit || aircraft?.sourceUnit || '', weight: s.weight, touched: s.touched })),
+    },
+    entries: flightPrepDraft.snapshotEntries(),
+    electric: isElectric.value ? { available: electricPlanning.available.value, power: electricPlanning.power.value, minutes: electricPlanning.minutes.value } : null,
+    manualConfiguration: performanceStep.manualConfiguration.value,
+    runway: { draft: { ...runway.draft }, saved: runway.current?.record ?? null, weatherSurface: runway.weatherSurface, assessmentDate: runway.assessmentDate },
+    wind: { ...windInput.value },
+    weatherSources: { ...weatherSources.value },
+  }, new Date()))
+}
+
 const printSource = computed(() => ({ ...mbSource.value, performance: performanceStep.presentation.value,
   wind: { input: windInput.value, result: computeWindComponents(windInput.value) } }))
 
@@ -1013,6 +1033,11 @@ function onStartDemo(): void {
         <button type="button" class="session-drop-banner__dismiss" @click="showClearDraftConfirm = false">Keep</button>
       </span>
     </div>
+
+    <section v-if="!store.isDemoActive" class="local-export" aria-label="Local preparation export">
+      <button type="button" data-testid="flight-prep-export" @click="exportFlightPreparation">Export preparation as JSON</button>
+      <p>Local file only. Entries are unverified; check them against authoritative sources. Import is not supported.</p>
+    </section>
 
     <HandoverExchange
       v-if="store.aircraft && !store.isDemoActive"
@@ -1418,6 +1443,8 @@ function onStartDemo(): void {
 </template>
 
 <style scoped>
+.local-export { margin: 0.75rem 0; padding: 0.75rem; border: 1px solid var(--color-border, #888); }
+.local-export button { min-height: 44px; }
 /* ─── Page shell ─────────────────────────────────────────────────────────── */
 
 .fp-view {

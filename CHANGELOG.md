@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Export current Flight Preparation entries as a local versioned JSON snapshot.
+
 - Attach M&B, fuel, condition, safety-factor, wind-limit, obstacle, extrapolation and energy-reserve warnings to affected briefing pack values without internal UI warning identifiers.
 - Show manual forecast QNH selection context and allow clearing its entry and source.
 - Match the enabled Briefing Pack action to the homepage CTA, including hover treatment.
