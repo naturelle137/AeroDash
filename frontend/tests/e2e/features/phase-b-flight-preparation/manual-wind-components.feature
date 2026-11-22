@@ -94,6 +94,7 @@ Feature: Offline manual wind components
     When the pilot opens the briefing pack
     Then the briefing pack states "Crosswind exceeds Demonstrated 10 kt (manual gust)"
     And the briefing pack states "Tailwind exceeds Limit 5 kt (manual gust)"
+    And the briefing pack states "Gust exceeds Limit 15 kt (manual gust)"
     When the pilot returns from the briefing pack
     And the pilot enters runway heading "270", wind from "VRB" and speed "5" "kt"
     Then the gust is cleared
