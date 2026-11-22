@@ -22,6 +22,35 @@ function source(): MbPrintSource {
 }
 afterEach(() => { document.body.innerHTML = ''; vi.restoreAllMocks() })
 describe('M&B print presentation with real store calculation', () => {
+  it('limits fuel-density warnings to the affected M&B point', () => {
+    const input = source()
+    input.notifications.push({ id: 'WARN-FE-002', severity: 'WARNING', message: 'Verify fuel mass', context: 'FuelEndurance.Density', persistent: false, dismissible: true })
+    const points = assembleMbPrint(input, new Date())!.points
+    expect(points.map(p => p.massWarnings.some(n => n.message === 'Verify fuel mass'))).toEqual([true, false, false])
+    expect(points.map(p => p.cgWarnings.some(n => n.message === 'Verify fuel mass'))).toEqual([true, false, false])
+  })
+  it('retains the takeoff limit exceedance on the repeated fuel-plan mass', () => {
+    const input = source()
+    input.state = 'ERROR_CRITICAL'
+    input.result!.violations.push({ type: 'MTOM_EXCEEDED' })
+    input.notifications.push({ id: 'CRIT-MB-002', severity: 'CRITICAL', message: 'MTOM Exceeded', context: 'MassBalance.TotalMass', persistent: false, dismissible: true })
+    input.fuel = { inputKey: 'synthetic', reason: null, method: 'direct', sequence: '', cgReason: null, warnings: [], rows: [{ label: 'Takeoff mass', value: '900 kg' }, { label: 'Estimated arrival mass', value: '850 kg' }] }
+    const rows = assembleMbPrint(input, new Date())!.fuel!.rows
+    expect(rows[0]!.warnings).toContain('MTOM Exceeded')
+    expect(rows[1]!.warnings).not.toContain('MTOM Exceeded')
+  })
+  it('carries density warnings to distances using current fuel-dependent masses', () => {
+    const input = source()
+    input.notifications.push({ id: 'WARN-FE-002', severity: 'WARNING', message: 'Verify fuel mass', context: 'FuelEndurance.Density', persistent: false, dismissible: true })
+    const base = presentPerformance({ inputKey: 'k', inputs: [], aircraft: null, takeoff: { status: 'unavailable', reason: 'x' }, landing: { status: 'unavailable', reason: 'x' }, assessment: null, pressureAltitudeBasis: '', pendingReason: 'x', runway: { status: 'unavailable', reason: 'x' }, operational: presentOperationalAssessment(null, 'x') })
+    input.performance = { ...base, groups: [
+      { id: 'takeoff', title: 'Takeoff', mass: '900 kg — M&B', status: 'success', reason: null, rows: [{ label: 'Ground roll', value: '100 m', note: null }] },
+      { id: 'landing', title: 'Landing', mass: '800 kg — trip arrival', status: 'success', reason: null, rows: [{ label: 'Ground roll', value: '90 m', note: null }] },
+    ] }
+    const snapshot = assembleMbPrint(input, new Date())!
+    expect(snapshot.performance!.groups.map(g => g.rows[0]!.warnings)).toEqual([['Verify fuel mass'], ['Verify fuel mass']])
+    expect(input.performance.groups[0]!.rows[0]!.warnings).toBeUndefined()
+  })
   it('snapshots valid manual wind and omits invalid results', () => {
     const input = source()
     const entries = { runwayHeading: '270', windDirection: '330', windSpeed: '20', unit: 'kt' }
@@ -45,6 +74,20 @@ describe('M&B print presentation with real store calculation', () => {
     entries.gustSpeed = ''
     expect(snapshot.wind?.input.gustSpeed).toBe('20')
     expect(assembleMbPrint(input, new Date())!.wind?.notifications).toEqual([])
+  })
+  it('places steady and gust limit warnings beside the affected wind values', async () => {
+    const input = source()
+    const entries = { runwayHeading: '270', windDirection: '330', windSpeed: '20', gustSpeed: '30', unit: 'kt' }
+    input.profile!.windLimits = [{ component: 'MaxCrosswind', value: 10, classification: 'Limit' }, { component: 'MaxGust', value: 25, classification: 'Demonstrated' }]
+    input.wind = { input: entries, result: computeWindComponents(entries) }
+    const wrapper = mount(MbPrintPreview, { props: { source: input }, attachTo: document.body })
+    await wrapper.get('button').trigger('click')
+    const section = document.querySelector('[aria-label="Manual wind components"]')!
+    const paragraphs = [...section.querySelectorAll('p')].map(p => p.textContent!)
+    expect(paragraphs.findIndex(p => p.includes('manual gust'))).toBeGreaterThan(paragraphs.findIndex(p => p.includes('Pilot-entered gust')))
+    expect(paragraphs.findIndex(p => p.includes('manual wind'))).toBe(paragraphs.findIndex(p => p.startsWith('Crosswind:')) + 1)
+    expect(paragraphs.find(p => p.startsWith('Headwind:'))).not.toContain('exceeds')
+    wrapper.unmount()
   })
   it('retains warnings, honest endpoints, units and draft markers without mutating verification', () => {
     const input = source()
@@ -379,6 +422,80 @@ describe('M&B print presentation with real store calculation', () => {
     const clean = source()
     clean.performance = { ...performance, corrected: [{ ...applied, safetyFactorWarning: null }] } as never
     expect(assembleMbPrint(clean, new Date('2026-11-14'))!.lowSafetyMargin).toBe(false)
+  })
+  it('attaches each base warning and safety-factor warning to its corrected value and invalidates on change', async () => {
+    const input = source()
+    const base = presentPerformance({ inputKey: 'k', inputs: [{ label: 'Takeoff safety factor', value: 'Custom 1.10' }, { label: 'Landing safety factor', value: 'Custom 1.43' }], aircraft: null, takeoff: { status: 'unavailable', reason: 'x' }, landing: { status: 'unavailable', reason: 'x' }, assessment: null, pressureAltitudeBasis: '', pendingReason: 'x', runway: { status: 'unavailable', reason: 'x' }, operational: presentOperationalAssessment(null, 'x') })
+    input.performance = { ...base, groups: [
+      { id: 'takeoff', title: 'Takeoff', mass: null, status: 'success', reason: null, rows: [{ label: 'Ground roll', value: '100 m', note: 'ESTIMATED — EXTRAPOLATED (+20 % penalty)', warnings: ['QNH advisory', 'Temperature advisory'] }, { label: 'Over 50 ft', value: '200 m', note: null }] },
+      { id: 'landing', title: 'Landing', mass: null, status: 'blocked', reason: 'Unavailable', rows: [] },
+    ], extrapolation: { acknowledged: true, details: ['Takeoff Ground roll'], warning: 'Extrapolation advisory' }, corrected: [{ operation: 'takeoff', title: 'Takeoff', status: 'applied', source: 'Synthetic', partial: false, rows: [{ label: 'Ground roll', raw: '100 m', corrected: '110 m', factored: '120 m' }, { label: 'Over 50 ft', raw: '200 m', corrected: '210 m', factored: '220 m' }], safetyFactor: '1.10', safetyFactorWarning: 'Low factor', comparison: { status: 'unavailable', summary: '', required: '', availableLabel: '', available: '', margin: '' }, notes: [] }] }
+    const wrapper = mount(MbPrintPreview, { props: { source: input }, attachTo: document.body })
+    await wrapper.get('button').trigger('click')
+    const section = [...document.querySelectorAll('section')].find(s => s.querySelector('h3')?.textContent === 'Takeoff corrected distances')!
+    const cells = section.querySelectorAll('td')
+    expect(cells[0]!.textContent).toContain('QNH advisory')
+    expect(cells[0]!.textContent).toContain('Temperature advisory')
+    expect(cells[0]!.textContent).toContain('Low factor')
+    expect(cells[0]!.textContent).toContain('Extrapolation advisory')
+    expect(cells[0]!.textContent).toContain('ESTIMATED — EXTRAPOLATED')
+    expect(cells[1]!.textContent).not.toContain('Extrapolation advisory')
+    expect(cells[1]!.textContent).not.toContain('QNH advisory')
+    expect(cells[1]!.textContent).toContain('Low factor')
+    const inputs = [...document.querySelectorAll('tr')]
+    expect(inputs.find(row => row.textContent?.startsWith('Takeoff safety factor'))!.textContent).toContain('Low factor')
+    expect(inputs.find(row => row.textContent?.startsWith('Landing safety factor'))!.textContent).not.toContain('Low factor')
+    input.performance = { ...input.performance, inputKey: 'changed' }
+    window.dispatchEvent(new Event('beforeprint'))
+    expect(document.querySelector('.mb-print-root')?.hasAttribute('data-print-invalid')).toBe(true)
+    wrapper.unmount()
+  })
+  it('attaches condition warnings to their inputs and available calculation basis', async () => {
+    const input = source()
+    const base = presentPerformance({ inputKey: 'conditions', inputs: [
+      { label: 'QNH', value: '950 hPa', warnings: ['WARNING WARN-UI-001: QNH advisory'] },
+      { label: 'Outside air temperature', value: '45 °C', warnings: ['WARNING WARN-UI-001: Temperature advisory'] },
+      { label: 'Field elevation', value: '100 ft' },
+    ], aircraft: null, takeoff: { status: 'unavailable', reason: 'x' }, landing: { status: 'unavailable', reason: 'x' }, assessment: null, pressureAltitudeBasis: '', pendingReason: 'x', runway: { status: 'unavailable', reason: 'x' }, operational: presentOperationalAssessment(null, 'x') })
+    input.performance = { ...base, conditions: { pressureAltitude: '1800 ft', temperature: '45 °C' } }
+    const wrapper = mount(MbPrintPreview, { props: { source: input }, attachTo: document.body })
+    await wrapper.get('button').trigger('click')
+    const rows = [...document.querySelectorAll('tr')]
+    expect(rows.find(row => row.textContent?.startsWith('QNH'))!.textContent).toContain('QNH advisory')
+    expect(rows.find(row => row.textContent?.startsWith('Outside air temperature'))!.textContent).toContain('Temperature advisory')
+    expect(rows.find(row => row.textContent?.startsWith('Field elevation'))!.textContent).not.toContain('advisory')
+    expect(document.querySelector('[aria-label="Current Performance"]')!.textContent).toContain('Calculation basis: 1800 ft · 45 °C · WARNING: QNH advisory · WARNING: Temperature advisory')
+    expect(document.querySelector('.mb-print-sheet')!.textContent).not.toContain('WARN-UI-001')
+    input.performance = { ...input.performance, conditions: null }
+    await nextTick()
+    expect(document.querySelector('.mb-print-sheet')!.textContent).not.toContain('Calculation basis:')
+    wrapper.unmount()
+  })
+  it('attaches obstacle warnings only to the affected available inputs and invalidates the snapshot', async () => {
+    const input = source()
+    const base = presentPerformance({ inputKey: 'obstacle', inputs: [{ label: 'Unverified obstacle constraint', value: '50 ft at 1000 ft' }, { label: 'Required geometric gradient', value: 'Approximately 5%' }, { label: 'Temperature', value: '20 °C' }], aircraft: null, takeoff: { status: 'unavailable', reason: 'x' }, landing: { status: 'unavailable', reason: 'x' }, assessment: null, pressureAltitudeBasis: '', pendingReason: 'x', runway: { status: 'unavailable', reason: 'x' }, operational: presentOperationalAssessment(null, 'x'), notifications: [{ id: 'WARN-PF-001', severity: 'WARNING', context: 'Performance.Obstacles', message: 'Obstacle clearance is not verified.', persistent: true, dismissible: false }] })
+    input.performance = base
+    const wrapper = mount(MbPrintPreview, { props: { source: input }, attachTo: document.body })
+    await wrapper.get('button').trigger('click')
+    const rows = [...document.querySelectorAll('tr')]
+    for (const label of ['Unverified obstacle constraint', 'Required geometric gradient']) {
+      expect(rows.find(row => row.querySelector('th')?.textContent === label)?.querySelector('td')?.textContent).toContain('Obstacle clearance is not verified.')
+    }
+    expect(rows.find(row => row.querySelector('th')?.textContent === 'Temperature')?.querySelector('td')?.textContent).not.toContain('Obstacle clearance')
+    input.performance = { ...base, inputKey: 'changed', notifications: [] }
+    window.dispatchEvent(new Event('beforeprint'))
+    expect(document.querySelector('.mb-print-root')?.hasAttribute('data-print-invalid')).toBe(true)
+    wrapper.unmount()
+  })
+  it('attaches the energy reserve warning to remaining energy and margin only', async () => {
+    const input = source()
+    input.energy = { inputKey: 'energy', reason: null, warning: 'Remaining energy below reserve.', rows: [{ label: 'Estimated remaining energy', value: '1 kWh' }, { label: 'Difference to reserve floor', value: '-1 kWh' }, { label: 'Reserve floor', value: '2 kWh' }] }
+    const wrapper = mount(MbPrintPreview, { props: { source: input }, attachTo: document.body })
+    await wrapper.get('button').trigger('click')
+    const rows = [...document.querySelectorAll('tr')]
+    for (const label of ['Estimated remaining energy', 'Difference to reserve floor']) expect(rows.find(row => row.firstElementChild?.textContent === label)?.lastElementChild?.textContent).toContain('Remaining energy below reserve.')
+    expect(rows.find(row => row.firstElementChild?.textContent === 'Reserve floor')?.lastElementChild?.textContent).not.toContain('Remaining energy below reserve.')
+    wrapper.unmount()
   })
   describe('CRIT-UI-001 export gate', () => {
     const buttonByText = (t: string) => [...document.querySelectorAll('button')].find(b => b.textContent === t)!
