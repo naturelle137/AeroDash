@@ -80,6 +80,8 @@ with the source revision, and appear in the briefing pack. Any input change inva
 
 ## Runway comparison
 
+When the complete correction set is unavailable, the result names missing sources and any identified manual corrections withheld because they cannot be applied separately.
+
 The final distance over 50 ft (corrected distance × the selected safety factor, rounded up) is compared with the
 declared TODA when entered, otherwise TORA (take-off), or LDA (landing), all rounded down to 0.1 m. With a TODA
 the final ground roll must also fit TORA. Margin is `available - required` in metres and as `100 × margin / required`
