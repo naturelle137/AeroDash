@@ -7,7 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-- Hide internal Performance and wind warning identifiers in briefing output while retaining warning details.
 
 - Apply the selected performance safety factor even when runway correction sources are unavailable, while identifying the incomplete result.
 - Preview the converted manual forecast QNH and explain invalid entries before replacing Flight Prep QNH.
