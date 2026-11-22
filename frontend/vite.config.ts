@@ -8,6 +8,7 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 import { assertNoTelemetryInProductionBuild } from './scripts/build/telemetry-guard'
 import { copyLegalDocs } from './scripts/build/copy-legal-docs'
+import { releaseDateForVersion } from './scripts/build/release-date'
 
 // Production gate for dev-only tooling (DP-016 vue-devtools). Kept as a plain
 // boolean rather than a `defineConfig(({ command }) => …)` callback so the
@@ -97,6 +98,10 @@ export default defineConfig({
   ],
   define: {
     __APP_VERSION__: JSON.stringify(appVersion),
+    __RELEASE_DATE__: JSON.stringify(releaseDateForVersion(
+      readFileSync(fileURLToPath(new URL('../CHANGELOG.md', import.meta.url)), 'utf-8'),
+      appVersion,
+    )),
     __BUILD_DATE__: JSON.stringify(new Date().toISOString().split('T')[0]),
     // Issue #271 / PR-review Major #2: this floor is evaluated per SemVer §11
     // ordering (pre-release < release of the same MAJOR.MINOR.PATCH), so a
