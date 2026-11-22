@@ -86,16 +86,18 @@ describe('corrected distances in the performance step', () => {
     expect(item.reason).toContain('Runway slope abc % was not applied')
   })
 
-  it('identifies missing sources and manual corrections withheld for an unsupported surface', () => {
+  it.each(['takeoff', 'landing'] as const)('applies available manual corrections with missing surface for %s', (operation) => {
     const { step, runway } = setup()
     runway.draft.surfaceCondition = 'wet'; runway.save()
-    Object.assign(step.corrections.landing, { headwind: '-2', slope: '-1' })
-    const item = corrected(step, 1)
-    if (item.status !== 'unavailable') throw new Error('expected unavailable')
-    expect(item.reason).toContain('No applicable source identified for: surface.')
-    expect(item.reason).toContain('Manual sources identified for wind, slope are not applied separately')
-    expect(item.reason).toContain('Wind component -2 kt was not applied')
-    expect(item.reason).toContain('Runway slope -1 % was not applied')
+    Object.assign(step.corrections[operation], { headwind: '-2', slope: operation === 'takeoff' ? '1' : '-1' })
+    const item = corrected(step, operation === 'takeoff' ? 0 : 1)
+    if (item.status !== 'applied') throw new Error('expected partial result')
+    expect(item.partial).toBe(true)
+    expect(item.notes.join(' ')).toContain('no applicable correction applied for surface')
+    expect(item.comparison.margin).toBe('Not available')
+    const roll = operation === 'takeoff' ? 220 * 1.07 + 30 : 420 * 1.03 + 26
+    expect(item.rows[0]!.corrected).toBe(`${Math.ceil(roll)} m`)
+    expect(item.rows[0]!.factored).toBe(`${Math.ceil(roll * (operation === 'takeoff' ? 1.1 : 1.67))} m`)
   })
 
   it.each([['takeoff', '-1'], ['landing', '1']] as const)('marks favourable %s inputs partially corrected', (operation, slope) => {
@@ -261,7 +263,7 @@ describe('corrected distances in the performance step', () => {
   })
 
   it.each([
-    ['an unsaved runway', () => setup('D-EBPN', 'paved', false), 'No accepted correction source'],
+    ['an unsaved runway', () => setup('D-EBPN', 'paved', false), 'Save the manual runway'],
   ])('refuses correction for %s', (_name, build, message) => {
     const effect = effectScope()
     effect.run(() => {
@@ -299,7 +301,7 @@ describe('corrected distances in the performance step', () => {
     effect.stop()
   })
 
-  it('invalidates the comparison on a surface edit and blocks an unsupported saved condition', () => {
+  it('invalidates the comparison on a surface edit and marks an unsupported saved condition incomplete', () => {
     const effect = effectScope()
     effect.run(() => {
       const { step, runway } = setup()
@@ -308,7 +310,7 @@ describe('corrected distances in the performance step', () => {
       runway.draft.surfaceCondition = 'ice'
       expect(corrected(step, 0).status).toBe('unavailable')
       expect(runway.save()).toBe(true)
-      expect(corrected(step, 0).status).toBe('unavailable')
+      expect(corrected(step, 0)).toMatchObject({ status: 'applied', partial: true })
     })
     effect.stop()
   })

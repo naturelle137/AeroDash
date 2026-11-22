@@ -190,7 +190,7 @@ Feature: Corrected takeoff and landing distances
     Then the takeoff runway comparison is "Insufficient runway"
     And the corrected distance evidence is captured as "offline-<width>"
     When the pilot clears the runway surface condition
-    Then the corrected takeoff distances are "unavailable: No accepted correction source"
+    Then the corrected takeoff distances are "unavailable: Save the manual runway"
     When the pilot enters takeoff headwind "" kt and slope "0" %
     Then the takeoff safety factor warning is "absent"
 
