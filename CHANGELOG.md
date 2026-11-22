@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Verify independent fuel sequences and electric planning controls in integrated and browser tests.
 - Preserve an optional pilot-declared source time for manually entered forecast QNH.
 
 - Support pilot-sourced forecast QNH in hPa or inHg with explicit unavailability guidance.
