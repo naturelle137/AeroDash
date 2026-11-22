@@ -722,7 +722,7 @@ function exportFlightPreparation(): void {
     aircraft: aircraft ? { id: aircraft.id, registration: aircraft.registration, manufacturer: profile?.manufacturer ?? '', model: profile?.model ?? '' } : null,
     massBalance: {
       category: store.activeCategory,
-      stations: store.stations.map(s => ({ name: s.name, unit: aircraft?.loadPoints[s.index]?.unit || aircraft?.sourceUnit || '', weight: s.weight, touched: s.touched })),
+      stations: store.stations.map(s => ({ name: s.name, unit: aircraft?.loadPoints[s.index]?.unit || parseSourceUnit(aircraft?.sourceUnit ?? '').massUnit, weight: s.weight, touched: s.touched })),
     },
     entries: flightPrepDraft.snapshotEntries(),
     electric: isElectric.value ? { available: electricPlanning.available.value, power: electricPlanning.power.value, minutes: electricPlanning.minutes.value } : null,
