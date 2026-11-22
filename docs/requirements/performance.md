@@ -269,7 +269,7 @@ If a performance unit declaration is unsupported, incomplete or conflicting, the
 
 When a performance table has no source-unit declaration, the system shall identify its legacy kg/ft/°C/m contract independently of M&B sourceUnit.
 
-**Status:** Approved. Legacy kg/ft/°C/m identification independent of M&B sourceUnit is not asserted by a test.
+**Status:** Implemented. Tests: `frontend/src/modules/performance/services/poh-inspection.int.spec.ts`.
 
 ### REQ-PF-052: Source-unit conversion
 
