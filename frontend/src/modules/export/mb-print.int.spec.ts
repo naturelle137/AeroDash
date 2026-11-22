@@ -29,6 +29,16 @@ describe('M&B print presentation with real store calculation', () => {
     expect(points.map(p => p.massWarnings.some(n => n.message === 'Verify fuel mass'))).toEqual([true, false, false])
     expect(points.map(p => p.cgWarnings.some(n => n.message === 'Verify fuel mass'))).toEqual([true, false, false])
   })
+  it('retains the takeoff limit exceedance on the repeated fuel-plan mass', () => {
+    const input = source()
+    input.state = 'ERROR_CRITICAL'
+    input.result!.violations.push({ type: 'MTOM_EXCEEDED' })
+    input.notifications.push({ id: 'CRIT-MB-002', severity: 'CRITICAL', message: 'MTOM Exceeded', context: 'MassBalance.TotalMass', persistent: false, dismissible: true })
+    input.fuel = { inputKey: 'synthetic', reason: null, method: 'direct', sequence: '', cgReason: null, warnings: [], rows: [{ label: 'Takeoff mass', value: '900 kg' }, { label: 'Estimated arrival mass', value: '850 kg' }] }
+    const rows = assembleMbPrint(input, new Date())!.fuel!.rows
+    expect(rows[0]!.warnings).toContain('MTOM Exceeded')
+    expect(rows[1]!.warnings).not.toContain('MTOM Exceeded')
+  })
   it('carries density warnings to distances using current fuel-dependent masses', () => {
     const input = source()
     input.notifications.push({ id: 'WARN-FE-002', severity: 'WARNING', message: 'Verify fuel mass', context: 'FuelEndurance.Density', persistent: false, dismissible: true })
@@ -415,7 +425,7 @@ describe('M&B print presentation with real store calculation', () => {
   })
   it('attaches each base warning and safety-factor warning to its corrected value and invalidates on change', async () => {
     const input = source()
-    const base = presentPerformance({ inputKey: 'k', inputs: [], aircraft: null, takeoff: { status: 'unavailable', reason: 'x' }, landing: { status: 'unavailable', reason: 'x' }, assessment: null, pressureAltitudeBasis: '', pendingReason: 'x', runway: { status: 'unavailable', reason: 'x' }, operational: presentOperationalAssessment(null, 'x') })
+    const base = presentPerformance({ inputKey: 'k', inputs: [{ label: 'Takeoff safety factor', value: 'Custom 1.10' }, { label: 'Landing safety factor', value: 'Custom 1.43' }], aircraft: null, takeoff: { status: 'unavailable', reason: 'x' }, landing: { status: 'unavailable', reason: 'x' }, assessment: null, pressureAltitudeBasis: '', pendingReason: 'x', runway: { status: 'unavailable', reason: 'x' }, operational: presentOperationalAssessment(null, 'x') })
     input.performance = { ...base, groups: [
       { id: 'takeoff', title: 'Takeoff', mass: null, status: 'success', reason: null, rows: [{ label: 'Ground roll', value: '100 m', note: 'ESTIMATED — EXTRAPOLATED (+20 % penalty)', warnings: ['QNH advisory', 'Temperature advisory'] }, { label: 'Over 50 ft', value: '200 m', note: null }] },
       { id: 'landing', title: 'Landing', mass: null, status: 'blocked', reason: 'Unavailable', rows: [] },
@@ -432,9 +442,32 @@ describe('M&B print presentation with real store calculation', () => {
     expect(cells[1]!.textContent).not.toContain('Extrapolation advisory')
     expect(cells[1]!.textContent).not.toContain('QNH advisory')
     expect(cells[1]!.textContent).toContain('Low factor')
+    const inputs = [...document.querySelectorAll('tr')]
+    expect(inputs.find(row => row.textContent?.startsWith('Takeoff safety factor'))!.textContent).toContain('Low factor')
+    expect(inputs.find(row => row.textContent?.startsWith('Landing safety factor'))!.textContent).not.toContain('Low factor')
     input.performance = { ...input.performance, inputKey: 'changed' }
     window.dispatchEvent(new Event('beforeprint'))
     expect(document.querySelector('.mb-print-root')?.hasAttribute('data-print-invalid')).toBe(true)
+    wrapper.unmount()
+  })
+  it('attaches condition warnings to their inputs and available calculation basis', async () => {
+    const input = source()
+    const base = presentPerformance({ inputKey: 'conditions', inputs: [
+      { label: 'QNH', value: '950 hPa', warnings: ['QNH advisory'] },
+      { label: 'Outside air temperature', value: '45 °C', warnings: ['Temperature advisory'] },
+      { label: 'Field elevation', value: '100 ft' },
+    ], aircraft: null, takeoff: { status: 'unavailable', reason: 'x' }, landing: { status: 'unavailable', reason: 'x' }, assessment: null, pressureAltitudeBasis: '', pendingReason: 'x', runway: { status: 'unavailable', reason: 'x' }, operational: presentOperationalAssessment(null, 'x') })
+    input.performance = { ...base, conditions: { pressureAltitude: '1800 ft', temperature: '45 °C' } }
+    const wrapper = mount(MbPrintPreview, { props: { source: input }, attachTo: document.body })
+    await wrapper.get('button').trigger('click')
+    const rows = [...document.querySelectorAll('tr')]
+    expect(rows.find(row => row.textContent?.startsWith('QNH'))!.textContent).toContain('QNH advisory')
+    expect(rows.find(row => row.textContent?.startsWith('Outside air temperature'))!.textContent).toContain('Temperature advisory')
+    expect(rows.find(row => row.textContent?.startsWith('Field elevation'))!.textContent).not.toContain('advisory')
+    expect(document.querySelector('[aria-label="Current Performance"]')!.textContent).toContain('Calculation basis: 1800 ft · 45 °C · QNH advisory · Temperature advisory')
+    input.performance = { ...input.performance, conditions: null }
+    await nextTick()
+    expect(document.querySelector('.mb-print-sheet')!.textContent).not.toContain('Calculation basis:')
     wrapper.unmount()
   })
   it('attaches obstacle warnings only to the affected available inputs and invalidates the snapshot', async () => {

@@ -152,6 +152,19 @@ describe('Briefing Pack PDF download', () => {
     expect(entries.match(/Obstacle clearance is not verified/g)).toHaveLength(2)
   })
 
+  it('exports condition warnings beside their affected inputs', async () => {
+    const input = source()
+    input.performance = presentPerformance({ inputKey: 'conditions', inputs: [
+      { label: 'QNH', value: '950 hPa', warnings: ['QNH advisory'] },
+      { label: 'Outside air temperature', value: '45 C', warnings: ['Temperature advisory'] },
+      { label: 'Field elevation', value: '100 ft' },
+    ], aircraft: null, takeoff: { status: 'unavailable', reason: 'x' }, landing: { status: 'unavailable', reason: 'x' }, assessment: null, pressureAltitudeBasis: '', pendingReason: 'x', runway: { status: 'unavailable', reason: 'x' }, operational: presentOperationalAssessment(null, 'x') })
+    const { text } = await pdfFor(input)
+    expect(strip(text)).toContain(strip('QNH 950 hPa QNH advisory'))
+    expect(strip(text)).toContain(strip('Outside air temperature 45 C Temperature advisory'))
+    expect(strip(text)).not.toContain(strip('Field elevation 100 ft QNH advisory'))
+  })
+
   it('exports the wind-limit warning with its affected crosswind', async () => {
     const input = source()
     const entries = { runwayHeading: '270', windDirection: '330', windSpeed: '20', unit: 'kt' }
