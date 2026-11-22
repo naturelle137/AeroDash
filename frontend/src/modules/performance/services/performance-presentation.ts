@@ -19,7 +19,7 @@ export interface PerformancePresentation {
   /** Overall reason when status is `not-computed` or `blocked`. */
   readonly reason: string | null
   /** Current entered conditions, including blocked/uncomputed input text. */
-  readonly inputs: readonly { readonly label: string; readonly value: string }[]
+  readonly inputs: readonly { readonly label: string; readonly value: string; readonly warnings?: readonly string[] }[]
   /** Conditions actually used; null until assessed. */
   readonly conditions: { readonly pressureAltitude: string; readonly temperature: string } | null
   readonly groups: readonly PerformanceGroupPresentation[]

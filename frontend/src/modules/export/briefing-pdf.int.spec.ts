@@ -12,6 +12,7 @@ import { disclaimerBlocks } from './disclaimer-text'
 import { usePerformanceStep } from '@/modules/performance/composables/performance-step'
 import { presentOperationalAssessment, presentPerformance } from '@/modules/performance/services/performance-presentation'
 import { buildPdf, toLatin1, wrap, textWidth } from './briefing-pdf'
+import { computeWindComponents } from '@/core/logic/wind-components'
 
 function source(verified = false): MbPrintSource {
   setActivePinia(createPinia())
@@ -106,6 +107,23 @@ describe('Briefing Pack PDF download', () => {
     return { text, sheet }
   }
 
+  it('carries the density warning beside dependent fuel values in the PDF', async () => {
+    const input = source()
+    input.notifications.push({ id: 'WARN-FE-002', severity: 'WARNING', message: 'Verify fuel mass', context: 'FuelEndurance.Density', persistent: false, dismissible: true })
+    input.fuel = { inputKey: 'synthetic', reason: null, method: 'duration', sequence: '', cgReason: null, warnings: [], rows: [{ label: 'Usable fuel', value: '40 kg' }, { label: 'Trip fuel', value: '20 kg' }] }
+    const { text } = await pdfFor(input)
+    expect(strip(text)).toContain(strip('Usable fuel 40 kg [UNVERIFIED] Verify fuel mass'))
+    expect(strip(text)).not.toContain(strip('Trip fuel 20 kg [UNVERIFIED] Verify fuel mass'))
+  })
+
+  it('keeps density warnings on the takeoff point and away from zero-fuel endpoints in the PDF', async () => {
+    const input = source()
+    input.notifications.push({ id: 'WARN-FE-002', severity: 'WARNING', message: 'Verify fuel mass', context: 'FuelEndurance.Density', persistent: false, dismissible: true })
+    const { text } = await pdfFor(input)
+    const results = text.split('M&B results')[1]!.split('Loading envelope chart')[0]!
+    expect(words(results).filter(word => word === 'Verify')).toHaveLength(2)
+  })
+
   it('preserves aggregate CG warnings at trajectory level in the PDF', async () => {
     const input = source()
     input.notifications.push({ id: 'CRIT-MB-003', severity: 'WARNING', message: 'CG Migration Limit Exceeded', context: 'MassBalance.CG', persistent: false, dismissible: true })
@@ -113,6 +131,48 @@ describe('Briefing Pack PDF download', () => {
     const results = text.split('M&B results')[1]!.split('Loading envelope chart')[0]!
     expect(results.split('CG trajectory warnings')[0]).not.toContain('CG Migration Limit Exceeded')
     expect(results.split('CG trajectory warnings')[1]).toContain('CG Migration Limit Exceeded')
+  })
+
+  it('exports condition and factor warnings beside corrected distances', async () => {
+    const input = source()
+    const base = presentPerformance({ inputKey: 'k', inputs: [], aircraft: null, takeoff: { status: 'unavailable', reason: 'x' }, landing: { status: 'unavailable', reason: 'x' }, assessment: null, pressureAltitudeBasis: '', pendingReason: 'x', runway: { status: 'unavailable', reason: 'x' }, operational: presentOperationalAssessment(null, 'x') })
+    input.performance = { ...base, groups: [{ id: 'takeoff', title: 'Takeoff', mass: null, status: 'success', reason: null, rows: [{ label: 'Ground roll', value: '100 m', note: 'ESTIMATED EXTRAPOLATED', warnings: ['QNH advisory', 'Temperature advisory'] }] }], extrapolation: { acknowledged: true, details: ['Takeoff Ground roll'], warning: 'Extrapolation advisory' }, corrected: [{ operation: 'takeoff', title: 'Takeoff', status: 'applied', source: 'Synthetic', partial: false, rows: [{ label: 'Ground roll', raw: '100 m', corrected: '110 m', factored: '120 m' }], safetyFactor: '1.10', safetyFactorWarning: 'Low factor', comparison: { status: 'unavailable', summary: '', required: '', availableLabel: '', available: '', margin: '' }, notes: [] }] }
+    const { text } = await pdfFor(input)
+    const corrected = text.split('Takeoff corrected distances')[1]!.split('Safety factor:')[0]!
+    for (const warning of ['QNH advisory', 'Temperature advisory', 'Low factor', 'Extrapolation advisory', 'ESTIMATED EXTRAPOLATED']) expect(corrected).toContain(warning)
+    expect(corrected).toContain('120 m')
+    const comparison = text.split('Safety factor:')[1]!.split('Operational assessment unavailable')[0]!
+    for (const warning of ['QNH advisory', 'Temperature advisory', 'Low factor', 'Extrapolation advisory']) expect(comparison).toContain(warning)
+  })
+  it('exports the obstacle warning beside both affected inputs', async () => {
+    const input = source()
+    input.performance = presentPerformance({ inputKey: 'obstacle', inputs: [{ label: 'Unverified obstacle constraint', value: '50 ft at 1000 ft' }, { label: 'Required geometric gradient', value: 'Approximately 5%' }, { label: 'Temperature', value: '20 C' }], aircraft: null, takeoff: { status: 'unavailable', reason: 'x' }, landing: { status: 'unavailable', reason: 'x' }, assessment: null, pressureAltitudeBasis: '', pendingReason: 'x', runway: { status: 'unavailable', reason: 'x' }, operational: presentOperationalAssessment(null, 'x'), notifications: [{ id: 'WARN-PF-001', severity: 'WARNING', context: 'Performance.Obstacles', message: 'Obstacle clearance is not verified.', persistent: true, dismissible: false }] })
+    const { text } = await pdfFor(input)
+    const entries = text.split('Unverified obstacle constraint')[1]!.split('Temperature')[0]!
+    expect(entries.match(/Obstacle clearance is not verified/g)).toHaveLength(2)
+  })
+
+  it('exports condition warnings beside their affected inputs', async () => {
+    const input = source()
+    input.performance = presentPerformance({ inputKey: 'conditions', inputs: [
+      { label: 'QNH', value: '950 hPa', warnings: ['QNH advisory'] },
+      { label: 'Outside air temperature', value: '45 C', warnings: ['Temperature advisory'] },
+      { label: 'Field elevation', value: '100 ft' },
+    ], aircraft: null, takeoff: { status: 'unavailable', reason: 'x' }, landing: { status: 'unavailable', reason: 'x' }, assessment: null, pressureAltitudeBasis: '', pendingReason: 'x', runway: { status: 'unavailable', reason: 'x' }, operational: presentOperationalAssessment(null, 'x') })
+    const { text } = await pdfFor(input)
+    expect(strip(text)).toContain(strip('QNH 950 hPa QNH advisory'))
+    expect(strip(text)).toContain(strip('Outside air temperature 45 C Temperature advisory'))
+    expect(strip(text)).not.toContain(strip('Field elevation 100 ft QNH advisory'))
+  })
+
+  it('exports the wind-limit warning with its affected crosswind', async () => {
+    const input = source()
+    const entries = { runwayHeading: '270', windDirection: '330', windSpeed: '20', unit: 'kt' }
+    input.profile!.windLimits = [{ component: 'MaxCrosswind', value: 10, classification: 'Limit' }]
+    input.wind = { input: entries, result: computeWindComponents(entries) }
+    const { text } = await pdfFor(input)
+    const wind = text.split('Manual wind components')[1]!.split('Disclaimer')[0]!
+    expect(strip(wind)).toContain(strip('Crosswind: 17.3 kt from the right. CRITICAL: Crosswind exceeds Limit 10 kt (manual wind).'))
   })
 
   it.each([false, true])('carries the extrapolation warning, details and estimate markers (acknowledged: %s)', async (acknowledged) => {
