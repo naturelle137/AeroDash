@@ -9,7 +9,7 @@ import { useFuelPlanning, type FuelPlanning } from '@/modules/fuel-endurance/ser
 import MbPrintPreview from './MbPrintPreview.vue'
 import { assembleMbPrint, type MbPrintSource } from './mb-print'
 
-function setup(variable = false) {
+function setup(variable = false, twoTanks = false) {
   setActivePinia(createPinia())
   const profile = testPohAircraft()
   profile.status = 'draft'
@@ -23,6 +23,7 @@ function setup(variable = false) {
     profile.loadPoints[0]!.armLookup = [{ massOrVolume: 0, moment: 0 }, { massOrVolume: 10, moment: 10 },
       { massOrVolume: 30, moment: 60 }, { massOrVolume: 50, moment: 150 }]
   }
+  if (twoTanks) profile.loadPoints.push({ ...profile.loadPoints[0]!, name: 'Second synthetic tank' })
   const store = useMassBalanceStore()
   store.loadProfile(mapFleetProfileToContext(profile))
   let planning: FuelPlanning
@@ -100,6 +101,25 @@ describe('shared current fuel print presentation', () => {
     expect(assembleMbPrint(source.value, new Date())).toBeNull()
     store.updateStationWeight(0, 50)
     expect(assembleMbPrint(source.value, new Date())!.fuel!.rows).toContainEqual(expect.objectContaining({ label: 'Estimated arrival CG', value: `${screen.value} [UNVERIFIED]` }))
+    wrapper.unmount()
+  })
+  it('retains arrival mass and the actual unsupported CG reason in the preview, then invalidates it', async () => {
+    const { planning: p, source, wrapper } = setup(false, true)
+    p.method.value = 'direct'; p.directTripFuel.value = '20'
+    const reason = 'Choose an explicit named burn sequence for all category-available tanks.'
+    expect(p.arrivalCg.value).toEqual({ ok: false, reason })
+    const fuel = assembleMbPrint(source.value, new Date())!.fuel!
+    expect(fuel.cgReason).toBe(reason)
+    expect(fuel.rows).toContainEqual(expect.objectContaining({ label: 'Estimated arrival mass', value: '560 kg [UNVERIFIED]' }))
+    expect(fuel.rows.some(row => row.label === 'Estimated arrival CG')).toBe(false)
+    await wrapper.get('button').trigger('click')
+    expect(document.body.textContent).toContain(reason)
+    expect(document.body.textContent).toContain('560 kg [UNVERIFIED]')
+    p.directTripFuel.value = '21'
+    window.dispatchEvent(new Event('beforeprint'))
+    expect(document.querySelector('.mb-print-root')!.getAttribute('data-print-invalid')).toBe('true')
+    await nextTick()
+    expect(document.body.textContent).not.toContain('560 kg [UNVERIFIED]')
     wrapper.unmount()
   })
   it.each(['input', 'method', 'sequence', 'loading', 'below-unusable'] as const)('synchronously blocks native print on %s before parent render, never silently falls back', async change => {
