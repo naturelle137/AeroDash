@@ -1,9 +1,10 @@
 <script setup lang="ts">
+import TafView from './TafView.vue'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { metarLiquid } from './metar-surface'
 import { metarValues, type MetarValues } from './metar-values'
 
-const emit = defineEmits<{ observation: [value: { station: string; time: string; liquid: boolean } | null]; apply: [field: keyof MetarValues, values: MetarValues, source: string] }>()
+const emit = defineEmits<{ forecast: [value: { station: string; time: string; source: 'TAF'; validFrom: string; validTo: string; liquid: boolean } | null]; observation: [value: { station: string; time: string; liquid: boolean } | null]; apply: [field: keyof MetarValues, values: MetarValues, source: string] }>()
 const values = computed(() => report.value && !report.value.stale ? metarValues(report.value.raw) : {})
 function apply(field: keyof MetarValues): void {
   const current = report.value
@@ -103,6 +104,7 @@ async function check(): Promise<void> {
       </div>
       <p>Weather data via <a href="https://wxdecoder.com">wxdecoder.com</a>. Sources: NOAA/NWS Aviation Weather Center, National Weather Service and FAA.</p>
     </div>
+    <TafView embedded @forecast="emit('forecast', $event)" />
     <p>Liquid precipitation may suggest a runway surface condition; verify the actual runway condition.</p>
     <p>Values are only replaced when you choose an action. METAR wind direction is true; use a runway heading in the same reference. Gusts are not applied. Verify all values with an authorised source.</p>
   </div>
