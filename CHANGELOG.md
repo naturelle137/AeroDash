@@ -82,6 +82,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Engineering
 
+- Verify legacy performance table units independently of imperial M&B units through import and lookup.
+
 - Verify obstacle persistence, warning and briefing output across reloads.
 - Verify manual wind, slope and safety-factor changes in Flight Prep and the Briefing Pack.
 - Assess LVNL and ENAIRE airport data against the runway source contract.
