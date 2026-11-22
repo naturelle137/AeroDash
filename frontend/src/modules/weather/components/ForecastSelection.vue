@@ -2,7 +2,7 @@
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { QNH_SUPPORTED_HPA } from '@/core/logic/pressure-altitude'
 import type { MetarValues } from '../metar-values'
-import { parseForecast } from '../forecast'
+import { parseForecast, parseGlobalForecast } from '../forecast'
 
 const emit = defineEmits<{ apply: [field: keyof MetarValues, values: MetarValues, source: string] }>()
 const phase = ref('departure')
@@ -17,9 +17,14 @@ const online = ref(navigator.onLine)
 const forecast = ref<ReturnType<typeof parseForecast>>(null)
 const forecastMessage = ref('Select a US ICAO station and an exact hour to retrieve a forecast.')
 const retrieved = ref('')
+const latitude = ref('')
+const longitude = ref('')
+const globalForecast = ref<MetarValues | null>(null)
+const globalRetrieved = ref('')
+const globalMessage = ref('Enter coordinates and a future exact UTC forecast hour.')
 const now = ref(Date.now())
 let request = 0
-const refresh = () => { now.value = Date.now(); online.value = navigator.onLine; if (!online.value) { request++; forecast.value = null } }
+const refresh = () => { now.value = Date.now(); online.value = navigator.onLine; if (!online.value) { request++; forecast.value = null; globalForecast.value = null } }
 let timer: ReturnType<typeof setInterval>
 onMounted(() => {
   timer = setInterval(refresh, 1000)
@@ -37,7 +42,9 @@ onBeforeUnmount(() => {
 watch([phase, location, time], () => {
   temperature.value = ''; qnh.value = ''; direction.value = ''; speed.value = ''
   request++; forecast.value = null; forecastMessage.value = 'Selection changed; retrieve the forecast again.'
+  globalForecast.value = null; globalMessage.value = 'Selection changed; retrieve the forecast again.'
 }, { flush: 'sync' })
+watch([latitude, longitude], () => { request++; globalForecast.value = null; globalMessage.value = 'Coordinates changed; retrieve the forecast again.' }, { flush: 'sync' })
 const numberIn = (value: string, min: number, max: number) => value.trim() !== '' && Number.isFinite(Number(value)) && Number(value) >= min && Number(value) <= max
 const selectionValid = computed(() => location.value.trim() !== '' && time.value !== '' && Number.isFinite(Date.parse(time.value)) && Date.parse(time.value) > now.value)
 const stale = computed(() => !!forecast.value && (forecast.value.stale || Date.parse(forecast.value.valid) <= now.value || now.value - Date.parse(forecast.value.fetched) > 4 * 60 * 60 * 1000))
@@ -73,6 +80,34 @@ async function retrieve(): Promise<void> {
     forecastMessage.value = error instanceof SyntaxError || (error instanceof Error && error.message === 'malformed') ? 'Malformed forecast response.' : 'Forecast retrieval failed or is unavailable.'
   }
 }
+async function retrieveGlobal(): Promise<void> {
+  const selected = Date.parse(time.value)
+  if (!online.value || !selectionValid.value || selected % 3600000 !== 0 || !numberIn(latitude.value, -90, 90) || !numberIn(longitude.value, -180, 180)) {
+    globalMessage.value = 'Enter valid coordinates, a location and a future time matching an exact UTC hour.'; return
+  }
+  const current = ++request
+  globalForecast.value = null
+  globalMessage.value = 'Retrieving forecast…'
+  const params = new URLSearchParams({ latitude: latitude.value, longitude: longitude.value, hourly: 'temperature_2m,wind_speed_10m,wind_direction_10m', wind_speed_unit: 'kn', timezone: 'GMT', forecast_days: '16' })
+  try {
+    const response = await fetch(`https://api.open-meteo.com/v1/forecast?${params}`, { credentials: 'omit', cache: 'no-store', referrerPolicy: 'no-referrer' })
+    if (!response.ok) throw new Error('unavailable')
+    const data: unknown = await response.json()
+    if (current !== request) return
+    globalForecast.value = parseGlobalForecast(data, selected)
+    globalRetrieved.value = new Date().toISOString()
+    globalMessage.value = globalForecast.value ? 'Forecast retrieved; model issue time is unavailable. Verify with an authorised source.' : 'No forecast available for the selected hour.'
+  } catch (error) {
+    if (current !== request) return
+    globalMessage.value = error instanceof SyntaxError || (error instanceof Error && error.message === 'malformed') ? 'Malformed forecast response.' : 'Forecast retrieval failed or is unavailable.'
+  }
+}
+const globalStale = computed(() => !!globalForecast.value && (Date.parse(time.value) <= now.value || now.value - Date.parse(globalRetrieved.value) > 4 * 60 * 60 * 1000))
+function applyGlobal(field: 'temperature' | 'wind'): void {
+  if (!online.value || !globalForecast.value || !globalForecast.value[field] || globalStale.value || Date.parse(time.value) <= Date.now() || Date.now() - Date.parse(globalRetrieved.value) > 4 * 60 * 60 * 1000) return
+  emit('apply', field, globalForecast.value, `Open-Meteo model forecast for ${location.value.trim()} (${latitude.value}, ${longitude.value}), valid ${new Date(time.value).toISOString()}, retrieved ${globalRetrieved.value}; model issue time unavailable`)
+}
+
 function applyRetrieved(field: 'temperature' | 'wind'): void {
   const current = forecast.value
   if (!online.value || !current || current.stale || Date.parse(current.valid) <= Date.now() || Date.now() - Date.parse(current.fetched) > 4 * 60 * 60 * 1000 || !current.values[field]) return
@@ -108,6 +143,20 @@ function apply(field: keyof MetarValues): void {
       <p>Temperature: {{ forecast.values.temperature ?? 'unavailable' }} °C · Wind: {{ forecast.values.wind ? `${forecast.values.wind.direction || 'calm'}° true / ${forecast.values.wind.speed} kt` : 'unavailable' }} · Forecast QNH: unavailable.</p>
       <button type="button" :disabled="stale || !forecast.values.temperature" @click="applyRetrieved('temperature')">Replace temperature with retrieved forecast</button>
       <button type="button" :disabled="stale || !forecast.values.wind" @click="applyRetrieved('wind')">Replace wind with retrieved forecast</button>
+    </div>
+    <div class="fields">
+      <label>Latitude (°)<input v-model="latitude" type="text" inputmode="decimal" min="-90" max="90" step="any" /></label>
+      <label>Longitude (°)<input v-model="longitude" type="text" inputmode="decimal" min="-180" max="180" step="any" /></label>
+    </div>
+    <p>Coordinates are sent to Open-Meteo on request; its free API is for non-commercial use.</p>
+    <button type="button" :disabled="!online" @click="retrieveGlobal">Retrieve global model forecast</button>
+    <p aria-live="polite">{{ online ? globalMessage : 'Browser offline: forecast retrieval is unavailable.' }}</p>
+    <div v-if="globalForecast">
+      <p>Weather data by <a href="https://open-meteo.com/">Open-Meteo</a> · <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a> · Model values presented without conversion.</p>
+      <p>Forecast hour: {{ new Date(time).toISOString() }} · Retrieved: {{ globalRetrieved }} · Model issue time: unavailable{{ globalStale ? ' · OUTDATED' : '' }}</p>
+      <p>Temperature: {{ globalForecast.temperature ?? 'unavailable' }} °C · Wind: {{ globalForecast.wind ? `${globalForecast.wind.direction || 'calm'}° true / ${globalForecast.wind.speed} kt` : 'unavailable' }} · Forecast QNH: unavailable.</p>
+      <button type="button" :disabled="globalStale || !globalForecast.temperature" @click="applyGlobal('temperature')">Replace temperature with global forecast</button>
+      <button type="button" :disabled="globalStale || !globalForecast.wind" @click="applyGlobal('wind')">Replace wind with global forecast</button>
     </div>
     <p>For education and situational awareness only, not an official briefing or go/no-go authority. Obtain required weather from an authorised source.</p>
     <p>Enter QNH only, not sea-level pressure. Wind direction is true; gusts are not applied. Values require a future time and are applied only when selected.</p>
