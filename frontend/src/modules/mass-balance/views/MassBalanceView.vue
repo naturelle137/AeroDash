@@ -1376,7 +1376,7 @@ function onStartDemo(): void {
         <span class="prep-card__badge">05</span>
         <h2 id="prep-weather-title" class="prep-card__title">Weather</h2>
       </div>
-      <WeatherPanel @observation="useManualRunwayStore().updateWeather($event)" @apply="applyWeather" />
+      <WeatherPanel @forecast="useManualRunwayStore().updateForecast($event)" @observation="useManualRunwayStore().updateWeather($event)" @apply="applyWeather" />
       <p v-for="field in (['wind', 'temperature', 'qnh'] as const)" :key="field">
         <template v-if="weatherSources[field] && weatherSources[field].value === weatherValue(field)">{{ field }} source: {{ weatherSources[field].source }}</template>
       </p>
