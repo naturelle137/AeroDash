@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Apply available FSM take-off estimates independently and identify missing corrections.
+
 - Apply available manual wind and slope corrections when another correction is missing, and mark the result incomplete.
 - Retrieve a global hourly model temperature and wind forecast by coordinates, with explicit QNH unavailability.
 - Identify unavailable correction sources and manual corrections withheld when a complete set is unavailable.
