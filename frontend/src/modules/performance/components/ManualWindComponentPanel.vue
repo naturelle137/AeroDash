@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, reactive } from 'vue'
+import { computed, reactive, watch } from 'vue'
 import { compareWindLimits } from '@/core/logic/wind-limits'
 import type { AircraftProfileWindLimit } from '@/core/adapters/aircraft.schema'
 import { computeWindComponents, WIND_SPEED_UNITS, type WindComponentField, type WindComponentInput } from '@/core/logic/wind-components'
@@ -7,6 +7,8 @@ import { computeWindComponents, WIND_SPEED_UNITS, type WindComponentField, type 
 const props = defineProps<{ windLimits?: AircraftProfileWindLimit[] }>()
 const notifications = computed(() => compareWindLimits(input.value, props.windLimits))
 const input = defineModel<WindComponentInput>({ default: () => reactive({ runwayHeading: '', windDirection: '', windSpeed: '', unit: 'kt' }) })
+watch(() => [input.value.windDirection, input.value.windSpeed, input.value.unit], () => { input.value.gustSpeed = '' }, { flush: 'sync' })
+const gustResult = computed(() => input.value.gustSpeed?.trim() ? computeWindComponents({ ...input.value, windSpeed: input.value.gustSpeed }) : null)
 // Computed, so results recompute or clear synchronously with every edit.
 const result = computed(() => computeWindComponents(input.value))
 const errors = computed<Partial<Record<WindComponentField, string>>>(() => result.value.status === 'invalid' ? result.value.errors : {})
@@ -48,6 +50,12 @@ const abs = (value: number) => Math.abs(value).toFixed(1)
         <p v-if="errors.windSpeed" id="wind-windSpeed-error" class="field-error">{{ errors.windSpeed }}</p>
         <p v-if="errors.unit" id="wind-unit-error" class="field-error">{{ errors.unit }}</p>
       </div>
+      <div class="field">
+        <label for="wind-gust">Gust speed (optional, same unit)</label>
+        <input id="wind-gust" v-model="input.gustSpeed" type="text" inputmode="decimal" autocomplete="off" :aria-invalid="gustResult?.status === 'invalid'" aria-describedby="wind-gust-help" />
+        <p id="wind-gust-help">Pilot-entered gust; re-enter after changing wind direction, speed or unit.</p>
+        <p v-if="gustResult?.status === 'invalid'" class="field-error">Gust comparison unavailable: check gust, direction and runway heading.</p>
+      </div>
     </div>
     <div role="status" aria-label="Wind components" class="result">
       <template v-if="result.status === 'valid'">
@@ -63,7 +71,7 @@ const abs = (value: number) => Math.abs(value).toFixed(1)
             <dd v-else>{{ abs(result.crosswind) }} {{ result.unit }} from the {{ result.crosswind > 0 ? 'right' : 'left' }}</dd>
           </div>
         </dl>
-        <p class="hint">Computed from your entries; rounded to 0.1. Check all limits yourself; gusts are not assessed and no suitability verdict is given. Pilot in command remains responsible.</p>
+        <p class="hint">Computed from your entries; rounded to 0.1. Check all limits yourself; missing or invalid gusts are not assessed and no suitability verdict is given. Pilot in command remains responsible.</p>
         <p v-for="(note, index) in notifications" :key="index" :class="note.severity === 'CRITICAL' ? 'critical' : 'warning'">{{ note.severity }} {{ note.id }}: {{ note.message }}</p>
       </template>
       <p v-else-if="result.status === 'invalid'">No wind components: correct the highlighted entries.</p>
