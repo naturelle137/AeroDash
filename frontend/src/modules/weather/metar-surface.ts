@@ -20,20 +20,9 @@ export function metarLiquid(body: string): boolean | null {
   while (i < tokens.length && !/^(?:FEW|SCT|BKN|OVC|VV|SKC|CLR|NSC|NCD)/.test(tokens[i] ?? '') && !/^(?:M?\d{2}|\/\/)\//.test(tokens[i] ?? '') && tokens[i] !== 'RMK') {
     const token = tokens[i++]!
     if (cavok || ++groups > 3) return null
-    if (token === 'TS' || token === 'VCTS' || token === 'VCSH') continue
-    const m = /^(\+|-|VC)?(MI|PR|BC|DR|BL|SH|TS|FZ)?((?:(?:DZ|RA|SN|SG|IC|PL|GR|GS|UP|BR|FG|FU|VA|DU|SA|HZ|PY|PO|SQ|FC|SS|DS)){1,3})$/.exec(token)
-    if (!m) return null
-    const phenomena = m[3]!.match(/../g)!
-    const precipitation = phenomena.every(p => /^(DZ|RA|SN|SG|IC|PL|GR|GS|UP)$/.test(p))
-    if (new Set(phenomena).size !== phenomena.length || (phenomena.length > 1 && !precipitation)) return null
-    if (m[1] === 'VC' && precipitation) return null
-    if (m[2] === 'FZ' && m[1] === '+') return null
-    if (m[2] === 'FZ' && !phenomena.every(p => p === 'RA' || p === 'DZ' || p === 'FG')) return null
-    if (m[2] === 'SH' && (!precipitation || phenomena.includes('DZ'))) return null
-    if (m[2] === 'TS' && (!precipitation || phenomena.includes('DZ'))) return null
-    if (m[2] && /^(MI|PR|BC)$/.test(m[2]) && m[3] !== 'FG') return null
-    if (m[2] && /^(DR|BL)$/.test(m[2]) && !/^(SN|DU|SA)$/.test(m[3]!)) return null
-    if (m[1] !== 'VC' && (phenomena.includes('RA') || phenomena.includes('DZ'))) liquid = true
+    const precipitation = liquidWeatherToken(token)
+    if (precipitation === null) return null
+    liquid ||= precipitation
   }
   let sky = 0
   while (/^(?:(?:FEW|SCT|BKN|OVC)(?:\d{3}|\/\/\/)(?:CB|TCU)?|VV(?:\d{3}|\/\/\/)|SKC|CLR|NSC|NCD)$/.test(tokens[i] ?? '')) { i++; sky++ }
@@ -64,4 +53,22 @@ export function metarLiquid(body: string): boolean | null {
   }
   if (i < tokens.length && tokens[i] !== 'RMK') return null
   return liquid
+}
+
+/** Returns null for unsupported or malformed weather codes. */
+export function liquidWeatherToken(token: string): boolean | null {
+  if (token === 'TS' || token === 'VCTS' || token === 'VCSH') return false
+  const m = /^(\+|-|VC)?(MI|PR|BC|DR|BL|SH|TS|FZ)?((?:(?:DZ|RA|SN|SG|IC|PL|GR|GS|UP|BR|FG|FU|VA|DU|SA|HZ|PY|PO|SQ|FC|SS|DS)){1,3})$/.exec(token)
+  if (!m) return null
+  const phenomena = m[3]!.match(/../g)!
+  const precipitation = phenomena.every(p => /^(DZ|RA|SN|SG|IC|PL|GR|GS|UP)$/.test(p))
+  if (new Set(phenomena).size !== phenomena.length || (phenomena.length > 1 && !precipitation)) return null
+  if (m[1] === 'VC' && precipitation) return null
+  if (m[2] === 'FZ' && m[1] === '+') return null
+  if (m[2] === 'FZ' && !phenomena.every(p => p === 'RA' || p === 'DZ' || p === 'FG')) return null
+  if (m[2] === 'SH' && (!precipitation || phenomena.includes('DZ'))) return null
+  if (m[2] === 'TS' && (!precipitation || phenomena.includes('DZ'))) return null
+  if (m[2] && /^(MI|PR|BC)$/.test(m[2]) && m[3] !== 'FG') return null
+  if (m[2] && /^(DR|BL)$/.test(m[2]) && !/^(SN|DU|SA)$/.test(m[3]!)) return null
+  return m[1] !== 'VC' && (phenomena.includes('RA') || phenomena.includes('DZ'))
 }
