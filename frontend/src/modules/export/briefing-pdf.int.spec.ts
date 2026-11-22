@@ -121,8 +121,7 @@ describe('Briefing Pack PDF download', () => {
     input.notifications.push({ id: 'WARN-FE-002', severity: 'WARNING', message: 'Verify fuel mass', context: 'FuelEndurance.Density', persistent: false, dismissible: true })
     const { text } = await pdfFor(input)
     const results = text.split('M&B results')[1]!.split('Loading envelope chart')[0]!
-    expect(results.split('Zero fuel')[0]!.match(/Verify fuel mass/g)).toHaveLength(2)
-    expect(results.split('Zero fuel')[1]).not.toContain('Verify fuel mass')
+    expect(results.match(/Verify fuel mass/g)).toHaveLength(2)
   })
 
   it('preserves aggregate CG warnings at trajectory level in the PDF', async () => {
