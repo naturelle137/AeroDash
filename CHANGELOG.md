@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Attach M&B, fuel, condition, safety-factor, wind-limit, obstacle, extrapolation and energy-reserve warnings to affected briefing pack values without internal UI warning identifiers.
 - Preserve optional source references when recovering version 2 manual runway declarations.
 
 - Apply the selected performance safety factor even when runway correction sources are unavailable, while identifying the incomplete result.
