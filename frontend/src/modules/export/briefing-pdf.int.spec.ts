@@ -141,6 +141,8 @@ describe('Briefing Pack PDF download', () => {
     const corrected = text.split('Takeoff corrected distances')[1]!.split('Safety factor:')[0]!
     for (const warning of ['QNH advisory', 'Temperature advisory', 'Low factor', 'Extrapolation advisory', 'ESTIMATED EXTRAPOLATED']) expect(corrected).toContain(warning)
     expect(corrected).toContain('120 m')
+    const comparison = text.split('Safety factor:')[1]!.split('Operational assessment unavailable')[0]!
+    for (const warning of ['QNH advisory', 'Temperature advisory', 'Low factor', 'Extrapolation advisory']) expect(comparison).toContain(warning)
   })
   it('exports the obstacle warning beside both affected inputs', async () => {
     const input = source()
