@@ -143,3 +143,7 @@ When the pilot selects a check date, the system shall retain it until the pilot 
 ### REQ-AP-029: Recent declaration date checks
 
 When displaying a recent manual runway declaration, the system shall show its declared date check for the selected date.
+
+### REQ-AP-031: Recent runway date selection
+
+While recent runway declarations are displayed, the system shall allow the pilot to change their check date.
