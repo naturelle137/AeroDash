@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Show the running version and its release date in an offline About view.
 - Recall five recently used manual airports offline with their original runway declarations.
 - Compare pilot-entered gust components with stored aircraft wind limits in Flight Prep and briefing.
 
@@ -81,6 +82,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Extend local instructor notes to takeoff and landing distances in Performance and the Briefing Pack.
 
 ### Engineering
+
+- Verify legacy performance table units independently of imperial M&B units through import and lookup.
 
 - Verify obstacle persistence, warning and briefing output across reloads.
 - Verify manual wind, slope and safety-factor changes in Flight Prep and the Briefing Pack.
