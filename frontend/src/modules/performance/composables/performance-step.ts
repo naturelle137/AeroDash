@@ -124,7 +124,7 @@ export function usePerformanceStep(context: () => PerformanceStepContext) {
         { label: 'Declared effective date', value: effectiveDate ?? 'Unknown' },
         { label: 'Declared expiry date (inclusive)', value: expiryDate ?? 'Unknown' },
         { label: 'Declared date check', value: `${runway.assessmentDate || 'Invalid date'}: ${runwayFreshness(declared.record.runway, runway.assessmentDate)}; source currency unverified` },
-        { label: 'Surface', value: `${surface.type === 'paved' ? 'Paved' : 'Grass / unpaved'} · ${condition}` },
+        { label: 'Surface', value: `${surface.type === 'paved' ? 'Paved' : surface.type === 'grass' ? 'Grass' : 'Other / legacy unpaved'} · ${condition}` },
       ],
       note: 'User-entered, not airport-validated. The selected check date does not advance automatically; confirm it for your flight. NOTAM/SUP coverage is unknown; check declared dates and restrictions against official sources. Converted available distances are rounded down.',
     }

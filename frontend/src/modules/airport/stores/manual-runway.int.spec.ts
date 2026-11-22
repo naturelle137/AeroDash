@@ -145,3 +145,66 @@ it('persists weather provenance and removes it on a pilot surface override', () 
   expect(restored.save()).toBe(true)
   expect(restored.saved?.weatherSurface).toBeUndefined()
 })
+
+it('shares TAF defaults, retains METAR priority, and saves TAF validity without replacing pilot choices', () => {
+  const store = useManualRunwayStore()
+  store.load()
+  Object.assign(store.draft, { aerodrome: 'EDDF', designator: '18', tora: '1000', toraUnit: 'm', lda: '1000', ldaUnit: 'm', fieldElevation: '0', fieldElevationUnit: 'm', surfaceType: 'paved' })
+  const forecast = { source: 'TAF' as const, station: 'EDDF', time: '2026-11-21T11:00:00.000Z', validFrom: '2026-11-21T12:00:00.000Z', validTo: '2026-11-22T18:00:00.000Z', liquid: true }
+  store.updateForecast({ ...forecast, station: 'EDDM' })
+  expect(store.draft.surfaceCondition).toBe('')
+  store.updateForecast(forecast)
+  expect(store.draft.surfaceCondition).toBe('wet')
+  expect(store.weatherSurface?.source).toBe('TAF')
+  store.updateWeather({ station: 'EDDF', time: forecast.time, liquid: true })
+  expect(store.weatherSurface?.source).toBeUndefined()
+  store.updateWeather(null)
+  expect(store.weatherSurface?.source).toBe('TAF')
+  store.updateForecast(null)
+  expect(store.draft.surfaceCondition).toBe('')
+  store.updateForecast(forecast)
+  expect(store.save()).toBe(true)
+  setActivePinia(createPinia())
+  const restored = useManualRunwayStore()
+  restored.load()
+  expect(restored.current?.record.weatherSurface).toMatchObject({ source: 'TAF', validFrom: forecast.validFrom, validTo: forecast.validTo })
+  restored.updateForecast(null)
+  expect(restored.draft.surfaceCondition).toBe('wet')
+  restored.draft.surfaceCondition = 'dry'
+  restored.updateForecast(forecast)
+  expect(restored.draft.surfaceCondition).toBe('dry')
+  expect(restored.save()).toBe(true)
+  expect(restored.saved?.weatherSurface).toBeUndefined()
+})
+
+it('retains a pilot confirmation of the suggested wet value after forecast withdrawal', () => {
+  const store = useManualRunwayStore()
+  store.load()
+  store.draft.aerodrome = 'EDDF'
+  store.draft.surfaceType = 'paved'
+  store.updateForecast({ station: 'EDDF', time: '2026-11-21T11:00:00Z', source: 'TAF', validFrom: '2026-11-21T12:00:00Z', validTo: '2026-11-21T18:00:00Z', liquid: true })
+  expect(store.draft.surfaceCondition).toBe('wet')
+  store.chooseSurface()
+  store.updateForecast(null)
+  expect(store.draft.surfaceCondition).toBe('wet')
+  expect(store.weatherSurface).toBeNull()
+})
+
+
+it('suggests soft ground only for explicit grass and preserves pilot choice', () => {
+  const store = useManualRunwayStore()
+  store.load()
+  store.draft.aerodrome = 'EDDF'
+  store.draft.surfaceType = 'grass'
+  const report = { station: 'EDDF', time: '2026-11-21T16:30:00.000Z', liquid: true, heavy: true }
+  store.updateWeather(report)
+  expect(store.draft.surfaceCondition).toBe('soft-ground')
+  store.draft.surfaceCondition = 'wet-grass'
+  store.updateWeather(null)
+  store.updateWeather(report)
+  expect(store.draft.surfaceCondition).toBe('wet-grass')
+  store.clear()
+  store.draft.aerodrome = 'EDDF'
+  store.draft.surfaceType = 'unpaved'
+  expect(store.draft.surfaceCondition).toBe('wet-unpaved')
+})

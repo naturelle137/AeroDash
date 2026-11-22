@@ -15,10 +15,10 @@ const runway = useManualRunwayStore()
 const freshness = computed(() => runway.current ? runwayFreshness(runway.current.record.runway, runway.assessmentDate) : 'unknown')
 const cycle = computed(() => airacCycleStart(runway.assessmentDate))
 const freshnessLabels = { unknown: 'Unknown: declared dates are incomplete or the assessment date is invalid.', 'not-yet-effective': 'Not yet effective according to the declared date.', expired: 'Expired according to the declared date.', 'within-declared-dates': 'Within the declared dates; source currency remains unverified.' }
-const surfaceTypeLabels = { paved: 'Paved', unpaved: 'Grass / unpaved' } as const
+const surfaceTypeLabels = { paved: 'Paved', unpaved: 'Other / legacy unpaved', grass: 'Grass' } as const
 const conditionOptions = computed(() => {
   const type = runway.draft.surfaceType
-  return type === 'paved' || type === 'unpaved' ? SURFACE_CONDITIONS[type] : []
+  return type === 'paved' || type === 'unpaved' || type === 'grass' ? SURFACE_CONDITIONS[type] : []
 })
 const conditionLabel = computed(() => {
   const record = runway.current?.record
@@ -143,7 +143,7 @@ if (!runway.loaded) runway.load()
 
     <fieldset>
       <legend>Runway surface</legend>
-      <div class="value-unit">
+      <div class="fields">
         <div class="field">
           <label for="manual-runway-surface-type">Surface type</label>
           <select id="manual-runway-surface-type" v-model="runway.draft.surfaceType" :aria-invalid="!!error('surfaceType')" :aria-describedby="describedBy('surfaceType')">
@@ -153,14 +153,14 @@ if (!runway.loaded) runway.load()
         </div>
         <div class="field">
           <label for="manual-runway-surface-condition">Surface condition</label>
-          <select id="manual-runway-surface-condition" v-model="runway.draft.surfaceCondition" :disabled="!conditionOptions.length"
+          <select id="manual-runway-surface-condition" v-model="runway.draft.surfaceCondition" @change="runway.chooseSurface()" :disabled="!conditionOptions.length"
             :aria-invalid="!!error('surfaceCondition')" :aria-describedby="describedBy('surfaceCondition')">
             <option value="">Select surface condition</option>
             <option v-for="option in conditionOptions" :key="option.value" :value="option.value">{{ option.label }}</option>
           </select>
         </div>
       </div>
-      <p v-if="runway.weatherSurface" role="status">Wet suggested by METAR {{ runway.weatherSurface.station }} · {{ runway.weatherSurface.time }}. Verify the actual surface and select another condition if needed. Saving confirms your surface declaration.</p>
+      <p v-if="runway.weatherSurface" role="status">{{ runway.draft.surfaceCondition === 'soft-ground' ? 'Soft ground' : 'Wet' }} suggested by {{ runway.weatherSurface.source ?? 'METAR' }} {{ runway.weatherSurface.station }} · {{ runway.weatherSurface.time }}<span v-if="runway.weatherSurface.source === 'TAF'"> · valid {{ runway.weatherSurface.validFrom }} to {{ runway.weatherSurface.validTo }}</span>. Verify the actual surface and select another condition if needed. Saving confirms your surface declaration.</p>
       <p v-if="error('surfaceType')" :id="describedBy('surfaceType')" class="field-error">{{ error('surfaceType') }}</p>
       <p v-if="error('surfaceCondition')" :id="describedBy('surfaceCondition')" class="field-error">{{ error('surfaceCondition') }}</p>
     </fieldset>
@@ -201,7 +201,7 @@ if (!runway.loaded) runway.load()
           <span class="normalized">({{ runway.current.display.todaM }} m)</span></dd></div>
         <div><dt>Field elevation</dt><dd>{{ runway.current.record.runway.fieldElevation.value }} {{ runway.current.record.runway.fieldElevation.unit }}
           <span class="normalized">({{ runway.current.record.runway.fieldElevation.unit === 'ft' ? `${runway.current.display.fieldElevationM} m` : `${runway.current.display.fieldElevationFt} ft` }})</span></dd></div>
-        <div><dt>Surface</dt><dd>{{ surfaceTypeLabels[runway.current.record.runway.surface.type] }} · {{ conditionLabel }}<span v-if="runway.current.record.weatherSurface"> · METAR via wxdecoder.com {{ runway.current.record.weatherSurface.station }} · {{ runway.current.record.weatherSurface.time }} (saved observation; verify current conditions)</span></dd></div>
+        <div><dt>Surface</dt><dd>{{ surfaceTypeLabels[runway.current.record.runway.surface.type] }} · {{ conditionLabel }}<span v-if="runway.current.record.weatherSurface"> · {{ runway.current.record.weatherSurface.source ?? 'METAR' }} via wxdecoder.com {{ runway.current.record.weatherSurface.station }} · {{ runway.current.record.weatherSurface.time }} <span v-if="runway.current.record.weatherSurface.source === 'TAF'"> · valid {{ runway.current.record.weatherSurface.validFrom }} to {{ runway.current.record.weatherSurface.validTo }}</span> (saved weather; verify current conditions)</span></dd></div>
       </dl>
       <div class="field"><label for="runway-assessment-date">Check date</label><input id="runway-assessment-date" v-model="runway.assessmentDate" type="date" /></div>
       <button type="button" @click="runway.useToday()">Use today’s local date</button>

@@ -1,9 +1,10 @@
 <script setup lang="ts">
+import TafView from './TafView.vue'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
-import { metarLiquid } from './metar-surface'
+import { metarLiquid, metarHeavyRain } from './metar-surface'
 import { metarValues, type MetarValues } from './metar-values'
 
-const emit = defineEmits<{ observation: [value: { station: string; time: string; liquid: boolean } | null]; apply: [field: keyof MetarValues, values: MetarValues, source: string] }>()
+const emit = defineEmits<{ forecast: [value: { station: string; time: string; source: 'TAF'; validFrom: string; validTo: string; liquid: boolean; heavy?: boolean } | null]; observation: [value: { station: string; time: string; liquid: boolean; heavy?: boolean } | null]; apply: [field: keyof MetarValues, values: MetarValues, source: string] }>()
 const values = computed(() => report.value && !report.value.stale ? metarValues(report.value.raw) : {})
 function apply(field: keyof MetarValues): void {
   const current = report.value
@@ -63,7 +64,7 @@ async function check(): Promise<void> {
     report.value = { raw: metar.raw, station, time: observed.toISOString(), stale: Date.now() - time > 60 * 60 * 1000 }
     if (!report.value.stale) {
       const liquid = metarLiquid(metar.raw.slice(rawMatch[0].length).trim())
-      emit('observation', liquid === null ? null : { station, time: observed.toISOString(), liquid })
+      emit('observation', liquid === null ? null : { station, time: observed.toISOString(), liquid, heavy: metarHeavyRain(metar.raw.slice(rawMatch[0].length).trim()) === true })
     }
     message.value = report.value.stale ? 'Outdated observation: verify current weather with an authorised source.' : 'Observation retrieved; verify with an authorised source.'
     if (!report.value.stale) {
@@ -103,6 +104,7 @@ async function check(): Promise<void> {
       </div>
       <p>Weather data via <a href="https://wxdecoder.com">wxdecoder.com</a>. Sources: NOAA/NWS Aviation Weather Center, National Weather Service and FAA.</p>
     </div>
+    <TafView embedded @forecast="emit('forecast', $event)" />
     <p>Liquid precipitation may suggest a runway surface condition; verify the actual runway condition.</p>
     <p>Values are only replaced when you choose an action. METAR wind direction is true; use a runway heading in the same reference. Gusts are not applied. Verify all values with an authorised source.</p>
   </div>

@@ -11,7 +11,7 @@ export const FIELD_ELEVATION_UNITS = ['m', 'ft'] as const
 export type RunwayLengthUnit = (typeof RUNWAY_LENGTH_UNITS)[number]
 export type FieldElevationUnit = (typeof FIELD_ELEVATION_UNITS)[number]
 
-export const SURFACE_TYPES = ['paved', 'unpaved'] as const
+export const SURFACE_TYPES = ['paved', 'unpaved', 'grass'] as const
 export type SurfaceType = (typeof SURFACE_TYPES)[number]
 
 /** Condition lists follow REQ-AP-004 (paved) and REQ-AP-008 (grass/unpaved). */
@@ -24,7 +24,16 @@ export const SURFACE_CONDITIONS = {
     { value: 'snow', label: 'Snow' },
     { value: 'ice', label: 'Ice' },
   ],
+  grass: [
+    { value: 'dry-short-grass', label: 'Dry (short grass ≤3 cm)' },
+    { value: 'long-grass', label: 'Long grass (>3–8 cm)' },
+    { value: 'wet-grass', label: 'Wet' },
+    { value: 'soft-ground', label: 'Soft ground' },
+    { value: 'damaged-turf', label: 'Damaged turf' },
+    { value: 'snow-ice', label: 'Snow / ice' },
+  ],
   unpaved: [
+    { value: 'wet-unpaved', label: 'Wet' },
     { value: 'dry-short-grass', label: 'Dry (short grass ≤3 cm)' },
     { value: 'long-grass', label: 'Long grass (>3–8 cm)' },
     { value: 'wet-soft-ground', label: 'Wet / soft ground' },
@@ -121,13 +130,16 @@ export const ManualRunwayRecordSchema = z.object({
   schemaVersion: z.literal(MANUAL_RUNWAY_RECORD_VERSION),
   savedAt: z.iso.datetime(),
   runway: ManualRunwaySchema,
-  weatherSurface: z.object({ station: z.string().regex(/^[A-Z]{4}$/), time: z.iso.datetime() }).strict().optional(),
+  weatherSurface: z.union([
+    z.object({ station: z.string().regex(/^[A-Z]{4}$/), time: z.iso.datetime() }).strict(),
+    z.object({ station: z.string().regex(/^[A-Z]{4}$/), time: z.iso.datetime(), source: z.literal('TAF'), validFrom: z.iso.datetime(), validTo: z.iso.datetime() }).strict(),
+  ]).optional(),
 }).strict()
 export type ManualRunwayRecord = {
   schemaVersion: typeof MANUAL_RUNWAY_RECORD_VERSION
   savedAt: string
   runway: ManualRunway
-  weatherSurface?: { station: string; time: string }
+  weatherSurface?: { station: string; time: string; source?: 'TAF'; validFrom?: string; validTo?: string }
 }
 
 export type ManualRunwayValidation =

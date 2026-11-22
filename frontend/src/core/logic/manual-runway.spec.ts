@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   EMPTY_MANUAL_RUNWAY_DRAFT,
   MANUAL_RUNWAY_RECORD_VERSION,
+  ManualRunwayRecordSchema,
   createManualRunwayRecord,
   airacCycleStart,
   runwayFreshness,
@@ -208,4 +209,21 @@ it('preserves an unverified source reference and invalidates edits', () => {
   expect(draftFromManualRunway(runway).source).toBe('AIP TEST')
   expect(sameManualRunway(runway, valid(draft({ source: 'Other' })))).toBe(false)
   expect(validateManualRunway(draft({ source: 'bad\nsource' })).status).toBe('invalid')
+})
+
+it('validates TAF provenance while retaining legacy METAR records', () => {
+  const record = createManualRunwayRecord(valid(draft()), new Date('2026-11-21T12:00:00Z'))
+  const legacy = { station: 'EDDF', time: '2026-11-21T11:00:00.000Z' }
+  const taf = { ...legacy, source: 'TAF', validFrom: '2026-11-21T12:00:00.000Z', validTo: '2026-11-22T18:00:00.000Z' }
+  for (const source of [legacy, taf]) {
+    for (const station of ['xEDDF', 'EDDFx', 'EDDDD', 'EDD', '1234']) {
+      expect(ManualRunwayRecordSchema.safeParse({ ...record, weatherSurface: { ...source, station } }).success).toBe(false)
+    }
+  }
+  for (const weatherSurface of [legacy, taf]) {
+    expect(ManualRunwayRecordSchema.parse({ ...record, weatherSurface }).weatherSurface).toEqual(weatherSurface)
+  }
+  for (const weatherSurface of [{ ...taf, source: 'unknown' }, { ...taf, station: 'bad' }, { ...taf, time: 'bad' }, { ...taf, validFrom: undefined }, { ...taf, validTo: 'bad' }, { ...taf, extra: true }]) {
+    expect(ManualRunwayRecordSchema.safeParse({ ...record, weatherSurface }).success).toBe(false)
+  }
 })
