@@ -2,6 +2,11 @@ import { recoverManualRunwayRecord, type ManualRunwayRecord } from '@/core/logic
 
 export const RECENT_AIRPORTS_KEY = 'aerodash.performance.recent-airports.v1'
 
+function sameRunway(a: ManualRunwayRecord, b: ManualRunwayRecord): boolean {
+  return a.runway.aerodrome.toLowerCase() === b.runway.aerodrome.toLowerCase()
+    && a.runway.designator.toLowerCase() === b.runway.designator.toLowerCase()
+}
+
 export function loadRecentAirports(): ManualRunwayRecord[] {
   try {
     const value: unknown = JSON.parse(localStorage.getItem(RECENT_AIRPORTS_KEY) ?? '[]')
@@ -10,14 +15,14 @@ export function loadRecentAirports(): ManualRunwayRecord[] {
     for (const item of value) {
       const result = recoverManualRunwayRecord(JSON.stringify(item))
       if (result.status !== 'loaded') return []
-      if (!records.some((record) => record.runway.aerodrome.toLocaleLowerCase() === result.record.runway.aerodrome.toLocaleLowerCase())) records.push(result.record)
+      if (!records.some((record) => sameRunway(record, result.record))) records.push(result.record)
     }
     return records.slice(0, 5)
   } catch { return [] }
 }
 
 export function saveRecentAirport(record: ManualRunwayRecord): ManualRunwayRecord[] | null {
-  const records = [record, ...loadRecentAirports().filter((item) => item.runway.aerodrome.toLocaleLowerCase() !== record.runway.aerodrome.toLocaleLowerCase())].slice(0, 5)
+  const records = [record, ...loadRecentAirports().filter((item) => !sameRunway(item, record))].slice(0, 5)
   try {
     localStorage.setItem(RECENT_AIRPORTS_KEY, JSON.stringify(records))
     return records

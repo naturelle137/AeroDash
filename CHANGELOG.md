@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Retain separate recent runway directions and their source date checks for the same aerodrome.
 - Preserve optional source references when recovering version 2 manual runway declarations.
 
 - Apply the selected performance safety factor even when runway correction sources are unavailable, while identifying the incomplete result.
