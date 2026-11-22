@@ -139,3 +139,7 @@ While the automatic local date is selected, the system shall update the check da
 ### REQ-AP-028: Fixed check date
 
 When the pilot selects a check date, the system shall retain it until the pilot selects the automatic local date.
+
+### REQ-AP-029: Recent declaration date checks
+
+When displaying a recent manual runway declaration, the system shall show its declared date check for the selected date.
