@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Suppress runway fit and margin claims when wind or slope inputs were not applied.
+
 - Add US hourly temperature and wind forecasts with source and freshness; forecast QNH remains unavailable.
 
 ### Added
@@ -22,6 +24,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Retrieve read-only METAR observations with source, observation time and availability warnings.
 
 ### Fixed
+
+- Refresh the automatic runway check date while the app remains open; preserve explicitly selected dates.
 
 - Warn against runway assessment when a comparison omits entered corrections.
 - Clarify that uncorrected performance distances cannot be used for runway assessment when corrections are unavailable.

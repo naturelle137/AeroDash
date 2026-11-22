@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { computed, reactive, ref, watch } from 'vue'
+import { computed, onScopeDispose, reactive, ref, watch } from 'vue'
 import {
   EMPTY_MANUAL_RUNWAY_DRAFT,
   SURFACE_CONDITIONS,
@@ -26,12 +26,30 @@ export const useManualRunwayStore = defineStore('manualRunway', () => {
   const notice = ref<string | null>(null)
   const showErrors = ref(false)
   const loaded = ref(false)
-  function useToday(): void {
+  const assessmentDate = ref('')
+  const automaticDate = ref(true)
+  function refreshToday(): void {
+    if (!automaticDate.value) return
     const now = new Date()
     assessmentDate.value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
   }
-  const assessmentDate = ref('')
-  useToday()
+  function useToday(): void {
+    automaticDate.value = true
+    refreshToday()
+  }
+  function selectAssessmentDate(value: string): void {
+    automaticDate.value = false
+    assessmentDate.value = value
+  }
+  refreshToday()
+  const dateTimer = setInterval(refreshToday, 60_000)
+  window.addEventListener('focus', refreshToday)
+  document.addEventListener('visibilitychange', refreshToday)
+  onScopeDispose(() => {
+    clearInterval(dateTimer)
+    window.removeEventListener('focus', refreshToday)
+    document.removeEventListener('visibilitychange', refreshToday)
+  })
   const units = useLoadedUnitPreferences()
   const massBalance = useMassBalanceStore()
   let filling = false
@@ -203,5 +221,5 @@ export const useManualRunwayStore = defineStore('manualRunway', () => {
     return true
   }
 
-  return { draft, saved, recent, selectRecent, weatherSurface, updateWeather, storageError, notice, showErrors, loaded, assessmentDate, useToday, validation, errors, current, hasUnsavedChanges, load, save, revert, clear }
+  return { draft, saved, recent, selectRecent, weatherSurface, updateWeather, storageError, notice, showErrors, loaded, assessmentDate, automaticDate, selectAssessmentDate, useToday, validation, errors, current, hasUnsavedChanges, load, save, revert, clear }
 })
