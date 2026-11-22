@@ -198,7 +198,7 @@ onBeforeUnmount(() => {
             <h2>Estimated energy budget</h2>
             <p>Manual estimate assumes constant pilot-entered consumption. Verify against the aircraft POH/AFM. Battery use does not change aircraft mass.</p>
             <p v-if="currentSnapshot.energy.reason">Energy budget unavailable: {{ currentSnapshot.energy.reason }}</p>
-            <table v-else><tbody><tr v-for="row in currentSnapshot.energy.rows" :key="row.label"><td>{{ row.label }}</td><td>{{ row.value }}</td></tr></tbody></table>
+            <table v-else><tbody><tr v-for="row in currentSnapshot.energy.rows" :key="row.label"><td>{{ row.label }}</td><td :class="{ 'briefing-warning': currentSnapshot.energy.warning && ['Estimated remaining energy', 'Difference to reserve floor'].includes(row.label) }">{{ row.value }}<p v-if="currentSnapshot.energy.warning && ['Estimated remaining energy', 'Difference to reserve floor'].includes(row.label)">{{ currentSnapshot.energy.warning }}</p></td></tr></tbody></table>
             <p v-if="currentSnapshot.energy.warning">{{ currentSnapshot.energy.warning }}</p>
           </section>
           <section v-if="currentSnapshot.fuel" aria-label="Current fuel plan and estimated trip arrival">
@@ -238,7 +238,7 @@ onBeforeUnmount(() => {
                 <p>{{ currentSnapshot.performance.extrapolation.acknowledged ? 'Acknowledged by the pilot in command.' : 'Not acknowledged by the pilot in command: extrapolated results are withheld.' }}</p>
                 <ul><li v-for="detail in currentSnapshot.performance.extrapolation.details" :key="detail">{{ detail }}</li></ul>
               </section>
-              <table><tbody><tr v-for="row in currentSnapshot.performance.inputs" :key="row.label"><th>{{ row.label }}</th><td>{{ row.value }}</td></tr></tbody></table>
+              <table><tbody><tr v-for="row in currentSnapshot.performance.inputs" :key="row.label"><th>{{ row.label }}</th><td :class="{ 'briefing-warning': ['Unverified obstacle constraint', 'Required geometric gradient'].includes(row.label) && currentSnapshot.performance.notifications.some(n => n.context === 'Performance.Obstacles') }">{{ row.value }}<template v-if="['Unverified obstacle constraint', 'Required geometric gradient'].includes(row.label)"><p v-for="note in currentSnapshot.performance.notifications.filter(n => n.context === 'Performance.Obstacles')" :key="note.id">{{ note.severity }}: {{ note.message }}</p></template></td></tr></tbody></table>
               <p v-if="currentSnapshot.performance.conditions">Calculation basis: {{ currentSnapshot.performance.conditions.pressureAltitude }} · {{ currentSnapshot.performance.conditions.temperature }}</p>
               <section v-for="group in currentSnapshot.performance.groups" :key="group.id">
                 <h3>{{ group.title }}</h3>

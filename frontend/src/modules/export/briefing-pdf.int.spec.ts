@@ -125,6 +125,14 @@ describe('Briefing Pack PDF download', () => {
     for (const warning of ['QNH advisory', 'Temperature advisory', 'Low factor']) expect(corrected).toContain(warning)
     expect(corrected).toContain('120 m')
   })
+  it('exports the obstacle warning beside both affected inputs', async () => {
+    const input = source()
+    input.performance = presentPerformance({ inputKey: 'obstacle', inputs: [{ label: 'Unverified obstacle constraint', value: '50 ft at 1000 ft' }, { label: 'Required geometric gradient', value: 'Approximately 5%' }, { label: 'Temperature', value: '20 C' }], aircraft: null, takeoff: { status: 'unavailable', reason: 'x' }, landing: { status: 'unavailable', reason: 'x' }, assessment: null, pressureAltitudeBasis: '', pendingReason: 'x', runway: { status: 'unavailable', reason: 'x' }, operational: presentOperationalAssessment(null, 'x'), notifications: [{ id: 'WARN-PF-001', severity: 'WARNING', context: 'Performance.Obstacles', message: 'Obstacle clearance is not verified.', persistent: true, dismissible: false }] })
+    const { text } = await pdfFor(input)
+    const entries = text.split('Unverified obstacle constraint')[1]!.split('Temperature')[0]!
+    expect(entries.match(/Obstacle clearance is not verified/g)).toHaveLength(2)
+  })
+
   it('exports the wind-limit warning with its affected crosswind', async () => {
     const input = source()
     const entries = { runwayHeading: '270', windDirection: '330', windSpeed: '20', unit: 'kt' }

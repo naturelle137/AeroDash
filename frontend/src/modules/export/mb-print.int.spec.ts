@@ -415,6 +415,32 @@ describe('M&B print presentation with real store calculation', () => {
     expect(document.querySelector('.mb-print-root')?.hasAttribute('data-print-invalid')).toBe(true)
     wrapper.unmount()
   })
+  it('attaches obstacle warnings only to the affected available inputs and invalidates the snapshot', async () => {
+    const input = source()
+    const base = presentPerformance({ inputKey: 'obstacle', inputs: [{ label: 'Unverified obstacle constraint', value: '50 ft at 1000 ft' }, { label: 'Required geometric gradient', value: 'Approximately 5%' }, { label: 'Temperature', value: '20 °C' }], aircraft: null, takeoff: { status: 'unavailable', reason: 'x' }, landing: { status: 'unavailable', reason: 'x' }, assessment: null, pressureAltitudeBasis: '', pendingReason: 'x', runway: { status: 'unavailable', reason: 'x' }, operational: presentOperationalAssessment(null, 'x'), notifications: [{ id: 'WARN-PF-001', severity: 'WARNING', context: 'Performance.Obstacles', message: 'Obstacle clearance is not verified.', persistent: true, dismissible: false }] })
+    input.performance = base
+    const wrapper = mount(MbPrintPreview, { props: { source: input }, attachTo: document.body })
+    await wrapper.get('button').trigger('click')
+    const rows = [...document.querySelectorAll('tr')]
+    for (const label of ['Unverified obstacle constraint', 'Required geometric gradient']) {
+      expect(rows.find(row => row.querySelector('th')?.textContent === label)?.querySelector('td')?.textContent).toContain('Obstacle clearance is not verified.')
+    }
+    expect(rows.find(row => row.querySelector('th')?.textContent === 'Temperature')?.querySelector('td')?.textContent).not.toContain('Obstacle clearance')
+    input.performance = { ...base, inputKey: 'changed', notifications: [] }
+    window.dispatchEvent(new Event('beforeprint'))
+    expect(document.querySelector('.mb-print-root')?.hasAttribute('data-print-invalid')).toBe(true)
+    wrapper.unmount()
+  })
+  it('attaches the energy reserve warning to remaining energy and margin only', async () => {
+    const input = source()
+    input.energy = { inputKey: 'energy', reason: null, warning: 'Remaining energy below reserve.', rows: [{ label: 'Estimated remaining energy', value: '1 kWh' }, { label: 'Difference to reserve floor', value: '-1 kWh' }, { label: 'Reserve floor', value: '2 kWh' }] }
+    const wrapper = mount(MbPrintPreview, { props: { source: input }, attachTo: document.body })
+    await wrapper.get('button').trigger('click')
+    const rows = [...document.querySelectorAll('tr')]
+    for (const label of ['Estimated remaining energy', 'Difference to reserve floor']) expect(rows.find(row => row.firstElementChild?.textContent === label)?.lastElementChild?.textContent).toContain('Remaining energy below reserve.')
+    expect(rows.find(row => row.firstElementChild?.textContent === 'Reserve floor')?.lastElementChild?.textContent).not.toContain('Remaining energy below reserve.')
+    wrapper.unmount()
+  })
   describe('CRIT-UI-001 export gate', () => {
     const buttonByText = (t: string) => [...document.querySelectorAll('button')].find(b => b.textContent === t)!
     it('blocks print with unverified data, lists fields, and prints after acknowledgment', async () => {
