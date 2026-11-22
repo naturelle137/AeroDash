@@ -103,6 +103,7 @@ Then('both unavailable corrections disclose their unapplied safety factors', asy
     await expect(region).toContainText('The saved runway surface was not applied')
     await expect(region).toContainText('The selected safety factor was not applied')
   }
+  await expect(page.getByRole('region', { name: 'Landing corrected distances', exact: true })).toContainText('No applicable source identified for: wind, surface, slope.')
 })
 
 Then('the landing correction shows its source and final ground roll {string}', async ({ page }, value: string) => {
