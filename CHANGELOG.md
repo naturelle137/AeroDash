@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Add US hourly temperature and wind forecasts with source and freshness; forecast QNH remains unavailable.
+
 ### Added
 
 - Recall five recently used manual airports offline with their original runway declarations.
