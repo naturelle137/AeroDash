@@ -136,6 +136,7 @@ test('complete current briefing pack with chart, persistent action and native st
     await expect(preview).toContainText('400.0 m')
     await expect(preview).toContainText('Synthetic field')
     await expect(preview).toContainText('2027-01-01: expired; source currency unverified')
+    await expect(preview).toContainText('The selected check date does not advance automatically')
     await preview.getByText('Declared date check', { exact: true }).scrollIntoViewIfNeeded()
     const dateScreenshot = info.outputPath(`${offline ? 'offline' : 'online'}-declared-date.png`)
     await page.screenshot({ path: dateScreenshot })
