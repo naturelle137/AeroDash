@@ -174,6 +174,23 @@ describe('Briefing Pack PDF download', () => {
     expect(strip(text)).toContain(strip('ESTIMATED (lower-axis table boundary)'))
   })
 
+  it('exports current unavailable arrival CG, runway and performance reasons with valid arrival mass', async () => {
+    const input = source()
+    const cgReason = 'Choose an explicit named burn sequence for all category-available tanks.'
+    input.fuel = { inputKey: 'synthetic', method: 'direct', sequence: '', reason: null, cgReason, rows: [{ label: 'Estimated arrival mass', value: '570 kg', warnings: [] }], warnings: [] }
+    input.performance = presentPerformance({ inputKey: 'k', inputs: [], aircraft: null,
+      takeoff: { status: 'unavailable', reason: 'Takeoff mass unavailable.' },
+      landing: { status: 'unavailable', reason: 'Arrival performance unavailable.' },
+      assessment: null, pressureAltitudeBasis: '', pendingReason: 'Current performance inputs missing.',
+      runway: { status: 'unavailable', reason: 'Current runway declaration missing.' },
+      operational: presentOperationalAssessment(null, 'Operational assessment unavailable.'), notifications: [] })
+    const { text, sheet } = await pdfFor(input)
+    for (const message of [cgReason, '570 kg [UNVERIFIED]', 'Current runway declaration missing.', 'Arrival performance unavailable.']) {
+      expect(strip(sheet)).toContain(strip(message))
+      expect(strip(text)).toContain(strip(message))
+    }
+  })
+
   it('carries the runway-insufficient and low-safety-factor notifications', async () => {
     const input = source()
     input.performance = presentPerformance({ inputKey: 'k', inputs: [], aircraft: null, takeoff: { status: 'unavailable', reason: 'x' }, landing: { status: 'unavailable', reason: 'x' },

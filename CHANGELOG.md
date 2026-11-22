@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Hide internal Performance and wind warning identifiers in briefing output while retaining warning details.
 
 - Preview the converted manual forecast QNH and explain invalid entries before replacing Flight Prep QNH.
+- Verify unavailable arrival CG, runway and performance reasons in briefing preview and PDF.
 - Verify independent fuel sequences and electric planning controls in integrated and browser tests.
 - Preserve an optional pilot-declared source time for manually entered forecast QNH.
 
