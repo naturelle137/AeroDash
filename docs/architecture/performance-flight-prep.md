@@ -65,7 +65,7 @@ group shows no distance, correction or runway comparison (so nothing can be expo
 printed); the notice names each extrapolated axis, its value and the table maximum. The
 acknowledgment is bound to the exact input key, so any change of input, profile,
 mass, runway or units revokes it and it never carries over to another operating
-point. Accepted Tecnam configurations support source-specific corrections and runway comparisons; other sources remain unsupported. Comparisons that omit entered corrections warn against runway assessment in Flight Prep and the briefing. No implicit factor 1 or operational approval is enabled.
+point. Accepted Tecnam configurations support source-specific corrections and runway comparisons; other sources remain unsupported. When entered corrections are omitted, a partial result cannot assert runway fit or a margin; an insufficient result remains critical. Flight Prep and the briefing warn against using the partial comparison for runway assessment. No implicit factor 1 or operational approval is enabled.
 Corrected distances and runway comparisons retain the estimate markers of their input distances in the display and briefing pack.
 
 The current shared Performance presentation carries deduplicated critical runway and low-factor notifications. Flight Prep and the briefing pack render these from the same current comparisons and warnings; invalidated inputs remove the corresponding notifications.
