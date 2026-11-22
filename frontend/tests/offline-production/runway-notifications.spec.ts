@@ -104,6 +104,7 @@ test('current phase notifications and runway comparisons survive cached offline 
     const result = perf.getByRole('region', { name: `${phase} corrected distances` })
     await expect(result).toContainText('partially corrected distances')
     await expect(result.locator('.comparison')).toContainText('Comparison uses partially corrected distances')
+    await expect(result.locator('.comparison')).toContainText('Do not use this comparison for runway assessment')
     await expect(result).toContainText('Wind component 5 kt was not applied')
     await expect(result).toContainText(`Runway slope ${slope} % was not applied`)
   }
@@ -120,6 +121,7 @@ test('current phase notifications and runway comparisons survive cached offline 
   await expect(partialPack).toContainText('Takeoff partially corrected distances')
   await expect(partialPack).toContainText('Landing partially corrected distances')
   await expect(partialPack).toContainText('Comparison uses partially corrected distances')
+  await expect(partialPack).toContainText('Do not use this comparison for runway assessment')
   await expect(partialPack).toContainText('Wind component 5 kt was not applied')
   await expect(partialPack).toContainText('Runway slope -1 % was not applied')
   await expect(partialPack).toContainText('Runway slope 1 % was not applied')
