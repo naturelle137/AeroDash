@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Allow date checks for recent runway declarations while editing the current runway.
+
 - Show declared date checks for recent manual runway declarations before selection.
 - Show the running version and its release date in an offline About view.
 - Recall five recently used manual airports offline with their original runway declarations.
