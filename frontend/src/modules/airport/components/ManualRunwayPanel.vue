@@ -59,7 +59,7 @@ if (!runway.loaded) runway.load()
     <section v-if="runway.recent.length" aria-label="Recently used airports">
       <h3>Recently used airports</h3>
       <p>Declared date check for {{ runway.assessmentDate || 'an invalid date' }}. Source and currency remain unverified; NOTAM/SUP coverage is unknown.</p>
-      <div class="actions"><button v-for="record in runway.recent" :key="record.runway.aerodrome" type="button" @click="selectRecent(record)">{{ record.runway.aerodrome }} — {{ record.runway.designator }}: {{ freshnessLabels[runwayFreshness(record.runway, runway.assessmentDate)] }}</button></div>
+      <div class="actions"><button v-for="record in runway.recent" :key="JSON.stringify([record.runway.aerodrome, record.runway.designator])" type="button" @click="selectRecent(record)">{{ record.runway.aerodrome }} — {{ record.runway.designator }}: {{ freshnessLabels[runwayFreshness(record.runway, runway.assessmentDate)] }}</button></div>
     </section>
     <div class="fields">
       <div class="field">
