@@ -11,46 +11,45 @@
  * @see docs/testing/TESTING.md (P1 Safety Core: 90% line/branch/function coverage)
  */
 import { fileURLToPath } from 'node:url'
-import { mergeConfig, defineConfig, configDefaults } from 'vitest/config'
-import viteConfig from './vite.config'
+import { defineConfig, configDefaults } from 'vitest/config'
 
-export default mergeConfig(
-  viteConfig,
-  defineConfig({
-    test: {
-      // Pure Node.js environment — no browser globals injected.
-      // If a P1 test ever fails here due to missing browser APIs it signals
-      // an isolation violation that must be fixed before merging.
-      environment: 'node',
-      include: ['src/core/**/*.spec.ts'],
+export default defineConfig({
+  resolve: {
+    alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
+  },
+  test: {
+    // Pure Node.js environment — no browser globals injected.
+    // If a P1 test ever fails here due to missing browser APIs it signals
+    // an isolation violation that must be fixed before merging.
+    environment: 'node',
+    include: ['src/core/**/*.spec.ts'],
+    exclude: [
+      ...configDefaults.exclude,
+      '**/*.int.spec.ts',
+      '**/*.e2e.spec.ts',
+    ],
+    coverage: {
+      provider: 'v8',
+      include: ['src/core/**/*.ts'],
       exclude: [
-        ...configDefaults.exclude,
+        '**/*.spec.ts',
         '**/*.int.spec.ts',
-        '**/*.e2e.spec.ts',
+        // Type-only modules (no executable statements; would distort per-file thresholds)
+        '**/*.types.ts',
+        '**/mass-balance.math-types.ts',
       ],
-      coverage: {
-        provider: 'v8',
-        include: ['src/core/**/*.ts'],
-        exclude: [
-          '**/*.spec.ts',
-          '**/*.int.spec.ts',
-          // Type-only modules (no executable statements; would distort per-file thresholds)
-          '**/*.types.ts',
-          '**/mass-balance.math-types.ts',
-        ],
-        thresholds: {
-          // `perFile: true` raises the 90% gate from a global aggregate to a
-          // per-file gate (refs #262). Without it, a single well-covered file
-          // could mask uncovered branches in another P1 file because the
-          // global rollup would still report ≥ 90%.
-          perFile: true,
-          lines: 90,
-          branches: 90,
-          functions: 90,
-          statements: 90,
-        },
+      thresholds: {
+        // `perFile: true` raises the 90% gate from a global aggregate to a
+        // per-file gate (refs #262). Without it, a single well-covered file
+        // could mask uncovered branches in another P1 file because the
+        // global rollup would still report ≥ 90%.
+        perFile: true,
+        lines: 90,
+        branches: 90,
+        functions: 90,
+        statements: 90,
       },
-      root: fileURLToPath(new URL('./', import.meta.url)),
     },
-  }),
-)
+    root: fileURLToPath(new URL('./', import.meta.url)),
+  },
+})
