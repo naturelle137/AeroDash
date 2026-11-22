@@ -256,6 +256,10 @@ onBeforeUnmount(() => {
                   <p>Safety factor: {{ item.safetyFactor }}</p>
                   <p v-if="item.safetyFactorWarning" class="briefing-warning">{{ item.safetyFactorWarning }}</p>
                   <p :class="{ 'briefing-warning': item.comparison.status === 'insufficient' }">{{ item.comparison.summary }} Required {{ item.comparison.required }}; {{ item.comparison.availableLabel }} {{ item.comparison.available }}; margin {{ item.comparison.margin }}.</p>
+                  <template v-for="group in currentSnapshot.performance.groups.filter(group => group.id === item.operation)" :key="group.id">
+                    <p v-for="warning in [...new Set(group.rows.flatMap(row => row.warnings ?? []))]" :key="warning" class="briefing-warning">{{ warning }}</p>
+                    <p v-if="group.rows.some(row => row.note?.includes('EXTRAPOLATED')) && currentSnapshot.performance.extrapolation" class="briefing-warning">{{ currentSnapshot.performance.extrapolation.warning }}</p>
+                  </template>
                   <p v-for="note in item.notes" :key="note">{{ note }}</p>
                 </template>
               </section>
