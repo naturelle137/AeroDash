@@ -1,6 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { effectScope } from 'vue'
-import { computeWindComponents } from '@/core/logic/wind-components'
 import { mount } from '@vue/test-utils'
 import { reactive, nextTick } from 'vue'
 import { createPinia, setActivePinia } from 'pinia'
@@ -276,7 +275,7 @@ describe('Briefing Pack PDF download', () => {
     input.wind = { input: entries, result: computeWindComponents(entries) }
     const { text, sheet } = await pdfFor(input)
     for (const content of [text, sheet]) {
-      expect(strip(content)).toContain(strip('crosswind: 17.3 kt'))
+      expect(strip(content)).toContain(strip('Crosswind: 17.3 kt'))
       expect(content).toContain('CRITICAL')
       expect(content).not.toContain('CRIT-WX-001')
     }
