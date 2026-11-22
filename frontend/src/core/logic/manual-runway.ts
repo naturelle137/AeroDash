@@ -318,11 +318,6 @@ export function recoverManualRunwayRecord(raw: string | null): ManualRunwayRecov
     value = { ...legacy.data, schemaVersion: MANUAL_RUNWAY_RECORD_VERSION }
   }
   if (typeof value === 'object' && value !== null && 'schemaVersion' in value && value.schemaVersion === 2) {
-    const legacy = z.object({ schemaVersion: z.literal(2), savedAt: z.iso.datetime(), runway: ManualRunwaySchema.omit({ source: true }) }).strict().safeParse(value)
-    if (!legacy.success) return { status: 'corrupt' }
-    value = { ...legacy.data, schemaVersion: MANUAL_RUNWAY_RECORD_VERSION }
-  }
-  if (typeof value === 'object' && value !== null && 'schemaVersion' in value && value.schemaVersion === 2) {
     const legacy = z.object({ schemaVersion: z.literal(2), savedAt: z.iso.datetime(), runway: ManualRunwaySchema }).strict().safeParse(value)
     if (!legacy.success) return { status: 'corrupt' }
     value = { ...legacy.data, schemaVersion: MANUAL_RUNWAY_RECORD_VERSION }
