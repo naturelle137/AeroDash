@@ -50,7 +50,7 @@ While an applied METAR value remains unchanged, the system shall display its sou
 
 If a wind or gust component exceeds a stored Demonstrated limit, then the system shall emit WARNING `WARN-WX-001` identifying that exceedance.
 
-Manual steady wind is compared with stored total-wind, tailwind and crosswind values in knots. Equality is not an exceedance. Missing or invalid inputs do not imply safety; gust comparison remains outstanding.
+Manual steady wind is compared with stored total-wind, tailwind and crosswind values in knots. Equality is not an exceedance. Missing or invalid inputs do not imply safety; pilot-entered gusts use the same direction and unit and are cleared when the steady wind changes.
 
 ### REQ-WX-010: TAF retrieval
 

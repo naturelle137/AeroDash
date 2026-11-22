@@ -89,3 +89,21 @@ Then('the manual wind warnings show both exceedances', async ({ page, $testInfo 
   await page.screenshot({ path })
   await $testInfo.attach('Manual wind limits', { path, contentType: 'image/png' })
 })
+
+When('the pilot enters a gust of {string}', async ({ page }, value: string) => {
+  await page.getByLabel('Gust speed (optional, same unit)').fill(value)
+})
+
+Then('the gust warnings appear and evidence is captured', async ({ page, $testInfo }) => {
+  await expect(panel(page)).toContainText('Crosswind exceeds Demonstrated 10 kt (manual gust)')
+  await expect(panel(page)).toContainText('Tailwind exceeds Limit 5 kt (manual gust)')
+  await page.locator('#wind-gust').scrollIntoViewIfNeeded()
+  const path = $testInfo.outputPath(`gust-${page.viewportSize()!.width}.png`)
+  await page.screenshot({ path })
+  await $testInfo.attach('Gust limits', { path, contentType: 'image/png' })
+})
+
+Then('the gust is cleared', async ({ page }) => {
+  await expect(page.locator('#wind-gust')).toHaveValue('')
+  await expect(panel(page)).not.toContainText('(manual gust)')
+})

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Compare pilot-entered gust components with stored aircraft wind limits in Flight Prep and briefing.
+
 - Add US hourly temperature and wind forecasts with source and freshness; forecast QNH remains unavailable.
 
 ### Added
