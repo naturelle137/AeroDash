@@ -120,6 +120,25 @@ describe('ManualRunwayPanel', () => {
     expect(localStorage.getItem(MANUAL_RUNWAY_STORAGE_KEY)).toBe(saved)
   })
 
+  it('keeps date checks and sources for both directions of one aerodrome', async () => {
+    vi.spyOn(window, 'confirm').mockReturnValue(true)
+    const view = mount(ManualRunwayPanel)
+    await fill(view)
+    await view.get('#runway-source').setValue('First chart')
+    await view.get('#runway-expiry').setValue('2026-01-31')
+    await view.get('form').trigger('submit')
+    await view.get('#manual-runway-designator').setValue('09')
+    await view.get('#runway-source').setValue('Second chart')
+    await view.get('#runway-expiry').setValue('2026-12-31')
+    await view.get('form').trigger('submit')
+    await view.get('#runway-assessment-date').setValue('2026-06-01')
+    const buttons = view.get('[aria-label="Recently used airports"]').findAll('button')
+    expect(buttons).toHaveLength(2)
+    expect(buttons[1]!.text()).toContain('Expired according to the declared date')
+    await buttons[1]!.trigger('click')
+    expect(summary(view).text()).toContain('First chart (user-declared, unverified)')
+  })
+
   it('clears a condition from another surface family when the type changes', async () => {
     const view = mount(ManualRunwayPanel)
     await fill(view)
