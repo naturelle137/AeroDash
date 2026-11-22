@@ -87,7 +87,8 @@ test('complete current fuel in cached offline native print with synchronous stal
   await rate.fill('10'); await trip.fill('120'); await reserve.fill('300')
   await action.click()
   await expect(section).toContainText('520 kg [UNVERIFIED]')
-  await expect(section).toContainText('Insufficient fuel for the entered trip plus reserve.')
+  await expect(section).not.toContainText('WARN-FE-001')
+  await expect(section.locator('td.briefing-warning').filter({ hasText: '30 kg [UNVERIFIED]' })).toContainText('Insufficient fuel for the entered trip plus reserve.')
   await expect(section).toContainText('insufficient even for the reserve alone')
   await expect(section).toContainText('Fuel shortfall')
   await expect(section).toContainText('30 kg [UNVERIFIED]')
@@ -140,7 +141,7 @@ test('complete current fuel in cached offline native print with synchronous stal
   await direct.fill('20')
   await action.click()
   await expect(section).toContainText('Direct Trip Fuel (kg)')
-  await expect(section).not.toContainText('Insufficient fuel for the entered trip plus reserve.')
+  await expect(section).not.toContainText('WARN-FE-001')
   await expect(section.getByRole('cell', { name: 'Total endurance', exact: true })).toHaveCount(0)
   await capture('offline-direct')
   // Dispatch input and invoke REAL native print in the same JavaScript turn.

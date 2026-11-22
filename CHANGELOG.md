@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-- Attach M&B, fuel, condition, safety-factor, wind-limit, obstacle, extrapolation and energy-reserve warnings to affected briefing pack values.
+- Verify independent fuel sequences and electric planning controls in integrated and browser tests.
 - Preserve an optional pilot-declared source time for manually entered forecast QNH.
 
 - Support pilot-sourced forecast QNH in hPa or inHg with explicit unavailability guidance.
@@ -39,6 +39,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Retrieve read-only METAR observations with source, observation time and availability warnings.
 
 ### Fixed
+
+- Omit internal fuel warning identifiers from Briefing Pack output.
 
 - Compare pilot-entered gust speed with stored maximum gust limits.
 - Applicable TAF rain/drizzle now suggests Wet in Flight Prep with saved forecast provenance, expiry handling and preserved pilot overrides (#742).
