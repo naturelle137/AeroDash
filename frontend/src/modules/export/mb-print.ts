@@ -82,6 +82,7 @@ export function assembleMbPrint(source: MbPrintSource, now: Date) {
   const mass = (value: number) => `${formatMassConservative(value, 1)} kg${marker}`
   const massLimit = (value: number) => `${formatMassLimitConservative(value, 1)} kg${marker}`
   const arm = (value: number) => `${formatArm(value, 3)} m${marker}`
+  const fuelWarning = (warning: string) => warning.replace(/^WARN-FE-001 — /, '')
   return {
     wind: source.wind?.result.status === 'valid' ? { input: { ...source.wind.input }, result: { ...source.wind.result }, notifications: compareWindLimits(source.wind.input, profile.windLimits) } : null,
     performance: source.performance ? JSON.parse(JSON.stringify(source.performance)) as PerformancePresentation : null,
@@ -94,8 +95,8 @@ export function assembleMbPrint(source: MbPrintSource, now: Date) {
     energy: source.energy ? { ...source.energy, rows: source.energy.rows.map(row => ({ ...row, value: `${row.value} [UNVERIFIED]` })) } : null,
     fuel: source.fuel ? {
       ...source.fuel,
-      rows: source.fuel.rows.filter(row => !source.fuel?.reason || ['Usable fuel', 'Excluded unusable fuel'].includes(row.label)).map(row => ({ ...row, value: `${row.value}${marker}` })),
-      warnings: [...source.fuel.warnings],
+      rows: source.fuel.rows.filter(row => !source.fuel?.reason || ['Usable fuel', 'Excluded unusable fuel'].includes(row.label)).map(row => ({ ...row, value: `${row.value}${marker}`, warnings: row.warnings?.map(fuelWarning) })),
+      warnings: source.fuel.warnings.map(fuelWarning),
     } : null,
     fuelReason: source.fuel?.reason ?? (!source.fuel ? 'Current fuel plan is unavailable.' : null),
     generated: `${now.toISOString()} (UTC)`,

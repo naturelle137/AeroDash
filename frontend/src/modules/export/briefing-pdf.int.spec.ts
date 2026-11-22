@@ -106,6 +106,18 @@ describe('Briefing Pack PDF download', () => {
     return { text, sheet }
   }
 
+  it('retains the fuel shortfall warning and affected value without its internal identifier', async () => {
+    const input = source()
+    const warning = 'WARN-FE-001 — Insufficient fuel for the entered trip plus reserve.'
+    input.fuel = { inputKey: 'synthetic', reason: null, method: 'duration', sequence: '', cgReason: null,
+      warnings: [warning], rows: [{ label: 'Fuel shortfall', value: '30 kg', warnings: [warning] }] }
+    const { text, sheet } = await pdfFor(input)
+    for (const content of [sheet, text]) {
+      expect(strip(content)).toContain(strip('30 kg [UNVERIFIED] Insufficient fuel for the entered trip plus reserve.'))
+      expect(content).not.toContain('WARN-FE-001')
+    }
+  })
+
   it('preserves aggregate CG warnings at trajectory level in the PDF', async () => {
     const input = source()
     input.notifications.push({ id: 'CRIT-MB-003', severity: 'WARNING', message: 'CG Migration Limit Exceeded', context: 'MassBalance.CG', persistent: false, dismissible: true })
