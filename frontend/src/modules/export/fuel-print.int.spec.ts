@@ -62,6 +62,18 @@ describe('shared current fuel print presentation', () => {
     expect(assembleMbPrint(source.value, new Date())!.fuelReason).toBeTruthy()
     wrapper.unmount()
   })
+  it('attaches fuel density warnings to available dependent values only', () => {
+    const { planning: p, source, store, wrapper } = setup()
+    p.method.value = 'duration'; p.consumption.value = '10'; p.trip.value = '120'; p.reserve.value = '30'
+    store.notifications.push({ id: 'WARN-FE-002', severity: 'WARNING', message: 'Verify fuel mass', context: 'FuelEndurance.Density', persistent: false, dismissible: true })
+    const rows = assembleMbPrint(source.value, new Date())!.fuel!.rows
+    expect(rows.find(r => r.label === 'Estimated arrival mass')!.warnings).toContain('Verify fuel mass')
+    expect(rows.find(r => r.label === 'Usable fuel')!.warnings).toContain('Verify fuel mass')
+    expect(rows.find(r => r.label === 'Trip fuel')!.warnings).not.toContain('Verify fuel mass')
+    p.method.value = ''
+    expect(assembleMbPrint(source.value, new Date())!.fuel!.rows.map(r => r.label)).toEqual(['Usable fuel', 'Excluded unusable fuel'])
+    wrapper.unmount()
+  })
   it('includes lookup CG and mass, omits duration outputs in direct mode', () => {
     const { planning: p, source, store, wrapper } = setup()
     p.method.value = 'direct'; p.directTripFuel.value = '20'

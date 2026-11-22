@@ -453,8 +453,8 @@ describe('M&B print presentation with real store calculation', () => {
   it('attaches condition warnings to their inputs and available calculation basis', async () => {
     const input = source()
     const base = presentPerformance({ inputKey: 'conditions', inputs: [
-      { label: 'QNH', value: '950 hPa', warnings: ['QNH advisory'] },
-      { label: 'Outside air temperature', value: '45 °C', warnings: ['Temperature advisory'] },
+      { label: 'QNH', value: '950 hPa', warnings: ['WARNING WARN-UI-001: QNH advisory'] },
+      { label: 'Outside air temperature', value: '45 °C', warnings: ['WARNING WARN-UI-001: Temperature advisory'] },
       { label: 'Field elevation', value: '100 ft' },
     ], aircraft: null, takeoff: { status: 'unavailable', reason: 'x' }, landing: { status: 'unavailable', reason: 'x' }, assessment: null, pressureAltitudeBasis: '', pendingReason: 'x', runway: { status: 'unavailable', reason: 'x' }, operational: presentOperationalAssessment(null, 'x') })
     input.performance = { ...base, conditions: { pressureAltitude: '1800 ft', temperature: '45 °C' } }
@@ -464,7 +464,8 @@ describe('M&B print presentation with real store calculation', () => {
     expect(rows.find(row => row.textContent?.startsWith('QNH'))!.textContent).toContain('QNH advisory')
     expect(rows.find(row => row.textContent?.startsWith('Outside air temperature'))!.textContent).toContain('Temperature advisory')
     expect(rows.find(row => row.textContent?.startsWith('Field elevation'))!.textContent).not.toContain('advisory')
-    expect(document.querySelector('[aria-label="Current Performance"]')!.textContent).toContain('Calculation basis: 1800 ft · 45 °C · QNH advisory · Temperature advisory')
+    expect(document.querySelector('[aria-label="Current Performance"]')!.textContent).toContain('Calculation basis: 1800 ft · 45 °C · WARNING: QNH advisory · WARNING: Temperature advisory')
+    expect(document.querySelector('.mb-print-sheet')!.textContent).not.toContain('WARN-UI-001')
     input.performance = { ...input.performance, conditions: null }
     await nextTick()
     expect(document.querySelector('.mb-print-sheet')!.textContent).not.toContain('Calculation basis:')

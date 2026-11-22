@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Attach M&B, fuel, condition, safety-factor, wind-limit, obstacle, extrapolation and energy-reserve warnings to affected briefing pack values without internal UI warning identifiers.
 - Verify independent fuel sequences and electric planning controls in integrated and browser tests.
 - Preserve an optional pilot-declared source time for manually entered forecast QNH.
 
