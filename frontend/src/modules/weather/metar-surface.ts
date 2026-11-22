@@ -1,5 +1,5 @@
 // METAR body groups follow the Aviation Weather Center observation format.
-export function metarLiquid(body: string): boolean | null {
+function metarPrecipitation(body: string, heavy: boolean): boolean | null {
   const tokens = body.replace(/=$/, '').split(/\s+/)
   let i = 0
   if (tokens[i] === 'AUTO' || tokens[i] === 'COR') i++
@@ -22,7 +22,7 @@ export function metarLiquid(body: string): boolean | null {
     if (cavok || ++groups > 3) return null
     const precipitation = liquidWeatherToken(token)
     if (precipitation === null) return null
-    liquid ||= precipitation
+    liquid ||= heavy ? precipitation && /^\+(?:SH|TS)?(?:DZ|RA|SN|SG|IC|PL|GR|GS|UP)*RA/.test(token) : precipitation
   }
   let sky = 0
   while (/^(?:(?:FEW|SCT|BKN|OVC)(?:\d{3}|\/\/\/)(?:CB|TCU)?|VV(?:\d{3}|\/\/\/)|SKC|CLR|NSC|NCD)$/.test(tokens[i] ?? '')) { i++; sky++ }
@@ -72,3 +72,6 @@ export function liquidWeatherToken(token: string): boolean | null {
   if (m[2] && /^(DR|BL)$/.test(m[2]) && !/^(SN|DU|SA)$/.test(m[3]!)) return null
   return m[1] !== 'VC' && (phenomena.includes('RA') || phenomena.includes('DZ'))
 }
+
+export function metarLiquid(body: string): boolean | null { return metarPrecipitation(body, false) }
+export function metarHeavyRain(body: string): boolean | null { return metarPrecipitation(body, true) }
