@@ -102,7 +102,8 @@ export function assembleMbPrint(source: MbPrintSource, now: Date) {
       ...source.fuel,
       rows: source.fuel.rows.filter(row => !source.fuel?.reason || ['Usable fuel', 'Excluded unusable fuel'].includes(row.label)).map(row => ({ ...row, value: `${row.value}${marker}`,
         warnings: [...(row.warnings ?? []).map(w => w.replace(/^WARN-FE-001 — /, '')), ...(['Usable fuel', 'Excluded unusable fuel', 'Total endurance', 'Fuel shortfall', 'Remaining after trip + reserve', 'Takeoff mass', 'Estimated arrival mass', 'Usable fuel remaining on arrival', 'Estimated arrival CG'].includes(row.label)
-          ? source.notifications.filter(n => n.context === 'FuelEndurance.Density' && n.severity !== 'INFO').map(n => n.message) : [])] })),
+          ? source.notifications.filter(n => n.context === 'FuelEndurance.Density' && n.severity !== 'INFO').map(n => n.message) : []),
+        ...(row.label === 'Takeoff mass' ? source.notifications.filter(n => n.context === 'MassBalance.TotalMass' && n.severity !== 'INFO').map(n => n.message) : [])] })),
       warnings: source.fuel.warnings.map(w => w.replace(/^WARN-FE-001 — /, '')),
     } : null,
     fuelReason: source.fuel?.reason ?? (!source.fuel ? 'Current fuel plan is unavailable.' : null),
