@@ -14,6 +14,7 @@ test('complete current briefing pack with chart, persistent action and native st
   const homeCta = page.getByRole('link', { name: 'Start flight preparation', exact: true })
   const ctaStyle = await homeCta.evaluate(styleOf)
   await homeCta.hover()
+  await homeCta.evaluate(async e => { await Promise.all(e.getAnimations().map(animation => animation.finished)) })
   const hoveredCtaStyle = await homeCta.evaluate(styleOf)
   await page.mouse.move(0, 0)
   for (const width of new Set([page.viewportSize()!.width, ...(info.project.name.endsWith('390') ? [320] : [])])) {
