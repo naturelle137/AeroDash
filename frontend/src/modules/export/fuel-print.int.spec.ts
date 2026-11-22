@@ -45,12 +45,14 @@ describe('shared current fuel print presentation', () => {
     p.method.value = 'duration'
     p.consumption.value = '10'; p.trip.value = '120'; p.reserve.value = '300'
     const fuel = assembleMbPrint(source.value, new Date())!.fuel!
-    expect(fuel.warnings).toEqual(['WARN-FE-001 — Insufficient fuel for the entered trip plus reserve.', 'Usable fuel is insufficient even for the reserve alone.'])
+    expect(fuel.warnings).toEqual(['Insufficient fuel for the entered trip plus reserve.', 'Usable fuel is insufficient even for the reserve alone.'])
     expect(fuel.rows).toContainEqual(expect.objectContaining({ label: 'Fuel shortfall', value: '30 kg [UNVERIFIED]', warnings: fuel.warnings }))
     expect(fuel.rows).toContainEqual(expect.objectContaining({ label: 'Estimated arrival mass', value: '520 kg [UNVERIFIED]' }))
     expect(fuel.rows).toContainEqual(expect.objectContaining({ label: 'Usable fuel remaining on arrival', value: '20 kg [UNVERIFIED]' }))
     await wrapper.get('button').trigger('click')
-    expect(document.body.textContent).toContain('WARN-FE-001')
+    expect(document.body.textContent).not.toContain('WARN-FE-001')
+    expect([...document.querySelectorAll('td.briefing-warning')].find(cell => cell.textContent?.includes('30 kg [UNVERIFIED]'))?.textContent).toContain('Insufficient fuel for the entered trip plus reserve.')
+    expect(p.presentation.value.warnings[0]).toContain('WARN-FE-001')
     document.querySelector<HTMLButtonElement>('.mb-print-controls button')!.click()
     await nextTick()
     expect(p.reserve.value).toBe('300')

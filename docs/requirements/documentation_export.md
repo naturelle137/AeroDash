@@ -196,7 +196,7 @@ The system shall omit helper text and tooltips associated with the Briefing Pack
 
 When displaying or printing the briefing pack, the system shall omit internal warning identifiers from presented warning text.
 
-**Status:** Implemented. Tests: `frontend/src/modules/export/mb-print.int.spec.ts`. The fuel section still prints its WARN-FE identifier (`frontend/src/modules/export/fuel-print.int.spec.ts`), a gap against this requirement.
+**Status:** Partially implemented. Fuel warning identifiers are omitted in preview, print and PDF; other warning identifiers remain visible. Tests: `frontend/src/modules/export/fuel-print.int.spec.ts`, `frontend/src/modules/export/briefing-pdf.int.spec.ts`, `frontend/tests/offline-production/fuel-print.spec.ts`.
 
 ### REQ-DOC-033: PDF download
 
