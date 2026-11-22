@@ -7,8 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-- Verify read-only inspection of every imported performance point before pilot sign-off.
 - Retrieve a global hourly model temperature and wind forecast by coordinates, with explicit QNH unavailability.
+- Verify read-only inspection of every imported performance point before pilot sign-off.
 - Identify unavailable correction sources and manual corrections withheld when a complete set is unavailable.
 - Show missing and expired pilot forecast entries and update forecast freshness while Flight Prep stays open.
 
