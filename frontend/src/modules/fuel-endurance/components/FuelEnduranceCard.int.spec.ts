@@ -369,9 +369,19 @@ describe('fuel plan with live M&B store', () => {
         await wrapper.get('#fe-reserve').setValue('10')
       }
       const cg = () => wrapper.find('[data-testid="arrival-cg"]')
+      // Both M&B paths start at takeoff, independently of the arrival selection.
+      const waypoints = () => store.lastResult!.migrationPath.slice(1, -1)
+      expect(waypoints().map(({ label, mass, moment }) => [label, mass, moment])).toEqual([
+        ['A first #1', 580, 1140],
+        ['B first #1', 580, 1100],
+      ])
       expect(cg().exists()).toBe(false)
       expect(wrapper.text()).toContain('570 kg')
       expect(wrapper.get<HTMLSelectElement>('#fe-sequence').element.value).toBe('')
+      await wrapper.get('#fe-sequence').setValue('A first')
+      expect(cg().text()).toBe('1.947 m')
+      await wrapper.get('#fe-sequence').setValue('B first')
+      expect(cg().text()).toBe('1.912 m')
       await wrapper.get('#fe-sequence').setValue('A first')
       expect(cg().text()).toBe('1.947 m')
       await wrapper.get('#fe-sequence').setValue('B first')
