@@ -86,6 +86,18 @@ describe('corrected distances in the performance step', () => {
     expect(item.reason).toContain('Runway slope abc % was not applied')
   })
 
+  it('identifies missing sources and manual corrections withheld for an unsupported surface', () => {
+    const { step, runway } = setup()
+    runway.draft.surfaceCondition = 'wet'; runway.save()
+    Object.assign(step.corrections.landing, { headwind: '-2', slope: '-1' })
+    const item = corrected(step, 1)
+    if (item.status !== 'unavailable') throw new Error('expected unavailable')
+    expect(item.reason).toContain('No applicable source identified for: surface.')
+    expect(item.reason).toContain('Manual sources identified for wind, slope are not applied separately')
+    expect(item.reason).toContain('Wind component -2 kt was not applied')
+    expect(item.reason).toContain('Runway slope -1 % was not applied')
+  })
+
   it.each([['takeoff', '-1'], ['landing', '1']] as const)('marks favourable %s inputs partially corrected', (operation, slope) => {
     const effect = effectScope()
     effect.run(() => {
