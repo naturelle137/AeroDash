@@ -21,6 +21,7 @@ it('carries the selected declared-date check into performance and invalidates it
     expect(presentation.runway).toMatchObject({ status: 'declared' })
     if (presentation.runway.status !== 'declared') throw new Error('missing runway')
     expect(presentation.runway.note).toContain('NOTAM/SUP coverage is unknown')
+    expect(presentation.runway.note).toContain('The selected check date does not advance automatically')
     expect(presentation.runway.rows).toContainEqual({ label: 'Declared date check', value: '2027-01-01: expired; source currency unverified' })
     const key = presentation.inputKey
     runway.assessmentDate = ''
