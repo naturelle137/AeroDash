@@ -11,7 +11,7 @@ Feature: Correction source assessment
     And the pilot sets mass "900" kg and temperature "10" °C for the Test profile
     And the pilot enters pressure altitude "1000" ft directly
     Then the takeoff roll is "220.0 m" using pressure altitude "1000 ft, entered directly"
-    When the pilot saves runway "TEST" "27" with TORA "600" "m", LDA "550" "m", elevation "300" "ft" and surface "Grass / unpaved" "Dry (short grass ≤3 cm)"
+    When the pilot saves runway "TEST" "27" with TORA "600" "m", LDA "550" "m", elevation "300" "ft" and surface "Grass" "Dry (short grass ≤3 cm)"
     And the pilot assesses correction sources
     Then no correction source is available
     When the pilot selects manual configuration "s4"

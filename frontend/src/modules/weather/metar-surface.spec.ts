@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { metarLiquid } from './metar-surface'
+import { metarHeavyRain, metarLiquid } from './metar-surface'
 
 describe('METAR surface observation', () => {
   it.each([
@@ -28,3 +28,13 @@ describe('METAR surface observation', () => {
     ['17004KT 9999 RA GARBAGE BKN020 10/08 Q1013', null],
   ])('parses %s', (body, expected) => expect(metarLiquid(body)).toBe(expected))
 })
+
+
+it.each([
+  ['17004KT 9999 +RA BKN020 10/08 Q1013', true],
+  ['17004KT 9999 +SHRA BKN020 10/08 Q1013', true],
+  ['17004KT 9999 RA BKN020 10/08 Q1013', false],
+  ['17004KT 9999 +SN BKN020 10/08 Q1013', false],
+  ['17004KT 9999 BKN020 10/08 Q1013 TEMPO +RA', false],
+  ['17004KT 9999 +RA GARBAGE', null],
+])('detects heavy rain: %s', (body, expected) => expect(metarHeavyRain(body)).toBe(expected))

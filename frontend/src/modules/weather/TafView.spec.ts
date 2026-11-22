@@ -76,7 +76,7 @@ it('emits applicable forecast provenance, clears at change boundaries, offline a
   await view.get('form').trigger('submit'); await flushPromises()
   expect(view.emitted('forecast')!.at(-1)![0]).toMatchObject({ liquid: false })
   await vi.advanceTimersByTimeAsync(1000)
-  expect(view.emitted('forecast')!.at(-1)![0]).toEqual({ source: 'TAF', station: 'EDDF', time: forecast.issueTime, validFrom: forecast.validFrom, validTo: forecast.validTo, liquid: true })
+  expect(view.emitted('forecast')!.at(-1)![0]).toEqual({ source: 'TAF', station: 'EDDF', time: forecast.issueTime, validFrom: forecast.validFrom, validTo: forecast.validTo, liquid: true, heavy: false })
   window.dispatchEvent(new Event('offline'))
   expect(view.emitted('forecast')!.at(-1)![0]).toBeNull()
   await view.vm.$nextTick()

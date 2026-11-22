@@ -189,3 +189,22 @@ it('retains a pilot confirmation of the suggested wet value after forecast withd
   expect(store.draft.surfaceCondition).toBe('wet')
   expect(store.weatherSurface).toBeNull()
 })
+
+
+it('suggests soft ground only for explicit grass and preserves pilot choice', () => {
+  const store = useManualRunwayStore()
+  store.load()
+  store.draft.aerodrome = 'EDDF'
+  store.draft.surfaceType = 'grass'
+  const report = { station: 'EDDF', time: '2026-11-21T16:30:00.000Z', liquid: true, heavy: true }
+  store.updateWeather(report)
+  expect(store.draft.surfaceCondition).toBe('soft-ground')
+  store.draft.surfaceCondition = 'wet-grass'
+  store.updateWeather(null)
+  store.updateWeather(report)
+  expect(store.draft.surfaceCondition).toBe('wet-grass')
+  store.clear()
+  store.draft.aerodrome = 'EDDF'
+  store.draft.surfaceType = 'unpaved'
+  expect(store.draft.surfaceCondition).toBe('wet-unpaved')
+})

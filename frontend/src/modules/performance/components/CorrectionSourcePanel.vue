@@ -98,7 +98,7 @@ function candidatesOf(rows: CorrectionAssessment[]) {
     <h2 id="correction-sources-heading">Correction sources</h2>
     <p>Check which source would have to supply the wind, surface and slope corrections for the selected
       profile and saved runway. Raw distances stay uncorrected table values; corrected distances appear in the results above only where a source is identified.</p>
-    <p v-if="runwayFacts">Runway: {{ runwayFacts.label }} — {{ runwayFacts.surface.type === 'paved' ? 'Paved' : 'Grass / unpaved' }},
+    <p v-if="runwayFacts">Runway: {{ runwayFacts.label }} — {{ runwayFacts.surface.type === 'paved' ? 'Paved' : runwayFacts.surface.type === 'grass' ? 'Grass' : 'Other / legacy unpaved' }},
       {{ conditionLabel(runwayFacts.surface.condition) }} (user-entered).</p>
     <p v-else-if="runway.hasUnsavedChanges">The manual runway has unsaved changes. Save it to include its surface condition.</p>
     <p v-else>No saved manual runway. The surface source cannot be matched without a runway condition.</p>
