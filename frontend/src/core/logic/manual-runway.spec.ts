@@ -162,6 +162,12 @@ describe('storage record recovery', () => {
     expect(recoverManualRunwayRecord(JSON.stringify({ ...record, schemaVersion: 0 }))).toEqual({ status: 'corrupt' })
   })
 
+  it('recovers a version 2 declaration with its source and dates intact', () => {
+    const sourced = { ...record, runway: { ...runway, source: 'AIP TEST', effectiveDate: '2026-11-01', expiryDate: '2026-12-01' } }
+    expect(recoverManualRunwayRecord(JSON.stringify({ ...sourced, schemaVersion: 2 }))).toEqual({ status: 'loaded', record: sourced })
+    expect(recoverManualRunwayRecord(JSON.stringify({ ...sourced, schemaVersion: 2, runway: { ...sourced.runway, source: 'bad\nsource' } }))).toEqual({ status: 'corrupt' })
+  })
+
   it.each([
     ['zero TORA', { tora: { value: 0, unit: 'm' } }],
     ['negative LDA', { lda: { value: -1, unit: 'm' } }],

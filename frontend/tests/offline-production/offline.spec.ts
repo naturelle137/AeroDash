@@ -73,6 +73,15 @@ test('cached preparation reopens offline with persisted synthetic data and live 
   await runway.getByRole('button', { name: 'Save runway inputs', exact: true }).click()
   await expect(page.getByRole('region', { name: 'Saved manual runway', exact: true })).toContainText('Synthetic offline field')
 
+  // Exercise recovery of an older declaration carrying its source reference.
+  await page.evaluate(() => {
+    const key = 'aerodash.performance.manual-runway.v1'
+    const record = JSON.parse(localStorage.getItem(key)!)
+    record.schemaVersion = 2
+    record.runway.source = 'Synthetic source reference'
+    localStorage.setItem(key, JSON.stringify(record))
+  })
+
   await context.setOffline(true)
   await expect(connectivity(page)).toHaveText('Browser offline')
   await expect(connectivity(page)).toBeInViewport()
@@ -85,6 +94,9 @@ test('cached preparation reopens offline with persisted synthetic data and live 
   const dateCheck = page.getByRole('region', { name: 'Runway date check', exact: true })
   await expect(saved).toContainText('Synthetic offline field')
   await expect(saved).toContainText('User-entered, not airport-validated')
+  await expect(saved).toContainText('Synthetic source reference (user-declared, unverified)')
+  await saved.getByText('Synthetic source reference', { exact: false }).scrollIntoViewIfNeeded()
+  await capture(page, info, 'offline-legacy-source')
   await expect(saved).toContainText('Declared effective date2026-01-01')
   await expect(saved).toContainText('Declared expiry date (inclusive)2026-12-31')
   await expect(saved).toContainText('NOTAM/SUP coverage is unknown')
