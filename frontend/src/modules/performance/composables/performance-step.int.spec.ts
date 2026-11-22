@@ -9,6 +9,23 @@ import { usePerformanceStep, type PerformanceStepContext } from './performance-s
 beforeEach(() => { localStorage.clear(); setActivePinia(createPinia()) })
 afterEach(() => { vi.restoreAllMocks() })
 
+it('exposes active QNH and temperature advisories on the corresponding briefing inputs', () => {
+  const scope = effectScope()
+  scope.run(() => {
+    const step = usePerformanceStep(() => ({ ready: true, notReadyReason: '', profile: testPohAircraft(), category: 'Normal', revision: '', takeoff: { status: 'ready', massKg: 900, origin: 'M&B' }, landing: { status: 'unavailable', reason: 'x' } }))
+    step.pa.method.value = 'qnh-elevation'
+    Object.assign(step.pa.draft, { qnh: '940', qnhUnit: 'hPa', elevation: '0', elevationUnit: 'ft' })
+    step.temperature.value = '50.1'
+    const inputs = step.presentation.value.inputs
+    expect(inputs.find(row => row.label === 'QNH')!.warnings?.[0]).toContain('QNH 940')
+    expect(inputs.find(row => row.label === 'Outside air temperature')!.warnings?.[0]).toContain('Temperature 50.1')
+    expect(inputs.find(row => row.label === 'Field elevation')!.warnings).toBeUndefined()
+    step.pa.draft.qnh = '1013'
+    expect(step.presentation.value.inputs.find(row => row.label === 'QNH')!.warnings).toEqual([])
+  })
+  scope.stop()
+})
+
 it('carries the selected declared-date check into performance and invalidates its snapshot key', () => {
   const scope = effectScope()
   scope.run(() => {

@@ -30,7 +30,7 @@ If the calculation uses a user-selected Operational Safety Factor that is lower 
 
 When generating the export, the system shall highlight each affected available value with its precise active warning or computed-exceedance notification.
 
-**Status:** Approved. Affected-value coverage is not established for every warning and computed exceedance.
+**Status:** Implemented. Synthetic preview and PDF integration tests cover M&B limits, station and fuel warnings, condition and safety-factor warnings, wind limits, obstacles, extrapolation and electric-energy warnings, including unavailable values and snapshot invalidation. Tests: `frontend/src/modules/export/mb-print.int.spec.ts`, `frontend/src/modules/export/briefing-pdf.int.spec.ts`, `frontend/src/modules/export/fuel-print.int.spec.ts`.
 
 ### REQ-DOC-006: Performance briefing
 

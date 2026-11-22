@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Attach M&B, fuel, condition, safety-factor, wind-limit, obstacle, extrapolation and energy-reserve warnings to affected briefing pack values.
 - Preserve an optional pilot-declared source time for manually entered forecast QNH.
 
 - Support pilot-sourced forecast QNH in hPa or inHg with explicit unavailability guidance.
