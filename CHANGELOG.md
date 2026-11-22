@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Show manual forecast QNH selection context and allow clearing its entry and source.
+
 - Preview the converted manual forecast QNH and explain invalid entries before replacing Flight Prep QNH.
 - Verify independent fuel sequences and electric planning controls in integrated and browser tests.
 - Preserve an optional pilot-declared source time for manually entered forecast QNH.
