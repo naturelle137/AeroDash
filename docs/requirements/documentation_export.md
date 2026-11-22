@@ -184,7 +184,7 @@ While no eligible current Briefing Pack can be generated, the system shall disab
 
 The system shall present the Briefing Pack action using the homepage Start Flight Preparation CTA style.
 
-**Status:** Approved. Visual parity with the homepage CTA is asserted only for the disabled state in `frontend/tests/offline-production/briefing-pack.spec.ts`.
+**Status:** Implemented. Tests: `frontend/tests/offline-production/briefing-pack.spec.ts` (desktop and mobile Chromium, outside the unit gate).
 
 ### REQ-DOC-031: Action help
 
