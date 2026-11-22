@@ -1,6 +1,8 @@
 import 'fake-indexeddb/auto'
 import { IDBFactory } from 'fake-indexeddb'
 import { createPinia, setActivePinia } from 'pinia'
+import { mount } from '@vue/test-utils'
+import PerformanceTablesReview from '@/modules/aircraft/components/PerformanceTablesReview.vue'
 import { beforeEach, expect, it } from 'vitest'
 import { testPohAircraft } from '../../../../tests/fixtures/poh-aircraft'
 import { importProfileFromJson, exportProfileToJson } from '@/modules/aircraft/services/profile.import'
@@ -103,4 +105,34 @@ it.each([
   const reimported = importProfileFromJson(exportProfileToJson(persisted))
   expect(reimported).toMatchObject({ status: 'draft', performanceProfiles: original.performanceProfiles })
   expect(reimported.verification).toBeUndefined()
+})
+
+
+it('renders every imported source and normalized point while the persisted profile remains a draft', async () => {
+  const original = testPohAircraft()
+  original.performanceProfiles = original.performanceProfiles!.slice(0, 2)
+  for (const table of original.performanceProfiles) {
+    table.sourceUnits = { mass: 'lb', pressureAltitude: 'm', temperature: '°F', distance: 'ft' }
+    table.dataPoints = [
+      { mass: 2000, pressureAltitude: 304.8, temperature: 50, distance: 1000 },
+      { mass: 1, pressureAltitude: -30.48, temperature: -40, distance: 1 },
+    ]
+  }
+  const fleet = useFleetStore()
+  const draft = await fleet.createProfile(importProfileFromJson(exportProfileToJson(original)))
+  await fleet.loadAll()
+  const view = mount(PerformanceTablesReview, { props: { profile: fleet.profiles[0]! } })
+  const tables = view.findAll('table')
+  expect(tables).toHaveLength(4)
+  for (let i = 0; i < tables.length; i += 2) {
+    expect(tables[i]!.findAll('tbody tr').map(row => row.findAll('td').map(cell => cell.text()))).toEqual([
+      ['2000', '304.8', '50', '1000'], ['1', '-30.48', '-40', '1'],
+    ])
+    expect(tables[i + 1]!.findAll('tbody tr').map(row => row.findAll('td').map(cell => cell.text()))).toEqual([
+      ['907.18474', '1000', '10', '304.8'], ['0.45359237', '-100', '-40', '0.3048'],
+    ])
+  }
+  expect(view.findAll('input, button, select, textarea')).toHaveLength(0)
+  expect(fleet.profiles[0]).toMatchObject({ id: draft.id, status: 'draft', performanceProfiles: original.performanceProfiles })
+  expect(fleet.profiles[0]!.verification).toBeUndefined()
 })
