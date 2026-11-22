@@ -169,7 +169,7 @@ describe('corrected distances in the performance step', () => {
         expect(item.comparison.summary).not.toContain('partially corrected distances')
         expect(item.safetyFactor).toContain('no manual factor')
         expect(item.notes.join(' ')).toContain('not validated by it')
-        expect(item.notes.join(' ')).toContain('Wind is not corrected')
+        expect(item.notes.join(' ')).toContain('supplies no wind correction')
         expect(item.notes.join(' ')).toContain('can understate that surcharge')
       })
       effect.stop()
@@ -208,7 +208,7 @@ describe('corrected distances in the performance step', () => {
       effect.stop()
     })
 
-    it('keeps landing, tailwind and unmapped surfaces uncorrected with the unapplied inputs named', () => {
+    it('applies available estimates while identifying unsupported tailwind and surface', () => {
       const effect = effectScope()
       effect.run(() => {
         const { step, runway } = fsmSetup()
@@ -220,12 +220,18 @@ describe('corrected distances in the performance step', () => {
         expect((landing as { reason: string }).reason).toContain('Runway slope 1 % was not applied')
         Object.assign(step.corrections.takeoff, { headwind: '-3', slope: '1' })
         const tail = corrected(step, 0)
-        expect((tail as { reason: string }).reason).toContain('no tailwind value')
-        expect((tail as { reason: string }).reason).toContain('consult the aircraft manual for tailwind corrections')
-        expect((tail as { reason: string }).reason).toContain('Wind component -3 kt was not applied')
+        if (tail.status !== 'applied') throw new Error('expected partial estimate')
+        expect(tail.partial).toBe(true)
+        expect(tail.rows[0]!.corrected).toBe(`${Math.ceil(220 * 1.1 * 1.2)} m ESTIMATED (FSM 3/75)`)
+        expect(tail.notes.join(' ')).toContain('no applicable correction applied for wind')
+        expect(tail.comparison.status).toBe('unavailable')
         step.corrections.takeoff.headwind = '0'
         runway.draft.surfaceCondition = 'wet-soft-ground'; runway.save()
-        expect((corrected(step, 0) as { reason: string }).reason).toContain('No accepted correction source')
+        const surface = corrected(step, 0)
+        if (surface.status !== 'applied') throw new Error('expected partial estimate')
+        expect(surface.rows[0]!.corrected).toBe(`${Math.ceil(220 * 1.1)} m ESTIMATED (FSM 3/75)`)
+        expect(surface.notes.join(' ')).toContain('no applicable correction applied for surface')
+        expect(surface.comparison.margin).toBe('Not available')
       })
       effect.stop()
     })

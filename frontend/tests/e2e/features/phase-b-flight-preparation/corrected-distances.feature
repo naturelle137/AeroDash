@@ -35,7 +35,6 @@ Feature: Corrected takeoff and landing distances
       | 390   | 844    | D-EBPN       | P208 | 650  | s9 | "unavailable: Enter the headwind component" | "final 267 m for the ground roll"        |
       | 1440  | 1000   | D-TEST       | P208 | 630  | basic | "unavailable: Enter the headwind component" | "final 267 m for the ground roll"        |
       | 390   | 844    | D-TEST       | P208 | 650  | s4 | "unavailable: Enter the headwind component" | "final 267 m for the ground roll"        |
-      | 1440  | 1000   | D-TEST       | C172 | 650  |  | "unavailable: Enter the headwind component" | "unavailable: FSM 3/75 gives no tailwind value" |
 
   Scenario Outline: Aircraft without a manual rule set get a marked FSM 3/75 take-off estimate
     Given the raw POH workflow viewport is <width> by <height>
@@ -62,8 +61,8 @@ Feature: Corrected takeoff and landing distances
     And the pilot saves runway "TEST" "27" with TORA "600" "m", LDA "550" "m", elevation "300" "ft" and surface "Paved" "Dry"
     And the pilot enters takeoff headwind "-2" kt and slope "1" %
     And the pilot enters landing headwind "-2" kt and slope "-1" %
-    Then both unavailable corrections disclose their unapplied safety factors
-    And the landing correction evidence is captured as "unsupported-<width>"
+    Then the partial takeoff and unavailable landing disclose missing corrections
+    And the corrected distance evidence is captured as "partial-fallback-<width>"
 
     Examples:
       | width | height |
