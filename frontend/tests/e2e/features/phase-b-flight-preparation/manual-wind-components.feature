@@ -50,7 +50,8 @@ Feature: Offline manual wind components
     And the pilot selects the imported aircraft "D-EBPN" in Flight Prep
     And the pilot enters runway heading "270", wind from "330" and speed "20" "kt"
     And the pilot opens the briefing pack
-    Then the briefing pack states "Headwind: 10.0 kt; crosswind: 17.3 kt from the right"
+    Then the briefing pack states "Headwind: 10.0 kt."
+    And the briefing pack states "Crosswind: 17.3 kt from the right"
     And the briefing pack states "No weather retrieved or performance correction applied"
     And the briefing pack evidence is captured as "wind-<width>"
     When the pilot returns from the briefing pack

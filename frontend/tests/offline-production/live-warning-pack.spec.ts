@@ -95,8 +95,13 @@ test('live partial edits recover, warnings follow their values and inline units 
     const navigation = await sticky.getByRole('button').allTextContents()
     expect(navigation.findIndex(s => s.includes('Fuel & Endurance'))).toBeLessThan(navigation.findIndex(s => s.includes('Performance')))
     await action.click()
-    await expect(preview.locator('td.briefing-warning').filter({ hasText: 'Insufficient fuel for the entered trip plus reserve.' }).first()).toContainText('Insufficient fuel')
-    await expect(preview.locator('td.briefing-warning').filter({ hasText: 'WARN-UI-001' })).toHaveCount(4)
+    await expect(preview.locator('td.briefing-warning').filter({ hasText: 'Insufficient fuel for the entered trip plus reserve.' }).first()).toBeVisible()
+    await expect(preview.locator('td.briefing-warning').filter({ hasText: 'QNH 940 hPa is outside the standard 950–1100 hPa range' })).toHaveCount(5)
+    await expect(preview).not.toContainText('WARN-UI-001')
+    if (!offline) {
+      await preview.getByRole('row').filter({ hasText: 'QNH 940 hPa' }).first().scrollIntoViewIfNeeded()
+      await page.screenshot({ path: info.outputPath(`briefing-qnh-${originalViewport.width}.png`) })
+    }
     await preview.getByRole('button', { name: 'Print Briefing Pack', exact: true }).click()
     const pdf = info.outputPath(`value-warnings-${offline}.pdf`)
     await page.emulateMedia({ media: 'print' })
@@ -110,11 +115,11 @@ test('live partial edits recover, warnings follow their values and inline units 
     for (const control of ['Back to preparation', 'Print Briefing Pack', 'Select aircraft', 'Planning method']) {
       expect(pdfText).not.toContain(control)
     }
-    const qnhWarning = 'WARNING WARN-UI-001: QNH 940 hPa is outside the standard 950–1100 hPa range. Check the value.'
+    expect(pdfText).not.toContain('WARN-UI-001')
+    const qnhWarning = 'WARNING: QNH 940 hPa is outside the standard 950–1100 hPa range. Check the value.'
     for (const value of ['247.1 m', '347.1 m', '430.6 m', '530.6 m']) {
       expect(pdfText).toContain(`${value} ${qnhWarning}`)
     }
-    expect(pdfText.split(qnhWarning)).toHaveLength(5)
     const fuelWarning = 'Insufficient fuel for the entered trip plus reserve.'
     expect(pdfText).toContain(`Trip + reserve fuel 60 kg ${fuelWarning}`)
     expect(pdfText).toContain(`Fuel shortfall 10 kg ${fuelWarning}`)
