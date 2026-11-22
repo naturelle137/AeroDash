@@ -95,7 +95,7 @@ test('live partial edits recover, warnings follow their values and inline units 
     const navigation = await sticky.getByRole('button').allTextContents()
     expect(navigation.findIndex(s => s.includes('Fuel & Endurance'))).toBeLessThan(navigation.findIndex(s => s.includes('Performance')))
     await action.click()
-    await expect(preview.locator('td.briefing-warning').filter({ hasText: 'WARN-FE-001' }).first()).toContainText('Insufficient fuel')
+    await expect(preview.locator('td.briefing-warning').filter({ hasText: 'Insufficient fuel for the entered trip plus reserve.' }).first()).toContainText('Insufficient fuel')
     await expect(preview.locator('td.briefing-warning').filter({ hasText: 'WARN-UI-001' })).toHaveCount(4)
     await preview.getByRole('button', { name: 'Print Briefing Pack', exact: true }).click()
     const pdf = info.outputPath(`value-warnings-${offline}.pdf`)
@@ -115,7 +115,7 @@ test('live partial edits recover, warnings follow their values and inline units 
       expect(pdfText).toContain(`${value} ${qnhWarning}`)
     }
     expect(pdfText.split(qnhWarning)).toHaveLength(5)
-    const fuelWarning = 'WARN-FE-001 — Insufficient fuel for the entered trip plus reserve.'
+    const fuelWarning = 'Insufficient fuel for the entered trip plus reserve.'
     expect(pdfText).toContain(`Trip + reserve fuel 60 kg ${fuelWarning}`)
     expect(pdfText).toContain(`Fuel shortfall 10 kg ${fuelWarning}`)
     await page.keyboard.press('Escape')
