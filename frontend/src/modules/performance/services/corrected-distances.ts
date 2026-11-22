@@ -99,14 +99,6 @@ export function presentCorrectedOperation(
   const manual = rows.filter((row) => row.selected && TECNAM_S9_SOURCE_IDS.includes(row.selected.id))
   const fsm = operation === 'takeoff' ? rows.filter((row) => row.selected?.estimate) : []
   const estimating = fsm.length > 0
-  if (!estimating && manual.length === 0) {
-    const missing = rows.filter((row) => !row.selected).map((row) => row.correction)
-    return unavailable([
-      'No accepted correction source covers wind, surface and slope for this aircraft and runway.',
-      ...(missing.length ? [`No applicable source identified for: ${missing.join(', ')}.`] : []),
-      operation === 'landing' ? 'FSM 3/75 has no landing correction table. Distances stay uncorrected; consult the aircraft manual for these corrections.' : 'Distances stay uncorrected; see Correction sources.',
-    ].join(' '))
-  }
   if (!runway) return unavailable('Save the manual runway to select its surface correction.')
 
   const headwindKt = parseLookupNumber(inputs.headwind)
@@ -151,8 +143,8 @@ export function presentCorrectedOperation(
   const factor = resolveOsf(osf, operation)
   const threshold = osfThreshold(osf, operation)
   const up = (value: number) => `${formatNumber(Math.ceil(value), 0)} m`
-  const { document, section } = estimating ? fsm[0]!.selected! : manual[0]!.selected!
-  const sourceId = estimating ? 'fsm' : manual[0]!.selected!.id
+  const selected = estimating ? fsm[0]!.selected! : manual[0]?.selected
+  const sourceId = estimating ? 'fsm' : selected?.id ?? ''
   const comparison = compareWithRunway(operation, Math.ceil(result.distanceOver50ft * factor), Math.ceil(result.groundRoll * factor), available)
   const missing = rows.filter((row) => !manual.includes(row) && !fsm.includes(row) && (row.correction !== 'wind' || headwindKt < 0 || !estimating)).map((row) => row.correction)
   const partial = result.notCredited.length > 0 || missing.length > 0
@@ -166,7 +158,7 @@ export function presentCorrectedOperation(
   const correctedOver50Marker = markers([roll, over50]) + (estimating ? FSM_ESTIMATE_MARKER : '')
   return {
     operation, title, status: 'applied', partial,
-    source: `${document.title}, ${document.identifier}, ${document.revision}; ${section}${estimating && manual.length ? `; ${manual[0]!.selected!.document.title}, ${manual[0]!.selected!.document.revision}; ${manual[0]!.selected!.section}` : ''}`,
+    source: selected ? `${selected.document.title}, ${selected.document.identifier}, ${selected.document.revision}; ${selected.section}${estimating && manual.length ? `; ${manual[0]!.selected!.document.title}, ${manual[0]!.selected!.document.revision}; ${manual[0]!.selected!.section}` : ''}` : 'No applicable wind, surface or slope correction source',
     rows: [
       { label: roll.label, raw: `${formatNumber(roll.distance)} m${baseRollMarker}`, corrected: up(result.groundRoll) + rollMarker, factored: up(result.groundRoll * factor) + rollMarker },
       { label: over50.label, raw: `${formatNumber(over50.distance)} m${over50Marker}`, corrected: up(result.distanceOver50ft) + correctedOver50Marker, factored: up(result.distanceOver50ft * factor) + correctedOver50Marker },
