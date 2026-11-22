@@ -178,6 +178,8 @@ function apply(field: keyof MetarValues): void {
       <label>Forecast wind speed<input v-model="speed" type="text" inputmode="decimal" min="0" max="200" step="any" /></label>
       <label>Forecast wind unit<select v-model="unit"><option value="kt">kt</option><option value="m/s">m/s</option></select></label>
     </div>
+    <p v-if="qnh.trim() && values.qnh">QNH to apply: {{ values.qnh }} hPa. Applying replaces the current Flight Prep QNH.</p>
+    <p v-else-if="qnh.trim()" role="alert">QNH is outside the supported range or is not a valid number; check the value and unit.</p>
     <p v-if="!qnhSourceTimeValid" role="alert">QNH source time must not be in the future.</p>
     <p v-if="time && Number.isFinite(Date.parse(time)) && Date.parse(time) <= now">Selected time has passed; pilot-entered forecast values are outdated.</p>
     <p v-else-if="!selectionValid">Choose a location and future local time to apply values.</p>
