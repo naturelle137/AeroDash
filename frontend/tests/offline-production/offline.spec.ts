@@ -134,6 +134,17 @@ test('cached preparation reopens offline with persisted synthetic data and live 
   await saved.scrollIntoViewIfNeeded()
   await capture(page, info, 'offline-saved-runway')
 
+  await runway.getByLabel('Runway designator', { exact: true }).fill('27')
+  await runway.getByLabel('Expiry date', { exact: true }).fill('2026-06-30')
+  await runway.getByRole('button', { name: 'Save runway inputs', exact: true }).click()
+  await page.reload()
+  await dateCheck.getByLabel('Check date').fill('2026-11-26')
+  const recent = page.getByRole('region', { name: 'Recently used airports', exact: true })
+  await expect(recent.getByRole('button', { name: /27: Expired/ })).toBeVisible()
+  await expect(recent.getByRole('button', { name: /09: Within the declared dates/ })).toBeVisible()
+  await recent.scrollIntoViewIfNeeded()
+  await capture(page, info, 'offline-recent-runways')
+
   // Real navigations while disconnected also exercise cached lazy route chunks.
   expect((await page.goto('/fleet'))?.fromServiceWorker()).toBe(true)
   await expect(page.locator('.profile-item')).toContainText('D-TEST')
