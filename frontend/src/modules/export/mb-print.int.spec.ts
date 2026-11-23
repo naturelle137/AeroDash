@@ -34,7 +34,7 @@ describe('M&B print presentation with real store calculation', () => {
     input.state = 'ERROR_CRITICAL'
     input.result!.violations.push({ type: 'MTOM_EXCEEDED' })
     input.notifications.push({ id: 'CRIT-MB-002', severity: 'CRITICAL', message: 'MTOM Exceeded', context: 'MassBalance.TotalMass', persistent: false, dismissible: true })
-    input.fuel = { inputKey: 'synthetic', reason: null, method: 'direct', sequence: '', cgReason: null, warnings: [], rows: [{ label: 'Takeoff mass', value: '900 kg' }, { label: 'Estimated arrival mass', value: '850 kg' }] }
+    input.fuel = { inputKey: 'synthetic', reason: null, method: 'direct', sequence: '', pathAssessment: 'Inside envelope', cgReason: null, warnings: [], rows: [{ label: 'Takeoff mass', value: '900 kg' }, { label: 'Estimated arrival mass', value: '850 kg' }] }
     const rows = assembleMbPrint(input, new Date())!.fuel!.rows
     expect(rows[0]!.warnings).toContain('MTOM Exceeded')
     expect(rows[1]!.warnings).not.toContain('MTOM Exceeded')

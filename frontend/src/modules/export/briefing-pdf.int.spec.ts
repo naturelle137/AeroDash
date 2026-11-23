@@ -110,7 +110,7 @@ describe('Briefing Pack PDF download', () => {
   it('carries the density warning beside dependent fuel values in the PDF', async () => {
     const input = source()
     input.notifications.push({ id: 'WARN-FE-002', severity: 'WARNING', message: 'Verify fuel mass', context: 'FuelEndurance.Density', persistent: false, dismissible: true })
-    input.fuel = { inputKey: 'synthetic', reason: null, method: 'duration', sequence: '', cgReason: null, warnings: [], rows: [{ label: 'Usable fuel', value: '40 kg' }, { label: 'Trip fuel', value: '20 kg' }] }
+    input.fuel = { inputKey: 'synthetic', reason: null, method: 'duration', sequence: '', pathAssessment: 'Inside envelope', cgReason: null, warnings: [], rows: [{ label: 'Usable fuel', value: '40 kg' }, { label: 'Trip fuel', value: '20 kg' }] }
     const { text } = await pdfFor(input)
     expect(strip(text)).toContain(strip('Usable fuel 40 kg [UNVERIFIED] Verify fuel mass'))
     expect(strip(text)).not.toContain(strip('Trip fuel 20 kg [UNVERIFIED] Verify fuel mass'))
@@ -127,7 +127,7 @@ describe('Briefing Pack PDF download', () => {
   it('retains the fuel shortfall warning and affected value without its internal identifier', async () => {
     const input = source()
     const warning = 'WARN-FE-001 — Insufficient fuel for the entered trip plus reserve.'
-    input.fuel = { inputKey: 'synthetic', reason: null, method: 'duration', sequence: '', cgReason: null,
+    input.fuel = { inputKey: 'synthetic', reason: null, method: 'duration', sequence: '', pathAssessment: 'Inside envelope', cgReason: null,
       warnings: [warning], rows: [{ label: 'Fuel shortfall', value: '30 kg', warnings: [warning] }] }
     const { text, sheet } = await pdfFor(input)
     for (const content of [sheet, text]) {
@@ -237,7 +237,7 @@ describe('Briefing Pack PDF download', () => {
   it('exports current unavailable arrival CG, runway and performance reasons with valid arrival mass', async () => {
     const input = source()
     const cgReason = 'Choose an explicit named burn sequence for all category-available tanks.'
-    input.fuel = { inputKey: 'synthetic', method: 'direct', sequence: '', reason: null, cgReason, rows: [{ label: 'Estimated arrival mass', value: '570 kg', warnings: [] }], warnings: [] }
+    input.fuel = { inputKey: 'synthetic', method: 'direct', sequence: '', reason: null, pathAssessment: 'Unavailable: choose a sequence', cgReason, rows: [{ label: 'Estimated arrival mass', value: '570 kg', warnings: [] }], warnings: [] }
     input.performance = presentPerformance({ inputKey: 'k', inputs: [], aircraft: null,
       takeoff: { status: 'unavailable', reason: 'Takeoff mass unavailable.' },
       landing: { status: 'unavailable', reason: 'Arrival performance unavailable.' },
