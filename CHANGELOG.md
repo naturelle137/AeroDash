@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Preserve separate manual forecast QNH drafts when switching units.
 - Check an optional pilot-declared forecast QNH validity interval before application.
 - Retain separate recent runway directions and their source date checks for the same aerodrome.
 

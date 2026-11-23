@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import { QNH_SUPPORTED_HPA } from '@/core/logic/pressure-altitude'
 import type { MetarValues } from '../metar-values'
 import { parseForecast, parseGlobalForecast } from '../forecast'
@@ -11,6 +11,7 @@ const time = ref('')
 const temperature = ref('')
 const qnh = ref('')
 const qnhUnit = ref<'hPa' | 'inHg'>('hPa')
+const qnhDrafts = reactive({ hPa: '', inHg: '' })
 const qnhSource = ref('')
 const qnhSourceTime = ref('')
 const qnhValidFrom = ref('')
@@ -45,12 +46,12 @@ onBeforeUnmount(() => {
   window.removeEventListener('pageshow', refresh)
 })
 watch([phase, location, time], () => {
-  temperature.value = ''; qnh.value = ''; qnhSource.value = ''; qnhSourceTime.value = ''; qnhValidFrom.value = ''; qnhValidTo.value = ''; direction.value = ''; speed.value = ''
+  temperature.value = ''; clearQnh(); direction.value = ''; speed.value = ''
   request++; forecast.value = null; forecastMessage.value = 'Selection changed; retrieve the forecast again.'
   globalForecast.value = null; globalMessage.value = 'Selection changed; retrieve the forecast again.'
 }, { flush: 'sync' })
 watch([latitude, longitude], () => { request++; globalForecast.value = null; globalMessage.value = 'Coordinates changed; retrieve the forecast again.' }, { flush: 'sync' })
-watch(qnhUnit, () => { qnh.value = '' }, { flush: 'sync' })
+watch(qnhUnit, (unit, previous) => { qnhDrafts[previous] = qnh.value; qnh.value = qnhDrafts[unit] }, { flush: 'sync' })
 const numberIn = (value: string, min: number, max: number) => value.trim() !== '' && Number.isFinite(Number(value)) && Number(value) >= min && Number(value) <= max
 const selectionValid = computed(() => location.value.trim() !== '' && time.value !== '' && Number.isFinite(Date.parse(time.value)) && Date.parse(time.value) > now.value)
 const stale = computed(() => !!forecast.value && (forecast.value.stale || Date.parse(forecast.value.valid) <= now.value || now.value - Date.parse(forecast.value.fetched) > 4 * 60 * 60 * 1000))
@@ -129,6 +130,7 @@ function applyRetrieved(field: 'temperature' | 'wind'): void {
 
 function clearQnh(): void {
   qnh.value = ''; qnhSource.value = ''; qnhSourceTime.value = ''; qnhValidFrom.value = ''; qnhValidTo.value = ''
+  qnhDrafts.hPa = ''; qnhDrafts.inHg = ''
 }
 
 function apply(field: keyof MetarValues): void {
@@ -192,10 +194,11 @@ function apply(field: keyof MetarValues): void {
       <label>Forecast wind speed<input v-model="speed" type="text" inputmode="decimal" min="0" max="200" step="any" /></label>
       <label>Forecast wind unit<select v-model="unit"><option value="kt">kt</option><option value="m/s">m/s</option></select></label>
     </div>
+    <p>QNH entries are kept separately for each unit; switching units does not convert the entry.</p>
     <p v-if="qnh.trim() && values.qnh">QNH to apply: {{ values.qnh }} hPa. Applying replaces the current Flight Prep QNH.</p>
     <p v-else-if="qnh.trim()" role="alert">QNH is outside the supported range or is not a valid number; check the value and unit.</p>
     <p v-if="qnh.trim() && selectionValid">QNH selection: {{ phase }} · {{ location.trim() }} · {{ time.replace('T', ' ') }} device local time. Verify that the source applies to this location and time.</p>
-    <button type="button" :disabled="!qnh && !qnhSource && !qnhSourceTime && !qnhValidFrom && !qnhValidTo" @click="clearQnh">Clear QNH entry and source</button>
+    <button type="button" :disabled="!qnh && !qnhDrafts.hPa && !qnhDrafts.inHg && !qnhSource && !qnhSourceTime && !qnhValidFrom && !qnhValidTo" @click="clearQnh">Clear QNH entry and source</button>
     <p>Optional QNH validity: enter both local times; the selected flight time must be within the interval (end excluded). The pilot declares and verifies this interval.</p>
     <p v-if="!qnhValidityValid" role="alert">Enter a valid QNH interval containing the selected flight time; its end is excluded.</p>
     <p v-if="!qnhSourceTimeValid" role="alert">QNH source time must not be in the future.</p>

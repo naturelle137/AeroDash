@@ -80,6 +80,10 @@ When the pilot changes the forecast phase, location or time, the system shall cl
 
 When the pilot declares a QNH validity interval, the system shall allow application only when the selected flight time is within its start-inclusive, end-exclusive interval.
 
+### REQ-WX-017: QNH unit drafts
+
+When the pilot switches forecast QNH units, the system shall retain the separate entry for each unit until the selection or QNH entry is cleared.
+
 ## Design References
 
 - **<a name="notificationScheme"></a>Notification Scheme:** [`docs/architecture/notification_schema.md`](../architecture/notification_schema.md)
