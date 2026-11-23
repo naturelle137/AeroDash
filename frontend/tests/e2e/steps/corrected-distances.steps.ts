@@ -172,3 +172,24 @@ Then("changing each phase's conditions updates its final distance", async ({ pag
     expect(await result.evaluate((el, other) => !!(el.compareDocumentPosition(other) & Node.DOCUMENT_POSITION_FOLLOWING), await base.elementHandle())).toBe(true)
   }
 })
+
+Then('pilot-entered wind multipliers change both distances and clear with changed conditions', async ({ page }) => {
+  for (const phase of ['Takeoff', 'Landing']) {
+    const inputs = page.getByRole('group', { name: `${phase} wind and slope` })
+    const result = page.getByRole('region', { name: `${phase} corrected distances`, exact: true })
+    const first = result.locator('dd').first()
+    const before = await first.innerText()
+    await inputs.getByLabel('Manual POH wind multiplier (optional)').fill('1.2')
+    await expect(result).toContainText('Enter a positive finite manual wind multiplier and its source')
+    await inputs.getByLabel('Wind factor source and section').fill('Synthetic manual section 1')
+    await expect(first).not.toHaveText(before)
+    await expect(result).toContainText('Synthetic manual section 1')
+    await expect(result).toContainText('partially corrected distances')
+    await expect(result).toContainText('Do not use this comparison for runway assessment')
+    await inputs.getByLabel('Headwind component (kt, negative = tailwind)').fill('-3')
+    await expect(inputs.getByLabel('Manual POH wind multiplier (optional)')).toHaveValue('')
+    await inputs.getByLabel('Headwind component (kt, negative = tailwind)').fill('-2')
+    await inputs.getByLabel('Manual POH wind multiplier (optional)').fill('1.2')
+    await inputs.getByLabel('Wind factor source and section').fill('Synthetic manual section 1')
+  }
+})
