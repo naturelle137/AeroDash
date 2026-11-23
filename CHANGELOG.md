@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Show the selected forecast QNH time in UTC for comparison with source validity.
+
 - Retain the pilot-entered forecast QNH and its unit in applied provenance.
 - Show missing forecast QNH source details and the elapsed age of a pilot-declared source time.
 - Show the declared date check for valid unsaved manual runway entries.
