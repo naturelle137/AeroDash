@@ -98,7 +98,8 @@ when non-empty.
 ### 4.2 Personal data copy
 
 The Privacy download wraps the unchanged fleet backup envelope with validated active
-and per-aircraft M&B sessions and per-aircraft Flight Prep drafts. It includes an
+and per-aircraft M&B sessions, Flight Prep drafts, saved runways and instructor notes.
+Station and draft units accompany their values. It includes an
 omissions list and a complete flag. Unreadable records and storage failures are
 reported; credentials, security material, preferences and caches are excluded.
 The fleet envelope can be extracted and restored with the existing fleet importer.

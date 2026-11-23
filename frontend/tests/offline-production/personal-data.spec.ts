@@ -9,6 +9,7 @@ test('downloads saved sessions from Privacy while offline', async ({ page, conte
   await expect.poll(() => page.evaluate(() => !!navigator.serviceWorker.controller)).toBe(true)
   await page.evaluate(() => {
     const session = (aircraftId: string) => ({ version: 1, aircraftId, activeCategory: 'Normal', stations: [{ index: 0, weight: 42, touched: true, verified: false }], savedAt: '2026-01-01T00:00:00Z' })
+    localStorage.setItem('aerodash:annotations:v1', JSON.stringify([{ id: '1', aircraftId: 'a', anchor: 'takeoff', author: 'Pilot', text: 'Private note', createdAt: 'now', updatedAt: 'now' }]))
     localStorage.setItem('aerodash:session:by-aircraft', JSON.stringify({ a: session('a'), b: session('b') }))
   })
   await context.setOffline(true)
@@ -18,7 +19,9 @@ test('downloads saved sessions from Privacy while offline', async ({ page, conte
   const download = await downloadPromise
   const contents = JSON.parse(await readFile((await download.path())!, 'utf8'))
   expect(contents.sessions.map((s: { aircraftId: string }) => s.aircraftId)).toEqual(['a', 'b'])
-  expect(contents.complete).toBe(true)
+  expect(contents.notes[0]).toMatchObject({ author: 'Pilot', text: 'Private note' })
+  expect(contents.complete).toBe(false)
+  expect(contents.omissions).toHaveLength(2)
   const path = info.outputPath(`privacy-${info.project.name}.png`)
   await page.screenshot({ path, fullPage: true, animations: 'disabled' })
   await info.attach('privacy-offline', { path, contentType: 'image/png' })

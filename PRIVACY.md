@@ -138,7 +138,8 @@ these caches are not fleet/session data and are not cleared by that action.
 `/privacy` exposing two GDPR-aligned actions:
 
 1. **Bulk JSON Export (Art. 15 / Art. 20).** Downloads readable aircraft
-   profiles and saved flight preparations in a versioned local JSON copy.
+   profiles, saved flight preparations, runway records and instructor notes in a
+   versioned local JSON copy.
    Unreadable records and storage failures are reported in the copy and view.
    A separate fleet backup retains the existing restore format. Credentials and
    caches are excluded; no data is transmitted.

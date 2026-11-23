@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-- Include saved flight preparations and omission reports in the Privacy data copy.
+- Include saved flight preparations, runway records, notes, units and omission reports in the Privacy data copy.
 
 - Show source references and declared date boundaries for recent runway directions offline.
 - Hide internal Performance and wind warning identifiers in briefing output while retaining warning details.
