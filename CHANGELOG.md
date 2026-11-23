@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Show and retain UTC interpretations of manually entered forecast QNH source and validity times.
+
 - Show the selected forecast QNH time in UTC for comparison with source validity.
 
 - Retain the pilot-entered forecast QNH and its unit in applied provenance.
