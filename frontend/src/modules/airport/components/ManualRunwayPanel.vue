@@ -59,7 +59,10 @@ if (!runway.loaded) runway.load()
     <section v-if="runway.recent.length" aria-label="Recently used airports">
       <h3>Recently used airports</h3>
       <p>Declared date check for {{ runway.assessmentDate || 'an invalid date' }}. Source and currency remain unverified; NOTAM/SUP coverage is unknown.</p>
-      <div class="actions"><button v-for="record in runway.recent" :key="JSON.stringify([record.runway.aerodrome, record.runway.designator])" type="button" @click="selectRecent(record)">{{ record.runway.aerodrome }} — {{ record.runway.designator }}: {{ freshnessLabels[runwayFreshness(record.runway, runway.assessmentDate)] }}</button></div>
+      <ul class="recent-runways"><li v-for="record in runway.recent" :key="JSON.stringify([record.runway.aerodrome, record.runway.designator])">
+        <button type="button" @click="selectRecent(record)">{{ record.runway.aerodrome }} — {{ record.runway.designator }}: {{ freshnessLabels[runwayFreshness(record.runway, runway.assessmentDate)] }}</button>
+        <p>Source: {{ record.runway.source || 'Unknown' }} (user-declared, unverified) · Effective: {{ record.runway.effectiveDate || 'Unknown' }} · Expiry (inclusive): {{ record.runway.expiryDate || 'Unknown' }}</p>
+      </li></ul>
     </section>
     <div class="fields">
       <div class="field">
@@ -240,6 +243,7 @@ select:disabled { opacity: .6; }
 .field-error { color: var(--color-danger, #c0392b); font-weight: 600; }
 .field-error::before { content: '⚠ '; }
 .actions { display: flex; flex-wrap: wrap; gap: .75rem; }
+.recent-runways { list-style: none; padding: 0; display: grid; gap: .75rem; overflow-wrap: anywhere; }
 button { cursor: pointer; font-weight: 600; }
 .provenance, .unsaved { overflow-wrap: anywhere; }
 .summary { border-left: 4px solid var(--color-primary); padding-left: .75rem; display: grid; gap: .5rem; overflow-wrap: anywhere; }
