@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 - Support pilot-entered additive wind corrections for both performance distances.
+- Show missing forecast QNH source details and the elapsed age of a pilot-declared source time.
 - Show the declared date check for valid unsaved manual runway entries.
 - Describe automatic and fixed runway check dates accurately in the briefing.
 - Show separate forecast QNH drafts and allow clearing either unit independently.
