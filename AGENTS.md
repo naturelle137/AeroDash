@@ -36,6 +36,7 @@ pnpm --filter frontend test:p1:coverage
 pnpm --filter frontend test:mutation
 ```
 
+Run Playwright headless locally and in CI; use `--headed` only on explicit CEO request.
 Vite uses port 5173. Playwright starts its own server. Select Chromium on Linux without Edge; scenarios excluded by `@wip` are unfinished, never passed.
 
 ## Delivery
