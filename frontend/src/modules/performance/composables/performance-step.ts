@@ -71,6 +71,13 @@ export function usePerformanceStep(context: () => PerformanceStepContext) {
     pa.revision.value, temperature.value, corrections, safetyFactors, obstacle, units.preferences, manualConfiguration.value,
     runway.saved, runway.draft, runway.storageError, runway.hasUnsavedChanges, runway.assessmentDate,
   ]))
+  // A pilot-derived factor belongs only to the exact conditions for which it was entered.
+  for (const operation of OPERATIONS) {
+    watch(() => JSON.stringify([ctx.value, pa.revision.value, temperature.value, corrections[operation].headwind, corrections[operation].slope, runway.saved, runway.draft, manualConfiguration.value]), () => {
+      corrections[operation].windFactor = ''
+      corrections[operation].windSource = ''
+    }, { flush: 'sync' })
+  }
   const result = shallowRef<ComputedResult | null>(null)
   // Bound to the exact input key: any later input, profile, mass or runway change leaves the key behind.
   const acknowledgedKey = ref<string | null>(null)
@@ -167,6 +174,7 @@ export function usePerformanceStep(context: () => PerformanceStepContext) {
         ...OPERATIONS.flatMap((operation) => [
           { label: `${OPERATION_LABELS[operation]} headwind component`, value: `${corrections[operation].headwind.trim() || 'Not entered'} kt` },
           { label: `${OPERATION_LABELS[operation]} runway slope`, value: `${corrections[operation].slope.trim() || 'Not entered'} %` },
+          { label: `${OPERATION_LABELS[operation]} pilot-entered wind multiplier`, value: corrections[operation].windFactor ? `${corrections[operation].windFactor} · ${corrections[operation].windSource || 'source not entered'} (unverified)` : 'Not entered' },
           { label: `${OPERATION_LABELS[operation]} safety factor`, value: safetyFactors[operation].preset === 'custom' ? `Custom ${safetyFactors[operation].custom.trim() || 'not entered'}` : safetyFactors[operation].preset },
         ]),
         { label: 'Unverified obstacle constraint', value: describeObstacle(obstacleAssessment.value) },

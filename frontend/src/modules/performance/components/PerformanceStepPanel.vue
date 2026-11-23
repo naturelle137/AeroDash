@@ -23,6 +23,9 @@ const { temperature, temperatureWarnings, corrections, safetyFactors, showPaErro
         <InputHelp :label="`${operation === 'takeoff' ? 'Takeoff' : 'Landing'} headwind`">Enter the wind component along the runway in knots: positive for headwind, negative for tailwind, and zero for calm.</InputHelp></div>
       <div><label>Runway slope (%, positive = uphill)<input v-model="corrections[operation].slope" :id="`performance-${operation}-slope`" type="text" inputmode="text" /></label>
         <InputHelp :label="`${operation === 'takeoff' ? 'Takeoff' : 'Landing'} runway slope`">Enter runway slope in percent in the direction of use: positive uphill, negative downhill, and zero for level.</InputHelp></div>
+      <label>Manual POH wind multiplier (optional)<input v-model="corrections[operation].windFactor" :id="`performance-${operation}-wind-factor`" type="text" inputmode="decimal" /></label>
+      <label>Wind factor source and section<input v-model="corrections[operation].windSource" :id="`performance-${operation}-wind-source`" type="text" /></label>
+      <p>Enter a multiplier only when the aircraft manual applies it to both distances for these conditions and in combination with the other corrections. Source and applicability are not verified.</p>
       <label>Safety factor
         <select v-model="safetyFactors[operation].preset" :id="`performance-${operation}-safety-factor`">
           <option v-for="preset in SAFETY_FACTOR_PRESETS" :key="preset.value" :value="preset.value">{{ preset.label }}</option>
