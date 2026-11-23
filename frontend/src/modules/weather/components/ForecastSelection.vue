@@ -141,8 +141,8 @@ function clearQnh(): void {
 function apply(field: keyof MetarValues): void {
   if (!selectionValid.value || Date.parse(time.value) <= Date.now() || !values.value[field] || (field === 'qnh' && (!qnhValidityValid.value || (qnhSourceTime.value && (!qnhSourceTimeValid.value || Date.parse(qnhSourceTime.value) > Date.now()))))) return
   const source = field === 'qnh' && qnhSource.value.trim() ? `; pilot-declared QNH source: ${qnhSource.value.trim()}` : ''
-  const sourceTime = field === 'qnh' && qnhSourceTime.value ? `; pilot-declared QNH source time: ${qnhSourceTime.value.replace('T', ' ')} local time` : ''
-  const validity = field === 'qnh' && qnhValidFrom.value && qnhValidTo.value ? `; pilot-declared QNH validity: ${qnhValidFrom.value.replace('T', ' ')} to ${qnhValidTo.value.replace('T', ' ')} local time (end exclusive)` : ''
+  const sourceTime = field === 'qnh' && qnhSourceTime.value ? `; pilot-declared QNH source time: ${qnhSourceTime.value.replace('T', ' ')} local time (${new Date(qnhSourceTime.value).toISOString()})` : ''
+  const validity = field === 'qnh' && qnhValidFrom.value && qnhValidTo.value ? `; pilot-declared QNH validity: ${qnhValidFrom.value.replace('T', ' ')} to ${qnhValidTo.value.replace('T', ' ')} local time (${new Date(qnhValidFrom.value).toISOString()} to ${new Date(qnhValidTo.value).toISOString()} UTC; end exclusive)` : ''
   const original = field === 'qnh' ? `; pilot-entered QNH: ${qnh.value.trim()} ${qnhUnit.value}` : ''
   emit('apply', field, values.value, `Pilot-entered forecast for ${phase.value}, ${location.value.trim()}, ${time.value.replace('T', ' ')} local time${original}${source}${sourceTime}${validity}`)
 }
@@ -208,6 +208,8 @@ function apply(field: keyof MetarValues): void {
     <p v-if="qnh.trim() && selectionValid">QNH selection: {{ phase }} · {{ location.trim() }} · {{ time.replace('T', ' ') }} device local time ({{ new Date(time).toISOString() }}). Verify that the source applies to this location and time; check the UTC time when clocks change.</p>
     <button type="button" :disabled="!Object.values(qnhDrafts).some(draft => Object.values(draft).some(Boolean))" @click="clearQnh">Clear QNH entry and source</button>
     <p>Optional QNH validity: enter both local times; the selected flight time must be within the interval (end excluded). The pilot declares and verifies this interval.</p>
+    <p v-if="qnhSourceTime && qnhSourceTimeValid">QNH source time in UTC: {{ new Date(qnhSourceTime).toISOString() }}.</p>
+    <p v-if="qnhValidFrom && qnhValidTo && qnhValidityValid">QNH validity in UTC: {{ new Date(qnhValidFrom).toISOString() }} to {{ new Date(qnhValidTo).toISOString() }} (end excluded).</p>
     <p v-if="!qnhValidityValid" role="alert">Enter a valid QNH interval containing the selected flight time; its end is excluded.</p>
     <p v-if="qnh.trim() && !qnhSource.trim()">QNH source not recorded; verify its origin.</p>
     <p v-if="qnh.trim() && !qnhSourceTime">QNH source time not recorded; its age is unknown.</p>
