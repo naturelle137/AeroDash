@@ -167,3 +167,7 @@ When displaying a saved runway with a declared expiry and valid check date, the 
 ### REQ-AP-036: Declared effective interval
 
 When displaying a saved or recent runway or its briefing, the system shall show the signed number of calendar days until its declared effective date, or unknown when unavailable.
+
+### REQ-AP-037: Automatic date disclosure
+
+While the automatic local date is selected, the briefing shall identify the device date as the source of the check date.
