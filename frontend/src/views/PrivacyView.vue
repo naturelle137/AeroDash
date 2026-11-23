@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import { exportPersonalData } from '@/stores/personal-data-export'
 import { RouterLink } from 'vue-router'
 import {
   exportAllProfiles,
@@ -80,6 +81,7 @@ const lastError = ref<string | null>(null)
 const lastWipe = ref<WipeReport | null>(null)
 const lastExportAt = ref<string | null>(null)
 const lastExportOmitted = ref(0)
+const exportDetails = ref<string[]>([])
 
 const profileCount = computed(() => fleetStore.profiles.length)
 // A failed fleet load leaves `profiles` empty, which would otherwise read as
@@ -126,12 +128,13 @@ async function onExportAll(): Promise<void> {
   lastExportOmitted.value = 0
   busy.value = true
   try {
-    const { envelope, omitted } = await exportAllProfiles()
-    const json = serializeBulkExport(envelope)
-    const downloaded = triggerJsonDownload(json, envelope.exportedAt)
+    const copy = await exportPersonalData()
+    const json = JSON.stringify(copy, null, 2)
+    const downloaded = triggerJsonDownload(json, copy.exportedAt)
     if (!downloaded) return
-    lastExportAt.value = envelope.exportedAt
-    lastExportOmitted.value = omitted.length
+    lastExportAt.value = copy.exportedAt
+    exportDetails.value = copy.omissions
+    lastExportOmitted.value = copy.omissions.length
   } catch (err) {
     lastError.value = err instanceof Error ? err.message : 'Export failed: unknown error'
   } finally {
@@ -139,15 +142,31 @@ async function onExportAll(): Promise<void> {
   }
 }
 
+async function onFleetBackup(): Promise<void> {
+  clearError()
+  busy.value = true
+  try {
+    const { envelope, omitted } = await exportAllProfiles()
+    triggerJsonDownload(serializeBulkExport(envelope), envelope.exportedAt, 'fleet')
+    lastExportAt.value = envelope.exportedAt
+    exportDetails.value = omitted.map(() => 'Unreadable aircraft profile')
+    lastExportOmitted.value = omitted.length
+  } catch (err) {
+    lastError.value = err instanceof Error ? err.message : 'Export failed'
+  } finally {
+    busy.value = false
+  }
+}
+
 /** Returns `true` once the download has been kicked off, `false` outside a DOM. */
-function triggerJsonDownload(json: string, exportedAt: string): boolean {
+function triggerJsonDownload(json: string, exportedAt: string, kind = 'personal-data'): boolean {
   if (typeof document === 'undefined') return false
   const safeStamp = exportedAt.replace(/[:.]/g, '-')
   const blob = new Blob([json], { type: 'application/json' })
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url
-  a.download = `aerodash-fleet-${safeStamp}.json`
+  a.download = `aerodash-${kind}-${safeStamp}.json`
   document.body.appendChild(a)
   a.click()
   a.remove()
@@ -287,19 +306,14 @@ function onCancelWipe(): void {
       role="alert"
       data-testid="privacy-export-omitted"
     >
-      Warning: {{ lastExportOmitted }} profile{{ lastExportOmitted === 1 ? '' : 's' }} could
-      not be included in this export (saved by a newer app version or unreadable). The export
-      is therefore not a complete copy — update AeroDash to recover them before deleting all
-      data.
+      The copy is incomplete: {{ exportDetails.join('; ') }}. Recover the unavailable data before deleting it.
     </p>
 
     <!-- ─── Export-all card ─────────────────────────────────────────── -->
     <section class="card" aria-labelledby="export-heading">
       <h2 id="export-heading">Bulk JSON Export (Art. 15 / Art. 20)</h2>
       <p>
-        Export every aircraft profile currently held in IndexedDB to a single
-        downloadable JSON file. The export is sorted by registration and includes
-        the envelope's schema version so re-imports can validate it safely.
+        Download a local copy of aircraft profiles and saved flight preparations. The nested fleet envelope can be restored separately. Credentials and caches are excluded.
       </p>
       <p class="card__meta" data-testid="profile-count">
         Profiles available: {{ fleetLoadFailed ? 'unavailable' : profileCount }}
@@ -308,10 +322,13 @@ function onCancelWipe(): void {
         type="button"
         class="btn btn-primary"
         data-testid="export-all-btn"
-        :disabled="busy || fleetLoadFailed || profileCount === 0"
+        :disabled="busy || fleetLoadFailed"
         @click="onExportAll"
       >
-        Export all profiles as JSON
+        Download personal data as JSON
+      </button>
+      <button type="button" class="btn" data-testid="fleet-backup-btn" :disabled="busy || fleetLoadFailed" @click="onFleetBackup">
+        Download fleet backup for restore
       </button>
     </section>
 
