@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Provide direct access to manual forecast QNH entry when automated QNH is unavailable.
 - Show and retain UTC interpretations of manually entered forecast QNH source and validity times.
 
 - Show the selected forecast QNH time in UTC for comparison with source validity.

@@ -91,3 +91,7 @@ When the pilot switches forecast QNH units, the system shall retain the separate
 ### REQ-WX-018: Clear one QNH draft
 
 When the pilot clears the selected forecast QNH draft, the system shall retain the other unit’s draft.
+
+### REQ-WX-019: Manual QNH entry access
+
+When the pilot selects manual QNH entry, the system shall focus the forecast QNH input.

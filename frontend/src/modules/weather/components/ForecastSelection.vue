@@ -10,6 +10,7 @@ const location = ref('')
 const time = ref('')
 const temperature = ref('')
 const qnhUnit = ref<'hPa' | 'inHg'>('hPa')
+const qnhInput = ref<HTMLInputElement | null>(null)
 const emptyQnhDraft = () => ({ value: '', source: '', sourceTime: '', validFrom: '', validTo: '' })
 const qnhDrafts = reactive({ hPa: emptyQnhDraft(), inHg: emptyQnhDraft() })
 const draft = computed(() => qnhDrafts[qnhUnit.value])
@@ -188,9 +189,10 @@ function apply(field: keyof MetarValues): void {
     </div>
     <p>For education and situational awareness only, not an official briefing or go/no-go authority. Obtain required weather from an authorised source.</p>
     <p>Forecast QNH is unavailable from these services. Obtain aviation QNH from an authorised source and enter it below; do not substitute model sea-level pressure. Wind direction is true; gusts are not applied. Values require a future time and are applied only when selected.</p>
+    <button type="button" @click="qnhInput?.focus()">Enter aviation QNH manually</button>
     <div class="fields">
       <label>Forecast temperature (°C)<input v-model="temperature" type="text" inputmode="decimal" min="-100" max="100" step="any" /></label>
-      <label>Forecast QNH ({{ qnhUnit }})<input v-model="qnh" type="text" inputmode="decimal" /></label>
+      <label>Forecast QNH ({{ qnhUnit }})<input ref="qnhInput" v-model="qnh" type="text" inputmode="decimal" /></label>
       <label>QNH unit<select v-model="qnhUnit"><option value="hPa">hPa</option><option value="inHg">inHg</option></select></label>
       <label>QNH source (optional)<input v-model="qnhSource" type="text" autocomplete="off" /></label>
       <label>QNH source time (optional, local)<input v-model="qnhSourceTime" type="datetime-local" /></label>
