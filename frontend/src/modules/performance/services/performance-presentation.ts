@@ -91,7 +91,7 @@ export type RunwayPresentation =
 const TITLES: Record<PerformanceGroupId, string> = { takeoff: 'Takeoff', landing: 'Landing' }
 
 export const PERFORMANCE_SCOPE = [
-  'Base distances from POH/AFM tables or marked estimates are uncorrected: no wind, surface, slope or density-altitude correction is applied to them. Corrected distances are shown separately and only where an accepted source covers the aircraft.',
+  'Base distances from POH/AFM tables or marked estimates are uncorrected: no wind, surface, slope or density-altitude correction is applied to them. Corrected distances are shown separately with their source and any missing or unverified corrections.',
   'Runway comparisons use declared distances and do not constitute a Go/No-Go decision or operational approval.',
 ] as const
 

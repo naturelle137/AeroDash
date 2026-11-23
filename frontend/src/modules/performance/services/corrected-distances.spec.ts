@@ -31,6 +31,40 @@ function setup(registration?: string, surface: 'paved' | 'unpaved' = 'paved', sa
 const corrected = (step: ReturnType<typeof setup>['step'], index: number) => step.presentation.value.corrected[index]!
 
 describe('corrected distances in the performance step', () => {
+  it.each(['takeoff', 'landing'] as const)('applies a pilot-entered whole-distance wind multiplier for %s and clears it on changed conditions', (operation) => {
+    const effect = effectScope()
+    effect.run(() => {
+      const { step } = setup('D-OTHER')
+      Object.assign(step.corrections[operation], { headwind: '-5', slope: '0' })
+      const index = operation === 'takeoff' ? 0 : 1
+      const before = corrected(step, index)
+      if (before.status !== 'applied') throw new Error('expected result')
+      step.corrections[operation].windFactor = '1.2'
+      expect(corrected(step, index).status).toBe('unavailable')
+      step.corrections[operation].windSource = 'Synthetic manual, section 1'
+      const after = corrected(step, index)
+      if (after.status !== 'applied') throw new Error('expected result')
+      expect(after.rows.map(row => row.corrected)).toEqual(before.rows.map(row => `${Math.ceil(Number.parseFloat(row.corrected.replaceAll(',', '')) * 1.2)} m [UNVERIFIED PILOT-ENTERED WIND FACTOR]`))
+      expect(after.notes.join(' ')).toContain('Synthetic manual, section 1')
+      expect(after.partial).toBe(true)
+      expect(after.comparison.margin).toBe('Not available')
+      step.corrections[operation].headwind = '-6'
+      expect(step.corrections[operation].windFactor).toBe('')
+      expect(step.corrections[operation].windSource).toBe('')
+    })
+    effect.stop()
+  })
+
+  it('replaces the built-in wind rule without applying it twice', () => {
+    const { step } = setup()
+    Object.assign(step.corrections.takeoff, { headwind: '-2', slope: '0', windFactor: '1', windSource: 'Synthetic section' })
+    const withManualWind = corrected(step, 0)
+    if (withManualWind.status !== 'applied') throw new Error('expected result')
+    expect(withManualWind.rows[0]!.corrected).toBe('198 m [UNVERIFIED PILOT-ENTERED WIND FACTOR]')
+    expect(withManualWind.safetyFactor).toContain('1.10')
+    expect(withManualWind.partial).toBe(true)
+  })
+
   it('clears the manual selection when the profile changes', () => {
     const effect = effectScope()
     effect.run(() => {
