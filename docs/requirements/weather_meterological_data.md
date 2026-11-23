@@ -87,3 +87,7 @@ When the pilot switches forecast QNH units, the system shall retain the separate
 ## Design References
 
 - **<a name="notificationScheme"></a>Notification Scheme:** [`docs/architecture/notification_schema.md`](../architecture/notification_schema.md)
+
+### REQ-WX-018: Clear one QNH draft
+
+When the pilot clears the selected forecast QNH draft, the system shall retain the other unit’s draft.
