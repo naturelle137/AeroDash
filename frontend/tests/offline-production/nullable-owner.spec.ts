@@ -76,7 +76,7 @@ test('ownerless wizard creation and legacy exchange persist through cached offli
 
   await page.goto('/privacy')
   const downloadEvent = page.waitForEvent('download')
-  await page.getByTestId('export-all-btn').click()
+  await page.getByTestId('fleet-backup-btn').click()
   const download = await downloadEvent
   const backup = await readFile((await download.path())!, 'utf8')
   const exported = JSON.parse(backup)
