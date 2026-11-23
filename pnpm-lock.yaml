@@ -84,8 +84,8 @@ importers:
         specifier: ~1.65.0
         version: 1.65.1
       '@stryker-mutator/api':
-        specifier: ^9.6.1
-        version: 9.6.1
+        specifier: ^10.1.1
+        version: 10.1.1
       '@stryker-mutator/core':
         specifier: ^9.6.1
         version: 9.6.1(@types/node@26.6.6)
