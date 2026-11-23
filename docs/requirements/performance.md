@@ -474,3 +474,9 @@ While an extrapolated lookup result is unacknowledged, the system shall withhold
 When any input, profile, mass or runway changes, the system shall revoke the extrapolation acknowledgement.
 
 **Status:** Implemented. Tests: `frontend/src/modules/performance/composables/performance-step.int.spec.ts`.
+
+### REQ-PF-085: Pilot-entered surface multiplier
+
+When a pilot supplies a positive finite surface multiplier and its source and section, the system shall apply it to the ground roll for the selected operation in place of the built-in surface correction.
+
+**Status:** Implemented with unverified applicability and ordering; partial-result restrictions remain. Test: `frontend/src/modules/performance/services/corrected-distances.spec.ts`.
