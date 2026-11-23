@@ -6,6 +6,7 @@ import {
   createManualRunwayRecord,
   airacCycleStart,
   runwayFreshness,
+  daysToDeclaredExpiry,
   draftFromManualRunway,
   formatNormalizedManualRunway,
   normalizeManualRunway,
@@ -188,6 +189,14 @@ describe('storage record recovery', () => {
 })
 
 describe('declared dates', () => {
+  it('counts date-only days to the declared expiry without assuming currency', () => {
+    const runway = valid(draft({ expiryDate: '2028-03-01' }))
+    expect(daysToDeclaredExpiry(runway, '2028-02-28')).toBe(2)
+    expect(daysToDeclaredExpiry(runway, '2028-03-01')).toBe(0)
+    expect(daysToDeclaredExpiry(runway, '2028-03-02')).toBe(-1)
+    expect(daysToDeclaredExpiry(runway, 'invalid')).toBeNull()
+    expect(daysToDeclaredExpiry(valid(draft()), '2028-03-01')).toBeNull()
+  })
   it('checks inclusive boundaries without inferring expiry from AIRAC', () => {
     const runway = valid(draft({ effectiveDate: '2026-10-29', expiryDate: '2026-12-24' }))
     expect(runwayFreshness(runway, '2026-10-28')).toBe('not-yet-effective')
