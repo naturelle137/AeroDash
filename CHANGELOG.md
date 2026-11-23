@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Omit internal identifiers from briefing warning text in preview, print and PDF.
 - Show days to declared runway effect in the offline workflow and briefing.
 
 - Show days to declared expiry for each recent runway direction offline.

@@ -256,15 +256,15 @@ describe('Briefing Pack PDF download', () => {
     input.performance = presentPerformance({ inputKey: 'k', inputs: [], aircraft: null, takeoff: { status: 'unavailable', reason: 'x' }, landing: { status: 'unavailable', reason: 'x' },
       assessment: null, pressureAltitudeBasis: '', pendingReason: 'x', runway: { status: 'unavailable', reason: 'x' }, operational: presentOperationalAssessment(null, 'x'),
       notifications: [
-        { id: 'CRIT-PF-002', severity: 'CRITICAL', message: 'Takeoff: runway insufficient.', context: 'Performance.RunwayLength', persistent: true, dismissible: false },
-        { id: 'WARN-PF-002', severity: 'WARNING', message: 'Takeoff: WARN-PF-002: low safety factor.', context: 'Performance.SafetyFactor', persistent: true, dismissible: true },
+        { id: 'CRIT-PF-002', severity: 'CRITICAL', message: 'Takeoff: CRIT-PF-002: runway insufficient.', context: 'Performance.RunwayLength', persistent: true, dismissible: false },
+        { id: 'WARN-PF-002', severity: 'WARNING', message: 'Takeoff: WARN-PF-123: low safety factor.', context: 'Performance.SafetyFactor', persistent: true, dismissible: true },
       ] })
     const { text, sheet } = await pdfFor(input)
     for (const content of [text, sheet]) {
       expect(strip(content)).toContain(strip('CRITICAL: Takeoff: runway insufficient.'))
       expect(strip(content)).toContain(strip('WARNING: Takeoff: low safety factor.'))
       expect(content).not.toContain('CRIT-PF-002')
-      expect(content).not.toContain('WARN-PF-002')
+      expect(content).not.toContain('WARN-PF-123')
     }
   })
 
