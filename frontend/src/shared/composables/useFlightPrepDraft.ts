@@ -32,8 +32,8 @@ function collect(fuel: FuelPlanning, step: PerformanceStep): Fields {
         elevationUnit: pa.draft.elevationUnit as 'm' | 'ft',
       },
       corrections: {
-        takeoff: { ...step.corrections.takeoff },
-        landing: { ...step.corrections.landing },
+        takeoff: { headwind: step.corrections.takeoff.headwind, slope: step.corrections.takeoff.slope },
+        landing: { headwind: step.corrections.landing.headwind, slope: step.corrections.landing.slope },
       },
       safetyFactors: {
         takeoff: { ...step.safetyFactors.takeoff },
@@ -91,7 +91,7 @@ export function useFlightPrepDraft(fuel: FuelPlanning, step: PerformanceStep) {
     pa.draft.elevationUnit = p.pressureAltitude.elevationUnit
     pa.draft.elevation = p.pressureAltitude.elevation
     for (const op of OPERATIONS) {
-      Object.assign(step.corrections[op], p.corrections[op])
+      Object.assign(step.corrections[op], p.corrections[op], { windFactor: '', windSource: '' })
       Object.assign(step.safetyFactors[op], p.safetyFactors[op])
     }
     Object.assign(step.obstacle, p.obstacle)
