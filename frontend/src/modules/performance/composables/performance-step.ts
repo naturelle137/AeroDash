@@ -69,13 +69,15 @@ export function usePerformanceStep(context: () => PerformanceStepContext) {
   const inputKey = computed(() => JSON.stringify([
     ctx.value.revision, ctx.value.ready, profileKey.value, ctx.value.category, ctx.value.takeoff, ctx.value.landing,
     pa.revision.value, temperature.value, corrections, safetyFactors, obstacle, units.preferences, manualConfiguration.value,
-    runway.saved, runway.draft, runway.storageError, runway.hasUnsavedChanges, runway.assessmentDate,
+    runway.saved, runway.draft, runway.storageError, runway.hasUnsavedChanges, runway.assessmentDate, runway.automaticDate,
   ]))
   // A pilot-derived factor belongs only to the exact conditions for which it was entered.
   for (const operation of OPERATIONS) {
     watch(() => JSON.stringify([ctx.value, pa.revision.value, temperature.value, corrections[operation].headwind, corrections[operation].slope, runway.saved, runway.draft, manualConfiguration.value]), () => {
       corrections[operation].windFactor = ''
       corrections[operation].windSource = ''
+      corrections[operation].surfaceFactor = ''
+      corrections[operation].surfaceSource = ''
     }, { flush: 'sync' })
   }
   const result = shallowRef<ComputedResult | null>(null)
@@ -135,7 +137,7 @@ export function usePerformanceStep(context: () => PerformanceStepContext) {
         { label: 'Days to declared expiry', value: daysToDeclaredExpiry(declared.record.runway, runway.assessmentDate)?.toString() ?? 'Unknown' },
         { label: 'Surface', value: `${surface.type === 'paved' ? 'Paved' : surface.type === 'grass' ? 'Grass' : 'Other / legacy unpaved'} · ${condition}` },
       ],
-      note: 'User-entered, not airport-validated. The selected check date does not advance automatically; confirm it for your flight. NOTAM/SUP coverage is unknown; check declared dates and restrictions against official sources. Converted available distances are rounded down.',
+      note: `User-entered, not airport-validated. ${runway.automaticDate ? 'The check date follows the device’s local date; check the device date.' : 'The selected check date does not advance automatically; confirm it for your flight.'} NOTAM/SUP coverage is unknown; check declared dates and restrictions against official sources. Converted available distances are rounded down.`,
     }
   })
 
@@ -175,6 +177,7 @@ export function usePerformanceStep(context: () => PerformanceStepContext) {
         ...OPERATIONS.flatMap((operation) => [
           { label: `${OPERATION_LABELS[operation]} headwind component`, value: `${corrections[operation].headwind.trim() || 'Not entered'} kt` },
           { label: `${OPERATION_LABELS[operation]} runway slope`, value: `${corrections[operation].slope.trim() || 'Not entered'} %` },
+          { label: `${OPERATION_LABELS[operation]} pilot-entered surface multiplier`, value: corrections[operation].surfaceFactor ? `${corrections[operation].surfaceFactor} · ${corrections[operation].surfaceSource || 'source and section not entered'} (unverified)` : 'Not entered' },
           { label: `${OPERATION_LABELS[operation]} pilot-entered wind multiplier`, value: corrections[operation].windFactor ? `${corrections[operation].windFactor} · ${corrections[operation].windSource || 'source not entered'} (unverified)` : 'Not entered' },
           { label: `${OPERATION_LABELS[operation]} safety factor`, value: safetyFactors[operation].preset === 'custom' ? `Custom ${safetyFactors[operation].custom.trim() || 'not entered'}` : safetyFactors[operation].preset },
         ]),

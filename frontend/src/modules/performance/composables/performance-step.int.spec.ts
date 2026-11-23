@@ -33,7 +33,7 @@ it('carries the selected declared-date check into performance and invalidates it
     Object.assign(runway.draft, { aerodrome: 'TEST', designator: '18', tora: '1000', lda: '900', fieldElevation: '0', surfaceType: 'paved', surfaceCondition: 'dry', effectiveDate: '2026-01-01', expiryDate: '2026-12-31' })
     expect(runway.save()).toBe(true)
     const step = usePerformanceStep(() => ({ ready: true, notReadyReason: '', profile: null, category: null, takeoff: { status: 'unavailable', reason: '' }, landing: { status: 'unavailable', reason: '' } }))
-    runway.assessmentDate = '2027-01-01'
+    runway.selectAssessmentDate('2027-01-01')
     const presentation = step.presentation.value
     expect(presentation.runway).toMatchObject({ status: 'declared' })
     if (presentation.runway.status !== 'declared') throw new Error('missing runway')
@@ -52,6 +52,11 @@ it('carries the selected declared-date check into performance and invalidates it
     expect(step.presentation.value.inputKey).not.toBe(invalidKey)
     expect(step.presentation.value.runway).toMatchObject({ rows: expect.arrayContaining([{ label: 'Declared date check', value: '2026-11-26: within-declared-dates; source currency unverified' }]) })
     vi.useRealTimers()
+    expect(step.presentation.value.runway).toMatchObject({ note: expect.stringContaining('The check date follows the device’s local date') })
+    const automaticKey = step.presentation.value.inputKey
+    runway.selectAssessmentDate('2026-11-26')
+    expect(step.presentation.value.inputKey).not.toBe(automaticKey)
+    expect(step.presentation.value.runway).toMatchObject({ note: expect.stringContaining('The selected check date does not advance automatically') })
   })
   scope.stop()
 })
