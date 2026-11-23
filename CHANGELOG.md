@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Show the declared date check for valid unsaved manual runway entries.
 - Describe automatic and fixed runway check dates accurately in the briefing.
 - Run Playwright tests headless by default locally and in CI.
 

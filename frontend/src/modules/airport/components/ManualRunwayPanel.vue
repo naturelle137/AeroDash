@@ -5,6 +5,7 @@ import {
   daysToDeclaredExpiry,
   daysToDeclaredEffect,
   runwayFreshness,
+  validateManualRunway,
   MAX_AERODROME_LENGTH,
   MAX_DESIGNATOR_LENGTH,
   SURFACE_CONDITIONS,
@@ -15,6 +16,10 @@ import { useManualRunwayStore } from '../stores/manual-runway.store'
 
 const runway = useManualRunwayStore()
 const freshness = computed(() => runway.current ? runwayFreshness(runway.current.record.runway, runway.assessmentDate) : 'unknown')
+const draftCheck = computed(() => {
+  const result = validateManualRunway(runway.draft)
+  return !runway.current && result.status === 'valid' ? runwayFreshness(result.runway, runway.assessmentDate) : null
+})
 const cycle = computed(() => airacCycleStart(runway.assessmentDate))
 const freshnessLabels = { unknown: 'Unknown: declared dates are incomplete or the assessment date is invalid.', 'not-yet-effective': 'Not yet effective according to the declared date.', expired: 'Expired according to the declared date.', 'within-declared-dates': 'Within the declared dates; source currency remains unverified.' }
 const surfaceTypeLabels = { paved: 'Paved', unpaved: 'Other / legacy unpaved', grass: 'Grass' } as const
@@ -53,10 +58,11 @@ if (!runway.loaded) runway.load()
       (AIP/aerodrome chart, NOTAM). No airport database or online lookup is used.</p>
     <p v-if="runway.storageError" role="alert" class="storage-error">{{ runway.storageError }}</p>
 
-    <section v-if="runway.recent.length || runway.current" aria-label="Runway date check">
+    <section aria-label="Runway date check">
       <div class="field"><label for="runway-assessment-date">Check date</label><input id="runway-assessment-date" :value="runway.assessmentDate" type="date" @input="runway.selectAssessmentDate(($event.target as HTMLInputElement).value)" /></div>
       <button type="button" @click="runway.useToday()">Use today’s local date</button>
       <p class="hint">{{ runway.automaticDate ? 'Today updates with the device’s local date.' : 'The selected date stays fixed.' }} Check your device date.</p>
+      <p v-if="draftCheck" role="status"><strong>Unsaved declaration date check:</strong> {{ freshnessLabels[draftCheck] }} Source and currency remain unverified; NOTAM/SUP coverage is unknown.</p>
     </section>
     <section v-if="runway.recent.length" aria-label="Recently used airports">
       <h3>Recently used airports</h3>

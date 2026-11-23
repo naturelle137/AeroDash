@@ -171,3 +171,7 @@ When displaying a saved or recent runway or its briefing, the system shall show 
 ### REQ-AP-037: Automatic date disclosure
 
 While the automatic local date is selected, the briefing shall identify the device date as the source of the check date.
+
+### REQ-AP-038: Unsaved declaration date check
+
+When a valid unsaved manual runway declaration is displayed, the system shall compare its declared dates with the selected check date.
