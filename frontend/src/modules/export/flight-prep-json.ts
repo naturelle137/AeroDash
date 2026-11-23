@@ -13,11 +13,13 @@ export type FlightPrepExport = {
   weatherSources: Partial<Record<'wind' | 'temperature' | 'qnh', { source: string; value: string }>>
 }
 
+export const flightPrepUnits = { temperature: '°C', pressureAltitudeDirect: 'ft', fuelMass: 'kg', consumption: 'kg/h', duration: 'min', correctionHeadwind: 'kt', correctionSlope: '%', electricEnergy: 'kWh', electricPower: 'kW', electricDuration: 'min', runwayHeading: 'degrees', windDirection: 'degrees' } as const
+
 export function buildFlightPrepJson(data: FlightPrepExport, now: Date): string {
   return JSON.stringify({
     format: 'aerodash-flight-preparation', version: 1, exportedAt: now.toISOString(),
     notice: 'Unverified preparation data; verify all values against authoritative sources. Not an approval or fitness-for-flight assessment.',
-    units: { temperature: '°C', pressureAltitudeDirect: 'ft', fuelMass: 'kg', consumption: 'kg/h', duration: 'min', correctionHeadwind: 'kt', correctionSlope: '%', electricEnergy: 'kWh', electricPower: 'kW', electricDuration: 'min', runwayHeading: 'degrees', windDirection: 'degrees' },
+    units: flightPrepUnits,
     ...data,
   }, null, 2)
 }
