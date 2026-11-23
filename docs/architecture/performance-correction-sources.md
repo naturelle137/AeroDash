@@ -77,7 +77,7 @@ The pilot must enter wind and slope (empty is never zero; |slope| < 100). Availa
 
 ## Pilot-entered wind multiplier
 
-For each operation the pilot may enter a positive whole-distance multiplier and a manual source and section for the current conditions. It replaces the selected wind correction and multiplies both the ground roll and the total distance after ground-only corrections. This supports only a manual multiplier that is applicable to both distances and compatible with the other corrections; additive or differently ordered rules cannot be entered this way. The source and applicability are unverified, so the result stays partial and cannot establish runway fit. Changes to aircraft, mass, atmosphere, runway, wind, slope or manual configuration clear the entry. Synthetic tests demonstrate wiring, not operational validation.
+For each operation the pilot may enter a positive whole-distance multiplier and a manual source and section for the current conditions. It replaces the selected wind correction and multiplies both the ground roll and the total distance after ground-only corrections. This supports only a manual multiplier that is applicable to both distances and compatible with the other corrections; differently ordered rules cannot be entered this way. Alternatively, the pilot may enter a signed additive correction in metres for both distances, applied at the same stage. Only one wind correction may be entered at a time. The source and applicability are unverified, so the result stays partial and cannot establish runway fit. Changes to aircraft, mass, atmosphere, runway, wind, slope or manual configuration clear the entry. Synthetic tests demonstrate wiring, not operational validation.
 
 ## Runway comparison
 

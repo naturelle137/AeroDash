@@ -75,6 +75,7 @@ export function usePerformanceStep(context: () => PerformanceStepContext) {
   for (const operation of OPERATIONS) {
     watch(() => JSON.stringify([ctx.value, pa.revision.value, temperature.value, corrections[operation].headwind, corrections[operation].slope, runway.saved, runway.draft, manualConfiguration.value]), () => {
       corrections[operation].windFactor = ''
+      corrections[operation].windAddend = ''
       corrections[operation].windSource = ''
       corrections[operation].surfaceFactor = ''
       corrections[operation].surfaceSource = ''
@@ -184,6 +185,7 @@ export function usePerformanceStep(context: () => PerformanceStepContext) {
           { label: `${OPERATION_LABELS[operation]} pilot-entered surface multiplier`, value: corrections[operation].surfaceFactor ? `${corrections[operation].surfaceFactor} · ${corrections[operation].surfaceSource || 'source and section not entered'} (unverified)` : 'Not entered' },
           ...(operation === 'landing' ? [{ label: 'Landing pilot-entered slope multiplier', value: corrections.landing.slopeFactor ? `${corrections.landing.slopeFactor} · ${corrections.landing.slopeSource || 'source not entered'} (unverified)` : 'Not entered' }] : []),
           { label: `${OPERATION_LABELS[operation]} pilot-entered wind multiplier`, value: corrections[operation].windFactor ? `${corrections[operation].windFactor} · ${corrections[operation].windSource || 'source not entered'} (unverified)` : 'Not entered' },
+          { label: `${OPERATION_LABELS[operation]} pilot-entered additive wind correction`, value: corrections[operation].windAddend ? `${corrections[operation].windAddend} m · ${corrections[operation].windSource || 'source not entered'} (unverified)` : 'Not entered' },
           { label: `${OPERATION_LABELS[operation]} safety factor`, value: safetyFactors[operation].preset === 'custom' ? `Custom ${safetyFactors[operation].custom.trim() || 'not entered'}` : safetyFactors[operation].preset },
         ]),
         { label: 'Unverified obstacle constraint', value: describeObstacle(obstacleAssessment.value) },
