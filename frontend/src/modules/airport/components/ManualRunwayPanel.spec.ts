@@ -242,6 +242,26 @@ describe('manual source dates', () => {
     expect(view.get('[aria-label="Recently used airports"]').text()).toContain('Within the declared dates')
   })
 
+  it('compares the source and date boundaries of recent directions without selecting them', async () => {
+    const view = mount(ManualRunwayPanel)
+    await fill(view)
+    await view.get('#runway-source').setValue('Synthetic chart')
+    await view.get('#runway-effective').setValue('2026-01-01')
+    await view.get('#runway-expiry').setValue('2026-12-31')
+    await view.get('form').trigger('submit')
+    await view.get('#manual-runway-designator').setValue('09')
+    await view.get('#runway-source').setValue('')
+    await view.get('#runway-effective').setValue('')
+    await view.get('#runway-expiry').setValue('')
+    await view.get('form').trigger('submit')
+    await view.get('#runway-assessment-date').setValue('2027-01-01')
+    const entries = view.get('[aria-label="Recently used airports"]').findAll('li')
+    expect(entries[0]!.text()).toContain('Source: Unknown (user-declared, unverified) · Effective: Unknown · Expiry (inclusive): Unknown')
+    expect(entries[1]!.text()).toContain('Expired according to the declared date')
+    expect(entries[1]!.text()).toContain('Source: Synthetic chart (user-declared, unverified) · Effective: 2026-01-01 · Expiry (inclusive): 2026-12-31')
+    expect((view.get('#manual-runway-designator').element as HTMLInputElement).value).toBe('09')
+  })
+
   it('returns the check to the current local date without changing the saved declaration', async () => {
     const view = mount(ManualRunwayPanel)
     await fill(view)

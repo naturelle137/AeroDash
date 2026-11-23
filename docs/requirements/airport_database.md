@@ -151,3 +151,7 @@ While recent runway declarations are displayed, the system shall allow the pilot
 ### REQ-AP-032: Recent runway directions
 
 When saving a manual runway declaration, the system shall retain recent declarations for other runway directions at the same aerodrome.
+
+### REQ-AP-033: Recent declaration sources and dates
+
+When displaying a recent manual runway declaration, the system shall display its unverified source reference and declared effective and expiry dates, indicating unknown values.
