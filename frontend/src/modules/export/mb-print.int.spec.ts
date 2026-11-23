@@ -490,7 +490,7 @@ describe('M&B print presentation with real store calculation', () => {
   })
   it('attaches the energy reserve warning to remaining energy and margin only', async () => {
     const input = source()
-    input.energy = { inputKey: 'energy', reason: null, warning: 'Remaining energy below reserve.', rows: [{ label: 'Estimated remaining energy', value: '1 kWh' }, { label: 'Difference to reserve floor', value: '-1 kWh' }, { label: 'Reserve floor', value: '2 kWh' }] }
+    input.energy = { inputKey: 'energy', reason: null, enduranceReason: null, warning: 'Remaining energy below reserve.', rows: [{ label: 'Estimated remaining energy', value: '1 kWh' }, { label: 'Difference to reserve floor', value: '-1 kWh' }, { label: 'Reserve floor', value: '2 kWh' }] }
     const wrapper = mount(MbPrintPreview, { props: { source: input }, attachTo: document.body })
     await wrapper.get('button').trigger('click')
     const rows = [...document.querySelectorAll('tr')]
