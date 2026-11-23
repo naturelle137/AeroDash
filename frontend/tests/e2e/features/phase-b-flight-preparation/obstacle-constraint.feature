@@ -45,7 +45,7 @@ Feature: Unverified obstacle constraint
     When the pilot changes and reloads the Flight Prep obstacle
     Then the unverified obstacle warning is shown
     When the pilot opens the briefing pack
-    Then the briefing pack states "WARN-PF-001"
+    Then the briefing pack states "WARNING: Unverified obstacle data in use"
     And the briefing pack states "50 ft above the runway at 600 m from the runway"
     And the briefing pack states "Approximately 2.540%"
     And the briefing pack states "clearance cannot be determined"
