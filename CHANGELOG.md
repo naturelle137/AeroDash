@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Run Playwright tests headless by default locally and in CI.
+
 - Omit internal identifiers from briefing warning text in preview, print and PDF.
 - Show days to declared runway effect in the offline workflow and briefing.
 
