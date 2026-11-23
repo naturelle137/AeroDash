@@ -31,6 +31,34 @@ function setup(registration?: string, surface: 'paved' | 'unpaved' = 'paved', sa
 const corrected = (step: ReturnType<typeof setup>['step'], index: number) => step.presentation.value.corrected[index]!
 
 describe('corrected distances in the performance step', () => {
+  it.each(['takeoff', 'landing'] as const)('replaces the surface rule on ground roll only for %s and invalidates it', (operation) => {
+    const effect = effectScope()
+    effect.run(() => {
+      const { step, runway } = setup(undefined, 'unpaved')
+      Object.assign(step.corrections[operation], { headwind: '0', slope: '0', surfaceFactor: '1', surfaceSource: 'Synthetic manual section 2' })
+      const index = operation === 'takeoff' ? 0 : 1
+      const baseline = corrected(step, index)
+      if (baseline.status !== 'applied') throw new Error('expected result')
+      step.corrections[operation].surfaceFactor = '1.5'
+      const result = corrected(step, index)
+      if (result.status !== 'applied') throw new Error('expected result')
+      const number = (value: string) => Number.parseFloat(value.replaceAll(',', ''))
+      const delta = number(result.rows[0]!.corrected) - number(baseline.rows[0]!.corrected)
+      expect(number(result.rows[1]!.corrected) - number(baseline.rows[1]!.corrected)).toBe(delta)
+      expect(result.partial).toBe(true)
+      expect(result.comparison.margin).toBe('Not available')
+      expect(result.notes.join(' ')).toContain('Synthetic manual section 2')
+      for (const invalid of ['0', '-1', 'Infinity', 'abc']) {
+        step.corrections[operation].surfaceFactor = invalid
+        expect(corrected(step, index).status).toBe('unavailable')
+      }
+      step.corrections[operation].surfaceFactor = '1.5'
+      runway.draft.tora = '999'
+      expect(step.corrections[operation].surfaceFactor).toBe('')
+      expect(step.corrections[operation].surfaceSource).toBe('')
+    })
+    effect.stop()
+  })
   it.each(['takeoff', 'landing'] as const)('applies a pilot-entered whole-distance wind multiplier for %s and clears it on changed conditions', (operation) => {
     const effect = effectScope()
     effect.run(() => {

@@ -391,6 +391,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `/issue` command now sets GitHub's native parent/child (sub-issue) relationship for Tasks via the sub-issues API, instead of recording the parent only as body text
 
 - Hide internal Performance and wind warning identifiers in briefing output while retaining warning details.
+- Accept unverified pilot-sourced ground-roll surface multipliers for takeoff and landing.
 
 ## [0.3.0-alpha] - 2026-05-24
 
