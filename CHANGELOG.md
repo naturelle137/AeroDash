@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Check entered runway dates before the remaining declaration is complete.
+
 - Retain the pilot-entered forecast QNH and its unit in applied provenance.
 - Show missing forecast QNH source details and the elapsed age of a pilot-declared source time.
 
