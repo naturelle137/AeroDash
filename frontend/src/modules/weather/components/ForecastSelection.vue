@@ -205,7 +205,7 @@ function apply(field: keyof MetarValues): void {
     <button type="button" :disabled="!Object.values(draft).some(Boolean)" @click="Object.assign(draft, emptyQnhDraft())">Clear current {{ qnhUnit }} QNH draft</button>
     <p v-if="qnh.trim() && values.qnh">QNH to apply: {{ values.qnh }} hPa. Applying replaces the current Flight Prep QNH.</p>
     <p v-else-if="qnh.trim()" role="alert">QNH is outside the supported range or is not a valid number; check the value and unit.</p>
-    <p v-if="qnh.trim() && selectionValid">QNH selection: {{ phase }} · {{ location.trim() }} · {{ time.replace('T', ' ') }} device local time. Verify that the source applies to this location and time.</p>
+    <p v-if="qnh.trim() && selectionValid">QNH selection: {{ phase }} · {{ location.trim() }} · {{ time.replace('T', ' ') }} device local time ({{ new Date(time).toISOString() }}). Verify that the source applies to this location and time; check the UTC time when clocks change.</p>
     <button type="button" :disabled="!Object.values(qnhDrafts).some(draft => Object.values(draft).some(Boolean))" @click="clearQnh">Clear QNH entry and source</button>
     <p>Optional QNH validity: enter both local times; the selected flight time must be within the interval (end excluded). The pilot declares and verifies this interval.</p>
     <p v-if="!qnhValidityValid" role="alert">Enter a valid QNH interval containing the selected flight time; its end is excluded.</p>
