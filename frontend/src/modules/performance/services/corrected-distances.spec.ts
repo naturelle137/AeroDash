@@ -31,6 +31,32 @@ function setup(registration?: string, surface: 'paved' | 'unpaved' = 'paved', sa
 const corrected = (step: ReturnType<typeof setup>['step'], index: number) => step.presentation.value.corrected[index]!
 
 describe('corrected distances in the performance step', () => {
+  it('applies a manual landing slope factor only to ground roll and clears it on condition changes', () => {
+    const effect = effectScope()
+    effect.run(() => {
+      const { step } = setup('D-OTHER')
+      Object.assign(step.corrections.landing, { headwind: '0', slope: '-2' })
+      const before = corrected(step, 1)
+      if (before.status !== 'applied') throw new Error('expected result')
+      step.corrections.landing.slopeFactor = '1.2'
+      expect(corrected(step, 1).status).toBe('unavailable')
+      step.corrections.landing.slopeSource = 'Synthetic manual section 2'
+      const after = corrected(step, 1)
+      if (after.status !== 'applied') throw new Error('expected result')
+      const roll = Number.parseFloat(before.rows[0]!.corrected.replaceAll(',', ''))
+      const total = Number.parseFloat(before.rows[1]!.corrected.replaceAll(',', ''))
+      expect(after.rows[0]!.corrected).toContain(`${Math.ceil(roll * 1.2)} m`)
+      expect(after.rows[1]!.corrected).toContain(`${Math.ceil(total + roll * 0.2)} m`)
+      expect(after.notes.join(' ')).toContain('Synthetic manual section 2')
+      expect(after.partial).toBe(true)
+      expect(after.comparison.margin).toBe('Not available')
+      step.corrections.landing.slope = '-3'
+      expect(step.corrections.landing.slopeFactor).toBe('')
+      expect(step.corrections.landing.slopeSource).toBe('')
+    })
+    effect.stop()
+  })
+
   it.each(['takeoff', 'landing'] as const)('applies a pilot-entered whole-distance wind multiplier for %s and clears it on changed conditions', (operation) => {
     const effect = effectScope()
     effect.run(() => {
@@ -63,6 +89,15 @@ describe('corrected distances in the performance step', () => {
     expect(withManualWind.rows[0]!.corrected).toBe('198 m [UNVERIFIED PILOT-ENTERED WIND FACTOR]')
     expect(withManualWind.safetyFactor).toContain('1.10')
     expect(withManualWind.partial).toBe(true)
+  })
+
+  it('replaces the built-in landing slope rule without applying it twice', () => {
+    const { step } = setup()
+    Object.assign(step.corrections.landing, { headwind: '0', slope: '-2', slopeFactor: '1', slopeSource: 'Synthetic section' })
+    const result = corrected(step, 1)
+    if (result.status !== 'applied') throw new Error('expected result')
+    expect(result.rows[0]!.corrected).toBe('378 m [UNVERIFIED PILOT-ENTERED SLOPE FACTOR]')
+    expect(result.partial).toBe(true)
   })
 
   it('clears the manual selection when the profile changes', () => {

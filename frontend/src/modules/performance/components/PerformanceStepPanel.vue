@@ -26,6 +26,11 @@ const { temperature, temperatureWarnings, corrections, safetyFactors, showPaErro
       <label>Manual POH wind multiplier (optional)<input v-model="corrections[operation].windFactor" :id="`performance-${operation}-wind-factor`" type="text" inputmode="decimal" /></label>
       <label>Wind factor source and section<input v-model="corrections[operation].windSource" :id="`performance-${operation}-wind-source`" type="text" /></label>
       <p>Enter a multiplier only when the aircraft manual applies it to both distances for these conditions and in combination with the other corrections. Source and applicability are not verified.</p>
+      <template v-if="operation === 'landing'">
+        <label>Manual POH landing slope ground-roll multiplier (optional)<input v-model="corrections.landing.slopeFactor" id="performance-landing-slope-factor" type="text" inputmode="decimal" /></label>
+        <label>Slope factor source and section<input v-model="corrections.landing.slopeSource" id="performance-landing-slope-source" type="text" /></label>
+        <p>Enter a multiplier only when the aircraft manual applies it to landing ground roll for these conditions and in combination with the other corrections. Source and applicability are not verified.</p>
+      </template>
       <label>Safety factor
         <select v-model="safetyFactors[operation].preset" :id="`performance-${operation}-safety-factor`">
           <option v-for="preset in SAFETY_FACTOR_PRESETS" :key="preset.value" :value="preset.value">{{ preset.label }}</option>

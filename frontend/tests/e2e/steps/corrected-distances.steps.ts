@@ -193,3 +193,19 @@ Then('pilot-entered wind multipliers change both distances and clear with change
     await inputs.getByLabel('Wind factor source and section').fill('Synthetic manual section 1')
   }
 })
+
+Then('a pilot-entered landing slope multiplier changes ground roll and clears with slope', async ({ page }) => {
+  const inputs = page.getByRole('group', { name: 'Landing wind and slope' })
+  const result = page.getByRole('region', { name: 'Landing corrected distances', exact: true })
+  const before = await result.locator('dd').first().innerText()
+  await inputs.getByLabel('Manual POH landing slope ground-roll multiplier (optional)').fill('1.2')
+  await expect(result).toContainText('Enter a positive finite manual landing slope multiplier')
+  await inputs.getByLabel('Slope factor source and section').fill('Synthetic manual section 2')
+  await expect(result.locator('dd').first()).not.toHaveText(before)
+  await expect(result).toContainText('airborne segment is unchanged')
+  await expect(result).toContainText('Do not use this comparison for runway assessment')
+  await inputs.getByLabel('Runway slope (%, positive = uphill)').fill('-2')
+  await expect(inputs.getByLabel('Manual POH landing slope ground-roll multiplier (optional)')).toHaveValue('')
+  await inputs.getByLabel('Manual POH landing slope ground-roll multiplier (optional)').fill('1.2')
+  await inputs.getByLabel('Slope factor source and section').fill('Synthetic manual section 2')
+})
