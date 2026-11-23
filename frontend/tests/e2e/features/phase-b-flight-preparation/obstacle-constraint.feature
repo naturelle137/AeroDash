@@ -28,6 +28,9 @@ Feature: Unverified obstacle constraint
     When the pilot enters an obstacle height "50" "ft" at distance "abc" "m"
     Then the obstacle distance error "Obstacle distance must be a number, for example 150." is shown
     And no unverified obstacle warning is shown
+    When the pilot enters an obstacle height "50" "ft" at distance "0" "m"
+    Then the obstacle distance error "Obstacle distance must be greater than zero." is shown
+    And no unverified obstacle warning is shown
 
     Examples:
       | width | height |
@@ -38,6 +41,7 @@ Feature: Unverified obstacle constraint
     Given the raw POH workflow viewport is <width> by <height>
     When I import and verify a synthetic POH profile for registration "D-EBPN" declaring type "P208" and maximum mass 650 kg
     And the pilot selects the imported aircraft "D-EBPN" in Flight Prep
+    And the browser goes offline for forecast planning
     And the pilot enters an obstacle height "50" "ft" at distance "600" "m"
     Then the unverified obstacle warning is shown
     And the obstacle fields and warning are accessible around mobile navigation
