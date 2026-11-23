@@ -358,6 +358,12 @@ export function runwayFreshness(runway: ManualRunway, today: string): 'unknown' 
   return 'unknown'
 }
 
+/** Days to the pilot-declared inclusive expiry, not a source-currency verdict. */
+export function daysToDeclaredExpiry(runway: ManualRunway, checkDate: string): number | null {
+  if (!runway.expiryDate || !date.safeParse(checkDate).success) return null
+  return (Date.parse(`${runway.expiryDate}T00:00:00Z`) - Date.parse(`${checkDate}T00:00:00Z`)) / 86400000
+}
+
 /** Calendar dates within EUROCONTROL's published 2020–2028 schedule. */
 export function airacCycleStart(today: string): string | null {
   if (!date.safeParse(today).success || today < '2020-01-02' || today > '2028-12-21') return null

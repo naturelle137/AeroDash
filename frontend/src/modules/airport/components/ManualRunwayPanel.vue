@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import {
   airacCycleStart,
+  daysToDeclaredExpiry,
   runwayFreshness,
   MAX_AERODROME_LENGTH,
   MAX_DESIGNATOR_LENGTH,
@@ -212,6 +213,7 @@ if (!runway.loaded) runway.load()
         <div><dt>Surface</dt><dd>{{ surfaceTypeLabels[runway.current.record.runway.surface.type] }} · {{ conditionLabel }}<span v-if="runway.current.record.weatherSurface"> · {{ runway.current.record.weatherSurface.source ?? 'METAR' }} via wxdecoder.com {{ runway.current.record.weatherSurface.station }} · {{ runway.current.record.weatherSurface.time }} <span v-if="runway.current.record.weatherSurface.source === 'TAF'"> · valid {{ runway.current.record.weatherSurface.validFrom }} to {{ runway.current.record.weatherSurface.validTo }}</span> (saved weather; verify current conditions)</span></dd></div>
       </dl>
       <p role="status"><strong>Source date check:</strong> {{ freshnessLabels[freshness] }}</p>
+      <p v-if="daysToDeclaredExpiry(runway.current.record.runway, runway.assessmentDate) !== null">Days to declared expiry: {{ daysToDeclaredExpiry(runway.current.record.runway, runway.assessmentDate) }} (negative means past expiry; source remains unverified).</p>
       <p v-if="cycle">AIRAC cycle starting {{ cycle }} (calendar date only).</p>
       <p v-else>AIRAC cycle unavailable for this date; consult the published calendar.</p>
       <p class="hint">A cycle change does not expire or verify a record. NOTAM/SUP coverage is unknown; check dates and restrictions against official sources.</p>

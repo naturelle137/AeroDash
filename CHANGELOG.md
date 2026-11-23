@@ -8,9 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 - Assess fixed-arm trip fuel burn paths against the current M&B envelope.
-
+- Show days to the pilot-declared runway expiry in the offline workflow and briefing.
 - Show source references and declared date boundaries for recent runway directions offline.
 - Hide internal Performance and wind warning identifiers in briefing output while retaining warning details.
+- Export current Flight Preparation entries as a local versioned JSON snapshot.
 - Show manual electric endurance estimates to depletion and reserve floor in Flight Prep and the briefing.
 
 - Check an optional pilot-declared forecast QNH validity interval before application.
