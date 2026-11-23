@@ -156,6 +156,10 @@ When saving a manual runway declaration, the system shall retain recent declarat
 
 When displaying a recent manual runway declaration, the system shall display its unverified source reference and declared effective and expiry dates, indicating unknown values.
 
+### REQ-AP-035: Recent declared expiry countdown
+
+When displaying a recent manual runway declaration, the system shall show the days from the selected check date to its declared inclusive expiry, or unknown when unavailable.
+
 ### REQ-AP-034: Declared expiry interval
 
 When displaying a saved runway with a declared expiry and valid check date, the system shall show the signed number of calendar days until that expiry.
