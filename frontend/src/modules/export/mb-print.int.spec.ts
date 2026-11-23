@@ -429,7 +429,7 @@ describe('M&B print presentation with real store calculation', () => {
     input.performance = { ...base, groups: [
       { id: 'takeoff', title: 'Takeoff', mass: null, status: 'success', reason: null, rows: [{ label: 'Ground roll', value: '100 m', note: 'ESTIMATED — EXTRAPOLATED (+20 % penalty)', warnings: ['QNH advisory', 'Temperature advisory'] }, { label: 'Over 50 ft', value: '200 m', note: null }] },
       { id: 'landing', title: 'Landing', mass: null, status: 'blocked', reason: 'Unavailable', rows: [] },
-    ], extrapolation: { acknowledged: true, details: ['Takeoff Ground roll'], warning: 'Extrapolation advisory' }, corrected: [{ operation: 'takeoff', title: 'Takeoff', status: 'applied', source: 'Synthetic', partial: false, rows: [{ label: 'Ground roll', raw: '100 m', corrected: '110 m', factored: '120 m' }, { label: 'Over 50 ft', raw: '200 m', corrected: '210 m', factored: '220 m' }], safetyFactor: '1.10', safetyFactorWarning: 'Low factor', comparison: { status: 'unavailable', summary: '', required: '', availableLabel: '', available: '', margin: '' }, notes: [] }] }
+    ], extrapolation: { acknowledged: true, details: ['Takeoff Ground roll'], warning: 'Extrapolation advisory' }, corrected: [{ operation: 'takeoff', title: 'Takeoff', status: 'applied', source: 'Synthetic', partial: false, rows: [{ label: 'Ground roll', raw: '100 m', corrected: '110 m', factored: '120 m' }, { label: 'Over 50 ft', raw: '200 m', corrected: '210 m', factored: '220 m' }], safetyFactor: '1.10', safetyFactorWarning: 'WARN-PF-002: Low factor', comparison: { status: 'unavailable', summary: '', required: '', availableLabel: '', available: '', margin: '' }, notes: [] }] }
     const wrapper = mount(MbPrintPreview, { props: { source: input }, attachTo: document.body })
     await wrapper.get('button').trigger('click')
     const section = [...document.querySelectorAll('section')].find(s => s.querySelector('h3')?.textContent === 'Takeoff corrected distances')!
@@ -445,6 +445,7 @@ describe('M&B print presentation with real store calculation', () => {
     const inputs = [...document.querySelectorAll('tr')]
     expect(inputs.find(row => row.textContent?.startsWith('Takeoff safety factor'))!.textContent).toContain('Low factor')
     expect(inputs.find(row => row.textContent?.startsWith('Landing safety factor'))!.textContent).not.toContain('Low factor')
+    expect(document.querySelector('[aria-label="Current Performance"]')!.textContent).not.toContain('WARN-PF-002')
     input.performance = { ...input.performance, inputKey: 'changed' }
     window.dispatchEvent(new Event('beforeprint'))
     expect(document.querySelector('.mb-print-root')?.hasAttribute('data-print-invalid')).toBe(true)

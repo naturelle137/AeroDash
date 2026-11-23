@@ -69,6 +69,15 @@ test('current phase notifications and runway comparisons survive cached offline 
   await perf.getByLabel('Temperature (°C)', { exact: true }).fill('10')
   await perf.getByLabel('Applicable manual configuration').selectOption('s9')
   for (const phase of ['Takeoff', 'Landing']) {
+    const result = perf.getByRole('region', { name: `${phase} corrected distances` })
+    await expect(result).toContainText('Enter the headwind component')
+    await expect(result).toContainText('Enter the runway slope')
+    await result.scrollIntoViewIfNeeded()
+    const path = info.outputPath(`missing-corrections-${phase.toLowerCase()}.png`)
+    await page.screenshot({ path, animations: 'disabled' })
+    await info.attach(`missing-corrections-${phase.toLowerCase()}`, { path, contentType: 'image/png' })
+  }
+  for (const phase of ['Takeoff', 'Landing']) {
     const inputs = perf.getByRole('group', { name: `${phase} wind and slope` })
     await inputs.getByLabel('Headwind component (kt, negative = tailwind)').fill('0')
     await inputs.getByLabel('Runway slope (%, positive = uphill)').fill('0')
@@ -177,7 +186,9 @@ test('current phase notifications and runway comparisons survive cached offline 
   await info.attach('offline-flight-prep-notifications', { path, contentType: 'image/png' })
   await page.getByRole('button', { name: 'Briefing Pack', exact: true }).click()
   const pack = page.getByRole('dialog', { name: 'Briefing Pack preview' })
-  await expect(pack.getByRole('region', { name: 'Performance notifications' })).toContainText('CRIT-PF-002')
+  await expect(pack.getByRole('region', { name: 'Performance notifications' })).toContainText('CRITICAL')
+  await expect(pack).not.toContainText('CRIT-PF-002')
+  await expect(pack).not.toContainText('WARN-PF-002')
   await page.keyboard.press('Escape')
   await runway.getByLabel('Surface condition', { exact: true }).selectOption('')
   await expect(notes).toHaveCount(0)
