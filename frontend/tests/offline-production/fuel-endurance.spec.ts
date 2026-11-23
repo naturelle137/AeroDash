@@ -342,7 +342,8 @@ test('persisted fleet tank inputs feed the session-only fuel plan online and cac
     '580 kg',
     '20 kg',
   ])
-  await arrival.evaluate((element) => element.scrollIntoView({ block: 'center' }))
+  await expect(card.getByTestId('trip-path')).toContainText('Outside envelope')
+  await card.getByTestId('trip-path').scrollIntoViewIfNeeded()
   await page.screenshot({ path: info.outputPath('fuel-offline.png') })
   await info.attach('fuel-offline', {
     path: info.outputPath('fuel-offline.png'),
@@ -387,8 +388,9 @@ test('persisted fleet tank inputs feed the session-only fuel plan online and cac
       } else await direct.fill('20')
       await expect(arrival).toContainText('580 kg')
       await expect(card.getByTestId('arrival-cg')).toHaveText('2.017 m')
+      await expect(card.getByTestId('trip-path')).toContainText('Unavailable: Variable-arm')
     }
-    await arrival.evaluate((element) => element.scrollIntoView({ block: 'center' }))
+    await card.getByTestId('trip-path').scrollIntoViewIfNeeded()
     const imagePath = info.outputPath(`${registration}-arrival-offline.png`)
     await page.screenshot({ path: imagePath })
     await info.attach(`${registration}-arrival-offline`, {
@@ -503,7 +505,7 @@ test('persisted fleet tank inputs feed the session-only fuel plan online and cac
   // (1270 − (150 − 105)) / 600 kg·m/kg
   await expect(masses()).toHaveText(['610 kg', '10 kg', '600 kg', '40 kg'])
   await expect(card.getByTestId('arrival-cg')).toHaveText('2.042 m')
-  await expect(arrival).toContainText('with several tanks, lookup tanks need zero unusable fuel')
+  await expect(arrival).toContainText('covers the current load')
   await expect(results).toContainText('table moment at the takeoff load minus the table moment')
   await expect(page.getByRole('alert').filter({ hasText: 'CG Out of Envelope' })).toBeVisible()
   await shot('lookup-duration-partial-offline')
