@@ -18,7 +18,7 @@ When the requested mass, pressure altitude and temperature are within the aircra
 
 When a POH correction exists for wind, surface or slope, the system shall use that correction for that parameter.
 
-**Status:** Partial. Correction selection supports accepted configurations. A pilot-entered whole-distance wind multiplier is applied with an unverified source and partial-result disclosure; general POH correction coverage is incomplete.
+**Status:** Partial. Correction selection supports accepted configurations. Pilot-entered whole-distance wind and landing ground-roll slope multipliers are applied with unverified sources and partial-result disclosure; general POH correction coverage is incomplete.
 
 ### REQ-PF-004: Correction Application Isolation
 

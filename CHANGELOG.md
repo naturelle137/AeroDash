@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Hide internal Performance and wind warning identifiers in briefing output while retaining warning details.
 - Export current Flight Preparation entries as a local versioned JSON snapshot.
 - Show manual electric endurance estimates to depletion and reserve floor in Flight Prep and the briefing.
+- Apply an unverified pilot-entered landing slope multiplier to ground roll while retaining incomplete-result disclosures.
 
 - Check an optional pilot-declared forecast QNH validity interval before application.
 - Retain separate recent runway directions and their source date checks for the same aerodrome.
