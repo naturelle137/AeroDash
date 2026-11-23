@@ -98,10 +98,10 @@ test('live partial edits recover, warnings follow their values and inline units 
     await expect(preview.locator('td.briefing-warning').filter({ hasText: 'Insufficient fuel for the entered trip plus reserve.' }).first()).toBeVisible()
     await expect(preview.locator('td.briefing-warning').filter({ hasText: 'QNH 940 hPa is outside the standard 950–1100 hPa range' })).toHaveCount(5)
     await expect(preview).not.toContainText('WARN-UI-001')
-    if (!offline) {
-      await preview.getByRole('row').filter({ hasText: 'QNH 940 hPa' }).first().scrollIntoViewIfNeeded()
-      await page.screenshot({ path: info.outputPath(`briefing-qnh-${originalViewport.width}.png`) })
-    }
+    await preview.getByRole('row').filter({ hasText: 'QNH 940 hPa' }).first().scrollIntoViewIfNeeded()
+    const screenshot = info.outputPath(`briefing-qnh-${originalViewport.width}-${offline}.png`)
+    await page.screenshot({ path: screenshot })
+    await info.attach(`briefing-qnh-${originalViewport.width}-${offline}`, { path: screenshot, contentType: 'image/png' })
     await preview.getByRole('button', { name: 'Print Briefing Pack', exact: true }).click()
     const pdf = info.outputPath(`value-warnings-${offline}.pdf`)
     await page.emulateMedia({ media: 'print' })
