@@ -1,6 +1,7 @@
 import { computed, ref, watch } from 'vue'
 import { plainCopy, useDemoScratch } from '@/shared/composables/useDemoScratch'
 import { useMassBalanceStore } from '@/modules/mass-balance/stores/mass-balance.store'
+import { assessTripEnvelope } from './trip-envelope'
 import { arrivalCgForPlanning, arrivalSequenceChoices } from './arrival-cg'
 import { usableFuelForPlanning } from './usable-fuel'
 import { calculateTripArrival } from '@/core/logic/trip-arrival'
@@ -117,6 +118,9 @@ export function useFuelPlanning() {
       sequence.value,
     )
   })
+  const pathAssessment = computed(() => arrival.value?.ok
+    ? assessTripEnvelope(store.aircraft, store.activeCategory, store.stations, store.lastResult, arrival.value.tripFuelKg, sequence.value, store.activeEnvelopeSI, store.activeCategoryDef?.graphType)
+    : `Unavailable: ${arrival.value && !arrival.value.ok ? arrival.value.reason : !fuel.value.ok ? fuel.value.reason : 'Configure a valid fuel plan.'}`)
   const format = (value: number) =>
     value > 0 && value < 0.001
       ? '<0.001'
@@ -183,6 +187,7 @@ export function useFuelPlanning() {
       rows: rows.map(row => ({ ...row, warnings: ['Trip + reserve fuel', 'Fuel shortfall', 'Remaining after trip + reserve', 'Required reserve fuel'].includes(row.label)
         ? warnings.filter(w => row.label !== 'Required reserve fuel' || w.includes('reserve alone')) : [] })),
       warnings,
+      pathAssessment: pathAssessment.value,
       cgReason: arrivalCg.value && !arrivalCg.value.ok ? arrivalCg.value.reason : null,
     }
   })
@@ -199,6 +204,7 @@ export function useFuelPlanning() {
     plan,
     arrival,
     arrivalCg,
+    pathAssessment,
     format,
     presentation,
   }
@@ -211,5 +217,6 @@ export interface FuelPresentation {
   readonly sequence: string
   readonly rows: readonly { readonly label: string; readonly value: string; readonly warnings?: readonly string[] }[]
   readonly warnings: readonly string[]
+  readonly pathAssessment: string
   readonly cgReason: string | null
 }
