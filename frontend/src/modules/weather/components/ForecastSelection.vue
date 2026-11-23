@@ -11,6 +11,7 @@ const time = ref('')
 const temperature = ref('')
 const qnhUnit = ref<'hPa' | 'inHg'>('hPa')
 const qnhInput = ref<HTMLInputElement | null>(null)
+const confirmQnhTimes = ref(false)
 const emptyQnhDraft = () => ({ value: '', source: '', sourceTime: '', validFrom: '', validTo: '' })
 const qnhDrafts = reactive({ hPa: emptyQnhDraft(), inHg: emptyQnhDraft() })
 const draft = computed(() => qnhDrafts[qnhUnit.value])
@@ -59,6 +60,18 @@ const validLocalTime = (value: string) => {
   const date = new Date(value)
   return Number.isFinite(date.getTime()) && new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16) === value
 }
+const ambiguousLocalTime = (value: string) => {
+  if (!validLocalTime(value)) return false
+  const instant = Date.parse(value)
+  const offset = new Date(instant).getTimezoneOffset()
+  return [-48, 48].some(hours => {
+    const otherOffset = new Date(instant + hours * 3600000).getTimezoneOffset()
+    const alternative = new Date(instant + (otherOffset - offset) * 60000)
+    return otherOffset !== offset && new Date(alternative.getTime() - alternative.getTimezoneOffset() * 60000).toISOString().slice(0, 16) === value
+  })
+}
+const ambiguousQnhTimes = computed(() => [time.value, qnhSourceTime.value, qnhValidFrom.value, qnhValidTo.value].some(ambiguousLocalTime))
+watch([time, qnhUnit, qnhSourceTime, qnhValidFrom, qnhValidTo], () => { confirmQnhTimes.value = false }, { flush: 'sync' })
 const selectionValid = computed(() => location.value.trim() !== '' && validLocalTime(time.value) && Date.parse(time.value) > now.value)
 const stale = computed(() => !!forecast.value && (forecast.value.stale || Date.parse(forecast.value.valid) <= now.value || now.value - Date.parse(forecast.value.fetched) > 4 * 60 * 60 * 1000))
 const qnhSourceAge = computed(() => {
@@ -144,12 +157,12 @@ function clearQnh(): void {
 }
 
 function apply(field: keyof MetarValues): void {
-  if (!selectionValid.value || Date.parse(time.value) <= Date.now() || !values.value[field] || (field === 'qnh' && (!qnhValidityValid.value || (qnhSourceTime.value && (!qnhSourceTimeValid.value || Date.parse(qnhSourceTime.value) > Date.now()))))) return
+  if (!selectionValid.value || Date.parse(time.value) <= Date.now() || !values.value[field] || (field === 'qnh' && ((ambiguousQnhTimes.value && !confirmQnhTimes.value) || !qnhValidityValid.value || (qnhSourceTime.value && (!qnhSourceTimeValid.value || Date.parse(qnhSourceTime.value) > Date.now()))))) return
   const source = field === 'qnh' && qnhSource.value.trim() ? `; pilot-declared QNH source: ${qnhSource.value.trim()}` : ''
   const sourceTime = field === 'qnh' && qnhSourceTime.value ? `; pilot-declared QNH source time: ${qnhSourceTime.value.replace('T', ' ')} local time (${new Date(qnhSourceTime.value).toISOString()})` : ''
   const validity = field === 'qnh' && qnhValidFrom.value && qnhValidTo.value ? `; pilot-declared QNH validity: ${qnhValidFrom.value.replace('T', ' ')} to ${qnhValidTo.value.replace('T', ' ')} local time (${new Date(qnhValidFrom.value).toISOString()} to ${new Date(qnhValidTo.value).toISOString()} UTC; end exclusive)` : ''
   const original = field === 'qnh' ? `; pilot-entered QNH: ${qnh.value.trim()} ${qnhUnit.value}` : ''
-  emit('apply', field, values.value, `Pilot-entered forecast for ${phase.value}, ${location.value.trim()}, ${time.value.replace('T', ' ')} local time${original}${source}${sourceTime}${validity}`)
+  emit('apply', field, values.value, `Pilot-entered forecast for ${phase.value}, ${location.value.trim()}, ${time.value.replace('T', ' ')} local time (${new Date(time.value).toISOString()})${original}${source}${sourceTime}${validity}`)
 }
 </script>
 
@@ -216,6 +229,7 @@ function apply(field: keyof MetarValues): void {
     <p>Optional QNH validity: enter both local times; the selected flight time must be within the interval (end excluded). The pilot declares and verifies this interval.</p>
     <p v-if="qnhSourceTime && qnhSourceTimeValid">QNH source time in UTC: {{ new Date(qnhSourceTime).toISOString() }}.</p>
     <p v-if="qnhValidFrom && qnhValidTo && qnhValidityValid">QNH validity in UTC: {{ new Date(qnhValidFrom).toISOString() }} to {{ new Date(qnhValidTo).toISOString() }} (end excluded).</p>
+    <label v-if="ambiguousQnhTimes"><input v-model="confirmQnhTimes" type="checkbox" /> Some QNH times occur twice during a clock change. I checked the displayed UTC interpretations against the source.</label>
     <p v-if="!qnhValidityValid" role="alert">Enter a valid QNH interval containing the selected flight time; its end is excluded.</p>
     <p v-if="qnh.trim() && !qnhSource.trim()">QNH source not recorded; verify its origin.</p>
     <p v-if="qnh.trim() && !qnhSourceTime">QNH source time not recorded; its age is unknown.</p>
@@ -228,7 +242,7 @@ function apply(field: keyof MetarValues): void {
     <p>Available pilot entries: temperature {{ values.temperature ? 'entered' : 'missing or invalid' }}, QNH {{ values.qnh ? 'entered' : 'missing or invalid' }}, wind {{ values.wind ? 'entered' : 'missing or invalid' }}.</p>
     <div class="fields">
       <button type="button" :disabled="!selectionValid || !values.temperature" @click="apply('temperature')">Apply forecast temperature</button>
-      <button type="button" :disabled="!selectionValid || !values.qnh || !qnhSourceTimeValid || !qnhValidityValid" @click="apply('qnh')">Apply forecast QNH</button>
+      <button type="button" :disabled="!selectionValid || !values.qnh || !qnhSourceTimeValid || !qnhValidityValid || (ambiguousQnhTimes && !confirmQnhTimes)" @click="apply('qnh')">Apply forecast QNH</button>
       <button type="button" :disabled="!selectionValid || !values.wind" @click="apply('wind')">Apply forecast wind</button>
     </div>
   </section>
