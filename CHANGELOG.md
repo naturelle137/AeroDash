@@ -7,8 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-- Show separate forecast QNH drafts and allow clearing either unit independently.
+- Show the declared date check for valid unsaved manual runway entries.
 - Describe automatic and fixed runway check dates accurately in the briefing.
+- Show separate forecast QNH drafts and allow clearing either unit independently.
 - Run Playwright tests headless by default locally and in CI.
 
 - Omit internal identifiers from briefing warning text in preview, print and PDF.
