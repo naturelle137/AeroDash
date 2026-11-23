@@ -76,6 +76,8 @@ export function usePerformanceStep(context: () => PerformanceStepContext) {
     watch(() => JSON.stringify([ctx.value, pa.revision.value, temperature.value, corrections[operation].headwind, corrections[operation].slope, runway.saved, runway.draft, manualConfiguration.value]), () => {
       corrections[operation].windFactor = ''
       corrections[operation].windSource = ''
+      corrections[operation].surfaceFactor = ''
+      corrections[operation].surfaceSource = ''
     }, { flush: 'sync' })
   }
   const result = shallowRef<ComputedResult | null>(null)
@@ -175,6 +177,7 @@ export function usePerformanceStep(context: () => PerformanceStepContext) {
         ...OPERATIONS.flatMap((operation) => [
           { label: `${OPERATION_LABELS[operation]} headwind component`, value: `${corrections[operation].headwind.trim() || 'Not entered'} kt` },
           { label: `${OPERATION_LABELS[operation]} runway slope`, value: `${corrections[operation].slope.trim() || 'Not entered'} %` },
+          { label: `${OPERATION_LABELS[operation]} pilot-entered surface multiplier`, value: corrections[operation].surfaceFactor ? `${corrections[operation].surfaceFactor} · ${corrections[operation].surfaceSource || 'source and section not entered'} (unverified)` : 'Not entered' },
           { label: `${OPERATION_LABELS[operation]} pilot-entered wind multiplier`, value: corrections[operation].windFactor ? `${corrections[operation].windFactor} · ${corrections[operation].windSource || 'source not entered'} (unverified)` : 'Not entered' },
           { label: `${OPERATION_LABELS[operation]} safety factor`, value: safetyFactors[operation].preset === 'custom' ? `Custom ${safetyFactors[operation].custom.trim() || 'not entered'}` : safetyFactors[operation].preset },
         ]),
