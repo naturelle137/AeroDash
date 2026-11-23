@@ -253,6 +253,7 @@ Feature: Corrected takeoff and landing distances
     And the pilot opens the briefing pack
     Then the briefing discloses the pilot-entered surface source
     And the briefing pack evidence is captured as "pilot-surface-<width>"
+    And the printed and PDF briefing disclose the pilot-entered surface source
 
     Examples:
       | width | height |

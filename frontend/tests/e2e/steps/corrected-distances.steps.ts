@@ -1,4 +1,5 @@
 import { expect, type Page } from '@playwright/test'
+import { execFileSync } from 'node:child_process'
 import { createBdd } from 'playwright-bdd'
 import { testPohAircraft } from '../../fixtures/poh-aircraft'
 
@@ -226,4 +227,19 @@ Then('the briefing discloses the pilot-entered surface source', async ({ page })
   await expect(preview).toContainText('Synthetic manual section 2')
   await expect(preview).toContainText('UNVERIFIED PILOT-ENTERED SURFACE FACTOR')
   await expect(preview).toContainText('Additive or differently ordered surface rules are unsupported')
+})
+
+Then('the printed and PDF briefing disclose the pilot-entered surface source', async ({ page, $testInfo }) => {
+  await page.emulateMedia({ media: 'print' })
+  await expect(page.getByRole('dialog', { name: 'Briefing Pack preview' })).toContainText('Synthetic manual section 2')
+  await page.emulateMedia({ media: 'screen' })
+  const download = page.waitForEvent('download')
+  await page.getByRole('button', { name: 'Download PDF' }).click()
+  const gate = page.getByRole('button', { name: 'Acknowledge unverified data and download PDF' })
+  if (await gate.isVisible()) await gate.click()
+  const path = $testInfo.outputPath('surface-briefing.pdf')
+  await (await download).saveAs(path)
+  const pdf = execFileSync('pdftotext', ['-layout', path, '-'], { encoding: 'utf8' }).replace(/\s+/g, ' ')
+  expect(pdf).toContain('Synthetic manual section 2')
+  expect(pdf).toContain('Additive or differently ordered surface rules are unsupported')
 })
