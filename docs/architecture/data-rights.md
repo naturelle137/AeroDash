@@ -21,7 +21,7 @@ All persisted data is local to the browser, unencrypted, and not transmitted
 | Store | Location | Personal data | Erased | Exported |
 | :---- | :------- | :------------ | :----: | :------: |
 | IndexedDB `aerodash-fleet` (store `aircraft_profiles`) | Per-origin IndexedDB | `registration`, `ownerId`, weighing reports, `costPerHour` | Yes | Yes |
-| `localStorage` `aerodash:session:payload` | Per-origin localStorage | Station weights + aircraft-id reference | Yes | No |
+| `localStorage` `aerodash:session:payload` | Per-origin localStorage | Station weights + aircraft-id reference | Yes | Yes |
 | `localStorage` `aerodash.performance.manual-runway.v1` | Per-origin localStorage | Pilot-entered runway values (no personal data) | Yes | No |
 | `localStorage` `aerodash-theme` | Per-origin localStorage | UI preference | Yes | No |
 | `sessionStorage` `aerodash.session.active` | Per-origin sessionStorage | PWA cold-start marker | Yes | No |
@@ -95,22 +95,14 @@ when non-empty.
   omitted from `envelope.profiles` and returned in `BulkExportResult.omitted`;
   the `/privacy` view surfaces that count.
 
-### 4.2 Scope — what a bulk export includes (Art. 20)
+### 4.2 Personal data copy
 
-The export deliberately covers only the IndexedDB aircraft fleet
-(`aerodash-fleet`). The auto-saved Mass & Balance session
-(`aerodash:session:payload`: station weights + an aircraft-id reference) and
-the `aerodash-theme` preference are **out of portability scope by decision**
-(§2, `Exported: No`):
-
-- The session payload is transient preflight working state — a debounced
-  autosave aid, cleared on aircraft switch and re-derived from the fleet plus
-  live pilot input — not a retained record. Station weights may include
-  passenger weights; should that data ever become a retained record (e.g. a
-  saved load sheet), this decision must be revisited and the export extended.
-- `aerodash-theme` is a non-personal UI preference.
-
-Erasure still clears both (§3); only *portability* excludes them.
+The Privacy download wraps the unchanged fleet backup envelope with validated active
+and per-aircraft M&B sessions and per-aircraft Flight Prep drafts. It includes an
+omissions list and a complete flag. Unreadable records and storage failures are
+reported; credentials, security material, preferences and caches are excluded.
+The fleet envelope can be extracted and restored with the existing fleet importer.
+This copy describes persisted data, not unsaved in-memory edits.
 
 ## 5. Interaction
 

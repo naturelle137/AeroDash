@@ -137,13 +137,11 @@ these caches are not fleet/session data and are not cleared by that action.
 **User control today:** AeroDash ships a dedicated **Privacy view** at
 `/privacy` exposing two GDPR-aligned actions:
 
-1. **Bulk JSON Export (Art. 15 / Art. 20).** Downloads every _readable_
-   aircraft profile as a single schema-versioned JSON file
-   (`aerodash-fleet-<timestamp>.json`). If any stored profile cannot be read
-   by the running build (e.g. it was written by a newer app version after a
-   PWA cache rollback), it is excluded from the file **and the export view
-   warns you how many profiles were left out**, so the copy is never silently
-   incomplete — update AeroDash to recover those profiles before deleting.
+1. **Bulk JSON Export (Art. 15 / Art. 20).** Downloads readable aircraft
+   profiles and saved flight preparations in a versioned local JSON copy.
+   Unreadable records and storage failures are reported in the copy and view.
+   A separate fleet backup retains the existing restore format. Credentials and
+   caches are excluded; no data is transmitted.
 2. **Delete All Data (Art. 17).** After explicit confirmation (typed
    confirmation phrase), clears the entire `aerodash-fleet` IndexedDB store
    plus the namespaced localStorage and sessionStorage keys defined above. The
@@ -194,7 +192,7 @@ who has full physical control over the data:
 - **Right of access (Art. 15):** All stored data is on the user's own device.
   Aircraft profiles are viewable in the fleet view, and the Privacy view's
   _Bulk JSON Export_ (`/privacy`) produces a machine-readable dump of the
-  full fleet.
+  readable fleet and saved flight preparations, with omissions reported.
 - **Right to rectification (Art. 16):** Aircraft profiles can be edited in
   the app (Fleet → edit; the Draft/Verified FSM tracks who introduced each
   revision).
