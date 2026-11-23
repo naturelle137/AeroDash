@@ -75,6 +75,10 @@ input set. Any change, a runway clear, a reload or local-data erasure removes it
 component (kt, negative tailwind) and runway slope (%, positive uphill) per operation, and calls the shared Tecnam rules.
 The pilot must enter wind and slope (empty is never zero; |slope| < 100). Available corrections are applied independently; absent corrections are disclosed and make the result partial. When no correction source applies, the selected safety factor still applies to the base distances and the result identifies all missing corrections. Partial results cannot establish runway fit. Without a manual rule set, the take-off surface and slope may fall back to the marked FSM 3/75 estimate below; landing and tailwind remain uncorrected. Results are rounded up to whole metres and appear in the briefing pack. Any input change invalidates them with the raw result.
 
+## Pilot-entered wind multiplier
+
+For each operation the pilot may enter a positive whole-distance multiplier and a manual source and section for the current conditions. It replaces the selected wind correction and multiplies both the ground roll and the total distance after ground-only corrections. This supports only a manual multiplier that is applicable to both distances and compatible with the other corrections; additive or differently ordered rules cannot be entered this way. The source and applicability are unverified, so the result stays partial and cannot establish runway fit. Changes to aircraft, mass, atmosphere, runway, wind, slope or manual configuration clear the entry. Synthetic tests demonstrate wiring, not operational validation.
+
 ## Runway comparison
 
 When a correction source is unavailable, independently identified manual corrections are applied, missing corrections are named, and the result is marked incomplete. The safety factor still applies; the incomplete result must not be used for runway assessment.
