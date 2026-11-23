@@ -3,9 +3,7 @@
 ## Implementation boundary
 
 The shipped app is frontend-only. REQ-SC-007/008/015 cover existing local
-aircraft JSON export, validated import and invalid-file rejection. REQ-SC-014
-remains unimplemented: the current briefing pack uses browser printing, not
-flight-plan JSON export. The remaining remote identity, cloud, Share-Code and
+aircraft JSON export, validated import and invalid-file rejection. REQ-SC-014 covers the local Flight Preparation JSON export. The remaining remote identity, cloud, Share-Code and
 organization requirements describe future behavior; schema `ownerId`/`shareCode`
 fields do not implement identity or network sharing.
 
@@ -76,6 +74,15 @@ While the user is a Member, the system shall permit creation of their own flight
 ### REQ-SC-014: Flight-plan JSON export
 
 When the user exports flight plans, the system shall produce a local JSON exchange file.
+
+The version 1 `aerodash-flight-preparation` file contains current raw M&B,
+fuel, electric, performance, wind and manual runway entries, aircraft identity,
+weather provenance and explicit units. Blank text remains blank; unavailable
+objects are null. The current saved runway is included only when it matches the
+form; the form itself can contain unsaved or invalid values. It excludes computed
+results, acknowledgements, aircraft profile data and notes. It is an unverified
+snapshot, not an approval; import and round-trip are not supported. Export is
+local and does not transmit data.
 
 ### REQ-SC-015: Reject invalid JSON
 
