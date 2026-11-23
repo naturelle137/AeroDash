@@ -44,6 +44,7 @@ The five most recently saved or selected aerodrome and runway combinations are s
 manual declarations. Selecting one replaces the form after confirmation and retains
 the original save time, source and declared dates. Recency does not verify currency.
 Malformed history is ignored; local-data erasure removes it.
+Each recent direction displays its unverified source reference and declared date boundaries, including unknown values, without selecting it.
 Version 2 recovery retains an optional source reference and declared dates;
 invalid references are rejected rather than silently discarded.
 
