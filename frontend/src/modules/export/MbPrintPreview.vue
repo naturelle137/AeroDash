@@ -210,6 +210,7 @@ onBeforeUnmount(() => {
             <table v-if="currentSnapshot.fuel.rows.length"><thead><tr><th>Parameter</th><th>Value</th></tr></thead><tbody>
               <tr v-for="row in currentSnapshot.fuel.rows" :key="row.label"><td>{{ row.label }}</td><td :class="{ 'briefing-warning': row.warnings?.length }">{{ row.value }}<p v-for="warning in row.warnings" :key="warning">{{ warningText(warning) }}</p></td></tr>
             </tbody></table>
+            <p>Trip burn path: {{ currentSnapshot.fuel.pathAssessment.replace(/\.$/, '') }}. Fixed-arm assessment only; verify against the aircraft POH/AFM. This does not determine operational or landing suitability.</p>
             <p v-if="currentSnapshot.fuel.sequence">Selected arrival CG burn sequence: {{ currentSnapshot.fuel.sequence }}</p>
             <p v-if="currentSnapshot.fuel.cgReason">Estimated arrival CG unavailable: {{ currentSnapshot.fuel.cgReason }}</p>
             <ul v-if="currentSnapshot.fuel.warnings.length"><li v-for="warning in currentSnapshot.fuel.warnings" :key="warning">{{ warningText(warning) }}</li></ul>
