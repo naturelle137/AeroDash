@@ -8,10 +8,10 @@ import { formatNumber, LOWER_AXIS_ESTIMATE } from './performance-presentation'
 import { parseLookupNumber, type GroupAssessment } from './poh-inspection'
 
 /** Pilot-entered conditions for one operation; raw text so an empty field is never zero. */
-export type CorrectionConditions = { headwind: string; slope: string }
+export type CorrectionConditions = { headwind: string; slope: string; windFactor?: string; windSource?: string }
 export type CorrectionInputs = Record<Operation, CorrectionConditions>
 export const emptyCorrectionInputs = (): CorrectionInputs => ({
-  takeoff: { headwind: '', slope: '' }, landing: { headwind: '', slope: '' },
+  takeoff: { headwind: '', slope: '', windFactor: '', windSource: '' }, landing: { headwind: '', slope: '', windFactor: '', windSource: '' },
 })
 
 /** Pilot-selected safety factor for one operation; `poh-afm` is the factor stated by the accepted manual. */
@@ -95,8 +95,12 @@ export function presentCorrectedOperation(
   }
   if (group?.status !== 'success') return unavailable('No base distance for this operation, so nothing can be corrected.')
   if (sources?.status !== 'assessed') return unavailable('Correction sources cannot be assessed for this profile. Distances stay uncorrected.')
+  const windFactorText = inputs.windFactor?.trim() ?? ''
+  const windSource = inputs.windSource?.trim() ?? ''
+  const windFactor = windFactorText ? parseLookupNumber(windFactorText) : null
+  if ((windFactorText || windSource) && (windFactor === null || windFactor <= 0 || !windSource)) return unavailable('Enter a positive finite manual wind multiplier and its source, or clear both fields.')
   const rows = sources.corrections.filter((row) => row.operation === operation)
-  const manual = rows.filter((row) => row.selected && TECNAM_S9_SOURCE_IDS.includes(row.selected.id))
+  const manual = rows.filter((row) => row.selected && TECNAM_S9_SOURCE_IDS.includes(row.selected.id) && !(windFactor !== null && row.correction === 'wind'))
   const fsm = operation === 'takeoff' ? rows.filter((row) => row.selected?.estimate) : []
   const estimating = fsm.length > 0
   if (!runway) return unavailable('Save the manual runway to select its surface correction.')
@@ -133,10 +137,14 @@ export function presentCorrectedOperation(
     })
     result = { ...corrected, notCredited: [...result.notCredited, ...corrected.notCredited] }
   }
-  if (estimating && !manual.some((row) => row.correction === 'wind') && headwindKt > 0) {
+  if (estimating && windFactor === null && !manual.some((row) => row.correction === 'wind') && headwindKt > 0) {
     result = { ...result, notCredited: [...result.notCredited, 'headwind'] }
   }
-  const manualFactor = manual.length ? TECNAM_S9_RULES[operation].inServiceFactor : null
+  if (windFactor !== null) {
+    result = { ...result, groundRoll: result.groundRoll * windFactor, distanceOver50ft: result.distanceOver50ft * windFactor }
+    if (!Number.isFinite(result.groundRoll) || !Number.isFinite(result.distanceOver50ft) || result.groundRoll <= 0 || result.distanceOver50ft <= 0) return unavailable('Manual wind multiplier produces an invalid distance.')
+  }
+  const manualFactor = rows.some((row) => row.selected && TECNAM_S9_SOURCE_IDS.includes(row.selected.id)) ? TECNAM_S9_RULES[operation].inServiceFactor : null
   const osf: OperationalSafetyFactorInput = { preset: safetyFactor.preset, pohMandatedFactor: manualFactor === null ? {} : { [operation]: manualFactor } }
   if (safetyFactor.preset === 'custom') {
     const custom = parseLookupNumber(safetyFactor.custom)
@@ -144,24 +152,26 @@ export function presentCorrectedOperation(
     osf.customMultiplier = custom
   }
   const factor = resolveOsf(osf, operation)
+  if (!Number.isFinite(result.groundRoll * factor) || !Number.isFinite(result.distanceOver50ft * factor)) return unavailable('Corrected distances exceed the supported numeric range.')
   const threshold = osfThreshold(osf, operation)
   const up = (value: number) => `${formatNumber(Math.ceil(value), 0)} m`
   const selected = estimating ? fsm[0]!.selected! : manual[0]?.selected
   const sourceId = estimating ? 'fsm' : selected?.id ?? ''
   const comparison = compareWithRunway(operation, Math.ceil(result.distanceOver50ft * factor), Math.ceil(result.groundRoll * factor), available)
-  const missing = rows.filter((row) => !manual.includes(row) && !fsm.includes(row) && (row.correction !== 'wind' || headwindKt < 0 || !estimating)).map((row) => row.correction)
-  const partial = result.notCredited.length > 0 || missing.length > 0
+  const missing = rows.filter((row) => !manual.includes(row) && !fsm.includes(row) && !(row.correction === 'wind' && windFactor !== null) && (row.correction !== 'wind' || headwindKt < 0 || !estimating)).map((row) => row.correction)
+  const partial = windFactor !== null || result.notCredited.length > 0 || missing.length > 0
   const marker = ' ESTIMATED (CAA SSL 07)'
   const extrapolated = ' ESTIMATED — EXTRAPOLATED (+20 % penalty)'
   const markers = (rows: typeof group.distances) =>
     (rows.some(row => row.lowerAxisCaps.length) ? ` ${LOWER_AXIS_ESTIMATE}` : '') + (rows.some(row => row.extrapolation) ? extrapolated : '') + (rows.some(row => row.provenance === 'estimated') ? marker : '')
   const baseRollMarker = markers([roll])
   const over50Marker = markers([over50])
-  const rollMarker = baseRollMarker + (estimating ? FSM_ESTIMATE_MARKER : '')
-  const correctedOver50Marker = markers([roll, over50]) + (estimating ? FSM_ESTIMATE_MARKER : '')
+  const windMarker = windFactor !== null ? ' [UNVERIFIED PILOT-ENTERED WIND FACTOR]' : ''
+  const rollMarker = baseRollMarker + (estimating ? FSM_ESTIMATE_MARKER : '') + windMarker
+  const correctedOver50Marker = markers([roll, over50]) + (estimating ? FSM_ESTIMATE_MARKER : '') + windMarker
   return {
     operation, title, status: 'applied', partial,
-    source: selected ? `${selected.document.title}, ${selected.document.identifier}, ${selected.document.revision}; ${selected.section}${estimating && manual.length ? `; ${manual[0]!.selected!.document.title}, ${manual[0]!.selected!.document.revision}; ${manual[0]!.selected!.section}` : ''}` : 'No applicable wind, surface or slope correction source',
+    source: selected ? `${selected.document.title}, ${selected.document.identifier}, ${selected.document.revision}; ${selected.section}${estimating && manual.length ? `; ${manual[0]!.selected!.document.title}, ${manual[0]!.selected!.document.revision}; ${manual[0]!.selected!.section}` : ''}` : windFactor !== null ? 'Pilot-entered wind multiplier; source and applicability unverified' : 'No applicable wind, surface or slope correction source',
     rows: [
       { label: roll.label, raw: `${formatNumber(roll.distance)} m${baseRollMarker}`, corrected: up(result.groundRoll) + rollMarker, factored: up(result.groundRoll * factor) + rollMarker },
       { label: over50.label, raw: `${formatNumber(over50.distance)} m${over50Marker}`, corrected: up(result.distanceOver50ft) + correctedOver50Marker, factored: up(result.distanceOver50ft * factor) + correctedOver50Marker },
@@ -177,6 +187,7 @@ export function presentCorrectedOperation(
     notes: [
       `Final value = corrected distance × safety factor ${factor.toFixed(2)}, rounded up to whole metres.${manualFactor === null ? '' : ` The manual states ${manualFactor} as its in-service factor.`}`,
       ...(estimating ? [FSM_DISCLOSURE] : []),
+      ...(windFactor !== null ? [`Pilot-entered wind multiplier ${windFactor} for ${inputs.headwind} kt, source: ${windSource}. Applied to both distances. Source and applicability are not verified; independently check the manual and combined corrections.`] : []),
       ...(missing.length ? [`Incomplete: no applicable correction applied for ${missing.join(', ')}.${missing.includes('wind') ? ` Wind component ${inputs.headwind} kt was not applied.` : ''}${missing.includes('slope') ? ` Runway slope ${inputs.slope} % was not applied.` : ''} Determine missing corrections independently from the aircraft manual.`] : []),
       ...result.notCredited.map((item) => `${fsm.some((row) => row.correction === (item === 'headwind' ? 'wind' : 'slope')) || (item === 'headwind' && estimating && !manual.some((row) => row.correction === 'wind')) ? FSM_NOT_CREDITED[item as FsmNotCredited] : NOT_CREDITED[item as S9NotCredited]} ${item === 'headwind' ? `Wind component ${inputs.headwind} kt` : `Runway slope ${inputs.slope} %`} was not applied.`),
       ...(operation === 'landing' && sourceId.startsWith('tecnam-s9-') ? ['The manual landing table exists for 650 kg only; lower masses use it unchanged.'] : []),
