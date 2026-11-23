@@ -142,6 +142,7 @@ test('cached preparation reopens offline with persisted synthetic data and live 
   const recent = page.getByRole('region', { name: 'Recently used airports', exact: true })
   await expect(recent.getByRole('button', { name: /27: Expired/ })).toBeVisible()
   await expect(recent.getByRole('button', { name: /09: Within the declared dates/ })).toBeVisible()
+  await expect(recent).toContainText('Days to declared effect: -329')
   await expect(recent).toContainText('Expiry (inclusive): 2026-06-30')
   await expect(recent).toContainText('Expiry (inclusive): 2026-12-31')
   await expect(recent).toContainText('Source: Unknown (user-declared, unverified)')

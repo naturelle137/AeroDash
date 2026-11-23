@@ -255,7 +255,7 @@ describe('M&B print presentation with real store calculation', () => {
       { id: 'CRIT-MB-002', severity: 'CRITICAL', message: 'MTOM Exceeded', context: 'MassBalance.TotalMass', persistent: false, dismissible: true },
       { id: 'CRIT-MB-001', severity: 'CRITICAL', message: 'CG Out of Envelope', context: 'MassBalance.CG', persistent: false, dismissible: true },
       { id: 'WARN-MB-005', severity: 'WARNING', message: 'Station 0 limit exceeded', context: 'MassBalance.Loading', persistent: false, dismissible: true },
-      { id: 'INFO-TEST-001', severity: 'INFO', message: 'Advisory details', context: 'MassBalance', persistent: false, dismissible: true },
+      { id: 'INFO-TEST-001', severity: 'INFO', message: 'INFO-TEST-001: Advisory details', context: 'MassBalance', persistent: false, dismissible: true },
     )
     const pack = assembleMbPrint(input, new Date())!
     expect(pack.notifications.map(n => n.id)).toContain('CRIT-MB-002')
@@ -265,6 +265,7 @@ describe('M&B print presentation with real store calculation', () => {
     const text = preview.textContent!
     for (const id of ['CRIT-MB-002', 'CRIT-MB-001', 'WARN-MB-005', 'INFO-TEST-001']) expect(text).not.toContain(id)
     for (const message of ['MTOM Exceeded', 'CG Out of Envelope', 'Station 0 limit exceeded', 'Advisory details']) expect(text).toContain(message)
+    expect(input.notifications.find(n => n.id === 'INFO-TEST-001')!.message).toContain('INFO-TEST-001')
     expect(preview.querySelectorAll('.briefing-critical').length).toBeGreaterThan(1)
     expect([...preview.querySelectorAll('.briefing-warning')].some(e => e.textContent?.includes('Station 0 limit exceeded'))).toBe(true)
     expect(text).toContain('500.0 kg')
