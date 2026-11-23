@@ -1,9 +1,12 @@
 import { expect, test } from '@playwright/test'
 import { testPohAircraft } from '../fixtures/poh-aircraft'
 
-test('manual electric budget and briefing use current synthetic inputs', async ({ page }, info) => {
+test('manual electric budget and briefing use current synthetic inputs', async ({ page, context }, info) => {
   await page.goto('/fleet')
   await page.getByTestId('disclaimer-gate-accept').click()
+  await page.evaluate(async () => { await navigator.serviceWorker.ready })
+  await page.reload()
+  await expect.poll(() => page.evaluate(() => navigator.serviceWorker.controller !== null)).toBe(true)
   const profile = testPohAircraft()
   profile.powertrain = 'electric'
   profile.batteryPack = { usableEnergyKwh: 30, reserveFloorKwh: 5 }
@@ -15,7 +18,9 @@ test('manual electric budget and briefing use current synthetic inputs', async (
   await dialog.getByLabel('POH revision').fill('Synthetic arithmetic only')
   await dialog.getByRole('button', { name: 'Verify', exact: true }).click()
   await expect(dialog).toBeHidden()
-  await page.goto('/mass-balance')
+  await context.setOffline(true)
+  const response = await page.goto('/mass-balance')
+  expect(response?.fromServiceWorker()).toBe(true)
   const picker = page.getByLabel('Select aircraft', { exact: true })
   await picker.selectOption((await picker.locator('option').filter({ hasText: profile.registration }).first().getAttribute('value'))!)
   const card = page.getByRole('region', { name: 'Energy & Endurance' })
@@ -24,13 +29,23 @@ test('manual electric budget and briefing use current synthetic inputs', async (
   await expect(page.getByText('Synthetic tank', { exact: true })).toHaveCount(0)
   await card.getByLabel('Current available energy (kWh)').fill('20')
   await card.getByLabel('Average consumption (kW)').fill('20')
-  await card.getByLabel('Planned trip duration (min)').fill('60')
-  await expect(card.getByRole('alert')).toContainText('below the reserve floor')
-  await expect(card).toContainText('-5 kWh')
+  await expect(card).toContainText('Estimated time to depletion')
+  await expect(card).toContainText('60 min')
+  await expect(card).toContainText('45 min')
   const action = page.getByRole('button', { name: 'Briefing Pack', exact: true })
   await expect(action).toBeEnabled()
   await action.click()
   const preview = page.getByRole('dialog', { name: 'Briefing Pack preview' })
+  await expect(preview).toContainText('45 min [UNVERIFIED]')
+  await expect(preview).toContainText('Energy budget unavailable')
+  await page.keyboard.press('Escape')
+  await card.getByLabel('Planned trip duration (min)').fill('60')
+  await expect(card.getByRole('alert')).toContainText('below the reserve floor')
+  await expect(card).toContainText('-5 kWh')
+  await action.click()
+  await expect(preview).toContainText('Estimated time to depletion')
+  await expect(preview).toContainText('60 min [UNVERIFIED]')
+  await expect(preview).toContainText('45 min [UNVERIFIED]')
   await expect(preview).toContainText('Difference to reserve floor')
   await expect(preview).toContainText('-5 kWh [UNVERIFIED]')
   await expect(preview).toContainText('below the reserve floor')
