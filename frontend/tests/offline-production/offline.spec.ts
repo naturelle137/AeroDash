@@ -145,6 +145,8 @@ test('cached preparation reopens offline with persisted synthetic data and live 
   await expect(recent).toContainText('Expiry (inclusive): 2026-06-30')
   await expect(recent).toContainText('Expiry (inclusive): 2026-12-31')
   await expect(recent).toContainText('Source: Unknown (user-declared, unverified)')
+  await expect(recent.locator('li').filter({ hasText: '27: Expired' })).toContainText('Days to declared expiry: -149')
+  await expect(recent.locator('li').filter({ hasText: '09: Within the declared dates' })).toContainText('Days to declared expiry: 35')
   await recent.scrollIntoViewIfNeeded()
   await capture(page, info, 'offline-recent-runways')
 
