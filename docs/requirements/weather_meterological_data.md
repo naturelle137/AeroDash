@@ -82,7 +82,7 @@ When the pilot declares a QNH validity interval, the system shall allow applicat
 
 ### REQ-WX-017: QNH unit drafts
 
-When the pilot switches forecast QNH units, the system shall retain the separate entry for each unit until the selection or QNH entry is cleared.
+When the pilot switches forecast QNH units, the system shall retain the separate entry and its source details for each unit until the selection or QNH entry is cleared.
 
 ## Design References
 
