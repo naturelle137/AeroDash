@@ -13,8 +13,9 @@ const { available, power, minutes, presentation } = props.planning
       <p><label for="energy-power">Average consumption (kW)</label> <input id="energy-power" v-model="power" type="text" inputmode="decimal" /></p>
       <p><label for="energy-trip">Planned trip duration (min)</label> <input id="energy-trip" v-model="minutes" type="text" inputmode="decimal" /></p>
     </fieldset>
+    <p v-if="presentation.enduranceReason" role="status">Endurance estimate unavailable: {{ presentation.enduranceReason }}</p>
     <p v-if="presentation.reason" role="status">Energy budget unavailable: {{ presentation.reason }}</p>
-    <div v-else aria-label="Estimated energy budget" aria-live="polite">
+    <div v-if="presentation.rows.length" aria-label="Estimated energy budget" aria-live="polite">
       <dl><template v-for="row in presentation.rows" :key="row.label"><dt>{{ row.label }}</dt><dd>{{ row.value }}</dd></template></dl>
       <p v-if="presentation.warning" role="alert">{{ presentation.warning }}</p>
     </div>
