@@ -85,7 +85,7 @@ it('applies a pilot-sourced QNH in inHg after conversion and retains it offline'
   await label('QNH valid until').get('input').setValue('2030-06-01T13:00')
   await apply.trigger('click')
   expect(view.emitted('apply')![0]).toEqual(['qnh', { qnh: '1013.21' }, 'Pilot-entered forecast for departure, Test airfield, 2030-06-01 12:30 local time; pilot-entered QNH: 29.92 inHg; pilot-declared QNH source: Pilot briefing; pilot-declared QNH source time: 2029-12-31 23:00 local time; pilot-declared QNH validity: 2030-06-01 12:00 to 2030-06-01 13:00 local time (end exclusive)'])
-  expect(view.text()).toContain('QNH selection: departure · Test airfield · 2030-06-01 12:30 device local time')
+  expect(view.text()).toContain(`QNH selection: departure · Test airfield · 2030-06-01 12:30 device local time (${new Date('2030-06-01T12:30').toISOString()})`)
   await view.findAll('button').find(button => button.text() === 'Clear QNH entry and source')!.trigger('click')
   expect((label('Forecast QNH').get('input').element as HTMLInputElement).value).toBe('')
   expect((label('QNH source').get('input').element as HTMLInputElement).value).toBe('')
