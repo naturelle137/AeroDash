@@ -69,6 +69,15 @@ test('current phase notifications and runway comparisons survive cached offline 
   await perf.getByLabel('Temperature (°C)', { exact: true }).fill('10')
   await perf.getByLabel('Applicable manual configuration').selectOption('s9')
   for (const phase of ['Takeoff', 'Landing']) {
+    const result = perf.getByRole('region', { name: `${phase} corrected distances` })
+    await expect(result).toContainText('Enter the headwind component')
+    await expect(result).toContainText('Enter the runway slope')
+    await result.scrollIntoViewIfNeeded()
+    const path = info.outputPath(`missing-corrections-${phase.toLowerCase()}.png`)
+    await page.screenshot({ path, animations: 'disabled' })
+    await info.attach(`missing-corrections-${phase.toLowerCase()}`, { path, contentType: 'image/png' })
+  }
+  for (const phase of ['Takeoff', 'Landing']) {
     const inputs = perf.getByRole('group', { name: `${phase} wind and slope` })
     await inputs.getByLabel('Headwind component (kt, negative = tailwind)').fill('0')
     await inputs.getByLabel('Runway slope (%, positive = uphill)').fill('0')
