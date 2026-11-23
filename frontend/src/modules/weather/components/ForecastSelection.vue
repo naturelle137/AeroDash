@@ -143,7 +143,8 @@ function apply(field: keyof MetarValues): void {
   const source = field === 'qnh' && qnhSource.value.trim() ? `; pilot-declared QNH source: ${qnhSource.value.trim()}` : ''
   const sourceTime = field === 'qnh' && qnhSourceTime.value ? `; pilot-declared QNH source time: ${qnhSourceTime.value.replace('T', ' ')} local time` : ''
   const validity = field === 'qnh' && qnhValidFrom.value && qnhValidTo.value ? `; pilot-declared QNH validity: ${qnhValidFrom.value.replace('T', ' ')} to ${qnhValidTo.value.replace('T', ' ')} local time (end exclusive)` : ''
-  emit('apply', field, values.value, `Pilot-entered forecast for ${phase.value}, ${location.value.trim()}, ${time.value.replace('T', ' ')} local time${source}${sourceTime}${validity}`)
+  const original = field === 'qnh' ? `; pilot-entered QNH: ${qnh.value.trim()} ${qnhUnit.value}` : ''
+  emit('apply', field, values.value, `Pilot-entered forecast for ${phase.value}, ${location.value.trim()}, ${time.value.replace('T', ' ')} local time${original}${source}${sourceTime}${validity}`)
 }
 </script>
 
