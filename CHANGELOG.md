@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Describe automatic and fixed runway check dates accurately in the briefing.
+- Run Playwright tests headless by default locally and in CI.
+
+- Omit internal identifiers from briefing warning text in preview, print and PDF.
 - Show days to declared runway effect in the offline workflow and briefing.
 
 - Show days to declared expiry for each recent runway direction offline.
@@ -388,6 +392,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `/issue` command now sets GitHub's native parent/child (sub-issue) relationship for Tasks via the sub-issues API, instead of recording the parent only as body text
 
 - Hide internal Performance and wind warning identifiers in briefing output while retaining warning details.
+- Accept unverified pilot-sourced ground-roll surface multipliers for takeoff and landing.
 
 ## [0.3.0-alpha] - 2026-05-24
 
