@@ -109,6 +109,33 @@ describe('corrected distances in the performance step', () => {
     effect.stop()
   })
 
+  it.each(['takeoff', 'landing'] as const)('applies an additive wind correction for %s and invalidates it', (operation) => {
+    const { step } = setup()
+    const input = step.corrections[operation]
+    Object.assign(input, { headwind: '-2', slope: '0', windFactor: '1', windSource: 'Synthetic section' })
+    const index = operation === 'takeoff' ? 0 : 1
+    const baseline = corrected(step, index)
+    if (baseline.status !== 'applied') throw new Error('expected result')
+    input.windFactor = ''
+    input.windAddend = '25'
+    const result = corrected(step, index)
+    if (result.status !== 'applied') throw new Error('expected result')
+    for (let i = 0; i < 2; i++) {
+      expect(Number.parseFloat(result.rows[i]!.corrected.replaceAll(',', ''))).toBe(Number.parseFloat(baseline.rows[i]!.corrected.replaceAll(',', '')) + 25)
+    }
+    expect(result.notes.join(' ')).toContain('Synthetic section')
+    expect(result.partial).toBe(true)
+    expect(result.comparison.margin).toBe('Not available')
+    input.windFactor = '1'
+    expect(corrected(step, index).status).toBe('unavailable')
+    input.windFactor = ''
+    input.windAddend = '-99999'
+    expect(corrected(step, index).status).toBe('unavailable')
+    input.headwind = '-3'
+    expect(input.windAddend).toBe('')
+    expect(input.windSource).toBe('')
+  })
+
   it('replaces the built-in wind rule without applying it twice', () => {
     const { step } = setup()
     Object.assign(step.corrections.takeoff, { headwind: '-2', slope: '0', windFactor: '1', windSource: 'Synthetic section' })

@@ -16,7 +16,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Retain the pilot-entered forecast QNH and its unit in applied provenance.
 - Show missing forecast QNH source details and the elapsed age of a pilot-declared source time.
-
 - Show the declared date check for valid unsaved manual runway entries.
 - Describe automatic and fixed runway check dates accurately in the briefing.
 - Show separate forecast QNH drafts and allow clearing either unit independently.
@@ -28,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Show days to declared expiry for each recent runway direction offline.
 - Show days to the pilot-declared runway expiry in the offline workflow and briefing.
 - Preserve separate manual forecast QNH drafts and source details when switching units.
+- Support pilot-entered additive wind corrections for both performance distances.
 - Allow a pilot-entered, unverified POH wind multiplier for each operation while retaining incomplete-result disclosures.
 - Include saved flight preparations, runway records, notes, units and omission reports in the Privacy data copy.
 - Assess fixed-arm trip fuel burn paths against the current M&B envelope.

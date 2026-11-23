@@ -212,6 +212,7 @@ Feature: Corrected takeoff and landing distances
     And the pilot enters landing headwind "-2" kt and slope "-1" %
     Then pilot-entered wind multipliers change both distances and clear with changed conditions
     And a pilot-entered landing slope multiplier changes ground roll and clears with slope
+    And pilot-entered additive wind corrections work for both operations
     And the corrected distance evidence is captured as "pilot-wind-<width>"
 
     Examples:

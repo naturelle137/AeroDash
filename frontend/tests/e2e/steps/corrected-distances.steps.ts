@@ -259,3 +259,20 @@ Then('a pilot-entered landing slope multiplier changes ground roll and clears wi
   await inputs.getByLabel('Manual POH landing slope ground-roll multiplier (optional)').fill('1.2')
   await inputs.getByLabel('Slope factor source and section').fill('Synthetic manual section 2')
 })
+
+Then('pilot-entered additive wind corrections work for both operations', async ({ page }) => {
+  for (const phase of ['Takeoff', 'Landing']) {
+    const inputs = page.getByRole('group', { name: `${phase} wind and slope` })
+    const result = page.getByRole('region', { name: `${phase} corrected distances`, exact: true })
+    await inputs.getByLabel('Manual POH wind multiplier (optional)').fill('')
+    await inputs.getByLabel('Manual additive wind correction to both distances (m, optional)').fill('25')
+    await inputs.getByLabel('Wind factor source and section').fill('Synthetic manual section 1')
+    await expect(result).toContainText('UNVERIFIED PILOT-ENTERED WIND ADDEND')
+    await expect(result).toContainText('Synthetic manual section 1')
+    await expect(result).toContainText('Do not use this comparison for runway assessment')
+    await inputs.getByLabel('Headwind component (kt, negative = tailwind)').fill('-4')
+    await expect(inputs.getByLabel('Manual additive wind correction to both distances (m, optional)')).toHaveValue('')
+    await inputs.getByLabel('Manual additive wind correction to both distances (m, optional)').fill('25')
+    await inputs.getByLabel('Wind factor source and section').fill('Synthetic additive wind section')
+  }
+})
