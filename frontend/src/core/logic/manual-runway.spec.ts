@@ -7,6 +7,7 @@ import {
   airacCycleStart,
   runwayFreshness,
   daysToDeclaredExpiry,
+  daysToDeclaredEffect,
   draftFromManualRunway,
   formatNormalizedManualRunway,
   normalizeManualRunway,
@@ -196,6 +197,14 @@ describe('declared dates', () => {
     expect(daysToDeclaredExpiry(runway, '2028-03-02')).toBe(-1)
     expect(daysToDeclaredExpiry(runway, 'invalid')).toBeNull()
     expect(daysToDeclaredExpiry(valid(draft()), '2028-03-01')).toBeNull()
+  })
+  it('counts calendar days to declared effect without assuming currency', () => {
+    const runway = valid({ ...draft(), effectiveDate: '2028-03-01' })
+    expect(daysToDeclaredEffect(runway, '2028-02-28')).toBe(2)
+    expect(daysToDeclaredEffect(runway, '2028-03-01')).toBe(0)
+    expect(daysToDeclaredEffect(runway, '2028-03-02')).toBe(-1)
+    expect(daysToDeclaredEffect(runway, 'invalid')).toBeNull()
+    expect(daysToDeclaredEffect(valid(draft()), '2028-03-01')).toBeNull()
   })
   it('checks inclusive boundaries without inferring expiry from AIRAC', () => {
     const runway = valid(draft({ effectiveDate: '2026-10-29', expiryDate: '2026-12-24' }))

@@ -40,6 +40,7 @@ it('carries the selected declared-date check into performance and invalidates it
     expect(presentation.runway.note).toContain('NOTAM/SUP coverage is unknown')
     expect(presentation.runway.note).toContain('The selected check date does not advance automatically')
     expect(presentation.runway.rows).toContainEqual({ label: 'Declared date check', value: '2027-01-01: expired; source currency unverified' })
+    expect(presentation.runway.rows).toContainEqual({ label: 'Days to declared effect', value: '-365' })
     const key = presentation.inputKey
     runway.assessmentDate = ''
     expect(step.presentation.value.inputKey).not.toBe(key)

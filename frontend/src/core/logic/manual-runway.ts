@@ -358,6 +358,12 @@ export function runwayFreshness(runway: ManualRunway, today: string): 'unknown' 
   return 'unknown'
 }
 
+/** Days to the pilot-declared effective date, not a source-currency verdict. */
+export function daysToDeclaredEffect(runway: ManualRunway, checkDate: string): number | null {
+  if (!runway.effectiveDate || !date.safeParse(checkDate).success) return null
+  return (Date.parse(`${runway.effectiveDate}T00:00:00Z`) - Date.parse(`${checkDate}T00:00:00Z`)) / 86400000
+}
+
 /** Days to the pilot-declared inclusive expiry, not a source-currency verdict. */
 export function daysToDeclaredExpiry(runway: ManualRunway, checkDate: string): number | null {
   if (!runway.expiryDate || !date.safeParse(checkDate).success) return null

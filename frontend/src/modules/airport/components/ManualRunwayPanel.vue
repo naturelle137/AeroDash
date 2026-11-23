@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import {
   airacCycleStart,
   daysToDeclaredExpiry,
+  daysToDeclaredEffect,
   runwayFreshness,
   MAX_AERODROME_LENGTH,
   MAX_DESIGNATOR_LENGTH,
@@ -63,6 +64,7 @@ if (!runway.loaded) runway.load()
       <ul class="recent-runways"><li v-for="record in runway.recent" :key="JSON.stringify([record.runway.aerodrome, record.runway.designator])">
         <button type="button" @click="selectRecent(record)">{{ record.runway.aerodrome }} — {{ record.runway.designator }}: {{ freshnessLabels[runwayFreshness(record.runway, runway.assessmentDate)] }}</button>
         <p>Source: {{ record.runway.source || 'Unknown' }} (user-declared, unverified) · Effective: {{ record.runway.effectiveDate || 'Unknown' }} · Expiry (inclusive): {{ record.runway.expiryDate || 'Unknown' }}</p>
+        <p>Days to declared effect: {{ daysToDeclaredEffect(record.runway, runway.assessmentDate) ?? 'Unknown' }} (negative means after the declared effective date; source remains unverified).</p>
         <p>Days to declared expiry: {{ daysToDeclaredExpiry(record.runway, runway.assessmentDate) ?? 'Unknown' }} (negative means past expiry; source remains unverified).</p>
       </li></ul>
     </section>
@@ -214,6 +216,7 @@ if (!runway.loaded) runway.load()
         <div><dt>Surface</dt><dd>{{ surfaceTypeLabels[runway.current.record.runway.surface.type] }} · {{ conditionLabel }}<span v-if="runway.current.record.weatherSurface"> · {{ runway.current.record.weatherSurface.source ?? 'METAR' }} via wxdecoder.com {{ runway.current.record.weatherSurface.station }} · {{ runway.current.record.weatherSurface.time }} <span v-if="runway.current.record.weatherSurface.source === 'TAF'"> · valid {{ runway.current.record.weatherSurface.validFrom }} to {{ runway.current.record.weatherSurface.validTo }}</span> (saved weather; verify current conditions)</span></dd></div>
       </dl>
       <p role="status"><strong>Source date check:</strong> {{ freshnessLabels[freshness] }}</p>
+      <p>Days to declared effect: {{ daysToDeclaredEffect(runway.current.record.runway, runway.assessmentDate) ?? 'Unknown' }} (negative means after the declared effective date; source remains unverified).</p>
       <p v-if="daysToDeclaredExpiry(runway.current.record.runway, runway.assessmentDate) !== null">Days to declared expiry: {{ daysToDeclaredExpiry(runway.current.record.runway, runway.assessmentDate) }} (negative means past expiry; source remains unverified).</p>
       <p v-if="cycle">AIRAC cycle starting {{ cycle }} (calendar date only).</p>
       <p v-else>AIRAC cycle unavailable for this date; consult the published calendar.</p>
