@@ -135,6 +135,7 @@ test('complete current briefing pack with chart, persistent action and native st
     await runway.screenshot({ path: info.outputPath(`recent-date-${offline ? 'offline' : 'online'}.png`) })
     await runway.getByRole('button', { name: 'Discard changes', exact: true }).click()
     await runway.getByLabel('Check date', { exact: true }).fill('2027-01-01')
+    await expect(runway).toContainText('Days to declared expiry: -1')
 
     for (const fraction of [0, .5, 1]) {
       await page.evaluate(f => window.scrollTo(0, document.documentElement.scrollHeight * f), fraction)
@@ -157,6 +158,8 @@ test('complete current briefing pack with chart, persistent action and native st
     await expect(preview).toContainText('400.0 m')
     await expect(preview).toContainText('Synthetic field')
     await expect(preview).toContainText('2027-01-01: expired; source currency unverified')
+    await expect(preview.getByRole('region', { name: 'Current manual runway' })).toContainText('Days to declared expiry')
+    await expect(preview.getByRole('region', { name: 'Current manual runway' })).toContainText('-1')
     await expect(preview).toContainText('The selected check date does not advance automatically')
     await preview.getByText('Declared date check', { exact: true }).scrollIntoViewIfNeeded()
     const dateScreenshot = info.outputPath(`${offline ? 'offline' : 'online'}-declared-date.png`)
