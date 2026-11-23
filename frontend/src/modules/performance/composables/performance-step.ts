@@ -1,7 +1,7 @@
 import { computed, reactive, ref, shallowRef, watch } from 'vue'
 import type { AircraftProfile } from '@/core/adapters/aircraft.schema'
 import { assessCorrectionSources, OPERATIONS, profileFacts, type ManualConfiguration, type Operation, type RunwayFacts } from '@/core/logic/performance.correction-sources'
-import { daysToDeclaredExpiry, normalizeManualRunway, runwayFreshness, SURFACE_CONDITIONS } from '@/core/logic/manual-runway'
+import { daysToDeclaredEffect, daysToDeclaredExpiry, normalizeManualRunway, runwayFreshness, SURFACE_CONDITIONS } from '@/core/logic/manual-runway'
 import { useManualRunwayStore } from '@/modules/airport/stores/manual-runway.store'
 import { useLoadedUnitPreferences } from '@/modules/performance/stores/unit-preferences.store'
 import { plainCopy, useDemoScratch } from '@/shared/composables/useDemoScratch'
@@ -124,6 +124,7 @@ export function usePerformanceStep(context: () => PerformanceStepContext) {
         { label: 'Declared effective date', value: effectiveDate ?? 'Unknown' },
         { label: 'Declared expiry date (inclusive)', value: expiryDate ?? 'Unknown' },
         { label: 'Declared date check', value: `${runway.assessmentDate || 'Invalid date'}: ${runwayFreshness(declared.record.runway, runway.assessmentDate)}; source currency unverified` },
+        { label: 'Days to declared effect', value: daysToDeclaredEffect(declared.record.runway, runway.assessmentDate)?.toString() ?? 'Unknown' },
         { label: 'Days to declared expiry', value: daysToDeclaredExpiry(declared.record.runway, runway.assessmentDate)?.toString() ?? 'Unknown' },
         { label: 'Surface', value: `${surface.type === 'paved' ? 'Paved' : surface.type === 'grass' ? 'Grass' : 'Other / legacy unpaved'} · ${condition}` },
       ],

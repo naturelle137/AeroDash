@@ -163,3 +163,7 @@ When displaying a recent manual runway declaration, the system shall show the da
 ### REQ-AP-034: Declared expiry interval
 
 When displaying a saved runway with a declared expiry and valid check date, the system shall show the signed number of calendar days until that expiry.
+
+### REQ-AP-036: Declared effective interval
+
+When displaying a saved or recent runway or its briefing, the system shall show the signed number of calendar days until its declared effective date, or unknown when unavailable.
