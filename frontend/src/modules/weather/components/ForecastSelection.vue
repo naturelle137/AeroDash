@@ -56,6 +56,10 @@ watch([latitude, longitude], () => { request++; globalForecast.value = null; glo
 const numberIn = (value: string, min: number, max: number) => value.trim() !== '' && Number.isFinite(Number(value)) && Number(value) >= min && Number(value) <= max
 const selectionValid = computed(() => location.value.trim() !== '' && time.value !== '' && Number.isFinite(Date.parse(time.value)) && Date.parse(time.value) > now.value)
 const stale = computed(() => !!forecast.value && (forecast.value.stale || Date.parse(forecast.value.valid) <= now.value || now.value - Date.parse(forecast.value.fetched) > 4 * 60 * 60 * 1000))
+const qnhSourceAge = computed(() => {
+  const minutes = Math.floor((now.value - Date.parse(qnhSourceTime.value)) / 60000)
+  return minutes >= 1440 ? `${Math.floor(minutes / 1440)} days` : `${minutes} minutes`
+})
 const qnhSourceTimeValid = computed(() => !qnhSourceTime.value || (Number.isFinite(Date.parse(qnhSourceTime.value)) && Date.parse(qnhSourceTime.value) <= now.value))
 const qnhValidityValid = computed(() => {
   if (!qnhValidFrom.value && !qnhValidTo.value) return true
@@ -206,7 +210,7 @@ function apply(field: keyof MetarValues): void {
     <p v-if="!qnhValidityValid" role="alert">Enter a valid QNH interval containing the selected flight time; its end is excluded.</p>
     <p v-if="qnh.trim() && !qnhSource.trim()">QNH source not recorded; verify its origin.</p>
     <p v-if="qnh.trim() && !qnhSourceTime">QNH source time not recorded; its age is unknown.</p>
-    <p v-else-if="qnh.trim() && qnhSourceTimeValid">Pilot-declared QNH source time was {{ Math.floor((now - Date.parse(qnhSourceTime)) / 60000) }} minutes ago; this does not establish freshness.</p>
+    <p v-else-if="qnh.trim() && qnhSourceTimeValid">Pilot-declared QNH source time was {{ qnhSourceAge }} ago; this does not establish freshness.</p>
     <p v-if="qnh.trim() && !qnhValidFrom && !qnhValidTo">QNH validity not recorded; verify it covers the selected flight time.</p>
     <p v-if="!qnhSourceTimeValid" role="alert">QNH source time must not be in the future.</p>
     <p v-if="time && Number.isFinite(Date.parse(time)) && Date.parse(time) <= now">Selected time has passed; pilot-entered forecast values are outdated.</p>
