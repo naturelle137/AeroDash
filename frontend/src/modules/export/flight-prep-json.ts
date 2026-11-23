@@ -1,0 +1,34 @@
+import type { FlightPrepDraft } from '@/core/domain/flightprep-draft.schema'
+import type { ManualRunwayDraft, ManualRunwayRecord } from '@/core/logic/manual-runway'
+
+type Entries = Pick<FlightPrepDraft, 'fuel' | 'performance'>
+export type FlightPrepExport = {
+  aircraft: { id: string; registration: string; manufacturer: string; model: string } | null
+  massBalance: { category: string | null; stations: { name: string; unit: string; weight: number | null; touched: boolean }[] }
+  entries: Entries
+  electric: { available: string; power: string; minutes: string } | null
+  manualConfiguration: string
+  runway: { draft: ManualRunwayDraft; saved: ManualRunwayRecord | null; weatherSurface: ManualRunwayRecord['weatherSurface'] | null; assessmentDate: string }
+  wind: { runwayHeading: string; windDirection: string; windSpeed: string; unit: string; gustSpeed: string }
+  weatherSources: Partial<Record<'wind' | 'temperature' | 'qnh', { source: string; value: string }>>
+}
+
+export function buildFlightPrepJson(data: FlightPrepExport, now: Date): string {
+  return JSON.stringify({
+    format: 'aerodash-flight-preparation', version: 1, exportedAt: now.toISOString(),
+    notice: 'Unverified preparation data; verify all values against authoritative sources. Not an approval or fitness-for-flight assessment.',
+    units: { temperature: '°C', pressureAltitudeDirect: 'ft', fuelMass: 'kg', consumption: 'kg/h', duration: 'min', correctionHeadwind: 'kt', correctionSlope: '%', electricEnergy: 'kWh', electricPower: 'kW', electricDuration: 'min', runwayHeading: 'degrees', windDirection: 'degrees' },
+    ...data,
+  }, null, 2)
+}
+
+export function downloadFlightPrepJson(text: string): void {
+  const url = URL.createObjectURL(new Blob([text], { type: 'application/json' }))
+  const anchor = document.createElement('a')
+  anchor.href = url
+  anchor.download = 'aerodash-flight-preparation.json'
+  document.body.appendChild(anchor)
+  anchor.click()
+  anchor.remove()
+  URL.revokeObjectURL(url)
+}

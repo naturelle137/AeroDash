@@ -12,6 +12,10 @@ import type { AircraftProfile } from '@/core/adapters/aircraft.schema'
 // ─── Mocks ──────────────────────────────────────────────────────────────────
 
 const downloaded = vi.hoisted(() => ({ text: '' }))
+vi.mock('@/modules/export/flight-prep-json', async (original) => ({
+  ...await original<typeof import('@/modules/export/flight-prep-json')>(),
+  downloadFlightPrepJson: (text: string) => { downloaded.text = text },
+}))
 vi.mock('@/modules/export/handover-file', () => ({
   downloadHandoverFile: (text: string) => { downloaded.text = text },
 }))
@@ -91,8 +95,8 @@ function buildFleetProfile(overrides: Partial<AircraftProfile> = {}): AircraftPr
   }
 }
 
-function mountWithAircraft() {
-  const profile = buildFleetProfile()
+function mountWithAircraft(overrides: Partial<AircraftProfile> = {}) {
+  const profile = buildFleetProfile(overrides)
   const fleet = useFleetStore()
   fleet.profiles = [profile]
   fleet.fleetLoadState = 'READY'
@@ -105,6 +109,31 @@ describe('MassBalanceView — handover file', () => {
     setActivePinia(createPinia())
     localStorage.clear()
     downloaded.text = ''
+  })
+
+  it('exports current entries and unavailable values without verification claims', async () => {
+    const { wrapper, profile } = mountWithAircraft()
+    await wrapper.find('select#aircraft-select').setValue(profile.id)
+    const mb = useMassBalanceStore()
+    mb.stations[0]!.weight = 120
+    await wrapper.find('[data-testid="flight-prep-export"]').trigger('click')
+    const file = JSON.parse(downloaded.text)
+    expect(file).toMatchObject({ format: 'aerodash-flight-preparation', version: 1, aircraft: { registration: 'D-EBPN' }, massBalance: { stations: [{ weight: 120, unit: 'kg' }] }, entries: { fuel: { directTripFuel: '' }, performance: { temperature: '' } }, runway: { saved: null } })
+    expect(file.notice).toContain('Unverified')
+    expect(downloaded.text).not.toContain('ownerId')
+  })
+
+  it.each([
+    ['lb-in', '', 'lb'],
+    ['kg-m', '', 'kg'],
+    ['lb-in', 'kg', 'kg'],
+  ])('exports the displayed station unit for %s and station unit %s', async (sourceUnit, stationUnit, expected) => {
+    const profile = buildFleetProfile({ sourceUnit })
+    const { wrapper } = mountWithAircraft(profile)
+    await wrapper.find('select#aircraft-select').setValue(profile.id)
+    useMassBalanceStore().aircraft!.loadPoints[0]!.unit = stationUnit
+    await wrapper.find('[data-testid="flight-prep-export"]').trigger('click')
+    expect(JSON.parse(downloaded.text).massBalance.stations[0].unit).toBe(expected)
   })
 
   it('is offered only with a loaded aircraft', () => {
