@@ -145,7 +145,7 @@ describe('PrivacyView — bulk export (REQ-SYS-015)', () => {
     await flushPromises()
 
     expect(exportMock).toHaveBeenCalledTimes(1)
-    expect(serializeMock).toHaveBeenCalledTimes(1)
+    expect(serializeMock).not.toHaveBeenCalled()
 
     const notice = wrapper.find('[data-testid="privacy-export-notice"]')
     expect(notice.exists()).toBe(true)
@@ -180,7 +180,7 @@ describe('PrivacyView — bulk export (REQ-SYS-015)', () => {
 
     const warn = wrapper.find('[data-testid="privacy-export-omitted"]')
     expect(warn.exists()).toBe(true)
-    expect(warn.text()).toContain('not a complete copy')
+    expect(warn.text()).toContain('copy is incomplete')
   })
 
   it('surfaces an error banner when the export fails (m3)', async () => {
@@ -198,12 +198,12 @@ describe('PrivacyView — bulk export (REQ-SYS-015)', () => {
     expect(wrapper.find('[data-testid="privacy-export-notice"]').exists()).toBe(false)
   })
 
-  it('disables the export button when the fleet is empty', async () => {
+  it('allows session export when the fleet is empty', async () => {
     fleetProfiles.value = []
     const wrapper = mountView()
     await flushPromises()
     const btn = wrapper.find('[data-testid="export-all-btn"]')
-    expect((btn.element as HTMLButtonElement).disabled).toBe(true)
+    expect((btn.element as HTMLButtonElement).disabled).toBe(false)
   })
 
   it('surfaces a fleet-load failure so an empty count is not misread as no data', async () => {
@@ -318,9 +318,9 @@ describe('PrivacyView — delete-all (REQ-SYS-014)', () => {
     const wrapper = mountView()
     await flushPromises()
 
-    // Export is disabled (nothing readable to serialise) ...
+    // Session data may still be exported without readable profiles.
     expect((wrapper.find('[data-testid="export-all-btn"]').element as HTMLButtonElement).disabled).toBe(
-      true,
+      false,
     )
     // ... but the at-risk rows are still surfaced, independent of any export.
     const standing = wrapper.find('[data-testid="privacy-unreadable-warning"]')
