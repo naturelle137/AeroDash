@@ -196,6 +196,8 @@ function apply(field: keyof MetarValues): void {
       <label>Forecast wind unit<select v-model="unit"><option value="kt">kt</option><option value="m/s">m/s</option></select></label>
     </div>
     <p>QNH entries and their source details are kept separately for each unit; switching units does not convert the entry.</p>
+    <p>QNH drafts: hPa {{ Object.values(qnhDrafts.hPa).some(Boolean) ? 'present' : 'empty' }} · inHg {{ Object.values(qnhDrafts.inHg).some(Boolean) ? 'present' : 'empty' }}.</p>
+    <button type="button" :disabled="!Object.values(draft).some(Boolean)" @click="Object.assign(draft, emptyQnhDraft())">Clear current {{ qnhUnit }} QNH draft</button>
     <p v-if="qnh.trim() && values.qnh">QNH to apply: {{ values.qnh }} hPa. Applying replaces the current Flight Prep QNH.</p>
     <p v-else-if="qnh.trim()" role="alert">QNH is outside the supported range or is not a valid number; check the value and unit.</p>
     <p v-if="qnh.trim() && selectionValid">QNH selection: {{ phase }} · {{ location.trim() }} · {{ time.replace('T', ' ') }} device local time. Verify that the source applies to this location and time.</p>
