@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 - Show days to the pilot-declared runway expiry in the offline workflow and briefing.
+- Include saved flight preparations, runway records, notes, units and omission reports in the Privacy data copy.
+
 - Show source references and declared date boundaries for recent runway directions offline.
 - Hide internal Performance and wind warning identifiers in briefing output while retaining warning details.
 - Export current Flight Preparation entries as a local versioned JSON snapshot.
