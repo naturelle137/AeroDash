@@ -9,7 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Show source references and declared date boundaries for recent runway directions offline.
 - Hide internal Performance and wind warning identifiers in briefing output while retaining warning details.
-- Export current Flight Preparation entries as a local versioned JSON snapshot.
 
 - Check an optional pilot-declared forecast QNH validity interval before application.
 - Retain separate recent runway directions and their source date checks for the same aerodrome.
