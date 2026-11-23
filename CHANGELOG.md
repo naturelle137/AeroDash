@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Reject nonexistent local forecast and QNH times during clock changes.
 - Provide direct access to manual forecast QNH entry when automated QNH is unavailable.
 - Show and retain UTC interpretations of manually entered forecast QNH source and validity times.
 

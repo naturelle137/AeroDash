@@ -115,7 +115,7 @@ it('shows missing source details and the age of a pilot-declared QNH source', as
   await input('QNH source time').setValue('2029-12-31T23:00')
   expect(view.text()).toContain('60 minutes ago; this does not establish freshness')
   await input('QNH source time').setValue('2030-01-01T01:00')
-  expect(view.text()).toContain('QNH source time must not be in the future')
+  expect(view.text()).toContain('QNH source time must exist in the device time zone and must not be in the future')
   expect(view.text()).not.toContain('minutes ago; this does not establish freshness')
   view.unmount()
   vi.useRealTimers()

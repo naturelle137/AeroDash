@@ -55,17 +55,21 @@ watch([phase, location, time], () => {
 }, { flush: 'sync' })
 watch([latitude, longitude], () => { request++; globalForecast.value = null; globalMessage.value = 'Coordinates changed; retrieve the forecast again.' }, { flush: 'sync' })
 const numberIn = (value: string, min: number, max: number) => value.trim() !== '' && Number.isFinite(Number(value)) && Number(value) >= min && Number(value) <= max
-const selectionValid = computed(() => location.value.trim() !== '' && time.value !== '' && Number.isFinite(Date.parse(time.value)) && Date.parse(time.value) > now.value)
+const validLocalTime = (value: string) => {
+  const date = new Date(value)
+  return Number.isFinite(date.getTime()) && new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16) === value
+}
+const selectionValid = computed(() => location.value.trim() !== '' && validLocalTime(time.value) && Date.parse(time.value) > now.value)
 const stale = computed(() => !!forecast.value && (forecast.value.stale || Date.parse(forecast.value.valid) <= now.value || now.value - Date.parse(forecast.value.fetched) > 4 * 60 * 60 * 1000))
 const qnhSourceAge = computed(() => {
   const minutes = Math.floor((now.value - Date.parse(qnhSourceTime.value)) / 60000)
   return minutes >= 1440 ? `${Math.floor(minutes / 1440)} days` : `${minutes} minutes`
 })
-const qnhSourceTimeValid = computed(() => !qnhSourceTime.value || (Number.isFinite(Date.parse(qnhSourceTime.value)) && Date.parse(qnhSourceTime.value) <= now.value))
+const qnhSourceTimeValid = computed(() => !qnhSourceTime.value || (validLocalTime(qnhSourceTime.value) && Date.parse(qnhSourceTime.value) <= now.value))
 const qnhValidityValid = computed(() => {
   if (!qnhValidFrom.value && !qnhValidTo.value) return true
   const start = Date.parse(qnhValidFrom.value), end = Date.parse(qnhValidTo.value), selected = Date.parse(time.value)
-  return Number.isFinite(start) && Number.isFinite(end) && start < end && selected >= start && selected < end
+  return validLocalTime(qnhValidFrom.value) && validLocalTime(qnhValidTo.value) && start < end && selected >= start && selected < end
 })
 const values = computed<MetarValues>(() => {
   const result: MetarValues = {}
@@ -217,7 +221,8 @@ function apply(field: keyof MetarValues): void {
     <p v-if="qnh.trim() && !qnhSourceTime">QNH source time not recorded; its age is unknown.</p>
     <p v-else-if="qnh.trim() && qnhSourceTimeValid">Pilot-declared QNH source time was {{ qnhSourceAge }} ago; this does not establish freshness.</p>
     <p v-if="qnh.trim() && !qnhValidFrom && !qnhValidTo">QNH validity not recorded; verify it covers the selected flight time.</p>
-    <p v-if="!qnhSourceTimeValid" role="alert">QNH source time must not be in the future.</p>
+    <p v-if="!qnhSourceTimeValid" role="alert">QNH source time must exist in the device time zone and must not be in the future.</p>
+    <p v-if="time && !validLocalTime(time)" role="alert">Selected local time does not exist in the device time zone; check the clock change.</p>
     <p v-if="time && Number.isFinite(Date.parse(time)) && Date.parse(time) <= now">Selected time has passed; pilot-entered forecast values are outdated.</p>
     <p v-else-if="!selectionValid">Choose a location and future local time to apply values.</p>
     <p>Available pilot entries: temperature {{ values.temperature ? 'entered' : 'missing or invalid' }}, QNH {{ values.qnh ? 'entered' : 'missing or invalid' }}, wind {{ values.wind ? 'entered' : 'missing or invalid' }}.</p>
