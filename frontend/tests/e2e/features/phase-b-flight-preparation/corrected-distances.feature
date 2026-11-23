@@ -198,3 +198,22 @@ Feature: Corrected takeoff and landing distances
       | width | height |
       | 1440  | 1000   |
       | 390   | 844    |
+
+  Scenario Outline: Pilot-entered wind multipliers work offline for both operations
+    Given the raw POH workflow viewport is <width> by <height>
+    And the production app is cached for offline performance
+    When I import and verify a synthetic POH profile for registration "D-TEST" declaring type "C172" and maximum mass 650 kg
+    And the pilot opens Performance
+    And the pilot sets mass "900" kg and temperature "10" °C for the Test profile
+    And the pilot enters pressure altitude "1000" ft directly
+    And the pilot goes offline
+    And the pilot saves runway "TEST" "27" with TORA "2000" "m", LDA "2000" "m", elevation "300" "ft" and surface "Paved" "Dry"
+    And the pilot enters takeoff headwind "-2" kt and slope "1" %
+    And the pilot enters landing headwind "-2" kt and slope "-1" %
+    Then pilot-entered wind multipliers change both distances and clear with changed conditions
+    And the corrected distance evidence is captured as "pilot-wind-<width>"
+
+    Examples:
+      | width | height |
+      | 1440  | 1000   |
+      | 390   | 844    |
