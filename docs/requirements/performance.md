@@ -46,7 +46,7 @@ When calculating performance, the system shall report Available Runway minus Ope
 
 ### REQ-PF-008: Custom Obstacle Constraints
 
-The system shall allow the pilot to define custom obstacle constraints (Target Height at a specific Distance) to verify climb gradients over off-airport obstacles.
+The system shall calculate the required geometric gradient from a pilot-entered obstacle height and horizontal distance.
 
 **Status:** Implemented. The geometric height/distance gradient is shown; available data does not support a clearance determination.
 
