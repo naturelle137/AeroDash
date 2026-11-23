@@ -95,3 +95,7 @@ When the pilot clears the selected forecast QNH draft, the system shall retain t
 ### REQ-WX-019: Manual QNH entry access
 
 When the pilot selects manual QNH entry, the system shall focus the forecast QNH input.
+
+### REQ-WX-020: Nonexistent local forecast times
+
+When a selected forecast time or declared QNH source or validity time does not exist in the device time zone, the system shall prevent application of the affected forecast value.
