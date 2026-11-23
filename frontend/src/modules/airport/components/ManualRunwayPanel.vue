@@ -63,6 +63,7 @@ if (!runway.loaded) runway.load()
       <ul class="recent-runways"><li v-for="record in runway.recent" :key="JSON.stringify([record.runway.aerodrome, record.runway.designator])">
         <button type="button" @click="selectRecent(record)">{{ record.runway.aerodrome }} — {{ record.runway.designator }}: {{ freshnessLabels[runwayFreshness(record.runway, runway.assessmentDate)] }}</button>
         <p>Source: {{ record.runway.source || 'Unknown' }} (user-declared, unverified) · Effective: {{ record.runway.effectiveDate || 'Unknown' }} · Expiry (inclusive): {{ record.runway.expiryDate || 'Unknown' }}</p>
+        <p>Days to declared expiry: {{ daysToDeclaredExpiry(record.runway, runway.assessmentDate) ?? 'Unknown' }} (negative means past expiry; source remains unverified).</p>
       </li></ul>
     </section>
     <div class="fields">
