@@ -204,6 +204,10 @@ function apply(field: keyof MetarValues): void {
     <button type="button" :disabled="!Object.values(qnhDrafts).some(draft => Object.values(draft).some(Boolean))" @click="clearQnh">Clear QNH entry and source</button>
     <p>Optional QNH validity: enter both local times; the selected flight time must be within the interval (end excluded). The pilot declares and verifies this interval.</p>
     <p v-if="!qnhValidityValid" role="alert">Enter a valid QNH interval containing the selected flight time; its end is excluded.</p>
+    <p v-if="qnh.trim() && !qnhSource.trim()">QNH source not recorded; verify its origin.</p>
+    <p v-if="qnh.trim() && !qnhSourceTime">QNH source time not recorded; its age is unknown.</p>
+    <p v-else-if="qnh.trim() && qnhSourceTimeValid">Pilot-declared QNH source time was {{ Math.floor((now - Date.parse(qnhSourceTime)) / 60000) }} minutes ago; this does not establish freshness.</p>
+    <p v-if="qnh.trim() && !qnhValidFrom && !qnhValidTo">QNH validity not recorded; verify it covers the selected flight time.</p>
     <p v-if="!qnhSourceTimeValid" role="alert">QNH source time must not be in the future.</p>
     <p v-if="time && Number.isFinite(Date.parse(time)) && Date.parse(time) <= now">Selected time has passed; pilot-entered forecast values are outdated.</p>
     <p v-else-if="!selectionValid">Choose a location and future local time to apply values.</p>

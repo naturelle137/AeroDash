@@ -103,6 +103,24 @@ it('applies a pilot-sourced QNH in inHg after conversion and retains it offline'
   vi.useRealTimers()
 })
 
+it('shows missing source details and the age of a pilot-declared QNH source', async () => {
+  vi.useFakeTimers()
+  vi.setSystemTime(new Date('2030-01-01T00:00:00'))
+  const view = mount(ForecastSelection)
+  const input = (name: string) => view.findAll('label').find(item => item.text().includes(name))!.get('input')
+  await input('Forecast QNH').setValue('1013')
+  expect(view.text()).toContain('QNH source not recorded')
+  expect(view.text()).toContain('QNH source time not recorded; its age is unknown')
+  expect(view.text()).toContain('QNH validity not recorded')
+  await input('QNH source time').setValue('2029-12-31T23:00')
+  expect(view.text()).toContain('60 minutes ago; this does not establish freshness')
+  await input('QNH source time').setValue('2030-01-01T01:00')
+  expect(view.text()).toContain('QNH source time must not be in the future')
+  expect(view.text()).not.toContain('minutes ago; this does not establish freshness')
+  view.unmount()
+  vi.useRealTimers()
+})
+
 it('keeps each QNH value with its own source and validity in both switch directions', async () => {
   vi.useFakeTimers()
   vi.setSystemTime(new Date('2030-01-01T00:00:00'))
