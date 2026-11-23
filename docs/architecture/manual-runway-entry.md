@@ -45,6 +45,7 @@ manual declarations. Selecting one replaces the form after confirmation and reta
 the original save time, source and declared dates. Recency does not verify currency.
 Malformed history is ignored; local-data erasure removes it.
 Each recent direction displays its unverified source reference and declared date boundaries, including unknown values, without selecting it.
+It also displays days to the declared inclusive expiry for the selected check date, or unknown when unavailable; negative days indicate past expiry, not source verification.
 Version 2 recovery retains an optional source reference and declared dates;
 invalid references are rejected rather than silently discarded.
 
