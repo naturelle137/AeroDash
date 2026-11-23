@@ -193,3 +193,37 @@ Then('pilot-entered wind multipliers change both distances and clear with change
     await inputs.getByLabel('Wind factor source and section').fill('Synthetic manual section 1')
   }
 })
+
+Then('pilot-entered surface multipliers work for both operations', async ({ page }) => {
+  for (const phase of ['Takeoff', 'Landing']) {
+    const inputs = page.getByRole('group', { name: `${phase} wind and slope` })
+    const result = page.getByRole('region', { name: `${phase} corrected distances`, exact: true })
+    const first = result.locator('dd').first()
+    const before = await first.innerText()
+    await inputs.getByLabel('Manual ground-roll surface multiplier (optional)').fill('1.2')
+    await expect(result).toContainText('Enter a positive finite manual surface multiplier')
+    await inputs.getByLabel('Surface factor source and section').fill('Synthetic manual section 2')
+    await expect(first).not.toHaveText(before)
+    await expect(result).toContainText('Synthetic manual section 2')
+    await expect(result).toContainText('Do not use this comparison for runway assessment')
+    await inputs.getByLabel('Runway slope (%, positive = uphill)').fill('1')
+    await expect(inputs.getByLabel('Manual ground-roll surface multiplier (optional)')).toHaveValue('')
+    await inputs.getByLabel('Manual ground-roll surface multiplier (optional)').fill('1.2')
+    await inputs.getByLabel('Surface factor source and section').fill('Synthetic manual section 2')
+  }
+})
+
+When('the pilot enters surface multipliers for the briefing', async ({ page }) => {
+  for (const phase of ['Takeoff', 'Landing']) {
+    const inputs = page.getByRole('group', { name: `${phase} wind and slope` })
+    await inputs.getByLabel('Manual ground-roll surface multiplier (optional)').fill('1.2')
+    await inputs.getByLabel('Surface factor source and section').fill('Synthetic manual section 2')
+  }
+})
+
+Then('the briefing discloses the pilot-entered surface source', async ({ page }) => {
+  const preview = page.getByRole('dialog', { name: 'Briefing Pack preview' })
+  await expect(preview).toContainText('Synthetic manual section 2')
+  await expect(preview).toContainText('UNVERIFIED PILOT-ENTERED SURFACE FACTOR')
+  await expect(preview).toContainText('Additive or differently ordered surface rules are unsupported')
+})
