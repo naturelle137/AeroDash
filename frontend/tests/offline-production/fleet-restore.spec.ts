@@ -46,7 +46,7 @@ test('Privacy export restores all synthetic values as drafts through explicit of
   }
   await page.goto('/privacy')
   const downloadEvent = page.waitForEvent('download')
-  await page.getByTestId('export-all-btn').click()
+  await page.getByTestId('fleet-backup-btn').click()
   const download = await downloadEvent
   const backup = await readFile((await download.path())!, 'utf8')
   await info.attach('actual-privacy-backup.json', { body: backup, contentType: 'application/json' })
