@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useFuelPlanning, type FuelPlanning } from '../services/use-fuel-planning'
 const props = defineProps<{ planning?: FuelPlanning }>()
-const { method, directTripFuel, consumption, trip, reserve, sequence, sequences, fuel, plan, arrival, arrivalCg, format, presentation } = props.planning ?? useFuelPlanning()
+const { method, directTripFuel, consumption, trip, reserve, sequence, sequences, fuel, plan, arrival, arrivalCg, pathAssessment, format, presentation } = props.planning ?? useFuelPlanning()
 </script>
 
 <template>
@@ -12,6 +12,7 @@ const { method, directTripFuel, consumption, trip, reserve, sequence, sequences,
       {{ format(fuel.excludedUnusableKg) }} kg.
     </p>
     <p v-else role="status">{{ fuel.reason }}</p>
+    <p role="status" data-testid="trip-path">Trip burn path: {{ pathAssessment.replace(/\.$/, '') }}. Fixed-arm assessment only; verify against the aircraft POH/AFM. This does not determine operational or landing suitability.</p>
     <fieldset :disabled="!fuel.ok">
       <legend>Manual fuel plan</legend>
       <div class="plan-field">
@@ -93,7 +94,7 @@ const { method, directTripFuel, consumption, trip, reserve, sequence, sequences,
           Arrival CG supports fixed-arm tanks and lookup tanks; multiple tanks require an
           explicit complete named burn sequence. A lookup table is supported only for tanks with
           no fixed arm and a strictly ascending table from zero quantity and zero moment that
-          covers the current load; with several tanks, lookup tanks need zero unusable fuel.
+          covers the current load.
           Empty available tanks count too.
         </p>
       </section>
@@ -105,7 +106,7 @@ const { method, directTripFuel, consumption, trip, reserve, sequence, sequences,
       <p v-for="warning in presentation.warnings" :key="warning" role="alert">{{ warning }}</p>
       <p>
         Arithmetic planning aid only. Verify against your aircraft POH/AFM. This does not assess
-        operational suitability, landing suitability or the full burn path/envelope. Estimated
+        operational or landing suitability. Estimated
         arrival mass = validated M&amp;B takeoff mass − trip fuel burned. Reserve remains on board;
         fuel remaining on arrival differs from the budget margin after trip + reserve. The separate
         M&amp;B landing point assumes all usable fuel is burned. Estimated trip arrival CG subtracts

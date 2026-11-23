@@ -132,7 +132,7 @@ While direct Trip Fuel mode is selected, the system shall omit duration-based en
 
 If direct Trip Fuel is blank, negative, malformed or nonfinite, then the system shall block the arrival estimate with a visible reason.
 
-Current scope: REQ-FE-002/003 and manual arithmetic are available in Flight Preparation. Consumption is assumed constant; reserve is user chosen without a regulatory default. Zero margin is arithmetic equality, not a safety verdict. REQ-FE-005 estimated trip arrival mass retains reserve and does not assess landing suitability, the full burn path/envelope or operational suitability. REQ-FE-009 direct Trip Fuel entry is available without duration, consumption or reserve inputs. Reserve remains aboard and unusable fuel is not subtracted again. Fixed-arm trip arrival CG supports one tank or an explicitly selected complete named multi-tank sequence, including empty available tanks. Variable-arm trip CG supports one lookup tank using total-load moment differences (REQ-MB-031 and REQ-FE-034) and explicit sequences mixing fixed-arm and lookup tanks, including nonzero unusable fuel that is never burned (REQ-FE-037). Full-flight burn-path assessment remain unsupported. Electric endurance uses explicit available energy and average power; the existing M&B zero-fuel landing output is separate.
+Current scope: REQ-FE-002/003 and manual arithmetic are available in Flight Preparation. Consumption is assumed constant; reserve is user chosen without a regulatory default. Zero margin is arithmetic equality, not a safety verdict. REQ-FE-005 estimated trip arrival mass retains reserve and does not assess landing or operational suitability. REQ-FE-009 direct Trip Fuel entry is available without duration, consumption or reserve inputs. Reserve remains aboard and unusable fuel is not subtracted again. Fixed-arm trip arrival CG supports one tank or an explicitly selected complete named multi-tank sequence, including empty available tanks. Variable-arm trip CG supports one lookup tank using total-load moment differences (REQ-MB-031 and REQ-FE-034) and explicit sequences mixing fixed-arm and lookup tanks, including nonzero unusable fuel that is never burned (REQ-FE-037). Fixed-arm trip burn paths are assessed against the current envelope; variable-arm paths remain unavailable. Electric endurance uses explicit available energy and average power; the existing M&B zero-fuel landing output is separate.
 
 **Status:** Implemented. Tests: `frontend/src/modules/fuel-endurance/components/FuelEnduranceCard.int.spec.ts`.
 
@@ -249,3 +249,15 @@ While electric endurance is available, the system shall show estimated time abov
 ### REQ-FE-043: Electric endurance briefing
 
 While electric endurance is available, the briefing shall show the current estimates.
+
+### REQ-FE-044: Trip burn path assessment
+
+When a valid fixed-arm trip and supported envelope are available, the system shall assess the continuous path through tank switches against the envelope.
+
+### REQ-FE-045: Unavailable trip burn path
+
+If trip path assessment is unsupported or inputs are invalid, the system shall display an unavailable result with a reason.
+
+### REQ-FE-046: Trip burn path briefing
+
+When displaying the current fuel briefing, the system shall include the trip burn path result and its limitations.
