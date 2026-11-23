@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Show days to declared expiry for each recent runway direction offline.
 - Show days to the pilot-declared runway expiry in the offline workflow and briefing.
 - Allow a pilot-entered, unverified POH wind multiplier for each operation while retaining incomplete-result disclosures.
 - Show source references and declared date boundaries for recent runway directions offline.

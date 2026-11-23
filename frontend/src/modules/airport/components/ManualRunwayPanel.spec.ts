@@ -259,9 +259,17 @@ describe('manual source dates', () => {
     await view.get('#runway-assessment-date').setValue('2027-01-01')
     const entries = view.get('[aria-label="Recently used airports"]').findAll('li')
     expect(entries[0]!.text()).toContain('Source: Unknown (user-declared, unverified) · Effective: Unknown · Expiry (inclusive): Unknown')
+    expect(entries[0]!.text()).toContain('Days to declared expiry: Unknown')
     expect(entries[1]!.text()).toContain('Expired according to the declared date')
+    expect(entries[1]!.text()).toContain('Days to declared expiry: -1')
     expect(entries[1]!.text()).toContain('Source: Synthetic chart (user-declared, unverified) · Effective: 2026-01-01 · Expiry (inclusive): 2026-12-31')
     expect((view.get('#manual-runway-designator').element as HTMLInputElement).value).toBe('09')
+    await view.get('#runway-assessment-date').setValue('2026-12-31')
+    expect(entries[1]!.text()).toContain('Days to declared expiry: 0')
+    await view.get('#runway-assessment-date').setValue('2026-12-30')
+    expect(entries[1]!.text()).toContain('Days to declared expiry: 1')
+    await view.get('#runway-assessment-date').setValue('')
+    expect(entries[1]!.text()).toContain('Days to declared expiry: Unknown')
   })
 
   it('returns the check to the current local date without changing the saved declaration', async () => {
