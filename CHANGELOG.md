@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Preserve separate manual forecast QNH drafts and source details when switching units.
 - Allow a pilot-entered, unverified POH wind multiplier for each operation while retaining incomplete-result disclosures.
 - Include saved flight preparations, runway records, notes, units and omission reports in the Privacy data copy.
+- Assess fixed-arm trip fuel burn paths against the current M&B envelope.
 
 - Show source references and declared date boundaries for recent runway directions offline.
 - Hide internal Performance and wind warning identifiers in briefing output while retaining warning details.
