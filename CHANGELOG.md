@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Show device-date runway intervals in the briefing when a fixed check date is selected.
 - Export declared runway date intervals for selected and device dates.
 
 - Show unsaved runway date checks and their source limitations in the briefing.
