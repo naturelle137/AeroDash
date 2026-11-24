@@ -57,6 +57,11 @@ it('carries the selected declared-date check into performance and invalidates it
     runway.selectAssessmentDate('2026-11-26')
     expect(step.presentation.value.inputKey).not.toBe(automaticKey)
     expect(step.presentation.value.runway).toMatchObject({ note: expect.stringContaining('The selected check date does not advance automatically') })
+    expect(step.presentation.value.runway).toMatchObject({ rows: expect.arrayContaining([{ label: 'Device-date check', value: '2026-11-26: within-declared-dates; source currency unverified' }]) })
+    const fixedKey = step.presentation.value.inputKey
+    runway.today = '2027-01-01'
+    expect(step.presentation.value.inputKey).not.toBe(fixedKey)
+    expect(step.presentation.value.runway).toMatchObject({ rows: expect.arrayContaining([{ label: 'Device-date check', value: '2027-01-01: expired; source currency unverified' }]) })
   })
   scope.stop()
 })

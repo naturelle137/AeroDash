@@ -27,11 +27,12 @@ export const useManualRunwayStore = defineStore('manualRunway', () => {
   const showErrors = ref(false)
   const loaded = ref(false)
   const assessmentDate = ref('')
+  const today = ref('')
   const automaticDate = ref(true)
   function refreshToday(): void {
-    if (!automaticDate.value) return
     const now = new Date()
-    assessmentDate.value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+    today.value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+    if (automaticDate.value) assessmentDate.value = today.value
   }
   function useToday(): void {
     automaticDate.value = true
@@ -222,5 +223,5 @@ export const useManualRunwayStore = defineStore('manualRunway', () => {
     return true
   }
 
-  return { draft, saved, recent, selectRecent, weatherSurface, updateWeather, updateForecast, chooseSurface, storageError, notice, showErrors, loaded, assessmentDate, automaticDate, selectAssessmentDate, useToday, validation, errors, current, hasUnsavedChanges, load, save, revert, clear }
+  return { draft, saved, recent, selectRecent, weatherSurface, updateWeather, updateForecast, chooseSurface, storageError, notice, showErrors, loaded, assessmentDate, today, automaticDate, selectAssessmentDate, useToday, validation, errors, current, hasUnsavedChanges, load, save, revert, clear }
 })

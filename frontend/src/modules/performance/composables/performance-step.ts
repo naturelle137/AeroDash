@@ -69,7 +69,7 @@ export function usePerformanceStep(context: () => PerformanceStepContext) {
   const inputKey = computed(() => JSON.stringify([
     ctx.value.revision, ctx.value.ready, profileKey.value, ctx.value.category, ctx.value.takeoff, ctx.value.landing,
     pa.revision.value, temperature.value, corrections, safetyFactors, obstacle, units.preferences, manualConfiguration.value,
-    runway.saved, runway.draft, runway.storageError, runway.hasUnsavedChanges, runway.assessmentDate, runway.automaticDate,
+    runway.saved, runway.draft, runway.storageError, runway.hasUnsavedChanges, runway.assessmentDate, runway.today, runway.automaticDate,
   ]))
   // A pilot-derived factor belongs only to the exact conditions for which it was entered.
   for (const operation of OPERATIONS) {
@@ -137,6 +137,7 @@ export function usePerformanceStep(context: () => PerformanceStepContext) {
         { label: 'Declared effective date', value: effectiveDate ?? 'Unknown' },
         { label: 'Declared expiry date (inclusive)', value: expiryDate ?? 'Unknown' },
         { label: 'Declared date check', value: `${runway.assessmentDate || 'Invalid date'}: ${runwayFreshness(declared.record.runway, runway.assessmentDate)}; source currency unverified` },
+        ...(!runway.automaticDate ? [{ label: 'Device-date check', value: `${runway.today}: ${runwayFreshness(declared.record.runway, runway.today)}; source currency unverified` }] : []),
         { label: 'Days to declared effect', value: daysToDeclaredEffect(declared.record.runway, runway.assessmentDate)?.toString() ?? 'Unknown' },
         { label: 'Days to declared expiry', value: daysToDeclaredExpiry(declared.record.runway, runway.assessmentDate)?.toString() ?? 'Unknown' },
         { label: 'Surface', value: `${surface.type === 'paved' ? 'Paved' : surface.type === 'grass' ? 'Grass' : 'Other / legacy unpaved'} · ${condition}` },
