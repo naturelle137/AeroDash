@@ -35,6 +35,9 @@ Then('the forecast selection evidence is captured as {string}', async ({ page, $
 When('the pilot applies synthetic forecast values offline', async ({ page }) => {
   const forecast = page.getByRole('region', { name: 'Time-specific forecast' })
   await forecast.getByLabel('Forecast temperature').fill('12')
+  await forecast.getByLabel('Forecast QNH').fill('0x3f5')
+  await expect(forecast.getByRole('button', { name: 'Apply forecast QNH' })).toBeDisabled()
+  await expect(forecast).toContainText('QNH is outside the supported range or is not a valid number')
   await forecast.getByLabel('Forecast QNH').fill('1013')
   await forecast.getByLabel('Forecast wind direction').fill('180')
   await forecast.getByLabel('Forecast wind speed').fill('10')
