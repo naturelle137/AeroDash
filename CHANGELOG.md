@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Explain why a declared forecast QNH validity interval cannot be applied.
 - Show the current Flight Prep QNH beside a manual forecast QNH entry before replacement.
 - Clarify requirements guidance and delivery checks against current project directives.
 
