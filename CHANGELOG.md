@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Distinguish pilot-declared QNH issue and retrieval times in applied provenance.
+
 - Reject non-decimal manual forecast QNH entries before application.
 
 - Require confirmation of repeated local QNH times and retain the selected UTC time.
