@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Show the current Flight Prep QNH beside a manual forecast QNH entry before replacement.
+
 - Support pilot-entered additive surface corrections to ground roll.
 
 - Compare unsaved and recent runway dates with the device date when using a fixed check date.

@@ -107,3 +107,7 @@ When a QNH flight, source or validity time occurs twice in the device time zone,
 ### REQ-WX-022: QNH source time type
 
 When the pilot declares a QNH source time type, the system shall retain it with the applied QNH provenance.
+
+### REQ-WX-023: Current QNH before replacement
+
+While a pilot-entered forecast QNH is present, the system shall show the current Flight Prep QNH and its unit or indicate that it is empty.
