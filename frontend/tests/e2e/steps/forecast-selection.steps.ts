@@ -110,3 +110,25 @@ Then('the global forecast evidence is captured as {string}', async ({ page, $tes
   await $testInfo.attach(`global-forecast-${width}`, { path, contentType: 'image/png' })
   await page.locator('#wind-speed').fill('20')
 })
+
+
+When('the pilot retrieves a synthetic DWD forecast', async ({ page }) => {
+  const forecast = page.getByRole('region', { name: 'Time-specific forecast' })
+  await page.route('https://api.open-meteo.com/v1/dwd-icon?*', route => route.fulfill({ json: { utc_offset_seconds: 0, hourly_units: { time: 'iso8601', temperature_2m: '°C', wind_speed_10m: 'kn', wind_direction_10m: '°' }, hourly: { time: ['2030-06-01T12:00'], temperature_2m: [17], wind_speed_10m: [null], wind_direction_10m: [null] } }, headers: { 'access-control-allow-origin': '*' } }))
+  const date = new Date('2030-06-01T12:00:00Z')
+  const pad = (n: number) => String(n).padStart(2, '0')
+  await forecast.getByLabel('Local date and time').fill(`${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:00`)
+  await forecast.getByLabel('Latitude').fill('50.1')
+  await forecast.getByLabel('Longitude').fill('8.6')
+  await forecast.getByRole('button', { name: 'Retrieve DWD ICON forecast' }).click()
+  await expect(forecast).toContainText('DWD ICON forecast hour')
+  await expect(forecast).toContainText('Wind: unavailable')
+  await expect(page.locator('#wind-speed')).toHaveValue('20')
+  await forecast.getByRole('button', { name: 'Replace temperature with DWD ICON forecast' }).click()
+})
+Then('the DWD forecast evidence is captured as {string}', async ({ page, $testInfo }, width: string) => {
+  const path = $testInfo.outputPath(`dwd-forecast-${width}.png`)
+  await page.getByRole('button', { name: 'Retrieve DWD ICON forecast' }).scrollIntoViewIfNeeded()
+  await page.screenshot({ path })
+  await $testInfo.attach(`dwd-forecast-${width}`, { path, contentType: 'image/png' })
+})

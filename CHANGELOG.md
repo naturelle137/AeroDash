@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Include separate unsaved runway date checks in flight preparation JSON exports.
+- Offer DWD ICON hourly model temperature and wind through Open-Meteo.
+
 - Include manual runway date checks and their limitations in flight preparation JSON exports.
 
 ### Changed
