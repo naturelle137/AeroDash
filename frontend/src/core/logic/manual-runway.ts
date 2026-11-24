@@ -350,7 +350,7 @@ export function formatNormalizedManualRunway(normalized: NormalizedManualRunway)
 }
 
 /** Date-only assessment; an AIRAC boundary does not expire a record. */
-export function runwayFreshness(runway: ManualRunway, today: string): 'unknown' | 'not-yet-effective' | 'expired' | 'within-declared-dates' {
+export function runwayFreshness(runway: Pick<ManualRunway, 'effectiveDate' | 'expiryDate'>, today: string): 'unknown' | 'not-yet-effective' | 'expired' | 'within-declared-dates' {
   if (!date.safeParse(today).success) return 'unknown'
   if (runway.effectiveDate && today < runway.effectiveDate) return 'not-yet-effective'
   if (runway.expiryDate && today > runway.expiryDate) return 'expired'

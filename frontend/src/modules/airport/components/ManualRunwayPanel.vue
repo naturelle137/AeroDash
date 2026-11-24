@@ -18,7 +18,10 @@ const runway = useManualRunwayStore()
 const freshness = computed(() => runway.current ? runwayFreshness(runway.current.record.runway, runway.assessmentDate) : 'unknown')
 const draftCheck = computed(() => {
   const result = validateManualRunway(runway.draft)
-  return !runway.current && result.status === 'valid' ? runwayFreshness(result.runway, runway.assessmentDate) : null
+  const { effectiveDate, expiryDate } = runway.draft
+  if (runway.current || (!effectiveDate && !expiryDate)) return null
+  if (result.status === 'invalid' && (result.errors.effectiveDate || result.errors.expiryDate)) return null
+  return runwayFreshness({ effectiveDate: effectiveDate || undefined, expiryDate: expiryDate || undefined }, runway.assessmentDate)
 })
 const cycle = computed(() => airacCycleStart(runway.assessmentDate))
 const freshnessLabels = { unknown: 'Unknown: declared dates are incomplete or the assessment date is invalid.', 'not-yet-effective': 'Not yet effective according to the declared date.', expired: 'Expired according to the declared date.', 'within-declared-dates': 'Within the declared dates; source currency remains unverified.' }
