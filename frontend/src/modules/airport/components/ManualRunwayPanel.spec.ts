@@ -268,6 +268,20 @@ describe('manual source dates', () => {
     expect(view.get('[aria-label="Recently used airports"]').text()).toContain('Within the declared dates')
   })
 
+  it('shows date intervals for an incomplete unsaved declaration', async () => {
+    const view = mount(ManualRunwayPanel)
+    await view.get('#runway-assessment-date').setValue('2026-08-01')
+    await view.get('#runway-expiry').setValue('2026-07-31')
+    const check = view.get('[aria-label="Runway date check"]')
+    expect(check.text()).toContain('Days to declared effect: Unknown')
+    expect(check.text()).toContain('Days to declared expiry: -1')
+    await view.get('#runway-effective').setValue('2026-08-02')
+    expect(check.text()).not.toContain('Days to declared expiry:')
+    await view.get('#runway-expiry').setValue('2026-08-03')
+    expect(check.text()).toContain('Days to declared effect: 1')
+    expect(check.text()).toContain('Days to declared expiry: 2')
+  })
+
   it('compares the source and date boundaries of recent directions without selecting them', async () => {
     const view = mount(ManualRunwayPanel)
     await fill(view)

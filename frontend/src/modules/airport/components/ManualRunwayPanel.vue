@@ -66,6 +66,10 @@ if (!runway.loaded) runway.load()
       <button type="button" @click="runway.useToday()">Use today’s local date</button>
       <p class="hint">{{ runway.automaticDate ? 'Today updates with the device’s local date.' : 'The selected date stays fixed.' }} Check your device date.</p>
       <p v-if="draftCheck" role="status"><strong>Unsaved declaration date check:</strong> {{ freshnessLabels[draftCheck] }} Source and currency remain unverified; NOTAM/SUP coverage is unknown.</p>
+      <template v-if="draftCheck">
+        <p>Days to declared effect: {{ daysToDeclaredEffect(runway.draft, runway.assessmentDate) ?? 'Unknown' }} (negative means after the declared effective date).</p>
+        <p>Days to declared expiry: {{ daysToDeclaredExpiry(runway.draft, runway.assessmentDate) ?? 'Unknown' }} (negative means past inclusive expiry).</p>
+      </template>
     </section>
     <section v-if="runway.recent.length" aria-label="Recently used airports">
       <h3>Recently used airports</h3>
