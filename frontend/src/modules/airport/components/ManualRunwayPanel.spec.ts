@@ -256,6 +256,26 @@ describe('manual source dates', () => {
     vi.useRealTimers()
   })
 
+  it('compares unsaved and recent declarations with the device date when the check date is fixed', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date(2026, 10, 27, 12))
+    const view = mount(ManualRunwayPanel)
+    await fill(view)
+    await view.get('#runway-effective').setValue('2026-11-01')
+    await view.get('#runway-expiry').setValue('2026-11-26')
+    await view.get('form').trigger('submit')
+    const saved = localStorage.getItem(MANUAL_RUNWAY_STORAGE_KEY)
+    await view.get('#runway-assessment-date').setValue('2026-11-26')
+    await view.get('#manual-runway-designator').setValue('09')
+    expect(view.get('[aria-label="Runway date check"]').text()).toContain('Unsaved declaration on device date 2026-11-27: Expired')
+    expect(view.get('[aria-label="Recently used airports"]').text()).toContain('Device date 2026-11-27: Expired')
+    expect(localStorage.getItem(MANUAL_RUNWAY_STORAGE_KEY)).toBe(saved)
+    await view.get('#runway-effective').setValue('2026-12-01')
+    expect(view.get('[aria-label="Runway date check"]').text()).not.toContain('Unsaved declaration on device date')
+    view.unmount()
+    vi.useRealTimers()
+  })
+
   it('keeps the date check available for recent runways while editing', async () => {
     const view = mount(ManualRunwayPanel)
     await fill(view)
