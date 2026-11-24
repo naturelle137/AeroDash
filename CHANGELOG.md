@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Show unsaved runway date checks and their source limitations in the briefing.
 - Include separate unsaved runway date checks in flight preparation JSON exports.
 - Include manual runway date checks and their limitations in flight preparation JSON exports.
 
