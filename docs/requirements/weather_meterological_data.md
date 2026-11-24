@@ -107,3 +107,7 @@ When a QNH flight, source or validity time occurs twice in the device time zone,
 ### REQ-WX-022: QNH source time type
 
 When the pilot declares a QNH source time type, the system shall retain it with the applied QNH provenance.
+
+### REQ-WX-023: DWD model forecast
+
+When the pilot requests DWD model weather for valid coordinates and a future forecast hour, the system shall offer available temperature and wind values with their source and retrieval time.
