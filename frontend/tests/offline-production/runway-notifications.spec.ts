@@ -194,6 +194,7 @@ test('current phase notifications and runway comparisons survive cached offline 
   await surfaceInputs.getByLabel('Surface factor source and section').fill('Synthetic surface section')
   await expect(surfaceResult).toContainText('UNVERIFIED PILOT-ENTERED SURFACE ADDEND')
   await expect(surfaceResult).toContainText('the airborne segment is unchanged')
+  await page.setViewportSize({ width: info.project.name === 'chromium-390' ? 390 : 1440, height: 1000 })
   await surfaceResult.scrollIntoViewIfNeeded()
   const surfacePath = info.outputPath(`surface-addend-${info.project.name}.png`)
   await page.screenshot({ path: surfacePath, animations: 'disabled' })
