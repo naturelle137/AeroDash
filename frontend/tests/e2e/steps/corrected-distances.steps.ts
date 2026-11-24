@@ -226,7 +226,7 @@ Then('the briefing discloses the pilot-entered surface source', async ({ page })
   const preview = page.getByRole('dialog', { name: 'Briefing Pack preview' })
   await expect(preview).toContainText('Synthetic manual section 2')
   await expect(preview).toContainText('UNVERIFIED PILOT-ENTERED SURFACE FACTOR')
-  await expect(preview).toContainText('Additive or differently ordered surface rules are unsupported')
+  await expect(preview).toContainText('Differently ordered surface rules are unsupported')
 })
 
 Then('the printed and PDF briefing disclose the pilot-entered surface source', async ({ page, $testInfo }) => {
@@ -241,7 +241,7 @@ Then('the printed and PDF briefing disclose the pilot-entered surface source', a
   await (await download).saveAs(path)
   const pdf = execFileSync('pdftotext', ['-layout', path, '-'], { encoding: 'utf8' }).replace(/\s+/g, ' ')
   expect(pdf).toContain('Synthetic manual section 2')
-  expect(pdf).toContain('Additive or differently ordered surface rules are unsupported')
+  expect(pdf).toContain('Differently ordered surface rules are unsupported')
 })
 
 Then('a pilot-entered landing slope multiplier changes ground roll and clears with slope', async ({ page }) => {

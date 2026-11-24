@@ -60,6 +60,36 @@ describe('corrected distances in the performance step', () => {
     effect.stop()
   })
 
+  it.each(['takeoff', 'landing'] as const)('applies a manual additive surface correction for %s', (operation) => {
+    const { step, runway } = setup(undefined, 'unpaved')
+    const input = step.corrections[operation]
+    const index = operation === 'takeoff' ? 0 : 1
+    Object.assign(input, { headwind: '0', slope: '0', surfaceFactor: '1', surfaceSource: 'Synthetic section' })
+    const baseline = corrected(step, index)
+    if (baseline.status !== 'applied') throw new Error('expected result')
+    input.surfaceFactor = ''
+    input.surfaceAddend = '25'
+    const result = corrected(step, index)
+    if (result.status !== 'applied') throw new Error('expected result')
+    for (let i = 0; i < 2; i++) expect(Number.parseFloat(result.rows[i]!.corrected.replaceAll(',', ''))).toBe(Number.parseFloat(baseline.rows[i]!.corrected.replaceAll(',', '')) + 25)
+    expect(result.rows[0]!.corrected).toContain('UNVERIFIED PILOT-ENTERED SURFACE ADDEND')
+    expect(result.notes.join(' ')).toContain('Synthetic section')
+    expect(result.partial).toBe(true)
+    expect(result.comparison.margin).toBe('Not available')
+    input.surfaceFactor = '1'
+    expect(corrected(step, index).status).toBe('unavailable')
+    input.surfaceFactor = ''
+    for (const invalid of ['abc', '-99999']) {
+      input.surfaceAddend = invalid
+      expect(corrected(step, index).status).toBe('unavailable')
+    }
+    input.surfaceAddend = '25'
+    input.surfaceSource = ''
+    expect(corrected(step, index).status).toBe('unavailable')
+    runway.draft.tora = '999'
+    expect(input.surfaceAddend).toBe('')
+  })
+
   it.each(['D-OTHER', 'D-EBPN'])('replaces takeoff slope for %s without changing the airborne segment', (registration) => {
     const { step } = setup(registration)
     const input = step.corrections.takeoff

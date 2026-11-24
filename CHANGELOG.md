@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Support pilot-entered additive surface corrections to ground roll.
+
 - Compare unsaved and recent runway dates with the device date when using a fixed check date.
 
 - Compare saved runway dates with the device date alongside a fixed flight date.
