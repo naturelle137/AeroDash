@@ -199,3 +199,7 @@ When exporting flight preparation JSON, the system shall include the selected an
 ### REQ-AP-044: Briefing unsaved runway date checks
 
 When a runway draft with declared dates is not current, the briefing shall show its selected and device-date checks as unverified pilot declarations.
+
+### REQ-AP-045: Exported declared date intervals
+
+When exporting flight preparation JSON, the system shall include signed days to declared effective and inclusive expiry dates for saved and draft runways against the selected and device dates, or null when unavailable.

@@ -1,6 +1,6 @@
 import type { FlightPrepDraft } from '@/core/domain/flightprep-draft.schema'
-import type { ManualRunwayDraft, ManualRunwayRecord } from '@/core/logic/manual-runway'
-import { runwayFreshness } from '@/core/logic/manual-runway'
+import type { ManualRunway, ManualRunwayDraft, ManualRunwayRecord } from '@/core/logic/manual-runway'
+import { daysToDeclaredEffect, daysToDeclaredExpiry, runwayFreshness } from '@/core/logic/manual-runway'
 
 type Entries = Pick<FlightPrepDraft, 'fuel' | 'performance'>
 export type FlightPrepExport = {
@@ -16,6 +16,14 @@ export type FlightPrepExport = {
 
 export const flightPrepUnits = { temperature: '°C', pressureAltitudeDirect: 'ft', fuelMass: 'kg', consumption: 'kg/h', duration: 'min', correctionHeadwind: 'kt', correctionSlope: '%', electricEnergy: 'kWh', electricPower: 'kW', electricDuration: 'min', runwayHeading: 'degrees', windDirection: 'degrees' } as const
 
+function dateIntervals(runway: Pick<ManualRunway, 'effectiveDate' | 'expiryDate'> | null, date: string) {
+  if (!runway || (runway.effectiveDate && runway.expiryDate && runway.effectiveDate > runway.expiryDate)) return { effect: null, expiry: null }
+  const effect = daysToDeclaredEffect(runway, date)
+  const expiry = daysToDeclaredExpiry(runway, date)
+  if ((runway.effectiveDate && effect === null) || (runway.expiryDate && expiry === null)) return { effect: null, expiry: null }
+  return { effect, expiry }
+}
+
 export function buildFlightPrepJson(data: FlightPrepExport, now: Date): string {
   return JSON.stringify({
     format: 'aerodash-flight-preparation', version: 1, exportedAt: now.toISOString(),
@@ -30,6 +38,14 @@ export function buildFlightPrepJson(data: FlightPrepExport, now: Date): string {
         draft: {
           selected: runwayFreshness(data.runway.draft, data.runway.assessmentDate),
           device: runwayFreshness(data.runway.draft, data.runway.deviceDate),
+        },
+        intervals: {
+          selected: dateIntervals(data.runway.saved?.runway ?? null, data.runway.assessmentDate),
+          device: dateIntervals(data.runway.saved?.runway ?? null, data.runway.deviceDate),
+          draft: {
+            selected: dateIntervals(data.runway.draft, data.runway.assessmentDate),
+            device: dateIntervals(data.runway.draft, data.runway.deviceDate),
+          },
         },
         notice: 'Pilot-declared dates only; source currency is unverified and NOTAM/SUP coverage is unknown.',
       },
