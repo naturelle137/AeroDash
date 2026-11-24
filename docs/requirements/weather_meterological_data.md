@@ -111,3 +111,7 @@ When the pilot declares a QNH source time type, the system shall retain it with 
 ### REQ-WX-023: Current QNH before replacement
 
 While a pilot-entered forecast QNH is present, the system shall show the current Flight Prep QNH and its unit or indicate that it is empty.
+
+### REQ-WX-024: QNH validity feedback
+
+When a declared QNH validity interval cannot be applied, the system shall explain the validity error.
