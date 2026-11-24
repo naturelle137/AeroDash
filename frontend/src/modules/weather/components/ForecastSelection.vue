@@ -12,11 +12,12 @@ const temperature = ref('')
 const qnhUnit = ref<'hPa' | 'inHg'>('hPa')
 const qnhInput = ref<HTMLInputElement | null>(null)
 const confirmQnhTimes = ref(false)
-const emptyQnhDraft = () => ({ value: '', source: '', sourceTime: '', validFrom: '', validTo: '' })
+const emptyQnhDraft = () => ({ value: '', source: '', sourceTime: '', timeKind: '', validFrom: '', validTo: '' })
 const qnhDrafts = reactive({ hPa: emptyQnhDraft(), inHg: emptyQnhDraft() })
 const draft = computed(() => qnhDrafts[qnhUnit.value])
 const qnh = computed({ get: () => draft.value.value, set: value => { draft.value.value = value } })
 const qnhSource = computed({ get: () => draft.value.source, set: value => { draft.value.source = value } })
+const qnhTimeKind = computed({ get: () => draft.value.timeKind, set: value => { draft.value.timeKind = value } })
 const qnhSourceTime = computed({ get: () => draft.value.sourceTime, set: value => { draft.value.sourceTime = value } })
 const qnhValidFrom = computed({ get: () => draft.value.validFrom, set: value => { draft.value.validFrom = value } })
 const qnhValidTo = computed({ get: () => draft.value.validTo, set: value => { draft.value.validTo = value } })
@@ -160,9 +161,10 @@ function apply(field: keyof MetarValues): void {
   if (!selectionValid.value || Date.parse(time.value) <= Date.now() || !values.value[field] || (field === 'qnh' && ((ambiguousQnhTimes.value && !confirmQnhTimes.value) || !qnhValidityValid.value || (qnhSourceTime.value && (!qnhSourceTimeValid.value || Date.parse(qnhSourceTime.value) > Date.now()))))) return
   const source = field === 'qnh' && qnhSource.value.trim() ? `; pilot-declared QNH source: ${qnhSource.value.trim()}` : ''
   const sourceTime = field === 'qnh' && qnhSourceTime.value ? `; pilot-declared QNH source time: ${qnhSourceTime.value.replace('T', ' ')} local time (${new Date(qnhSourceTime.value).toISOString()})` : ''
+  const timeKind = field === 'qnh' && qnhSourceTime.value && qnhTimeKind.value ? `; pilot-declared QNH time type: ${qnhTimeKind.value}` : ''
   const validity = field === 'qnh' && qnhValidFrom.value && qnhValidTo.value ? `; pilot-declared QNH validity: ${qnhValidFrom.value.replace('T', ' ')} to ${qnhValidTo.value.replace('T', ' ')} local time (${new Date(qnhValidFrom.value).toISOString()} to ${new Date(qnhValidTo.value).toISOString()} UTC; end exclusive)` : ''
   const original = field === 'qnh' ? `; pilot-entered QNH: ${qnh.value.trim()} ${qnhUnit.value}` : ''
-  emit('apply', field, values.value, `Pilot-entered forecast for ${phase.value}, ${location.value.trim()}, ${time.value.replace('T', ' ')} local time (${new Date(time.value).toISOString()})${original}${source}${sourceTime}${validity}`)
+  emit('apply', field, values.value, `Pilot-entered forecast for ${phase.value}, ${location.value.trim()}, ${time.value.replace('T', ' ')} local time (${new Date(time.value).toISOString()})${original}${source}${sourceTime}${timeKind}${validity}`)
 }
 </script>
 
@@ -212,6 +214,7 @@ function apply(field: keyof MetarValues): void {
       <label>Forecast QNH ({{ qnhUnit }})<input ref="qnhInput" v-model="qnh" type="text" inputmode="decimal" /></label>
       <label>QNH unit<select v-model="qnhUnit"><option value="hPa">hPa</option><option value="inHg">inHg</option></select></label>
       <label>QNH source (optional)<input v-model="qnhSource" type="text" autocomplete="off" /></label>
+      <label>QNH time type (optional)<select v-model="qnhTimeKind"><option value="">Not specified</option><option value="issue">Issue time</option><option value="retrieval">Retrieval time</option></select></label>
       <label>QNH source time (optional, local)<input v-model="qnhSourceTime" type="datetime-local" /></label>
       <label>QNH valid from (optional, local)<input v-model="qnhValidFrom" type="datetime-local" /></label>
       <label>QNH valid until (optional, local)<input v-model="qnhValidTo" type="datetime-local" /></label>
@@ -234,6 +237,7 @@ function apply(field: keyof MetarValues): void {
     <p v-if="qnh.trim() && !qnhSource.trim()">QNH source not recorded; verify its origin.</p>
     <p v-if="qnh.trim() && !qnhSourceTime">QNH source time not recorded; its age is unknown.</p>
     <p v-else-if="qnh.trim() && qnhSourceTimeValid">Pilot-declared QNH source time was {{ qnhSourceAge }} ago; this does not establish freshness.</p>
+    <p v-if="qnh.trim() && qnhSourceTime && !qnhTimeKind">QNH source time type not recorded; issue and retrieval times are different.</p>
     <p v-if="qnh.trim() && !qnhValidFrom && !qnhValidTo">QNH validity not recorded; verify it covers the selected flight time.</p>
     <p v-if="!qnhSourceTimeValid" role="alert">QNH source time must exist in the device time zone and must not be in the future.</p>
     <p v-if="time && !validLocalTime(time)" role="alert">Selected local time does not exist in the device time zone; check the clock change.</p>
