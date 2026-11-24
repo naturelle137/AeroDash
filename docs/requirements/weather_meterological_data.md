@@ -99,3 +99,7 @@ When the pilot selects manual QNH entry, the system shall focus the forecast QNH
 ### REQ-WX-020: Nonexistent local forecast times
 
 When a selected forecast time or declared QNH source or validity time does not exist in the device time zone, the system shall prevent application of the affected forecast value.
+
+### REQ-WX-021: Repeated local QNH times
+
+When a QNH flight, source or validity time occurs twice in the device time zone, the system shall require the pilot to confirm the displayed UTC interpretations before applying QNH.
