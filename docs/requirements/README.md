@@ -13,7 +13,7 @@ Use EARS (Easy Approach to Requirements Syntax):
 - State: `While <state>, the system shall <response>.`
 - Unwanted condition: `If <condition>, then the system shall <response>.`
 
-Give numeric limits, units and boundary conditions when they determine acceptance. A structured record may list its fields as one data contract; independently failing actions or outputs need separate requirements. Put algorithms, storage choices and interpretation context in [architecture](../architecture/), not rationale paragraphs or tag attributes. Ordinary links to relevant contracts are sufficient; no matrix, registry or tagging tool is required.
+Give numeric limits, units and boundary conditions when they determine acceptance. A structured record may list its fields as one data contract; independently failing actions or outputs need separate requirements. Put algorithms, storage choices and interpretation context in [architecture](../architecture/), not rationale paragraphs or tag attributes. Ordinary links to relevant contracts are sufficient; no matrix, registry, tagging tool or trace-completeness gate is required.
 
 Authoring and PR review use the same concise [requirements review command](../../.claude/commands/requirements.md): compare original intent, flag design leakage and scope narrowing, then split independently testable responses. JSON/PDF exchange requirements specify observable interoperability, not internal storage.
 
