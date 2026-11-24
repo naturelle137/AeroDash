@@ -60,6 +60,29 @@ describe('corrected distances in the performance step', () => {
     effect.stop()
   })
 
+  it.each(['D-OTHER', 'D-EBPN'])('replaces takeoff slope for %s without changing the airborne segment', (registration) => {
+    const { step } = setup(registration)
+    const input = step.corrections.takeoff
+    Object.assign(input, { headwind: '0', slope: '2', slopeFactor: '1', slopeSource: 'Synthetic section' })
+    const baseline = corrected(step, 0)
+    if (baseline.status !== 'applied') throw new Error('expected result')
+    input.slopeFactor = ''
+    input.slopeAddend = '25'
+    const result = corrected(step, 0)
+    if (result.status !== 'applied') throw new Error('expected result')
+    for (let i = 0; i < 2; i++) expect(Number.parseFloat(result.rows[i]!.corrected.replaceAll(',', ''))).toBe(Number.parseFloat(baseline.rows[i]!.corrected.replaceAll(',', '')) + 25)
+    expect(result.partial).toBe(true)
+    expect(result.comparison.margin).toBe('Not available')
+    expect(result.notes.join(' ')).toContain('Synthetic section')
+    input.slopeFactor = '1'
+    expect(corrected(step, 0).status).toBe('unavailable')
+    input.slopeFactor = ''
+    input.slopeSource = ''
+    expect(corrected(step, 0).status).toBe('unavailable')
+    input.slope = '3'
+    expect(input.slopeAddend).toBe('')
+  })
+
   it('applies a manual landing slope factor only to ground roll and clears it on condition changes', () => {
     const effect = effectScope()
     effect.run(() => {

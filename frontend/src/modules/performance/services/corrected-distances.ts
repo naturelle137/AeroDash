@@ -107,17 +107,17 @@ export function presentCorrectedOperation(
   const surfaceSource = inputs.surfaceSource?.trim() ?? ''
   const surfaceFactor = surfaceFactorText ? parseLookupNumber(surfaceFactorText) : null
   if ((surfaceFactorText || surfaceSource) && (surfaceFactor === null || surfaceFactor <= 0 || !surfaceSource)) return unavailable('Enter a positive finite manual surface multiplier and its source and section, or clear both fields.')
-  const slopeFactorText = operation === 'landing' ? inputs.slopeFactor?.trim() ?? '' : ''
-  const slopeAddendText = operation === 'landing' ? inputs.slopeAddend?.trim() ?? '' : ''
+  const slopeFactorText = inputs.slopeFactor?.trim() ?? ''
+  const slopeAddendText = inputs.slopeAddend?.trim() ?? ''
   const slopeAddend = slopeAddendText ? parseLookupNumber(slopeAddendText) : null
-  const slopeSource = operation === 'landing' ? inputs.slopeSource?.trim() ?? '' : ''
+  const slopeSource = inputs.slopeSource?.trim() ?? ''
   const slopeFactor = slopeFactorText ? parseLookupNumber(slopeFactorText) : null
-  if (slopeFactorText && slopeAddendText) return unavailable('Enter either a landing slope multiplier or an additive correction, not both.')
-  if ((slopeFactorText || slopeAddendText || slopeSource) && (!slopeSource || (slopeFactorText ? slopeFactor === null || slopeFactor <= 0 : slopeAddend === null))) return unavailable('Enter a positive finite manual landing slope multiplier or a finite additive correction and its source, or clear all fields.')
+  if (slopeFactorText && slopeAddendText) return unavailable(`Enter either a ${operation} slope multiplier or an additive correction, not both.`)
+  if ((slopeFactorText || slopeAddendText || slopeSource) && (!slopeSource || (slopeFactorText ? slopeFactor === null || slopeFactor <= 0 : slopeAddend === null))) return unavailable(`Enter a positive finite manual ${operation} slope multiplier or a finite additive correction and its source, or clear all fields.`)
   const pilotSlope = slopeFactor !== null || slopeAddend !== null
   const rows = sources.corrections.filter((row) => row.operation === operation)
   const manual = rows.filter((row) => row.selected && TECNAM_S9_SOURCE_IDS.includes(row.selected.id) && !(pilotWind && row.correction === 'wind') && !(surfaceFactor !== null && row.correction === 'surface') && !(pilotSlope && row.correction === 'slope'))
-  const fsm = operation === 'takeoff' ? rows.filter((row) => row.selected?.estimate && !(surfaceFactor !== null && row.correction === 'surface')) : []
+  const fsm = operation === 'takeoff' ? rows.filter((row) => row.selected?.estimate && !(surfaceFactor !== null && row.correction === 'surface') && !(pilotSlope && row.correction === 'slope')) : []
   const estimating = fsm.length > 0
   if (!runway) return unavailable('Save the manual runway to select its surface correction.')
 
@@ -165,7 +165,7 @@ export function presentCorrectedOperation(
   if (pilotSlope) {
     const groundRoll = slopeFactor !== null ? result.groundRoll * slopeFactor : result.groundRoll + slopeAddend!
     result = { ...result, distanceOver50ft: result.distanceOver50ft + groundRoll - result.groundRoll, groundRoll }
-    if (!Number.isFinite(result.groundRoll) || !Number.isFinite(result.distanceOver50ft) || result.groundRoll <= 0 || result.distanceOver50ft <= 0) return unavailable('Manual landing slope correction produces an invalid distance.')
+    if (!Number.isFinite(result.groundRoll) || !Number.isFinite(result.distanceOver50ft) || result.groundRoll <= 0 || result.distanceOver50ft <= 0) return unavailable(`Manual ${operation} slope correction produces an invalid distance.`)
   }
   if (windFactor !== null) {
     result = { ...result, groundRoll: result.groundRoll * windFactor, distanceOver50ft: result.distanceOver50ft * windFactor }
@@ -204,7 +204,7 @@ export function presentCorrectedOperation(
   const correctedOver50Marker = markers([roll, over50]) + (estimating ? FSM_ESTIMATE_MARKER : '') + windMarker + surfaceMarker + slopeMarker
   return {
     operation, title, status: 'applied', partial,
-    source: selected ? `${selected.document.title}, ${selected.document.identifier}, ${selected.document.revision}; ${selected.section}${estimating && manual.length ? `; ${manual[0]!.selected!.document.title}, ${manual[0]!.selected!.document.revision}; ${manual[0]!.selected!.section}` : ''}` : surfaceFactor !== null ? 'Pilot-entered surface multiplier; source and applicability unverified' : pilotSlope ? 'Pilot-entered landing slope correction; source and applicability unverified' : pilotWind ? 'Pilot-entered wind correction; source and applicability unverified' : 'No applicable wind, surface or slope correction source',
+    source: selected ? `${selected.document.title}, ${selected.document.identifier}, ${selected.document.revision}; ${selected.section}${estimating && manual.length ? `; ${manual[0]!.selected!.document.title}, ${manual[0]!.selected!.document.revision}; ${manual[0]!.selected!.section}` : ''}` : surfaceFactor !== null ? 'Pilot-entered surface multiplier; source and applicability unverified' : pilotSlope ? `Pilot-entered ${operation} slope correction; source and applicability unverified` : pilotWind ? 'Pilot-entered wind correction; source and applicability unverified' : 'No applicable wind, surface or slope correction source',
     rows: [
       { label: roll.label, raw: `${formatNumber(roll.distance)} m${baseRollMarker}`, corrected: up(result.groundRoll) + rollMarker, factored: up(result.groundRoll * factor) + rollMarker },
       { label: over50.label, raw: `${formatNumber(over50.distance)} m${over50Marker}`, corrected: up(result.distanceOver50ft) + correctedOver50Marker, factored: up(result.distanceOver50ft * factor) + correctedOver50Marker },
@@ -221,8 +221,8 @@ export function presentCorrectedOperation(
       `Final value = corrected distance × safety factor ${factor.toFixed(2)}, rounded up to whole metres.${manualFactor === null ? '' : ` The manual states ${manualFactor} as its in-service factor.`}`,
       ...(estimating ? [FSM_DISCLOSURE] : []),
       ...(surfaceFactor !== null ? [`Pilot-entered surface multiplier ${surfaceFactor}, source and section: ${surfaceSource}. Applied to ground roll only, after built-in slope and wind corrections and before pilot-entered wind and safety factors. Source, applicability and correction ordering are unverified; independently check the aircraft manual. Additive or differently ordered surface rules are unsupported.`] : []),
-      ...(slopeFactor !== null ? [`Pilot-entered landing slope multiplier ${slopeFactor} for ${inputs.slope} %, source: ${slopeSource}. Applied to ground roll only; the airborne segment is unchanged. Source, applicability and correction order are not verified; independently check the manual and combined corrections.`] : []),
-      ...(slopeAddend !== null ? [`Pilot-entered additive landing slope correction ${slopeAddend} m for ${inputs.slope} %, source and section: ${slopeSource}. Applied to ground roll after built-in and pilot-entered surface corrections and before pilot-entered wind and safety factors; the airborne segment is unchanged. Source, applicability and ordering are unverified; independently check the aircraft manual.`] : []),
+      ...(slopeFactor !== null ? [`Pilot-entered ${operation} slope multiplier ${slopeFactor} for ${inputs.slope} %, source: ${slopeSource}. Applied to ground roll only; the airborne segment is unchanged. Source, applicability and correction order are not verified; independently check the manual and combined corrections.`] : []),
+      ...(slopeAddend !== null ? [`Pilot-entered additive ${operation} slope correction ${slopeAddend} m for ${inputs.slope} %, source and section: ${slopeSource}. Applied to ground roll after built-in and pilot-entered surface corrections and before pilot-entered wind and safety factors; the airborne segment is unchanged. Source, applicability and ordering are unverified; independently check the aircraft manual.`] : []),
       ...(windAddend !== null ? [`Pilot-entered additive wind correction ${windAddend} m for ${inputs.headwind} kt, source and section: ${windSource}. Applied to both distances after ground corrections and before the safety factor. Source, applicability and ordering are unverified; independently check the aircraft manual.`] : []),
       ...(windFactor !== null ? [`Pilot-entered wind multiplier ${windFactor} for ${inputs.headwind} kt, source: ${windSource}. Applied to both distances. Source and applicability are not verified; independently check the manual and combined corrections.`] : []),
       ...(missing.length ? [`Incomplete: no applicable correction applied for ${missing.join(', ')}.${missing.includes('wind') ? ` Wind component ${inputs.headwind} kt was not applied.` : ''}${missing.includes('slope') ? ` Runway slope ${inputs.slope} % was not applied.` : ''} Determine missing corrections independently from the aircraft manual.`] : []),

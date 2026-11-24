@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Support pilot-entered takeoff slope corrections to ground roll.
 - Distinguish pilot-declared QNH issue and retrieval times in applied provenance.
 
 - Reject non-decimal manual forecast QNH entries before application.
