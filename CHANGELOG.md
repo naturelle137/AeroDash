@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Compare unsaved and recent runway dates with the device date when using a fixed check date.
+
 - Compare saved runway dates with the device date alongside a fixed flight date.
 - Explain invalid source dates before a manual runway declaration is complete.
 - Show declared date intervals in incomplete manual runway drafts.

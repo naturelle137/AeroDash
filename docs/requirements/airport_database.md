@@ -187,3 +187,7 @@ If an unsaved runway declaration has invalid or contradictory source dates, then
 ### REQ-AP-041: Device-date comparison
 
 While a fixed check date is selected, the system shall also show the saved runway's declared date check against the device local date in the runway panel, Performance and briefing.
+
+### REQ-AP-042: Unsaved and recent device-date comparison
+
+While a fixed check date is selected, the system shall also compare valid unsaved and recent runway declarations with the device local date.
