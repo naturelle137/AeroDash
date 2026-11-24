@@ -27,6 +27,10 @@ export function buildFlightPrepJson(data: FlightPrepExport, now: Date): string {
       dateCheck: {
         selected: data.runway.saved ? runwayFreshness(data.runway.saved.runway, data.runway.assessmentDate) : 'unknown',
         device: data.runway.saved ? runwayFreshness(data.runway.saved.runway, data.runway.deviceDate) : 'unknown',
+        draft: {
+          selected: runwayFreshness(data.runway.draft, data.runway.assessmentDate),
+          device: runwayFreshness(data.runway.draft, data.runway.deviceDate),
+        },
         notice: 'Pilot-declared dates only; source currency is unverified and NOTAM/SUP coverage is unknown.',
       },
     },
