@@ -26,7 +26,7 @@ Delivered: raw table inspection [#311](https://github.com/naturelle137/AeroDash/
 2. #304 direct or QNH/elevation pressure altitude is delivered. Source-limited corrections, safety factors, runway margins and alerts are available for supported aircraft and conditions; the original manual and actual runway sources remain authoritative.
 3. #301 missing-distance estimation is available with visible estimated provenance; published manual distances take precedence. #420 remains open for unsupported extrapolation and acknowledgement paths; no actual-device evidence establishes its outstanding device scope. Synthetic browser tests do not substitute for device testing.
 
-Deliveries include relevant tests, local gates, one independent review and green CI. Frontend changes also require a real browser flow with mobile/desktop evidence. A core-only PR does not complete a pilot workflow. Synthetic fixtures prove software behavior, not aviation accuracy; actual aircraft support requires applicable POH/AFM references and cases. The CEO evaluates usability, not aviation correctness.
+Deliveries include relevant tests, local gates, one independent review and green CI. For frontend changes, exercise the browser flow and record mobile/desktop evidence; missing evidence alone does not block delivery. A core-only PR does not complete a pilot workflow. Synthetic fixtures prove software behavior, not aviation accuracy; actual aircraft support requires applicable POH/AFM references and cases. The CEO evaluates usability, not aviation correctness.
 
 Issue #284 remains **OPEN on source hold**: this [source-contract disposition](../regulatory/airac-airport-data-contract.md)
 corrects the acceptance boundary; it does not deliver automatic airport freshness.
