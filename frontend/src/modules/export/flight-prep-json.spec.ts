@@ -10,11 +10,14 @@ describe('flight preparation JSON runway dates', () => {
     const data = { runway } as FlightPrepExport
     const check = () => JSON.parse(buildFlightPrepJson(data, new Date('2026-08-01T12:00:00Z'))).runway.dateCheck
     expect(check()).toMatchObject({ selected: 'within-declared-dates', device: 'expired', notice: expect.stringContaining('NOTAM/SUP coverage is unknown') })
+    expect(check().intervals).toMatchObject({ selected: { effect: 0, expiry: 30 }, device: { effect: -31, expiry: -1 } })
     runway.saved = null
     runway.draft.effectiveDate = '2026-07-01'
     runway.draft.expiryDate = '2026-07-31'
     expect(check()).toMatchObject({ selected: 'unknown', device: 'unknown', draft: { selected: 'within-declared-dates', device: 'expired' } })
+    expect(check().intervals).toMatchObject({ selected: { effect: null, expiry: null }, draft: { device: { effect: -31, expiry: -1 } } })
     runway.draft.effectiveDate = '2026-08-02'
+    expect(check().intervals.draft.device).toEqual({ effect: null, expiry: null })
     expect(check().draft).toEqual({ selected: 'unknown', device: 'unknown' })
   })
 })
