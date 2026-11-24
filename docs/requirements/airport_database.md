@@ -191,3 +191,7 @@ While a fixed check date is selected, the system shall also show the saved runwa
 ### REQ-AP-042: Unsaved and recent device-date comparison
 
 While a fixed check date is selected, the system shall also compare valid unsaved and recent runway declarations with the device local date.
+
+### REQ-AP-043: Exported runway date checks
+
+When exporting flight preparation JSON, the system shall include the selected and device-date checks for the current saved runway or unknown if none is current.
