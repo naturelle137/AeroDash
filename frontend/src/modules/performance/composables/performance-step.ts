@@ -81,6 +81,7 @@ export function usePerformanceStep(context: () => PerformanceStepContext) {
       corrections[operation].surfaceSource = ''
       if (operation === 'landing') {
         corrections[operation].slopeFactor = ''
+        corrections[operation].slopeAddend = ''
         corrections[operation].slopeSource = ''
       }
     }, { flush: 'sync' })
@@ -184,6 +185,7 @@ export function usePerformanceStep(context: () => PerformanceStepContext) {
           { label: `${OPERATION_LABELS[operation]} runway slope`, value: `${corrections[operation].slope.trim() || 'Not entered'} %` },
           { label: `${OPERATION_LABELS[operation]} pilot-entered surface multiplier`, value: corrections[operation].surfaceFactor ? `${corrections[operation].surfaceFactor} · ${corrections[operation].surfaceSource || 'source and section not entered'} (unverified)` : 'Not entered' },
           ...(operation === 'landing' ? [{ label: 'Landing pilot-entered slope multiplier', value: corrections.landing.slopeFactor ? `${corrections.landing.slopeFactor} · ${corrections.landing.slopeSource || 'source not entered'} (unverified)` : 'Not entered' }] : []),
+          ...(operation === 'landing' ? [{ label: 'Landing pilot-entered additive slope correction', value: corrections.landing.slopeAddend ? `${corrections.landing.slopeAddend} m · ${corrections.landing.slopeSource || 'source not entered'} (unverified)` : 'Not entered' }] : []),
           { label: `${OPERATION_LABELS[operation]} pilot-entered wind multiplier`, value: corrections[operation].windFactor ? `${corrections[operation].windFactor} · ${corrections[operation].windSource || 'source not entered'} (unverified)` : 'Not entered' },
           { label: `${OPERATION_LABELS[operation]} pilot-entered additive wind correction`, value: corrections[operation].windAddend ? `${corrections[operation].windAddend} m · ${corrections[operation].windSource || 'source not entered'} (unverified)` : 'Not entered' },
           { label: `${OPERATION_LABELS[operation]} safety factor`, value: safetyFactors[operation].preset === 'custom' ? `Custom ${safetyFactors[operation].custom.trim() || 'not entered'}` : safetyFactors[operation].preset },

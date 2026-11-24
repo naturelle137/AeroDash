@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Reject non-decimal manual forecast QNH entries before application.
 
+- Support pilot-entered additive landing slope corrections to ground roll.
+
 - Require confirmation of repeated local QNH times and retain the selected UTC time.
 
 - Reject nonexistent local forecast and QNH times during clock changes.
