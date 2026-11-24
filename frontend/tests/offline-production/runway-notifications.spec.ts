@@ -83,6 +83,23 @@ test('current phase notifications and runway comparisons survive cached offline 
     await inputs.getByLabel('Runway slope (%, positive = uphill)').fill('0')
     await expect(perf.getByRole('region', { name: `${phase} corrected distances` }).locator('.comparison')).toContainText('Fits declared runway')
   }
+  const takeoffInputs = perf.getByRole('group', { name: 'Takeoff wind and slope' })
+  const takeoffResult = perf.getByRole('region', { name: 'Takeoff corrected distances' })
+  await takeoffInputs.getByLabel('Runway slope (%, positive = uphill)').fill('2')
+  await takeoffInputs.getByLabel('Manual additive takeoff slope correction to ground roll (m, optional)').fill('25')
+  await takeoffInputs.getByLabel('Slope factor source and section').fill('Synthetic takeoff slope section')
+  await expect(takeoffResult).toContainText('UNVERIFIED PILOT-ENTERED SLOPE ADDEND')
+  await expect(takeoffResult).toContainText('Synthetic takeoff slope section')
+  await expect(takeoffResult).toContainText('the airborne segment is unchanged')
+  await takeoffResult.scrollIntoViewIfNeeded()
+  const takeoffSlopePath = info.outputPath(`takeoff-slope-${info.project.name}.png`)
+  await page.screenshot({ path: takeoffSlopePath, animations: 'disabled' })
+  await info.attach('takeoff-slope', { path: takeoffSlopePath, contentType: 'image/png' })
+  await page.getByRole('button', { name: 'Briefing Pack', exact: true }).click()
+  await expect(page.getByRole('dialog', { name: 'Briefing Pack preview' })).toContainText('Synthetic takeoff slope section')
+  await page.keyboard.press('Escape')
+  await takeoffInputs.getByLabel('Runway slope (%, positive = uphill)').fill('0')
+  await expect(takeoffInputs.getByLabel('Manual additive takeoff slope correction to ground roll (m, optional)')).toHaveValue('')
   // Verify each control independently through the live result and its briefing snapshot.
   for (const [phase, slope] of [['Takeoff', '2'], ['Landing', '-2']] as const) {
     const inputs = perf.getByRole('group', { name: `${phase} wind and slope` })

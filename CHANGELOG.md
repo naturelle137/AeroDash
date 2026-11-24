@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Support pilot-entered takeoff slope corrections to ground roll.
+
 - Reject non-decimal manual forecast QNH entries before application.
 
 - Support pilot-entered additive landing slope corrections to ground roll.
