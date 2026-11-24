@@ -79,6 +79,10 @@ The pilot must enter wind and slope (empty is never zero; |slope| < 100). Availa
 
 For each operation the pilot may enter a positive whole-distance multiplier and a manual source and section for the current conditions. It replaces the selected wind correction and multiplies both the ground roll and the total distance after ground-only corrections. This supports only a manual multiplier that is applicable to both distances and compatible with the other corrections; differently ordered rules cannot be entered this way. Alternatively, the pilot may enter a signed additive correction in metres for both distances, applied at the same stage. Only one wind correction may be entered at a time. The source and applicability are unverified, so the result stays partial and cannot establish runway fit. Changes to aircraft, mass, atmosphere, runway, wind, slope or manual configuration clear the entry. Synthetic tests demonstrate wiring, not operational validation.
 
+## Pilot-entered landing slope correction
+
+A signed additive correction in metres may replace the landing slope rule, as an alternative to the existing multiplier. It changes ground roll and total distance by the same amount, after built-in and pilot-entered surface corrections and before pilot-entered wind and safety factors. A source and section are required; applicability and ordering are unverified. The result remains partial, and changes to conditions clear the entry. Synthetic tests demonstrate wiring only.
+
 ## Runway comparison
 
 When a correction source is unavailable, independently identified manual corrections are applied, missing corrections are named, and the result is marked incomplete. The safety factor still applies; the incomplete result must not be used for runway assessment.
