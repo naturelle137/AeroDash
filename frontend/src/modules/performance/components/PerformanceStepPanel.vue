@@ -32,8 +32,9 @@ const { temperature, temperatureWarnings, corrections, safetyFactors, showPaErro
       <p>Use only when the aircraft manual supports applying this multiplier after the built-in slope and wind corrections and before a pilot-entered wind multiplier and safety factor. Additive or differently ordered surface rules are unsupported. Source and applicability are unverified.</p>
       <template v-if="operation === 'landing'">
         <label>Manual POH landing slope ground-roll multiplier (optional)<input v-model="corrections.landing.slopeFactor" id="performance-landing-slope-factor" type="text" inputmode="decimal" /></label>
+        <label>Manual additive landing slope correction to ground roll (m, optional)<input v-model="corrections.landing.slopeAddend" id="performance-landing-slope-addend" type="text" inputmode="text" /></label>
         <label>Slope factor source and section<input v-model="corrections.landing.slopeSource" id="performance-landing-slope-source" type="text" /></label>
-        <p>Enter a multiplier only when the aircraft manual applies it to landing ground roll for these conditions and in combination with the other corrections. Source and applicability are not verified.</p>
+        <p>Enter either a multiplier or a signed additive correction only when the aircraft manual applies it to landing ground roll after built-in and pilot-entered surface corrections and before pilot-entered wind and safety factors for these conditions. Source and applicability are not verified.</p>
       </template>
       <label>Safety factor
         <select v-model="safetyFactors[operation].preset" :id="`performance-${operation}-safety-factor`">
