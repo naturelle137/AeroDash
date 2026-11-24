@@ -1,5 +1,6 @@
 import type { FlightPrepDraft } from '@/core/domain/flightprep-draft.schema'
 import type { ManualRunwayDraft, ManualRunwayRecord } from '@/core/logic/manual-runway'
+import { runwayFreshness } from '@/core/logic/manual-runway'
 
 type Entries = Pick<FlightPrepDraft, 'fuel' | 'performance'>
 export type FlightPrepExport = {
@@ -8,7 +9,7 @@ export type FlightPrepExport = {
   entries: Entries
   electric: { available: string; power: string; minutes: string } | null
   manualConfiguration: string
-  runway: { draft: ManualRunwayDraft; saved: ManualRunwayRecord | null; weatherSurface: ManualRunwayRecord['weatherSurface'] | null; assessmentDate: string }
+  runway: { draft: ManualRunwayDraft; saved: ManualRunwayRecord | null; weatherSurface: ManualRunwayRecord['weatherSurface'] | null; assessmentDate: string; deviceDate: string; automaticDate: boolean }
   wind: { runwayHeading: string; windDirection: string; windSpeed: string; unit: string; gustSpeed: string }
   weatherSources: Partial<Record<'wind' | 'temperature' | 'qnh', { source: string; value: string }>>
 }
@@ -21,6 +22,14 @@ export function buildFlightPrepJson(data: FlightPrepExport, now: Date): string {
     notice: 'Unverified preparation data; verify all values against authoritative sources. Not an approval or fitness-for-flight assessment.',
     units: flightPrepUnits,
     ...data,
+    runway: {
+      ...data.runway,
+      dateCheck: {
+        selected: data.runway.saved ? runwayFreshness(data.runway.saved.runway, data.runway.assessmentDate) : 'unknown',
+        device: data.runway.saved ? runwayFreshness(data.runway.saved.runway, data.runway.deviceDate) : 'unknown',
+        notice: 'Pilot-declared dates only; source currency is unverified and NOTAM/SUP coverage is unknown.',
+      },
+    },
   }, null, 2)
 }
 

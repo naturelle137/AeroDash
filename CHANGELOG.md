@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Include manual runway date checks and their limitations in flight preparation JSON exports.
+
 ### Changed
 
 - Compare unsaved and recent runway dates with the device date when using a fixed check date.
