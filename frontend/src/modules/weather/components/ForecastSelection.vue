@@ -33,6 +33,7 @@ const latitude = ref('')
 const longitude = ref('')
 const globalForecast = ref<MetarValues | null>(null)
 const globalRetrieved = ref('')
+const globalSource = ref<'global' | 'dwd'>('global')
 const globalMessage = ref('Enter coordinates and a future exact UTC forecast hour.')
 const now = ref(Date.now())
 let request = 0
@@ -119,17 +120,18 @@ async function retrieve(): Promise<void> {
     forecastMessage.value = error instanceof SyntaxError || (error instanceof Error && error.message === 'malformed') ? 'Malformed forecast response.' : 'Forecast retrieval failed or is unavailable.'
   }
 }
-async function retrieveGlobal(): Promise<void> {
+async function retrieveGlobal(source: 'global' | 'dwd'): Promise<void> {
   const selected = Date.parse(time.value)
   if (!online.value || !selectionValid.value || selected % 3600000 !== 0 || !numberIn(latitude.value, -90, 90) || !numberIn(longitude.value, -180, 180)) {
     globalMessage.value = 'Enter valid coordinates, a location and a future time matching an exact UTC hour.'; return
   }
   const current = ++request
   globalForecast.value = null
+  globalSource.value = source
   globalMessage.value = 'Retrieving forecast…'
-  const params = new URLSearchParams({ latitude: latitude.value, longitude: longitude.value, hourly: 'temperature_2m,wind_speed_10m,wind_direction_10m', wind_speed_unit: 'kn', timezone: 'GMT', forecast_days: '16' })
+  const params = new URLSearchParams({ latitude: latitude.value, longitude: longitude.value, hourly: 'temperature_2m,wind_speed_10m,wind_direction_10m', wind_speed_unit: 'kn', timezone: 'GMT', forecast_days: source === 'dwd' ? '7' : '16' })
   try {
-    const response = await fetch(`https://api.open-meteo.com/v1/forecast?${params}`, { credentials: 'omit', cache: 'no-store', referrerPolicy: 'no-referrer' })
+    const response = await fetch(`https://api.open-meteo.com/v1/${source === 'dwd' ? 'dwd-icon' : 'forecast'}?${params}`, { credentials: 'omit', cache: 'no-store', referrerPolicy: 'no-referrer' })
     if (!response.ok) throw new Error('unavailable')
     const data: unknown = await response.json()
     if (current !== request) return
@@ -144,7 +146,7 @@ async function retrieveGlobal(): Promise<void> {
 const globalStale = computed(() => !!globalForecast.value && (Date.parse(time.value) <= now.value || now.value - Date.parse(globalRetrieved.value) > 4 * 60 * 60 * 1000))
 function applyGlobal(field: 'temperature' | 'wind'): void {
   if (!online.value || !globalForecast.value || !globalForecast.value[field] || globalStale.value || Date.parse(time.value) <= Date.now() || Date.now() - Date.parse(globalRetrieved.value) > 4 * 60 * 60 * 1000) return
-  emit('apply', field, globalForecast.value, `Open-Meteo model forecast for ${location.value.trim()} (${latitude.value}, ${longitude.value}), valid ${new Date(time.value).toISOString()}, retrieved ${globalRetrieved.value}; model issue time unavailable`)
+  emit('apply', field, globalForecast.value, `Open-Meteo ${globalSource.value === 'dwd' ? 'DWD ICON forecast' : 'model forecast'} for ${location.value.trim()} (${latitude.value}, ${longitude.value}), valid ${new Date(time.value).toISOString()}, retrieved ${globalRetrieved.value}; model issue time unavailable`)
 }
 
 function applyRetrieved(field: 'temperature' | 'wind'): void {
@@ -198,14 +200,15 @@ function apply(field: keyof MetarValues): void {
       <label>Longitude (°)<input v-model="longitude" type="text" inputmode="decimal" min="-180" max="180" step="any" /></label>
     </div>
     <p>Coordinates are sent to Open-Meteo on request; its free API is for non-commercial use.</p>
-    <button type="button" :disabled="!online" @click="retrieveGlobal">Retrieve global model forecast</button>
+    <button type="button" :disabled="!online" @click="retrieveGlobal('dwd')">Retrieve DWD ICON forecast</button>
+    <button type="button" :disabled="!online" @click="retrieveGlobal('global')">Retrieve global model forecast</button>
     <p aria-live="polite">{{ online ? globalMessage : 'Browser offline: forecast retrieval is unavailable.' }}</p>
     <div v-if="globalForecast">
       <p>Weather data by <a href="https://open-meteo.com/">Open-Meteo</a> · <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a> · Model values presented without conversion.</p>
-      <p>Forecast hour: {{ new Date(time).toISOString() }} · Retrieved: {{ globalRetrieved }} · Model issue time: unavailable{{ globalStale ? ' · OUTDATED' : '' }}</p>
+      <p>{{ globalSource === 'dwd' ? 'DWD ICON' : 'Global model' }} forecast hour: {{ new Date(time).toISOString() }} · Retrieved: {{ globalRetrieved }} · Model issue time: unavailable{{ globalStale ? ' · OUTDATED' : '' }}</p>
       <p>Temperature: {{ globalForecast.temperature ?? 'unavailable' }} °C · Wind: {{ globalForecast.wind ? `${globalForecast.wind.direction || 'calm'}° true / ${globalForecast.wind.speed} kt` : 'unavailable' }} · Forecast QNH: unavailable.</p>
-      <button type="button" :disabled="globalStale || !globalForecast.temperature" @click="applyGlobal('temperature')">Replace temperature with global forecast</button>
-      <button type="button" :disabled="globalStale || !globalForecast.wind" @click="applyGlobal('wind')">Replace wind with global forecast</button>
+      <button type="button" :disabled="globalStale || !globalForecast.temperature" @click="applyGlobal('temperature')">Replace temperature with {{ globalSource === 'dwd' ? 'DWD ICON' : 'global' }} forecast</button>
+      <button type="button" :disabled="globalStale || !globalForecast.wind" @click="applyGlobal('wind')">Replace wind with {{ globalSource === 'dwd' ? 'DWD ICON' : 'global' }} forecast</button>
     </div>
     <p>For education and situational awareness only, not an official briefing or go/no-go authority. Obtain required weather from an authorised source.</p>
     <p>Forecast QNH is unavailable from these services. Obtain aviation QNH from an authorised source and enter it below; do not substitute model sea-level pressure. Wind direction is true; gusts are not applied. Values require a future time and are applied only when selected.</p>
