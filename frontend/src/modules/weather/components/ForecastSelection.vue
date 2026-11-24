@@ -81,11 +81,18 @@ const qnhSourceAge = computed(() => {
   return minutes >= 1440 ? `${Math.floor(minutes / 1440)} days` : `${minutes} minutes`
 })
 const qnhSourceTimeValid = computed(() => !qnhSourceTime.value || (validLocalTime(qnhSourceTime.value) && Date.parse(qnhSourceTime.value) <= now.value))
-const qnhValidityValid = computed(() => {
-  if (!qnhValidFrom.value && !qnhValidTo.value) return true
+const qnhValidityError = computed(() => {
+  if (!qnhValidFrom.value && !qnhValidTo.value) return ''
+  if (!qnhValidFrom.value || !qnhValidTo.value) return 'Enter both QNH validity times.'
+  if (!validLocalTime(qnhValidFrom.value) || !validLocalTime(qnhValidTo.value)) return 'A QNH validity time does not exist in the device time zone; check the clock change.'
   const start = Date.parse(qnhValidFrom.value), end = Date.parse(qnhValidTo.value), selected = Date.parse(time.value)
-  return validLocalTime(qnhValidFrom.value) && validLocalTime(qnhValidTo.value) && start < end && selected >= start && selected < end
+  if (start >= end) return 'QNH validity must end after it starts.'
+  if (!validLocalTime(time.value)) return 'Choose a valid flight time to check QNH validity.'
+  if (selected < start) return 'The selected flight time is before QNH validity starts.'
+  if (selected >= end) return 'The selected flight time is at or after the QNH validity end, which is excluded.'
+  return ''
 })
+const qnhValidityValid = computed(() => !qnhValidityError.value)
 const values = computed<MetarValues>(() => {
   const result: MetarValues = {}
   if (numberIn(temperature.value, -100, 100)) result.temperature = temperature.value
@@ -235,7 +242,7 @@ function apply(field: keyof MetarValues): void {
     <p v-if="qnhSourceTime && qnhSourceTimeValid">QNH source time in UTC: {{ new Date(qnhSourceTime).toISOString() }}.</p>
     <p v-if="qnhValidFrom && qnhValidTo && qnhValidityValid">QNH validity in UTC: {{ new Date(qnhValidFrom).toISOString() }} to {{ new Date(qnhValidTo).toISOString() }} (end excluded).</p>
     <label v-if="ambiguousQnhTimes"><input v-model="confirmQnhTimes" type="checkbox" /> Some QNH times occur twice during a clock change. I checked the displayed UTC interpretations against the source.</label>
-    <p v-if="!qnhValidityValid" role="alert">Enter a valid QNH interval containing the selected flight time; its end is excluded.</p>
+    <p v-if="qnhValidityError" role="alert">{{ qnhValidityError }}</p>
     <p v-if="qnh.trim() && !qnhSource.trim()">QNH source not recorded; verify its origin.</p>
     <p v-if="qnh.trim() && !qnhSourceTime">QNH source time not recorded; its age is unknown.</p>
     <p v-else-if="qnh.trim() && qnhSourceTimeValid">Pilot-declared QNH source time was {{ qnhSourceAge }} ago; this does not establish freshness.</p>
