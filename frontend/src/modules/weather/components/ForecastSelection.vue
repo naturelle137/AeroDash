@@ -88,7 +88,7 @@ const values = computed<MetarValues>(() => {
   const result: MetarValues = {}
   if (numberIn(temperature.value, -100, 100)) result.temperature = temperature.value
   const pressure = qnhUnit.value === 'inHg' ? Number(qnh.value) * 33.86389 : Number(qnh.value)
-  if (qnh.value.trim() && Number.isFinite(pressure) && pressure >= QNH_SUPPORTED_HPA.min && pressure <= QNH_SUPPORTED_HPA.max) result.qnh = qnhUnit.value === 'inHg' ? String(Number(pressure.toFixed(2))) : qnh.value
+  if (/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?$/i.test(qnh.value.trim()) && Number.isFinite(pressure) && pressure >= QNH_SUPPORTED_HPA.min && pressure <= QNH_SUPPORTED_HPA.max) result.qnh = qnhUnit.value === 'inHg' ? String(Number(pressure.toFixed(2))) : qnh.value
   if (numberIn(speed.value, 0, 200) && (Number(speed.value) === 0 || numberIn(direction.value, 1, 360))) {
     result.wind = { direction: Number(speed.value) === 0 ? '' : direction.value, speed: speed.value, unit: unit.value }
   }
