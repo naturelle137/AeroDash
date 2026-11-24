@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Support pilot-entered additive landing slope corrections to ground roll.
 
+- Check entered runway dates before the remaining declaration is complete.
+
 - Require confirmation of repeated local QNH times and retain the selected UTC time.
 
 - Reject nonexistent local forecast and QNH times during clock changes.

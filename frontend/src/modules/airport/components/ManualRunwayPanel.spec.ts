@@ -44,6 +44,16 @@ describe('ManualRunwayPanel', () => {
     await view.get('#runway-expiry').setValue('2026-01-01')
     expect(view.text()).not.toContain('Unsaved declaration date check:')
   })
+  it('checks valid dates before the remaining runway fields are complete', async () => {
+    const view = mount(ManualRunwayPanel)
+    await view.get('#runway-assessment-date').setValue('2026-08-01')
+    await view.get('#runway-expiry').setValue('2026-07-31')
+    expect(view.text()).toContain('Expired according to the declared date')
+    expect(view.text()).toContain('Source and currency remain unverified')
+    expect(localStorage.getItem(MANUAL_RUNWAY_STORAGE_KEY)).toBeNull()
+    await view.get('#runway-effective').setValue('2026-08-02')
+    expect(view.text()).not.toContain('Unsaved declaration date check:')
+  })
   it('starts with preferred units, empty values and no surface and blocks saving', async () => {
     const view = mount(ManualRunwayPanel)
     for (const selector of Object.keys(valid)) expect((view.get(selector).element as HTMLInputElement).value).toBe(selector.endsWith('-unit') ? (selector.includes('elevation') ? 'ft' : 'm') : '')
