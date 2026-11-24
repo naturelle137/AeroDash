@@ -183,3 +183,7 @@ When displaying a valid unsaved declaration date check, the system shall show si
 ### REQ-AP-040: Invalid unsaved dates
 
 If an unsaved runway declaration has invalid or contradictory source dates, then the system shall explain why its date check is unavailable.
+
+### REQ-AP-041: Device-date comparison
+
+While a fixed check date is selected, the system shall also show the saved runway's declared date check against the device local date in the runway panel, Performance and briefing.

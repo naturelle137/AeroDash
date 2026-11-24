@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test'
 
 test('checks an unsaved runway declaration after a cached offline reload', async ({ page, context }, info) => {
+  await page.clock.setFixedTime(new Date(2026, 7, 1, 12))
   await page.goto('/mass-balance')
   await page.getByTestId('disclaimer-gate-accept').click()
   await page.evaluate(async () => { await navigator.serviceWorker.ready })
@@ -37,4 +38,11 @@ test('checks an unsaved runway declaration after a cached offline reload', async
   await expect(check).toContainText('Within the declared dates; source currency remains unverified')
   await expect(check).toContainText('Days to declared effect: 0')
   await expect(check).toContainText('Days to declared expiry: 30')
+  await runway.getByRole('button', { name: 'Save runway inputs' }).click()
+  await expect(check).toContainText('Device date 2026-08-01: Expired according to the declared date')
+  await expect(check).toContainText('not source verification')
+  await check.scrollIntoViewIfNeeded()
+  const comparison = info.outputPath(`runway-device-date-${info.project.name}.png`)
+  await page.screenshot({ path: comparison, animations: 'disabled' })
+  await info.attach('runway-device-date', { path: comparison, contentType: 'image/png' })
 })

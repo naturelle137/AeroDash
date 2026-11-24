@@ -96,6 +96,8 @@ Optional pilot-entered effective and inclusive expiry dates are stored with the 
 
 The check date defaults to the device local date and refreshes while the app is open and on focus or visibility changes. A pilot-selected date stays fixed until “Use today” is selected. Device clock accuracy and background timer scheduling are outside the app’s control; neither mode verifies source currency.
 
+With a fixed date, the saved declaration is also checked against the device date in the runway panel, Performance and briefing. This separate check updates on the same timer and focus events and does not verify the source.
+
 The saved summary, Performance and briefing show calendar days from the check date to the pilot-declared inclusive expiry. Zero is the expiry date; negative values are past it. A missing expiry or invalid check date leaves the interval unknown. This is not a source-currency verdict.
 
 The saved summary, recent list, Performance and briefing show days to the declared effective date. Zero is that date; negative values are after it. Missing or invalid dates remain unknown. This interval does not verify the source.

@@ -70,6 +70,7 @@ if (!runway.loaded) runway.load()
       <div class="field"><label for="runway-assessment-date">Check date</label><input id="runway-assessment-date" :value="runway.assessmentDate" type="date" @input="runway.selectAssessmentDate(($event.target as HTMLInputElement).value)" /></div>
       <button type="button" @click="runway.useToday()">Use today’s local date</button>
       <p class="hint">{{ runway.automaticDate ? 'Today updates with the device’s local date.' : 'The selected date stays fixed.' }} Check your device date.</p>
+      <p v-if="!runway.automaticDate && runway.current">Device date {{ runway.today }}: {{ freshnessLabels[runwayFreshness(runway.current.record.runway, runway.today)] }} This is a declared date check, not source verification.</p>
       <p v-if="draftDateError" role="alert">Unsaved declaration date check unavailable: {{ draftDateError }}</p>
       <p v-if="draftCheck" role="status"><strong>Unsaved declaration date check:</strong> {{ freshnessLabels[draftCheck] }} Source and currency remain unverified; NOTAM/SUP coverage is unknown.</p>
       <template v-if="draftCheck">
