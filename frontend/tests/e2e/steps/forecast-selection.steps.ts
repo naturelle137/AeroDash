@@ -26,7 +26,7 @@ Then('the forecast selection and manual wind remain available offline', async ({
   await expect(page.getByLabel('Wind speed', { exact: true })).toHaveValue('20')
 })
 Then('the forecast selection evidence is captured as {string}', async ({ page, $testInfo }, width: string) => {
-  await page.getByRole('region', { name: 'Time-specific forecast' }).scrollIntoViewIfNeeded()
+  await page.getByText('Current Flight Prep QNH: 1013 hPa').scrollIntoViewIfNeeded()
   const path = $testInfo.outputPath(`forecast-${width}.png`)
   await page.screenshot({ path })
   await $testInfo.attach(`forecast-${width}`, { path, contentType: 'image/png' })
@@ -34,11 +34,14 @@ Then('the forecast selection evidence is captured as {string}', async ({ page, $
 
 When('the pilot applies synthetic forecast values offline', async ({ page }) => {
   const forecast = page.getByRole('region', { name: 'Time-specific forecast' })
+  await page.getByRole('radio', { name: 'Derive from QNH and field elevation', exact: true }).check()
+  await page.locator('#pa-qnh').fill('995')
   await forecast.getByLabel('Forecast temperature').fill('12')
   await forecast.getByLabel('Forecast QNH').fill('0x3f5')
   await expect(forecast.getByRole('button', { name: 'Apply forecast QNH' })).toBeDisabled()
   await expect(forecast).toContainText('QNH is outside the supported range or is not a valid number')
   await forecast.getByLabel('Forecast QNH').fill('1013')
+  await expect(forecast).toContainText('Current Flight Prep QNH: 995 hPa')
   await forecast.getByLabel('QNH source time').fill('2020-12-31T12:00')
   await forecast.getByLabel('QNH time type').selectOption('issue')
   await forecast.getByLabel('Forecast wind direction').fill('180')
@@ -48,6 +51,7 @@ When('the pilot applies synthetic forecast values offline', async ({ page }) => 
   await expect(page.locator('#wind-speed')).toHaveValue('20')
   await forecast.getByRole('button', { name: 'Apply forecast temperature' }).click()
   await forecast.getByRole('button', { name: 'Apply forecast QNH' }).click()
+  await expect(forecast).toContainText('Current Flight Prep QNH: 1013 hPa')
   await forecast.getByRole('button', { name: 'Apply forecast wind' }).click()
   await expect(page.locator('#performance-temperature')).toHaveValue('12')
   await expect(page.locator('#wind-speed')).toHaveValue('10')
