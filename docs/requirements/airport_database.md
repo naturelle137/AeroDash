@@ -195,3 +195,7 @@ While a fixed check date is selected, the system shall also compare valid unsave
 ### REQ-AP-043: Exported runway date checks
 
 When exporting flight preparation JSON, the system shall include the selected and device-date checks for the current saved runway or unknown if none is current.
+
+### REQ-AP-044: Briefing unsaved runway date checks
+
+When a runway draft with declared dates is not current, the briefing shall show its selected and device-date checks as unverified pilot declarations.
