@@ -22,6 +22,8 @@ Pilot-entered temperature, aviation QNH and wind can be applied separately offli
 
 Manual QNH accepts finite decimal or scientific notation, consistent with pressure-altitude input; hexadecimal and binary notation are rejected. Valid manual QNH entries show the hPa value that will replace the current Flight Prep QNH before application; invalid entries show a correction prompt. The selected phase, location, device-local time and its UTC interpretation are shown beside the entry for comparison with source validity; the pilot must check the interpretation around clock changes. Applied provenance retains the original entered QNH and unit alongside the converted value. A clear action removes the QNH entry and its source without changing an already applied value. Application remains explicit and works offline.
 
+The manual QNH entry also displays the current Flight Prep QNH and its unit, or indicates that no value is entered, before replacement.
+
 The pilot may declare a QNH validity interval in device-local time. Both endpoints are required when either is entered; the selected flight time must lie in the interval, including its start and excluding its end. The interpreted UTC source time and validity endpoints are shown and retained with the applied value; the declaration is not verified against the source. Clearing the entry or changing the selection clears the interval.
 
 Nonexistent local times during a clock change are rejected for the selected flight time and the QNH source and validity times. Repeated local QNH times require the pilot to confirm the displayed UTC interpretations before application. Changing a time or unit clears confirmation. Applied provenance includes the selected flight time in UTC.
