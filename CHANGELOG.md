@@ -7,15 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Return an unknown runway date check for invalid or contradictory declared dates.
+
+### Added
+
+- Include manual runway date checks and their limitations in flight preparation JSON exports.
+
 ### Changed
 
-- Support pilot-entered additive surface corrections to ground roll.
 - Compare unsaved and recent runway dates with the device date when using a fixed check date.
 
 - Compare saved runway dates with the device date alongside a fixed flight date.
 - Explain invalid source dates before a manual runway declaration is complete.
 - Show declared date intervals in incomplete manual runway drafts.
-
 - Support pilot-entered takeoff slope corrections to ground roll.
 - Distinguish pilot-declared QNH issue and retrieval times in applied provenance.
 
