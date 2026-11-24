@@ -120,9 +120,15 @@ export function usePerformanceStep(context: () => PerformanceStepContext) {
 
   const runwayPresentation = computed<RunwayPresentation>(() => {
     if (runway.storageError) return { status: 'unavailable', reason: runway.storageError }
-    if (runway.hasUnsavedChanges) return { status: 'unavailable', reason: 'Manual runway has unsaved changes. Save or discard them to use a current declaration.' }
     const declared = runway.current
-    if (!declared) return { status: 'unavailable', reason: 'No saved manual runway declaration.' }
+    if (!declared) {
+      const reason = runway.hasUnsavedChanges ? 'Manual runway has unsaved changes. Save or discard them to use a current declaration.' : 'No saved manual runway declaration.'
+      const { effectiveDate, expiryDate } = runway.draft
+      if (!effectiveDate && !expiryDate) return { status: 'unavailable', reason }
+      const selected = runwayFreshness(runway.draft, runway.assessmentDate)
+      const device = runwayFreshness(runway.draft, runway.today)
+      return { status: 'unavailable', reason: `${reason} Unsaved declaration date check: ${runway.assessmentDate || 'Invalid date'}: ${selected}; device date ${runway.today}: ${device}. Pilot-declared dates only; source currency is unverified and NOTAM/SUP coverage is unknown.` }
+    }
     const { aerodrome, designator, tora, lda, toda, fieldElevation, surface, source, effectiveDate, expiryDate } = declared.record.runway
     const condition = SURFACE_CONDITIONS[surface.type].find((option) => option.value === surface.condition)?.label ?? surface.condition
     const elevationOther = fieldElevation.unit === 'ft' ? `${declared.display.fieldElevationM} m` : `${declared.display.fieldElevationFt} ft`
