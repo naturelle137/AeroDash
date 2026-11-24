@@ -39,6 +39,8 @@ When('the pilot applies synthetic forecast values offline', async ({ page }) => 
   await expect(forecast.getByRole('button', { name: 'Apply forecast QNH' })).toBeDisabled()
   await expect(forecast).toContainText('QNH is outside the supported range or is not a valid number')
   await forecast.getByLabel('Forecast QNH').fill('1013')
+  await forecast.getByLabel('QNH source time').fill('2020-12-31T12:00')
+  await forecast.getByLabel('QNH time type').selectOption('issue')
   await forecast.getByLabel('Forecast wind direction').fill('180')
   await forecast.getByLabel('Forecast wind speed').fill('10')
   await forecast.getByLabel('Forecast wind unit').selectOption('m/s')
@@ -52,6 +54,7 @@ When('the pilot applies synthetic forecast values offline', async ({ page }) => 
   await expect(page.locator('#wind-direction')).toHaveValue('180')
   await page.getByRole('radio', { name: 'Derive from QNH and field elevation', exact: true }).check()
   await expect(page.locator('#pa-qnh')).toHaveValue('1013')
+  await expect(page.locator('#prep-card-weather')).toContainText('pilot-declared QNH time type: issue')
   await expect(page.locator('#prep-card-weather')).toContainText('Pilot-entered forecast for arrival, Test airfield, 2030-06-01 12:30 local time')
 })
 Then('a manual override clears forecast provenance', async ({ page }) => {

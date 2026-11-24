@@ -103,3 +103,7 @@ When a selected forecast time or declared QNH source or validity time does not e
 ### REQ-WX-021: Repeated local QNH times
 
 When a QNH flight, source or validity time occurs twice in the device time zone, the system shall require the pilot to confirm the displayed UTC interpretations before applying QNH.
+
+### REQ-WX-022: QNH source time type
+
+When the pilot declares a QNH source time type, the system shall retain it with the applied QNH provenance.
