@@ -78,6 +78,7 @@ export function usePerformanceStep(context: () => PerformanceStepContext) {
       corrections[operation].windAddend = ''
       corrections[operation].windSource = ''
       corrections[operation].surfaceFactor = ''
+      corrections[operation].surfaceAddend = ''
       corrections[operation].surfaceSource = ''
       corrections[operation].slopeFactor = ''
       corrections[operation].slopeAddend = ''
@@ -182,6 +183,7 @@ export function usePerformanceStep(context: () => PerformanceStepContext) {
           { label: `${OPERATION_LABELS[operation]} headwind component`, value: `${corrections[operation].headwind.trim() || 'Not entered'} kt` },
           { label: `${OPERATION_LABELS[operation]} runway slope`, value: `${corrections[operation].slope.trim() || 'Not entered'} %` },
           { label: `${OPERATION_LABELS[operation]} pilot-entered surface multiplier`, value: corrections[operation].surfaceFactor ? `${corrections[operation].surfaceFactor} · ${corrections[operation].surfaceSource || 'source and section not entered'} (unverified)` : 'Not entered' },
+          { label: `${OPERATION_LABELS[operation]} pilot-entered additive surface correction`, value: corrections[operation].surfaceAddend ? `${corrections[operation].surfaceAddend} m · ${corrections[operation].surfaceSource || 'source and section not entered'} (unverified)` : 'Not entered' },
           { label: `${OPERATION_LABELS[operation]} pilot-entered slope multiplier`, value: corrections[operation].slopeFactor ? `${corrections[operation].slopeFactor} · ${corrections[operation].slopeSource || 'source not entered'} (unverified)` : 'Not entered' },
           { label: `${OPERATION_LABELS[operation]} pilot-entered additive slope correction`, value: corrections[operation].slopeAddend ? `${corrections[operation].slopeAddend} m · ${corrections[operation].slopeSource || 'source not entered'} (unverified)` : 'Not entered' },
           { label: `${OPERATION_LABELS[operation]} pilot-entered wind multiplier`, value: corrections[operation].windFactor ? `${corrections[operation].windFactor} · ${corrections[operation].windSource || 'source not entered'} (unverified)` : 'Not entered' },

@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Support pilot-entered additive surface corrections to ground roll.
+
 - Support pilot-entered takeoff slope corrections to ground roll.
 - Distinguish pilot-declared QNH issue and retrieval times in applied provenance.
 
