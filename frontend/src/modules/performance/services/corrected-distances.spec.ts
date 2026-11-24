@@ -85,6 +85,34 @@ describe('corrected distances in the performance step', () => {
     })
     effect.stop()
   })
+  it('applies an additive landing slope correction only to ground roll and rejects invalid inputs', () => {
+    const { step } = setup()
+    const input = step.corrections.landing
+    Object.assign(input, { headwind: '0', slope: '-2', slopeFactor: '1', slopeSource: 'Synthetic section' })
+    const baseline = corrected(step, 1)
+    if (baseline.status !== 'applied') throw new Error('expected result')
+    input.slopeFactor = ''
+    input.slopeAddend = '25'
+    const result = corrected(step, 1)
+    if (result.status !== 'applied') throw new Error('expected result')
+    for (let i = 0; i < 2; i++) expect(Number.parseFloat(result.rows[i]!.corrected.replaceAll(',', ''))).toBe(Number.parseFloat(baseline.rows[i]!.corrected.replaceAll(',', '')) + 25)
+    expect(result.notes.join(' ')).toContain('Synthetic section')
+    expect(result.partial).toBe(true)
+    expect(result.comparison.margin).toBe('Not available')
+    input.slopeFactor = '1'
+    expect(corrected(step, 1).status).toBe('unavailable')
+    input.slopeFactor = ''
+    input.slopeAddend = '-99999'
+    expect(corrected(step, 1).status).toBe('unavailable')
+    input.slopeAddend = 'abc'
+    expect(corrected(step, 1).status).toBe('unavailable')
+    input.slopeAddend = '25'
+    input.slopeSource = ''
+    expect(corrected(step, 1).status).toBe('unavailable')
+    input.slope = '-3'
+    expect(input.slopeAddend).toBe('')
+  })
+
   it.each(['takeoff', 'landing'] as const)('applies a pilot-entered whole-distance wind multiplier for %s and clears it on changed conditions', (operation) => {
     const effect = effectScope()
     effect.run(() => {
