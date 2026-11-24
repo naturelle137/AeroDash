@@ -174,4 +174,4 @@ While the automatic local date is selected, the briefing shall identify the devi
 
 ### REQ-AP-038: Unsaved declaration date check
 
-When a valid unsaved manual runway declaration is displayed, the system shall compare its declared dates with the selected check date.
+When an unsaved manual runway declaration has valid, consistent declared dates, the system shall compare them with the selected check date even if other fields are incomplete.
