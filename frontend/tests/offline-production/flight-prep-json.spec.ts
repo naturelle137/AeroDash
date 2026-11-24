@@ -38,6 +38,7 @@ test('exports current inputs locally online and cached offline', async ({ page, 
       await page.reload()
       await runway.locator('#runway-assessment-date').fill('2026-07-01')
     }
+    await runway.locator('#manual-runway-designator').fill('27')
     const button = page.getByTestId('flight-prep-export')
     await runway.getByRole('region', { name: 'Runway date check' }).scrollIntoViewIfNeeded()
     const path = info.outputPath(`flight-prep-json-${offline ? 'offline' : 'online'}.png`)
@@ -45,7 +46,7 @@ test('exports current inputs locally online and cached offline', async ({ page, 
     await info.attach(`flight-prep-json-${offline ? 'offline' : 'online'}`, { path, contentType: 'image/png' })
     const [download] = await Promise.all([page.waitForEvent('download'), button.click()])
     const data = JSON.parse(await readFile((await download.path())!, 'utf8'))
-    expect(data).toMatchObject({ format: 'aerodash-flight-preparation', version: 1, runway: { draft: { aerodrome: 'Synthetic field', toda: '' }, assessmentDate: '2026-07-01', deviceDate: '2026-08-01', automaticDate: false, dateCheck: { selected: 'within-declared-dates', device: 'expired' } }, units: { pressureAltitudeDirect: 'ft' } })
+    expect(data).toMatchObject({ format: 'aerodash-flight-preparation', version: 1, runway: { draft: { aerodrome: 'Synthetic field', designator: '27', toda: '' }, saved: null, assessmentDate: '2026-07-01', deviceDate: '2026-08-01', automaticDate: false, dateCheck: { selected: 'unknown', device: 'unknown', draft: { selected: 'within-declared-dates', device: 'expired' } } }, units: { pressureAltitudeDirect: 'ft' } })
     if (!offline) expect(data).toMatchObject({ aircraft: { registration: 'D-TEST' }, entries: { performance: { temperature: '12', pressureAltitude: { direct: '1234' } } } })
     expect(data.notice).toContain('Unverified')
   }
