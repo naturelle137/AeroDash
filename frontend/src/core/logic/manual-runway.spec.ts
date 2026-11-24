@@ -197,6 +197,7 @@ describe('declared dates', () => {
     expect(daysToDeclaredExpiry(runway, '2028-03-02')).toBe(-1)
     expect(daysToDeclaredExpiry(runway, 'invalid')).toBeNull()
     expect(daysToDeclaredExpiry(valid(draft()), '2028-03-01')).toBeNull()
+    expect(daysToDeclaredExpiry({ expiryDate: 'invalid' }, '2028-03-01')).toBeNull()
   })
   it('counts calendar days to declared effect without assuming currency', () => {
     const runway = valid({ ...draft(), effectiveDate: '2028-03-01' })
@@ -205,6 +206,7 @@ describe('declared dates', () => {
     expect(daysToDeclaredEffect(runway, '2028-03-02')).toBe(-1)
     expect(daysToDeclaredEffect(runway, 'invalid')).toBeNull()
     expect(daysToDeclaredEffect(valid(draft()), '2028-03-01')).toBeNull()
+    expect(daysToDeclaredEffect({ effectiveDate: 'invalid' }, '2028-03-01')).toBeNull()
   })
   it('checks inclusive boundaries without inferring expiry from AIRAC', () => {
     const runway = valid(draft({ effectiveDate: '2026-10-29', expiryDate: '2026-12-24' }))
@@ -213,7 +215,12 @@ describe('declared dates', () => {
     expect(runwayFreshness(runway, '2026-12-24')).toBe('within-declared-dates')
     expect(runwayFreshness(runway, '2026-12-25')).toBe('expired')
     expect(runwayFreshness(valid(draft()), '2026-11-26')).toBe('unknown')
+    expect(runwayFreshness({ expiryDate: '2026-10-29' }, '2026-11-26')).toBe('expired')
+    expect(runwayFreshness({ effectiveDate: '2026-12-24' }, '2026-11-26')).toBe('not-yet-effective')
     expect(runwayFreshness(runway, '')).toBe('unknown')
+    expect(runwayFreshness({ effectiveDate: 'invalid', expiryDate: '2026-12-24' }, '2026-11-26')).toBe('unknown')
+    expect(runwayFreshness({ effectiveDate: '2026-10-29', expiryDate: '2026-02-30' }, '2026-11-26')).toBe('unknown')
+    expect(runwayFreshness({ effectiveDate: '2026-12-24', expiryDate: '2026-10-29' }, '2026-11-26')).toBe('unknown')
     expect(airacCycleStart('2026-11-25')).toBe('2026-10-29')
     expect(airacCycleStart('2026-11-26')).toBe('2026-11-26')
     expect(airacCycleStart('2020-01-02')).toBe('2020-01-02')

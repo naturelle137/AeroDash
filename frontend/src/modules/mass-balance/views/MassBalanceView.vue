@@ -727,7 +727,7 @@ function exportFlightPreparation(): void {
     entries: flightPrepDraft.snapshotEntries(),
     electric: isElectric.value ? { available: electricPlanning.available.value, power: electricPlanning.power.value, minutes: electricPlanning.minutes.value } : null,
     manualConfiguration: performanceStep.manualConfiguration.value,
-    runway: { draft: { ...runway.draft }, saved: runway.current?.record ?? null, weatherSurface: runway.weatherSurface, assessmentDate: runway.assessmentDate },
+    runway: { draft: { ...runway.draft }, saved: runway.current?.record ?? null, weatherSurface: runway.weatherSurface, assessmentDate: runway.assessmentDate, deviceDate: runway.today, automaticDate: runway.automaticDate },
     wind: { ...windInput.value },
     weatherSources: { ...weatherSources.value },
   }, new Date()))

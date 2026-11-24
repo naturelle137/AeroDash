@@ -16,6 +16,11 @@ import { useManualRunwayStore } from '../stores/manual-runway.store'
 
 const runway = useManualRunwayStore()
 const freshness = computed(() => runway.current ? runwayFreshness(runway.current.record.runway, runway.assessmentDate) : 'unknown')
+const draftDateError = computed(() => {
+  if (runway.current) return undefined
+  const result = validateManualRunway(runway.draft)
+  return result.status === 'invalid' ? result.errors.effectiveDate || result.errors.expiryDate : undefined
+})
 const draftCheck = computed(() => {
   const result = validateManualRunway(runway.draft)
   const { effectiveDate, expiryDate } = runway.draft
@@ -65,13 +70,21 @@ if (!runway.loaded) runway.load()
       <div class="field"><label for="runway-assessment-date">Check date</label><input id="runway-assessment-date" :value="runway.assessmentDate" type="date" @input="runway.selectAssessmentDate(($event.target as HTMLInputElement).value)" /></div>
       <button type="button" @click="runway.useToday()">Use today’s local date</button>
       <p class="hint">{{ runway.automaticDate ? 'Today updates with the device’s local date.' : 'The selected date stays fixed.' }} Check your device date.</p>
+      <p v-if="!runway.automaticDate && runway.current">Device date {{ runway.today }}: {{ freshnessLabels[runwayFreshness(runway.current.record.runway, runway.today)] }} This is a declared date check, not source verification.</p>
+      <p v-if="draftDateError" role="alert">Unsaved declaration date check unavailable: {{ draftDateError }}</p>
       <p v-if="draftCheck" role="status"><strong>Unsaved declaration date check:</strong> {{ freshnessLabels[draftCheck] }} Source and currency remain unverified; NOTAM/SUP coverage is unknown.</p>
+      <p v-if="draftCheck && !runway.automaticDate">Unsaved declaration on device date {{ runway.today }}: {{ freshnessLabels[runwayFreshness({ effectiveDate: runway.draft.effectiveDate || undefined, expiryDate: runway.draft.expiryDate || undefined }, runway.today)] }}</p>
+      <template v-if="draftCheck">
+        <p>Days to declared effect: {{ daysToDeclaredEffect(runway.draft, runway.assessmentDate) ?? 'Unknown' }} (negative means after the declared effective date).</p>
+        <p>Days to declared expiry: {{ daysToDeclaredExpiry(runway.draft, runway.assessmentDate) ?? 'Unknown' }} (negative means past inclusive expiry).</p>
+      </template>
     </section>
     <section v-if="runway.recent.length" aria-label="Recently used airports">
       <h3>Recently used airports</h3>
       <p>Declared date check for {{ runway.assessmentDate || 'an invalid date' }}. Source and currency remain unverified; NOTAM/SUP coverage is unknown.</p>
       <ul class="recent-runways"><li v-for="record in runway.recent" :key="JSON.stringify([record.runway.aerodrome, record.runway.designator])">
         <button type="button" @click="selectRecent(record)">{{ record.runway.aerodrome }} — {{ record.runway.designator }}: {{ freshnessLabels[runwayFreshness(record.runway, runway.assessmentDate)] }}</button>
+        <p v-if="!runway.automaticDate">Device date {{ runway.today }}: {{ freshnessLabels[runwayFreshness(record.runway, runway.today)] }}</p>
         <p>Source: {{ record.runway.source || 'Unknown' }} (user-declared, unverified) · Effective: {{ record.runway.effectiveDate || 'Unknown' }} · Expiry (inclusive): {{ record.runway.expiryDate || 'Unknown' }}</p>
         <p>Days to declared effect: {{ daysToDeclaredEffect(record.runway, runway.assessmentDate) ?? 'Unknown' }} (negative means after the declared effective date; source remains unverified).</p>
         <p>Days to declared expiry: {{ daysToDeclaredExpiry(record.runway, runway.assessmentDate) ?? 'Unknown' }} (negative means past expiry; source remains unverified).</p>

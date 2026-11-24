@@ -90,11 +90,13 @@ It does not infer expiry from AIRAC or the local save date.
 
 ## Declared date check
 
-A valid unsaved declaration also shows the selected date check before saving. Invalid drafts have no date verdict; the check does not validate the source or restrictions.
+A valid unsaved declaration also shows the selected date check before saving. Invalid or contradictory declared dates produce an unknown date verdict; the check does not validate the source or restrictions.
 
 Optional pilot-entered effective and inclusive expiry dates are stored with the runway. The session-only check date defaults to the local date when the runway store is created and can be changed. Performance and briefing carry the same date and check, and a change invalidates the briefing snapshot. Missing dates leave currency unknown. Dates are user declarations, not source verification. A calendar cycle starts every 28 days from 2026-10-29 within the supported published calendar; this date-only indication does not expire a runway or establish NOTAM/SUP coverage. Version 1 and 2 records are recovered into version 3 in memory and remain usable. An optional pilot-declared source reference persists with the runway and appears in Performance and briefing; it is unverified and changes invalidate the saved display.
 
 The check date defaults to the device local date and refreshes while the app is open and on focus or visibility changes. A pilot-selected date stays fixed until “Use today” is selected. Device clock accuracy and background timer scheduling are outside the app’s control; neither mode verifies source currency.
+
+With a fixed date, the saved declaration is also checked against the device date in the runway panel, Performance and briefing. This separate check updates on the same timer and focus events and does not verify the source.
 
 The saved summary, Performance and briefing show calendar days from the check date to the pilot-declared inclusive expiry. Zero is the expiry date; negative values are past it. A missing expiry or invalid check date leaves the interval unknown. This is not a source-currency verdict.
 

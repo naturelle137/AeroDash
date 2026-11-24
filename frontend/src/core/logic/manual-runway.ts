@@ -351,7 +351,10 @@ export function formatNormalizedManualRunway(normalized: NormalizedManualRunway)
 
 /** Date-only assessment; an AIRAC boundary does not expire a record. */
 export function runwayFreshness(runway: Pick<ManualRunway, 'effectiveDate' | 'expiryDate'>, today: string): 'unknown' | 'not-yet-effective' | 'expired' | 'within-declared-dates' {
-  if (!date.safeParse(today).success) return 'unknown'
+  if (!date.safeParse(today).success ||
+      (runway.effectiveDate && !date.safeParse(runway.effectiveDate).success) ||
+      (runway.expiryDate && !date.safeParse(runway.expiryDate).success) ||
+      (runway.effectiveDate && runway.expiryDate && runway.effectiveDate > runway.expiryDate)) return 'unknown'
   if (runway.effectiveDate && today < runway.effectiveDate) return 'not-yet-effective'
   if (runway.expiryDate && today > runway.expiryDate) return 'expired'
   if (runway.effectiveDate && runway.expiryDate) return 'within-declared-dates'
@@ -359,14 +362,14 @@ export function runwayFreshness(runway: Pick<ManualRunway, 'effectiveDate' | 'ex
 }
 
 /** Days to the pilot-declared effective date, not a source-currency verdict. */
-export function daysToDeclaredEffect(runway: ManualRunway, checkDate: string): number | null {
-  if (!runway.effectiveDate || !date.safeParse(checkDate).success) return null
+export function daysToDeclaredEffect(runway: Pick<ManualRunway, 'effectiveDate'>, checkDate: string): number | null {
+  if (!runway.effectiveDate || !date.safeParse(runway.effectiveDate).success || !date.safeParse(checkDate).success) return null
   return (Date.parse(`${runway.effectiveDate}T00:00:00Z`) - Date.parse(`${checkDate}T00:00:00Z`)) / 86400000
 }
 
 /** Days to the pilot-declared inclusive expiry, not a source-currency verdict. */
-export function daysToDeclaredExpiry(runway: ManualRunway, checkDate: string): number | null {
-  if (!runway.expiryDate || !date.safeParse(checkDate).success) return null
+export function daysToDeclaredExpiry(runway: Pick<ManualRunway, 'expiryDate'>, checkDate: string): number | null {
+  if (!runway.expiryDate || !date.safeParse(runway.expiryDate).success || !date.safeParse(checkDate).success) return null
   return (Date.parse(`${runway.expiryDate}T00:00:00Z`) - Date.parse(`${checkDate}T00:00:00Z`)) / 86400000
 }
 

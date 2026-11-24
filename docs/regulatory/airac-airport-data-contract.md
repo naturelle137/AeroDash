@@ -197,6 +197,14 @@ Reconsider a source when its declared-distance fields, reuse and delivery terms,
 record-level temporal semantics and restriction limitations satisfy the gate
 below. Until then, retain offline manual input and its unverified provenance.
 
+The [OurAirports daily downloads](https://github.com/davidmegginson/ourairports-data)
+are published under the repository's Unlicense, but their
+[runway CSV](https://github.com/davidmegginson/ourairports-data/blob/main/runways.csv)
+contains physical length and displaced thresholds rather than declared TORA, TODA
+or LDA. Daily publication does not establish individual record currency or
+NOTAM/SUP coverage. It cannot supply this runway consumer; do not substitute
+physical length for declared distances.
+
 Before implementing airport freshness, accept a named authorised provider/dataset
 and an actual AeroDash consumer, with all of the following documented:
 

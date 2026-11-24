@@ -3,6 +3,7 @@ import { testPohAircraft } from '../fixtures/poh-aircraft'
 import { readFile } from 'node:fs/promises'
 
 test('exports current inputs locally online and cached offline', async ({ page, context }, info) => {
+  await page.clock.setFixedTime(new Date(2026, 7, 1, 12))
   await page.goto('/fleet')
   await page.getByTestId('disclaimer-gate-accept').click()
   await page.evaluate(async () => { await navigator.serviceWorker.ready })
@@ -21,16 +22,31 @@ test('exports current inputs locally online and cached offline', async ({ page, 
   await performance.getByLabel('Temperature (°C)', { exact: true }).fill('12')
   const runway = performance.getByRole('form', { name: 'Manual runway', exact: true })
   await runway.getByLabel('Aerodrome', { exact: true }).fill('Synthetic field')
+  await runway.locator('#manual-runway-designator').fill('09')
+  await runway.locator('#manual-runway-tora').fill('1000')
+  await runway.locator('#manual-runway-lda').fill('900')
+  await runway.locator('#manual-runway-elevation').fill('100')
+  await runway.locator('#manual-runway-surface-type').selectOption('paved')
+  await runway.locator('#manual-runway-surface-condition').selectOption('dry')
+  await runway.locator('#runway-effective').fill('2026-07-01')
+  await runway.locator('#runway-expiry').fill('2026-07-31')
+  await runway.locator('#runway-assessment-date').fill('2026-07-01')
+  await runway.getByRole('button', { name: 'Save runway inputs' }).click()
   for (const offline of [false, true]) {
     await context.setOffline(offline)
+    if (offline) {
+      await page.reload()
+      await runway.locator('#runway-assessment-date').fill('2026-07-01')
+    }
     const button = page.getByTestId('flight-prep-export')
-    await button.scrollIntoViewIfNeeded()
+    await runway.getByRole('region', { name: 'Runway date check' }).scrollIntoViewIfNeeded()
     const path = info.outputPath(`flight-prep-json-${offline ? 'offline' : 'online'}.png`)
     await page.screenshot({ path, animations: 'disabled' })
     await info.attach(`flight-prep-json-${offline ? 'offline' : 'online'}`, { path, contentType: 'image/png' })
     const [download] = await Promise.all([page.waitForEvent('download'), button.click()])
     const data = JSON.parse(await readFile((await download.path())!, 'utf8'))
-    expect(data).toMatchObject({ format: 'aerodash-flight-preparation', version: 1, aircraft: { registration: 'D-TEST' }, entries: { performance: { temperature: '12', pressureAltitude: { direct: '1234' } } }, runway: { draft: { aerodrome: 'Synthetic field', toda: '' }, saved: null }, units: { pressureAltitudeDirect: 'ft' } })
+    expect(data).toMatchObject({ format: 'aerodash-flight-preparation', version: 1, runway: { draft: { aerodrome: 'Synthetic field', toda: '' }, assessmentDate: '2026-07-01', deviceDate: '2026-08-01', automaticDate: false, dateCheck: { selected: 'within-declared-dates', device: 'expired' } }, units: { pressureAltitudeDirect: 'ft' } })
+    if (!offline) expect(data).toMatchObject({ aircraft: { registration: 'D-TEST' }, entries: { performance: { temperature: '12', pressureAltitude: { direct: '1234' } } } })
     expect(data.notice).toContain('Unverified')
   }
 })
