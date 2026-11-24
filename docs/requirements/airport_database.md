@@ -179,3 +179,7 @@ When an unsaved manual runway declaration has valid, consistent declared dates, 
 ### REQ-AP-039: Unsaved declared date intervals
 
 When displaying a valid unsaved declaration date check, the system shall show signed days to each declared date or indicate that it is unknown.
+
+### REQ-AP-040: Invalid unsaved dates
+
+If an unsaved runway declaration has invalid or contradictory source dates, then the system shall explain why its date check is unavailable.

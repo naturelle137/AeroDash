@@ -16,6 +16,11 @@ import { useManualRunwayStore } from '../stores/manual-runway.store'
 
 const runway = useManualRunwayStore()
 const freshness = computed(() => runway.current ? runwayFreshness(runway.current.record.runway, runway.assessmentDate) : 'unknown')
+const draftDateError = computed(() => {
+  if (runway.current) return undefined
+  const result = validateManualRunway(runway.draft)
+  return result.status === 'invalid' ? result.errors.effectiveDate || result.errors.expiryDate : undefined
+})
 const draftCheck = computed(() => {
   const result = validateManualRunway(runway.draft)
   const { effectiveDate, expiryDate } = runway.draft
@@ -65,6 +70,7 @@ if (!runway.loaded) runway.load()
       <div class="field"><label for="runway-assessment-date">Check date</label><input id="runway-assessment-date" :value="runway.assessmentDate" type="date" @input="runway.selectAssessmentDate(($event.target as HTMLInputElement).value)" /></div>
       <button type="button" @click="runway.useToday()">Use today’s local date</button>
       <p class="hint">{{ runway.automaticDate ? 'Today updates with the device’s local date.' : 'The selected date stays fixed.' }} Check your device date.</p>
+      <p v-if="draftDateError" role="alert">Unsaved declaration date check unavailable: {{ draftDateError }}</p>
       <p v-if="draftCheck" role="status"><strong>Unsaved declaration date check:</strong> {{ freshnessLabels[draftCheck] }} Source and currency remain unverified; NOTAM/SUP coverage is unknown.</p>
       <template v-if="draftCheck">
         <p>Days to declared effect: {{ daysToDeclaredEffect(runway.draft, runway.assessmentDate) ?? 'Unknown' }} (negative means after the declared effective date).</p>

@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Explain invalid source dates before a manual runway declaration is complete.
 - Show declared date intervals in incomplete manual runway drafts.
 - Support pilot-entered takeoff slope corrections to ground roll.
 - Distinguish pilot-declared QNH issue and retrieval times in applied provenance.
