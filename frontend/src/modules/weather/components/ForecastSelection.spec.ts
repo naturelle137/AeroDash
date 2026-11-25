@@ -261,3 +261,66 @@ it('keeps independent requests and rejects obsolete responses', async () => {
   view.unmount()
   vi.unstubAllGlobals()
 })
+
+async function prepare(response: unknown) {
+  vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(true)
+  vi.stubGlobal('fetch', vi.fn().mockResolvedValue(response))
+  const view = mount(ForecastSelection)
+  const input = (name: string) => view.findAll('label').find(item => item.text().includes(name))!.get('input')
+  const button = (name: string) => view.findAll('button').find(item => item.text() === name)!
+  await input('Location').setValue('KDFW')
+  await input('Flight date and time in UTC').setValue('2099-06-01T12:00')
+  await button('Use UTC flight time').trigger('click')
+  await input('Latitude').setValue('32')
+  await input('Longitude').setValue('-97')
+  return { view, button }
+}
+
+it.each([
+  ['US', 'Retrieve US forecast'],
+  ['global', 'Retrieve global model forecast'],
+])('reports a malformed %s forecast response without showing values', async (_name, label) => {
+  const { view, button } = await prepare({ ok: true, json: async () => ({ unexpected: true }) })
+  await button(label).trigger('click')
+  await vi.waitFor(() => expect(view.text()).toContain('Malformed forecast response.'))
+  expect(view.text()).not.toContain('Replace wind with')
+  view.unmount()
+  vi.unstubAllGlobals()
+})
+
+it.each([
+  ['Retrieve US forecast', { ok: false }],
+  ['Retrieve global model forecast', { ok: false }],
+])('reports an unavailable service for %s', async (label, response) => {
+  const { view, button } = await prepare(response)
+  await button(label).trigger('click')
+  await vi.waitFor(() => expect(view.text()).toContain('Forecast retrieval failed or is unavailable.'))
+  view.unmount()
+  vi.unstubAllGlobals()
+})
+
+it('shows source, validity and retrieval time and offers no forecast QNH', async () => {
+  const us = { airportIdent: 'KDFW', freshness: { forecastFetchedAt: new Date().toISOString(), stale: false }, hourly: [{ time: '2099-06-01T12:00:00Z', tempF: 68, windDir: 'N', windSpeedKt: 10 }] }
+  const { view, button } = await prepare({ ok: true, json: async () => us })
+  await button('Retrieve US forecast').trigger('click')
+  await vi.waitFor(() => expect(view.text()).toContain('Forecast hour: 2099-06-01T12:00:00.000Z'))
+  expect(view.text()).toContain('NWS via')
+  expect(view.text()).toContain('Source fetched:')
+  expect(view.text()).toContain('Retrieved:')
+  expect(view.text()).toContain('Forecast QNH: unavailable')
+  expect(view.text()).not.toContain('OUTDATED')
+  view.unmount()
+  vi.unstubAllGlobals()
+})
+
+it('disables retrieval offline and keeps manual entries', async () => {
+  vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(false)
+  const view = mount(ForecastSelection)
+  await view.get('input[type="text"]').setValue('KDFW')
+  for (const name of ['Retrieve US forecast', 'Retrieve global model forecast']) {
+    expect(view.findAll('button').find(item => item.text() === name)!.attributes('disabled')).toBeDefined()
+  }
+  expect(view.text()).toContain('Browser offline: forecast retrieval is unavailable.')
+  expect((view.get('input[type="text"]').element as HTMLInputElement).value).toBe('KDFW')
+  view.unmount()
+})

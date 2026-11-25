@@ -1,4 +1,4 @@
-import { expect } from '@playwright/test'
+import { expect, type Page } from '@playwright/test'
 import { createBdd } from 'playwright-bdd'
 
 const { When, Then } = createBdd()
@@ -113,4 +113,42 @@ Then('the global forecast evidence is captured as {string}', async ({ page, $tes
   await page.screenshot({ path })
   await $testInfo.attach(`global-forecast-${width}`, { path, contentType: 'image/png' })
   await page.locator('#wind-speed').fill('20')
+})
+
+const hourLocal = () => {
+  const date = new Date('2030-06-01T12:00:00Z')
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:00`
+}
+async function retrieveUs(page: Page, body: unknown): Promise<void> {
+  const forecast = page.getByRole('region', { name: 'Time-specific forecast' })
+  await page.unroute('https://wxdecoder.com/api/airports/kdfw/weather/forecast')
+  await page.route('https://wxdecoder.com/api/airports/kdfw/weather/forecast', route => route.fulfill({ json: body, headers: { 'access-control-allow-origin': '*' } }))
+  await forecast.getByLabel('Location').fill('KDFW')
+  await forecast.getByLabel('Local date and time').fill(hourLocal())
+  await forecast.getByRole('button', { name: 'Retrieve US forecast' }).click()
+}
+When('the pilot retrieves a malformed synthetic forecast', async ({ page }) => {
+  await retrieveUs(page, { airportIdent: 'KDFW', hourly: 'invalid' })
+})
+Then('the malformed forecast is rejected and manual wind remains unchanged', async ({ page }) => {
+  const forecast = page.getByRole('region', { name: 'Time-specific forecast' })
+  await expect(forecast.getByRole('status').first()).toContainText('Malformed forecast response.')
+  await expect(forecast.getByRole('button', { name: 'Replace wind with retrieved forecast' })).toHaveCount(0)
+  await expect(page.locator('#wind-speed')).toHaveValue('20')
+})
+When('the pilot retrieves an outdated synthetic forecast', async ({ page }) => {
+  await retrieveUs(page, { airportIdent: 'KDFW', freshness: { forecastFetchedAt: new Date().toISOString(), stale: true }, hourly: [{ time: '2030-06-01T12:00:00Z', tempF: 68, windDir: 'N', windSpeedKt: 10 }] })
+})
+Then('the outdated forecast cannot replace manual wind', async ({ page }) => {
+  const forecast = page.getByRole('region', { name: 'Time-specific forecast' })
+  await expect(forecast).toContainText('OUTDATED')
+  await expect(forecast.getByRole('button', { name: 'Replace wind with retrieved forecast' })).toBeDisabled()
+  await expect(page.locator('#wind-speed')).toHaveValue('20')
+})
+Then('the outdated forecast evidence is captured as {string}', async ({ page, $testInfo }, width: string) => {
+  const path = $testInfo.outputPath(`outdated-forecast-${width}.png`)
+  await page.getByRole('region', { name: 'Time-specific forecast' }).scrollIntoViewIfNeeded()
+  await page.screenshot({ path })
+  await $testInfo.attach(`outdated-forecast-${width}`, { path, contentType: 'image/png' })
 })
