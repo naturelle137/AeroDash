@@ -115,3 +115,11 @@ While a pilot-entered forecast QNH is present, the system shall show the current
 ### REQ-WX-024: QNH validity feedback
 
 When a declared QNH validity interval cannot be applied, the system shall explain the validity error.
+
+### REQ-WX-025: UTC QNH time entry
+
+When the pilot copies a representable UTC time to a QNH source or validity field, the system shall convert it to device-local time.
+
+### REQ-WX-026: Unrepresentable UTC QNH time
+
+When a UTC time maps to the second occurrence of a repeated local time, the system shall reject copying it to a QNH time field.
