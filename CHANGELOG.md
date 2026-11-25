@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Let pilots choose whether manual wind corrections apply before or after manual surface and slope corrections.
 - Require confirmation of repeated local flight times before forecast retrieval or application.
 - Return an unknown runway date check for invalid or contradictory declared dates.
 

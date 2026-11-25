@@ -37,6 +37,8 @@ const { temperature, temperatureWarnings, corrections, safetyFactors, showPaErro
         <p>Enter either a multiplier or a signed additive correction only when the aircraft manual applies it to {{ operation }} ground roll after built-in corrections and before pilot-entered wind and safety factors for these conditions. Source and applicability are not verified.</p>
       <label v-if="(corrections[operation].surfaceFactor || corrections[operation].surfaceAddend) && (corrections[operation].slopeFactor || corrections[operation].slopeAddend)">Pilot-entered ground correction order
         <select v-model="corrections[operation].groundOrder"><option value="surface-first">Surface then slope</option><option value="slope-first">Slope then surface</option></select></label>
+      <label v-if="(corrections[operation].windFactor || corrections[operation].windAddend) && (corrections[operation].surfaceFactor || corrections[operation].surfaceAddend || corrections[operation].slopeFactor || corrections[operation].slopeAddend)">Pilot-entered wind correction order
+        <select v-model="corrections[operation].windOrder"><option value="after-ground">After ground corrections</option><option value="before-ground">Before ground corrections</option></select></label>
       <label>Safety factor
         <select v-model="safetyFactors[operation].preset" :id="`performance-${operation}-safety-factor`">
           <option v-for="preset in SAFETY_FACTOR_PRESETS" :key="preset.value" :value="preset.value">{{ preset.label }}</option>
