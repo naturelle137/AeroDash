@@ -52,6 +52,27 @@ describe('corrected distances in the performance step', () => {
     effect.stop()
   })
 
+  it.each(['takeoff', 'landing'] as const)('honours pilot wind correction order for %s', (operation) => {
+    const effect = effectScope()
+    effect.run(() => {
+      const { step } = setup()
+      const input = step.corrections[operation]
+      Object.assign(input, { headwind: '5', slope: '0', windFactor: '0.5', windSource: 'Synthetic wind', slopeAddend: '40', slopeSource: 'Synthetic slope' })
+      const index = operation === 'takeoff' ? 0 : 1
+      const after = corrected(step, index)
+      input.windOrder = 'before-ground'
+      const before = corrected(step, index)
+      if (after.status !== 'applied' || before.status !== 'applied') throw new Error('expected result')
+      const distance = (value: string) => Number.parseFloat(value.replaceAll(',', ''))
+      // Wind scales both distances; the ground addend then adds to ground roll only, so order shifts the result by 20 m.
+      expect(distance(before.rows[0]!.corrected) - distance(after.rows[0]!.corrected)).toBe(20)
+      expect(distance(before.rows[1]!.corrected) - distance(after.rows[1]!.corrected)).toBe(20)
+      expect(before.partial).toBe(true)
+      expect(before.notes.join(' ')).toContain('before the pilot-entered ground corrections')
+    })
+    effect.stop()
+  })
+
   it.each(['takeoff', 'landing'] as const)('replaces the surface rule on ground roll only for %s and invalidates it', (operation) => {
     const effect = effectScope()
     effect.run(() => {
