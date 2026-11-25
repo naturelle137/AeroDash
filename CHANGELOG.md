@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Match TAF and model forecasts to the selected flight time and location before identifying METAR fallbacks.
+
 - Let pilots choose whether manual wind corrections apply before or after manual surface and slope corrections.
 - Require confirmation of repeated local flight times before forecast retrieval or application.
 - Return an unknown runway date check for invalid or contradictory declared dates.
@@ -16,6 +18,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Show device-date runway intervals in the briefing when a fixed check date is selected.
+
+- Offer DWD ICON model forecasts via Open-Meteo alongside the global model.
+
+- Offer the applicable TAF wind for Flight Prep and label METAR values without a forecast as observations.
+
 - Export declared runway date intervals for selected and device dates.
 
 - Show unsaved runway date checks and their source limitations in the briefing.
