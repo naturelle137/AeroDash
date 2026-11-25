@@ -17,6 +17,7 @@ export function parseForecast(data: unknown, station: string, selected: number, 
     if (typeof row.time !== 'string' || !/(?:Z|[+-]\d\d:\d\d)$/.test(row.time) || !Number.isFinite(Date.parse(row.time))) throw new Error('malformed')
     return { ...row, timestamp: Date.parse(row.time) }
   })
+  if (new Set(rows.map(row => row.timestamp)).size !== rows.length) throw new Error('malformed')
   const row = rows.find(item => item.timestamp === selected)
   if (!row) return null
   const values: MetarValues = {}
@@ -41,7 +42,7 @@ export function parseGlobalForecast(data: unknown, selected: number): { values: 
   const speeds = h.wind_speed_10m
   const directions = h.wind_direction_10m
   if (!Array.isArray(times) || !Array.isArray(temperatures) || !Array.isArray(speeds) || !Array.isArray(directions) || [temperatures, speeds, directions].some(a => a.length !== times.length)) throw new Error('malformed')
-  if (times.some(t => typeof t !== 'string' || !/^\d{4}-\d\d-\d\dT\d\d:00$/.test(t) || !Number.isFinite(Date.parse(`${t}Z`)))) throw new Error('malformed')
+  if (times.some(t => typeof t !== 'string' || !/^\d{4}-\d\d-\d\dT\d\d:00$/.test(t) || !Number.isFinite(Date.parse(`${t}Z`)) || new Date(`${t}Z`).toISOString().slice(0, 16) !== t) || new Set(times).size !== times.length) throw new Error('malformed')
   const index = times.findIndex(t => Date.parse(`${t}Z`) === selected)
   if (index < 0) return null
   const values: MetarValues = {}

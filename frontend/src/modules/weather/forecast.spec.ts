@@ -11,6 +11,7 @@ describe('hourly forecast', () => {
   it('rejects mismatched stations and malformed timestamps; marks stale data', () => {
     expect(() => parseForecast(data, 'EDDF', now, now)).toThrow('malformed')
     expect(() => parseForecast({ ...data, hourly: [{ time: 'bad' }] }, 'KDFW', now, now)).toThrow('malformed')
+    expect(() => parseForecast({ ...data, hourly: [data.hourly[0], { ...data.hourly[0], time: '2030-01-01T02:00:00Z' }] }, 'KDFW', now, now)).toThrow('malformed')
     expect(parseForecast({ ...data, freshness: { ...data.freshness, stale: true } }, 'KDFW', Date.parse('2030-01-01T02:00:00Z'), now)?.stale).toBe(true)
   })
 })
@@ -25,6 +26,8 @@ describe('global model forecast', () => {
     expect(() => parseGlobalForecast({ ...sample, latitude: 91 }, Date.parse('2030-01-01T02:00Z'))).toThrow('malformed')
     expect(() => parseGlobalForecast({ ...sample, longitude: null }, Date.parse('2030-01-01T02:00Z'))).toThrow('malformed')
     expect(() => parseGlobalForecast({ ...sample, hourly_units: { ...sample.hourly_units, wind_speed_10m: 'km/h' } }, Date.parse('2030-01-01T02:00Z'))).toThrow('malformed')
+    expect(() => parseGlobalForecast({ ...sample, hourly: { time: ['2030-01-01T02:00', '2030-01-01T02:00'], temperature_2m: [12, 13], wind_speed_10m: [10, 11], wind_direction_10m: [0, 1] } }, now)).toThrow('malformed')
+    expect(() => parseGlobalForecast({ ...sample, hourly: { ...sample.hourly, time: ['2030-02-30T02:00'] } }, now)).toThrow('malformed')
     expect(parseGlobalForecast({ ...sample, hourly: { ...sample.hourly, temperature_2m: [null], wind_direction_10m: [null] } }, Date.parse('2030-01-01T02:00Z'))).toEqual({ values: {}, latitude: 50.1, longitude: 8.1 })
   })
 })
