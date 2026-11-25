@@ -28,9 +28,10 @@ export function parseForecast(data: unknown, station: string, selected: number, 
   return { values, valid: new Date(row.timestamp).toISOString(), fetched: new Date(fetched).toISOString(), stale: freshness.stale || now - fetched > 4 * 60 * 60 * 1000 }
 }
 
-export function parseGlobalForecast(data: unknown, selected: number): MetarValues | null {
+export function parseGlobalForecast(data: unknown, selected: number): { values: MetarValues; latitude: number; longitude: number } | null {
   if (!data || typeof data !== 'object') throw new Error('malformed')
   const d = data as Record<string, unknown>
+  if (typeof d.latitude !== 'number' || !Number.isFinite(d.latitude) || d.latitude < -90 || d.latitude > 90 || typeof d.longitude !== 'number' || !Number.isFinite(d.longitude) || d.longitude < -180 || d.longitude > 180) throw new Error('malformed')
   if (d.utc_offset_seconds !== 0 || !d.hourly || typeof d.hourly !== 'object' || !d.hourly_units || typeof d.hourly_units !== 'object') throw new Error('malformed')
   const units = d.hourly_units as Record<string, unknown>
   if (units.time !== 'iso8601' || units.temperature_2m !== '°C' || units.wind_speed_10m !== 'kn' || units.wind_direction_10m !== '°') throw new Error('malformed')
@@ -49,5 +50,5 @@ export function parseGlobalForecast(data: unknown, selected: number): MetarValue
   if (typeof speed === 'number' && Number.isFinite(speed) && speed >= 0 && speed <= 200 && (speed === 0 || (typeof direction === 'number' && Number.isFinite(direction) && direction >= 0 && direction <= 360))) {
     values.wind = { speed: String(speed), direction: speed === 0 ? '' : String(direction === 0 ? 360 : direction), unit: 'kt' }
   }
-  return values
+  return { values, latitude: d.latitude, longitude: d.longitude }
 }

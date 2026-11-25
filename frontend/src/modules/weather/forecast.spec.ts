@@ -16,13 +16,15 @@ describe('hourly forecast', () => {
 })
 
 describe('global model forecast', () => {
-  const sample = { utc_offset_seconds: 0, hourly_units: { time: 'iso8601', temperature_2m: '°C', wind_speed_10m: 'kn', wind_direction_10m: '°' }, hourly: { time: ['2030-01-01T02:00'], temperature_2m: [12.3], wind_speed_10m: [10.2], wind_direction_10m: [0] } }
+  const sample = { latitude: 50.1, longitude: 8.1, utc_offset_seconds: 0, hourly_units: { time: 'iso8601', temperature_2m: '°C', wind_speed_10m: 'kn', wind_direction_10m: '°' }, hourly: { time: ['2030-01-01T02:00'], temperature_2m: [12.3], wind_speed_10m: [10.2], wind_direction_10m: [0] } }
   it('matches an exact UTC hour and retains source units without inventing QNH', () => {
-    expect(parseGlobalForecast(sample, Date.parse('2030-01-01T03:00+01:00'))).toEqual({ temperature: '12.3', wind: { direction: '360', speed: '10.2', unit: 'kt' } })
+    expect(parseGlobalForecast(sample, Date.parse('2030-01-01T03:00+01:00'))).toEqual({ values: { temperature: '12.3', wind: { direction: '360', speed: '10.2', unit: 'kt' } }, latitude: 50.1, longitude: 8.1 })
     expect(parseGlobalForecast(sample, Date.parse('2030-01-01T02:30Z'))).toBeNull()
   })
   it('rejects incorrect units and leaves unavailable values missing', () => {
+    expect(() => parseGlobalForecast({ ...sample, latitude: 91 }, Date.parse('2030-01-01T02:00Z'))).toThrow('malformed')
+    expect(() => parseGlobalForecast({ ...sample, longitude: null }, Date.parse('2030-01-01T02:00Z'))).toThrow('malformed')
     expect(() => parseGlobalForecast({ ...sample, hourly_units: { ...sample.hourly_units, wind_speed_10m: 'km/h' } }, Date.parse('2030-01-01T02:00Z'))).toThrow('malformed')
-    expect(parseGlobalForecast({ ...sample, hourly: { ...sample.hourly, temperature_2m: [null], wind_direction_10m: [null] } }, Date.parse('2030-01-01T02:00Z'))).toEqual({})
+    expect(parseGlobalForecast({ ...sample, hourly: { ...sample.hourly, temperature_2m: [null], wind_direction_10m: [null] } }, Date.parse('2030-01-01T02:00Z'))).toEqual({ values: {}, latitude: 50.1, longitude: 8.1 })
   })
 })
