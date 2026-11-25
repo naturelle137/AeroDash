@@ -171,7 +171,7 @@ function applyGlobal(field: 'temperature' | 'wind'): void {
 function applyRetrieved(field: 'temperature' | 'wind'): void {
   const current = forecast.value
   if (!online.value || !selectionValid.value || !current || current.stale || Date.parse(current.valid) <= Date.now() || Date.now() - Date.parse(current.fetched) > 4 * 60 * 60 * 1000 || !current.values[field]) return
-  emit('apply', field, current.values, `NWS forecast via wxdecoder.com for ${location.value.trim().toUpperCase()}, valid ${current.valid}, retrieved ${retrieved.value}`)
+  emit('apply', field, current.values, `NWS forecast via wxdecoder.com for ${location.value.trim().toUpperCase()}, valid ${current.valid}, source fetched ${current.fetched}, retrieved ${retrieved.value}; source fetch time is not forecast issue time`)
 }
 
 function useFlightUtcTime(): void {

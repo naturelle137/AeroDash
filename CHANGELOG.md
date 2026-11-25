@@ -38,6 +38,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Retain the US forecast source fetch time with applied weather values.
+
 - Show requested and model grid coordinates for global forecasts and retain both in applied provenance.
 - Allow UTC flight-time entry for forecast selection.
 - Copy pilot-declared UTC QNH source and validity times into local time fields.

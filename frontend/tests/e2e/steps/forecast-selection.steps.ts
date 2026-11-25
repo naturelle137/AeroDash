@@ -80,10 +80,12 @@ When('the pilot retrieves a synthetic hourly forecast', async ({ page }) => {
   await expect(page.locator('#wind-speed')).toHaveValue('20')
   await forecast.getByRole('button', { name: 'Replace wind with retrieved forecast' }).click()
   await expect(page.locator('#wind-speed')).toHaveValue('10')
+  await expect(page.locator('#prep-card-weather')).toContainText('source fetched')
+  await expect(page.locator('#prep-card-weather')).toContainText('source fetch time is not forecast issue time')
 })
 Then('the retrieved forecast evidence is captured as {string}', async ({ page, $testInfo }, width: string) => {
   const path = $testInfo.outputPath(`retrieved-forecast-${width}.png`)
-  await page.getByRole('region', { name: 'Time-specific forecast' }).scrollIntoViewIfNeeded()
+  await page.locator('#prep-card-weather').scrollIntoViewIfNeeded()
   await page.screenshot({ path })
   await $testInfo.attach(`retrieved-forecast-${width}`, { path, contentType: 'image/png' })
   const forecast = page.getByRole('region', { name: 'Time-specific forecast' })
