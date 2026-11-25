@@ -81,7 +81,7 @@ For each operation the pilot may enter a positive whole-distance multiplier and 
 
 ## Pilot-entered slope correction
 
-A signed additive correction in metres may replace the takeoff or landing slope rule, as an alternative to the existing multiplier. It changes ground roll and total distance by the same amount, after built-in and pilot-entered surface corrections and before pilot-entered wind and safety factors. A source and section are required; applicability and ordering are unverified. The result remains partial, and changes to conditions clear the entry. Synthetic tests demonstrate wiring only.
+A signed additive correction in metres may replace the takeoff or landing slope rule, as an alternative to the existing multiplier. It changes ground roll and total distance by the same amount, after built-in corrections and before pilot-entered wind and safety factors. When both pilot-entered ground corrections are present, the pilot selects surface then slope or slope then surface. A source and section are required; applicability and ordering are unverified. The result remains partial, and changes to conditions clear the entry. Synthetic tests demonstrate wiring only.
 
 ## Runway comparison
 
@@ -124,4 +124,4 @@ Other aircraft manuals and landing corrections remain unsupported. [CAA Safety S
 
 [CAA Safety Sense 09](https://www.caa.co.uk/media/wcebqozv/ssl09-caa-safety-sense-weight-balance-and-performance.pdf), page 13, likewise gives landing-distance slope guidance and tailwind relative to lift-off speed. [FAA AC 91-79A Change 2](https://www.faa.gov/documentLibrary/media/Advisory_Circular/AC_91-79A_Chg_2.pdf), appendix 1, gives a whole-landing-distance slope example and wind relative to landing speed. Neither supplies a ground-roll-only landing factor or wind calculation using the currently modelled inputs.
 
-Pilot-entered signed surface corrections in metres may replace the surface rule for either operation, after built-in corrections and before pilot-entered slope, wind and safety factors. They affect ground roll and total distance equally, leaving the airborne segment unchanged. The source and section are required, applicability and ordering are unverified, results remain partial, and condition changes clear the entry. Synthetic tests do not validate aircraft data.
+Pilot-entered signed surface corrections in metres may replace the surface rule for either operation, after built-in corrections and before pilot-entered wind and safety factors. They affect ground roll and total distance equally, leaving the airborne segment unchanged. The source and section are required, applicability and ordering are unverified, results remain partial, and condition changes clear the entry. Synthetic tests do not validate aircraft data.

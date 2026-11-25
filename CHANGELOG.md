@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Clarify requirements guidance and delivery checks against current project directives.
 
 - Support pilot-entered additive surface corrections to ground roll.
+- Allow pilot-entered surface and slope corrections in either order.
 
 - Compare unsaved and recent runway dates with the device date when using a fixed check date.
 

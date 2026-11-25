@@ -480,3 +480,9 @@ When any input, profile, mass or runway changes, the system shall revoke the ext
 When a pilot supplies a positive finite surface multiplier and its source and section, the system shall apply it to the ground roll for the selected operation in place of the built-in surface correction.
 
 **Status:** Implemented with unverified applicability and ordering; partial-result restrictions remain. Test: `frontend/src/modules/performance/services/corrected-distances.spec.ts`.
+
+### REQ-PF-086: Pilot ground correction order
+
+When both pilot-entered surface and slope corrections are provided, the system shall apply them in the selected order to ground roll.
+
+**Status:** Implemented with unverified applicability and partial-result restrictions. Test: `frontend/src/modules/performance/services/corrected-distances.spec.ts`.
