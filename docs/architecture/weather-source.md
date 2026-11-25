@@ -38,6 +38,8 @@ Grass is explicitly distinguished from other or legacy unpaved surfaces. A valid
 
 US and global forecast requests run independently; changing the shared flight selection or going offline invalidates both, and changing coordinates invalidates only the global request.
 
+Responses with duplicate forecast instants are rejected rather than selecting an ambiguous value. Invalid global calendar dates are rejected instead of being normalized by the browser.
+
 ## Global model forecast
 
 On explicit request, Flight Prep sends pilot-entered coordinates to the [Open-Meteo forecast API](https://open-meteo.com/en/docs). Its [free terms](https://open-meteo.com/en/terms) permit non-commercial use and require [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) attribution. Coverage is worldwide, subject to model availability. On 22 November 2026 an HTTPS request returned CORS `*`. The API provides hourly instantaneous 2 m temperature (°C) and 10 m wind (knots, true degrees); the app requests UTC and matches the selected exact hour without interpolation. The returned model grid coordinates are validated, displayed beside the requested coordinates and retained with applied values; they can differ from the requested location. The model may use interpolated grid data and is not an aviation briefing. The API does not provide model issue time, so retrieval time is shown separately and does not establish forecast freshness. After four hours or the selected time the application withdraws the values. Missing fields remain unavailable. No pressure field is requested: model sea-level pressure is not aviation QNH. Coordinates and the user's IP address reach the provider.
