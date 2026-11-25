@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
-import { tafLiquid } from './taf-surface'
+import { tafLiquid, tafWind, type TafWind } from './taf-surface'
 
-defineProps<{ embedded?: boolean }>()
-const emit = defineEmits<{ forecast: [value: { station: string; time: string; source: 'TAF'; validFrom: string; validTo: string; liquid: boolean; heavy?: boolean } | null] }>()
+const props = defineProps<{ embedded?: boolean; flightTime?: number }>()
+const emit = defineEmits<{ forecast: [value: { station: string; time: string; source: 'TAF'; validFrom: string; validTo: string; liquid: boolean; heavy?: boolean } | null]; wind: [value: { station: string; issued: string; validFrom: string; validTo: string; wind: TafWind } | null] }>()
 let request = 0
 function clearReport(): void { request++; report.value = null }
 function offline(): void { clearReport(); message.value = 'Offline: TAF retrieval is unavailable.' }
@@ -15,7 +15,7 @@ const report = ref<{ raw: string; station: string; issued: string; from: string;
 const loading = ref(false)
 const now = ref(Date.now())
 const timer = setInterval(() => { now.value = Date.now() }, 1000)
-onUnmounted(() => { clearInterval(timer); window.removeEventListener('offline', offline); emit('forecast', null) })
+onUnmounted(() => { clearInterval(timer); window.removeEventListener('offline', offline); emit('forecast', null); emit('wind', null) })
 const applicable = computed(() => {
   const r = report.value
   if (!r) return null
@@ -23,6 +23,12 @@ const applicable = computed(() => {
   return liquid === null ? null : { station: r.station, time: r.issued, source: 'TAF' as const, validFrom: r.from, validTo: r.to, liquid, heavy: tafLiquid(r.body, r.start, r.end, now.value, 'soft') === true }
 })
 watch(applicable, value => emit('forecast', value), { flush: 'sync' })
+const wind = computed(() => {
+  const r = report.value
+  const value = r ? tafWind(r.body, r.start, r.end, props.flightTime ?? NaN) : null
+  return r && value ? { station: r.station, issued: r.issued, validFrom: r.from, validTo: r.to, wind: value } : null
+})
+watch(wind, value => emit('wind', value), { flush: 'sync' })
 
 function timestamp(value: unknown): number {
   if (typeof value !== 'string' || !/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d{1,3})?Z$/.test(value)) return NaN

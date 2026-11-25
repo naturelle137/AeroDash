@@ -1,10 +1,22 @@
 <script setup lang="ts">
 import TafView from './TafView.vue'
+import type { TafWind } from './taf-surface'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { metarLiquid, metarHeavyRain } from './metar-surface'
 import { metarValues, type MetarValues } from './metar-values'
 
+const props = defineProps<{ selection?: { location: string; time: number; forecast: MetarValues } | null }>()
 const emit = defineEmits<{ forecast: [value: { station: string; time: string; source: 'TAF'; validFrom: string; validTo: string; liquid: boolean; heavy?: boolean } | null]; observation: [value: { station: string; time: string; liquid: boolean; heavy?: boolean } | null]; apply: [field: keyof MetarValues, values: MetarValues, source: string] }>()
+type TafSource = { station: string; issued: string; validFrom: string; validTo: string; wind: TafWind }
+const taf = ref<TafSource | null>(null)
+const applicableTaf = computed(() => taf.value && props.selection && taf.value.station === props.selection.location ? taf.value : null)
+const age = (time: string): string => `${Math.max(0, Math.round((Date.now() - Date.parse(time)) / 60000))} min ago`
+function applyTaf(): void {
+  const current = applicableTaf.value
+  const selected = props.selection?.time
+  if (!current || !selected || selected <= Date.now() || selected < Date.parse(current.validFrom) || selected >= Date.parse(current.validTo)) return
+  emit('apply', 'wind', { wind: current.wind }, `TAF ${current.station} via wxdecoder.com, issued ${current.issued}, valid ${current.validFrom} to ${current.validTo}, forecast for ${new Date(selected).toISOString()}`)
+}
 const values = computed(() => report.value && !report.value.stale ? metarValues(report.value.raw) : {})
 function apply(field: keyof MetarValues): void {
   const current = report.value
@@ -98,13 +110,21 @@ async function check(): Promise<void> {
       <p>Station: {{ report.station }} · Observed: {{ report.time }} UTC{{ report.stale ? ' · OUTDATED' : '' }}</p>
       <p>{{ report.raw }}</p>
       <div v-if="!report.stale" class="entry" aria-label="Apply observation to Flight Prep">
-        <button v-if="values.wind" type="button" @click="apply('wind')">Replace wind with METAR ({{ values.wind.direction || 'calm' }} / {{ values.wind.speed }} {{ values.wind.unit }})</button>
+        <button v-if="values.wind && !(applicableTaf && report.station === applicableTaf.station)" type="button" @click="apply('wind')">Replace wind with METAR ({{ values.wind.direction || 'calm' }} / {{ values.wind.speed }} {{ values.wind.unit }})</button>
         <button v-if="values.temperature" type="button" @click="apply('temperature')">Replace temperature with METAR ({{ values.temperature }} °C)</button>
         <button v-if="values.qnh" type="button" @click="apply('qnh')">Replace QNH with METAR ({{ values.qnh }} hPa)</button>
       </div>
+      <template v-for="field in (['wind', 'temperature', 'qnh'] as const)" :key="field">
+        <p v-if="!report.stale && values[field] && !((field === 'wind' && applicableTaf && report.station === applicableTaf.station) || (props.selection?.location === report.station && props.selection.forecast[field]))">{{ field }}: no forecast available — this is a METAR observation from {{ report.station }}, observed {{ report.time }} UTC ({{ age(report.time) }}).</p>
+      </template>
       <p>Weather data via <a href="https://wxdecoder.com">wxdecoder.com</a>. Sources: NOAA/NWS Aviation Weather Center, National Weather Service and FAA.</p>
     </div>
-    <TafView embedded @forecast="emit('forecast', $event)" />
+    <div v-if="applicableTaf" class="entry" aria-label="Apply forecast wind to Flight Prep">
+      <button type="button" @click="applyTaf">Replace wind with TAF forecast ({{ applicableTaf.wind.direction || 'calm' }} / {{ applicableTaf.wind.speed }} {{ applicableTaf.wind.unit }})</button>
+      <p>Forecast wind from TAF {{ applicableTaf.station }}, issued {{ applicableTaf.issued }} UTC ({{ age(applicableTaf.issued) }}), valid {{ applicableTaf.validFrom }} to {{ applicableTaf.validTo }} UTC, for selected flight time {{ new Date(props.selection!.time).toISOString() }}. Forecast, not an observation. Temperature and QNH are not taken from the TAF.</p>
+    </div>
+    <p v-if="report && taf && report.station !== taf.station" role="alert">The METAR station {{ report.station }} differs from the TAF station {{ taf.station }}.</p>
+    <TafView embedded :flight-time="props.selection?.time" @forecast="emit('forecast', $event)" @wind="taf = $event" />
     <p>Liquid precipitation may suggest a runway surface condition; verify the actual runway condition.</p>
     <p>Values are only replaced when you choose an action. METAR wind direction is true; use a runway heading in the same reference. Gusts are not applied. Verify all values with an authorised source.</p>
   </div>
