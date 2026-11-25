@@ -147,6 +147,10 @@ export function usePerformanceStep(context: () => PerformanceStepContext) {
         ...(!runway.automaticDate ? [{ label: 'Device-date check', value: `${runway.today}: ${runwayFreshness(declared.record.runway, runway.today)}; source currency unverified` }] : []),
         { label: 'Days to declared effect', value: daysToDeclaredEffect(declared.record.runway, runway.assessmentDate)?.toString() ?? 'Unknown' },
         { label: 'Days to declared expiry', value: daysToDeclaredExpiry(declared.record.runway, runway.assessmentDate)?.toString() ?? 'Unknown' },
+        ...(!runway.automaticDate ? [
+          { label: 'Device-date days to declared effect', value: daysToDeclaredEffect(declared.record.runway, runway.today)?.toString() ?? 'Unknown' },
+          { label: 'Device-date days to declared expiry', value: daysToDeclaredExpiry(declared.record.runway, runway.today)?.toString() ?? 'Unknown' },
+        ] : []),
         { label: 'Surface', value: `${surface.type === 'paved' ? 'Paved' : surface.type === 'grass' ? 'Grass' : 'Other / legacy unpaved'} · ${condition}` },
       ],
       note: `User-entered, not airport-validated. ${runway.automaticDate ? 'The check date follows the device’s local date; check the device date.' : 'The selected check date does not advance automatically; confirm it for your flight.'} NOTAM/SUP coverage is unknown; check declared dates and restrictions against official sources. Converted available distances are rounded down.`,

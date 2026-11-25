@@ -112,6 +112,10 @@ When the pilot declares a QNH source time type, the system shall retain it with 
 
 While a pilot-entered forecast QNH is present, the system shall show the current Flight Prep QNH and its unit or indicate that it is empty.
 
-### REQ-WX-024: DWD model forecast
+### REQ-WX-024: QNH validity feedback
+
+When a declared QNH validity interval cannot be applied, the system shall explain the validity error.
+
+### REQ-WX-025: DWD model forecast
 
 When the pilot requests DWD model weather for valid coordinates and a future forecast hour, the system shall offer available temperature and wind values with their source and retrieval time.

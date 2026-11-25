@@ -203,3 +203,7 @@ When a runway draft with declared dates is not current, the briefing shall show 
 ### REQ-AP-045: Exported declared date intervals
 
 When exporting flight preparation JSON, the system shall include signed days to declared effective and inclusive expiry dates for saved and draft runways against the selected and device dates, or null when unavailable.
+
+### REQ-AP-046: Briefing device-date intervals
+
+While a fixed runway check date is selected, the briefing shall show signed days from the device date to the current saved runway's declared effective and inclusive expiry dates, or unknown when unavailable.
