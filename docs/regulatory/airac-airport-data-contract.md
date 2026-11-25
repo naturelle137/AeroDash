@@ -58,6 +58,8 @@ No airport record's effective interval, expiry or restriction coverage was verif
 
 ### Candidate investigation: FAA NASR
 
+The US DOT [Runway Ends Table metadata](https://www.arcgis.com/sharing/rest/content/items/77db9c3ab3bd4a02bd85e575992bbd3e/info/metadata/metadata.xml?format=default&output=html) states unrestricted public use, no fee, and that the table reproduces `APT_RWY_END.csv`. It describes US and US territories coverage, national and regional analysis use, a 28-day update and an unknown currentness reference. These terms apply to that DOT dataset; they do not establish record-level expiry, restrictions or European coverage. It is not accepted for the current consumer.
+
 Investigated 2026-11-21. The FAA [28-day subscription page](https://www.faa.gov/air_traffic/flight_info/aeronav/Aero_Data/NASR_Subscription/2026-11-26/) links an accessible airport CSV archive effective 2026-11-26. Its runway-end file contains `TKOF_RUN_AVBL`, `TKOF_DIST_AVBL` and `LNDG_DIST_AVBL` fields, many of which are empty. This US dataset is a candidate, not an accepted source: field units and blank semantics, redistribution terms, update and supersession rules, and NOTAM/restriction coverage for the actual records remain to be established before integration.
 
 ### Candidate decision: LVNL Aerodrome feature service

@@ -62,6 +62,10 @@ it('carries the selected declared-date check into performance and invalidates it
     runway.today = '2027-01-01'
     expect(step.presentation.value.inputKey).not.toBe(fixedKey)
     expect(step.presentation.value.runway).toMatchObject({ rows: expect.arrayContaining([{ label: 'Device-date check', value: '2027-01-01: expired; source currency unverified' }]) })
+    expect(step.presentation.value.runway).toMatchObject({ rows: expect.arrayContaining([
+      { label: 'Device-date days to declared effect', value: '-365' },
+      { label: 'Device-date days to declared expiry', value: '-1' },
+    ]) })
     runway.draft.designator = '27'
     expect(step.presentation.value.runway).toMatchObject({ status: 'unavailable', reason: expect.stringContaining('Unsaved declaration date check: 2026-11-26: within-declared-dates; device date 2027-01-01: expired') })
     expect(step.presentation.value.runway).toMatchObject({ reason: expect.stringContaining('source currency is unverified and NOTAM/SUP coverage is unknown') })
