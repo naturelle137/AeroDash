@@ -215,3 +215,16 @@ it('copies UTC QNH times without changing the represented instant', async () => 
   expect(new Date((label('QNH valid from').element as HTMLInputElement).value).toISOString()).toBe('2030-06-01T12:00:00.000Z')
   view.unmount()
 })
+
+it('selects a UTC flight time and clears entries when it changes', async () => {
+  const view = mount(ForecastSelection)
+  const label = (name: string) => view.findAll('label').find(item => item.text().includes(name))!.get('input')
+  await label('Flight date and time in UTC').setValue('2099-06-01T12:00')
+  await view.findAll('button').find(item => item.text() === 'Use UTC flight time')!.trigger('click')
+  expect(new Date((label('Local date and time').element as HTMLInputElement).value).toISOString()).toBe('2099-06-01T12:00:00.000Z')
+  await label('Forecast QNH').setValue('1013')
+  await label('Flight date and time in UTC').setValue('2099-06-01T13:00')
+  await view.findAll('button').find(item => item.text() === 'Use UTC flight time')!.trigger('click')
+  expect((label('Forecast QNH').element as HTMLInputElement).value).toBe('')
+  view.unmount()
+})

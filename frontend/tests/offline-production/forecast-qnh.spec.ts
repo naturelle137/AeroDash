@@ -172,6 +172,26 @@ test.describe('clock changes', () => {
 
 test.describe('UTC QNH entry', () => {
   test.use({ timezoneId: 'Europe/Berlin' })
+  test('selects a UTC flight time offline and rejects the second repeated hour', async ({ page, context }, info) => {
+    await page.goto('/mass-balance')
+    const accept = page.getByTestId('disclaimer-gate-accept')
+    if (await accept.isVisible()) await accept.click()
+    await context.setOffline(true)
+    const forecast = page.getByRole('region', { name: 'Time-specific forecast' })
+    await forecast.getByLabel('Location', { exact: true }).fill('Test airfield')
+    await forecast.getByLabel('Flight date and time in UTC').fill('2099-10-25T00:30')
+    await forecast.getByRole('button', { name: 'Use UTC flight time' }).click()
+    await expect(forecast.getByLabel('Local date and time')).toHaveValue('2099-10-25T02:30')
+    await expect(forecast).toContainText('2099-10-25T00:30:00.000Z')
+    await forecast.getByLabel('Flight date and time in UTC').fill('2099-10-25T01:30')
+    await forecast.getByRole('button', { name: 'Use UTC flight time' }).click()
+    await expect(forecast).toContainText('second occurrence of a repeated local time')
+    await expect(forecast.getByLabel('Local date and time')).toHaveValue('2099-10-25T02:30')
+    await forecast.getByText('second occurrence of a repeated local time').scrollIntoViewIfNeeded()
+    const path = info.outputPath(`flight-utc-${info.project.name}.png`)
+    await page.screenshot({ path, animations: 'disabled' })
+    await info.attach('flight-utc', { path, contentType: 'image/png' })
+  })
   test('copies UTC validity offline and rejects the unrepresentable repeated hour', async ({ page, context }, info) => {
     await page.goto('/mass-balance')
     const accept = page.getByTestId('disclaimer-gate-accept')

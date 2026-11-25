@@ -123,3 +123,11 @@ When the pilot copies a representable UTC time to a QNH source or validity field
 ### REQ-WX-026: Unrepresentable UTC QNH time
 
 When a UTC time maps to the second occurrence of a repeated local time, the system shall reject copying it to a QNH time field.
+
+### REQ-WX-027: UTC flight time entry
+
+When the pilot selects a representable UTC flight time, the system shall convert it to device-local time.
+
+### REQ-WX-028: Unrepresentable UTC flight time
+
+When a UTC flight time maps to the second occurrence of a repeated local time, the system shall reject it.
