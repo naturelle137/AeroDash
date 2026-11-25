@@ -14,6 +14,8 @@ const qnhUnit = ref<'hPa' | 'inHg'>('hPa')
 const qnhInput = ref<HTMLInputElement | null>(null)
 const confirmQnhTimes = ref(false)
 const confirmFlightTime = ref(false)
+const qnhUtcTime = ref('')
+const qnhUtcMessage = ref('')
 const emptyQnhDraft = () => ({ value: '', source: '', sourceTime: '', timeKind: '', validFrom: '', validTo: '' })
 const qnhDrafts = reactive({ hPa: emptyQnhDraft(), inHg: emptyQnhDraft() })
 const draft = computed(() => qnhDrafts[qnhUnit.value])
@@ -54,7 +56,7 @@ onBeforeUnmount(() => {
   window.removeEventListener('pageshow', refresh)
 })
 watch([phase, location, time], () => {
-  temperature.value = ''; clearQnh(); direction.value = ''; speed.value = ''
+  temperature.value = ''; clearQnh(); qnhUtcTime.value = ''; qnhUtcMessage.value = ''; direction.value = ''; speed.value = ''
   request++; forecast.value = null; forecastMessage.value = 'Selection changed; retrieve the forecast again.'
   globalForecast.value = null; globalMessage.value = 'Selection changed; retrieve the forecast again.'
 }, { flush: 'sync' })
@@ -172,6 +174,17 @@ function applyRetrieved(field: 'temperature' | 'wind'): void {
   emit('apply', field, current.values, `NWS forecast via wxdecoder.com for ${location.value.trim().toUpperCase()}, valid ${current.valid}, retrieved ${retrieved.value}`)
 }
 
+function useQnhUtcTime(field: 'sourceTime' | 'validFrom' | 'validTo'): void {
+  const instant = Date.parse(`${qnhUtcTime.value}Z`)
+  if (!qnhUtcTime.value || !Number.isFinite(instant)) { qnhUtcMessage.value = 'Enter a valid UTC date and time.'; return }
+  const local = new Date(instant)
+  const value = new Date(instant - local.getTimezoneOffset() * 60000).toISOString().slice(0, 16)
+  if (Date.parse(value) !== instant) { qnhUtcMessage.value = 'This UTC time is the second occurrence of a repeated local time and cannot be represented here.'; return }
+  draft.value[field] = value
+  const destination = { sourceTime: 'source time', validFrom: 'valid from', validTo: 'valid until' }[field]
+  qnhUtcMessage.value = `Copied ${qnhUtcTime.value.replace('T', ' ')} UTC to QNH ${destination} as ${value.replace('T', ' ')} device local time.`
+}
+
 function clearQnh(): void {
   Object.assign(qnhDrafts.hPa, emptyQnhDraft())
   Object.assign(qnhDrafts.inHg, emptyQnhDraft())
@@ -248,6 +261,13 @@ function apply(field: keyof MetarValues): void {
       <label>Forecast wind speed<input v-model="speed" type="text" inputmode="decimal" min="0" max="200" step="any" /></label>
       <label>Forecast wind unit<select v-model="unit"><option value="kt">kt</option><option value="m/s">m/s</option></select></label>
     </div>
+    <label>QNH source or validity time in UTC<input v-model="qnhUtcTime" type="datetime-local" /></label>
+    <div class="fields">
+      <button type="button" @click="useQnhUtcTime('sourceTime')">Copy UTC to QNH source time</button>
+      <button type="button" @click="useQnhUtcTime('validFrom')">Copy UTC to QNH valid from</button>
+      <button type="button" @click="useQnhUtcTime('validTo')">Copy UTC to QNH valid until</button>
+    </div>
+    <p aria-live="polite">{{ qnhUtcMessage }}</p>
     <p>QNH entries and their source details are kept separately for each unit; switching units does not convert the entry.</p>
     <p>QNH drafts: hPa {{ Object.values(qnhDrafts.hPa).some(Boolean) ? 'present' : 'empty' }} · inHg {{ Object.values(qnhDrafts.inHg).some(Boolean) ? 'present' : 'empty' }}.</p>
     <button type="button" :disabled="!Object.values(draft).some(Boolean)" @click="Object.assign(draft, emptyQnhDraft())">Clear current {{ qnhUnit }} QNH draft</button>
