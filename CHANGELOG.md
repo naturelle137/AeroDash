@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Allow UTC flight-time entry for forecast selection.
 - Copy pilot-declared UTC QNH source and validity times into local time fields.
 
 - Explain why a declared forecast QNH validity interval cannot be applied.

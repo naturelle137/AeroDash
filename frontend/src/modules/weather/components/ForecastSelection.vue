@@ -9,6 +9,8 @@ const emit = defineEmits<{ apply: [field: keyof MetarValues, values: MetarValues
 const phase = ref('departure')
 const location = ref('')
 const time = ref('')
+const flightUtcTime = ref('')
+const flightUtcMessage = ref('')
 const temperature = ref('')
 const qnhUnit = ref<'hPa' | 'inHg'>('hPa')
 const qnhInput = ref<HTMLInputElement | null>(null)
@@ -55,10 +57,12 @@ onBeforeUnmount(() => {
   window.removeEventListener('pageshow', refresh)
 })
 watch([phase, location, time], () => {
+  flightUtcMessage.value = ''
   temperature.value = ''; clearQnh(); qnhUtcTime.value = ''; qnhUtcMessage.value = ''; direction.value = ''; speed.value = ''
   request++; forecast.value = null; forecastMessage.value = 'Selection changed; retrieve the forecast again.'
   globalForecast.value = null; globalMessage.value = 'Selection changed; retrieve the forecast again.'
 }, { flush: 'sync' })
+watch(flightUtcTime, () => { flightUtcMessage.value = '' })
 watch([latitude, longitude], () => { request++; globalForecast.value = null; globalMessage.value = 'Coordinates changed; retrieve the forecast again.' }, { flush: 'sync' })
 const numberIn = (value: string, min: number, max: number) => value.trim() !== '' && Number.isFinite(Number(value)) && Number(value) >= min && Number(value) <= max
 const validLocalTime = (value: string) => {
@@ -165,6 +169,16 @@ function applyRetrieved(field: 'temperature' | 'wind'): void {
   emit('apply', field, current.values, `NWS forecast via wxdecoder.com for ${location.value.trim().toUpperCase()}, valid ${current.valid}, retrieved ${retrieved.value}`)
 }
 
+function useFlightUtcTime(): void {
+  const instant = Date.parse(`${flightUtcTime.value}Z`)
+  if (!flightUtcTime.value || !Number.isFinite(instant)) { flightUtcMessage.value = 'Enter a valid UTC date and time.'; return }
+  const local = new Date(instant)
+  const value = new Date(instant - local.getTimezoneOffset() * 60000).toISOString().slice(0, 16)
+  if (Date.parse(value) !== instant) { flightUtcMessage.value = 'This UTC time is the second occurrence of a repeated local time and cannot be represented here.'; return }
+  time.value = value
+  flightUtcMessage.value = `Selected ${flightUtcTime.value.replace('T', ' ')} UTC as ${value.replace('T', ' ')} device local time.`
+}
+
 function useQnhUtcTime(field: 'sourceTime' | 'validFrom' | 'validTo'): void {
   const instant = Date.parse(`${qnhUtcTime.value}Z`)
   if (!qnhUtcTime.value || !Number.isFinite(instant)) { qnhUtcMessage.value = 'Enter a valid UTC date and time.'; return }
@@ -207,6 +221,10 @@ function apply(field: keyof MetarValues): void {
         <input v-model="time" type="datetime-local" />
       </label>
     </div>
+    <label>Flight date and time in UTC<input v-model="flightUtcTime" type="datetime-local" /></label>
+    <button type="button" @click="useFlightUtcTime">Use UTC flight time</button>
+    <p>Changing the flight time clears pilot-entered forecast values.</p>
+    <p aria-live="polite">{{ flightUtcMessage }}</p>
     <label v-if="ambiguousFlightTime"><input v-model="confirmFlightTime" type="checkbox" /> This flight time occurs twice during a clock change. The browser uses {{ new Date(time).toISOString() }}; I checked this UTC time.</label>
     <button type="button" :disabled="!online || (ambiguousFlightTime && !confirmFlightTime)" @click="retrieve">Retrieve US forecast</button>
     <p role="status" aria-live="polite">{{ online ? forecastMessage : 'Browser offline: forecast retrieval is unavailable.' }}</p>
