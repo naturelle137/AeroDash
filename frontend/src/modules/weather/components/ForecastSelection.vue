@@ -36,7 +36,7 @@ const forecastMessage = ref('Select a US ICAO station and an exact hour to retri
 const retrieved = ref('')
 const latitude = ref('')
 const longitude = ref('')
-const globalForecast = ref<MetarValues | null>(null)
+const globalForecast = ref<ReturnType<typeof parseGlobalForecast>>(null)
 const globalRetrieved = ref('')
 const globalMessage = ref('Enter coordinates and a future exact UTC forecast hour.')
 const now = ref(Date.now())
@@ -159,8 +159,8 @@ async function retrieveGlobal(): Promise<void> {
 }
 const globalStale = computed(() => !!globalForecast.value && (Date.parse(time.value) <= now.value || now.value - Date.parse(globalRetrieved.value) > 4 * 60 * 60 * 1000))
 function applyGlobal(field: 'temperature' | 'wind'): void {
-  if (!online.value || !selectionValid.value || !globalForecast.value || !globalForecast.value[field] || globalStale.value || Date.parse(time.value) <= Date.now() || Date.now() - Date.parse(globalRetrieved.value) > 4 * 60 * 60 * 1000) return
-  emit('apply', field, globalForecast.value, `Open-Meteo model forecast for ${location.value.trim()} (${latitude.value}, ${longitude.value}), valid ${new Date(time.value).toISOString()}, retrieved ${globalRetrieved.value}; model issue time unavailable`)
+  if (!online.value || !selectionValid.value || !globalForecast.value || !globalForecast.value.values[field] || globalStale.value || Date.parse(time.value) <= Date.now() || Date.now() - Date.parse(globalRetrieved.value) > 4 * 60 * 60 * 1000) return
+  emit('apply', field, globalForecast.value.values, `Open-Meteo model forecast for ${location.value.trim()} (requested ${latitude.value}, ${longitude.value}; model grid ${globalForecast.value.latitude}, ${globalForecast.value.longitude}), valid ${new Date(time.value).toISOString()}, retrieved ${globalRetrieved.value}; model issue time unavailable`)
 }
 
 function applyRetrieved(field: 'temperature' | 'wind'): void {
@@ -245,9 +245,10 @@ function apply(field: keyof MetarValues): void {
     <div v-if="globalForecast">
       <p>Weather data by <a href="https://open-meteo.com/">Open-Meteo</a> · <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a> · Model values presented without conversion.</p>
       <p>Forecast hour: {{ new Date(time).toISOString() }} · Retrieved: {{ globalRetrieved }} · Model issue time: unavailable{{ globalStale ? ' · OUTDATED' : '' }}</p>
-      <p>Temperature: {{ globalForecast.temperature ?? 'unavailable' }} °C · Wind: {{ globalForecast.wind ? `${globalForecast.wind.direction || 'calm'}° true / ${globalForecast.wind.speed} kt` : 'unavailable' }} · Forecast QNH: unavailable.</p>
-      <button type="button" :disabled="!selectionValid || globalStale || !globalForecast.temperature" @click="applyGlobal('temperature')">Replace temperature with global forecast</button>
-      <button type="button" :disabled="!selectionValid || globalStale || !globalForecast.wind" @click="applyGlobal('wind')">Replace wind with global forecast</button>
+      <p>Requested coordinates: {{ latitude }}, {{ longitude }} · Model grid coordinates: {{ globalForecast.latitude }}, {{ globalForecast.longitude }}. Grid location may differ from the selected location.</p>
+      <p>Temperature: {{ globalForecast.values.temperature ?? 'unavailable' }} °C · Wind: {{ globalForecast.values.wind ? `${globalForecast.values.wind.direction || 'calm'}° true / ${globalForecast.values.wind.speed} kt` : 'unavailable' }} · Forecast QNH: unavailable.</p>
+      <button type="button" :disabled="!selectionValid || globalStale || !globalForecast.values.temperature" @click="applyGlobal('temperature')">Replace temperature with global forecast</button>
+      <button type="button" :disabled="!selectionValid || globalStale || !globalForecast.values.wind" @click="applyGlobal('wind')">Replace wind with global forecast</button>
     </div>
     <p>For education and situational awareness only, not an official briefing or go/no-go authority. Obtain required weather from an authorised source.</p>
     <p>Forecast QNH is unavailable from these services. Obtain aviation QNH from an authorised source and enter it below; do not substitute model sea-level pressure. Wind direction is true; gusts are not applied. Values require a future time and are applied only when selected.</p>
