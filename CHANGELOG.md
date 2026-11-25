@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Documentation
+
+- Record the forecast QNH source recheck: no eligible browser-accessible source exists.
+
 ### Fixed
 
 - Keep concurrent US and global forecast requests independent.
