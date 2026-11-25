@@ -276,3 +276,18 @@ Then('pilot-entered additive wind corrections work for both operations', async (
     await inputs.getByLabel('Wind factor source and section').fill('Synthetic additive wind section')
   }
 })
+
+Then('the pilot-entered landing wind correction order changes the corrected distances', async ({ page }) => {
+  const inputs = page.getByRole('group', { name: 'Landing wind and slope' })
+  const result = page.getByRole('region', { name: 'Landing corrected distances', exact: true })
+  await inputs.getByLabel('Manual POH landing slope ground-roll multiplier (optional)').fill('1.2')
+  await inputs.getByLabel('Slope factor source and section').fill('Synthetic manual section 2')
+  const order = inputs.getByLabel('Pilot-entered wind correction order')
+  await expect(order).toHaveValue('after-ground')
+  const after = await result.locator('dd').first().innerText()
+  await order.selectOption('before-ground')
+  await expect(result).toContainText('before the pilot-entered ground corrections')
+  await expect(result.locator('dd').first()).not.toHaveText(after)
+  await order.scrollIntoViewIfNeeded()
+  await expect(order).toBeVisible()
+})

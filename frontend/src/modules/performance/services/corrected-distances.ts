@@ -11,7 +11,7 @@ import { parseLookupNumber, type GroupAssessment } from './poh-inspection'
 export type CorrectionConditions = { headwind: string; slope: string; windFactor?: string; windAddend?: string; windSource?: string; surfaceFactor?: string; surfaceAddend?: string; surfaceSource?: string; slopeFactor?: string; slopeAddend?: string; slopeSource?: string; groundOrder?: 'surface-first' | 'slope-first'; windOrder?: 'after-ground' | 'before-ground' }
 export type CorrectionInputs = Record<Operation, CorrectionConditions>
 export const emptyCorrectionInputs = (): CorrectionInputs => ({
-  takeoff: { headwind: '', slope: '', windFactor: '', windSource: '', groundOrder: 'surface-first' }, landing: { headwind: '', slope: '', windFactor: '', windSource: '', groundOrder: 'surface-first' },
+  takeoff: { headwind: '', slope: '', windFactor: '', windSource: '', groundOrder: 'surface-first', windOrder: 'after-ground' }, landing: { headwind: '', slope: '', windFactor: '', windSource: '', groundOrder: 'surface-first', windOrder: 'after-ground' },
 })
 
 /** Pilot-selected safety factor for one operation; `poh-afm` is the factor stated by the accepted manual. */
