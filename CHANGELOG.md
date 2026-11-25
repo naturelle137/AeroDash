@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Documentation
 
-- Record the forecast QNH source recheck: no eligible browser-accessible source exists.
+- Record the forecast QNH source recheck: no eligible browser-accessible source exists (rechecked 26 November 2026).
 
 ### Fixed
 
