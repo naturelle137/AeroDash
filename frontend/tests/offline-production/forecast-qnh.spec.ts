@@ -225,3 +225,32 @@ test.describe('UTC QNH entry', () => {
     await expect(page.getByText('pilot-entered QNH: 1013 hPa', { exact: false })).toBeVisible()
   })
 })
+
+test('parallel forecast sources complete independently', async ({ page }, info) => {
+  let releaseUs!: () => void
+  const waitForUs = new Promise<void>(resolve => { releaseUs = resolve })
+  await page.route('https://wxdecoder.com/api/airports/**', async route => {
+    await waitForUs
+    await route.fulfill({ json: { airportIdent: 'KDFW', freshness: { forecastFetchedAt: new Date().toISOString(), stale: false }, hourly: [{ time: '2099-06-01T12:00:00Z', tempF: 68, windDir: 'N', windSpeedKt: 10 }] } })
+  })
+  await page.route('https://api.open-meteo.com/**', route => route.fulfill({ json: { latitude: 32, longitude: -97, utc_offset_seconds: 0, hourly_units: { time: 'iso8601', temperature_2m: '°C', wind_speed_10m: 'kn', wind_direction_10m: '°' }, hourly: { time: ['2099-06-01T12:00'], temperature_2m: [12], wind_speed_10m: [10], wind_direction_10m: [180] } } }))
+  await page.goto('/mass-balance')
+  const accept = page.getByTestId('disclaimer-gate-accept')
+  if (await accept.isVisible()) await accept.click()
+  const forecast = page.getByRole('region', { name: 'Time-specific forecast' })
+  await forecast.getByLabel('Location', { exact: true }).fill('KDFW')
+  await forecast.getByLabel('Flight date and time in UTC').fill('2099-06-01T12:00')
+  await forecast.getByRole('button', { name: 'Use UTC flight time' }).click()
+  await forecast.getByLabel('Latitude (°)').fill('32')
+  await forecast.getByLabel('Longitude (°)').fill('-97')
+  await forecast.getByRole('button', { name: 'Retrieve US forecast' }).click()
+  await forecast.getByRole('button', { name: 'Retrieve global model forecast' }).click()
+  await expect(forecast).toContainText('Requested coordinates: 32, -97')
+  releaseUs()
+  await expect(forecast).toContainText('Temperature: 20 °C')
+  await expect(forecast).toContainText('Temperature: 12 °C')
+  await forecast.getByText('Requested coordinates:', { exact: false }).scrollIntoViewIfNeeded()
+  const path = info.outputPath(`parallel-forecasts-${info.project.name}.png`)
+  await page.screenshot({ path, animations: 'disabled' })
+  await info.attach('parallel-forecasts', { path, contentType: 'image/png' })
+})

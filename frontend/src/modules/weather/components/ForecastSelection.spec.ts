@@ -228,3 +228,36 @@ it('selects a UTC flight time and clears entries when it changes', async () => {
   expect((label('Forecast QNH').element as HTMLInputElement).value).toBe('')
   view.unmount()
 })
+
+it('keeps independent requests and rejects obsolete responses', async () => {
+  vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(true)
+  const responses: ((value: unknown) => void)[] = []
+  vi.stubGlobal('fetch', vi.fn(() => new Promise(resolve => responses.push(resolve))))
+  const view = mount(ForecastSelection)
+  const input = (name: string) => view.findAll('label').find(item => item.text().includes(name))!.get('input')
+  const button = (name: string) => view.findAll('button').find(item => item.text() === name)!
+  await input('Location').setValue('KDFW')
+  await input('Flight date and time in UTC').setValue('2099-06-01T12:00')
+  await button('Use UTC flight time').trigger('click')
+  await input('Latitude').setValue('32')
+  await input('Longitude').setValue('-97')
+  await button('Retrieve US forecast').trigger('click')
+  await button('Retrieve global model forecast').trigger('click')
+  const us = { airportIdent: 'KDFW', freshness: { forecastFetchedAt: new Date().toISOString(), stale: false }, hourly: [{ time: '2099-06-01T12:00:00Z', tempF: 68, windDir: 'N', windSpeedKt: 10 }] }
+  const global = { latitude: 32, longitude: -97, utc_offset_seconds: 0, hourly_units: { time: 'iso8601', temperature_2m: '°C', wind_speed_10m: 'kn', wind_direction_10m: '°' }, hourly: { time: ['2099-06-01T12:00'], temperature_2m: [12], wind_speed_10m: [10], wind_direction_10m: [180] } }
+  responses[0]!({ ok: true, json: async () => us })
+  responses[1]!({ ok: true, json: async () => global })
+  await vi.waitFor(() => expect(view.text()).toContain('Requested coordinates: 32, -97'))
+  expect(view.text()).toContain('Temperature: 20 °C')
+  await button('Retrieve US forecast').trigger('click')
+  await input('Latitude').setValue('33')
+  responses[2]!({ ok: true, json: async () => us })
+  await vi.waitFor(() => expect(view.text()).toContain('Temperature: 20 °C'))
+  await button('Retrieve global model forecast').trigger('click')
+  await input('Location').setValue('KJFK')
+  responses[3]!({ ok: true, json: async () => global })
+  await vi.waitFor(() => expect(view.text()).not.toContain('Requested coordinates:'))
+  expect(view.text()).toContain('Selection changed; retrieve the forecast again.')
+  view.unmount()
+  vi.unstubAllGlobals()
+})

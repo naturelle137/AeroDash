@@ -40,8 +40,9 @@ const globalForecast = ref<ReturnType<typeof parseGlobalForecast>>(null)
 const globalRetrieved = ref('')
 const globalMessage = ref('Enter coordinates and a future exact UTC forecast hour.')
 const now = ref(Date.now())
-let request = 0
-const refresh = () => { now.value = Date.now(); online.value = navigator.onLine; if (!online.value) { request++; forecast.value = null; globalForecast.value = null } }
+let forecastRequest = 0
+let globalRequest = 0
+const refresh = () => { now.value = Date.now(); online.value = navigator.onLine; if (!online.value) { forecastRequest++; globalRequest++; forecast.value = null; globalForecast.value = null; forecastMessage.value = 'Connection lost; retrieve the forecast again.'; globalMessage.value = 'Connection lost; retrieve the forecast again.' } }
 let timer: ReturnType<typeof setInterval>
 onMounted(() => {
   timer = setInterval(refresh, 1000)
@@ -59,11 +60,11 @@ onBeforeUnmount(() => {
 watch([phase, location, time], () => {
   flightUtcMessage.value = ''
   temperature.value = ''; clearQnh(); qnhUtcTime.value = ''; qnhUtcMessage.value = ''; direction.value = ''; speed.value = ''
-  request++; forecast.value = null; forecastMessage.value = 'Selection changed; retrieve the forecast again.'
+  forecastRequest++; globalRequest++; forecast.value = null; forecastMessage.value = 'Selection changed; retrieve the forecast again.'
   globalForecast.value = null; globalMessage.value = 'Selection changed; retrieve the forecast again.'
 }, { flush: 'sync' })
 watch(flightUtcTime, () => { flightUtcMessage.value = '' })
-watch([latitude, longitude], () => { request++; globalForecast.value = null; globalMessage.value = 'Coordinates changed; retrieve the forecast again.' }, { flush: 'sync' })
+watch([latitude, longitude], () => { globalRequest++; globalForecast.value = null; globalMessage.value = 'Coordinates changed; retrieve the forecast again.' }, { flush: 'sync' })
 const numberIn = (value: string, min: number, max: number) => value.trim() !== '' && Number.isFinite(Number(value)) && Number(value) >= min && Number(value) <= max
 const validLocalTime = (value: string) => {
   const date = new Date(value)
@@ -118,20 +119,20 @@ async function retrieve(): Promise<void> {
   if (!online.value || !/^[A-Z]{4}$/.test(station) || !selectionValid.value || new Date(selected).getMinutes() !== 0) {
     forecastMessage.value = 'Enter a four-letter ICAO station and a future exact hour in device local time.'; return
   }
-  const current = ++request
+  const current = ++forecastRequest
   forecast.value = null
   forecastMessage.value = 'Retrieving forecast…'
   try {
     const response = await fetch(`https://wxdecoder.com/api/airports/${station.toLowerCase()}/weather/forecast`, { credentials: 'omit' })
     if (!response.ok) throw new Error('unavailable')
     const data: unknown = await response.json()
-    if (current !== request) return
+    if (current !== forecastRequest) return
     const now = Date.now()
     forecast.value = parseForecast(data, station, selected, now)
     retrieved.value = new Date(now).toISOString()
     forecastMessage.value = forecast.value ? (forecast.value.stale ? 'Outdated forecast; obtain current weather.' : 'Forecast retrieved; verify with an authorised source.') : 'No forecast available for this station and hour; coverage is limited to US airports.'
   } catch (error) {
-    if (current !== request) return
+    if (current !== forecastRequest) return
     forecastMessage.value = error instanceof SyntaxError || (error instanceof Error && error.message === 'malformed') ? 'Malformed forecast response.' : 'Forecast retrieval failed or is unavailable.'
   }
 }
@@ -140,7 +141,7 @@ async function retrieveGlobal(): Promise<void> {
   if (!online.value || !selectionValid.value || selected % 3600000 !== 0 || !numberIn(latitude.value, -90, 90) || !numberIn(longitude.value, -180, 180)) {
     globalMessage.value = 'Enter valid coordinates, a location and a future time matching an exact UTC hour.'; return
   }
-  const current = ++request
+  const current = ++globalRequest
   globalForecast.value = null
   globalMessage.value = 'Retrieving forecast…'
   const params = new URLSearchParams({ latitude: latitude.value, longitude: longitude.value, hourly: 'temperature_2m,wind_speed_10m,wind_direction_10m', wind_speed_unit: 'kn', timezone: 'GMT', forecast_days: '16' })
@@ -148,12 +149,12 @@ async function retrieveGlobal(): Promise<void> {
     const response = await fetch(`https://api.open-meteo.com/v1/forecast?${params}`, { credentials: 'omit', cache: 'no-store', referrerPolicy: 'no-referrer' })
     if (!response.ok) throw new Error('unavailable')
     const data: unknown = await response.json()
-    if (current !== request) return
+    if (current !== globalRequest) return
     globalForecast.value = parseGlobalForecast(data, selected)
     globalRetrieved.value = new Date().toISOString()
     globalMessage.value = globalForecast.value ? 'Forecast retrieved; model issue time is unavailable. Verify with an authorised source.' : 'No forecast available for the selected hour.'
   } catch (error) {
-    if (current !== request) return
+    if (current !== globalRequest) return
     globalMessage.value = error instanceof SyntaxError || (error instanceof Error && error.message === 'malformed') ? 'Malformed forecast response.' : 'Forecast retrieval failed or is unavailable.'
   }
 }
