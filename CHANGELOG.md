@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Check US forecast hours in UTC in every device time zone.
 - Reject ambiguous duplicate forecast times and invalid global calendar dates.
 - Keep concurrent US and global forecast requests independent.
 
