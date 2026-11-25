@@ -119,3 +119,11 @@ When a declared QNH validity interval cannot be applied, the system shall explai
 ### REQ-WX-025: DWD model forecast
 
 When the pilot requests DWD model weather for valid coordinates and a future forecast hour, the system shall offer available temperature and wind values with their source and retrieval time.
+
+### REQ-WX-026: TAF wind
+
+While a retrieved TAF for the entered station is within its validity and defines a prevailing numeric wind, the system shall offer that wind for Flight Prep with the TAF station, issue time and validity interval.
+
+### REQ-WX-027: Observation fallback label
+
+While a METAR value is offered and no applicable forecast value exists for that parameter, the system shall label it as a METAR observation without a forecast with its station and observation time.

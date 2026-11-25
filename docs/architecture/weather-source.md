@@ -14,6 +14,10 @@ Flight Prep embeds the existing TAF retrieval panel. The raw station, issue time
 
 A matching fresh liquid METAR takes precedence over a matching liquid TAF. Forecast changes, failed refresh, station edits, expiry, offline events and panel removal withdraw unsaved TAF suggestions. Saved and pilot-entered conditions retain priority. Saved TAF provenance includes station, issue time and the full forecast validity interval; it is a historical pilot declaration, never a live runway assessment. Legacy unpaved Wet / soft ground declarations remain readable.
 
+## Forecast wind and observation fallback
+
+Flight Prep offers the prevailing TAF wind for the entered station when the current UTC time lies in the forecast validity, using the same bounded parser and station, issue-time and validity checks. Only numeric directions in knots or m/s are offered; variable direction, km/h, gusts, TEMPO/PROB groups, BECMG transitions and unsupported groups are not. The TAF supplies neither temperature nor QNH here. For each parameter without an applicable forecast, an unexpired METAR value is shown as a METAR observation without a forecast, with its station and observation time. Both sources show their station and elapsed time; a station mismatch is flagged. Nothing is replaced until the pilot chooses it, and manual input and offline use are unchanged. Applied provenance names the TAF or METAR, issue or observation time and validity. DWD ICON remains a separate pilot-selected forecast below.
+
 ## Hourly forecast
 
 Pilot-entered temperature, aviation QNH and wind can be applied separately offline for a selected phase, location and future device-local time. The entries are not an official forecast or saved; changing the selection clears them. Missing or invalid fields and a passed selected time are shown, and expired entries cannot be applied. Explicitly applied values retain pilot-entered provenance until edited.

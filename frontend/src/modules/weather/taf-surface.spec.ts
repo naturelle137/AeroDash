@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { tafLiquid } from './taf-surface'
+import { tafLiquid, tafWind } from './taf-surface'
 
 const start = Date.parse('2026-11-30T12:00:00Z')
 const end = Date.parse('2026-12-01T18:00:00Z')
@@ -70,4 +70,26 @@ it.each([
   [`${rain} BECMG 3014/3015 NSW`, '2026-11-30T13:00:00Z', false],
 ] as const)('keeps continuous precipitation across changes: %s at %s', (body, now, expected) => {
   expect(tafLiquid(body, start, end, at(now), 'soft')).toBe(expected)
+})
+
+describe('synthetic current-time TAF wind', () => {
+  const kt = (direction: string, speed: string) => ({ direction, speed, unit: 'kt' })
+  it.each([
+    [base, start - 1, null], [base, start, kt('210', '5')], [base, end, null],
+    ['VRB05KT 9999 BKN020', start, null],
+    ['21005G15KT 9999 BKN020', start, kt('210', '5')],
+    ['00000KT 9999 BKN020', start, kt('', '0')],
+    ['21005MPS 9999 BKN020', start, { direction: '210', speed: '5', unit: 'm/s' }],
+    ['21010KMH 9999 BKN020', start, null],
+    [`${base} TEMPO 3014/3016 25020KT 4000 RA BKN010`, at('2026-11-30T14:30:00Z'), kt('210', '5')],
+    [`${base} FM301400 25010KT 9999 BKN020`, at('2026-11-30T13:59:59Z'), kt('210', '5')],
+    [`${base} FM301400 25010KT 9999 BKN020`, at('2026-11-30T14:00:00Z'), kt('250', '10')],
+    [`${base} BECMG 3014/3016 25010KT`, at('2026-11-30T15:00:00Z'), null],
+    [`${base} BECMG 3014/3016 25010KT`, at('2026-11-30T16:00:00Z'), kt('250', '10')],
+    [`${base} BECMG 3014/3016 RA`, at('2026-11-30T16:00:00Z'), kt('210', '5')],
+    [`${base} BECMG 3014/3016 VRB03KT`, at('2026-11-30T16:00:00Z'), null],
+    [`${base} UNSUPPORTED`, start, null],
+  ] as const)('selects %s at %s', (body, now, expected) => {
+    expect(tafWind(body, start, end, now)).toEqual(expected)
+  })
 })

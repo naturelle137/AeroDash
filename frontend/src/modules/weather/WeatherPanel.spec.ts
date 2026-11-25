@@ -113,3 +113,68 @@ it('emits only fresh, structurally plausible present liquid precipitation', asyn
   view.unmount()
   vi.useRealTimers()
 })
+
+describe('WeatherPanel forecast with observation fallback', () => {
+  const taf = { raw: 'TAF EDDF 211100Z 2112/2218 21005KT 9999 BKN020', station: 'EDDF', issueTime: '2026-11-21T11:00:00.000Z', validFrom: '2026-11-21T12:00:00.000Z', validTo: '2026-11-22T18:00:00.000Z' }
+  const metar = { raw: 'EDDF 211620Z 17004KT 12/08 Q1013', station: 'EDDF', reportTime: '2026-11-21T16:20:00Z', reportTimeKnown: true }
+  async function load(data: { taf?: unknown; metar?: unknown }, tafStation = 'EDDF') {
+    vi.useFakeTimers().setSystemTime(new Date('2026-11-21T17:00:00Z'))
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => data }))
+    const view = mount(WeatherPanel)
+    const forms = view.findAll('form')
+    for (const [index, id, station] of [[0, '#weather-icao', 'EDDF'], [1, '#taf-icao', tafStation]] as const) {
+      await view.get(id).setValue(station)
+      await forms[index]!.trigger('submit')
+      await flushPromises()
+    }
+    return view
+  }
+  const button = (view: ReturnType<typeof mount>, text: string) => view.findAll('button').find(b => b.text().includes(text))
+
+  it('prefers the applicable TAF wind and labels METAR values for the remaining parameters as observations', async () => {
+    const view = await load({ taf, metar })
+    expect(view.text()).toContain('Forecast wind from TAF EDDF, issued 2026-11-21T11:00:00.000Z')
+    expect(view.text()).toContain('valid 2026-11-21T12:00:00.000Z to 2026-11-22T18:00:00.000Z')
+    expect(button(view, 'Replace wind with METAR')).toBeUndefined()
+    expect(view.text()).toContain('temperature: no forecast available — this is a METAR observation from EDDF')
+    expect(view.text()).toContain('qnh: no forecast available — this is a METAR observation')
+    expect(view.text()).not.toContain('wind: no forecast available')
+    expect(view.emitted('apply')).toBeUndefined()
+    await button(view, 'Replace wind with TAF forecast (210 / 5 kt)')!.trigger('click')
+    expect(view.emitted('apply')?.[0]).toEqual(['wind', { wind: { direction: '210', speed: '5', unit: 'kt' } }, expect.stringContaining('TAF EDDF via wxdecoder.com, issued 2026-11-21T11:00:00.000Z, valid 2026-11-21T12:00:00.000Z to 2026-11-22T18:00:00.000Z')])
+    view.unmount()
+  })
+
+  it('falls back to the METAR wind with an explicit label when the TAF is missing', async () => {
+    const view = await load({ taf: null, metar })
+    expect(button(view, 'TAF forecast')).toBeUndefined()
+    expect(button(view, 'Replace wind with METAR')).toBeDefined()
+    expect(view.text()).toContain('wind: no forecast available — this is a METAR observation from EDDF, observed 2026-11-21T16:20:00.000Z UTC (40 min ago)')
+    view.unmount()
+  })
+
+  it('falls back to the METAR wind when the TAF wind is variable, and offers nothing without either source', async () => {
+    const variable = await load({ taf: { ...taf, raw: taf.raw.replace('21005KT', 'VRB05KT') }, metar })
+    expect(button(variable, 'TAF forecast')).toBeUndefined()
+    expect(button(variable, 'Replace wind with METAR')).toBeDefined()
+    variable.unmount()
+    const none = await load({ taf: null, metar: null })
+    expect(none.findAll('button').filter(b => b.text().includes('Replace'))).toHaveLength(0)
+    expect(none.text()).not.toContain('no forecast available —')
+    none.unmount()
+  })
+
+  it('warns when the TAF and METAR stations differ', async () => {
+    const view = await load({ taf: { ...taf, station: 'EDDM', raw: taf.raw.replace('EDDF', 'EDDM') }, metar }, 'EDDM')
+    expect(view.text()).toContain('The METAR station EDDF differs from the TAF station EDDM.')
+    view.unmount()
+  })
+
+  it('withdraws the TAF wind when its validity ends', async () => {
+    const ended = await load({ taf: { ...taf, validTo: '2026-11-21T18:00:00.000Z', raw: taf.raw.replace('2218', '2118') }, metar })
+    expect(button(ended, 'TAF forecast')).toBeDefined()
+    await vi.advanceTimersByTimeAsync(61 * 60 * 1000)
+    expect(button(ended, 'TAF forecast')).toBeUndefined()
+    ended.unmount()
+  })
+})

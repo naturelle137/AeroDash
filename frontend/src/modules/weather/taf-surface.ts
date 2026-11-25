@@ -1,10 +1,22 @@
 import { liquidWeatherToken } from './metar-surface'
+import type { MetarValues } from './metar-values'
+
+export type TafWind = NonNullable<MetarValues['wind']>
 
 /** Current-time TAF interpretation; unsupported groups never become runway evidence. */
 export function tafLiquid(body: string, start: number, end: number, now: number, mode: 'liquid' | 'soft' = 'liquid'): boolean | null {
+  return analyse(body, start, end, now, mode)?.liquid ?? null
+}
+
+/** Prevailing forecast wind at `now`; null when absent, in a BECMG transition, variable, or the TAF is unsupported. TEMPO/PROB groups are not prevailing. */
+export function tafWind(body: string, start: number, end: number, now: number): TafWind | null {
+  return analyse(body, start, end, now, 'liquid')?.wind ?? null
+}
+
+function analyse(body: string, start: number, end: number, now: number, mode: 'liquid' | 'soft'): { liquid: boolean; wind: TafWind | null } | null {
   if (![start, end, now].every(Number.isFinite) || start >= end || end - start > 48 * 3600000 || now < start || now >= end) return null
   const tokens = body.trim().replace(/=$/, '').split(/\s+/)
-  const groups: { kind: string; from: number; to: number; liquid: boolean | undefined; precip: boolean | undefined }[] = []
+  const groups: { kind: string; from: number; to: number; liquid: boolean | undefined; precip: boolean | undefined; wind: TafWind | null | undefined }[] = []
   function time(day: string, hour: string, minute = '00'): number {
     if (+hour > 24 || +minute > 59 || (+hour === 24 && +minute !== 0)) return NaN
     for (let date = start; date <= end; date += 60000) {
@@ -38,9 +50,15 @@ export function tafLiquid(body: string, start: number, end: number, now: number,
     let wind = false, visibility = false, sky = false, weather = 0
     let liquid: boolean | undefined
     let precip: boolean | undefined
+    let value: TafWind | null | undefined
     const windMatch = /^(\d{3}|VRB)(\d{2,3})(?:G\d{2,3})?(KT|MPS|KMH)$/.exec(tokens[i] ?? '')
     if (windMatch) {
       if ((windMatch[1] !== 'VRB' && +windMatch[1]! > 360) || (windMatch[1] === '000' && +windMatch[2]! !== 0)) return null
+      const direction = Number(windMatch[1]); const speed = Number(windMatch[2])
+      // Variable direction, km/h and implausible speeds are not offered as inputs.
+      value = windMatch[1] !== 'VRB' && windMatch[3] !== 'KMH' && speed <= 200 && ((direction >= 1 && speed > 0) || speed === 0)
+        ? { direction: speed === 0 ? '' : String(direction), speed: String(speed), unit: windMatch[3] === 'KT' ? 'kt' : 'm/s' }
+        : null
       wind = true; i++
     }
     if (/^\d+$/.test(tokens[i] ?? '') && /^\d+\/\d+SM$/.test(tokens[i + 1] ?? '')) i++
@@ -61,16 +79,17 @@ export function tafLiquid(body: string, start: number, end: number, now: number,
     }
     if (i === first || ((kind === 'base' || kind === 'FM') && (!wind || !visibility || !sky))) return null
     if (kind === 'base' || kind === 'FM') { liquid ??= false; precip ??= false }
-    groups.push({ kind, from, to, liquid, precip })
+    groups.push({ kind, from, to, liquid, precip, wind: value })
   }
   let prevailing: boolean | undefined
+  let wind: TafWind | null = null
   let boundary = start
   for (const group of groups) {
-    if (group.kind === 'base') prevailing = group.liquid
+    if (group.kind === 'base') { prevailing = group.liquid; wind = group.wind ?? null }
     if (group.kind === 'FM') {
       if (group.from <= boundary) return null
       boundary = group.from
-      if (now >= group.from) prevailing = group.liquid
+      if (now >= group.from) { prevailing = group.liquid; wind = group.wind ?? null }
     }
     if (group.kind === 'TEMPO' && group.from < boundary) return null
     if (group.kind === 'BECMG') {
@@ -78,6 +97,7 @@ export function tafLiquid(body: string, start: number, end: number, now: number,
       boundary = group.to
       if (now >= group.from && now < group.to) return null
       if (now >= group.to && group.liquid !== undefined) prevailing = group.liquid
+      if (now >= group.to && group.wind !== undefined) wind = group.wind
     }
   }
   if (mode === 'soft') {
@@ -93,8 +113,7 @@ export function tafLiquid(body: string, start: number, end: number, now: number,
     }
     const nextChange = groups.filter(g => (g.kind === 'FM' || g.kind === 'BECMG') && g.from > now && g.precip === false).map(g => g.from)
     const until = Math.min(end, ...nextChange)
-    if (currentPrecip && until - since > 2 * 3600000) return true
-    return false
+    return { liquid: currentPrecip && until - since > 2 * 3600000, wind }
   }
-  return prevailing === true || groups.some((g, index) => g.kind === 'TEMPO' && now >= g.from && now < g.to && g.liquid === true && !groups.slice(index + 1).some(next => next.kind === 'FM' && now >= next.from))
+  return { wind, liquid: prevailing === true || groups.some((g, index) => g.kind === 'TEMPO' && now >= g.from && now < g.to && g.liquid === true && !groups.slice(index + 1).some(next => next.kind === 'FM' && now >= next.from)) }
 }

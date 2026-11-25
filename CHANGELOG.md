@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Offer DWD ICON model forecasts via Open-Meteo alongside the global model.
 
+- Offer the applicable TAF wind for Flight Prep and label METAR values without a forecast as observations.
+
 - Export declared runway date intervals for selected and device dates.
 
 - Show unsaved runway date checks and their source limitations in the briefing.
