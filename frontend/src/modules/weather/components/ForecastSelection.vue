@@ -122,7 +122,7 @@ const values = computed<MetarValues>(() => {
 async function retrieve(): Promise<void> {
   const station = location.value.trim().toUpperCase()
   const selected = Date.parse(time.value)
-  const problem = !online.value ? 'You are offline; retrieval needs a connection.' : !/^[A-Z]{4}$/.test(station) ? 'Enter a four-letter ICAO station.' : selectionProblem() || (new Date(selected).getMinutes() !== 0 ? 'The US forecast covers exact hours only; set the minutes to 00.' : '')
+  const problem = !online.value ? 'You are offline; retrieval needs a connection.' : !/^[A-Z]{4}$/.test(station) ? 'Enter a four-letter ICAO station.' : selectionProblem() || (selected % 3600000 !== 0 ? 'The US forecast covers exact UTC hours only; check the selected UTC time.' : '')
   if (problem) { forecastMessage.value = problem; return }
   const current = ++forecastRequest
   forecast.value = null

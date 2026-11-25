@@ -71,7 +71,7 @@ When('the pilot retrieves a synthetic hourly forecast', async ({ page }) => {
   await page.route('https://wxdecoder.com/api/airports/kdfw/weather/forecast', route => route.fulfill({ json: { airportIdent: 'KDFW', freshness: { forecastFetchedAt: new Date().toISOString(), stale: false }, hourly: [{ time: '2030-06-01T12:00:00Z', tempF: 68, windDir: 'N', windSpeedKt: 10 }] }, headers: { 'access-control-allow-origin': '*' } }))
   const local = new Date('2030-06-01T12:00:00Z')
   const pad = (n: number) => String(n).padStart(2, '0')
-  const time = `${local.getFullYear()}-${pad(local.getMonth() + 1)}-${pad(local.getDate())}T${pad(local.getHours())}:00`
+  const time = `${local.getFullYear()}-${pad(local.getMonth() + 1)}-${pad(local.getDate())}T${pad(local.getHours())}:${pad(local.getMinutes())}`
   await forecast.getByLabel('Location').fill('KDFW')
   await forecast.getByLabel('Local date and time').fill(time)
   await forecast.getByRole('button', { name: 'Retrieve US forecast' }).click()
@@ -97,7 +97,7 @@ When('the pilot retrieves a synthetic global forecast', async ({ page }) => {
   await page.route('https://api.open-meteo.com/v1/forecast?*', route => route.fulfill({ json: { latitude: 50.1, longitude: 8.1, utc_offset_seconds: 0, hourly_units: { time: 'iso8601', temperature_2m: '°C', wind_speed_10m: 'kn', wind_direction_10m: '°' }, hourly: { time: ['2030-06-01T12:00'], temperature_2m: [17], wind_speed_10m: [12], wind_direction_10m: [270] } }, headers: { 'access-control-allow-origin': '*' } }))
   const date = new Date('2030-06-01T12:00:00Z')
   const pad = (n: number) => String(n).padStart(2, '0')
-  await forecast.getByLabel('Local date and time').fill(`${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:00`)
+  await forecast.getByLabel('Local date and time').fill(`${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`)
   await forecast.getByLabel('Latitude').fill('50.1')
   await forecast.getByLabel('Longitude').fill('8.6')
   await forecast.getByRole('button', { name: 'Retrieve global model forecast' }).click()
@@ -118,7 +118,7 @@ Then('the global forecast evidence is captured as {string}', async ({ page, $tes
 const hourLocal = () => {
   const date = new Date('2030-06-01T12:00:00Z')
   const pad = (n: number) => String(n).padStart(2, '0')
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:00`
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`
 }
 async function retrieveUs(page: Page, body: unknown): Promise<void> {
   const forecast = page.getByRole('region', { name: 'Time-specific forecast' })
