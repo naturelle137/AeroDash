@@ -13,6 +13,7 @@ const temperature = ref('')
 const qnhUnit = ref<'hPa' | 'inHg'>('hPa')
 const qnhInput = ref<HTMLInputElement | null>(null)
 const confirmQnhTimes = ref(false)
+const confirmFlightTime = ref(false)
 const emptyQnhDraft = () => ({ value: '', source: '', sourceTime: '', timeKind: '', validFrom: '', validTo: '' })
 const qnhDrafts = reactive({ hPa: emptyQnhDraft(), inHg: emptyQnhDraft() })
 const draft = computed(() => qnhDrafts[qnhUnit.value])
@@ -72,9 +73,11 @@ const ambiguousLocalTime = (value: string) => {
     return otherOffset !== offset && new Date(alternative.getTime() - alternative.getTimezoneOffset() * 60000).toISOString().slice(0, 16) === value
   })
 }
-const ambiguousQnhTimes = computed(() => [time.value, qnhSourceTime.value, qnhValidFrom.value, qnhValidTo.value].some(ambiguousLocalTime))
+const ambiguousFlightTime = computed(() => ambiguousLocalTime(time.value))
+const ambiguousQnhTimes = computed(() => [qnhSourceTime.value, qnhValidFrom.value, qnhValidTo.value].some(ambiguousLocalTime))
+watch(time, () => { confirmFlightTime.value = false }, { flush: 'sync' })
 watch([time, qnhUnit, qnhSourceTime, qnhValidFrom, qnhValidTo], () => { confirmQnhTimes.value = false }, { flush: 'sync' })
-const selectionValid = computed(() => location.value.trim() !== '' && validLocalTime(time.value) && Date.parse(time.value) > now.value)
+const selectionValid = computed(() => location.value.trim() !== '' && validLocalTime(time.value) && (!ambiguousFlightTime.value || confirmFlightTime.value) && Date.parse(time.value) > now.value)
 const stale = computed(() => !!forecast.value && (forecast.value.stale || Date.parse(forecast.value.valid) <= now.value || now.value - Date.parse(forecast.value.fetched) > 4 * 60 * 60 * 1000))
 const qnhSourceAge = computed(() => {
   const minutes = Math.floor((now.value - Date.parse(qnhSourceTime.value)) / 60000)
@@ -150,13 +153,13 @@ async function retrieveGlobal(): Promise<void> {
 }
 const globalStale = computed(() => !!globalForecast.value && (Date.parse(time.value) <= now.value || now.value - Date.parse(globalRetrieved.value) > 4 * 60 * 60 * 1000))
 function applyGlobal(field: 'temperature' | 'wind'): void {
-  if (!online.value || !globalForecast.value || !globalForecast.value[field] || globalStale.value || Date.parse(time.value) <= Date.now() || Date.now() - Date.parse(globalRetrieved.value) > 4 * 60 * 60 * 1000) return
+  if (!online.value || !selectionValid.value || !globalForecast.value || !globalForecast.value[field] || globalStale.value || Date.parse(time.value) <= Date.now() || Date.now() - Date.parse(globalRetrieved.value) > 4 * 60 * 60 * 1000) return
   emit('apply', field, globalForecast.value, `Open-Meteo model forecast for ${location.value.trim()} (${latitude.value}, ${longitude.value}), valid ${new Date(time.value).toISOString()}, retrieved ${globalRetrieved.value}; model issue time unavailable`)
 }
 
 function applyRetrieved(field: 'temperature' | 'wind'): void {
   const current = forecast.value
-  if (!online.value || !current || current.stale || Date.parse(current.valid) <= Date.now() || Date.now() - Date.parse(current.fetched) > 4 * 60 * 60 * 1000 || !current.values[field]) return
+  if (!online.value || !selectionValid.value || !current || current.stale || Date.parse(current.valid) <= Date.now() || Date.now() - Date.parse(current.fetched) > 4 * 60 * 60 * 1000 || !current.values[field]) return
   emit('apply', field, current.values, `NWS forecast via wxdecoder.com for ${location.value.trim().toUpperCase()}, valid ${current.valid}, retrieved ${retrieved.value}`)
 }
 
@@ -191,28 +194,29 @@ function apply(field: keyof MetarValues): void {
         <input v-model="time" type="datetime-local" />
       </label>
     </div>
-    <button type="button" :disabled="!online" @click="retrieve">Retrieve US forecast</button>
+    <label v-if="ambiguousFlightTime"><input v-model="confirmFlightTime" type="checkbox" /> This flight time occurs twice during a clock change. The browser uses {{ new Date(time).toISOString() }}; I checked this UTC time.</label>
+    <button type="button" :disabled="!online || (ambiguousFlightTime && !confirmFlightTime)" @click="retrieve">Retrieve US forecast</button>
     <p role="status" aria-live="polite">{{ online ? forecastMessage : 'Browser offline: forecast retrieval is unavailable.' }}</p>
     <div v-if="forecast">
       <p>US airport coverage · NWS via <a href="https://wxdecoder.com">wxdecoder.com</a> · Sources: NOAA/NWS Aviation Weather Center, National Weather Service and FAA.</p>
       <p>Forecast hour: {{ forecast.valid }} · Source fetched: {{ forecast.fetched }} · Retrieved: {{ retrieved }}{{ stale ? ' · OUTDATED' : '' }}</p>
       <p>Temperature: {{ forecast.values.temperature ?? 'unavailable' }} °C · Wind: {{ forecast.values.wind ? `${forecast.values.wind.direction || 'calm'}° true / ${forecast.values.wind.speed} kt` : 'unavailable' }} · Forecast QNH: unavailable.</p>
-      <button type="button" :disabled="stale || !forecast.values.temperature" @click="applyRetrieved('temperature')">Replace temperature with retrieved forecast</button>
-      <button type="button" :disabled="stale || !forecast.values.wind" @click="applyRetrieved('wind')">Replace wind with retrieved forecast</button>
+      <button type="button" :disabled="!selectionValid || stale || !forecast.values.temperature" @click="applyRetrieved('temperature')">Replace temperature with retrieved forecast</button>
+      <button type="button" :disabled="!selectionValid || stale || !forecast.values.wind" @click="applyRetrieved('wind')">Replace wind with retrieved forecast</button>
     </div>
     <div class="fields">
       <label>Latitude (°)<input v-model="latitude" type="text" inputmode="decimal" min="-90" max="90" step="any" /></label>
       <label>Longitude (°)<input v-model="longitude" type="text" inputmode="decimal" min="-180" max="180" step="any" /></label>
     </div>
     <p>Coordinates are sent to Open-Meteo on request; its free API is for non-commercial use.</p>
-    <button type="button" :disabled="!online" @click="retrieveGlobal">Retrieve global model forecast</button>
+    <button type="button" :disabled="!online || (ambiguousFlightTime && !confirmFlightTime)" @click="retrieveGlobal">Retrieve global model forecast</button>
     <p aria-live="polite">{{ online ? globalMessage : 'Browser offline: forecast retrieval is unavailable.' }}</p>
     <div v-if="globalForecast">
       <p>Weather data by <a href="https://open-meteo.com/">Open-Meteo</a> · <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a> · Model values presented without conversion.</p>
       <p>Forecast hour: {{ new Date(time).toISOString() }} · Retrieved: {{ globalRetrieved }} · Model issue time: unavailable{{ globalStale ? ' · OUTDATED' : '' }}</p>
       <p>Temperature: {{ globalForecast.temperature ?? 'unavailable' }} °C · Wind: {{ globalForecast.wind ? `${globalForecast.wind.direction || 'calm'}° true / ${globalForecast.wind.speed} kt` : 'unavailable' }} · Forecast QNH: unavailable.</p>
-      <button type="button" :disabled="globalStale || !globalForecast.temperature" @click="applyGlobal('temperature')">Replace temperature with global forecast</button>
-      <button type="button" :disabled="globalStale || !globalForecast.wind" @click="applyGlobal('wind')">Replace wind with global forecast</button>
+      <button type="button" :disabled="!selectionValid || globalStale || !globalForecast.temperature" @click="applyGlobal('temperature')">Replace temperature with global forecast</button>
+      <button type="button" :disabled="!selectionValid || globalStale || !globalForecast.wind" @click="applyGlobal('wind')">Replace wind with global forecast</button>
     </div>
     <p>For education and situational awareness only, not an official briefing or go/no-go authority. Obtain required weather from an authorised source.</p>
     <p>Forecast QNH is unavailable from these services. Obtain aviation QNH from an authorised source and enter it below; do not substitute model sea-level pressure. Wind direction is true; gusts are not applied. Values require a future time and are applied only when selected.</p>
