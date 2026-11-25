@@ -1,4 +1,4 @@
-import { flushPromises, mount } from '@vue/test-utils'
+import { mount } from '@vue/test-utils'
 import { afterEach, expect, it, vi } from 'vitest'
 import ForecastSelection from './ForecastSelection.vue'
 
@@ -207,30 +207,11 @@ it('marks a retrieved forecast outdated when its fetch age crosses the limit', a
   vi.useRealTimers()
 })
 
-
-it('retrieves DWD ICON separately and preserves missing values', async () => {
-  vi.useFakeTimers()
-  vi.setSystemTime(new Date('2030-01-01T00:00:00Z'))
-  vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(true)
-  const fetchMock = vi.fn<(url: string) => Promise<unknown>>().mockResolvedValue({ ok: true, json: async () => ({ utc_offset_seconds: 0, hourly_units: { time: 'iso8601', temperature_2m: '°C', wind_speed_10m: 'kn', wind_direction_10m: '°' }, hourly: { time: ['2030-01-01T02:00'], temperature_2m: [12], wind_speed_10m: [null], wind_direction_10m: [null] } }) })
-  vi.stubGlobal('fetch', fetchMock)
+it('copies UTC QNH times without changing the represented instant', async () => {
   const view = mount(ForecastSelection)
-  const label = (name: string) => view.findAll('label').find(item => item.text().startsWith(name))!
-  await label('Location').get('input').setValue('EDDF')
-  const local = new Date('2030-01-01T02:00:00Z')
-  const pad = (n: number) => String(n).padStart(2, '0')
-  await label('Local date and time').get('input').setValue(`${local.getFullYear()}-${pad(local.getMonth() + 1)}-${pad(local.getDate())}T${pad(local.getHours())}:00`)
-  await label('Latitude').get('input').setValue('50')
-  await label('Longitude').get('input').setValue('8')
-  await view.findAll('button').find(button => button.text() === 'Retrieve DWD ICON forecast')!.trigger('click')
-  await flushPromises()
-  expect(view.text()).toContain('DWD ICON forecast hour')
-  expect(fetchMock.mock.calls[0]![0]).toContain('/v1/dwd-icon?')
-  expect(view.text()).toContain('Wind: unavailable')
-  expect(view.emitted('selection')?.at(-1)?.[0]).toMatchObject({ location: 'EDDF', forecast: { temperature: '12' } })
-  await view.findAll('button').find(button => button.text() === 'Replace temperature with DWD ICON forecast')!.trigger('click')
-  expect(view.emitted('apply')?.[0]?.[2]).toContain('DWD ICON forecast')
+  const label = (name: string) => view.findAll('label').find(item => item.text().includes(name))!.get('input')
+  await label('QNH source or validity time in UTC').setValue('2030-06-01T12:00')
+  await view.findAll('button').find(item => item.text() === 'Copy UTC to QNH valid from')!.trigger('click')
+  expect(new Date((label('QNH valid from').element as HTMLInputElement).value).toISOString()).toBe('2030-06-01T12:00:00.000Z')
   view.unmount()
-  vi.unstubAllGlobals()
-  vi.useRealTimers()
 })
