@@ -85,6 +85,12 @@ const ambiguousQnhTimes = computed(() => [qnhSourceTime.value, qnhValidFrom.valu
 watch(time, () => { confirmFlightTime.value = false }, { flush: 'sync' })
 watch([time, qnhUnit, qnhSourceTime, qnhValidFrom, qnhValidTo], () => { confirmQnhTimes.value = false }, { flush: 'sync' })
 const selectionValid = computed(() => location.value.trim() !== '' && validLocalTime(time.value) && (!ambiguousFlightTime.value || confirmFlightTime.value) && Date.parse(time.value) > now.value)
+function selectionProblem(): string {
+  if (location.value.trim() === '') return 'Enter a location.'
+  if (!validLocalTime(time.value)) return 'Enter a valid flight time that exists in the device time zone.'
+  if (ambiguousFlightTime.value && !confirmFlightTime.value) return 'Confirm the UTC interpretation of the repeated local time.'
+  return Date.parse(time.value) > now.value ? '' : 'The selected flight time has passed; choose a future time.'
+}
 const stale = computed(() => !!forecast.value && (forecast.value.stale || Date.parse(forecast.value.valid) <= now.value || now.value - Date.parse(forecast.value.fetched) > 4 * 60 * 60 * 1000))
 const qnhSourceAge = computed(() => {
   const minutes = Math.floor((now.value - Date.parse(qnhSourceTime.value)) / 60000)
@@ -116,9 +122,8 @@ const values = computed<MetarValues>(() => {
 async function retrieve(): Promise<void> {
   const station = location.value.trim().toUpperCase()
   const selected = Date.parse(time.value)
-  if (!online.value || !/^[A-Z]{4}$/.test(station) || !selectionValid.value || new Date(selected).getMinutes() !== 0) {
-    forecastMessage.value = 'Enter a four-letter ICAO station and a future exact hour in device local time.'; return
-  }
+  const problem = !online.value ? 'You are offline; retrieval needs a connection.' : !/^[A-Z]{4}$/.test(station) ? 'Enter a four-letter ICAO station.' : selectionProblem() || (new Date(selected).getMinutes() !== 0 ? 'The US forecast covers exact hours only; set the minutes to 00.' : '')
+  if (problem) { forecastMessage.value = problem; return }
   const current = ++forecastRequest
   forecast.value = null
   forecastMessage.value = 'Retrieving forecast…'
@@ -138,9 +143,8 @@ async function retrieve(): Promise<void> {
 }
 async function retrieveGlobal(): Promise<void> {
   const selected = Date.parse(time.value)
-  if (!online.value || !selectionValid.value || selected % 3600000 !== 0 || !numberIn(latitude.value, -90, 90) || !numberIn(longitude.value, -180, 180)) {
-    globalMessage.value = 'Enter valid coordinates, a location and a future time matching an exact UTC hour.'; return
-  }
+  const problem = !online.value ? 'You are offline; retrieval needs a connection.' : selectionProblem() || (selected % 3600000 !== 0 ? 'The model forecast covers exact UTC hours only; the selected time is not on a UTC hour (some time zones use :30 or :45 offsets).' : !numberIn(latitude.value, -90, 90) ? 'Enter a latitude from -90 to 90.' : !numberIn(longitude.value, -180, 180) ? 'Enter a longitude from -180 to 180.' : '')
+  if (problem) { globalMessage.value = problem; return }
   const current = ++globalRequest
   globalForecast.value = null
   globalMessage.value = 'Retrieving forecast…'

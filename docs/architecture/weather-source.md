@@ -38,6 +38,8 @@ Grass is explicitly distinguished from other or legacy unpaved surfaces. A valid
 
 US and global forecast requests run independently; changing the shared flight selection or going offline invalidates both, and changing coordinates invalidates only the global request.
 
+A forecast request that cannot be sent names its specific reason (offline, missing or invalid location, coordinates or time, passed time, a time not on an exact hour or UTC hour) instead of a generic prompt; no request is sent in these cases.
+
 Responses with duplicate forecast instants are rejected rather than selecting an ambiguous value. Invalid global calendar dates are rejected instead of being normalized by the browser.
 
 ## Global model forecast
