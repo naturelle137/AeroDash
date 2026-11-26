@@ -207,3 +207,7 @@ When exporting flight preparation JSON, the system shall include signed days to 
 ### REQ-AP-046: Briefing device-date intervals
 
 While a fixed runway check date is selected, the briefing shall show signed days from the device date to the current saved runway's declared effective and inclusive expiry dates, or unknown when unavailable.
+
+### REQ-AP-047: Remove a recent runway
+
+The system shall let the pilot remove an individual recent runway declaration offline without changing the current runway or draft.

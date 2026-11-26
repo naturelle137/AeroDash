@@ -83,7 +83,8 @@ if (!runway.loaded) runway.load()
       <h3>Recently used airports</h3>
       <p>Declared date check for {{ runway.assessmentDate || 'an invalid date' }}. Source and currency remain unverified; NOTAM/SUP coverage is unknown.</p>
       <ul class="recent-runways"><li v-for="record in runway.recent" :key="JSON.stringify([record.runway.aerodrome, record.runway.designator])">
-        <button type="button" @click="selectRecent(record)">{{ record.runway.aerodrome }} — {{ record.runway.designator }}: {{ freshnessLabels[runwayFreshness(record.runway, runway.assessmentDate)] }}</button>
+        <button type="button" class="select-recent" @click="selectRecent(record)">{{ record.runway.aerodrome }} — {{ record.runway.designator }}: {{ freshnessLabels[runwayFreshness(record.runway, runway.assessmentDate)] }}</button>
+        <button type="button" :aria-label="`Remove ${record.runway.aerodrome} runway ${record.runway.designator} from recent airports`" @click="runway.removeRecent(record)">Remove from recents</button>
         <p v-if="!runway.automaticDate">Device date {{ runway.today }}: {{ freshnessLabels[runwayFreshness(record.runway, runway.today)] }}</p>
         <p>Source: {{ record.runway.source || 'Unknown' }} (user-declared, unverified) · Effective: {{ record.runway.effectiveDate || 'Unknown' }} · Expiry (inclusive): {{ record.runway.expiryDate || 'Unknown' }}</p>
         <p>Days to declared effect: {{ daysToDeclaredEffect(record.runway, runway.assessmentDate) ?? 'Unknown' }} (negative means after the declared effective date; source remains unverified).</p>
