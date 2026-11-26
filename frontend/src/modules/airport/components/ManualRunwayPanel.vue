@@ -82,6 +82,7 @@ if (!runway.loaded) runway.load()
       Copy declared distances, elevation and the current surface condition from official sources
       (AIP/aerodrome chart, NOTAM). No airport database or online lookup is used.</p>
     <p v-if="runway.storageError" role="alert" class="storage-error">{{ runway.storageError }}</p>
+    <p v-if="runway.recentError" role="alert" class="storage-error">Recent runway declarations could not be read or saved. Existing data was not replaced; manual runway entry remains available.</p>
 
     <section aria-label="Runway date check">
       <div class="field"><label for="runway-assessment-date">Check date</label><input id="runway-assessment-date" :value="runway.assessmentDate" type="date" @input="runway.selectAssessmentDate(($event.target as HTMLInputElement).value)" /></div>

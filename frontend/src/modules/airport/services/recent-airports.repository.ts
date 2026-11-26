@@ -21,8 +21,8 @@ function readRecentAirports(): ManualRunwayRecord[] | null {
   } catch { return null }
 }
 
-export function loadRecentAirports(): ManualRunwayRecord[] {
-  return readRecentAirports() ?? []
+export function loadRecentAirports(): ManualRunwayRecord[] | null {
+  return readRecentAirports()
 }
 
 export function saveRecentAirport(record: ManualRunwayRecord): ManualRunwayRecord[] | null {
