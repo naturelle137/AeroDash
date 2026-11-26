@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Search recent runway declarations by aerodrome or runway while offline.
+
 - Show unsaved runway source and declared dates in the briefing without treating the runway as current.
 
 - Filter recent runway declarations whose selected and device date checks differ.
