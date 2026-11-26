@@ -151,3 +151,7 @@ When global model dew point is available for the selected hour, the system shall
 ### REQ-WX-031: Model precipitation amount
 
 When a global model precipitation amount is available for the selected hour, the system shall show the total for the preceding hour without applying it to calculations.
+
+### REQ-WX-032: Model freezing level
+
+When a global model freezing level is available for the selected hour, the system shall show it in metres above mean sea level as model data without applying it to calculations.

@@ -57,3 +57,5 @@ The global model also shows the ensemble probability of more than 0.1 mm precipi
 The global model also shows total cloud cover (%) and visibility (m) for the selected hour. They are instantaneous model values, not ceiling, METAR or TAF values, and are neither applied nor used for go/no-go decisions.
 
 The global model shows total precipitation (rain, showers and snow water equivalent) in mm for the preceding hour. It does not determine runway condition or change inputs.
+
+The global model shows the freezing level in metres above mean sea level for the selected hour (Open-Meteo `freezing_level_height`, checked 26 November 2026: unit `m`). It is an instantaneous model value, not an icing forecast or observation, and is neither applied nor used for go/no-go decisions.
