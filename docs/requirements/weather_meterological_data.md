@@ -211,3 +211,15 @@ When a global model day or night flag is available for the selected hour, the sy
 ### REQ-WX-046: Model snow depth
 
 When a global model snow depth is available for the selected hour, the system shall show it in metres as model data without applying it to calculations.
+
+### REQ-WX-047: DWD model forecast
+
+When the pilot requests DWD model weather for valid coordinates and a future forecast hour, the system shall offer available temperature and wind values with their source and retrieval time.
+
+### REQ-WX-048: TAF wind
+
+While a retrieved TAF for the entered station is within its validity and defines a prevailing numeric wind, the system shall offer that wind for Flight Prep with the TAF station, issue time and validity interval.
+
+### REQ-WX-049: Observation fallback label
+
+While a METAR value is offered and no applicable forecast value exists for that parameter, the system shall label it as a METAR observation without a forecast with its station and observation time.
