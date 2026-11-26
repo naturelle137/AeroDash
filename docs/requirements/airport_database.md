@@ -235,3 +235,7 @@ While a fixed check date is selected, the system shall let the pilot filter rece
 ### REQ-AP-053: Unsaved runway source in briefing
 
 While a runway declaration has unsaved changes, the briefing shall show its unverified source reference and declared dates, or unknown where absent.
+
+### REQ-AP-054: Search recent declarations
+
+While recent runway declarations are displayed, the system shall allow filtering them by aerodrome or runway designator without network access.
