@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import {
   airacCycleStart,
   daysToDeclaredExpiry,
@@ -15,6 +15,13 @@ import {
 import { useManualRunwayStore } from '../stores/manual-runway.store'
 
 const runway = useManualRunwayStore()
+const recentStatus = ref('all')
+const recentCounts = computed(() => {
+  const counts = { expired: 0, 'not-yet-effective': 0, 'within-declared-dates': 0, unknown: 0 }
+  for (const record of runway.recent) counts[runwayFreshness(record.runway, runway.assessmentDate)]++
+  return counts
+})
+const visibleRecent = computed(() => runway.recent.filter((record) => recentStatus.value === 'all' || runwayFreshness(record.runway, runway.assessmentDate) === recentStatus.value))
 const freshness = computed(() => runway.current ? runwayFreshness(runway.current.record.runway, runway.assessmentDate) : 'unknown')
 const draftDateError = computed(() => {
   if (runway.current) return undefined
@@ -82,7 +89,17 @@ if (!runway.loaded) runway.load()
     <section v-if="runway.recent.length" aria-label="Recently used airports">
       <h3>Recently used airports</h3>
       <p>Declared date check for {{ runway.assessmentDate || 'an invalid date' }}. Source and currency remain unverified; NOTAM/SUP coverage is unknown.</p>
-      <ul class="recent-runways"><li v-for="record in runway.recent" :key="JSON.stringify([record.runway.aerodrome, record.runway.designator])">
+      <p aria-label="Recent declaration date check totals">All recent declarations: {{ runway.recent.length }} · Expired: {{ recentCounts.expired }} · Not yet effective: {{ recentCounts['not-yet-effective'] }} · Within declared dates: {{ recentCounts['within-declared-dates'] }} · Unknown: {{ recentCounts.unknown }}</p>
+      <label for="recent-status">Filter by declared date check</label>
+      <select id="recent-status" v-model="recentStatus">
+        <option value="all">All declarations</option>
+        <option value="expired">Expired</option>
+        <option value="not-yet-effective">Not yet effective</option>
+        <option value="within-declared-dates">Within declared dates</option>
+        <option value="unknown">Unknown</option>
+      </select>
+      <p v-if="!visibleRecent.length">No declarations match this date check.</p>
+      <ul class="recent-runways"><li v-for="record in visibleRecent" :key="JSON.stringify([record.runway.aerodrome, record.runway.designator])">
         <button type="button" class="select-recent" @click="selectRecent(record)">{{ record.runway.aerodrome }} — {{ record.runway.designator }}: {{ freshnessLabels[runwayFreshness(record.runway, runway.assessmentDate)] }}</button>
         <button type="button" :aria-label="`Remove ${record.runway.aerodrome} runway ${record.runway.designator} from recent airports`" @click="runway.removeRecent(record)">Remove from recents</button>
         <p v-if="!runway.automaticDate">Device date {{ runway.today }}: {{ freshnessLabels[runwayFreshness(record.runway, runway.today)] }}</p>
