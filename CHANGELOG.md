@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Assign unique IDs to airport date-check requirements.
+
 - Search recent runway declarations by their user-declared source reference offline.
 
 - Report unreadable recent runway declarations while preserving their stored data.
