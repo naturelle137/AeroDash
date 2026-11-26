@@ -29,7 +29,7 @@ export function parseForecast(data: unknown, station: string, selected: number, 
   return { values, valid: new Date(row.timestamp).toISOString(), fetched: new Date(fetched).toISOString(), stale: freshness.stale || now - fetched > 4 * 60 * 60 * 1000 }
 }
 
-export function parseGlobalForecast(data: unknown, selected: number): { values: MetarValues; dewPoint: number | null; precipitation: number | null; gust: number | null; precipitationProbability: number | null; cloudCover: number | null; visibility: number | null; freezingLevel: number | null; cape: number | null; latitude: number; longitude: number } | null {
+export function parseGlobalForecast(data: unknown, selected: number): { values: MetarValues; dewPoint: number | null; precipitation: number | null; gust: number | null; precipitationProbability: number | null; cloudCover: number | null; visibility: number | null; freezingLevel: number | null; cape: number | null; cloudLayers: { low: number | null; mid: number | null; high: number | null }; latitude: number; longitude: number } | null {
   if (!data || typeof data !== 'object') throw new Error('malformed')
   const d = data as Record<string, unknown>
   if (typeof d.latitude !== 'number' || !Number.isFinite(d.latitude) || d.latitude < -90 || d.latitude > 90 || typeof d.longitude !== 'number' || !Number.isFinite(d.longitude) || d.longitude < -180 || d.longitude > 180) throw new Error('malformed')
@@ -49,6 +49,12 @@ export function parseGlobalForecast(data: unknown, selected: number): { values: 
   const visibilities = h.visibility
   const freezingLevels = units.freezing_level_height === 'm' ? h.freezing_level_height : undefined
   const capes = units.cape === 'J/kg' ? h.cape : undefined
+  const layer = (key: 'cloud_cover_low' | 'cloud_cover_mid' | 'cloud_cover_high'): unknown[] | undefined => {
+    const values = units[key] === '%' ? h[key] : undefined
+    if (values !== undefined && (!Array.isArray(values) || !Array.isArray(times) || values.length !== times.length)) throw new Error('malformed')
+    return values
+  }
+  const layers = { low: layer('cloud_cover_low'), mid: layer('cloud_cover_mid'), high: layer('cloud_cover_high') }
   if (!Array.isArray(times) || !Array.isArray(temperatures) || !Array.isArray(dewPoints) || !Array.isArray(speeds) || !Array.isArray(directions) || !Array.isArray(gusts) || !Array.isArray(precipitation) || !Array.isArray(probabilities) || !Array.isArray(clouds) || !Array.isArray(visibilities) || (freezingLevels !== undefined && !Array.isArray(freezingLevels)) || (capes !== undefined && !Array.isArray(capes)) || [temperatures, dewPoints, speeds, directions, gusts, precipitation, probabilities, clouds, visibilities, ...(freezingLevels === undefined ? [] : [freezingLevels as unknown[]]), ...(capes === undefined ? [] : [capes as unknown[]])].some(a => a.length !== times.length)) throw new Error('malformed')
   if (times.some(t => typeof t !== 'string' || !/^\d{4}-\d\d-\d\dT\d\d:00$/.test(t) || !Number.isFinite(Date.parse(`${t}Z`)) || new Date(`${t}Z`).toISOString().slice(0, 16) !== t) || new Set(times).size !== times.length) throw new Error('malformed')
   const index = times.findIndex(t => Date.parse(`${t}Z`) === selected)
@@ -67,5 +73,9 @@ export function parseGlobalForecast(data: unknown, selected: number): { values: 
   const visibility: unknown = visibilities[index]
   const freezing: unknown = (freezingLevels as unknown[] | undefined)?.[index]
   const cape: unknown = (capes as unknown[] | undefined)?.[index]
-  return { values, precipitation: typeof amount === 'number' && Number.isFinite(amount) && amount >= 0 ? amount : null, dewPoint: typeof dewPoint === 'number' && Number.isFinite(dewPoint) && dewPoint >= -100 && dewPoint <= 100 ? dewPoint : null, cloudCover: typeof cover === 'number' && Number.isFinite(cover) && cover >= 0 && cover <= 100 ? cover : null, visibility: typeof visibility === 'number' && Number.isFinite(visibility) && visibility >= 0 && visibility <= 100000 ? visibility : null, precipitationProbability: typeof probability === 'number' && Number.isFinite(probability) && probability >= 0 && probability <= 100 ? probability : null, freezingLevel: typeof freezing === 'number' && Number.isFinite(freezing) && freezing >= -1000 && freezing <= 20000 ? freezing : null, cape: typeof cape === 'number' && Number.isFinite(cape) && cape >= 0 && cape <= 10000 ? cape : null, gust: typeof gust === 'number' && Number.isFinite(gust) && gust >= 0 && gust <= 200 ? gust : null, latitude: d.latitude, longitude: d.longitude }
+  const percent = (list: unknown[] | undefined): number | null => {
+    const value: unknown = list?.[index]
+    return typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= 100 ? value : null
+  }
+  return { values, precipitation: typeof amount === 'number' && Number.isFinite(amount) && amount >= 0 ? amount : null, dewPoint: typeof dewPoint === 'number' && Number.isFinite(dewPoint) && dewPoint >= -100 && dewPoint <= 100 ? dewPoint : null, cloudCover: typeof cover === 'number' && Number.isFinite(cover) && cover >= 0 && cover <= 100 ? cover : null, visibility: typeof visibility === 'number' && Number.isFinite(visibility) && visibility >= 0 && visibility <= 100000 ? visibility : null, precipitationProbability: typeof probability === 'number' && Number.isFinite(probability) && probability >= 0 && probability <= 100 ? probability : null, freezingLevel: typeof freezing === 'number' && Number.isFinite(freezing) && freezing >= -1000 && freezing <= 20000 ? freezing : null, cape: typeof cape === 'number' && Number.isFinite(cape) && cape >= 0 && cape <= 10000 ? cape : null, gust: typeof gust === 'number' && Number.isFinite(gust) && gust >= 0 && gust <= 200 ? gust : null, cloudLayers: { low: percent(layers.low), mid: percent(layers.mid), high: percent(layers.high) }, latitude: d.latitude, longitude: d.longitude }
 }
