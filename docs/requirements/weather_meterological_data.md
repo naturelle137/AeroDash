@@ -183,3 +183,7 @@ When a global model boundary layer height is available for the selected hour, th
 ### REQ-WX-039: Model relative humidity
 
 When a global model 2 m relative humidity is available for the selected hour, the system shall show it in percent as model data without applying it to calculations.
+
+### REQ-WX-040: Model lifted index
+
+When a global model lifted index is available for the selected hour, the system shall show it as model data without applying it to calculations.
