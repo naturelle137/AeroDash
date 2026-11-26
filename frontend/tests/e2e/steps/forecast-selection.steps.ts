@@ -96,7 +96,7 @@ Then('the retrieved forecast evidence is captured as {string}', async ({ page, $
 
 When('the pilot retrieves a synthetic global forecast', async ({ page }) => {
   const forecast = page.getByRole('region', { name: 'Time-specific forecast' })
-  await page.route('https://api.open-meteo.com/v1/forecast?*', route => route.fulfill({ json: { latitude: 50.1, longitude: 8.1, utc_offset_seconds: 0, hourly_units: { time: 'iso8601', temperature_2m: '°C', dew_point_2m: '°C', wind_speed_10m: 'kn', wind_direction_10m: '°', wind_gusts_10m: 'kn', precipitation: 'mm', precipitation_probability: '%', cloud_cover: '%', visibility: 'm', freezing_level_height: 'm' }, hourly: { time: ['2030-06-01T12:00'], temperature_2m: [17], dew_point_2m: [8], wind_speed_10m: [12], wind_direction_10m: [270], wind_gusts_10m: [18], precipitation: [1.2], precipitation_probability: [40], cloud_cover: [75], visibility: [9000], freezing_level_height: [2400] } }, headers: { 'access-control-allow-origin': '*' } }))
+  await page.route('https://api.open-meteo.com/v1/forecast?*', route => route.fulfill({ json: { latitude: 50.1, longitude: 8.1, utc_offset_seconds: 0, hourly_units: { time: 'iso8601', temperature_2m: '°C', dew_point_2m: '°C', wind_speed_10m: 'kn', wind_direction_10m: '°', wind_gusts_10m: 'kn', precipitation: 'mm', precipitation_probability: '%', cloud_cover: '%', visibility: 'm', freezing_level_height: 'm', cape: 'J/kg' }, hourly: { time: ['2030-06-01T12:00'], temperature_2m: [17], dew_point_2m: [8], wind_speed_10m: [12], wind_direction_10m: [270], wind_gusts_10m: [18], precipitation: [1.2], precipitation_probability: [40], cloud_cover: [75], visibility: [9000], freezing_level_height: [2400], cape: [350] } }, headers: { 'access-control-allow-origin': '*' } }))
   const date = new Date('2030-06-01T12:00:00Z')
   const pad = (n: number) => String(n).padStart(2, '0')
   await forecast.getByLabel('Local date and time').fill(`${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`)
@@ -107,6 +107,7 @@ When('the pilot retrieves a synthetic global forecast', async ({ page }) => {
   await expect(forecast).toContainText('Model issue time: unavailable')
   await expect(forecast).toContainText('Model total precipitation in the preceding hour: 1.2 mm')
   await expect(forecast).toContainText('Model freezing level: 2400 m above mean sea level')
+  await expect(forecast).toContainText('CAPE): 350 J/kg')
   await expect(forecast).toContainText('Model dew point at 2 m: 8 °C')
   await expect(forecast).toContainText('Model probability of more than 0.1 mm precipitation during the preceding hour: 40%')
   await expect(forecast).toContainText('Model total cloud cover: 75% · Model visibility: 9000 m')
