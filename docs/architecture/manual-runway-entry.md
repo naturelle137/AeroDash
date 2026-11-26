@@ -9,6 +9,7 @@ The saved summary displays both declared date boundaries, including unknown
 dates. The summary, Performance and briefing identify NOTAM/SUP coverage as unknown.
 Individual recent runway declarations can be removed without changing the current
 saved runway or unsaved form.
+Recent declarations can be filtered by their date check, including unknown; the filter does not change stored data or verify currency.
 
 | Field | Contract |
 | :--- | :--- |
