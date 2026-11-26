@@ -251,3 +251,7 @@ While recent runway declarations are displayed, the system shall allow filtering
 ### REQ-AP-057: Order recent declarations by expiry
 
 While recent runway declarations are displayed, the system shall allow ordering them by declared expiry date with missing dates last.
+
+### REQ-AP-058: Order recent declarations by effective date
+
+While recent runway declarations are displayed, the system shall allow ordering them by declared effective date with missing dates last.

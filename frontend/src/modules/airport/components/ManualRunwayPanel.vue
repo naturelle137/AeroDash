@@ -32,8 +32,8 @@ const visibleRecent = computed(() => runway.recent.filter((record) =>
   (recentStatus.value === 'all' || runwayFreshness(record.runway, filterDate.value) === recentStatus.value)
   && [record.runway.aerodrome, record.runway.designator, record.runway.source ?? ''].some((value) => value.toLowerCase().includes(recentSearch.value.trim().toLowerCase()))
   && (runway.automaticDate || !differingDatesOnly.value || runwayFreshness(record.runway, runway.assessmentDate) !== runwayFreshness(record.runway, runway.today)),
-).sort((a, b) => recentOrder.value === 'expiry'
-  ? (a.runway.expiryDate ?? '9999-99-99').localeCompare(b.runway.expiryDate ?? '9999-99-99')
+).sort((a, b) => recentOrder.value === 'expiry' || recentOrder.value === 'effective'
+  ? (a.runway[recentOrder.value === 'expiry' ? 'expiryDate' : 'effectiveDate'] ?? '9999-99-99').localeCompare(b.runway[recentOrder.value === 'expiry' ? 'expiryDate' : 'effectiveDate'] ?? '9999-99-99')
   : 0))
 const freshness = computed(() => runway.current ? runwayFreshness(runway.current.record.runway, runway.assessmentDate) : 'unknown')
 const draftDateError = computed(() => {
@@ -108,6 +108,7 @@ if (!runway.loaded) runway.load()
       <select id="recent-order" v-model="recentOrder">
         <option value="recent">Most recently used</option>
         <option value="expiry">Expiry date (unknown last)</option>
+        <option value="effective">Effective date (unknown last)</option>
       </select>
       <p>Declared date check for {{ runway.assessmentDate || 'an invalid date' }}. Source and currency remain unverified; NOTAM/SUP coverage is unknown.</p>
       <p aria-label="Recent declaration date check totals">All recent declarations: {{ runway.recent.length }} · Expired: {{ recentCounts.expired }} · Not yet effective: {{ recentCounts['not-yet-effective'] }} · Within declared dates: {{ recentCounts['within-declared-dates'] }} · Unknown: {{ recentCounts.unknown }}</p>
