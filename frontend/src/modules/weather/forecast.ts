@@ -29,7 +29,9 @@ export function parseForecast(data: unknown, station: string, selected: number, 
   return { values, valid: new Date(row.timestamp).toISOString(), fetched: new Date(fetched).toISOString(), stale: freshness.stale || now - fetched > 4 * 60 * 60 * 1000 }
 }
 
-export function parseGlobalForecast(data: unknown, selected: number): { values: MetarValues; dewPoint: number | null; precipitation: number | null; gust: number | null; precipitationProbability: number | null; cloudCover: number | null; visibility: number | null; latitude: number; longitude: number } | null {
+const weatherCodes: Record<number, string> = { 0: 'clear sky', 1: 'mainly clear', 2: 'partly cloudy', 3: 'overcast', 45: 'fog', 48: 'depositing rime fog', 51: 'light drizzle', 53: 'moderate drizzle', 55: 'dense drizzle', 56: 'light freezing drizzle', 57: 'dense freezing drizzle', 61: 'slight rain', 63: 'moderate rain', 65: 'heavy rain', 66: 'light freezing rain', 67: 'heavy freezing rain', 71: 'slight snow', 73: 'moderate snow', 75: 'heavy snow', 77: 'snow grains', 80: 'slight rain showers', 81: 'moderate rain showers', 82: 'violent rain showers', 85: 'slight snow showers', 86: 'heavy snow showers', 95: 'thunderstorm', 96: 'thunderstorm with slight hail', 99: 'thunderstorm with heavy hail' }
+
+export function parseGlobalForecast(data: unknown, selected: number): { values: MetarValues; dewPoint: number | null; dewPointSpread: number | null; precipitation: number | null; gust: number | null; precipitationProbability: number | null; cloudCover: number | null; visibility: number | null; freezingLevel: number | null; cape: number | null; boundaryLayer: number | null; snowfall: number | null; seaLevelPressure: number | null; daylight: boolean | null; weather: string | null; cloudLayers: { low: number | null; mid: number | null; high: number | null }; humidity: number | null; liftedIndex: number | null; inhibition: number | null; wind80: { speed: number; direction: number | null } | null; wind850: { speed: number; direction: number | null; temperature: number | null; height: number | null } | null; latitude: number; longitude: number } | null {
   if (!data || typeof data !== 'object') throw new Error('malformed')
   const d = data as Record<string, unknown>
   if (typeof d.latitude !== 'number' || !Number.isFinite(d.latitude) || d.latitude < -90 || d.latitude > 90 || typeof d.longitude !== 'number' || !Number.isFinite(d.longitude) || d.longitude < -180 || d.longitude > 180) throw new Error('malformed')
@@ -47,7 +49,33 @@ export function parseGlobalForecast(data: unknown, selected: number): { values: 
   const probabilities = h.precipitation_probability
   const clouds = h.cloud_cover
   const visibilities = h.visibility
-  if (!Array.isArray(times) || !Array.isArray(temperatures) || !Array.isArray(dewPoints) || !Array.isArray(speeds) || !Array.isArray(directions) || !Array.isArray(gusts) || !Array.isArray(precipitation) || !Array.isArray(probabilities) || !Array.isArray(clouds) || !Array.isArray(visibilities) || [temperatures, dewPoints, speeds, directions, gusts, precipitation, probabilities, clouds, visibilities].some(a => a.length !== times.length)) throw new Error('malformed')
+  const freezingLevels = units.freezing_level_height === 'm' ? h.freezing_level_height : undefined
+  const capes = units.cape === 'J/kg' ? h.cape : undefined
+  const layerHeights = units.boundary_layer_height === 'm' ? h.boundary_layer_height : undefined
+  const snowfalls = units.snowfall === 'cm' ? h.snowfall : undefined
+  const pressures = units.pressure_msl === 'hPa' ? h.pressure_msl : undefined
+  const indices = units.lifted_index === '' ? h.lifted_index : undefined
+  if (indices !== undefined && (!Array.isArray(indices) || !Array.isArray(times) || indices.length !== times.length)) throw new Error('malformed')
+  const inhibitions = units.convective_inhibition === 'J/kg' ? h.convective_inhibition : undefined
+  if (inhibitions !== undefined && (!Array.isArray(inhibitions) || !Array.isArray(times) || inhibitions.length !== times.length)) throw new Error('malformed')
+  const winds80 = units.wind_speed_80m === 'kn' && units.wind_direction_80m === '°' ? { speeds: h.wind_speed_80m, directions: h.wind_direction_80m } : undefined
+  if (winds80 !== undefined && (!Array.isArray(winds80.speeds) || !Array.isArray(winds80.directions) || !Array.isArray(times) || winds80.speeds.length !== times.length || winds80.directions.length !== times.length)) throw new Error('malformed')
+  const winds850 = units.wind_speed_850hPa === 'kn' && units.wind_direction_850hPa === '°' ? h : undefined
+  const temps850 = units.temperature_850hPa === '°C' ? h.temperature_850hPa : undefined
+  const heights850 = units.geopotential_height_850hPa === 'm' ? h.geopotential_height_850hPa : undefined
+  for (const list of winds850 === undefined ? [] : [h.wind_speed_850hPa, h.wind_direction_850hPa]) if (!Array.isArray(list) || !Array.isArray(times) || list.length !== times.length) throw new Error('malformed')
+  for (const list of [temps850, heights850]) if (list !== undefined && (!Array.isArray(list) || !Array.isArray(times) || list.length !== times.length)) throw new Error('malformed')
+  const daylights = units.is_day === '' ? h.is_day : undefined
+  if (daylights !== undefined && (!Array.isArray(daylights) || !Array.isArray(times) || daylights.length !== times.length)) throw new Error('malformed')
+  const codes = units.weather_code === 'wmo code' ? h.weather_code : undefined
+  const layer = (key: 'cloud_cover_low' | 'cloud_cover_mid' | 'cloud_cover_high' | 'relative_humidity_2m'): unknown[] | undefined => {
+    const values = units[key] === '%' ? h[key] : undefined
+    if (values !== undefined && (!Array.isArray(values) || !Array.isArray(times) || values.length !== times.length)) throw new Error('malformed')
+    return values
+  }
+  const layers = { low: layer('cloud_cover_low'), mid: layer('cloud_cover_mid'), high: layer('cloud_cover_high') }
+  const humidities = layer('relative_humidity_2m')
+  if (!Array.isArray(times) || !Array.isArray(temperatures) || !Array.isArray(dewPoints) || !Array.isArray(speeds) || !Array.isArray(directions) || !Array.isArray(gusts) || !Array.isArray(precipitation) || !Array.isArray(probabilities) || !Array.isArray(clouds) || !Array.isArray(visibilities) || (freezingLevels !== undefined && !Array.isArray(freezingLevels)) || (capes !== undefined && !Array.isArray(capes)) || (layerHeights !== undefined && !Array.isArray(layerHeights)) || (snowfalls !== undefined && !Array.isArray(snowfalls)) || (pressures !== undefined && !Array.isArray(pressures)) || (codes !== undefined && !Array.isArray(codes)) || [temperatures, dewPoints, speeds, directions, gusts, precipitation, probabilities, clouds, visibilities, ...(freezingLevels === undefined ? [] : [freezingLevels as unknown[]]), ...(capes === undefined ? [] : [capes as unknown[]]), ...(layerHeights === undefined ? [] : [layerHeights as unknown[]]), ...(snowfalls === undefined ? [] : [snowfalls as unknown[]]), ...(pressures === undefined ? [] : [pressures as unknown[]]), ...(codes === undefined ? [] : [codes as unknown[]])].some(a => a.length !== times.length)) throw new Error('malformed')
   if (times.some(t => typeof t !== 'string' || !/^\d{4}-\d\d-\d\dT\d\d:00$/.test(t) || !Number.isFinite(Date.parse(`${t}Z`)) || new Date(`${t}Z`).toISOString().slice(0, 16) !== t) || new Set(times).size !== times.length) throw new Error('malformed')
   const index = times.findIndex(t => Date.parse(`${t}Z`) === selected)
   if (index < 0) return null
@@ -63,5 +91,27 @@ export function parseGlobalForecast(data: unknown, selected: number): { values: 
   const probability: unknown = probabilities[index]
   const cover: unknown = clouds[index]
   const visibility: unknown = visibilities[index]
-  return { values, precipitation: typeof amount === 'number' && Number.isFinite(amount) && amount >= 0 ? amount : null, dewPoint: typeof dewPoint === 'number' && Number.isFinite(dewPoint) && dewPoint >= -100 && dewPoint <= 100 ? dewPoint : null, cloudCover: typeof cover === 'number' && Number.isFinite(cover) && cover >= 0 && cover <= 100 ? cover : null, visibility: typeof visibility === 'number' && Number.isFinite(visibility) && visibility >= 0 && visibility <= 100000 ? visibility : null, precipitationProbability: typeof probability === 'number' && Number.isFinite(probability) && probability >= 0 && probability <= 100 ? probability : null, gust: typeof gust === 'number' && Number.isFinite(gust) && gust >= 0 && gust <= 200 ? gust : null, latitude: d.latitude, longitude: d.longitude }
+  const freezing: unknown = (freezingLevels as unknown[] | undefined)?.[index]
+  const cape: unknown = (capes as unknown[] | undefined)?.[index]
+  const layerHeight: unknown = (layerHeights as unknown[] | undefined)?.[index]
+  const snow: unknown = (snowfalls as unknown[] | undefined)?.[index]
+  const pressure: unknown = (pressures as unknown[] | undefined)?.[index]
+  const liftedIndex: unknown = (indices as unknown[] | undefined)?.[index]
+  const inhibition: unknown = (inhibitions as unknown[] | undefined)?.[index]
+  const speed80: unknown = (winds80?.speeds as unknown[] | undefined)?.[index], direction80: unknown = (winds80?.directions as unknown[] | undefined)?.[index]
+  const wind80 = typeof speed80 === 'number' && Number.isFinite(speed80) && speed80 >= 0 && speed80 <= 300 ? { speed: speed80, direction: typeof direction80 === 'number' && Number.isFinite(direction80) && direction80 >= 0 && direction80 <= 360 ? (direction80 === 0 ? 360 : direction80) : null } : null
+  const speed850: unknown = (winds850?.wind_speed_850hPa as unknown[] | undefined)?.[index], direction850: unknown = (winds850?.wind_direction_850hPa as unknown[] | undefined)?.[index]
+  const temp850: unknown = (temps850 as unknown[] | undefined)?.[index], height850: unknown = (heights850 as unknown[] | undefined)?.[index]
+  const wind850 = typeof speed850 === 'number' && Number.isFinite(speed850) && speed850 >= 0 && speed850 <= 400
+    ? { speed: speed850, direction: speed850 > 0 && typeof direction850 === 'number' && Number.isFinite(direction850) && direction850 >= 0 && direction850 <= 360 ? (direction850 === 0 ? 360 : direction850) : null, temperature: typeof temp850 === 'number' && Number.isFinite(temp850) && temp850 >= -100 && temp850 <= 60 ? temp850 : null, height: typeof height850 === 'number' && Number.isFinite(height850) && height850 >= -500 && height850 <= 5000 ? height850 : null }
+    : null
+  const daylight: unknown = (daylights as unknown[] | undefined)?.[index]
+  const code: unknown = (codes as unknown[] | undefined)?.[index]
+  const percent = (list: unknown[] | undefined): number | null => {
+    const value: unknown = list?.[index]
+    return typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= 100 ? value : null
+  }
+  const validDew = typeof dewPoint === 'number' && Number.isFinite(dewPoint) && dewPoint >= -100 && dewPoint <= 100
+  const spread = validDew && typeof temp === 'number' && values.temperature !== undefined ? Math.round((temp - dewPoint) * 10) / 10 : null
+  return { values, dewPointSpread: spread !== null && spread >= 0 ? spread : null, precipitation: typeof amount === 'number' && Number.isFinite(amount) && amount >= 0 ? amount : null, dewPoint: typeof dewPoint === 'number' && Number.isFinite(dewPoint) && dewPoint >= -100 && dewPoint <= 100 ? dewPoint : null, cloudCover: typeof cover === 'number' && Number.isFinite(cover) && cover >= 0 && cover <= 100 ? cover : null, visibility: typeof visibility === 'number' && Number.isFinite(visibility) && visibility >= 0 && visibility <= 100000 ? visibility : null, precipitationProbability: typeof probability === 'number' && Number.isFinite(probability) && probability >= 0 && probability <= 100 ? probability : null, freezingLevel: typeof freezing === 'number' && Number.isFinite(freezing) && freezing >= -1000 && freezing <= 20000 ? freezing : null, cape: typeof cape === 'number' && Number.isFinite(cape) && cape >= 0 && cape <= 10000 ? cape : null, boundaryLayer: typeof layerHeight === 'number' && Number.isFinite(layerHeight) && layerHeight >= 0 && layerHeight <= 10000 ? layerHeight : null, snowfall: typeof snow === 'number' && Number.isFinite(snow) && snow >= 0 && snow <= 500 ? snow : null, seaLevelPressure: typeof pressure === 'number' && Number.isFinite(pressure) && pressure >= 850 && pressure <= 1090 ? pressure : null, daylight: daylight === 1 ? true : daylight === 0 ? false : null, weather: typeof code === 'number' ? weatherCodes[code] ?? null : null, gust: typeof gust === 'number' && Number.isFinite(gust) && gust >= 0 && gust <= 200 ? gust : null, cloudLayers: { low: percent(layers.low), mid: percent(layers.mid), high: percent(layers.high) }, humidity: percent(humidities), liftedIndex: typeof liftedIndex === 'number' && Number.isFinite(liftedIndex) && liftedIndex >= -20 && liftedIndex <= 40 ? liftedIndex : null, inhibition: typeof inhibition === 'number' && Number.isFinite(inhibition) && inhibition >= 0 && inhibition <= 10000 ? inhibition : null, wind80: wind80 && (wind80.speed === 0 ? { speed: 0, direction: null } : wind80), wind850, latitude: d.latitude, longitude: d.longitude }
 }

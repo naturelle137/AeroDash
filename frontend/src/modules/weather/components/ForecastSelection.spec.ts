@@ -272,12 +272,12 @@ it('keeps independent requests and rejects obsolete responses', async () => {
   await button('Retrieve US forecast').trigger('click')
   await button('Retrieve global model forecast').trigger('click')
   const us = { airportIdent: 'KDFW', freshness: { forecastFetchedAt: new Date().toISOString(), stale: false }, hourly: [{ time: '2099-06-01T12:00:00Z', tempF: 68, windDir: 'N', windSpeedKt: 10 }] }
-  const global = { latitude: 32, longitude: -97, utc_offset_seconds: 0, hourly_units: { time: 'iso8601', temperature_2m: '°C', dew_point_2m: '°C', wind_speed_10m: 'kn', wind_direction_10m: '°', wind_gusts_10m: 'kn', precipitation: 'mm', precipitation_probability: '%', cloud_cover: '%', visibility: 'm' }, hourly: { time: ['2099-06-01T12:00'], temperature_2m: [12], dew_point_2m: [8], wind_speed_10m: [10], wind_direction_10m: [180], wind_gusts_10m: [18], precipitation: [1.2], precipitation_probability: [40], cloud_cover: [75], visibility: [9000] } }
+  const global = { latitude: 32, longitude: -97, utc_offset_seconds: 0, hourly_units: { time: 'iso8601', temperature_2m: '°C', dew_point_2m: '°C', wind_speed_10m: 'kn', wind_direction_10m: '°', wind_gusts_10m: 'kn', precipitation: 'mm', precipitation_probability: '%', cloud_cover: '%', visibility: 'm', freezing_level_height: 'm' }, hourly: { time: ['2099-06-01T12:00'], temperature_2m: [12], dew_point_2m: [8], wind_speed_10m: [10], wind_direction_10m: [180], wind_gusts_10m: [18], precipitation: [1.2], precipitation_probability: [40], cloud_cover: [75], visibility: [9000], freezing_level_height: [2400] } }
   responses[0]!({ ok: true, json: async () => us })
   responses[1]!({ ok: true, json: async () => global })
   await vi.waitFor(() => expect(view.text()).toContain('Requested coordinates: 32, -97'))
   expect(view.text()).toContain('Temperature: 20 °C')
-  expect(view.text()).toContain('Model dew point at 2 m: 8 °C. This is not an observation and is not applied to calculations.')
+  expect(view.text()).toContain('Model dew point at 2 m: 8 °C, temperature–dew point spread: 4 °C. This is not an observation and is not applied to calculations.')
   expect(view.text()).toContain('Model gust maximum during the preceding hour: 18 kt. Gusts are not applied to calculations.')
   await button('Retrieve US forecast').trigger('click')
   await input('Latitude').setValue('33')

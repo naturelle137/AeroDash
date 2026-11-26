@@ -9,6 +9,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Show the global model daylight flag for the selected hour.
+- Show the model temperature–dew point spread for the selected hour.
+- Show the global model wind aloft, temperature and height at 850 hPa for the selected hour.
+- Show the global model convective inhibition for the selected hour.
+- Show the global model wind at 80 m above ground for the selected hour.
+- Show the global model lifted index for the selected hour.
+- Show the global model 2 m relative humidity for the selected hour.
+- Show the global model boundary layer height for the selected hour.
+- Show global model low, mid and high cloud cover for the selected hour.
+
+- Show the global model weather classification for the selected hour.
+- Show the global model mean sea-level pressure labelled as not QNH.
+- Show the global model snowfall for the preceding hour.
+- Show the global model CAPE for the selected hour.
+
+- Cover global forecast probability, cloud cover, visibility and gust in the desktop and mobile forecast E2E.
+- Show the global model freezing level for the selected hour.
+- Keep global forecast values usable when the freezing-level unit is missing.
+
 - Show global model total precipitation for the preceding hour.
 
 - Show the global model dew point for the selected hour.
