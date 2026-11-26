@@ -16,6 +16,7 @@ import { useManualRunwayStore } from '../stores/manual-runway.store'
 
 const runway = useManualRunwayStore()
 const recentStatus = ref('all')
+const recentDate = ref('selected')
 function countRecent(date: string) {
   const counts = { expired: 0, 'not-yet-effective': 0, 'within-declared-dates': 0, unknown: 0 }
   for (const record of runway.recent) counts[runwayFreshness(record.runway, date)]++
@@ -23,7 +24,8 @@ function countRecent(date: string) {
 }
 const recentCounts = computed(() => countRecent(runway.assessmentDate))
 const deviceCounts = computed(() => countRecent(runway.today))
-const visibleRecent = computed(() => runway.recent.filter((record) => recentStatus.value === 'all' || runwayFreshness(record.runway, runway.assessmentDate) === recentStatus.value))
+const filterDate = computed(() => !runway.automaticDate && recentDate.value === 'device' ? runway.today : runway.assessmentDate)
+const visibleRecent = computed(() => runway.recent.filter((record) => recentStatus.value === 'all' || runwayFreshness(record.runway, filterDate.value) === recentStatus.value))
 const freshness = computed(() => runway.current ? runwayFreshness(runway.current.record.runway, runway.assessmentDate) : 'unknown')
 const draftDateError = computed(() => {
   if (runway.current) return undefined
@@ -93,6 +95,13 @@ if (!runway.loaded) runway.load()
       <p>Declared date check for {{ runway.assessmentDate || 'an invalid date' }}. Source and currency remain unverified; NOTAM/SUP coverage is unknown.</p>
       <p aria-label="Recent declaration date check totals">All recent declarations: {{ runway.recent.length }} · Expired: {{ recentCounts.expired }} · Not yet effective: {{ recentCounts['not-yet-effective'] }} · Within declared dates: {{ recentCounts['within-declared-dates'] }} · Unknown: {{ recentCounts.unknown }}</p>
       <p v-if="!runway.automaticDate" aria-label="Recent device date check totals">Device date {{ runway.today }} — all recent declarations: {{ runway.recent.length }} · Expired: {{ deviceCounts.expired }} · Not yet effective: {{ deviceCounts['not-yet-effective'] }} · Within declared dates: {{ deviceCounts['within-declared-dates'] }} · Unknown: {{ deviceCounts.unknown }}</p>
+      <template v-if="!runway.automaticDate">
+        <label for="recent-date">Filter date</label>
+        <select id="recent-date" v-model="recentDate">
+          <option value="selected">Selected check date ({{ runway.assessmentDate || 'invalid' }})</option>
+          <option value="device">Device date ({{ runway.today }})</option>
+        </select>
+      </template>
       <label for="recent-status">Filter by declared date check</label>
       <select id="recent-status" v-model="recentStatus">
         <option value="all">All declarations</option>
@@ -102,6 +111,7 @@ if (!runway.loaded) runway.load()
         <option value="unknown">Unknown</option>
       </select>
       <p v-if="!visibleRecent.length">No declarations match this date check.</p>
+      <p v-if="recentStatus !== 'all'">Filter uses {{ filterDate || 'an invalid date' }}; each entry still shows the selected date check.</p>
       <ul class="recent-runways"><li v-for="record in visibleRecent" :key="JSON.stringify([record.runway.aerodrome, record.runway.designator])">
         <button type="button" class="select-recent" @click="selectRecent(record)">{{ record.runway.aerodrome }} — {{ record.runway.designator }}: {{ freshnessLabels[runwayFreshness(record.runway, runway.assessmentDate)] }}</button>
         <button type="button" :aria-label="`Remove ${record.runway.aerodrome} runway ${record.runway.designator} from recent airports`" @click="runway.removeRecent(record)">Remove from recents</button>
