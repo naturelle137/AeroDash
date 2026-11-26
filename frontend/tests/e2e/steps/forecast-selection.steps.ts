@@ -118,7 +118,7 @@ When('the pilot retrieves a synthetic global forecast', async ({ page }) => {
   await expect(forecast).toContainText('Model weather: thunderstorm')
   await expect(forecast).toContainText('Model mean sea-level pressure: 1013.2 hPa. This is not aviation QNH')
   await expect(forecast).toContainText('Model cloud cover by layer: low 60% · mid 30% · high 10%')
-  await expect(forecast).toContainText('Model dew point at 2 m: 8 °C')
+  await expect(forecast).toContainText('Model dew point at 2 m: 8 °C, temperature–dew point spread: 9 °C')
   await expect(forecast).toContainText('Model probability of more than 0.1 mm precipitation during the preceding hour: 40%')
   await expect(forecast).toContainText('Model total cloud cover: 75% · Model visibility: 9000 m')
   await expect(forecast).toContainText('Model gust maximum during the preceding hour: 18 kt')
