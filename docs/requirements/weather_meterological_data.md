@@ -231,3 +231,15 @@ When a global model wind at the 600 hPa pressure level is available for the sele
 ### REQ-WX-051: Model 800 hPa wind
 
 When a global model wind at the 800 hPa pressure level is available for the selected hour, the system shall show it in knots and true degrees, with the model geopotential height where available, as model data without applying it to calculations.
+
+### REQ-WX-052: DWD model forecast
+
+When the pilot requests DWD model weather for valid coordinates and a future forecast hour, the system shall offer available temperature and wind values with their source and retrieval time.
+
+### REQ-WX-053: TAF wind
+
+While a retrieved TAF for the entered station is within its validity and defines a prevailing numeric wind, the system shall offer that wind for Flight Prep with the TAF station, issue time and validity interval.
+
+### REQ-WX-054: Observation fallback label
+
+While a METAR value is offered and no applicable forecast value exists for that parameter, the system shall label it as a METAR observation without a forecast with its station and observation time.
