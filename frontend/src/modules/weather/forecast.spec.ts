@@ -27,7 +27,10 @@ describe('global model forecast', () => {
     expect(() => parseGlobalForecast({ ...sample, longitude: null }, Date.parse('2030-01-01T02:00Z'))).toThrow('malformed')
     expect(() => parseGlobalForecast({ ...sample, hourly_units: { ...sample.hourly_units, wind_gusts_10m: 'km/h' } }, now)).toThrow('malformed')
     expect(parseGlobalForecast({ ...sample, hourly: { ...sample.hourly, precipitation_probability: [101] } }, Date.parse('2030-01-01T02:00Z'))?.precipitationProbability).toBeNull()
-    expect(() => parseGlobalForecast({ ...sample, hourly_units: { ...sample.hourly_units, freezing_level_height: 'ft' } }, now)).toThrow('malformed')
+    const at = Date.parse('2030-01-01T02:00Z')
+    const { freezing_level_height: _unit, ...otherUnits } = sample.hourly_units
+    expect(parseGlobalForecast({ ...sample, hourly_units: otherUnits }, at)).toMatchObject({ freezingLevel: null, dewPoint: 8, visibility: 9000 })
+    expect(parseGlobalForecast({ ...sample, hourly_units: { ...sample.hourly_units, freezing_level_height: 'ft' } }, at)).toMatchObject({ freezingLevel: null, cloudCover: 75 })
     expect(parseGlobalForecast({ ...sample, hourly: { ...sample.hourly, freezing_level_height: [null] } }, Date.parse('2030-01-01T02:00Z'))?.freezingLevel).toBeNull()
     expect(parseGlobalForecast({ ...sample, hourly: { ...sample.hourly, freezing_level_height: [99999] } }, Date.parse('2030-01-01T02:00Z'))?.freezingLevel).toBeNull()
     expect(() => parseGlobalForecast({ ...sample, hourly_units: { ...sample.hourly_units, precipitation: 'inch' } }, now)).toThrow('malformed')
