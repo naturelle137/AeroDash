@@ -179,3 +179,7 @@ When a global model WMO weather code of a known category is available for the se
 ### REQ-WX-038: Model boundary layer height
 
 When a global model boundary layer height is available for the selected hour, the system shall show it in metres as model data without applying it to calculations.
+
+### REQ-WX-039: Model relative humidity
+
+When a global model 2 m relative humidity is available for the selected hour, the system shall show it in percent as model data without applying it to calculations.
