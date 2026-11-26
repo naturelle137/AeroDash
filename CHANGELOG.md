@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Compare recent runway date-check totals with the device date when using a fixed date.
 - Summarize recent runway declarations by their selected-date check.
 
 - Filter recent runway declarations by their selected-date check while offline.
