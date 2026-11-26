@@ -203,3 +203,7 @@ When a global model wind at the 850 hPa pressure level is available for the sele
 ### REQ-WX-044: Model dew point spread
 
 When a global model 2 m temperature and dew point are both available for the selected hour, the system shall show their difference in °C as model data without applying it to calculations.
+
+### REQ-WX-045: Model daylight flag
+
+When a global model day or night flag is available for the selected hour, the system shall show it as a model sun-position value, not sunrise, sunset or legal night, without applying it to calculations.
