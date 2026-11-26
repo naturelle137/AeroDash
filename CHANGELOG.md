@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Show the global model wind aloft, temperature and height at 850 hPa for the selected hour.
 - Show the global model wind aloft and height at 700 hPa for the selected hour.
 - Show the global model wind aloft and height at 500 hPa for the selected hour.
+- Show the global model wind aloft and height at 600 hPa for the selected hour.
 - Show the global model wind aloft and height at 925 hPa for the selected hour.
 - Show the global model convective inhibition for the selected hour.
 - Show the global model wind at 80 m above ground for the selected hour.
