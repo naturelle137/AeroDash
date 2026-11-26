@@ -181,7 +181,7 @@ Then('the outdated forecast evidence is captured as {string}', async ({ page, $t
 
 When('the pilot retrieves a synthetic DWD forecast', async ({ page }) => {
   const forecast = page.getByRole('region', { name: 'Time-specific forecast' })
-  await page.route('https://api.open-meteo.com/v1/dwd-icon?*', route => route.fulfill({ json: { latitude: 50, longitude: 8, utc_offset_seconds: 0, hourly_units: { time: 'iso8601', temperature_2m: '°C', dew_point_2m: '°C', wind_speed_10m: 'kn', wind_direction_10m: '°', wind_gusts_10m: 'kn', precipitation: 'mm', precipitation_probability: '%', cloud_cover: '%', visibility: 'm' }, hourly: { time: ['2030-06-01T12:00'], temperature_2m: [17], wind_speed_10m: [null], wind_direction_10m: [null], dew_point_2m: [null], wind_gusts_10m: [null], precipitation: [null], precipitation_probability: [null], cloud_cover: [null], visibility: [null] } }, headers: { 'access-control-allow-origin': '*' } }))
+  await page.route('https://api.open-meteo.com/v1/dwd-icon?*', route => route.fulfill({ json: { latitude: 50, longitude: 8, elevation: 1000, utc_offset_seconds: 0, hourly_units: { time: 'iso8601', temperature_2m: '°C', dew_point_2m: '°C', wind_speed_10m: 'kn', wind_direction_10m: '°', wind_gusts_10m: 'kn', precipitation: 'mm', precipitation_probability: '%', cloud_cover: '%', visibility: 'm', surface_pressure: 'hPa' }, hourly: { time: ['2030-06-01T12:00'], surface_pressure: [898.75], temperature_2m: [17], wind_speed_10m: [null], wind_direction_10m: [null], dew_point_2m: [null], wind_gusts_10m: [null], precipitation: [null], precipitation_probability: [null], cloud_cover: [null], visibility: [null] } }, headers: { 'access-control-allow-origin': '*' } }))
   const date = new Date('2030-06-01T12:00:00Z')
   const pad = (n: number) => String(n).padStart(2, '0')
   await forecast.getByLabel('Local date and time').fill(`${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:00`)
@@ -189,6 +189,10 @@ When('the pilot retrieves a synthetic DWD forecast', async ({ page }) => {
   await forecast.getByLabel('Longitude').fill('8.6')
   await forecast.getByRole('button', { name: 'Retrieve DWD ICON forecast' }).click()
   await expect(forecast).toContainText('DWD ICON forecast hour')
+  await expect(forecast).toContainText('ISA-derived model altimeter-setting estimate: 1013')
+  await expect(forecast).toContainText('not official aviation QNH')
+  await forecast.getByRole('button', { name: 'Replace QNH with derived model estimate' }).click()
+  await expect(page.getByText(/ISA-derived model estimate from surface pressure/).first()).toBeVisible()
   await expect(forecast).toContainText('Wind: unavailable')
   await expect(page.locator('#wind-speed')).toHaveValue('20')
   await forecast.getByRole('button', { name: 'Replace temperature with DWD ICON forecast' }).click()
