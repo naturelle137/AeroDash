@@ -219,3 +219,7 @@ The system shall let the pilot filter recent runway declarations by their declar
 ### REQ-AP-049: Recent date check totals
 
 When displaying recent runway declarations, the system shall show the count for each declared date check for the selected date across all recent declarations.
+
+### REQ-AP-050: Recent device date totals
+
+While a fixed check date is selected, the system shall show the count for each declared date check against the device local date across all recent runway declarations.
