@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Assess lookup-tank and mixed-tank trip burn paths against the envelope.
 - Remove individual outdated runway declarations from recent airports offline.
 - Show the global model snow depth for the selected hour.
 - Show the global model daylight flag for the selected hour.
