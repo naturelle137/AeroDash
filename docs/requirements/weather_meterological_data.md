@@ -211,3 +211,7 @@ When a global model day or night flag is available for the selected hour, the sy
 ### REQ-WX-046: Model snow depth
 
 When a global model snow depth is available for the selected hour, the system shall show it in metres as model data without applying it to calculations.
+
+### REQ-WX-047: Model 700 hPa wind
+
+When a global model wind at the 700 hPa pressure level is available for the selected hour, the system shall show it in knots and true degrees, with the model geopotential height where available, as model data without applying it to calculations.
