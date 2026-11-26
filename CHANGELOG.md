@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Release TAF retry controls immediately when retrieval is interrupted offline.
+
 - Order recent runway declarations by their declared effective date offline.
 
 - Assign unique IDs to airport date-check requirements.
