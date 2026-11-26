@@ -239,3 +239,7 @@ While a runway declaration has unsaved changes, the briefing shall show its unve
 ### REQ-AP-054: Search recent declarations
 
 While recent runway declarations are displayed, the system shall allow filtering them by aerodrome or runway designator without network access.
+
+### REQ-AP-055: Unreadable recent declarations
+
+If recent runway declarations cannot be read, then the system shall indicate that the history is unavailable while preserving its stored data.
