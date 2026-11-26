@@ -164,6 +164,6 @@ When a global model convective available potential energy is available for the s
 
 When global model low, mid or high cloud cover is available for the selected hour, the system shall show each available layer in percent as model data without applying it to calculations.
 
-### REQ-WX-034: Model snowfall
+### REQ-WX-035: Model snowfall
 
 When a global model snowfall is available for the selected hour, the system shall show it in centimetres for the preceding hour as model data without applying it to calculations.
