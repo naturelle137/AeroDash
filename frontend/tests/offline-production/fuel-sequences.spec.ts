@@ -35,6 +35,7 @@ test('named mixed tank sequences recompute the trip path offline', async ({ page
   await expect.poll(() => page.evaluate(() => navigator.serviceWorker.controller !== null)).toBe(true)
   await context.setOffline(true)
   expect((await page.reload())?.fromServiceWorker()).toBe(true)
+  await picker.selectOption((await picker.locator('option').filter({ hasText: profile.registration }).first().getAttribute('value'))!)
   const card = page.getByRole('region', { name: 'Fuel & Endurance', exact: true })
   await card.getByLabel('Planning method').selectOption('direct')
   await card.getByLabel('Trip Fuel (kg)', { exact: true }).fill('30')

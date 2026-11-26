@@ -37,7 +37,7 @@ There is no timer-based restart or calendar-only completion.
 
 ## Further capabilities
 
-- **Offline preparation:** obstacle constraints and a consolidated Go/No-Go advisory; additional electric-aircraft planning capabilities.
+- **Offline preparation:** full-flight fuel-burn path assessment, obstacle constraints and a consolidated Go/No-Go advisory; additional electric-aircraft planning capabilities.
 - **Weather and airports:** later move temperature, wind and QNH inputs into Weather before Performance. TAF, time/location forecasts, manual overrides, runway conditions and wind-limit warnings; retain explicit offline behavior.
 - **Decision summary:** Flight Preparation shows current takeoff/zero-fuel mass differences to entered MTOM/MZFM as an arithmetic comparison (#521), with neutral within-limit styling and a raw exact-limit cross-check (#527); it adds no margin threshold, payload advice or suitability verdict, and #110 remains open.
 - **User profiles:** when user profiles become available, move Performance unit preferences into them; retain current preferences until then. Aircraft profiles do not provide user accounts.
