@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Show the global model total cloud cover and visibility for the selected hour.
+
 - Show the global model precipitation probability for the preceding hour.
 
 - Show the global model forecast maximum gust for the preceding hour.
