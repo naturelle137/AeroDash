@@ -18,6 +18,7 @@ const runway = useManualRunwayStore()
 const recentStatus = ref('all')
 const recentDate = ref('selected')
 const recentSearch = ref('')
+const recentOrder = ref('recent')
 const differingDatesOnly = ref(false)
 function countRecent(date: string) {
   const counts = { expired: 0, 'not-yet-effective': 0, 'within-declared-dates': 0, unknown: 0 }
@@ -31,7 +32,9 @@ const visibleRecent = computed(() => runway.recent.filter((record) =>
   (recentStatus.value === 'all' || runwayFreshness(record.runway, filterDate.value) === recentStatus.value)
   && [record.runway.aerodrome, record.runway.designator, record.runway.source ?? ''].some((value) => value.toLowerCase().includes(recentSearch.value.trim().toLowerCase()))
   && (runway.automaticDate || !differingDatesOnly.value || runwayFreshness(record.runway, runway.assessmentDate) !== runwayFreshness(record.runway, runway.today)),
-))
+).sort((a, b) => recentOrder.value === 'expiry'
+  ? (a.runway.expiryDate ?? '9999-99-99').localeCompare(b.runway.expiryDate ?? '9999-99-99')
+  : 0))
 const freshness = computed(() => runway.current ? runwayFreshness(runway.current.record.runway, runway.assessmentDate) : 'unknown')
 const draftDateError = computed(() => {
   if (runway.current) return undefined
@@ -101,6 +104,11 @@ if (!runway.loaded) runway.load()
       <h3>Recently used airports</h3>
       <label for="recent-search">Search aerodrome, runway or source reference</label>
       <input id="recent-search" v-model="recentSearch" type="search" />
+      <label for="recent-order">Order declarations</label>
+      <select id="recent-order" v-model="recentOrder">
+        <option value="recent">Most recently used</option>
+        <option value="expiry">Expiry date (unknown last)</option>
+      </select>
       <p>Declared date check for {{ runway.assessmentDate || 'an invalid date' }}. Source and currency remain unverified; NOTAM/SUP coverage is unknown.</p>
       <p aria-label="Recent declaration date check totals">All recent declarations: {{ runway.recent.length }} · Expired: {{ recentCounts.expired }} · Not yet effective: {{ recentCounts['not-yet-effective'] }} · Within declared dates: {{ recentCounts['within-declared-dates'] }} · Unknown: {{ recentCounts.unknown }}</p>
       <p v-if="!runway.automaticDate" aria-label="Recent device date check totals">Device date {{ runway.today }} — all recent declarations: {{ runway.recent.length }} · Expired: {{ deviceCounts.expired }} · Not yet effective: {{ deviceCounts['not-yet-effective'] }} · Within declared dates: {{ deviceCounts['within-declared-dates'] }} · Unknown: {{ deviceCounts.unknown }}</p>
@@ -294,6 +302,7 @@ if (!runway.loaded) runway.load()
 
 <style scoped>
 .panel { padding: 1.25rem; border: 1px solid var(--color-border); border-radius: 12px; background: var(--color-surface-card); min-width: 0; display: grid; gap: .75rem; }
+.panel > section { min-width: 0; }
 h2, h3 { margin: 0; }
 p { margin: 0; line-height: 1.6; }
 fieldset { border: 1px solid var(--color-border); border-radius: 8px; padding: .75rem 1rem 1rem; margin: 0; display: grid; gap: .5rem; min-width: 0; }
@@ -313,6 +322,7 @@ select:disabled { opacity: .6; }
 .field-error::before { content: '⚠ '; }
 .actions { display: flex; flex-wrap: wrap; gap: .75rem; }
 .recent-runways { list-style: none; padding: 0; display: grid; gap: .75rem; overflow-wrap: anywhere; }
+#recent-order { max-width: 100%; }
 button { cursor: pointer; font-weight: 600; }
 .provenance, .unsaved { overflow-wrap: anywhere; }
 .summary { border-left: 4px solid var(--color-primary); padding-left: .75rem; display: grid; gap: .5rem; overflow-wrap: anywhere; }

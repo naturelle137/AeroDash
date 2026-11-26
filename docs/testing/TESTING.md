@@ -8,7 +8,7 @@ Run commands from the repository root with Corepack/pnpm; use the `web-dev` tool
 | Unit | `pnpm test:unit` | Isolated behavior and repository safeguards |
 | Integration | `pnpm test:integration` | Module/store interaction with controlled I/O |
 | Build | `pnpm build` | Type-check and production bundle |
-| Browser | `pnpm test:e2e --project=chromium` | Playwright BDD workflows |
+| Browser | `pnpm test:e2e --project=chromium` | Playwright BDD workflows; local runs build and serve the production app |
 | P1 | `pnpm --filter frontend test:p1` | Framework-free core in Node |
 | P1 coverage | `pnpm --filter frontend test:p1:coverage` | Core coverage thresholds |
 | Mutation | `pnpm --filter frontend test:mutation` | P1 defect-detection strength |

@@ -32,6 +32,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Order recent runway declarations by their declared expiry date offline.
+- Run local Chromium BDD workflows against the production service worker.
+
 - Offer an explicitly selected ISA-derived DWD model altimeter-setting estimate for the forecast hour.
 - Show a pilot-entered electric reserve duration and energy budget alongside the profile reserve floor.
 
