@@ -150,13 +150,14 @@ async function retrieveGlobal(source: 'global' | 'dwd'): Promise<void> {
   globalForecast.value = null
   globalSource.value = source
   globalMessage.value = 'Retrieving forecast…'
-  const params = new URLSearchParams({ latitude: latitude.value, longitude: longitude.value, hourly: source === 'dwd' ? 'temperature_2m,dew_point_2m,wind_speed_10m,wind_direction_10m,wind_gusts_10m,precipitation,precipitation_probability,cloud_cover,visibility' : 'temperature_2m,dew_point_2m,wind_speed_10m,wind_direction_10m,wind_gusts_10m,precipitation,precipitation_probability,cloud_cover,visibility,freezing_level_height,cape,boundary_layer_height,cloud_cover_low,cloud_cover_mid,cloud_cover_high,relative_humidity_2m,lifted_index,convective_inhibition,wind_speed_80m,wind_direction_80m,wind_speed_850hPa,wind_direction_850hPa,temperature_850hPa,geopotential_height_850hPa,wind_speed_700hPa,wind_direction_700hPa,geopotential_height_700hPa,wind_speed_500hPa,wind_direction_500hPa,geopotential_height_500hPa,wind_speed_600hPa,wind_direction_600hPa,geopotential_height_600hPa,wind_speed_925hPa,wind_direction_925hPa,geopotential_height_925hPa,wind_speed_800hPa,wind_direction_800hPa,geopotential_height_800hPa,snowfall,snow_depth,pressure_msl,weather_code,is_day', wind_speed_unit: 'kn', timezone: 'GMT', forecast_days: source === 'dwd' ? '7' : '16' })
+  const params = new URLSearchParams({ latitude: latitude.value, longitude: longitude.value, hourly: source === 'dwd' ? 'temperature_2m,dew_point_2m,wind_speed_10m,wind_direction_10m,wind_gusts_10m,precipitation,precipitation_probability,cloud_cover,visibility,surface_pressure' : 'temperature_2m,dew_point_2m,wind_speed_10m,wind_direction_10m,wind_gusts_10m,precipitation,precipitation_probability,cloud_cover,visibility,freezing_level_height,cape,boundary_layer_height,cloud_cover_low,cloud_cover_mid,cloud_cover_high,relative_humidity_2m,lifted_index,convective_inhibition,wind_speed_80m,wind_direction_80m,wind_speed_850hPa,wind_direction_850hPa,temperature_850hPa,geopotential_height_850hPa,wind_speed_700hPa,wind_direction_700hPa,geopotential_height_700hPa,wind_speed_500hPa,wind_direction_500hPa,geopotential_height_500hPa,wind_speed_600hPa,wind_direction_600hPa,geopotential_height_600hPa,wind_speed_925hPa,wind_direction_925hPa,geopotential_height_925hPa,wind_speed_800hPa,wind_direction_800hPa,geopotential_height_800hPa,snowfall,snow_depth,pressure_msl,weather_code,is_day', wind_speed_unit: 'kn', timezone: 'GMT', forecast_days: source === 'dwd' ? '7' : '16' })
+  if (source === 'dwd') params.set('elevation', 'nan')
   try {
     const response = await fetch(`https://api.open-meteo.com/v1/${source === 'dwd' ? 'dwd-icon' : 'forecast'}?${params}`, { credentials: 'omit', cache: 'no-store', referrerPolicy: 'no-referrer' })
     if (!response.ok) throw new Error('unavailable')
     const data: unknown = await response.json()
     if (current !== globalRequest) return
-    globalForecast.value = parseGlobalForecast(data, selected)
+    globalForecast.value = parseGlobalForecast(data, selected, source === 'dwd')
     globalRetrieved.value = new Date().toISOString()
     globalMessage.value = globalForecast.value ? 'Forecast retrieved; model issue time is unavailable. Verify with an authorised source.' : 'No forecast available for the selected hour.'
   } catch (error) {
@@ -171,9 +172,9 @@ watch([selectionValid, location, time, forecast, stale, globalForecast, globalSt
     forecast: { ...(!stale.value ? forecast.value?.values : {}), ...(!globalStale.value ? globalForecast.value?.values : {}) },
   } : null)
 }, { immediate: true, flush: 'sync' })
-function applyGlobal(field: 'temperature' | 'wind'): void {
-  if (!online.value || !selectionValid.value || !globalForecast.value || !globalForecast.value.values[field] || globalStale.value || Date.parse(time.value) <= Date.now() || Date.now() - Date.parse(globalRetrieved.value) > 4 * 60 * 60 * 1000) return
-  emit('apply', field, globalForecast.value.values, `Open-Meteo ${globalSource.value === 'dwd' ? 'DWD ICON forecast' : 'model forecast'} for ${location.value.trim()} (requested ${latitude.value}, ${longitude.value}; model grid ${globalForecast.value.latitude}, ${globalForecast.value.longitude}), valid ${new Date(time.value).toISOString()}, retrieved ${globalRetrieved.value}; model issue time unavailable`)
+function applyGlobal(field: 'temperature' | 'wind' | 'qnh'): void {
+  if (!online.value || !selectionValid.value || !globalForecast.value || !(field === 'qnh' ? globalForecast.value.modelQnh !== null : globalForecast.value.values[field]) || globalStale.value || Date.parse(time.value) <= Date.now() || Date.now() - Date.parse(globalRetrieved.value) > 4 * 60 * 60 * 1000) return
+  emit('apply', field, field === 'qnh' ? { qnh: String(globalForecast.value.modelQnh) } : globalForecast.value.values, `Open-Meteo ${globalSource.value === 'dwd' ? 'DWD ICON forecast' : 'model forecast'} for ${location.value.trim()} (requested ${latitude.value}, ${longitude.value}; model grid ${globalForecast.value.latitude}, ${globalForecast.value.longitude}), valid ${new Date(time.value).toISOString()}, retrieved ${globalRetrieved.value}; model issue time unavailable${field === 'qnh' ? `; ISA-derived model estimate from surface pressure at grid elevation ${globalForecast.value.modelElevation} m, not official QNH` : ''}`)
 }
 
 function applyRetrieved(field: 'temperature' | 'wind'): void {
@@ -259,10 +260,11 @@ function apply(field: keyof MetarValues): void {
 
     <p aria-live="polite">{{ online ? globalMessage : 'Browser offline: forecast retrieval is unavailable.' }}</p>
     <div v-if="globalForecast">
-      <p>Weather data by <a href="https://open-meteo.com/">Open-Meteo</a> · <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a> · Model values presented without conversion.</p>
+      <p>Weather data by <a href="https://open-meteo.com/">Open-Meteo</a> · <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a> · Model data and derived estimates are identified below.</p>
       <p>{{ globalSource === 'dwd' ? 'DWD ICON' : 'Global model' }} forecast hour: {{ new Date(time).toISOString() }} · Retrieved: {{ globalRetrieved }} · Model issue time: unavailable{{ globalStale ? ' · OUTDATED' : '' }}</p>
       <p>Requested coordinates: {{ latitude }}, {{ longitude }} · Model grid coordinates: {{ globalForecast.latitude }}, {{ globalForecast.longitude }}. Grid location may differ from the selected location.</p>
-      <p>Temperature: {{ globalForecast.values.temperature ?? 'unavailable' }} °C · Wind: {{ globalForecast.values.wind ? `${globalForecast.values.wind.direction || 'calm'}° true / ${globalForecast.values.wind.speed} kt` : 'unavailable' }} · Forecast QNH: unavailable.</p>
+      <p>Temperature: {{ globalForecast.values.temperature ?? 'unavailable' }} °C · Wind: {{ globalForecast.values.wind ? `${globalForecast.values.wind.direction || 'calm'}° true / ${globalForecast.values.wind.speed} kt` : 'unavailable' }}.</p>
+      <p v-if="globalSource === 'dwd'">ISA-derived model altimeter-setting estimate: {{ globalForecast.modelQnh === null ? 'unavailable' : `${globalForecast.modelQnh} hPa` }} (model surface elevation: {{ globalForecast.modelElevation ?? 'unavailable' }} m). This is an estimate from model data, not official aviation QNH; verify with an authorised source.</p>
       <p>Model total precipitation in the preceding hour: {{ globalForecast.precipitation === null ? 'unavailable' : `${globalForecast.precipitation} mm` }} (rain, showers and snow water equivalent). This is not a runway condition and is not applied to calculations.</p>
       <p>Model freezing level: {{ globalForecast.freezingLevel === null ? 'unavailable' : `${globalForecast.freezingLevel} m above mean sea level` }}. This is not an icing forecast or an observation and is not applied to calculations.</p>
       <p>Model convective available potential energy (CAPE): {{ globalForecast.cape === null ? 'unavailable' : `${globalForecast.cape} J/kg` }}. It is an instantaneous model value, not a thunderstorm forecast or observation, and is not applied to calculations.</p>
@@ -287,11 +289,13 @@ function apply(field: keyof MetarValues): void {
       <p>Model probability of more than 0.1 mm precipitation during the preceding hour: {{ globalForecast.precipitationProbability === null ? 'unavailable' : `${globalForecast.precipitationProbability}%` }}. This does not establish runway conditions.</p>
       <p>Model total cloud cover: {{ globalForecast.cloudCover === null ? 'unavailable' : `${globalForecast.cloudCover}%` }} · Model visibility: {{ globalForecast.visibility === null ? 'unavailable' : `${globalForecast.visibility} m` }}. These are not ceiling, METAR or TAF values and are not applied to calculations.</p>
       <p>Model gust maximum during the preceding hour: {{ globalForecast.gust === null ? 'unavailable' : `${globalForecast.gust} kt` }}. Gusts are not applied to calculations.</p>
+      <p v-if="globalSource === 'dwd'">Current Flight Prep QNH: {{ currentQnh ? `${currentQnh} ${currentQnhUnit}` : 'empty' }}.</p>
+      <button v-if="globalSource === 'dwd'" type="button" :disabled="!selectionValid || globalStale || globalForecast.modelQnh === null" @click="applyGlobal('qnh')">Replace QNH with derived model estimate</button>
       <button type="button" :disabled="!selectionValid || globalStale || !globalForecast.values.temperature" @click="applyGlobal('temperature')">Replace temperature with {{ globalSource === 'dwd' ? 'DWD ICON' : 'global' }} forecast</button>
       <button type="button" :disabled="!selectionValid || globalStale || !globalForecast.values.wind" @click="applyGlobal('wind')">Replace wind with {{ globalSource === 'dwd' ? 'DWD ICON' : 'global' }} forecast</button>
     </div>
     <p>For education and situational awareness only, not an official briefing or go/no-go authority. Obtain required weather from an authorised source.</p>
-    <p>Forecast QNH is unavailable from these services. Obtain aviation QNH from an authorised source and enter it below; do not substitute model sea-level pressure. Wind direction is true; gusts are not applied. Values require a future time and are applied only when selected.</p>
+    <p>Official forecast QNH is unavailable from these services. Obtain aviation QNH from an authorised source and enter it below; do not substitute model sea-level pressure. Wind direction is true; gusts are not applied. Values require a future time and are applied only when selected.</p>
     <button type="button" @click="qnhInput?.focus()">Enter aviation QNH manually</button>
     <div class="fields">
       <label>Forecast temperature (°C)<input v-model="temperature" type="text" inputmode="decimal" min="-100" max="100" step="any" /></label>
