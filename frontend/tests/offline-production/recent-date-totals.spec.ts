@@ -28,7 +28,7 @@ test('summarizes recent declared date checks offline', async ({ page, context },
   const recent = runway.getByRole('region', { name: 'Recently used airports' })
   await recent.locator('#recent-order').selectOption('effective')
   await expect(recent.locator('.select-recent').first()).toContainText('27:')
-  await recent.scrollIntoViewIfNeeded()
+  await recent.locator('#recent-order').scrollIntoViewIfNeeded()
   await page.screenshot({ path: info.outputPath('recent-effective-order.png'), animations: 'disabled' })
   await recent.locator('#recent-order').selectOption('expiry')
   await expect(recent.locator('.select-recent').first()).toContainText('27:')
