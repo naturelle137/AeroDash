@@ -107,7 +107,7 @@ if (!runway.loaded) runway.load()
       <label for="recent-order">Order declarations</label>
       <select id="recent-order" v-model="recentOrder">
         <option value="recent">Most recently used</option>
-        <option value="expiry">Earliest declared expiry first (unknown last)</option>
+        <option value="expiry">Expiry date (unknown last)</option>
       </select>
       <p>Declared date check for {{ runway.assessmentDate || 'an invalid date' }}. Source and currency remain unverified; NOTAM/SUP coverage is unknown.</p>
       <p aria-label="Recent declaration date check totals">All recent declarations: {{ runway.recent.length }} · Expired: {{ recentCounts.expired }} · Not yet effective: {{ recentCounts['not-yet-effective'] }} · Within declared dates: {{ recentCounts['within-declared-dates'] }} · Unknown: {{ recentCounts.unknown }}</p>
@@ -302,6 +302,7 @@ if (!runway.loaded) runway.load()
 
 <style scoped>
 .panel { padding: 1.25rem; border: 1px solid var(--color-border); border-radius: 12px; background: var(--color-surface-card); min-width: 0; display: grid; gap: .75rem; }
+.panel > section { min-width: 0; }
 h2, h3 { margin: 0; }
 p { margin: 0; line-height: 1.6; }
 fieldset { border: 1px solid var(--color-border); border-radius: 8px; padding: .75rem 1rem 1rem; margin: 0; display: grid; gap: .5rem; min-width: 0; }
