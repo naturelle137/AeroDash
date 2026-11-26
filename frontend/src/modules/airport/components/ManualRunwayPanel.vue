@@ -16,11 +16,13 @@ import { useManualRunwayStore } from '../stores/manual-runway.store'
 
 const runway = useManualRunwayStore()
 const recentStatus = ref('all')
-const recentCounts = computed(() => {
+function countRecent(date: string) {
   const counts = { expired: 0, 'not-yet-effective': 0, 'within-declared-dates': 0, unknown: 0 }
-  for (const record of runway.recent) counts[runwayFreshness(record.runway, runway.assessmentDate)]++
+  for (const record of runway.recent) counts[runwayFreshness(record.runway, date)]++
   return counts
-})
+}
+const recentCounts = computed(() => countRecent(runway.assessmentDate))
+const deviceCounts = computed(() => countRecent(runway.today))
 const visibleRecent = computed(() => runway.recent.filter((record) => recentStatus.value === 'all' || runwayFreshness(record.runway, runway.assessmentDate) === recentStatus.value))
 const freshness = computed(() => runway.current ? runwayFreshness(runway.current.record.runway, runway.assessmentDate) : 'unknown')
 const draftDateError = computed(() => {
@@ -90,6 +92,7 @@ if (!runway.loaded) runway.load()
       <h3>Recently used airports</h3>
       <p>Declared date check for {{ runway.assessmentDate || 'an invalid date' }}. Source and currency remain unverified; NOTAM/SUP coverage is unknown.</p>
       <p aria-label="Recent declaration date check totals">All recent declarations: {{ runway.recent.length }} · Expired: {{ recentCounts.expired }} · Not yet effective: {{ recentCounts['not-yet-effective'] }} · Within declared dates: {{ recentCounts['within-declared-dates'] }} · Unknown: {{ recentCounts.unknown }}</p>
+      <p v-if="!runway.automaticDate" aria-label="Recent device date check totals">Device date {{ runway.today }} — all recent declarations: {{ runway.recent.length }} · Expired: {{ deviceCounts.expired }} · Not yet effective: {{ deviceCounts['not-yet-effective'] }} · Within declared dates: {{ deviceCounts['within-declared-dates'] }} · Unknown: {{ deviceCounts.unknown }}</p>
       <label for="recent-status">Filter by declared date check</label>
       <select id="recent-status" v-model="recentStatus">
         <option value="all">All declarations</option>

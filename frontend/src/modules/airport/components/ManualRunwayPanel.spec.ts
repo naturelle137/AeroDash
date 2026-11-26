@@ -30,6 +30,26 @@ beforeEach(() => {
 afterEach(() => { vi.restoreAllMocks() })
 
 describe('ManualRunwayPanel', () => {
+  it('shows device-date totals independently of the fixed-date filter', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date(2026, 6, 1, 12))
+    try {
+      const view = mount(ManualRunwayPanel)
+      await fill(view)
+      await view.get('#runway-effective').setValue('2026-01-01')
+      await view.get('#runway-expiry').setValue('2026-06-30')
+      await view.get('form').trigger('submit')
+      await view.get('#runway-assessment-date').setValue('2026-06-30')
+      await view.get('#recent-status').setValue('unknown')
+      expect(view.get('[aria-label="Recent declaration date check totals"]').text()).toContain('Within declared dates: 1')
+      expect(view.get('[aria-label="Recent device date check totals"]').text()).toContain('2026-07-01 — all recent declarations: 1 · Expired: 1')
+      await view.get('button').trigger('click')
+      expect(view.find('[aria-label="Recent device date check totals"]').exists()).toBe(false)
+      view.unmount()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
   it('filters recent declarations by the selected date without changing stored data', async () => {
     const view = mount(ManualRunwayPanel)
     await fill(view)
