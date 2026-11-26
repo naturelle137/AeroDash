@@ -22,6 +22,7 @@ export const useManualRunwayStore = defineStore('manualRunway', () => {
   const draft = reactive<ManualRunwayDraft>({ ...EMPTY_MANUAL_RUNWAY_DRAFT })
   const saved = ref<ManualRunwayRecord | null>(null)
   const recent = ref<ManualRunwayRecord[]>([])
+  const recentError = ref(false)
   const storageError = ref<string | null>(null)
   const notice = ref<string | null>(null)
   const showErrors = ref(false)
@@ -130,7 +131,9 @@ export const useManualRunwayStore = defineStore('manualRunway', () => {
 
   function load(): void {
     const result = loadManualRunway()
-    recent.value = loadRecentAirports()
+    const history = loadRecentAirports()
+    recent.value = history ?? []
+    recentError.value = history === null
     loaded.value = true
     showErrors.value = false
     if (result.status === 'loaded') {
@@ -174,6 +177,7 @@ export const useManualRunwayStore = defineStore('manualRunway', () => {
     fill(draftFromManualRunway(result.runway))
     const history = saveRecentAirport(written.record!)
     if (history) recent.value = history
+    recentError.value = history === null
     notice.value = history ? 'Manual runway inputs saved on this device.' : 'Manual runway inputs saved, but recent airports could not be saved.'
     return true
   }
@@ -198,6 +202,7 @@ export const useManualRunwayStore = defineStore('manualRunway', () => {
     saved.value = written.record
     const history = saveRecentAirport(record)
     if (history) recent.value = history
+    recentError.value = history === null
     storageError.value = null
     showErrors.value = false
     fill(draftFromManualRunway(record.runway))
@@ -208,6 +213,7 @@ export const useManualRunwayStore = defineStore('manualRunway', () => {
     if (massBalance.isDemoActive) { notice.value = DEMO_BLOCKED; return }
     const history = removeRecentAirport(record)
     if (history) recent.value = history
+    recentError.value = history === null
     notice.value = history ? 'Removed from recent airports. The current runway is unchanged.' : 'Could not remove the recent runway from browser storage.'
   }
 
@@ -236,5 +242,5 @@ export const useManualRunwayStore = defineStore('manualRunway', () => {
     return true
   }
 
-  return { draft, saved, recent, selectRecent, removeRecent, weatherSurface, updateWeather, updateForecast, chooseSurface, storageError, notice, showErrors, loaded, assessmentDate, today, automaticDate, selectAssessmentDate, useToday, validation, errors, current, hasUnsavedChanges, load, save, revert, clear }
+  return { draft, saved, recent, recentError, selectRecent, removeRecent, weatherSurface, updateWeather, updateForecast, chooseSurface, storageError, notice, showErrors, loaded, assessmentDate, today, automaticDate, selectAssessmentDate, useToday, validation, errors, current, hasUnsavedChanges, load, save, revert, clear }
 })

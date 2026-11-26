@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Report unreadable recent runway declarations while preserving their stored data.
+
 - Preserve unreadable current runway declarations when selecting recent history.
 
 - Preserve unreadable recent runway declarations when saving a runway.
