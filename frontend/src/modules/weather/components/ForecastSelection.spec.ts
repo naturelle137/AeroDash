@@ -212,7 +212,7 @@ it('retrieves DWD ICON separately and preserves missing values', async () => {
   vi.useFakeTimers()
   vi.setSystemTime(new Date('2030-01-01T00:00:00Z'))
   vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(true)
-  const fetchMock = vi.fn<(url: string) => Promise<unknown>>().mockResolvedValue({ ok: true, json: async () => ({ utc_offset_seconds: 0, hourly_units: { time: 'iso8601', temperature_2m: '°C', wind_speed_10m: 'kn', wind_direction_10m: '°' }, hourly: { time: ['2030-01-01T02:00'], temperature_2m: [12], wind_speed_10m: [null], wind_direction_10m: [null] } }) })
+  const fetchMock = vi.fn<(url: string) => Promise<unknown>>().mockResolvedValue({ ok: true, json: async () => ({ latitude: 50, longitude: 8, utc_offset_seconds: 0, hourly_units: { time: 'iso8601', temperature_2m: '°C', dew_point_2m: '°C', wind_speed_10m: 'kn', wind_direction_10m: '°', wind_gusts_10m: 'kn', precipitation: 'mm', precipitation_probability: '%', cloud_cover: '%', visibility: 'm' }, hourly: { time: ['2030-01-01T02:00'], temperature_2m: [12], wind_speed_10m: [null], wind_direction_10m: [null], dew_point_2m: [null], wind_gusts_10m: [null], precipitation: [null], precipitation_probability: [null], cloud_cover: [null], visibility: [null] } }) })
   vi.stubGlobal('fetch', fetchMock)
   const view = mount(ForecastSelection)
   const label = (name: string) => view.findAll('label').find(item => item.text().startsWith(name))!
