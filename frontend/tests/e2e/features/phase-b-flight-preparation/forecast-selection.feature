@@ -7,6 +7,8 @@ Feature: Time-specific forecast selection
     And the pilot enters runway heading "270", wind from "330" and speed "20" "kt"
     And the pilot selects a forecast location and time
     Then the forecast is unavailable and manual wind remains unchanged
+    When the pilot retrieves a synthetic DWD forecast
+    Then the DWD forecast evidence is captured as "<width>"
     When the pilot retrieves a synthetic global forecast
     Then the global forecast evidence is captured as "<width>"
     When the pilot retrieves a synthetic hourly forecast
