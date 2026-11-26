@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Filter recent runway declarations by their selected-date check while offline.
+
 ### Added
 
 - Remove individual outdated runway declarations from recent airports offline.

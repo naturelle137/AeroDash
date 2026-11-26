@@ -211,3 +211,7 @@ While a fixed runway check date is selected, the briefing shall show signed days
 ### REQ-AP-047: Remove a recent runway
 
 The system shall let the pilot remove an individual recent runway declaration offline without changing the current runway or draft.
+
+### REQ-AP-048: Filter recent runway declarations
+
+The system shall let the pilot filter recent runway declarations by their declared date check for the selected date.
