@@ -159,3 +159,7 @@ When a global model freezing level is available for the selected hour, the syste
 ### REQ-WX-033: Model CAPE
 
 When a global model convective available potential energy is available for the selected hour, the system shall show it in J/kg as model data without applying it to calculations.
+
+### REQ-WX-034: Model cloud cover layers
+
+When global model low, mid or high cloud cover is available for the selected hour, the system shall show each available layer in percent as model data without applying it to calculations.

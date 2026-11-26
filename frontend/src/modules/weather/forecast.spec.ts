@@ -17,9 +17,9 @@ describe('hourly forecast', () => {
 })
 
 describe('global model forecast', () => {
-  const sample = { latitude: 50.1, longitude: 8.1, utc_offset_seconds: 0, hourly_units: { time: 'iso8601', temperature_2m: '°C', dew_point_2m: '°C', wind_speed_10m: 'kn', wind_direction_10m: '°', wind_gusts_10m: 'kn', precipitation: 'mm', precipitation_probability: '%', cloud_cover: '%', visibility: 'm', freezing_level_height: 'm', cape: 'J/kg' }, hourly: { time: ['2030-01-01T02:00'], temperature_2m: [12.3], dew_point_2m: [8], wind_speed_10m: [10.2], wind_direction_10m: [0], wind_gusts_10m: [18], precipitation: [1.2], precipitation_probability: [40], cloud_cover: [75], visibility: [9000], freezing_level_height: [2400], cape: [350] } }
+  const sample = { latitude: 50.1, longitude: 8.1, utc_offset_seconds: 0, hourly_units: { time: 'iso8601', temperature_2m: '°C', dew_point_2m: '°C', wind_speed_10m: 'kn', wind_direction_10m: '°', wind_gusts_10m: 'kn', precipitation: 'mm', precipitation_probability: '%', cloud_cover: '%', visibility: 'm', freezing_level_height: 'm', cape: 'J/kg', cloud_cover_low: '%', cloud_cover_mid: '%', cloud_cover_high: '%' }, hourly: { time: ['2030-01-01T02:00'], temperature_2m: [12.3], dew_point_2m: [8], wind_speed_10m: [10.2], wind_direction_10m: [0], wind_gusts_10m: [18], precipitation: [1.2], precipitation_probability: [40], cloud_cover: [75], visibility: [9000], freezing_level_height: [2400], cape: [350], cloud_cover_low: [60], cloud_cover_mid: [30], cloud_cover_high: [10] } }
   it('matches an exact UTC hour and retains source units without inventing QNH', () => {
-    expect(parseGlobalForecast(sample, Date.parse('2030-01-01T03:00+01:00'))).toEqual({ values: { temperature: '12.3', wind: { direction: '360', speed: '10.2', unit: 'kt' } }, precipitation: 1.2, dewPoint: 8, gust: 18, precipitationProbability: 40, cloudCover: 75, visibility: 9000, freezingLevel: 2400, cape: 350, latitude: 50.1, longitude: 8.1 })
+    expect(parseGlobalForecast(sample, Date.parse('2030-01-01T03:00+01:00'))).toEqual({ values: { temperature: '12.3', wind: { direction: '360', speed: '10.2', unit: 'kt' } }, precipitation: 1.2, dewPoint: 8, gust: 18, precipitationProbability: 40, cloudCover: 75, visibility: 9000, freezingLevel: 2400, cape: 350, cloudLayers: { low: 60, mid: 30, high: 10 }, latitude: 50.1, longitude: 8.1 })
     expect(parseGlobalForecast(sample, Date.parse('2030-01-01T02:30Z'))).toBeNull()
   })
   it('rejects incorrect units and leaves unavailable values missing', () => {
@@ -48,7 +48,7 @@ describe('global model forecast', () => {
     expect(() => parseGlobalForecast({ ...sample, hourly_units: { ...sample.hourly_units, wind_speed_10m: 'km/h' } }, Date.parse('2030-01-01T02:00Z'))).toThrow('malformed')
     expect(() => parseGlobalForecast({ ...sample, hourly: { time: ['2030-01-01T02:00', '2030-01-01T02:00'], temperature_2m: [12, 13], dew_point_2m: [8, 9], wind_speed_10m: [10, 11], wind_direction_10m: [0, 1], wind_gusts_10m: [18], precipitation: [1.2], precipitation_probability: [40], cloud_cover: [75], visibility: [9000], freezing_level_height: [2400] } }, now)).toThrow('malformed')
     expect(() => parseGlobalForecast({ ...sample, hourly: { ...sample.hourly, time: ['2030-02-30T02:00'] } }, now)).toThrow('malformed')
-    expect(parseGlobalForecast({ ...sample, hourly: { ...sample.hourly, temperature_2m: [null], wind_direction_10m: [null], wind_gusts_10m: [18], precipitation: [1.2], precipitation_probability: [40], cloud_cover: [75], visibility: [9000], freezing_level_height: [2400] } }, Date.parse('2030-01-01T02:00Z'))).toEqual({ values: {}, precipitation: 1.2, dewPoint: 8, gust: 18, precipitationProbability: 40, cloudCover: 75, visibility: 9000, freezingLevel: 2400, cape: 350, latitude: 50.1, longitude: 8.1 })
+    expect(parseGlobalForecast({ ...sample, hourly: { ...sample.hourly, temperature_2m: [null], wind_direction_10m: [null], wind_gusts_10m: [18], precipitation: [1.2], precipitation_probability: [40], cloud_cover: [75], visibility: [9000], freezing_level_height: [2400] } }, Date.parse('2030-01-01T02:00Z'))).toEqual({ values: {}, precipitation: 1.2, dewPoint: 8, gust: 18, precipitationProbability: 40, cloudCover: 75, visibility: 9000, freezingLevel: 2400, cape: 350, cloudLayers: { low: 60, mid: 30, high: 10 }, latitude: 50.1, longitude: 8.1 })
   })
   it('treats CAPE as optional and rejects implausible values', () => {
     const at = Date.parse('2030-01-01T02:00Z')
@@ -57,5 +57,13 @@ describe('global model forecast', () => {
     expect(parseGlobalForecast({ ...sample, hourly_units: { ...sample.hourly_units, cape: 'kJ/kg' } }, at)).toMatchObject({ cape: null, cloudCover: 75 })
     for (const value of [null, -1, 10001]) expect(parseGlobalForecast({ ...sample, hourly: { ...sample.hourly, cape: [value] } }, at)?.cape).toBeNull()
     expect(() => parseGlobalForecast({ ...sample, hourly: { ...sample.hourly, cape: [1, 2] } }, at)).toThrow('malformed')
+  })
+  it('treats cloud layers as optional and rejects implausible values', () => {
+    const at = Date.parse('2030-01-01T02:00Z')
+    const { cloud_cover_mid: _unit, ...otherUnits } = sample.hourly_units
+    expect(parseGlobalForecast({ ...sample, hourly_units: otherUnits }, at)).toMatchObject({ cloudLayers: { low: 60, mid: null, high: 10 }, cloudCover: 75 })
+    expect(parseGlobalForecast({ ...sample, hourly_units: { ...sample.hourly_units, cloud_cover_low: 'okta' } }, at)?.cloudLayers.low).toBeNull()
+    for (const value of [null, -1, 101]) expect(parseGlobalForecast({ ...sample, hourly: { ...sample.hourly, cloud_cover_high: [value] } }, at)?.cloudLayers.high).toBeNull()
+    expect(() => parseGlobalForecast({ ...sample, hourly: { ...sample.hourly, cloud_cover_low: [1, 2] } }, at)).toThrow('malformed')
   })
 })
