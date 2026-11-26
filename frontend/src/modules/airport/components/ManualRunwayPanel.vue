@@ -16,6 +16,11 @@ import { useManualRunwayStore } from '../stores/manual-runway.store'
 
 const runway = useManualRunwayStore()
 const recentStatus = ref('all')
+const recentCounts = computed(() => {
+  const counts = { expired: 0, 'not-yet-effective': 0, 'within-declared-dates': 0, unknown: 0 }
+  for (const record of runway.recent) counts[runwayFreshness(record.runway, runway.assessmentDate)]++
+  return counts
+})
 const visibleRecent = computed(() => runway.recent.filter((record) => recentStatus.value === 'all' || runwayFreshness(record.runway, runway.assessmentDate) === recentStatus.value))
 const freshness = computed(() => runway.current ? runwayFreshness(runway.current.record.runway, runway.assessmentDate) : 'unknown')
 const draftDateError = computed(() => {
@@ -84,6 +89,7 @@ if (!runway.loaded) runway.load()
     <section v-if="runway.recent.length" aria-label="Recently used airports">
       <h3>Recently used airports</h3>
       <p>Declared date check for {{ runway.assessmentDate || 'an invalid date' }}. Source and currency remain unverified; NOTAM/SUP coverage is unknown.</p>
+      <p aria-label="Recent declaration date check totals">All recent declarations: {{ runway.recent.length }} · Expired: {{ recentCounts.expired }} · Not yet effective: {{ recentCounts['not-yet-effective'] }} · Within declared dates: {{ recentCounts['within-declared-dates'] }} · Unknown: {{ recentCounts.unknown }}</p>
       <label for="recent-status">Filter by declared date check</label>
       <select id="recent-status" v-model="recentStatus">
         <option value="all">All declarations</option>

@@ -215,3 +215,7 @@ The system shall let the pilot remove an individual recent runway declaration of
 ### REQ-AP-048: Filter recent runway declarations
 
 The system shall let the pilot filter recent runway declarations by their declared date check for the selected date.
+
+### REQ-AP-049: Recent date check totals
+
+When displaying recent runway declarations, the system shall show the count for each declared date check for the selected date across all recent declarations.
