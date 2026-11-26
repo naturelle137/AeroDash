@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Explain invalid unsaved runway dates in the briefing.
+
 - Show unknown date checks for identified unsaved runways in the briefing.
 
 - Show the unknown date-check state for runway drafts without declared dates.
