@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Summarize recent runway declarations by their selected-date check.
+
+- Filter recent runway declarations by their selected-date check while offline.
+
 ### Added
 
 - Assess lookup-tank and mixed-tank trip burn paths against the envelope.
