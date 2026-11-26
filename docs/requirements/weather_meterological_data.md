@@ -207,3 +207,7 @@ When a global model 2 m temperature and dew point are both available for the sel
 ### REQ-WX-045: Model daylight flag
 
 When a global model day or night flag is available for the selected hour, the system shall show it as a model sun-position value, not sunrise, sunset or legal night, without applying it to calculations.
+
+### REQ-WX-046: Model snow depth
+
+When a global model snow depth is available for the selected hour, the system shall show it in metres as model data without applying it to calculations.
