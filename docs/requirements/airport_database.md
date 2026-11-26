@@ -1,69 +1,21 @@
 # AeroDash Software Requirements - Airport Database (AP)
 
-This document defines the airport database behavior using the **EARS** (Easy Approach to Requirements Syntax) patterns.
+## Scope and source prerequisite
 
----
+The shipped airport workflow is manual-only; no integrated airport source,
+adapter, dataset or airport-currentness CI exists. `savedAt` is local save
+metadata and does not verify an external source. REQ-AP-001, -002, -003, -005,
+-006 and -007 describe future database behaviour.
 
-## Requirements
+The [AIRAC/source contract](../regulatory/airac-airport-data-contract.md) defines
+the prerequisite: an accepted named authorised dataset/provider, coverage,
+licence, delivery interface, source version/publication/effective/expiry and
+NOTAM policy, and an actual consumer before dataset-freshness CI. Missing source
+facts remain unknown; retrieved parameters remain `Unverified` independently of
+calendar position. No generic 28-day validity is assumed. #284 remains open on
+source hold owned by HQ terminal 1892, with event-based reassessment on a complete
+accepted source/consumer contract.
 
-<!-- @REQ-AP-001@ -->
-### REQ-AP-001: Airport Data Object Definition
 
-**Requirement:** The system shall define an Airport Data Object comprising Metadata (ICAO, Name, Elevation) and Runway Infrastructure (Designator, Magnetic Heading, Base Surface Type, Slope, TORA, TODA, ASDA, LDA).
-**Rationale:** Centralized schema required for performance and wind calculations.
-**Priority:** P1
-**Status:** Deferred
-**Design Reference:** n/a
 
-<!-- @REQ-AP-002@ -->
-### REQ-AP-002: Database Auto-population
-
-**Requirement:** When a valid ICAO code is entered, the system shall query an integrated external aviation database to auto-populate the Airport Data Object and populate the `AvailableRunways` list in the Data Model.
-**Rationale:** E.g. Open AIP or OurAirports. Operational efficiency and reduction of manual lookup errors.
-**Priority:** P2
-**Status:** Deferred
-**Design Reference:** n/a
-
-<!-- @REQ-AP-003@ -->
-### REQ-AP-003: Manual Entry Fallback
-
-**Requirement:** If an ICAO code is not found in the database, then the system shall set the Airport Mode to `ManualEntry`.
-**Rationale:** PIC authority to operate from unlisted or private strips.
-**Priority:** P1
-**Status:** Approved
-**Design Reference:** n/a
-
-<!-- @REQ-AP-004@ (FROM: @H-009@) -->
-### REQ-AP-004: Surface Condition Selection
-
-**Requirement:** When a runway is selected, the system shall require the user to select the current surface condition from a predefined list specific to the base surface type: <ol><li>Paved (e.g. Asphalt/Concrete): Dry, Wet, Standing Water, Slush, Snow, Ice</li> <li>Grass/Unpaved: Dry (Short grass ≤ 3cm), Long Grass (> 3cm to 8cm), Wet/Soft Ground, Damaged Turf, Snow/Ice</li></ol>
-**Rationale:** Conditions impact friction heavily. Grass runways require highly specific length/quality factors per standard POHs. Context-aware lists prevent impossible combinations (e.g. "Long Grass" on Asphalt).
-**Priority:** P1
-**Status:** Approved
-**Design Reference:** n/a
-
-<!-- @REQ-AP-005@ (FROM: @H-015@) -->
-### REQ-AP-005: Unverified State for External Data
-
-**Requirement:** When the system retrieves airport data from an external source, the system shall set the verification status of all retrieved parameters to `Unverified`.
-**Rationale:** Safety: Open-source DBs may have outdated LDA/TORA. PIC must verify against official AIP.
-**Priority:** P1
-**Status:** Deferred
-**Design Reference:** n/a
-
-<!-- @REQ-AP-006@ -->
-### REQ-AP-006: Manual Override Fields
-
-**Requirement:** The system shall provide editable input fields for all auto-populated airport and runway parameters to enable manual pilot overrides.
-**Rationale:** Accommodates temporary changes like displaced thresholds published via NOTAM.
-**Priority:** P1
-**Status:** Approved
-**Design Reference:** n/a
-
----
-
-## Design References
-
-- None
-
----
+### REQ-AP-001: Airport Data Object DefinitionThe system shall store an airport record comprising Metadata (ICAO, Name, Elevation) and Runway Infrastructure (Designator, Magnetic Heading, Base Surface Type, Slope, TORA, TODA, ASDA, LDA).### REQ-AP-002: Database Auto-populationWhen a valid ICAO code is entered, the system shall populate the Airport Data Object from the integrated external aviation database.### REQ-AP-003: Manual Entry FallbackIf an ICAO code is not found in the database, then the system shall set the Airport Mode to `ManualEntry`.### REQ-AP-004: Surface Condition SelectionWhen a paved runway is selected, the system shall require a surface condition from Dry, Wet, Standing Water, Slush, Snow or Ice.### REQ-AP-005: Unverified State for External DataWhen the system retrieves airport data from an external source, the system shall set the verification status of all retrieved parameters to `Unverified`.### REQ-AP-006: Manual Override FieldsThe system shall provide editable input fields for all auto-populated airport and runway parameters to enable manual pilot overrides.### REQ-AP-007: Populate runway choicesWhen airport data is retrieved, the system shall populate the available-runways selection from that data.### REQ-AP-008: Unpaved conditionsWhen a grass/unpaved runway is selected, the system shall require a surface condition from Dry (short grass ≤3 cm), Long Grass (>3–8 cm), Wet/Soft Ground, Damaged Turf or Snow/Ice.### REQ-AP-009: Manual runway inputsThe system shall let the pilot enter an aerodrome identifier, runway designator, TORA, LDA, field elevation, surface type and surface condition without network access.### REQ-AP-010: Explicit runway unitsThe system shall use an explicit m or ft unit for each of TORA, LDA and field elevation.### REQ-AP-011: Available distance validationIf TORA or LDA is empty, nonfinite, zero or negative, then the system shall reject the manual runway inputs.### REQ-AP-012: Field elevation scopeThe system shall accept any finite field elevation, including zero and negative values, and shall not use it as pressure altitude.### REQ-AP-013: Required manual surfaceIf surface type or a surface condition belonging to that type is missing, then the system shall reject the manual runway inputs.### REQ-AP-014: Manual runway persistenceWhen valid manual runway inputs are saved, the system shall persist their original values and units in a versioned local record.### REQ-AP-015: Manual runway recoveryIf a stored manual runway record is damaged, invalid or of an unsupported version, then the system shall not use it and shall display a storage problem.### REQ-AP-016: Manual runway storage failureIf saving or clearing manual runway inputs fails, then the system shall display the storage failure.### REQ-AP-017: Manual runway provenanceWhile saved manual runway inputs are displayed, the system shall label them user-entered and not airport-validated.### REQ-AP-018: Manual runway invalidationWhen a manual runway input changes, the system shall immediately stop displaying the saved runway as current.### REQ-AP-019: Unavailable manual runway assessmentIf the saved runway or an applicable correction source is unavailable, then the system shall not display a runway comparison.The [manual runway contract](../architecture/manual-runway-entry.md) defines units, conversion and storage. REQ-AP-001, -002, -005 and -007 (airport database) remain future scope.### REQ-AP-020: Manual source datesWhen the pilot supplies effective or expiry dates, the system shall retain them with the manual runway.### REQ-AP-021: Declared date checkWhen displaying a saved runway, the system shall compare its declared dates with a pilot-selectable date.### REQ-AP-022: AIRAC calendarWhen displaying a saved runway, the system shall display the AIRAC cycle start for a selected date within the supported published calendar.### REQ-AP-023: Unsupported AIRAC dateIf the selected date is outside the supported published calendar or invalid, then the system shall indicate that the AIRAC cycle is unavailable.### REQ-AP-024: Shared declared date checkWhen displaying a saved runway in Performance or the briefing, the system shall include the selected date and declared date check with its unverified source status.### REQ-AP-025: Manual source referenceWhen the pilot supplies a source reference, the system shall retain it with the manual runway and display it as unverified in Performance and the briefing.### REQ-AP-026: Saved declaration datesWhen displaying a saved manual runway, the system shall display its declared effective and expiry dates or indicate when either is unknown.### REQ-AP-027: Reset check dateWhen the pilot selects today for the declared date check, the system shall use the device's current local date.### REQ-AP-028: Selected date limitationWhen displaying the declared date check in Performance or the briefing, the system shall indicate that the selected date does not advance automatically.### REQ-AP-029: Recent declaration date checksWhen displaying a recent manual runway declaration, the system shall show its declared date check for the selected date.### REQ-AP-030: Automatic local check dateWhile the automatic local date is selected, the system shall update the check date when the device local date changes.### REQ-AP-031: Recent runway date selectionWhile recent runway declarations are displayed, the system shall allow the pilot to change their check date.### REQ-AP-032: Recent runway directionsWhen saving a manual runway declaration, the system shall retain recent declarations for other runway directions at the same aerodrome.### REQ-AP-033: Recent declaration sources and datesWhen displaying a recent manual runway declaration, the system shall display its unverified source reference and declared effective and expiry dates, indicating unknown values.### REQ-AP-034: Declared expiry intervalWhen displaying a saved runway with a declared expiry and valid check date, the system shall show the signed number of calendar days until that expiry.### REQ-AP-035: Recent declared expiry countdownWhen displaying a recent manual runway declaration, the system shall show the days from the selected check date to its declared inclusive expiry, or unknown when unavailable.### REQ-AP-036: Declared effective intervalWhen displaying a saved or recent runway or its briefing, the system shall show the signed number of calendar days until its declared effective date, or unknown when unavailable.### REQ-AP-037: Automatic date disclosureWhile the automatic local date is selected, the briefing shall identify the device date as the source of the check date.### REQ-AP-038: Unsaved declaration date checkWhen an unsaved manual runway declaration has valid, consistent declared dates, the system shall compare them with the selected check date even if other fields are incomplete.### REQ-AP-039: Unsaved declared date intervalsWhen displaying a valid unsaved declaration date check, the system shall show signed days to each declared date or indicate that it is unknown.### REQ-AP-040: Invalid unsaved datesIf an unsaved runway declaration has invalid or contradictory source dates, then the system shall explain why its date check is unavailable.### REQ-AP-041: Device-date comparisonWhile a fixed check date is selected, the system shall also show the saved runway's declared date check against the device local date in the runway panel, Performance and briefing.### REQ-AP-042: Unsaved and recent device-date comparisonWhile a fixed check date is selected, the system shall also compare valid unsaved and recent runway declarations with the device local date.### REQ-AP-043: Exported runway date checksWhen exporting flight preparation JSON, the system shall include the selected and device-date checks for the current saved runway or unknown if none is current.### REQ-AP-044: Briefing unsaved runway date checksWhen a runway draft with declared dates is not current, the briefing shall show its selected and device-date checks as unverified pilot declarations.### REQ-AP-045: Exported declared date intervalsWhen exporting flight preparation JSON, the system shall include signed days to declared effective and inclusive expiry dates for saved and draft runways against the selected and device dates, or null when unavailable.### REQ-AP-046: Briefing device-date intervalsWhile a fixed runway check date is selected, the briefing shall show signed days from the device date to the current saved runway's declared effective and inclusive expiry dates, or unknown when unavailable.### REQ-AP-047: Remove a recent runwayThe system shall let the pilot remove an individual recent runway declaration offline without changing the current runway or draft.### REQ-AP-048: Filter recent runway declarationsThe system shall let the pilot filter recent runway declarations by their declared date check for the selected date.### REQ-AP-049: Recent date check totalsWhen displaying recent runway declarations, the system shall show the count for each declared date check for the selected date across all recent declarations.### REQ-AP-050: Recent device date totalsWhile a fixed check date is selected, the system shall show the count for each declared date check against the device local date across all recent runway declarations.### REQ-AP-051: Recent device-date filterWhile a fixed check date is selected, the system shall let the pilot filter recent declarations by their device-date check.### REQ-AP-052: Different date checksWhile a fixed check date is selected, the system shall let the pilot filter recent declarations to those with different selected-date and device-date checks.### REQ-AP-053: Unsaved runway source in briefingWhile a runway declaration has unsaved changes, the briefing shall show its unverified source reference and declared dates, or unknown where absent.### REQ-AP-054: Search recent declarationsWhile recent runway declarations are displayed, the system shall allow filtering them by aerodrome or runway designator without network access.### REQ-AP-150: Fixed check dateWhen the pilot selects a check date, the system shall retain it until the pilot selects the automatic local date.
