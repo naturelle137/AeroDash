@@ -96,7 +96,7 @@ Then('the retrieved forecast evidence is captured as {string}', async ({ page, $
 
 When('the pilot retrieves a synthetic global forecast', async ({ page }) => {
   const forecast = page.getByRole('region', { name: 'Time-specific forecast' })
-  await page.route('https://api.open-meteo.com/v1/forecast?*', route => route.fulfill({ json: { latitude: 50.1, longitude: 8.1, utc_offset_seconds: 0, hourly_units: { time: 'iso8601', temperature_2m: '°C', wind_speed_10m: 'kn', wind_direction_10m: '°', wind_gusts_10m: 'kn', precipitation_probability: '%' }, hourly: { time: ['2030-06-01T12:00'], temperature_2m: [17], wind_speed_10m: [12], wind_direction_10m: [270], wind_gusts_10m: [18], precipitation_probability: [40] } }, headers: { 'access-control-allow-origin': '*' } }))
+  await page.route('https://api.open-meteo.com/v1/forecast?*', route => route.fulfill({ json: { latitude: 50.1, longitude: 8.1, utc_offset_seconds: 0, hourly_units: { time: 'iso8601', temperature_2m: '°C', wind_speed_10m: 'kn', wind_direction_10m: '°', wind_gusts_10m: 'kn', precipitation_probability: '%', cloud_cover: '%', visibility: 'm' }, hourly: { time: ['2030-06-01T12:00'], temperature_2m: [17], wind_speed_10m: [12], wind_direction_10m: [270], wind_gusts_10m: [18], precipitation_probability: [40], cloud_cover: [75], visibility: [9000] } }, headers: { 'access-control-allow-origin': '*' } }))
   const date = new Date('2030-06-01T12:00:00Z')
   const pad = (n: number) => String(n).padStart(2, '0')
   await forecast.getByLabel('Local date and time').fill(`${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`)

@@ -139,3 +139,7 @@ When a global model gust forecast is available for the selected hour, the system
 ### REQ-WX-028: Model precipitation probability
 
 When a global model precipitation probability is available for the selected hour, the system shall show the probability for the preceding hour without determining runway conditions.
+
+### REQ-WX-029: Model cloud cover and visibility
+
+When global model cloud cover or visibility is available for the selected hour, the system shall show it as model data without applying it to calculations.
