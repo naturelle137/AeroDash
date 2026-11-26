@@ -152,14 +152,58 @@ When global model dew point is available for the selected hour, the system shall
 
 When a global model precipitation amount is available for the selected hour, the system shall show the total for the preceding hour without applying it to calculations.
 
-### REQ-WX-032: DWD model forecast
+### REQ-WX-032: Model freezing level
 
-When the pilot requests DWD model weather for valid coordinates and a future forecast hour, the system shall offer available temperature and wind values with their source and retrieval time.
+When a global model freezing level is available for the selected hour, the system shall show it in metres above mean sea level as model data without applying it to calculations.
 
-### REQ-WX-033: TAF wind
+### REQ-WX-033: Model CAPE
 
-While a retrieved TAF for the entered station is within its validity and defines a prevailing numeric wind, the system shall offer that wind for Flight Prep with the TAF station, issue time and validity interval.
+When a global model convective available potential energy is available for the selected hour, the system shall show it in J/kg as model data without applying it to calculations.
 
-### REQ-WX-034: Observation fallback label
+### REQ-WX-034: Model cloud cover layers
 
-While a METAR value is offered and no applicable forecast value exists for that parameter, the system shall label it as a METAR observation without a forecast with its station and observation time.
+When global model low, mid or high cloud cover is available for the selected hour, the system shall show each available layer in percent as model data without applying it to calculations.
+
+### REQ-WX-035: Model snowfall
+
+When a global model snowfall is available for the selected hour, the system shall show it in centimetres for the preceding hour as model data without applying it to calculations.
+
+### REQ-WX-036: Model sea-level pressure
+
+When a global model mean sea-level pressure is available for the selected hour, the system shall show it in hectopascals labelled as not aviation QNH without applying it to calculations.
+
+### REQ-WX-037: Model weather classification
+
+When a global model WMO weather code of a known category is available for the selected hour, the system shall show its description as model data without applying it to calculations.
+
+### REQ-WX-038: Model boundary layer height
+
+When a global model boundary layer height is available for the selected hour, the system shall show it in metres as model data without applying it to calculations.
+
+### REQ-WX-039: Model relative humidity
+
+When a global model 2 m relative humidity is available for the selected hour, the system shall show it in percent as model data without applying it to calculations.
+
+### REQ-WX-040: Model lifted index
+
+When a global model lifted index is available for the selected hour, the system shall show it as model data without applying it to calculations.
+
+### REQ-WX-041: Model convective inhibition
+
+When a global model convective inhibition is available for the selected hour, the system shall show it in J/kg as model data without applying it to calculations.
+
+### REQ-WX-042: Model 80 m wind
+
+When a global model wind at 80 m above ground is available for the selected hour, the system shall show it in knots and true degrees as model data without applying it to calculations.
+
+### REQ-WX-043: Model 850 hPa wind
+
+When a global model wind at the 850 hPa pressure level is available for the selected hour, the system shall show it in knots and true degrees, with the model temperature and geopotential height where available, as model data without applying it to calculations.
+
+### REQ-WX-044: Model dew point spread
+
+When a global model 2 m temperature and dew point are both available for the selected hour, the system shall show their difference in °C as model data without applying it to calculations.
+
+### REQ-WX-045: Model daylight flag
+
+When a global model day or night flag is available for the selected hour, the system shall show it as a model sun-position value, not sunrise, sunset or legal night, without applying it to calculations.
