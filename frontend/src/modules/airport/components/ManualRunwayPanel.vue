@@ -138,6 +138,7 @@ if (!runway.loaded) runway.load()
         <p>Source: {{ record.runway.source || 'Unknown' }} (user-declared, unverified) · Effective: {{ record.runway.effectiveDate || 'Unknown' }} · Expiry (inclusive): {{ record.runway.expiryDate || 'Unknown' }}</p>
         <p>Days to declared effect: {{ daysToDeclaredEffect(record.runway, runway.assessmentDate) ?? 'Unknown' }} (negative means after the declared effective date; source remains unverified).</p>
         <p>Days to declared expiry: {{ daysToDeclaredExpiry(record.runway, runway.assessmentDate) ?? 'Unknown' }} (negative means past expiry; source remains unverified).</p>
+        <p v-if="!runway.automaticDate">From device date {{ runway.today }}: days to declared effect: {{ daysToDeclaredEffect(record.runway, runway.today) ?? 'Unknown' }} · days to inclusive expiry: {{ daysToDeclaredExpiry(record.runway, runway.today) ?? 'Unknown' }}. Source remains unverified.</p>
       </li></ul>
     </section>
     <div class="fields">

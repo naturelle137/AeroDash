@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Show recent runway date offsets from the device date when using a fixed check date.
+
 - Explain invalid unsaved runway dates in the briefing.
 
 - Show unknown date checks for identified unsaved runways in the briefing.

@@ -43,6 +43,8 @@ test('summarizes recent declared date checks offline', async ({ page, context },
   const deviceTotals = recent.getByLabel('Recent device date check totals')
   await expect(deviceTotals).toContainText('2026-08-02')
   await expect(deviceTotals).toContainText('Expired: 1')
+  await expect(recent.locator('li').first()).toContainText('From device date 2026-08-02: days to declared effect: -32 · days to inclusive expiry: -2')
+  await expect(recent.locator('li').last()).toContainText('days to declared effect: Unknown · days to inclusive expiry: Unknown')
   await recent.locator('#recent-status').selectOption('expired')
   await expect(totals).toContainText('All recent declarations: 2')
   await expect(recent.locator('li')).toHaveCount(1)
