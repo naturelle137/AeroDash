@@ -71,3 +71,49 @@ Then('the synthetic METAR is displayed at {string}', async ({ page, $testInfo },
   await runway.getByRole('button', { name: 'Save runway inputs' }).click()
   await expect(saved).not.toContainText('METAR via wxdecoder.com')
 })
+
+const pad = (value: number) => String(value).padStart(2, '0')
+
+When('a synthetic TAF and METAR are retrieved', async ({ page }) => {
+  const now = new Date()
+  const from = new Date(now); from.setUTCMinutes(0, 0, 0); from.setUTCHours(from.getUTCHours() - 2)
+  const to = new Date(from.getTime() + 24 * 3600000)
+  const issued = new Date(from.getTime() - 3600000)
+  const observed = new Date(now); observed.setUTCSeconds(0, 0)
+  const group = (date: Date) => `${pad(date.getUTCDate())}${pad(date.getUTCHours())}`
+  const metarRaw = `EDDF ${group(observed)}${pad(observed.getUTCMinutes())}Z 17004KT CAVOK 12/08 Q1013`
+  const tafRaw = `TAF EDDF ${group(issued)}00Z ${group(from)}/${group(to)} 25012KT 9999 BKN020`
+  await page.route('https://wxdecoder.com/api/wx/EDDF', route => route.fulfill({
+    json: {
+      metar: { station: 'EDDF', raw: metarRaw, reportTime: observed.toISOString(), reportTimeKnown: true },
+      taf: { station: 'EDDF', raw: tafRaw, issueTime: issued.toISOString(), validFrom: from.toISOString(), validTo: to.toISOString() },
+    },
+    headers: { 'access-control-allow-origin': '*' },
+  }))
+  const flight = new Date(now.getTime() + 2 * 3600000)
+  const localFlight = new Date(flight.getTime() - flight.getTimezoneOffset() * 60000).toISOString().slice(0, 16)
+  await page.getByLabel('Location', { exact: true }).fill('EDDF')
+  await page.getByLabel('Local date and time').fill(localFlight)
+  await page.locator('#weather-icao').fill('EDDF')
+  await page.getByRole('button', { name: 'Check METAR' }).click()
+  await page.locator('#taf-icao').fill('EDDF')
+  await page.getByRole('button', { name: 'Check TAF' }).click()
+})
+
+Then('the forecast wind is applied and the observation values are labelled as METAR at {string}', async ({ page, $testInfo }, width: string) => {
+  const panel = page.locator('#prep-card-weather')
+  await expect(panel.getByRole('button', { name: 'Replace wind with METAR' })).toHaveCount(0)
+  await expect(panel).toContainText('Forecast wind from TAF EDDF')
+  await expect(panel).toContainText('temperature: no forecast available — this is a METAR observation from EDDF')
+  await expect(panel).toContainText('qnh: no forecast available — this is a METAR observation from EDDF')
+  await panel.getByRole('button', { name: 'Replace wind with TAF forecast (250 / 12 kt)' }).click()
+  await expect(page.locator('#wind-direction')).toHaveValue('250')
+  await expect(page.locator('#wind-speed')).toHaveValue('12')
+  await expect(panel).toContainText('wind source: TAF EDDF via wxdecoder.com')
+  await panel.getByRole('button', { name: 'Replace temperature with METAR' }).click()
+  await expect(page.locator('#performance-temperature')).toHaveValue('12')
+  await expect(panel).toContainText('temperature source: METAR EDDF via wxdecoder.com')
+  const path = $testInfo.outputPath(`taf-fallback-${width}.png`)
+  await panel.locator('.weather-panel').screenshot({ path })
+  await $testInfo.attach(`TAF wind with METAR fallback ${width}`, { path, contentType: 'image/png' })
+})

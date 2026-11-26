@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils'
+import { flushPromises, mount } from '@vue/test-utils'
 import { afterEach, expect, it, vi } from 'vitest'
 import ForecastSelection from './ForecastSelection.vue'
 
@@ -202,6 +202,34 @@ it('marks a retrieved forecast outdated when its fetch age crosses the limit', a
   await vi.advanceTimersByTimeAsync(2000)
   expect(view.text()).toContain('OUTDATED')
   expect(view.findAll('button').find(button => button.text() === 'Replace temperature with retrieved forecast')!.attributes('disabled')).toBeDefined()
+  view.unmount()
+  vi.unstubAllGlobals()
+  vi.useRealTimers()
+})
+
+
+it('retrieves DWD ICON separately and preserves missing values', async () => {
+  vi.useFakeTimers()
+  vi.setSystemTime(new Date('2030-01-01T00:00:00Z'))
+  vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(true)
+  const fetchMock = vi.fn<(url: string) => Promise<unknown>>().mockResolvedValue({ ok: true, json: async () => ({ latitude: 50, longitude: 8, utc_offset_seconds: 0, hourly_units: { time: 'iso8601', temperature_2m: '°C', dew_point_2m: '°C', wind_speed_10m: 'kn', wind_direction_10m: '°', wind_gusts_10m: 'kn', precipitation: 'mm', precipitation_probability: '%', cloud_cover: '%', visibility: 'm' }, hourly: { time: ['2030-01-01T02:00'], temperature_2m: [12], wind_speed_10m: [null], wind_direction_10m: [null], dew_point_2m: [null], wind_gusts_10m: [null], precipitation: [null], precipitation_probability: [null], cloud_cover: [null], visibility: [null] } }) })
+  vi.stubGlobal('fetch', fetchMock)
+  const view = mount(ForecastSelection)
+  const label = (name: string) => view.findAll('label').find(item => item.text().startsWith(name))!
+  await label('Location').get('input').setValue('EDDF')
+  const local = new Date('2030-01-01T02:00:00Z')
+  const pad = (n: number) => String(n).padStart(2, '0')
+  await label('Local date and time').get('input').setValue(`${local.getFullYear()}-${pad(local.getMonth() + 1)}-${pad(local.getDate())}T${pad(local.getHours())}:00`)
+  await label('Latitude').get('input').setValue('50')
+  await label('Longitude').get('input').setValue('8')
+  await view.findAll('button').find(button => button.text() === 'Retrieve DWD ICON forecast')!.trigger('click')
+  await flushPromises()
+  expect(view.text()).toContain('DWD ICON forecast hour')
+  expect(fetchMock.mock.calls[0]![0]).toContain('/v1/dwd-icon?')
+  expect(view.text()).toContain('Wind: unavailable')
+  expect(view.emitted('selection')?.at(-1)?.[0]).toMatchObject({ location: 'EDDF', forecast: { temperature: '12' } })
+  await view.findAll('button').find(button => button.text() === 'Replace temperature with DWD ICON forecast')!.trigger('click')
+  expect(view.emitted('apply')?.[0]?.[2]).toContain('DWD ICON forecast')
   view.unmount()
   vi.unstubAllGlobals()
   vi.useRealTimers()
