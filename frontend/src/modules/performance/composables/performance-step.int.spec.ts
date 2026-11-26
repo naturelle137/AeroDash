@@ -9,6 +9,20 @@ import { usePerformanceStep, type PerformanceStepContext } from './performance-s
 beforeEach(() => { localStorage.clear(); setActivePinia(createPinia()) })
 afterEach(() => { vi.restoreAllMocks() })
 
+it('includes unknown dates for an unsaved identified runway in the briefing presentation', () => {
+  const scope = effectScope()
+  scope.run(() => {
+    const runway = useManualRunwayStore()
+    const step = usePerformanceStep(() => ({ ready: true, notReadyReason: '', profile: null, category: null, takeoff: { status: 'unavailable', reason: '' }, landing: { status: 'unavailable', reason: '' } }))
+    expect(step.presentation.value.runway).toEqual({ status: 'unavailable', reason: 'No saved manual runway declaration.' })
+    runway.draft.aerodrome = 'TEST'
+    expect(step.presentation.value.runway).toMatchObject({ status: 'unavailable', reason: expect.stringContaining('Unsaved declaration date check:') })
+    expect(step.presentation.value.runway).toMatchObject({ reason: expect.stringContaining('source currency is unverified and NOTAM/SUP coverage is unknown') })
+    expect(step.presentation.value.runway).toMatchObject({ reason: expect.stringContaining(': unknown; device date') })
+  })
+  scope.stop()
+})
+
 it('exposes active QNH and temperature advisories on the corresponding briefing inputs', () => {
   const scope = effectScope()
   scope.run(() => {
