@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Filter recent runway declarations whose selected and device date checks differ.
+
 - Filter recent runway declarations by their device-date check while offline.
 
 - Compare recent runway date-check totals with the device date when using a fixed date.

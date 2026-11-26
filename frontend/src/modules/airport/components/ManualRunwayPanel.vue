@@ -17,6 +17,7 @@ import { useManualRunwayStore } from '../stores/manual-runway.store'
 const runway = useManualRunwayStore()
 const recentStatus = ref('all')
 const recentDate = ref('selected')
+const differingDatesOnly = ref(false)
 function countRecent(date: string) {
   const counts = { expired: 0, 'not-yet-effective': 0, 'within-declared-dates': 0, unknown: 0 }
   for (const record of runway.recent) counts[runwayFreshness(record.runway, date)]++
@@ -25,7 +26,10 @@ function countRecent(date: string) {
 const recentCounts = computed(() => countRecent(runway.assessmentDate))
 const deviceCounts = computed(() => countRecent(runway.today))
 const filterDate = computed(() => !runway.automaticDate && recentDate.value === 'device' ? runway.today : runway.assessmentDate)
-const visibleRecent = computed(() => runway.recent.filter((record) => recentStatus.value === 'all' || runwayFreshness(record.runway, filterDate.value) === recentStatus.value))
+const visibleRecent = computed(() => runway.recent.filter((record) =>
+  (recentStatus.value === 'all' || runwayFreshness(record.runway, filterDate.value) === recentStatus.value)
+  && (runway.automaticDate || !differingDatesOnly.value || runwayFreshness(record.runway, runway.assessmentDate) !== runwayFreshness(record.runway, runway.today)),
+))
 const freshness = computed(() => runway.current ? runwayFreshness(runway.current.record.runway, runway.assessmentDate) : 'unknown')
 const draftDateError = computed(() => {
   if (runway.current) return undefined
@@ -111,6 +115,7 @@ if (!runway.loaded) runway.load()
         <option value="unknown">Unknown</option>
       </select>
       <p v-if="!visibleRecent.length">No declarations match this date check.</p>
+      <p v-if="!runway.automaticDate"><label><input v-model="differingDatesOnly" type="checkbox" /> Only show declarations with different selected and device date checks</label></p>
       <p v-if="recentStatus !== 'all'">Filter uses {{ filterDate || 'an invalid date' }}; each entry still shows the selected date check.</p>
       <ul class="recent-runways"><li v-for="record in visibleRecent" :key="JSON.stringify([record.runway.aerodrome, record.runway.designator])">
         <button type="button" class="select-recent" @click="selectRecent(record)">{{ record.runway.aerodrome }} — {{ record.runway.designator }}: {{ freshnessLabels[runwayFreshness(record.runway, runway.assessmentDate)] }}</button>
