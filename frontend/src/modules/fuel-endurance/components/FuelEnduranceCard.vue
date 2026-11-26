@@ -12,7 +12,7 @@ const { method, directTripFuel, consumption, trip, reserve, sequence, sequences,
       {{ format(fuel.excludedUnusableKg) }} kg.
     </p>
     <p v-else role="status">{{ fuel.reason }}</p>
-    <p role="status" data-testid="trip-path">Trip burn path: {{ pathAssessment.replace(/\.$/, '') }}. Fixed-arm assessment only; verify against the aircraft POH/AFM. This does not determine operational or landing suitability.</p>
+    <p role="status" data-testid="trip-path">Trip burn path: {{ pathAssessment.replace(/\.$/, '') }}. Based on the selected burn sequence and entered tank geometry; verify against the aircraft POH/AFM. This does not determine operational or landing suitability.</p>
     <fieldset :disabled="!fuel.ok">
       <legend>Manual fuel plan</legend>
       <div class="plan-field">

@@ -148,7 +148,7 @@ const LOOKUP_REASONS: Partial<
 // The table's moment at each load is the total tank moment. Arrival subtracts
 // F(u+q) − F(u+q−b) from the current M&B takeoff moment. Unusable fuel stays aboard,
 // so the table needs an exact (0, 0) origin knot.
-function normalizedLookup(
+export function normalizedLookup(
   profile: Profile,
   tank: Profile['loadPoints'][number],
 ): { massOrVolume: number; moment: number }[] | string {
