@@ -187,3 +187,7 @@ When a global model 2 m relative humidity is available for the selected hour, th
 ### REQ-WX-040: Model lifted index
 
 When a global model lifted index is available for the selected hour, the system shall show it as model data without applying it to calculations.
+
+### REQ-WX-041: Model convective inhibition
+
+When a global model convective inhibition is available for the selected hour, the system shall show it in J/kg as model data without applying it to calculations.
