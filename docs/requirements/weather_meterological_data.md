@@ -195,3 +195,7 @@ When a global model convective inhibition is available for the selected hour, th
 ### REQ-WX-042: Model 80 m wind
 
 When a global model wind at 80 m above ground is available for the selected hour, the system shall show it in knots and true degrees as model data without applying it to calculations.
+
+### REQ-WX-043: Model 850 hPa wind
+
+When a global model wind at the 850 hPa pressure level is available for the selected hour, the system shall show it in knots and true degrees, with the model temperature and geopotential height where available, as model data without applying it to calculations.
