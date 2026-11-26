@@ -1,6 +1,6 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createManualRunwayRecord, type ManualRunway } from '@/core/logic/manual-runway'
-import { loadRecentAirports, RECENT_AIRPORTS_KEY, saveRecentAirport } from './recent-airports.repository'
+import { loadRecentAirports, RECENT_AIRPORTS_KEY, removeRecentAirport, saveRecentAirport } from './recent-airports.repository'
 
 const runway: ManualRunway = { aerodrome: 'A', designator: '09', tora: { value: 1000, unit: 'm' }, lda: { value: 900, unit: 'm' }, fieldElevation: { value: 0, unit: 'ft' }, surface: { type: 'paved', condition: 'dry' } }
 const record = (aerodrome: string) => createManualRunwayRecord({ ...runway, aerodrome }, new Date('2026-01-01T00:00:00Z'))
@@ -23,5 +23,23 @@ describe('recent airports', () => {
   it.each(['{', '{}', '[null]', '[{"schemaVersion":999}]'])('ignores malformed history %s', (raw) => {
     localStorage.setItem(RECENT_AIRPORTS_KEY, raw)
     expect(loadRecentAirports()).toEqual([])
+    expect(removeRecentAirport(record('A'))).toBeNull()
+    expect(localStorage.getItem(RECENT_AIRPORTS_KEY)).toBe(raw)
+  })
+  it('removes only the selected runway direction', () => {
+    const first = record('A')
+    const second = { ...first, runway: { ...first.runway, designator: '27' } }
+    saveRecentAirport(first)
+    saveRecentAirport(second)
+    expect(removeRecentAirport(first)).toEqual([second])
+    expect(loadRecentAirports()).toEqual([second])
+  })
+  it('reports storage write failure without changing history', () => {
+    saveRecentAirport(record('A'))
+    const stored = localStorage.getItem(RECENT_AIRPORTS_KEY)
+    const write = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => { throw new Error('storage unavailable') })
+    expect(removeRecentAirport(record('A'))).toBeNull()
+    write.mockRestore()
+    expect(localStorage.getItem(RECENT_AIRPORTS_KEY)).toBe(stored)
   })
 })

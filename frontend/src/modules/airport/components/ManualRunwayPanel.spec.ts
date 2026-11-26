@@ -30,6 +30,20 @@ beforeEach(() => {
 afterEach(() => { vi.restoreAllMocks() })
 
 describe('ManualRunwayPanel', () => {
+  it('removes one recent declaration without changing the saved runway or draft', async () => {
+    const view = mount(ManualRunwayPanel)
+    await fill(view)
+    await view.get('form').trigger('submit')
+    const saved = localStorage.getItem(MANUAL_RUNWAY_STORAGE_KEY)
+    await view.get('#manual-runway-tora').setValue('2100')
+    await view.get('[aria-label="Remove TEST runway 27 from recent airports"]').trigger('click')
+    expect(view.find('[aria-label="Recently used airports"]').exists()).toBe(false)
+    expect(localStorage.getItem(MANUAL_RUNWAY_STORAGE_KEY)).toBe(saved)
+    expect((view.get('#manual-runway-tora').element as HTMLInputElement).value).toBe('2100')
+    view.unmount()
+    setActivePinia(createPinia())
+    expect(mount(ManualRunwayPanel).find('[aria-label="Recently used airports"]').exists()).toBe(false)
+  })
   it('checks a valid unsaved declaration without saving or verifying it', async () => {
     const view = mount(ManualRunwayPanel)
     await view.get('#runway-assessment-date').setValue('2026-06-01')
@@ -119,7 +133,7 @@ describe('ManualRunwayPanel', () => {
     const original = JSON.parse(localStorage.getItem(MANUAL_RUNWAY_STORAGE_KEY)!)
     await view.get('#manual-runway-aerodrome').setValue('OTHER')
     await view.get('form').trigger('submit')
-    await view.get('[aria-label="Recently used airports"]').findAll('button')[1]!.trigger('click')
+    await view.get('[aria-label="Recently used airports"]').findAll('.select-recent')[1]!.trigger('click')
     expect(summary(view).text()).toContain('Test source (user-declared, unverified)')
     expect(JSON.parse(localStorage.getItem(MANUAL_RUNWAY_STORAGE_KEY)!).savedAt).toBe(original.savedAt)
     expect(view.get('[aria-label="Recently used airports"]').findAll('button')[0]!.text()).toContain('TEST')
@@ -156,7 +170,7 @@ describe('ManualRunwayPanel', () => {
     await view.get('#runway-expiry').setValue('2026-12-31')
     await view.get('form').trigger('submit')
     await view.get('#runway-assessment-date').setValue('2026-06-01')
-    const buttons = view.get('[aria-label="Recently used airports"]').findAll('button')
+    const buttons = view.get('[aria-label="Recently used airports"]').findAll('.select-recent')
     expect(buttons).toHaveLength(2)
     expect(buttons[1]!.text()).toContain('Expired according to the declared date')
     await buttons[1]!.trigger('click')

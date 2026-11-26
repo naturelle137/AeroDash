@@ -206,7 +206,7 @@ Then('no storage problem is reported', async ({ page }) => {
 
 When('the pilot selects recent airport {string}', async ({ page }, airport: string) => {
   page.once('dialog', (dialog) => dialog.accept())
-  await page.getByRole('region', { name: 'Recently used airports' }).getByRole('button', { name: new RegExp(airport) }).click()
+  await page.getByRole('region', { name: 'Recently used airports' }).locator('.select-recent').filter({ hasText: new RegExp(airport) }).click()
 })
 
 Then('the recent airport {string} is first and its manual runway is restored', async ({ page }, airport: string) => {

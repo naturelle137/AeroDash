@@ -150,6 +150,14 @@ test('cached preparation reopens offline with persisted synthetic data and live 
   await expect(recent.locator('li').filter({ hasText: '09: Within the declared dates' })).toContainText('Days to declared expiry: 35')
   await recent.scrollIntoViewIfNeeded()
   await capture(page, info, 'offline-recent-runways')
+  await recent.getByRole('button', { name: 'Remove Synthetic offline field runway 09 from recent airports' }).click()
+  await expect(recent.getByRole('button', { name: /09: Within/ })).toHaveCount(0)
+  await expect(saved).toContainText('runway 27')
+  await recent.scrollIntoViewIfNeeded()
+  await capture(page, info, 'offline-recent-removed')
+  await page.reload()
+  await expect(page.getByRole('region', { name: 'Recently used airports' }).getByRole('button', { name: /09: Within/ })).toHaveCount(0)
+  await expect(saved).toContainText('runway 27')
 
   // Real navigations while disconnected also exercise cached lazy route chunks.
   expect((await page.goto('/fleet'))?.fromServiceWorker()).toBe(true)

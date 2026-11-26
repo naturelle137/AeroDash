@@ -12,7 +12,7 @@ import {
   type ManualRunwayRecord,
 } from '@/core/logic/manual-runway'
 import { clearManualRunway, loadManualRunway, saveManualRunway } from '../services/manual-runway.repository'
-import { loadRecentAirports, saveRecentAirport } from '../services/recent-airports.repository'
+import { loadRecentAirports, removeRecentAirport, saveRecentAirport } from '../services/recent-airports.repository'
 import { useMassBalanceStore } from '@/modules/mass-balance/stores/mass-balance.store'
 import { useLoadedUnitPreferences } from '@/modules/performance/stores/unit-preferences.store'
 import { applyPreferredUnit, convertOnLengthUnitChange } from '@/modules/airport/composables/length-unit-conversion'
@@ -198,6 +198,13 @@ export const useManualRunwayStore = defineStore('manualRunway', () => {
     notice.value = history ? 'Saved manual runway selected. Verify its source and current conditions.' : 'Runway selected, but recent airports could not be saved. Verify its source and current conditions.'
   }
 
+  function removeRecent(record: ManualRunwayRecord): void {
+    if (massBalance.isDemoActive) { notice.value = DEMO_BLOCKED; return }
+    const history = removeRecentAirport(record)
+    if (history) recent.value = history
+    notice.value = history ? 'Removed from recent airports. The current runway is unchanged.' : 'Could not remove the recent runway from browser storage.'
+  }
+
   function revert(): void {
     if (!saved.value) return
     fill(draftFromManualRunway(saved.value.runway))
@@ -223,5 +230,5 @@ export const useManualRunwayStore = defineStore('manualRunway', () => {
     return true
   }
 
-  return { draft, saved, recent, selectRecent, weatherSurface, updateWeather, updateForecast, chooseSurface, storageError, notice, showErrors, loaded, assessmentDate, today, automaticDate, selectAssessmentDate, useToday, validation, errors, current, hasUnsavedChanges, load, save, revert, clear }
+  return { draft, saved, recent, selectRecent, removeRecent, weatherSurface, updateWeather, updateForecast, chooseSurface, storageError, notice, showErrors, loaded, assessmentDate, today, automaticDate, selectAssessmentDate, useToday, validation, errors, current, hasUnsavedChanges, load, save, revert, clear }
 })
