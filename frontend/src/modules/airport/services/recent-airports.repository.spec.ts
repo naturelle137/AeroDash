@@ -24,6 +24,7 @@ describe('recent airports', () => {
     localStorage.setItem(RECENT_AIRPORTS_KEY, raw)
     expect(loadRecentAirports()).toEqual([])
     expect(removeRecentAirport(record('A'))).toBeNull()
+    expect(saveRecentAirport(record('A'))).toBeNull()
     expect(localStorage.getItem(RECENT_AIRPORTS_KEY)).toBe(raw)
   })
   it('removes only the selected runway direction', () => {
