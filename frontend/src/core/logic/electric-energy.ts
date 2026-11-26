@@ -14,3 +14,12 @@ export function calculateElectricEnergy(capacity: number, floor: number, availab
   if (![trip, remaining, margin].every(Number.isFinite)) return null
   return { trip, remaining, margin }
 }
+
+export function calculateElectricAddedReserve(power: number, minutes: number, remaining: number, floor: number) {
+  if (![power, minutes, remaining, floor].every(Number.isFinite) || power <= 0 || minutes < 0 || floor < 0) return null
+  const reserve = power * minutes / 60
+  const afterReserve = remaining - reserve
+  const margin = afterReserve - floor
+  if (![reserve, afterReserve, margin].every(Number.isFinite)) return null
+  return { reserve, afterReserve, margin }
+}

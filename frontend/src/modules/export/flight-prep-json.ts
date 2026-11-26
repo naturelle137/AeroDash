@@ -7,7 +7,7 @@ export type FlightPrepExport = {
   aircraft: { id: string; registration: string; manufacturer: string; model: string } | null
   massBalance: { category: string | null; stations: { name: string; unit: string; weight: number | null; touched: boolean }[] }
   entries: Entries
-  electric: { available: string; power: string; minutes: string } | null
+  electric: { available: string; power: string; minutes: string; reserveMinutes: string } | null
   manualConfiguration: string
   runway: { draft: ManualRunwayDraft; saved: ManualRunwayRecord | null; weatherSurface: ManualRunwayRecord['weatherSurface'] | null; assessmentDate: string; deviceDate: string; automaticDate: boolean }
   wind: { runwayHeading: string; windDirection: string; windSpeed: string; unit: string; gustSpeed: string }
