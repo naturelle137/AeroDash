@@ -230,7 +230,7 @@ describe('MassBalanceView integration', () => {
     const card = wrapper.get('#prep-card-fuel')
     expect(card.text()).toContain('Energy & Endurance')
     expect(card.text()).toContain('Energy budget unavailable')
-    expect(card.findAll('input')).toHaveLength(3)
+    expect(card.findAll('input')).toHaveLength(4)
     expect(card.find('[aria-label="Fuel planning results"]').exists()).toBe(false)
     wrapper.unmount()
   })

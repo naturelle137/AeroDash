@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Show a pilot-entered electric reserve duration and energy budget alongside the profile reserve floor.
+
 - Remove individual outdated runway declarations from recent airports offline.
 - Show the global model snow depth for the selected hour.
 - Show the global model daylight flag for the selected hour.
