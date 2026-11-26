@@ -183,6 +183,12 @@ export const useManualRunwayStore = defineStore('manualRunway', () => {
       notice.value = DEMO_BLOCKED
       return
     }
+    const existing = loadManualRunway()
+    if (existing.status === 'error') {
+      storageError.value = existing.message
+      notice.value = 'Recent runway was not selected; the saved entry was preserved.'
+      return
+    }
     const written = saveManualRunway(record.runway, new Date(record.savedAt), record.weatherSurface)
     if (written.status === 'error') {
       storageError.value = written.message
