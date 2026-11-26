@@ -55,3 +55,5 @@ Forecast QNH sources were rechecked on 25 November 2026. The wxdecoder METAR/TAF
 The global model also shows the ensemble probability of more than 0.1 mm precipitation in the preceding hour. It does not establish runway conditions or change inputs.
 
 The global model also shows total cloud cover (%) and visibility (m) for the selected hour. They are instantaneous model values, not ceiling, METAR or TAF values, and are neither applied nor used for go/no-go decisions.
+
+The global model shows total precipitation (rain, showers and snow water equivalent) in mm for the preceding hour. It does not determine runway condition or change inputs.

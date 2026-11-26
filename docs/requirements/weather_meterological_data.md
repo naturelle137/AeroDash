@@ -147,3 +147,7 @@ When global model cloud cover or visibility is available for the selected hour, 
 ### REQ-WX-030: Model dew point
 
 When global model dew point is available for the selected hour, the system shall show it as model data without applying it to calculations.
+
+### REQ-WX-031: Model precipitation amount
+
+When a global model precipitation amount is available for the selected hour, the system shall show the total for the preceding hour without applying it to calculations.

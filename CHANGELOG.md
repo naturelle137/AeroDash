@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Show global model total precipitation for the preceding hour.
+
 - Show the global model dew point for the selected hour.
 
 - Show the global model total cloud cover and visibility for the selected hour.
