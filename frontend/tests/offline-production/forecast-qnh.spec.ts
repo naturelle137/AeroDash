@@ -8,7 +8,7 @@ test('pilot enters forecast QNH offline with its source', async ({ page, context
   await forecast.getByLabel('Location', { exact: true }).fill('Test airfield')
   await forecast.getByLabel('Local date and time').fill('2099-06-01T12:30')
   await context.setOffline(true)
-  await expect(forecast).toContainText('Forecast QNH is unavailable from these services')
+  await expect(forecast).toContainText('Official forecast QNH is unavailable from these services')
   await forecast.getByRole('button', { name: 'Enter aviation QNH manually' }).click()
   await expect(forecast.getByLabel('Forecast QNH (hPa)')).toBeFocused()
   const entryPath = info.outputPath(`forecast-qnh-entry-${info.project.name}.png`)

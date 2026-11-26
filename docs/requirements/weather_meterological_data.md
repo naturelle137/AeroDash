@@ -243,3 +243,7 @@ While a retrieved TAF for the entered station is within its validity and defines
 ### REQ-WX-054: Observation fallback label
 
 While a METAR value is offered and no applicable forecast value exists for that parameter, the system shall label it as a METAR observation without a forecast with its station and observation time.
+
+### REQ-WX-025: Derived model altimeter estimate
+
+When valid DWD model surface pressure and matching grid elevation are available for the selected hour, the system shall offer their ISA-derived altimeter-setting estimate as an explicitly labelled model value for pilot-selected replacement.
