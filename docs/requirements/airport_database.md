@@ -227,3 +227,7 @@ While a fixed check date is selected, the system shall show the count for each d
 ### REQ-AP-051: Recent device-date filter
 
 While a fixed check date is selected, the system shall let the pilot filter recent declarations by their device-date check.
+
+### REQ-AP-052: Different date checks
+
+While a fixed check date is selected, the system shall let the pilot filter recent declarations to those with different selected-date and device-date checks.
