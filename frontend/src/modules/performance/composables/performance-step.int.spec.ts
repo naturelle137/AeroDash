@@ -67,10 +67,16 @@ it('carries the selected declared-date check into performance and invalidates it
       { label: 'Device-date days to declared expiry', value: '-1' },
     ]) })
     runway.draft.designator = '27'
+    runway.draft.source = 'Synthetic revised source'
     expect(step.presentation.value.runway).toMatchObject({ status: 'unavailable', reason: expect.stringContaining('Unsaved declaration date check: 2026-11-26: within-declared-dates; device date 2027-01-01: expired') })
+    expect(step.presentation.value.runway).toMatchObject({ reason: expect.stringContaining('Unsaved source: Synthetic revised source (user-declared, unverified); effective: 2026-01-01; expiry (inclusive): 2026-12-31') })
     expect(step.presentation.value.runway).toMatchObject({ reason: expect.stringContaining('source currency is unverified and NOTAM/SUP coverage is unknown') })
     runway.draft.expiryDate = '2025-01-01'
     expect(step.presentation.value.runway).toMatchObject({ reason: expect.stringContaining('2026-11-26: unknown; device date 2027-01-01: unknown') })
+    runway.draft.source = ''
+    runway.draft.effectiveDate = ''
+    runway.draft.expiryDate = ''
+    expect(step.presentation.value.runway).toMatchObject({ reason: expect.stringContaining('Unsaved source: Unknown (user-declared, unverified); effective: Unknown; expiry (inclusive): Unknown') })
     runway.revert()
     expect(step.presentation.value.runway.status).toBe('declared')
   })

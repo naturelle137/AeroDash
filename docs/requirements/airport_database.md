@@ -231,3 +231,7 @@ While a fixed check date is selected, the system shall let the pilot filter rece
 ### REQ-AP-052: Different date checks
 
 While a fixed check date is selected, the system shall let the pilot filter recent declarations to those with different selected-date and device-date checks.
+
+### REQ-AP-053: Unsaved runway source in briefing
+
+While a runway declaration has unsaved changes, the briefing shall show its unverified source reference and declared dates, or unknown where absent.

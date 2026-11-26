@@ -123,11 +123,11 @@ export function usePerformanceStep(context: () => PerformanceStepContext) {
     const declared = runway.current
     if (!declared) {
       const reason = runway.hasUnsavedChanges ? 'Manual runway has unsaved changes. Save or discard them to use a current declaration.' : 'No saved manual runway declaration.'
-      const { effectiveDate, expiryDate } = runway.draft
-      if (!effectiveDate && !expiryDate) return { status: 'unavailable', reason }
+      const { effectiveDate, expiryDate, source } = runway.draft
+      if (!runway.hasUnsavedChanges && !effectiveDate && !expiryDate) return { status: 'unavailable', reason }
       const selected = runwayFreshness(runway.draft, runway.assessmentDate)
       const device = runwayFreshness(runway.draft, runway.today)
-      return { status: 'unavailable', reason: `${reason} Unsaved declaration date check: ${runway.assessmentDate || 'Invalid date'}: ${selected}; device date ${runway.today}: ${device}. Pilot-declared dates only; source currency is unverified and NOTAM/SUP coverage is unknown.` }
+      return { status: 'unavailable', reason: `${reason} Unsaved source: ${source.trim() || 'Unknown'} (user-declared, unverified); effective: ${effectiveDate || 'Unknown'}; expiry (inclusive): ${expiryDate || 'Unknown'}. Unsaved declaration date check: ${runway.assessmentDate || 'Invalid date'}: ${selected}; device date ${runway.today}: ${device}. Pilot-declared dates only; source currency is unverified and NOTAM/SUP coverage is unknown.` }
     }
     const { aerodrome, designator, tora, lda, toda, fieldElevation, surface, source, effectiveDate, expiryDate } = declared.record.runway
     const condition = SURFACE_CONDITIONS[surface.type].find((option) => option.value === surface.condition)?.label ?? surface.condition
