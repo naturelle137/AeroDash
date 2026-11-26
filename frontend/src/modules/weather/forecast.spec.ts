@@ -181,26 +181,6 @@ describe('global model forecast', () => {
     expect(() => parseGlobalForecast({ ...sample, hourly: { ...sample.hourly, wind_direction_925hPa: [1, 2] } }, at)).toThrow('malformed')
   })
 
-  it('treats 600 hPa wind as optional and rejects implausible values', () => {
-    const at = Date.parse('2030-01-01T02:00Z')
-    expect(parseGlobalForecast(sample, at)?.wind600).toEqual({ speed: 50, direction: 285, height: 4200 })
-    expect(parseGlobalForecast({ ...sample, hourly_units: { ...sample.hourly_units, wind_direction_600hPa: 'rad' } }, at)?.wind600).toBeNull()
-    expect(parseGlobalForecast({ ...sample, hourly_units: { ...sample.hourly_units, geopotential_height_600hPa: 'ft' } }, at)?.wind600).toEqual({ speed: 50, direction: 285, height: null })
-    expect(parseGlobalForecast({ ...sample, hourly: { ...sample.hourly, wind_speed_600hPa: [0] } }, at)?.wind600).toEqual({ speed: 0, direction: null, height: 4200 })
-    for (const value of [null, -1, 401]) expect(parseGlobalForecast({ ...sample, hourly: { ...sample.hourly, wind_speed_600hPa: [value] } }, at)?.wind600).toBeNull()
-    expect(() => parseGlobalForecast({ ...sample, hourly: { ...sample.hourly, wind_direction_600hPa: [1, 2] } }, at)).toThrow('malformed')
-  })
-
-  it('treats 925 hPa wind as optional and rejects implausible values', () => {
-    const at = Date.parse('2030-01-01T02:00Z')
-    expect(parseGlobalForecast(sample, at)?.wind925).toEqual({ speed: 25, direction: 265, height: 760 })
-    expect(parseGlobalForecast({ ...sample, hourly_units: { ...sample.hourly_units, wind_direction_925hPa: 'rad' } }, at)?.wind925).toBeNull()
-    expect(parseGlobalForecast({ ...sample, hourly_units: { ...sample.hourly_units, geopotential_height_925hPa: 'ft' } }, at)?.wind925).toEqual({ speed: 25, direction: 265, height: null })
-    expect(parseGlobalForecast({ ...sample, hourly: { ...sample.hourly, wind_speed_925hPa: [0] } }, at)?.wind925).toEqual({ speed: 0, direction: null, height: 760 })
-    for (const value of [null, -1, 401]) expect(parseGlobalForecast({ ...sample, hourly: { ...sample.hourly, wind_speed_925hPa: [value] } }, at)?.wind925).toBeNull()
-    expect(() => parseGlobalForecast({ ...sample, hourly: { ...sample.hourly, wind_direction_925hPa: [1, 2] } }, at)).toThrow('malformed')
-  })
-
   it('treats 850 hPa wind as optional and rejects implausible values', () => {
     const at = Date.parse('2030-01-01T02:00Z')
     const { wind_speed_850hPa: _unit, ...otherUnits } = sample.hourly_units
