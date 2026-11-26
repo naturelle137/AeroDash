@@ -41,6 +41,19 @@ it('restores the exact original values and units in a fresh session', () => {
   expect(reloaded.hasUnsavedChanges).toBe(true)
 })
 
+it.each(['{broken', JSON.stringify({ schemaVersion: 99 })])('preserves an unreadable current declaration when selecting history', (raw) => {
+  const store = useManualRunwayStore()
+  store.load()
+  enter(store)
+  expect(store.save()).toBe(true)
+  const recent = store.recent[0]!
+  localStorage.setItem(MANUAL_RUNWAY_STORAGE_KEY, raw)
+  store.selectRecent(recent)
+  expect(localStorage.getItem(MANUAL_RUNWAY_STORAGE_KEY)).toBe(raw)
+  expect(store.notice).toContain('saved entry was preserved')
+  expect(store.storageError).toBeTruthy()
+})
+
 it('is erased by the real Privacy wipe in the same Pinia instance, not only in a fresh session', async () => {
   const store = useManualRunwayStore()
   store.load()
