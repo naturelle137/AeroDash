@@ -259,3 +259,7 @@ While recent runway declarations are displayed, the system shall allow ordering 
 ### REQ-AP-059: Unknown draft dates
 
 While an unsaved runway has an aerodrome or designator and no declared dates, the system shall display an unknown date-check state.
+
+### REQ-AP-060: Briefing unknown draft dates
+
+While an unsaved runway has an aerodrome or designator and no declared dates, the briefing shall show its unknown date checks as unverified pilot declarations.
