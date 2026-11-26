@@ -175,3 +175,7 @@ When a global model mean sea-level pressure is available for the selected hour, 
 ### REQ-WX-037: Model weather classification
 
 When a global model WMO weather code of a known category is available for the selected hour, the system shall show its description as model data without applying it to calculations.
+
+### REQ-WX-038: Model boundary layer height
+
+When a global model boundary layer height is available for the selected hour, the system shall show it in metres as model data without applying it to calculations.
