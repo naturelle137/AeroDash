@@ -90,6 +90,10 @@ When('a synthetic TAF and METAR are retrieved', async ({ page }) => {
     },
     headers: { 'access-control-allow-origin': '*' },
   }))
+  const flight = new Date(now.getTime() + 2 * 3600000)
+  const localFlight = new Date(flight.getTime() - flight.getTimezoneOffset() * 60000).toISOString().slice(0, 16)
+  await page.getByLabel('Location', { exact: true }).fill('EDDF')
+  await page.getByLabel('Local date and time').fill(localFlight)
   await page.locator('#weather-icao').fill('EDDF')
   await page.getByRole('button', { name: 'Check METAR' }).click()
   await page.locator('#taf-icao').fill('EDDF')

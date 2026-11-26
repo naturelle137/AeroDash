@@ -5,7 +5,7 @@ import type { MetarValues } from '../metar-values'
 import { parseForecast, parseGlobalForecast } from '../forecast'
 
 defineProps<{ currentQnh?: string; currentQnhUnit?: string }>()
-const emit = defineEmits<{ apply: [field: keyof MetarValues, values: MetarValues, source: string] }>()
+const emit = defineEmits<{ apply: [field: keyof MetarValues, values: MetarValues, source: string]; selection: [value: { location: string; time: number; forecast: MetarValues } | null] }>()
 const phase = ref('departure')
 const location = ref('')
 const time = ref('')
@@ -13,6 +13,9 @@ const temperature = ref('')
 const qnhUnit = ref<'hPa' | 'inHg'>('hPa')
 const qnhInput = ref<HTMLInputElement | null>(null)
 const confirmQnhTimes = ref(false)
+const confirmFlightTime = ref(false)
+const qnhUtcTime = ref('')
+const qnhUtcMessage = ref('')
 const emptyQnhDraft = () => ({ value: '', source: '', sourceTime: '', timeKind: '', validFrom: '', validTo: '' })
 const qnhDrafts = reactive({ hPa: emptyQnhDraft(), inHg: emptyQnhDraft() })
 const draft = computed(() => qnhDrafts[qnhUnit.value])
@@ -53,7 +56,7 @@ onBeforeUnmount(() => {
   window.removeEventListener('pageshow', refresh)
 })
 watch([phase, location, time], () => {
-  temperature.value = ''; clearQnh(); direction.value = ''; speed.value = ''
+  temperature.value = ''; clearQnh(); qnhUtcTime.value = ''; qnhUtcMessage.value = ''; direction.value = ''; speed.value = ''
   request++; forecast.value = null; forecastMessage.value = 'Selection changed; retrieve the forecast again.'
   globalForecast.value = null; globalMessage.value = 'Selection changed; retrieve the forecast again.'
 }, { flush: 'sync' })
@@ -73,9 +76,11 @@ const ambiguousLocalTime = (value: string) => {
     return otherOffset !== offset && new Date(alternative.getTime() - alternative.getTimezoneOffset() * 60000).toISOString().slice(0, 16) === value
   })
 }
-const ambiguousQnhTimes = computed(() => [time.value, qnhSourceTime.value, qnhValidFrom.value, qnhValidTo.value].some(ambiguousLocalTime))
+const ambiguousFlightTime = computed(() => ambiguousLocalTime(time.value))
+const ambiguousQnhTimes = computed(() => [qnhSourceTime.value, qnhValidFrom.value, qnhValidTo.value].some(ambiguousLocalTime))
+watch(time, () => { confirmFlightTime.value = false }, { flush: 'sync' })
 watch([time, qnhUnit, qnhSourceTime, qnhValidFrom, qnhValidTo], () => { confirmQnhTimes.value = false }, { flush: 'sync' })
-const selectionValid = computed(() => location.value.trim() !== '' && validLocalTime(time.value) && Date.parse(time.value) > now.value)
+const selectionValid = computed(() => location.value.trim() !== '' && validLocalTime(time.value) && (!ambiguousFlightTime.value || confirmFlightTime.value) && Date.parse(time.value) > now.value)
 const stale = computed(() => !!forecast.value && (forecast.value.stale || Date.parse(forecast.value.valid) <= now.value || now.value - Date.parse(forecast.value.fetched) > 4 * 60 * 60 * 1000))
 const qnhSourceAge = computed(() => {
   const minutes = Math.floor((now.value - Date.parse(qnhSourceTime.value)) / 60000)
@@ -151,15 +156,33 @@ async function retrieveGlobal(source: 'global' | 'dwd'): Promise<void> {
   }
 }
 const globalStale = computed(() => !!globalForecast.value && (Date.parse(time.value) <= now.value || now.value - Date.parse(globalRetrieved.value) > 4 * 60 * 60 * 1000))
+watch([selectionValid, location, time, forecast, stale, globalForecast, globalStale, globalRetrieved, online], () => {
+  emit('selection', selectionValid.value && online.value ? {
+    location: location.value.trim().toUpperCase(), time: Date.parse(time.value),
+    forecast: { ...(!stale.value ? forecast.value?.values : {}), ...(!globalStale.value ? globalForecast.value : {}) },
+  } : null)
+}, { immediate: true, flush: 'sync' })
 function applyGlobal(field: 'temperature' | 'wind'): void {
-  if (!online.value || !globalForecast.value || !globalForecast.value[field] || globalStale.value || Date.parse(time.value) <= Date.now() || Date.now() - Date.parse(globalRetrieved.value) > 4 * 60 * 60 * 1000) return
+  if (!online.value || !selectionValid.value || !globalForecast.value || !globalForecast.value[field] || globalStale.value || Date.parse(time.value) <= Date.now() || Date.now() - Date.parse(globalRetrieved.value) > 4 * 60 * 60 * 1000) return
   emit('apply', field, globalForecast.value, `Open-Meteo ${globalSource.value === 'dwd' ? 'DWD ICON forecast' : 'model forecast'} for ${location.value.trim()} (${latitude.value}, ${longitude.value}), valid ${new Date(time.value).toISOString()}, retrieved ${globalRetrieved.value}; model issue time unavailable`)
+
 }
 
 function applyRetrieved(field: 'temperature' | 'wind'): void {
   const current = forecast.value
-  if (!online.value || !current || current.stale || Date.parse(current.valid) <= Date.now() || Date.now() - Date.parse(current.fetched) > 4 * 60 * 60 * 1000 || !current.values[field]) return
+  if (!online.value || !selectionValid.value || !current || current.stale || Date.parse(current.valid) <= Date.now() || Date.now() - Date.parse(current.fetched) > 4 * 60 * 60 * 1000 || !current.values[field]) return
   emit('apply', field, current.values, `NWS forecast via wxdecoder.com for ${location.value.trim().toUpperCase()}, valid ${current.valid}, retrieved ${retrieved.value}`)
+}
+
+function useQnhUtcTime(field: 'sourceTime' | 'validFrom' | 'validTo'): void {
+  const instant = Date.parse(`${qnhUtcTime.value}Z`)
+  if (!qnhUtcTime.value || !Number.isFinite(instant)) { qnhUtcMessage.value = 'Enter a valid UTC date and time.'; return }
+  const local = new Date(instant)
+  const value = new Date(instant - local.getTimezoneOffset() * 60000).toISOString().slice(0, 16)
+  if (Date.parse(value) !== instant) { qnhUtcMessage.value = 'This UTC time is the second occurrence of a repeated local time and cannot be represented here.'; return }
+  draft.value[field] = value
+  const destination = { sourceTime: 'source time', validFrom: 'valid from', validTo: 'valid until' }[field]
+  qnhUtcMessage.value = `Copied ${qnhUtcTime.value.replace('T', ' ')} UTC to QNH ${destination} as ${value.replace('T', ' ')} device local time.`
 }
 
 function clearQnh(): void {
@@ -193,29 +216,34 @@ function apply(field: keyof MetarValues): void {
         <input v-model="time" type="datetime-local" />
       </label>
     </div>
-    <button type="button" :disabled="!online" @click="retrieve">Retrieve US forecast</button>
+    <label v-if="ambiguousFlightTime"><input v-model="confirmFlightTime" type="checkbox" /> This flight time occurs twice during a clock change. The browser uses {{ new Date(time).toISOString() }}; I checked this UTC time.</label>
+    <button type="button" :disabled="!online || (ambiguousFlightTime && !confirmFlightTime)" @click="retrieve">Retrieve US forecast</button>
     <p role="status" aria-live="polite">{{ online ? forecastMessage : 'Browser offline: forecast retrieval is unavailable.' }}</p>
     <div v-if="forecast">
       <p>US airport coverage · NWS via <a href="https://wxdecoder.com">wxdecoder.com</a> · Sources: NOAA/NWS Aviation Weather Center, National Weather Service and FAA.</p>
       <p>Forecast hour: {{ forecast.valid }} · Source fetched: {{ forecast.fetched }} · Retrieved: {{ retrieved }}{{ stale ? ' · OUTDATED' : '' }}</p>
       <p>Temperature: {{ forecast.values.temperature ?? 'unavailable' }} °C · Wind: {{ forecast.values.wind ? `${forecast.values.wind.direction || 'calm'}° true / ${forecast.values.wind.speed} kt` : 'unavailable' }} · Forecast QNH: unavailable.</p>
-      <button type="button" :disabled="stale || !forecast.values.temperature" @click="applyRetrieved('temperature')">Replace temperature with retrieved forecast</button>
-      <button type="button" :disabled="stale || !forecast.values.wind" @click="applyRetrieved('wind')">Replace wind with retrieved forecast</button>
+      <button type="button" :disabled="!selectionValid || stale || !forecast.values.temperature" @click="applyRetrieved('temperature')">Replace temperature with retrieved forecast</button>
+      <button type="button" :disabled="!selectionValid || stale || !forecast.values.wind" @click="applyRetrieved('wind')">Replace wind with retrieved forecast</button>
     </div>
     <div class="fields">
       <label>Latitude (°)<input v-model="latitude" type="text" inputmode="decimal" min="-90" max="90" step="any" /></label>
       <label>Longitude (°)<input v-model="longitude" type="text" inputmode="decimal" min="-180" max="180" step="any" /></label>
     </div>
     <p>Coordinates are sent to Open-Meteo on request; its free API is for non-commercial use.</p>
-    <button type="button" :disabled="!online" @click="retrieveGlobal('dwd')">Retrieve DWD ICON forecast</button>
-    <button type="button" :disabled="!online" @click="retrieveGlobal('global')">Retrieve global model forecast</button>
+
+    <button type="button" :disabled="!online || (ambiguousFlightTime && !confirmFlightTime)" @click="retrieveGlobal('dwd')">Retrieve DWD ICON forecast</button>
+    <button type="button" :disabled="!online || (ambiguousFlightTime && !confirmFlightTime)" @click="retrieveGlobal('global')">Retrieve global model forecast</button>
+
     <p aria-live="polite">{{ online ? globalMessage : 'Browser offline: forecast retrieval is unavailable.' }}</p>
     <div v-if="globalForecast">
       <p>Weather data by <a href="https://open-meteo.com/">Open-Meteo</a> · <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a> · Model values presented without conversion.</p>
       <p>{{ globalSource === 'dwd' ? 'DWD ICON' : 'Global model' }} forecast hour: {{ new Date(time).toISOString() }} · Retrieved: {{ globalRetrieved }} · Model issue time: unavailable{{ globalStale ? ' · OUTDATED' : '' }}</p>
       <p>Temperature: {{ globalForecast.temperature ?? 'unavailable' }} °C · Wind: {{ globalForecast.wind ? `${globalForecast.wind.direction || 'calm'}° true / ${globalForecast.wind.speed} kt` : 'unavailable' }} · Forecast QNH: unavailable.</p>
-      <button type="button" :disabled="globalStale || !globalForecast.temperature" @click="applyGlobal('temperature')">Replace temperature with {{ globalSource === 'dwd' ? 'DWD ICON' : 'global' }} forecast</button>
-      <button type="button" :disabled="globalStale || !globalForecast.wind" @click="applyGlobal('wind')">Replace wind with {{ globalSource === 'dwd' ? 'DWD ICON' : 'global' }} forecast</button>
+
+      <button type="button" :disabled="!selectionValid || globalStale || !globalForecast.temperature" @click="applyGlobal('temperature')">Replace temperature with {{ globalSource === 'dwd' ? 'DWD ICON' : 'global' }} forecast</button>
+      <button type="button" :disabled="!selectionValid || globalStale || !globalForecast.wind" @click="applyGlobal('wind')">Replace wind with {{ globalSource === 'dwd' ? 'DWD ICON' : 'global' }} forecast</button>
+
     </div>
     <p>For education and situational awareness only, not an official briefing or go/no-go authority. Obtain required weather from an authorised source.</p>
     <p>Forecast QNH is unavailable from these services. Obtain aviation QNH from an authorised source and enter it below; do not substitute model sea-level pressure. Wind direction is true; gusts are not applied. Values require a future time and are applied only when selected.</p>
@@ -233,6 +261,13 @@ function apply(field: keyof MetarValues): void {
       <label>Forecast wind speed<input v-model="speed" type="text" inputmode="decimal" min="0" max="200" step="any" /></label>
       <label>Forecast wind unit<select v-model="unit"><option value="kt">kt</option><option value="m/s">m/s</option></select></label>
     </div>
+    <label>QNH source or validity time in UTC<input v-model="qnhUtcTime" type="datetime-local" /></label>
+    <div class="fields">
+      <button type="button" @click="useQnhUtcTime('sourceTime')">Copy UTC to QNH source time</button>
+      <button type="button" @click="useQnhUtcTime('validFrom')">Copy UTC to QNH valid from</button>
+      <button type="button" @click="useQnhUtcTime('validTo')">Copy UTC to QNH valid until</button>
+    </div>
+    <p aria-live="polite">{{ qnhUtcMessage }}</p>
     <p>QNH entries and their source details are kept separately for each unit; switching units does not convert the entry.</p>
     <p>QNH drafts: hPa {{ Object.values(qnhDrafts.hPa).some(Boolean) ? 'present' : 'empty' }} · inHg {{ Object.values(qnhDrafts.inHg).some(Boolean) ? 'present' : 'empty' }}.</p>
     <button type="button" :disabled="!Object.values(draft).some(Boolean)" @click="Object.assign(draft, emptyQnhDraft())">Clear current {{ qnhUnit }} QNH draft</button>

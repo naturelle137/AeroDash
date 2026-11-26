@@ -2,7 +2,7 @@
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { tafLiquid, tafWind, type TafWind } from './taf-surface'
 
-defineProps<{ embedded?: boolean }>()
+const props = defineProps<{ embedded?: boolean; flightTime?: number }>()
 const emit = defineEmits<{ forecast: [value: { station: string; time: string; source: 'TAF'; validFrom: string; validTo: string; liquid: boolean; heavy?: boolean } | null]; wind: [value: { station: string; issued: string; validFrom: string; validTo: string; wind: TafWind } | null] }>()
 let request = 0
 function clearReport(): void { request++; report.value = null }
@@ -25,7 +25,7 @@ const applicable = computed(() => {
 watch(applicable, value => emit('forecast', value), { flush: 'sync' })
 const wind = computed(() => {
   const r = report.value
-  const value = r ? tafWind(r.body, r.start, r.end, now.value) : null
+  const value = r ? tafWind(r.body, r.start, r.end, props.flightTime ?? NaN) : null
   return r && value ? { station: r.station, issued: r.issued, validFrom: r.from, validTo: r.to, wind: value } : null
 })
 watch(wind, value => emit('wind', value), { flush: 'sync' })

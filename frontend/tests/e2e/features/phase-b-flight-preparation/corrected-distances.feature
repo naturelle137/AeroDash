@@ -213,6 +213,7 @@ Feature: Corrected takeoff and landing distances
     Then pilot-entered wind multipliers change both distances and clear with changed conditions
     And a pilot-entered landing slope multiplier changes ground roll and clears with slope
     And pilot-entered additive wind corrections work for both operations
+    And the pilot-entered landing wind correction order changes the corrected distances
     And the corrected distance evidence is captured as "pilot-wind-<width>"
 
     Examples:

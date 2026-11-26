@@ -120,7 +120,7 @@ describe('WeatherPanel forecast with observation fallback', () => {
   async function load(data: { taf?: unknown; metar?: unknown }, tafStation = 'EDDF') {
     vi.useFakeTimers().setSystemTime(new Date('2026-11-21T17:00:00Z'))
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => data }))
-    const view = mount(WeatherPanel)
+    const view = mount(WeatherPanel, { props: { selection: { location: 'EDDF', time: Date.parse('2026-11-21T17:30:00Z'), forecast: {} } } })
     const forms = view.findAll('form')
     for (const [index, id, station] of [[0, '#weather-icao', 'EDDF'], [1, '#taf-icao', tafStation]] as const) {
       await view.get(id).setValue(station)
@@ -164,6 +164,28 @@ describe('WeatherPanel forecast with observation fallback', () => {
     none.unmount()
   })
 
+
+  it('selects FM wind at flight time and restores fallback on station or time changes', async () => {
+    const view = await load({ taf: { ...taf, raw: taf.raw + ' FM211800 30012KT 9999 BKN020' }, metar })
+    expect(button(view, 'TAF forecast (210 / 5 kt)')).toBeDefined()
+    await view.setProps({ selection: { location: 'EDDF', time: Date.parse('2026-11-21T19:00:00Z'), forecast: {} } })
+    expect(button(view, 'TAF forecast (300 / 12 kt)')).toBeDefined()
+    await view.setProps({ selection: { location: 'EDDM', time: Date.parse('2026-11-21T19:00:00Z'), forecast: {} } })
+    expect(button(view, 'TAF forecast')).toBeUndefined()
+    expect(button(view, 'Replace wind with METAR')).toBeDefined()
+    view.unmount()
+  })
+
+  it('labels observation fallback per applicable model parameter', async () => {
+    const view = await load({ taf: null, metar })
+    for (const forecast of [{ temperature: '12', wind: { direction: '180', speed: '10', unit: 'kt' as const } }, { temperature: '12' }, {}]) {
+      await view.setProps({ selection: { location: 'EDDF', time: Date.parse('2026-11-21T19:00:00Z'), forecast } })
+      expect(view.text().includes('temperature: no forecast available')).toBe(!forecast.temperature)
+      expect(view.text().includes('wind: no forecast available')).toBe(!forecast.wind)
+    }
+    view.unmount()
+  })
+
   it('warns when the TAF and METAR stations differ', async () => {
     const view = await load({ taf: { ...taf, station: 'EDDM', raw: taf.raw.replace('EDDF', 'EDDM') }, metar }, 'EDDM')
     expect(view.text()).toContain('The METAR station EDDF differs from the TAF station EDDM.')
@@ -173,7 +195,7 @@ describe('WeatherPanel forecast with observation fallback', () => {
   it('withdraws the TAF wind when its validity ends', async () => {
     const ended = await load({ taf: { ...taf, validTo: '2026-11-21T18:00:00.000Z', raw: taf.raw.replace('2218', '2118') }, metar })
     expect(button(ended, 'TAF forecast')).toBeDefined()
-    await vi.advanceTimersByTimeAsync(61 * 60 * 1000)
+    await ended.setProps({ selection: { location: 'EDDF', time: Date.parse('2026-11-21T18:00:00Z'), forecast: {} } })
     expect(button(ended, 'TAF forecast')).toBeUndefined()
     ended.unmount()
   })

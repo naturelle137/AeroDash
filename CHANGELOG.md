@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Match TAF and model forecasts to the selected flight time and location before identifying METAR fallbacks.
+
+- Let pilots choose whether manual wind corrections apply before or after manual surface and slope corrections.
+- Require confirmation of repeated local flight times before forecast retrieval or application.
 - Return an unknown runway date check for invalid or contradictory declared dates.
 
 ### Added
@@ -27,11 +31,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Copy pilot-declared UTC QNH source and validity times into local time fields.
+
 - Explain why a declared forecast QNH validity interval cannot be applied.
 - Show the current Flight Prep QNH beside a manual forecast QNH entry before replacement.
 - Clarify requirements guidance and delivery checks against current project directives.
 
 - Support pilot-entered additive surface corrections to ground roll.
+- Allow pilot-entered surface and slope corrections in either order.
 
 - Compare unsaved and recent runway dates with the device date when using a fixed check date.
 

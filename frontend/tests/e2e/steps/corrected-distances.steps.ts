@@ -226,7 +226,7 @@ Then('the briefing discloses the pilot-entered surface source', async ({ page })
   const preview = page.getByRole('dialog', { name: 'Briefing Pack preview' })
   await expect(preview).toContainText('Synthetic manual section 2')
   await expect(preview).toContainText('UNVERIFIED PILOT-ENTERED SURFACE FACTOR')
-  await expect(preview).toContainText('Differently ordered surface rules are unsupported')
+  await expect(preview).toContainText('Source, applicability and correction ordering are unverified')
 })
 
 Then('the printed and PDF briefing disclose the pilot-entered surface source', async ({ page, $testInfo }) => {
@@ -241,7 +241,7 @@ Then('the printed and PDF briefing disclose the pilot-entered surface source', a
   await (await download).saveAs(path)
   const pdf = execFileSync('pdftotext', ['-layout', path, '-'], { encoding: 'utf8' }).replace(/\s+/g, ' ')
   expect(pdf).toContain('Synthetic manual section 2')
-  expect(pdf).toContain('Differently ordered surface rules are unsupported')
+  expect(pdf).toContain('Source, applicability and correction ordering are unverified')
 })
 
 Then('a pilot-entered landing slope multiplier changes ground roll and clears with slope', async ({ page }) => {
@@ -275,4 +275,19 @@ Then('pilot-entered additive wind corrections work for both operations', async (
     await inputs.getByLabel('Manual additive wind correction to both distances (m, optional)').fill('25')
     await inputs.getByLabel('Wind factor source and section').fill('Synthetic additive wind section')
   }
+})
+
+Then('the pilot-entered landing wind correction order changes the corrected distances', async ({ page }) => {
+  const inputs = page.getByRole('group', { name: 'Landing wind and slope' })
+  const result = page.getByRole('region', { name: 'Landing corrected distances', exact: true })
+  await inputs.getByLabel('Manual POH landing slope ground-roll multiplier (optional)').fill('1.2')
+  await inputs.getByLabel('Slope factor source and section').fill('Synthetic manual section 2')
+  const order = inputs.getByLabel('Pilot-entered wind correction order')
+  await expect(order).toHaveValue('after-ground')
+  const after = await result.locator('dd').first().innerText()
+  await order.selectOption('before-ground')
+  await expect(result).toContainText('before the pilot-entered ground corrections')
+  await expect(result.locator('dd').first()).not.toHaveText(after)
+  await order.scrollIntoViewIfNeeded()
+  await expect(order).toBeVisible()
 })

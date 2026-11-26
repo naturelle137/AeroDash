@@ -696,6 +696,7 @@ function onImportHandover(text: string): void {
   }
 }
 const windInput = ref({ runwayHeading: '', windDirection: '', windSpeed: '', unit: 'kt', gustSpeed: '' })
+const forecastSelection = ref<{ location: string; time: number; forecast: MetarValues } | null>(null)
 const weatherSources = ref<Partial<Record<keyof MetarValues, { source: string; value: string }>>>({})
 function weatherValue(field: keyof MetarValues): string {
   if (field === 'wind') return JSON.stringify([windInput.value.windDirection, windInput.value.windSpeed, windInput.value.unit])
@@ -1401,11 +1402,11 @@ function onStartDemo(): void {
         <span class="prep-card__badge">05</span>
         <h2 id="prep-weather-title" class="prep-card__title">Weather</h2>
       </div>
-      <WeatherPanel @forecast="useManualRunwayStore().updateForecast($event)" @observation="useManualRunwayStore().updateWeather($event)" @apply="applyWeather" />
+      <WeatherPanel :selection="forecastSelection" @forecast="useManualRunwayStore().updateForecast($event)" @observation="useManualRunwayStore().updateWeather($event)" @apply="applyWeather" />
       <p v-for="field in (['wind', 'temperature', 'qnh'] as const)" :key="field">
         <template v-if="weatherSources[field] && weatherSources[field].value === weatherValue(field)">{{ field }} source: {{ weatherSources[field].source }}</template>
       </p>
-      <ForecastSelection :current-qnh="performanceStep.pa.draft.qnh" :current-qnh-unit="performanceStep.pa.draft.qnhUnit" @apply="applyWeather" />
+      <ForecastSelection @selection="forecastSelection = $event" :current-qnh="performanceStep.pa.draft.qnh" :current-qnh-unit="performanceStep.pa.draft.qnhUnit" @apply="applyWeather" />
     </section>
 
     <!-- ═══ Operational disclaimer (bottom, non-blocking) ═════════════════ -->
