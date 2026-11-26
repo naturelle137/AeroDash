@@ -30,6 +30,24 @@ beforeEach(() => {
 afterEach(() => { vi.restoreAllMocks() })
 
 describe('ManualRunwayPanel', () => {
+  it('orders effective dates with unknown dates last without changing stored history', async () => {
+    const view = mount(ManualRunwayPanel)
+    await fill(view)
+    await view.get('#runway-effective').setValue('2026-08-01')
+    await view.get('form').trigger('submit')
+    await view.get('#manual-runway-designator').setValue('09')
+    await view.get('#runway-effective').setValue('2026-07-01')
+    await view.get('form').trigger('submit')
+    await view.get('#manual-runway-designator').setValue('18')
+    await view.get('#runway-effective').setValue('')
+    await view.get('form').trigger('submit')
+    const history = localStorage.getItem('aerodash.performance.recent-airports.v1')
+    await view.get('#recent-order').setValue('effective')
+    expect(view.findAll('.select-recent').map((button) => button.text().slice(0, 9))).toEqual(['TEST — 09', 'TEST — 27', 'TEST — 18'])
+    await view.get('#recent-search').setValue('27')
+    expect(view.findAll('.select-recent')).toHaveLength(1)
+    expect(localStorage.getItem('aerodash.performance.recent-airports.v1')).toBe(history)
+  })
   it('orders declared expiry dates without changing recent storage', async () => {
     const view = mount(ManualRunwayPanel)
     await fill(view)
