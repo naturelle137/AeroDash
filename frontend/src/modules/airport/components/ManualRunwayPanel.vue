@@ -321,6 +321,7 @@ select:disabled { opacity: .6; }
 .field-error::before { content: '⚠ '; }
 .actions { display: flex; flex-wrap: wrap; gap: .75rem; }
 .recent-runways { list-style: none; padding: 0; display: grid; gap: .75rem; overflow-wrap: anywhere; }
+#recent-order { max-width: 100%; }
 button { cursor: pointer; font-weight: 600; }
 .provenance, .unsaved { overflow-wrap: anywhere; }
 .summary { border-left: 4px solid var(--color-primary); padding-left: .75rem; display: grid; gap: .5rem; overflow-wrap: anywhere; }
