@@ -132,11 +132,11 @@ When the pilot selects today for the declared date check, the system shall use t
 
 When displaying the declared date check in Performance or the briefing, the system shall indicate that the selected date does not advance automatically.
 
-### REQ-AP-027: Automatic local check date
+### REQ-AP-151: Automatic local check date
 
 While the automatic local date is selected, the system shall update the check date when the device local date changes.
 
-### REQ-AP-028: Fixed check date
+### REQ-AP-152: Fixed check date
 
 When the pilot selects a check date, the system shall retain it until the pilot selects the automatic local date.
 
