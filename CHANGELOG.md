@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Show global model low, mid and high cloud cover for the selected hour.
 
+- Show the global model snowfall for the preceding hour.
 - Show the global model CAPE for the selected hour.
 
 - Cover global forecast probability, cloud cover, visibility and gust in the desktop and mobile forecast E2E.
