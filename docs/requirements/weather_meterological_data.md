@@ -212,14 +212,22 @@ When a global model day or night flag is available for the selected hour, the sy
 
 When a global model snow depth is available for the selected hour, the system shall show it in metres as model data without applying it to calculations.
 
-### REQ-WX-047: DWD model forecast
+### REQ-WX-047: Model 700 hPa wind
 
-When the pilot requests DWD model weather for valid coordinates and a future forecast hour, the system shall offer available temperature and wind values with their source and retrieval time.
+When a global model wind at the 700 hPa pressure level is available for the selected hour, the system shall show it in knots and true degrees, with the model geopotential height where available, as model data without applying it to calculations.
 
-### REQ-WX-048: TAF wind
+### REQ-WX-048: Model 500 hPa wind
 
-While a retrieved TAF for the entered station is within its validity and defines a prevailing numeric wind, the system shall offer that wind for Flight Prep with the TAF station, issue time and validity interval.
+When a global model wind at the 500 hPa pressure level is available for the selected hour, the system shall show it in knots and true degrees, with the model geopotential height where available, as model data without applying it to calculations.
 
-### REQ-WX-049: Observation fallback label
+### REQ-WX-049: Model 925 hPa wind
 
-While a METAR value is offered and no applicable forecast value exists for that parameter, the system shall label it as a METAR observation without a forecast with its station and observation time.
+When a global model wind at the 925 hPa pressure level is available for the selected hour, the system shall show it in knots and true degrees, with the model geopotential height where available, as model data without applying it to calculations.
+
+### REQ-WX-050: Model 600 hPa wind
+
+When a global model wind at the 600 hPa pressure level is available for the selected hour, the system shall show it in knots and true degrees, with the model geopotential height where available, as model data without applying it to calculations.
+
+### REQ-WX-051: Model 800 hPa wind
+
+When a global model wind at the 800 hPa pressure level is available for the selected hour, the system shall show it in knots and true degrees, with the model geopotential height where available, as model data without applying it to calculations.
