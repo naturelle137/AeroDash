@@ -29,7 +29,7 @@ export function parseForecast(data: unknown, station: string, selected: number, 
   return { values, valid: new Date(row.timestamp).toISOString(), fetched: new Date(fetched).toISOString(), stale: freshness.stale || now - fetched > 4 * 60 * 60 * 1000 }
 }
 
-export function parseGlobalForecast(data: unknown, selected: number): { values: MetarValues; dewPoint: number | null; precipitation: number | null; gust: number | null; precipitationProbability: number | null; cloudCover: number | null; visibility: number | null; freezingLevel: number | null; cape: number | null; cloudLayers: { low: number | null; mid: number | null; high: number | null }; latitude: number; longitude: number } | null {
+export function parseGlobalForecast(data: unknown, selected: number): { values: MetarValues; dewPoint: number | null; precipitation: number | null; gust: number | null; precipitationProbability: number | null; cloudCover: number | null; visibility: number | null; freezingLevel: number | null; cape: number | null; snowfall: number | null; cloudLayers: { low: number | null; mid: number | null; high: number | null }; latitude: number; longitude: number } | null {
   if (!data || typeof data !== 'object') throw new Error('malformed')
   const d = data as Record<string, unknown>
   if (typeof d.latitude !== 'number' || !Number.isFinite(d.latitude) || d.latitude < -90 || d.latitude > 90 || typeof d.longitude !== 'number' || !Number.isFinite(d.longitude) || d.longitude < -180 || d.longitude > 180) throw new Error('malformed')
