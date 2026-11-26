@@ -148,7 +148,7 @@ async function retrieveGlobal(): Promise<void> {
   const current = ++globalRequest
   globalForecast.value = null
   globalMessage.value = 'Retrieving forecast…'
-  const params = new URLSearchParams({ latitude: latitude.value, longitude: longitude.value, hourly: 'temperature_2m,wind_speed_10m,wind_direction_10m', wind_speed_unit: 'kn', timezone: 'GMT', forecast_days: '16' })
+  const params = new URLSearchParams({ latitude: latitude.value, longitude: longitude.value, hourly: 'temperature_2m,wind_speed_10m,wind_direction_10m,wind_gusts_10m', wind_speed_unit: 'kn', timezone: 'GMT', forecast_days: '16' })
   try {
     const response = await fetch(`https://api.open-meteo.com/v1/forecast?${params}`, { credentials: 'omit', cache: 'no-store', referrerPolicy: 'no-referrer' })
     if (!response.ok) throw new Error('unavailable')
@@ -252,6 +252,7 @@ function apply(field: keyof MetarValues): void {
       <p>Forecast hour: {{ new Date(time).toISOString() }} · Retrieved: {{ globalRetrieved }} · Model issue time: unavailable{{ globalStale ? ' · OUTDATED' : '' }}</p>
       <p>Requested coordinates: {{ latitude }}, {{ longitude }} · Model grid coordinates: {{ globalForecast.latitude }}, {{ globalForecast.longitude }}. Grid location may differ from the selected location.</p>
       <p>Temperature: {{ globalForecast.values.temperature ?? 'unavailable' }} °C · Wind: {{ globalForecast.values.wind ? `${globalForecast.values.wind.direction || 'calm'}° true / ${globalForecast.values.wind.speed} kt` : 'unavailable' }} · Forecast QNH: unavailable.</p>
+      <p>Model gust maximum during the preceding hour: {{ globalForecast.gust === null ? 'unavailable' : `${globalForecast.gust} kt` }}. Gusts are not applied to calculations.</p>
       <button type="button" :disabled="!selectionValid || globalStale || !globalForecast.values.temperature" @click="applyGlobal('temperature')">Replace temperature with global forecast</button>
       <button type="button" :disabled="!selectionValid || globalStale || !globalForecast.values.wind" @click="applyGlobal('wind')">Replace wind with global forecast</button>
     </div>
