@@ -388,7 +388,7 @@ test('persisted fleet tank inputs feed the session-only fuel plan online and cac
       } else await direct.fill('20')
       await expect(arrival).toContainText('580 kg')
       await expect(card.getByTestId('arrival-cg')).toHaveText('2.017 m')
-      await expect(card.getByTestId('trip-path')).toContainText('Unavailable: Variable-arm')
+      await expect(card.getByTestId('trip-path')).toContainText('Outside envelope')
     }
     await card.getByTestId('trip-path').scrollIntoViewIfNeeded()
     const imagePath = info.outputPath(`${registration}-arrival-offline.png`)

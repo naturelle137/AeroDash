@@ -82,7 +82,7 @@ describe('shared current fuel print presentation', () => {
     store.aircraft!.loadPoints[0]!.armLookup = [{ massOrVolume: 0, moment: 0 }, { massOrVolume: 100, moment: 100 }]
     const fuel = assembleMbPrint(source.value, new Date())!.fuel!
     expect(fuel.cgReason).toBeNull()
-    expect(fuel.pathAssessment).toContain('Unavailable: Variable-arm')
+    expect(fuel.pathAssessment).toBe(p.pathAssessment.value)
     expect(fuel.rows).toContainEqual(expect.objectContaining({ label: 'Estimated arrival mass', value: '520 kg [UNVERIFIED]' }))
     expect(fuel.rows.map(r => r.label)).not.toContain('Total endurance')
     expect(fuel.warnings).toEqual([])

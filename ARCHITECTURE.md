@@ -69,7 +69,7 @@ moments (never arms) with the same segment rule as M&B. P2 rejects raw negative/
 normalization clamps them, then normalizes the axis like tank loads and moments with
 the profile mass × length unit; P1 requires ≥ 2 strictly ascending knots from exactly
 (0, 0), coverage of [0, q] and the existing SI bounds. Unusable fuel stays in BEM and the remaining tank load cannot fall below it. The estimate is separate
-from the all-usable-burned M&B endpoint and does not assess landing suitability. Fixed-arm trip paths are separately assessed against the current envelope, including tank switches; variable-arm paths remain unavailable. Synthetic arithmetic and browser tests establish
+from the all-usable-burned M&B endpoint and does not assess landing suitability. Supported fixed-arm and lookup-tank trip paths are separately assessed against the current envelope, including tank switches and lookup-table knots. Synthetic arithmetic and browser tests establish
 software wiring only.
 
 ## Fuel lower boundary
