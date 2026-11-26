@@ -148,7 +148,7 @@ async function retrieveGlobal(): Promise<void> {
   const current = ++globalRequest
   globalForecast.value = null
   globalMessage.value = 'Retrieving forecast…'
-  const params = new URLSearchParams({ latitude: latitude.value, longitude: longitude.value, hourly: 'temperature_2m,dew_point_2m,wind_speed_10m,wind_direction_10m,wind_gusts_10m,precipitation,precipitation_probability,cloud_cover,visibility,freezing_level_height', wind_speed_unit: 'kn', timezone: 'GMT', forecast_days: '16' })
+  const params = new URLSearchParams({ latitude: latitude.value, longitude: longitude.value, hourly: 'temperature_2m,dew_point_2m,wind_speed_10m,wind_direction_10m,wind_gusts_10m,precipitation,precipitation_probability,cloud_cover,visibility,freezing_level_height,cape', wind_speed_unit: 'kn', timezone: 'GMT', forecast_days: '16' })
   try {
     const response = await fetch(`https://api.open-meteo.com/v1/forecast?${params}`, { credentials: 'omit', cache: 'no-store', referrerPolicy: 'no-referrer' })
     if (!response.ok) throw new Error('unavailable')
@@ -254,6 +254,7 @@ function apply(field: keyof MetarValues): void {
       <p>Temperature: {{ globalForecast.values.temperature ?? 'unavailable' }} °C · Wind: {{ globalForecast.values.wind ? `${globalForecast.values.wind.direction || 'calm'}° true / ${globalForecast.values.wind.speed} kt` : 'unavailable' }} · Forecast QNH: unavailable.</p>
       <p>Model total precipitation in the preceding hour: {{ globalForecast.precipitation === null ? 'unavailable' : `${globalForecast.precipitation} mm` }} (rain, showers and snow water equivalent). This is not a runway condition and is not applied to calculations.</p>
       <p>Model freezing level: {{ globalForecast.freezingLevel === null ? 'unavailable' : `${globalForecast.freezingLevel} m above mean sea level` }}. This is not an icing forecast or an observation and is not applied to calculations.</p>
+      <p>Model convective available potential energy (CAPE): {{ globalForecast.cape === null ? 'unavailable' : `${globalForecast.cape} J/kg` }}. It is an instantaneous model value, not a thunderstorm forecast or observation, and is not applied to calculations.</p>
       <p>Model dew point at 2 m: {{ globalForecast.dewPoint === null ? 'unavailable' : `${globalForecast.dewPoint} °C` }}. This is not an observation and is not applied to calculations.</p>
       <p>Model probability of more than 0.1 mm precipitation during the preceding hour: {{ globalForecast.precipitationProbability === null ? 'unavailable' : `${globalForecast.precipitationProbability}%` }}. This does not establish runway conditions.</p>
       <p>Model total cloud cover: {{ globalForecast.cloudCover === null ? 'unavailable' : `${globalForecast.cloudCover}%` }} · Model visibility: {{ globalForecast.visibility === null ? 'unavailable' : `${globalForecast.visibility} m` }}. These are not ceiling, METAR or TAF values and are not applied to calculations.</p>

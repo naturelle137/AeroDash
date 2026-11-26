@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Show the global model CAPE for the selected hour.
+
 - Cover global forecast probability, cloud cover, visibility and gust in the desktop and mobile forecast E2E.
 - Show the global model freezing level for the selected hour.
 - Keep global forecast values usable when the freezing-level unit is missing.

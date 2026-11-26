@@ -155,3 +155,7 @@ When a global model precipitation amount is available for the selected hour, the
 ### REQ-WX-032: Model freezing level
 
 When a global model freezing level is available for the selected hour, the system shall show it in metres above mean sea level as model data without applying it to calculations.
+
+### REQ-WX-033: Model CAPE
+
+When a global model convective available potential energy is available for the selected hour, the system shall show it in J/kg as model data without applying it to calculations.

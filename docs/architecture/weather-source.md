@@ -59,3 +59,5 @@ The global model also shows total cloud cover (%) and visibility (m) for the sel
 The global model shows total precipitation (rain, showers and snow water equivalent) in mm for the preceding hour. It does not determine runway condition or change inputs.
 
 The global model shows the freezing level in metres above mean sea level for the selected hour (Open-Meteo `freezing_level_height`, checked 26 November 2026: unit `m`). It is an instantaneous model value, not an icing forecast or observation, and is neither applied nor used for go/no-go decisions. A missing or non-metre freezing-level unit makes only that value unavailable; other fields remain usable.
+
+The global model also shows convective available potential energy (Open-Meteo `cape`, checked 26 November 2026: unit `J/kg`) for the selected hour. It is an instantaneous model value, not a thunderstorm forecast or observation, and is neither applied nor used for go/no-go decisions. A missing or non-J/kg unit makes only that value unavailable; other fields remain usable.
