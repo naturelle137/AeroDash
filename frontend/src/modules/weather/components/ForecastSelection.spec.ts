@@ -249,7 +249,7 @@ it('keeps independent requests and rejects obsolete responses', async () => {
   responses[1]!({ ok: true, json: async () => global })
   await vi.waitFor(() => expect(view.text()).toContain('Requested coordinates: 32, -97'))
   expect(view.text()).toContain('Temperature: 20 °C')
-  expect(view.text()).toContain('Model dew point at 2 m: 8 °C. This is not an observation and is not applied to calculations.')
+  expect(view.text()).toContain('Model dew point at 2 m: 8 °C, temperature–dew point spread: 4 °C. This is not an observation and is not applied to calculations.')
   expect(view.text()).toContain('Model gust maximum during the preceding hour: 18 kt. Gusts are not applied to calculations.')
   await button('Retrieve US forecast').trigger('click')
   await input('Latitude').setValue('33')

@@ -199,3 +199,7 @@ When a global model wind at 80 m above ground is available for the selected hour
 ### REQ-WX-043: Model 850 hPa wind
 
 When a global model wind at the 850 hPa pressure level is available for the selected hour, the system shall show it in knots and true degrees, with the model temperature and geopotential height where available, as model data without applying it to calculations.
+
+### REQ-WX-044: Model dew point spread
+
+When a global model 2 m temperature and dew point are both available for the selected hour, the system shall show their difference in °C as model data without applying it to calculations.
