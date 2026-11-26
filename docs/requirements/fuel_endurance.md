@@ -261,3 +261,15 @@ If trip path assessment is unsupported or inputs are invalid, the system shall d
 ### REQ-FE-046: Trip burn path briefing
 
 When displaying the current fuel briefing, the system shall include the trip burn path result and its limitations.
+
+### REQ-FE-047: Pilot-added electric reserve
+
+When a valid electric trip and an explicit finite nonnegative pilot-added reserve duration are provided, the system shall show its estimated energy, remaining energy after trip and reserve, and difference to the profile reserve floor.
+
+### REQ-FE-048: Invalid added electric reserve
+
+If the pilot-added reserve duration is missing or invalid, the system shall suppress the added reserve budget without suppressing valid trip-only estimates.
+
+### REQ-FE-049: Added electric reserve briefing
+
+When displaying the electric briefing, the system shall include the current added reserve budget or its unavailability reason and its limitations.

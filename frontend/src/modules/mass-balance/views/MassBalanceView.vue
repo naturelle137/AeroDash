@@ -726,7 +726,7 @@ function exportFlightPreparation(): void {
       stations: store.stations.map(s => ({ name: s.name, unit: aircraft?.loadPoints[s.index]?.unit || parseSourceUnit(aircraft?.sourceUnit ?? '').massUnit, weight: s.weight, touched: s.touched })),
     },
     entries: flightPrepDraft.snapshotEntries(),
-    electric: isElectric.value ? { available: electricPlanning.available.value, power: electricPlanning.power.value, minutes: electricPlanning.minutes.value } : null,
+    electric: isElectric.value ? { available: electricPlanning.available.value, power: electricPlanning.power.value, minutes: electricPlanning.minutes.value, reserveMinutes: electricPlanning.reserveMinutes.value } : null,
     manualConfiguration: performanceStep.manualConfiguration.value,
     runway: { draft: { ...runway.draft }, saved: runway.current?.record ?? null, weatherSurface: runway.weatherSurface, assessmentDate: runway.assessmentDate, deviceDate: runway.today, automaticDate: runway.automaticDate },
     wind: { ...windInput.value },
