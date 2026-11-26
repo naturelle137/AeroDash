@@ -167,3 +167,7 @@ When global model low, mid or high cloud cover is available for the selected hou
 ### REQ-WX-035: Model snowfall
 
 When a global model snowfall is available for the selected hour, the system shall show it in centimetres for the preceding hour as model data without applying it to calculations.
+
+### REQ-WX-036: Model sea-level pressure
+
+When a global model mean sea-level pressure is available for the selected hour, the system shall show it in hectopascals labelled as not aviation QNH without applying it to calculations.
