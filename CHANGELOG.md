@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Show the global model convective inhibition for the selected hour.
+- Show the global model wind at 80 m above ground for the selected hour.
 - Show the global model lifted index for the selected hour.
 - Show the global model 2 m relative humidity for the selected hour.
 - Show the global model boundary layer height for the selected hour.
