@@ -255,3 +255,7 @@ While recent runway declarations are displayed, the system shall allow ordering 
 ### REQ-AP-058: Order recent declarations by effective date
 
 While recent runway declarations are displayed, the system shall allow ordering them by declared effective date with missing dates last.
+
+### REQ-AP-059: Unknown draft dates
+
+While an unsaved runway has an aerodrome or designator and no declared dates, the system shall display an unknown date-check state.

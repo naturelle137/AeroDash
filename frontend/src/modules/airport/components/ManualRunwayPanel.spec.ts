@@ -181,6 +181,16 @@ describe('ManualRunwayPanel', () => {
     await view.get('#runway-expiry').setValue('2026-01-01')
     expect(view.text()).not.toContain('Unsaved declaration date check:')
   })
+  it('shows unknown dates for a runway draft without declared dates', async () => {
+    const view = mount(ManualRunwayPanel)
+    expect(view.text()).not.toContain('Unsaved declaration date check:')
+    await view.get('#manual-runway-aerodrome').setValue('TEST')
+    expect(view.get('[aria-label="Runway date check"]').text()).toContain('Unknown: declared dates are incomplete')
+    expect(view.text()).toContain('Source and currency remain unverified; NOTAM/SUP coverage is unknown')
+    expect(localStorage.getItem(MANUAL_RUNWAY_STORAGE_KEY)).toBeNull()
+    await view.get('#runway-expiry').setValue('2026-01-01')
+    expect(view.text()).not.toContain('Unknown: declared dates are incomplete')
+  })
   it('checks valid dates before the remaining runway fields are complete', async () => {
     const view = mount(ManualRunwayPanel)
     await view.get('#runway-assessment-date').setValue('2026-08-01')
