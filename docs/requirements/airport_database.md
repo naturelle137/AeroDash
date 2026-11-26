@@ -247,3 +247,7 @@ If recent runway declarations cannot be read, then the system shall indicate tha
 ### REQ-AP-056: Search recent sources
 
 While recent runway declarations are displayed, the system shall allow filtering them by their user-declared source reference without network access.
+
+### REQ-AP-057: Order recent declarations by expiry
+
+While recent runway declarations are displayed, the system shall allow ordering them by declared expiry date with missing dates last.

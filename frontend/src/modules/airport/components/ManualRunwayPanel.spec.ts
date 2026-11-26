@@ -30,6 +30,24 @@ beforeEach(() => {
 afterEach(() => { vi.restoreAllMocks() })
 
 describe('ManualRunwayPanel', () => {
+  it('orders declared expiry dates without changing recent storage', async () => {
+    const view = mount(ManualRunwayPanel)
+    await fill(view)
+    await view.get('#runway-expiry').setValue('2026-06-30')
+    await view.get('form').trigger('submit')
+    await view.get('#manual-runway-designator').setValue('09')
+    await view.get('#runway-expiry').setValue('')
+    await view.get('form').trigger('submit')
+    const saved = localStorage.getItem(MANUAL_RUNWAY_STORAGE_KEY)
+    await view.get('#recent-order').setValue('expiry')
+    expect(view.findAll('.select-recent').map((button) => button.text().slice(0, 9))).toEqual(['TEST — 27', 'TEST — 09'])
+    await view.get('#recent-search').setValue('09')
+    expect(view.findAll('.select-recent')).toHaveLength(1)
+    await view.get('#recent-search').setValue('')
+    await view.get('#recent-order').setValue('recent')
+    expect(view.findAll('.select-recent')[0]!.text()).toContain('TEST — 09')
+    expect(localStorage.getItem(MANUAL_RUNWAY_STORAGE_KEY)).toBe(saved)
+  })
   it('searches recent declarations together with date filters without changing saved data', async () => {
     const view = mount(ManualRunwayPanel)
     await fill(view)

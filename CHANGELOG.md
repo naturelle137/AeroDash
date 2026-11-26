@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Order recent runway declarations by their declared expiry date offline.
+
 - Search recent runway declarations by their user-declared source reference offline.
 
 - Report unreadable recent runway declarations while preserving their stored data.
