@@ -489,9 +489,22 @@ describe('M&B print presentation with real store calculation', () => {
     expect(document.querySelector('.mb-print-root')?.hasAttribute('data-print-invalid')).toBe(true)
     wrapper.unmount()
   })
+  it('invalidates the briefing when the added reserve changes', async () => {
+    const input = source()
+    input.energy = { inputKey: 'reserve-0', reason: null, reserveReason: null, reserveWarning: null, enduranceReason: null, warning: null, rows: [{ label: 'Pilot-added reserve duration', value: '0 min' }] }
+    const wrapper = mount(MbPrintPreview, { props: { source: input }, attachTo: document.body })
+    await wrapper.get('button').trigger('click')
+    expect(document.body.textContent).toContain('0 min [UNVERIFIED]')
+    input.energy = { ...input.energy, inputKey: 'reserve-15' }
+    window.dispatchEvent(new Event('beforeprint'))
+    expect(document.querySelector('.mb-print-root')?.getAttribute('data-print-invalid')).toBe('true')
+    await nextTick()
+    expect(document.body.textContent).not.toContain('0 min [UNVERIFIED]')
+    wrapper.unmount()
+  })
   it('attaches the energy reserve warning to remaining energy and margin only', async () => {
     const input = source()
-    input.energy = { inputKey: 'energy', reason: null, enduranceReason: null, warning: 'Remaining energy below reserve.', rows: [{ label: 'Estimated remaining energy', value: '1 kWh' }, { label: 'Difference to reserve floor', value: '-1 kWh' }, { label: 'Reserve floor', value: '2 kWh' }] }
+    input.energy = { inputKey: 'energy', reason: null, reserveReason: null, reserveWarning: null, enduranceReason: null, warning: 'Remaining energy below reserve.', rows: [{ label: 'Estimated remaining energy', value: '1 kWh' }, { label: 'Difference to reserve floor', value: '-1 kWh' }, { label: 'Reserve floor', value: '2 kWh' }] }
     const wrapper = mount(MbPrintPreview, { props: { source: input }, attachTo: document.body })
     await wrapper.get('button').trigger('click')
     const rows = [...document.querySelectorAll('tr')]

@@ -197,10 +197,12 @@ onBeforeUnmount(() => {
           </section>
           <section v-if="currentSnapshot.energy" aria-label="Estimated energy budget">
             <h2>Estimated energy budget</h2>
-            <p>Manual estimate assumes constant pilot-entered consumption. Verify against the aircraft POH/AFM; this does not determine flight suitability. Battery use does not change aircraft mass.</p>
+            <p>Manual estimate assumes constant pilot-entered consumption. Verify against the aircraft POH/AFM; this does not determine flight suitability. The pilot-added reserve is separate from the aircraft profile reserve floor; no regulatory reserve is assumed. Battery use does not change aircraft mass.</p>
             <p v-if="currentSnapshot.energy.enduranceReason">Endurance estimate unavailable: {{ currentSnapshot.energy.enduranceReason }}</p>
             <p v-if="currentSnapshot.energy.reason">Energy budget unavailable: {{ currentSnapshot.energy.reason }}</p>
+            <p v-if="currentSnapshot.energy.reserveReason">Added reserve budget unavailable: {{ currentSnapshot.energy.reserveReason }}</p>
             <table v-if="currentSnapshot.energy.rows.length"><tbody><tr v-for="row in currentSnapshot.energy.rows" :key="row.label"><td>{{ row.label }}</td><td :class="{ 'briefing-warning': currentSnapshot.energy.warning && ['Estimated remaining energy', 'Difference to reserve floor'].includes(row.label) }">{{ row.value }}<p v-if="currentSnapshot.energy.warning && ['Estimated remaining energy', 'Difference to reserve floor'].includes(row.label)">{{ warningText(currentSnapshot.energy.warning) }}</p></td></tr></tbody></table>
+            <p v-if="currentSnapshot.energy.reserveWarning">{{ warningText(currentSnapshot.energy.reserveWarning) }}</p>
             <p v-if="currentSnapshot.energy.warning">{{ warningText(currentSnapshot.energy.warning) }}</p>
           </section>
           <section v-if="currentSnapshot.fuel" aria-label="Current fuel plan and estimated trip arrival">
