@@ -1,7 +1,7 @@
 import { computed, reactive, ref, shallowRef, watch } from 'vue'
 import type { AircraftProfile } from '@/core/adapters/aircraft.schema'
 import { assessCorrectionSources, OPERATIONS, profileFacts, type ManualConfiguration, type Operation, type RunwayFacts } from '@/core/logic/performance.correction-sources'
-import { daysToDeclaredEffect, daysToDeclaredExpiry, normalizeManualRunway, runwayFreshness, SURFACE_CONDITIONS } from '@/core/logic/manual-runway'
+import { daysToDeclaredEffect, daysToDeclaredExpiry, normalizeManualRunway, runwayFreshness, SURFACE_CONDITIONS, validateManualRunway } from '@/core/logic/manual-runway'
 import { useManualRunwayStore } from '@/modules/airport/stores/manual-runway.store'
 import { useLoadedUnitPreferences } from '@/modules/performance/stores/unit-preferences.store'
 import { plainCopy, useDemoScratch } from '@/shared/composables/useDemoScratch'
@@ -127,7 +127,9 @@ export function usePerformanceStep(context: () => PerformanceStepContext) {
       if (!runway.hasUnsavedChanges && !effectiveDate && !expiryDate && !runway.draft.aerodrome.trim() && !runway.draft.designator.trim()) return { status: 'unavailable', reason }
       const selected = runwayFreshness(runway.draft, runway.assessmentDate)
       const device = runwayFreshness(runway.draft, runway.today)
-      return { status: 'unavailable', reason: `${reason} Unsaved source: ${source.trim() || 'Unknown'} (user-declared, unverified); effective: ${effectiveDate || 'Unknown'}; expiry (inclusive): ${expiryDate || 'Unknown'}. Unsaved declaration date check: ${runway.assessmentDate || 'Invalid date'}: ${selected}; device date ${runway.today}: ${device}. Pilot-declared dates only; source currency is unverified and NOTAM/SUP coverage is unknown.` }
+      const validation = validateManualRunway(runway.draft)
+      const dateError = validation.status === 'invalid' ? validation.errors.effectiveDate || validation.errors.expiryDate : undefined
+      return { status: 'unavailable', reason: `${reason} Unsaved source: ${source.trim() || 'Unknown'} (user-declared, unverified); effective: ${effectiveDate || 'Unknown'}; expiry (inclusive): ${expiryDate || 'Unknown'}. Unsaved declaration date check: ${runway.assessmentDate || 'Invalid date'}: ${selected}; device date ${runway.today}: ${device}.${dateError ? ` Date check unavailable: ${dateError}` : ''} Pilot-declared dates only; source currency is unverified and NOTAM/SUP coverage is unknown.` }
     }
     const { aerodrome, designator, tora, lda, toda, fieldElevation, surface, source, effectiveDate, expiryDate } = declared.record.runway
     const condition = SURFACE_CONDITIONS[surface.type].find((option) => option.value === surface.condition)?.label ?? surface.condition
