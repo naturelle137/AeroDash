@@ -135,3 +135,7 @@ When a UTC flight time maps to the second occurrence of a repeated local time, t
 ### REQ-WX-027: Model gust forecast
 
 When a global model gust forecast is available for the selected hour, the system shall show the maximum gust for the preceding hour without applying it to calculations.
+
+### REQ-WX-028: Model precipitation probability
+
+When a global model precipitation probability is available for the selected hour, the system shall show the probability for the preceding hour without determining runway conditions.
