@@ -227,3 +227,7 @@ When a global model wind at the 925 hPa pressure level is available for the sele
 ### REQ-WX-050: Model 600 hPa wind
 
 When a global model wind at the 600 hPa pressure level is available for the selected hour, the system shall show it in knots and true degrees, with the model geopotential height where available, as model data without applying it to calculations.
+
+### REQ-WX-051: Model 800 hPa wind
+
+When a global model wind at the 800 hPa pressure level is available for the selected hour, the system shall show it in knots and true degrees, with the model geopotential height where available, as model data without applying it to calculations.
