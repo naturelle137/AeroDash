@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Show global model total precipitation for the preceding hour.
+
+- Show the global model dew point for the selected hour.
+
+- Show the global model total cloud cover and visibility for the selected hour.
+
+- Show the global model precipitation probability for the preceding hour.
+
+- Show the global model forecast maximum gust for the preceding hour.
+
+- Cover malformed, failed, outdated and offline forecast retrieval with component and Chromium tests.
+
+### Documentation
+
+- Record the forecast QNH source recheck: no eligible browser-accessible source exists (rechecked 26 November 2026).
+
+### Fixed
+
+- Check US forecast hours in UTC in every device time zone.
+- Reject ambiguous duplicate forecast times and invalid global calendar dates.
+- Keep concurrent US and global forecast requests independent.
+
 ### Fixed
 
 - Match TAF and model forecasts to the selected flight time and location before identifying METAR fallbacks.
@@ -31,6 +55,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Retain the US forecast source fetch time with applied weather values.
+
+- Show requested and model grid coordinates for global forecasts and retain both in applied provenance.
+- Allow UTC flight-time entry for forecast selection.
 - Copy pilot-declared UTC QNH source and validity times into local time fields.
 
 - Explain why a declared forecast QNH validity interval cannot be applied.

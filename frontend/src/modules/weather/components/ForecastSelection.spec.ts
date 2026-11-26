@@ -243,3 +243,170 @@ it('copies UTC QNH times without changing the represented instant', async () => 
   expect(new Date((label('QNH valid from').element as HTMLInputElement).value).toISOString()).toBe('2030-06-01T12:00:00.000Z')
   view.unmount()
 })
+
+it('selects a UTC flight time and clears entries when it changes', async () => {
+  const view = mount(ForecastSelection)
+  const label = (name: string) => view.findAll('label').find(item => item.text().includes(name))!.get('input')
+  await label('Flight date and time in UTC').setValue('2099-06-01T12:00')
+  await view.findAll('button').find(item => item.text() === 'Use UTC flight time')!.trigger('click')
+  expect(new Date((label('Local date and time').element as HTMLInputElement).value).toISOString()).toBe('2099-06-01T12:00:00.000Z')
+  await label('Forecast QNH').setValue('1013')
+  await label('Flight date and time in UTC').setValue('2099-06-01T13:00')
+  await view.findAll('button').find(item => item.text() === 'Use UTC flight time')!.trigger('click')
+  expect((label('Forecast QNH').element as HTMLInputElement).value).toBe('')
+  view.unmount()
+})
+
+it('keeps independent requests and rejects obsolete responses', async () => {
+  vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(true)
+  const responses: ((value: unknown) => void)[] = []
+  vi.stubGlobal('fetch', vi.fn(() => new Promise(resolve => responses.push(resolve))))
+  const view = mount(ForecastSelection)
+  const input = (name: string) => view.findAll('label').find(item => item.text().includes(name))!.get('input')
+  const button = (name: string) => view.findAll('button').find(item => item.text() === name)!
+  await input('Location').setValue('KDFW')
+  await input('Flight date and time in UTC').setValue('2099-06-01T12:00')
+  await button('Use UTC flight time').trigger('click')
+  await input('Latitude').setValue('32')
+  await input('Longitude').setValue('-97')
+  await button('Retrieve US forecast').trigger('click')
+  await button('Retrieve global model forecast').trigger('click')
+  const us = { airportIdent: 'KDFW', freshness: { forecastFetchedAt: new Date().toISOString(), stale: false }, hourly: [{ time: '2099-06-01T12:00:00Z', tempF: 68, windDir: 'N', windSpeedKt: 10 }] }
+  const global = { latitude: 32, longitude: -97, utc_offset_seconds: 0, hourly_units: { time: 'iso8601', temperature_2m: '°C', dew_point_2m: '°C', wind_speed_10m: 'kn', wind_direction_10m: '°', wind_gusts_10m: 'kn', precipitation: 'mm', precipitation_probability: '%', cloud_cover: '%', visibility: 'm' }, hourly: { time: ['2099-06-01T12:00'], temperature_2m: [12], dew_point_2m: [8], wind_speed_10m: [10], wind_direction_10m: [180], wind_gusts_10m: [18], precipitation: [1.2], precipitation_probability: [40], cloud_cover: [75], visibility: [9000] } }
+  responses[0]!({ ok: true, json: async () => us })
+  responses[1]!({ ok: true, json: async () => global })
+  await vi.waitFor(() => expect(view.text()).toContain('Requested coordinates: 32, -97'))
+  expect(view.text()).toContain('Temperature: 20 °C')
+  expect(view.text()).toContain('Model dew point at 2 m: 8 °C. This is not an observation and is not applied to calculations.')
+  expect(view.text()).toContain('Model gust maximum during the preceding hour: 18 kt. Gusts are not applied to calculations.')
+  await button('Retrieve US forecast').trigger('click')
+  await input('Latitude').setValue('33')
+  responses[2]!({ ok: true, json: async () => us })
+  await vi.waitFor(() => expect(view.text()).toContain('Temperature: 20 °C'))
+  await button('Retrieve global model forecast').trigger('click')
+  await input('Location').setValue('KJFK')
+  responses[3]!({ ok: true, json: async () => global })
+  await vi.waitFor(() => expect(view.text()).not.toContain('Requested coordinates:'))
+  expect(view.text()).toContain('Selection changed; retrieve the forecast again.')
+  view.unmount()
+  vi.unstubAllGlobals()
+})
+
+async function prepare(response: unknown) {
+  vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(true)
+  vi.stubGlobal('fetch', vi.fn().mockResolvedValue(response))
+  const view = mount(ForecastSelection)
+  const input = (name: string) => view.findAll('label').find(item => item.text().includes(name))!.get('input')
+  const button = (name: string) => view.findAll('button').find(item => item.text() === name)!
+  await input('Location').setValue('KDFW')
+  await input('Flight date and time in UTC').setValue('2099-06-01T12:00')
+  await button('Use UTC flight time').trigger('click')
+  await input('Latitude').setValue('32')
+  await input('Longitude').setValue('-97')
+  return { view, button }
+}
+
+it.each([
+  ['US', 'Retrieve US forecast'],
+  ['global', 'Retrieve global model forecast'],
+])('reports a malformed %s forecast response without showing values', async (_name, label) => {
+  const { view, button } = await prepare({ ok: true, json: async () => ({ unexpected: true }) })
+  await button(label).trigger('click')
+  await vi.waitFor(() => expect(view.text()).toContain('Malformed forecast response.'))
+  expect(view.text()).not.toContain('Replace wind with')
+  view.unmount()
+  vi.unstubAllGlobals()
+})
+
+it.each([
+  ['Retrieve US forecast', { ok: false }],
+  ['Retrieve global model forecast', { ok: false }],
+])('reports an unavailable service for %s', async (label, response) => {
+  const { view, button } = await prepare(response)
+  await button(label).trigger('click')
+  await vi.waitFor(() => expect(view.text()).toContain('Forecast retrieval failed or is unavailable.'))
+  view.unmount()
+  vi.unstubAllGlobals()
+})
+
+it('shows source, validity and retrieval time and offers no forecast QNH', async () => {
+  const us = { airportIdent: 'KDFW', freshness: { forecastFetchedAt: new Date().toISOString(), stale: false }, hourly: [{ time: '2099-06-01T12:00:00Z', tempF: 68, windDir: 'N', windSpeedKt: 10 }] }
+  const { view, button } = await prepare({ ok: true, json: async () => us })
+  await button('Retrieve US forecast').trigger('click')
+  await vi.waitFor(() => expect(view.text()).toContain('Forecast hour: 2099-06-01T12:00:00.000Z'))
+  expect(view.text()).toContain('NWS via')
+  expect(view.text()).toContain('Source fetched:')
+  expect(view.text()).toContain('Retrieved:')
+  expect(view.text()).toContain('Forecast QNH: unavailable')
+  expect(view.text()).not.toContain('OUTDATED')
+  await button('Replace temperature with retrieved forecast').trigger('click')
+  expect(view.emitted('apply')?.[0]?.[2]).toContain(`source fetched ${us.freshness.forecastFetchedAt}`)
+  expect(view.emitted('apply')?.[0]?.[2]).toContain('source fetch time is not forecast issue time')
+  view.unmount()
+  vi.unstubAllGlobals()
+})
+
+it('disables retrieval offline and keeps manual entries', async () => {
+  vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(false)
+  const view = mount(ForecastSelection)
+  await view.get('input[type="text"]').setValue('KDFW')
+  for (const name of ['Retrieve US forecast', 'Retrieve global model forecast']) {
+    expect(view.findAll('button').find(item => item.text() === name)!.attributes('disabled')).toBeDefined()
+  }
+  expect(view.text()).toContain('Browser offline: forecast retrieval is unavailable.')
+  expect((view.get('input[type="text"]').element as HTMLInputElement).value).toBe('KDFW')
+  view.unmount()
+})
+
+it('names the specific reason a forecast cannot be requested', async () => {
+  vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(true)
+  const fetchMock = vi.fn<() => void>()
+  vi.stubGlobal('fetch', fetchMock)
+  const view = mount(ForecastSelection)
+  const input = (name: string) => view.findAll('label').find(item => item.text().includes(name))!.get('input')
+  const button = (name: string) => view.findAll('button').find(item => item.text() === name)!
+  const status = () => view.text()
+  await button('Retrieve global model forecast').trigger('click')
+  expect(status()).toContain('Enter a location.')
+  await input('Location').setValue('KDFW')
+  await input('Flight date and time in UTC').setValue('2099-06-01T12:00')
+  await button('Use UTC flight time').trigger('click')
+  await button('Retrieve global model forecast').trigger('click')
+  expect(status()).toContain('Enter a latitude from -90 to 90.')
+  await input('Latitude').setValue('32')
+  await button('Retrieve global model forecast').trigger('click')
+  expect(status()).toContain('Enter a longitude from -180 to 180.')
+  await input('Location').setValue('KDF')
+  await button('Retrieve US forecast').trigger('click')
+  expect(status()).toContain('Enter a four-letter ICAO station.')
+  await input('Location').setValue('KDFW')
+  await input('Flight date and time in UTC').setValue('2000-06-01T12:00')
+  await button('Use UTC flight time').trigger('click')
+  await button('Retrieve US forecast').trigger('click')
+  expect(status()).toContain('The selected flight time has passed')
+  expect(fetchMock).not.toHaveBeenCalled()
+  view.unmount()
+  vi.unstubAllGlobals()
+})
+
+it('checks the US forecast hour in UTC when the device has a half-hour offset', async () => {
+  vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(true)
+  const fetchMock = vi.fn<() => Promise<{ ok: boolean }>>().mockResolvedValue({ ok: false })
+  vi.stubGlobal('fetch', fetchMock)
+  const view = mount(ForecastSelection)
+  const input = (name: string) => view.findAll('label').find(item => item.text().includes(name))!.get('input')
+  const button = (name: string) => view.findAll('button').find(item => item.text() === name)!
+  await input('Location').setValue('KDFW')
+  await input('Flight date and time in UTC').setValue('2099-06-01T12:00')
+  await button('Use UTC flight time').trigger('click')
+  vi.spyOn(Date.prototype, 'getMinutes').mockReturnValue(30)
+  await button('Retrieve US forecast').trigger('click')
+  expect(fetchMock).toHaveBeenCalledOnce()
+  await input('Flight date and time in UTC').setValue('2099-06-01T12:30')
+  await button('Use UTC flight time').trigger('click')
+  await button('Retrieve US forecast').trigger('click')
+  expect(fetchMock).toHaveBeenCalledOnce()
+  expect(view.text()).toContain('The US forecast covers exact UTC hours only')
+  view.unmount()
+  vi.unstubAllGlobals()
+})

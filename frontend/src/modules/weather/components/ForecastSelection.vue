@@ -9,6 +9,8 @@ const emit = defineEmits<{ apply: [field: keyof MetarValues, values: MetarValues
 const phase = ref('departure')
 const location = ref('')
 const time = ref('')
+const flightUtcTime = ref('')
+const flightUtcMessage = ref('')
 const temperature = ref('')
 const qnhUnit = ref<'hPa' | 'inHg'>('hPa')
 const qnhInput = ref<HTMLInputElement | null>(null)
@@ -34,13 +36,14 @@ const forecastMessage = ref('Select a US ICAO station and an exact hour to retri
 const retrieved = ref('')
 const latitude = ref('')
 const longitude = ref('')
-const globalForecast = ref<MetarValues | null>(null)
+const globalForecast = ref<ReturnType<typeof parseGlobalForecast>>(null)
 const globalRetrieved = ref('')
 const globalSource = ref<'global' | 'dwd'>('global')
 const globalMessage = ref('Enter coordinates and a future exact UTC forecast hour.')
 const now = ref(Date.now())
-let request = 0
-const refresh = () => { now.value = Date.now(); online.value = navigator.onLine; if (!online.value) { request++; forecast.value = null; globalForecast.value = null } }
+let forecastRequest = 0
+let globalRequest = 0
+const refresh = () => { now.value = Date.now(); online.value = navigator.onLine; if (!online.value) { forecastRequest++; globalRequest++; forecast.value = null; globalForecast.value = null; forecastMessage.value = 'Connection lost; retrieve the forecast again.'; globalMessage.value = 'Connection lost; retrieve the forecast again.' } }
 let timer: ReturnType<typeof setInterval>
 onMounted(() => {
   timer = setInterval(refresh, 1000)
@@ -56,11 +59,13 @@ onBeforeUnmount(() => {
   window.removeEventListener('pageshow', refresh)
 })
 watch([phase, location, time], () => {
+  flightUtcMessage.value = ''
   temperature.value = ''; clearQnh(); qnhUtcTime.value = ''; qnhUtcMessage.value = ''; direction.value = ''; speed.value = ''
-  request++; forecast.value = null; forecastMessage.value = 'Selection changed; retrieve the forecast again.'
+  forecastRequest++; globalRequest++; forecast.value = null; forecastMessage.value = 'Selection changed; retrieve the forecast again.'
   globalForecast.value = null; globalMessage.value = 'Selection changed; retrieve the forecast again.'
 }, { flush: 'sync' })
-watch([latitude, longitude], () => { request++; globalForecast.value = null; globalMessage.value = 'Coordinates changed; retrieve the forecast again.' }, { flush: 'sync' })
+watch(flightUtcTime, () => { flightUtcMessage.value = '' })
+watch([latitude, longitude], () => { globalRequest++; globalForecast.value = null; globalMessage.value = 'Coordinates changed; retrieve the forecast again.' }, { flush: 'sync' })
 const numberIn = (value: string, min: number, max: number) => value.trim() !== '' && Number.isFinite(Number(value)) && Number(value) >= min && Number(value) <= max
 const validLocalTime = (value: string) => {
   const date = new Date(value)
@@ -81,6 +86,12 @@ const ambiguousQnhTimes = computed(() => [qnhSourceTime.value, qnhValidFrom.valu
 watch(time, () => { confirmFlightTime.value = false }, { flush: 'sync' })
 watch([time, qnhUnit, qnhSourceTime, qnhValidFrom, qnhValidTo], () => { confirmQnhTimes.value = false }, { flush: 'sync' })
 const selectionValid = computed(() => location.value.trim() !== '' && validLocalTime(time.value) && (!ambiguousFlightTime.value || confirmFlightTime.value) && Date.parse(time.value) > now.value)
+function selectionProblem(): string {
+  if (location.value.trim() === '') return 'Enter a location.'
+  if (!validLocalTime(time.value)) return 'Enter a valid flight time that exists in the device time zone.'
+  if (ambiguousFlightTime.value && !confirmFlightTime.value) return 'Confirm the UTC interpretation of the repeated local time.'
+  return Date.parse(time.value) > now.value ? '' : 'The selected flight time has passed; choose a future time.'
+}
 const stale = computed(() => !!forecast.value && (forecast.value.stale || Date.parse(forecast.value.valid) <= now.value || now.value - Date.parse(forecast.value.fetched) > 4 * 60 * 60 * 1000))
 const qnhSourceAge = computed(() => {
   const minutes = Math.floor((now.value - Date.parse(qnhSourceTime.value)) / 60000)
@@ -112,46 +123,44 @@ const values = computed<MetarValues>(() => {
 async function retrieve(): Promise<void> {
   const station = location.value.trim().toUpperCase()
   const selected = Date.parse(time.value)
-  if (!online.value || !/^[A-Z]{4}$/.test(station) || !selectionValid.value || new Date(selected).getMinutes() !== 0) {
-    forecastMessage.value = 'Enter a four-letter ICAO station and a future exact hour in device local time.'; return
-  }
-  const current = ++request
+  const problem = !online.value ? 'You are offline; retrieval needs a connection.' : !/^[A-Z]{4}$/.test(station) ? 'Enter a four-letter ICAO station.' : selectionProblem() || (selected % 3600000 !== 0 ? 'The US forecast covers exact UTC hours only; check the selected UTC time.' : '')
+  if (problem) { forecastMessage.value = problem; return }
+  const current = ++forecastRequest
   forecast.value = null
   forecastMessage.value = 'Retrieving forecast…'
   try {
     const response = await fetch(`https://wxdecoder.com/api/airports/${station.toLowerCase()}/weather/forecast`, { credentials: 'omit' })
     if (!response.ok) throw new Error('unavailable')
     const data: unknown = await response.json()
-    if (current !== request) return
+    if (current !== forecastRequest) return
     const now = Date.now()
     forecast.value = parseForecast(data, station, selected, now)
     retrieved.value = new Date(now).toISOString()
     forecastMessage.value = forecast.value ? (forecast.value.stale ? 'Outdated forecast; obtain current weather.' : 'Forecast retrieved; verify with an authorised source.') : 'No forecast available for this station and hour; coverage is limited to US airports.'
   } catch (error) {
-    if (current !== request) return
+    if (current !== forecastRequest) return
     forecastMessage.value = error instanceof SyntaxError || (error instanceof Error && error.message === 'malformed') ? 'Malformed forecast response.' : 'Forecast retrieval failed or is unavailable.'
   }
 }
 async function retrieveGlobal(source: 'global' | 'dwd'): Promise<void> {
   const selected = Date.parse(time.value)
-  if (!online.value || !selectionValid.value || selected % 3600000 !== 0 || !numberIn(latitude.value, -90, 90) || !numberIn(longitude.value, -180, 180)) {
-    globalMessage.value = 'Enter valid coordinates, a location and a future time matching an exact UTC hour.'; return
-  }
-  const current = ++request
+  const problem = !online.value ? 'You are offline; retrieval needs a connection.' : selectionProblem() || (selected % 3600000 !== 0 ? 'The model forecast covers exact UTC hours only; the selected time is not on a UTC hour (some time zones use :30 or :45 offsets).' : !numberIn(latitude.value, -90, 90) ? 'Enter a latitude from -90 to 90.' : !numberIn(longitude.value, -180, 180) ? 'Enter a longitude from -180 to 180.' : '')
+  if (problem) { globalMessage.value = problem; return }
+  const current = ++globalRequest
   globalForecast.value = null
   globalSource.value = source
   globalMessage.value = 'Retrieving forecast…'
-  const params = new URLSearchParams({ latitude: latitude.value, longitude: longitude.value, hourly: 'temperature_2m,wind_speed_10m,wind_direction_10m', wind_speed_unit: 'kn', timezone: 'GMT', forecast_days: source === 'dwd' ? '7' : '16' })
+  const params = new URLSearchParams({ latitude: latitude.value, longitude: longitude.value, hourly: 'temperature_2m,dew_point_2m,wind_speed_10m,wind_direction_10m,wind_gusts_10m,precipitation,precipitation_probability,cloud_cover,visibility', wind_speed_unit: 'kn', timezone: 'GMT', forecast_days: source === 'dwd' ? '7' : '16' })
   try {
     const response = await fetch(`https://api.open-meteo.com/v1/${source === 'dwd' ? 'dwd-icon' : 'forecast'}?${params}`, { credentials: 'omit', cache: 'no-store', referrerPolicy: 'no-referrer' })
     if (!response.ok) throw new Error('unavailable')
     const data: unknown = await response.json()
-    if (current !== request) return
+    if (current !== globalRequest) return
     globalForecast.value = parseGlobalForecast(data, selected)
     globalRetrieved.value = new Date().toISOString()
     globalMessage.value = globalForecast.value ? 'Forecast retrieved; model issue time is unavailable. Verify with an authorised source.' : 'No forecast available for the selected hour.'
   } catch (error) {
-    if (current !== request) return
+    if (current !== globalRequest) return
     globalMessage.value = error instanceof SyntaxError || (error instanceof Error && error.message === 'malformed') ? 'Malformed forecast response.' : 'Forecast retrieval failed or is unavailable.'
   }
 }
@@ -159,19 +168,28 @@ const globalStale = computed(() => !!globalForecast.value && (Date.parse(time.va
 watch([selectionValid, location, time, forecast, stale, globalForecast, globalStale, globalRetrieved, online], () => {
   emit('selection', selectionValid.value && online.value ? {
     location: location.value.trim().toUpperCase(), time: Date.parse(time.value),
-    forecast: { ...(!stale.value ? forecast.value?.values : {}), ...(!globalStale.value ? globalForecast.value : {}) },
+    forecast: { ...(!stale.value ? forecast.value?.values : {}), ...(!globalStale.value ? globalForecast.value?.values : {}) },
   } : null)
 }, { immediate: true, flush: 'sync' })
 function applyGlobal(field: 'temperature' | 'wind'): void {
-  if (!online.value || !selectionValid.value || !globalForecast.value || !globalForecast.value[field] || globalStale.value || Date.parse(time.value) <= Date.now() || Date.now() - Date.parse(globalRetrieved.value) > 4 * 60 * 60 * 1000) return
-  emit('apply', field, globalForecast.value, `Open-Meteo ${globalSource.value === 'dwd' ? 'DWD ICON forecast' : 'model forecast'} for ${location.value.trim()} (${latitude.value}, ${longitude.value}), valid ${new Date(time.value).toISOString()}, retrieved ${globalRetrieved.value}; model issue time unavailable`)
-
+  if (!online.value || !selectionValid.value || !globalForecast.value || !globalForecast.value.values[field] || globalStale.value || Date.parse(time.value) <= Date.now() || Date.now() - Date.parse(globalRetrieved.value) > 4 * 60 * 60 * 1000) return
+  emit('apply', field, globalForecast.value.values, `Open-Meteo ${globalSource.value === 'dwd' ? 'DWD ICON forecast' : 'model forecast'} for ${location.value.trim()} (requested ${latitude.value}, ${longitude.value}; model grid ${globalForecast.value.latitude}, ${globalForecast.value.longitude}), valid ${new Date(time.value).toISOString()}, retrieved ${globalRetrieved.value}; model issue time unavailable`)
 }
 
 function applyRetrieved(field: 'temperature' | 'wind'): void {
   const current = forecast.value
   if (!online.value || !selectionValid.value || !current || current.stale || Date.parse(current.valid) <= Date.now() || Date.now() - Date.parse(current.fetched) > 4 * 60 * 60 * 1000 || !current.values[field]) return
-  emit('apply', field, current.values, `NWS forecast via wxdecoder.com for ${location.value.trim().toUpperCase()}, valid ${current.valid}, retrieved ${retrieved.value}`)
+  emit('apply', field, current.values, `NWS forecast via wxdecoder.com for ${location.value.trim().toUpperCase()}, valid ${current.valid}, source fetched ${current.fetched}, retrieved ${retrieved.value}; source fetch time is not forecast issue time`)
+}
+
+function useFlightUtcTime(): void {
+  const instant = Date.parse(`${flightUtcTime.value}Z`)
+  if (!flightUtcTime.value || !Number.isFinite(instant)) { flightUtcMessage.value = 'Enter a valid UTC date and time.'; return }
+  const local = new Date(instant)
+  const value = new Date(instant - local.getTimezoneOffset() * 60000).toISOString().slice(0, 16)
+  if (Date.parse(value) !== instant) { flightUtcMessage.value = 'This UTC time is the second occurrence of a repeated local time and cannot be represented here.'; return }
+  time.value = value
+  flightUtcMessage.value = `Selected ${flightUtcTime.value.replace('T', ' ')} UTC as ${value.replace('T', ' ')} device local time.`
 }
 
 function useQnhUtcTime(field: 'sourceTime' | 'validFrom' | 'validTo'): void {
@@ -216,6 +234,10 @@ function apply(field: keyof MetarValues): void {
         <input v-model="time" type="datetime-local" />
       </label>
     </div>
+    <label>Flight date and time in UTC<input v-model="flightUtcTime" type="datetime-local" /></label>
+    <button type="button" @click="useFlightUtcTime">Use UTC flight time</button>
+    <p>Changing the flight time clears pilot-entered forecast values.</p>
+    <p aria-live="polite">{{ flightUtcMessage }}</p>
     <label v-if="ambiguousFlightTime"><input v-model="confirmFlightTime" type="checkbox" /> This flight time occurs twice during a clock change. The browser uses {{ new Date(time).toISOString() }}; I checked this UTC time.</label>
     <button type="button" :disabled="!online || (ambiguousFlightTime && !confirmFlightTime)" @click="retrieve">Retrieve US forecast</button>
     <p role="status" aria-live="polite">{{ online ? forecastMessage : 'Browser offline: forecast retrieval is unavailable.' }}</p>
@@ -239,11 +261,15 @@ function apply(field: keyof MetarValues): void {
     <div v-if="globalForecast">
       <p>Weather data by <a href="https://open-meteo.com/">Open-Meteo</a> · <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a> · Model values presented without conversion.</p>
       <p>{{ globalSource === 'dwd' ? 'DWD ICON' : 'Global model' }} forecast hour: {{ new Date(time).toISOString() }} · Retrieved: {{ globalRetrieved }} · Model issue time: unavailable{{ globalStale ? ' · OUTDATED' : '' }}</p>
-      <p>Temperature: {{ globalForecast.temperature ?? 'unavailable' }} °C · Wind: {{ globalForecast.wind ? `${globalForecast.wind.direction || 'calm'}° true / ${globalForecast.wind.speed} kt` : 'unavailable' }} · Forecast QNH: unavailable.</p>
-
-      <button type="button" :disabled="!selectionValid || globalStale || !globalForecast.temperature" @click="applyGlobal('temperature')">Replace temperature with {{ globalSource === 'dwd' ? 'DWD ICON' : 'global' }} forecast</button>
-      <button type="button" :disabled="!selectionValid || globalStale || !globalForecast.wind" @click="applyGlobal('wind')">Replace wind with {{ globalSource === 'dwd' ? 'DWD ICON' : 'global' }} forecast</button>
-
+      <p>Requested coordinates: {{ latitude }}, {{ longitude }} · Model grid coordinates: {{ globalForecast.latitude }}, {{ globalForecast.longitude }}. Grid location may differ from the selected location.</p>
+      <p>Temperature: {{ globalForecast.values.temperature ?? 'unavailable' }} °C · Wind: {{ globalForecast.values.wind ? `${globalForecast.values.wind.direction || 'calm'}° true / ${globalForecast.values.wind.speed} kt` : 'unavailable' }} · Forecast QNH: unavailable.</p>
+      <p>Model total precipitation in the preceding hour: {{ globalForecast.precipitation === null ? 'unavailable' : `${globalForecast.precipitation} mm` }} (rain, showers and snow water equivalent). This is not a runway condition and is not applied to calculations.</p>
+      <p>Model dew point at 2 m: {{ globalForecast.dewPoint === null ? 'unavailable' : `${globalForecast.dewPoint} °C` }}. This is not an observation and is not applied to calculations.</p>
+      <p>Model probability of more than 0.1 mm precipitation during the preceding hour: {{ globalForecast.precipitationProbability === null ? 'unavailable' : `${globalForecast.precipitationProbability}%` }}. This does not establish runway conditions.</p>
+      <p>Model total cloud cover: {{ globalForecast.cloudCover === null ? 'unavailable' : `${globalForecast.cloudCover}%` }} · Model visibility: {{ globalForecast.visibility === null ? 'unavailable' : `${globalForecast.visibility} m` }}. These are not ceiling, METAR or TAF values and are not applied to calculations.</p>
+      <p>Model gust maximum during the preceding hour: {{ globalForecast.gust === null ? 'unavailable' : `${globalForecast.gust} kt` }}. Gusts are not applied to calculations.</p>
+      <button type="button" :disabled="!selectionValid || globalStale || !globalForecast.values.temperature" @click="applyGlobal('temperature')">Replace temperature with {{ globalSource === 'dwd' ? 'DWD ICON' : 'global' }} forecast</button>
+      <button type="button" :disabled="!selectionValid || globalStale || !globalForecast.values.wind" @click="applyGlobal('wind')">Replace wind with {{ globalSource === 'dwd' ? 'DWD ICON' : 'global' }} forecast</button>
     </div>
     <p>For education and situational awareness only, not an official briefing or go/no-go authority. Obtain required weather from an authorised source.</p>
     <p>Forecast QNH is unavailable from these services. Obtain aviation QNH from an authorised source and enter it below; do not substitute model sea-level pressure. Wind direction is true; gusts are not applied. Values require a future time and are applied only when selected.</p>

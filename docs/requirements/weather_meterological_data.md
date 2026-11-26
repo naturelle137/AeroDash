@@ -124,14 +124,42 @@ When the pilot copies a representable UTC time to a QNH source or validity field
 
 When a UTC time maps to the second occurrence of a repeated local time, the system shall reject copying it to a QNH time field.
 
-### REQ-WX-027: DWD model forecast
+### REQ-WX-027: UTC flight time entry
+
+When the pilot selects a representable UTC flight time, the system shall convert it to device-local time.
+
+### REQ-WX-028: Unrepresentable UTC flight time
+
+When a UTC flight time maps to the second occurrence of a repeated local time, the system shall reject it.
+
+### REQ-WX-027: Model gust forecast
+
+When a global model gust forecast is available for the selected hour, the system shall show the maximum gust for the preceding hour without applying it to calculations.
+
+### REQ-WX-028: Model precipitation probability
+
+When a global model precipitation probability is available for the selected hour, the system shall show the probability for the preceding hour without determining runway conditions.
+
+### REQ-WX-029: Model cloud cover and visibility
+
+When global model cloud cover or visibility is available for the selected hour, the system shall show it as model data without applying it to calculations.
+
+### REQ-WX-030: Model dew point
+
+When global model dew point is available for the selected hour, the system shall show it as model data without applying it to calculations.
+
+### REQ-WX-031: Model precipitation amount
+
+When a global model precipitation amount is available for the selected hour, the system shall show the total for the preceding hour without applying it to calculations.
+
+### REQ-WX-032: DWD model forecast
 
 When the pilot requests DWD model weather for valid coordinates and a future forecast hour, the system shall offer available temperature and wind values with their source and retrieval time.
 
-### REQ-WX-028: TAF wind
+### REQ-WX-033: TAF wind
 
 While a retrieved TAF for the entered station is within its validity and defines a prevailing numeric wind, the system shall offer that wind for Flight Prep with the TAF station, issue time and validity interval.
 
-### REQ-WX-029: Observation fallback label
+### REQ-WX-034: Observation fallback label
 
 While a METAR value is offered and no applicable forecast value exists for that parameter, the system shall label it as a METAR observation without a forecast with its station and observation time.
