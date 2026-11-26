@@ -26,7 +26,9 @@ export function loadRecentAirports(): ManualRunwayRecord[] {
 }
 
 export function saveRecentAirport(record: ManualRunwayRecord): ManualRunwayRecord[] | null {
-  const records = [record, ...loadRecentAirports().filter((item) => !sameRunway(item, record))].slice(0, 5)
+  const existing = readRecentAirports()
+  if (!existing) return null
+  const records = [record, ...existing.filter((item) => !sameRunway(item, record))].slice(0, 5)
   try {
     localStorage.setItem(RECENT_AIRPORTS_KEY, JSON.stringify(records))
     return records
