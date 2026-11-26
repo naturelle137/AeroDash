@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Show the global model boundary layer height for the selected hour.
 - Show global model low, mid and high cloud cover for the selected hour.
 
 - Show the global model weather classification for the selected hour.

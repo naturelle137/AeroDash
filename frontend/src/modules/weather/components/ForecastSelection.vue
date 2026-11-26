@@ -148,7 +148,7 @@ async function retrieveGlobal(): Promise<void> {
   const current = ++globalRequest
   globalForecast.value = null
   globalMessage.value = 'Retrieving forecast…'
-  const params = new URLSearchParams({ latitude: latitude.value, longitude: longitude.value, hourly: 'temperature_2m,dew_point_2m,wind_speed_10m,wind_direction_10m,wind_gusts_10m,precipitation,precipitation_probability,cloud_cover,visibility,freezing_level_height,cape,cloud_cover_low,cloud_cover_mid,cloud_cover_high,snowfall,pressure_msl,weather_code', wind_speed_unit: 'kn', timezone: 'GMT', forecast_days: '16' })
+  const params = new URLSearchParams({ latitude: latitude.value, longitude: longitude.value, hourly: 'temperature_2m,dew_point_2m,wind_speed_10m,wind_direction_10m,wind_gusts_10m,precipitation,precipitation_probability,cloud_cover,visibility,freezing_level_height,cape,boundary_layer_height,cloud_cover_low,cloud_cover_mid,cloud_cover_high,snowfall,pressure_msl,weather_code', wind_speed_unit: 'kn', timezone: 'GMT', forecast_days: '16' })
   try {
     const response = await fetch(`https://api.open-meteo.com/v1/forecast?${params}`, { credentials: 'omit', cache: 'no-store', referrerPolicy: 'no-referrer' })
     if (!response.ok) throw new Error('unavailable')
@@ -255,6 +255,7 @@ function apply(field: keyof MetarValues): void {
       <p>Model total precipitation in the preceding hour: {{ globalForecast.precipitation === null ? 'unavailable' : `${globalForecast.precipitation} mm` }} (rain, showers and snow water equivalent). This is not a runway condition and is not applied to calculations.</p>
       <p>Model freezing level: {{ globalForecast.freezingLevel === null ? 'unavailable' : `${globalForecast.freezingLevel} m above mean sea level` }}. This is not an icing forecast or an observation and is not applied to calculations.</p>
       <p>Model convective available potential energy (CAPE): {{ globalForecast.cape === null ? 'unavailable' : `${globalForecast.cape} J/kg` }}. It is an instantaneous model value, not a thunderstorm forecast or observation, and is not applied to calculations.</p>
+      <p>Model boundary layer height: {{ globalForecast.boundaryLayer === null ? 'unavailable' : `${globalForecast.boundaryLayer} m` }}. It is an instantaneous model value, not a turbulence or thermal forecast or observation, and is not applied to calculations.</p>
       <p>Model cloud cover by layer: low {{ globalForecast.cloudLayers.low === null ? 'unavailable' : `${globalForecast.cloudLayers.low}%` }} · mid {{ globalForecast.cloudLayers.mid === null ? 'unavailable' : `${globalForecast.cloudLayers.mid}%` }} · high {{ globalForecast.cloudLayers.high === null ? 'unavailable' : `${globalForecast.cloudLayers.high}%` }}. These are not cloud base, ceiling, METAR or TAF values and are not applied to calculations.</p>
       <p>Model snowfall in the preceding hour: {{ globalForecast.snowfall === null ? 'unavailable' : `${globalForecast.snowfall} cm` }}. It is a model value, not a runway condition or observation, and is not applied to calculations.</p>
       <p>Model weather: {{ globalForecast.weather ?? 'unavailable' }}. This is a model classification (WMO code) for the selected hour, not an observation or forecast product, and is not applied to calculations.</p>
