@@ -223,3 +223,7 @@ When displaying recent runway declarations, the system shall show the count for 
 ### REQ-AP-050: Recent device date totals
 
 While a fixed check date is selected, the system shall show the count for each declared date check against the device local date across all recent runway declarations.
+
+### REQ-AP-051: Recent device-date filter
+
+While a fixed check date is selected, the system shall let the pilot filter recent declarations by their device-date check.
