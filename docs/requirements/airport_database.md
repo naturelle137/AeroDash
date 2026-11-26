@@ -263,3 +263,7 @@ While an unsaved runway has an aerodrome or designator and no declared dates, th
 ### REQ-AP-060: Briefing unknown draft dates
 
 While an unsaved runway has an aerodrome or designator and no declared dates, the briefing shall show its unknown date checks as unverified pilot declarations.
+
+### REQ-AP-061: Briefing invalid draft dates
+
+If an unsaved runway declaration has invalid or contradictory source dates, then the briefing shall explain why its date check is unavailable.

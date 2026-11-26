@@ -87,6 +87,7 @@ it('carries the selected declared-date check into performance and invalidates it
     expect(step.presentation.value.runway).toMatchObject({ reason: expect.stringContaining('source currency is unverified and NOTAM/SUP coverage is unknown') })
     runway.draft.expiryDate = '2025-01-01'
     expect(step.presentation.value.runway).toMatchObject({ reason: expect.stringContaining('2026-11-26: unknown; device date 2027-01-01: unknown') })
+    expect(step.presentation.value.runway).toMatchObject({ reason: expect.stringContaining('Date check unavailable: Expiry must not precede the effective date.') })
     runway.draft.source = ''
     runway.draft.effectiveDate = ''
     runway.draft.expiryDate = ''
