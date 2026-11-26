@@ -171,3 +171,7 @@ When a global model snowfall is available for the selected hour, the system shal
 ### REQ-WX-036: Model sea-level pressure
 
 When a global model mean sea-level pressure is available for the selected hour, the system shall show it in hectopascals labelled as not aviation QNH without applying it to calculations.
+
+### REQ-WX-037: Model weather classification
+
+When a global model WMO weather code of a known category is available for the selected hour, the system shall show its description as model data without applying it to calculations.

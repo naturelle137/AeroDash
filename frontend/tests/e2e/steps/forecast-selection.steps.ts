@@ -96,7 +96,7 @@ Then('the retrieved forecast evidence is captured as {string}', async ({ page, $
 
 When('the pilot retrieves a synthetic global forecast', async ({ page }) => {
   const forecast = page.getByRole('region', { name: 'Time-specific forecast' })
-  await page.route('https://api.open-meteo.com/v1/forecast?*', route => route.fulfill({ json: { latitude: 50.1, longitude: 8.1, utc_offset_seconds: 0, hourly_units: { time: 'iso8601', temperature_2m: '°C', dew_point_2m: '°C', wind_speed_10m: 'kn', wind_direction_10m: '°', wind_gusts_10m: 'kn', precipitation: 'mm', precipitation_probability: '%', cloud_cover: '%', visibility: 'm', freezing_level_height: 'm', cape: 'J/kg', snowfall: 'cm', pressure_msl: 'hPa', cloud_cover_low: '%', cloud_cover_mid: '%', cloud_cover_high: '%' }, hourly: { time: ['2030-06-01T12:00'], temperature_2m: [17], dew_point_2m: [8], wind_speed_10m: [12], wind_direction_10m: [270], wind_gusts_10m: [18], precipitation: [1.2], precipitation_probability: [40], cloud_cover: [75], visibility: [9000], freezing_level_height: [2400], cape: [350], snowfall: [0.4], pressure_msl: [1013.2], cloud_cover_low: [60], cloud_cover_mid: [30], cloud_cover_high: [10] } }, headers: { 'access-control-allow-origin': '*' } }))
+  await page.route('https://api.open-meteo.com/v1/forecast?*', route => route.fulfill({ json: { latitude: 50.1, longitude: 8.1, utc_offset_seconds: 0, hourly_units: { time: 'iso8601', temperature_2m: '°C', dew_point_2m: '°C', wind_speed_10m: 'kn', wind_direction_10m: '°', wind_gusts_10m: 'kn', precipitation: 'mm', precipitation_probability: '%', cloud_cover: '%', visibility: 'm', freezing_level_height: 'm', cape: 'J/kg', snowfall: 'cm', pressure_msl: 'hPa', weather_code: 'wmo code', cloud_cover_low: '%', cloud_cover_mid: '%', cloud_cover_high: '%' }, hourly: { time: ['2030-06-01T12:00'], temperature_2m: [17], dew_point_2m: [8], wind_speed_10m: [12], wind_direction_10m: [270], wind_gusts_10m: [18], precipitation: [1.2], precipitation_probability: [40], cloud_cover: [75], visibility: [9000], freezing_level_height: [2400], cape: [350], snowfall: [0.4], pressure_msl: [1013.2], weather_code: [95], cloud_cover_low: [60], cloud_cover_mid: [30], cloud_cover_high: [10] } }, headers: { 'access-control-allow-origin': '*' } }))
   const date = new Date('2030-06-01T12:00:00Z')
   const pad = (n: number) => String(n).padStart(2, '0')
   await forecast.getByLabel('Local date and time').fill(`${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`)
@@ -109,6 +109,7 @@ When('the pilot retrieves a synthetic global forecast', async ({ page }) => {
   await expect(forecast).toContainText('Model freezing level: 2400 m above mean sea level')
   await expect(forecast).toContainText('CAPE): 350 J/kg')
   await expect(forecast).toContainText('Model snowfall in the preceding hour: 0.4 cm')
+  await expect(forecast).toContainText('Model weather: thunderstorm')
   await expect(forecast).toContainText('Model mean sea-level pressure: 1013.2 hPa. This is not aviation QNH')
   await expect(forecast).toContainText('Model cloud cover by layer: low 60% · mid 30% · high 10%')
   await expect(forecast).toContainText('Model dew point at 2 m: 8 °C')
