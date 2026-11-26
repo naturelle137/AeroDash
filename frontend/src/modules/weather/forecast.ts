@@ -29,19 +29,20 @@ export function parseForecast(data: unknown, station: string, selected: number, 
   return { values, valid: new Date(row.timestamp).toISOString(), fetched: new Date(fetched).toISOString(), stale: freshness.stale || now - fetched > 4 * 60 * 60 * 1000 }
 }
 
-export function parseGlobalForecast(data: unknown, selected: number): { values: MetarValues; latitude: number; longitude: number } | null {
+export function parseGlobalForecast(data: unknown, selected: number): { values: MetarValues; gust: number | null; latitude: number; longitude: number } | null {
   if (!data || typeof data !== 'object') throw new Error('malformed')
   const d = data as Record<string, unknown>
   if (typeof d.latitude !== 'number' || !Number.isFinite(d.latitude) || d.latitude < -90 || d.latitude > 90 || typeof d.longitude !== 'number' || !Number.isFinite(d.longitude) || d.longitude < -180 || d.longitude > 180) throw new Error('malformed')
   if (d.utc_offset_seconds !== 0 || !d.hourly || typeof d.hourly !== 'object' || !d.hourly_units || typeof d.hourly_units !== 'object') throw new Error('malformed')
   const units = d.hourly_units as Record<string, unknown>
-  if (units.time !== 'iso8601' || units.temperature_2m !== '°C' || units.wind_speed_10m !== 'kn' || units.wind_direction_10m !== '°') throw new Error('malformed')
+  if (units.time !== 'iso8601' || units.temperature_2m !== '°C' || units.wind_speed_10m !== 'kn' || units.wind_direction_10m !== '°' || units.wind_gusts_10m !== 'kn') throw new Error('malformed')
   const h = d.hourly as Record<string, unknown>
   const times = h.time
   const temperatures = h.temperature_2m
   const speeds = h.wind_speed_10m
   const directions = h.wind_direction_10m
-  if (!Array.isArray(times) || !Array.isArray(temperatures) || !Array.isArray(speeds) || !Array.isArray(directions) || [temperatures, speeds, directions].some(a => a.length !== times.length)) throw new Error('malformed')
+  const gusts = h.wind_gusts_10m
+  if (!Array.isArray(times) || !Array.isArray(temperatures) || !Array.isArray(speeds) || !Array.isArray(directions) || !Array.isArray(gusts) || [temperatures, speeds, directions, gusts].some(a => a.length !== times.length)) throw new Error('malformed')
   if (times.some(t => typeof t !== 'string' || !/^\d{4}-\d\d-\d\dT\d\d:00$/.test(t) || !Number.isFinite(Date.parse(`${t}Z`)) || new Date(`${t}Z`).toISOString().slice(0, 16) !== t) || new Set(times).size !== times.length) throw new Error('malformed')
   const index = times.findIndex(t => Date.parse(`${t}Z`) === selected)
   if (index < 0) return null
@@ -51,5 +52,6 @@ export function parseGlobalForecast(data: unknown, selected: number): { values: 
   if (typeof speed === 'number' && Number.isFinite(speed) && speed >= 0 && speed <= 200 && (speed === 0 || (typeof direction === 'number' && Number.isFinite(direction) && direction >= 0 && direction <= 360))) {
     values.wind = { speed: String(speed), direction: speed === 0 ? '' : String(direction === 0 ? 360 : direction), unit: 'kt' }
   }
-  return { values, latitude: d.latitude, longitude: d.longitude }
+  const gust: unknown = gusts[index]
+  return { values, gust: typeof gust === 'number' && Number.isFinite(gust) && gust >= 0 && gust <= 200 ? gust : null, latitude: d.latitude, longitude: d.longitude }
 }

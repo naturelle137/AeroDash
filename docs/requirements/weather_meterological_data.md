@@ -131,3 +131,7 @@ When the pilot selects a representable UTC flight time, the system shall convert
 ### REQ-WX-028: Unrepresentable UTC flight time
 
 When a UTC flight time maps to the second occurrence of a repeated local time, the system shall reject it.
+
+### REQ-WX-027: Model gust forecast
+
+When a global model gust forecast is available for the selected hour, the system shall show the maximum gust for the preceding hour without applying it to calculations.
