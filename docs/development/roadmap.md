@@ -24,24 +24,19 @@ Delivered: raw table inspection [#311](https://github.com/naturelle137/AeroDash/
 
 1. Manual runway entry in Performance provides TORA/LDA, optional TODA, field elevation and explicit surface with offline edit/save/clear/reload and user-entered provenance. Supported source corrections feed runway comparisons; unsupported conditions and sources remain unavailable.
 2. #304 direct or QNH/elevation pressure altitude is delivered. Source-limited corrections, safety factors, runway margins and alerts are available for supported aircraft and conditions; the original manual and actual runway sources remain authoritative.
-3. #301 missing-distance estimation is available with visible estimated provenance; published manual distances take precedence. #420 remains open for unsupported extrapolation and acknowledgement paths; no actual-device evidence establishes its outstanding device scope. Synthetic browser tests do not substitute for device testing.
+3. #301 missing-distance estimation is available with visible estimated provenance; published manual distances take precedence. Issue [#420](https://github.com/naturelle137/AeroDash/issues/420) is closed. Its bounded extrapolation and acknowledgement behavior has synthetic software coverage; this does not establish aircraft applicability or real-device behavior.
 
 Deliveries include relevant tests, local gates, one independent review and green CI. For frontend changes, exercise the browser flow and record mobile/desktop evidence; missing evidence alone does not block delivery. A core-only PR does not complete a pilot workflow. Synthetic fixtures prove software behavior, not aviation accuracy; actual aircraft support requires applicable POH/AFM references and cases. The CEO evaluates usability, not aviation correctness.
 
-Issue #284 remains **OPEN on source hold**: this [source-contract disposition](../regulatory/airac-airport-data-contract.md)
-corrects the acceptance boundary; it does not deliver automatic airport freshness.
-HQ terminal owner 1892 owns review/integration and reassessment when a complete
-named authorised source/consumer contract is actually accepted, including coverage,
-licence/interface, version/publication/effect/expiry and NOTAM limitations.
-There is no timer-based restart or calendar-only completion.
+Airport-data integration remains open under [#284](https://github.com/naturelle137/AeroDash/issues/284): no eligible external dataset and production consumer are integrated. The [source contract](../regulatory/airac-airport-data-contract.md) defines acceptance requirements; the AIRAC calendar and pilot-entered runway declarations do not establish source freshness. Integration requires an accepted source/consumer contract covering provenance, licensing, coverage, update semantics and limitations.
 
 ## Further capabilities
 
 - **Offline preparation:** full-flight fuel-burn path assessment, obstacle constraints and a consolidated Go/No-Go advisory; additional electric-aircraft planning capabilities.
 - **Weather and airports:** later move temperature, wind and QNH inputs into Weather before Performance. TAF, time/location forecasts, manual overrides, runway conditions and wind-limit warnings; retain explicit offline behavior.
-- **Decision summary:** Flight Preparation shows current takeoff/zero-fuel mass differences to entered MTOM/MZFM as an arithmetic comparison (#521), with neutral within-limit styling and a raw exact-limit cross-check (#527); it adds no margin threshold, payload advice or suitability verdict, and #110 remains open.
+- **Decision summary:** Flight Preparation shows current takeoff/zero-fuel mass differences to entered MTOM/MZFM as an arithmetic comparison (#521), with neutral within-limit styling and a raw exact-limit cross-check (#527); it adds no margin threshold, payload advice or suitability verdict. [#110](https://github.com/naturelle137/AeroDash/issues/110) is closed under the current documented M&B presentation; no aircraft validation or pilot-behavior claim is implied.
 - **User profiles:** when user profiles become available, move Performance unit preferences into them; retain current preferences until then. Aircraft profiles do not provide user accounts.
-- **Briefing pack:** the complete current assembly is available through native browser print and a client-side PDF download, including current Performance and its unavailable states, unverified markers, warnings and disclaimers. The all-usable-fuel-burned endpoint is not trip arrival or a suitability verdict. Broader source coverage and #420 remain future work.
+- **Briefing pack:** the complete current assembly is available through native browser print and a client-side PDF download, including current Performance and its unavailable states, unverified markers, warnings and disclaimers. The all-usable-fuel-burned endpoint is not trip arrival or a suitability verdict. Broader airport-source coverage remains future work.
 - **Connected pilot:** OIDC authentication, personal/organization workspaces, role-based permissions, sharing and offline-first synchronization. No backend is shipped by the current frontend-only app.
 - **Usability:** dark mode, touch-friendly controls, small-screen layouts, contextual help and cross-device offline verification.
 - **Release maturity:** reliable integrated workflows, domain-reference validation, security testing and bilingual user help. A release number does not imply certification or approved aviation data.
