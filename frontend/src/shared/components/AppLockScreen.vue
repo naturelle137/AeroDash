@@ -178,7 +178,7 @@ async function onUnlock(): Promise<void> {
   border-radius: 8px;
   border: 2px solid var(--color-primary, #1d4ed8);
   background: var(--color-primary, #1d4ed8);
-  color: #fff;
+  color: var(--color-primary-text, #fff);
 }
 .app-lock__btn:disabled {
   opacity: 0.5;

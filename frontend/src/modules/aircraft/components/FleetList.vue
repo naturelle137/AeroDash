@@ -456,7 +456,7 @@ function onDismissUndo(): void {
   cursor: pointer;
   font-weight: 500;
   background: var(--color-critical, #dc2626);
-  color: var(--neutral-0, #ffffff);
+  color: var(--color-on-critical, #ffffff);
 }
 
 .profiles-list {
@@ -623,7 +623,7 @@ function onDismissUndo(): void {
 }
 
 .icon-btn--verify:hover:not(:disabled) {
-  color: var(--neutral-0, #ffffff);
+  color: var(--color-on-success, #ffffff);
   background: var(--color-success, #10b981);
   border-color: var(--color-success, #10b981);
 }
@@ -646,7 +646,7 @@ function onDismissUndo(): void {
 }
 
 .icon-btn--danger:hover:not(:disabled) {
-  color: var(--neutral-0, #ffffff);
+  color: var(--color-on-critical, #ffffff);
   background: var(--color-critical, #dc2626);
   border-color: var(--color-critical, #dc2626);
 }

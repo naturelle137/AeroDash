@@ -51,6 +51,7 @@
 
   --amber-600:  #ff8f00;
   --amber-700:  #ef6c00;
+  --amber-800:  #a34500;
   --amber-50:   #fff3e0;
   --amber-200:  #ffcc80;
 
@@ -81,7 +82,7 @@
 
   /* ── Text hierarchy ───────────────────────────────────────────────────── */
   --color-text-primary:   var(--neutral-900);   /* #212121 — 16.1:1 on white */
-  --color-text-secondary: var(--neutral-600);   /* #757575 — 4.6:1 on white  */
+  --color-text-secondary: var(--neutral-700);   /* #616161 — 6.2:1 on white  */
   --color-text:           var(--neutral-800);   /* #424242 — 10.4:1 on white */
 
   /* ── Borders ──────────────────────────────────────────────────────────── */
@@ -91,16 +92,20 @@
   --color-focus:          var(--teal-600);       /* #00897b — teal focus ring */
 
   /* ── Status: success ──────────────────────────────────────────────────── */
-  --color-success:        var(--green-700);
+  --color-success:        var(--green-600);
   --color-success-bg:     var(--green-50);
 
   /* ── Status: warning ──────────────────────────────────────────────────── */
-  --color-warning:        var(--amber-700);
+  --color-warning:        var(--amber-800);
   --color-warning-bg:     var(--amber-50);
 
   /* ── Status: critical / error ─────────────────────────────────────────── */
   --color-critical:       var(--red-700);
   --color-critical-bg:    var(--red-50);
+  --color-on-critical:    var(--neutral-0);     /* text on solid critical fill */
+  --color-on-success:     var(--neutral-0);
+  --color-on-warning:     var(--neutral-0);
+  --color-warning-text:   var(--amber-800);
 
   /* ── Chart tokens ─────────────────────────────────────────────────────── */
   --chart-grid:           var(--neutral-200);
@@ -197,6 +202,10 @@
   /* ── Status: critical / error ─────────────────────────────────────────── */
   --color-critical:       var(--red-200);       /* #ef9a9a — 7.3:1 on #1e1e1e */
   --color-critical-bg:    #2e1515;
+  --color-on-critical:    var(--neutral-950);   /* dark text on light red fill */
+  --color-on-success:     var(--neutral-950);
+  --color-on-warning:     var(--neutral-950);
+  --color-warning-text:   var(--amber-200);
 
   /* ── Chart tokens ─────────────────────────────────────────────────────── */
   --chart-grid:           #2e2e2e;
@@ -230,7 +239,7 @@
   --color-nav-active-text: var(--teal-700);
   --color-nav-text:        var(--neutral-700);
   --color-tag-soon-bg:     var(--neutral-200);
-  --color-tag-soon-text:   var(--neutral-600);
+  --color-tag-soon-text:   var(--neutral-700);
 }
 
 [data-theme="dark"] {
@@ -243,7 +252,7 @@
   --color-nav-active-text: var(--teal-300);
   --color-nav-text:        #b0b0b0;
   --color-tag-soon-bg:     #2e2e2e;
-  --color-tag-soon-text:   #707070;
+  --color-tag-soon-text:   #b0b0b0;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
