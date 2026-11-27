@@ -30,6 +30,24 @@ beforeEach(() => {
 afterEach(() => { vi.restoreAllMocks() })
 
 describe('ManualRunwayPanel', () => {
+  it('shows the unsaved date checks next to save, including the device date', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date(2026, 6, 1, 12))
+    try {
+      const view = mount(ManualRunwayPanel)
+      await fill(view)
+      await view.get('#runway-expiry').setValue('2026-06-30')
+      await view.get('#runway-assessment-date').setValue('2026-06-30')
+      const check = view.get('[aria-label="Date check before saving"]')
+      expect(check.text()).toContain('Selected date 2026-06-30: Unknown')
+      expect(check.text()).toContain('Device date 2026-07-01: Expired')
+      await view.get('#runway-effective').setValue('2026-06-01')
+      expect(check.text()).toContain('Selected date 2026-06-30: Within the declared dates')
+      await view.get('#runway-effective').setValue('2026-07-02')
+      expect(check.text()).toContain('Date check unavailable')
+      view.unmount()
+    } finally { vi.useRealTimers() }
+  })
   it('filters declared expiry through an inclusive date without modifying stored declarations', async () => {
     const view = mount(ManualRunwayPanel)
     await fill(view)

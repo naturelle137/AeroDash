@@ -311,3 +311,7 @@ While recent runway declarations are displayed, the system shall allow filtering
 ### REQ-AP-073: Recent declaration selection check
 
 When selecting a recent runway declaration, the system shall show its declared date checks before replacing the current form.
+
+### REQ-AP-074: Date check at save
+
+While an unsaved runway declaration has content, the system shall show its declared date checks or date error beside the save action.
