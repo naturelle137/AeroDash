@@ -423,6 +423,11 @@ describe('manual source dates', () => {
     expect(recent.text()).toContain('10')
     expect(recent.text()).toContain('11')
     expect(recent.text()).toContain('Complete details do not verify the source or its currency.')
+    for (const [field, designator] of [['source', '09'], ['effective', '10'], ['expiry', '11']]) {
+      await recent.get('#missing-source-field').setValue(field)
+      expect(recent.findAll('li')).toHaveLength(1)
+      expect(recent.get('li').text()).toContain(designator)
+    }
     expect(localStorage.getItem(MANUAL_RUNWAY_STORAGE_KEY)).toBe(saved)
     await recent.get('#incomplete-source-only').setValue(false)
     expect(recent.findAll('li')).toHaveLength(4)
