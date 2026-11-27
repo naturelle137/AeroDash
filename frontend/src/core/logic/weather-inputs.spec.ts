@@ -47,4 +47,17 @@ describe('resolveWind', () => {
     const calm = { windDirection: '', windSpeed: '0', unit: 'kt', gustSpeed: '' }
     expect(resolveWind({ ...calm, windSpeed: '' }, calm).source).toBe('weather')
   })
+  it('defaults a missing gust to blank for manual and none results', () => {
+    const noGust = { windDirection: '270', windSpeed: '5', unit: 'kt' } as unknown as Parameters<typeof resolveWind>[0]
+    expect(resolveWind(noGust, shared).value.gustSpeed).toBe('')
+    const emptyNoGust = { windDirection: '', windSpeed: '', unit: 'kt' } as unknown as Parameters<typeof resolveWind>[0]
+    expect(resolveWind(emptyNoGust, emptyNoGust).value.gustSpeed).toBe('')
+  })
+  it('treats an undefined override field as blank', () => {
+    expect(resolveScalar(undefined as unknown as string, '20').source).toBe('weather')
+  })
+  it('uses a shared direction without speed as entered', () => {
+    const dirOnly = { windDirection: '270', windSpeed: '', unit: 'kt', gustSpeed: '' }
+    expect(resolveWind({ windDirection: '', windSpeed: '', unit: 'kt', gustSpeed: '' }, dirOnly).source).toBe('weather')
+  })
 })
