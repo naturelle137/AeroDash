@@ -2,6 +2,8 @@
 import { computed, ref } from 'vue'
 import {
   airacCycleStart,
+  airacCyclesSinceSave,
+  describeAiracAge,
   hasManualRunwayDraftContent,
   daysToDeclaredExpiry,
   daysToDeclaredEffect,
@@ -331,6 +333,7 @@ if (!runway.loaded) runway.load()
       <p v-if="!runway.automaticDate">From device date {{ runway.today }}: days to declared effect: {{ daysToDeclaredEffect(runway.current.record.runway, runway.today) ?? 'Unknown' }} · days to inclusive expiry: {{ daysToDeclaredExpiry(runway.current.record.runway, runway.today) ?? 'Unknown' }}. Source remains unverified.</p>
       <p v-if="cycle">AIRAC cycle starting {{ cycle }} (calendar date only).</p>
       <p v-else>AIRAC cycle unavailable for this date; consult the published calendar.</p>
+      <p>AIRAC age of saved declaration: {{ describeAiracAge(airacCyclesSinceSave(runway.current.record.savedAt, runway.assessmentDate)) }}.</p>
       <p class="hint">A cycle change does not expire or verify a record. NOTAM/SUP coverage is unknown; check dates and restrictions against official sources.</p>
       <p class="hint">Converted values use 1 ft = 0.3048 m; available distances are rounded down.</p>
     </section>

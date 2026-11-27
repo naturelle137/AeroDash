@@ -1,6 +1,6 @@
 import type { FlightPrepDraft } from '@/core/domain/flightprep-draft.schema'
 import type { ManualRunway, ManualRunwayDraft, ManualRunwayRecord } from '@/core/logic/manual-runway'
-import { daysToDeclaredEffect, daysToDeclaredExpiry, runwayFreshness } from '@/core/logic/manual-runway'
+import { airacCyclesSinceSave, daysToDeclaredEffect, daysToDeclaredExpiry, runwayFreshness } from '@/core/logic/manual-runway'
 
 type Entries = Pick<FlightPrepDraft, 'fuel' | 'performance'>
 export type FlightPrepExport = {
@@ -46,6 +46,10 @@ export function buildFlightPrepJson(data: FlightPrepExport, now: Date): string {
             selected: dateIntervals(data.runway.draft, data.runway.assessmentDate),
             device: dateIntervals(data.runway.draft, data.runway.deviceDate),
           },
+        },
+        airacCyclesSinceSave: {
+          selected: data.runway.saved ? airacCyclesSinceSave(data.runway.saved.savedAt, data.runway.assessmentDate) : null,
+          device: data.runway.saved ? airacCyclesSinceSave(data.runway.saved.savedAt, data.runway.deviceDate) : null,
         },
         notice: 'Pilot-declared dates only; source currency is unverified and NOTAM/SUP coverage is unknown.',
       },
