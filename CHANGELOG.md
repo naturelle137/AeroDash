@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Reconcile roadmap milestone and release status with GitHub and retain open airport and sync prerequisites.
+
 - Add keyboard- and touch-accessible information pop-overs (EN/DE, generic definitions only) for pressure altitude, safety factor, ground roll vs. 50 ft distance and unverified data in Flight Prep performance.
 
 - Explain Mass & Balance and fuel result terms in English and German information pop-overs.
