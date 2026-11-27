@@ -158,13 +158,13 @@ When aircraft, category, loading, method or planning inputs change, the system s
 
 When displaying estimated arrival CG, the system shall label its unit in metres.
 
-**Status:** Implemented. Tests: `frontend/tests/offline-production/fuel-endurance.spec.ts` (Playwright, outside the unit gate; no unit test asserts the metre label).
+**Status:** Implemented. Tests: `frontend/src/modules/fuel-endurance/components/FuelEnduranceCard.int.spec.ts` (metre label asserted); `frontend/tests/offline-production/fuel-endurance.spec.ts` (Playwright).
 
 ### REQ-FE-027: Arrival assessment boundary
 
 When displaying estimated trip arrival, the system shall distinguish it from the separate all-usable-fuel-burned M&B endpoint.
 
-**Status:** Approved. The arrival estimate is tested to leave the full-burn endpoint unchanged (`frontend/src/modules/fuel-endurance/components/FuelEnduranceCard.int.spec.ts`); the on-screen distinction wording is not asserted.
+**Status:** Implemented. Tests: `frontend/src/modules/fuel-endurance/components/FuelEnduranceCard.int.spec.ts` (arrival leaves the full-burn endpoint unchanged; the on-screen distinction wording is shown with a valid estimate and absent without one).
 
 ### REQ-FE-028: Explicit arrival sequence
 

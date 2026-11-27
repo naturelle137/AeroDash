@@ -338,6 +338,31 @@ describe('fuel plan with live M&B store', () => {
       expect(cg().exists()).toBe(false)
     },
   )
+  it('labels arrival CG in metres and separates arrival from the full-burn endpoint', async () => {
+    const store = useMassBalanceStore()
+    const aircraft = AircraftContextSchema.parse(syntheticFuelContext())
+    aircraft.sourceUnit = 'kg'
+    aircraft.weighingReports[0]!.basicEmptyMass = 560
+    aircraft.weighingReports[0]!.emptyCg = 2
+    store.loadProfile(aircraft)
+    const wrapper = mount(FuelEnduranceCard)
+    await wrapper.get('#fe-method').setValue('direct')
+    const boundary = 'M&B landing point assumes all usable fuel is burned'
+    const text = () => wrapper.text().replace(/\s+/g, ' ')
+    // No arrival estimate yet: neither the CG label nor the boundary text is shown.
+    expect(wrapper.find('[data-testid="arrival-cg"]').exists()).toBe(false)
+    expect(text()).not.toContain(boundary)
+    await wrapper.get('#fe-direct-trip').setValue('20')
+    const cgValue = wrapper.get('[data-testid="arrival-cg"]')
+    expect(cgValue.text()).toMatch(/ m$/)
+    expect(cgValue.element.previousElementSibling?.textContent).toBe('Estimated arrival CG')
+    expect(text()).toContain(boundary)
+    expect(text()).toContain('separate from that all-usable-burned point')
+    // Estimate withdrawn again: boundary text disappears with it.
+    await wrapper.get('#fe-direct-trip').setValue('')
+    expect(wrapper.find('[data-testid="arrival-cg"]').exists()).toBe(false)
+    expect(text()).not.toContain(boundary)
+  })
   it.each(['duration', 'direct'])(
     'requires a sequence and recomputes both orders in %s',
     async (method) => {
