@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Explain Mass & Balance and fuel result terms in English and German information pop-overs.
+
 - Show the AIRAC-cycle age of a saved runway declaration in the panel, briefing pack and JSON export; unknown stays unknown and no expiry is inferred.
 
 - Show unsaved runway date checks beside the save action.

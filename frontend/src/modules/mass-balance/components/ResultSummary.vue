@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import InfoPopover from '@/shared/components/InfoPopover.vue'
 import type { MathCoreResult } from '@/modules/mass-balance/stores/mass-balance.types'
 import {
   formatMassConservative,
@@ -85,7 +86,7 @@ const exactLimitNames = computed(() =>
     <template v-else>
       <dl class="result-summary__grid">
         <div class="result-summary__item">
-          <dt>Takeoff Mass</dt>
+          <dt>Takeoff Mass <InfoPopover label="Takeoff Mass" en="Takeoff mass is the aircraft mass at takeoff. Ramp mass is the mass before taxi and other ground fuel use." de="Die Startmasse ist die Masse beim Start. Die Rollmasse ist die Masse vor dem Rollen und sonstigem Kraftstoffverbrauch am Boden." /></dt>
           <dd>
             <span
               class="result-summary__value"
@@ -110,7 +111,7 @@ const exactLimitNames = computed(() =>
         </div>
 
         <div class="result-summary__item">
-          <dt>Zero Fuel Mass</dt>
+          <dt>Zero Fuel Mass <InfoPopover label="Zero Fuel Mass" en="Zero fuel mass (ZFM) is the aircraft mass excluding usable fuel; unusable fuel remains included." de="Die Nullkraftstoffmasse (ZFM) ist die Flugzeugmasse ohne ausfliegbaren Kraftstoff; nicht ausfliegbarer Kraftstoff bleibt enthalten." /></dt>
           <dd>
             <span
               class="result-summary__value"
@@ -135,7 +136,7 @@ const exactLimitNames = computed(() =>
         </div>
 
         <div class="result-summary__item">
-          <dt>CG (Takeoff)</dt>
+          <dt>CG (Takeoff) <InfoPopover label="Center of gravity" en="The center of gravity (CG) is the balance point. Its arm is the distance from the reference datum; moment is mass multiplied by arm. Mean aerodynamic chord (MAC) is a reference wing chord sometimes used to express CG as a percentage." de="Der Schwerpunkt (CG) ist der Gleichgewichtspunkt. Sein Hebelarm ist der Abstand von der Bezugsebene (Datum); das Moment ist Masse mal Hebelarm. Die mittlere aerodynamische Flügeltiefe (MAC) ist eine Bezugsflügeltiefe, auf die sich eine Schwerpunktangabe in Prozent beziehen kann." /></dt>
           <dd>
             <span class="result-summary__value">
               {{ formatArm(result.takeoffCenterOfGravityPoint.arm, 3) }}
