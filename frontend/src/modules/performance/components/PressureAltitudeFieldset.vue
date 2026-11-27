@@ -10,7 +10,7 @@ import InfoPopover from '@/shared/components/InfoPopover.vue'
 
 const props = defineProps<{ pa: ReturnType<typeof usePressureAltitudeInput>; showErrors: boolean }>()
 // Destructured refs so the template unwraps them; the composable instance itself is not reactive.
-const { warnings, method, direct, draft, derivation, savedRunway, notice, elevationProvenance, useRunwayElevation } = props.pa
+const { warnings, qnhProvenance, effectiveDraft, method, direct, draft, derivation, savedRunway, notice, elevationProvenance, useRunwayElevation } = props.pa
 
 function paError(field: PressureAltitudeField): string | undefined {
   const result = derivation.value
@@ -37,7 +37,7 @@ function paError(field: PressureAltitudeField): string | undefined {
     <section v-if="method === 'qnh-elevation'" aria-label="QNH and field elevation">
       <InfoPopover term="qnh" /><InputHelp label="QNH">QNH is the aerodrome pressure setting reduced to mean sea level. Enter the current setting for this aerodrome in hPa or inHg, with field elevation in ft or m.</InputHelp>
       <div class="fields">
-        <div class="value-unit"><label for="pa-qnh">QNH<input id="pa-qnh" v-model="draft.qnh" type="text" inputmode="decimal" :aria-invalid="!!paError('qnh')" /></label>
+        <div class="value-unit"><label for="pa-qnh">QNH<input id="pa-qnh" v-model="draft.qnh" type="text" inputmode="decimal" :placeholder="draft.qnh === '' ? effectiveDraft.qnh : ''" :aria-invalid="!!paError('qnh')" aria-describedby="pa-qnh-source" /></label>
         <div class="field unit-field">
           <label class="sr-only" for="pa-qnh-unit">QNH unit</label>
           <select id="pa-qnh-unit" v-model="draft.qnhUnit" :aria-invalid="!!paError('qnhUnit')">
@@ -54,6 +54,7 @@ function paError(field: PressureAltitudeField): string | undefined {
           </select>
         </div>
       </div></div>
+      <p id="pa-qnh-source" class="source-note">QNH used: {{ effectiveDraft.qnh.trim() || 'not entered' }} {{ effectiveDraft.qnhUnit }}. {{ qnhProvenance }}</p>
       <p v-for="field in (['qnh', 'qnhUnit', 'elevation', 'elevationUnit'] as const)" v-show="paError(field)" :key="field" class="field-error">{{ paError(field) }}</p>
 
       <button type="button" class="secondary" :disabled="!savedRunway" @click="useRunwayElevation()">

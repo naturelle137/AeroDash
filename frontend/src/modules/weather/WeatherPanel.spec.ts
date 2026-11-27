@@ -1,7 +1,10 @@
 import { flushPromises, mount } from '@vue/test-utils'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { createPinia, setActivePinia } from 'pinia'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import WeatherPanel from './WeatherPanel.vue'
+import { useWeatherInputsStore } from './stores/weather-inputs.store'
 
+beforeEach(() => setActivePinia(createPinia()))
 afterEach(() => { vi.restoreAllMocks(); vi.unstubAllGlobals() })
 
 describe('WeatherPanel', () => {
@@ -36,7 +39,7 @@ describe('WeatherPanel', () => {
     vi.useFakeTimers().setSystemTime(new Date('2026-11-21T17:00:00Z'))
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => ({ metar: { raw: 'EDDF 211620Z 17004KT 12/08 Q1013', station: 'EDDF', reportTime: '2026-11-21T16:20:00Z', reportTimeKnown: true } }) }))
     const view = mount(WeatherPanel)
-    await view.get('input').setValue('EDDF')
+    await view.get('#weather-icao').setValue('EDDF')
     await view.get('form').trigger('submit')
     await flushPromises()
     expect(view.emitted('apply')).toBeUndefined()
@@ -50,7 +53,7 @@ describe('WeatherPanel', () => {
     vi.useFakeTimers().setSystemTime(new Date('2026-11-21T17:00:00Z'))
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => ({ metar: { raw: 'EDDF 211620Z 18010KT 140V220 12/08 Q1013', station: 'EDDF', reportTime: '2026-11-21T16:20:00Z', reportTimeKnown: true } }) }))
     const view = mount(WeatherPanel)
-    await view.get('input').setValue('EDDF')
+    await view.get('#weather-icao').setValue('EDDF')
     await view.get('form').trigger('submit')
     await flushPromises()
     expect(view.text()).toContain('18010KT 140V220')
@@ -67,7 +70,7 @@ describe('WeatherPanel', () => {
     const fetchMock = vi.fn<() => Promise<unknown>>()
     vi.stubGlobal('fetch', fetchMock)
     const view = mount(WeatherPanel)
-    await view.get('input').setValue('EDDF')
+    await view.get('#weather-icao').setValue('EDDF')
     await view.get('form').trigger('submit')
     expect(view.get('[role=status]').text()).toContain('Offline')
     expect(fetchMock).not.toHaveBeenCalled()
@@ -82,7 +85,7 @@ describe('WeatherPanel', () => {
       .mockRejectedValueOnce(new Error('network'))
     vi.stubGlobal('fetch', fetchMock)
     const view = mount(WeatherPanel)
-    await view.get('input').setValue('EDDF')
+    await view.get('#weather-icao').setValue('EDDF')
     for (const expected of ['Outdated', 'No METAR', 'Malformed', 'failed']) {
       await view.get('form').trigger('submit')
       await flushPromises()
@@ -98,7 +101,7 @@ it('emits only fresh, structurally plausible present liquid precipitation', asyn
   let raw = ''
   vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, json: async () => ({ metar: { raw, station: 'EDDF', reportTime: '2026-11-21T16:30:00Z', reportTimeKnown: true } }) })))
   const view = mount(WeatherPanel)
-  await view.get('input').setValue('EDDF')
+  await view.get('#weather-icao').setValue('EDDF')
   for (const [body, expected] of [['17004KT 9999 -RA BKN020 10/08 Q1013 TEMPO 4000 BR', true], ['17004KT 9999 BKN020 10/08 Q1013 BECMG -RA', false], ['17004KT 9999 +SHRASN BKN020 10/08 Q1013', true], ['17004KT 9999 BKN020 10/08 Q1013', false], ['17004KT 9999 VCSHRA', null], ['17004KT 9999 RMK RA', null], ['17004KT 9999 RA GARBAGE', null], ['17004KT CAVOK RA', null], ['17004KT 9999 TEMPO RA', null], ['17004KT 9999 FZSNRA BKN020 10/08 Q1013', null], ['99904KT 9999 RA BKN020 10/08 Q1013', null], ['17004KT 9999 RA BKN020 10/08 Q0000', null], ['garbage RA', null]] as const) {
     raw = `EDDF 211630Z ${body}`
     await view.get('form').trigger('submit')
@@ -198,5 +201,26 @@ describe('WeatherPanel forecast with observation fallback', () => {
     await ended.setProps({ selection: { location: 'EDDF', time: Date.parse('2026-11-21T18:00:00Z'), forecast: {} } })
     expect(button(ended, 'TAF forecast')).toBeUndefined()
     ended.unmount()
+  })
+})
+
+describe('WeatherPanel shared inputs', () => {
+  it('stores manually typed temperature, wind and QNH in the shared set without a source note', async () => {
+    const view = mount(WeatherPanel)
+    await view.get('#weather-temperature').setValue('15')
+    await view.get('#weather-wind-direction').setValue('270')
+    await view.get('#weather-wind-speed').setValue('12')
+    await view.get('#weather-qnh').setValue('1013')
+    const store = useWeatherInputsStore()
+    expect(store.temperature).toBe('15')
+    expect(store.wind).toMatchObject({ windDirection: '270', windSpeed: '12', unit: 'kt' })
+    expect(store.qnh).toEqual({ qnh: '1013', qnhUnit: 'hPa' })
+    expect(view.text()).not.toContain('source:')
+  })
+  it('clears all shared inputs on request', async () => {
+    const view = mount(WeatherPanel)
+    await view.get('#weather-temperature').setValue('15')
+    await view.findAll('button').find(b => b.text() === 'Clear weather inputs')!.trigger('click')
+    expect((view.get('#weather-temperature').element as HTMLInputElement).value).toBe('')
   })
 })

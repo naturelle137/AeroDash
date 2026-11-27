@@ -3,8 +3,12 @@ import TafView from './TafView.vue'
 import type { TafWind } from './taf-surface'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { metarLiquid, metarHeavyRain } from './metar-surface'
+import { useWeatherInputsStore } from './stores/weather-inputs.store'
+import { WIND_SPEED_UNITS } from '@/core/logic/wind-components'
+import { QNH_UNITS } from '@/core/logic/pressure-altitude'
 import { metarValues, type MetarValues } from './metar-values'
 
+const inputs = useWeatherInputsStore()
 const props = defineProps<{ selection?: { location: string; time: number; forecast: MetarValues } | null }>()
 const emit = defineEmits<{ forecast: [value: { station: string; time: string; source: 'TAF'; validFrom: string; validTo: string; liquid: boolean; heavy?: boolean } | null]; observation: [value: { station: string; time: string; liquid: boolean; heavy?: boolean } | null]; apply: [field: keyof MetarValues, values: MetarValues, source: string] }>()
 type TafSource = { station: string; issued: string; validFrom: string; validTo: string; wind: TafWind }
@@ -98,6 +102,23 @@ async function check(): Promise<void> {
 <template>
   <div class="weather-panel">
     <p>For education and situational awareness only, not an official briefing or a go/no-go authority. Obtain required weather from an authorised briefing source.</p>
+    <fieldset class="inputs">
+      <legend>Weather inputs for Flight Prep (this session only)</legend>
+      <p>Enter temperature, wind and QNH once; Performance reuses them unless you enter a value there. Works offline. Values you type are yours; values copied from a METAR, TAF or forecast are retrieved and unverified.</p>
+      <div class="grid">
+        <label>Temperature (°C)<input id="weather-temperature" v-model="inputs.temperature" type="text" inputmode="text" autocomplete="off" /></label>
+        <label>Wind from (°, 1–360)<input id="weather-wind-direction" v-model="inputs.wind.windDirection" type="text" inputmode="decimal" autocomplete="off" /></label>
+        <label>Wind speed<input id="weather-wind-speed" v-model="inputs.wind.windSpeed" type="text" inputmode="decimal" autocomplete="off" /></label>
+        <label>Wind speed unit<select id="weather-wind-unit" v-model="inputs.wind.unit"><option v-for="unit in WIND_SPEED_UNITS" :key="unit" :value="unit">{{ unit }}</option></select></label>
+        <label>Gust speed (optional)<input id="weather-wind-gust" v-model="inputs.wind.gustSpeed" type="text" inputmode="decimal" autocomplete="off" /></label>
+        <label>QNH<input id="weather-qnh" v-model="inputs.qnh.qnh" type="text" inputmode="decimal" autocomplete="off" /></label>
+        <label>QNH unit<select id="weather-qnh-unit" v-model="inputs.qnh.qnhUnit"><option v-for="unit in QNH_UNITS" :key="unit" :value="unit">{{ unit }}</option></select></label>
+      </div>
+      <p v-for="field in (['wind', 'temperature', 'qnh'] as const)" :key="field">
+        <template v-if="inputs.sourceOf(field)">{{ field }} source: {{ inputs.sourceOf(field) }} (retrieved, unverified)</template>
+      </p>
+      <button type="button" @click="inputs.clear()">Clear weather inputs</button>
+    </fieldset>
     <form @submit.prevent="check">
       <label for="weather-icao">ICAO station code</label>
       <div class="entry">
@@ -135,6 +156,10 @@ async function check(): Promise<void> {
 p { margin: 0; line-height: 1.5; overflow-wrap: anywhere; }
 form { display: grid; gap: .4rem; }
 .entry { display: flex; flex-wrap: wrap; gap: .5rem; }
+fieldset.inputs { display: grid; gap: .5rem; border: 1px solid var(--color-border); border-radius: 8px; margin: 0; min-width: 0; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr)); gap: .75rem; }
+label { display: grid; gap: .25rem; }
+.grid input, .grid select { max-width: none; text-transform: none; }
 input { max-width: 8rem; text-transform: uppercase; }
-input, button { min-height: 44px; padding: .5rem; }
+select, input, button { min-height: 44px; padding: .5rem; }
 </style>

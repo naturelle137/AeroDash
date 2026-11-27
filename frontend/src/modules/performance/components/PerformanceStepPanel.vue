@@ -7,14 +7,15 @@ import { SAFETY_FACTOR_PRESETS } from '../services/corrected-distances'
 import type { PerformanceStep } from '../composables/performance-step'
 
 const props = defineProps<{ step: PerformanceStep; canCompute: boolean }>()
-const { temperature, temperatureWarnings, corrections, safetyFactors, showPaErrors, presentation, extrapolationAcknowledged, obstacle, obstacleAssessment } = props.step
+const { temperature, temperatureProvenance, temperatureResolved, temperatureWarnings, corrections, safetyFactors, showPaErrors, presentation, extrapolationAcknowledged, obstacle, obstacleAssessment } = props.step
 </script>
 
 <template>
   <form class="performance-step" novalidate aria-label="Performance lookup conditions" @submit.prevent>
     <slot name="masses" />
     <div class="fields">
-      <label>Temperature (°C)<input id="performance-temperature" v-model="temperature" type="text" inputmode="text" /></label>
+      <label>Temperature (°C)<input id="performance-temperature" v-model="temperature" type="text" inputmode="text" :placeholder="temperatureResolved.source === 'weather' ? temperatureResolved.value : ''" aria-describedby="performance-temperature-source" /></label>
+      <p id="performance-temperature-source" class="source-note">{{ temperatureProvenance }}</p>
     </div>
     <p v-for="warning in temperatureWarnings" :key="warning" role="alert" data-warning="WARN-UI-001">{{ warning }}</p>
     <PressureAltitudeFieldset :pa="step.pa" :show-errors="showPaErrors" />

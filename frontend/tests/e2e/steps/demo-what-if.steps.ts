@@ -45,7 +45,7 @@ Then('the saved plan still holds the reduced baggage', async ({ page }) => {
 })
 
 Then('the Flight Prep temperature is {string} °C', async ({ page }, temperature: string) => {
-  await expect(page.getByLabel('Temperature (°C)', { exact: true })).toHaveValue(temperature)
+  await expect(page.locator('#performance-temperature')).toHaveValue(temperature)
 })
 
 When('the instructor changes demo unit preferences', async ({ page }) => {

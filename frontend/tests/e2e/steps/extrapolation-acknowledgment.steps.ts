@@ -24,14 +24,14 @@ Given('the verified synthetic Test POH aircraft is open in Performance', async (
   await select.selectOption(await select.locator('option').nth(1).getAttribute('value'))
   await page.getByRole('radio', { name: 'Enter pressure altitude directly', exact: true }).check()
   await page.getByLabel('Pressure altitude (ft)', { exact: true }).fill('1000')
-  await page.getByLabel('Temperature (°C)', { exact: true }).fill('10')
+  await page.locator('#performance-temperature').fill('10')
 })
 
 When('the pilot enters mass {string} kg', async ({ page }, mass: string) => {
   await page.getByLabel('Mass (kg)', { exact: true }).fill(mass)
 })
 When('the pilot changes the temperature to {string} °C', async ({ page }, value: string) => {
-  await page.getByLabel('Temperature (°C)', { exact: true }).fill(value)
+  await page.locator('#performance-temperature').fill(value)
 })
 When('the pilot acknowledges the extrapolated data', async ({ page }) => { await ack(page).check() })
 

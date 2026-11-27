@@ -33,7 +33,7 @@ Airport-data integration remains open under [#284](https://github.com/naturelle1
 ## Further capabilities
 
 - **Offline preparation:** full-flight fuel-burn path assessment, obstacle constraints and a consolidated Go/No-Go advisory; additional electric-aircraft planning capabilities.
-- **Weather and airports:** later move temperature, wind and QNH inputs into Weather before Performance. TAF, time/location forecasts, manual overrides, runway conditions and wind-limit warnings; retain explicit offline behavior.
+- **Weather and airports:** temperature, wind and QNH are entered once in Weather and reused by Performance. TAF, time/location forecasts, manual overrides, runway conditions and wind-limit warnings; retain explicit offline behavior.
 - **Decision summary:** Flight Preparation shows current takeoff/zero-fuel mass differences to entered MTOM/MZFM as an arithmetic comparison (#521), with neutral within-limit styling and a raw exact-limit cross-check (#527); it adds no margin threshold, payload advice or suitability verdict. [#110](https://github.com/naturelle137/AeroDash/issues/110) is closed under the current documented M&B presentation; no aircraft validation or pilot-behavior claim is implied.
 - **User profiles:** when user profiles become available, move Performance unit preferences into them; retain current preferences until then. Aircraft profiles do not provide user accounts.
 - **Briefing pack:** the complete current assembly is available through native browser print and a client-side PDF download, including current Performance and its unavailable states, unverified markers, warnings and disclaimers. The all-usable-fuel-burned endpoint is not trip arrival or a suitability verdict. Broader airport-source coverage remains future work.

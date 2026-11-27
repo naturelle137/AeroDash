@@ -247,3 +247,19 @@ While a METAR value is offered and no applicable forecast value exists for that 
 ### REQ-WX-025: Derived model altimeter estimate
 
 When valid DWD model surface pressure and matching grid elevation are available for the selected hour, the system shall offer their ISA-derived altimeter-setting estimate as an explicitly labelled model value for pilot-selected replacement.
+
+### REQ-WX-055: Shared weather inputs
+
+The system shall keep one session-only set of temperature, wind direction, speed, gust and QNH, entered in Weather and read by Performance, Flight Prep and the wind-component and limit comparison.
+
+### REQ-WX-056: Weather input precedence
+
+While a Performance temperature, QNH or wind field holds an entry, the system shall use that entry instead of the shared value and shall state on the field that it overrides Weather.
+
+### REQ-WX-057: Retrieved value copy
+
+When the pilot chooses to copy a METAR, TAF or forecast value into the shared set, the system shall label it as retrieved and unverified until the pilot edits it.
+
+### REQ-WX-058: Offline weather entry
+
+While the browser is offline, the system shall accept manually entered shared weather inputs without substituting any value.

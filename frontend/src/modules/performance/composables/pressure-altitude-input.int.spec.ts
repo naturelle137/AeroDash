@@ -120,3 +120,22 @@ it('converts accepted scientific-notation elevations instead of relabelling them
   expect(input.resolution.value).toEqual(before)
   stop()
 })
+
+it('derives pressure altitude from the shared Weather QNH until a QNH is typed here', async () => {
+  const { useWeatherInputsStore } = await import('@/modules/weather/stores/weather-inputs.store')
+  const weather = useWeatherInputsStore()
+  const { input, stop } = withInput()
+  input.method.value = 'qnh-elevation'
+  Object.assign(input.draft, { elevation: '0', elevationUnit: 'ft' })
+  expect(input.resolution.value.status).toBe('blocked')
+  weather.copyRetrieved('qnh', { qnh: '1013.25' }, 'METAR TEST')
+  expect(input.resolution.value).toMatchObject({ status: 'ready', displayFt: 0 })
+  expect(input.qnhProvenance.value).toContain('retrieved, unverified')
+  const before = input.revision.value
+  weather.qnh.qnh = '1003.25'
+  expect(input.revision.value).not.toBe(before)
+  Object.assign(input.draft, { qnh: '1013.25', qnhUnit: 'hPa' })
+  expect(input.qnhProvenance.value).toContain('overrides')
+  expect(input.effectiveDraft.value.qnh).toBe('1013.25')
+  stop()
+})

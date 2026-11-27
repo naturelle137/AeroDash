@@ -5,6 +5,8 @@ import { airacCyclesSinceSave, describeAiracAge, hasManualRunwayDraftContent, da
 import { useManualRunwayStore } from '@/modules/airport/stores/manual-runway.store'
 import { useLoadedUnitPreferences } from '@/modules/performance/stores/unit-preferences.store'
 import { plainCopy, useDemoScratch } from '@/shared/composables/useDemoScratch'
+import { useWeatherInputsStore } from '@/modules/weather/stores/weather-inputs.store'
+import { resolveScalar } from '@/core/logic/weather-inputs'
 import { usePressureAltitudeInput } from './pressure-altitude-input'
 import { TEMPERATURE_ADVISORY_C } from '@/core/logic/pressure-altitude'
 import { assessPerformance, inspectTables, parseLookupNumber, type MassSource, type PerformanceAssessment } from '../services/poh-inspection'
@@ -37,11 +39,20 @@ export function usePerformanceStep(context: () => PerformanceStepContext) {
   const pa = usePressureAltitudeInput()
   const runway = useManualRunwayStore()
   const units = useLoadedUnitPreferences()
+  const weather = useWeatherInputsStore()
+  // The field is an override; blank means the shared Weather temperature is used.
   const temperature = ref('')
+  const temperatureResolved = computed(() => resolveScalar(temperature.value, weather.temperature))
+  const temperatureProvenance = computed(() => {
+    const { source } = temperatureResolved.value
+    if (source === 'manual') return 'Manual entry here overrides the Weather value.'
+    if (source === 'none') return 'Not entered. Enter temperature here or in Weather.'
+    return `From Weather (${weather.sourceOf('temperature') ?? 'manual entry'}${weather.sourceOf('temperature') ? '; retrieved, unverified' : ''}).`
+  })
   const showPaErrors = ref(false)
   // Only a valid, explicitly entered value is judged; blank or invalid text keeps the existing input validation.
   const temperatureWarnings = computed(() => {
-    const value = parseLookupNumber(temperature.value)
+    const value = parseLookupNumber(temperatureResolved.value.value)
     return value !== null && (value < TEMPERATURE_ADVISORY_C.min || value > TEMPERATURE_ADVISORY_C.max)
       ? [`WARNING WARN-UI-001: Temperature ${value} °C is outside the standard ${TEMPERATURE_ADVISORY_C.min}–${TEMPERATURE_ADVISORY_C.max} °C range. Check the value.`] : []
   })
@@ -68,12 +79,12 @@ export function usePerformanceStep(context: () => PerformanceStepContext) {
   const profileKey = computed(() => JSON.stringify(ctx.value.profile))
   const inputKey = computed(() => JSON.stringify([
     ctx.value.revision, ctx.value.ready, profileKey.value, ctx.value.category, ctx.value.takeoff, ctx.value.landing,
-    pa.revision.value, temperature.value, corrections, safetyFactors, obstacle, units.preferences, manualConfiguration.value,
+    pa.revision.value, temperatureResolved.value, corrections, safetyFactors, obstacle, units.preferences, manualConfiguration.value,
     runway.saved, runway.draft, runway.storageError, runway.hasUnsavedChanges, runway.assessmentDate, runway.today, runway.automaticDate,
   ]))
   // A pilot-derived factor belongs only to the exact conditions for which it was entered.
   for (const operation of OPERATIONS) {
-    watch(() => JSON.stringify([ctx.value, pa.revision.value, temperature.value, corrections[operation].headwind, corrections[operation].slope, runway.saved, runway.draft, manualConfiguration.value]), () => {
+    watch(() => JSON.stringify([ctx.value, pa.revision.value, temperatureResolved.value, corrections[operation].headwind, corrections[operation].slope, runway.saved, runway.draft, manualConfiguration.value]), () => {
       corrections[operation].windFactor = ''
       corrections[operation].windAddend = ''
       corrections[operation].windSource = ''
@@ -108,7 +119,7 @@ export function usePerformanceStep(context: () => PerformanceStepContext) {
     if (!profile) return block('profile', 'Select an aircraft profile before computing.')
     const resolved = pa.resolution.value
     if (resolved.status === 'blocked') return block('input', resolved.message)
-    const assessment = assessPerformance(profile, { takeoff, landing, pressureAltitude: resolved.value, temperature: temperature.value }, new Date())
+    const assessment = assessPerformance(profile, { takeoff, landing, pressureAltitude: resolved.value, temperature: temperatureResolved.value.value }, new Date())
     const basis = resolved.method === 'direct'
       ? `${resolved.value.trim()} ft, entered directly`
       : `${resolved.displayFt} ft, derived from QNH and field elevation (unrounded value used)`
@@ -189,11 +200,13 @@ export function usePerformanceStep(context: () => PerformanceStepContext) {
         { label: 'Pressure altitude method', value: pa.method.value === 'direct' ? 'Direct entry' : pa.method.value === 'qnh-elevation' ? 'Derived from QNH and field elevation' : 'Not selected' },
         ...(pa.method.value === 'direct' ? [{ label: 'Entered pressure altitude', value: `${pa.direct.value.trim() || 'Not entered'} ft` }]
           : pa.method.value === 'qnh-elevation' ? [
-            { label: 'QNH', value: `${pa.draft.qnh.trim() || 'Not entered'} ${pa.draft.qnhUnit}`, warnings: pa.warnings.value },
+            { label: 'QNH', value: `${pa.effectiveDraft.value.qnh.trim() || 'Not entered'} ${pa.effectiveDraft.value.qnhUnit}`, warnings: pa.warnings.value },
+            { label: 'QNH source', value: pa.qnhProvenance.value },
             { label: 'Field elevation', value: `${pa.draft.elevation.trim() || 'Not entered'} ${pa.draft.elevationUnit}` },
             { label: 'Field elevation source', value: pa.elevationProvenance.value },
           ] : []),
-        { label: 'Outside air temperature', value: `${temperature.value.trim() || 'Not entered'} °C`, warnings: temperatureWarnings.value },
+        { label: 'Outside air temperature', value: `${temperatureResolved.value.value.trim() || 'Not entered'} °C`, warnings: temperatureWarnings.value },
+        { label: 'Outside air temperature source', value: temperatureProvenance.value },
         ...OPERATIONS.flatMap((operation) => [
           { label: `${OPERATION_LABELS[operation]} headwind component`, value: `${corrections[operation].headwind.trim() || 'Not entered'} kt` },
           { label: `${OPERATION_LABELS[operation]} runway slope`, value: `${corrections[operation].slope.trim() || 'Not entered'} %` },
@@ -236,6 +249,6 @@ export function usePerformanceStep(context: () => PerformanceStepContext) {
     ] : []),
   ])])
 
-  return { pa, temperature, temperatureWarnings, annotationWarnings, extrapolationAcknowledged, corrections, safetyFactors, obstacle, obstacleAssessment, manualConfiguration, showPaErrors, tables, inputKey, compute, presentation }
+  return { pa, temperature, temperatureResolved, temperatureProvenance, temperatureWarnings, annotationWarnings, extrapolationAcknowledged, corrections, safetyFactors, obstacle, obstacleAssessment, manualConfiguration, showPaErrors, tables, inputKey, compute, presentation }
 }
 export type PerformanceStep = ReturnType<typeof usePerformanceStep>
