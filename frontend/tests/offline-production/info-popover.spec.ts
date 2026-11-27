@@ -1,0 +1,30 @@
+import { expect, test } from '@playwright/test'
+
+// REQ-UI-012
+test('info pop-over opens, closes on Escape and outside tap while offline', async ({ page, context }, info) => {
+  await page.goto('/performance')
+  await page.getByTestId('disclaimer-gate-accept').click()
+  await page.evaluate(async () => { await navigator.serviceWorker.ready })
+  await page.reload()
+  await expect.poll(() => page.evaluate(() => !!navigator.serviceWorker.controller)).toBe(true)
+  await context.setOffline(true)
+  await page.reload()
+
+  const button = page.getByRole('button', { name: 'Pressure altitude info', exact: true })
+  const box = await button.boundingBox()
+  expect(box!.width).toBeGreaterThanOrEqual(44)
+  expect(box!.height).toBeGreaterThanOrEqual(44)
+  await button.click()
+  const note = page.getByRole('note').filter({ hasText: 'standard atmosphere' })
+  await expect(note).toBeVisible()
+  const path = info.outputPath('info-popover.png')
+  await page.screenshot({ path, animations: 'disabled' })
+  await info.attach('info-popover', { path, contentType: 'image/png' })
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+  await page.keyboard.press('Escape')
+  await expect(note).toBeHidden()
+  await button.click()
+  await expect(note).toBeVisible()
+  await page.getByRole('heading', { level: 1 }).first().click()
+  await expect(note).toBeHidden()
+})

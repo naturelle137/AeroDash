@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Add keyboard- and touch-accessible information pop-overs (EN/DE, generic definitions only) for pressure altitude, safety factor, ground roll vs. 50 ft distance and unverified data in Flight Prep performance.
 - Verify offline Flight Prep and Briefing Pack layout at 320 px.
 
 - Show the AIRAC-cycle age of a saved runway declaration in the panel, briefing pack and JSON export; unknown stays unknown and no expiry is inferred.

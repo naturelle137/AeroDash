@@ -6,6 +6,7 @@ import {
 } from '@/core/logic/pressure-altitude'
 import type { usePressureAltitudeInput } from '../composables/pressure-altitude-input'
 import InputHelp from './InputHelp.vue'
+import InfoPopover from '@/shared/components/InfoPopover.vue'
 
 const props = defineProps<{ pa: ReturnType<typeof usePressureAltitudeInput>; showErrors: boolean }>()
 // Destructured refs so the template unwraps them; the composable instance itself is not reactive.
@@ -22,7 +23,7 @@ function paError(field: PressureAltitudeField): string | undefined {
 
 <template>
   <fieldset class="pa-method">
-    <legend>Pressure altitude source</legend>
+    <legend>Pressure altitude source <InfoPopover term="pressureAltitude" /></legend>
     <InputHelp label="Pressure altitude">Pressure altitude is the altitude in the standard atmosphere corresponding to the pressure at the location. Enter it in feet directly, or derive it from QNH and field elevation.</InputHelp>
     <label class="choice"><input v-model="method" type="radio" name="pa-method" value="direct" />
       Enter pressure altitude directly</label>
@@ -34,7 +35,7 @@ function paError(field: PressureAltitudeField): string | undefined {
     </div>
     <p v-if="method === 'direct'">Used exactly as entered. Field elevation is never treated as pressure altitude.</p>
     <section v-if="method === 'qnh-elevation'" aria-label="QNH and field elevation">
-      <InputHelp label="QNH">QNH is the aerodrome pressure setting reduced to mean sea level. Enter the current setting for this aerodrome in hPa or inHg, with field elevation in ft or m.</InputHelp>
+      <InfoPopover term="qnh" /><InputHelp label="QNH">QNH is the aerodrome pressure setting reduced to mean sea level. Enter the current setting for this aerodrome in hPa or inHg, with field elevation in ft or m.</InputHelp>
       <div class="fields">
         <div class="value-unit"><label for="pa-qnh">QNH<input id="pa-qnh" v-model="draft.qnh" type="text" inputmode="decimal" :aria-invalid="!!paError('qnh')" /></label>
         <div class="field unit-field">
