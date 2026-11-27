@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Highlight differing date checks beside each recent runway declaration.
+
 - Highlight differing selected and device runway date checks in the panel and briefing.
 
 - Show unknown runway date status for unsaved distance, elevation and surface entries.
