@@ -375,6 +375,13 @@ describe('ManualRunwayPanel', () => {
 })
 
 describe('manual source dates', () => {
+  it('shows an unknown expiry interval for a saved runway without an expiry date', async () => {
+    const view = mount(ManualRunwayPanel)
+    await fill(view)
+    await view.get('form').trigger('submit')
+    expect(summary(view).text()).toContain('Days to declared expiry: Unknown')
+  })
+
   it('refreshes today after a day change and preserves an explicitly selected date', async () => {
     vi.useFakeTimers()
     vi.setSystemTime(new Date(2026, 10, 26, 23, 59))
@@ -416,6 +423,7 @@ describe('manual source dates', () => {
     await view.get('#manual-runway-designator').setValue('09')
     expect(view.get('[aria-label="Runway date check"]').text()).toContain('Unsaved declaration on device date 2026-11-27: Expired')
     expect(view.get('[aria-label="Recently used airports"]').text()).toContain('Device date 2026-11-27: Expired')
+    expect(view.get('[aria-label="Recently used airports"]').text()).toContain('From device date 2026-11-27: days to declared effect: -26 · days to inclusive expiry: -1')
     expect(localStorage.getItem(MANUAL_RUNWAY_STORAGE_KEY)).toBe(saved)
     await view.get('#runway-effective').setValue('2026-12-01')
     expect(view.get('[aria-label="Runway date check"]').text()).not.toContain('Unsaved declaration on device date')
@@ -469,6 +477,7 @@ describe('manual source dates', () => {
     const entries = view.get('[aria-label="Recently used airports"]').findAll('li')
     expect(entries[0]!.text()).toContain('Source: Unknown (user-declared, unverified) · Effective: Unknown · Expiry (inclusive): Unknown')
     expect(entries[0]!.text()).toContain('Days to declared expiry: Unknown')
+    expect(entries[0]!.text()).toContain('days to declared effect: Unknown · days to inclusive expiry: Unknown')
     expect(entries[1]!.text()).toContain('Expired according to the declared date')
     expect(entries[1]!.text()).toContain('Days to declared expiry: -1')
     expect(entries[1]!.text()).toContain('Source: Synthetic chart (user-declared, unverified) · Effective: 2026-01-01 · Expiry (inclusive): 2026-12-31')

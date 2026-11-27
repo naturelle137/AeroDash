@@ -138,6 +138,7 @@ if (!runway.loaded) runway.load()
         <p>Source: {{ record.runway.source || 'Unknown' }} (user-declared, unverified) · Effective: {{ record.runway.effectiveDate || 'Unknown' }} · Expiry (inclusive): {{ record.runway.expiryDate || 'Unknown' }}</p>
         <p>Days to declared effect: {{ daysToDeclaredEffect(record.runway, runway.assessmentDate) ?? 'Unknown' }} (negative means after the declared effective date; source remains unverified).</p>
         <p>Days to declared expiry: {{ daysToDeclaredExpiry(record.runway, runway.assessmentDate) ?? 'Unknown' }} (negative means past expiry; source remains unverified).</p>
+        <p v-if="!runway.automaticDate">From device date {{ runway.today }}: days to declared effect: {{ daysToDeclaredEffect(record.runway, runway.today) ?? 'Unknown' }} · days to inclusive expiry: {{ daysToDeclaredExpiry(record.runway, runway.today) ?? 'Unknown' }}. Source remains unverified.</p>
       </li></ul>
     </section>
     <div class="fields">
@@ -289,7 +290,7 @@ if (!runway.loaded) runway.load()
       </dl>
       <p role="status"><strong>Source date check:</strong> {{ freshnessLabels[freshness] }}</p>
       <p>Days to declared effect: {{ daysToDeclaredEffect(runway.current.record.runway, runway.assessmentDate) ?? 'Unknown' }} (negative means after the declared effective date; source remains unverified).</p>
-      <p v-if="daysToDeclaredExpiry(runway.current.record.runway, runway.assessmentDate) !== null">Days to declared expiry: {{ daysToDeclaredExpiry(runway.current.record.runway, runway.assessmentDate) }} (negative means past expiry; source remains unverified).</p>
+      <p>Days to declared expiry: {{ daysToDeclaredExpiry(runway.current.record.runway, runway.assessmentDate) ?? 'Unknown' }} (negative means past expiry; source remains unverified).</p>
       <p v-if="cycle">AIRAC cycle starting {{ cycle }} (calendar date only).</p>
       <p v-else>AIRAC cycle unavailable for this date; consult the published calendar.</p>
       <p class="hint">A cycle change does not expire or verify a record. NOTAM/SUP coverage is unknown; check dates and restrictions against official sources.</p>

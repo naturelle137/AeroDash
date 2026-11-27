@@ -162,7 +162,7 @@ When displaying a recent manual runway declaration, the system shall show the da
 
 ### REQ-AP-034: Declared expiry interval
 
-When displaying a saved runway with a declared expiry and valid check date, the system shall show the signed number of calendar days until that expiry.
+When displaying a saved runway, the system shall show the signed number of calendar days until its declared expiry, or unknown when unavailable.
 
 ### REQ-AP-036: Declared effective interval
 
@@ -267,3 +267,7 @@ While an unsaved runway has an aerodrome or designator and no declared dates, th
 ### REQ-AP-061: Briefing invalid draft dates
 
 If an unsaved runway declaration has invalid or contradictory source dates, then the briefing shall explain why its date check is unavailable.
+
+### REQ-AP-062: Recent device-date offsets
+
+While a fixed check date is selected, the system shall show days to declared effect and inclusive expiry from the device date for each recent runway, or unknown where unavailable.
