@@ -10,6 +10,8 @@ dates. The summary, Performance and briefing identify NOTAM/SUP coverage as unkn
 Individual recent runway declarations can be removed without changing the current
 saved runway or unsaved form.
 Recent declarations can be filtered by their date check, including unknown; totals cover all recent declarations independently of the filter. Neither verifies currency or changes stored data.
+
+An independent filter finds recent declarations missing a source reference or either date; complete details do not establish source currency.
 The search also matches the user-declared source reference without verifying it.
 With a fixed check date, a separate filter identifies declarations whose selected and device date checks differ.
 With a fixed check date, separate totals use the device local date for comparison.

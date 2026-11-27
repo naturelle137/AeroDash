@@ -20,6 +20,7 @@ const recentDate = ref('selected')
 const recentSearch = ref('')
 const recentOrder = ref('recent')
 const differingDatesOnly = ref(false)
+const incompleteSourceOnly = ref(false)
 function countRecent(date: string) {
   const counts = { expired: 0, 'not-yet-effective': 0, 'within-declared-dates': 0, unknown: 0 }
   for (const record of runway.recent) counts[runwayFreshness(record.runway, date)]++
@@ -31,7 +32,8 @@ const filterDate = computed(() => !runway.automaticDate && recentDate.value === 
 const visibleRecent = computed(() => runway.recent.filter((record) =>
   (recentStatus.value === 'all' || runwayFreshness(record.runway, filterDate.value) === recentStatus.value)
   && [record.runway.aerodrome, record.runway.designator, record.runway.source ?? ''].some((value) => value.toLowerCase().includes(recentSearch.value.trim().toLowerCase()))
-  && (runway.automaticDate || !differingDatesOnly.value || runwayFreshness(record.runway, runway.assessmentDate) !== runwayFreshness(record.runway, runway.today)),
+  && (runway.automaticDate || !differingDatesOnly.value || runwayFreshness(record.runway, runway.assessmentDate) !== runwayFreshness(record.runway, runway.today))
+  && (!incompleteSourceOnly.value || !record.runway.source?.trim() || !record.runway.effectiveDate || !record.runway.expiryDate),
 ).sort((a, b) => recentOrder.value === 'expiry' || recentOrder.value === 'effective'
   ? (a.runway[recentOrder.value === 'expiry' ? 'expiryDate' : 'effectiveDate'] ?? '9999-99-99').localeCompare(b.runway[recentOrder.value === 'expiry' ? 'expiryDate' : 'effectiveDate'] ?? '9999-99-99')
   : 0))
@@ -105,6 +107,8 @@ if (!runway.loaded) runway.load()
       <h3>Recently used airports</h3>
       <label for="recent-search">Search aerodrome, runway or source reference</label>
       <input id="recent-search" v-model="recentSearch" type="search" />
+      <p><label><input id="incomplete-source-only" v-model="incompleteSourceOnly" type="checkbox" /> Only show declarations missing a source reference, effective date or expiry date</label></p>
+      <p v-if="incompleteSourceOnly" class="hint">Complete details do not verify the source or its currency.</p>
       <label for="recent-order">Order declarations</label>
       <select id="recent-order" v-model="recentOrder">
         <option value="recent">Most recently used</option>
@@ -130,7 +134,7 @@ if (!runway.loaded) runway.load()
         <option value="unknown">Unknown</option>
       </select>
       <p v-if="!visibleRecent.length">No declarations match the current filters.</p>
-      <p v-if="!runway.automaticDate"><label><input v-model="differingDatesOnly" type="checkbox" /> Only show declarations with different selected and device date checks</label></p>
+      <p v-if="!runway.automaticDate"><label><input id="differing-dates-only" v-model="differingDatesOnly" type="checkbox" /> Only show declarations with different selected and device date checks</label></p>
       <p v-if="recentStatus !== 'all'">Filter uses {{ filterDate || 'an invalid date' }}; each entry still shows the selected date check.</p>
       <ul class="recent-runways"><li v-for="record in visibleRecent" :key="JSON.stringify([record.runway.aerodrome, record.runway.designator])">
         <button type="button" class="select-recent" @click="selectRecent(record)">{{ record.runway.aerodrome }} — {{ record.runway.designator }}: {{ freshnessLabels[runwayFreshness(record.runway, runway.assessmentDate)] }}</button>

@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Filter recent runway declarations with incomplete source details offline.
+
 - Show unsaved runway date offsets from the device date when using a fixed check date.
 
 - Show saved runway date offsets from the device date when using a fixed check date.
