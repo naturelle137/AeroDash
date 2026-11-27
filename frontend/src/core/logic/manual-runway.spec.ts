@@ -267,6 +267,8 @@ describe('AIRAC age of a stored declaration', () => {
     expect(airacCyclesSinceSave('2026-11-26T10:00:00.000Z', '2026-12-24')).toBe(1)
     expect(airacCyclesSinceSave('2026-10-29T00:00:00.000Z', '2027-01-21')).toBe(3)
     expect(airacCyclesSinceSave('2026-11-26T10:00:00.000Z', '2026-11-01')).toBeNull()
+    expect(airacCyclesSinceSave('2026-12-10T10:00:00.000Z', '2026-12-09')).toBeNull()
+    expect(airacCyclesSinceSave('2026-12-10T10:00:00.000Z', '2026-12-10')).toBe(0)
     expect(airacCyclesSinceSave('2019-12-01T00:00:00.000Z', '2026-11-26')).toBeNull()
     expect(airacCyclesSinceSave('2026-11-26T10:00:00.000Z', 'invalid')).toBeNull()
     expect(describeAiracAge(null)).toContain('no staleness verdict')
