@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import InfoPopover from '@/shared/components/InfoPopover.vue'
 import type { MathCoreResult } from '@/modules/mass-balance/stores/mass-balance.types'
 import {
   formatMassConservative,
@@ -85,7 +86,7 @@ const exactLimitNames = computed(() =>
     <template v-else>
       <dl class="result-summary__grid">
         <div class="result-summary__item">
-          <dt>Takeoff Mass</dt>
+          <dt>Takeoff Mass <InfoPopover term="takeoffMass" /></dt>
           <dd>
             <span
               class="result-summary__value"
@@ -110,7 +111,7 @@ const exactLimitNames = computed(() =>
         </div>
 
         <div class="result-summary__item">
-          <dt>Zero Fuel Mass</dt>
+          <dt>Zero Fuel Mass <InfoPopover term="zeroFuelMass" /></dt>
           <dd>
             <span
               class="result-summary__value"
@@ -135,7 +136,7 @@ const exactLimitNames = computed(() =>
         </div>
 
         <div class="result-summary__item">
-          <dt>CG (Takeoff)</dt>
+          <dt>CG (Takeoff) <InfoPopover term="centerOfGravity" /></dt>
           <dd>
             <span class="result-summary__value">
               {{ formatArm(result.takeoffCenterOfGravityPoint.arm, 3) }}
@@ -202,6 +203,11 @@ const exactLimitNames = computed(() =>
   font-size: 0.75rem;
   color: var(--color-text-secondary, #666);
   margin-bottom: 0.125rem;
+}
+
+.result-summary__item:nth-child(2) :deep(.info-popover__content) { left: auto; right: 0; }
+@media (min-width: 768px) {
+  .result-summary__item :deep(.info-popover__content) { left: auto; right: 0; }
 }
 
 .result-summary__item dd {

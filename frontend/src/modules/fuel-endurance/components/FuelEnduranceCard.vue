@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import InfoPopover from '@/shared/components/InfoPopover.vue'
 import { useFuelPlanning, type FuelPlanning } from '../services/use-fuel-planning'
 const props = defineProps<{ planning?: FuelPlanning }>()
 const { method, directTripFuel, consumption, trip, reserve, sequence, sequences, fuel, plan, arrival, arrivalCg, pathAssessment, format, presentation } = props.planning ?? useFuelPlanning()
@@ -8,7 +9,7 @@ const { method, directTripFuel, consumption, trip, reserve, sequence, sequences,
   <div class="fuel-planner">
 
     <p v-if="fuel.ok" data-testid="usable-fuel">
-      Usable fuel: {{ format(fuel.usableFuelKg) }} kg. Excluded unusable fuel:
+      Usable fuel <InfoPopover term="usableFuel" />: {{ format(fuel.usableFuelKg) }} kg. Excluded unusable fuel:
       {{ format(fuel.excludedUnusableKg) }} kg.
     </p>
     <p v-else role="status">{{ fuel.reason }}</p>
@@ -67,7 +68,7 @@ const { method, directTripFuel, consumption, trip, reserve, sequence, sequences,
     >
       <dl v-if="plan">
         <template v-for="row in presentation.rows.filter(r => ['Total endurance', 'Trip fuel', 'Required reserve fuel', 'Trip + reserve fuel', 'Fuel shortfall', 'Remaining after trip + reserve'].includes(r.label))" :key="row.label">
-          <dt>{{ row.label }}</dt>
+          <dt>{{ row.label }} <InfoPopover v-if="row.label === 'Required reserve fuel'" term="reserveFuel" /></dt>
           <dd :class="{ warned: row.warnings?.length }">{{ row.value }}<p v-for="warning in row.warnings" :key="warning">{{ warning }}</p></dd>
         </template>
       </dl>

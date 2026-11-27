@@ -127,7 +127,8 @@ test('persisted fleet tank inputs feed the session-only fuel plan online and cac
   const results = page.getByRole('region', { name: 'Fuel planning results' })
   const arrival = page.getByRole('region', { name: 'Estimated trip arrival', exact: true })
   await expect(card.getByTestId('usable-fuel')).toHaveText(
-    'Usable fuel: 40 kg. Excluded unusable fuel: 10 kg.',
+    'Usable fuel ⓘ: 40 kg. Excluded unusable fuel: 10 kg.',
+    { useInnerText: true },
   )
   await card.getByLabel('Planning method').selectOption('duration')
   await rate.fill('10')

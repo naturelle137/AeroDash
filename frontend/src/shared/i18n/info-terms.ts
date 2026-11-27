@@ -27,6 +27,26 @@ export const INFO_TERMS = {
     en: { label: 'Unverified', explanation: 'The value or its source has not been checked and confirmed by the pilot. It is shown as entered and is not validated data.' },
     de: { label: 'Ungeprüft', explanation: 'Der Wert oder seine Quelle wurde vom Piloten nicht geprüft und bestätigt. Er wird wie eingegeben angezeigt und ist kein validierter Datensatz.' },
   },
+  usableFuel: {
+    en: { label: 'Usable and unusable fuel', explanation: 'Usable fuel is the fuel available for the engine under specified conditions. Unusable fuel is the quantity that cannot be used reliably and is excluded from the usable amount.' },
+    de: { label: 'Ausfliegbarer und nicht ausfliegbarer Kraftstoff', explanation: 'Ausfliegbarer Kraftstoff steht dem Triebwerk unter festgelegten Bedingungen zur Verfügung. Nicht ausfliegbarer Kraftstoff kann nicht zuverlässig genutzt werden und ist nicht in der ausfliegbaren Menge enthalten.' },
+  },
+  reserveFuel: {
+    en: { label: 'Reserve fuel', explanation: 'Reserve fuel is fuel planned to remain available beyond the trip fuel. The pilot must choose an appropriate reserve.' },
+    de: { label: 'Reservekraftstoff', explanation: 'Reservekraftstoff ist Kraftstoff, der über den Streckenverbrauch hinaus verfügbar bleiben soll. Die Pilotin oder der Pilot muss eine geeignete Reserve wählen.' },
+  },
+  takeoffMass: {
+    en: { label: 'Takeoff Mass', explanation: 'Takeoff mass is the aircraft mass at takeoff. Ramp mass is the mass before taxi and other ground fuel use.' },
+    de: { label: 'Startmasse', explanation: 'Die Startmasse ist die Masse beim Start. Die Rollmasse ist die Masse vor dem Rollen und sonstigem Kraftstoffverbrauch am Boden.' },
+  },
+  zeroFuelMass: {
+    en: { label: 'Zero Fuel Mass', explanation: 'Zero fuel mass (ZFM) is the aircraft mass excluding usable fuel; unusable fuel remains included.' },
+    de: { label: 'Nullkraftstoffmasse', explanation: 'Die Nullkraftstoffmasse (ZFM) ist die Flugzeugmasse ohne ausfliegbaren Kraftstoff; nicht ausfliegbarer Kraftstoff bleibt enthalten.' },
+  },
+  centerOfGravity: {
+    en: { label: 'Center of gravity', explanation: 'The center of gravity (CG) is the balance point. Its arm is the distance from the reference datum; moment is mass multiplied by arm. Mean aerodynamic chord (MAC) is a reference wing chord sometimes used to express CG as a percentage.' },
+    de: { label: 'Schwerpunkt', explanation: 'Der Schwerpunkt (CG) ist der Gleichgewichtspunkt. Sein Hebelarm ist der Abstand von der Bezugsebene (Datum); das Moment ist Masse mal Hebelarm. Die mittlere aerodynamische Flügeltiefe (MAC) ist eine Bezugsflügeltiefe, auf die sich eine Schwerpunktangabe in Prozent beziehen kann.' },
+  },
 } as const satisfies Record<string, Record<Locale, InfoTerm>>
 
 export type InfoTermId = keyof typeof INFO_TERMS
