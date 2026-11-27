@@ -72,6 +72,10 @@ export const EMPTY_MANUAL_RUNWAY_DRAFT: Readonly<ManualRunwayDraft> = Object.fre
   fieldElevation: '', fieldElevationUnit: '', surfaceType: '', surfaceCondition: '', source: '', effectiveDate: '', expiryDate: '',
 })
 
+export function hasManualRunwayDraftContent(draft: ManualRunwayDraft): boolean {
+  return (['aerodrome', 'designator', 'tora', 'lda', 'toda', 'fieldElevation', 'surfaceType', 'surfaceCondition', 'source', 'effectiveDate', 'expiryDate'] as const).some((field) => draft[field].trim() !== '')
+}
+
 /** Control characters are never part of a runway or aerodrome identity. */
 function hasControlCharacter(text: string): boolean {
   return [...text].some((char) => {

@@ -291,3 +291,7 @@ While filtering incomplete recent declarations, the system shall allow selecting
 ### REQ-AP-067: Source-only draft date check
 
 While an unsaved runway has a source reference and no declared dates, the system shall show an unknown date check in the runway panel and briefing.
+
+### REQ-AP-068: Value-only draft date check
+
+While an unsaved runway contains a distance, elevation or surface and no declared dates, the system shall show an unknown date check in the runway panel and briefing.

@@ -221,6 +221,16 @@ describe('ManualRunwayPanel', () => {
     await view.get('#runway-source').setValue('  ')
     expect(view.text()).not.toContain('Unsaved declaration date check:')
   })
+  it('shows unknown dates for individual runway values before identification', async () => {
+    const view = mount(ManualRunwayPanel)
+    for (const [selector, value] of [['#manual-runway-tora', '500'], ['#manual-runway-elevation', '0'], ['#manual-runway-surface-type', 'paved']]) {
+      await view.get(selector!).setValue(value)
+      expect(view.get('[aria-label="Runway date check"]').text()).toContain('Unknown: declared dates are incomplete')
+      await view.get(selector!).setValue('')
+      expect(view.text()).not.toContain('Unsaved declaration date check:')
+    }
+    expect(localStorage.getItem(MANUAL_RUNWAY_STORAGE_KEY)).toBeNull()
+  })
   it('checks valid dates before the remaining runway fields are complete', async () => {
     const view = mount(ManualRunwayPanel)
     await view.get('#runway-assessment-date').setValue('2026-08-01')
