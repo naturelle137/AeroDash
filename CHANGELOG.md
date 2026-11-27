@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Verify offline Flight Prep and Briefing Pack layout at 320 px.
+
 - Show the AIRAC-cycle age of a saved runway declaration in the panel, briefing pack and JSON export; unknown stays unknown and no expiry is inferred.
 
 - Cover the AIRAC-age line with offline browser checks at 390 and 1440 px.
