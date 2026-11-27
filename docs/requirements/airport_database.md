@@ -283,3 +283,7 @@ While a fixed check date is selected, the system shall show days to declared eff
 ### REQ-AP-065: Incomplete source details
 
 While recent runway declarations are displayed, the system shall allow filtering for missing source reference, effective date or expiry date.
+
+### REQ-AP-066: Filter by missing source detail
+
+While filtering incomplete recent declarations, the system shall allow selecting a specific missing source reference, effective date or expiry date.
