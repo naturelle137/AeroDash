@@ -83,7 +83,7 @@ Then('the takeoff runway comparison is {string}', async ({ page }, verdict: stri
 })
 
 When('the pilot selects the takeoff safety factor {string}', async ({ page }, preset: string) => {
-  await page.getByLabel('Safety factor', { exact: true }).first().selectOption({ label: preset })
+  await page.getByRole('combobox', { name: 'Safety factor', exact: true }).first().selectOption({ label: preset })
 })
 
 Then('the takeoff safety factor warning is {string}', async ({ page }, state: string) => {
@@ -110,7 +110,7 @@ Then('the partial takeoff and unavailable landing disclose missing corrections',
   const value = landing.locator('dd').first()
   const initial = await value.innerText()
   const inputs = page.getByRole('group', { name: 'Landing wind and slope' })
-  await inputs.getByLabel('Safety factor', { exact: true }).selectOption('custom')
+  await inputs.getByRole('combobox', { name: 'Safety factor', exact: true }).selectOption('custom')
   await inputs.getByLabel('Custom safety factor (1.00–3.00)').fill('2')
   await expect(value).not.toHaveText(initial)
 })
@@ -165,7 +165,7 @@ Then("changing each phase's conditions updates its final distance", async ({ pag
     await inputs.getByLabel('Runway slope (%, positive = uphill)').fill(phase === 'Takeoff' ? '1' : '-1')
     await expect(value).not.toHaveText(windy)
     const sloped = await value.innerText()
-    await inputs.getByLabel('Safety factor', { exact: true }).selectOption('custom')
+    await inputs.getByRole('combobox', { name: 'Safety factor', exact: true }).selectOption('custom')
     await inputs.getByLabel('Custom safety factor (1.00–3.00)').fill('2')
     await expect(value).not.toHaveText(sloped)
     const base = page.getByRole('group', { name: `${phase} raw distances` })
