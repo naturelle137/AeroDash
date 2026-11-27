@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Show unsaved runway date checks beside the save action.
+
 - Show declared date checks before selecting a recent runway declaration.
 
 - Filter recent runway declarations by a pilot-selected inclusive expiry deadline.

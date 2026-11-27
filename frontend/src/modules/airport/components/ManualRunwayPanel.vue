@@ -291,6 +291,14 @@ if (!runway.loaded) runway.load()
 
     <p v-if="runway.showErrors && errorCount" role="alert">Runway inputs not saved: correct {{ errorCount }}
       {{ errorCount === 1 ? 'field' : 'fields' }}.</p>
+    <div v-if="draftCheck || draftDateError" aria-label="Date check before saving">
+      <p v-if="draftDateError">Date check unavailable: {{ draftDateError }}</p>
+      <template v-else-if="draftCheck">
+        <p>Selected date {{ runway.assessmentDate || 'invalid' }}: {{ freshnessLabels[draftCheck] }}</p>
+        <p v-if="!runway.automaticDate">Device date {{ runway.today }}: {{ freshnessLabels[runwayFreshness({ effectiveDate: runway.draft.effectiveDate || undefined, expiryDate: runway.draft.expiryDate || undefined }, runway.today)] }}</p>
+        <p>Source and currency remain unverified; check current restrictions.</p>
+      </template>
+    </div>
     <div class="actions">
       <button type="submit">Save runway inputs</button>
       <button v-if="runway.hasUnsavedChanges" type="button" @click="runway.revert()">Discard changes</button>

@@ -90,6 +90,10 @@ qualify an actual record or provider update check. These unknowns need resolutio
 against the specific dataset and terms before acceptance; they are not evidence
 that no suitable ENAIRE dataset exists.
 
+### Candidate investigation: French SIA XML export
+
+The SIA [AIRAC 13/26 product](https://www.sia.aviation-civile.gouv.fr/donnees-aeronautiques-xml-airac-13-26.html) offers a free French and overseas AIP XML export for 24 December 2026 through 20 January 2027. Its linked [licence](https://www.sia.aviation-civile.gouv.fr/pub/media/news/file//l/i/licenceopendata-vf_2.pdf) permits redistribution with attribution and without distorting the information. The product requires a cart; the actual archive, declared-distance coverage, reproducible acquisition, record-level supersession and restriction coverage have not been established. The published cycle interval does not establish record-level expiry. This candidate is not yet accepted for integration.
+
 ### Candidate decision: EUROCONTROL EAD Basic
 
 Evaluated 2026-11-20 for the manual runway consumer. Do not integrate.
