@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import PressureAltitudeFieldset from './PressureAltitudeFieldset.vue'
 import InputHelp from './InputHelp.vue'
+import InfoPopover from '@/shared/components/InfoPopover.vue'
 import { describeGradient, OBSTACLE_SCOPE, OBSTACLE_UNITS } from '../services/obstacle-constraint'
 import { SAFETY_FACTOR_PRESETS } from '../services/corrected-distances'
 import type { PerformanceStep } from '../composables/performance-step'
@@ -39,14 +40,14 @@ const { temperature, temperatureWarnings, corrections, safetyFactors, showPaErro
         <select v-model="corrections[operation].groundOrder"><option value="surface-first">Surface then slope</option><option value="slope-first">Slope then surface</option></select></label>
       <label v-if="(corrections[operation].windFactor || corrections[operation].windAddend) && (corrections[operation].surfaceFactor || corrections[operation].surfaceAddend || corrections[operation].slopeFactor || corrections[operation].slopeAddend)">Pilot-entered wind correction order
         <select v-model="corrections[operation].windOrder"><option value="after-ground">After ground corrections</option><option value="before-ground">Before ground corrections</option></select></label>
-      <label>Safety factor
+      <div><label>Safety factor
         <select v-model="safetyFactors[operation].preset" :id="`performance-${operation}-safety-factor`">
           <option v-for="preset in SAFETY_FACTOR_PRESETS" :key="preset.value" :value="preset.value">{{ preset.label }}</option>
-        </select></label>
+        </select></label><InfoPopover term="safetyFactor" /></div>
       <label v-if="safetyFactors[operation].preset === 'custom'">Custom safety factor (1.00–3.00)<input v-model="safetyFactors[operation].custom" :id="`performance-${operation}-safety-factor-custom`" type="text" inputmode="decimal" /></label>
     </fieldset>
     <fieldset class="fields obstacle-inputs">
-      <legend>Obstacle constraint (optional, unverified)</legend>
+      <legend>Obstacle constraint (optional, unverified) <InfoPopover term="unverified" /></legend>
       <div><label>Obstacle height above runway<input v-model="obstacle.height" id="performance-obstacle-height" type="text" inputmode="decimal"
         :aria-invalid="obstacleAssessment.status === 'invalid' && !!obstacleAssessment.errors.height" aria-describedby="performance-obstacle-height-error" /></label>
         <label>Height unit<select v-model="obstacle.heightUnit" id="performance-obstacle-height-unit"><option v-for="unit in OBSTACLE_UNITS" :key="unit" :value="unit">{{ unit }}</option></select></label>
@@ -75,7 +76,7 @@ const { temperature, temperatureWarnings, corrections, safetyFactors, showPaErro
         Temperature: {{ presentation.conditions.temperature }}</p>
       <section v-for="item in presentation.corrected" :key="item.operation" class="group corrected" :data-corrected="item.operation"
         :aria-label="`${item.title} corrected distances`">
-        <h3>{{ item.title }} {{ item.status === 'applied' && item.partial ? 'partially corrected' : 'corrected' }} distances</h3>
+        <h3>{{ item.title }} {{ item.status === 'applied' && item.partial ? 'partially corrected' : 'corrected' }} distances <InfoPopover term="distanceBasis" /></h3>
         <p v-if="item.status === 'unavailable'" role="status">Not corrected: {{ item.reason }}</p>
         <template v-else>
           <p>Source: {{ item.source }}</p>
