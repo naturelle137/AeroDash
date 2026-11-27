@@ -2,15 +2,29 @@
 import { computed, reactive, watch } from 'vue'
 import { compareWindLimits } from '@/core/logic/wind-limits'
 import type { AircraftProfileWindLimit } from '@/core/adapters/aircraft.schema'
+import { useWeatherInputsStore } from '@/modules/weather/stores/weather-inputs.store'
+import { resolveWind } from '@/core/logic/weather-inputs'
 import { computeWindComponents, WIND_SPEED_UNITS, type WindComponentField, type WindComponentInput } from '@/core/logic/wind-components'
 
 const props = defineProps<{ windLimits?: AircraftProfileWindLimit[] }>()
-const notifications = computed(() => compareWindLimits(input.value, props.windLimits))
+const weather = useWeatherInputsStore()
+// The wind fields here are an override; while both are blank the shared Weather wind is used.
+const wind = computed(() => resolveWind({ ...input.value, gustSpeed: input.value.gustSpeed ?? '' }, weather.wind))
+const effective = computed<WindComponentInput>(() => ({ runwayHeading: input.value.runwayHeading, ...wind.value.value }))
+const provenance = computed(() => {
+  if (wind.value.source === 'manual') return 'Manual entry here overrides the Weather wind.'
+  if (wind.value.source === 'none') return 'No wind entered. Enter it here or in Weather.'
+  const note = weather.sourceOf('wind')
+  return `Wind from Weather (${note ?? 'manual entry'}${note ? '; retrieved, unverified' : ''}).`
+})
+// While the Weather wind is shown, its unit is shown too; the unit is edited in Weather.
+const unitModel = computed({ get: () => effective.value.unit, set: (unit: string) => { input.value.unit = unit } })
+const notifications = computed(() => compareWindLimits(effective.value, props.windLimits))
 const input = defineModel<WindComponentInput>({ default: () => reactive({ runwayHeading: '', windDirection: '', windSpeed: '', unit: 'kt' }) })
 watch(() => [input.value.windDirection, input.value.windSpeed, input.value.unit], () => { input.value.gustSpeed = '' }, { flush: 'sync' })
-const gustResult = computed(() => input.value.gustSpeed?.trim() ? computeWindComponents({ ...input.value, windSpeed: input.value.gustSpeed }) : null)
+const gustResult = computed(() => effective.value.gustSpeed?.trim() ? computeWindComponents({ ...effective.value, windSpeed: effective.value.gustSpeed ?? '' }) : null)
 // Computed, so results recompute or clear synchronously with every edit.
-const result = computed(() => computeWindComponents(input.value))
+const result = computed(() => computeWindComponents(effective.value))
 const errors = computed<Partial<Record<WindComponentField, string>>>(() => result.value.status === 'invalid' ? result.value.errors : {})
 const describedBy = (field: WindComponentField) => errors.value[field] ? `wind-${field}-error` : undefined
 const abs = (value: number) => Math.abs(value).toFixed(1)
@@ -31,19 +45,19 @@ const abs = (value: number) => Math.abs(value).toFixed(1)
       </div>
       <div class="field">
         <label for="wind-direction">Wind from (°, 1–360)</label>
-        <input id="wind-direction" v-model="input.windDirection" type="text" inputmode="decimal" autocomplete="off"
+        <input id="wind-direction" v-model="input.windDirection" type="text" inputmode="decimal" autocomplete="off" :placeholder="wind.source === 'weather' ? wind.value.windDirection : ''"
           :aria-invalid="!!errors.windDirection" :aria-describedby="describedBy('windDirection')" />
         <p v-if="errors.windDirection" id="wind-windDirection-error" class="field-error">{{ errors.windDirection }}</p>
       </div>
       <div class="field value-unit">
         <div class="field">
           <label for="wind-speed">Wind speed</label>
-          <input id="wind-speed" v-model="input.windSpeed" type="text" inputmode="decimal" autocomplete="off"
+          <input id="wind-speed" v-model="input.windSpeed" type="text" inputmode="decimal" autocomplete="off" :placeholder="wind.source === 'weather' ? wind.value.windSpeed : ''"
             :aria-invalid="!!errors.windSpeed" :aria-describedby="describedBy('windSpeed')" />
         </div>
         <div class="field">
           <label class="sr-only" for="wind-speed-unit">Wind speed unit</label>
-          <select id="wind-speed-unit" v-model="input.unit" :aria-invalid="!!errors.unit" :aria-describedby="describedBy('unit')">
+          <select id="wind-speed-unit" v-model="unitModel" :disabled="wind.source === 'weather'" :aria-invalid="!!errors.unit" :aria-describedby="describedBy('unit')">
             <option v-for="unit in WIND_SPEED_UNITS" :key="unit" :value="unit">{{ unit }}</option>
           </select>
         </div>
@@ -52,14 +66,15 @@ const abs = (value: number) => Math.abs(value).toFixed(1)
       </div>
       <div class="field">
         <label for="wind-gust">Gust speed (optional, same unit)</label>
-        <input id="wind-gust" v-model="input.gustSpeed" type="text" inputmode="decimal" autocomplete="off" :aria-invalid="gustResult?.status === 'invalid'" aria-describedby="wind-gust-help" />
+        <input id="wind-gust" v-model="input.gustSpeed" type="text" inputmode="decimal" autocomplete="off" :placeholder="wind.source === 'weather' ? wind.value.gustSpeed : ''" :aria-invalid="gustResult?.status === 'invalid'" aria-describedby="wind-gust-help" />
         <p id="wind-gust-help">Pilot-entered gust; re-enter after changing wind direction, speed or unit.</p>
         <p v-if="gustResult?.status === 'invalid'" class="field-error">Gust comparison unavailable: check gust, direction and runway heading.</p>
       </div>
     </div>
+    <p class="source-note">{{ provenance }}</p>
     <div role="status" aria-label="Wind components" class="result">
       <template v-if="result.status === 'valid'">
-        <p v-if="Number(input.windSpeed.replace(',', '.')) === 0">Calm wind (0 {{ result.unit }}).</p>
+        <p v-if="Number(effective.windSpeed.replace(',', '.')) === 0">Calm wind (0 {{ result.unit }}).</p>
         <dl>
           <div>
             <dt>{{ result.headwind >= 0 ? 'Headwind' : 'Tailwind' }}</dt>

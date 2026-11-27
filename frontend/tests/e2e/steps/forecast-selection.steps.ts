@@ -12,7 +12,7 @@ When('the pilot selects a forecast location and time', async ({ page }) => {
 Then('the forecast is unavailable and manual wind remains unchanged', async ({ page }) => {
   await expect(page.getByRole('button', { name: 'Check METAR' })).toBeVisible()
   await expect(page.getByRole('region', { name: 'Time-specific forecast' }).getByRole('status')).toContainText('Selection changed; retrieve the forecast again')
-  await expect(page.getByLabel('Wind speed', { exact: true })).toHaveValue('20')
+  await expect(page.locator('#wind-speed')).toHaveValue('20')
 })
 When('the browser goes offline for forecast planning', async ({ context }) => { await context.setOffline(true) })
 Then('the forecast selection and manual wind remain available offline', async ({ page }) => {
@@ -23,7 +23,7 @@ Then('the forecast selection and manual wind remain available offline', async ({
   await expect(forecast.getByLabel('Flight phase')).toHaveValue('arrival')
   await expect(forecast.getByLabel('Location')).toHaveValue('Test airfield')
   await expect(forecast.getByLabel('Local date and time')).toHaveValue('2030-06-01T12:30')
-  await expect(page.getByLabel('Wind speed', { exact: true })).toHaveValue('20')
+  await expect(page.locator('#wind-speed')).toHaveValue('20')
 })
 Then('the forecast selection evidence is captured as {string}', async ({ page, $testInfo }, width: string) => {
   await page.getByText('Current Flight Prep QNH: 1013 hPa').scrollIntoViewIfNeeded()
@@ -35,7 +35,7 @@ Then('the forecast selection evidence is captured as {string}', async ({ page, $
 When('the pilot applies synthetic forecast values offline', async ({ page }) => {
   const forecast = page.getByRole('region', { name: 'Time-specific forecast' })
   await page.getByRole('radio', { name: 'Derive from QNH and field elevation', exact: true }).check()
-  await page.locator('#pa-qnh').fill('995')
+  await page.locator('#weather-qnh').fill('995')
   await forecast.getByLabel('Forecast temperature').fill('12')
   await forecast.getByLabel('Forecast QNH').fill('0x3f5')
   await expect(forecast.getByRole('button', { name: 'Apply forecast QNH' })).toBeDisabled()
@@ -53,16 +53,16 @@ When('the pilot applies synthetic forecast values offline', async ({ page }) => 
   await forecast.getByRole('button', { name: 'Apply forecast QNH' }).click()
   await expect(forecast).toContainText('Current Flight Prep QNH: 1013 hPa')
   await forecast.getByRole('button', { name: 'Apply forecast wind' }).click()
-  await expect(page.locator('#performance-temperature')).toHaveValue('12')
-  await expect(page.locator('#wind-speed')).toHaveValue('10')
-  await expect(page.locator('#wind-direction')).toHaveValue('180')
+  await expect(page.locator('#weather-temperature')).toHaveValue('12')
+  await expect(page.locator('#weather-wind-speed')).toHaveValue('10')
+  await expect(page.locator('#weather-wind-direction')).toHaveValue('180')
   await page.getByRole('radio', { name: 'Derive from QNH and field elevation', exact: true }).check()
-  await expect(page.locator('#pa-qnh')).toHaveValue('1013')
+  await expect(page.locator('#weather-qnh')).toHaveValue('1013')
   await expect(page.locator('#prep-card-weather')).toContainText('pilot-declared QNH time type: issue')
   await expect(page.locator('#prep-card-weather')).toContainText('Pilot-entered forecast for arrival, Test airfield, 2030-06-01 12:30 local time')
 })
 Then('a manual override clears forecast provenance', async ({ page }) => {
-  await page.locator('#performance-temperature').fill('26')
+  await page.locator('#weather-temperature').fill('26')
   await expect(page.locator('#prep-card-weather')).not.toContainText('temperature source: Pilot-entered forecast')
 })
 
@@ -79,7 +79,7 @@ When('the pilot retrieves a synthetic hourly forecast', async ({ page }) => {
   await expect(forecast).toContainText('Temperature: 20 °C')
   await expect(page.locator('#wind-speed')).toHaveValue('20')
   await forecast.getByRole('button', { name: 'Replace wind with retrieved forecast' }).click()
-  await expect(page.locator('#wind-speed')).toHaveValue('10')
+  await expect(page.locator('#weather-wind-speed')).toHaveValue('10')
   await expect(page.locator('#prep-card-weather')).toContainText('source fetched')
   await expect(page.locator('#prep-card-weather')).toContainText('source fetch time is not forecast issue time')
 })
@@ -91,7 +91,7 @@ Then('the retrieved forecast evidence is captured as {string}', async ({ page, $
   const forecast = page.getByRole('region', { name: 'Time-specific forecast' })
   await forecast.getByLabel('Location').fill('Test airfield')
   await forecast.getByLabel('Local date and time').fill('2030-06-01T12:30')
-  await page.locator('#wind-speed').fill('20')
+  await page.locator('#weather-wind-speed').fill('20')
 })
 
 When('the pilot retrieves a synthetic global forecast', async ({ page }) => {
@@ -131,14 +131,14 @@ When('the pilot retrieves a synthetic global forecast', async ({ page }) => {
   await expect(forecast).toContainText('Model gust maximum during the preceding hour: 18 kt')
   await expect(page.locator('#wind-speed')).toHaveValue('20')
   await forecast.getByRole('button', { name: 'Replace wind with global forecast' }).click()
-  await expect(page.locator('#wind-speed')).toHaveValue('12')
+  await expect(page.locator('#weather-wind-speed')).toHaveValue('12')
 })
 Then('the global forecast evidence is captured as {string}', async ({ page, $testInfo }, width: string) => {
   const path = $testInfo.outputPath(`global-forecast-${width}.png`)
   await page.getByText('Model total precipitation in the preceding hour:', { exact: false }).scrollIntoViewIfNeeded()
   await page.screenshot({ path })
   await $testInfo.attach(`global-forecast-${width}`, { path, contentType: 'image/png' })
-  await page.locator('#wind-speed').fill('20')
+  await page.locator('#weather-wind-speed').fill('20')
 })
 
 const hourLocal = () => {

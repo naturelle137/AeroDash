@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Enter temperature, wind and QNH once in Weather: Performance and the wind comparison reuse them, manual Performance fields remain labelled overrides, and METAR/TAF/forecast copies stay explicit and unverified.
+
 - Reconcile roadmap milestone and release status with GitHub and retain open airport and sync prerequisites.
 
 - Add keyboard- and touch-accessible information pop-overs (EN/DE, generic definitions only) for pressure altitude, safety factor, ground roll vs. 50 ft distance and unverified data in Flight Prep performance.

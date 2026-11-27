@@ -13,7 +13,7 @@ When('the pilot sets mass {string} kg and temperature {string} °C for the Test 
   const id = await select.locator('option').nth(1).getAttribute('value')
   await select.selectOption(id!)
   await page.getByLabel('Mass (kg)', { exact: true }).fill(mass)
-  await page.getByLabel('Temperature (°C)', { exact: true }).fill(temperature)
+  await page.locator('#performance-temperature').fill(temperature)
 })
 
 Then('raw distances are refused until a pressure-altitude method is chosen', async ({ page }) => {
@@ -134,7 +134,7 @@ Then('the QNH edit updates raw distances live', async ({ page }) => {
 const temperatureAdvisory = (page: Page) => page.locator('[data-warning="WARN-UI-001"]')
 
 When('the pilot enters temperature {string} °C', async ({ page }, temperature: string) => {
-  await page.getByLabel('Temperature (°C)', { exact: true }).fill(temperature)
+  await page.locator('#performance-temperature').fill(temperature)
 })
 
 Then('the temperature advisory names {string} °C', async ({ page }, temperature: string) => {
@@ -152,5 +152,5 @@ Then('the temperature advisory evidence is captured as {string}', async ({ page,
 })
 
 When('the pilot clears the temperature', async ({ page }) => {
-  await page.getByLabel('Temperature (°C)', { exact: true }).clear()
+  await page.locator('#performance-temperature').clear()
 })

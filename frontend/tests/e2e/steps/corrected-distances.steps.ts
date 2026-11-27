@@ -137,7 +137,7 @@ When('the pilot selects the imported aircraft {string} in Flight Prep', async ({
 })
 
 When('the pilot sets temperature {string} °C in Flight Prep', async ({ page }, temperature: string) => {
-  await page.getByLabel('Temperature (°C)', { exact: true }).fill(temperature)
+  await page.locator('#performance-temperature').fill(temperature)
 })
 
 Then('Flight Prep identifies the raw distance scope and captures evidence', async ({ page, $testInfo }) => {

@@ -24,7 +24,7 @@ test('flight time and location govern TAF wind and observation fallback', async 
   await page.screenshot({ path, animations: 'disabled' })
   await info.attach('forecast-fallback', { path, contentType: 'image/png' })
   await tafWind.click()
-  await expect(page.getByText('forecast for 2026-11-21T19:00:00.000Z', { exact: false })).toBeVisible()
+  await expect(page.getByText('wind source: TAF EDDF', { exact: false })).toContainText('forecast for 2026-11-21T19:00:00.000Z')
   await forecast.getByLabel('Location', { exact: true }).fill('EDDM')
   await expect(tafWind).toHaveCount(0)
   await expect(page.getByRole('button', { name: /Replace wind with METAR/ })).toBeVisible()

@@ -1,10 +1,12 @@
 <script setup lang="ts">
+import { useWeatherInputsStore } from '@/modules/weather/stores/weather-inputs.store'
+import { resolveWind } from '@/core/logic/weather-inputs'
 import WeatherPanel from '@/modules/weather/WeatherPanel.vue'
 import { useManualRunwayStore } from '@/modules/airport/stores/manual-runway.store'
 import type { MetarValues } from '@/modules/weather/metar-values'
 import { requiresOccupancy, resolveStationKind } from '@/core/logic/station-kind'
 import { normalizeMassToKg, parseSourceUnit } from '@/core/logic/unit-normalization'
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useMassBalanceStore } from '@/modules/mass-balance/stores/mass-balance.store'
 import { AircraftContextSchema } from '@/modules/mass-balance/data/aircraft-context.schema'
@@ -697,23 +699,8 @@ function onImportHandover(text: string): void {
 }
 const windInput = ref({ runwayHeading: '', windDirection: '', windSpeed: '', unit: 'kt', gustSpeed: '' })
 const forecastSelection = ref<{ location: string; time: number; forecast: MetarValues } | null>(null)
-const weatherSources = ref<Partial<Record<keyof MetarValues, { source: string; value: string }>>>({})
-function weatherValue(field: keyof MetarValues): string {
-  if (field === 'wind') return JSON.stringify([windInput.value.windDirection, windInput.value.windSpeed, windInput.value.unit])
-  return field === 'temperature' ? performanceStep.temperature.value : JSON.stringify([performanceStep.pa.draft.qnh, performanceStep.pa.draft.qnhUnit])
-}
-watch(() => (['wind', 'temperature', 'qnh'] as const).map(weatherValue), (current) => {
-  (['wind', 'temperature', 'qnh'] as const).forEach((field, index) => {
-    if (weatherSources.value[field] && weatherSources.value[field].value !== current[index]) delete weatherSources.value[field]
-  })
-}, { flush: 'sync' })
-function applyWeather(field: keyof MetarValues, values: MetarValues, source: string): void {
-  if (field === 'wind' && values.wind) Object.assign(windInput.value, { windDirection: values.wind.direction, windSpeed: values.wind.speed, unit: values.wind.unit, gustSpeed: '' })
-  else if (field === 'temperature' && values.temperature !== undefined) performanceStep.temperature.value = values.temperature
-  else if (field === 'qnh' && values.qnh !== undefined) Object.assign(performanceStep.pa.draft, { qnh: values.qnh, qnhUnit: 'hPa' })
-  else return
-  weatherSources.value[field] = { source, value: weatherValue(field) }
-}
+const weatherInputs = useWeatherInputsStore()
+const effectiveWind = computed(() => ({ runwayHeading: windInput.value.runwayHeading, ...resolveWind(windInput.value, weatherInputs.wind).value }))
 
 function exportFlightPreparation(): void {
   const aircraft = store.aircraft
@@ -729,13 +716,13 @@ function exportFlightPreparation(): void {
     electric: isElectric.value ? { available: electricPlanning.available.value, power: electricPlanning.power.value, minutes: electricPlanning.minutes.value, reserveMinutes: electricPlanning.reserveMinutes.value } : null,
     manualConfiguration: performanceStep.manualConfiguration.value,
     runway: { draft: { ...runway.draft }, saved: runway.current?.record ?? null, weatherSurface: runway.weatherSurface, assessmentDate: runway.assessmentDate, deviceDate: runway.today, automaticDate: runway.automaticDate },
-    wind: { ...windInput.value },
-    weatherSources: { ...weatherSources.value },
+    wind: { ...effectiveWind.value },
+    weatherSources: { ...weatherInputs.sources },
   }, new Date()))
 }
 
 const printSource = computed(() => ({ ...mbSource.value, performance: performanceStep.presentation.value,
-  wind: { input: windInput.value, result: computeWindComponents(windInput.value) } }))
+  wind: { input: effectiveWind.value, result: computeWindComponents(effectiveWind.value) } }))
 
 // ---------------------------------------------------------------------------
 // ViewModel — single deterministic mapping of uiState → presentational flags
@@ -1402,11 +1389,8 @@ function onStartDemo(): void {
         <span class="prep-card__badge">05</span>
         <h2 id="prep-weather-title" class="prep-card__title">Weather</h2>
       </div>
-      <WeatherPanel :selection="forecastSelection" @forecast="useManualRunwayStore().updateForecast($event)" @observation="useManualRunwayStore().updateWeather($event)" @apply="applyWeather" />
-      <p v-for="field in (['wind', 'temperature', 'qnh'] as const)" :key="field">
-        <template v-if="weatherSources[field] && weatherSources[field].value === weatherValue(field)">{{ field }} source: {{ weatherSources[field].source }}</template>
-      </p>
-      <ForecastSelection @selection="forecastSelection = $event" :current-qnh="performanceStep.pa.draft.qnh" :current-qnh-unit="performanceStep.pa.draft.qnhUnit" @apply="applyWeather" />
+      <WeatherPanel :selection="forecastSelection" @forecast="useManualRunwayStore().updateForecast($event)" @observation="useManualRunwayStore().updateWeather($event)" @apply="weatherInputs.copyRetrieved" />
+      <ForecastSelection @selection="forecastSelection = $event" :current-qnh="weatherInputs.qnh.qnh" :current-qnh-unit="weatherInputs.qnh.qnhUnit" @apply="weatherInputs.copyRetrieved" />
     </section>
 
     <!-- ═══ Operational disclaimer (bottom, non-blocking) ═════════════════ -->

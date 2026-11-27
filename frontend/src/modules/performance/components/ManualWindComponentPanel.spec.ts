@@ -1,5 +1,7 @@
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { createPinia, setActivePinia } from 'pinia'
+import { beforeEach, describe, expect, it } from 'vitest'
+import { useWeatherInputsStore } from '@/modules/weather/stores/weather-inputs.store'
 import ManualWindComponentPanel from './ManualWindComponentPanel.vue'
 
 async function enter(view: ReturnType<typeof mount>, heading: string, direction: string, speed: string) {
@@ -9,7 +11,24 @@ async function enter(view: ReturnType<typeof mount>, heading: string, direction:
 }
 const result = (view: ReturnType<typeof mount>) => view.get('[aria-label="Wind components"]').text()
 
+beforeEach(() => setActivePinia(createPinia()))
+
 describe('ManualWindComponentPanel', () => {
+  it('uses the shared Weather wind until a wind is entered here', async () => {
+    const weather = useWeatherInputsStore()
+    weather.copyRetrieved('wind', { wind: { direction: '330', speed: '20', unit: 'kt' } }, 'METAR EDDF')
+    const view = mount(ManualWindComponentPanel)
+    await view.get('#wind-runway-heading').setValue('270')
+    expect(result(view)).toContain('Headwind10.0 kt')
+    expect(view.text()).toContain('retrieved, unverified')
+    await view.get('#wind-speed').setValue('10')
+    await view.get('#wind-direction').setValue('270')
+    expect(result(view)).toContain('Headwind10.0 kt')
+    expect(view.text()).toContain('overrides the Weather wind')
+    await view.get('#wind-speed').setValue('0')
+    expect(result(view)).toContain('Calm wind')
+  })
+
   it('shows headwind and crosswind side with units', async () => {
     const view = mount(ManualWindComponentPanel)
     await enter(view, '270', '330', '20')

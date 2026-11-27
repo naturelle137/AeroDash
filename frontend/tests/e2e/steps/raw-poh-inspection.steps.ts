@@ -26,7 +26,7 @@ async function directPa(page: Page, value: string) {
 async function validInputs(page: Page) {
   await page.getByLabel('Mass (kg)', { exact: true }).fill('900')
   await directPa(page, '1000')
-  await page.getByLabel('Temperature (°C)', { exact: true }).fill('10')
+  await page.locator('#performance-temperature').fill('10')
 }
 async function verify(page: Page) {
   await page.goto('/fleet')
@@ -274,11 +274,11 @@ Then('the declared source reference vector computes after reload and export for 
     await selectOnlyProfile(page)
     await page.getByLabel('Mass (kg)', { exact: true }).fill('907.18474')
     await directPa(page, '1000')
-    await page.getByLabel('Temperature (°C)', { exact: true }).fill('10')
+    await page.locator('#performance-temperature').fill('10')
 
     await expect(result(page).locator('dd')).toHaveText(['304.8 m', '304.8 m', '304.8 m', '304.8 m'])
     // A new input must immediately clear a previously converted result.
-    await page.getByLabel('Temperature (°C)', { exact: true }).fill('12')
+    await page.locator('#performance-temperature').fill('12')
     await expect(result(page)).toHaveCount(0)
 
     await expect(page.getByRole('group', { name: 'Takeoff raw distances', exact: true })).toContainText('10 % extrapolation limit')
@@ -299,7 +299,7 @@ Then('the declared source reference vector computes after reload and export for 
   await selectOnlyProfile(page)
   await page.getByLabel('Mass (kg)', { exact: true }).fill('907.18474')
   await directPa(page, '1000')
-  await page.getByLabel('Temperature (°C)', { exact: true }).fill('10')
+  await page.locator('#performance-temperature').fill('10')
 
   await expect(result(page).locator('dd')).toHaveText(['304.8 m', '304.8 m', '304.8 m', '304.8 m'])
 })
@@ -322,7 +322,7 @@ Then('changing the imported source units requires explicit review again for {str
   await select.selectOption(id!)
   await page.getByLabel('Mass (kg)', { exact: true }).fill('907.18474')
   await directPa(page, '1000')
-  await page.getByLabel('Temperature (°C)', { exact: true }).fill('10')
+  await page.locator('#performance-temperature').fill('10')
 
   await expect(page.getByRole('alert').first()).toContainText('Draft profile')
   await expect(result(page)).toHaveCount(0)

@@ -3,6 +3,8 @@ import { QNH_ADVISORY_HPA, derivePressureAltitude, type PressureAltitudeDraft } 
 import { useManualRunwayStore } from '@/modules/airport/stores/manual-runway.store'
 import { useLoadedUnitPreferences } from '@/modules/performance/stores/unit-preferences.store'
 import { plainCopy } from '@/shared/composables/useDemoScratch'
+import { useWeatherInputsStore } from '@/modules/weather/stores/weather-inputs.store'
+import { resolveQnh } from '@/core/logic/weather-inputs'
 import { convertLengthText, isLengthUnit } from '@/core/logic/unit-preferences'
 
 export type PressureAltitudeMethod = '' | 'direct' | 'qnh-elevation'
@@ -22,6 +24,7 @@ export function usePressureAltitudeInput() {
   const runway = useManualRunwayStore()
   if (!runway.loaded) runway.load()
   const units = useLoadedUnitPreferences()
+  const weather = useWeatherInputsStore()
 
   const method = ref<PressureAltitudeMethod>('')
   // Kept while the derived method is active so switching back never overwrites it.
@@ -34,7 +37,16 @@ export function usePressureAltitudeInput() {
   const notice = ref<string | null>(null)
   let copying = false
 
-  const derivation = computed(() => derivePressureAltitude(draft))
+  // The QNH field is an override; blank means the shared Weather value is used, unit included.
+  const qnhResolved = computed(() => resolveQnh({ qnh: draft.qnh, qnhUnit: draft.qnhUnit }, weather.qnh))
+  const effectiveDraft = computed<PressureAltitudeDraft>(() => ({ ...draft, ...qnhResolved.value.value }))
+  const qnhProvenance = computed(() => {
+    const { source } = qnhResolved.value
+    if (source === 'manual') return 'Manual entry here overrides the Weather value.'
+    if (source === 'none') return 'Not entered. Enter QNH here or in Weather.'
+    return `From Weather (${weather.sourceOf('qnh') ?? 'manual entry'}${weather.sourceOf('qnh') ? '; retrieved, unverified' : ''}).`
+  })
+  const derivation = computed(() => derivePressureAltitude(effectiveDraft.value))
   const copiedFromRunway = computed(() => runwayCopy.value !== null
     && draft.elevation === runwayCopy.value.text && draft.elevationUnit === runwayCopy.value.unit)
   const elevationProvenance = computed(() => copiedFromRunway.value
@@ -103,7 +115,7 @@ export function usePressureAltitudeInput() {
   })
 
   /** Any change of method, source text, unit or provenance makes prior results stale. */
-  const revision = computed(() => JSON.stringify([method.value, direct.value, draft, copiedFromRunway.value]))
+  const revision = computed(() => JSON.stringify([method.value, direct.value, effectiveDraft.value, qnhResolved.value.source, copiedFromRunway.value]))
 
   /** Plain copy of every pilot-entered field, for demo scratch restore. */
   function snapshot() {
@@ -129,5 +141,5 @@ export function usePressureAltitudeInput() {
     }
   }
 
-  return { warnings, method, direct, draft, notice, derivation, savedRunway, copiedFromRunway, elevationProvenance, resolution, revision, useRunwayElevation, snapshot, restore }
+  return { warnings, method, direct, draft, effectiveDraft, qnhProvenance, notice, derivation, savedRunway, copiedFromRunway, elevationProvenance, resolution, revision, useRunwayElevation, snapshot, restore }
 }
