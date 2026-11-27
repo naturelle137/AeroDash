@@ -6,17 +6,25 @@
 
 When the user selects a manufacturer from the dropdown, the model dropdown shall be populated with models for that manufacturer.
 
+**Status:** Implemented. Test: `frontend/src/modules/aircraft/__tests__/AircraftModelSelector.spec.ts`.
+
 ### REQ-UI-002: Manual Model Entry
 
 When 'Other' is selected for manufacturer, the system shall replace the model dropdown with a text input field for manual entry.
+
+**Status:** Implemented. Test: `frontend/src/modules/aircraft/__tests__/AircraftModelSelector.spec.ts`.
 
 ### REQ-UI-003: ICAO Designator Auto-fill
 
 When a model is selected, the ICAO aircraft type designator field shall be auto-filled.
 
+**Status:** Implemented. Test: `frontend/src/modules/aircraft/__tests__/AircraftModelSelector.spec.ts`.
+
 ### REQ-UI-004: Bidirectional ICAO Lookup
 
 When a valid ICAO type designator is entered, the system shall display a selection list of matching Manufacturer/Model combinations.
+
+**Status:** Implemented. Test: `frontend/src/modules/aircraft/__tests__/AircraftModelSelector.spec.ts`.
 
 ### REQ-UI-005: Recent Airports Display
 
