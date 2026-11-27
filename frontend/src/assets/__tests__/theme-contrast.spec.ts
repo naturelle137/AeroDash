@@ -6,7 +6,7 @@ const css = readFileSync(resolve(__dirname, '../theme.css'), 'utf8')
 
 function block(selector: string): Record<string, string> {
   const out: Record<string, string> = {}
-  const re = new RegExp(`${selector.replace(/[[\]"]/g, '\\$&')}[^{]*\\{([^}]*)\\}`, 'g')
+  const re = new RegExp(`${selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}[^{]*\\{([^}]*)\\}`, 'g')
   for (const m of css.matchAll(re)) {
     for (const d of (m[1] ?? '').matchAll(/(--[\w-]+):\s*([^;]+);/g)) {
       out[d[1] as string] = (d[2] ?? '').replace(/\/\*.*?\*\//g, '').trim()
