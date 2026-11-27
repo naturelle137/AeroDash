@@ -20,6 +20,7 @@ const recentStatus = ref('all')
 const recentDate = ref('selected')
 const recentSearch = ref('')
 const recentOrder = ref('recent')
+const expiryBy = ref('')
 const differingDatesOnly = ref(false)
 const incompleteSourceOnly = ref(false)
 const missingSourceField = ref('any')
@@ -33,6 +34,7 @@ const deviceCounts = computed(() => countRecent(runway.today))
 const filterDate = computed(() => !runway.automaticDate && recentDate.value === 'device' ? runway.today : runway.assessmentDate)
 const visibleRecent = computed(() => runway.recent.filter((record) =>
   (recentStatus.value === 'all' || runwayFreshness(record.runway, filterDate.value) === recentStatus.value)
+  && (!expiryBy.value || !!record.runway.expiryDate && record.runway.expiryDate <= expiryBy.value)
   && [record.runway.aerodrome, record.runway.designator, record.runway.source ?? ''].some((value) => value.toLowerCase().includes(recentSearch.value.trim().toLowerCase()))
   && (runway.automaticDate || !differingDatesOnly.value || runwayFreshness(record.runway, runway.assessmentDate) !== runwayFreshness(record.runway, runway.today))
   && (!incompleteSourceOnly.value || (missingSourceField.value === 'source' ? !record.runway.source?.trim() : missingSourceField.value === 'effective' ? !record.runway.effectiveDate : missingSourceField.value === 'expiry' ? !record.runway.expiryDate : !record.runway.source?.trim() || !record.runway.effectiveDate || !record.runway.expiryDate)),
@@ -114,6 +116,9 @@ if (!runway.loaded) runway.load()
       <h3>Recently used airports</h3>
       <label for="recent-search">Search aerodrome, runway or source reference</label>
       <input id="recent-search" v-model="recentSearch" type="search" />
+      <label for="recent-expiry-by">Declared expiry on or before</label>
+      <input id="recent-expiry-by" v-model="expiryBy" type="date" />
+      <p v-if="expiryBy" class="hint">Declarations with unknown expiry are excluded. Dates and source remain unverified.</p>
       <p><label><input id="incomplete-source-only" v-model="incompleteSourceOnly" type="checkbox" /> Only show declarations missing a source reference, effective date or expiry date</label></p>
       <template v-if="incompleteSourceOnly">
         <label for="missing-source-field">Missing detail</label>
