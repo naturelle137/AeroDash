@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test'
 
 test(`shows AIRAC age of the saved declaration offline`, async ({ page, context }, info) => {
+  await page.clock.install({ time: new Date('2026-12-10T12:00:00Z') })
   await page.goto('/mass-balance')
   await page.getByTestId('disclaimer-gate-accept').click()
   await page.evaluate(async () => { await navigator.serviceWorker.ready })
@@ -17,14 +18,14 @@ test(`shows AIRAC age of the saved declaration offline`, async ({ page, context 
   await runway.getByRole('button', { name: 'Save runway inputs' }).click()
   await context.setOffline(true)
   await page.reload()
-  await runway.locator('#runway-assessment-date').fill('2020-06-01')
+  await runway.locator('#runway-assessment-date').fill('2026-12-09')
   const age = runway.getByText('AIRAC age of saved declaration:')
   await expect(age).toContainText('Unknown (date outside the published AIRAC schedule or before the save date); no staleness verdict')
-  await runway.locator('#runway-assessment-date').fill(new Date().toISOString().slice(0, 10))
-  await expect(age).toContainText('Saved in the current AIRAC cycle; source currency remains unverified')
   await expect(page.locator('body')).toHaveJSProperty('scrollWidth', page.viewportSize()!.width)
   await age.scrollIntoViewIfNeeded()
   const path = info.outputPath(`airac-age-${info.project.name}.png`)
   await page.screenshot({ path, animations: 'disabled' })
   await info.attach(`airac-age-${info.project.name}`, { path, contentType: 'image/png' })
+  await runway.locator('#runway-assessment-date').fill('2026-12-10')
+  await expect(age).toContainText('Saved in the current AIRAC cycle; source currency remains unverified')
 })

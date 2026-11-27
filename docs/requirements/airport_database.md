@@ -315,3 +315,7 @@ When selecting a recent runway declaration, the system shall show its declared d
 ### REQ-AP-074: Date check at save
 
 While an unsaved runway declaration has content, the system shall show its declared date checks or date error beside the save action.
+
+### REQ-AP-075: AIRAC age before saving
+
+If the selected date precedes the saved runway's UTC save date, then the system shall report its AIRAC age as unknown.

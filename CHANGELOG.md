@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Show unknown AIRAC age when the selected date precedes the runway save date within the same cycle.
+
 - Enter temperature, wind and QNH once in Weather: Performance and the wind comparison reuse them, manual Performance fields remain labelled overrides, and METAR/TAF/forecast copies stay explicit and unverified.
 
 - Reconcile roadmap milestone and release status with GitHub and retain open airport and sync prerequisites.

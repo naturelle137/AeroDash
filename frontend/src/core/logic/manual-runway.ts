@@ -394,7 +394,7 @@ export function airacCycleStart(today: string): string | null {
 export function airacCyclesSinceSave(savedAt: string, checkDate: string): number | null {
   const saved = airacCycleStart(savedAt.slice(0, 10))
   const check = airacCycleStart(checkDate)
-  if (!saved || !check || check < saved) return null
+  if (!saved || !check || checkDate < savedAt.slice(0, 10)) return null
   return (Date.parse(`${check}T00:00:00Z`) - Date.parse(`${saved}T00:00:00Z`)) / (28 * 86400000)
 }
 
