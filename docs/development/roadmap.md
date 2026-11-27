@@ -2,6 +2,25 @@
 
 AeroDash’s goal is an understandable, aircraft-specific flight preparation workflow: M&B, performance, endurance and a usable decision summary. [Requirements](../requirements/README.md) retain the full product intent. The v0.2.0-alpha and v0.3.0-alpha milestones are closed and their releases published. Milestone numbers describe sequencing, not proof of completion; use [GitHub milestones](https://github.com/naturelle137/AeroDash/milestones?state=all) for active work.
 
+## Milestone and release snapshot
+
+As of 2026-11-27, GitHub records the following states. Open issue counts describe milestone assignments, not completion of every original objective. The [changelog](../../CHANGELOG.md) records released and unreleased changes; a milestone without open issues is not automatically closed or released.
+
+| Milestone | GitHub state | Open issues | Release |
+| :--- | :--- | ---: | :--- |
+| [v0.1.0-pre-alpha](https://github.com/naturelle137/AeroDash/milestone/1) | Closed | 0 | [Published](https://github.com/naturelle137/AeroDash/releases/tag/v0.1.0-pre-alpha), with a [hotfix](https://github.com/naturelle137/AeroDash/releases/tag/v0.1.0-pre-alpha.1) |
+| [v0.2.0-alpha](https://github.com/naturelle137/AeroDash/milestone/2) | Closed | 0 | [Published](https://github.com/naturelle137/AeroDash/releases/tag/v0.2.0-alpha) |
+| [v0.3.0-alpha](https://github.com/naturelle137/AeroDash/milestone/3) | Closed | 0 | [Published](https://github.com/naturelle137/AeroDash/releases/tag/v0.3.0-alpha) |
+| [v0.4.0-alpha](https://github.com/naturelle137/AeroDash/milestone/5) | Open | 0 | Not published |
+| [v0.5.0-alpha](https://github.com/naturelle137/AeroDash/milestone/6) | Open | 0 | Not published |
+| [v0.6.0-alpha](https://github.com/naturelle137/AeroDash/milestone/7) | Open | 1 | Not published |
+| [v0.7.0-alpha](https://github.com/naturelle137/AeroDash/milestone/11) | Open | 0 | Not published |
+| [v0.8.0-alpha](https://github.com/naturelle137/AeroDash/milestone/12) | Open | 5 | Not published |
+| [v0.9.0-beta](https://github.com/naturelle137/AeroDash/milestone/9) | Open | 1 | Not published |
+| [v1.0.0](https://github.com/naturelle137/AeroDash/milestone/10) | Open | 0 | Not published |
+
+The obsolete `docs/status-2026-11-11.md` was removed in [PR #489](https://github.com/naturelle137/AeroDash/pull/489); this snapshot replaces its roadmap-status role.
+
 ## Available workflows and limits
 
 At the docs-reset baseline `4aaba7e` (2026-11-12), source includes a local fleet wizard/editor, IndexedDB persistence, draft/verified profiles with provenance and expiry, JSON exchange, configurable occupant occupancy, and an integrated M&B view with fuel-burn/envelope calculations. The latest base also repairs mobile wizard step visibility.
@@ -42,3 +61,5 @@ Airport-data integration remains open under [#284](https://github.com/naturelle1
 - **Release maturity:** reliable integrated workflows, domain-reference validation, security testing and bilingual user help. A release number does not imply certification or approved aviation data.
 
 Trainer/instructor ideas #331–337 remain far-future backlog outside active milestones; the [discovery proposal](../journeys/discovery/230-training-personas.md) is not a delivered training mode. Cosmetic tooling and release research do not displace performance delivery.
+
+Sync and authentication prerequisites remain open in [#285](https://github.com/naturelle137/AeroDash/issues/285) and [#286](https://github.com/naturelle137/AeroDash/issues/286); privacy preferences remain open in [#289](https://github.com/naturelle137/AeroDash/issues/289). The encryption evaluation [#287](https://github.com/naturelle137/AeroDash/issues/287) and owner-ID/secrets-policy preparation [#288](https://github.com/naturelle137/AeroDash/issues/288) are closed, but do not deliver cloud sync or authentication. The [pre-sync gate](../architecture/adr/014-pre-sync-privacy-gate.md) still applies.
