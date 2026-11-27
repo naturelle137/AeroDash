@@ -30,6 +30,27 @@ beforeEach(() => {
 afterEach(() => { vi.restoreAllMocks() })
 
 describe('ManualRunwayPanel', () => {
+  it('shows saved runway intervals against the device date when the check date is fixed', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date(2026, 6, 1, 12))
+    try {
+      const view = mount(ManualRunwayPanel)
+      await fill(view)
+      await view.get('#runway-effective').setValue('2026-06-01')
+      await view.get('#runway-expiry').setValue('2026-06-30')
+      await view.get('form').trigger('submit')
+      await view.get('#runway-assessment-date').setValue('2026-06-30')
+      expect(summary(view).text()).toContain('From device date 2026-07-01: days to declared effect: -30 · days to inclusive expiry: -1. Source remains unverified.')
+      await view.get('#runway-expiry').setValue('')
+      await view.get('form').trigger('submit')
+      expect(summary(view).text()).toContain('days to inclusive expiry: Unknown')
+      await view.get('button').trigger('click')
+      expect(summary(view).text()).not.toContain('From device date')
+      view.unmount()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
   it('orders effective dates with unknown dates last without changing stored history', async () => {
     const view = mount(ManualRunwayPanel)
     await fill(view)
