@@ -54,6 +54,7 @@ test('checks an unsaved runway declaration after a cached offline reload', async
   await expect(check).toContainText('Within the declared dates; source currency remains unverified')
   await expect(check).toContainText('Days to declared effect: 0')
   await expect(check).toContainText('Days to declared expiry: 30')
+  await expect(check).toContainText('The selected and device date checks differ')
   await expect(check).toContainText('Unsaved declaration on device date 2026-08-01: Expired')
   await expect(check).toContainText('Unsaved declaration from device date 2026-08-01: days to declared effect: -31 · days to inclusive expiry: -1. Source remains unverified.')
   await runway.getByRole('button', { name: 'Save runway inputs' }).click()

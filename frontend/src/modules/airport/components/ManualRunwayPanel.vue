@@ -52,6 +52,10 @@ const draftCheck = computed(() => {
   if (result.status === 'invalid' && (result.errors.effectiveDate || result.errors.expiryDate)) return null
   return runwayFreshness({ effectiveDate: effectiveDate || undefined, expiryDate: expiryDate || undefined }, runway.assessmentDate)
 })
+const dateCheckDiffers = computed(() => {
+  const declaration = runway.current?.record.runway ?? (draftCheck.value ? runway.draft : null)
+  return !runway.automaticDate && declaration !== null && runwayFreshness(declaration, runway.assessmentDate) !== runwayFreshness(declaration, runway.today)
+})
 const cycle = computed(() => airacCycleStart(runway.assessmentDate))
 const freshnessLabels = { unknown: 'Unknown: declared dates are incomplete or the assessment date is invalid.', 'not-yet-effective': 'Not yet effective according to the declared date.', expired: 'Expired according to the declared date.', 'within-declared-dates': 'Within the declared dates; source currency remains unverified.' }
 const surfaceTypeLabels = { paved: 'Paved', unpaved: 'Other / legacy unpaved', grass: 'Grass' } as const
@@ -96,6 +100,7 @@ if (!runway.loaded) runway.load()
       <button type="button" @click="runway.useToday()">Use today’s local date</button>
       <p class="hint">{{ runway.automaticDate ? 'Today updates with the device’s local date.' : 'The selected date stays fixed.' }} Check your device date.</p>
       <p v-if="!runway.automaticDate && runway.current">Device date {{ runway.today }}: {{ freshnessLabels[runwayFreshness(runway.current.record.runway, runway.today)] }} This is a declared date check, not source verification.</p>
+      <p v-if="dateCheckDiffers" role="status">The selected and device date checks differ. Confirm the intended date and verify the source.</p>
       <p v-if="draftDateError" role="alert">Unsaved declaration date check unavailable: {{ draftDateError }}</p>
       <p v-if="draftCheck" role="status"><strong>Unsaved declaration date check:</strong> {{ freshnessLabels[draftCheck] }} Source and currency remain unverified; NOTAM/SUP coverage is unknown.</p>
       <p v-if="draftCheck && !runway.automaticDate">Unsaved declaration on device date {{ runway.today }}: {{ freshnessLabels[runwayFreshness({ effectiveDate: runway.draft.effectiveDate || undefined, expiryDate: runway.draft.expiryDate || undefined }, runway.today)] }}</p>

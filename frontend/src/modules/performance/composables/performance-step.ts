@@ -129,9 +129,10 @@ export function usePerformanceStep(context: () => PerformanceStepContext) {
       const device = runwayFreshness(runway.draft, runway.today)
       const validation = validateManualRunway(runway.draft)
       const dateError = validation.status === 'invalid' ? validation.errors.effectiveDate || validation.errors.expiryDate : undefined
-      return { status: 'unavailable', reason: `${reason} Unsaved source: ${source.trim() || 'Unknown'} (user-declared, unverified); effective: ${effectiveDate || 'Unknown'}; expiry (inclusive): ${expiryDate || 'Unknown'}. Unsaved declaration date check: ${runway.assessmentDate || 'Invalid date'}: ${selected}; device date ${runway.today}: ${device}.${dateError ? ` Date check unavailable: ${dateError}` : ''} Pilot-declared dates only; source currency is unverified and NOTAM/SUP coverage is unknown.` }
+      return { status: 'unavailable', reason: `${reason} Unsaved source: ${source.trim() || 'Unknown'} (user-declared, unverified); effective: ${effectiveDate || 'Unknown'}; expiry (inclusive): ${expiryDate || 'Unknown'}. Unsaved declaration date check: ${runway.assessmentDate || 'Invalid date'}: ${selected}; device date ${runway.today}: ${device}.${dateError ? ` Date check unavailable: ${dateError}` : ''}${!runway.automaticDate && selected !== device ? ' The selected and device date checks differ; confirm the intended date.' : ''} Pilot-declared dates only; source currency is unverified and NOTAM/SUP coverage is unknown.` }
     }
     const { aerodrome, designator, tora, lda, toda, fieldElevation, surface, source, effectiveDate, expiryDate } = declared.record.runway
+    const dateChecksDiffer = !runway.automaticDate && runwayFreshness(declared.record.runway, runway.assessmentDate) !== runwayFreshness(declared.record.runway, runway.today)
     const condition = SURFACE_CONDITIONS[surface.type].find((option) => option.value === surface.condition)?.label ?? surface.condition
     const elevationOther = fieldElevation.unit === 'ft' ? `${declared.display.fieldElevationM} m` : `${declared.display.fieldElevationFt} ft`
     return {
@@ -155,7 +156,7 @@ export function usePerformanceStep(context: () => PerformanceStepContext) {
         ] : []),
         { label: 'Surface', value: `${surface.type === 'paved' ? 'Paved' : surface.type === 'grass' ? 'Grass' : 'Other / legacy unpaved'} · ${condition}` },
       ],
-      note: `User-entered, not airport-validated. ${runway.automaticDate ? 'The check date follows the device’s local date; check the device date.' : 'The selected check date does not advance automatically; confirm it for your flight.'} NOTAM/SUP coverage is unknown; check declared dates and restrictions against official sources. Converted available distances are rounded down.`,
+      note: `User-entered, not airport-validated. ${runway.automaticDate ? 'The check date follows the device’s local date; check the device date.' : 'The selected check date does not advance automatically; confirm it for your flight.'} ${dateChecksDiffer ? 'The selected and device date checks differ; confirm the intended date. ' : ''}NOTAM/SUP coverage is unknown; check declared dates and restrictions against official sources. Converted available distances are rounded down.`,
     }
   })
 

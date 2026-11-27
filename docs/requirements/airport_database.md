@@ -295,3 +295,7 @@ While an unsaved runway has a source reference and no declared dates, the system
 ### REQ-AP-068: Value-only draft date check
 
 While an unsaved runway contains a distance, elevation or surface and no declared dates, the system shall show an unknown date check in the runway panel and briefing.
+
+### REQ-AP-070: Differing runway date checks
+
+While the selected and device date checks differ, the system shall highlight the difference in the runway panel and briefing.
