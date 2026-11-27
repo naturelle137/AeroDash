@@ -275,3 +275,7 @@ While a fixed check date is selected, the system shall show days to declared eff
 ### REQ-AP-063: Saved runway device-date offsets
 
 While a fixed check date is selected, the system shall show days to declared effect and inclusive expiry from the device date for the saved runway, or unknown where unavailable.
+
+### REQ-AP-064: Unsaved runway device-date offsets
+
+While a fixed check date is selected, the system shall show days to declared effect and inclusive expiry from the device date for a valid unsaved runway date check, or unknown where unavailable.
