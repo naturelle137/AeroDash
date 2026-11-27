@@ -1,7 +1,7 @@
 import { computed, reactive, ref, shallowRef, watch } from 'vue'
 import type { AircraftProfile } from '@/core/adapters/aircraft.schema'
 import { assessCorrectionSources, OPERATIONS, profileFacts, type ManualConfiguration, type Operation, type RunwayFacts } from '@/core/logic/performance.correction-sources'
-import { daysToDeclaredEffect, daysToDeclaredExpiry, normalizeManualRunway, runwayFreshness, SURFACE_CONDITIONS, validateManualRunway } from '@/core/logic/manual-runway'
+import { hasManualRunwayDraftContent, daysToDeclaredEffect, daysToDeclaredExpiry, normalizeManualRunway, runwayFreshness, SURFACE_CONDITIONS, validateManualRunway } from '@/core/logic/manual-runway'
 import { useManualRunwayStore } from '@/modules/airport/stores/manual-runway.store'
 import { useLoadedUnitPreferences } from '@/modules/performance/stores/unit-preferences.store'
 import { plainCopy, useDemoScratch } from '@/shared/composables/useDemoScratch'
@@ -124,7 +124,7 @@ export function usePerformanceStep(context: () => PerformanceStepContext) {
     if (!declared) {
       const reason = runway.hasUnsavedChanges ? 'Manual runway has unsaved changes. Save or discard them to use a current declaration.' : 'No saved manual runway declaration.'
       const { effectiveDate, expiryDate, source } = runway.draft
-      if (!runway.hasUnsavedChanges && !effectiveDate && !expiryDate && !source.trim() && !runway.draft.aerodrome.trim() && !runway.draft.designator.trim()) return { status: 'unavailable', reason }
+      if (!runway.hasUnsavedChanges && !hasManualRunwayDraftContent(runway.draft)) return { status: 'unavailable', reason }
       const selected = runwayFreshness(runway.draft, runway.assessmentDate)
       const device = runwayFreshness(runway.draft, runway.today)
       const validation = validateManualRunway(runway.draft)
