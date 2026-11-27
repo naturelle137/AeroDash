@@ -48,7 +48,7 @@ When calculating performance, the system shall report Available Runway minus Ope
 
 The system shall calculate the required geometric gradient from a pilot-entered obstacle height and horizontal distance.
 
-**Status:** Implemented. The geometric height/distance gradient is shown; available data does not support a clearance determination.
+**Status:** Implemented. The geometric height/distance gradient is shown; available data does not support a clearance determination. Test: `frontend/src/modules/performance/composables/performance-step.int.spec.ts` (synthetic obstacle).
 
 ### REQ-PF-009: Unverified Obstacle Notification
 
@@ -257,7 +257,7 @@ When performance tables are imported, the system shall preserve each table's dec
 
 When a Fleet performance table is reviewed, the system shall display its original points alongside normalized kg/ft/°C/m lookup points.
 
-**Status:** Implemented.
+**Status:** Implemented. Test: `frontend/src/modules/performance/services/poh-inspection.int.spec.ts` (synthetic points).
 
 ### REQ-PF-050: Invalid source declarations
 

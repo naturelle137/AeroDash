@@ -102,6 +102,8 @@ While an aircraft is electric, the wizard and editor shall hide the fuel-tank to
 
 While editing a persisted aircraft profile, the system shall display its powertrain as a read-only label.
 
+**Status:** Implemented. Test: `frontend/src/modules/aircraft/__tests__/AircraftProfileEditorView.spec.ts`.
+
 ### REQ-UI-024: Range override
 
 While an operational-range warning is active, the system shall allow entry confirmation.
