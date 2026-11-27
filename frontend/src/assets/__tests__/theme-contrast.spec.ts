@@ -8,7 +8,9 @@ function block(selector: string): Record<string, string> {
   const out: Record<string, string> = {}
   const re = new RegExp(`${selector.replace(/[[\]"]/g, '\\$&')}[^{]*\\{([^}]*)\\}`, 'g')
   for (const m of css.matchAll(re)) {
-    for (const d of m[1].matchAll(/(--[\w-]+):\s*([^;]+);/g)) out[d[1]] = d[2].replace(/\/\*.*?\*\//g, '').trim()
+    for (const d of (m[1] ?? '').matchAll(/(--[\w-]+):\s*([^;]+);/g)) {
+      out[d[1] as string] = (d[2] ?? '').replace(/\/\*.*?\*\//g, '').trim()
+    }
   }
   return out
 }
@@ -22,18 +24,18 @@ const themes = {
 function resolveColor(theme: Record<string, string>, token: string): string {
   let v = theme[token]
   while (v?.startsWith('var(')) v = theme[v.slice(4, -1)]
-  return v
+  return v ?? ''
 }
 
 function lum(hex: string): number {
   const c = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255)
     .map((x) => (x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4))
-  return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]
+  return 0.2126 * (c[0] ?? 0) + 0.7152 * (c[1] ?? 0) + 0.0722 * (c[2] ?? 0)
 }
 
 function ratio(a: string, b: string): number {
   const [hi, lo] = [lum(a), lum(b)].sort((x, y) => y - x)
-  return (hi + 0.05) / (lo + 0.05)
+  return ((hi ?? 0) + 0.05) / ((lo ?? 0) + 0.05)
 }
 
 // [foreground, background, minimum ratio]
