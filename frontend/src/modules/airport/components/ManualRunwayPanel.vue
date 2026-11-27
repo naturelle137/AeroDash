@@ -324,6 +324,7 @@ legend { font-weight: 700; padding: 0 .25rem; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 .field { display: grid; gap: .5rem; align-content: start; }
 input, select, button { font: inherit; padding: .75rem; min-height: 44px; border-radius: 6px; border: 1px solid var(--color-border); background: var(--color-surface); color: inherit; min-width: 0; }
+input[type="checkbox"] { width: 44px; }
 select:disabled { opacity: .6; }
 [aria-invalid="true"] { border-color: var(--color-danger, #c0392b); border-width: 2px; }
 .field-error { color: var(--color-danger, #c0392b); font-weight: 600; }
