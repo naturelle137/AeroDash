@@ -307,3 +307,7 @@ While a recent runway declaration has different selected and device date checks,
 ### REQ-AP-072: Declared expiry deadline filter
 
 While recent runway declarations are displayed, the system shall allow filtering for known declared expiry dates on or before a pilot-selected date.
+
+### REQ-AP-073: Recent declaration selection check
+
+When selecting a recent runway declaration, the system shall show its declared date checks before replacing the current form.

@@ -74,7 +74,9 @@ const savedAt = computed(() => runway.saved ? new Date(runway.saved.savedAt).toL
 const errorCount = computed(() => Object.keys(runway.errors).length)
 
 function selectRecent(record: (typeof runway.recent)[number]): void {
-  if (window.confirm('Replace the current runway form with this saved declaration? Unsaved changes will be lost.')) runway.selectRecent(record)
+  const selected = `${runway.assessmentDate}: ${freshnessLabels[runwayFreshness(record.runway, runway.assessmentDate)]}`
+  const device = runway.automaticDate ? '' : `\nDevice date ${runway.today}: ${freshnessLabels[runwayFreshness(record.runway, runway.today)]}`
+  if (window.confirm(`Replace the current runway form with ${record.runway.aerodrome} ${record.runway.designator}? Unsaved changes will be lost.\nDeclared date check ${selected}${device}\nThe source remains unverified; check current restrictions.`)) runway.selectRecent(record)
 }
 
 function error(field: ManualRunwayField): string | undefined {

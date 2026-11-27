@@ -332,6 +332,31 @@ describe('ManualRunwayPanel', () => {
     expect(view.get('[aria-label="Recently used airports"]').findAll('button')[0]!.text()).toContain('TEST')
   })
 
+  it('shows both date checks before replacing the form and preserves it on cancellation', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date(2026, 6, 1, 12))
+    try {
+      const confirm = vi.spyOn(window, 'confirm').mockReturnValue(false)
+      const view = mount(ManualRunwayPanel)
+      await fill(view)
+      await view.get('#runway-effective').setValue('2026-06-01')
+      await view.get('#runway-expiry').setValue('2026-06-30')
+      await view.get('form').trigger('submit')
+      const saved = localStorage.getItem(MANUAL_RUNWAY_STORAGE_KEY)
+      await view.get('#manual-runway-designator').setValue('09')
+      await view.get('#runway-assessment-date').setValue('2026-06-30')
+      await view.get('.select-recent').trigger('click')
+      expect(confirm).toHaveBeenCalledWith(expect.stringContaining('2026-06-30: Within the declared dates'))
+      expect(confirm).toHaveBeenCalledWith(expect.stringContaining('Device date 2026-07-01: Expired'))
+      expect(confirm).toHaveBeenCalledWith(expect.stringContaining('source remains unverified'))
+      expect((view.get('#manual-runway-designator').element as HTMLInputElement).value).toBe('09')
+      expect(localStorage.getItem(MANUAL_RUNWAY_STORAGE_KEY)).toBe(saved)
+      view.unmount()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
   it('checks recent declarations against the selected date without changing saved data', async () => {
     const view = mount(ManualRunwayPanel)
     await fill(view)
