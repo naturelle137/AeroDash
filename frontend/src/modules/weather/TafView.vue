@@ -6,7 +6,7 @@ const props = defineProps<{ embedded?: boolean; flightTime?: number }>()
 const emit = defineEmits<{ forecast: [value: { station: string; time: string; source: 'TAF'; validFrom: string; validTo: string; liquid: boolean; heavy?: boolean } | null]; wind: [value: { station: string; issued: string; validFrom: string; validTo: string; wind: TafWind } | null] }>()
 let request = 0
 function clearReport(): void { request++; report.value = null }
-function offline(): void { clearReport(); message.value = 'Offline: TAF retrieval is unavailable.' }
+function offline(): void { clearReport(); loading.value = false; message.value = 'Offline: TAF retrieval is unavailable.' }
 onMounted(() => window.addEventListener('offline', offline))
 
 const icao = ref('')
@@ -69,7 +69,7 @@ async function check(): Promise<void> {
   } catch (error) {
     if (currentRequest !== request) return
     message.value = error instanceof SyntaxError || (error instanceof Error && error.message === 'malformed') ? 'Malformed TAF response; no forecast displayed.' : 'TAF retrieval failed or is unavailable.'
-  } finally { loading.value = false }
+  } finally { if (currentRequest === request) loading.value = false }
 }
 </script>
 

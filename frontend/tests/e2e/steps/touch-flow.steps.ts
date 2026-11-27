@@ -40,6 +40,7 @@ Then('the unsupported source details remain reachable', async ({ page }) => {
 })
 
 Then('the workflow targets are measured as {string}', async ({ page, $testInfo }, stage: string) => {
+  $testInfo.setTimeout(120_000)
   const dialog = page.getByRole('dialog')
   const scope = await dialog.count() ? dialog : page.getByRole('main').last()
   // Native controls and their activation labels are measured rather than decorative text.

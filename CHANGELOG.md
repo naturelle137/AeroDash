@@ -553,6 +553,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Hide internal Performance and wind warning identifiers in briefing output while retaining warning details.
 - Accept unverified pilot-sourced ground-roll surface multipliers for takeoff and landing.
 
+- Release TAF retry controls immediately when retrieval is interrupted offline.
+
 ## [0.3.0-alpha] - 2026-05-24
 
 ### Added
