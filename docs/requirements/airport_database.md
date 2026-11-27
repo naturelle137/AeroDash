@@ -287,3 +287,7 @@ While recent runway declarations are displayed, the system shall allow filtering
 ### REQ-AP-066: Filter by missing source detail
 
 While filtering incomplete recent declarations, the system shall allow selecting a specific missing source reference, effective date or expiry date.
+
+### REQ-AP-067: Source-only draft date check
+
+While an unsaved runway has a source reference and no declared dates, the system shall show an unknown date check in the runway panel and briefing.

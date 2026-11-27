@@ -15,6 +15,10 @@ it('includes unknown dates for an unsaved identified runway in the briefing pres
     const runway = useManualRunwayStore()
     const step = usePerformanceStep(() => ({ ready: true, notReadyReason: '', profile: null, category: null, takeoff: { status: 'unavailable', reason: '' }, landing: { status: 'unavailable', reason: '' } }))
     expect(step.presentation.value.runway).toEqual({ status: 'unavailable', reason: 'No saved manual runway declaration.' })
+    runway.draft.source = 'Synthetic source'
+    expect(step.presentation.value.runway).toMatchObject({ reason: expect.stringContaining('Unsaved source: Synthetic source (user-declared, unverified); effective: Unknown; expiry (inclusive): Unknown') })
+    expect(step.presentation.value.runway).toMatchObject({ reason: expect.stringContaining(': unknown; device date') })
+    runway.draft.source = ''
     runway.draft.aerodrome = 'TEST'
     expect(step.presentation.value.runway).toMatchObject({ status: 'unavailable', reason: expect.stringContaining('Unsaved declaration date check:') })
     expect(step.presentation.value.runway).toMatchObject({ reason: expect.stringContaining('source currency is unverified and NOTAM/SUP coverage is unknown') })

@@ -124,7 +124,7 @@ export function usePerformanceStep(context: () => PerformanceStepContext) {
     if (!declared) {
       const reason = runway.hasUnsavedChanges ? 'Manual runway has unsaved changes. Save or discard them to use a current declaration.' : 'No saved manual runway declaration.'
       const { effectiveDate, expiryDate, source } = runway.draft
-      if (!runway.hasUnsavedChanges && !effectiveDate && !expiryDate && !runway.draft.aerodrome.trim() && !runway.draft.designator.trim()) return { status: 'unavailable', reason }
+      if (!runway.hasUnsavedChanges && !effectiveDate && !expiryDate && !source.trim() && !runway.draft.aerodrome.trim() && !runway.draft.designator.trim()) return { status: 'unavailable', reason }
       const selected = runwayFreshness(runway.draft, runway.assessmentDate)
       const device = runwayFreshness(runway.draft, runway.today)
       const validation = validateManualRunway(runway.draft)

@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Show unknown date checks for runway drafts containing only a source reference.
+
 - Filter incomplete recent runway declarations by the specific missing source detail.
 
 - Filter recent runway declarations with incomplete source details offline.
