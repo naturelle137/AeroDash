@@ -11,6 +11,7 @@ describe('flight preparation JSON runway dates', () => {
     const check = () => JSON.parse(buildFlightPrepJson(data, new Date('2026-08-01T12:00:00Z'))).runway.dateCheck
     expect(check()).toMatchObject({ selected: 'within-declared-dates', device: 'expired', notice: expect.stringContaining('NOTAM/SUP coverage is unknown') })
     expect(check().intervals).toMatchObject({ selected: { effect: 0, expiry: 30 }, device: { effect: -31, expiry: -1 } })
+    expect(check().airacCyclesSinceSave).toEqual({ selected: 0, device: 1 })
     runway.saved = null
     runway.draft.effectiveDate = '2026-07-01'
     runway.draft.expiryDate = '2026-07-31'
@@ -19,5 +20,6 @@ describe('flight preparation JSON runway dates', () => {
     runway.draft.effectiveDate = '2026-08-02'
     expect(check().intervals.draft.device).toEqual({ effect: null, expiry: null })
     expect(check().draft).toEqual({ selected: 'unknown', device: 'unknown' })
+    expect(check().airacCyclesSinceSave).toEqual({ selected: null, device: null })
   })
 })

@@ -5,6 +5,8 @@ import {
   ManualRunwayRecordSchema,
   createManualRunwayRecord,
   airacCycleStart,
+  airacCyclesSinceSave,
+  describeAiracAge,
   runwayFreshness,
   daysToDeclaredExpiry,
   daysToDeclaredEffect,
@@ -257,4 +259,19 @@ it('validates TAF provenance while retaining legacy METAR records', () => {
   for (const weatherSurface of [{ ...taf, source: 'unknown' }, { ...taf, station: 'bad' }, { ...taf, time: 'bad' }, { ...taf, validFrom: undefined }, { ...taf, validTo: 'bad' }, { ...taf, extra: true }]) {
     expect(ManualRunwayRecordSchema.safeParse({ ...record, weatherSurface }).success).toBe(false)
   }
+})
+
+describe('AIRAC age of a stored declaration', () => {
+  it('counts cycles from the save date without inventing values', () => {
+    expect(airacCyclesSinceSave('2026-11-26T10:00:00.000Z', '2026-12-23')).toBe(0)
+    expect(airacCyclesSinceSave('2026-11-26T10:00:00.000Z', '2026-12-24')).toBe(1)
+    expect(airacCyclesSinceSave('2026-10-29T00:00:00.000Z', '2027-01-21')).toBe(3)
+    expect(airacCyclesSinceSave('2026-11-26T10:00:00.000Z', '2026-11-01')).toBeNull()
+    expect(airacCyclesSinceSave('2019-12-01T00:00:00.000Z', '2026-11-26')).toBeNull()
+    expect(airacCyclesSinceSave('2026-11-26T10:00:00.000Z', 'invalid')).toBeNull()
+    expect(describeAiracAge(null)).toContain('no staleness verdict')
+    expect(describeAiracAge(0)).toContain('current AIRAC cycle')
+    expect(describeAiracAge(1)).toContain('1 AIRAC cycle since saved')
+    expect(describeAiracAge(2)).toContain('2 AIRAC cycles since saved')
+  })
 })

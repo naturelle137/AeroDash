@@ -1,7 +1,7 @@
 import { computed, reactive, ref, shallowRef, watch } from 'vue'
 import type { AircraftProfile } from '@/core/adapters/aircraft.schema'
 import { assessCorrectionSources, OPERATIONS, profileFacts, type ManualConfiguration, type Operation, type RunwayFacts } from '@/core/logic/performance.correction-sources'
-import { hasManualRunwayDraftContent, daysToDeclaredEffect, daysToDeclaredExpiry, normalizeManualRunway, runwayFreshness, SURFACE_CONDITIONS, validateManualRunway } from '@/core/logic/manual-runway'
+import { airacCyclesSinceSave, describeAiracAge, hasManualRunwayDraftContent, daysToDeclaredEffect, daysToDeclaredExpiry, normalizeManualRunway, runwayFreshness, SURFACE_CONDITIONS, validateManualRunway } from '@/core/logic/manual-runway'
 import { useManualRunwayStore } from '@/modules/airport/stores/manual-runway.store'
 import { useLoadedUnitPreferences } from '@/modules/performance/stores/unit-preferences.store'
 import { plainCopy, useDemoScratch } from '@/shared/composables/useDemoScratch'
@@ -148,6 +148,7 @@ export function usePerformanceStep(context: () => PerformanceStepContext) {
         { label: 'Declared expiry date (inclusive)', value: expiryDate ?? 'Unknown' },
         { label: 'Declared date check', value: `${runway.assessmentDate || 'Invalid date'}: ${runwayFreshness(declared.record.runway, runway.assessmentDate)}; source currency unverified` },
         ...(!runway.automaticDate ? [{ label: 'Device-date check', value: `${runway.today}: ${runwayFreshness(declared.record.runway, runway.today)}; source currency unverified` }] : []),
+        { label: 'AIRAC age of saved declaration', value: describeAiracAge(airacCyclesSinceSave(declared.record.savedAt, runway.assessmentDate)) },
         { label: 'Days to declared effect', value: daysToDeclaredEffect(declared.record.runway, runway.assessmentDate)?.toString() ?? 'Unknown' },
         { label: 'Days to declared expiry', value: daysToDeclaredExpiry(declared.record.runway, runway.assessmentDate)?.toString() ?? 'Unknown' },
         ...(!runway.automaticDate ? [

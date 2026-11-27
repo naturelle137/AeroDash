@@ -384,3 +384,23 @@ export function airacCycleStart(today: string): string | null {
   const day = Date.parse(`${today}T00:00:00Z`)
   return new Date(anchor + Math.floor((day - anchor) / (28 * 86400000)) * 28 * 86400000).toISOString().slice(0, 10)
 }
+
+/**
+ * AIRAC cycles between the cycle containing the record's save date (UTC) and the check
+ * date. Calendar arithmetic only: it says how old the stored declaration is, not whether
+ * it is superseded. Null when either date lies outside the published schedule or the
+ * record was saved after the check date.
+ */
+export function airacCyclesSinceSave(savedAt: string, checkDate: string): number | null {
+  const saved = airacCycleStart(savedAt.slice(0, 10))
+  const check = airacCycleStart(checkDate)
+  if (!saved || !check || check < saved) return null
+  return (Date.parse(`${check}T00:00:00Z`) - Date.parse(`${saved}T00:00:00Z`)) / (28 * 86400000)
+}
+
+/** Pilot-facing wording; 0 and unknown are kept distinct and neither verifies the record. */
+export function describeAiracAge(cycles: number | null): string {
+  if (cycles === null) return 'Unknown (date outside the published AIRAC schedule or before the save date); no staleness verdict'
+  if (cycles === 0) return 'Saved in the current AIRAC cycle; source currency remains unverified'
+  return `${cycles} AIRAC cycle${cycles === 1 ? '' : 's'} since saved; the declaration may be superseded, re-verify against the current AIP`
+}

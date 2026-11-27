@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Show the AIRAC-cycle age of a saved runway declaration in the panel, briefing pack and JSON export; unknown stays unknown and no expiry is inferred.
+
 - Show unsaved runway date checks beside the save action.
 
 - Show declared date checks before selecting a recent runway declaration.
