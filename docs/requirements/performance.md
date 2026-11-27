@@ -48,7 +48,7 @@ When calculating performance, the system shall report Available Runway minus Ope
 
 The system shall calculate the required geometric gradient from a pilot-entered obstacle height and horizontal distance.
 
-**Status:** Implemented. The geometric height/distance gradient is shown; available data does not support a clearance determination.
+**Status:** Implemented. The geometric height/distance gradient is shown; available data does not support a clearance determination. Test: `frontend/src/modules/performance/composables/performance-step.int.spec.ts` (synthetic obstacle).
 
 ### REQ-PF-009: Unverified Obstacle Notification
 
