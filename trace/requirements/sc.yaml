@@ -1,7 +1,7 @@
-Cloud Sync & Collaboration Requirements
-  REQ-SC-023
+Cloud Sync & Collaboration Requirements:
+  REQ-SC-023:
     title: Unapproved local handover copy
     file: docs/requirements/cloud_sync_collaboration.md
-  REQ-SC-024
+  REQ-SC-024:
     title: Handover names and review block
     file: docs/requirements/cloud_sync_collaboration.md

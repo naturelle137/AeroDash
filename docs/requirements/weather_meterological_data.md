@@ -34,9 +34,13 @@ When a runway is selected, the system shall calculate the Wind Components (Headw
 
 When the pilot enters a runway heading, wind direction and wind speed, the system shall display the headwind or tailwind and the signed crosswind component as advisory, user-entered values.
 
+**Status:** Implemented. Tests: `frontend/src/core/logic/wind-components.spec.ts`, `frontend/tests/e2e/features/phase-b-flight-preparation/manual-wind-components.feature`.
+
 ### REQ-WX-007b: Manual wind input rejection
 
 If a required manual wind input is missing, outside 1–360° (speed 0–200) or variable, then the system shall show no wind components. Calm wind requires no direction.
+
+**Status:** Implemented. Tests: `frontend/src/core/logic/wind-components.spec.ts`, `frontend/tests/e2e/features/phase-b-flight-preparation/manual-wind-components.feature`.
 
 ### REQ-WX-007c: Manual wind in briefing
 
@@ -240,9 +244,13 @@ When the pilot requests DWD model weather for valid coordinates and a future for
 
 While a retrieved TAF for the entered station is within its validity and defines a prevailing numeric wind, the system shall offer that wind for Flight Prep with the TAF station, issue time and validity interval.
 
+**Status:** Implemented. Test: `frontend/src/modules/weather/WeatherPanel.spec.ts`.
+
 ### REQ-WX-054: Observation fallback label
 
 While a METAR value is offered and no applicable forecast value exists for that parameter, the system shall label it as a METAR observation without a forecast with its station and observation time.
+
+**Status:** Implemented. Test: `frontend/src/modules/weather/WeatherPanel.spec.ts`.
 
 ### REQ-WX-025: Derived model altimeter estimate
 
@@ -260,6 +268,10 @@ While a Performance temperature, QNH or wind field holds an entry, the system sh
 
 When the pilot chooses to copy a METAR, TAF or forecast value into the shared set, the system shall label it as retrieved and unverified until the pilot edits it.
 
+**Status:** Implemented. Test: `frontend/src/modules/weather/stores/weather-inputs.store.spec.ts`.
+
 ### REQ-WX-058: Offline weather entry
 
 While the browser is offline, the system shall accept manually entered shared weather inputs without substituting any value.
+
+**Status:** Implemented. Test: `frontend/tests/e2e/features/phase-b-flight-preparation/weather-first-inputs.feature`.

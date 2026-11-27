@@ -36,7 +36,7 @@ When the user enters a valid explicit consumption and trip duration, the system 
 
 While the selected aircraft is electric, the system shall label the Mass & Balance endurance card `Energy & Endurance`.
 
-**Status:** Manual electric energy budget and constant-consumption endurance estimates are available.
+**Status:** Implemented. Test: `frontend/tests/offline-production/electric-energy.spec.ts` (synthetic profile).
 
 ### REQ-FE-007: Independent sequences
 
@@ -230,25 +230,37 @@ If a multi-tank sequence with a lookup tank (with any unusable fuel) lacks a com
 
 While a valid electric battery profile is selected, the system shall calculate estimated trip energy and reserve margin from explicit available energy, average power and trip duration.
 
+**Status:** Implemented. Test: `frontend/src/modules/fuel-endurance/components/ElectricEnergyCard.int.spec.ts` (synthetic profile).
+
 ### REQ-FE-039: Electric reserve warning
 
 If estimated remaining energy is below the profile reserve floor, the system shall display a warning.
+
+**Status:** Implemented. Test: `frontend/src/modules/fuel-endurance/components/ElectricEnergyCard.int.spec.ts` (synthetic profile).
 
 ### REQ-FE-040: Invalid electric budget
 
 If an electric budget input is missing or invalid, the system shall suppress the estimated budget.
 
+**Status:** Implemented. Test: `frontend/src/modules/fuel-endurance/components/ElectricEnergyCard.int.spec.ts` (synthetic profile).
+
 ### REQ-FE-041: Electric time to depletion
 
 While a valid battery profile, available energy and positive average consumption are provided, the system shall show estimated time to depletion without requiring trip duration.
+
+**Status:** Implemented. Test: `frontend/src/modules/fuel-endurance/components/ElectricEnergyCard.int.spec.ts` (synthetic profile).
 
 ### REQ-FE-042: Electric time above reserve
 
 While electric endurance is available, the system shall show estimated time above the profile reserve floor, clamped to zero.
 
+**Status:** Implemented. Test: `frontend/src/modules/fuel-endurance/components/ElectricEnergyCard.int.spec.ts` (synthetic profile).
+
 ### REQ-FE-043: Electric endurance briefing
 
 While electric endurance is available, the briefing shall show the current estimates.
+
+**Status:** Implemented. Test: `frontend/tests/offline-production/electric-energy.spec.ts` (synthetic profile).
 
 ### REQ-FE-044: Trip burn path assessment
 
@@ -266,10 +278,16 @@ When displaying the current fuel briefing, the system shall include the trip bur
 
 When a valid electric trip and an explicit finite nonnegative pilot-added reserve duration are provided, the system shall show its estimated energy, remaining energy after trip and reserve, and difference to the profile reserve floor.
 
+**Status:** Implemented. Test: `frontend/src/modules/fuel-endurance/components/ElectricEnergyCard.int.spec.ts` (synthetic profile).
+
 ### REQ-FE-048: Invalid added electric reserve
 
 If the pilot-added reserve duration is missing or invalid, the system shall suppress the added reserve budget without suppressing valid trip-only estimates.
 
+**Status:** Implemented. Test: `frontend/src/modules/fuel-endurance/components/ElectricEnergyCard.int.spec.ts` (synthetic profile).
+
 ### REQ-FE-049: Added electric reserve briefing
 
 When displaying the electric briefing, the system shall include the current added reserve budget or its unavailability reason and its limitations.
+
+**Status:** Implemented. Test: `frontend/tests/offline-production/electric-energy.spec.ts` (synthetic profile).

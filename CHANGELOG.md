@@ -324,6 +324,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Engineering
 
+- Reconcile selected requirement statuses with software test evidence.
+
 - Verify legacy performance table units independently of imperial M&B units through import and lookup.
 
 - Verify obstacle persistence, warning and briefing output across reloads.
