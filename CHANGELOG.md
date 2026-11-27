@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Filter recent runway declarations by a pilot-selected inclusive expiry deadline.
+
 - Highlight differing date checks beside each recent runway declaration.
 
 - Highlight differing selected and device runway date checks in the panel and briefing.

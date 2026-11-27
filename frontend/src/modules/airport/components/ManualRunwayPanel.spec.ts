@@ -30,6 +30,26 @@ beforeEach(() => {
 afterEach(() => { vi.restoreAllMocks() })
 
 describe('ManualRunwayPanel', () => {
+  it('filters declared expiry through an inclusive date without modifying stored declarations', async () => {
+    const view = mount(ManualRunwayPanel)
+    await fill(view)
+    await view.get('#runway-expiry').setValue('2026-06-30')
+    await view.get('form').trigger('submit')
+    await view.get('#manual-runway-designator').setValue('09')
+    await view.get('#runway-expiry').setValue('2026-07-01')
+    await view.get('form').trigger('submit')
+    await view.get('#manual-runway-designator').setValue('18')
+    await view.get('#runway-expiry').setValue('')
+    await view.get('form').trigger('submit')
+    const history = localStorage.getItem('aerodash.performance.recent-airports.v1')
+    await view.get('#recent-expiry-by').setValue('2026-06-30')
+    expect(view.findAll('.select-recent')).toHaveLength(1)
+    expect(view.get('.select-recent').text()).toContain('27')
+    expect(view.text()).toContain('Declarations with unknown expiry are excluded')
+    await view.get('#recent-expiry-by').setValue('')
+    expect(view.findAll('.select-recent')).toHaveLength(3)
+    expect(localStorage.getItem('aerodash.performance.recent-airports.v1')).toBe(history)
+  })
   it('shows saved runway intervals against the device date when the check date is fixed', async () => {
     vi.useFakeTimers()
     vi.setSystemTime(new Date(2026, 6, 1, 12))

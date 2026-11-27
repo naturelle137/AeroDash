@@ -303,3 +303,7 @@ While the selected and device date checks differ, the system shall highlight the
 ### REQ-AP-071: Differing recent runway date checks
 
 While a recent runway declaration has different selected and device date checks, the system shall highlight the difference beside that declaration.
+
+### REQ-AP-072: Declared expiry deadline filter
+
+While recent runway declarations are displayed, the system shall allow filtering for known declared expiry dates on or before a pilot-selected date.
