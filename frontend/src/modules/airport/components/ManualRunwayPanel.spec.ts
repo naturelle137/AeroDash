@@ -375,6 +375,13 @@ describe('ManualRunwayPanel', () => {
 })
 
 describe('manual source dates', () => {
+  it('shows an unknown expiry interval for a saved runway without an expiry date', async () => {
+    const view = mount(ManualRunwayPanel)
+    await fill(view)
+    await view.get('form').trigger('submit')
+    expect(summary(view).text()).toContain('Days to declared expiry: Unknown')
+  })
+
   it('refreshes today after a day change and preserves an explicitly selected date', async () => {
     vi.useFakeTimers()
     vi.setSystemTime(new Date(2026, 10, 26, 23, 59))
