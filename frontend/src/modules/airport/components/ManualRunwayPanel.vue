@@ -156,6 +156,7 @@ if (!runway.loaded) runway.load()
         <button type="button" class="select-recent" @click="selectRecent(record)">{{ record.runway.aerodrome }} — {{ record.runway.designator }}: {{ freshnessLabels[runwayFreshness(record.runway, runway.assessmentDate)] }}</button>
         <button type="button" :aria-label="`Remove ${record.runway.aerodrome} runway ${record.runway.designator} from recent airports`" @click="runway.removeRecent(record)">Remove from recents</button>
         <p v-if="!runway.automaticDate">Device date {{ runway.today }}: {{ freshnessLabels[runwayFreshness(record.runway, runway.today)] }}</p>
+        <p v-if="!runway.automaticDate && runwayFreshness(record.runway, runway.assessmentDate) !== runwayFreshness(record.runway, runway.today)"><strong>Selected and device date checks differ.</strong> Confirm the intended date and verify the source.</p>
         <p>Source: {{ record.runway.source || 'Unknown' }} (user-declared, unverified) · Effective: {{ record.runway.effectiveDate || 'Unknown' }} · Expiry (inclusive): {{ record.runway.expiryDate || 'Unknown' }}</p>
         <p>Days to declared effect: {{ daysToDeclaredEffect(record.runway, runway.assessmentDate) ?? 'Unknown' }} (negative means after the declared effective date; source remains unverified).</p>
         <p>Days to declared expiry: {{ daysToDeclaredExpiry(record.runway, runway.assessmentDate) ?? 'Unknown' }} (negative means past expiry; source remains unverified).</p>

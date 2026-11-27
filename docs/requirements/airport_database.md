@@ -299,3 +299,7 @@ While an unsaved runway contains a distance, elevation or surface and no declare
 ### REQ-AP-070: Differing runway date checks
 
 While the selected and device date checks differ, the system shall highlight the difference in the runway panel and briefing.
+
+### REQ-AP-071: Differing recent runway date checks
+
+While a recent runway declaration has different selected and device date checks, the system shall highlight the difference beside that declaration.
