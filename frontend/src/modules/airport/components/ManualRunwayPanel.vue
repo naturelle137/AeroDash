@@ -98,6 +98,7 @@ if (!runway.loaded) runway.load()
       <template v-if="draftCheck">
         <p>Days to declared effect: {{ daysToDeclaredEffect(runway.draft, runway.assessmentDate) ?? 'Unknown' }} (negative means after the declared effective date).</p>
         <p>Days to declared expiry: {{ daysToDeclaredExpiry(runway.draft, runway.assessmentDate) ?? 'Unknown' }} (negative means past inclusive expiry).</p>
+        <p v-if="!runway.automaticDate">Unsaved declaration from device date {{ runway.today }}: days to declared effect: {{ daysToDeclaredEffect(runway.draft, runway.today) ?? 'Unknown' }} · days to inclusive expiry: {{ daysToDeclaredExpiry(runway.draft, runway.today) ?? 'Unknown' }}. Source remains unverified.</p>
       </template>
     </section>
     <section v-if="runway.recent.length" aria-label="Recently used airports">
