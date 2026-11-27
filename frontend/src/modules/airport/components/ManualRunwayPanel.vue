@@ -47,7 +47,7 @@ const draftDateError = computed(() => {
 const draftCheck = computed(() => {
   const result = validateManualRunway(runway.draft)
   const { effectiveDate, expiryDate } = runway.draft
-  if (runway.current || (!effectiveDate && !expiryDate && !runway.draft.aerodrome.trim() && !runway.draft.designator.trim())) return null
+  if (runway.current || (!effectiveDate && !expiryDate && !runway.draft.aerodrome.trim() && !runway.draft.designator.trim() && !runway.draft.source.trim())) return null
   if (result.status === 'invalid' && (result.errors.effectiveDate || result.errors.expiryDate)) return null
   return runwayFreshness({ effectiveDate: effectiveDate || undefined, expiryDate: expiryDate || undefined }, runway.assessmentDate)
 })
