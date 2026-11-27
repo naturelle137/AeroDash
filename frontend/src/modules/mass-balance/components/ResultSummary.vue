@@ -205,6 +205,11 @@ const exactLimitNames = computed(() =>
   margin-bottom: 0.125rem;
 }
 
+.result-summary__item:nth-child(2) :deep(.info-popover__content) { left: auto; right: 0; }
+@media (min-width: 768px) {
+  .result-summary__item :deep(.info-popover__content) { left: auto; right: 0; }
+}
+
 .result-summary__item dd {
   margin: 0;
 }

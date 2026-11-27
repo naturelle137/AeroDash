@@ -13,10 +13,10 @@ defineProps<{ label: string; en: string; de: string }>()
 </template>
 
 <style scoped>
-.info-popover { display: inline; }
+.info-popover { display: inline-block; position: relative; }
 summary { display: inline-block; cursor: pointer; padding: 0.35rem; font-size: 1rem; color: var(--color-text-primary, #212121); }
 summary:focus-visible { outline: 2px solid var(--color-focus, #005fcc); }
-.info-popover__content { display: block; padding: 0.5rem; background: var(--color-surface, white); color: var(--color-text-primary, #212121); border: 1px solid var(--color-border, #777); border-radius: 0.25rem; font-size: 0.875rem; font-weight: normal; line-height: 1.4; }
+.info-popover__content { position: absolute; z-index: 10; left: 0; width: min(15rem, calc(100vw - 9rem)); box-sizing: border-box; padding: 0.5rem; background: var(--color-surface, white); color: var(--color-text-primary, #212121); border: 1px solid var(--color-border, #777); border-radius: 0.25rem; font-size: 0.875rem; font-weight: normal; line-height: 1.4; }
 p { margin: 0; }
 p + p { margin-top: 0.5rem; }
 </style>
