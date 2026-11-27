@@ -257,7 +257,7 @@ When performance tables are imported, the system shall preserve each table's dec
 
 When a Fleet performance table is reviewed, the system shall display its original points alongside normalized kg/ft/°C/m lookup points.
 
-**Status:** Implemented.
+**Status:** Implemented. Test: `frontend/src/modules/performance/services/poh-inspection.int.spec.ts` (synthetic points).
 
 ### REQ-PF-050: Invalid source declarations
 

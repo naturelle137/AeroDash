@@ -74,6 +74,8 @@ If surface type or a surface condition belonging to that type is missing, then t
 
 When valid manual runway inputs are saved, the system shall persist their original values and units in a versioned local record.
 
+**Status:** Implemented. Test: `frontend/src/modules/airport/stores/manual-runway.int.spec.ts`.
+
 ### REQ-AP-015: Manual runway recovery
 
 If a stored manual runway record is damaged, invalid or of an unsupported version, then the system shall not use it and shall display a storage problem.
@@ -82,6 +84,8 @@ If a stored manual runway record is damaged, invalid or of an unsupported versio
 
 If saving or clearing manual runway inputs fails, then the system shall display the storage failure.
 
+**Status:** Implemented. Test: `frontend/src/modules/airport/components/ManualRunwayPanel.spec.ts`.
+
 ### REQ-AP-017: Manual runway provenance
 
 While saved manual runway inputs are displayed, the system shall label them user-entered and not airport-validated.
@@ -89,6 +93,8 @@ While saved manual runway inputs are displayed, the system shall label them user
 ### REQ-AP-018: Manual runway invalidation
 
 When a manual runway input changes, the system shall immediately stop displaying the saved runway as current.
+
+**Status:** Implemented. Test: `frontend/src/modules/airport/components/ManualRunwayPanel.spec.ts`.
 
 ### REQ-AP-019: Unavailable manual runway assessment
 
@@ -212,6 +218,8 @@ While a fixed runway check date is selected, the briefing shall show signed days
 
 The system shall let the pilot remove an individual recent runway declaration offline without changing the current runway or draft.
 
+**Status:** Implemented. Test: `frontend/src/modules/airport/components/ManualRunwayPanel.spec.ts`.
+
 ### REQ-AP-048: Filter recent runway declarations
 
 The system shall let the pilot filter recent runway declarations by their declared date check for the selected date.
@@ -239,6 +247,8 @@ While a runway declaration has unsaved changes, the briefing shall show its unve
 ### REQ-AP-054: Search recent declarations
 
 While recent runway declarations are displayed, the system shall allow filtering them by aerodrome or runway designator without network access.
+
+**Status:** Implemented. Test: `frontend/src/modules/airport/components/ManualRunwayPanel.spec.ts`.
 
 ### REQ-AP-055: Unreadable recent declarations
 

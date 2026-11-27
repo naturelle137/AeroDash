@@ -42,6 +42,8 @@ When displaying remaining fuel, the system shall round downward.
 
 When an explicitly optional occupant station has numeric mass zero, the system shall accept it without an empty-seat warning or confirmation.
 
+**Status:** Implemented. Test: `frontend/src/modules/mass-balance/stores/occupancy.int.spec.ts`.
+
 ### REQ-UQ-011: Default occupancy
 
 While an occupant station omits occupancy, the system shall treat it as required.
@@ -73,6 +75,8 @@ While a station represents combined crew/passenger seating, the system shall req
 ### REQ-UQ-018: Non-occupant zero
 
 When a fuel or baggage/cargo station has mass zero, the system shall not emit the occupant-zero warning.
+
+**Status:** Implemented. Test: `frontend/src/modules/mass-balance/stores/occupancy.int.spec.ts`.
 
 ### REQ-UQ-019: Missing station kind
 

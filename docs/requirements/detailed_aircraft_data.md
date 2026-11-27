@@ -94,6 +94,8 @@ If an electric aircraft profile contains a fuel tank load point, then the system
 
 When the user exports an aircraft profile, the system shall exclude the operating-cost fields (`costPerHour`, `fuelCostIncluded`) from the exported exchange file, unless the user explicitly opts in to include operating-cost data.
 
+**Status:** Implemented. Test: `frontend/src/modules/aircraft/__tests__/profile.import.spec.ts`.
+
 ### REQ-AD-024: Fuel inclusion
 
 The system shall store whether the aircraft’s cost per hour includes fuel.

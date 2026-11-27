@@ -98,9 +98,13 @@ If a backup exceeds 5 MiB or 100 profiles, has an unsupported envelope version, 
 
 When a backup is restored, the system shall assign every profile a fresh local ID.
 
+**Status:** Implemented. Test: `frontend/tests/offline-production/fleet-restore.spec.ts` (synthetic profiles).
+
 ### REQ-AC-025: Restore fidelity
 
 When a backup is restored, the system shall preserve each profile's source data and units under existing exchange migration rules.
+
+**Status:** Implemented. Test: `frontend/tests/offline-production/fleet-restore.spec.ts` (synthetic profiles).
 
 ### REQ-AC-026: Atomic restore
 
@@ -118,9 +122,13 @@ If a restore is cancelled or fails, then the system shall preserve the existing 
 
 When a restore commits, the system shall expose the imported drafts in Fleet immediately.
 
+**Status:** Implemented. Test: `frontend/tests/offline-production/fleet-restore.spec.ts` (synthetic profiles).
+
 ### REQ-AC-030: Restored draft status
 
 When a backup is restored, the system shall mark every imported profile as an unverified draft under existing exchange migration rules.
+
+**Status:** Implemented. Test: `frontend/tests/offline-production/fleet-restore.spec.ts` (synthetic profiles).
 
 ### REQ-AC-031: Preparation preservation
 
@@ -129,6 +137,8 @@ If a restore is cancelled or fails, then the system shall preserve the active pr
 ### REQ-AC-032: Offline restore persistence
 
 When Fleet reopens after a cached offline reload, the system shall expose the committed restored profiles.
+
+**Status:** Implemented. Test: `frontend/tests/offline-production/fleet-restore.spec.ts` (synthetic profiles).
 
 ### REQ-AC-033: Incomplete lookup fuel retention
 
