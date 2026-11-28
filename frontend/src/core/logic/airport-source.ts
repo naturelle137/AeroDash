@@ -43,6 +43,16 @@ export function scanAirportSources(value: unknown, checkDate: string) {
   return { status: 'scanned', records } as const
 }
 
+export function selectAirportSource(value: unknown, aerodrome: string, runway: string, checkDate: string) {
+  if (!text.safeParse(aerodrome).success || !text.safeParse(runway).success) return { status: 'invalid' } as const
+  const scan = scanAirportSources(value, checkDate)
+  if (scan.status === 'invalid' || scan.records.some(record => record.status === 'invalid')) return { status: 'invalid' } as const
+  const matches = scan.records.filter(record => record.status === 'valid' && record.source.aerodrome === aerodrome && record.source.runway === runway)
+  if (matches.length === 0) return { status: 'not-found' } as const
+  if (matches.length > 1) return { status: 'ambiguous' } as const
+  return { status: 'selected', record: matches[0] } as const
+}
+
 export function compareAirportSource(previous: unknown, incoming: unknown, checkDate: string) {
   const before = ingestAirportSource(previous, checkDate)
   const after = ingestAirportSource(incoming, checkDate)

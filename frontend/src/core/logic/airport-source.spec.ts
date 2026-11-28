@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { compareAirportSource, ingestAirportSource, scanAirportSources } from './airport-source'
+import { compareAirportSource, ingestAirportSource, scanAirportSources, selectAirportSource } from './airport-source'
 
 // Synthetic fixture: no provider or airport data is represented.
 const record = {
@@ -66,5 +66,24 @@ describe('airport source comparison', () => {
     expect(compareAirportSource(record, { ...record, recordId: 'other' }, '2026-02-01')).toEqual({ status: 'different-record' })
     expect(compareAirportSource(record, { ...record, lda: -1 }, '2026-02-01')).toEqual({ status: 'invalid' })
     expect(compareAirportSource(record, record, 'bad')).toEqual({ status: 'invalid' })
+  })
+})
+
+describe('airport source selection', () => {
+  it('selects an exact runway and retains its source, temporal and verification states', () => {
+    expect(selectAirportSource([record, { ...record, runway: '27' }], 'TEST', '09', '2026-03-02')).toMatchObject({
+      status: 'selected', record: { source: record, temporalStatus: 'expired', verification: { tora: 'unverified', lda: 'unverified' } },
+    })
+    expect(selectAirportSource([{ ...record, expiryDate: null, tora: null }], 'TEST', '09', '2026-02-01')).toMatchObject({
+      record: { temporalStatus: 'unknown', verification: { tora: 'unknown', lda: 'unverified' } },
+    })
+  })
+
+  it('distinguishes missing, ambiguous and invalid data without guessing', () => {
+    expect(selectAirportSource([record], 'TEST', '27', '2026-02-01')).toEqual({ status: 'not-found' })
+    expect(selectAirportSource([record, { ...record, provider: 'Other' }], 'TEST', '09', '2026-02-01')).toEqual({ status: 'ambiguous' })
+    expect(selectAirportSource([record, { ...record, lda: -1 }], 'TEST', '09', '2026-02-01')).toEqual({ status: 'invalid' })
+    expect(selectAirportSource([record], ' ', '09', '2026-02-01')).toEqual({ status: 'invalid' })
+    expect(selectAirportSource([record], 'TEST', '09', 'bad')).toEqual({ status: 'invalid' })
   })
 })
