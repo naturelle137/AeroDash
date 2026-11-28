@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Reconcile export and briefing pack requirements REQ-DOC-001..005 with tests: add a PDF test for the low-safety-margin disclaimer and cite requirement IDs in test names; synthetic evidence only, nothing validated for flight use. PDF export itself unchanged.
 
 - Cite test evidence for performance requirements REQ-PF-003 to REQ-PF-007; synthetic data only, REQ-PF-003 remains Partial.
+- Reconcile remaining UI, usability and system requirement statuses with tests and concrete gaps.
+
 - Reconcile aircraft data requirements REQ-AD-004..022 with cited schema and store tests; synthetic evidence only, nothing validated for flight use.
 - Cite software tests for performance notifications, estimated values and the CG envelope polygon.
 
