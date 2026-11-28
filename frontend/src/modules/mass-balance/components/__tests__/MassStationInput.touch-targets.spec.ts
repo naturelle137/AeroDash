@@ -12,9 +12,14 @@ function rule(selector: string): string {
 }
 
 function remValue(body: string, property: string): number {
-  const match = body.match(new RegExp(`${property}:\\s*([\\d.]+)rem`))
-  expect(match).not.toBeNull()
-  return Number(match![1])
+  const declaration = body
+    .split(';')
+    .map((part) => part.trim())
+    .find((part) => part.startsWith(`${property}:`))
+  expect(declaration).toBeDefined()
+  const value = declaration!.slice(property.length + 1).trim()
+  expect(value.endsWith('rem')).toBe(true)
+  return Number(value.slice(0, -3))
 }
 
 describe('MassStationInput touch targets', () => {
