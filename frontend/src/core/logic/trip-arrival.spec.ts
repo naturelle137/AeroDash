@@ -21,7 +21,8 @@ describe('estimated trip arrival mass', () => {
       ok: true,
       plan: { tripFuelKg: 20, reserveFuelKg: 5, marginKg: 15 },
     })
-    expect(calculateTripArrival(input)).toEqual({
+    if (!result.ok) throw new Error('Expected fuel plan')
+    expect(calculateTripArrival({ ...input, tripFuelKg: result.plan.tripFuelKg })).toEqual({
       ok: true,
       takeoffMassKg: 600,
       tripFuelKg: 20,
