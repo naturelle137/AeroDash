@@ -98,7 +98,7 @@ describe('fuel plan with live M&B store', () => {
     expect(ids()).toContain('WARN-AC-002')
     wrapper.unmount()
   })
-  it('uses validated takeoff mass, retains unusable fuel and never changes the full-burn endpoint', async () => {
+  it('uses validated takeoff mass, retains unusable fuel and never changes the full-burn endpoint (REQ-FE-003, REQ-FE-005)', async () => {
     const store = useMassBalanceStore()
     const aircraft = AircraftContextSchema.parse(syntheticFuelContext())
     aircraft.sourceUnit = 'kg'
@@ -236,7 +236,7 @@ describe('fuel plan with live M&B store', () => {
       expect(wrapper.find('[aria-label="Fuel planning results"]').exists()).toBe(false)
     },
   )
-  it('renders equality and reserve-only insufficiency without a success claim', async () => {
+  it('renders equality and reserve-only insufficiency without a success claim (REQ-FE-003)', async () => {
     const { wrapper } = await setup()
     await wrapper.get('#fe-consumption').setValue('10')
     await wrapper.get('#fe-trip').setValue('240')
