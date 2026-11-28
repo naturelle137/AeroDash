@@ -16,7 +16,7 @@ describe('fuel plan with live M&B store', () => {
     await wrapper.get('#fe-method').setValue('duration')
     return { store, wrapper }
   }
-  it('requires explicit inputs, recomputes tanks/categories, clears on aircraft change and remount', async () => {
+  it('calculates endurance from current usable fuel and explicit flow (REQ-FE-002)', async () => {
     const { store, wrapper } = await setup()
     const results = () => wrapper.find('[aria-label="Fuel planning results"]')
     expect(results().exists()).toBe(false)
