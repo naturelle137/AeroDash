@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Allow a manually pasted current METAR to suggest an unverified runway surface.
+
 ### Engineering
 
 - Clear the fuel shortfall notification when leaving Flight Preparation and document its tested lifecycle.
