@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Show browser connectivity and disable weather retrieval while offline.
+
 ### Engineering
 
 - Clear the fuel shortfall notification when leaving Flight Preparation and document its tested lifecycle.
