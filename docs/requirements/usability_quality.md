@@ -12,7 +12,7 @@ The system shall provide touch-friendly input controls (steppers, sliders, or la
 
 The system shall adapt the layout to ensure all critical flight data (Envelope, Results) is fully visible without horizontal scrolling on viewports with a minimum width of 320px (standard mobile).
 
-**Status:** Deferred. `frontend/tests/e2e/features/phase-b-flight-preparation/narrow-layout.feature` checks 320 px preparation and briefing reachability, but does not establish visibility of the complete envelope and results.
+**Status:** Implemented. Test: `frontend/tests/e2e/features/phase-b-flight-preparation/narrow-layout.feature` asserts the envelope chart and results block are fully visible without horizontal overflow at 320, 390 and 1440 px.
 
 ### REQ-UQ-003: Decimal Precision Formatting
 
