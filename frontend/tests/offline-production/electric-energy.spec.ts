@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test'
 import { testPohAircraft } from '../fixtures/poh-aircraft'
 
-test('manual electric budget and briefing use current synthetic inputs', async ({ page, context }, info) => {
+test('manual electric budget and briefing use current synthetic inputs (REQ-FE-006)', async ({ page, context }, info) => {
   await page.goto('/fleet')
   await page.getByTestId('disclaimer-gate-accept').click()
   await page.evaluate(async () => { await navigator.serviceWorker.ready })
