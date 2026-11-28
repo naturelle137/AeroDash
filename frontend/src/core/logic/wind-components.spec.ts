@@ -44,6 +44,7 @@ describe('computeWindComponents', () => {
     ['direction 361', '90', '361', '10', 'windDirection'],
     ['heading 0', '0', '90', '10', 'runwayHeading'],
     ['runway identifier text', 'RWY 09', '90', '10', 'runwayHeading'],
+    ['NaN speed', '90', '90', 'NaN', 'windSpeed'],
     ['negative speed', '90', '90', '-5', 'windSpeed'],
     ['non-numeric speed', '90', '90', '1e1', 'windSpeed'],
     ['speed above limit', '90', '90', '201', 'windSpeed'],

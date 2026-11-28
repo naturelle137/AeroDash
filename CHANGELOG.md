@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Engineering
 
+- Display advisory wind components for pilot-entered gusts.
+- Link manual wind components to an optional pilot-entered runway bearing saved with the manual runway; the bearing is never derived from the designator.
+
 - Add a versioned provenance envelope for synthetic airport source records that recomputes temporal and verification state on restore.
 - Clear the fuel shortfall notification when leaving Flight Preparation and document its tested lifecycle.
 - Compare supplied airport source snapshots across dates, including temporal transitions.
