@@ -363,3 +363,37 @@ describe('AircraftProfileEditorView — incomplete lookup source preservation', 
     expect(profile.loadPoints).toEqual([tank])
   })
 })
+
+describe('AircraftProfileEditorView — powertrain-gated fuel controls', () => {
+  const tank = {
+    name: 'Stored tank', arm: 1, armLookup: [], operationalLimit: null,
+    defaultQuantity: 0, unit: 'kg', allowableCategories: null,
+    fuelTank: { unusableFuel: 1, permissibleFuelTypes: ['AvGas 100LL' as const], burnSequences: [] },
+  }
+
+  it('hides fuel-tank controls for an electric profile and keeps stored tank data on save', async () => {
+    const profile = makeProfile({
+      powertrain: 'electric',
+      batteryPack: { usableEnergyKwh: 24.8, reserveFloorKwh: 4 },
+      loadPoints: [tank],
+    })
+    const updateProfile = vi.fn<() => Promise<AircraftProfile>>().mockResolvedValue(profile)
+    const { wrapper } = await mountEditor({ profile, fleetOverrides: { updateProfile } })
+    expect(wrapper.find('.btn-add-fuel').exists()).toBe(false)
+    expect(wrapper.text()).not.toContain('This station is a fuel tank')
+    expect(wrapper.text()).not.toContain('Permissible Fuel Types')
+    expect(wrapper.text()).not.toContain('Burn Sequences')
+    await wrapper.get('input[id$="refDatumDesc"]').setValue('Changed synthetic datum')
+    await wrapper.findAll('button').find((b) => b.text() === 'Save Draft')!.trigger('click')
+    await flushPromises()
+    expect(updateProfile).toHaveBeenCalledWith(profile.id, expect.objectContaining({ loadPoints: [tank] }))
+  })
+
+  it('shows fuel-tank controls for a combustion profile', async () => {
+    const profile = makeProfile({ powertrain: 'combustion', loadPoints: [tank] })
+    const { wrapper } = await mountEditor({ profile })
+    expect(wrapper.find('.btn-add-fuel').exists()).toBe(true)
+    expect(wrapper.text()).toContain('This station is a fuel tank')
+    expect(wrapper.text()).toContain('Burn Sequences')
+  })
+})

@@ -50,6 +50,10 @@ Feature: Battery-electric aircraft wizard (Pipistrel Velis Electro)
     Then the pilot is back on the Fleet page
     And the aircraft "OK-VVV" is listed with a "Draft" status badge
 
+    When the pilot opens the editor for "OK-VVV"
+    Then the editor offers no fuel-tank controls
+    And an informational note mentions "battery-electric"
+
   @phase-A @e2e
   Scenario: Combustion wizard is unchanged — fuel tank button remains visible for a Tecnam P2008 JC
     Given the pilot navigates to the Fleet page

@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Hide fuel-tank controls in the aircraft editor for electric profiles while keeping stored tank data.
 - Warn before printing or downloading a Briefing Pack with a low safety factor, with options to continue or revise.
 - Allow a manually pasted current METAR to suggest an unverified runway surface.
 - Show browser connectivity and disable weather retrieval while offline.

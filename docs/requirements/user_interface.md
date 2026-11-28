@@ -126,7 +126,7 @@ When creating an aircraft profile, the system shall offer `Combustion` and `Elec
 
 While an aircraft is electric, the wizard and editor shall hide the fuel-tank toggle, Add Fuel Tank action, fuel-type selector and burn-sequence editor.
 
-**Status:** Deferred. The wizard passes its powertrain to the load-station controls, but the editor does not; existing fuel-tank fields also remain visible for electric profiles with tank data.
+**Status:** Implemented. Tests: `frontend/src/modules/aircraft/components/__tests__/LoadPointsSection.spec.ts` and `frontend/src/modules/aircraft/__tests__/AircraftProfileEditorView.spec.ts`. Stored tank data stays unchanged while hidden.
 
 ### REQ-UI-023: Powertrain Field Immutability in Aircraft Editor
 

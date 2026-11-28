@@ -179,8 +179,8 @@
         </span>
       </div>
 
-      <div v-if="!isElectric || lp.fuelTank" class="row-footer">
-        <label v-if="!isElectric" class="toggle">
+      <div v-if="!isElectric" class="row-footer">
+        <label class="toggle">
           <input
             type="checkbox"
             :checked="!!lp.fuelTank"
