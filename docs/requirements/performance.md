@@ -96,13 +96,13 @@ Retired ID; reserved for historical references.
 
 If the Operational Required Distance exceeds the published Available Distance (TORA/LDA), the system shall emit a CRITICAL notification (`CRIT-PF-002`) alerting the pilot that the runway is insufficient for the required distance.
 
-**Status:** Implemented. Tests: `frontend/src/modules/performance/services/corrected-distances.spec.ts`.
+**Status:** Implemented. Tests: `frontend/src/core/logic/performance.safety-factor.spec.ts`, `frontend/src/modules/performance/services/corrected-distances.spec.ts`.
 
 ### REQ-PF-016: Low Safety Factor Warning
 
 If the user-selected Operational Safety Factor is lower than the greater of the POH-mandated factor and the regulatory baseline (Takeoff: 1.25, Landing: 1.43), then the system shall emit a WARNING notification (`WARN-PF-002`) alerting the pilot that the safety factor is below the recommended minimum.
 
-**Status:** Implemented. Tests: `frontend/src/modules/performance/services/corrected-distances.spec.ts`.
+**Status:** Implemented. Tests: `frontend/src/core/logic/performance.safety-factor.spec.ts`, `frontend/src/modules/performance/services/corrected-distances.spec.ts`.
 
 ### REQ-PF-017: Estimated Value Marking
 
