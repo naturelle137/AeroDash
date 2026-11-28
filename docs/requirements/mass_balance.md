@@ -42,6 +42,8 @@ When calculating mass and balance, the system shall calculate zero-fuel mass (ZF
 
 The system shall output the polygon definition for the CG envelope.
 
+**Status:** Implemented as the selected category's envelope polygon in the chart. Tests: `frontend/src/modules/mass-balance/views/__tests__/MassBalanceView.chart-units.spec.ts`.
+
 ### REQ-MB-011: CG Migration Exceedance
 
 If the CG migration region (trend line for single-sequence aircraft, or burn-down polygon for multi-sequence aircraft) exits the envelope at any point, the system shall emit a CRITICAL notification (`CRIT-MB-003`) alerting the pilot that the CG migration exceeds the approved envelope during fuel burn.
