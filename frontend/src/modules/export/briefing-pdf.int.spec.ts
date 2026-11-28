@@ -100,6 +100,8 @@ describe('Briefing Pack PDF download', () => {
     buttonByText('Download PDF').click()
     await nextTick()
     buttonByText('Acknowledge unverified data and download PDF').click()
+    await nextTick()
+    if (document.querySelector('#crit-ui-002-title')) buttonByText('Continue with low safety factor').click()
     await vi.waitFor(() => expect(blobs).toHaveLength(1))
     const text = pdfText(await readBlob(blobs[0]!))
     const sheet = document.querySelector('.mb-print-sheet')!.textContent!

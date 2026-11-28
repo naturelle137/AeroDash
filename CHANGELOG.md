@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Warn before printing or downloading a Briefing Pack with a low safety factor, with options to continue or revise.
+
 ### Engineering
 
 - Clear the fuel shortfall notification when leaving Flight Preparation and document its tested lifecycle.

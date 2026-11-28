@@ -6,6 +6,20 @@ import { testPohAircraft } from '../../fixtures/poh-aircraft'
 const { Given, When, Then } = createBdd()
 const takeoff = (page: Page) => page.getByRole('region', { name: 'Takeoff corrected distances', exact: true })
 
+Then('the low safety factor export warning is shown', async ({ page }) => {
+  await expect(page.getByRole('alertdialog')).toContainText('CRITICAL CRIT-UI-002')
+  await expect(page.getByRole('alertdialog')).toContainText('Takeoff:')
+})
+
+When('the pilot continues with the low safety factor', async ({ page }) => {
+  await page.getByRole('button', { name: 'Continue with low safety factor' }).click()
+})
+
+Then('the briefing pack is sent to print', async ({ page }) => {
+  await expect(page.getByRole('alertdialog')).toHaveCount(0)
+  expect(await page.evaluate(() => (window as unknown as { __printCalls: number }).__printCalls)).toBe(1)
+})
+
 Given('the production app is cached for offline performance', async ({ page }) => {
   await page.goto('/')
   await page.evaluate(() => navigator.serviceWorker.ready)
