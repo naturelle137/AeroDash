@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { ingestAirportSource } from './airport-source'
+import { ingestAirportSource, scanAirportSources } from './airport-source'
 
 // Synthetic fixture: no provider or airport data is represented.
 const record = {
@@ -28,5 +28,25 @@ describe('airport source ingestion', () => {
       expect(ingestAirportSource(bad, '2026-02-01')).toEqual({ status: 'invalid' })
     }
     expect(ingestAirportSource(record, 'invalid')).toEqual({ status: 'invalid' })
+  })
+})
+
+describe('airport source scan', () => {
+  it('retains each record and its failure or temporal state independently', () => {
+    const result = scanAirportSources([record, { ...record, expiryDate: null }, { ...record, superseded: true }, { ...record, tora: -1 }], '2026-03-02')
+    expect(result.status).toBe('scanned')
+    if (result.status !== 'scanned') throw new Error('Expected scan')
+    expect(result.records).toMatchObject([
+      { status: 'valid', temporalStatus: 'expired', verification: { tora: 'unverified' } },
+      { status: 'valid', temporalStatus: 'unknown' },
+      { status: 'valid', temporalStatus: 'superseded' },
+      { status: 'invalid' },
+    ])
+  })
+
+  it('rejects absent, empty or invalid scan input', () => {
+    expect(scanAirportSources([], '2026-03-02')).toEqual({ status: 'invalid' })
+    expect(scanAirportSources(null, '2026-03-02')).toEqual({ status: 'invalid' })
+    expect(scanAirportSources([record], 'invalid')).toEqual({ status: 'invalid' })
   })
 })
