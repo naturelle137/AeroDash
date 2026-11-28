@@ -463,7 +463,7 @@ function applyPassengerProfile(event: Event): void {
 }
 
 .mass-station-input__preset-chip {
-  min-height: 2.25rem;
+  min-height: 2.75rem;
   padding: 0.25rem 0.75rem;
   border: 1px solid var(--color-border, #e0e0e0);
   border-radius: 1rem;

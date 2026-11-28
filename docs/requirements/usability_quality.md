@@ -6,6 +6,8 @@
 
 The system shall provide touch-friendly input controls (steppers, sliders, or large hit targets) for all numerical data entry fields.
 
+**Status:** Partial. Test: `frontend/src/modules/mass-balance/components/__tests__/MassStationInput.touch-targets.spec.ts` covers Mass & Balance station inputs (44 px). Gap: other numeric fields (e.g. Performance, Fuel) are not yet asserted.
+
 ### REQ-UQ-002: Responsive Layout Adaptation
 
 The system shall adapt the layout to ensure all critical flight data (Envelope, Results) is fully visible without horizontal scrolling on viewports with a minimum width of 320px (standard mobile).
