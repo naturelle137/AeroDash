@@ -248,6 +248,8 @@ The source-independent batch comparison reports additions, removals and changed 
 
 The source-independent temporal check compares the same supplied records at two ordered dates and reports changed temporal states with their unverified values. It rejects invalid batches and does not detect provider updates, establish completeness or verify data.
 
+The source-independent snapshot comparison combines batch differences with temporal transitions between two ordered dates. A transition can result from changed metadata or elapsed time; neither establishes provider completeness or verification.
+
 The source-independent selector requires an exact aerodrome and runway match in a fully valid nonempty batch. It reports missing or ambiguous matches separately, retains the selected record's temporal and unverified states, and does not authorize applying it to a flight preparation.
 
 Use fixed synthetic cases for missing/conflicting metadata, future effect, exact

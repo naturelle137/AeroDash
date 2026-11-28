@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Engineering
 
+- Compare supplied airport source snapshots across dates, including temporal transitions.
 - Detect temporal state changes in supplied synthetic airport source records without asserting source currency.
 - Compare synthetic airport source batches for added, removed and changed records.
 - Select synthetic airport source records by exact runway identity, rejecting ambiguous or invalid batches.
