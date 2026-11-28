@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Test takeoff distance estimation through the safety-factor calculation and clarify remaining correction coverage.
 - Cite test evidence for performance requirements REQ-PF-003 to REQ-PF-007; synthetic data only, REQ-PF-003 remains Partial.
 - Reconcile aircraft data requirements REQ-AD-004..022 with cited schema and store tests; synthetic evidence only, nothing validated for flight use.
 - Cite software tests for performance notifications, estimated values and the CG envelope polygon.
