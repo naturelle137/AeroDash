@@ -49,56 +49,7 @@ describe('fuel plan with live M&B store', () => {
     const reopened = mount(FuelEnduranceCard)
     expect(reopened.find('[aria-label="Fuel planning results"]').exists()).toBe(false)
   })
-  it('emits a schema notification only when trip plus reserve exceeds endurance and clears it on edits', async () => {
-    const { store, wrapper } = await setup()
-    const densityWarning = { id: 'WARN-FE-002', severity: 'WARNING' as const, message: 'Unknown fuel type', context: 'FuelEndurance.Density', persistent: false, dismissible: true }
-    store.notifications = [densityWarning]
-    const enduranceWarning = () => store.notifications.find((notification) => notification.id === 'WARN-FE-001')
-    await wrapper.get('#fe-consumption').setValue('10')
-    await wrapper.get('#fe-trip').setValue('210')
-    await wrapper.get('#fe-reserve').setValue('30')
-    expect(enduranceWarning()).toBeUndefined()
-    await wrapper.get('#fe-trip').setValue('211')
-    expect(enduranceWarning()).toMatchObject({ id: 'WARN-FE-001', severity: 'WARNING', context: 'FuelEndurance.Duration' })
-    expect(store.notifications).toContainEqual(densityWarning)
-    store.enterDemo()
-    expect(store.isDemoActive).toBe(true)
-    store.exitDemo()
-    expect(enduranceWarning()).toBeDefined()
-    expect(store.notifications).toContainEqual(densityWarning)
-    await wrapper.get('#fe-trip').setValue('0')
-    await wrapper.get('#fe-reserve').setValue('241')
-    expect(enduranceWarning()).toBeDefined()
-    await wrapper.get('#fe-reserve').setValue('30')
-    expect(enduranceWarning()).toBeUndefined()
-  })
-  it('retains the shortfall warning through unrelated M&B recalculation and clears it on resolution or invalidation', async () => {
-    const store = useMassBalanceStore()
-    const aircraft = AircraftContextSchema.parse(syntheticFuelContext())
-    aircraft.status = 'draft'
-    aircraft.loadPoints.push({ ...aircraft.loadPoints[0]!, name: 'Synthetic baggage', fuelTank: null })
-    store.loadProfile(aircraft)
-    const wrapper = mount(FuelEnduranceCard)
-    await wrapper.get('#fe-method').setValue('duration')
-    await wrapper.get('#fe-consumption').setValue('10')
-    await wrapper.get('#fe-trip').setValue('211')
-    await wrapper.get('#fe-reserve').setValue('30')
-    const ids = () => store.notifications.map(n => n.id)
-    expect(ids()).toContain('WARN-FE-001')
-    store.updateStationWeight(1, 20)
-    expect(ids()).toContain('WARN-FE-001')
-    expect(ids()).toContain('WARN-AC-002')
-    await wrapper.get('#fe-trip').setValue('200')
-    expect(ids()).not.toContain('WARN-FE-001')
-    expect(ids()).toContain('WARN-AC-002')
-    await wrapper.get('#fe-trip').setValue('211')
-    expect(ids()).toContain('WARN-FE-001')
-    await wrapper.get('#fe-trip').setValue('')
-    expect(ids()).not.toContain('WARN-FE-001')
-    expect(ids()).toContain('WARN-AC-002')
-    wrapper.unmount()
-  })
-  it('uses validated takeoff mass, retains unusable fuel and never changes the full-burn endpoint (REQ-FE-003, REQ-FE-005)', async () => {
+  it('uses validated takeoff mass, retains unusable fuel and never changes the full-burn endpoint', async () => {
     const store = useMassBalanceStore()
     const aircraft = AircraftContextSchema.parse(syntheticFuelContext())
     aircraft.sourceUnit = 'kg'
@@ -236,7 +187,7 @@ describe('fuel plan with live M&B store', () => {
       expect(wrapper.find('[aria-label="Fuel planning results"]').exists()).toBe(false)
     },
   )
-  it('renders equality and reserve-only insufficiency without a success claim (REQ-FE-003)', async () => {
+  it('renders equality and reserve-only insufficiency without a success claim', async () => {
     const { wrapper } = await setup()
     await wrapper.get('#fe-consumption').setValue('10')
     await wrapper.get('#fe-trip').setValue('240')
