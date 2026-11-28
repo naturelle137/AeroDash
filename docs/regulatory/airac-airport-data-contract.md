@@ -250,6 +250,8 @@ The source-independent temporal check compares the same supplied records at two 
 
 The source-independent snapshot comparison combines batch differences with temporal transitions between two ordered dates. A transition can result from changed metadata or elapsed time; neither establishes provider completeness or verification.
 
+The source-independent envelope stores a record with its retrieval time under a schema version. Restoring rejects unsupported versions and invalid records, discards stored verification and temporal claims, and recomputes them, so a restored record is unverified. It is not wired to storage, import/export or briefing.
+
 The source-independent selector requires an exact aerodrome and runway match in a fully valid nonempty batch. It reports missing or ambiguous matches separately, retains the selected record's temporal and unverified states, and does not authorize applying it to a flight preparation.
 
 Use fixed synthetic cases for missing/conflicting metadata, future effect, exact

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { checkAirportSourceTransitions, compareAirportSource, compareAirportSourceBatches, compareAirportSourceSnapshots, ingestAirportSource, scanAirportSources, selectAirportSource } from './airport-source'
+import { checkAirportSourceTransitions, compareAirportSource, compareAirportSourceBatches, compareAirportSourceSnapshots, ingestAirportSource, packAirportSource, restoreAirportSource, scanAirportSources, selectAirportSource } from './airport-source'
 
 // Synthetic fixture: no provider or airport data is represented.
 const record = {
@@ -147,5 +147,27 @@ describe('airport source batch comparison', () => {
     expect(compareAirportSourceBatches([record], [record, record], '2026-02-01')).toEqual({ status: 'ambiguous' })
     expect(compareAirportSourceBatches([], [record], '2026-02-01')).toEqual({ status: 'invalid' })
     expect(compareAirportSourceBatches([record], [record], 'bad')).toEqual({ status: 'invalid' })
+  })
+})
+
+describe('airport source envelope', () => {
+  it('round-trips provenance and recomputes temporal and verification state', () => {
+    const packed = packAirportSource(record, '2026-02-01T10:00:00Z')
+    expect(packed.status).toBe('packed')
+    if (packed.status !== 'packed') return
+    const stored = JSON.parse(JSON.stringify({ ...packed.envelope, verification: { tora: 'verified' }, temporalStatus: 'current' }))
+    expect(restoreAirportSource(stored, '2026-03-02')).toMatchObject({
+      status: 'restored', retrievedAt: '2026-02-01T10:00:00Z', source: record, temporalStatus: 'expired',
+      verification: { tora: 'unverified', lda: 'unverified' },
+    })
+  })
+
+  it('rejects unsupported versions, invalid records and invalid timestamps', () => {
+    expect(restoreAirportSource({ schemaVersion: 2, retrievedAt: '2026-02-01T10:00:00Z', source: record }, '2026-02-01')).toEqual({ status: 'unsupported-version' })
+    expect(restoreAirportSource({ schemaVersion: 1, retrievedAt: '2026-02-01T10:00:00Z', source: { ...record, lda: -1 } }, '2026-02-01')).toEqual({ status: 'invalid' })
+    expect(restoreAirportSource({ schemaVersion: 1, source: record }, '2026-02-01')).toEqual({ status: 'invalid' })
+    expect(restoreAirportSource(null, '2026-02-01')).toEqual({ status: 'invalid' })
+    expect(packAirportSource(record, '2026-02-01')).toEqual({ status: 'invalid' })
+    expect(packAirportSource({ ...record, tora: null, lda: 0 }, '2026-02-01T10:00:00Z')).toEqual({ status: 'invalid' })
   })
 })
