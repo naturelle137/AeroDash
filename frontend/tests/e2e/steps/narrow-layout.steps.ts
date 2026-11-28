@@ -28,6 +28,20 @@ Then('the narrow preparation layout is reachable', async ({ page, $testInfo }) =
   await $testInfo.attach(`preparation-${page.viewportSize()!.width}`, { body: await page.screenshot({ fullPage: true }), contentType: 'image/png' })
 })
 
+Then('the envelope chart and results are fully visible without horizontal scrolling', async ({ page, $testInfo }) => {
+  const chart = page.getByRole('img', { name: /^CG Envelope Chart — (?!No aircraft selected)/ }).first()
+  const results = page.getByRole('region', { name: 'Calculation results' })
+  await reachable(page, chart)
+  await reachable(page, results)
+  await expect(chart.boundingBox().then((box) => box?.height ?? 0)).resolves.toBeGreaterThan(100)
+  const width = page.viewportSize()!.width
+  const overflowing = await results.evaluate((root, viewport) => [root, ...root.querySelectorAll('*')]
+    .filter((element) => element.getBoundingClientRect().width > 0 && element.getBoundingClientRect().right > viewport + 0.5)
+    .map((element) => element.tagName + '.' + element.className), width)
+  expect(overflowing).toEqual([])
+  await $testInfo.attach(`envelope-results-${width}`, { body: await page.screenshot({ fullPage: true }), contentType: 'image/png' })
+})
+
 Then('the narrow briefing layout is reachable', async ({ page, $testInfo }) => {
   const preview = page.getByRole('dialog', { name: 'Briefing Pack preview' })
   await reachable(page, preview.getByText('WARNING: Unverified obstacle data in use', { exact: false }).first())

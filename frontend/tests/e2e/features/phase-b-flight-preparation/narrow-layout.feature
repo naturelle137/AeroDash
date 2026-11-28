@@ -12,6 +12,7 @@ Feature: Flight preparation fits a narrow viewport
     And the pilot enters an obstacle height "50" "ft" at distance "600" "m"
     Then the unverified obstacle warning is shown
     And the narrow preparation layout is reachable
+    And the envelope chart and results are fully visible without horizontal scrolling
     When the pilot opens the briefing pack
     Then the briefing pack states "WARNING: Unverified obstacle data in use"
     And the narrow briefing layout is reachable
