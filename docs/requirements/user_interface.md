@@ -50,13 +50,19 @@ If QNH is outside 950–1100 hPa or temperature is outside −40–50 °C, then 
 
 When the certification category changes, the system shall recalculate category-dependent limits.
 
+**Status:** Implemented. Test: `frontend/tests/e2e/features/phase-a-fleet-management/certification-category-switch.feature`.
+
 ### REQ-UI-010: CG Migration Rendering
 
 While an aircraft has a single fuel sequence, the system shall render a trend line connecting takeoff and landing CG.
 
+**Status:** Implemented. Test: `frontend/src/modules/mass-balance/components/__tests__/CGEnvelopeChart.spec.ts` (migration path rendering).
+
 ### REQ-UI-011: Dark Mode Support
 
 The system shall provide a toggleable "Dark Mode" (high contrast, black/red or black/green theme).
+
+**Status:** Implemented. Tests: `frontend/src/shared/composables/__tests__/useTheme.spec.ts` (toggle, persistence), `frontend/src/assets/__tests__/theme-contrast.spec.ts` (contrast).
 
 ### REQ-UI-012: Contextual Tooltips
 
@@ -93,6 +99,8 @@ When an INFO notification is active, the system shall render it as a toast or ba
 ### REQ-UI-019: CG Envelope Polygon Rendering
 
 The system shall render the active CG envelope polygon as the loading-chart background.
+
+**Status:** Implemented. Test: `frontend/src/modules/mass-balance/components/__tests__/CGEnvelopeChart.spec.ts` (envelope polygon).
 
 ### REQ-UI-020: Connectivity State Indicator
 
