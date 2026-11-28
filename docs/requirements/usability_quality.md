@@ -18,6 +18,8 @@ The system shall display numerical values with decimal places `m=3, cm=1, mm=0, 
 
 When displaying a safety-critical mass, the system shall round upward.
 
+**Status:** Implemented. Test: `frontend/src/core/logic/display-rounding.spec.ts`.
+
 ### REQ-UQ-005: Active Unit Display
 
 The system shall statically display the active unit of measurement adjacent to every numerical input and output field.
@@ -37,6 +39,8 @@ When displaying endurance, the system shall round downward.
 ### REQ-UQ-009: Remaining fuel rounding
 
 When displaying remaining fuel, the system shall round downward.
+
+**Status:** Implemented. Test: `frontend/src/core/logic/display-rounding.spec.ts`.
 
 ### REQ-UQ-010: Optional empty occupant
 

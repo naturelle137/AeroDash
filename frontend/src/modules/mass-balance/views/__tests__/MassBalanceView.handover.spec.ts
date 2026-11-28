@@ -4,6 +4,7 @@ import { mount } from '@vue/test-utils'
 import { createRouter, createMemoryHistory } from 'vue-router'
 import MassBalanceView from '../MassBalanceView.vue'
 import { useMassBalanceStore } from '@/modules/mass-balance/stores/mass-balance.store'
+import { useWeatherInputsStore } from '@/modules/weather/stores/weather-inputs.store'
 import { useFleetStore } from '@/modules/aircraft/stores/fleet.store'
 import HandoverExchange from '@/modules/export/HandoverExchange.vue'
 import type { MathCoreResult } from '@/modules/mass-balance/stores/mass-balance.types'
@@ -121,6 +122,17 @@ describe('MassBalanceView — handover file', () => {
     expect(file).toMatchObject({ format: 'aerodash-flight-preparation', version: 1, aircraft: { registration: 'D-EBPN' }, massBalance: { stations: [{ weight: 120, unit: 'kg' }] }, entries: { fuel: { directTripFuel: '' }, performance: { temperature: '' } }, runway: { saved: null } })
     expect(file.notice).toContain('Unverified')
     expect(downloaded.text).not.toContain('ownerId')
+  })
+
+  it('reads the shared Weather inputs in Flight Prep (REQ-WX-055)', async () => {
+    const { wrapper, profile } = mountWithAircraft()
+    await wrapper.find('select#aircraft-select').setValue(profile.id)
+    const weather = useWeatherInputsStore()
+    weather.copyRetrieved('wind', { wind: { direction: '240', speed: '12', unit: 'kt' } }, 'METAR TEST')
+    await wrapper.find('[data-testid="flight-prep-export"]').trigger('click')
+    const file = JSON.parse(downloaded.text)
+    expect(file.wind).toMatchObject({ windDirection: '240', windSpeed: '12', unit: 'kt' })
+    expect(file.weatherSources.wind.source).toBe('METAR TEST')
   })
 
   it.each([
