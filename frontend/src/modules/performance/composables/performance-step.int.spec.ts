@@ -170,7 +170,7 @@ it('persists preferences while new sessions clear numeric PA/QNH and preserves r
   scope.stop()
 })
 
-it('withholds extrapolated results until acknowledged and revokes the acknowledgment on every input change', () => {
+it('withholds extrapolated results until acknowledged and revokes the acknowledgment on every input change (REQ-PF-012)', () => {
   const scope = effectScope()
   scope.run(() => {
     const context = reactive<PerformanceStepContext>({
@@ -226,7 +226,7 @@ it('withholds extrapolated results until acknowledged and revokes the acknowledg
   scope.stop()
 })
 
-it('blocks beyond the extrapolation limit with no acknowledgment path', () => {
+it('blocks beyond the extrapolation limit with no acknowledgment path (REQ-PF-010)', () => {
   const scope = effectScope()
   scope.run(() => {
     const context = reactive<PerformanceStepContext>({
@@ -266,7 +266,7 @@ it('blocks upper excursions when the source prohibits extrapolation', () => {
   scope.stop()
 })
 
-it('records an unverified obstacle, invalidates on edit and drops it when cleared', () => {
+it('records an unverified obstacle, shows its geometric gradient, invalidates on edit and drops it when cleared (REQ-PF-008, REQ-PF-009)', () => {
   const scope = effectScope()
   scope.run(() => {
     const context = reactive<PerformanceStepContext>({
