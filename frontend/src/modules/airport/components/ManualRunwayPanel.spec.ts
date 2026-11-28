@@ -1,6 +1,8 @@
 import { createPinia, setActivePinia } from 'pinia'
 import { mount, type VueWrapper } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { createManualRunwayRecord } from '@/core/logic/manual-runway'
+import { saveRecentAirport } from '../services/recent-airports.repository'
 import { MANUAL_RUNWAY_STORAGE_KEY } from '../services/manual-runway.repository'
 import ManualRunwayPanel from './ManualRunwayPanel.vue'
 
@@ -30,6 +32,15 @@ beforeEach(() => {
 afterEach(() => { vi.restoreAllMocks() })
 
 describe('ManualRunwayPanel', () => {
+  it('shows the five most recently saved distinct aerodromes in order', () => {
+    for (const aerodrome of ['A', 'B', 'C', 'D', 'E', 'F']) {
+      saveRecentAirport(createManualRunwayRecord({ aerodrome, designator: '27', tora: { value: 1000, unit: 'm' }, lda: { value: 900, unit: 'm' }, fieldElevation: { value: 0, unit: 'ft' }, surface: { type: 'paved', condition: 'dry' } }, new Date('2026-01-01T00:00:00Z')))
+    }
+    const view = mount(ManualRunwayPanel)
+    const names = view.get('[aria-label="Recently used airports"]').findAll('.select-recent').map(button => button.text().split(' — ')[0])
+    expect(names).toEqual(['F', 'E', 'D', 'C', 'B'])
+    view.unmount()
+  })
   it('shows the unsaved date checks next to save, including the device date', async () => {
     vi.useFakeTimers()
     vi.setSystemTime(new Date(2026, 6, 1, 12))
