@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Engineering
 
+- Clear the fuel shortfall notification when leaving Flight Preparation and document its tested lifecycle.
+
 - Compare supplied airport source snapshots across dates, including temporal transitions.
 - Detect temporal state changes in supplied synthetic airport source records without asserting source currency.
 - Compare synthetic airport source batches for added, removed and changed records.

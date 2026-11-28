@@ -1,4 +1,4 @@
-import { computed, ref, toRaw, watch } from 'vue'
+import { computed, getCurrentScope, onScopeDispose, ref, toRaw, watch } from 'vue'
 import { plainCopy, useDemoScratch } from '@/shared/composables/useDemoScratch'
 import { useMassBalanceStore } from '@/modules/mass-balance/stores/mass-balance.store'
 import { assessTripEnvelope } from './trip-envelope'
@@ -88,6 +88,9 @@ export function useFuelPlanning() {
     }
     store.notifications = notifications
   }, { immediate: true, flush: 'sync' })
+  if (getCurrentScope()) onScopeDispose(() => {
+    store.notifications = toRaw(store.notifications).filter(n => n.id !== 'WARN-FE-001')
+  })
   const arrival = computed(() => {
     if (!fuel.value.ok || !method.value) return null
     const tripFuelKg =
