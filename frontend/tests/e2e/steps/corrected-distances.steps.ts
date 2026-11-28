@@ -6,6 +6,20 @@ import { testPohAircraft } from '../../fixtures/poh-aircraft'
 const { Given, When, Then } = createBdd()
 const takeoff = (page: Page) => page.getByRole('region', { name: 'Takeoff corrected distances', exact: true })
 
+Then('the low safety factor export warning is shown', async ({ page }) => {
+  await expect(page.getByRole('alertdialog')).toContainText('CRITICAL CRIT-UI-002')
+  await expect(page.getByRole('alertdialog')).toContainText('Takeoff:')
+})
+
+When('the pilot continues with the low safety factor', async ({ page }) => {
+  await page.getByRole('button', { name: 'Continue with low safety factor' }).click()
+})
+
+Then('the briefing pack is sent to print', async ({ page }) => {
+  await expect(page.getByRole('alertdialog')).toHaveCount(0)
+  expect(await page.evaluate(() => (window as unknown as { __printCalls: number }).__printCalls)).toBe(1)
+})
+
 Given('the production app is cached for offline performance', async ({ page }) => {
   await page.goto('/')
   await page.evaluate(() => navigator.serviceWorker.ready)
@@ -237,6 +251,8 @@ Then('the printed and PDF briefing disclose the pilot-entered surface source', a
   await page.getByRole('button', { name: 'Download PDF' }).click()
   const gate = page.getByRole('button', { name: 'Acknowledge unverified data and download PDF' })
   if (await gate.isVisible()) await gate.click()
+  const lowFactorGate = page.getByRole('button', { name: 'Continue with low safety factor' })
+  if (await lowFactorGate.isVisible()) await lowFactorGate.click()
   const path = $testInfo.outputPath('surface-briefing.pdf')
   await (await download).saveAs(path)
   const pdf = execFileSync('pdftotext', ['-layout', path, '-'], { encoding: 'utf8' }).replace(/\s+/g, ' ')

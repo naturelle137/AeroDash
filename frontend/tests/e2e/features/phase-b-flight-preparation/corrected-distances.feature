@@ -148,12 +148,30 @@ Feature: Corrected takeoff and landing distances
     And the pilot opens the briefing pack
     Then the briefing pack states "safety factor"
     And the briefing pack states "Calculation based on low safety margin. Pilot in Command assumes full responsibility."
+    When the pilot requests printing of the briefing pack
+    Then the low safety factor export warning is shown
     And the briefing pack evidence is captured as "low-margin-<width>"
+    When the pilot continues with the low safety factor
+    Then the briefing pack is sent to print
 
     Examples:
       | width | height |
       | 1440  | 1000   |
       | 390   | 844    |
+
+  Scenario: A factor at the baseline does not trigger the export warning
+    Given the raw POH workflow viewport is 1440 by 1000
+    When I import and verify a synthetic POH profile for registration "D-EBPN" declaring type "P208" and maximum mass 650 kg
+    And the pilot selects the imported aircraft "D-EBPN" in Flight Prep
+    And the pilot enters pressure altitude "1000" ft directly
+    And the pilot sets temperature "10" °C in Flight Prep
+    And the pilot selects manual configuration "s9"
+    And the pilot saves runway "TEST" "27" with TORA "2000" "m", LDA "550" "m", elevation "300" "ft" and surface "Paved" "Dry"
+    And the pilot enters takeoff headwind "0" kt and slope "0" %
+    And the pilot selects the takeoff safety factor "EASA standard (1.25 take-off, 1.43 landing)"
+    And the pilot opens the briefing pack
+    And the pilot requests printing of the briefing pack
+    Then the briefing pack is sent to print
 
   Scenario Outline: Verified corrected distances appear in the briefing
     Given the raw POH workflow viewport is <width> by <height>

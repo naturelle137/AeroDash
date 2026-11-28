@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Warn before printing or downloading a Briefing Pack with a low safety factor, with options to continue or revise.
 - Allow a manually pasted current METAR to suggest an unverified runway surface.
 - Show browser connectivity and disable weather retrieval while offline.
 

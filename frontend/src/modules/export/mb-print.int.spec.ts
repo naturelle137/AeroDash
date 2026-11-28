@@ -514,6 +514,24 @@ describe('M&B print presentation with real store calculation', () => {
   })
   describe('CRIT-UI-001 export gate', () => {
     const buttonByText = (t: string) => [...document.querySelectorAll('button')].find(b => b.textContent === t)!
+    it('requires both acknowledgments before printing a low-factor unverified briefing', async () => {
+      const input = source()
+      const base = presentPerformance({ inputKey: 'k', inputs: [], aircraft: null, takeoff: { status: 'unavailable', reason: 'x' }, landing: { status: 'unavailable', reason: 'x' }, assessment: null, pressureAltitudeBasis: '', pendingReason: 'x', runway: { status: 'unavailable', reason: 'x' }, operational: presentOperationalAssessment(null, 'x') })
+      input.performance = { ...base, corrected: [{ operation: 'takeoff', title: 'Takeoff', status: 'applied', source: 'Synthetic', rows: [], safetyFactor: '1.10', safetyFactorWarning: 'below 1.25', comparison: { status: 'unavailable', reason: 'x' }, notes: [] }] } as never
+      const wrapper = mount(MbPrintPreview, { props: { source: input }, attachTo: document.body })
+      const print = vi.spyOn(window, 'print').mockImplementation(() => {})
+      await wrapper.get('button').trigger('click')
+      buttonByText('Print Briefing Pack').click()
+      await nextTick()
+      buttonByText('Acknowledge unverified data and print').click()
+      await nextTick()
+      expect(document.querySelector('[role="alertdialog"]')?.textContent).toContain('CRITICAL CRIT-UI-002')
+      expect(document.querySelector('[role="alertdialog"]')?.textContent).toContain('Takeoff: below 1.25')
+      expect(print).not.toHaveBeenCalled()
+      buttonByText('Continue with low safety factor').click()
+      expect(print).toHaveBeenCalledOnce()
+      wrapper.unmount()
+    })
     it('blocks print with unverified data, lists fields, and prints after acknowledgment', async () => {
       const wrapper = mount(MbPrintPreview, { props: { source: source() }, attachTo: document.body })
       const print = vi.spyOn(window, 'print').mockImplementation(() => {})
