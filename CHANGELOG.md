@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Reconcile remaining UI, usability and system requirement statuses with tests and concrete gaps.
+
 - Reconcile aircraft data requirements REQ-AD-004..022 with cited schema and store tests; synthetic evidence only, nothing validated for flight use.
 - Cite software tests for performance notifications, estimated values and the CG envelope polygon.
 
