@@ -115,6 +115,16 @@ describe('resolveOsf — preset resolution (REQ-PF-006)', () => {
 })
 
 describe('osfThreshold + isOsfBelowMinimum (REQ-PF-016)', () => {
+  it.each([
+    ['takeoff', 1.25, 1.24, 1.25],
+    ['landing', 1.43, 1.42, 1.43],
+    ['takeoff', 1.6, 1.59, 1.6],
+    ['landing', 1.7, 1.69, 1.7],
+  ] as const)('uses the higher threshold and accepts equality for %s', (operation, manual, below, equal) => {
+    const osf = { preset: 'custom' as const, customMultiplier: below, pohMandatedFactor: { [operation]: manual } }
+    expect(isOsfBelowMinimum(osf, operation)).toBe(true)
+    expect(isOsfBelowMinimum({ ...osf, customMultiplier: equal }, operation)).toBe(false)
+  })
   it('threshold is the baseline when no POH factor is present', () => {
     expect(osfThreshold({ preset: 'easa-standard' }, 'takeoff')).toBe(1.25)
     expect(osfThreshold({ preset: 'easa-standard' }, 'landing')).toBe(1.43)

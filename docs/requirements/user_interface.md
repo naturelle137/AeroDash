@@ -98,7 +98,7 @@ While the [unverified-data confirmation dialog](#req-ui-015-unverified-data-expo
 
 When Save or Export is triggered with a factor below the greater of the POH minimum and the baseline (takeoff 1.25, landing 1.43), the system shall emit CRITICAL `CRIT-UI-002` identifying the low factor.
 
-**Status:** Deferred. A `CRIT-UI-002` low-factor Save/Export warning and confirmation are not implemented.
+**Status:** Implemented for Briefing Pack print and PDF export. The pilot can continue or return to revise; the warning identifies affected operations. Tests: `frontend/src/modules/export/mb-print.int.spec.ts`, `frontend/tests/e2e/features/phase-b-flight-preparation/corrected-distances.feature`. Synthetic data only.
 
 ### REQ-UI-018: Severity-Based Notification Rendering
 

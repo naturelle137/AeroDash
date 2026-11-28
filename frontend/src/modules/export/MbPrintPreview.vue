@@ -18,6 +18,7 @@ const printRoot = ref<HTMLElement>()
 let returnFocus: HTMLElement | null = null
 const fingerprint = ref('')
 const acknowledged = ref(false)
+const lowFactorAcknowledged = ref(false)
 const gating = ref(false)
 const pendingAction = ref<'print' | 'pdf'>('print')
 const exporting = ref(false)
@@ -33,6 +34,7 @@ const currentSnapshot = computed(() => currentKey.value === fingerprint.value ? 
 function invalidate(): void {
   snapshot.value = null
   acknowledged.value = false
+  lowFactorAcknowledged.value = false
   gating.value = false
   // Native printing can capture the DOM before Vue flushes its pending render.
   printRoot.value?.setAttribute('data-print-invalid', 'true')
@@ -46,6 +48,7 @@ async function open(): Promise<void> {
   fingerprint.value = currentKey.value
   snapshot.value = value
   acknowledged.value = false
+  lowFactorAcknowledged.value = false
   gating.value = false
   handover.value = false
   studentName.value = ''
@@ -60,6 +63,7 @@ function close(): void {
   opened.value = false
   snapshot.value = null
   acknowledged.value = false
+  lowFactorAcknowledged.value = false
   gating.value = false
   returnFocus?.focus()
 }
@@ -70,16 +74,16 @@ function recheck(): boolean {
     return false
   }
   // Native print (Ctrl+P) must not bypass the acknowledgment.
-  if (gate.value && !acknowledged.value) { invalidate(); return false }
+  if ((gate.value && !acknowledged.value) || (currentSnapshot.value.lowSafetyMargin && !lowFactorAcknowledged.value)) { invalidate(); return false }
   return true
 }
 function print(): void {
-  if (gate.value && !acknowledged.value) { pendingAction.value = 'print'; gating.value = true; return }
+  if ((gate.value && !acknowledged.value) || (currentSnapshot.value?.lowSafetyMargin && !lowFactorAcknowledged.value)) { pendingAction.value = 'print'; gating.value = true; return }
   if (recheck()) window.print()
 }
 async function downloadPdf(): Promise<void> {
   if (exporting.value) return
-  if (gate.value && !acknowledged.value) { pendingAction.value = 'pdf'; gating.value = true; return }
+  if ((gate.value && !acknowledged.value) || (currentSnapshot.value?.lowSafetyMargin && !lowFactorAcknowledged.value)) { pendingAction.value = 'pdf'; gating.value = true; return }
   if (!recheck() || !printRoot.value) return
   const sheet = printRoot.value.querySelector('.mb-print-sheet')
   const key = currentKey.value
@@ -104,6 +108,12 @@ async function downloadPdf(): Promise<void> {
 }
 function acknowledge(): void {
   acknowledged.value = true
+  gating.value = false
+  if (pendingAction.value === 'pdf') void downloadPdf()
+  else print()
+}
+function acknowledgeLowFactor(): void {
+  lowFactorAcknowledged.value = true
   gating.value = false
   if (pendingAction.value === 'pdf') void downloadPdf()
   else print()
@@ -150,12 +160,18 @@ onBeforeUnmount(() => {
           <label>Instructor name <input v-model.trim="instructorName" type="text" maxlength="80" autocomplete="off"></label>
           <label>Handover note (optional, unverified, not stored) <textarea v-model.trim="handoverNote" maxlength="500"></textarea></label>
         </fieldset>
-        <section v-if="gating && gate" role="alertdialog" aria-modal="true" aria-labelledby="crit-ui-001-title" class="briefing-gate">
+        <section v-if="gating && gate && !acknowledged" role="alertdialog" aria-modal="true" aria-labelledby="crit-ui-001-title" class="briefing-gate">
           <h2 id="crit-ui-001-title">{{ gate.notification.id }} · {{ gate.notification.message }}</h2>
           <p>The Briefing Pack contains unverified data ({{ gate.status }}). {{ pendingAction === 'pdf' ? 'The PDF download' : 'Printing' }} proceeds only after acknowledgment; every unverified value is then marked [UNVERIFIED] inline.</p>
           <ul aria-label="Unverified fields"><li v-for="field in gate.parameters" :key="field"><code>{{ field }}</code></li></ul>
           <button type="button" @click="acknowledge">{{ pendingAction === 'pdf' ? 'Acknowledge unverified data and download PDF' : 'Acknowledge unverified data and print' }}</button>
           <button type="button" @click="gating = false">Cancel</button>
+        </section>
+        <section v-else-if="gating && currentSnapshot?.lowSafetyMargin && !lowFactorAcknowledged" role="alertdialog" aria-modal="true" aria-labelledby="crit-ui-002-title" class="briefing-gate">
+          <h2 id="crit-ui-002-title">CRITICAL CRIT-UI-002 · Low safety factor</h2>
+          <p v-for="item in currentSnapshot.performance?.corrected.filter(item => item.status === 'applied' && item.safetyFactorWarning)" :key="item.operation">{{ item.title }}: {{ item.status === 'applied' ? item.safetyFactorWarning : '' }}</p>
+          <button type="button" @click="acknowledgeLowFactor">Continue with low safety factor</button>
+          <button type="button" @click="close">Return to preparation to revise</button>
         </section>
         <template v-if="currentSnapshot">
           <h1>Flight Preparation Briefing Pack</h1>
