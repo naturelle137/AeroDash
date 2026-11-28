@@ -6,6 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+- Compare synthetic airport source record updates by identity and changed fields, retaining unverified status.
 - Retain the fuel shortfall warning during unrelated mass and balance recalculations.
 - Scan synthetic airport source records individually, retaining invalid and unknown outcomes.
 - Add a synthetic-only airport source ingestion and temporal classification contract; no operational dataset is integrated.

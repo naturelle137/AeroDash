@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { ingestAirportSource, scanAirportSources } from './airport-source'
+import { compareAirportSource, ingestAirportSource, scanAirportSources } from './airport-source'
 
 // Synthetic fixture: no provider or airport data is represented.
 const record = {
@@ -48,5 +48,23 @@ describe('airport source scan', () => {
     expect(scanAirportSources([], '2026-03-02')).toEqual({ status: 'invalid' })
     expect(scanAirportSources(null, '2026-03-02')).toEqual({ status: 'invalid' })
     expect(scanAirportSources([record], 'invalid')).toEqual({ status: 'invalid' })
+  })
+})
+
+
+describe('airport source comparison', () => {
+  it('reports changed values and provenance while keeping incoming values unverified', () => {
+    const incoming = { ...record, version: '2', expiryDate: null, tora: { value: 901, unit: 'm' } }
+    expect(compareAirportSource(record, incoming, '2026-02-01')).toMatchObject({
+      status: 'compared', changed: ['version', 'expiryDate', 'tora'],
+      incoming: { source: incoming, temporalStatus: 'unknown', verification: { tora: 'unverified', lda: 'unverified' } },
+    })
+    expect(compareAirportSource(record, { ...record, tora: { unit: 'm', value: 900 } }, '2026-02-01')).toMatchObject({ status: 'compared', changed: [] })
+  })
+
+  it('rejects invalid inputs and does not compare different identities', () => {
+    expect(compareAirportSource(record, { ...record, recordId: 'other' }, '2026-02-01')).toEqual({ status: 'different-record' })
+    expect(compareAirportSource(record, { ...record, lda: -1 }, '2026-02-01')).toEqual({ status: 'invalid' })
+    expect(compareAirportSource(record, record, 'bad')).toEqual({ status: 'invalid' })
   })
 })

@@ -42,3 +42,16 @@ export function scanAirportSources(value: unknown, checkDate: string) {
   const records = value.map(record => ingestAirportSource(record, checkDate))
   return { status: 'scanned', records } as const
 }
+
+export function compareAirportSource(previous: unknown, incoming: unknown, checkDate: string) {
+  const before = ingestAirportSource(previous, checkDate)
+  const after = ingestAirportSource(incoming, checkDate)
+  if (before.status !== 'valid' || after.status !== 'valid') return { status: 'invalid' } as const
+
+  const identity = ['provider', 'dataset', 'recordId', 'jurisdiction', 'aerodrome', 'runway'] as const
+  if (identity.some(key => before.source[key] !== after.source[key])) return { status: 'different-record' } as const
+
+  const fields = ['version', 'publicationDate', 'effectiveDate', 'expiryDate', 'superseded', 'restrictionCoverage', 'tora', 'lda'] as const
+  const changed = fields.filter(key => JSON.stringify(before.source[key]) !== JSON.stringify(after.source[key]))
+  return { status: 'compared', changed, incoming: after } as const
+}
