@@ -35,6 +35,7 @@
     "lint:ci:oxlint": "oxlint",
     "lint:ci:eslint": "eslint",
     "format": "prettier --write --experimental-cli src/",
+    "test:theme-audit": "playwright test --config playwright.theme.config.ts",
     "test:offline": "pnpm build && playwright test --config playwright.offline.config.ts"
   },
   "repository": {
