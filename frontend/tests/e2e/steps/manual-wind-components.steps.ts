@@ -96,6 +96,8 @@ When('the pilot enters a gust of {string}', async ({ page }, value: string) => {
 })
 
 Then('the gust warnings appear and evidence is captured', async ({ page, $testInfo }) => {
+  await expect(panel(page).getByLabel('Gust components')).toContainText('Gust tailwind10.0 kt')
+  await expect(panel(page).getByLabel('Gust components')).toContainText('Gust crosswind17.3 kt from the left')
   await expect(panel(page)).toContainText('Crosswind exceeds Demonstrated 10 kt (manual gust)')
   await expect(panel(page)).toContainText('Tailwind exceeds Limit 5 kt (manual gust)')
   await expect(panel(page)).toContainText('Gust exceeds Limit 15 kt (manual gust)')

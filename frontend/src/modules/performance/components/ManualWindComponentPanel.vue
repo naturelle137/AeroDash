@@ -86,6 +86,17 @@ const abs = (value: number) => Math.abs(value).toFixed(1)
             <dd v-else>{{ abs(result.crosswind) }} {{ result.unit }} from the {{ result.crosswind > 0 ? 'right' : 'left' }}</dd>
           </div>
         </dl>
+        <dl v-if="gustResult?.status === 'valid'" aria-label="Gust components">
+          <div>
+            <dt>Gust {{ gustResult.headwind >= 0 ? 'headwind' : 'tailwind' }}</dt>
+            <dd>{{ abs(gustResult.headwind) }} {{ gustResult.unit }}</dd>
+          </div>
+          <div>
+            <dt>Gust crosswind</dt>
+            <dd v-if="gustResult.crosswind === 0">0.0 {{ gustResult.unit }}</dd>
+            <dd v-else>{{ abs(gustResult.crosswind) }} {{ gustResult.unit }} from the {{ gustResult.crosswind > 0 ? 'right' : 'left' }}</dd>
+          </div>
+        </dl>
         <p class="hint">Computed from your entries; rounded to 0.1. Check all limits yourself; missing or invalid gusts are not assessed and no suitability verdict is given. Pilot in command remains responsible.</p>
         <p v-for="(note, index) in notifications" :key="index" :class="note.severity === 'CRITICAL' ? 'critical' : 'warning'">{{ note.severity }} {{ note.id }}: {{ note.message }}</p>
       </template>

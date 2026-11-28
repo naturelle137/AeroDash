@@ -51,6 +51,15 @@ describe('ManualWindComponentPanel', () => {
     expect(view.get('#wind-direction').attributes('aria-invalid')).toBe('true')
     expect(view.get('#wind-windDirection-error').text()).toContain('variable direction')
   })
+  it('shows gust components and clears them when the gust is invalid', async () => {
+    const view = mount(ManualWindComponentPanel)
+    await enter(view, '270', '330', '20')
+    await view.get('#wind-gust').setValue('30')
+    expect(view.get('[aria-label="Gust components"]').text()).toContain('Gust headwind15.0 kt')
+    expect(view.get('[aria-label="Gust components"]').text()).toContain('Gust crosswind26.0 kt from the right')
+    await view.get('#wind-gust').setValue('-1')
+    expect(view.find('[aria-label="Gust components"]').exists()).toBe(false)
+  })
   it('states provenance and makes no verdict', () => {
     const view = mount(ManualWindComponentPanel)
     expect(view.text()).toContain('User-entered')
