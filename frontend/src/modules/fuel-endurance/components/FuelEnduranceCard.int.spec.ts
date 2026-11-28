@@ -16,7 +16,7 @@ describe('fuel plan with live M&B store', () => {
     await wrapper.get('#fe-method').setValue('duration')
     return { store, wrapper }
   }
-  it('requires explicit inputs, recomputes tanks/categories, clears on aircraft change and remount', async () => {
+  it('calculates endurance from current usable fuel and explicit flow (REQ-FE-002)', async () => {
     const { store, wrapper } = await setup()
     const results = () => wrapper.find('[aria-label="Fuel planning results"]')
     expect(results().exists()).toBe(false)
@@ -49,7 +49,7 @@ describe('fuel plan with live M&B store', () => {
     const reopened = mount(FuelEnduranceCard)
     expect(reopened.find('[aria-label="Fuel planning results"]').exists()).toBe(false)
   })
-  it('uses validated takeoff mass, retains unusable fuel and never changes the full-burn endpoint', async () => {
+  it('uses validated takeoff mass, retains unusable fuel and never changes the full-burn endpoint (REQ-FE-003, REQ-FE-005)', async () => {
     const store = useMassBalanceStore()
     const aircraft = AircraftContextSchema.parse(syntheticFuelContext())
     aircraft.sourceUnit = 'kg'
@@ -187,7 +187,7 @@ describe('fuel plan with live M&B store', () => {
       expect(wrapper.find('[aria-label="Fuel planning results"]').exists()).toBe(false)
     },
   )
-  it('renders equality and reserve-only insufficiency without a success claim', async () => {
+  it('renders equality and reserve-only insufficiency without a success claim (REQ-FE-003)', async () => {
     const { wrapper } = await setup()
     await wrapper.get('#fe-consumption').setValue('10')
     await wrapper.get('#fe-trip').setValue('240')

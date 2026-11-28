@@ -6,29 +6,43 @@
 
 When a user enters an ICAO airport code, the system shall retrieve the current METAR from the configured aviation weather service.
 
+**Status:** Implemented. Test: `frontend/src/modules/weather/WeatherPanel.spec.ts` (valid ICAO request and synthetic response). Retrieval requires the pilot to submit the station.
+
 ### REQ-WX-002: Time-Specific Weather Forecast
 
 When a departure or arrival time is defined, the system shall retrieve forecast weather data (Temperature, QNH, Wind) for that specific time and location from a meteorological data service.
+
+**Status:** Approved. Gap: forecast providers do not always supply aviation QNH; the global model supplies no QNH and the DWD estimate is explicitly model-derived. Tests: `frontend/src/modules/weather/forecast.spec.ts`, `frontend/tests/e2e/features/phase-b-flight-preparation/forecast-selection.feature`.
 
 ### REQ-WX-003: Weather Auto-population
 
 While forecast weather is unavailable, when the pilot selects a valid current METAR wind, the system shall apply it to Flight Prep wind inputs.
 
+**Status:** Implemented. Tests: `frontend/src/modules/weather/WeatherPanel.spec.ts`, `frontend/src/modules/weather/stores/weather-inputs.store.spec.ts`, `frontend/tests/e2e/features/phase-b-flight-preparation/metar.feature`. Selection is explicit and copied values are unverified.
+
 ### REQ-WX-004: Precipitation Surface Default
 
 While a METAR/TAF indicates any form of liquid precipitation (RA, DZ), the system shall default the Runway Surface to "Wet".
+
+**Status:** Approved. Gap: suggestions only apply to an empty, unsaved runway with matching station and known surface type; valid current reports are required and a pilot choice is preserved. Tests: `frontend/src/modules/weather/metar-surface.spec.ts`, `frontend/src/modules/weather/taf-surface.spec.ts`, `frontend/src/modules/airport/stores/manual-runway.int.spec.ts`.
 
 ### REQ-WX-005: Heavy Precipitation Surface Default
 
 While a METAR/TAF indicates heavy precipitation (+RA) or long-lasting precipitation (> 2h in TAF), the system shall default Grass runways to "Soft Ground".
 
+**Status:** Approved. Gap: soft ground is suggested only for an empty, unsaved matching grass runway and never replaces a pilot choice. Tests: `frontend/src/modules/weather/metar-surface.spec.ts`, `frontend/src/modules/weather/taf-surface.spec.ts`, `frontend/src/modules/airport/stores/manual-runway.int.spec.ts`.
+
 ### REQ-WX-006: Manual Surface Override
 
 The system shall allow the user to manually override any weather-inferred surface condition.
 
+**Status:** Implemented. Test: `frontend/src/modules/airport/stores/manual-runway.int.spec.ts` (pilot override and provenance removal).
+
 ### REQ-WX-007: Wind Components Calculation
 
 When a runway is selected, the system shall calculate the Wind Components (Headwind, Tailwind, Crosswind) based on the latest METAR wind data and the selected runway's heading.
+
+**Status:** Approved. Gap: the pilot must enter runway heading and explicitly copy METAR wind; selecting a runway does not supply its heading automatically. Tests: `frontend/src/core/logic/wind-components.spec.ts`, `frontend/src/modules/performance/components/ManualWindComponentPanel.spec.ts`.
 
 ### REQ-WX-007a: Manual wind components
 
@@ -50,11 +64,15 @@ When valid manual wind components are available, the system shall include them a
 
 While an applied METAR value remains unchanged, the system shall display its source and observation time.
 
+**Status:** Implemented. Test: `frontend/src/modules/weather/WeatherPanel.spec.ts` (copied observation source and time, removed on edit).
+
 ### REQ-WX-009: Wind Limit Exceedance Notification
 
 If a wind or gust component exceeds a stored Demonstrated limit, then the system shall emit WARNING `WARN-WX-001` identifying that exceedance.
 
 Manual steady wind is compared with stored total-wind, tailwind and crosswind values in knots. Pilot-entered gusts are also compared with stored maximum-gust values. Equality is not an exceedance. Missing or invalid inputs do not imply safety; pilot-entered gusts use the same direction and unit and are cleared when the steady wind changes.
+
+**Status:** Implemented. Tests: `frontend/src/core/logic/wind-limits.spec.ts`, `frontend/tests/e2e/features/phase-b-flight-preparation/manual-wind-components.feature` (synthetic aircraft and inputs).
 
 ### REQ-WX-010: TAF retrieval
 

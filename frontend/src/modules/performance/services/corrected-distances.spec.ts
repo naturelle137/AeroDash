@@ -681,6 +681,21 @@ describe('corrected distances in the performance step', () => {
     effect.stop()
   })
 
+  it('applies the takeoff safety factor after estimating the 50 ft distance', () => {
+    const effect = effectScope()
+    effect.run(() => {
+      const { step, context } = setup()
+      context.profile!.performanceProfiles = context.profile!.performanceProfiles!.filter(table => table.flightPhase !== 'TakeoffDistance50ft')
+      Object.assign(step.corrections.takeoff, { headwind: '0', slope: '0' })
+      step.safetyFactors.takeoff.preset = 'easa-standard'
+      const item = corrected(step, 0)
+      if (item.status !== 'applied') throw new Error('expected applied')
+      expect(item.rows[1]!.raw).toBe('418.0 m ESTIMATED (CAA SSL 07)')
+      expect(item.rows[1]!.factored).toBe('523 m ESTIMATED (CAA SSL 07)')
+    })
+    effect.stop()
+  })
+
   it('applies the landing safety factor after estimating the 50 ft distance', () => {
     const effect = effectScope()
     effect.run(() => {

@@ -4,7 +4,7 @@ import { calculateFuelEndurance } from './fuel-endurance'
 // Synthetic arithmetic only; these are not aircraft or POH values.
 const input = { usableFuelKg: 40, consumptionKgPerHour: 10, tripMinutes: 120, reserveMinutes: 30 }
 describe('fuel endurance arithmetic', () => {
-  it('separates usable fuel, trip, reserve and signed margin', () => {
+  it('separates usable fuel, trip, reserve and signed margin (REQ-FE-002)', () => {
     expect(calculateFuelEndurance(input)).toEqual({
       ok: true,
       plan: {

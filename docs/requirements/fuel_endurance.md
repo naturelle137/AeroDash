@@ -12,13 +12,13 @@ When a fuel type is selected, the system shall automatically calculate mass usin
 
 The system shall calculate maximum flight time (Endurance) based on usable fuel quantity and planned fuel flow rate.
 
-**Status:** Implemented. Tests: `frontend/src/core/logic/fuel-endurance.spec.ts`, `frontend/src/modules/fuel-endurance/components/FuelEnduranceCard.int.spec.ts`.
+**Status:** Implemented. `frontend/src/core/logic/fuel-endurance.spec.ts` checks the calculation and invalid inputs; `frontend/src/modules/fuel-endurance/components/FuelEnduranceCard.int.spec.ts` checks current tank inputs in the card. Synthetic arithmetic only; constant consumption assumed.
 
 ### REQ-FE-003: Endurance Exceedance Warning
 
 If the planned flight time (including reserves) exceeds the calculated maximum flight time (Endurance), then the system shall emit a WARNING notification (`WARN-FE-001`) alerting the pilot about insufficient fuel for the planned mission.
 
-**Status:** Implemented. Tests: `frontend/src/modules/fuel-endurance/components/FuelEnduranceCard.int.spec.ts`.
+**Status:** Deferred. The fuel card displays the warning, but no schema-conformant WARNING notification is emitted for notification consumers. `frontend/src/modules/fuel-endurance/components/FuelEnduranceCard.int.spec.ts` covers the displayed warning, equality and reserve-only shortfall.
 
 ### REQ-FE-004: Fuel Burn Sequence
 
@@ -30,7 +30,7 @@ When calculating fuel consumption for a named burn sequence, the system shall dr
 
 When the user enters a valid explicit consumption and trip duration, the system shall calculate estimated arrival mass as validated M&B takeoff mass minus trip fuel burned.
 
-**Status:** Implemented. Tests: `frontend/src/modules/fuel-endurance/components/FuelEnduranceCard.int.spec.ts`.
+**Status:** Implemented. `frontend/src/core/logic/trip-arrival.spec.ts` passes calculated trip burn into the arrival calculation; `frontend/src/modules/fuel-endurance/components/FuelEnduranceCard.int.spec.ts` checks validated takeoff mass and retained reserve.
 
 ### REQ-FE-006: Electric Endurance Card
 
@@ -60,13 +60,13 @@ When direct Trip Fuel mode has explicit finite nonnegative fuel mass in kg and v
 
 When using duration-based combustion planning, the system shall require explicit positive finite average consumption in kg/h.
 
-**Status:** Implemented. Tests: `frontend/src/core/logic/fuel-endurance.spec.ts`, `frontend/src/modules/fuel-endurance/components/FuelEnduranceCard.int.spec.ts`.
+**Status:** Implemented. Tests (cited by ID in test names): `frontend/src/core/logic/fuel-endurance.spec.ts`, `frontend/src/modules/fuel-endurance/components/FuelEnduranceCard.int.spec.ts`. Synthetic arithmetic only; constant consumption assumed.
 
 ### REQ-FE-011: Explicit durations
 
 When using duration-based combustion planning, the system shall require explicit finite nonnegative trip and user-chosen reserve durations in minutes.
 
-**Status:** Implemented. Tests: `frontend/src/core/logic/fuel-endurance.spec.ts`, `frontend/src/modules/fuel-endurance/components/FuelEnduranceCard.int.spec.ts`.
+**Status:** Implemented. Tests (cited by ID in test names): `frontend/src/core/logic/fuel-endurance.spec.ts`, `frontend/src/modules/fuel-endurance/components/FuelEnduranceCard.int.spec.ts`. Synthetic arithmetic only; constant consumption assumed.
 
 ### REQ-FE-012: Usable inventory
 
@@ -132,7 +132,7 @@ While direct Trip Fuel mode is selected, the system shall omit duration-based en
 
 If direct Trip Fuel is blank, negative, malformed or nonfinite, then the system shall block the arrival estimate with a visible reason.
 
-Current scope: REQ-FE-002/003 and manual arithmetic are available in Flight Preparation. Consumption is assumed constant; reserve is user chosen without a regulatory default. Zero margin is arithmetic equality, not a safety verdict. REQ-FE-005 estimated trip arrival mass retains reserve and does not assess landing or operational suitability. REQ-FE-009 direct Trip Fuel entry is available without duration, consumption or reserve inputs. Reserve remains aboard and unusable fuel is not subtracted again. Fixed-arm trip arrival CG supports one tank or an explicitly selected complete named multi-tank sequence, including empty available tanks. Variable-arm trip CG supports one lookup tank using total-load moment differences (REQ-MB-031 and REQ-FE-034) and explicit sequences mixing fixed-arm and lookup tanks, including nonzero unusable fuel that is never burned (REQ-FE-037). Supported fixed-arm and lookup-tank trip burn paths are assessed against the current envelope through tank switches and lookup knots. Electric endurance uses explicit available energy and average power; the existing M&B zero-fuel landing output is separate.
+Current scope: REQ-FE-002 and manual arithmetic are available in Flight Preparation; REQ-FE-003 remains deferred as described above. Consumption is assumed constant; reserve is user chosen without a regulatory default. Zero margin is arithmetic equality, not a safety verdict. REQ-FE-005 estimated trip arrival mass retains reserve and does not assess landing or operational suitability. REQ-FE-009 direct Trip Fuel entry is available without duration, consumption or reserve inputs. Reserve remains aboard and unusable fuel is not subtracted again. Fixed-arm trip arrival CG supports one tank or an explicitly selected complete named multi-tank sequence, including empty available tanks. Variable-arm trip CG supports one lookup tank using total-load moment differences (REQ-MB-031 and REQ-FE-034) and explicit sequences mixing fixed-arm and lookup tanks, including nonzero unusable fuel that is never burned (REQ-FE-037). Supported fixed-arm and lookup-tank trip burn paths are assessed against the current envelope through tank switches and lookup knots. Electric endurance uses explicit available energy and average power; the existing M&B zero-fuel landing output is separate.
 
 **Status:** Implemented. Tests: `frontend/src/modules/fuel-endurance/components/FuelEnduranceCard.int.spec.ts`.
 

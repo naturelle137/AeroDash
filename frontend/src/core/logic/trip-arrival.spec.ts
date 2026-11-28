@@ -10,7 +10,7 @@ import {
 // Independent synthetic arithmetic, never operational aircraft reference values.
 const input = { takeoffMassKg: 600, usableFuelKg: 40, tripFuelKg: 20 }
 describe('estimated trip arrival mass', () => {
-  it('retains reserve and separates arrival inventory from the budget margin', () => {
+  it('retains reserve and separates arrival inventory from the budget margin (REQ-FE-005)', () => {
     const result = calculateFuelEndurance({
       usableFuelKg: 40,
       consumptionKgPerHour: 10,
@@ -21,7 +21,8 @@ describe('estimated trip arrival mass', () => {
       ok: true,
       plan: { tripFuelKg: 20, reserveFuelKg: 5, marginKg: 15 },
     })
-    expect(calculateTripArrival(input)).toEqual({
+    if (!result.ok) throw new Error('Expected fuel plan')
+    expect(calculateTripArrival({ ...input, tripFuelKg: result.plan.tripFuelKg })).toEqual({
       ok: true,
       takeoffMassKg: 600,
       tripFuelKg: 20,
@@ -41,7 +42,7 @@ describe('estimated trip arrival mass', () => {
       remainingFuelKg,
     })
   })
-  it('blocks 241 minutes at 10 kg/h without clamping', () => {
+  it('blocks 241 minutes at 10 kg/h without clamping (REQ-FE-005)', () => {
     expect(calculateTripArrival({ ...input, tripFuelKg: (241 / 60) * 10 })).toEqual({
       ok: false,
       reason: 'TRIP_EXCEEDS_USABLE_FUEL',
