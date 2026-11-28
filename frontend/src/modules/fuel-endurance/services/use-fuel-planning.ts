@@ -6,6 +6,7 @@ import { arrivalCgForPlanning, arrivalSequenceChoices } from './arrival-cg'
 import { usableFuelForPlanning } from './usable-fuel'
 import { calculateTripArrival } from '@/core/logic/trip-arrival'
 import { calculateFuelEndurance } from '@/core/logic/fuel-endurance'
+import { NotificationSchema } from '@/core/domain/notification.schema'
 
 export function useFuelPlanning() {
   const store = useMassBalanceStore()
@@ -74,6 +75,18 @@ export function useFuelPlanning() {
       : null,
   )
   const plan = computed(() => (result.value?.ok ? result.value.plan : null))
+  watch(plan, (current) => {
+    const notifications = store.notifications.filter((notification) => notification.id !== 'WARN-FE-001')
+    if (current?.warning) {
+      notifications.push(NotificationSchema.parse({
+        id: 'WARN-FE-001',
+        severity: 'WARNING',
+        message: 'Insufficient fuel for the entered trip plus reserve.',
+        context: 'FuelEndurance.Duration',
+      }))
+    }
+    store.notifications = notifications
+  }, { immediate: true, flush: 'sync' })
   const arrival = computed(() => {
     if (!fuel.value.ok || !method.value) return null
     const tripFuelKg =
