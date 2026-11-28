@@ -164,6 +164,8 @@ test('persisted fleet tank inputs feed the session-only fuel plan online and cac
   await trip.fill('240')
   await reserve.fill('0')
   await expect(results).toContainText('Zero margin')
+  const fuelNotice = page.locator('.state-banner .notification').filter({ hasText: 'Insufficient fuel for the entered trip plus reserve.' })
+  await expect(fuelNotice).toHaveCount(0)
   await expect(arrival.locator('dd:not([data-testid="arrival-cg"])')).toHaveText([
     '600 kg',
     '40 kg',
@@ -173,6 +175,7 @@ test('persisted fleet tank inputs feed the session-only fuel plan online and cac
   await expect(card.getByTestId('arrival-cg')).toHaveText('2 m')
   await reserve.fill('1')
   await expect(results).toContainText('WARN-FE-001')
+  await expect(fuelNotice).toHaveCount(1)
   await arrival.evaluate((element) => element.scrollIntoView({ block: 'center' }))
   await page.screenshot({ path: info.outputPath('fuel-shortfall.png') })
   await info.attach('fuel-shortfall', {
@@ -214,6 +217,7 @@ test('persisted fleet tank inputs feed the session-only fuel plan online and cac
   await expect(results).toBeVisible()
   const method = card.getByLabel('Planning method')
   await method.selectOption('direct')
+  await expect(fuelNotice).toHaveCount(0)
   const direct = card.getByLabel('Trip Fuel (kg)', { exact: true })
   await expect(arrival).toHaveCount(0)
   await expect(rate).toHaveCount(0)
