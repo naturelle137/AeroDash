@@ -26,7 +26,7 @@ const errorsOf = (patch: Partial<PressureAltitudeDraft>) => {
 }
 
 describe('pressure altitude from QNH and field elevation', () => {
-  it('uses consistent ICAO QNH constants', () => {
+  it('uses consistent ICAO QNH constants (REQ-PF-013)', () => {
     expect(STANDARD_PRESSURE_HPA).toBe(1013.25)
     expect(STANDARD_TEMPERATURE_K).toBe(288.15)
     expect(STANDARD_LAPSE_RATE_K_PER_M).toBe(0.0065)

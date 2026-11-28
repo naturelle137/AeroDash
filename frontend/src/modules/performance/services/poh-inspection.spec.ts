@@ -223,7 +223,7 @@ describe('takeoff and landing assessment with separate masses', () => {
     expect(plain.takeoff.extrapolated).toBe(false)
   })
 
-  it('accepts exactly 10 % above the maximum and blocks the first value past it', () => {
+  it('accepts exactly 10 % above the maximum and blocks the first value past it (REQ-PF-010)', () => {
     expect(assess(ready(1100), ready(900))).toMatchObject({ takeoff: { status: 'success', extrapolated: true } })
     expect(assess(ready(1100.0001), ready(900))).toMatchObject({ takeoff: { status: 'blocked', reason: 'envelope' } })
   })
