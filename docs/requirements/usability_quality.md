@@ -6,7 +6,7 @@
 
 The system shall provide touch-friendly input controls (steppers, sliders, or large hit targets) for all numerical data entry fields.
 
-**Status:** Partial. Test: `frontend/src/modules/mass-balance/components/__tests__/MassStationInput.touch-targets.spec.ts` covers Mass & Balance station inputs (44 px). Gap: other numeric fields (e.g. Performance, Fuel) are not yet asserted.
+**Status:** Implemented. Tests: `frontend/src/modules/mass-balance/components/__tests__/MassStationInput.touch-targets.spec.ts` (Mass & Balance station inputs) and `frontend/src/modules/performance/components/numeric-inputs.touch-targets.spec.ts` (Performance and Fuel/Energy inputs); all assert a 44 px minimum hit target.
 
 ### REQ-UQ-002: Responsive Layout Adaptation
 
