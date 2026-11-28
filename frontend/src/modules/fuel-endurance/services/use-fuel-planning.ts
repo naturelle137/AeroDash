@@ -1,4 +1,4 @@
-import { computed, ref, watch } from 'vue'
+import { computed, ref, toRaw, watch } from 'vue'
 import { plainCopy, useDemoScratch } from '@/shared/composables/useDemoScratch'
 import { useMassBalanceStore } from '@/modules/mass-balance/stores/mass-balance.store'
 import { assessTripEnvelope } from './trip-envelope'
@@ -76,7 +76,7 @@ export function useFuelPlanning() {
   )
   const plan = computed(() => (result.value?.ok ? result.value.plan : null))
   watch(plan, (current) => {
-    const notifications = store.notifications.filter((notification) => notification.id !== 'WARN-FE-001')
+    const notifications = toRaw(store.notifications).filter((notification) => notification.id !== 'WARN-FE-001')
     if (current?.warning) {
       notifications.push(NotificationSchema.parse({
         id: 'WARN-FE-001',
