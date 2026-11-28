@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Reconcile aircraft data requirements REQ-AD-004..022 with cited schema and store tests; synthetic evidence only, nothing validated for flight use.
+
 - Reconcile requirement statuses (fleet restore, display rounding, shared weather in Flight Prep) with cited software tests; synthetic evidence only, nothing validated for flight use.
 
 - Cite test evidence for aircraft selection and shared-weather requirements.
