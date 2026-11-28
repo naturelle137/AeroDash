@@ -44,7 +44,7 @@ test('exports current inputs locally online and cached offline', async ({ page, 
     const path = info.outputPath(`flight-prep-json-${offline ? 'offline' : 'online'}.png`)
     await page.screenshot({ path, animations: 'disabled' })
     await info.attach(`flight-prep-json-${offline ? 'offline' : 'online'}`, { path, contentType: 'image/png' })
-    const [download] = await Promise.all([page.waitForEvent('download'), button.click()])
+    const [download] = await Promise.all([page.waitForEvent('download'), button.click().then(() => page.getByRole('button', { name: 'Acknowledge unverified data and continue' }).click())])
     const data = JSON.parse(await readFile((await download.path())!, 'utf8'))
     expect(data).toMatchObject({ format: 'aerodash-flight-preparation', version: 1, runway: { draft: { aerodrome: 'Synthetic field', designator: '27', toda: '' }, saved: null, assessmentDate: '2026-07-01', deviceDate: '2026-08-01', automaticDate: false, dateCheck: { selected: 'unknown', device: 'unknown', draft: { selected: 'within-declared-dates', device: 'expired' } } }, units: { pressureAltitudeDirect: 'ft' } })
     expect(data.runway.dateCheck.intervals).toEqual({ selected: { effect: null, expiry: null }, device: { effect: null, expiry: null }, draft: { selected: { effect: 0, expiry: 30 }, device: { effect: -31, expiry: -1 } } })

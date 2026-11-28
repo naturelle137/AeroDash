@@ -105,6 +105,13 @@ function mountWithAircraft(overrides: Partial<AircraftProfile> = {}) {
   return { wrapper, profile }
 }
 
+type Mounted = ReturnType<typeof mountWithAircraft>['wrapper']
+async function exportAcknowledged(wrapper: Mounted, testId: string): Promise<void> {
+  await wrapper.find(`[data-testid="${testId}"]`).trigger('click')
+  const ack = wrapper.findAll('[data-testid="export-gate"] button').find(b => b.text().startsWith('Acknowledge'))
+  if (ack) await ack.trigger('click')
+}
+
 describe('MassBalanceView — handover file', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
@@ -117,7 +124,7 @@ describe('MassBalanceView — handover file', () => {
     await wrapper.find('select#aircraft-select').setValue(profile.id)
     const mb = useMassBalanceStore()
     mb.stations[0]!.weight = 120
-    await wrapper.find('[data-testid="flight-prep-export"]').trigger('click')
+    await exportAcknowledged(wrapper, 'flight-prep-export')
     const file = JSON.parse(downloaded.text)
     expect(file).toMatchObject({ format: 'aerodash-flight-preparation', version: 1, aircraft: { registration: 'D-EBPN' }, massBalance: { stations: [{ weight: 120, unit: 'kg' }] }, entries: { fuel: { directTripFuel: '' }, performance: { temperature: '' } }, runway: { saved: null } })
     expect(file.notice).toContain('Unverified')
@@ -129,7 +136,7 @@ describe('MassBalanceView — handover file', () => {
     await wrapper.find('select#aircraft-select').setValue(profile.id)
     const weather = useWeatherInputsStore()
     weather.copyRetrieved('wind', { wind: { direction: '240', speed: '12', unit: 'kt' } }, 'METAR TEST')
-    await wrapper.find('[data-testid="flight-prep-export"]').trigger('click')
+    await exportAcknowledged(wrapper, 'flight-prep-export')
     const file = JSON.parse(downloaded.text)
     expect(file.wind).toMatchObject({ windDirection: '240', windSpeed: '12', unit: 'kt' })
     expect(file.weatherSources.wind.source).toBe('METAR TEST')
@@ -144,7 +151,7 @@ describe('MassBalanceView — handover file', () => {
     const { wrapper } = mountWithAircraft(profile)
     await wrapper.find('select#aircraft-select').setValue(profile.id)
     useMassBalanceStore().aircraft!.loadPoints[0]!.unit = stationUnit
-    await wrapper.find('[data-testid="flight-prep-export"]').trigger('click')
+    await exportAcknowledged(wrapper, 'flight-prep-export')
     expect(JSON.parse(downloaded.text).massBalance.stations[0].unit).toBe(expected)
   })
 
@@ -160,7 +167,7 @@ describe('MassBalanceView — handover file', () => {
     mb.stations[0]!.weight = 120
     mb.stations[0]!.verified = true
 
-    await wrapper.find('[data-testid="handover-export"]').trigger('click')
+    await exportAcknowledged(wrapper, 'handover-export')
     const file = JSON.parse(downloaded.text) as { review: string; massBalance: { stations: { weight: number }[] } }
     expect(file.review).toBe('unreviewed')
     expect(file.massBalance.stations[0]!.weight).toBe(120)
@@ -188,7 +195,7 @@ describe('MassBalanceView — handover file', () => {
     await wrapper.find('select#aircraft-select').setValue(profile.id)
     const mb = useMassBalanceStore()
     mb.stations[0]!.weight = 120
-    await wrapper.find('[data-testid="handover-export"]').trigger('click')
+    await exportAcknowledged(wrapper, 'handover-export')
     mb.stations[0]!.weight = 60
 
     wrapper.findComponent(HandoverExchange).vm.$emit('import', edit(downloaded.text))
@@ -196,5 +203,38 @@ describe('MassBalanceView — handover file', () => {
 
     expect(mb.stations[0]!.weight).toBe(60)
     expect(wrapper.find('[data-testid="handover-notice"]').text()).toContain(expected)
+  })
+
+  describe.each([['flight-prep-export', 'JSON export'], ['handover-export', 'handover file']])('CRIT-UI-001 on %s', (testId) => {
+    it('exports a freshly verified profile without a warning', async () => {
+      const today = new Date().toISOString().slice(0, 10)
+      const { wrapper, profile } = mountWithAircraft({ verification: { verifiedOn: today, verifiedBy: 'TS', pohRevision: 'Synthetic', sourceWeighingDate: '2025-01-01' } })
+      await wrapper.find('select#aircraft-select').setValue(profile.id)
+      await wrapper.find(`[data-testid="${testId}"]`).trigger('click')
+      expect(wrapper.find('[data-testid="export-gate"]').exists()).toBe(false)
+      expect(downloaded.text).not.toBe('')
+    })
+
+    it('blocks an unverified profile until acknowledged, then saves', async () => {
+      const { wrapper, profile } = mountWithAircraft()
+      await wrapper.find('select#aircraft-select').setValue(profile.id)
+      await wrapper.find(`[data-testid="${testId}"]`).trigger('click')
+      const gate = wrapper.find('[data-testid="export-gate"]')
+      expect(gate.text()).toContain('CRIT-UI-001')
+      expect(gate.text()).toContain('aircraft.profile.status')
+      expect(downloaded.text).toBe('')
+      await gate.findAll('button')[0]!.trigger('click')
+      expect(downloaded.text).not.toBe('')
+      expect(wrapper.find('[data-testid="export-gate"]').exists()).toBe(false)
+    })
+
+    it('saves nothing when the warning is cancelled', async () => {
+      const { wrapper, profile } = mountWithAircraft()
+      await wrapper.find('select#aircraft-select').setValue(profile.id)
+      await wrapper.find(`[data-testid="${testId}"]`).trigger('click')
+      await wrapper.findAll('[data-testid="export-gate"] button')[1]!.trigger('click')
+      expect(wrapper.find('[data-testid="export-gate"]').exists()).toBe(false)
+      expect(downloaded.text).toBe('')
+    })
   })
 })

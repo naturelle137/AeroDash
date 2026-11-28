@@ -56,6 +56,21 @@ Feature: Complete a textbook flight preparation within all limits
       | 390   |
 
   @e2e @flight-prep @handover
+  Scenario Outline: Saving unverified preparation data requires acknowledgment
+    When the viewport for occupancy is <width> pixels wide
+    And the pilot selects aircraft "D-EBPN"
+    And loads two passengers and light baggage
+    And the pilot requests to save a handover file
+    Then saving is blocked pending acknowledgment of unverified data
+    When the pilot acknowledges the unverified data before saving
+    Then the saving warning is dismissed
+
+    Examples:
+      | width |
+      | 1440  |
+      | 390   |
+
+  @e2e @flight-prep @handover
   Scenario Outline: A handover file is received as an unreviewed, editable preparation
     When the viewport for occupancy is <width> pixels wide
     And the pilot selects aircraft "D-EBPN"

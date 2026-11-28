@@ -37,6 +37,8 @@ import CGEnvelopeChart from '@/modules/mass-balance/components/CGEnvelopeChart.v
 import MbPrintPreview from '@/modules/export/MbPrintPreview.vue'
 import HandoverExchange from '@/modules/export/HandoverExchange.vue'
 import { buildFlightPrepJson, downloadFlightPrepJson } from '@/modules/export/flight-prep-json'
+import UnverifiedExportGate from '@/modules/export/UnverifiedExportGate.vue'
+import { exportUnverifiedGate } from '@/modules/export/export-gate'
 import { downloadHandoverFile } from '@/modules/export/handover-file'
 import { buildHandoverFile, handoverMismatch, parseHandoverFile } from '@/core/logic/handover'
 import AnnotationPanel from '@/modules/annotations/AnnotationPanel.vue'
@@ -646,6 +648,19 @@ function onConfirmClearDraft(): void {
 
 const handoverNotice = ref<{ kind: 'error' | 'imported'; text: string } | null>(null)
 
+// Save and Export proceed only after the pilot acknowledges CRIT-UI-001 for unverified data.
+const pendingExport = ref<{ run: () => void; label: string } | null>(null)
+const exportGate = computed(() => pendingExport.value ? exportUnverifiedGate(mbSource.value.profile, new Date()) : null)
+function gateExport(run: () => void, label: string): void {
+  if (exportUnverifiedGate(mbSource.value.profile, new Date())) pendingExport.value = { run, label }
+  else run()
+}
+function acknowledgeExport(): void {
+  const pending = pendingExport.value
+  pendingExport.value = null
+  pending?.run()
+}
+
 function onExportHandover(): void {
   const aircraft = store.aircraft
   if (!aircraft || !store.activeCategory) {
@@ -1023,14 +1038,16 @@ function onStartDemo(): void {
     </div>
 
     <section v-if="!store.isDemoActive" class="local-export" aria-label="Local preparation export">
-      <button type="button" data-testid="flight-prep-export" @click="exportFlightPreparation">Export preparation as JSON</button>
+      <button type="button" data-testid="flight-prep-export" @click="gateExport(exportFlightPreparation, 'The JSON export')">Export preparation as JSON</button>
       <p>Local file only. Entries are unverified; check them against authoritative sources. Import is not supported.</p>
     </section>
+
+    <UnverifiedExportGate v-if="pendingExport && exportGate" :gate="exportGate" :action="pendingExport.label" @acknowledge="acknowledgeExport" @cancel="pendingExport = null" />
 
     <HandoverExchange
       v-if="store.aircraft && !store.isDemoActive"
       :notice="handoverNotice"
-      @export="onExportHandover"
+      @export="gateExport(onExportHandover, 'Saving the handover file')"
       @import="onImportHandover"
       @dismiss="handoverNotice = null"
     />

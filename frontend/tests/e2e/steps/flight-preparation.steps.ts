@@ -180,9 +180,32 @@ When('the pilot prepares an unapproved handover copy', async ({ page }) => {
 
 let handoverFile = ''
 
+When('the pilot requests to save a handover file', async ({ page }) => {
+  await page.getByRole('button', { name: 'Save handover file' }).click()
+})
+
+Then('saving is blocked pending acknowledgment of unverified data', async ({ page, $testInfo }) => {
+  const gate = page.getByRole('alertdialog')
+  await expect(gate).toContainText('CRIT-UI-001')
+  await expect(gate.getByRole('list', { name: 'Unverified fields' })).toContainText('aircraft.profile.status')
+  await gate.getByRole('button', { name: 'Acknowledge unverified data and continue' }).scrollIntoViewIfNeeded()
+  await $testInfo.attach(`Save warning ${page.viewportSize()!.width}`, { body: await page.screenshot({ fullPage: true }), contentType: 'image/png' })
+})
+
+When('the pilot acknowledges the unverified data before saving', async ({ page }) => {
+  const download = page.waitForEvent('download')
+  await page.getByRole('button', { name: 'Acknowledge unverified data and continue' }).click()
+  handoverFile = (await (await download).path()) ?? ''
+})
+
+Then('the saving warning is dismissed', async ({ page }) => {
+  await expect(page.getByRole('alertdialog')).toHaveCount(0)
+})
+
 When('the pilot saves a handover file', async ({ page }) => {
   const download = page.waitForEvent('download')
   await page.getByRole('button', { name: 'Save handover file' }).click()
+  await page.getByRole('button', { name: 'Acknowledge unverified data and continue' }).click()
   handoverFile = (await (await download).path()) ?? ''
 })
 
