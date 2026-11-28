@@ -12,7 +12,7 @@ When a fuel type is selected, the system shall automatically calculate mass usin
 
 The system shall calculate maximum flight time (Endurance) based on usable fuel quantity and planned fuel flow rate.
 
-**Status:** Implemented. Tests (cited by ID in test names): `frontend/src/core/logic/fuel-endurance.spec.ts`, `frontend/src/modules/fuel-endurance/components/FuelEnduranceCard.int.spec.ts`. Synthetic arithmetic only; constant consumption assumed.
+**Status:** Implemented. `frontend/src/core/logic/fuel-endurance.spec.ts` checks the calculation and invalid inputs; `frontend/src/modules/fuel-endurance/components/FuelEnduranceCard.int.spec.ts` checks current tank inputs in the card. Synthetic arithmetic only; constant consumption assumed.
 
 ### REQ-FE-003: Endurance Exceedance Warning
 
@@ -30,7 +30,7 @@ When calculating fuel consumption for a named burn sequence, the system shall dr
 
 When the user enters a valid explicit consumption and trip duration, the system shall calculate estimated arrival mass as validated M&B takeoff mass minus trip fuel burned.
 
-**Status:** Implemented. Tests (cited by ID in test names): `frontend/src/core/logic/trip-arrival.spec.ts`, `frontend/src/modules/fuel-endurance/components/FuelEnduranceCard.int.spec.ts`.
+**Status:** Implemented. `frontend/src/core/logic/trip-arrival.spec.ts` passes calculated trip burn into the arrival calculation; `frontend/src/modules/fuel-endurance/components/FuelEnduranceCard.int.spec.ts` checks validated takeoff mass and retained reserve.
 
 ### REQ-FE-006: Electric Endurance Card
 
