@@ -7,6 +7,19 @@ function sameRunway(a: ManualRunwayRecord, b: ManualRunwayRecord): boolean {
     && a.runway.designator.toLowerCase() === b.runway.designator.toLowerCase()
 }
 
+const MAX_RECENT_AIRPORTS = 5
+
+// The cap counts distinct aerodromes; every runway direction saved for a kept aerodrome stays.
+function limitToRecentAirports(records: ManualRunwayRecord[]): ManualRunwayRecord[] {
+  const kept = new Set<string>()
+  return records.filter((record) => {
+    const aerodrome = record.runway.aerodrome.toLowerCase()
+    if (!kept.has(aerodrome) && kept.size >= MAX_RECENT_AIRPORTS) return false
+    kept.add(aerodrome)
+    return true
+  })
+}
+
 function readRecentAirports(): ManualRunwayRecord[] | null {
   try {
     const value: unknown = JSON.parse(localStorage.getItem(RECENT_AIRPORTS_KEY) ?? '[]')
@@ -17,7 +30,7 @@ function readRecentAirports(): ManualRunwayRecord[] | null {
       if (result.status !== 'loaded') return null
       if (!records.some((record) => sameRunway(record, result.record))) records.push(result.record)
     }
-    return records.slice(0, 5)
+    return limitToRecentAirports(records)
   } catch { return null }
 }
 
@@ -28,7 +41,7 @@ export function loadRecentAirports(): ManualRunwayRecord[] | null {
 export function saveRecentAirport(record: ManualRunwayRecord): ManualRunwayRecord[] | null {
   const existing = readRecentAirports()
   if (!existing) return null
-  const records = [record, ...existing.filter((item) => !sameRunway(item, record))].slice(0, 5)
+  const records = limitToRecentAirports([record, ...existing.filter((item) => !sameRunway(item, record))])
   try {
     localStorage.setItem(RECENT_AIRPORTS_KEY, JSON.stringify(records))
     return records
