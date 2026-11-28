@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { compareAirportSource, compareAirportSourceBatches, ingestAirportSource, scanAirportSources, selectAirportSource } from './airport-source'
+import { checkAirportSourceTransitions, compareAirportSource, compareAirportSourceBatches, ingestAirportSource, scanAirportSources, selectAirportSource } from './airport-source'
 
 // Synthetic fixture: no provider or airport data is represented.
 const record = {
@@ -48,6 +48,25 @@ describe('airport source scan', () => {
     expect(scanAirportSources([], '2026-03-02')).toEqual({ status: 'invalid' })
     expect(scanAirportSources(null, '2026-03-02')).toEqual({ status: 'invalid' })
     expect(scanAirportSources([record], 'invalid')).toEqual({ status: 'invalid' })
+  })
+})
+
+describe('airport source temporal transitions', () => {
+  it('reports only source-supported state changes while retaining unverified provenance', () => {
+    const unknown = { ...record, recordId: 'unknown', effectiveDate: null, expiryDate: null }
+    const superseded = { ...record, recordId: 'superseded', superseded: true }
+    expect(checkAirportSourceTransitions([record, unknown, superseded], '2026-01-28', '2026-03-02')).toMatchObject({
+      status: 'checked', transitions: [{ previousStatus: 'not-yet-effective', record: { source: record, temporalStatus: 'expired', verification: { tora: 'unverified', lda: 'unverified' } } }],
+    })
+    expect(checkAirportSourceTransitions([record], '2026-02-25', '2026-02-27')).toEqual({ status: 'checked', transitions: [] })
+    expect(checkAirportSourceTransitions([record], '2026-03-01', '2026-03-02')).toMatchObject({ transitions: [{ previousStatus: 'within-declared-dates', record: { temporalStatus: 'expired' } }] })
+  })
+
+  it('rejects invalid batches and dates, including reversed dates', () => {
+    expect(checkAirportSourceTransitions([record, { ...record, lda: -1 }], '2026-02-01', '2026-03-02')).toEqual({ status: 'invalid' })
+    expect(checkAirportSourceTransitions([], '2026-02-01', '2026-03-02')).toEqual({ status: 'invalid' })
+    expect(checkAirportSourceTransitions([record], 'bad', '2026-03-02')).toEqual({ status: 'invalid' })
+    expect(checkAirportSourceTransitions([record], '2026-03-02', '2026-02-01')).toEqual({ status: 'invalid' })
   })
 })
 
