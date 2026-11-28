@@ -6,6 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+- Reconcile export and briefing pack requirements REQ-DOC-001..005 with tests: add a PDF test for the low-safety-margin disclaimer and cite requirement IDs in test names; synthetic evidence only, nothing validated for flight use. PDF export itself unchanged.
 
 - Test takeoff distance estimation through the safety-factor calculation and clarify remaining correction coverage.
 - Cite test evidence for performance requirements REQ-PF-003 to REQ-PF-007; synthetic data only, REQ-PF-003 remains Partial.
