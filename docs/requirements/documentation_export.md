@@ -6,7 +6,7 @@
 
 When the user requests an eligible Briefing Pack preview in Flight Preparation, the system shall display a client-only current Flight Preparation briefing pack.
 
-**Status:** Implemented. Tests: `frontend/src/modules/export/mb-print.int.spec.ts`.
+**Status:** Implemented. Tests: `frontend/src/modules/export/mb-print.int.spec.ts`. Native browser print output itself is not exercised; PDF export is covered by REQ-DOC-006 evidence.
 
 ### REQ-DOC-002: Unverified Data Marker
 
@@ -24,7 +24,7 @@ If the calculation contains `Unverified` data, then the system shall include a d
 
 If the calculation uses a user-selected Operational Safety Factor that is lower than the greater of the POH-mandated factor and the regulatory baseline (Takeoff: 1.25, Landing: 1.43), then the system shall include a disclaimer section in the export stating: "Calculation based on low safety margin. Pilot in Command assumes full responsibility."
 
-**Status:** Implemented. Tests: `frontend/src/modules/export/mb-print.int.spec.ts`.
+**Status:** Implemented. Tests: `frontend/src/modules/export/mb-print.int.spec.ts` (preview), `frontend/src/modules/export/briefing-pdf.int.spec.ts` (PDF, both with and without the low-margin warning). Synthetic data only.
 
 ### REQ-DOC-005: Notification Rendering in Export
 
