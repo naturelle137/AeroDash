@@ -183,8 +183,14 @@ if (!runway.loaded) runway.load()
         <input id="manual-runway-designator" v-model="runway.draft.designator" type="text" autocomplete="off"
           :maxlength="MAX_DESIGNATOR_LENGTH" :aria-invalid="!!error('designator')" :aria-describedby="describedBy('designator')" />
       </div>
+      <div class="field">
+        <label for="manual-runway-bearing">Bearing of this runway (optional, °, 1–360)</label>
+        <input id="manual-runway-bearing" v-model="runway.draft.heading" type="text" inputmode="decimal" autocomplete="off"
+          :aria-invalid="!!error('heading')" :aria-describedby="describedBy('heading')" />
+      </div>
     </div>
     <p v-if="error('aerodrome')" :id="describedBy('aerodrome')" class="field-error">{{ error('aerodrome') }}</p>
+    <p v-if="error('heading')" :id="describedBy('heading')" class="field-error">{{ error('heading') }}</p>
     <p v-if="error('designator')" :id="describedBy('designator')" class="field-error">{{ error('designator') }}</p>
 
     <fieldset>

@@ -2,6 +2,7 @@ import { mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { useWeatherInputsStore } from '@/modules/weather/stores/weather-inputs.store'
+import { useManualRunwayStore } from '@/modules/airport/stores/manual-runway.store'
 import ManualWindComponentPanel from './ManualWindComponentPanel.vue'
 
 async function enter(view: ReturnType<typeof mount>, heading: string, direction: string, speed: string) {
@@ -11,9 +12,39 @@ async function enter(view: ReturnType<typeof mount>, heading: string, direction:
 }
 const result = (view: ReturnType<typeof mount>) => view.get('[aria-label="Wind components"]').text()
 
-beforeEach(() => setActivePinia(createPinia()))
+beforeEach(() => { localStorage.clear(); setActivePinia(createPinia()) })
+
+function saveRunway(designator: string, heading: string) {
+  const store = useManualRunwayStore()
+  store.load()
+  Object.assign(store.draft, { aerodrome: 'TEST', designator, heading, tora: '800', toraUnit: 'm', lda: '800', ldaUnit: 'm', fieldElevation: '0', fieldElevationUnit: 'm', surfaceType: 'paved', surfaceCondition: 'dry' })
+  expect(store.save()).toBe(true)
+}
 
 describe('ManualWindComponentPanel', () => {
+  it('uses the pilot-entered heading of the saved runway and follows runway changes', async () => {
+    saveRunway('09', '92')
+    const view = mount(ManualWindComponentPanel)
+    await view.get('#wind-direction').setValue('92')
+    await view.get('#wind-speed').setValue('10')
+    expect(result(view)).toContain('Headwind10.0 kt')
+    expect(view.text()).toContain('from saved runway TEST 09 (pilot-entered)')
+    await view.get('#wind-runway-heading').setValue('272')
+    expect(result(view)).toContain('Tailwind10.0 kt')
+    saveRunway('27', '92')
+    await view.vm.$nextTick()
+    expect((view.get('#wind-runway-heading').element as HTMLInputElement).value).toBe('')
+    expect(result(view)).toContain('Headwind10.0 kt')
+  })
+  it('does not derive a heading from the designator when none was entered', async () => {
+    saveRunway('09', '')
+    const view = mount(ManualWindComponentPanel)
+    await view.get('#wind-direction').setValue('90')
+    await view.get('#wind-speed').setValue('10')
+    expect(result(view)).toContain('No wind components')
+    expect(view.get('#wind-runwayHeading-error').text()).toContain('Enter the runway heading')
+  })
+
   it('uses the shared Weather wind until a wind is entered here', async () => {
     const weather = useWeatherInputsStore()
     weather.copyRetrieved('wind', { wind: { direction: '330', speed: '20', unit: 'kt' } }, 'METAR EDDF')
