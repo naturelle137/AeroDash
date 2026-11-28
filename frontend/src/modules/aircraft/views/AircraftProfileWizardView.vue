@@ -828,12 +828,12 @@ h1 {
 
 .step-btn--active .step-number {
   background: var(--color-primary, #2563eb);
-  color: #ffffff;
+  color: var(--color-primary-text, #ffffff);
 }
 
 .step-btn--completed .step-number {
   background: var(--color-success, #16a34a);
-  color: #ffffff;
+  color: var(--color-on-success, #ffffff);
 }
 
 .step-label {

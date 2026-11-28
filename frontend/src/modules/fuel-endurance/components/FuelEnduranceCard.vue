@@ -130,7 +130,7 @@ const { method, directTripFuel, consumption, trip, reserve, sequence, sequences,
 </template>
 
 <style scoped>
-.warned { border-left: 4px solid #ef6c00; padding-left: .5rem; }
+.warned { border-left: 4px solid var(--color-warning); padding-left: .5rem; }
 .fuel-planner {
   padding: var(--space-4);
 }

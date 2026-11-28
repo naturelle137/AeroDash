@@ -1854,7 +1854,7 @@ function onStartDemo(): void {
 
 .retry-btn:hover {
   background: var(--color-critical);
-  color: #fff;
+  color: var(--color-on-critical, #fff);
 }
 
 .fleet-error__actions {
@@ -2023,7 +2023,7 @@ function onStartDemo(): void {
 
 .draft-ack__btn--continue {
   background: var(--color-warning, #d97706);
-  color: var(--neutral-0, #fff);
+  color: var(--color-on-warning, #fff);
 }
 
 .aircraft-select:focus-visible {

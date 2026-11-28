@@ -599,13 +599,13 @@ function onCancelWipe(): void {
 .btn-primary {
   background: var(--color-primary, #3b82f6);
   border-color: var(--color-primary, #3b82f6);
-  color: #ffffff;
+  color: var(--color-primary-text, #ffffff);
 }
 
 .btn-danger {
   background: var(--color-critical, #b91c1c);
   border-color: var(--color-critical, #b91c1c);
-  color: #ffffff;
+  color: var(--color-on-critical, #ffffff);
 }
 
 .dialog-backdrop {

@@ -192,7 +192,7 @@ function onDismiss(): void {
 
 .action-choice__btn--danger {
   background: var(--color-critical, #dc2626);
-  color: var(--neutral-0, #fff);
+  color: var(--color-on-critical, #fff);
 }
 
 .action-choice__btn--danger:hover {
