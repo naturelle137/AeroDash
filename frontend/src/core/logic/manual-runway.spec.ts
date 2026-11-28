@@ -23,7 +23,7 @@ import { FT_TO_M } from './unit-conversion-constants'
 
 // Synthetic runway; not a real aerodrome or published declaration.
 const draft = (patch: Partial<ManualRunwayDraft> = {}): ManualRunwayDraft => ({
-  aerodrome: 'TEST', designator: '09L', tora: '1000', toraUnit: 'ft', lda: '600', ldaUnit: 'm', toda: '', todaUnit: '',
+  aerodrome: 'TEST', designator: '09L', heading: '', tora: '1000', toraUnit: 'ft', lda: '600', ldaUnit: 'm', toda: '', todaUnit: '',
   fieldElevation: '-30.48', fieldElevationUnit: 'm', surfaceType: 'unpaved', surfaceCondition: 'long-grass', source: '', effectiveDate: '', expiryDate: '', ...patch,
 })
 function valid(input: ManualRunwayDraft): ManualRunway {
@@ -275,5 +275,20 @@ describe('AIRAC age of a stored declaration', () => {
     expect(describeAiracAge(0)).toContain('current AIRAC cycle')
     expect(describeAiracAge(1)).toContain('1 AIRAC cycle since saved')
     expect(describeAiracAge(2)).toContain('2 AIRAC cycles since saved')
+  })
+})
+
+describe('pilot-entered runway heading', () => {
+  it('is optional, kept as entered and never derived from the designator', () => {
+    expect(valid(draft()).heading).toBeUndefined()
+    expect(valid(draft({ heading: ' 92,5 ' })).heading).toBe(92.5)
+    expect(draftFromManualRunway(valid(draft({ heading: '360' }))).heading).toBe('360')
+  })
+  it.each(['0', '361', 'abc', 'NaN', '-5'])('rejects %s', (heading) => {
+    const result = validateManualRunway(draft({ heading }))
+    expect(result.status === 'invalid' && result.errors.heading).toBeTruthy()
+  })
+  it('makes a changed heading a different declaration', () => {
+    expect(sameManualRunway(valid(draft({ heading: '90' })), valid(draft({ heading: '91' })))).toBe(false)
   })
 })

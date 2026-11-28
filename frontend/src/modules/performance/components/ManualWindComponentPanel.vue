@@ -3,14 +3,22 @@ import { computed, reactive, watch } from 'vue'
 import { compareWindLimits } from '@/core/logic/wind-limits'
 import type { AircraftProfileWindLimit } from '@/core/adapters/aircraft.schema'
 import { useWeatherInputsStore } from '@/modules/weather/stores/weather-inputs.store'
+import { useManualRunwayStore } from '@/modules/airport/stores/manual-runway.store'
 import { resolveWind } from '@/core/logic/weather-inputs'
 import { computeWindComponents, WIND_SPEED_UNITS, type WindComponentField, type WindComponentInput } from '@/core/logic/wind-components'
 
 const props = defineProps<{ windLimits?: AircraftProfileWindLimit[] }>()
 const weather = useWeatherInputsStore()
+const runwayStore = useManualRunwayStore()
+if (!runwayStore.loaded) runwayStore.load()
+// Heading of the saved, current runway as the pilot entered it; never derived from the designator.
+const runwayHeading = computed(() => {
+  const runway = runwayStore.current?.record.runway
+  return runway?.heading === undefined ? null : { text: String(runway.heading), label: `${runway.aerodrome} ${runway.designator}` }
+})
 // The wind fields here are an override; while both are blank the shared Weather wind is used.
 const wind = computed(() => resolveWind({ ...input.value, gustSpeed: input.value.gustSpeed ?? '' }, weather.wind))
-const effective = computed<WindComponentInput>(() => ({ runwayHeading: input.value.runwayHeading, ...wind.value.value }))
+const effective = computed<WindComponentInput>(() => ({ ...wind.value.value, runwayHeading: input.value.runwayHeading.trim() ? input.value.runwayHeading : runwayHeading.value?.text ?? '' }))
 const provenance = computed(() => {
   if (wind.value.source === 'manual') return 'Manual entry here overrides the Weather wind.'
   if (wind.value.source === 'none') return 'No wind entered. Enter it here or in Weather.'
@@ -21,6 +29,8 @@ const provenance = computed(() => {
 const unitModel = computed({ get: () => effective.value.unit, set: (unit: string) => { input.value.unit = unit } })
 const notifications = computed(() => compareWindLimits(effective.value, props.windLimits))
 const input = defineModel<WindComponentInput>({ default: () => reactive({ runwayHeading: '', windDirection: '', windSpeed: '', unit: 'kt' }) })
+// A heading typed for one runway must not silently apply to another selected runway.
+watch(() => runwayStore.current?.record.runway && [runwayStore.current.record.runway.aerodrome, runwayStore.current.record.runway.designator, runwayStore.current.record.runway.heading], () => { input.value.runwayHeading = '' }, { flush: 'sync' })
 watch(() => [input.value.windDirection, input.value.windSpeed, input.value.unit], () => { input.value.gustSpeed = '' }, { flush: 'sync' })
 const gustResult = computed(() => effective.value.gustSpeed?.trim() ? computeWindComponents({ ...effective.value, windSpeed: effective.value.gustSpeed ?? '' }) : null)
 // Computed, so results recompute or clear synchronously with every edit.
@@ -40,7 +50,8 @@ const abs = (value: number) => Math.abs(value).toFixed(1)
       <div class="field">
         <label for="wind-runway-heading">Runway heading (°, 1–360)</label>
         <input id="wind-runway-heading" v-model="input.runwayHeading" type="text" inputmode="decimal" autocomplete="off"
-          :aria-invalid="!!errors.runwayHeading" :aria-describedby="describedBy('runwayHeading')" />
+          :placeholder="runwayHeading?.text ?? ''" :aria-invalid="!!errors.runwayHeading" :aria-describedby="describedBy('runwayHeading')" />
+        <p v-if="runwayHeading && !input.runwayHeading.trim()" class="hint">Heading {{ runwayHeading.text }}° from saved runway {{ runwayHeading.label }} (pilot-entered). Type here to override.</p>
         <p v-if="errors.runwayHeading" id="wind-runwayHeading-error" class="field-error">{{ errors.runwayHeading }}</p>
       </div>
       <div class="field">
@@ -84,6 +95,17 @@ const abs = (value: number) => Math.abs(value).toFixed(1)
             <dt>Crosswind</dt>
             <dd v-if="result.crosswind === 0">0.0 {{ result.unit }}</dd>
             <dd v-else>{{ abs(result.crosswind) }} {{ result.unit }} from the {{ result.crosswind > 0 ? 'right' : 'left' }}</dd>
+          </div>
+        </dl>
+        <dl v-if="gustResult?.status === 'valid'" aria-label="Gust components">
+          <div>
+            <dt>Gust {{ gustResult.headwind >= 0 ? 'headwind' : 'tailwind' }}</dt>
+            <dd>{{ abs(gustResult.headwind) }} {{ gustResult.unit }}</dd>
+          </div>
+          <div>
+            <dt>Gust crosswind</dt>
+            <dd v-if="gustResult.crosswind === 0">0.0 {{ gustResult.unit }}</dd>
+            <dd v-else>{{ abs(gustResult.crosswind) }} {{ gustResult.unit }} from the {{ gustResult.crosswind > 0 ? 'right' : 'left' }}</dd>
           </div>
         </dl>
         <p class="hint">Computed from your entries; rounded to 0.1. Check all limits yourself; missing or invalid gusts are not assessed and no suitability verdict is given. Pilot in command remains responsible.</p>
