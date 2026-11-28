@@ -6,9 +6,9 @@ const source = readFileSync(resolve(__dirname, '../MassStationInput.vue'), 'utf8
 const MIN_REM = 44 / 16
 
 function rule(selector: string): string {
-  const match = source.match(new RegExp(`^${selector.replace(/[.]/g, '\\.')}\\s*\\{([^}]*)\\}`, 'm'))
-  expect(match).not.toBeNull()
-  return match![1]!
+  const body = source.split(`\n${selector} {`)[1]?.split('}')[0]
+  expect(body).toBeDefined()
+  return body!
 }
 
 function remValue(body: string, property: string): number {
