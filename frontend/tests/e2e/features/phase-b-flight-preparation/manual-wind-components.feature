@@ -31,6 +31,21 @@ Feature: Offline manual wind components
       | 1440  | 1000   |
       | 390   | 844    |
 
+  Scenario Outline: Wind components follow the selected runway heading
+    Given the manual runway viewport is <width> by <height>
+    And the pilot opens Performance
+    When the pilot saves runway "09" with bearing "92"
+    And the pilot enters wind from "92" and speed "10" "kt" without a runway heading
+    Then the wind components show "Headwind" "10.0 kt" and crosswind "0.0 kt"
+    When the pilot saves runway "27" with bearing "272"
+    Then the wind components show "Tailwind" "10.0 kt" and crosswind "0.0 kt"
+    And the wind component evidence is captured as "runway-<width>"
+
+    Examples:
+      | width | height |
+      | 1440  | 1000   |
+      | 390   | 844    |
+
   Scenario Outline: Wind controls remain reachable in Flight Prep
     Given the raw POH workflow viewport is <width> by <height>
     When I import and verify a synthetic POH profile for registration "D-EBPN" declaring type "P208" and maximum mass 650 kg

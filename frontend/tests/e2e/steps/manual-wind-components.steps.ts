@@ -13,6 +13,30 @@ When('the pilot enters runway heading {string}, wind from {string} and speed {st
     await panel(page).getByLabel('Wind speed unit', { exact: true }).selectOption(unit)
   })
 
+When('the pilot saves runway {string} with bearing {string}', async ({ page }, designator: string, bearing: string) => {
+  const form = page.locator('form[aria-labelledby="manual-runway-heading"]')
+  await form.getByLabel('Aerodrome', { exact: true }).fill('TEST')
+  await form.getByLabel('Runway designator', { exact: true }).fill(designator)
+  await form.getByLabel('Bearing of this runway (optional, °, 1–360)', { exact: true }).fill(bearing)
+  await form.getByLabel('TORA unit', { exact: true }).selectOption('m')
+  await form.getByLabel('TORA — takeoff run available', { exact: true }).fill('800')
+  await form.getByLabel('LDA unit', { exact: true }).selectOption('m')
+  await form.getByLabel('LDA — landing distance available', { exact: true }).fill('800')
+  await form.getByLabel('Field elevation unit', { exact: true }).selectOption('m')
+  await form.getByLabel('Field elevation', { exact: true }).fill('0')
+  await form.getByLabel('Surface type', { exact: true }).selectOption({ label: 'Paved' })
+  await form.getByLabel('Surface condition', { exact: true }).selectOption({ label: 'Dry' })
+  await form.getByRole('button', { name: 'Save runway inputs', exact: true }).click()
+  await expect(form.getByRole('status').filter({ hasText: 'saved on this device' })).toBeVisible()
+})
+
+When('the pilot enters wind from {string} and speed {string} {string} without a runway heading',
+  async ({ page }, direction: string, speed: string, unit: string) => {
+    await panel(page).getByLabel('Wind from (°, 1–360)', { exact: true }).fill(direction)
+    await panel(page).getByLabel('Wind speed', { exact: true }).fill(speed)
+    await panel(page).getByLabel('Wind speed unit', { exact: true }).selectOption(unit)
+  })
+
 Then('the wind components show {string} {string} and crosswind {string}', async ({ page }, label: string, value: string, cross: string) => {
   await expect(result(page).locator('dt').nth(0)).toHaveText(label)
   await expect(result(page).locator('dd').nth(0)).toHaveText(value)
@@ -96,6 +120,8 @@ When('the pilot enters a gust of {string}', async ({ page }, value: string) => {
 })
 
 Then('the gust warnings appear and evidence is captured', async ({ page, $testInfo }) => {
+  await expect(panel(page).getByLabel('Gust components')).toContainText('Gust tailwind10.0 kt')
+  await expect(panel(page).getByLabel('Gust components')).toContainText('Gust crosswind17.3 kt from the left')
   await expect(panel(page)).toContainText('Crosswind exceeds Demonstrated 10 kt (manual gust)')
   await expect(panel(page)).toContainText('Tailwind exceeds Limit 5 kt (manual gust)')
   await expect(panel(page)).toContainText('Gust exceeds Limit 15 kt (manual gust)')

@@ -50,6 +50,8 @@ export const MAX_DESIGNATOR_LENGTH = 20
 export type ManualRunwayDraft = {
   aerodrome: string
   designator: string
+  /** Optional pilot-entered runway heading in degrees (1–360); never derived from the designator. */
+  heading: string
   tora: string
   toraUnit: string
   lda: string
@@ -68,12 +70,12 @@ export type ManualRunwayDraft = {
 export type ManualRunwayField = keyof ManualRunwayDraft
 
 export const EMPTY_MANUAL_RUNWAY_DRAFT: Readonly<ManualRunwayDraft> = Object.freeze({
-  aerodrome: '', designator: '', tora: '', toraUnit: '', lda: '', ldaUnit: '', toda: '', todaUnit: '',
+  aerodrome: '', designator: '', heading: '', tora: '', toraUnit: '', lda: '', ldaUnit: '', toda: '', todaUnit: '',
   fieldElevation: '', fieldElevationUnit: '', surfaceType: '', surfaceCondition: '', source: '', effectiveDate: '', expiryDate: '',
 })
 
 export function hasManualRunwayDraftContent(draft: ManualRunwayDraft): boolean {
-  return (['aerodrome', 'designator', 'tora', 'lda', 'toda', 'fieldElevation', 'surfaceType', 'surfaceCondition', 'source', 'effectiveDate', 'expiryDate'] as const).some((field) => draft[field].trim() !== '')
+  return (['aerodrome', 'designator', 'heading', 'tora', 'lda', 'toda', 'fieldElevation', 'surfaceType', 'surfaceCondition', 'source', 'effectiveDate', 'expiryDate'] as const).some((field) => draft[field].trim() !== '')
 }
 
 /** Control characters are never part of a runway or aerodrome identity. */
@@ -97,6 +99,7 @@ const date = z.iso.date()
 export const ManualRunwaySchema = z.object({
   aerodrome: identity(MAX_AERODROME_LENGTH),
   designator: identity(MAX_DESIGNATOR_LENGTH),
+  heading: z.number().finite().min(1).max(360).optional(),
   tora: positiveDistance,
   lda: positiveDistance,
   toda: positiveDistance.optional(),
@@ -118,6 +121,8 @@ export const ManualRunwaySchema = z.object({
 export type ManualRunway = {
   aerodrome: string
   designator: string
+  /** Pilot-entered heading in degrees (1–360); absent when not entered. */
+  heading?: number
   source?: string
   effectiveDate?: string
   expiryDate?: string
@@ -179,6 +184,8 @@ export function validateManualRunway(draft: ManualRunwayDraft): ManualRunwayVali
   if (!isIdentity(designator, MAX_DESIGNATOR_LENGTH)) {
     errors.designator = `Enter a runway designator (1–${MAX_DESIGNATOR_LENGTH} characters).`
   }
+  const heading = draft.heading.trim() === '' ? null : parseDecimal(draft.heading.replace(',', '.'))
+  if (draft.heading.trim() !== '' && (heading === null || heading < 1 || heading > 360)) errors.heading = 'Enter the runway heading as a number from 1 to 360 degrees, or leave it blank.'
   const distance = (field: 'tora' | 'lda' | 'toda', unitField: 'toraUnit' | 'ldaUnit' | 'todaUnit', label: string) => {
     const value = parseDecimal(draft[field])
     if (value === null) errors[field] = `Enter ${label} as a finite decimal number.`
@@ -216,6 +223,7 @@ export function validateManualRunway(draft: ManualRunwayDraft): ManualRunwayVali
   const runway = {
     aerodrome,
     designator,
+    ...(heading !== null && !errors.heading ? { heading } : {}),
     ...(source ? { source } : {}),
     ...(draft.effectiveDate ? { effectiveDate: draft.effectiveDate } : {}),
     ...(draft.expiryDate ? { expiryDate: draft.expiryDate } : {}),
@@ -236,6 +244,7 @@ export function draftFromManualRunway(runway: ManualRunway): ManualRunwayDraft {
   return {
     aerodrome: runway.aerodrome,
     designator: runway.designator,
+    heading: runway.heading === undefined ? '' : String(runway.heading),
     source: runway.source ?? '',
     effectiveDate: runway.effectiveDate ?? '',
     expiryDate: runway.expiryDate ?? '',
@@ -253,7 +262,7 @@ export function draftFromManualRunway(runway: ManualRunway): ManualRunwayDraft {
 }
 
 export function sameManualRunway(a: ManualRunway, b: ManualRunway): boolean {
-  return a.aerodrome === b.aerodrome && a.designator === b.designator
+  return a.aerodrome === b.aerodrome && a.designator === b.designator && a.heading === b.heading
     && a.source === b.source && a.effectiveDate === b.effectiveDate && a.expiryDate === b.expiryDate
     && a.tora.value === b.tora.value && a.tora.unit === b.tora.unit
     && a.lda.value === b.lda.value && a.lda.unit === b.lda.unit
