@@ -240,3 +240,31 @@ describe('WeatherPanel shared inputs', () => {
     expect((view.get('#weather-temperature').element as HTMLInputElement).value).toBe('')
   })
 })
+
+
+it('accepts only current valid pasted METARs without a network request', async () => {
+  vi.useFakeTimers().setSystemTime(new Date('2026-11-21T17:00:00Z'))
+  const fetchMock = vi.fn<() => void>()
+  vi.stubGlobal('fetch', fetchMock)
+  const view = mount(WeatherPanel)
+  const paste = view.get('#manual-metar')
+  for (const [raw, liquid, heavy] of [
+    ['EDDF 211630Z 17004KT 9999 -RA BKN020 10/08 Q1013', true, false],
+    ['EDDF 211630Z 17004KT 9999 +RA BKN020 10/08 Q1013', true, true],
+    ['EDDF 211630Z 17004KT CAVOK 10/08 Q1013', false, false],
+  ] as const) {
+    await paste.setValue(raw)
+    await view.get('form:has(#manual-metar)').trigger('submit')
+    expect(view.emitted('observation')!.at(-1)![0]).toMatchObject({ station: 'EDDF', time: '2026-11-21T16:30:00.000Z', source: 'manual METAR', liquid, heavy })
+    expect(view.text()).toContain('unverified')
+  }
+  for (const raw of ['EDDF 211500Z 17004KT 9999 RA BKN020 10/08 Q1013', 'EDDF 211630Z garbage RA']) {
+    await paste.setValue(raw)
+    await view.get('form:has(#manual-metar)').trigger('submit')
+    expect(view.emitted('observation')!.at(-1)![0]).toBeNull()
+    expect(view.text()).toContain('Invalid or outdated')
+  }
+  expect(fetchMock).not.toHaveBeenCalled()
+  view.unmount()
+  vi.useRealTimers()
+})

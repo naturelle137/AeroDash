@@ -24,13 +24,13 @@ While forecast weather is unavailable, when the pilot selects a valid current ME
 
 While a METAR/TAF indicates any form of liquid precipitation (RA, DZ), the system shall default the Runway Surface to "Wet".
 
-**Status:** Approved. Gap: suggestions only apply to an empty, unsaved runway with matching station and known surface type; valid current reports are required and a pilot choice is preserved. Tests: `frontend/src/modules/weather/metar-surface.spec.ts`, `frontend/src/modules/weather/taf-surface.spec.ts`, `frontend/src/modules/airport/stores/manual-runway.int.spec.ts`.
+**Status:** Implemented for valid current retrieved or manually pasted METAR and retrieved TAF. Suggestions apply only to an empty, unsaved runway with matching station and known surface type; a pilot choice is preserved. Tests: `frontend/src/modules/weather/metar-surface.spec.ts`, `frontend/src/modules/weather/taf-surface.spec.ts`, `frontend/src/modules/airport/stores/manual-runway.int.spec.ts`.
 
 ### REQ-WX-005: Heavy Precipitation Surface Default
 
 While a METAR/TAF indicates heavy precipitation (+RA) or long-lasting precipitation (> 2h in TAF), the system shall default Grass runways to "Soft Ground".
 
-**Status:** Approved. Gap: soft ground is suggested only for an empty, unsaved matching grass runway and never replaces a pilot choice. Tests: `frontend/src/modules/weather/metar-surface.spec.ts`, `frontend/src/modules/weather/taf-surface.spec.ts`, `frontend/src/modules/airport/stores/manual-runway.int.spec.ts`.
+**Status:** Implemented for valid current retrieved or manually pasted METAR and retrieved TAF. Soft ground is suggested only for an empty, unsaved matching grass runway and never replaces a pilot choice. Tests: `frontend/src/modules/weather/metar-surface.spec.ts`, `frontend/src/modules/weather/taf-surface.spec.ts`, `frontend/src/modules/airport/stores/manual-runway.int.spec.ts`.
 
 ### REQ-WX-006: Manual Surface Override
 

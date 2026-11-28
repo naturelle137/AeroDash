@@ -52,6 +52,8 @@ On explicit request, Flight Prep sends pilot-entered coordinates to the [Open-Me
 
 Australian [Bureau of Meteorology Area QNH](https://www.bom.gov.au/aviation/forecasts/area-qnh/) is published for defined zones in hPa with three-hour UTC validity ([product description](https://www.bom.gov.au/aviation/data/education/area-qnh.pdf)). On 23 November 2026 its page directed flight planning users to Airservices Australia; a browser-origin HTTP request returned 403 on 23 November 2026, and reuse terms and reliable location-to-zone mapping were not established. It is not integrated as an automatic source.
 
+A pilot may paste a METAR without a network request for runway surface suggestions. The observation must parse and be no more than one hour old; its station, observation time and manual, unverified origin accompany the suggestion. The pilot must verify the actual surface.
+
 ## DWD model and account access
 
 The pilot can request [DWD ICON through Open-Meteo](https://open-meteo.com/en/docs/dwd-api) using the same coordinates and safeguards as the global forecast, with a limited set of hourly fields. Open-Meteo describes ICON Global, Europe and Central Europe coverage; coverage and forecast horizon depend on the model. On 24 November 2026 a cross-origin HTTPS request for Frankfurt returned HTTP 200 and CORS `*`. This model is not aviation QNH or an official briefing. The separate global forecast remains available.
