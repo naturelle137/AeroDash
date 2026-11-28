@@ -90,6 +90,8 @@ While a legacy verified profile has no provenance, the system shall retain its `
 
 When the user selects a valid Privacy fleet backup, the system shall display every registration and the total count before explicit restore confirmation.
 
+**Status:** Implemented. Test: `frontend/tests/offline-production/fleet-restore.spec.ts` (synthetic profiles).
+
 ### REQ-AC-023: Backup validation
 
 If a backup exceeds 5 MiB or 100 profiles, has an unsupported envelope version, mismatched count, invalid profile or ambiguous registration, then the system shall reject the entire backup.

@@ -260,7 +260,7 @@ When valid DWD model surface pressure and matching grid elevation are available 
 
 The system shall keep one session-only set of temperature, wind direction, speed, gust and QNH, entered in Weather and read by Performance, Flight Prep and the wind-component and limit comparison.
 
-**Status:** Partial. Performance and wind-comparison reuse is tested in `frontend/tests/e2e/features/phase-b-flight-preparation/weather-first-inputs.feature` and `frontend/src/modules/performance/components/ManualWindComponentPanel.spec.ts`; Flight Prep reuse has no test yet (synthetic inputs only).
+**Status:** Implemented. Tests (synthetic inputs, software behaviour only): `frontend/tests/e2e/features/phase-b-flight-preparation/weather-first-inputs.feature`, `frontend/src/modules/performance/components/ManualWindComponentPanel.spec.ts`, and Flight Prep reuse in `frontend/src/modules/mass-balance/views/__tests__/MassBalanceView.handover.spec.ts`.
 
 ### REQ-WX-056: Weather input precedence
 
