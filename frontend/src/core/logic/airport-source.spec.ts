@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { compareAirportSource, ingestAirportSource, scanAirportSources, selectAirportSource } from './airport-source'
+import { compareAirportSource, compareAirportSourceBatches, ingestAirportSource, scanAirportSources, selectAirportSource } from './airport-source'
 
 // Synthetic fixture: no provider or airport data is represented.
 const record = {
@@ -85,5 +85,26 @@ describe('airport source selection', () => {
     expect(selectAirportSource([record, { ...record, lda: -1 }], 'TEST', '09', '2026-02-01')).toEqual({ status: 'invalid' })
     expect(selectAirportSource([record], ' ', '09', '2026-02-01')).toEqual({ status: 'invalid' })
     expect(selectAirportSource([record], 'TEST', '09', 'bad')).toEqual({ status: 'invalid' })
+  })
+})
+
+describe('airport source batch comparison', () => {
+  it('reports additions, removals and changes with incoming verification and provenance', () => {
+    const removed = { ...record, recordId: 'removed', runway: '27' }
+    const added = { ...record, recordId: 'added', runway: '18', expiryDate: null }
+    const revised = { ...record, version: '2', tora: { value: 901, unit: 'm' } }
+    expect(compareAirportSourceBatches([record, removed], [revised, added], '2026-03-02')).toMatchObject({
+      status: 'compared', added: [{ source: added, temporalStatus: 'unknown', verification: { tora: 'unverified', lda: 'unverified' } }], removed: [removed],
+      changed: [{ changed: ['version', 'tora'], incoming: { source: revised, temporalStatus: 'expired', verification: { tora: 'unverified' } } }],
+    })
+    expect(compareAirportSourceBatches([record], [record], '2026-03-02')).toMatchObject({ status: 'compared', added: [], removed: [], changed: [] })
+  })
+
+  it('rejects invalid batches and duplicate identities rather than guessing', () => {
+    expect(compareAirportSourceBatches([record], [{ ...record, lda: -1 }], '2026-02-01')).toEqual({ status: 'invalid' })
+    expect(compareAirportSourceBatches([record, record], [record], '2026-02-01')).toEqual({ status: 'ambiguous' })
+    expect(compareAirportSourceBatches([record], [record, record], '2026-02-01')).toEqual({ status: 'ambiguous' })
+    expect(compareAirportSourceBatches([], [record], '2026-02-01')).toEqual({ status: 'invalid' })
+    expect(compareAirportSourceBatches([record], [record], 'bad')).toEqual({ status: 'invalid' })
   })
 })

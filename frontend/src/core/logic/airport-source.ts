@@ -65,3 +65,27 @@ export function compareAirportSource(previous: unknown, incoming: unknown, check
   const changed = fields.filter(key => JSON.stringify(before.source[key]) !== JSON.stringify(after.source[key]))
   return { status: 'compared', changed, incoming: after } as const
 }
+
+export function compareAirportSourceBatches(previous: unknown, incoming: unknown, checkDate: string) {
+  const before = scanAirportSources(previous, checkDate)
+  const after = scanAirportSources(incoming, checkDate)
+  if (before.status !== 'scanned' || after.status !== 'scanned' ||
+      before.records.some(record => record.status !== 'valid') || after.records.some(record => record.status !== 'valid')) return { status: 'invalid' } as const
+
+  const identity = (source: z.infer<typeof AirportSourceRecordSchema>) => JSON.stringify([source.provider, source.dataset, source.recordId, source.jurisdiction, source.aerodrome, source.runway])
+  const oldRecords = before.records.flatMap(record => record.status === 'valid' ? [record.source] : [])
+  const newRecords = after.records.flatMap(record => record.status === 'valid' ? [record.source] : [])
+  const oldById = new Map(oldRecords.map(source => [identity(source), source]))
+  const newById = new Map(newRecords.map(source => [identity(source), source]))
+  if (oldById.size !== oldRecords.length || newById.size !== newRecords.length) return { status: 'ambiguous' } as const
+
+  const added = after.records.filter(record => record.status === 'valid' && !oldById.has(identity(record.source)))
+  const removed = oldRecords.filter(source => !newById.has(identity(source)))
+  const changed = newRecords.flatMap(source => {
+    const old = oldById.get(identity(source))
+    if (!old) return []
+    const comparison = compareAirportSource(old, source, checkDate)
+    return comparison.status === 'compared' && comparison.changed.length ? [comparison] : []
+  })
+  return { status: 'compared', added, removed, changed } as const
+}

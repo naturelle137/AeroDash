@@ -244,6 +244,8 @@ and invalidation state. Preserve the usable manual offline path.
 
 The source-independent comparison reports changes only for matching provider, dataset, record, jurisdiction, aerodrome and runway identities. It retains the incoming temporal and unverified states; it does not persist records or establish source eligibility.
 
+The source-independent batch comparison reports additions, removals and changed matching records, rejecting invalid or duplicate identities. A removal is a difference between supplied batches, not proof of provider deletion or dataset completeness.
+
 The source-independent selector requires an exact aerodrome and runway match in a fully valid nonempty batch. It reports missing or ambiguous matches separately, retains the selected record's temporal and unverified states, and does not authorize applying it to a flight preparation.
 
 Use fixed synthetic cases for missing/conflicting metadata, future effect, exact
