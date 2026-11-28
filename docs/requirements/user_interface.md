@@ -86,9 +86,9 @@ The system shall provide a toggle control adjacent to each Unverified data field
 
 When Save or Export is triggered with unverified calculation parameters, the system shall emit CRITICAL `CRIT-UI-001` identifying the presence of unverified data.
 
-Until the pilot explicitly acknowledges `CRIT-UI-001`, the system shall block Briefing Pack printing.
+Until the pilot explicitly acknowledges `CRIT-UI-001`, the system shall block Briefing Pack printing, Save and Export.
 
-**Status:** Deferred. The Briefing Pack print and PDF gates require acknowledgement (`frontend/src/modules/export/mb-print.int.spec.ts`); a general Save/Export warning for all calculation parameters is not established.
+**Status:** Implemented. Briefing Pack print and PDF, the JSON preparation export and the handover file save require acknowledgement when the aircraft profile verification is not fresh (`frontend/src/modules/export/export-gate.ts`, `frontend/src/modules/mass-balance/views/__tests__/MassBalanceView.handover.spec.ts`, `frontend/src/modules/export/mb-print.int.spec.ts`).
 
 ### REQ-UI-016: Mark All as Verified Option
 
