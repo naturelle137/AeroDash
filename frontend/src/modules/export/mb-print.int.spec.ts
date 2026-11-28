@@ -89,7 +89,7 @@ describe('M&B print presentation with real store calculation', () => {
     expect(paragraphs.find(p => p.startsWith('Headwind:'))).not.toContain('exceeds')
     wrapper.unmount()
   })
-  it('retains warnings, honest endpoints, units and draft markers without mutating verification', () => {
+  it('retains warnings, honest endpoints, units and draft markers without mutating verification (REQ-DOC-002)', () => {
     const input = source()
     const before = JSON.stringify(input)
     const result = assembleMbPrint(input, new Date('2026-11-14T12:00:00Z'))!
@@ -246,7 +246,7 @@ describe('M&B print presentation with real store calculation', () => {
     expect(pack.cgTrajectoryWarnings.map(n => n.message)).toEqual(['CG evidence unavailable', 'CG Migration Limit Exceeded'])
     expect(pack.points.every(p => p.cgWarnings.every(n => n.context !== 'MassBalance.CG'))).toBe(true)
   })
-  it('presents actionable warnings without exposing their internal IDs', async () => {
+  it('presents actionable warnings without exposing their internal IDs (REQ-DOC-005)', async () => {
     const input = source()
     input.state = 'ERROR_CRITICAL'
     input.result!.violations.push({ type: 'MTOM_EXCEEDED' }, { type: 'CG_OUT_OF_ENVELOPE' })
@@ -404,7 +404,7 @@ describe('M&B print presentation with real store calculation', () => {
     wrapper.unmount()
     vi.useRealTimers()
   })
-  it('renders the unverified, low-margin and legal disclaimers with their exact wording', async () => {
+  it('renders the unverified, low-margin and legal disclaimers with their exact wording (REQ-DOC-003, REQ-DOC-004)', async () => {
     const input = source()
     const applied = { operation: 'takeoff', title: 'Takeoff', status: 'applied', source: 'Synthetic', rows: [], safetyFactor: '1.00',
       safetyFactorWarning: 'WARN-PF-002: low', comparison: { status: 'sufficient', summary: '', required: '', availableLabel: '', available: '', margin: '' }, notes: [] }
