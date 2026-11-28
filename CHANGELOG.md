@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Retain the fuel shortfall warning during unrelated mass and balance recalculations.
 - Reconcile export and briefing pack requirements REQ-DOC-001..005 with tests: add a PDF test for the low-safety-margin disclaimer and cite requirement IDs in test names; synthetic evidence only, nothing validated for flight use. PDF export itself unchanged.
 
+- Reconcile fuel endurance requirements with synthetic tests and record the missing REQ-FE-003 notification contract.
 - Cite test evidence for performance requirements REQ-PF-003 to REQ-PF-007; synthetic data only, REQ-PF-003 remains Partial.
 - Reconcile remaining UI, usability and system requirement statuses with tests and concrete gaps.
 
