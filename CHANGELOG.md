@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Add a Playwright screenshot audit (`pnpm --filter frontend test:theme-audit`) of Fleet, Weather, Flight Prep (M&B, Fuel, Performance) and Briefing Pack in light and dark at 390 and 1440 px.
+
 - Reconcile requirement statuses (fleet restore, display rounding, shared weather in Flight Prep) with cited software tests; synthetic evidence only, nothing validated for flight use.
 
 - Cite test evidence for aircraft selection and shared-weather requirements.
