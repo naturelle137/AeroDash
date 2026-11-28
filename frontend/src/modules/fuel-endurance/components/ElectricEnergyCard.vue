@@ -24,3 +24,7 @@ const { available, power, minutes, reserveMinutes, presentation } = props.planni
     </div>
   </div>
 </template>
+
+<style scoped>
+input { min-height: 44px; box-sizing: border-box; font: inherit; padding: .5rem; }
+</style>
