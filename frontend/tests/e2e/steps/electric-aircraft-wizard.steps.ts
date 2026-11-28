@@ -170,3 +170,16 @@ Then('the future {string} step is disabled', async ({ page }, label: string) => 
 When('the pilot selects the completed {string} step', async ({ page }, label: string) => {
   await page.getByRole('navigation', { name: 'Wizard steps' }).getByRole('button', { name: label }).click()
 })
+
+When('the pilot opens the editor for {string}', async ({ page }, registration: string) => {
+  await page.getByRole('button', { name: `Edit ${registration}` }).click()
+  await expect(page.getByRole('heading', { name: 'Edit Aircraft' })).toBeVisible()
+  const section = page.getByRole('button', { name: /^Load Stations/ })
+  if ((await section.getAttribute('aria-expanded')) !== 'true') await section.click()
+})
+
+Then('the editor offers no fuel-tank controls', async ({ page }) => {
+  await expect(page.getByRole('button', { name: /Add Fuel Tank/i })).toHaveCount(0)
+  await expect(page.getByText(/This station is a fuel tank/i)).toHaveCount(0)
+  await expect(page.getByText('Burn Sequences', { exact: true })).toHaveCount(0)
+})

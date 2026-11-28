@@ -89,6 +89,7 @@
         <LoadPointsSection
           v-model="loadPoints"
           :available-categories="availableCategoryNames"
+          :powertrain="draft?.powertrain ?? 'combustion'"
           :section-id="`${profileId}-loadpoints`"
         />
       </AccordionSection>
@@ -444,7 +445,8 @@ async function onSave(): Promise<void> {
     // Preserve lookup source quantities during unit correction; raw fuel validation
     // blocks a below-unusable default until the user deliberately corrects it.
     // Fixed-arm tanks retain their existing default promotion.
-    if (changes.loadPoints) {
+    // Hidden tank data on electric profiles is stored untouched.
+    if (changes.loadPoints && !isElectric.value) {
       changes.loadPoints = changes.loadPoints.map((lp) =>
         lp.armLookup.length === 0 && lp.fuelTank && lp.fuelTank.unusableFuel > 0 && lp.defaultQuantity < lp.fuelTank.unusableFuel
           ? { ...lp, defaultQuantity: lp.fuelTank.unusableFuel }

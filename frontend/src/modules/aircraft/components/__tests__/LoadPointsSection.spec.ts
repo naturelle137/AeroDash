@@ -71,6 +71,21 @@ describe('LoadPointsSection — electric powertrain', () => {
     expect(wrapper.find('.toggle').exists()).toBe(false)
   })
 
+  it('hides stored tank fields and burn-sequence editor without altering the data', () => {
+    const tank = makeLoadPoint({
+      fuelTank: { unusableFuel: 2, permissibleFuelTypes: ['AvGas 100LL'], burnSequences: [{ sequenceName: 'Std', ordinalPosition: 1 }] },
+    })
+    const original = structuredClone(tank)
+    const wrapper = mount(LoadPointsSection, {
+      props: { modelValue: [tank], sectionId: 'test', powertrain: 'electric' },
+    })
+    expect(wrapper.find('.fuel-tank-fields').exists()).toBe(false)
+    expect(wrapper.text()).not.toContain('Burn Sequences')
+    expect(wrapper.text()).not.toContain('Permissible Fuel Types')
+    expect(wrapper.emitted('update:modelValue')).toBeUndefined()
+    expect(tank).toEqual(original)
+  })
+
   it('shows an informational note explaining that fuel tanks are not applicable', () => {
     const wrapper = mount(LoadPointsSection, {
       props: {
