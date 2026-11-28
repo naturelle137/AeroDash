@@ -16,6 +16,7 @@ import {
   type ManualRunwayField,
 } from '@/core/logic/manual-runway'
 import { useManualRunwayStore } from '../stores/manual-runway.store'
+import { loadAirportSources, saveAirportSources } from '../services/airport-source.repository'
 
 const runway = useManualRunwayStore()
 const recentStatus = ref('all')
@@ -43,6 +44,25 @@ const visibleRecent = computed(() => runway.recent.filter((record) =>
 ).sort((a, b) => recentOrder.value === 'expiry' || recentOrder.value === 'effective'
   ? (a.runway[recentOrder.value === 'expiry' ? 'expiryDate' : 'effectiveDate'] ?? '9999-99-99').localeCompare(b.runway[recentOrder.value === 'expiry' ? 'expiryDate' : 'effectiveDate'] ?? '9999-99-99')
   : 0))
+const sourceRevision = ref(0)
+const sourceText = ref('')
+const sourceSaveStatus = ref<'saved' | 'invalid' | 'unavailable' | null>(null)
+const storedSources = computed(() => {
+  void sourceRevision.value
+  return loadAirportSources(runway.assessmentDate)
+})
+const sourceStatusLabels = ({
+	unknown: 'Unknown: declared dates are incomplete.',
+	'not-yet-effective': 'Not yet effective according to the declared date.',
+	expired: 'Expired according to the declared date.',
+	'within-declared-dates': 'Within the declared dates.',
+	superseded: 'Marked superseded by the supplied record.'
+})
+function importSources(): void {
+  const result = saveAirportSources(sourceText.value, runway.assessmentDate)
+  sourceSaveStatus.value = result.status === 'saved' ? 'saved' : result.status === 'invalid' ? 'invalid' : 'unavailable'
+  if (result.status === 'saved') { sourceText.value = ''; sourceRevision.value++ }
+}
 const freshness = computed(() => runway.current ? runwayFreshness(runway.current.record.runway, runway.assessmentDate) : 'unknown')
 const draftDateError = computed(() => {
   if (runway.current) return undefined
@@ -115,6 +135,26 @@ if (!runway.loaded) runway.load()
         <p>Days to declared expiry: {{ daysToDeclaredExpiry(runway.draft, runway.assessmentDate) ?? 'Unknown' }} (negative means past inclusive expiry).</p>
         <p v-if="!runway.automaticDate">Unsaved declaration from device date {{ runway.today }}: days to declared effect: {{ daysToDeclaredEffect(runway.draft, runway.today) ?? 'Unknown' }} · days to inclusive expiry: {{ daysToDeclaredExpiry(runway.draft, runway.today) ?? 'Unknown' }}. Source remains unverified.</p>
       </template>
+    </section>
+    <section aria-label="Stored airport source records">
+      <h3>Stored airport source records</h3>
+      <p class="hint">Records you import are kept apart from the manual runway and never fill its fields. Dates are rechecked on every load; distances and currency remain unverified. No data source is built in.</p>
+      <p v-if="storedSources.status === 'unavailable' || storedSources.status === 'invalid'" role="alert" class="storage-error">Stored airport source records could not be read. Existing data was not replaced; manual runway entry remains available.</p>
+      <p v-else-if="storedSources.status === 'empty'">No airport source records stored.</p>
+      <ul v-else-if="storedSources.status === 'parsed'">
+        <li v-for="(record, index) in storedSources.records" :key="index">
+          <template v-if="record.status === 'restored'">
+            <strong>{{ record.source.aerodrome }} — {{ record.source.runway }}</strong>:
+            {{ sourceStatusLabels[record.temporalStatus] }} Unverified. Source {{ record.source.provider }} / {{ record.source.dataset }} {{ record.source.version }}, retrieved {{ record.retrievedAt }}.
+          </template>
+        </li>
+      </ul>
+      <label for="airport-source-import">Import airport source file (JSON)</label>
+      <textarea id="airport-source-import" v-model="sourceText" rows="3"></textarea>
+      <button type="button" :disabled="!sourceText.trim()" @click="importSources()">Store airport source records</button>
+      <p v-if="sourceSaveStatus === 'saved'" role="status">Airport source records stored as unverified.</p>
+      <p v-else-if="sourceSaveStatus === 'invalid'" role="alert">The file is not a valid airport source file; nothing was stored.</p>
+      <p v-else-if="sourceSaveStatus === 'unavailable'" role="alert">Airport source records could not be stored; existing data was not replaced.</p>
     </section>
     <section v-if="runway.recent.length" aria-label="Recently used airports">
       <h3>Recently used airports</h3>

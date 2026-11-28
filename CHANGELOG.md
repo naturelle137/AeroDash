@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Engineering
 
-- Persist and reassess synthetic airport source exchanges without changing manual runway data.
+- Persist airport source exchanges and show their recomputed freshness, always unverified, in the manual runway panel without changing manual runway data.
 - Validate versioned synthetic airport source exchanges and reassess restored records.
 - Display advisory wind components for pilot-entered gusts.
 - Link manual wind components to an optional pilot-entered runway bearing saved with the manual runway; the bearing is never derived from the designator.

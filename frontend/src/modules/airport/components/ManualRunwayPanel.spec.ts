@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createManualRunwayRecord } from '@/core/logic/manual-runway'
 import { saveRecentAirport } from '../services/recent-airports.repository'
 import { MANUAL_RUNWAY_STORAGE_KEY } from '../services/manual-runway.repository'
+import { AIRPORT_SOURCE_STORAGE_KEY } from '../services/airport-source.repository'
 import ManualRunwayPanel from './ManualRunwayPanel.vue'
 
 // Synthetic runway values; not a real aerodrome.
@@ -687,5 +688,46 @@ describe('manual source dates', () => {
     expect(summary(restored).text()).toContain('Declared expiry date (inclusive)2026-11-26')
     await restored.get('#runway-expiry').setValue('2026-12-24')
     expect(summary(restored).exists()).toBe(false)
+  })
+
+  describe('stored airport source records', () => {
+    const exchange = JSON.stringify({ format: 'aerodash-airport-sources', version: 1, records: [{
+      schemaVersion: 1, retrievedAt: '2026-01-01T00:00:00.000Z', source: {
+        provider: 'Synthetic', dataset: 'Fixture', version: '1', recordId: 'r1', jurisdiction: 'XX', aerodrome: 'TEST', runway: '27',
+        publicationDate: null, effectiveDate: '2000-01-01', expiryDate: '2000-12-31', superseded: null, restrictionCoverage: null,
+        tora: { value: 1000, unit: 'm' }, lda: null,
+      },
+    }] })
+    const sources = (view: VueWrapper) => view.get('[aria-label="Stored airport source records"]')
+
+    it('reports empty storage', () => {
+      expect(sources(mount(ManualRunwayPanel)).text()).toContain('No airport source records stored.')
+    })
+
+    it('imports a file and shows recomputed freshness as unverified without touching the manual runway', async () => {
+      const view = mount(ManualRunwayPanel)
+      await view.get('#airport-source-import').setValue(exchange)
+      await sources(view).get('button').trigger('click')
+      expect(sources(view).text()).toContain('TEST — 27')
+      expect(sources(view).text()).toContain('Expired according to the declared date. Unverified.')
+      expect(localStorage.getItem(MANUAL_RUNWAY_STORAGE_KEY)).toBeNull()
+      expect(view.get('#manual-runway-tora').element).toHaveProperty('value', '')
+    })
+
+    it('shows stored records on load and rejects invalid input without storing', async () => {
+      localStorage.setItem(AIRPORT_SOURCE_STORAGE_KEY, exchange)
+      const view = mount(ManualRunwayPanel)
+      expect(sources(view).text()).toContain('TEST — 27')
+      await view.get('#airport-source-import').setValue('{}')
+      await sources(view).get('button').trigger('click')
+      expect(sources(view).text()).toContain('nothing was stored')
+      expect(localStorage.getItem(AIRPORT_SOURCE_STORAGE_KEY)).toBe(exchange)
+    })
+
+    it('keeps damaged stored data and warns', () => {
+      localStorage.setItem(AIRPORT_SOURCE_STORAGE_KEY, 'broken')
+      expect(sources(mount(ManualRunwayPanel)).get('[role="alert"]').text()).toContain('could not be read')
+      expect(localStorage.getItem(AIRPORT_SOURCE_STORAGE_KEY)).toBe('broken')
+    })
   })
 })

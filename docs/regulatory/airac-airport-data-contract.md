@@ -244,7 +244,7 @@ and invalidation state. Preserve the usable manual offline path.
 
 The source-independent comparison reports changes only for matching provider, dataset, record, jurisdiction, aerodrome and runway identities. It retains the incoming temporal and unverified states; it does not persist records or establish source eligibility.
 
-An isolated browser storage adapter saves validated exchange envelopes separately from manual runway entries. It reassesses dates and verification on every load, preserves damaged stored data rather than overwriting it, and reports storage failures. It has no user-facing or operational consumer; source acceptance remains required.
+An isolated browser storage adapter saves validated exchange envelopes separately from manual runway entries. It reassesses dates and verification on every load, preserves damaged stored data rather than overwriting it, and reports storage failures. The manual runway panel is its local consumer: it lists stored records with recomputed temporal status, always as unverified, and accepts pasted exchange files. Records never fill manual runway fields; source acceptance remains required.
 
 The source-independent batch comparison reports additions, removals and changed matching records, rejecting invalid or duplicate identities. A removal is a difference between supplied batches, not proof of provider deletion or dataset completeness.
 
