@@ -121,8 +121,8 @@ This section defines the complete JSON payload for each notification. These payl
 {
   "id": "WARN-FE-001",
   "severity": "WARNING",
-  "message": "Insufficient Fuel",
-  "context": "Fuel.Endurance"
+  "message": "Insufficient fuel for the entered trip plus reserve.",
+  "context": "FuelEndurance.Duration"
 }
 ```
 
