@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { useConnectivityStore } from '@/modules/connectivity/connectivity.store'
+
+const { online } = useConnectivityStore()
 import TafView from './TafView.vue'
 import type { TafWind } from './taf-surface'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
@@ -56,6 +59,7 @@ let expiry: ReturnType<typeof setTimeout> | undefined
 let request = 0
 function offline(): void {
   clearReport()
+  loading.value = false
   message.value = 'Offline: METAR retrieval is unavailable.'
 }
 onMounted(() => window.addEventListener('offline', offline))
@@ -115,7 +119,7 @@ async function check(): Promise<void> {
     if (currentRequest !== request) return
     message.value = error instanceof Error && error.message === 'malformed' ? 'Malformed METAR response; no report displayed.' : 'METAR retrieval failed or is unavailable.'
   } finally {
-    loading.value = false
+    if (currentRequest === request) loading.value = false
   }
 }
 </script>
@@ -144,10 +148,10 @@ async function check(): Promise<void> {
       <label for="weather-icao">ICAO station code</label>
       <div class="entry">
         <input id="weather-icao" v-model="icao" type="text" maxlength="4" autocomplete="off" :disabled="loading" @input="clearReport" />
-        <button type="submit" :disabled="loading">Check METAR</button>
+        <button type="submit" :disabled="loading || !online">Check METAR</button>
       </div>
     </form>
-    <p role="status">{{ message }}</p>
+    <p role="status">{{ online ? message : 'Offline: METAR retrieval is unavailable.' }}</p>
     <div v-if="report">
       <p>Station: {{ report.station }} · Observed: {{ report.time }} UTC{{ report.stale ? ' · OUTDATED' : '' }}</p>
       <p>{{ report.raw }}</p>

@@ -1,28 +1,13 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { useConnectivityStore } from '@/modules/connectivity/connectivity.store'
 
-const online = ref(navigator.onLine)
-function refresh(): void {
-  online.value = navigator.onLine
-}
-
-onMounted(() => {
-  refresh()
-  window.addEventListener('online', refresh)
-  window.addEventListener('offline', refresh)
-  // A restored document may have missed connectivity events while suspended.
-  window.addEventListener('pageshow', refresh)
-})
-onBeforeUnmount(() => {
-  window.removeEventListener('online', refresh)
-  window.removeEventListener('offline', refresh)
-  window.removeEventListener('pageshow', refresh)
-})
+const { online } = useConnectivityStore()
 </script>
 
 <template>
   <details class="connectivity">
     <summary aria-label="Browser connectivity details">
+      <span aria-hidden="true">{{ online ? '●' : '○' }}</span>
       <span role="status" aria-live="polite" aria-atomic="true">Browser {{ online ? 'online' : 'offline' }}</span>
     </summary>
     <p class="connectivity__help">
@@ -45,6 +30,7 @@ summary {
   min-height: 44px;
   display: flex;
   align-items: center;
+  gap: 0.25rem;
   text-decoration: underline dotted;
   text-underline-offset: 3px;
 }
