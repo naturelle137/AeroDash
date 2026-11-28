@@ -30,7 +30,7 @@ When a valid ICAO type designator is entered, the system shall display a selecti
 
 The system shall display the 5 most recently used airports at the top of the airport selection interface.
 
-**Status:** Deferred. Recent entries are limited to five runway declarations, not five distinct airports; `frontend/src/modules/airport/components/ManualRunwayPanel.spec.ts` covers the distinct-aerodrome case.
+**Status:** Implemented. Tests: `frontend/src/modules/airport/services/recent-airports.repository.spec.ts`, `frontend/src/modules/airport/components/ManualRunwayPanel.spec.ts`, `manual-runway-entry.feature`.
 
 ### REQ-UI-006: Passenger Profile Selection
 

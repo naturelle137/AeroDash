@@ -11,6 +11,13 @@ describe('recent airports', () => {
     for (const name of ['A', 'B', 'C', 'D', 'E', 'F', 'c']) saveRecentAirport(record(name))
     expect(loadRecentAirports()?.map((item) => item.runway.aerodrome)).toEqual(['c', 'F', 'E', 'D', 'B'])
   })
+  it('counts the cap in airports, keeping every runway of a kept airport', () => {
+    const runwayOf = (aerodrome: string, designator: string) => createManualRunwayRecord({ ...runway, aerodrome, designator }, new Date('2026-01-01T00:00:00Z'))
+    for (const [name, designator] of [['A', '09'], ['A', '27'], ['B', '09'], ['C', '09'], ['D', '09'], ['E', '09'], ['F', '09']] as const) saveRecentAirport(runwayOf(name, designator))
+    expect(loadRecentAirports()?.map((item) => `${item.runway.aerodrome}${item.runway.designator}`)).toEqual(['F09', 'E09', 'D09', 'C09', 'B09'])
+    saveRecentAirport(runwayOf('B', '27'))
+    expect(loadRecentAirports()?.map((item) => `${item.runway.aerodrome}${item.runway.designator}`)).toEqual(['B27', 'F09', 'E09', 'D09', 'C09', 'B09'])
+  })
   it('preserves separate runway directions and their declared source dates', () => {
     const first = createManualRunwayRecord({ ...runway, source: 'Chart A', expiryDate: '2026-01-31' }, new Date('2026-01-01T00:00:00Z'))
     const second = createManualRunwayRecord({ ...runway, designator: '27', source: 'Chart B', expiryDate: '2026-02-28' }, new Date('2026-01-02T00:00:00Z'))
