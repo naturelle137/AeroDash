@@ -30,6 +30,8 @@ When a valid ICAO type designator is entered, the system shall display a selecti
 
 The system shall display the 5 most recently used airports at the top of the airport selection interface.
 
+**Status:** Deferred. Recent entries are limited to five runway declarations, not five distinct airports; `frontend/src/modules/airport/components/ManualRunwayPanel.spec.ts` covers the distinct-aerodrome case.
+
 ### REQ-UI-006: Passenger Profile Selection
 
 The system shall offer the active aircraft's passenger profiles at occupant station inputs.
@@ -68,6 +70,8 @@ The system shall provide a toggleable "Dark Mode" (high contrast, black/red or b
 
 When the user activates the dedicated information icon adjacent to a complex data field or acronym, the system shall display a contextual explanation of that term in a pop-over element (Tooltip).
 
+**Status:** Implemented. Test: `frontend/src/shared/components/__tests__/InfoPopover.spec.ts` (activation and explanation).
+
 ### REQ-UI-013: SemVer and Date Display
 
 The system shall display its current semantic version in the About view.
@@ -84,6 +88,8 @@ When Save or Export is triggered with unverified calculation parameters, the sys
 
 Until the pilot explicitly acknowledges `CRIT-UI-001`, the system shall block Briefing Pack printing.
 
+**Status:** Deferred. The Briefing Pack print and PDF gates require acknowledgement (`frontend/src/modules/export/mb-print.int.spec.ts`); a general Save/Export warning for all calculation parameters is not established.
+
 ### REQ-UI-016: Mark All as Verified Option
 
 While the [unverified-data confirmation dialog](#req-ui-015-unverified-data-export-warning) is displayed, the system shall offer a "Mark all as Verified" action that sets all current airport parameters to `Verified` in the local database.
@@ -91,6 +97,8 @@ While the [unverified-data confirmation dialog](#req-ui-015-unverified-data-expo
 ### REQ-UI-017: Low Safety Factor Export Warning
 
 When Save or Export is triggered with a factor below the greater of the POH minimum and the baseline (takeoff 1.25, landing 1.43), the system shall emit CRITICAL `CRIT-UI-002` identifying the low factor.
+
+**Status:** Deferred. A `CRIT-UI-002` low-factor Save/Export warning and confirmation are not implemented.
 
 ### REQ-UI-018: Severity-Based Notification Rendering
 
@@ -106,13 +114,19 @@ The system shall render the active CG envelope polygon as the loading-chart back
 
 The system shall display a persistent visual indicator of the current connectivity state (`Online`/`Offline`) in the application header or status bar.
 
+**Status:** Implemented. Test: `frontend/src/shared/components/ConnectivityStatus.spec.ts`; the indicator is mounted in the application header.
+
 ### REQ-UI-021: Powertrain Selector in Aircraft Wizard
 
 When creating an aircraft profile, the system shall offer `Combustion` and `Electric` powertrain choices.
 
+**Status:** Implemented. Test: `frontend/src/modules/aircraft/components/__tests__/IdentitySection.spec.ts` (powertrain choices and selection).
+
 ### REQ-UI-022: Powertrain-Gated Editor Sections
 
 While an aircraft is electric, the wizard and editor shall hide the fuel-tank toggle, Add Fuel Tank action, fuel-type selector and burn-sequence editor.
+
+**Status:** Deferred. The wizard passes its powertrain to the load-station controls, but the editor does not; existing fuel-tank fields also remain visible for electric profiles with tank data.
 
 ### REQ-UI-023: Powertrain Field Immutability in Aircraft Editor
 
