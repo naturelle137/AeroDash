@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Reconcile performance requirements REQ-PF-008..013 with their software tests: requirement IDs now appear in the test names; synthetic evidence only, nothing validated for flight use.
+
 - Reconcile requirement statuses (fleet restore, display rounding, shared weather in Flight Prep) with cited software tests; synthetic evidence only, nothing validated for flight use.
 
 - Cite test evidence for aircraft selection and shared-weather requirements.
