@@ -246,6 +246,8 @@ The source-independent comparison reports changes only for matching provider, da
 
 The source-independent batch comparison reports additions, removals and changed matching records, rejecting invalid or duplicate identities. A removal is a difference between supplied batches, not proof of provider deletion or dataset completeness.
 
+The source-independent temporal check compares the same supplied records at two ordered dates and reports changed temporal states with their unverified values. It rejects invalid batches and does not detect provider updates, establish completeness or verify data.
+
 The source-independent selector requires an exact aerodrome and runway match in a fully valid nonempty batch. It reports missing or ambiguous matches separately, retains the selected record's temporal and unverified states, and does not authorize applying it to a flight preparation.
 
 Use fixed synthetic cases for missing/conflicting metadata, future effect, exact

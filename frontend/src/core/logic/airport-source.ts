@@ -43,6 +43,21 @@ export function scanAirportSources(value: unknown, checkDate: string) {
   return { status: 'scanned', records } as const
 }
 
+export function checkAirportSourceTransitions(value: unknown, previousDate: string, checkDate: string) {
+  if (previousDate > checkDate) return { status: 'invalid' } as const
+  const before = scanAirportSources(value, previousDate)
+  const after = scanAirportSources(value, checkDate)
+  if (before.status !== 'scanned' || after.status !== 'scanned' ||
+      before.records.some(record => record.status !== 'valid') || after.records.some(record => record.status !== 'valid')) return { status: 'invalid' } as const
+
+  const transitions = after.records.flatMap((record, index) => {
+    const previous = before.records[index]
+    if (record.status !== 'valid' || previous?.status !== 'valid' || record.temporalStatus === previous.temporalStatus) return []
+    return [{ previousStatus: previous.temporalStatus, record }]
+  })
+  return { status: 'checked', transitions } as const
+}
+
 export function selectAirportSource(value: unknown, aerodrome: string, runway: string, checkDate: string) {
   if (!text.safeParse(aerodrome).success || !text.safeParse(runway).success) return { status: 'invalid' } as const
   const scan = scanAirportSources(value, checkDate)
