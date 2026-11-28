@@ -62,7 +62,7 @@ describe('Briefing Pack PDF download', () => {
   })
   afterEach(() => { document.body.innerHTML = ''; vi.restoreAllMocks(); vi.unstubAllGlobals() })
 
-  it('blocks the download until the unverified-data gate is acknowledged, then carries snapshot text and markers', async () => {
+  it('blocks the download until the unverified-data gate is acknowledged, then carries snapshot text and markers (REQ-DOC-002, REQ-DOC-003)', async () => {
     const wrapper = mount(MbPrintPreview, { props: { source: source() }, attachTo: document.body })
     await wrapper.get('button').trigger('click')
     buttonByText('Download PDF').click()
@@ -279,6 +279,21 @@ describe('Briefing Pack PDF download', () => {
       expect(content).toContain('CRITICAL')
       expect(content).not.toContain('CRIT-WX-001')
     }
+  })
+
+  it('adds the low-safety-margin disclaimer to the PDF only when a corrected value carries a safety-factor warning (REQ-DOC-004)', async () => {
+    const low = 'Calculation based on low safety margin. Pilot in Command assumes full responsibility.'
+    const applied = { operation: 'takeoff', title: 'Takeoff', status: 'applied', source: 'Synthetic', rows: [], safetyFactor: '1.00',
+      safetyFactorWarning: 'WARN-PF-002: low', comparison: { status: 'sufficient', summary: '', required: '', availableLabel: '', available: '', margin: '' }, notes: [] }
+    const base = presentPerformance({ inputKey: 'k', inputs: [], aircraft: null, takeoff: { status: 'unavailable', reason: 'x' }, landing: { status: 'unavailable', reason: 'x' },
+      assessment: null, pressureAltitudeBasis: '', pendingReason: 'x', runway: { status: 'unavailable', reason: 'x' }, operational: presentOperationalAssessment(null, 'x') })
+    const input = source()
+    input.performance = { ...base, corrected: [applied] } as never
+    expect(strip((await pdfFor(input)).text)).toContain(strip(low))
+    blobs.length = 0
+    const clean = source()
+    clean.performance = { ...base, corrected: [{ ...applied, safetyFactorWarning: null }] } as never
+    expect(strip((await pdfFor(clean)).text)).not.toContain(strip(low))
   })
 
   it('downloads directly when nothing is unverified', async () => {
