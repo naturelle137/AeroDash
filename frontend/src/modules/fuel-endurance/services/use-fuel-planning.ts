@@ -1,4 +1,4 @@
-import { computed, ref, watch } from 'vue'
+import { computed, ref, toRaw, watch } from 'vue'
 import { plainCopy, useDemoScratch } from '@/shared/composables/useDemoScratch'
 import { useMassBalanceStore } from '@/modules/mass-balance/stores/mass-balance.store'
 import { assessTripEnvelope } from './trip-envelope'
@@ -6,6 +6,7 @@ import { arrivalCgForPlanning, arrivalSequenceChoices } from './arrival-cg'
 import { usableFuelForPlanning } from './usable-fuel'
 import { calculateTripArrival } from '@/core/logic/trip-arrival'
 import { calculateFuelEndurance } from '@/core/logic/fuel-endurance'
+import { NotificationSchema } from '@/core/domain/notification.schema'
 
 export function useFuelPlanning() {
   const store = useMassBalanceStore()
@@ -74,6 +75,19 @@ export function useFuelPlanning() {
       : null,
   )
   const plan = computed(() => (result.value?.ok ? result.value.plan : null))
+  watch([() => Boolean(plan.value?.warning), () => store.notifications.some(n => n.id === 'WARN-FE-001')], ([warning, present]) => {
+    if (warning === present) return
+    const notifications = toRaw(store.notifications).filter((notification) => notification.id !== 'WARN-FE-001')
+    if (warning) {
+      notifications.push(NotificationSchema.parse({
+        id: 'WARN-FE-001',
+        severity: 'WARNING',
+        message: 'Insufficient fuel for the entered trip plus reserve.',
+        context: 'FuelEndurance.Duration',
+      }))
+    }
+    store.notifications = notifications
+  }, { immediate: true, flush: 'sync' })
   const arrival = computed(() => {
     if (!fuel.value.ok || !method.value) return null
     const tripFuelKg =
