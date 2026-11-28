@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { useConnectivityStore } from '@/modules/connectivity/connectivity.store'
+
+const { online } = useConnectivityStore()
 import TafView from './TafView.vue'
 import type { TafWind } from './taf-surface'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
@@ -10,7 +13,7 @@ import { metarValues, type MetarValues } from './metar-values'
 
 const inputs = useWeatherInputsStore()
 const props = defineProps<{ selection?: { location: string; time: number; forecast: MetarValues } | null }>()
-const emit = defineEmits<{ forecast: [value: { station: string; time: string; source: 'TAF'; validFrom: string; validTo: string; liquid: boolean; heavy?: boolean } | null]; observation: [value: { station: string; time: string; liquid: boolean; heavy?: boolean } | null]; apply: [field: keyof MetarValues, values: MetarValues, source: string] }>()
+const emit = defineEmits<{ forecast: [value: { station: string; time: string; source: 'TAF'; validFrom: string; validTo: string; liquid: boolean; heavy?: boolean } | null]; observation: [value: { station: string; time: string; source?: 'manual METAR'; liquid: boolean; heavy?: boolean } | null]; apply: [field: keyof MetarValues, values: MetarValues, source: string] }>()
 type TafSource = { station: string; issued: string; validFrom: string; validTo: string; wind: TafWind }
 const taf = ref<TafSource | null>(null)
 const applicableTaf = computed(() => taf.value && props.selection && taf.value.station === props.selection.location ? taf.value : null)
@@ -27,6 +30,27 @@ function apply(field: keyof MetarValues): void {
   if (!current || current.stale || Date.now() - Date.parse(current.time) > 60 * 60 * 1000 || !values.value[field]) return
   emit('apply', field, values.value, `METAR ${current.station} via wxdecoder.com, observed ${current.time}`)
 }
+const manualMetar = ref('')
+const manualMessage = ref('')
+function useManualMetar(): void {
+  clearReport()
+  const raw = manualMetar.value.trim().toUpperCase()
+  const match = /^(?:METAR |SPECI )?([A-Z]{4}) (\d{2})(\d{2})(\d{2})Z\s+(.+)$/.exec(raw)
+  const now = Date.now()
+  const observed = new Date(now)
+  observed.setUTCSeconds(0, 0)
+  observed.setUTCHours(Number(match?.[3]), Number(match?.[4]))
+  if (observed.getTime() > now) observed.setUTCDate(observed.getUTCDate() - 1)
+  const liquid = match ? metarLiquid(match[5]!) : null
+  if (!match || Number(match[2]) !== observed.getUTCDate() || Number(match[3]) > 23 || Number(match[4]) > 59 || now - observed.getTime() > 3600000 || liquid === null) {
+    manualMessage.value = 'Invalid or outdated METAR; no surface suggestion. Verify the report and observation time.'
+    return
+  }
+  const time = observed.toISOString()
+  emit('observation', { station: match[1]!, time, source: 'manual METAR', liquid, heavy: metarHeavyRain(match[5]!) === true })
+  manualMessage.value = `Manual METAR ${match[1]}, observed ${time} UTC (unverified). Verify the actual runway condition.`
+  expiry = setTimeout(() => { emit('observation', null); manualMessage.value = 'Manual METAR is outdated; verify current conditions.' }, 3600000 - (now - observed.getTime()) + 1)
+}
 const icao = ref('')
 const message = ref('Enter a station to retrieve a METAR.')
 const report = ref<{ raw: string; station: string; time: string; stale: boolean } | null>(null)
@@ -35,6 +59,7 @@ let expiry: ReturnType<typeof setTimeout> | undefined
 let request = 0
 function offline(): void {
   clearReport()
+  loading.value = false
   message.value = 'Offline: METAR retrieval is unavailable.'
 }
 onMounted(() => window.addEventListener('offline', offline))
@@ -94,7 +119,7 @@ async function check(): Promise<void> {
     if (currentRequest !== request) return
     message.value = error instanceof Error && error.message === 'malformed' ? 'Malformed METAR response; no report displayed.' : 'METAR retrieval failed or is unavailable.'
   } finally {
-    loading.value = false
+    if (currentRequest === request) loading.value = false
   }
 }
 </script>
@@ -123,10 +148,10 @@ async function check(): Promise<void> {
       <label for="weather-icao">ICAO station code</label>
       <div class="entry">
         <input id="weather-icao" v-model="icao" type="text" maxlength="4" autocomplete="off" :disabled="loading" @input="clearReport" />
-        <button type="submit" :disabled="loading">Check METAR</button>
+        <button type="submit" :disabled="loading || !online">Check METAR</button>
       </div>
     </form>
-    <p role="status">{{ message }}</p>
+    <p role="status">{{ online ? message : 'Offline: METAR retrieval is unavailable.' }}</p>
     <div v-if="report">
       <p>Station: {{ report.station }} · Observed: {{ report.time }} UTC{{ report.stale ? ' · OUTDATED' : '' }}</p>
       <p>{{ report.raw }}</p>
@@ -146,6 +171,12 @@ async function check(): Promise<void> {
     </div>
     <p v-if="report && taf && report.station !== taf.station" role="alert">The METAR station {{ report.station }} differs from the TAF station {{ taf.station }}.</p>
     <TafView embedded :flight-time="props.selection?.time" @forecast="emit('forecast', $event)" @wind="taf = $event" />
+    <form @submit.prevent="useManualMetar">
+      <label for="manual-metar">Paste METAR for runway surface</label>
+      <textarea id="manual-metar" v-model="manualMetar" rows="3" @input="clearReport(); manualMessage = ''" />
+      <button type="submit">Use pasted METAR</button>
+      <p v-if="manualMessage" role="status">{{ manualMessage }}</p>
+    </form>
     <p>Liquid precipitation may suggest a runway surface condition; verify the actual runway condition.</p>
     <p>Values are only replaced when you choose an action. METAR wind direction is true; use a runway heading in the same reference. Gusts are not applied. Verify all values with an authorised source.</p>
   </div>
@@ -161,5 +192,6 @@ fieldset.inputs { display: grid; gap: .5rem; border: 1px solid var(--color-borde
 label { display: grid; gap: .25rem; }
 .grid input, .grid select { max-width: none; text-transform: none; }
 input { max-width: 8rem; text-transform: uppercase; }
+textarea { width: 100%; padding: .5rem; }
 select, input, button { min-height: 44px; padding: .5rem; }
 </style>

@@ -57,7 +57,7 @@ export const useManualRunwayStore = defineStore('manualRunway', () => {
   let filling = false
   let applyingWeather = false
   let pilotSurfaceChoice = false
-  const weather = ref<{ station: string; time: string; liquid: boolean; heavy?: boolean } | null>(null)
+  const weather = ref<{ station: string; time: string; source?: 'manual METAR'; liquid: boolean; heavy?: boolean } | null>(null)
   const weatherSurface = ref<NonNullable<ManualRunwayRecord['weatherSurface']> | null>(null)
 
   const forecast = ref<(NonNullable<ManualRunwayRecord['weatherSurface']> & { liquid: boolean; heavy?: boolean }) | null>(null)

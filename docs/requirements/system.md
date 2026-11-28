@@ -40,13 +40,13 @@ The system shall expose each notification with a unique ID, severity, message an
 
 When the browser reports a connectivity change, the system shall update the visible browser online/offline status.
 
-**Status:** Implemented. Test: `frontend/src/shared/components/ConnectivityStatus.spec.ts` (initial state and online/offline events).
+**Status:** Implemented. Test: `frontend/src/modules/connectivity/connectivity.store.spec.ts` (initial state, events and restored pages).
 
 ### REQ-SYS-010: Online Feature Availability
 
 While connectivity is Offline, the system shall disable cloud sync, share-code generation/retrieval and weather/airport API queries.
 
-**Status:** Deferred. Cloud sync and share codes are future scope; a test establishing that all weather and airport API queries are disabled offline is not present.
+**Status:** Implemented for available weather queries; cloud sync, share codes and airport APIs remain future scope. Test: `frontend/tests/offline-production/connectivity.spec.ts`.
 
 ### REQ-SYS-011: Input Validation Before Core Logic
 

@@ -124,3 +124,23 @@ export function compareAirportSourceSnapshots(previous: unknown, incoming: unkno
   })
   return { ...comparison, transitions } as const
 }
+
+const AIRPORT_SOURCE_ENVELOPE_VERSION = 1
+
+// Retrieval time is separate from source publication/effect and local saving.
+export function packAirportSource(value: unknown, retrievedAt: string) {
+  const parsed = AirportSourceRecordSchema.safeParse(value)
+  if (!parsed.success || !z.iso.datetime().safeParse(retrievedAt).success) return { status: 'invalid' } as const
+  return { status: 'packed', envelope: { schemaVersion: AIRPORT_SOURCE_ENVELOPE_VERSION, retrievedAt, source: parsed.data } } as const
+}
+
+// Stored verification and temporal status are never trusted: both are recomputed,
+// so a restored record starts unverified and cannot carry stale freshness claims.
+export function restoreAirportSource(value: unknown, checkDate: string) {
+  const envelope = z.object({ schemaVersion: z.number().int(), retrievedAt: z.iso.datetime(), source: z.unknown() }).loose().safeParse(value)
+  if (!envelope.success) return { status: 'invalid' } as const
+  if (envelope.data.schemaVersion !== AIRPORT_SOURCE_ENVELOPE_VERSION) return { status: 'unsupported-version' } as const
+  const ingested = ingestAirportSource(envelope.data.source, checkDate)
+  if (ingested.status !== 'valid') return { status: 'invalid' } as const
+  return { ...ingested, status: 'restored', retrievedAt: envelope.data.retrievedAt } as const
+}

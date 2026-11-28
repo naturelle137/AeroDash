@@ -183,8 +183,14 @@ if (!runway.loaded) runway.load()
         <input id="manual-runway-designator" v-model="runway.draft.designator" type="text" autocomplete="off"
           :maxlength="MAX_DESIGNATOR_LENGTH" :aria-invalid="!!error('designator')" :aria-describedby="describedBy('designator')" />
       </div>
+      <div class="field">
+        <label for="manual-runway-bearing">Bearing of this runway (optional, °, 1–360)</label>
+        <input id="manual-runway-bearing" v-model="runway.draft.heading" type="text" inputmode="decimal" autocomplete="off"
+          :aria-invalid="!!error('heading')" :aria-describedby="describedBy('heading')" />
+      </div>
     </div>
     <p v-if="error('aerodrome')" :id="describedBy('aerodrome')" class="field-error">{{ error('aerodrome') }}</p>
+    <p v-if="error('heading')" :id="describedBy('heading')" class="field-error">{{ error('heading') }}</p>
     <p v-if="error('designator')" :id="describedBy('designator')" class="field-error">{{ error('designator') }}</p>
 
     <fieldset>
@@ -325,7 +331,7 @@ if (!runway.loaded) runway.load()
           <span class="normalized">({{ runway.current.display.todaM }} m)</span></dd></div>
         <div><dt>Field elevation</dt><dd>{{ runway.current.record.runway.fieldElevation.value }} {{ runway.current.record.runway.fieldElevation.unit }}
           <span class="normalized">({{ runway.current.record.runway.fieldElevation.unit === 'ft' ? `${runway.current.display.fieldElevationM} m` : `${runway.current.display.fieldElevationFt} ft` }})</span></dd></div>
-        <div><dt>Surface</dt><dd>{{ surfaceTypeLabels[runway.current.record.runway.surface.type] }} · {{ conditionLabel }}<span v-if="runway.current.record.weatherSurface"> · {{ runway.current.record.weatherSurface.source ?? 'METAR' }} via wxdecoder.com {{ runway.current.record.weatherSurface.station }} · {{ runway.current.record.weatherSurface.time }} <span v-if="runway.current.record.weatherSurface.source === 'TAF'"> · valid {{ runway.current.record.weatherSurface.validFrom }} to {{ runway.current.record.weatherSurface.validTo }}</span> (saved weather; verify current conditions)</span></dd></div>
+        <div><dt>Surface</dt><dd>{{ surfaceTypeLabels[runway.current.record.runway.surface.type] }} · {{ conditionLabel }}<span v-if="runway.current.record.weatherSurface"> · {{ runway.current.record.weatherSurface.source ?? 'METAR' }}{{ runway.current.record.weatherSurface.source === 'manual METAR' ? '' : ' via wxdecoder.com' }} {{ runway.current.record.weatherSurface.station }} · {{ runway.current.record.weatherSurface.time }} <span v-if="runway.current.record.weatherSurface.source === 'TAF'"> · valid {{ runway.current.record.weatherSurface.validFrom }} to {{ runway.current.record.weatherSurface.validTo }}</span> (saved weather; verify current conditions)</span></dd></div>
       </dl>
       <p role="status"><strong>Source date check:</strong> {{ freshnessLabels[freshness] }}</p>
       <p>Days to declared effect: {{ daysToDeclaredEffect(runway.current.record.runway, runway.assessmentDate) ?? 'Unknown' }} (negative means after the declared effective date; source remains unverified).</p>
