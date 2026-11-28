@@ -260,9 +260,13 @@ When valid DWD model surface pressure and matching grid elevation are available 
 
 The system shall keep one session-only set of temperature, wind direction, speed, gust and QNH, entered in Weather and read by Performance, Flight Prep and the wind-component and limit comparison.
 
+**Status:** Partial. Performance and wind-comparison reuse is tested in `frontend/tests/e2e/features/phase-b-flight-preparation/weather-first-inputs.feature` and `frontend/src/modules/performance/components/ManualWindComponentPanel.spec.ts`; Flight Prep reuse has no test yet (synthetic inputs only).
+
 ### REQ-WX-056: Weather input precedence
 
 While a Performance temperature, QNH or wind field holds an entry, the system shall use that entry instead of the shared value and shall state on the field that it overrides Weather.
+
+**Status:** Implemented. Tests: `frontend/src/core/logic/weather-inputs.spec.ts` (precedence), `frontend/tests/e2e/features/phase-b-flight-preparation/weather-first-inputs.feature` (temperature override statement).
 
 ### REQ-WX-057: Retrieved value copy
 

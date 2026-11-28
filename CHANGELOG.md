@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-- Cite component test evidence for aircraft selection requirements.
+- Cite test evidence for aircraft selection and shared-weather requirements.
 
 - Show unknown AIRAC age when the selected date precedes the runway save date within the same cycle.
 
