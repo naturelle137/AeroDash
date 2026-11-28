@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Cite software tests for performance notifications, estimated values and the CG envelope polygon.
+
 - Reconcile requirement statuses (fleet restore, display rounding, shared weather in Flight Prep) with cited software tests; synthetic evidence only, nothing validated for flight use.
 
 - Cite test evidence for aircraft selection and shared-weather requirements.
