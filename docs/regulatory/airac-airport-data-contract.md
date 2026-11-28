@@ -221,7 +221,7 @@ and an actual AeroDash consumer, with all of the following documented:
 - NOTAM/SUP coverage, update failures and offline limitations, separately from
   AIRAC applicability; unresolved facts remain explicit.
 
-This is future engineering acceptance, not shipped behaviour:
+The isolated P1 source-record parser and date classifier accept synthetic fixtures only; they are not connected to a provider, persistence, or a production consumer. Provider acceptance remains required before operational integration. This is the future engineering acceptance boundary:
 
 | Concern | Acceptance boundary |
 | :--- | :--- |
