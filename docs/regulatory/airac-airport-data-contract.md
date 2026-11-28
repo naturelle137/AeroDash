@@ -242,6 +242,8 @@ repository/store and presentation. The separate manual date check uses pilot dec
 backward recovery. Performance and briefing must carry the same source limits
 and invalidation state. Preserve the usable manual offline path.
 
+The source-independent comparison reports changes only for matching provider, dataset, record, jurisdiction, aerodrome and runway identities. It retains the incoming temporal and unverified states; it does not persist records or establish source eligibility.
+
 Use fixed synthetic cases for missing/conflicting metadata, future effect, exact
 source-supported boundaries, expiry, supersession, an unchanged record across an
 AIRAC date, re-save, overrides, unavailable restrictions and unsupported stored
