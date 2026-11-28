@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Allow a manually pasted current METAR to suggest an unverified runway surface.
 - Show browser connectivity and disable weather retrieval while offline.
 
 ### Engineering
