@@ -9,7 +9,7 @@ it('treats blank entries as no obstacle and emits no warning', () => {
   expect(obstacleNotification(none)).toEqual([])
 })
 
-it('activates a valid obstacle with units and a persistent non-dismissible warning', () => {
+it('activates a valid obstacle with units and a persistent non-dismissible warning (REQ-PF-009)', () => {
   const active = assessObstacle(input({ height: '50', distance: '600', distanceUnit: 'm' }))
   expect(active).toMatchObject({ status: 'active', height: 50, heightUnit: 'ft', distance: 600, distanceUnit: 'm' })
   expect(obstacleNotification(active)).toMatchObject([{ id: 'WARN-PF-001', severity: 'WARNING', persistent: true, dismissible: false }])
