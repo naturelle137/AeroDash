@@ -1,15 +1,27 @@
-import { readFileSync } from 'node:fs'
-import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
+
+// Vite raw imports avoid Node-only APIs so vue-tsc stays green.
+const sources = import.meta.glob<string>(
+  [
+    '../views/PerformanceView.vue',
+    './PerformanceStepPanel.vue',
+    './PressureAltitudeFieldset.vue',
+    './ManualWindComponentPanel.vue',
+    '../../fuel-endurance/components/FuelEnduranceCard.vue',
+    '../../fuel-endurance/components/ElectricEnergyCard.vue',
+  ],
+  { query: '?raw', import: 'default', eager: true },
+)
 
 // @REQ-UQ-001 Performance and Fuel numeric inputs keep a 44 px minimum hit target.
 const MIN_PX = 44
 
 function inputRuleMinHeight(file: string): number {
-  const source = readFileSync(resolve(__dirname, file), 'utf8')
+  const source = sources[file] ?? ''
+  expect(source, `${file}: source loaded`).toBeTruthy()
   const style = source.split('<style')[1] ?? ''
-  const rules = style.split('}').filter((r) => /(^|\n)\s*input[\s,{]/.test(r))
-  const match = rules.map((r) => /min-height:\s*(\d+)px/.exec(r)).find(Boolean)
+  const rules = style.split('}').filter((r: string) => /(^|\n)\s*input[\s,{]/.test(r))
+  const match = rules.map((r: string) => /min-height:\s*(\d+)px/.exec(r)).find(Boolean)
   expect(match, `${file}: input rule with min-height`).toBeTruthy()
   return Number(match![1])
 }
