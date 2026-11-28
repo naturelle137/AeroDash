@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { checkAirportSourceTransitions, compareAirportSource, compareAirportSourceBatches, compareAirportSourceSnapshots, ingestAirportSource, packAirportSource, restoreAirportSource, scanAirportSources, selectAirportSource } from './airport-source'
+import { buildAirportSourceExchange, checkAirportSourceTransitions, compareAirportSource, compareAirportSourceBatches, compareAirportSourceSnapshots, ingestAirportSource, packAirportSource, parseAirportSourceExchange, restoreAirportSource, scanAirportSources, selectAirportSource } from './airport-source'
 
 // Synthetic fixture: no provider or airport data is represented.
 const record = {
@@ -8,6 +8,25 @@ const record = {
   expiryDate: '2026-03-01', superseded: null, restrictionCoverage: null,
   tora: { value: 900, unit: 'm' }, lda: { value: 2000, unit: 'ft' },
 }
+
+describe('airport source exchange', () => {
+  it('round trips provenance and reassesses dates and verification', () => {
+    const packed = packAirportSource(record, '2026-02-01T10:00:00Z')
+    if (packed.status !== 'packed') throw new Error('fixture invalid')
+    const built = buildAirportSourceExchange([{ ...packed.envelope, verification: { tora: 'verified' }, temporalStatus: 'fresh' }], '2026-02-01')
+    if (built.status !== 'built') throw new Error('exchange invalid')
+    expect(parseAirportSourceExchange(built.text, '2026-03-02')).toMatchObject({ status: 'parsed', records: [{ retrievedAt: '2026-02-01T10:00:00Z', source: record, temporalStatus: 'expired', verification: { tora: 'unverified', lda: 'unverified' } }] })
+  })
+
+  it('rejects malformed, oversized, unsupported and ambiguous input atomically', () => {
+    const packed = packAirportSource(record, '2026-02-01T10:00:00Z')
+    if (packed.status !== 'packed') throw new Error('fixture invalid')
+    for (const input of ['{', 'x'.repeat(256 * 1024 + 1), JSON.stringify({ format: 'aerodash-airport-sources', version: 2, records: [packed.envelope] }), JSON.stringify({ format: 'aerodash-airport-sources', version: 1, records: [packed.envelope, packed.envelope] }), JSON.stringify({ format: 'aerodash-airport-sources', version: 1, records: [packed.envelope, null] })]) {
+      expect(parseAirportSourceExchange(input, '2026-02-01')).toEqual({ status: 'invalid' })
+    }
+    expect(buildAirportSourceExchange([], '2026-02-01')).toEqual({ status: 'invalid' })
+  })
+})
 
 describe('airport source ingestion', () => {
   it('preserves source values and separates temporal status from verification', () => {
