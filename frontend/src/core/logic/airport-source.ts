@@ -33,3 +33,12 @@ export function ingestAirportSource(value: unknown, checkDate: string) {
     verification: { tora: source.tora ? 'unverified' : 'unknown', lda: source.lda ? 'unverified' : 'unknown' },
   } as const
 }
+
+export function scanAirportSources(value: unknown, checkDate: string) {
+  if (!Array.isArray(value) || value.length === 0 || !z.iso.date().safeParse(checkDate).success) {
+    return { status: 'invalid' } as const
+  }
+
+  const records = value.map(record => ingestAirportSource(record, checkDate))
+  return { status: 'scanned', records } as const
+}
