@@ -18,7 +18,7 @@ When the requested mass, pressure altitude and temperature are within the aircra
 
 When a POH correction exists for wind, surface or slope, the system shall use that correction for that parameter.
 
-**Status:** Partial. Correction selection supports accepted configurations. Pilot-entered whole-distance wind multipliers or additive corrections and takeoff and landing ground-roll surface and slope multipliers or additive corrections are applied with unverified sources and partial-result disclosure; general POH correction coverage is incomplete. Tests (synthetic data): `frontend/src/core/logic/performance.correction-sources.spec.ts`, `frontend/src/modules/performance/services/corrected-distances.spec.ts`.
+**Status:** Partial. Correction selection supports accepted configurations. Pilot-entered whole-distance wind multipliers or additive corrections and takeoff and landing ground-roll surface and slope multipliers or additive corrections are applied with unverified sources and partial-result disclosure. Other aircraft manuals and landing corrections remain unsupported; see [remaining work](../architecture/performance-correction-sources.md#remaining-work). Tests (synthetic data): `frontend/src/core/logic/performance.correction-sources.spec.ts`, `frontend/src/modules/performance/services/corrected-distances.spec.ts`.
 
 ### REQ-PF-004: Correction Application Isolation
 
@@ -30,7 +30,7 @@ When applying surface friction or runway slope corrections, the system shall app
 
 If one takeoff base distance is missing, then the system shall derive it using `TOD = TOR × 1.9` before applying the Operational Safety Factor.
 
-**Status:** Implemented. Tests: `frontend/src/core/logic/performance.estimation.spec.ts`, `frontend/src/core/logic/performance.poh-distance.spec.ts`, `frontend/src/modules/performance/services/poh-inspection.spec.ts`.
+**Status:** Implemented. Tests: `frontend/src/core/logic/performance.estimation.spec.ts`, `frontend/src/core/logic/performance.poh-distance.spec.ts`, `frontend/src/modules/performance/services/poh-inspection.spec.ts`, `frontend/src/modules/performance/services/corrected-distances.spec.ts`.
 
 ### REQ-PF-006: Operational Required Distance
 
