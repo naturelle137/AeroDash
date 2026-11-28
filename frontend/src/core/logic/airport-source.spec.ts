@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { checkAirportSourceTransitions, compareAirportSource, compareAirportSourceBatches, ingestAirportSource, scanAirportSources, selectAirportSource } from './airport-source'
+import { checkAirportSourceTransitions, compareAirportSource, compareAirportSourceBatches, compareAirportSourceSnapshots, ingestAirportSource, scanAirportSources, selectAirportSource } from './airport-source'
 
 // Synthetic fixture: no provider or airport data is represented.
 const record = {
@@ -28,6 +28,28 @@ describe('airport source ingestion', () => {
       expect(ingestAirportSource(bad, '2026-02-01')).toEqual({ status: 'invalid' })
     }
     expect(ingestAirportSource(record, 'invalid')).toEqual({ status: 'invalid' })
+  })
+})
+
+describe('airport source snapshot comparison', () => {
+  it('reports changes and temporal transitions between supplied snapshots', () => {
+    const revised = { ...record, version: '2', expiryDate: null }
+    const unchanged = { ...record, recordId: 'unchanged', runway: '27' }
+    const added = { ...record, recordId: 'added', runway: '18' }
+    expect(compareAirportSourceSnapshots([record, unchanged], [revised, unchanged, added], '2026-02-01', '2026-03-02')).toMatchObject({
+      status: 'compared', changed: [{ changed: ['version', 'expiryDate'] }], added: [{ source: added }], removed: [],
+      transitions: [
+        { previousStatus: 'within-declared-dates', record: { source: revised, temporalStatus: 'unknown', verification: { tora: 'unverified' } } },
+        { previousStatus: 'within-declared-dates', record: { source: unchanged, temporalStatus: 'expired' } },
+      ],
+    })
+  })
+
+  it('rejects invalid dates, inputs and duplicate identities', () => {
+    expect(compareAirportSourceSnapshots([record], [record], 'bad', '2026-03-02')).toEqual({ status: 'invalid' })
+    expect(compareAirportSourceSnapshots([record], [record], '2026-03-02', '2026-02-01')).toEqual({ status: 'invalid' })
+    expect(compareAirportSourceSnapshots([record], [{ ...record, lda: -1 }], '2026-02-01', '2026-03-02')).toEqual({ status: 'invalid' })
+    expect(compareAirportSourceSnapshots([record, record], [record], '2026-02-01', '2026-03-02')).toEqual({ status: 'ambiguous' })
   })
 })
 

@@ -104,3 +104,23 @@ export function compareAirportSourceBatches(previous: unknown, incoming: unknown
   })
   return { status: 'compared', added, removed, changed } as const
 }
+
+export function compareAirportSourceSnapshots(previous: unknown, incoming: unknown, previousDate: string, checkDate: string) {
+  if (previousDate > checkDate) return { status: 'invalid' } as const
+  const comparison = compareAirportSourceBatches(previous, incoming, checkDate)
+  const before = scanAirportSources(previous, previousDate)
+  if (comparison.status !== 'compared') return comparison
+  if (before.status !== 'scanned' || before.records.some(record => record.status !== 'valid')) return { status: 'invalid' } as const
+  const after = scanAirportSources(incoming, checkDate)
+  if (after.status !== 'scanned') return { status: 'invalid' } as const
+  const transitions = after.records.flatMap(record => {
+    if (record.status !== 'valid') return []
+    const old = before.records.find(item => item.status === 'valid' &&
+      item.source.provider === record.source.provider && item.source.dataset === record.source.dataset &&
+      item.source.recordId === record.source.recordId && item.source.jurisdiction === record.source.jurisdiction &&
+      item.source.aerodrome === record.source.aerodrome && item.source.runway === record.source.runway)
+    if (!old || old.status !== 'valid' || old.temporalStatus === record.temporalStatus) return []
+    return [{ previousStatus: old.temporalStatus, record }]
+  })
+  return { ...comparison, transitions } as const
+}
