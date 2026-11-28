@@ -1215,3 +1215,108 @@ describe('AircraftProfileSchema — incomplete lookup fuel unit', () => {
     expect(parsed.data.loadPoints[0]!.unit).toBe(unit)
   })
 })
+
+// ─── Aircraft data storage (REQ-AD-004, 013, 015, 016, 017, 018) ─────────────
+// Synthetic values only; they exercise storage and validation, not any POH data.
+
+describe('AircraftProfileSchema — stored aircraft data', () => {
+  const parse = (mutate: (p: Record<string, unknown>) => void) =>
+    AircraftProfileSchema.safeParse(cloneWith(mutate))
+
+  it('keeps BEM, empty CG and weighing date of a weighing report (REQ-AD-004)', () => {
+    const result = parse(() => {})
+    expect(result.success).toBe(true)
+    if (!result.success) return
+    expect(result.data.weighingReports[0]).toMatchObject({
+      bem: 415.0,
+      emptyCg: 0.782,
+      weighingDate: '2025-01-15',
+    })
+  })
+
+  it('keeps a validFrom date per weighing report version (REQ-AD-013)', () => {
+    const result = parse((p) => {
+      p.weighingReports = [
+        { bem: 415, emptyCg: 0.782, weighingDate: '2024-03-01', validFrom: '2024-03-01' },
+        { bem: 418, emptyCg: 0.79, weighingDate: '2025-01-15', validFrom: '2025-02-01' },
+      ]
+    })
+    expect(result.success).toBe(true)
+    if (!result.success) return
+    expect(result.data.weighingReports.map((r) => r.validFrom)).toEqual(['2024-03-01', '2025-02-01'])
+  })
+
+  it('rejects a weighing report without validFrom (REQ-AD-013)', () => {
+    const result = parse((p) => {
+      delete (p.weighingReports as Record<string, unknown>[])[0]!.validFrom
+    })
+    expect(result.success).toBe(false)
+  })
+
+  it('keeps distinct takeoff and landing surface factors (REQ-AD-015)', () => {
+    const result = parse((p) => {
+      p.surfaceConditions = [{ name: 'Synthetic Grass', takeoffFactor: 1.2, landingFactor: 1.3 }]
+    })
+    expect(result.success).toBe(true)
+    if (!result.success) return
+    expect(result.data.surfaceConditions).toEqual([
+      { name: 'Synthetic Grass', takeoffFactor: 1.2, landingFactor: 1.3 },
+    ])
+  })
+
+  it.each(['takeoffFactor', 'landingFactor'])('rejects a non-positive surface %s (REQ-AD-015)', (key) => {
+    const result = parse((p) => {
+      p.surfaceConditions = [{ name: 'Synthetic', takeoffFactor: 1.1, landingFactor: 1.1, [key]: 0 }]
+    })
+    expect(result.success).toBe(false)
+  })
+
+  it('keeps takeoff and landing operational safety factors (REQ-AD-016)', () => {
+    const result = parse((p) => {
+      p.safetyFactors = { takeoff: 1.25, landing: 1.43 }
+    })
+    expect(result.success).toBe(true)
+    if (!result.success) return
+    expect(result.data.safetyFactors).toEqual({ takeoff: 1.25, landing: 1.43 })
+  })
+
+  it.each(['takeoff', 'landing'])('rejects a non-positive %s safety factor (REQ-AD-016)', (key) => {
+    const result = parse((p) => {
+      p.safetyFactors = { takeoff: 1.2, landing: 1.2, [key]: 0 }
+    })
+    expect(result.success).toBe(false)
+  })
+
+  it('keeps all four wind components with their classification (REQ-AD-017)', () => {
+    const limits = [
+      { component: 'MaxCrosswind', value: 15, classification: 'Demonstrated' },
+      { component: 'MaxTailwind', value: 8, classification: 'Limit' },
+      { component: 'MaxTotalWind', value: 30, classification: 'Limit' },
+      { component: 'MaxGust', value: 10, classification: 'Demonstrated' },
+    ]
+    const result = parse((p) => {
+      p.windLimits = limits
+    })
+    expect(result.success).toBe(true)
+    if (!result.success) return
+    expect(result.data.windLimits).toEqual(limits)
+  })
+
+  it('rejects a negative wind limit value (REQ-AD-017)', () => {
+    const result = parse((p) => {
+      p.windLimits = [{ component: 'MaxCrosswind', value: -1, classification: 'Limit' }]
+    })
+    expect(result.success).toBe(false)
+  })
+
+  it('keeps a stored share code and defaults an omitted owner to null (REQ-AD-018, REQ-AD-019)', () => {
+    const result = parse((p) => {
+      p.shareCode = 'SYN-0001'
+      delete p.ownerId
+    })
+    expect(result.success).toBe(true)
+    if (!result.success) return
+    expect(result.data.shareCode).toBe('SYN-0001')
+    expect(result.data.ownerId).toBeNull()
+  })
+})
