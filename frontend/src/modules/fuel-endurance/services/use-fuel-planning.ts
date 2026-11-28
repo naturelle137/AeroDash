@@ -75,9 +75,10 @@ export function useFuelPlanning() {
       : null,
   )
   const plan = computed(() => (result.value?.ok ? result.value.plan : null))
-  watch(plan, (current) => {
+  watch([() => Boolean(plan.value?.warning), () => store.notifications.some(n => n.id === 'WARN-FE-001')], ([warning, present]) => {
+    if (warning === present) return
     const notifications = toRaw(store.notifications).filter((notification) => notification.id !== 'WARN-FE-001')
-    if (current?.warning) {
+    if (warning) {
       notifications.push(NotificationSchema.parse({
         id: 'WARN-FE-001',
         severity: 'WARNING',
