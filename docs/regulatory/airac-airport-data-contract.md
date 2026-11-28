@@ -252,6 +252,8 @@ The source-independent snapshot comparison combines batch differences with tempo
 
 The source-independent envelope stores a record with its retrieval time under a schema version. Restoring rejects unsupported versions and invalid records, discards stored verification and temporal claims, and recomputes them, so a restored record is unverified. It is not wired to storage, import/export or briefing.
 
+The source-independent JSON exchange validates a bounded, nonempty set of envelopes atomically, rejects duplicate identities and reassesses each record on import. It is not a user-facing import or proof of provider eligibility.
+
 The source-independent selector requires an exact aerodrome and runway match in a fully valid nonempty batch. It reports missing or ambiguous matches separately, retains the selected record's temporal and unverified states, and does not authorize applying it to a flight preparation.
 
 Use fixed synthetic cases for missing/conflicting metadata, future effect, exact

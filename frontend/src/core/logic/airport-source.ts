@@ -144,3 +144,26 @@ export function restoreAirportSource(value: unknown, checkDate: string) {
   if (ingested.status !== 'valid') return { status: 'invalid' } as const
   return { ...ingested, status: 'restored', retrievedAt: envelope.data.retrievedAt } as const
 }
+
+// The exchange carries source envelopes, never trusted assessment results.
+export function parseAirportSourceExchange(text: string, checkDate: string) {
+  if (new TextEncoder().encode(text).byteLength > 256 * 1024) return { status: 'invalid' } as const
+  let value: unknown
+  try { value = JSON.parse(text) } catch { return { status: 'invalid' } as const }
+  const file = z.object({ format: z.literal('aerodash-airport-sources'), version: z.literal(1), records: z.array(z.unknown()).min(1) }).strict().safeParse(value)
+  if (!file.success) return { status: 'invalid' } as const
+  const records = file.data.records.map(record => restoreAirportSource(record, checkDate))
+  if (records.some(record => record.status !== 'restored')) return { status: 'invalid' } as const
+  const sources = records.flatMap(record => record.status === 'restored' ? [record.source] : [])
+  if (compareAirportSourceBatches(sources, sources, checkDate).status !== 'compared') return { status: 'invalid' } as const
+  return { status: 'parsed', records } as const
+}
+
+export function buildAirportSourceExchange(records: unknown, checkDate: string) {
+  let text: string
+  try { text = JSON.stringify({ format: 'aerodash-airport-sources', version: 1, records }) } catch { return { status: 'invalid' } as const }
+  const parsed = parseAirportSourceExchange(text, checkDate)
+  if (parsed.status !== 'parsed') return { status: 'invalid' } as const
+  const envelopes = parsed.records.flatMap(record => record.status === 'restored' ? [{ schemaVersion: AIRPORT_SOURCE_ENVELOPE_VERSION, retrievedAt: record.retrievedAt, source: record.source }] : [])
+  return { status: 'built', text: JSON.stringify({ format: 'aerodash-airport-sources', version: 1, records: envelopes }) } as const
+}

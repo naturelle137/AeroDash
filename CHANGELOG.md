@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Engineering
 
+- Validate versioned synthetic airport source exchanges and reassess restored records.
 - Add a versioned provenance envelope for synthetic airport source records that recomputes temporal and verification state on restore.
 - Clear the fuel shortfall notification when leaving Flight Preparation and document its tested lifecycle.
 - Compare supplied airport source snapshots across dates, including temporal transitions.
