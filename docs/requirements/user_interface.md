@@ -112,9 +112,9 @@ The system shall render the active CG envelope polygon as the loading-chart back
 
 ### REQ-UI-020: Connectivity State Indicator
 
-The system shall display a persistent visual indicator of the current connectivity state (`Online`/`Offline`) in the application header or status bar.
+The system shall display the browser connectivity state as text and an icon in the application header or status bar.
 
-**Status:** Implemented. Test: `frontend/src/shared/components/ConnectivityStatus.spec.ts`; the indicator is mounted in the application header.
+**Status:** Implemented. Tests: `frontend/src/shared/components/ConnectivityStatus.spec.ts` and `frontend/tests/offline-production/connectivity.spec.ts`.
 
 ### REQ-UI-021: Powertrain Selector in Aircraft Wizard
 

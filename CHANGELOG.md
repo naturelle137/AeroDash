@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Show browser connectivity and disable weather retrieval while offline.
+
 ### Engineering
 
 - Display advisory wind components for pilot-entered gusts.

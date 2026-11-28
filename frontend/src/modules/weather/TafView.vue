@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { useConnectivityStore } from '@/modules/connectivity/connectivity.store'
+
+const { online } = useConnectivityStore()
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { tafLiquid, tafWind, type TafWind } from './taf-surface'
 
@@ -83,10 +86,10 @@ async function check(): Promise<void> {
         <label for="taf-icao">ICAO station code</label>
         <div class="entry">
           <input id="taf-icao" v-model="icao" type="text" maxlength="4" autocomplete="off" :disabled="loading" @input="clearReport" />
-          <button type="submit" :disabled="loading">Check TAF</button>
+          <button type="submit" :disabled="loading || !online">Check TAF</button>
         </div>
       </form>
-      <p role="status">{{ message }}</p>
+      <p role="status">{{ online ? message : 'Offline: TAF retrieval is unavailable.' }}</p>
       <div v-if="report">
         <p>Unverified · Station: {{ report.station }} · Issued: {{ report.issued }} · Valid: {{ report.from }} to {{ report.to }}</p>
         <p v-if="now < report.start">Forecast validity has not started.</p>

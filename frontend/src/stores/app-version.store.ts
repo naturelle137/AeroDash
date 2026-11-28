@@ -48,8 +48,7 @@
  * - On mount via `App.vue` → `checkMinSafeVersion()` (always).
  * - On `window.online` event via `attachConnectivityRefresh()` so a return
  *   to connectivity refreshes the floor without waiting for the next cold
- *   start. (REQ-SYS-009 is Deferred, so this is the only connectivity
- *   surface in the app today.) The handler re-acquires the store via
+ *   start. The handler re-acquires the store via
  *   `useAppVersionStore()` so the call goes through the Pinia action
  *   wrapper (devtools timeline, `$onAction`, `vi.spyOn` all see it).
  *
