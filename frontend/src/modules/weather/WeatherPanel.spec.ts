@@ -49,6 +49,22 @@ describe('WeatherPanel', () => {
     vi.useRealTimers()
   })
 
+  it('retains the applied METAR source and observation time until wind is edited', async () => {
+    vi.useFakeTimers().setSystemTime(new Date('2026-11-21T17:00:00Z'))
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => ({ metar: { raw: 'EDDF 211620Z 17004KT 12/08 Q1013', station: 'EDDF', reportTime: '2026-11-21T16:20:00Z', reportTimeKnown: true } }) }))
+    const store = useWeatherInputsStore()
+    const view = mount(WeatherPanel, { attrs: { onApply: store.copyRetrieved } })
+    await view.get('#weather-icao').setValue('EDDF')
+    await view.get('form').trigger('submit')
+    await flushPromises()
+    await view.findAll('button').find(button => button.text().includes('Replace wind with METAR'))!.trigger('click')
+    expect(view.text()).toContain('wind source: METAR EDDF via wxdecoder.com, observed 2026-11-21T16:20:00.000Z (retrieved, unverified)')
+    await view.get('#weather-wind-speed').setValue('5')
+    expect(view.text()).not.toContain('wind source:')
+    view.unmount()
+    vi.useRealTimers()
+  })
+
   it('does not offer variable-direction wind while keeping other values available', async () => {
     vi.useFakeTimers().setSystemTime(new Date('2026-11-21T17:00:00Z'))
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => ({ metar: { raw: 'EDDF 211620Z 18010KT 140V220 12/08 Q1013', station: 'EDDF', reportTime: '2026-11-21T16:20:00Z', reportTimeKnown: true } }) }))
