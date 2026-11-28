@@ -20,10 +20,11 @@ describe('airport source ingestion', () => {
 
   it('keeps absent metadata and distances unknown without deriving values', () => {
     expect(ingestAirportSource({ ...record, expiryDate: null, tora: null }, '2026-02-26')).toMatchObject({ temporalStatus: 'unknown', verification: { tora: 'unknown', lda: 'unverified' } })
+    expect(ingestAirportSource({ ...record, effectiveDate: null, superseded: false, restrictionCoverage: 'NOTAM unknown', lda: null }, '2026-02-26')).toMatchObject({ temporalStatus: 'unknown', verification: { tora: 'unverified', lda: 'unknown' } })
   })
 
   it('rejects malformed, conflicting and unsupported input', () => {
-    for (const bad of [null, { ...record, expiryDate: '2026-01-01' }, { ...record, tora: { value: -1, unit: 'm' } }, { ...record, extra: true }, { ...record, effectiveDate: '2026-02-30' }]) {
+    for (const bad of [null, { ...record, expiryDate: '2026-01-01' }, { ...record, tora: { value: -1, unit: 'm' } }, { ...record, extra: true }, { ...record, effectiveDate: '2026-02-30' }, { ...record, restrictionCoverage: '   ' }]) {
       expect(ingestAirportSource(bad, '2026-02-01')).toEqual({ status: 'invalid' })
     }
     expect(ingestAirportSource(record, 'invalid')).toEqual({ status: 'invalid' })
