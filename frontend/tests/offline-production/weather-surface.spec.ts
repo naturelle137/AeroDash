@@ -42,7 +42,7 @@ test('fresh METAR suggests a surface and the pilot override survives refresh and
   await expect(condition).toHaveValue('dry')
   await expect(runway).not.toContainText('Wet suggested by METAR')
   await context.setOffline(true)
-  await page.getByRole('button', { name: 'Check METAR' }).click()
+  await expect(page.getByRole('button', { name: 'Check METAR' })).toBeDisabled()
   await expect(page.getByText('Offline: METAR retrieval is unavailable.')).toBeVisible()
   await expect(condition).toHaveValue('dry')
 })
