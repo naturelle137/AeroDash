@@ -251,6 +251,8 @@ Then('the printed and PDF briefing disclose the pilot-entered surface source', a
   await page.getByRole('button', { name: 'Download PDF' }).click()
   const gate = page.getByRole('button', { name: 'Acknowledge unverified data and download PDF' })
   if (await gate.isVisible()) await gate.click()
+  const lowFactorGate = page.getByRole('button', { name: 'Continue with low safety factor' })
+  if (await lowFactorGate.isVisible()) await lowFactorGate.click()
   const path = $testInfo.outputPath('surface-briefing.pdf')
   await (await download).saveAs(path)
   const pdf = execFileSync('pdftotext', ['-layout', path, '-'], { encoding: 'utf8' }).replace(/\s+/g, ' ')
